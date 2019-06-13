@@ -17,7 +17,7 @@ from . import _applescript
 
 # replace string formatting with fstrings
 
-_debug = False
+_debug = True 
 
 def _get_os_version():
     # returns tuple containing OS version
@@ -67,6 +67,7 @@ class PhotosDB:
         library_path = os.path.dirname(dbfile)
         (library_path, tmp) = os.path.split(library_path)
         masters_path = os.path.join(library_path, "Masters")
+        self._masters_path = masters_path
         logger.debug("library = %s, masters = %s" % (library_path, masters_path))
 
         if not _check_file_exists(dbfile):
@@ -519,7 +520,7 @@ class PhotosDB:
 
         photoinfo = []
         for p in photos:
-            info = PhotoInfo(p,self._dbphotos[p])
+            info = PhotoInfo(db = self, uuid = p, info = self._dbphotos[p])
             photoinfo.append(info)
         return photoinfo
     
@@ -529,26 +530,59 @@ Info about a specific photo, contains all the details we know about the photo
 including keywords, persons, albums, uuid, path, etc.
 """
 class PhotoInfo():
-    def __init__(self, uuid, info = {}):
+    def __init__(self, db = None, uuid = None, info = None):
         self.uuid = uuid
         self.info = info
+        self.db = db
 
-        self.subs = {
-            'filename'      :   'filename',
-            'date'          :   'imageDate',
-            'description'   :   'extendedDescription',
-            'title'         :   'name',
-            'keywords'      :   'keywords',  
-        }
+    def filename(self):
+        return self.info['filename']
 
-    def __getattr__(self, name):
-        if name in self.subs:
-            def method(*args):
-                return self.info[self.subs[name]]
-            return method
+    def date(self):
+        return self.info['imageDate']    
+
+    """ returns true if photo is missing from disk (which means it's not been downloaded from iCloud) 
+        NOTE:   the photos.db database uses an asynchrounous write-ahead log so changes in Photos
+                do not immediately get written to disk. In particular, I've noticed that downloading 
+                an image from the cloud does not force the database to be updated until something else
+                e.g. an edit, keyword, etc. occurs forcing a database synch
+                The exact process / timing is a mystery to be but be aware that if some photos were recently
+                downloaded from cloud to local storate their status in the database might still show
+                isMissing = 1
+    """
+    def ismissing(self):
+        return self.info['isMissing']
+
+    def path(self):
+        photopath = ""
+
+        vol = self.info['volume']
+        if vol is not None:
+            photopath = os.path.join('/Volumes', vol, self.info['imagePath'])
         else:
-            logger.error(f"Unknown method {name}")
-            sys.exit(2)    
+            photopath = os.path.join(self.db._masters_path, self.info['imagePath'])
+
+        if self.info['isMissing'] == 1:
+            logger.warning(f"Skipping photo, not yet downloaded from iCloud: {photopath}")
+            print(self.info)
+            photopath = None #path would be meaningless until downloaded
+            #TODO: Is there a way to use applescript to force the download in this
     
+        return photopath 
+
+    def description(self):
+        return self.info['extendedDescription']
+    
+    def persons(self):
+        return self.info['persons']
+    
+    def albums(self):
+        return self.info['albums']
+
+    def keywords(self):
+        return self.info['keywords']
+
+    def name(self):
+        return self.info['name']
     
 
