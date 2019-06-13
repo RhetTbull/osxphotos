@@ -15,11 +15,9 @@ import sqlite3
 from loguru import logger
 from . import _applescript
 
-# TODO: replace verbose with loguru
 # replace string formatting with fstrings
 
 _debug = False
-
 
 def _get_os_version():
     # returns tuple containing OS version
@@ -34,7 +32,8 @@ def _check_file_exists(filename):
     filename = os.path.abspath(filename)
     return os.path.exists(filename) and not os.path.isdir(filename)
 
-class Photos:
+
+class PhotosDB:
     def __init__(self, dbfile=None):
         # Dict with information about all photos by uuid
         self._dbphotos = {}
@@ -79,13 +78,45 @@ class Photos:
         self._setup_applescript()
         self._process_database()
 
-    def keywords(self):
+    def keywords_as_dict(self):
         # return keywords as dict of keyword, count in reverse sorted order (descending)
         keywords = {}
         for k in self._dbkeywords_keyword.keys():
             keywords[k] = len(self._dbkeywords_keyword[k])
         keywords = dict(sorted(keywords.items(), key=lambda kv: kv[1], reverse=True))
         return keywords
+
+    def persons_as_dict(self):
+        # return persons as dict of person, count in reverse sorted order (descending)
+        persons = {}
+        for k in self._dbfaces_person.keys():
+            persons[k] = len(self._dbfaces_person[k])
+        persons = dict(sorted(persons.items(), key=lambda kv: kv[1], reverse=True))
+        return persons 
+
+    def albums_as_dict(self):
+        # return albums as dict of albums, count in reverse sorted order (descending)
+        albums= {}
+        for k in self._dbalbums_album.keys():
+            albums[k] = len(self._dbalbums_album[k])
+        albums = dict(sorted(albums.items(), key=lambda kv: kv[1], reverse=True))
+        return albums 
+
+    def keywords(self):
+        # return list of keywords found in photos database
+        keywords = self._dbkeywords_keyword.keys()
+        return list(keywords)
+
+    def persons(self):
+        # return persons as dict of person, count in reverse sorted order (descending)
+        persons = self._dbfaces_person.keys()
+        return list(persons)
+
+    def albums(self):
+        # return albums as dict of albums, count in reverse sorted order (descending)
+        albums= self._dbalbums_album.keys()
+        return list(albums)
+
 
     # Various AppleScripts we need
     def _setup_applescript(self):
@@ -410,7 +441,7 @@ class Photos:
 
         # remove temporary copy of the database
         try:
-            logger.info("Removing temporary database file" + tmp_db)
+            logger.info("Removing temporary database file: " + tmp_db)
             os.remove(tmp_db)
         except:
             print("Could not remove temporary database: " + tmp_db, file=sys.stderr)
@@ -439,3 +470,85 @@ class Photos:
             pp.pprint(self._dbphotos)
 
         logger.debug(f"processed {len(self._dbphotos)} photos")
+
+    def photos(self, keywords = [],uuid=[],persons=[],albums=[]):
+        photos = []
+        if not keywords and not uuid and not persons and not albums:
+            #process all the photos
+            photos = list(self._dbphotos.keys())
+        else:
+            if albums is not None:
+                for album in albums:
+                    print("album=%s" % album)
+                    if album in self._dbalbums_album:
+                        print("processing album %s:" % album)
+                        photos.extend(self._dbalbums_album[album])
+                    else:
+                        print("Could not find album '%s' in database" %
+                            (album), file=sys.stderr)
+
+            if uuid is not None:
+                for u in uuid:
+                    print("uuid=%s" % u)
+                    if u in self._dbphotos:
+                        print("processing uuid %s:" % u)
+                        photos.extend([u])
+                    else:
+                        print("Could not find uuid '%s' in database" %
+                            (u), file=sys.stderr)
+
+            if keywords is not None:
+                for keyword in keywords:
+                    print("keyword=%s" % keyword)
+                    if keyword in self._dbkeywords_keyword:
+                        print("processing keyword %s:" % keyword)
+                        photos.extend(self._dbkeywords_keyword[keyword])
+                    else:
+                        print("Could not find keyword '%s' in database" %
+                            (keyword), file=sys.stderr)
+
+            if persons is not None:
+                for person in persons:
+                    print("person=%s" % person)
+                    if person in self._dbfaces_person:
+                        print("processing person %s:" % person)
+                        photos.extend(self._dbfaces_person[person])
+                    else:
+                        print("Could not find person '%s' in database" %
+                            (person), file=sys.stderr) 
+
+        photoinfo = []
+        for p in photos:
+            info = PhotoInfo(p,self._dbphotos[p])
+            photoinfo.append(info)
+        return photoinfo
+    
+
+"""
+Info about a specific photo, contains all the details we know about the photo
+including keywords, persons, albums, uuid, path, etc.
+"""
+class PhotoInfo():
+    def __init__(self, uuid, info = {}):
+        self.uuid = uuid
+        self.info = info
+
+        self.subs = {
+            'filename'      :   'filename',
+            'date'          :   'imageDate',
+            'description'   :   'extendedDescription',
+            'title'         :   'name',
+            'keywords'      :   'keywords',  
+        }
+
+    def __getattr__(self, name):
+        if name in self.subs:
+            def method(*args):
+                return self.info[self.subs[name]]
+            return method
+        else:
+            logger.error(f"Unknown method {name}")
+            sys.exit(2)    
+    
+    
+
