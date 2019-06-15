@@ -17,7 +17,8 @@ from . import _applescript
 
 # replace string formatting with fstrings
 
-_debug = True 
+_debug = False
+
 
 def _get_os_version():
     # returns tuple containing OS version
@@ -55,10 +56,10 @@ class PhotosDB:
         print(dbfile)
         if dbfile is None:
             library_path = self.get_photos_library_path()
-            print("library_path: " + library_path)
+            logger.debug("library_path: " + library_path)
             # TODO: verify library path not None
             dbfile = os.path.join(library_path, "database/photos.db")
-            print(dbfile)
+            logger.debug(dbfile)
 
         logger.debug("filename = %s" % dbfile)
 
@@ -93,15 +94,15 @@ class PhotosDB:
         for k in self._dbfaces_person.keys():
             persons[k] = len(self._dbfaces_person[k])
         persons = dict(sorted(persons.items(), key=lambda kv: kv[1], reverse=True))
-        return persons 
+        return persons
 
     def albums_as_dict(self):
         # return albums as dict of albums, count in reverse sorted order (descending)
-        albums= {}
+        albums = {}
         for k in self._dbalbums_album.keys():
             albums[k] = len(self._dbalbums_album[k])
         albums = dict(sorted(albums.items(), key=lambda kv: kv[1], reverse=True))
-        return albums 
+        return albums
 
     def keywords(self):
         # return list of keywords found in photos database
@@ -115,9 +116,8 @@ class PhotosDB:
 
     def albums(self):
         # return albums as dict of albums, count in reverse sorted order (descending)
-        albums= self._dbalbums_album.keys()
+        albums = self._dbalbums_album.keys()
         return list(albums)
-
 
     # Various AppleScripts we need
     def _setup_applescript(self):
@@ -252,7 +252,8 @@ class PhotosDB:
 
         i = 0
         c.execute(
-            "select count(*) from RKFace, RKPerson where RKFace.personID = RKperson.modelID"
+            "select count(*) from RKFace, RKPerson, RKVersion where RKFace.personID = RKperson.modelID "
+            + "and RKFace.imageModelId = RKVersion.modelId and RKVersion.isInTrash = 0"
         )
         # init_pbar_status("Faces", c.fetchone()[0])
         # c.execute("select RKPerson.name, RKFace.imageID from RKFace, RKPerson where RKFace.personID = RKperson.modelID")
@@ -260,7 +261,7 @@ class PhotosDB:
             "select RKPerson.name, RKVersion.uuid from RKFace, RKPerson, RKVersion, RKMaster "
             + "where RKFace.personID = RKperson.modelID and RKVersion.modelId = RKFace.ImageModelId "
             + "and RKVersion.type = 2 and RKVersion.masterUuid = RKMaster.uuid and "
-            + "RKVersion.filename not like '%.pdf'"
+            + "RKVersion.filename not like '%.pdf' and RKVersion.isInTrash = 0"
         )
         for person in c:
             if person[0] == None:
@@ -472,74 +473,87 @@ class PhotosDB:
 
         logger.debug(f"processed {len(self._dbphotos)} photos")
 
-    def photos(self, keywords = [],uuid=[],persons=[],albums=[]):
+    """ 
+    Return a list of PhotoInfo objects
+    If called with no args, returns the entire database of photos
+    If called with args, returns photos matching the args (e.g. keywords, persons, etc.)
+    If more than one arg, returns photos matching all the criteria (e.g. keywords AND persons)
+    """
+    def photos(self, keywords=[], uuid=[], persons=[], albums=[]):
         photos = []
         if not keywords and not uuid and not persons and not albums:
-            #process all the photos
+            # process all the photos
             photos = list(self._dbphotos.keys())
         else:
             if albums is not None:
                 for album in albums:
-                    print("album=%s" % album)
+                    logger.info("album=%s" % album)
                     if album in self._dbalbums_album:
-                        print("processing album %s:" % album)
+                        logger.info("processing album %s:" % album)
                         photos.extend(self._dbalbums_album[album])
                     else:
-                        print("Could not find album '%s' in database" %
-                            (album), file=sys.stderr)
+                        logger.debug(
+                            "Could not find album '%s' in database" % (album),
+                        )
 
             if uuid is not None:
                 for u in uuid:
-                    print("uuid=%s" % u)
+                    logger.info("uuid=%s" % u)
                     if u in self._dbphotos:
-                        print("processing uuid %s:" % u)
+                        logger.info("processing uuid %s:" % u)
                         photos.extend([u])
                     else:
-                        print("Could not find uuid '%s' in database" %
-                            (u), file=sys.stderr)
+                        logger.debug(
+                            "Could not find uuid '%s' in database" % (u),
+                        )
 
             if keywords is not None:
                 for keyword in keywords:
-                    print("keyword=%s" % keyword)
+                    logger.info("keyword=%s" % keyword)
                     if keyword in self._dbkeywords_keyword:
-                        print("processing keyword %s:" % keyword)
+                        logger.info("processing keyword %s:" % keyword)
                         photos.extend(self._dbkeywords_keyword[keyword])
                     else:
-                        print("Could not find keyword '%s' in database" %
-                            (keyword), file=sys.stderr)
+                        logger.debug(
+                            "Could not find keyword '%s' in database" % (keyword),
+                        )
 
             if persons is not None:
                 for person in persons:
-                    print("person=%s" % person)
+                    logger.info("person=%s" % person)
                     if person in self._dbfaces_person:
-                        print("processing person %s:" % person)
+                        logger.info("processing person %s:" % person)
                         photos.extend(self._dbfaces_person[person])
                     else:
-                        print("Could not find person '%s' in database" %
-                            (person), file=sys.stderr) 
+                        logger.debug(
+                            "Could not find person '%s' in database" % (person),
+                        )
 
         photoinfo = []
         for p in photos:
-            info = PhotoInfo(db = self, uuid = p, info = self._dbphotos[p])
+            logger.info(f"p={p}")
+            info = PhotoInfo(db=self, uuid=p, info=self._dbphotos[p])
             photoinfo.append(info)
         return photoinfo
-    
+
 
 """
 Info about a specific photo, contains all the details we know about the photo
 including keywords, persons, albums, uuid, path, etc.
 """
-class PhotoInfo():
-    def __init__(self, db = None, uuid = None, info = None):
+
+
+class PhotoInfo:
+    def __init__(self, db=None, uuid=None, info=None):
         self.uuid = uuid
         self.info = info
         self.db = db
 
     def filename(self):
-        return self.info['filename']
+        return self.info["filename"]
 
     def date(self):
-        return self.info['imageDate']    
+        return self.info["imageDate"]
 
     """ returns true if photo is missing from disk (which means it's not been downloaded from iCloud) 
         NOTE:   the photos.db database uses an asynchrounous write-ahead log so changes in Photos
@@ -550,39 +564,50 @@ class PhotoInfo():
                 downloaded from cloud to local storate their status in the database might still show
                 isMissing = 1
     """
+
     def ismissing(self):
-        return self.info['isMissing']
+        return self.info["isMissing"]
 
     def path(self):
         photopath = ""
 
-        vol = self.info['volume']
+        vol = self.info["volume"]
         if vol is not None:
-            photopath = os.path.join('/Volumes', vol, self.info['imagePath'])
+            photopath = os.path.join("/Volumes", vol, self.info["imagePath"])
         else:
-            photopath = os.path.join(self.db._masters_path, self.info['imagePath'])
+            photopath = os.path.join(self.db._masters_path, self.info["imagePath"])
 
-        if self.info['isMissing'] == 1:
-            logger.warning(f"Skipping photo, not yet downloaded from iCloud: {photopath}")
+        if self.info["isMissing"] == 1:
+            logger.warning(
+                f"Skipping photo, not yet downloaded from iCloud: {photopath}"
+            )
             print(self.info)
-            photopath = None #path would be meaningless until downloaded
-            #TODO: Is there a way to use applescript to force the download in this
-    
-        return photopath 
+            photopath = None  # path would be meaningless until downloaded
+            # TODO: Is there a way to use applescript to force the download in this
+
+        return photopath
 
     def description(self):
-        return self.info['extendedDescription']
-    
+        return self.info["extendedDescription"]
+
     def persons(self):
-        return self.info['persons']
-    
+        return self.info["persons"]
+
     def albums(self):
-        return self.info['albums']
+        return self.info["albums"]
 
     def keywords(self):
-        return self.info['keywords']
+        return self.info["keywords"]
 
     def name(self):
-        return self.info['name']
-    
+        return self.info["name"]
 
+    # compare two PhotoInfo objects for equality
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.__dict__ == other.__dict__
+        else:
+            return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
