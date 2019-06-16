@@ -207,6 +207,7 @@ class PhotosDB:
             print("Could not get path to Photos database", file=sys.stderr)
             return None
 
+    # TODO: do we need to copy the db-wal write-ahead log file?
     def _copy_db_file(self, fname):
         # copies the sqlite database file to a temp file
         # returns the name of the temp file
@@ -478,62 +479,67 @@ class PhotosDB:
     If called with no args, returns the entire database of photos
     If called with args, returns photos matching the args (e.g. keywords, persons, etc.)
     If more than one arg, returns photos matching all the criteria (e.g. keywords AND persons)
+    TODO: Still need to fix AND
     """
     def photos(self, keywords=[], uuid=[], persons=[], albums=[]):
-        photos = []
+        photos = [] # list of photos (PhotoInfo objects) that will be returned
+        photos_sets = [] # list of sets to perform intersection of 
         if not keywords and not uuid and not persons and not albums:
-            # process all the photos
+            # return all the photos
             photos = list(self._dbphotos.keys())
         else:
-            if albums is not None:
+            if albums:
                 for album in albums:
                     logger.info("album=%s" % album)
                     if album in self._dbalbums_album:
                         logger.info("processing album %s:" % album)
-                        photos.extend(self._dbalbums_album[album])
+                        photos_sets.append(set(self._dbalbums_album[album]))
                     else:
                         logger.debug(
                             "Could not find album '%s' in database" % (album),
                         )
 
-            if uuid is not None:
+            if uuid:
                 for u in uuid:
                     logger.info("uuid=%s" % u)
                     if u in self._dbphotos:
                         logger.info("processing uuid %s:" % u)
-                        photos.extend([u])
+                        photos_sets.append(set([u]))
                     else:
                         logger.debug(
                             "Could not find uuid '%s' in database" % (u),
                         )
 
-            if keywords is not None:
+            if keywords:
                 for keyword in keywords:
                     logger.info("keyword=%s" % keyword)
                     if keyword in self._dbkeywords_keyword:
                         logger.info("processing keyword %s:" % keyword)
-                        photos.extend(self._dbkeywords_keyword[keyword])
+                        photos_sets.append(set(self._dbkeywords_keyword[keyword]))
+                        logger.debug(f"photos_sets {photos_sets}")
                     else:
                         logger.debug(
                             "Could not find keyword '%s' in database" % (keyword),
                         )
 
-            if persons is not None:
+            if persons:
                 for person in persons:
                     logger.info("person=%s" % person)
                     if person in self._dbfaces_person:
                         logger.info("processing person %s:" % person)
-                        photos.extend(self._dbfaces_person[person])
+                        photos_sets.append(set(self._dbfaces_person[person]))
                     else:
                         logger.debug(
                             "Could not find person '%s' in database" % (person),
                         )
 
         photoinfo = []
-        for p in photos:
-            logger.info(f"p={p}")
-            info = PhotoInfo(db=self, uuid=p, info=self._dbphotos[p])
-            photoinfo.append(info)
+        if photos_sets: # found some photos
+            # get the intersection of each argument/search criteria
+            for p in set.intersection(*photos_sets):
+                logger.debug(f"p={p}")
+                info = PhotoInfo(db=self, uuid=p, info=self._dbphotos[p])
+                photoinfo.append(info)
         return photoinfo
 
 
