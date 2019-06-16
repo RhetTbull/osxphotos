@@ -36,6 +36,14 @@ def _check_file_exists(filename):
 
 class PhotosDB:
     def __init__(self, dbfile=None):
+        # Check OS version
+        system = platform.system()
+        (_, major, _) = _get_os_version()
+        logger.debug(system, major)
+        if (system != 'Darwin') or (major != '13'):
+            logger.warning("WARNING: This module has only been tested with MacOS 10.13: "
+                            + f"{system}, OS version: {major}")
+
         # Dict with information about all photos by uuid
         self._dbphotos = {}
         # Dict with information about all persons/photos by uuid
