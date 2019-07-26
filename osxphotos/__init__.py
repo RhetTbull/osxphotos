@@ -495,12 +495,12 @@ class PhotosDB:
 
     def photos(self, keywords=[], uuid=[], persons=[], albums=[]):
         #TODO: combine photos and photos_sets, I think only one needed
-        photos = []  # list of photos (PhotoInfo objects) that will be returned
+        #  photos = []  # list of photos (PhotoInfo objects) that will be returned
         photos_sets = []  # list of sets to perform intersection of
         if not keywords and not uuid and not persons and not albums:
             # return all the photos
             logger.debug("return all photos")
-            photos = list(self._dbphotos.keys())
+            photos_sets.append(set(self._dbphotos.keys()))
         else:
             if albums:
                 for album in albums:
@@ -549,6 +549,7 @@ class PhotosDB:
             for p in set.intersection(*photos_sets):
                 logger.debug(f"p={p}")
                 info = PhotoInfo(db=self, uuid=p, info=self._dbphotos[p])
+                logger.debug(f"info={info}")
                 photoinfo.append(info)
         return photoinfo
 
@@ -561,15 +562,15 @@ including keywords, persons, albums, uuid, path, etc.
 
 class PhotoInfo:
     def __init__(self, db=None, uuid=None, info=None):
-        self.uuid = uuid
-        self.info = info
-        self.db = db
+        self.__uuid = uuid
+        self.__info = info
+        self.__db = db
 
     def filename(self):
-        return self.info["filename"]
+        return self.__info["filename"]
 
     def date(self):
-        return self.info["imageDate"]
+        return self.__info["imageDate"]
 
     """ returns true if photo is missing from disk (which means it's not been downloaded from iCloud) 
         NOTE:   the photos.db database uses an asynchrounous write-ahead log so changes in Photos
@@ -582,41 +583,44 @@ class PhotoInfo:
     """
 
     def ismissing(self):
-        return self.info["isMissing"]
+        return self.__info["isMissing"]
 
     def path(self):
         photopath = ""
 
-        vol = self.info["volume"]
+        vol = self.__info["volume"]
         if vol is not None:
-            photopath = os.path.join("/Volumes", vol, self.info["imagePath"])
+            photopath = os.path.join("/Volumes", vol, self.__info["imagePath"])
         else:
-            photopath = os.path.join(self.db._masters_path, self.info["imagePath"])
+            photopath = os.path.join(self.__db._masters_path, self.__info["imagePath"])
 
-        if self.info["isMissing"] == 1:
+        if self.__info["isMissing"] == 1:
             logger.warning(
                 f"Skipping photo, not yet downloaded from iCloud: {photopath}"
             )
-            print(self.info)
+            logger.debug(self.__info)
             photopath = None  # path would be meaningless until downloaded
             # TODO: Is there a way to use applescript to force the download in this
 
         return photopath
 
     def description(self):
-        return self.info["extendedDescription"]
+        return self.__info["extendedDescription"]
 
     def persons(self):
-        return self.info["persons"]
+        return self.__info["persons"]
 
     def albums(self):
-        return self.info["albums"]
+        return self.__info["albums"]
 
     def keywords(self):
-        return self.info["keywords"]
+        return self.__info["keywords"]
 
     def name(self):
-        return self.info["name"]
+        return self.__info["name"]
+
+    def uuid(self):
+        return self.__uuid
 
     # compare two PhotoInfo objects for equality
     def __eq__(self, other):
