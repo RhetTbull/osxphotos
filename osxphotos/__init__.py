@@ -12,8 +12,9 @@ import sys
 from shutil import copyfile
 import pprint
 import sqlite3
-from loguru import logger
 from . import _applescript
+
+from loguru import logger
 
 # replace string formatting with fstrings
 
@@ -40,9 +41,11 @@ class PhotosDB:
         system = platform.system()
         (_, major, _) = _get_os_version()
         logger.debug(system, major)
-        if (system != 'Darwin') or (major != '13'):
-            logger.warning("WARNING: This module has only been tested with MacOS 10.13: "
-                            + f"{system}, OS version: {major}")
+        if (system != "Darwin") or (major != "13"):
+            logger.warning(
+                "WARNING: This module has only been tested with MacOS 10.13: "
+                + f"{system}, OS version: {major}"
+            )
 
         # Dict with information about all photos by uuid
         self._dbphotos = {}
@@ -489,11 +492,14 @@ class PhotosDB:
     If more than one arg, returns photos matching all the criteria (e.g. keywords AND persons)
     TODO: Still need to fix AND
     """
+
     def photos(self, keywords=[], uuid=[], persons=[], albums=[]):
-        photos = [] # list of photos (PhotoInfo objects) that will be returned
-        photos_sets = [] # list of sets to perform intersection of 
+        #TODO: combine photos and photos_sets, I think only one needed
+        photos = []  # list of photos (PhotoInfo objects) that will be returned
+        photos_sets = []  # list of sets to perform intersection of
         if not keywords and not uuid and not persons and not albums:
             # return all the photos
+            logger.debug("return all photos")
             photos = list(self._dbphotos.keys())
         else:
             if albums:
@@ -503,9 +509,7 @@ class PhotosDB:
                         logger.info("processing album %s:" % album)
                         photos_sets.append(set(self._dbalbums_album[album]))
                     else:
-                        logger.debug(
-                            "Could not find album '%s' in database" % (album),
-                        )
+                        logger.debug("Could not find album '%s' in database" % (album))
 
             if uuid:
                 for u in uuid:
@@ -514,9 +518,7 @@ class PhotosDB:
                         logger.info("processing uuid %s:" % u)
                         photos_sets.append(set([u]))
                     else:
-                        logger.debug(
-                            "Could not find uuid '%s' in database" % (u),
-                        )
+                        logger.debug("Could not find uuid '%s' in database" % (u))
 
             if keywords:
                 for keyword in keywords:
@@ -527,7 +529,7 @@ class PhotosDB:
                         logger.debug(f"photos_sets {photos_sets}")
                     else:
                         logger.debug(
-                            "Could not find keyword '%s' in database" % (keyword),
+                            "Could not find keyword '%s' in database" % (keyword)
                         )
 
             if persons:
@@ -538,11 +540,11 @@ class PhotosDB:
                         photos_sets.append(set(self._dbfaces_person[person]))
                     else:
                         logger.debug(
-                            "Could not find person '%s' in database" % (person),
+                            "Could not find person '%s' in database" % (person)
                         )
 
         photoinfo = []
-        if photos_sets: # found some photos
+        if photos_sets:  # found some photos
             # get the intersection of each argument/search criteria
             for p in set.intersection(*photos_sets):
                 logger.debug(f"p={p}")
