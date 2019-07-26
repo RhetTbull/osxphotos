@@ -27,7 +27,7 @@
 # SOFTWARE.
 
 # from distutils.core import setup
-from setuptools import setup
+from setuptools import setup, find_packages
 
 # read the contents of README file
 from os import path
@@ -47,7 +47,7 @@ setup(
     url="https://github.com/RhetTbull/",
     project_urls={"GitHub": "https://github.com/RhetTbull/osxphotos"},
     download_url="https://github.com/RhetTbull/osxphotos",
-    packages=["osxphotos"],
+    packages=find_packages(exclude=["tests","examples"]), 
     license="License :: OSI Approved :: MIT License",
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -55,7 +55,7 @@ setup(
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Operating System :: MacOS :: MacOS X",
-        "Programming Language :: Python",
+        "Programming Language :: Python :: 3.6",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     install_requires=["pyobjc","loguru"],

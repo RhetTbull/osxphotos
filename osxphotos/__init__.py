@@ -4,14 +4,16 @@ from pathlib import Path
 from plistlib import load as plistload
 from datetime import datetime
 import tempfile
-import objc
-import CoreFoundation
-from Foundation import *
 import urllib.parse
 import sys
 from shutil import copyfile
 import pprint
 import sqlite3
+
+import objc
+import CoreFoundation
+from Foundation import *
+
 from . import _applescript
 
 from loguru import logger
@@ -72,7 +74,7 @@ class PhotosDB:
             dbfile = os.path.join(library_path, "database/photos.db")
             logger.debug(dbfile)
 
-        logger.debug("filename = %s" % dbfile)
+        logger.debug(f"filename = {dbfile}")
 
         # TODO: replace os.path with pathlib
         # TODO: clean this up -- we'll already know library_path
@@ -80,12 +82,12 @@ class PhotosDB:
         (library_path, tmp) = os.path.split(library_path)
         masters_path = os.path.join(library_path, "Masters")
         self._masters_path = masters_path
-        logger.debug("library = %s, masters = %s" % (library_path, masters_path))
+        logger.debug(f"library = {library_path}, masters = {masters_path}")
 
         if not _check_file_exists(dbfile):
-            sys.exit("_dbfile %s does not exist" % (dbfile))
+            sys.exit(f"_dbfile {dbfile} does not exist")
 
-        logger.info("database filename = %s" % dbfile)
+        logger.info(f"database filename = {dbfile}")
 
         self._dbfile = dbfile
         self._setup_applescript()
@@ -234,12 +236,12 @@ class PhotosDB:
 
     def _open_sql_file(self, file):
         fname = file
-        logger.debug("Trying to open database %s" % (fname))
+        logger.debug(f"Trying to open database {fname}")
         try:
-            conn = sqlite3.connect("%s" % (fname))
+            conn = sqlite3.connect(f"{fname}")
             c = conn.cursor()
         except sqlite3.Error as e:
-            print("An error occurred: %s %s" % (e.args[0], fname))
+            print(f"An error occurred: {e.args[0]} {fname}")
             sys.exit(3)
         logger.debug("SQLite database is open")
         return (conn, c)
@@ -277,7 +279,7 @@ class PhotosDB:
         )
         for person in c:
             if person[0] == None:
-                logger.debug("skipping person = None %s" % person[1])
+                logger.debug(f"skipping person = None {person[1]}")
                 continue
             if not person[1] in self._dbfaces_uuid:
                 self._dbfaces_uuid[person[1]] = []
@@ -314,7 +316,7 @@ class PhotosDB:
                 self._dbalbums_album[album[0]] = []
             self._dbalbums_uuid[album[1]].append(album[0])
             self._dbalbums_album[album[0]].append(album[1])
-            logger.debug("%s %s" % (album[1], album[0]))
+            logger.debug(f"{album[1]} {album[0]}")
             #  set_pbar_status(i)
             i = i + 1
         logger.debug("Finished walking through albums")
@@ -344,7 +346,7 @@ class PhotosDB:
                 self._dbkeywords_keyword[keyword[0]] = []
             self._dbkeywords_uuid[keyword[1]].append(keyword[0])
             self._dbkeywords_keyword[keyword[0]].append(keyword[1])
-            logger.debug("%s %s" % (keyword[1], keyword[0]))
+            logger.debug(f"{keyword[1]} {keyword[0]}")
             #  set_pbar_status(i)
             i = i + 1
         logger.debug("Finished walking through keywords")
@@ -357,7 +359,7 @@ class PhotosDB:
         i = 0
         for vol in c:
             self._dbvolumes[vol[0]] = vol[1]
-            logger.debug("%s %s" % (vol[0], vol[1]))
+            logger.debug(f"{vol[0]} {vol[1]}")
             #  set_pbar_status(i)
             i = i + 1
         logger.debug("Finished walking through volumes")
@@ -385,7 +387,7 @@ class PhotosDB:
             i = i + 1
             uuid = row[0]
             if _debug:
-                print("i = %d, uuid = '%s, master = '%s" % (i, uuid, row[2]))
+                print(f"i = {i:d}, uuid = '{uuid}, master = '{row[2]}")
             self._dbphotos[uuid] = {}
             self._dbphotos[uuid]["modelID"] = row[1]
             self._dbphotos[uuid]["masterUuid"] = row[2]
@@ -490,58 +492,52 @@ class PhotosDB:
     If called with no args, returns the entire database of photos
     If called with args, returns photos matching the args (e.g. keywords, persons, etc.)
     If more than one arg, returns photos matching all the criteria (e.g. keywords AND persons)
-    TODO: Still need to fix AND
     """
 
     def photos(self, keywords=[], uuid=[], persons=[], albums=[]):
-        #TODO: combine photos and photos_sets, I think only one needed
-        #  photos = []  # list of photos (PhotoInfo objects) that will be returned
-        photos_sets = []  # list of sets to perform intersection of
+        photos_sets = []  # list of photo sets to perform intersection of
         if not keywords and not uuid and not persons and not albums:
             # return all the photos
+            # append keys of all photos as a single set to photos_sets
             logger.debug("return all photos")
             photos_sets.append(set(self._dbphotos.keys()))
         else:
             if albums:
                 for album in albums:
-                    logger.info("album=%s" % album)
+                    logger.info(f"album={album}")
                     if album in self._dbalbums_album:
-                        logger.info("processing album %s:" % album)
+                        logger.info(f"processing album {album}:")
                         photos_sets.append(set(self._dbalbums_album[album]))
                     else:
-                        logger.debug("Could not find album '%s' in database" % (album))
+                        logger.debug(f"Could not find album '{album}' in database")
 
             if uuid:
                 for u in uuid:
-                    logger.info("uuid=%s" % u)
+                    logger.info(f"uuid={u}")
                     if u in self._dbphotos:
-                        logger.info("processing uuid %s:" % u)
+                        logger.info(f"processing uuid {u}:")
                         photos_sets.append(set([u]))
                     else:
-                        logger.debug("Could not find uuid '%s' in database" % (u))
+                        logger.debug(f"Could not find uuid '{u}' in database")
 
             if keywords:
                 for keyword in keywords:
-                    logger.info("keyword=%s" % keyword)
+                    logger.info(f"keyword={keyword}")
                     if keyword in self._dbkeywords_keyword:
-                        logger.info("processing keyword %s:" % keyword)
+                        logger.info(f"processing keyword {keyword}:")
                         photos_sets.append(set(self._dbkeywords_keyword[keyword]))
                         logger.debug(f"photos_sets {photos_sets}")
                     else:
-                        logger.debug(
-                            "Could not find keyword '%s' in database" % (keyword)
-                        )
+                        logger.debug(f"Could not find keyword '{keyword}' in database")
 
             if persons:
                 for person in persons:
-                    logger.info("person=%s" % person)
+                    logger.info(f"person={person}")
                     if person in self._dbfaces_person:
-                        logger.info("processing person %s:" % person)
+                        logger.info(f"processing person {person}:")
                         photos_sets.append(set(self._dbfaces_person[person]))
                     else:
-                        logger.debug(
-                            "Could not find person '%s' in database" % (person)
-                        )
+                        logger.debug(f"Could not find person '{person}' in database")
 
         photoinfo = []
         if photos_sets:  # found some photos
@@ -621,6 +617,9 @@ class PhotoInfo:
 
     def uuid(self):
         return self.__uuid
+
+    def ismissing(self):
+        return True if self.__info["isMissing"] == 1 else False
 
     # compare two PhotoInfo objects for equality
     def __eq__(self, other):
