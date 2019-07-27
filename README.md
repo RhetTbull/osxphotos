@@ -6,7 +6,7 @@ OSXPhotos provides the ability to manipulate the Apple's Photos app database on 
 
 ## Supported operating systems
 
-Only works on Mac OS X.  Only tested on Mac OS 10.13 and Photos 3.0.  
+Only works on Mac OS X.  Only tested on Mac OS 10.13 and Photos 3.0. Requires python >= 3.6
 
 ## Installation instructions
 
