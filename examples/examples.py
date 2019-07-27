@@ -36,6 +36,7 @@ def main():
             p.persons(),
             p.path(),
             p.ismissing(),
+            p.hasadjustments(),
         )
 
 

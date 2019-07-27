@@ -621,6 +621,9 @@ class PhotoInfo:
     def ismissing(self):
         return True if self.__info["isMissing"] == 1 else False
 
+    def hasadjustments(self):
+        return True if self.__info["hasAdjustments"] == 1 else False
+
     # compare two PhotoInfo objects for equality
     def __eq__(self, other):
         if isinstance(other, self.__class__):
