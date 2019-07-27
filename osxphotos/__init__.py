@@ -43,7 +43,7 @@ class PhotosDB:
         system = platform.system()
         (_, major, _) = _get_os_version()
         # logger.debug(system, major)
-        if (system != "Darwin") or (major != "12"):
+        if (system != "Darwin") or (major != "13"):
             print(
                     "WARNING: This module has only been tested with MacOS 10.13: "
                 + f"{system}, OS version: {major}", file=sys.stderr
@@ -66,7 +66,7 @@ class PhotosDB:
         # Dict with information about all the volumes/photos by uuid
         self._dbvolumes = {}
 
-        print(dbfile)
+        # logger.debug(dbfile)
         if dbfile is None:
             library_path = self.get_photos_library_path()
             # logger.debug("library_path: " + library_path)
