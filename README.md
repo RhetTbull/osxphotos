@@ -234,7 +234,7 @@ Returns a list of keywords (e.g. tags) applied to the photo
 Returns a list of albums the photo is contained in
 
 #### `persons()`
-Returns the names of the persons in the photo
+Returns a list of the names of the persons in the photo
 
 #### `path()`
 Returns the path to the photo on disk as a string.  Note: this returns the path to the *original* unedited file (see `hasadjustments()`).  If the file is missing on disk, path=`None` (see `ismissing()`)
