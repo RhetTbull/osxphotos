@@ -2,7 +2,7 @@
 
 ## What is osxphotos?
 
-OSXPhotos provides the ability to manipulate the Apple's Photos app database on Mac OS X.  
+OSXPhotos provides the ability to interact with and query Apple's Photos app library database on Mac OS X.  
 
 ## Supported operating systems
 
