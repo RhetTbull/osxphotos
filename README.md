@@ -143,6 +143,15 @@ photosdb.get_photos_library_path()
 
 Returns the path to the Photos library as a string
 
+#### ```get_db_version```
+```python
+# assumes photosdb is a PhotosDB object (see above)
+photosdb.get_db_version()
+```
+
+Returns the version number for Photos library database.  You likely won't need this but it's provided in case needed for debugging. PhotosDB will print a warning to `sys.stderr` if you open a database version that has not been tested. 
+
+
 #### ```photos```
 ```python
 # assumes photosdb is a PhotosDB object (see above)
