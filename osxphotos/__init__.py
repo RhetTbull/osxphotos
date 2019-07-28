@@ -79,7 +79,7 @@ class PhotosDB:
         # TODO: replace os.path with pathlib
         # TODO: clean this up -- we'll already know library_path
         library_path = os.path.dirname(dbfile)
-        (library_path, tmp) = os.path.split(library_path)
+        (library_path, _) = os.path.split(library_path)
         masters_path = os.path.join(library_path, "Masters")
         self._masters_path = masters_path
         # logger.debug(f"library = {library_path}, masters = {masters_path}")
@@ -225,13 +225,13 @@ class PhotosDB:
         # copies the sqlite database file to a temp file
         # returns the name of the temp file
         # required because python's sqlite3 implementation can't read a locked file
-        fd, tmp = tempfile.mkstemp(suffix=".db", prefix="photos")
+        _, tmp = tempfile.mkstemp(suffix=".db", prefix="photos")
         #  logger.debug("copying " + fname + " to " + tmp)
         try:
             copyfile(fname, tmp)
         except:
-            print("copying " + fname + " to " + tmp, file=sys.stderr)
-            sys.exit()
+            print("Error copying " + fname + " to " + tmp, file=sys.stderr)
+            raise Exception
         return tmp
 
     def _open_sql_file(self, file):
@@ -582,10 +582,6 @@ class PhotoInfo:
                 downloaded from cloud to local storate their status in the database might still show
                 isMissing = 1
     """
-
-    def ismissing(self):
-        return self.__info["isMissing"]
-
     def path(self):
         photopath = ""
 
