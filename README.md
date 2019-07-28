@@ -5,7 +5,7 @@
 
 ## What is osxphotos?
 
-OSXPhotos provides the ability to interact with and query Apple's Photos app library database on Mac OS X.  
+OSXPhotos provides the ability to interact with and query Apple's Photos app library database on Mac OS X. Using this module you can query the Photos database for information about the photos stored in a Photos library--for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc.     
 
 ## Supported operating systems
 
