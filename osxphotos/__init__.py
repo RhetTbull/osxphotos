@@ -18,7 +18,15 @@ from . import _applescript
 
 # from loguru import logger
 
-# replace string formatting with fstrings
+# TODO: standardize _ and __ as leading char for private variables
+
+# which Photos library database versions have been tested
+# Photos 3.0 (10.13.6) == 
+# Photos 4.0 (10.14.5) == 4016
+_TESTED_DB_VERSIONS = ["4016"]
+
+# which major version operating systems have been tested
+_TESTED_OS_VERSIONS = ["13","14"]
 
 _debug = False
 
@@ -43,10 +51,11 @@ class PhotosDB:
         system = platform.system()
         (_, major, _) = _get_os_version()
         # logger.debug(system, major)
-        if (system != "Darwin") or (major != "13"):
+        if system != "Darwin" or (major not in _TESTED_OS_VERSIONS):
             print(
-                    "WARNING: This module has only been tested with MacOS 10.13: "
-                + f"{system}, OS version: {major}", file=sys.stderr
+                  "WARNING: This module has only been tested with MacOS 10."
+                + f"[{', '.join(_TESTED_OS_VERSIONS)}]: "
+                + f"you have {system}, OS version: {major}", file=sys.stderr
             )
 
         # Dict with information about all photos by uuid
@@ -172,6 +181,10 @@ class PhotosDB:
             """
         )
 
+    def get_db_version(self):
+        # return the database version as stored in LiGlobals table
+        return self.__db_version
+
     def get_photos_library_path(self):
         # return the path to the Photos library
         plist_file = Path(
@@ -260,6 +273,15 @@ class PhotosDB:
         tmp_db = self._copy_db_file(fname)
         (conn, c) = self._open_sql_file(tmp_db)
         #  logger.debug("Have connection with database")
+
+        # get database version
+        c.execute("SELECT value from LiGlobals where LiGlobals.keyPath is 'libraryVersion'")
+        for ver in c:
+            self.__db_version = ver[0]
+            break  # TODO: is there a more pythonic way to do get the first element from cursor?
+
+        if self.__db_version not in _TESTED_DB_VERSIONS:
+            print(f"WARNING: Database version={self.__db_version} has not been tested")
 
         # Look for all combinations of persons and pictures
         #  logger.debug("Getting information about persons")
