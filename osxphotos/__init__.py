@@ -21,12 +21,13 @@ from . import _applescript
 # TODO: standardize _ and __ as leading char for private variables
 
 # which Photos library database versions have been tested
-# Photos 3.0 (10.13.6) == 
+# Photos 3.0 (10.13.6) ==
 # Photos 4.0 (10.14.5) == 4016
-_TESTED_DB_VERSIONS = ["4016"]
+# TODO: Should this also use compatibleBackToVersion from LiGlobals?
+_TESTED_DB_VERSIONS = ["4016", "3301"]
 
 # which major version operating systems have been tested
-_TESTED_OS_VERSIONS = ["13","14"]
+_TESTED_OS_VERSIONS = ["13", "14"]
 
 _debug = False
 
@@ -53,9 +54,10 @@ class PhotosDB:
         # logger.debug(system, major)
         if system != "Darwin" or (major not in _TESTED_OS_VERSIONS):
             print(
-                  "WARNING: This module has only been tested with MacOS 10."
+                "WARNING: This module has only been tested with MacOS 10."
                 + f"[{', '.join(_TESTED_OS_VERSIONS)}]: "
-                + f"you have {system}, OS version: {major}", file=sys.stderr
+                + f"you have {system}, OS version: {major}",
+                file=sys.stderr,
             )
 
         # Dict with information about all photos by uuid
@@ -275,14 +277,18 @@ class PhotosDB:
         #  logger.debug("Have connection with database")
 
         # get database version
-        c.execute("SELECT value from LiGlobals where LiGlobals.keyPath is 'libraryVersion'")
+        c.execute(
+            "SELECT value from LiGlobals where LiGlobals.keyPath is 'libraryVersion'"
+        )
         for ver in c:
             self.__db_version = ver[0]
             break  # TODO: is there a more pythonic way to do get the first element from cursor?
 
         if self.__db_version not in _TESTED_DB_VERSIONS:
-            print(f"WARNING: Only tested on database versions [{', '.join(_TESTED_DB_VERSIONS)}]"
-                +f" You have database version={self.__db_version} which has not been tested")
+            print(
+                f"WARNING: Only tested on database versions [{', '.join(_TESTED_DB_VERSIONS)}]"
+                + f" You have database version={self.__db_version} which has not been tested"
+            )
 
         # Look for all combinations of persons and pictures
         #  logger.debug("Getting information about persons")
@@ -434,17 +440,17 @@ class PhotosDB:
             self._dbphotos[uuid]["name"] = row[13]
             self._dbphotos[uuid]["isMissing"] = row[14]
             #  logger.debug(
-#                  "Fetching data for photo %d %s %s %s %s %s: %s"
-                #  % (
-                    #  i,
-                    #  uuid,
-                    #  self._dbphotos[uuid]["masterUuid"],
-                    #  self._dbphotos[uuid]["volumeId"],
-                    #  self._dbphotos[uuid]["filename"],
-                    #  self._dbphotos[uuid]["extendedDescription"],
-                    #  self._dbphotos[uuid]["imageDate"],
-                #  )
-            #  )
+        #                  "Fetching data for photo %d %s %s %s %s %s: %s"
+        #  % (
+        #  i,
+        #  uuid,
+        #  self._dbphotos[uuid]["masterUuid"],
+        #  self._dbphotos[uuid]["volumeId"],
+        #  self._dbphotos[uuid]["filename"],
+        #  self._dbphotos[uuid]["extendedDescription"],
+        #  self._dbphotos[uuid]["imageDate"],
+        #  )
+        #  )
 
         #  close_pbar_status()
         conn.close()
@@ -518,7 +524,7 @@ class PhotosDB:
     """
 
     def photos(self, keywords=[], uuid=[], persons=[], albums=[]):
-        #TODO: remove the logger code then dangling else: pass statements
+        # TODO: remove the logger code then dangling else: pass statements
         photos_sets = []  # list of photo sets to perform intersection of
         if not keywords and not uuid and not persons and not albums:
             # return all the photos
@@ -605,6 +611,7 @@ class PhotoInfo:
                 downloaded from cloud to local storate their status in the database might still show
                 isMissing = 1
     """
+
     def path(self):
         photopath = ""
 
@@ -616,7 +623,7 @@ class PhotoInfo:
 
         if self.__info["isMissing"] == 1:
             #  logger.warning(
-                #  f"Skipping photo, not yet downloaded from iCloud: {photopath}"
+            #  f"Skipping photo, not yet downloaded from iCloud: {photopath}"
             #  )
             #  logger.debug(self.__info)
             photopath = None  # path would be meaningless until downloaded
