@@ -281,7 +281,8 @@ class PhotosDB:
             break  # TODO: is there a more pythonic way to do get the first element from cursor?
 
         if self.__db_version not in _TESTED_DB_VERSIONS:
-            print(f"WARNING: Database version={self.__db_version} has not been tested")
+            print(f"WARNING: Only tested on database versions [{', '.join(_TESTED_DB_VERSIONS)}]"
+                +f" You have database version={self.__db_version} which has not been tested")
 
         # Look for all combinations of persons and pictures
         #  logger.debug("Getting information about persons")
