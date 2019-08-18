@@ -1,6 +1,5 @@
 import click
 import osxphotos
-from loguru import logger
 import json
 import yaml
 import csv
