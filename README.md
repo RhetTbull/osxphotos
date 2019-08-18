@@ -340,7 +340,9 @@ If Apple changes the database format this will likely break.
 The sqlite3 database used by Photos uses write ahead logging that is updated asynchronously in the background by a Photos helper service.  Sometimes the update takes a long time meaning the latest changes made in Photos (e.g. add a keyword) will not show up in the database for sometime.  I know of no way around this.
 
 ## Dependencies
-[PyObjC](https://pythonhosted.org/pyobjc/)
+- [PyObjC](https://pythonhosted.org/pyobjc/)
+- [PyYAML](https://pypi.org/project/PyYAML/)
+- [Click](https://pypi.org/project/click/)
 
 ## Acknowledgements
 This code was inspired by photo-export by Patrick Fältström see: (https://github.com/patrikhson/photo-export) Copyright (c) 2015 Patrik Fältström paf@frobbit.se
