@@ -12,8 +12,8 @@ class CLI_Obj:
         self.photosdb = osxphotos.PhotosDB(dbfile=db)
         self.json = json
 
-
-@click.group()
+CTX_SETTINGS=dict(help_option_names=['-h','--help'])
+@click.group(context_settings=CTX_SETTINGS)
 @click.option(
     "--db",
     required=False,
@@ -97,7 +97,6 @@ def info(cli_obj):
 
 
 @cli.command()
-# @click.option('--delim',default=",",help="")
 @click.pass_obj
 def dump(cli_obj):
     """ print list of all photos & associated info from the Photos library """
@@ -163,6 +162,29 @@ def dump(cli_obj):
         for row in dump:
             csv_writer.writerow(row)
 
+
+@cli.command()
+@click.option("--keyword", default=None, multiple=True, help="search for keyword(s)")
+@click.option("--person", default=None, multiple=True, help="search for person(s)")
+@click.option("--album", default=None, multiple=True, help="search for album(s)")
+@click.option("--uuid", default=None, multiple=True, help="search for UUID(s)")
+@click.pass_obj
+@click.pass_context
+def query(ctx, cli_obj, keyword, person, album, uuid):
+    """ query the Photos database using 1 or more search options """
+    photos = cli_obj.photosdb.photos(keywords=keyword, persons=person, albums=album, uuid=uuid)
+    print(photos)
+    pass
+
+@cli.command()
+@click.argument('topic', default=None, required=False, nargs=1 )
+@click.pass_context
+def help(ctx, topic, **kw):
+    """ print help; for help on commands: help <command> """
+    if topic is None:
+        print(ctx.parent.get_help())
+    else:
+        print(cli.commands[topic].get_help(ctx))
 
 if __name__ == "__main__":
     cli()

@@ -10,6 +10,7 @@ from shutil import copyfile
 import pprint
 import sqlite3
 
+import yaml
 import objc
 import CoreFoundation
 from Foundation import *
@@ -18,7 +19,6 @@ from . import _applescript
 
 # from loguru import logger
 
-# TODO: add get_database_path (full path to db file)
 # TODO: standardize _ and __ as leading char for private variables
 # TODO: fix use of ''' and """
 # TODO: fix docstrings
@@ -592,7 +592,8 @@ class PhotosDB:
                 photoinfo.append(info)
         return photoinfo
 
-
+    def __repr__(self):
+        return f"osxphotos.PhotosDB(dbfile='{self.get_db_path()}')"
 """
 Info about a specific photo, contains all the details we know about the photo
 including keywords, persons, albums, uuid, path, etc.
@@ -663,6 +664,25 @@ class PhotoInfo:
 
     def hasadjustments(self):
         return True if self.__info["hasAdjustments"] == 1 else False
+
+    def __repr__(self):
+        return f"osxphotos.PhotoInfo(db={self.__db}, uuid='{self.__uuid}', info={self.__info})"
+
+    def __str__(self):
+        info = {
+            "uuid": self.uuid(),
+            "filename": self.filename(),
+            "date": str(self.date()),
+            "description": self.description(),
+            "name": self.name(),
+            "keywords": self.keywords(),
+            "albums": self.albums(),
+            "persons": self.persons(),
+            "path": self.path(),
+            "ismissing": self.ismissing(),
+            "hasadjustments": self.hasadjustments(),
+        }
+        return yaml.dump(info,sort_keys=False)
 
     # compare two PhotoInfo objects for equality
     def __eq__(self, other):
