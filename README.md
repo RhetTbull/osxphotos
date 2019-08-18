@@ -146,6 +146,14 @@ photosdb.get_photos_library_path()
 
 Returns the path to the Photos library as a string
 
+#### ```get_db_path```
+```python
+# assumes photosdb is a PhotosDB object (see above)
+photosdb.get_db_path()
+```
+
+Returns the path to the Photos database PhotosDB was initialized with
+
 #### ```get_db_version```
 ```python
 # assumes photosdb is a PhotosDB object (see above)

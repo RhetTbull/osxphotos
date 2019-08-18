@@ -3,7 +3,7 @@ import osxphotos
 
 def main():
     photosdb = osxphotos.PhotosDB()
-    print(f"db file = {photosdb.get_photos_library_path()}")
+    print(f"db file = {photosdb.get_db_path()}")
     print(f"db version = {photosdb.get_db_version()}")
 
     print(photosdb.keywords())

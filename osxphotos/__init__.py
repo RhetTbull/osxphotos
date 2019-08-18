@@ -18,6 +18,7 @@ from . import _applescript
 
 # from loguru import logger
 
+# TODO: add get_database_path (full path to db file)
 # TODO: standardize _ and __ as leading char for private variables
 # TODO: fix use of ''' and """
 # TODO: fix docstrings
@@ -190,6 +191,10 @@ class PhotosDB:
     def get_db_version(self):
         # return the database version as stored in LiGlobals table
         return self.__db_version
+
+    def get_db_path(self):
+        """ return path to the Photos library database PhotosDB was initialized with """
+        return os.path.abspath(self._dbfile)
 
     def get_photos_library_path(self):
         # return the path to the Photos library
