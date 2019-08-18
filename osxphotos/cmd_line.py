@@ -106,19 +106,19 @@ def dump(cli_obj):
         dump = []
         for p in photos:
             dump.append(
-                [
-                    p.uuid(),
-                    p.filename(),
-                    str(p.date()),
-                    p.description(),
-                    p.name(),
-                    p.keywords(),
-                    p.albums(),
-                    p.persons(),
-                    p.path(),
-                    p.ismissing(),
-                    p.hasadjustments(),
-                ]
+                {
+                    "uuid": p.uuid(),
+                    "filename": p.filename(),
+                    "date": str(p.date()),
+                    "description": p.description(),
+                    "name": p.name(),
+                    "keywords": p.keywords(),
+                    "albums": p.albums(),
+                    "persons": p.persons(),
+                    "path": p.path(),
+                    "ismissing": p.ismissing(),
+                    "hasadjustments": p.hasadjustments(),
+                }
             )
         print(json.dumps(dump))
     else:
@@ -135,8 +135,8 @@ def dump(cli_obj):
                 "albums",
                 "persons",
                 "path",
-                "is_missing",
-                "has_adjustments",
+                "ismissing",
+                "hasadjustments",
             ]
         )
         for p in photos:
