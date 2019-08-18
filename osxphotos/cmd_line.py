@@ -36,6 +36,7 @@ def cli(ctx, db, json):
 @cli.command()
 @click.pass_obj
 def keywords(cli_obj):
+    """ print out keywords found in the Photos library"""
     keywords = {"keywords": cli_obj.photosdb.keywords_as_dict()}
     if cli_obj.json:
         print(json.dumps(keywords))
@@ -46,6 +47,7 @@ def keywords(cli_obj):
 @cli.command()
 @click.pass_obj
 def albums(cli_obj):
+    """ print out albums found in the Photos library """
     albums = {"albums": cli_obj.photosdb.albums_as_dict()}
     if cli_obj.json:
         print(json.dumps(albums))
@@ -56,6 +58,7 @@ def albums(cli_obj):
 @cli.command()
 @click.pass_obj
 def persons(cli_obj):
+    """ print out persons (faces) found in the Photos library """
     persons = {"persons": cli_obj.photosdb.persons_as_dict()}
     if cli_obj.json:
         print(json.dumps(persons))
@@ -66,6 +69,7 @@ def persons(cli_obj):
 @cli.command()
 @click.pass_obj
 def info(cli_obj):
+    """ print out descriptive info of the Photos library database """
     pdb = cli_obj.photosdb
     info = {}
     info["database_path"] = pdb.get_db_path()
@@ -96,6 +100,7 @@ def info(cli_obj):
 # @click.option('--delim',default=",",help="")
 @click.pass_obj
 def dump(cli_obj):
+    """ print list of all photos & associated info from the Photos library """
     pdb = cli_obj.photosdb
     photos = pdb.photos()
 

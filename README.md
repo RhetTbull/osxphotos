@@ -19,7 +19,25 @@ osxmetadata uses setuptools, thus simply run:
 
 ## Command Line Usage
 
-This project started as a command line utility, `photosmeta`, available at [photosmeta](https://github.com/RhetTbull/photosmeta) This module converts the photosmeta functionality into a module.  Eventually, I plan to rewrite photosmeta using this module and include it as a command line script in this module.
+This module will install a command line utility called `osxphotos` that allows you to query the Photos database.
+
+If you only care about the command line tool, I recommend installing with [pipx](https://github.com/pipxproject/pipx)
+
+```
+Usage: osxphotos [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --db <Photos database path>  Specify database file
+  --json                       Print output in JSON format
+  --help                       Show this message and exit.
+
+Commands:
+  albums    print out albums found in the Photos library
+  dump      print list of all photos & associated info from the Photos...
+  info      print out descriptive info of the Photos library database
+  keywords  print out keywords found in the Photos library
+  persons   print out persons (faces) found in the Photos library
+```
 
 ## Example uses of the module
 
@@ -285,6 +303,11 @@ for p in photos:
         p.hasadjustments(),
     )
 ```
+
+## History
+
+This project started as a command line utility, `photosmeta`, available at [photosmeta](https://github.com/RhetTbull/photosmeta) This module converts the photosmeta Photos library query functionality into a module.  
+
 
 ## Implementation Notes
 
