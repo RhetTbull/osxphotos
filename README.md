@@ -29,15 +29,34 @@ Usage: osxphotos [OPTIONS] COMMAND [ARGS]...
 Options:
   --db <Photos database path>  Specify database file
   --json                       Print output in JSON format
-  --help                       Show this message and exit.
+  -h, --help                   Show this message and exit.
 
 Commands:
   albums    print out albums found in the Photos library
   dump      print list of all photos & associated info from the Photos...
+  help      print help; for help on commands: help <command>
   info      print out descriptive info of the Photos library database
   keywords  print out keywords found in the Photos library
   persons   print out persons (faces) found in the Photos library
+  query     query the Photos database using 1 or more search options
 ```
+
+To get help on a specific command, use `osxphotos help <command_name>`
+
+```
+$ osxphotos help query
+
+Usage: osxphotos help [OPTIONS]
+
+  query the Photos database using 1 or more search options
+
+Options:
+  --keyword TEXT  search for keyword(s)
+  --person TEXT   search for person(s)
+  --album TEXT    search for album(s)
+  --uuid TEXT     search for UUID(s)
+  -h, --help      Show this message and exit.
+  ```
 
 ## Example uses of the module
 
@@ -282,6 +301,9 @@ Returns `True` if the original image file is missing on disk, otherwise `False`.
 
 #### `hasadjustments()`
 Returns `True` if the file has been edited in Photos, otherwise `False`
+
+#### `to_json()`
+Returns a JSON representation of all photo info 
 
 Examples:
 

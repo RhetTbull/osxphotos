@@ -9,6 +9,7 @@ import sys
 from shutil import copyfile
 import pprint
 import sqlite3
+import json
 
 import yaml
 import objc
@@ -27,7 +28,7 @@ from . import _applescript
 # which Photos library database versions have been tested
 # Photos 3.0 (10.13.6) == 3301
 # Photos 4.0 (10.14.5) == 4016
-# Photos 4.0 (10.4.6) == 4025 
+# Photos 4.0 (10.4.6) == 4025
 # TODO: Should this also use compatibleBackToVersion from LiGlobals?
 _TESTED_DB_VERSIONS = ["4025", "4016", "3301"]
 
@@ -594,6 +595,8 @@ class PhotosDB:
 
     def __repr__(self):
         return f"osxphotos.PhotosDB(dbfile='{self.get_db_path()}')"
+
+
 """
 Info about a specific photo, contains all the details we know about the photo
 including keywords, persons, albums, uuid, path, etc.
@@ -682,7 +685,24 @@ class PhotoInfo:
             "ismissing": self.ismissing(),
             "hasadjustments": self.hasadjustments(),
         }
-        return yaml.dump(info,sort_keys=False)
+        return yaml.dump(info, sort_keys=False)
+
+    def to_json(self):
+        """ return JSON representation """
+        pic = {
+            "uuid": self.uuid(),
+            "filename": self.filename(),
+            "date": str(self.date()),
+            "description": self.description(),
+            "name": self.name(),
+            "keywords": self.keywords(),
+            "albums": self.albums(),
+            "persons": self.persons(),
+            "path": self.path(),
+            "ismissing": self.ismissing(),
+            "hasadjustments": self.hasadjustments(),
+        }
+        return json.dumps(pic)
 
     # compare two PhotoInfo objects for equality
     def __eq__(self, other):

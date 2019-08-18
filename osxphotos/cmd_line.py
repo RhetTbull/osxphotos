@@ -12,7 +12,10 @@ class CLI_Obj:
         self.photosdb = osxphotos.PhotosDB(dbfile=db)
         self.json = json
 
-CTX_SETTINGS=dict(help_option_names=['-h','--help'])
+
+CTX_SETTINGS = dict(help_option_names=["-h", "--help"])
+
+
 @click.group(context_settings=CTX_SETTINGS)
 @click.option(
     "--db",
@@ -103,29 +106,16 @@ def dump(cli_obj):
     pdb = cli_obj.photosdb
     photos = pdb.photos()
 
-    csv_writer = csv.writer(
-        sys.stdout, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
-    )
     if cli_obj.json:
         dump = []
         for p in photos:
-            dump.append(
-                {
-                    "uuid": p.uuid(),
-                    "filename": p.filename(),
-                    "date": str(p.date()),
-                    "description": p.description(),
-                    "name": p.name(),
-                    "keywords": p.keywords(),
-                    "albums": p.albums(),
-                    "persons": p.persons(),
-                    "path": p.path(),
-                    "ismissing": p.ismissing(),
-                    "hasadjustments": p.hasadjustments(),
-                }
-            )
-        print(json.dumps(dump))
+            dump.append(p.to_json())
+        print(f"[{', '.join(dump)}]")
     else:
+        # dump as CSV
+        csv_writer = csv.writer(
+            sys.stdout, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
+        )
         dump = []
         # add headers
         dump.append(
@@ -172,12 +162,15 @@ def dump(cli_obj):
 @click.pass_context
 def query(ctx, cli_obj, keyword, person, album, uuid):
     """ query the Photos database using 1 or more search options """
-    photos = cli_obj.photosdb.photos(keywords=keyword, persons=person, albums=album, uuid=uuid)
+    photos = cli_obj.photosdb.photos(
+        keywords=keyword, persons=person, albums=album, uuid=uuid
+    )
     print(photos)
     pass
 
+
 @cli.command()
-@click.argument('topic', default=None, required=False, nargs=1 )
+@click.argument("topic", default=None, required=False, nargs=1)
 @click.pass_context
 def help(ctx, topic, **kw):
     """ print help; for help on commands: help <command> """
@@ -185,6 +178,7 @@ def help(ctx, topic, **kw):
         print(ctx.parent.get_help())
     else:
         print(cli.commands[topic].get_help(ctx))
+
 
 if __name__ == "__main__":
     cli()
