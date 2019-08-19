@@ -2,7 +2,7 @@ import platform
 import os.path
 from pathlib import Path
 from plistlib import load as plistload
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import tempfile
 import urllib.parse
 import sys
@@ -439,7 +439,8 @@ class PhotosDB:
                 self._dbphotos[uuid]["lastmodifieddate"] = datetime.fromtimestamp(
                     row[5] + td
                 )
-            self._dbphotos[uuid]["imageDate"] = datetime.fromtimestamp(row[5] + td)
+            
+            self._dbphotos[uuid]["imageDate"] = datetime.fromtimestamp(row[5] + td) # - row[9],  timezone.utc)
             self._dbphotos[uuid]["mainRating"] = row[6]
             self._dbphotos[uuid]["hasAdjustments"] = row[7]
             self._dbphotos[uuid]["hasKeywords"] = row[8]
@@ -613,17 +614,16 @@ class PhotoInfo:
         return self.__info["filename"]
 
     def date(self):
-        return self.__info["imageDate"]
+        """ image creation date as timezone aware datetime object """
+        imagedate = self.__info["imageDate"]
+        delta = timedelta(seconds=self.__info["imageTimeZoneOffsetSeconds"])
+        tz = timezone(delta)
+        imagedate_utc = imagedate.astimezone(tz=tz)
+        return imagedate_utc
 
-    """ returns true if photo is missing from disk (which means it's not been downloaded from iCloud) 
-        NOTE:   the photos.db database uses an asynchrounous write-ahead log so changes in Photos
-                do not immediately get written to disk. In particular, I've noticed that downloading 
-                an image from the cloud does not force the database to be updated until something else
-                e.g. an edit, keyword, etc. occurs forcing a database synch
-                The exact process / timing is a mystery to be but be aware that if some photos were recently
-                downloaded from cloud to local storate their status in the database might still show
-                isMissing = 1
-    """
+    def tzoffset(self):
+        """ timezone offset from UTC in seconds """
+        return self.__info["imageTimeZoneOffsetSeconds"]
 
     def path(self):
         photopath = ""
@@ -663,6 +663,15 @@ class PhotoInfo:
         return self.__uuid
 
     def ismissing(self):
+        """ returns true if photo is missing from disk (which means it's not been downloaded from iCloud) 
+        NOTE:   the photos.db database uses an asynchrounous write-ahead log so changes in Photos
+                do not immediately get written to disk. In particular, I've noticed that downloading 
+                an image from the cloud does not force the database to be updated until something else
+                e.g. an edit, keyword, etc. occurs forcing a database synch
+                The exact process / timing is a mystery to be but be aware that if some photos were recently
+                downloaded from cloud to local storate their status in the database might still show
+                isMissing = 1
+        """
         return True if self.__info["isMissing"] == 1 else False
 
     def hasadjustments(self):

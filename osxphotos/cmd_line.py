@@ -123,8 +123,11 @@ def dump(cli_obj):
 @click.pass_context
 def query(ctx, cli_obj, keyword, person, album, uuid, json):
     """ query the Photos database using 1 or more search options """
+
+    #if no query terms, show help and return
     if not keyword and not person and not album and not uuid:
         print(cli.commands['query'].get_help(ctx))
+        return
     else:
         photos = cli_obj.photosdb.photos(
             keywords=keyword, persons=person, albums=album, uuid=uuid

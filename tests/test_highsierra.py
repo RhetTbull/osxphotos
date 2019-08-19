@@ -116,7 +116,7 @@ def test_attributes():
     p = photos[0]
     assert p.keywords() == ["Kids"]
     assert p.filename() == "Pumkins2.jpg"
-    assert p.date() == datetime.datetime(2018, 9, 28, 16, 7, 7)
+    assert p.date() == datetime.datetime(2018, 9, 28, 16, 7, 7,0,datetime.timezone(datetime.timedelta(seconds=-14400)))
     assert p.description() == "Girl holding pumpkin"
     assert p.name() == "I found one!"
     assert p.albums() == ["Pumpkin Farm"]
