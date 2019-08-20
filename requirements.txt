@@ -9,12 +9,9 @@ colorama==0.4.1
 importlib-metadata==0.18
 isort==4.3.20
 lazy-object-proxy==1.4.1
-loguru==0.2.5
 mccabe==0.6.1
 more-itertools==7.2.0
--e git+https://github.com/RhetTbull/osxphotos.git@5f1bd5f13db9fb3420b2bed944d22872393a0147#egg=osxphotos
 packaging==19.0
-pipx==0.13.1.1
 pluggy==0.12.0
 py==1.8.0
 Pygments==2.4.2
@@ -119,8 +116,8 @@ pyobjc-framework-Vision==5.2
 pyobjc-framework-WebKit==5.2
 pyparsing==2.4.1.1
 pytest==5.0.1
+PyYAML==5.1.2
 six==1.12.0
-userpath==1.1.0
 wcwidth==0.1.7
 wrapt==1.11.1
 zipp==0.5.2
