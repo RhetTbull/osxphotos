@@ -439,8 +439,10 @@ class PhotosDB:
                 self._dbphotos[uuid]["lastmodifieddate"] = datetime.fromtimestamp(
                     row[5] + td
                 )
-            
-            self._dbphotos[uuid]["imageDate"] = datetime.fromtimestamp(row[5] + td) # - row[9],  timezone.utc)
+
+            self._dbphotos[uuid]["imageDate"] = datetime.fromtimestamp(
+                row[5] + td
+            )  # - row[9],  timezone.utc)
             self._dbphotos[uuid]["mainRating"] = row[6]
             self._dbphotos[uuid]["hasAdjustments"] = row[7]
             self._dbphotos[uuid]["hasKeywords"] = row[8]

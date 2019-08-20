@@ -124,9 +124,9 @@ def dump(cli_obj):
 def query(ctx, cli_obj, keyword, person, album, uuid, json):
     """ query the Photos database using 1 or more search options """
 
-    #if no query terms, show help and return
+    # if no query terms, show help and return
     if not keyword and not person and not album and not uuid:
-        print(cli.commands['query'].get_help(ctx))
+        print(cli.commands["query"].get_help(ctx))
         return
     else:
         photos = cli_obj.photosdb.photos(
