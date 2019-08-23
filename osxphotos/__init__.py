@@ -1,19 +1,19 @@
-import platform
+import json
 import os.path
-from pathlib import Path
-from plistlib import load as plistload
-from datetime import datetime, timezone, timedelta
-import tempfile
-import urllib.parse
-import sys
-from shutil import copyfile
+import platform
 import pprint
 import sqlite3
-import json
+import sys
+import tempfile
+import urllib.parse
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+from plistlib import load as plistload
+from shutil import copyfile
 
-import yaml
-import objc
 import CoreFoundation
+import objc
+import yaml
 from Foundation import *
 
 from . import _applescript
