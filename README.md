@@ -25,6 +25,9 @@ This module will install a command line utility called `osxphotos` that allows y
 
 If you only care about the command line tool, I recommend installing with [pipx](https://github.com/pipxproject/pipx)
 
+After install pipx:
+`pipx install osxphotos`
+
 ```
 Usage: osxphotos [OPTIONS] COMMAND [ARGS]...
 
@@ -46,8 +49,6 @@ Commands:
 To get help on a specific command, use `osxphotos help <command_name>`
 
 ```
-$ osxphotos help query
-
 Usage: osxphotos help [OPTIONS]
 
   query the Photos database using 1 or more search options
@@ -57,8 +58,13 @@ Options:
   --person TEXT   search for person(s)
   --album TEXT    search for album(s)
   --uuid TEXT     search for UUID(s)
-  -h, --help      Show this message and exit.
-  ```
+  --json          Print output in JSON format
+  -h, --help      Show this message and exit. 
+```
+
+Example: find all photos with keyword "Kids" and output results to json file named results.json:
+
+`osxphotos query --keyword Kids --json >results.json`
 
 ## Example uses of the module
 
