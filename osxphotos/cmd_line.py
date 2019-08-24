@@ -7,6 +7,9 @@ import yaml
 
 import osxphotos
 
+# TODO: add query for description, name (contains text)
+# TODO: add "--any" to search any field (e.g. keyword, description, name contains "wedding") (add case insensitive option)
+
 
 class CLI_Obj:
     def __init__(self, db=None, json=False):
