@@ -26,14 +26,15 @@ from . import _applescript
 # TODO: fix versions tested to include 10.14.6
 
 # which Photos library database versions have been tested
+# Photos 2.0 (10.12.6) == 2622
 # Photos 3.0 (10.13.6) == 3301
 # Photos 4.0 (10.14.5) == 4016
 # Photos 4.0 (10.4.6) == 4025
 # TODO: Should this also use compatibleBackToVersion from LiGlobals?
-_TESTED_DB_VERSIONS = ["4025", "4016", "3301"]
+_TESTED_DB_VERSIONS = ["4025", "4016", "3301", "2622"]
 
 # which major version operating systems have been tested
-_TESTED_OS_VERSIONS = ["13", "14"]
+_TESTED_OS_VERSIONS = ["12", "13", "14"]
 
 _debug = False
 
