@@ -115,7 +115,6 @@ pyobjc-framework-VideoToolbox==5.2
 pyobjc-framework-Vision==5.2
 pyobjc-framework-WebKit==5.2
 pyparsing==2.4.1.1
-pytest==5.0.1
 PyYAML==5.1.2
 six==1.12.0
 wcwidth==0.1.7
