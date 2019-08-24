@@ -1,9 +1,11 @@
-import click
-import osxphotos
-import json
-import yaml
 import csv
+import json
 import sys
+
+import click
+import yaml
+
+import osxphotos
 
 
 class CLI_Obj:
