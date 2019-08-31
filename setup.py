@@ -38,7 +38,7 @@ with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
 
 setup(
     name="osxphotos",
-    version="0.12.3",
+    version="0.12.4",
     description="Manipulate (read-only) Apple's Photos app library on Mac OS X",
     long_description=long_description,
     long_description_content_type="text/markdown",
