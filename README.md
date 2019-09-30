@@ -25,7 +25,7 @@ This module will install a command line utility called `osxphotos` that allows y
 
 If you only care about the command line tool, I recommend installing with [pipx](https://github.com/pipxproject/pipx)
 
-After install pipx:
+After installing pipx:
 `pipx install osxphotos`
 
 ```

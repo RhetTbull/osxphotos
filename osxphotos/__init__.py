@@ -199,6 +199,7 @@ class PhotosDB:
         return os.path.abspath(self._dbfile)
 
     def get_photos_library_path(self):
+        # TODO: move this to a module-level function
         # return the path to the Photos library
         plist_file = Path(
             str(Path.home())
