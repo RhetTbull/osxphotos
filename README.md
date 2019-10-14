@@ -13,6 +13,9 @@ Only works on Mac OS X. Tested on Mac OS 10.12.6 / Photos 2.0, 10.13.6 / Photos 
 
 This module will read Photos databases for any supported version on any supported OS version.  E.g. you can read a database created with Photos 4.0 on Mac OS 10.14 on a machine running Mac OS 10.12
 
+NOTE: Does NOT currently support Mac OS 10.15 / Catalina and Photos 5.0.  This module will run on Catalina but you will only be able to read Photos database files created with Photos 4.0 or lower.  Photos 5.0 on Catalina uses an entirely new database schema and the code has not yet been udpated to work with this version.
+
+
 ## Installation instructions
 
 osxmetadata uses setuptools, thus simply run:

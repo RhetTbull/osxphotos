@@ -20,10 +20,9 @@ from . import _applescript
 
 # from loguru import logger
 
+# TODO: Does not work with Photos 5.0 / Mac OS 10.15 Catalina
 # TODO: standardize _ and __ as leading char for private variables
-# TODO: fix use of ''' and """
 # TODO: fix docstrings
-# TODO: fix versions tested to include 10.14.6
 
 # which Photos library database versions have been tested
 # Photos 2.0 (10.12.6) == 2622
@@ -42,7 +41,18 @@ _debug = False
 def _get_os_version():
     # returns tuple containing OS version
     # e.g. 10.13.6 = (10, 13, 6)
-    (ver, major, minor) = platform.mac_ver()[0].split(".")
+    version = platform.mac_ver()[0].split(".")
+    if len(version) == 2:
+        (ver, major) = version
+        minor = "0"
+    elif len(version) == 3:
+        (ver, major, minor) = version
+    else:
+        raise (
+            ValueError(
+                f"Could not parse version string: {platform.mac_ver()} {version}"
+            )
+        )
     return (ver, major, minor)
 
 
