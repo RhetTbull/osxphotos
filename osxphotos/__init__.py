@@ -20,6 +20,7 @@ from . import _applescript
 
 # from loguru import logger
 
+# TODO: Add favorites, hidden
 # TODO: Does not work with Photos 5.0 / Mac OS 10.15 Catalina
 # TODO: standardize _ and __ as leading char for private variables
 # TODO: fix docstrings
@@ -28,7 +29,8 @@ from . import _applescript
 # Photos 2.0 (10.12.6) == 2622
 # Photos 3.0 (10.13.6) == 3301
 # Photos 4.0 (10.14.5) == 4016
-# Photos 4.0 (10.4.6) == 4025
+# Photos 4.0 (10.14.6) == 4025
+# Photos 5.0 (10.15.0) == 6000
 # TODO: Should this also use compatibleBackToVersion from LiGlobals?
 _TESTED_DB_VERSIONS = ["4025", "4016", "3301", "2622"]
 
@@ -318,6 +320,10 @@ class PhotosDB:
         if int(self.__db_version) >= int(_PHOTOS_5_VERSION):
             print(f"DEBUG: version is {self.__db_version}")
             sys.exit()
+            # TODO: now need to copy Photos.sqlite and replace _db_file
+            # TODO: What if user passes Photos.sqlite?  need to look for the photos.db file
+            # or just throw error and tell user to pass photos.db
+            #ZZZ
 
     def _process_database(self):
         global _debug
