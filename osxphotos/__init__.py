@@ -32,6 +32,9 @@ from . import _applescript
 # TODO: Should this also use compatibleBackToVersion from LiGlobals?
 _TESTED_DB_VERSIONS = ["4025", "4016", "3301", "2622"]
 
+# versions later than this have a different database structure
+_PHOTOS_5_VERSION = "6000"
+
 # which major version operating systems have been tested
 _TESTED_OS_VERSIONS = ["12", "13", "14"]
 
@@ -77,6 +80,9 @@ class PhotosDB:
                 file=sys.stderr,
             )
 
+        # configure AppleScripts used to manipulate Photos
+        self._setup_applescript()
+
         # Dict with information about all photos by uuid
         self._dbphotos = {}
         # Dict with information about all persons/photos by uuid
@@ -102,8 +108,17 @@ class PhotosDB:
             dbfile = os.path.join(library_path, "database/photos.db")
             # logger.debug(dbfile)
 
-        # logger.debug(f"filename = {dbfile}")
+        if not _check_file_exists(dbfile):
+            sys.exit(f"_dbfile {dbfile} does not exist")
 
+        self._dbfile = dbfile
+
+        self._scpt_quit.run()
+
+        self._tmp_db = self._copy_db_file(self._dbfile)
+        self._get_db_version()
+
+        # zzz
         # TODO: replace os.path with pathlib
         # TODO: clean this up -- we'll already know library_path
         library_path = os.path.dirname(dbfile)
@@ -112,13 +127,8 @@ class PhotosDB:
         self._masters_path = masters_path
         # logger.debug(f"library = {library_path}, masters = {masters_path}")
 
-        if not _check_file_exists(dbfile):
-            sys.exit(f"_dbfile {dbfile} does not exist")
-
         # logger.info(f"database filename = {dbfile}")
 
-        self._dbfile = dbfile
-        self._setup_applescript()
         self._process_database()
 
     def keywords_as_dict(self):
@@ -283,19 +293,10 @@ class PhotosDB:
         #  logger.debug("SQLite database is open")
         return (conn, c)
 
-    def _process_database(self):
+    def _get_db_version(self):
         global _debug
 
-        fname = self._dbfile
-
-        # Epoch is Jan 1, 2001
-        td = (datetime(2001, 1, 1, 0, 0) - datetime(1970, 1, 1, 0, 0)).total_seconds()
-
-        # Ensure Photos.App is not running
-        self._scpt_quit.run()
-
-        tmp_db = self._copy_db_file(fname)
-        (conn, c) = self._open_sql_file(tmp_db)
+        (conn, c) = self._open_sql_file(self._tmp_db)
         #  logger.debug("Have connection with database")
 
         # get database version
@@ -306,11 +307,42 @@ class PhotosDB:
             self.__db_version = ver[0]
             break  # TODO: is there a more pythonic way to do get the first element from cursor?
 
+        conn.close()
+
         if self.__db_version not in _TESTED_DB_VERSIONS:
             print(
                 f"WARNING: Only tested on database versions [{', '.join(_TESTED_DB_VERSIONS)}]"
                 + f" You have database version={self.__db_version} which has not been tested"
             )
+
+        if int(self.__db_version) >= int(_PHOTOS_5_VERSION):
+            print(f"DEBUG: version is {self.__db_version}")
+            sys.exit()
+
+    def _process_database(self):
+        global _debug
+
+        # Epoch is Jan 1, 2001
+        td = (datetime(2001, 1, 1, 0, 0) - datetime(1970, 1, 1, 0, 0)).total_seconds()
+
+        # Ensure Photos.App is not running
+        self._scpt_quit.run()
+
+        (conn, c) = self._open_sql_file(self._tmp_db)
+        #  logger.debug("Have connection with database")
+
+        # if int(self.__db_version) > int(_PHOTOS_5_VERSION):
+        #     # need to close the photos.db database and re-open Photos.sqlite
+        #     c.close()
+        #     try:
+        #         #  logger.info("Removing temporary database file: " + tmp_db)
+        #         os.remove(tmp_db)
+        #     except:
+        #         print("Could not remove temporary database: " + tmp_db, file=sys.stderr)
+
+        #     self._dbfile2 = Path(self._dbfile) "Photos.sqlite"
+        #     tmp_db = self._copy_db_file(fname)
+        #     (conn, c) = self._open_sql_file(tmp_db)
 
         # Look for all combinations of persons and pictures
         #  logger.debug("Getting information about persons")
@@ -512,9 +544,11 @@ class PhotosDB:
         # remove temporary copy of the database
         try:
             #  logger.info("Removing temporary database file: " + tmp_db)
-            os.remove(tmp_db)
+            os.remove(self._tmp_db)
         except:
-            print("Could not remove temporary database: " + tmp_db, file=sys.stderr)
+            print(
+                "Could not remove temporary database: " + self._tmp_db, file=sys.stderr
+            )
 
         if _debug:
             pp = pprint.PrettyPrinter(indent=4)
