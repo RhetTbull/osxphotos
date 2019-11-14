@@ -85,6 +85,8 @@ class PhotosDB:
         # configure AppleScripts used to manipulate Photos
         self._setup_applescript()
 
+        # set up the data structures used to store all the Photo database info
+
         # Dict with information about all photos by uuid
         self._dbphotos = {}
         # Dict with information about all persons/photos by uuid
@@ -102,6 +104,9 @@ class PhotosDB:
         # Dict with information about all the volumes/photos by uuid
         self._dbvolumes = {}
 
+        # list of temporary files created so we can clean them up later
+        self._tmp_files = []
+
         # logger.debug(dbfile)
         if dbfile is None:
             library_path = self.get_photos_library_path()
@@ -117,7 +122,9 @@ class PhotosDB:
 
         self._scpt_quit.run()
 
+        #TODO: add tmp files to a list and then delete them all when done (self->_delete_tmp_files)
         self._tmp_db = self._copy_db_file(self._dbfile)
+        self._tmp_files.append(self._tmp_db)
         self._get_db_version()
 
         # zzz
@@ -132,6 +139,19 @@ class PhotosDB:
         # logger.info(f"database filename = {dbfile}")
 
         self._process_database()
+
+    def _cleanup_tmp_files(self):
+        print(f"DEBUG: tmp files ={self._tmp_files}")
+        for f in self._tmp_files:
+            print(f"DEBUG: cleaning up {f}")
+            try:
+                os.remove(f)
+            except Exception as e:
+                print(f"WARNING: Unable to remove tmp file {f}")
+                raise e
+    
+    def __del__(self):
+        self._cleanup_tmp_files()
 
     def keywords_as_dict(self):
         # return keywords as dict of keyword, count in reverse sorted order (descending)
@@ -299,6 +319,7 @@ class PhotosDB:
         global _debug
 
         (conn, c) = self._open_sql_file(self._tmp_db)
+        # (conn, c) = self._open_sql_file(self._dbfile)
         #  logger.debug("Have connection with database")
 
         # get database version
@@ -319,7 +340,15 @@ class PhotosDB:
 
         if int(self.__db_version) >= int(_PHOTOS_5_VERSION):
             print(f"DEBUG: version is {self.__db_version}")
+            dbpath = Path(self._dbfile).parent
+            dbfile = dbpath / "Photos.sqlite"
+            print(f"DEBUG: dbfile = {dbfile}")
+            if not _check_file_exists(dbfile):
+                sys.exit(f"dbfile {dbfile} does not exist")
+            else:
+                self._dbfile = dbfile
             sys.exit()
+
             # TODO: now need to copy Photos.sqlite and replace _db_file
             # TODO: What if user passes Photos.sqlite?  need to look for the photos.db file
             # or just throw error and tell user to pass photos.db
