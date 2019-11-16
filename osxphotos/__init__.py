@@ -70,6 +70,8 @@ def _check_file_exists(filename):
 
 class PhotosDB:
     def __init__(self, dbfile=None):
+        """ create a new PhotosDB object """
+        """ optional: dbfile=path to photos.db from the Photos library """
         # Check OS version
         system = platform.system()
         (_, major, _) = _get_os_version()
@@ -141,6 +143,7 @@ class PhotosDB:
         self._process_database()
 
     def _cleanup_tmp_files(self):
+        """ removes all temporary files whose names are stored in self.tmp_files """
         print(f"DEBUG: tmp files ={self._tmp_files}")
         for f in self._tmp_files:
             print(f"DEBUG: cleaning up {f}")
@@ -154,7 +157,7 @@ class PhotosDB:
         self._cleanup_tmp_files()
 
     def keywords_as_dict(self):
-        # return keywords as dict of keyword, count in reverse sorted order (descending)
+        """ return keywords as dict of keyword, count in reverse sorted order (descending) """
         keywords = {}
         for k in self._dbkeywords_keyword.keys():
             keywords[k] = len(self._dbkeywords_keyword[k])
@@ -162,7 +165,7 @@ class PhotosDB:
         return keywords
 
     def persons_as_dict(self):
-        # return persons as dict of person, count in reverse sorted order (descending)
+        """ return persons as dict of person, count in reverse sorted order (descending) """
         persons = {}
         for k in self._dbfaces_person.keys():
             persons[k] = len(self._dbfaces_person[k])
@@ -170,7 +173,7 @@ class PhotosDB:
         return persons
 
     def albums_as_dict(self):
-        # return albums as dict of albums, count in reverse sorted order (descending)
+        """ return albums as dict of albums, count in reverse sorted order (descending) """
         albums = {}
         for k in self._dbalbums_album.keys():
             albums[k] = len(self._dbalbums_album[k])
@@ -178,22 +181,22 @@ class PhotosDB:
         return albums
 
     def keywords(self):
-        # return list of keywords found in photos database
+        """ return list of keywords found in photos database """
         keywords = self._dbkeywords_keyword.keys()
         return list(keywords)
 
     def persons(self):
-        # return persons as dict of person, count in reverse sorted order (descending)
+        """ return persons as dict of person, count in reverse sorted order (descending) """
         persons = self._dbfaces_person.keys()
         return list(persons)
 
     def albums(self):
-        # return albums as dict of albums, count in reverse sorted order (descending)
+        """ return albums as dict of albums, count in reverse sorted order (descending) """
         albums = self._dbalbums_album.keys()
         return list(albums)
 
-    # Various AppleScripts we need
     def _setup_applescript(self):
+        """ setup various applescripts used internally (e.g. to close Photos) """
         self._scpt_export = ""
         self._scpt_launch = ""
         self._scpt_quit = ""
@@ -233,7 +236,7 @@ class PhotosDB:
         )
 
     def get_db_version(self):
-        # return the database version as stored in LiGlobals table
+        """ return the database version as stored in LiGlobals table """
         return self.__db_version
 
     def get_db_path(self):
@@ -241,8 +244,8 @@ class PhotosDB:
         return os.path.abspath(self._dbfile)
 
     def get_photos_library_path(self):
+        """ return the path to the Photos library """
         # TODO: move this to a module-level function
-        # return the path to the Photos library
         plist_file = Path(
             str(Path.home())
             + "/Library/Containers/com.apple.Photos/Data/Library/Preferences/com.apple.Photos.plist"
