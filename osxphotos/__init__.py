@@ -72,6 +72,7 @@ class PhotosDB:
     def __init__(self, dbfile=None):
         """ create a new PhotosDB object """
         """ optional: dbfile=path to photos.db from the Photos library """
+
         # Check OS version
         system = platform.system()
         (_, major, _) = _get_os_version()
@@ -109,7 +110,7 @@ class PhotosDB:
         # list of temporary files created so we can clean them up later
         self._tmp_files = []
 
-        # logger.debug(dbfile)
+        print(f"DEBUG: dbfile = {dbfile}")
         if dbfile is None:
             library_path = self.get_photos_library_path()
             # logger.debug("library_path: " + library_path)
@@ -122,11 +123,9 @@ class PhotosDB:
 
         self._dbfile = dbfile
 
+        # force Photos to quit (TODO: this might not be needed since we copy the file)
         self._scpt_quit.run()
-
-        #TODO: add tmp files to a list and then delete them all when done (self->_delete_tmp_files)
         self._tmp_db = self._copy_db_file(self._dbfile)
-        self._tmp_files.append(self._tmp_db)
         self._get_db_version()
 
         # zzz
@@ -144,17 +143,23 @@ class PhotosDB:
 
     def _cleanup_tmp_files(self):
         """ removes all temporary files whose names are stored in self.tmp_files """
+        """ does not raise exception if file cannot be deleted (e.g. it was already cleaned up) """
         print(f"DEBUG: tmp files ={self._tmp_files}")
         for f in self._tmp_files:
             print(f"DEBUG: cleaning up {f}")
             try:
                 os.remove(f)
             except Exception as e:
-                print(f"WARNING: Unable to remove tmp file {f}")
-                raise e
-    
+                pass
+                # print(f"WARNING: Unable to remove tmp file {e}")
+                # raise e
+
     def __del__(self):
-        self._cleanup_tmp_files()
+        try:
+            self._cleanup_tmp_files()
+        except Exception as e:
+            print(f"{e}")
+            raise e
 
     def keywords_as_dict(self):
         """ return keywords as dict of keyword, count in reverse sorted order (descending) """
@@ -237,7 +242,7 @@ class PhotosDB:
 
     def get_db_version(self):
         """ return the database version as stored in LiGlobals table """
-        return self.__db_version
+        return self._db_version
 
     def get_db_path(self):
         """ return path to the Photos library database PhotosDB was initialized with """
@@ -294,8 +299,8 @@ class PhotosDB:
 
     # TODO: do we need to copy the db-wal write-ahead log file?
     def _copy_db_file(self, fname):
-        # copies the sqlite database file to a temp file
-        # returns the name of the temp file
+        """ copies the sqlite database file to a temp file """
+        """ returns the name of the temp file and appends name to self->_tmp_files """
         # required because python's sqlite3 implementation can't read a locked file
         _, tmp = tempfile.mkstemp(suffix=".db", prefix="photos")
         #  logger.debug("copying " + fname + " to " + tmp)
@@ -304,9 +309,12 @@ class PhotosDB:
         except:
             print("Error copying " + fname + " to " + tmp, file=sys.stderr)
             raise Exception
+
+        self._tmp_files.append(tmp)
         return tmp
 
     def _open_sql_file(self, file):
+        """ opens sqlite file and returns connection to the database """
         fname = file
         #  logger.debug(f"Trying to open database {fname}")
         try:
@@ -319,6 +327,8 @@ class PhotosDB:
         return (conn, c)
 
     def _get_db_version(self):
+        """ gets the Photos DB version from LiGlobals table """
+        """ sets self._db_version and returns the version """
         global _debug
 
         (conn, c) = self._open_sql_file(self._tmp_db)
@@ -330,19 +340,19 @@ class PhotosDB:
             "SELECT value from LiGlobals where LiGlobals.keyPath is 'libraryVersion'"
         )
         for ver in c:
-            self.__db_version = ver[0]
+            self._db_version = ver[0]
             break  # TODO: is there a more pythonic way to do get the first element from cursor?
 
         conn.close()
 
-        if self.__db_version not in _TESTED_DB_VERSIONS:
+        if self._db_version not in _TESTED_DB_VERSIONS:
             print(
                 f"WARNING: Only tested on database versions [{', '.join(_TESTED_DB_VERSIONS)}]"
-                + f" You have database version={self.__db_version} which has not been tested"
+                + f" You have database version={self._db_version} which has not been tested"
             )
 
-        if int(self.__db_version) >= int(_PHOTOS_5_VERSION):
-            print(f"DEBUG: version is {self.__db_version}")
+        if int(self._db_version) >= int(_PHOTOS_5_VERSION):
+            print(f"DEBUG: version is {self._db_version}")
             dbpath = Path(self._dbfile).parent
             dbfile = dbpath / "Photos.sqlite"
             print(f"DEBUG: dbfile = {dbfile}")
@@ -350,12 +360,8 @@ class PhotosDB:
                 sys.exit(f"dbfile {dbfile} does not exist")
             else:
                 self._dbfile = dbfile
-            sys.exit()
 
-            # TODO: now need to copy Photos.sqlite and replace _db_file
-            # TODO: What if user passes Photos.sqlite?  need to look for the photos.db file
-            # or just throw error and tell user to pass photos.db
-            #ZZZ
+    # ZZZ
 
     def _process_database(self):
         global _debug
@@ -364,12 +370,13 @@ class PhotosDB:
         td = (datetime(2001, 1, 1, 0, 0) - datetime(1970, 1, 1, 0, 0)).total_seconds()
 
         # Ensure Photos.App is not running
+        # TODO: Don't think we need this here
         self._scpt_quit.run()
 
         (conn, c) = self._open_sql_file(self._tmp_db)
         #  logger.debug("Have connection with database")
 
-        # if int(self.__db_version) > int(_PHOTOS_5_VERSION):
+        # if int(self._db_version) > int(_PHOTOS_5_VERSION):
         #     # need to close the photos.db database and re-open Photos.sqlite
         #     c.close()
         #     try:
@@ -579,14 +586,12 @@ class PhotosDB:
             else:
                 self._dbphotos[uuid]["volume"] = None
 
-        # remove temporary copy of the database
+        # remove temporary files
         try:
             #  logger.info("Removing temporary database file: " + tmp_db)
-            os.remove(self._tmp_db)
-        except:
-            print(
-                "Could not remove temporary database: " + self._tmp_db, file=sys.stderr
-            )
+            self._cleanup_tmp_files()
+        except Exception as e:
+            print(f"{e}")
 
         if _debug:
             pp = pprint.PrettyPrinter(indent=4)
