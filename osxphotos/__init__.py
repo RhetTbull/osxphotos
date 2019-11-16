@@ -150,12 +150,12 @@ class PhotosDB:
         else:
             masters_path = os.path.join(library_path, "originals")
             self._masters_path = masters_path
-       
+
         print(f"DEBUG: library = {library_path}, masters = {masters_path}")
 
         # logger.info(f"database filename = {dbfile}")
 
-        if int(self._db_version) <= int(_PHOTOS_5_VERSION):
+        if int(self._db_version) < int(_PHOTOS_5_VERSION):
             self._process_database4()
         else:
             self._process_database5()
@@ -625,6 +625,9 @@ class PhotosDB:
     def _process_database5(self):
         """ process the Photos database to extract info """
         """ works on Photos version >= 5.0 """
+
+        print(f"DEBUG: _process_database5")
+
         global _debug
 
         # Epoch is Jan 1, 2001
@@ -651,20 +654,22 @@ class PhotosDB:
         #     (conn, c) = self._open_sql_file(tmp_db)
 
         # Look for all combinations of persons and pictures
-        #  logger.debug("Getting information about persons")
+        print(f"DEBUG: Getting information about persons")
 
         i = 0
         c.execute(
-            "select count(*) from RKFace, RKPerson, RKVersion where RKFace.personID = RKperson.modelID "
-            + "and RKFace.imageModelId = RKVersion.modelId and RKVersion.isInTrash = 0"
+            "SELECT COUNT(*) "
+            "FROM ZPERSON, ZDETECTEDFACE, ZGENERICASSET "
+            "WHERE ZDETECTEDFACE.ZPERSON = ZPERSON.Z_PK AND ZDETECTEDFACE.ZASSET = ZGENERICASSET.Z_PK "
+            "AND ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
         )
         # init_pbar_status("Faces", c.fetchone()[0])
         # c.execute("select RKPerson.name, RKFace.imageID from RKFace, RKPerson where RKFace.personID = RKperson.modelID")
         c.execute(
-            "select RKPerson.name, RKVersion.uuid from RKFace, RKPerson, RKVersion, RKMaster "
-            + "where RKFace.personID = RKperson.modelID and RKVersion.modelId = RKFace.ImageModelId "
-            + "and RKVersion.type = 2 and RKVersion.masterUuid = RKMaster.uuid and "
-            + "RKVersion.filename not like '%.pdf' and RKVersion.isInTrash = 0"
+            "SELECT ZPERSON.ZFULLNAME, ZGENERICASSET.ZUUID "
+            "FROM ZPERSON, ZDETECTEDFACE, ZGENERICASSET "
+            "WHERE ZDETECTEDFACE.ZPERSON = ZPERSON.Z_PK AND ZDETECTEDFACE.ZASSET = ZGENERICASSET.Z_PK "
+            "AND ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
         )
         for person in c:
             if person[0] == None:
@@ -678,24 +683,30 @@ class PhotosDB:
             self._dbfaces_person[person[0]].append(person[1])
             #  set_pbar_status(i)
             i = i + 1
-        #  logger.debug("Finished walking through persons")
+        print(f"DEBUG: Finished walking through persons")
+        pp = pprint.PrettyPrinter(indent=4)
+        print(f"DEBUG: {pp.pprint(self._dbfaces_person)}")
+        print(f"DEBUG: {pp.pprint(self._dbfaces_uuid)}")
+
         #  close_pbar_status()
 
         #  logger.debug("Getting information about albums")
         i = 0
         c.execute(
-            "select count(*) from RKAlbum, RKVersion, RKAlbumVersion where "
-            + "RKAlbum.modelID = RKAlbumVersion.albumId and "
-            + "RKAlbumVersion.versionID = RKVersion.modelId and "
-            + "RKVersion.filename not like '%.pdf' and RKVersion.isInTrash = 0"
+            "SELECT COUNT(*)"
+            "FROM ZGENERICASSET "
+            "JOIN Z_26ASSETS ON Z_26ASSETS.Z_34ASSETS = ZGENERICASSET.Z_PK "
+            "JOIN ZGENERICALBUM ON ZGENERICALBUM.Z_PK = Z_26ASSETS.Z_26ALBUMS "
+            "WHERE ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
         )
         #  init_pbar_status("Albums", c.fetchone()[0])
         # c.execute("select RKPerson.name, RKFace.imageID from RKFace, RKPerson where RKFace.personID = RKperson.modelID")
         c.execute(
-            "select RKAlbum.name, RKVersion.uuid from RKAlbum, RKVersion, RKAlbumVersion "
-            + "where RKAlbum.modelID = RKAlbumVersion.albumId and "
-            + "RKAlbumVersion.versionID = RKVersion.modelId and RKVersion.type = 2 and "
-            + "RKVersion.filename not like '%.pdf' and RKVersion.isInTrash = 0"
+            "SELECT ZGENERICALBUM.ZTITLE, ZGENERICASSET.ZUUID "
+            "FROM ZGENERICASSET "
+            "JOIN Z_26ASSETS ON Z_26ASSETS.Z_34ASSETS = ZGENERICASSET.Z_PK "
+            "JOIN ZGENERICALBUM ON ZGENERICALBUM.Z_PK = Z_26ASSETS.Z_26ALBUMS "
+            "WHERE ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
         )
         for album in c:
             # store by uuid in _dbalbums_uuid and by album in _dbalbums_album
@@ -708,24 +719,28 @@ class PhotosDB:
             #  logger.debug(f"{album[1]} {album[0]}")
             #  set_pbar_status(i)
             i = i + 1
-        #  logger.debug("Finished walking through albums")
+        print(f"DEBUG: Finished walking through albums")
+        print(f"DEBUG: {pp.pprint(self._dbalbums_album)}")
+        print(f"DEBUG: {pp.pprint(self._dbalbums_uuid)}")
         #  close_pbar_status()
 
         #  logger.debug("Getting information about keywords")
         c.execute(
-            "select count(*) from RKKeyword, RKKeywordForVersion,RKVersion, RKMaster "
-            + "where RKKeyword.modelId = RKKeyWordForVersion.keywordID and "
-            + "RKVersion.modelID = RKKeywordForVersion.versionID and RKMaster.uuid = "
-            + "RKVersion.masterUuid and RKVersion.filename not like '%.pdf' and RKVersion.isInTrash = 0"
+            "SELECT COUNT(*) "
+            "FROM ZGENERICASSET "
+            "JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK "
+            "JOIN Z_1KEYWORDS ON Z_1KEYWORDS.Z_1ASSETATTRIBUTES = ZADDITIONALASSETATTRIBUTES.Z_PK "
+            "JOIN ZKEYWORD ON ZKEYWORD.Z_PK = Z_1KEYWORDS.Z_37KEYWORDS "
+            "WHERE ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
         )
         #  init_pbar_status("Keywords", c.fetchone()[0])
         c.execute(
-            "select RKKeyword.name, RKVersion.uuid, RKMaster.uuid from "
-            + "RKKeyword, RKKeywordForVersion, RKVersion, RKMaster "
-            + "where RKKeyword.modelId = RKKeyWordForVersion.keywordID and "
-            + "RKVersion.modelID = RKKeywordForVersion.versionID "
-            + "and RKMaster.uuid = RKVersion.masterUuid and RKVersion.type = 2 "
-            + "and RKVersion.filename not like '%.pdf' and RKVersion.isInTrash = 0"
+            "SELECT ZKEYWORD.ZTITLE, ZGENERICASSET.ZUUID "
+            "FROM ZGENERICASSET "
+            "JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK "
+            "JOIN Z_1KEYWORDS ON Z_1KEYWORDS.Z_1ASSETATTRIBUTES = ZADDITIONALASSETATTRIBUTES.Z_PK "
+            "JOIN ZKEYWORD ON ZKEYWORD.Z_PK = Z_1KEYWORDS.Z_37KEYWORDS "
+            "WHERE ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
         )
         i = 0
         for keyword in c:
@@ -738,22 +753,27 @@ class PhotosDB:
             #  logger.debug(f"{keyword[1]} {keyword[0]}")
             #  set_pbar_status(i)
             i = i + 1
-        #  logger.debug("Finished walking through keywords")
+        print(f"DEBUG: Finished walking through keywords")
         #  close_pbar_status()
+        pp.pprint(self._dbkeywords_keyword)
+        pp.pprint(self._dbkeywords_uuid)
 
         #  logger.debug("Getting information about volumes")
-        c.execute("select count(*) from RKVolume")
+        c.execute("SELECT COUNT(*) FROM ZFILESYSTEMVOLUME")
         #  init_pbar_status("Volumes", c.fetchone()[0])
-        c.execute("select RKVolume.modelId, RKVolume.name from RKVolume")
+        c.execute("SELECT ZUUID, ZNAME from ZFILESYSTEMVOLUME")
         i = 0
         for vol in c:
             self._dbvolumes[vol[0]] = vol[1]
             #  logger.debug(f"{vol[0]} {vol[1]}")
             #  set_pbar_status(i)
             i = i + 1
-        #  logger.debug("Finished walking through volumes")
+        print(f"DEBUG: Finished walking through volumes")
+        pp.pprint(self._dbvolumes)
         #  close_pbar_status()
 
+        #ZZZ
+        sys.exit()
         #  logger.debug("Getting information about photos")
         c.execute(
             "select count(*) from RKVersion, RKMaster where RKVersion.isInTrash = 0 and "
