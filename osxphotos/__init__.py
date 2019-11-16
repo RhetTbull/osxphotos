@@ -126,20 +126,39 @@ class PhotosDB:
         # force Photos to quit (TODO: this might not be needed since we copy the file)
         self._scpt_quit.run()
         self._tmp_db = self._copy_db_file(self._dbfile)
-        self._get_db_version()
+        self._db_version = self._get_db_version()
+        if int(self._db_version) >= int(_PHOTOS_5_VERSION):
+            print(f"DEBUG: version is {self._db_version}")
+            dbpath = Path(self._dbfile).parent
+            dbfile = dbpath / "Photos.sqlite"
+            print(f"DEBUG: dbfile = {dbfile}")
+            if not _check_file_exists(dbfile):
+                sys.exit(f"dbfile {dbfile} does not exist")
+            else:
+                self._dbfile = dbfile
+                self._tmp_db = self._copy_db_file(self._dbfile)
 
         # zzz
+
         # TODO: replace os.path with pathlib
         # TODO: clean this up -- we'll already know library_path
         library_path = os.path.dirname(dbfile)
         (library_path, _) = os.path.split(library_path)
-        masters_path = os.path.join(library_path, "Masters")
-        self._masters_path = masters_path
-        # logger.debug(f"library = {library_path}, masters = {masters_path}")
+        if int(self._db_version) < int(_PHOTOS_5_VERSION):
+            masters_path = os.path.join(library_path, "Masters")
+            self._masters_path = masters_path
+        else:
+            masters_path = os.path.join(library_path, "originals")
+            self._masters_path = masters_path
+       
+        print(f"DEBUG: library = {library_path}, masters = {masters_path}")
 
         # logger.info(f"database filename = {dbfile}")
 
-        self._process_database()
+        if int(self._db_version) <= int(_PHOTOS_5_VERSION):
+            self._process_database4()
+        else:
+            self._process_database5()
 
     def _cleanup_tmp_files(self):
         """ removes all temporary files whose names are stored in self.tmp_files """
@@ -324,8 +343,9 @@ class PhotosDB:
 
     def _get_db_version(self):
         """ gets the Photos DB version from LiGlobals table """
-        """ sets self._db_version and returns the version """
+        """ returns the version as str"""
         global _debug
+        version = None
 
         (conn, c) = self._open_sql_file(self._tmp_db)
         # (conn, c) = self._open_sql_file(self._dbfile)
@@ -336,30 +356,275 @@ class PhotosDB:
             "SELECT value from LiGlobals where LiGlobals.keyPath is 'libraryVersion'"
         )
         for ver in c:
-            self._db_version = ver[0]
+            version = ver[0]
             break  # TODO: is there a more pythonic way to do get the first element from cursor?
 
         conn.close()
 
-        if self._db_version not in _TESTED_DB_VERSIONS:
+        if version not in _TESTED_DB_VERSIONS:
             print(
                 f"WARNING: Only tested on database versions [{', '.join(_TESTED_DB_VERSIONS)}]"
-                + f" You have database version={self._db_version} which has not been tested"
+                + f" You have database version={version} which has not been tested"
             )
 
-        if int(self._db_version) >= int(_PHOTOS_5_VERSION):
-            print(f"DEBUG: version is {self._db_version}")
-            dbpath = Path(self._dbfile).parent
-            dbfile = dbpath / "Photos.sqlite"
-            print(f"DEBUG: dbfile = {dbfile}")
-            if not _check_file_exists(dbfile):
-                sys.exit(f"dbfile {dbfile} does not exist")
+        return version
+
+    def _process_database4(self):
+        """ process the Photos database to extract info """
+        """ works on Photos version <= 4.0 """
+        global _debug
+
+        # Epoch is Jan 1, 2001
+        td = (datetime(2001, 1, 1, 0, 0) - datetime(1970, 1, 1, 0, 0)).total_seconds()
+
+        # Ensure Photos.App is not running
+        # TODO: Don't think we need this here
+        self._scpt_quit.run()
+
+        (conn, c) = self._open_sql_file(self._tmp_db)
+        #  logger.debug("Have connection with database")
+
+        # if int(self._db_version) > int(_PHOTOS_5_VERSION):
+        #     # need to close the photos.db database and re-open Photos.sqlite
+        #     c.close()
+        #     try:
+        #         #  logger.info("Removing temporary database file: " + tmp_db)
+        #         os.remove(tmp_db)
+        #     except:
+        #         print("Could not remove temporary database: " + tmp_db, file=sys.stderr)
+
+        #     self._dbfile2 = Path(self._dbfile) "Photos.sqlite"
+        #     tmp_db = self._copy_db_file(fname)
+        #     (conn, c) = self._open_sql_file(tmp_db)
+
+        # Look for all combinations of persons and pictures
+        #  logger.debug("Getting information about persons")
+
+        i = 0
+        c.execute(
+            "select count(*) from RKFace, RKPerson, RKVersion where RKFace.personID = RKperson.modelID "
+            + "and RKFace.imageModelId = RKVersion.modelId and RKVersion.isInTrash = 0"
+        )
+        # init_pbar_status("Faces", c.fetchone()[0])
+        # c.execute("select RKPerson.name, RKFace.imageID from RKFace, RKPerson where RKFace.personID = RKperson.modelID")
+        c.execute(
+            "select RKPerson.name, RKVersion.uuid from RKFace, RKPerson, RKVersion, RKMaster "
+            + "where RKFace.personID = RKperson.modelID and RKVersion.modelId = RKFace.ImageModelId "
+            + "and RKVersion.type = 2 and RKVersion.masterUuid = RKMaster.uuid and "
+            + "RKVersion.filename not like '%.pdf' and RKVersion.isInTrash = 0"
+        )
+        for person in c:
+            if person[0] == None:
+                #  logger.debug(f"skipping person = None {person[1]}")
+                continue
+            if not person[1] in self._dbfaces_uuid:
+                self._dbfaces_uuid[person[1]] = []
+            if not person[0] in self._dbfaces_person:
+                self._dbfaces_person[person[0]] = []
+            self._dbfaces_uuid[person[1]].append(person[0])
+            self._dbfaces_person[person[0]].append(person[1])
+            #  set_pbar_status(i)
+            i = i + 1
+        #  logger.debug("Finished walking through persons")
+        #  close_pbar_status()
+
+        #  logger.debug("Getting information about albums")
+        i = 0
+        c.execute(
+            "select count(*) from RKAlbum, RKVersion, RKAlbumVersion where "
+            + "RKAlbum.modelID = RKAlbumVersion.albumId and "
+            + "RKAlbumVersion.versionID = RKVersion.modelId and "
+            + "RKVersion.filename not like '%.pdf' and RKVersion.isInTrash = 0"
+        )
+        #  init_pbar_status("Albums", c.fetchone()[0])
+        # c.execute("select RKPerson.name, RKFace.imageID from RKFace, RKPerson where RKFace.personID = RKperson.modelID")
+        c.execute(
+            "select RKAlbum.name, RKVersion.uuid from RKAlbum, RKVersion, RKAlbumVersion "
+            + "where RKAlbum.modelID = RKAlbumVersion.albumId and "
+            + "RKAlbumVersion.versionID = RKVersion.modelId and RKVersion.type = 2 and "
+            + "RKVersion.filename not like '%.pdf' and RKVersion.isInTrash = 0"
+        )
+        for album in c:
+            # store by uuid in _dbalbums_uuid and by album in _dbalbums_album
+            if not album[1] in self._dbalbums_uuid:
+                self._dbalbums_uuid[album[1]] = []
+            if not album[0] in self._dbalbums_album:
+                self._dbalbums_album[album[0]] = []
+            self._dbalbums_uuid[album[1]].append(album[0])
+            self._dbalbums_album[album[0]].append(album[1])
+            #  logger.debug(f"{album[1]} {album[0]}")
+            #  set_pbar_status(i)
+            i = i + 1
+        #  logger.debug("Finished walking through albums")
+        #  close_pbar_status()
+
+        #  logger.debug("Getting information about keywords")
+        c.execute(
+            "select count(*) from RKKeyword, RKKeywordForVersion,RKVersion, RKMaster "
+            + "where RKKeyword.modelId = RKKeyWordForVersion.keywordID and "
+            + "RKVersion.modelID = RKKeywordForVersion.versionID and RKMaster.uuid = "
+            + "RKVersion.masterUuid and RKVersion.filename not like '%.pdf' and RKVersion.isInTrash = 0"
+        )
+        #  init_pbar_status("Keywords", c.fetchone()[0])
+        c.execute(
+            "select RKKeyword.name, RKVersion.uuid, RKMaster.uuid from "
+            + "RKKeyword, RKKeywordForVersion, RKVersion, RKMaster "
+            + "where RKKeyword.modelId = RKKeyWordForVersion.keywordID and "
+            + "RKVersion.modelID = RKKeywordForVersion.versionID "
+            + "and RKMaster.uuid = RKVersion.masterUuid and RKVersion.type = 2 "
+            + "and RKVersion.filename not like '%.pdf' and RKVersion.isInTrash = 0"
+        )
+        i = 0
+        for keyword in c:
+            if not keyword[1] in self._dbkeywords_uuid:
+                self._dbkeywords_uuid[keyword[1]] = []
+            if not keyword[0] in self._dbkeywords_keyword:
+                self._dbkeywords_keyword[keyword[0]] = []
+            self._dbkeywords_uuid[keyword[1]].append(keyword[0])
+            self._dbkeywords_keyword[keyword[0]].append(keyword[1])
+            #  logger.debug(f"{keyword[1]} {keyword[0]}")
+            #  set_pbar_status(i)
+            i = i + 1
+        #  logger.debug("Finished walking through keywords")
+        #  close_pbar_status()
+
+        #  logger.debug("Getting information about volumes")
+        c.execute("select count(*) from RKVolume")
+        #  init_pbar_status("Volumes", c.fetchone()[0])
+        c.execute("select RKVolume.modelId, RKVolume.name from RKVolume")
+        i = 0
+        for vol in c:
+            self._dbvolumes[vol[0]] = vol[1]
+            #  logger.debug(f"{vol[0]} {vol[1]}")
+            #  set_pbar_status(i)
+            i = i + 1
+        #  logger.debug("Finished walking through volumes")
+        #  close_pbar_status()
+
+        #  logger.debug("Getting information about photos")
+        c.execute(
+            "select count(*) from RKVersion, RKMaster where RKVersion.isInTrash = 0 and "
+            + "RKVersion.type = 2 and RKVersion.masterUuid = RKMaster.uuid and "
+            + "RKVersion.filename not like '%.pdf'"
+        )
+        #  init_pbar_status("Photos", c.fetchone()[0])
+        c.execute(
+            "select RKVersion.uuid, RKVersion.modelId, RKVersion.masterUuid, RKVersion.filename, "
+            + "RKVersion.lastmodifieddate, RKVersion.imageDate, RKVersion.mainRating, "
+            + "RKVersion.hasAdjustments, RKVersion.hasKeywords, RKVersion.imageTimeZoneOffsetSeconds, "
+            + "RKMaster.volumeId, RKMaster.imagePath, RKVersion.extendedDescription, RKVersion.name, "
+            + "RKMaster.isMissing "
+            + "from RKVersion, RKMaster where RKVersion.isInTrash = 0 and RKVersion.type = 2 and "
+            + "RKVersion.masterUuid = RKMaster.uuid and RKVersion.filename not like '%.pdf'"
+        )
+        i = 0
+        for row in c:
+            #  set_pbar_status(i)
+            i = i + 1
+            uuid = row[0]
+            if _debug:
+                print(f"i = {i:d}, uuid = '{uuid}, master = '{row[2]}")
+            self._dbphotos[uuid] = {}
+            self._dbphotos[uuid]["modelID"] = row[1]
+            self._dbphotos[uuid]["masterUuid"] = row[2]
+            self._dbphotos[uuid]["filename"] = row[3]
+            try:
+                self._dbphotos[uuid]["lastmodifieddate"] = datetime.fromtimestamp(
+                    row[4] + td
+                )
+            except:
+                self._dbphotos[uuid]["lastmodifieddate"] = datetime.fromtimestamp(
+                    row[5] + td
+                )
+
+            self._dbphotos[uuid]["imageDate"] = datetime.fromtimestamp(
+                row[5] + td
+            )  # - row[9],  timezone.utc)
+            self._dbphotos[uuid]["mainRating"] = row[6]
+            self._dbphotos[uuid]["hasAdjustments"] = row[7]
+            self._dbphotos[uuid]["hasKeywords"] = row[8]
+            self._dbphotos[uuid]["imageTimeZoneOffsetSeconds"] = row[9]
+            self._dbphotos[uuid]["volumeId"] = row[10]
+            self._dbphotos[uuid]["imagePath"] = row[11]
+            self._dbphotos[uuid]["extendedDescription"] = row[12]
+            self._dbphotos[uuid]["name"] = row[13]
+            self._dbphotos[uuid]["isMissing"] = row[14]
+            #  logger.debug(
+        #                  "Fetching data for photo %d %s %s %s %s %s: %s"
+        #  % (
+        #  i,
+        #  uuid,
+        #  self._dbphotos[uuid]["masterUuid"],
+        #  self._dbphotos[uuid]["volumeId"],
+        #  self._dbphotos[uuid]["filename"],
+        #  self._dbphotos[uuid]["extendedDescription"],
+        #  self._dbphotos[uuid]["imageDate"],
+        #  )
+        #  )
+
+        #  close_pbar_status()
+        conn.close()
+
+        # add faces and keywords to photo data
+        for uuid in self._dbphotos:
+            # keywords
+            if self._dbphotos[uuid]["hasKeywords"] == 1:
+                self._dbphotos[uuid]["keywords"] = self._dbkeywords_uuid[uuid]
             else:
-                self._dbfile = dbfile
+                self._dbphotos[uuid]["keywords"] = []
 
-    # ZZZ
+            if uuid in self._dbfaces_uuid:
+                self._dbphotos[uuid]["hasPersons"] = 1
+                self._dbphotos[uuid]["persons"] = self._dbfaces_uuid[uuid]
+            else:
+                self._dbphotos[uuid]["hasPersons"] = 0
+                self._dbphotos[uuid]["persons"] = []
 
-    def _process_database(self):
+            if uuid in self._dbalbums_uuid:
+                self._dbphotos[uuid]["albums"] = self._dbalbums_uuid[uuid]
+                self._dbphotos[uuid]["hasAlbums"] = 1
+            else:
+                self._dbphotos[uuid]["albums"] = []
+                self._dbphotos[uuid]["hasAlbums"] = 0
+
+            if self._dbphotos[uuid]["volumeId"] is not None:
+                self._dbphotos[uuid]["volume"] = self._dbvolumes[
+                    self._dbphotos[uuid]["volumeId"]
+                ]
+            else:
+                self._dbphotos[uuid]["volume"] = None
+
+        # remove temporary files
+        self._cleanup_tmp_files()
+
+        if _debug:
+            pp = pprint.PrettyPrinter(indent=4)
+            print("Faces:")
+            pp.pprint(self._dbfaces_uuid)
+
+            print("Keywords by uuid:")
+            pp.pprint(self._dbkeywords_uuid)
+
+            print("Keywords by keyword:")
+            pp.pprint(self._dbkeywords_keyword)
+
+            print("Albums by uuid:")
+            pp.pprint(self._dbalbums_uuid)
+
+            print("Albums by album:")
+            pp.pprint(self._dbalbums_album)
+
+            print("Volumes:")
+            pp.pprint(self._dbvolumes)
+
+            print("Photos:")
+            pp.pprint(self._dbphotos)
+
+        #  logger.debug(f"processed {len(self._dbphotos)} photos")
+
+    def _process_database5(self):
+        """ process the Photos database to extract info """
+        """ works on Photos version >= 5.0 """
         global _debug
 
         # Epoch is Jan 1, 2001
