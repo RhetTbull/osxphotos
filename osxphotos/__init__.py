@@ -155,11 +155,7 @@ class PhotosDB:
                 # raise e
 
     def __del__(self):
-        try:
-            self._cleanup_tmp_files()
-        except Exception as e:
-            print(f"{e}")
-            raise e
+        self._cleanup_tmp_files()
 
     def keywords_as_dict(self):
         """ return keywords as dict of keyword, count in reverse sorted order (descending) """
@@ -587,11 +583,7 @@ class PhotosDB:
                 self._dbphotos[uuid]["volume"] = None
 
         # remove temporary files
-        try:
-            #  logger.info("Removing temporary database file: " + tmp_db)
-            self._cleanup_tmp_files()
-        except Exception as e:
-            print(f"{e}")
+        self._cleanup_tmp_files()
 
         if _debug:
             pp = pprint.PrettyPrinter(indent=4)
