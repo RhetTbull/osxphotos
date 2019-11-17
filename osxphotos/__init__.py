@@ -21,6 +21,7 @@ from . import _applescript
 # from loguru import logger
 
 # TODO: Add favorites, hidden
+# TODO: Add location
 # TODO: Does not work with Photos 5.0 / Mac OS 10.15 Catalina
 # TODO: standardize _ and __ as leading char for private variables
 # TODO: fix docstrings
@@ -40,7 +41,7 @@ _PHOTOS_5_VERSION = "6000"
 # which major version operating systems have been tested
 _TESTED_OS_VERSIONS = ["12", "13", "14"]
 
-_debug = False
+_debug = True
 
 
 def _get_os_version():
@@ -626,9 +627,10 @@ class PhotosDB:
         """ process the Photos database to extract info """
         """ works on Photos version >= 5.0 """
 
-        print(f"DEBUG: _process_database5")
-
         global _debug
+
+        if _debug:
+            print(f"DEBUG: _process_database5")
 
         # Epoch is Jan 1, 2001
         td = (datetime(2001, 1, 1, 0, 0) - datetime(1970, 1, 1, 0, 0)).total_seconds()
@@ -772,35 +774,68 @@ class PhotosDB:
         pp.pprint(self._dbvolumes)
         #  close_pbar_status()
 
-        #ZZZ
-        sys.exit()
-        #  logger.debug("Getting information about photos")
+        print(f"DEBUG: Getting information about photos")
+        # TODO: Since I don't use progress bars now, can probably remove the count
         c.execute(
-            "select count(*) from RKVersion, RKMaster where RKVersion.isInTrash = 0 and "
-            + "RKVersion.type = 2 and RKVersion.masterUuid = RKMaster.uuid and "
-            + "RKVersion.filename not like '%.pdf'"
+            "SELECT COUNT(*) "
+            "FROM ZGENERICASSET "
+            "JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK "
+            "WHERE ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
         )
         #  init_pbar_status("Photos", c.fetchone()[0])
         c.execute(
-            "select RKVersion.uuid, RKVersion.modelId, RKVersion.masterUuid, RKVersion.filename, "
-            + "RKVersion.lastmodifieddate, RKVersion.imageDate, RKVersion.mainRating, "
-            + "RKVersion.hasAdjustments, RKVersion.hasKeywords, RKVersion.imageTimeZoneOffsetSeconds, "
-            + "RKMaster.volumeId, RKMaster.imagePath, RKVersion.extendedDescription, RKVersion.name, "
-            + "RKMaster.isMissing "
-            + "from RKVersion, RKMaster where RKVersion.isInTrash = 0 and RKVersion.type = 2 and "
-            + "RKVersion.masterUuid = RKMaster.uuid and RKVersion.filename not like '%.pdf'"
+            "SELECT ZGENERICASSET.ZUUID, "
+            "ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT, "
+            "ZADDITIONALASSETATTRIBUTES.ZTITLE, "
+            "ZADDITIONALASSETATTRIBUTES.ZORIGINALFILENAME, "
+            "ZGENERICASSET.ZMODIFICATIONDATE, "
+            "ZGENERICASSET.ZDATECREATED, "
+            "ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET, "
+            "ZADDITIONALASSETATTRIBUTES.ZINFERREDTIMEZONEOFFSET, "
+            "ZADDITIONALASSETATTRIBUTES.ZTIMEZONENAME, "
+            "ZGENERICASSET.ZHIDDEN, "
+            "ZGENERICASSET.ZFAVORITE, "
+            "ZGENERICASSET.ZDIRECTORY, "
+            "ZGENERICASSET.ZFILENAME "
+            "FROM ZGENERICASSET "
+            "JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK "
+            "WHERE ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
+            "ORDER BY ZGENERICASSET.ZUUID "
+            # "select RKVersion.uuid, RKVersion.modelId, RKVersion.masterUuid, RKVersion.filename, "
+            # + "RKVersion.lastmodifieddate, RKVersion.imageDate, RKVersion.mainRating, "
+            # + "RKVersion.hasAdjustments, RKVersion.hasKeywords, RKVersion.imageTimeZoneOffsetSeconds, "
+            # + "RKMaster.volumeId, RKMaster.imagePath, RKVersion.extendedDescription, RKVersion.name, "
+            # + "RKMaster.isMissing "
+            # + "from RKVersion, RKMaster where RKVersion.isInTrash = 0 and RKVersion.type = 2 and "
+            # + "RKVersion.masterUuid = RKMaster.uuid and RKVersion.filename not like '%.pdf'"
         )
+        # Order of results
+        # 0    "SELECT ZGENERICASSET.ZUUID, "
+        # 1    "ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT, "
+        # 2    "ZADDITIONALASSETATTRIBUTES.ZTITLE, "
+        # 3    "ZADDITIONALASSETATTRIBUTES.ZORIGINALFILENAME, "
+        # 4    "ZGENERICASSET.ZMODIFICATIONDATE, "
+        # 5    "ZGENERICASSET.ZDATECREATED, "
+        # 6    "ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET, "
+        # 7    "ZADDITIONALASSETATTRIBUTES.ZINFERREDTIMEZONEOFFSET, "
+        # 8    "ZADDITIONALASSETATTRIBUTES.ZTIMEZONENAME, "
+        # 9    "ZGENERICASSET.ZHIDDEN, "
+        # 10   "ZGENERICASSET.ZFAVORITE, "
+        # 11   "ZGENERICASSET.ZDIRECTORY, "
+        # 12   "ZGENERICASSET.ZFILENAME "
+
         i = 0
         for row in c:
             #  set_pbar_status(i)
             i = i + 1
             uuid = row[0]
             if _debug:
-                print(f"i = {i:d}, uuid = '{uuid}, master = '{row[2]}")
+                print(f"i = {i:d}, uuid = '{uuid}")
             self._dbphotos[uuid] = {}
-            self._dbphotos[uuid]["modelID"] = row[1]
-            self._dbphotos[uuid]["masterUuid"] = row[2]
-            self._dbphotos[uuid]["filename"] = row[3]
+            self._dbphotos[uuid]["modelID"] = None
+            self._dbphotos[uuid]["masterUuid"] = None
+            self._dbphotos[uuid]["masterFingerprint"] = row[1]
+            self._dbphotos[uuid]["name"] = row[2]
             try:
                 self._dbphotos[uuid]["lastmodifieddate"] = datetime.fromtimestamp(
                     row[4] + td
@@ -813,15 +848,19 @@ class PhotosDB:
             self._dbphotos[uuid]["imageDate"] = datetime.fromtimestamp(
                 row[5] + td
             )  # - row[9],  timezone.utc)
-            self._dbphotos[uuid]["mainRating"] = row[6]
-            self._dbphotos[uuid]["hasAdjustments"] = row[7]
-            self._dbphotos[uuid]["hasKeywords"] = row[8]
-            self._dbphotos[uuid]["imageTimeZoneOffsetSeconds"] = row[9]
-            self._dbphotos[uuid]["volumeId"] = row[10]
-            self._dbphotos[uuid]["imagePath"] = row[11]
-            self._dbphotos[uuid]["extendedDescription"] = row[12]
-            self._dbphotos[uuid]["name"] = row[13]
-            self._dbphotos[uuid]["isMissing"] = row[14]
+            # self._dbphotos[uuid]["mainRating"] = row[6]
+            # self._dbphotos[uuid]["hasAdjustments"] = row[7]
+            # self._dbphotos[uuid]["hasKeywords"] = row[8]
+            self._dbphotos[uuid]["imageTimeZoneOffsetSeconds"] = row[6]
+            # self._dbphotos[uuid]["volumeId"] = row[10]
+            # self._dbphotos[uuid]["imagePath"] = row[11]
+            # self._dbphotos[uuid]["extendedDescription"] = row[12]
+            self._dbphotos[uuid]["hidden"] = row[9]
+            self._dbphotos[uuid]["favorite"] = row[10]
+            self._dbphotos[uuid]["originalFilename"] = row[3]
+            self._dbphotos[uuid]["filename"] = row[12]
+            self._dbphotos[uuid]["directory"] = row[11]
+            # self._dbphotos[uuid]["isMissing"] = row[14]
             #  logger.debug(
         #                  "Fetching data for photo %d %s %s %s %s %s: %s"
         #  % (
@@ -836,14 +875,60 @@ class PhotosDB:
         #  )
 
         #  close_pbar_status()
-        conn.close()
+
+        # Get extended description
+        c.execute(
+            "SELECT ZGENERICASSET.ZUUID, "
+            "ZASSETDESCRIPTION.ZLONGDESCRIPTION "
+            "FROM ZGENERICASSET "
+            "JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK "
+            "JOIN ZASSETDESCRIPTION ON ZASSETDESCRIPTION.Z_PK = ZADDITIONALASSETATTRIBUTES.ZASSETDESCRIPTION "
+            "ORDER BY ZGENERICASSET.ZUUID "
+        )
+        i = 0
+        for row in c:
+            i = i + 1
+            uuid = row[0]
+            if uuid in self._dbphotos:
+                self._dbphotos[uuid]["extendedDescription"] = row[1]
+            else:
+                print(
+                    f"DEBUG WARNING: found description {row[1]} but no photo for {uuid}"
+                )
+
+        # get information on local/remote availability
+        c.execute(
+            "SELECT ZGENERICASSET.ZUUID, "
+            "ZINTERNALRESOURCE.ZLOCALAVAILABILITY, "
+            "ZINTERNALRESOURCE.ZREMOTEAVAILABILITY "
+            "FROM ZGENERICASSET "
+            "JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK "
+            "JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZFINGERPRINT = ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT "
+        )
+
+        i = 0
+        for row in c:
+            i = i+1
+            uuid = row[0]
+            if uuid in self._dbphotos:
+                self._dbphotos[uuid]["localAvailability"] = row[1]
+                self._dbphotos[uuid]["remoteAvailability"] = row[2]
+                if row[1] != 1:
+                    self._dbphotos[uuid]["isMissing"] = 1
+                else:
+                    self._dbphotos[uuid]["isMissing"] = 0
+        
+        if _debug:
+            pp.pprint(self._dbphotos)
 
         # add faces and keywords to photo data
         for uuid in self._dbphotos:
             # keywords
-            if self._dbphotos[uuid]["hasKeywords"] == 1:
+            if uuid in self._dbkeywords_uuid:
+                self._dbphotos[uuid]["hasKeywords"] = 1
                 self._dbphotos[uuid]["keywords"] = self._dbkeywords_uuid[uuid]
             else:
+                self._dbphotos[uuid]["hasKeywords"] = 0
                 self._dbphotos[uuid]["keywords"] = []
 
             if uuid in self._dbfaces_uuid:
@@ -860,14 +945,15 @@ class PhotosDB:
                 self._dbphotos[uuid]["albums"] = []
                 self._dbphotos[uuid]["hasAlbums"] = 0
 
-            if self._dbphotos[uuid]["volumeId"] is not None:
-                self._dbphotos[uuid]["volume"] = self._dbvolumes[
-                    self._dbphotos[uuid]["volumeId"]
-                ]
-            else:
-                self._dbphotos[uuid]["volume"] = None
+            # if self._dbphotos[uuid]["volumeId"] is not None:
+            #     self._dbphotos[uuid]["volume"] = self._dbvolumes[
+            #         self._dbphotos[uuid]["volumeId"]
+            #     ]
+            # else:
+            #     self._dbphotos[uuid]["volume"] = None
 
-        # remove temporary files
+        # close connection and remove temporary files
+        conn.close()
         self._cleanup_tmp_files()
 
         if _debug:
