@@ -860,6 +860,15 @@ class PhotosDB:
             self._dbphotos[uuid]["originalFilename"] = row[3]
             self._dbphotos[uuid]["filename"] = row[12]
             self._dbphotos[uuid]["directory"] = row[11]
+
+            # these will get filled in later
+            # init to avoid key errors
+            self._dbphotos[uuid]["extendedDescription"] = None # fill this in later
+            self._dbphotos[uuid]["localAvailability"] = None
+            self._dbphotos[uuid]["remoteAvailability"] = None
+            self._dbphotos[uuid]["isMissing"] = None
+            self._dbphotos[uuid]["hasAdjustments"] = None
+
             # self._dbphotos[uuid]["isMissing"] = row[14]
             #  logger.debug(
         #                  "Fetching data for photo %d %s %s %s %s %s: %s"
@@ -1082,19 +1091,24 @@ class PhotoInfo:
     def path(self):
         photopath = ""
 
-        vol = self.__info["volume"]
-        if vol is not None:
-            photopath = os.path.join("/Volumes", vol, self.__info["imagePath"])
-        else:
-            photopath = os.path.join(self.__db._masters_path, self.__info["imagePath"])
+        if self.__db._db_version < _PHOTOS_5_VERSION:
+            vol = self.__info["volume"]
+            if vol is not None:
+                photopath = os.path.join("/Volumes", vol, self.__info["imagePath"])
+            else:
+                photopath = os.path.join(self.__db._masters_path, self.__info["imagePath"])
 
-        if self.__info["isMissing"] == 1:
-            #  logger.warning(
-            #  f"Skipping photo, not yet downloaded from iCloud: {photopath}"
-            #  )
-            #  logger.debug(self.__info)
-            photopath = None  # path would be meaningless until downloaded
-            # TODO: Is there a way to use applescript to force the download in this
+            if self.__info["isMissing"] == 1:
+                #  logger.warning(
+                #  f"Skipping photo, not yet downloaded from iCloud: {photopath}"
+                #  )
+                #  logger.debug(self.__info)
+                photopath = None  # path would be meaningless until downloaded
+                # TODO: Is there a way to use applescript to force the download in this
+        else:
+            return "NOT YET IMPLEMENTED"
+            # Photos 5
+            # ZZZ
 
         return photopath
 
