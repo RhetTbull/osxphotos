@@ -43,7 +43,8 @@ _PHOTOS_5_VERSION = "6000"
 # which major version operating systems have been tested
 _TESTED_OS_VERSIONS = ["12", "13", "14"]
 
-_debug = True 
+# set _debug = True to enable debug output
+_debug = True
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d - %(message)s",
@@ -51,6 +52,7 @@ logging.basicConfig(
 
 if not _debug:
     logging.disable()
+
 
 def _get_os_version():
     # returns tuple containing OS version
@@ -91,7 +93,7 @@ class PhotosDB:
                 "WARNING: This module has only been tested with MacOS 10."
                 + f"[{', '.join(_TESTED_OS_VERSIONS)}]: "
                 + f"you have {system}, OS version: {major}",
-                file=sys.stderr
+                file=sys.stderr,
             )
 
         # configure AppleScripts used to manipulate Photos
@@ -312,7 +314,7 @@ class PhotosDB:
             else:
                 print(
                     "Could not extract photos URL String from IPXDefaultLibraryURLBookmark",
-                    file=sys.stderr
+                    file=sys.stderr,
                 )
                 return None
 
@@ -345,7 +347,7 @@ class PhotosDB:
             conn = sqlite3.connect(f"{fname}")
             c = conn.cursor()
         except sqlite3.Error as e:
-            print(f"An error occurred: {e.args[0]} {fname}",file=sys.stderr)
+            print(f"An error occurred: {e.args[0]} {fname}", file=sys.stderr)
             sys.exit(3)
         #  logger.debug("SQLite database is open")
         return (conn, c)
