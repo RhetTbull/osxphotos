@@ -168,6 +168,7 @@ def print_photo_info(photos, json=False):
             [
                 "uuid",
                 "filename",
+                "original_filename",
                 "date",
                 "description",
                 "name",
@@ -184,6 +185,7 @@ def print_photo_info(photos, json=False):
                 [
                     p.uuid(),
                     p.filename(),
+                    p.original_filename(),
                     str(p.date()),
                     p.description(),
                     p.name(),

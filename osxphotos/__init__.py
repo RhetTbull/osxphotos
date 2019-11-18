@@ -90,9 +90,9 @@ class PhotosDB:
         # logger.debug(system, major)
         if system != "Darwin" or (major not in _TESTED_OS_VERSIONS):
             print(
-                "WARNING: This module has only been tested with MacOS 10."
-                + f"[{', '.join(_TESTED_OS_VERSIONS)}]: "
-                + f"you have {system}, OS version: {major}",
+                f"WARNING: This module has only been tested with MacOS 10."
+                f"[{', '.join(_TESTED_OS_VERSIONS)}]: "
+                f"you have {system}, OS version: {major}",
                 file=sys.stderr,
             )
 
@@ -536,6 +536,10 @@ class PhotosDB:
             self._dbphotos[uuid]["modelID"] = row[1]
             self._dbphotos[uuid]["masterUuid"] = row[2]
             self._dbphotos[uuid]["filename"] = row[3]
+            
+            # TODO: Photos 5 has filename and originalFilename, is there equiv for older database formats?
+            self._dbphotos[uuid]["originalFilename"] = row[3] 
+
             try:
                 self._dbphotos[uuid]["lastmodifieddate"] = datetime.fromtimestamp(
                     row[4] + td
@@ -1075,7 +1079,13 @@ class PhotoInfo:
         self.__db = db
 
     def filename(self):
+        """ return filename of the picture """
         return self.__info["filename"]
+
+    def original_filename(self):
+        """ return original filename of the picture """
+        """ Photos 5 mangles filenames upon import """
+        return self.__info["originalFilename"]
 
     def date(self):
         """ image creation date as timezone aware datetime object """
@@ -1109,8 +1119,23 @@ class PhotoInfo:
                 photopath = None  # path would be meaningless until downloaded
                 # TODO: Is there a way to use applescript to force the download in this
         else:
-            return "NOT YET IMPLEMENTED"
-            # Photos 5
+            if self.__info["masterFingerprint"]:
+                # if masterFingerprint is not null, path appears to be valid
+                if self.__info["directory"].startswith("/"):
+                    photopath = os.path.join(
+                        self.__info["directory"], self.__info["filename"]
+                    )
+                else:
+                    photopath = os.path.join(
+                        self.__db._masters_path,
+                        self.__info["directory"],
+                        self.__info["filename"],
+                    )
+            else:
+                logging.debug("WARNING: masterFingerprint null",pformat(self.__info))
+
+            logging.debug(photopath)
+            return photopath
             # ZZZ
 
         return photopath
@@ -1169,9 +1194,11 @@ class PhotoInfo:
 
     def to_json(self):
         """ return JSON representation """
+        #TODO: Add additional details here
         pic = {
             "uuid": self.uuid(),
             "filename": self.filename(),
+            "original_filename": self.original_filename(),
             "date": str(self.date()),
             "description": self.description(),
             "name": self.name(),
