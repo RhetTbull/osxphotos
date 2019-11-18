@@ -22,11 +22,13 @@ from . import _applescript
 
 # from loguru import logger
 
+# TODO: Add test for 10.15 / Photos 5
+# TODO: Update README.md for Photos 5 changes
 # TODO: Add favorites, hidden
 # TODO: Add location
-# TODO: Does not work with Photos 5.0 / Mac OS 10.15 Catalina
 # TODO: standardize _ and __ as leading char for private variables
 # TODO: fix docstrings
+# TODO: handle Null person for Photos 5
 
 # which Photos library database versions have been tested
 # Photos 2.0 (10.12.6) == 2622
@@ -35,16 +37,16 @@ from . import _applescript
 # Photos 4.0 (10.14.6) == 4025
 # Photos 5.0 (10.15.0) == 6000
 # TODO: Should this also use compatibleBackToVersion from LiGlobals?
-_TESTED_DB_VERSIONS = ["4025", "4016", "3301", "2622"]
+_TESTED_DB_VERSIONS = ["6000", "4025", "4016", "3301", "2622"]
 
 # versions later than this have a different database structure
 _PHOTOS_5_VERSION = "6000"
 
 # which major version operating systems have been tested
-_TESTED_OS_VERSIONS = ["12", "13", "14"]
+_TESTED_OS_VERSIONS = ["12", "13", "14", "15"]
 
 # set _debug = True to enable debug output
-_debug = True
+_debug = False 
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d - %(message)s",
@@ -536,9 +538,9 @@ class PhotosDB:
             self._dbphotos[uuid]["modelID"] = row[1]
             self._dbphotos[uuid]["masterUuid"] = row[2]
             self._dbphotos[uuid]["filename"] = row[3]
-            
+
             # TODO: Photos 5 has filename and originalFilename, is there equiv for older database formats?
-            self._dbphotos[uuid]["originalFilename"] = row[3] 
+            self._dbphotos[uuid]["originalFilename"] = row[3]
 
             try:
                 self._dbphotos[uuid]["lastmodifieddate"] = datetime.fromtimestamp(
@@ -1079,11 +1081,11 @@ class PhotoInfo:
         self.__db = db
 
     def filename(self):
-        """ return filename of the picture """
+        """ filename of the picture """
         return self.__info["filename"]
 
     def original_filename(self):
-        """ return original filename of the picture """
+        """ original filename of the picture """
         """ Photos 5 mangles filenames upon import """
         return self.__info["originalFilename"]
 
@@ -1100,6 +1102,7 @@ class PhotoInfo:
         return self.__info["imageTimeZoneOffsetSeconds"]
 
     def path(self):
+        """ path on disk of the picture """
         photopath = ""
 
         if self.__db._db_version < _PHOTOS_5_VERSION:
@@ -1132,30 +1135,39 @@ class PhotoInfo:
                         self.__info["filename"],
                     )
             else:
-                logging.debug("WARNING: masterFingerprint null",pformat(self.__info))
+                photopath = None
+                logging.debug("WARNING: masterFingerprint null", pformat(self.__info))
+
+            # TODO: fix the logic for isMissing
+            if self.__info["isMissing"] == 1:
+                photopath = None  # path would be meaningless until downloaded
 
             logging.debug(photopath)
-            return photopath
-            # ZZZ
 
         return photopath
 
     def description(self):
+        """ long / extended description of picture """
         return self.__info["extendedDescription"]
 
     def persons(self):
+        """ list of persons in picture """
         return self.__info["persons"]
 
     def albums(self):
+        """ list of albums picture is contained in """
         return self.__info["albums"]
 
     def keywords(self):
+        """ list of keywords for picture """
         return self.__info["keywords"]
 
     def name(self):
+        """ name / title of picture """
         return self.__info["name"]
 
     def uuid(self):
+        """ UUID of picture """
         return self.__uuid
 
     def ismissing(self):
@@ -1171,6 +1183,8 @@ class PhotoInfo:
         return True if self.__info["isMissing"] == 1 else False
 
     def hasadjustments(self):
+        """ True if picture has adjustments """
+        """ TODO: not accurate for Photos version >= 5 """
         return True if self.__info["hasAdjustments"] == 1 else False
 
     def __repr__(self):
@@ -1180,6 +1194,7 @@ class PhotoInfo:
         info = {
             "uuid": self.uuid(),
             "filename": self.filename(),
+            "original_filename": self.original_filename(),
             "date": str(self.date()),
             "description": self.description(),
             "name": self.name(),
@@ -1194,7 +1209,7 @@ class PhotoInfo:
 
     def to_json(self):
         """ return JSON representation """
-        #TODO: Add additional details here
+        # TODO: Add additional details here
         pic = {
             "uuid": self.uuid(),
             "filename": self.filename(),

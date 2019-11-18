@@ -11,9 +11,9 @@ OSXPhotos provides the ability to interact with and query Apple's Photos app lib
 
 Only works on Mac OS X. Tested on Mac OS 10.12.6 / Photos 2.0, 10.13.6 / Photos 3.0 and Mac OS 10.14.5, 10.14.6 / Photos 4.0. Requires python >= 3.6
 
-This module will read Photos databases for any supported version on any supported OS version.  E.g. you can read a database created with Photos 4.0 on Mac OS 10.14 on a machine running Mac OS 10.12
+NOTE: Alpha support for Mac OS 10.15.0 / Photos 5.0.  Photos 5.0 uses a new database format which required rewrite of much of the code for this package.  If you find bugs, please open an issue on the project [github](https://github.com/RhetTbull/osxphotos) page.
 
-NOTE: Does NOT currently support Mac OS 10.15 / Catalina and Photos 5.0.  This module will run on Catalina but you will only be able to read Photos database files created with Photos 4.0 or lower.  Photos 5.0 on Catalina uses an entirely new database schema and the code has not yet been udpated to work with this version.
+This module will read Photos databases for any supported version on any supported OS version.  E.g. you can read a database created with Photos 4.0 on Mac OS 10.14 on a machine running Mac OS 10.12
 
 
 ## Installation instructions
