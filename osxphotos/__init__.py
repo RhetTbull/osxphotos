@@ -1,7 +1,7 @@
 import json
+import logging
 import os.path
 import platform
-import pprint
 import sqlite3
 import sys
 import tempfile
@@ -9,11 +9,13 @@ import urllib.parse
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from plistlib import load as plistload
+from pprint import pformat
 from shutil import copyfile
+
+import yaml
 
 import CoreFoundation
 import objc
-import yaml
 from Foundation import *
 
 from . import _applescript
@@ -41,8 +43,14 @@ _PHOTOS_5_VERSION = "6000"
 # which major version operating systems have been tested
 _TESTED_OS_VERSIONS = ["12", "13", "14"]
 
-_debug = True
+_debug = True 
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d - %(message)s",
+)
 
+if not _debug:
+    logging.disable()
 
 def _get_os_version():
     # returns tuple containing OS version
@@ -83,7 +91,7 @@ class PhotosDB:
                 "WARNING: This module has only been tested with MacOS 10."
                 + f"[{', '.join(_TESTED_OS_VERSIONS)}]: "
                 + f"you have {system}, OS version: {major}",
-                file=sys.stderr,
+                file=sys.stderr
             )
 
         # configure AppleScripts used to manipulate Photos
@@ -111,7 +119,7 @@ class PhotosDB:
         # list of temporary files created so we can clean them up later
         self._tmp_files = []
 
-        print(f"DEBUG: dbfile = {dbfile}")
+        logging.debug(f"dbfile = {dbfile}")
         if dbfile is None:
             library_path = self.get_photos_library_path()
             # logger.debug("library_path: " + library_path)
@@ -129,10 +137,10 @@ class PhotosDB:
         self._tmp_db = self._copy_db_file(self._dbfile)
         self._db_version = self._get_db_version()
         if int(self._db_version) >= int(_PHOTOS_5_VERSION):
-            print(f"DEBUG: version is {self._db_version}")
+            logging.debug(f"version is {self._db_version}")
             dbpath = Path(self._dbfile).parent
             dbfile = dbpath / "Photos.sqlite"
-            print(f"DEBUG: dbfile = {dbfile}")
+            logging.debug(f"dbfile = {dbfile}")
             if not _check_file_exists(dbfile):
                 sys.exit(f"dbfile {dbfile} does not exist")
             else:
@@ -152,7 +160,7 @@ class PhotosDB:
             masters_path = os.path.join(library_path, "originals")
             self._masters_path = masters_path
 
-        print(f"DEBUG: library = {library_path}, masters = {masters_path}")
+        logging.debug(f"library = {library_path}, masters = {masters_path}")
 
         # logger.info(f"database filename = {dbfile}")
 
@@ -164,9 +172,9 @@ class PhotosDB:
     def _cleanup_tmp_files(self):
         """ removes all temporary files whose names are stored in self.tmp_files """
         """ does not raise exception if file cannot be deleted (e.g. it was already cleaned up) """
-        print(f"DEBUG: tmp files ={self._tmp_files}")
+        logging.debug(f"tmp files ={self._tmp_files}")
         for f in self._tmp_files:
-            print(f"DEBUG: cleaning up {f}")
+            logging.debug(f"cleaning up {f}")
             try:
                 os.remove(f)
             except Exception as e:
@@ -304,7 +312,7 @@ class PhotosDB:
             else:
                 print(
                     "Could not extract photos URL String from IPXDefaultLibraryURLBookmark",
-                    file=sys.stderr,
+                    file=sys.stderr
                 )
                 return None
 
@@ -337,7 +345,7 @@ class PhotosDB:
             conn = sqlite3.connect(f"{fname}")
             c = conn.cursor()
         except sqlite3.Error as e:
-            print(f"An error occurred: {e.args[0]} {fname}")
+            print(f"An error occurred: {e.args[0]} {fname}",file=sys.stderr)
             sys.exit(3)
         #  logger.debug("SQLite database is open")
         return (conn, c)
@@ -345,7 +353,6 @@ class PhotosDB:
     def _get_db_version(self):
         """ gets the Photos DB version from LiGlobals table """
         """ returns the version as str"""
-        global _debug
         version = None
 
         (conn, c) = self._open_sql_file(self._tmp_db)
@@ -373,7 +380,6 @@ class PhotosDB:
     def _process_database4(self):
         """ process the Photos database to extract info """
         """ works on Photos version <= 4.0 """
-        global _debug
 
         # Epoch is Jan 1, 2001
         td = (datetime(2001, 1, 1, 0, 0) - datetime(1970, 1, 1, 0, 0)).total_seconds()
@@ -523,8 +529,7 @@ class PhotosDB:
             #  set_pbar_status(i)
             i = i + 1
             uuid = row[0]
-            if _debug:
-                print(f"i = {i:d}, uuid = '{uuid}, master = '{row[2]}")
+            logging.debug(f"i = {i:d}, uuid = '{uuid}, master = '{row[2]}")
             self._dbphotos[uuid] = {}
             self._dbphotos[uuid]["modelID"] = row[1]
             self._dbphotos[uuid]["masterUuid"] = row[2]
@@ -599,27 +604,26 @@ class PhotosDB:
         self._cleanup_tmp_files()
 
         if _debug:
-            pp = pprint.PrettyPrinter(indent=4)
-            print("Faces:")
-            pp.pprint(self._dbfaces_uuid)
+            logging.debug("Faces:")
+            logging.debug(pformat(self._dbfaces_uuid))
 
-            print("Keywords by uuid:")
-            pp.pprint(self._dbkeywords_uuid)
+            logging.debug("Keywords by uuid:")
+            logging.debug(pformat(self._dbkeywords_uuid))
 
-            print("Keywords by keyword:")
-            pp.pprint(self._dbkeywords_keyword)
+            logging.debug("Keywords by keyword:")
+            logging.debug(pformat(self._dbkeywords_keyword))
 
-            print("Albums by uuid:")
-            pp.pprint(self._dbalbums_uuid)
+            logging.debug("Albums by uuid:")
+            logging.debug(pformat(self._dbalbums_uuid))
 
-            print("Albums by album:")
-            pp.pprint(self._dbalbums_album)
+            logging.debug("Albums by album:")
+            logging.debug(pformat(self._dbalbums_album))
 
-            print("Volumes:")
-            pp.pprint(self._dbvolumes)
+            logging.debug("Volumes:")
+            logging.debug(pformat(self._dbvolumes))
 
-            print("Photos:")
-            pp.pprint(self._dbphotos)
+            logging.debug("Photos:")
+            logging.debug(pformat(self._dbphotos))
 
         #  logger.debug(f"processed {len(self._dbphotos)} photos")
 
@@ -627,10 +631,7 @@ class PhotosDB:
         """ process the Photos database to extract info """
         """ works on Photos version >= 5.0 """
 
-        global _debug
-
-        if _debug:
-            print(f"DEBUG: _process_database5")
+        logging.debug(f"_process_database5")
 
         # Epoch is Jan 1, 2001
         td = (datetime(2001, 1, 1, 0, 0) - datetime(1970, 1, 1, 0, 0)).total_seconds()
@@ -656,7 +657,7 @@ class PhotosDB:
         #     (conn, c) = self._open_sql_file(tmp_db)
 
         # Look for all combinations of persons and pictures
-        print(f"DEBUG: Getting information about persons")
+        logging.debug(f"Getting information about persons")
 
         i = 0
         c.execute(
@@ -685,10 +686,9 @@ class PhotosDB:
             self._dbfaces_person[person[0]].append(person[1])
             #  set_pbar_status(i)
             i = i + 1
-        print(f"DEBUG: Finished walking through persons")
-        pp = pprint.PrettyPrinter(indent=4)
-        print(f"DEBUG: {pp.pprint(self._dbfaces_person)}")
-        print(f"DEBUG: {pp.pprint(self._dbfaces_uuid)}")
+        logging.debug(f"Finished walking through persons")
+        logging.debug(pformat(self._dbfaces_person))
+        logging.debug(self._dbfaces_uuid)
 
         #  close_pbar_status()
 
@@ -721,9 +721,9 @@ class PhotosDB:
             #  logger.debug(f"{album[1]} {album[0]}")
             #  set_pbar_status(i)
             i = i + 1
-        print(f"DEBUG: Finished walking through albums")
-        print(f"DEBUG: {pp.pprint(self._dbalbums_album)}")
-        print(f"DEBUG: {pp.pprint(self._dbalbums_uuid)}")
+        logging.debug(f"Finished walking through albums")
+        logging.debug(pformat(self._dbalbums_album))
+        logging.debug(pformat(self._dbalbums_uuid))
         #  close_pbar_status()
 
         #  logger.debug("Getting information about keywords")
@@ -755,10 +755,10 @@ class PhotosDB:
             #  logger.debug(f"{keyword[1]} {keyword[0]}")
             #  set_pbar_status(i)
             i = i + 1
-        print(f"DEBUG: Finished walking through keywords")
+        logging.debug(f"Finished walking through keywords")
         #  close_pbar_status()
-        pp.pprint(self._dbkeywords_keyword)
-        pp.pprint(self._dbkeywords_uuid)
+        logging.debug(pformat(self._dbkeywords_keyword))
+        logging.debug(pformat(self._dbkeywords_uuid))
 
         #  logger.debug("Getting information about volumes")
         c.execute("SELECT COUNT(*) FROM ZFILESYSTEMVOLUME")
@@ -770,11 +770,11 @@ class PhotosDB:
             #  logger.debug(f"{vol[0]} {vol[1]}")
             #  set_pbar_status(i)
             i = i + 1
-        print(f"DEBUG: Finished walking through volumes")
-        pp.pprint(self._dbvolumes)
+        logging.debug(f"Finished walking through volumes")
+        logging.debug(self._dbvolumes)
         #  close_pbar_status()
 
-        print(f"DEBUG: Getting information about photos")
+        logging.debug(f"Getting information about photos")
         # TODO: Since I don't use progress bars now, can probably remove the count
         c.execute(
             "SELECT COUNT(*) "
@@ -830,7 +830,7 @@ class PhotosDB:
             i = i + 1
             uuid = row[0]
             if _debug:
-                print(f"i = {i:d}, uuid = '{uuid}")
+                logging.debug(f"i = {i:d}, uuid = '{uuid}")
             self._dbphotos[uuid] = {}
             self._dbphotos[uuid]["modelID"] = None
             self._dbphotos[uuid]["masterUuid"] = None
@@ -863,7 +863,7 @@ class PhotosDB:
 
             # these will get filled in later
             # init to avoid key errors
-            self._dbphotos[uuid]["extendedDescription"] = None # fill this in later
+            self._dbphotos[uuid]["extendedDescription"] = None  # fill this in later
             self._dbphotos[uuid]["localAvailability"] = None
             self._dbphotos[uuid]["remoteAvailability"] = None
             self._dbphotos[uuid]["isMissing"] = None
@@ -901,8 +901,8 @@ class PhotosDB:
             if uuid in self._dbphotos:
                 self._dbphotos[uuid]["extendedDescription"] = row[1]
             else:
-                print(
-                    f"DEBUG WARNING: found description {row[1]} but no photo for {uuid}"
+                logging.debug(
+                    f"WARNING: found description {row[1]} but no photo for {uuid}"
                 )
 
         # get information on local/remote availability
@@ -917,7 +917,7 @@ class PhotosDB:
 
         i = 0
         for row in c:
-            i = i+1
+            i = i + 1
             uuid = row[0]
             if uuid in self._dbphotos:
                 self._dbphotos[uuid]["localAvailability"] = row[1]
@@ -926,9 +926,9 @@ class PhotosDB:
                     self._dbphotos[uuid]["isMissing"] = 1
                 else:
                     self._dbphotos[uuid]["isMissing"] = 0
-        
+
         if _debug:
-            pp.pprint(self._dbphotos)
+            logging.debug(pformat(self._dbphotos))
 
         # add faces and keywords to photo data
         for uuid in self._dbphotos:
@@ -966,27 +966,26 @@ class PhotosDB:
         self._cleanup_tmp_files()
 
         if _debug:
-            pp = pprint.PrettyPrinter(indent=4)
-            print("Faces:")
-            pp.pprint(self._dbfaces_uuid)
+            logging.debug("Faces:")
+            logging.debug(pformat(self._dbfaces_uuid))
 
-            print("Keywords by uuid:")
-            pp.pprint(self._dbkeywords_uuid)
+            logging.debug("Keywords by uuid:")
+            logging.debug(pformat(self._dbkeywords_uuid))
 
-            print("Keywords by keyword:")
-            pp.pprint(self._dbkeywords_keyword)
+            logging.debug("Keywords by keyword:")
+            logging.debug(pformat(self._dbkeywords_keyword))
 
-            print("Albums by uuid:")
-            pp.pprint(self._dbalbums_uuid)
+            logging.debug("Albums by uuid:")
+            logging.debug(pformat(self._dbalbums_uuid))
 
-            print("Albums by album:")
-            pp.pprint(self._dbalbums_album)
+            logging.debug("Albums by album:")
+            logging.debug(pformat(self._dbalbums_album))
 
-            print("Volumes:")
-            pp.pprint(self._dbvolumes)
+            logging.debug("Volumes:")
+            logging.debug(pformat(self._dbvolumes))
 
-            print("Photos:")
-            pp.pprint(self._dbphotos)
+            logging.debug("Photos:")
+            logging.debug(pformat(self._dbphotos))
 
         #  logger.debug(f"processed {len(self._dbphotos)} photos")
 
@@ -1096,7 +1095,9 @@ class PhotoInfo:
             if vol is not None:
                 photopath = os.path.join("/Volumes", vol, self.__info["imagePath"])
             else:
-                photopath = os.path.join(self.__db._masters_path, self.__info["imagePath"])
+                photopath = os.path.join(
+                    self.__db._masters_path, self.__info["imagePath"]
+                )
 
             if self.__info["isMissing"] == 1:
                 #  logger.warning(
