@@ -53,7 +53,7 @@ logging.basicConfig(
 )
 
 if not _debug:
-    logging.disable()
+    logging.disable(logging.DEBUG)
 
 
 def _get_os_version():
