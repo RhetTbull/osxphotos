@@ -331,6 +331,7 @@ for p in photos:
     print(
         p.uuid(),
         p.filename(),
+        p.original_filename(),
         p.date(),
         p.description(),
         p.name(),
