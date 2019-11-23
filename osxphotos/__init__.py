@@ -46,7 +46,7 @@ _PHOTOS_5_VERSION = "6000"
 _TESTED_OS_VERSIONS = ["12", "13", "14", "15"]
 
 # set _debug = True to enable debug output
-_debug = False 
+_debug = False
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d - %(message)s",
@@ -294,7 +294,7 @@ class PhotosDB:
         # this is a serialized CFData object
         photosurlref = pl["IPXDefaultLibraryURLBookmark"]
 
-        if photosurlref != None:
+        if photosurlref is not None:
             # use CFURLCreateByResolvingBookmarkData to de-serialize bookmark data into a CFURLRef
             photosurl = CoreFoundation.CFURLCreateByResolvingBookmarkData(
                 kCFAllocatorDefault, photosurlref, 0, None, None, None, None
@@ -425,7 +425,7 @@ class PhotosDB:
             + "RKVersion.filename not like '%.pdf' and RKVersion.isInTrash = 0"
         )
         for person in c:
-            if person[0] == None:
+            if person[0] is None:
                 #  logger.debug(f"skipping person = None {person[1]}")
                 continue
             if not person[1] in self._dbfaces_uuid:
@@ -683,7 +683,7 @@ class PhotosDB:
             "AND ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
         )
         for person in c:
-            if person[0] == None:
+            if person[0] is None:
                 #  logger.debug(f"skipping person = None {person[1]}")
                 continue
             if not person[1] in self._dbfaces_uuid:
