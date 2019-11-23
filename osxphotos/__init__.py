@@ -46,7 +46,7 @@ _PHOTOS_5_VERSION = "6000"
 _TESTED_OS_VERSIONS = ["12", "13", "14", "15"]
 
 # set _debug = True to enable debug output
-_debug = False
+_debug = True
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d - %(message)s",
@@ -155,7 +155,7 @@ class PhotosDB:
 
         # TODO: replace os.path with pathlib
         # TODO: clean this up -- we'll already know library_path
-        library_path = os.path.dirname(dbfile)
+        library_path = os.path.dirname(os.path.abspath(dbfile))
         (library_path, _) = os.path.split(library_path)
         if int(self._db_version) < int(_PHOTOS_5_VERSION):
             masters_path = os.path.join(library_path, "Masters")
@@ -1136,7 +1136,7 @@ class PhotoInfo:
                     )
             else:
                 photopath = None
-                logging.debug("WARNING: masterFingerprint null", pformat(self.__info))
+                logging.debug(f"WARNING: masterFingerprint null {pformat(self.__info)}")
 
             # TODO: fix the logic for isMissing
             if self.__info["isMissing"] == 1:

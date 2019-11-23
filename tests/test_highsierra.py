@@ -115,15 +115,17 @@ def test_attributes():
     assert len(photos) == 1
     p = photos[0]
     assert p.keywords() == ["Kids"]
+    assert p.original_filename() == "Pumkins2.jpg"
     assert p.filename() == "Pumkins2.jpg"
-    assert p.date() == datetime.datetime(2018, 9, 28, 16, 7, 7,0,datetime.timezone(datetime.timedelta(seconds=-14400)))
+    assert p.date() == datetime.datetime(
+        2018, 9, 28, 16, 7, 7, 0, datetime.timezone(datetime.timedelta(seconds=-14400))
+    )
     assert p.description() == "Girl holding pumpkin"
     assert p.name() == "I found one!"
     assert p.albums() == ["Pumpkin Farm"]
     assert p.persons() == ["Katie"]
-    assert (
-        p.path()
-        == "./tests/Test-10.13.6.photoslibrary/Masters/2019/07/26/20190726-203227/Pumkins2.jpg"
+    assert p.path().endswith(
+        "/tests/Test-10.13.6.photoslibrary/Masters/2019/07/26/20190726-203227/Pumkins2.jpg"
     )
     assert p.ismissing() == False
 

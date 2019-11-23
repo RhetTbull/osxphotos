@@ -96,6 +96,7 @@ def main():
         print(
             p.uuid,
             p.filename(),
+            p.original_filename(),
             p.date(),
             p.description(),
             p.name(),
@@ -286,7 +287,10 @@ PhotosDB.photos() returns a list of PhotoInfo objects.  Each PhotoInfo object re
 Returns the universally unique identifier (uuid) of the photo.  This is how Photos keeps track of individual photos within the database.
 
 #### `filename()`
-Returns the filename of the photo
+Returns the filename of the photo on disk
+
+#### `original_filename()`
+Returns the original filename of the photo when it was imported to Photos.  Photos 5.0+ renames the photo when it adds the file to the library using UUID.  For Photos 4.0 and below, filename() == original_filename()
 
 #### `date()`
 Returns the date of the photo as a datetime.datetime object
@@ -307,7 +311,7 @@ Returns a list of albums the photo is contained in
 Returns a list of the names of the persons in the photo
 
 #### `path()`
-Returns the path to the photo on disk as a string.  Note: this returns the path to the *original* unedited file (see `hasadjustments()`).  If the file is missing on disk, path=`None` (see `ismissing()`)
+Returns the absolute path to the photo on disk as a string.  Note: this returns the path to the *original* unedited file (see `hasadjustments()`).  If the file is missing on disk, path=`None` (see `ismissing()`)
 
 #### `ismissing()`
 Returns `True` if the original image file is missing on disk, otherwise `False`.  This can occur if the file has been uploaded to iCloud but not yet downloaded to the local library or if the file was deleted or imported from a disk that has been unmounted. Note: this status is set by Photos and osxphotos does not verify that the file path returned by `path()` actually exists.  It merely reports what Photos has stored in the library database. 

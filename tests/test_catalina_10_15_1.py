@@ -125,9 +125,8 @@ def test_attributes():
     assert p.name() == "I found one!"
     assert p.albums() == ["Pumpkin Farm"]
     assert p.persons() == ["Katie"]
-    assert (
-        p.path()
-        == "tests/Test-10.15.1.photoslibrary/originals/D/D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg"
+    assert p.path().endswith(
+        "tests/Test-10.15.1.photoslibrary/originals/D/D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg"
     )
     assert p.ismissing() == False
 
