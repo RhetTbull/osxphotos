@@ -20,10 +20,8 @@ from Foundation import *
 
 from . import _applescript
 
-# from loguru import logger
 
-# TODO: Add test for 10.15 / Photos 5
-# TODO: Update README.md for Photos 5 changes
+# TODO: Add RKMaster.originalFileName to Photos 4 code for original_file
 # TODO: Add favorites, hidden
 # TODO: Add location
 # TODO: standardize _ and __ as leading char for private variables
@@ -90,7 +88,6 @@ class PhotosDB:
         # Check OS version
         system = platform.system()
         (_, major, _) = _get_os_version()
-        # logger.debug(system, major)
         if system != "Darwin" or (major not in _TESTED_OS_VERSIONS):
             print(
                 f"WARNING: This module has only been tested with MacOS 10."
@@ -127,10 +124,8 @@ class PhotosDB:
         logging.debug(f"dbfile = {dbfile}")
         if dbfile is None:
             library_path = self.get_photos_library_path()
-            # logger.debug("library_path: " + library_path)
             # TODO: verify library path not None
             dbfile = os.path.join(library_path, "database/photos.db")
-            # logger.debug(dbfile)
 
         if not _check_file_exists(dbfile):
             sys.exit(f"_dbfile {dbfile} does not exist")
@@ -167,7 +162,6 @@ class PhotosDB:
 
         logging.debug(f"library = {library_path}, masters = {masters_path}")
 
-        # logger.info(f"database filename = {dbfile}")
 
         if int(self._db_version) < int(_PHOTOS_5_VERSION):
             self._process_database4()
@@ -332,7 +326,6 @@ class PhotosDB:
         """ returns the name of the temp file and appends name to self->_tmp_files """
         # required because python's sqlite3 implementation can't read a locked file
         _, tmp = tempfile.mkstemp(suffix=".db", prefix="photos")
-        #  logger.debug("copying " + fname + " to " + tmp)
         try:
             copyfile(fname, tmp)
         except:
@@ -345,14 +338,12 @@ class PhotosDB:
     def _open_sql_file(self, file):
         """ opens sqlite file and returns connection to the database """
         fname = file
-        #  logger.debug(f"Trying to open database {fname}")
         try:
             conn = sqlite3.connect(f"{fname}")
             c = conn.cursor()
         except sqlite3.Error as e:
             print(f"An error occurred: {e.args[0]} {fname}", file=sys.stderr)
             sys.exit(3)
-        #  logger.debug("SQLite database is open")
         return (conn, c)
 
     def _get_db_version(self):
@@ -362,7 +353,6 @@ class PhotosDB:
 
         (conn, c) = self._open_sql_file(self._tmp_db)
         # (conn, c) = self._open_sql_file(self._dbfile)
-        #  logger.debug("Have connection with database")
 
         # get database version
         c.execute(
@@ -394,13 +384,11 @@ class PhotosDB:
         self._scpt_quit.run()
 
         (conn, c) = self._open_sql_file(self._tmp_db)
-        #  logger.debug("Have connection with database")
 
         # if int(self._db_version) > int(_PHOTOS_5_VERSION):
         #     # need to close the photos.db database and re-open Photos.sqlite
         #     c.close()
         #     try:
-        #         #  logger.info("Removing temporary database file: " + tmp_db)
         #         os.remove(tmp_db)
         #     except:
         #         print("Could not remove temporary database: " + tmp_db, file=sys.stderr)
@@ -410,7 +398,6 @@ class PhotosDB:
         #     (conn, c) = self._open_sql_file(tmp_db)
 
         # Look for all combinations of persons and pictures
-        #  logger.debug("Getting information about persons")
 
         i = 0
         c.execute(
@@ -427,7 +414,6 @@ class PhotosDB:
         )
         for person in c:
             if person[0] is None:
-                #  logger.debug(f"skipping person = None {person[1]}")
                 continue
             if not person[1] in self._dbfaces_uuid:
                 self._dbfaces_uuid[person[1]] = []
@@ -437,10 +423,8 @@ class PhotosDB:
             self._dbfaces_person[person[0]].append(person[1])
             #  set_pbar_status(i)
             i = i + 1
-        #  logger.debug("Finished walking through persons")
         #  close_pbar_status()
 
-        #  logger.debug("Getting information about albums")
         i = 0
         c.execute(
             "select count(*) from RKAlbum, RKVersion, RKAlbumVersion where "
@@ -464,13 +448,10 @@ class PhotosDB:
                 self._dbalbums_album[album[0]] = []
             self._dbalbums_uuid[album[1]].append(album[0])
             self._dbalbums_album[album[0]].append(album[1])
-            #  logger.debug(f"{album[1]} {album[0]}")
             #  set_pbar_status(i)
             i = i + 1
-        #  logger.debug("Finished walking through albums")
         #  close_pbar_status()
 
-        #  logger.debug("Getting information about keywords")
         c.execute(
             "select count(*) from RKKeyword, RKKeywordForVersion,RKVersion, RKMaster "
             + "where RKKeyword.modelId = RKKeyWordForVersion.keywordID and "
@@ -494,26 +475,20 @@ class PhotosDB:
                 self._dbkeywords_keyword[keyword[0]] = []
             self._dbkeywords_uuid[keyword[1]].append(keyword[0])
             self._dbkeywords_keyword[keyword[0]].append(keyword[1])
-            #  logger.debug(f"{keyword[1]} {keyword[0]}")
             #  set_pbar_status(i)
             i = i + 1
-        #  logger.debug("Finished walking through keywords")
         #  close_pbar_status()
 
-        #  logger.debug("Getting information about volumes")
         c.execute("select count(*) from RKVolume")
         #  init_pbar_status("Volumes", c.fetchone()[0])
         c.execute("select RKVolume.modelId, RKVolume.name from RKVolume")
         i = 0
         for vol in c:
             self._dbvolumes[vol[0]] = vol[1]
-            #  logger.debug(f"{vol[0]} {vol[1]}")
             #  set_pbar_status(i)
             i = i + 1
-        #  logger.debug("Finished walking through volumes")
         #  close_pbar_status()
 
-        #  logger.debug("Getting information about photos")
         c.execute(
             "select count(*) from RKVersion, RKMaster where RKVersion.isInTrash = 0 and "
             + "RKVersion.type = 2 and RKVersion.masterUuid = RKMaster.uuid and "
@@ -564,18 +539,6 @@ class PhotosDB:
             self._dbphotos[uuid]["extendedDescription"] = row[12]
             self._dbphotos[uuid]["name"] = row[13]
             self._dbphotos[uuid]["isMissing"] = row[14]
-            #  logger.debug(
-        #                  "Fetching data for photo %d %s %s %s %s %s: %s"
-        #  % (
-        #  i,
-        #  uuid,
-        #  self._dbphotos[uuid]["masterUuid"],
-        #  self._dbphotos[uuid]["volumeId"],
-        #  self._dbphotos[uuid]["filename"],
-        #  self._dbphotos[uuid]["extendedDescription"],
-        #  self._dbphotos[uuid]["imageDate"],
-        #  )
-        #  )
 
         #  close_pbar_status()
         conn.close()
@@ -634,7 +597,6 @@ class PhotosDB:
             logging.debug("Photos:")
             logging.debug(pformat(self._dbphotos))
 
-        #  logger.debug(f"processed {len(self._dbphotos)} photos")
 
     def _process_database5(self):
         """ process the Photos database to extract info """
@@ -650,13 +612,11 @@ class PhotosDB:
         self._scpt_quit.run()
 
         (conn, c) = self._open_sql_file(self._tmp_db)
-        #  logger.debug("Have connection with database")
 
         # if int(self._db_version) > int(_PHOTOS_5_VERSION):
         #     # need to close the photos.db database and re-open Photos.sqlite
         #     c.close()
         #     try:
-        #         #  logger.info("Removing temporary database file: " + tmp_db)
         #         os.remove(tmp_db)
         #     except:
         #         print("Could not remove temporary database: " + tmp_db, file=sys.stderr)
@@ -685,7 +645,6 @@ class PhotosDB:
         )
         for person in c:
             if person[0] is None:
-                #  logger.debug(f"skipping person = None {person[1]}")
                 continue
             if not person[1] in self._dbfaces_uuid:
                 self._dbfaces_uuid[person[1]] = []
@@ -701,7 +660,6 @@ class PhotosDB:
 
         #  close_pbar_status()
 
-        #  logger.debug("Getting information about albums")
         i = 0
         c.execute(
             "SELECT COUNT(*)"
@@ -727,7 +685,6 @@ class PhotosDB:
                 self._dbalbums_album[album[0]] = []
             self._dbalbums_uuid[album[1]].append(album[0])
             self._dbalbums_album[album[0]].append(album[1])
-            #  logger.debug(f"{album[1]} {album[0]}")
             #  set_pbar_status(i)
             i = i + 1
         logging.debug(f"Finished walking through albums")
@@ -735,7 +692,6 @@ class PhotosDB:
         logging.debug(pformat(self._dbalbums_uuid))
         #  close_pbar_status()
 
-        #  logger.debug("Getting information about keywords")
         c.execute(
             "SELECT COUNT(*) "
             "FROM ZGENERICASSET "
@@ -761,7 +717,6 @@ class PhotosDB:
                 self._dbkeywords_keyword[keyword[0]] = []
             self._dbkeywords_uuid[keyword[1]].append(keyword[0])
             self._dbkeywords_keyword[keyword[0]].append(keyword[1])
-            #  logger.debug(f"{keyword[1]} {keyword[0]}")
             #  set_pbar_status(i)
             i = i + 1
         logging.debug(f"Finished walking through keywords")
@@ -769,14 +724,12 @@ class PhotosDB:
         logging.debug(pformat(self._dbkeywords_keyword))
         logging.debug(pformat(self._dbkeywords_uuid))
 
-        #  logger.debug("Getting information about volumes")
         c.execute("SELECT COUNT(*) FROM ZFILESYSTEMVOLUME")
         #  init_pbar_status("Volumes", c.fetchone()[0])
         c.execute("SELECT ZUUID, ZNAME from ZFILESYSTEMVOLUME")
         i = 0
         for vol in c:
             self._dbvolumes[vol[0]] = vol[1]
-            #  logger.debug(f"{vol[0]} {vol[1]}")
             #  set_pbar_status(i)
             i = i + 1
         logging.debug(f"Finished walking through volumes")
@@ -879,20 +832,6 @@ class PhotosDB:
             self._dbphotos[uuid]["hasAdjustments"] = None
 
             # self._dbphotos[uuid]["isMissing"] = row[14]
-            #  logger.debug(
-        #                  "Fetching data for photo %d %s %s %s %s %s: %s"
-        #  % (
-        #  i,
-        #  uuid,
-        #  self._dbphotos[uuid]["masterUuid"],
-        #  self._dbphotos[uuid]["volumeId"],
-        #  self._dbphotos[uuid]["filename"],
-        #  self._dbphotos[uuid]["extendedDescription"],
-        #  self._dbphotos[uuid]["imageDate"],
-        #  )
-        #  )
-
-        #  close_pbar_status()
 
         # Get extended description
         c.execute(
@@ -996,7 +935,6 @@ class PhotosDB:
             logging.debug("Photos:")
             logging.debug(pformat(self._dbphotos))
 
-        #  logger.debug(f"processed {len(self._dbphotos)} photos")
 
     """ 
     Return a list of PhotoInfo objects
@@ -1006,62 +944,45 @@ class PhotosDB:
     """
 
     def photos(self, keywords=[], uuid=[], persons=[], albums=[]):
-        # TODO: remove the logger code then dangling else: pass statements
         photos_sets = []  # list of photo sets to perform intersection of
         if not keywords and not uuid and not persons and not albums:
             # return all the photos
             # append keys of all photos as a single set to photos_sets
-            #  logger.debug("return all photos")
             photos_sets.append(set(self._dbphotos.keys()))
         else:
             if albums:
                 for album in albums:
-                    #  logger.info(f"album={album}")
                     if album in self._dbalbums_album:
-                        #  logger.info(f"processing album {album}:")
                         photos_sets.append(set(self._dbalbums_album[album]))
                     else:
-                        #  logger.debug(f"Could not find album '{album}' in database")
-                        pass
+                        logging.debug(f"Could not find album '{album}' in database")
 
             if uuid:
                 for u in uuid:
-                    #  logger.info(f"uuid={u}")
                     if u in self._dbphotos:
-                        #  logger.info(f"processing uuid {u}:")
                         photos_sets.append(set([u]))
                     else:
-                        #  logger.debug(f"Could not find uuid '{u}' in database")
-                        pass
+                        logging.debug(f"Could not find uuid '{u}' in database")
 
             if keywords:
                 for keyword in keywords:
-                    #  logger.info(f"keyword={keyword}")
                     if keyword in self._dbkeywords_keyword:
-                        #  logger.info(f"processing keyword {keyword}:")
                         photos_sets.append(set(self._dbkeywords_keyword[keyword]))
-                        #  logger.debug(f"photos_sets {photos_sets}")
                     else:
-                        #  logger.debug(f"Could not find keyword '{keyword}' in database")
-                        pass
+                        logging.debug(f"Could not find keyword '{keyword}' in database")
 
             if persons:
                 for person in persons:
-                    #  logger.info(f"person={person}")
                     if person in self._dbfaces_person:
-                        #  logger.info(f"processing person {person}:")
                         photos_sets.append(set(self._dbfaces_person[person]))
                     else:
-                        #  logger.debug(f"Could not find person '{person}' in database")
-                        pass
+                        logging.debug(f"Could not find person '{person}' in database")
 
         photoinfo = []
         if photos_sets:  # found some photos
             # get the intersection of each argument/search criteria
             for p in set.intersection(*photos_sets):
-                #  logger.debug(f"p={p}")
                 info = PhotoInfo(db=self, uuid=p, info=self._dbphotos[p])
-                #  logger.debug(f"info={info}")
                 photoinfo.append(info)
         return photoinfo
 
@@ -1069,13 +990,11 @@ class PhotosDB:
         return f"osxphotos.PhotosDB(dbfile='{self.get_db_path()}')"
 
 
-"""
-Info about a specific photo, contains all the details we know about the photo
-including keywords, persons, albums, uuid, path, etc.
-"""
-
-
 class PhotoInfo:
+    """
+    Info about a specific photo, contains all the details about the photo
+    including keywords, persons, albums, uuid, path, etc.
+    """
     def __init__(self, db=None, uuid=None, info=None):
         self.__uuid = uuid
         self.__info = info
@@ -1116,12 +1035,8 @@ class PhotoInfo:
                 )
 
             if self.__info["isMissing"] == 1:
-                #  logger.warning(
-                #  f"Skipping photo, not yet downloaded from iCloud: {photopath}"
-                #  )
-                #  logger.debug(self.__info)
                 photopath = None  # path would be meaningless until downloaded
-                # TODO: Is there a way to use applescript to force the download in this
+                # TODO: Is there a way to use applescript or PhotoKit to force the download in this
         else:
             if self.__info["masterFingerprint"]:
                 # if masterFingerprint is not null, path appears to be valid
