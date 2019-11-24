@@ -162,7 +162,6 @@ class PhotosDB:
 
         logging.debug(f"library = {library_path}, masters = {masters_path}")
 
-
         if int(self._db_version) < int(_PHOTOS_5_VERSION):
             self._process_database4()
         else:
@@ -487,7 +486,7 @@ class PhotosDB:
             + "RKVersion.lastmodifieddate, RKVersion.imageDate, RKVersion.mainRating, "
             + "RKVersion.hasAdjustments, RKVersion.hasKeywords, RKVersion.imageTimeZoneOffsetSeconds, "
             + "RKMaster.volumeId, RKMaster.imagePath, RKVersion.extendedDescription, RKVersion.name, "
-            + "RKMaster.isMissing, RKMaster.originalFileName "
+            + "RKMaster.isMissing, RKMaster.originalFileName, RKVersion.isFavorite, RKVersion.isHidden "
             + "from RKVersion, RKMaster where RKVersion.isInTrash = 0 and RKVersion.type = 2 and "
             + "RKVersion.masterUuid = RKMaster.uuid and RKVersion.filename not like '%.pdf'"
         )
@@ -523,6 +522,8 @@ class PhotosDB:
             self._dbphotos[uuid]["name"] = row[13]
             self._dbphotos[uuid]["isMissing"] = row[14]
             self._dbphotos[uuid]["originalFilename"] = row[15]
+            self._dbphotos[uuid]["favorite"] = row[16]
+            self._dbphotos[uuid]["hidden"] = row[17]
 
         conn.close()
 
@@ -579,7 +580,6 @@ class PhotosDB:
 
             logging.debug("Photos:")
             logging.debug(pformat(self._dbphotos))
-
 
     def _process_database5(self):
         """ process the Photos database to extract info """
@@ -638,7 +638,6 @@ class PhotosDB:
         logging.debug(f"Finished walking through persons")
         logging.debug(pformat(self._dbfaces_person))
         logging.debug(self._dbfaces_uuid)
-
 
         i = 0
         c.execute(
@@ -904,15 +903,13 @@ class PhotosDB:
             logging.debug("Photos:")
             logging.debug(pformat(self._dbphotos))
 
-
-    """ 
-    Return a list of PhotoInfo objects
-    If called with no args, returns the entire database of photos
-    If called with args, returns photos matching the args (e.g. keywords, persons, etc.)
-    If more than one arg, returns photos matching all the criteria (e.g. keywords AND persons)
-    """
-
     def photos(self, keywords=[], uuid=[], persons=[], albums=[]):
+        """ 
+        Return a list of PhotoInfo objects
+        If called with no args, returns the entire database of photos
+        If called with args, returns photos matching the args (e.g. keywords, persons, etc.)
+        If more than one arg, returns photos matching all the criteria (e.g. keywords AND persons)
+        """
         photos_sets = []  # list of photo sets to perform intersection of
         if not keywords and not uuid and not persons and not albums:
             # return all the photos
@@ -964,6 +961,7 @@ class PhotoInfo:
     Info about a specific photo, contains all the details about the photo
     including keywords, persons, albums, uuid, path, etc.
     """
+
     def __init__(self, db=None, uuid=None, info=None):
         self.__uuid = uuid
         self.__info = info
@@ -1071,6 +1069,14 @@ class PhotoInfo:
         """ True if picture has adjustments """
         """ TODO: not accurate for Photos version >= 5 """
         return True if self.__info["hasAdjustments"] == 1 else False
+
+    def favorite(self):
+        """ True if picture is marked as favorite """
+        return True if self.__info["favorite"] == 1 else False
+
+    def hidden(self):
+        """ True if picture is hidden """
+        return True if self.__info["hidden"] == 1 else False
 
     def __repr__(self):
         return f"osxphotos.PhotoInfo(db={self.__db}, uuid='{self.__uuid}', info={self.__info})"
