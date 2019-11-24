@@ -1103,7 +1103,7 @@ class PhotoInfo:
         return self.__info["imageTimeZoneOffsetSeconds"]
 
     def path(self):
-        """ path on disk of the picture """
+        """ absolute path on disk of the picture """
         photopath = ""
 
         if self.__db._db_version < _PHOTOS_5_VERSION:
