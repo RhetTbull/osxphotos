@@ -187,6 +187,8 @@ def print_photo_info(photos, json=False):
                 "path",
                 "ismissing",
                 "hasadjustments",
+                "favorite",
+                "hidden",
             ]
         )
         for p in photos:
@@ -204,6 +206,8 @@ def print_photo_info(photos, json=False):
                     p.path(),
                     p.ismissing(),
                     p.hasadjustments(),
+                    p.favorite(),
+                    p.hidden(),
                 ]
             )
         for row in dump:

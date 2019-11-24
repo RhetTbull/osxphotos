@@ -21,7 +21,7 @@ from Foundation import *
 from . import _applescript
 
 
-# TODO: Add RKMaster.originalFileName to Photos 4 code for original_file
+# TODO: Add test for __str__ and to_json
 # TODO: Add favorites, hidden
 # TODO: Add location
 # TODO: standardize _ and __ as leading char for private variables
@@ -1095,6 +1095,8 @@ class PhotoInfo:
             "path": self.path(),
             "ismissing": self.ismissing(),
             "hasadjustments": self.hasadjustments(),
+            "favorite": self.favorite(),
+            "hidden": self.hidden(),
         }
         return yaml.dump(info, sort_keys=False)
 
@@ -1114,6 +1116,8 @@ class PhotoInfo:
             "path": self.path(),
             "ismissing": self.ismissing(),
             "hasadjustments": self.hasadjustments(),
+            "favorite": self.favorite(),
+            "hidden": self.hidden(),
         }
         return json.dumps(pic)
 
