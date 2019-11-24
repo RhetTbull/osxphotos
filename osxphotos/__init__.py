@@ -487,7 +487,7 @@ class PhotosDB:
             + "RKVersion.lastmodifieddate, RKVersion.imageDate, RKVersion.mainRating, "
             + "RKVersion.hasAdjustments, RKVersion.hasKeywords, RKVersion.imageTimeZoneOffsetSeconds, "
             + "RKMaster.volumeId, RKMaster.imagePath, RKVersion.extendedDescription, RKVersion.name, "
-            + "RKMaster.isMissing "
+            + "RKMaster.isMissing, RKMaster.originalFileName "
             + "from RKVersion, RKMaster where RKVersion.isInTrash = 0 and RKVersion.type = 2 and "
             + "RKVersion.masterUuid = RKMaster.uuid and RKVersion.filename not like '%.pdf'"
         )
@@ -500,9 +500,6 @@ class PhotosDB:
             self._dbphotos[uuid]["modelID"] = row[1]
             self._dbphotos[uuid]["masterUuid"] = row[2]
             self._dbphotos[uuid]["filename"] = row[3]
-
-            # TODO: Photos 5 has filename and originalFilename, is there equiv for older database formats?
-            self._dbphotos[uuid]["originalFilename"] = row[3]
 
             try:
                 self._dbphotos[uuid]["lastmodifieddate"] = datetime.fromtimestamp(
@@ -525,6 +522,7 @@ class PhotosDB:
             self._dbphotos[uuid]["extendedDescription"] = row[12]
             self._dbphotos[uuid]["name"] = row[13]
             self._dbphotos[uuid]["isMissing"] = row[14]
+            self._dbphotos[uuid]["originalFilename"] = row[15]
 
         conn.close()
 

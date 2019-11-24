@@ -287,10 +287,10 @@ PhotosDB.photos() returns a list of PhotoInfo objects.  Each PhotoInfo object re
 Returns the universally unique identifier (uuid) of the photo.  This is how Photos keeps track of individual photos within the database.
 
 #### `filename()`
-Returns the filename of the photo on disk
+Returns the current filename of the photo on disk.  See also `original_filename()`
 
 #### `original_filename()`
-Returns the original filename of the photo when it was imported to Photos.  Photos 5.0+ renames the photo when it adds the file to the library using UUID.  For Photos 4.0 and below, filename() == original_filename()
+Returns the original filename of the photo when it was imported to Photos.  Note: Photos 5.0+ renames the photo when it adds the file to the library using UUID.  See also `filename()`
 
 #### `date()`
 Returns the date of the photo as a datetime.datetime object
