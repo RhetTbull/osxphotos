@@ -46,7 +46,8 @@ _PHOTOS_5_VERSION = "6000"
 _TESTED_OS_VERSIONS = ["12", "13", "14", "15"]
 
 # set _debug = True to enable debug output
-_debug = True
+_debug = False
+
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d - %(message)s",
