@@ -404,7 +404,6 @@ class PhotosDB:
             "select count(*) from RKFace, RKPerson, RKVersion where RKFace.personID = RKperson.modelID "
             + "and RKFace.imageModelId = RKVersion.modelId and RKVersion.isInTrash = 0"
         )
-        # init_pbar_status("Faces", c.fetchone()[0])
         # c.execute("select RKPerson.name, RKFace.imageID from RKFace, RKPerson where RKFace.personID = RKperson.modelID")
         c.execute(
             "select RKPerson.name, RKVersion.uuid from RKFace, RKPerson, RKVersion, RKMaster "
@@ -421,9 +420,7 @@ class PhotosDB:
                 self._dbfaces_person[person[0]] = []
             self._dbfaces_uuid[person[1]].append(person[0])
             self._dbfaces_person[person[0]].append(person[1])
-            #  set_pbar_status(i)
             i = i + 1
-        #  close_pbar_status()
 
         i = 0
         c.execute(
@@ -432,7 +429,6 @@ class PhotosDB:
             + "RKAlbumVersion.versionID = RKVersion.modelId and "
             + "RKVersion.filename not like '%.pdf' and RKVersion.isInTrash = 0"
         )
-        #  init_pbar_status("Albums", c.fetchone()[0])
         # c.execute("select RKPerson.name, RKFace.imageID from RKFace, RKPerson where RKFace.personID = RKperson.modelID")
         c.execute(
             "select RKAlbum.name, RKVersion.uuid from RKAlbum, RKVersion, RKAlbumVersion "
@@ -448,9 +444,7 @@ class PhotosDB:
                 self._dbalbums_album[album[0]] = []
             self._dbalbums_uuid[album[1]].append(album[0])
             self._dbalbums_album[album[0]].append(album[1])
-            #  set_pbar_status(i)
             i = i + 1
-        #  close_pbar_status()
 
         c.execute(
             "select count(*) from RKKeyword, RKKeywordForVersion,RKVersion, RKMaster "
@@ -458,7 +452,6 @@ class PhotosDB:
             + "RKVersion.modelID = RKKeywordForVersion.versionID and RKMaster.uuid = "
             + "RKVersion.masterUuid and RKVersion.filename not like '%.pdf' and RKVersion.isInTrash = 0"
         )
-        #  init_pbar_status("Keywords", c.fetchone()[0])
         c.execute(
             "select RKKeyword.name, RKVersion.uuid, RKMaster.uuid from "
             + "RKKeyword, RKKeywordForVersion, RKVersion, RKMaster "
@@ -475,26 +468,20 @@ class PhotosDB:
                 self._dbkeywords_keyword[keyword[0]] = []
             self._dbkeywords_uuid[keyword[1]].append(keyword[0])
             self._dbkeywords_keyword[keyword[0]].append(keyword[1])
-            #  set_pbar_status(i)
             i = i + 1
-        #  close_pbar_status()
 
         c.execute("select count(*) from RKVolume")
-        #  init_pbar_status("Volumes", c.fetchone()[0])
         c.execute("select RKVolume.modelId, RKVolume.name from RKVolume")
         i = 0
         for vol in c:
             self._dbvolumes[vol[0]] = vol[1]
-            #  set_pbar_status(i)
             i = i + 1
-        #  close_pbar_status()
 
         c.execute(
             "select count(*) from RKVersion, RKMaster where RKVersion.isInTrash = 0 and "
             + "RKVersion.type = 2 and RKVersion.masterUuid = RKMaster.uuid and "
             + "RKVersion.filename not like '%.pdf'"
         )
-        #  init_pbar_status("Photos", c.fetchone()[0])
         c.execute(
             "select RKVersion.uuid, RKVersion.modelId, RKVersion.masterUuid, RKVersion.filename, "
             + "RKVersion.lastmodifieddate, RKVersion.imageDate, RKVersion.mainRating, "
@@ -506,7 +493,6 @@ class PhotosDB:
         )
         i = 0
         for row in c:
-            #  set_pbar_status(i)
             i = i + 1
             uuid = row[0]
             logging.debug(f"i = {i:d}, uuid = '{uuid}, master = '{row[2]}")
@@ -540,7 +526,6 @@ class PhotosDB:
             self._dbphotos[uuid]["name"] = row[13]
             self._dbphotos[uuid]["isMissing"] = row[14]
 
-        #  close_pbar_status()
         conn.close()
 
         # add faces and keywords to photo data
@@ -635,7 +620,6 @@ class PhotosDB:
             "WHERE ZDETECTEDFACE.ZPERSON = ZPERSON.Z_PK AND ZDETECTEDFACE.ZASSET = ZGENERICASSET.Z_PK "
             "AND ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
         )
-        # init_pbar_status("Faces", c.fetchone()[0])
         # c.execute("select RKPerson.name, RKFace.imageID from RKFace, RKPerson where RKFace.personID = RKperson.modelID")
         c.execute(
             "SELECT ZPERSON.ZFULLNAME, ZGENERICASSET.ZUUID "
@@ -652,13 +636,11 @@ class PhotosDB:
                 self._dbfaces_person[person[0]] = []
             self._dbfaces_uuid[person[1]].append(person[0])
             self._dbfaces_person[person[0]].append(person[1])
-            #  set_pbar_status(i)
             i = i + 1
         logging.debug(f"Finished walking through persons")
         logging.debug(pformat(self._dbfaces_person))
         logging.debug(self._dbfaces_uuid)
 
-        #  close_pbar_status()
 
         i = 0
         c.execute(
@@ -668,7 +650,6 @@ class PhotosDB:
             "JOIN ZGENERICALBUM ON ZGENERICALBUM.Z_PK = Z_26ASSETS.Z_26ALBUMS "
             "WHERE ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
         )
-        #  init_pbar_status("Albums", c.fetchone()[0])
         # c.execute("select RKPerson.name, RKFace.imageID from RKFace, RKPerson where RKFace.personID = RKperson.modelID")
         c.execute(
             "SELECT ZGENERICALBUM.ZTITLE, ZGENERICASSET.ZUUID "
@@ -685,12 +666,10 @@ class PhotosDB:
                 self._dbalbums_album[album[0]] = []
             self._dbalbums_uuid[album[1]].append(album[0])
             self._dbalbums_album[album[0]].append(album[1])
-            #  set_pbar_status(i)
             i = i + 1
         logging.debug(f"Finished walking through albums")
         logging.debug(pformat(self._dbalbums_album))
         logging.debug(pformat(self._dbalbums_uuid))
-        #  close_pbar_status()
 
         c.execute(
             "SELECT COUNT(*) "
@@ -700,7 +679,6 @@ class PhotosDB:
             "JOIN ZKEYWORD ON ZKEYWORD.Z_PK = Z_1KEYWORDS.Z_37KEYWORDS "
             "WHERE ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
         )
-        #  init_pbar_status("Keywords", c.fetchone()[0])
         c.execute(
             "SELECT ZKEYWORD.ZTITLE, ZGENERICASSET.ZUUID "
             "FROM ZGENERICASSET "
@@ -717,24 +695,19 @@ class PhotosDB:
                 self._dbkeywords_keyword[keyword[0]] = []
             self._dbkeywords_uuid[keyword[1]].append(keyword[0])
             self._dbkeywords_keyword[keyword[0]].append(keyword[1])
-            #  set_pbar_status(i)
             i = i + 1
         logging.debug(f"Finished walking through keywords")
-        #  close_pbar_status()
         logging.debug(pformat(self._dbkeywords_keyword))
         logging.debug(pformat(self._dbkeywords_uuid))
 
         c.execute("SELECT COUNT(*) FROM ZFILESYSTEMVOLUME")
-        #  init_pbar_status("Volumes", c.fetchone()[0])
         c.execute("SELECT ZUUID, ZNAME from ZFILESYSTEMVOLUME")
         i = 0
         for vol in c:
             self._dbvolumes[vol[0]] = vol[1]
-            #  set_pbar_status(i)
             i = i + 1
         logging.debug(f"Finished walking through volumes")
         logging.debug(self._dbvolumes)
-        #  close_pbar_status()
 
         logging.debug(f"Getting information about photos")
         # TODO: Since I don't use progress bars now, can probably remove the count
@@ -744,7 +717,6 @@ class PhotosDB:
             "JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK "
             "WHERE ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
         )
-        #  init_pbar_status("Photos", c.fetchone()[0])
         c.execute(
             "SELECT ZGENERICASSET.ZUUID, "
             "ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT, "
@@ -788,7 +760,6 @@ class PhotosDB:
 
         i = 0
         for row in c:
-            #  set_pbar_status(i)
             i = i + 1
             uuid = row[0]
             if _debug:
