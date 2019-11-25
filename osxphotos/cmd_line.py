@@ -126,6 +126,14 @@ def dump(cli_obj):
 @click.option("--person", default=None, multiple=True, help="search for person(s)")
 @click.option("--album", default=None, multiple=True, help="search for album(s)")
 @click.option("--uuid", default=None, multiple=True, help="search for UUID(s)")
+@click.option("--favorite", is_flag=True, help="search for photos marked favorite")
+@click.option(
+    "--notfavorite", is_flag=True, help="search for photos not marked favorite"
+)
+@click.option("--hidden", is_flag=True, help="search for photos marked hidden")
+@click.option("--nothidden", is_flag=True, help="search for photos not marked hidden")
+@click.option("--missing", is_flag=True, help="search for photos missing from disk")
+@click.option("--notmissing", is_flag=True, help="search for photos present on disk (e.g. not missing)")
 @click.option(
     "--json",
     required=False,
@@ -135,17 +143,69 @@ def dump(cli_obj):
 )
 @click.pass_obj
 @click.pass_context
-def query(ctx, cli_obj, keyword, person, album, uuid, json):
+def query(
+    ctx,
+    cli_obj,
+    keyword,
+    person,
+    album,
+    uuid,
+    json,
+    favorite,
+    notfavorite,
+    hidden,
+    nothidden,
+    missing,
+    notmissing,
+):
     """ query the Photos database using 1 or more search options """
 
     # if no query terms, show help and return
-    if not keyword and not person and not album and not uuid:
+    if (
+        not keyword
+        and not person
+        and not album
+        and not uuid
+        and not favorite
+        and not notfavorite
+        and not hidden
+        and not nothidden
+        and not missing
+        and not notmissing
+    ):
         print(cli.commands["query"].get_help(ctx))
         return
+    elif favorite and notfavorite:
+        # can't search for both favorite and notfavorite
+        print(cli.commands["query"].get_help(ctx))
+        return
+    elif hidden and nothidden:
+        # can't search for both hidden and nothidden
+        print(cli.commands["query"].get_help(ctx))
+        return
+    elif missing and notmissing:
+        # can't search for both missing and notmissing
+        print(cli.commands["query"].get_help(ctx))
+        return 
     else:
         photos = cli_obj.photosdb.photos(
             keywords=keyword, persons=person, albums=album, uuid=uuid
         )
+        if favorite:
+            photos = [p for p in photos if p.favorite()]
+        elif notfavorite:
+            photos = [p for p in photos if not p.favorite()]
+
+        if hidden:
+            photos = [p for p in photos if p.hidden()]
+        elif nothidden:
+            photos = [p for p in photos if not p.hidden()]
+
+        if missing:
+            photos = [p for p in photos if p.ismissing()]
+        elif notmissing:
+            photos = [p for p in photos if not p.ismissing()]
+
         print_photo_info(photos, cli_obj.json or json)
 
 

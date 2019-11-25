@@ -63,8 +63,14 @@ Options:
   --person TEXT   search for person(s)
   --album TEXT    search for album(s)
   --uuid TEXT     search for UUID(s)
+  --favorite      search for photos marked favorite
+  --notfavorite   search for photos not marked favorite
+  --hidden        search for photos marked hidden
+  --nothidden     search for photos not marked hidden
+  --missing       search for photos missing from disk
+  --notmissing    search for photos present on disk (e.g. not missing)
   --json          Print output in JSON format
-  -h, --help      Show this message and exit. 
+  -h, --help      Show this message and exit.
 ```
 
 Example: find all photos with keyword "Kids" and output results to json file named results.json:
@@ -318,6 +324,12 @@ Returns `True` if the original image file is missing on disk, otherwise `False`.
 
 #### `hasadjustments()`
 Returns `True` if the file has been edited in Photos, otherwise `False`
+
+#### `favorite()`
+Returns `True` if the picture has been marked as a favorite, otherwise `False`
+
+#### `hidden()`
+Returns `True` if the picture has been marked as hidden, otherwise `False`
 
 #### `to_json()`
 Returns a JSON representation of all photo info 

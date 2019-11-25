@@ -21,8 +21,9 @@ from Foundation import *
 from . import _applescript
 
 
+# TODO: Add hidden, favorite, missing to photos and command line query?
+# TODO: Update README for favorite, missing
 # TODO: Add test for __str__ and to_json
-# TODO: Add favorites, hidden
 # TODO: Add location
 # TODO: standardize _ and __ as leading char for private variables
 # TODO: fix docstrings
