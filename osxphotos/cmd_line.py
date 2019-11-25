@@ -126,14 +126,35 @@ def dump(cli_obj):
 @click.option("--person", default=None, multiple=True, help="search for person(s)")
 @click.option("--album", default=None, multiple=True, help="search for album(s)")
 @click.option("--uuid", default=None, multiple=True, help="search for UUID(s)")
+@click.option(
+    "--name", default=None, multiple=True, help="search for TEXT in name of photo"
+)
+@click.option("--no-name", is_flag=True, help="search for photos with no name")
+@click.option(
+    "--description",
+    default=None,
+    multiple=True,
+    help="search for TEXT in description of photo",
+)
+@click.option("--no-description", is_flag=True, help="search for photos with no description")
+@click.option(
+    "-i",
+    "--ignore-case",
+    is_flag=True,
+    help="case insensitive search for name or description. Does not apply to keyword, person, or album",
+)
 @click.option("--favorite", is_flag=True, help="search for photos marked favorite")
 @click.option(
-    "--notfavorite", is_flag=True, help="search for photos not marked favorite"
+    "--not-favorite", is_flag=True, help="search for photos not marked favorite"
 )
 @click.option("--hidden", is_flag=True, help="search for photos marked hidden")
-@click.option("--nothidden", is_flag=True, help="search for photos not marked hidden")
+@click.option("--not-hidden", is_flag=True, help="search for photos not marked hidden")
 @click.option("--missing", is_flag=True, help="search for photos missing from disk")
-@click.option("--notmissing", is_flag=True, help="search for photos present on disk (e.g. not missing)")
+@click.option(
+    "--not-missing",
+    is_flag=True,
+    help="search for photos present on disk (e.g. not missing)",
+)
 @click.option(
     "--json",
     required=False,
@@ -150,15 +171,23 @@ def query(
     person,
     album,
     uuid,
+    name,
+    no_name,
+    description,
+    no_description,
+    ignore_case,
     json,
     favorite,
-    notfavorite,
+    not_favorite,
     hidden,
-    nothidden,
+    not_hidden,
     missing,
-    notmissing,
+    not_missing,
 ):
-    """ query the Photos database using 1 or more search options """
+    """ Query the Photos database using 1 or more search options\n
+        If more than one option is provided, they are treated as "AND" 
+        (e.g. search for photos matching all options)
+    """
 
     # if no query terms, show help and return
     if (
@@ -166,44 +195,91 @@ def query(
         and not person
         and not album
         and not uuid
+        and not name
+        and not no_name
+        and not description
+        and not no_description
         and not favorite
-        and not notfavorite
+        and not not_favorite
         and not hidden
-        and not nothidden
+        and not not_hidden
         and not missing
-        and not notmissing
+        and not not_missing
     ):
         print(cli.commands["query"].get_help(ctx))
         return
-    elif favorite and notfavorite:
+    elif favorite and not_favorite:
         # can't search for both favorite and notfavorite
         print(cli.commands["query"].get_help(ctx))
         return
-    elif hidden and nothidden:
+    elif hidden and not_hidden:
         # can't search for both hidden and nothidden
         print(cli.commands["query"].get_help(ctx))
         return
-    elif missing and notmissing:
+    elif missing and not_missing:
         # can't search for both missing and notmissing
+        print(cli.commands["query"].get_help(ctx))
+        return
+    elif name and no_name:
+        # can't search for both name and no_name
+        print(cli.commands["query"].get_help(ctx))
+        return 
+    elif description and no_description:
+        # can't search for both description and no_description
         print(cli.commands["query"].get_help(ctx))
         return 
     else:
         photos = cli_obj.photosdb.photos(
             keywords=keyword, persons=person, albums=album, uuid=uuid
         )
+
+        if name:
+            # search name field for text
+            # if more than one, find photos with all name values in in name
+            if ignore_case:
+                # case-insensitive
+                for n in name:
+                    n = n.lower()
+                    photos = [p for p in photos if p.name() and n in p.name().lower()]
+            else:
+                for n in name:
+                    photos = [p for p in photos if p.name() and n in p.name()]
+        elif no_name:
+            photos = [p for p in photos if not p.name()]
+
+        if description:
+            # search description field for text
+            # if more than one, find photos with all name values in in description
+            if ignore_case:
+                # case-insensitive
+                for d in description:
+                    d = d.lower()
+                    photos = [
+                        p
+                        for p in photos
+                        if p.description() and d in p.description().lower()
+                    ]
+            else:
+                for d in description:
+                    photos = [
+                        p for p in photos if p.description() and d in p.description()
+                    ]
+        elif no_description:
+            photos = [p for p in photos if not p.description()]
+
         if favorite:
             photos = [p for p in photos if p.favorite()]
-        elif notfavorite:
+        elif not_favorite:
             photos = [p for p in photos if not p.favorite()]
 
         if hidden:
             photos = [p for p in photos if p.hidden()]
-        elif nothidden:
+        elif not_hidden:
             photos = [p for p in photos if not p.hidden()]
 
         if missing:
             photos = [p for p in photos if p.ismissing()]
-        elif notmissing:
+        elif not_missing:
             photos = [p for p in photos if not p.ismissing()]
 
         print_photo_info(photos, cli_obj.json or json)

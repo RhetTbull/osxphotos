@@ -56,21 +56,30 @@ Example: `osxphotos help query`
 ```
 Usage: osxphotos help [OPTIONS]
 
-  query the Photos database using 1 or more search options
+  Query the Photos database using 1 or more search options
+
+  If more than one option is provided, they are treated as "AND"  (e.g.
+  search for photos matching all options)
 
 Options:
-  --keyword TEXT  search for keyword(s)
-  --person TEXT   search for person(s)
-  --album TEXT    search for album(s)
-  --uuid TEXT     search for UUID(s)
-  --favorite      search for photos marked favorite
-  --notfavorite   search for photos not marked favorite
-  --hidden        search for photos marked hidden
-  --nothidden     search for photos not marked hidden
-  --missing       search for photos missing from disk
-  --notmissing    search for photos present on disk (e.g. not missing)
-  --json          Print output in JSON format
-  -h, --help      Show this message and exit.
+  --keyword TEXT      search for keyword(s)
+  --person TEXT       search for person(s)
+  --album TEXT        search for album(s)
+  --uuid TEXT         search for UUID(s)
+  --name TEXT         search for TEXT in name of photo
+  --no-name           search for photos with no name
+  --description TEXT  search for TEXT in description of photo
+  --no-description    search for photos with no description
+  -i, --ignore-case   case insensitive search for name or description. Does
+                      not apply to keyword, person, or album
+  --favorite          search for photos marked favorite
+  --not-favorite      search for photos not marked favorite
+  --hidden            search for photos marked hidden
+  --not-hidden        search for photos not marked hidden
+  --missing           search for photos missing from disk
+  --not-missing       search for photos present on disk (e.g. not missing)
+  --json              Print output in JSON format
+  -h, --help          Show this message and exit.
 ```
 
 Example: find all photos with keyword "Kids" and output results to json file named results.json:
