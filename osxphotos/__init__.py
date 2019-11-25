@@ -980,7 +980,8 @@ class PhotoInfo:
     def date(self):
         """ image creation date as timezone aware datetime object """
         imagedate = self.__info["imageDate"]
-        delta = timedelta(seconds=self.__info["imageTimeZoneOffsetSeconds"])
+        seconds = self.__info["imageTimeZoneOffsetSeconds"] or 0
+        delta = timedelta(seconds=seconds)
         tz = timezone(delta)
         imagedate_utc = imagedate.astimezone(tz=tz)
         return imagedate_utc
