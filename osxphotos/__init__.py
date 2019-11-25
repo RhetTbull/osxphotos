@@ -21,8 +21,9 @@ from Foundation import *
 from . import _applescript
 
 
-# TODO: Add hidden, favorite, missing to photos and command line query?
-# TODO: Update README for favorite, missing
+# TODO: Add test for imageTimeZoneOffsetSeconds = None
+# TODO: Fix command line so multiple --keyword, etc. are AND (instead of OR as they are in .photos())
+#       Or fix the help text to match behavior
 # TODO: Add test for __str__ and to_json
 # TODO: Add location
 # TODO: standardize _ and __ as leading char for private variables
