@@ -20,6 +20,7 @@ from Foundation import *
 
 from . import _applescript
 
+# TODO: Test to see if I really need to copy the database file
 # TODO: find edited photos: see https://github.com/orangeturtle739/photos-export/blob/master/extract_photos.py
 # TODO: Add test for imageTimeZoneOffsetSeconds = None
 # TODO: Fix command line so multiple --keyword, etc. are AND (instead of OR as they are in .photos())
