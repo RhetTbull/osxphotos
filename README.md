@@ -7,6 +7,8 @@
 
 OSXPhotos provides the ability to interact with and query Apple's Photos app library database on Mac OS X. Using this module you can query the Photos database for information about the photos stored in a Photos library--for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc.     
 
+NOTE: OSXPhotos currently only supports image files -- e.g. it does not handle movies.
+
 ## Supported operating systems
 
 Only works on Mac OS X. Tested on Mac OS 10.12.6 / Photos 2.0, 10.13.6 / Photos 3.0 and Mac OS 10.14.5, 10.14.6 / Photos 4.0. Requires python >= 3.6
