@@ -1129,6 +1129,8 @@ class PhotoInfo:
             "hasadjustments": self.hasadjustments(),
             "favorite": self.favorite(),
             "hidden": self.hidden(),
+            "latitude": self._latitude(),
+            "longitude": self._longitude(),
         }
         return yaml.dump(info, sort_keys=False)
 
@@ -1150,6 +1152,8 @@ class PhotoInfo:
             "hasadjustments": self.hasadjustments(),
             "favorite": self.favorite(),
             "hidden": self.hidden(),
+            "latitude": self._latitude(),
+            "longitude": self._longitude(),
         }
         return json.dumps(pic)
 

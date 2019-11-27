@@ -325,6 +325,8 @@ def print_photo_info(photos, json=False):
                 "hasadjustments",
                 "favorite",
                 "hidden",
+                "latitude",
+                "longitude",
             ]
         )
         for p in photos:
@@ -344,6 +346,8 @@ def print_photo_info(photos, json=False):
                     p.hasadjustments(),
                     p.favorite(),
                     p.hidden(),
+                    p._latitude(),
+                    p._longitude(),
                 ]
             )
         for row in dump:
