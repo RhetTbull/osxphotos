@@ -26,7 +26,6 @@ from . import _applescript
 # TODO: Fix command line so multiple --keyword, etc. are AND (instead of OR as they are in .photos())
 #       Or fix the help text to match behavior
 # TODO: Add test for __str__ and to_json
-# TODO: Add location
 # TODO: standardize _ and __ as leading char for private variables
 # TODO: fix docstrings
 # TODO: handle Null person for Photos 5
