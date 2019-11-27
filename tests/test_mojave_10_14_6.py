@@ -141,6 +141,46 @@ def test_missing():
     assert p.ismissing() == True
 
 
+def test_favorite():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=["6bxcNnzRQKGnK4uPrCJ9UQ"])
+    assert len(photos) == 1
+    p = photos[0]
+    assert p.favorite() == True
+
+
+def test_not_favorite():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=["od0fmC7NQx+ayVr+%i06XA"])
+    assert len(photos) == 1
+    p = photos[0]
+    assert p.favorite() == False
+
+
+def test_hidden():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=["od0fmC7NQx+ayVr+%i06XA"])
+    assert len(photos) == 1
+    p = photos[0]
+    assert p.hidden() == True
+
+
+def test_not_hidden():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=["6bxcNnzRQKGnK4uPrCJ9UQ"])
+    assert len(photos) == 1
+    p = photos[0]
+    assert p.hidden() == False
+
+
 def test_count():
     import osxphotos
 

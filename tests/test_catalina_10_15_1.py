@@ -152,6 +152,16 @@ def test_favorite():
     assert p.favorite() == True
 
 
+def test_not_favorite():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=["A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C"])
+    assert len(photos) == 1
+    p = photos[0]
+    assert p.favorite() == False 
+
+
 def test_hidden():
     import osxphotos
 
@@ -160,6 +170,16 @@ def test_hidden():
     assert len(photos) == 1
     p = photos[0]
     assert p.hidden() == True
+
+
+def test_not_hidden():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=["E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"])
+    assert len(photos) == 1
+    p = photos[0]
+    assert p.hidden() == False
 
 
 def test_count():

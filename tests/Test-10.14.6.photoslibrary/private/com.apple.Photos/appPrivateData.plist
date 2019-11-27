@@ -14,7 +14,7 @@
 		<key>IPXWorkspaceControllerZoomLevelsKey</key>
 		<dict>
 			<key>kZoomLevelIdentifierAlbums</key>
-			<integer>7</integer>
+			<integer>10</integer>
 			<key>kZoomLevelIdentifierVersions</key>
 			<integer>7</integer>
 		</dict>
@@ -34,7 +34,7 @@
 			<key>other</key>
 			<integer>0</integer>
 			<key>photos</key>
-			<integer>7</integer>
+			<integer>6</integer>
 			<key>videos</key>
 			<integer>0</integer>
 		</dict>

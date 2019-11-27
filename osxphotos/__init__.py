@@ -378,6 +378,7 @@ class PhotosDB:
         """ process the Photos database to extract info """
         """ works on Photos version <= 4.0 """
 
+        #TODO: Update strings to remove + (not needed)
         # Epoch is Jan 1, 2001
         td = (datetime(2001, 1, 1, 0, 0) - datetime(1970, 1, 1, 0, 0)).total_seconds()
 
@@ -489,7 +490,8 @@ class PhotosDB:
             + "RKVersion.lastmodifieddate, RKVersion.imageDate, RKVersion.mainRating, "
             + "RKVersion.hasAdjustments, RKVersion.hasKeywords, RKVersion.imageTimeZoneOffsetSeconds, "
             + "RKMaster.volumeId, RKMaster.imagePath, RKVersion.extendedDescription, RKVersion.name, "
-            + "RKMaster.isMissing, RKMaster.originalFileName, RKVersion.isFavorite, RKVersion.isHidden "
+            + "RKMaster.isMissing, RKMaster.originalFileName, RKVersion.isFavorite, RKVersion.isHidden, "
+            + "RKVersion.longitude, RKVersion.latitude "
             + "from RKVersion, RKMaster where RKVersion.isInTrash = 0 and RKVersion.type = 2 and "
             + "RKVersion.masterUuid = RKMaster.uuid and RKVersion.filename not like '%.pdf'"
         )
@@ -527,6 +529,9 @@ class PhotosDB:
             self._dbphotos[uuid]["originalFilename"] = row[15]
             self._dbphotos[uuid]["favorite"] = row[16]
             self._dbphotos[uuid]["hidden"] = row[17]
+            self._dbphotos[uuid]["longitude"] = row[18]
+            self._dbphotos[uuid]["latitude"] = row[19]
+
 
         conn.close()
 
@@ -1082,6 +1087,14 @@ class PhotoInfo:
         """ True if picture is hidden """
         return True if self.__info["hidden"] == 1 else False
 
+    def longitude(self):
+        """ Returns longitude, in degrees """
+        return self.__info["longitude"]
+
+    def latitude(self):
+        """ Returns latitude, in degrees """
+        return self.__info["latitude"]
+        
     def __repr__(self):
         return f"osxphotos.PhotoInfo(db={self.__db}, uuid='{self.__uuid}', info={self.__info})"
 
