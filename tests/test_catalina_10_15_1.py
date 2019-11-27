@@ -181,6 +181,30 @@ def test_not_hidden():
     p = photos[0]
     assert p.hidden() == False
 
+def test_location_1():
+    # test photo with lat/lon info
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=["DC99FBDD-7A52-4100-A5BB-344131646C30"])
+    assert len(photos) == 1
+    p = photos[0]
+    lat, lon = p.location()
+    assert lat == pytest.approx(51.50357167)
+    assert lon == pytest.approx(-0.1318055)
+
+
+def test_location_2():
+    # test photo with no location info
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=["6191423D-8DB8-4D4C-92BE-9BBBA308AAC4"])
+    assert len(photos) == 1
+    p = photos[0]
+    lat, lon = p.location()
+    assert lat is None
+    assert lon is None
 
 def test_count():
     import osxphotos

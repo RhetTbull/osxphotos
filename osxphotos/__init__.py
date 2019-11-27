@@ -378,7 +378,7 @@ class PhotosDB:
         """ process the Photos database to extract info """
         """ works on Photos version <= 4.0 """
 
-        #TODO: Update strings to remove + (not needed)
+        # TODO: Update strings to remove + (not needed)
         # Epoch is Jan 1, 2001
         td = (datetime(2001, 1, 1, 0, 0) - datetime(1970, 1, 1, 0, 0)).total_seconds()
 
@@ -491,7 +491,7 @@ class PhotosDB:
             + "RKVersion.hasAdjustments, RKVersion.hasKeywords, RKVersion.imageTimeZoneOffsetSeconds, "
             + "RKMaster.volumeId, RKMaster.imagePath, RKVersion.extendedDescription, RKVersion.name, "
             + "RKMaster.isMissing, RKMaster.originalFileName, RKVersion.isFavorite, RKVersion.isHidden, "
-            + "RKVersion.longitude, RKVersion.latitude "
+            + "RKVersion.latitude, RKVersion.longitude "
             + "from RKVersion, RKMaster where RKVersion.isInTrash = 0 and RKVersion.type = 2 and "
             + "RKVersion.masterUuid = RKMaster.uuid and RKVersion.filename not like '%.pdf'"
         )
@@ -529,9 +529,8 @@ class PhotosDB:
             self._dbphotos[uuid]["originalFilename"] = row[15]
             self._dbphotos[uuid]["favorite"] = row[16]
             self._dbphotos[uuid]["hidden"] = row[17]
-            self._dbphotos[uuid]["longitude"] = row[18]
-            self._dbphotos[uuid]["latitude"] = row[19]
-
+            self._dbphotos[uuid]["latitude"] = row[18]
+            self._dbphotos[uuid]["longitude"] = row[19]
 
         conn.close()
 
@@ -735,7 +734,9 @@ class PhotosDB:
             "ZGENERICASSET.ZHIDDEN, "
             "ZGENERICASSET.ZFAVORITE, "
             "ZGENERICASSET.ZDIRECTORY, "
-            "ZGENERICASSET.ZFILENAME "
+            "ZGENERICASSET.ZFILENAME, "
+            "ZGENERICASSET.ZLATITUDE, "
+            "ZGENERICASSET.ZLONGITUDE "
             "FROM ZGENERICASSET "
             "JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK "
             "WHERE ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
@@ -761,7 +762,9 @@ class PhotosDB:
         # 9    "ZGENERICASSET.ZHIDDEN, "
         # 10   "ZGENERICASSET.ZFAVORITE, "
         # 11   "ZGENERICASSET.ZDIRECTORY, "
-        # 12   "ZGENERICASSET.ZFILENAME "
+        # 12   "ZGENERICASSET.ZFILENAME, "
+        # 13   "ZGENERICASSET.ZLATITUDE, "
+        # 14   "ZGENERICASSET.ZLONGITUDE "
 
         i = 0
         for row in c:
@@ -798,6 +801,15 @@ class PhotosDB:
             self._dbphotos[uuid]["originalFilename"] = row[3]
             self._dbphotos[uuid]["filename"] = row[12]
             self._dbphotos[uuid]["directory"] = row[11]
+
+            # set latitude and longitude
+            # if both latitude and longitude = -180.0, then they are NULL
+            if row[13] == -180.0 and row[14] == -180.0:
+                self._dbphotos[uuid]["latitude"] = None
+                self._dbphotos[uuid]["longitude"] = None
+            else:
+                self._dbphotos[uuid]["latitude"] = row[13]
+                self._dbphotos[uuid]["longitude"] = row[14]
 
             # these will get filled in later
             # init to avoid key errors
@@ -1087,14 +1099,18 @@ class PhotoInfo:
         """ True if picture is hidden """
         return True if self.__info["hidden"] == 1 else False
 
-    def longitude(self):
+    def location(self):
+        """ returns (latitude, longitude) as float in degrees or None """
+        return (self._latitude(), self._longitude())
+
+    def _longitude(self):
         """ Returns longitude, in degrees """
         return self.__info["longitude"]
 
-    def latitude(self):
+    def _latitude(self):
         """ Returns latitude, in degrees """
         return self.__info["latitude"]
-        
+
     def __repr__(self):
         return f"osxphotos.PhotoInfo(db={self.__db}, uuid='{self.__uuid}', info={self.__info})"
 

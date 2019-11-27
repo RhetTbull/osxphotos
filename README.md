@@ -342,6 +342,9 @@ Returns `True` if the picture has been marked as a favorite, otherwise `False`
 #### `hidden()`
 Returns `True` if the picture has been marked as hidden, otherwise `False`
 
+#### `location()`
+Returns latitude and longitude as a tuple of floats (latitude, longitude).  If location is not set, latitude and longitude are returned as `None`
+
 #### `to_json()`
 Returns a JSON representation of all photo info 
 
@@ -386,7 +389,7 @@ The sqlite3 database used by Photos uses write ahead logging that is updated asy
 - [Click](https://pypi.org/project/click/)
 
 ## Acknowledgements
-This code was inspired by photo-export by Patrick Fältström see: (https://github.com/patrikhson/photo-export) Copyright (c) 2015 Patrik Fältström paf@frobbit.se
+This project was inspired by photo-export by Patrick Fältström see: (https://github.com/patrikhson/photo-export) Copyright (c) 2015 Patrik Fältström paf@frobbit.se
 
 To interact with the Photos app, I use [py-applescript]( https://github.com/rdhyee/py-applescript) by "Raymond Yee / rdhyee".  Rather than import this module, I included the entire module
 (which is published as public domain code) in a private module to prevent ambiguity with
