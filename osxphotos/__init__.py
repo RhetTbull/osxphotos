@@ -20,6 +20,7 @@ from Foundation import *
 
 from . import _applescript
 
+# TODO: add hasAdjustments to process_database5 (see ZGENERICASSET.ZHASADJUSTMENTS = 1 )
 # TODO: Test to see if I really need to copy the database file
 # TODO: find edited photos: see https://github.com/orangeturtle739/photos-export/blob/master/extract_photos.py
 # TODO: Add test for imageTimeZoneOffsetSeconds = None
