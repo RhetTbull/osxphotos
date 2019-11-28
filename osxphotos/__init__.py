@@ -736,7 +736,8 @@ class PhotosDB:
             "ZGENERICASSET.ZDIRECTORY, "
             "ZGENERICASSET.ZFILENAME, "
             "ZGENERICASSET.ZLATITUDE, "
-            "ZGENERICASSET.ZLONGITUDE "
+            "ZGENERICASSET.ZLONGITUDE, "
+            "ZGENERICASSET.ZHASADJUSTMENTS "
             "FROM ZGENERICASSET "
             "JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK "
             "WHERE ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
@@ -764,7 +765,8 @@ class PhotosDB:
         # 11   "ZGENERICASSET.ZDIRECTORY, "
         # 12   "ZGENERICASSET.ZFILENAME, "
         # 13   "ZGENERICASSET.ZLATITUDE, "
-        # 14   "ZGENERICASSET.ZLONGITUDE "
+        # 14   "ZGENERICASSET.ZLONGITUDE, "
+        # 15   "ZGENERICASSET.ZHASADJUSTMENTS "
 
         i = 0
         for row in c:
@@ -811,13 +813,14 @@ class PhotosDB:
                 self._dbphotos[uuid]["latitude"] = row[13]
                 self._dbphotos[uuid]["longitude"] = row[14]
 
+            self._dbphotos[uuid]["hasAdjustments"] = row[15]
+
             # these will get filled in later
             # init to avoid key errors
             self._dbphotos[uuid]["extendedDescription"] = None  # fill this in later
             self._dbphotos[uuid]["localAvailability"] = None
             self._dbphotos[uuid]["remoteAvailability"] = None
             self._dbphotos[uuid]["isMissing"] = None
-            self._dbphotos[uuid]["hasAdjustments"] = None
 
             # self._dbphotos[uuid]["isMissing"] = row[14]
 

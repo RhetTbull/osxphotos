@@ -208,6 +208,28 @@ def test_location_2():
     assert lon is None
 
 
+def test_hasadjustments1():
+    # test hasadjustments == True
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=["E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"])
+    assert len(photos) == 1
+    p = photos[0]
+    assert p.hasadjustments() == True 
+
+
+def test_hasadjustments2():
+    # test hasadjustments == False
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=["6191423D-8DB8-4D4C-92BE-9BBBA308AAC4"])
+    assert len(photos) == 1
+    p = photos[0]
+    assert p.hasadjustments() == False
+
+
 def test_count():
     import osxphotos
 
