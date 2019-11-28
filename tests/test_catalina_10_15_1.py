@@ -159,7 +159,7 @@ def test_not_favorite():
     photos = photosdb.photos(uuid=["A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C"])
     assert len(photos) == 1
     p = photos[0]
-    assert p.favorite() == False 
+    assert p.favorite() == False
 
 
 def test_hidden():
@@ -180,6 +180,7 @@ def test_not_hidden():
     assert len(photos) == 1
     p = photos[0]
     assert p.hidden() == False
+
 
 def test_location_1():
     # test photo with lat/lon info
@@ -205,6 +206,7 @@ def test_location_2():
     lat, lon = p.location()
     assert lat is None
     assert lon is None
+
 
 def test_count():
     import osxphotos
@@ -234,36 +236,3 @@ def test_keyword_not_in_album():
     assert len(photos3) == 1
     assert photos3[0].uuid() == "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C"
 
-
-# def main():
-#     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-#     print(photosdb.keywords())
-#     print(photosdb.persons())
-#     print(photosdb.albums())
-
-#     print(photosdb.keywords_as_dict())
-#     print(photosdb.persons_as_dict())
-#     print(photosdb.albums_as_dict())
-
-# #      # find all photos with Keyword = Foo and containing John Smith
-#     #  photos = photosdb.photos(keywords=["Foo"],persons=["John Smith"])
-# #
-#     #  # find all photos that include Alice Smith but do not contain the keyword Bar
-#     #  photos = [p for p in photosdb.photos(persons=["Alice Smith"])
-# #                  if p not in photosdb.photos(keywords=["Bar"]) ]
-#     photos = photosdb.photos()
-#     for p in photos:
-#         print(
-#             p.uuid(),
-#             p.filename(),
-#             p.date(),
-#             p.description(),
-#             p.name(),
-#             p.keywords(),
-#             p.albums(),
-#             p.persons(),
-#             p.path(),
-#         )
-
-# if __name__ == "__main__":
-#     main()
