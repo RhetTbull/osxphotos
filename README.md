@@ -13,7 +13,7 @@ NOTE: OSXPhotos currently only supports image files -- e.g. it does not handle m
 
 Only works on MacOS (aka Mac OS X). Tested on MacOS 10.12.6 / Photos 2.0, 10.13.6 / Photos 3.0 and MacOS 10.14.5, 10.14.6 / Photos 4.0. Requires python >= 3.6
 
-NOTE: Alpha support for Mac OS 10.15.0 / Photos 5.0.  Photos 5.0 uses a new database format which required rewrite of much of the code for this package.  If you find bugs, please open an [issue](https://github.com/RhetTbull/osxphotos/issues/).
+NOTE: Alpha support for Mac OS 10.15.0 / Photos 5.0.  Photos 5.0 uses a new database format which required rewrite of much of the code for this module.  If you find bugs, please open an [issue](https://github.com/RhetTbull/osxphotos/issues/).
 
 This module will read Photos databases for any supported version on any supported OS version.  E.g. you can read a database created with Photos 4.0 on MacOS 10.14 on a machine running MacOS 10.12
 
@@ -88,7 +88,7 @@ Example: find all photos with keyword "Kids" and output results to json file nam
 
 `osxphotos query --keyword Kids --json >results.json`
 
-## Example uses of the module
+## Example uses of the module 
 
 ```python
 import osxphotos
@@ -377,11 +377,11 @@ This project started as a command line utility, `photosmeta`, available at [phot
 
 ## Implementation Notes
 
-This module is very kludgy.  It works by creating a copy of the sqlite3 database that Photos uses to store data about the Photos library. The class PhotosDB then queries this database to extract information about the photos such as persons (faces identified in the photos), albums, keywords, etc.  
+This module works by creating a copy of the sqlite3 database that Photos uses to store data about the Photos library. The class PhotosDB then queries this database to extract information about the photos such as persons (faces identified in the photos), albums, keywords, etc.  
 
-If Apple changes the database format this will likely break.  
+If Apple changes the database format this will likely break.
 
-The sqlite3 database used by Photos uses write ahead logging that is updated asynchronously in the background by a Photos helper service.  Sometimes the update takes a long time meaning the latest changes made in Photos (e.g. add a keyword) will not show up in the database for sometime.  I know of no way around this.
+Apple does provide an framework ([PhotoKit](https://developer.apple.com/documentation/photokit?language=objc)) for querying the user's Photos library and I attempted to create the funcationality in this module using this framework but unfortunately PhotoKit does not provide access to much of the needed metadata (such as Faces/Persons).  While copying the sqlite file is a bit kludgy, it allows osxphotos to provide access to all available metadata.
 
 ## Dependencies
 - [PyObjC](https://pythonhosted.org/pyobjc/)

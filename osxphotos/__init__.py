@@ -21,7 +21,6 @@ from Foundation import *
 from . import _applescript
 
 # TODO: add hasAdjustments to process_database5 (see ZGENERICASSET.ZHASADJUSTMENTS = 1 )
-# TODO: Test to see if I really need to copy the database file
 # TODO: find edited photos: see https://github.com/orangeturtle739/photos-export/blob/master/extract_photos.py
 # TODO: Add test for imageTimeZoneOffsetSeconds = None
 # TODO: Fix command line so multiple --keyword, etc. are AND (instead of OR as they are in .photos())
@@ -322,19 +321,29 @@ class PhotosDB:
             print("Could not get path to Photos database", file=sys.stderr)
             return None
 
-    # TODO: do we need to copy the db-wal write-ahead log file?
     def _copy_db_file(self, fname):
         """ copies the sqlite database file to a temp file """
         """ returns the name of the temp file and appends name to self->_tmp_files """
+        """ If sqlite shared memory and write-ahead log files exist, those are copied too """
         # required because python's sqlite3 implementation can't read a locked file
-        _, tmp = tempfile.mkstemp(suffix=".db", prefix="photos")
+        _, suffix = os.path.splitext(fname)
+        tmp_files = []
         try:
+            _, tmp = tempfile.mkstemp(suffix=suffix, prefix="osxphotos-")
             copyfile(fname, tmp)
+            tmp_files.append(tmp)
+            # copy write-ahead log and shared memory files (-wal and -shm) files if they exist
+            if os.path.exists(f"{fname}-wal"):
+                copyfile(f"{fname}-wal", f"{tmp}-wal")
+                tmp_files.append(f"{tmp}-wal")
+            if os.path.exists(f"{fname}-shm"):
+                copyfile(f"{fname}-shm", f"{tmp}-shm")
+                tmp_files.append(f"{tmp}-shm")
         except:
             print("Error copying " + fname + " to " + tmp, file=sys.stderr)
             raise Exception
 
-        self._tmp_files.append(tmp)
+        self._tmp_files.extend(tmp_files)
         return tmp
 
     def _open_sql_file(self, file):
