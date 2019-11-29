@@ -327,6 +327,7 @@ def print_photo_info(photos, json=False):
                 "hidden",
                 "latitude",
                 "longitude",
+                "path_edited",
             ]
         )
         for p in photos:
@@ -348,6 +349,7 @@ def print_photo_info(photos, json=False):
                     p.hidden(),
                     p._latitude(),
                     p._longitude(),
+                    p.path_edited(),
                 ]
             )
         for row in dump:

@@ -182,7 +182,7 @@ def test_not_hidden():
 
 
 def test_location_1():
-    #test photo with lat/lon info
+    # test photo with lat/lon info
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
@@ -193,6 +193,7 @@ def test_location_1():
     assert lat == pytest.approx(51.50357167)
     assert lon == pytest.approx(-0.1318055)
 
+
 def test_location_2():
     # test photo with no location info
     import osxphotos
@@ -202,8 +203,59 @@ def test_location_2():
     assert len(photos) == 1
     p = photos[0]
     lat, lon = p.location()
-    assert lat is None 
+    assert lat is None
     assert lon is None
+
+
+def test_hasadjustments1():
+    # test hasadjustments == True
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=["6bxcNnzRQKGnK4uPrCJ9UQ"])
+    assert len(photos) == 1
+    p = photos[0]
+    assert p.hasadjustments() == True
+
+
+def test_hasadjustments2():
+    # test hasadjustments == False
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=["15uNd7%8RguTEgNPKHfTWw"])
+    assert len(photos) == 1
+    p = photos[0]
+    assert p.hasadjustments() == False
+
+
+def test_path_edited1():
+    # test a valid edited path
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=["6bxcNnzRQKGnK4uPrCJ9UQ"])
+    assert len(photos) == 1
+    p = photos[0]
+    path = p.path_edited()
+    assert path is None
+    # TODO: update when implemented
+    # assert path.endswith(
+    #     "resources/renders/E/E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51_1_201_a.jpeg"
+    # )
+
+
+def test_path_edited2():
+    # test an invalid edited path
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=["15uNd7%8RguTEgNPKHfTWw"])
+    assert len(photos) == 1
+    p = photos[0]
+    path = p.path_edited()
+    assert path is None
+
 
 def test_count():
     import osxphotos

@@ -216,7 +216,7 @@ def test_hasadjustments1():
     photos = photosdb.photos(uuid=["E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"])
     assert len(photos) == 1
     p = photos[0]
-    assert p.hasadjustments() == True 
+    assert p.hasadjustments() == True
 
 
 def test_hasadjustments2():
@@ -228,6 +228,32 @@ def test_hasadjustments2():
     assert len(photos) == 1
     p = photos[0]
     assert p.hasadjustments() == False
+
+
+def test_path_edited1():
+    # test a valid edited path
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=["E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"])
+    assert len(photos) == 1
+    p = photos[0]
+    path = p.path_edited()
+    assert path.endswith(
+        "resources/renders/E/E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51_1_201_a.jpeg"
+    )
+
+
+def test_path_edited2():
+    # test an invalid edited path
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=["6191423D-8DB8-4D4C-92BE-9BBBA308AAC4"])
+    assert len(photos) == 1
+    p = photos[0]
+    path = p.path_edited()
+    assert path is None
 
 
 def test_count():

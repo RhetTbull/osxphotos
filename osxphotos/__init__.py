@@ -20,7 +20,6 @@ from Foundation import *
 
 from . import _applescript
 
-# TODO: add hasAdjustments to process_database5 (see ZGENERICASSET.ZHASADJUSTMENTS = 1 )
 # TODO: find edited photos: see https://github.com/orangeturtle739/photos-export/blob/master/extract_photos.py
 # TODO: Add test for imageTimeZoneOffsetSeconds = None
 # TODO: Fix command line so multiple --keyword, etc. are AND (instead of OR as they are in .photos())
@@ -149,12 +148,11 @@ class PhotosDB:
                 self._dbfile = dbfile
                 self._tmp_db = self._copy_db_file(self._dbfile)
 
-        # zzz
-
-        # TODO: replace os.path with pathlib
-        # TODO: clean this up -- we'll already know library_path
+        # TODO: replace os.path with pathlib?
+        # TODO: clean this up -- library path computed twice
         library_path = os.path.dirname(os.path.abspath(dbfile))
         (library_path, _) = os.path.split(library_path)
+        self._library_path = library_path
         if int(self._db_version) < int(_PHOTOS_5_VERSION):
             masters_path = os.path.join(library_path, "Masters")
             self._masters_path = masters_path
@@ -273,8 +271,10 @@ class PhotosDB:
         return os.path.abspath(self._dbfile)
 
     def get_photos_library_path(self):
-        """ return the path to the Photos library """
-        # TODO: move this to a module-level function
+        """ return the path to the last opened Photos library """
+        # TODO: this is only for last opened library
+        # TODO: Need a module level method for this and another PhotosDB method to get current library path
+        # TODO: Also need a way to get path of system library
         plist_file = Path(
             str(Path.home())
             + "/Library/Containers/com.apple.Photos/Data/Library/Preferences/com.apple.Photos.plist"
@@ -776,9 +776,7 @@ class PhotosDB:
                     row[5] + td
                 )
 
-            self._dbphotos[uuid]["imageDate"] = datetime.fromtimestamp(
-                row[5] + td
-            )  
+            self._dbphotos[uuid]["imageDate"] = datetime.fromtimestamp(row[5] + td)
             self._dbphotos[uuid]["imageTimeZoneOffsetSeconds"] = row[6]
             self._dbphotos[uuid]["hidden"] = row[9]
             self._dbphotos[uuid]["favorite"] = row[10]
@@ -822,6 +820,23 @@ class PhotosDB:
             else:
                 logging.debug(
                     f"WARNING: found description {row[1]} but no photo for {uuid}"
+                )
+
+        # get information about adjusted/edited photos
+        c.execute(
+            "SELECT ZGENERICASSET.ZUUID, ZGENERICASSET.ZHASADJUSTMENTS, ZUNMANAGEDADJUSTMENT.ZADJUSTMENTFORMATIDENTIFIER "
+            "FROM ZGENERICASSET, ZUNMANAGEDADJUSTMENT "
+            "JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK "
+            "WHERE ZADDITIONALASSETATTRIBUTES.ZUNMANAGEDADJUSTMENT = ZUNMANAGEDADJUSTMENT.Z_PK "
+            "AND ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
+        )
+        for row in c:
+            uuid = row[0]
+            if uuid in self._dbphotos:
+                self._dbphotos[uuid]["adjustmentID"] = row[2]
+            else:
+                logging.debug(
+                    f"WARNING: found adjustmentformatidentifier {row[2]} but no photo for uuid {row[0]}"
                 )
 
         # get information on local/remote availability
@@ -986,7 +1001,7 @@ class PhotoInfo:
         return self.__info["imageTimeZoneOffsetSeconds"]
 
     def path(self):
-        """ absolute path on disk of the picture """
+        """ absolute path on disk of the original picture """
         photopath = ""
 
         if self.__db._db_version < _PHOTOS_5_VERSION:
@@ -1021,6 +1036,56 @@ class PhotoInfo:
             # TODO: fix the logic for isMissing
             if self.__info["isMissing"] == 1:
                 photopath = None  # path would be meaningless until downloaded
+
+            logging.debug(photopath)
+
+        return photopath
+
+    def path_edited(self):
+        """ absolute path on disk of the edited picture """
+        """ None if photo has not been edited """
+        photopath = ""
+
+        if self.__db._db_version < _PHOTOS_5_VERSION:
+            # TODO: implement this
+            photopath = None
+            logging.debug(
+                "WARNING: path_edited not implemented yet for this database version"
+            )
+            # if self.__info["isMissing"] == 1:
+            #     photopath = None  # path would be meaningless until downloaded
+        else:
+            # in Photos 5.0 / Catalina / MacOS 10.15:
+            # edited photos appear to always be converted to .jpeg and stored in
+            # library_name/resources/renders/X/UUID_1_201_a.jpeg
+            # where X = first letter of UUID
+            # and UUID = UUID of image
+            # this seems to be true even for photos not copied to Photos library and
+            # where original format was not jpg/jpeg
+            # if more than one edit, previous edit is stored as UUID_p.jpeg
+
+            if self.__info["hasAdjustments"]:
+                library = self.__db._library_path
+                directory = self.__uuid[0]  # first char of uuid
+                photopath = os.path.join(
+                    library,
+                    "resources",
+                    "renders",
+                    directory,
+                    f"{self.__uuid}_1_201_a.jpeg",
+                )
+
+                if not os.path.isfile(photopath):
+                    logging.warning(
+                        f"WARNING: edited file should be at {photopath} but does not appear to exist"
+                    )
+                    photopath = None
+            else:
+                photopath = None
+
+            # TODO: might be possible for original/master to be missing but edit to still be there
+            # if self.__info["isMissing"] == 1:
+            #     photopath = None  # path would be meaningless until downloaded
 
             logging.debug(photopath)
 
@@ -1064,7 +1129,6 @@ class PhotoInfo:
 
     def hasadjustments(self):
         """ True if picture has adjustments """
-        """ TODO: not accurate for Photos version >= 5 """
         return True if self.__info["hasAdjustments"] == 1 else False
 
     def favorite(self):
@@ -1108,6 +1172,7 @@ class PhotoInfo:
             "hidden": self.hidden(),
             "latitude": self._latitude(),
             "longitude": self._longitude(),
+            "path_edited": self.path_edited(),
         }
         return yaml.dump(info, sort_keys=False)
 
@@ -1131,6 +1196,7 @@ class PhotoInfo:
             "hidden": self.hidden(),
             "latitude": self._latitude(),
             "longitude": self._longitude(),
+            "path_edited": self.path_edited(),
         }
         return json.dumps(pic)
 

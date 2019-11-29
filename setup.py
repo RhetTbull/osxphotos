@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# setup.py script for osxphotos 
+# setup.py script for osxphotos
 #
 # Copyright (c) 2019 Rhet Turnbull, rturnbull+git@gmail.com
 # All rights reserved.
@@ -38,7 +38,7 @@ with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
 
 setup(
     name="osxphotos",
-    version="0.14.6",
+    version="0.14.7",
     description="Manipulate (read-only) Apple's Photos app library on Mac OS X",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -47,7 +47,7 @@ setup(
     url="https://github.com/RhetTbull/",
     project_urls={"GitHub": "https://github.com/RhetTbull/osxphotos"},
     download_url="https://github.com/RhetTbull/osxphotos",
-    packages=find_packages(exclude=["tests","examples"]), 
+    packages=find_packages(exclude=["tests", "examples"]),
     license="License :: OSI Approved :: MIT License",
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -58,8 +58,6 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    install_requires=["pyobjc","Click","pyyaml",],
-    entry_points = {
-         'console_scripts' : ['osxphotos=osxphotos.cmd_line:cli'],
-    }
+    install_requires=["pyobjc", "Click", "pyyaml"],
+    entry_points={"console_scripts": ["osxphotos=osxphotos.cmd_line:cli"]},
 )
