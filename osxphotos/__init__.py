@@ -612,18 +612,6 @@ class PhotosDB:
 
         (conn, c) = self._open_sql_file(self._tmp_db)
 
-        # if int(self._db_version) > int(_PHOTOS_5_VERSION):
-        #     # need to close the photos.db database and re-open Photos.sqlite
-        #     c.close()
-        #     try:
-        #         os.remove(tmp_db)
-        #     except:
-        #         print("Could not remove temporary database: " + tmp_db, file=sys.stderr)
-
-        #     self._dbfile2 = Path(self._dbfile) "Photos.sqlite"
-        #     tmp_db = self._copy_db_file(fname)
-        #     (conn, c) = self._open_sql_file(tmp_db)
-
         # Look for all combinations of persons and pictures
         logging.debug(f"Getting information about persons")
 
@@ -634,7 +622,6 @@ class PhotosDB:
             "WHERE ZDETECTEDFACE.ZPERSON = ZPERSON.Z_PK AND ZDETECTEDFACE.ZASSET = ZGENERICASSET.Z_PK "
             "AND ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
         )
-        # c.execute("select RKPerson.name, RKFace.imageID from RKFace, RKPerson where RKFace.personID = RKperson.modelID")
         c.execute(
             "SELECT ZPERSON.ZFULLNAME, ZGENERICASSET.ZUUID "
             "FROM ZPERSON, ZDETECTEDFACE, ZGENERICASSET "
@@ -663,7 +650,6 @@ class PhotosDB:
             "JOIN ZGENERICALBUM ON ZGENERICALBUM.Z_PK = Z_26ASSETS.Z_26ALBUMS "
             "WHERE ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
         )
-        # c.execute("select RKPerson.name, RKFace.imageID from RKFace, RKPerson where RKFace.personID = RKperson.modelID")
         c.execute(
             "SELECT ZGENERICALBUM.ZTITLE, ZGENERICASSET.ZUUID "
             "FROM ZGENERICASSET "
@@ -751,13 +737,6 @@ class PhotosDB:
             "JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK "
             "WHERE ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
             "ORDER BY ZGENERICASSET.ZUUID "
-            # "select RKVersion.uuid, RKVersion.modelId, RKVersion.masterUuid, RKVersion.filename, "
-            # + "RKVersion.lastmodifieddate, RKVersion.imageDate, RKVersion.mainRating, "
-            # + "RKVersion.hasAdjustments, RKVersion.hasKeywords, RKVersion.imageTimeZoneOffsetSeconds, "
-            # + "RKMaster.volumeId, RKMaster.imagePath, RKVersion.extendedDescription, RKVersion.name, "
-            # + "RKMaster.isMissing "
-            # + "from RKVersion, RKMaster where RKVersion.isInTrash = 0 and RKVersion.type = 2 and "
-            # + "RKVersion.masterUuid = RKMaster.uuid and RKVersion.filename not like '%.pdf'"
         )
         # Order of results
         # 0    "SELECT ZGENERICASSET.ZUUID, "
@@ -799,14 +778,8 @@ class PhotosDB:
 
             self._dbphotos[uuid]["imageDate"] = datetime.fromtimestamp(
                 row[5] + td
-            )  # - row[9],  timezone.utc)
-            # self._dbphotos[uuid]["mainRating"] = row[6]
-            # self._dbphotos[uuid]["hasAdjustments"] = row[7]
-            # self._dbphotos[uuid]["hasKeywords"] = row[8]
+            )  
             self._dbphotos[uuid]["imageTimeZoneOffsetSeconds"] = row[6]
-            # self._dbphotos[uuid]["volumeId"] = row[10]
-            # self._dbphotos[uuid]["imagePath"] = row[11]
-            # self._dbphotos[uuid]["extendedDescription"] = row[12]
             self._dbphotos[uuid]["hidden"] = row[9]
             self._dbphotos[uuid]["favorite"] = row[10]
             self._dbphotos[uuid]["originalFilename"] = row[3]
@@ -830,8 +803,6 @@ class PhotosDB:
             self._dbphotos[uuid]["localAvailability"] = None
             self._dbphotos[uuid]["remoteAvailability"] = None
             self._dbphotos[uuid]["isMissing"] = None
-
-            # self._dbphotos[uuid]["isMissing"] = row[14]
 
         # Get extended description
         c.execute(
@@ -901,13 +872,6 @@ class PhotosDB:
             else:
                 self._dbphotos[uuid]["albums"] = []
                 self._dbphotos[uuid]["hasAlbums"] = 0
-
-            # if self._dbphotos[uuid]["volumeId"] is not None:
-            #     self._dbphotos[uuid]["volume"] = self._dbvolumes[
-            #         self._dbphotos[uuid]["volumeId"]
-            #     ]
-            # else:
-            #     self._dbphotos[uuid]["volume"] = None
 
         # close connection and remove temporary files
         conn.close()
