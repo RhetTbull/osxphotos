@@ -331,7 +331,7 @@ Returns a list of the names of the persons in the photo
 Returns the absolute path to the photo on disk as a string.  Note: this returns the path to the *original* unedited file (see `hasadjustments()`).  If the file is missing on disk, path=`None` (see `ismissing()`)
 
 #### `path_edited()`
-Returns the absolute path to the edited photo on disk as a string.  If the photo has not beed edited, returns `None`.  See also `path()` and `hasadjustments()`.  Note: Currently only implemented for Photos 5.0+ (MacOS 10.15); returns `None` on previous versions.
+Returns the absolute path to the edited photo on disk as a string.  If the photo has not been edited, returns `None`.  See also `path()` and `hasadjustments()`.  Note: Currently only implemented for Photos 5.0+ (MacOS 10.15); returns `None` on previous versions.
 
 #### `ismissing()`
 Returns `True` if the original image file is missing on disk, otherwise `False`.  This can occur if the file has been uploaded to iCloud but not yet downloaded to the local library or if the file was deleted or imported from a disk that has been unmounted. Note: this status is set by Photos and osxphotos does not verify that the file path returned by `path()` actually exists.  It merely reports what Photos has stored in the library database. 
