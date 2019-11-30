@@ -238,11 +238,7 @@ def test_path_edited1():
     assert len(photos) == 1
     p = photos[0]
     path = p.path_edited()
-    assert path is None
-    # TODO: update when implemented
-    # assert path.endswith(
-    #     "resources/renders/E/E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51_1_201_a.jpeg"
-    # )
+    assert path.endswith("resources/media/version/00/00/fullsizeoutput_9.jpeg")
 
 
 def test_path_edited2():

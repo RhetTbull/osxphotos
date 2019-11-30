@@ -81,6 +81,24 @@ def _check_file_exists(filename):
     return os.path.exists(filename) and not os.path.isdir(filename)
 
 
+def _get_resource_loc(model_id):
+    """ returns folder_id and file_id needed to find location of edited photo """
+    """ and live photos for version <= Photos 4.0 """
+    # determine folder where Photos stores edited version
+    # edited images are stored in:
+    # Photos Library.photoslibrary/resources/media/version/XX/00/fullsizeoutput_Y.jpeg
+    # where XX and Y are computed based on RKModelResources.modelId
+
+    # file_id (Y in above example) is hex representation of model_id without leading 0x
+    file_id = hex_id = hex(model_id)[2:]
+
+    # folder_id (XX) in above example if first two chars of model_id converted to hex
+    # and left padded with zeros if < 4 digits
+    folder_id = hex_id.zfill(4)[0:2]
+
+    return folder_id, file_id
+
+
 class PhotosDB:
     def __init__(self, dbfile=None):
         """ create a new PhotosDB object """
@@ -397,18 +415,6 @@ class PhotosDB:
 
         (conn, c) = self._open_sql_file(self._tmp_db)
 
-        # if int(self._db_version) > int(_PHOTOS_5_VERSION):
-        #     # need to close the photos.db database and re-open Photos.sqlite
-        #     c.close()
-        #     try:
-        #         os.remove(tmp_db)
-        #     except:
-        #         print("Could not remove temporary database: " + tmp_db, file=sys.stderr)
-
-        #     self._dbfile2 = Path(self._dbfile) "Photos.sqlite"
-        #     tmp_db = self._copy_db_file(fname)
-        #     (conn, c) = self._open_sql_file(tmp_db)
-
         # Look for all combinations of persons and pictures
 
         i = 0
@@ -500,10 +506,35 @@ class PhotosDB:
             + "RKVersion.hasAdjustments, RKVersion.hasKeywords, RKVersion.imageTimeZoneOffsetSeconds, "
             + "RKMaster.volumeId, RKMaster.imagePath, RKVersion.extendedDescription, RKVersion.name, "
             + "RKMaster.isMissing, RKMaster.originalFileName, RKVersion.isFavorite, RKVersion.isHidden, "
-            + "RKVersion.latitude, RKVersion.longitude "
+            + "RKVersion.latitude, RKVersion.longitude, "
+            + "RKVersion.adjustmentUuid "
             + "from RKVersion, RKMaster where RKVersion.isInTrash = 0 and RKVersion.type = 2 and "
             + "RKVersion.masterUuid = RKMaster.uuid and RKVersion.filename not like '%.pdf'"
         )
+
+        # order of results
+        # 0     RKVersion.uuid
+        # 1     RKVersion.modelId
+        # 2     RKVersion.masterUuid
+        # 3     RKVersion.filename
+        # 4     RKVersion.lastmodifieddate
+        # 5     RKVersion.imageDate
+        # 6     RKVersion.mainRating
+        # 7     RKVersion.hasAdjustments
+        # 8     RKVersion.hasKeywords
+        # 9     RKVersion.imageTimeZoneOffsetSeconds
+        # 10    RKMaster.volumeId
+        # 11    RKMaster.imagePath
+        # 12    RKVersion.extendedDescription
+        # 13    RKVersion.name
+        # 14    RKMaster.isMissing
+        # 15    RKMaster.originalFileName
+        # 16    RKVersion.isFavorite
+        # 17    RKVersion.isHidden
+        # 18    RKVersion.latitude
+        # 19    RKVersion.longitude
+        # 20    RKVersion.adjustmentUuid
+
         i = 0
         for row in c:
             i = i + 1
@@ -540,6 +571,57 @@ class PhotosDB:
             self._dbphotos[uuid]["hidden"] = row[17]
             self._dbphotos[uuid]["latitude"] = row[18]
             self._dbphotos[uuid]["longitude"] = row[19]
+            self._dbphotos[uuid]["adjustmentUuid"] = row[20]
+
+        # get details needed to find path of the edited photos and live photos
+        c.execute(
+            "SELECT RKVersion.uuid, RKVersion.adjustmentUuid, RKModelResource.modelId, "
+            "RKModelResource.resourceTag, RKModelResource.UTI, RKVersion.specialType, "
+            "RKModelResource.attachedModelType, RKModelResource.resourceType "
+            "FROM RKVersion "
+            "JOIN RKModelResource on RKModelResource.attachedModelId = RKVersion.modelId "
+            "WHERE RKVersion.isInTrash = 0 "
+        )
+
+        # Order of results:
+        # 0     RKVersion.uuid
+        # 1     RKVersion.adjustmentUuid
+        # 2     RKModelResource.modelId
+        # 3     RKModelResource.resourceTag
+        # 4     RKModelResource.UTI
+        # 5     RKVersion.specialType
+        # 7     RKModelResource.attachedModelType
+        # 8     RKModelResource.resourceType
+
+        # TODO: add live photos
+        # attachedmodeltype is 2, it's a photo, could be more than one
+        # if 5, it's a facetile
+        # specialtype = 0 == image, 5 or 8 == live photo movie
+
+        for row in c:
+            uuid = row[0]
+            if uuid in self._dbphotos:
+                if self._dbphotos[uuid]["adjustmentUuid"] == row[3]:
+                    if (
+                        row[1] != "UNADJUSTEDNONRAW"
+                        and row[1] != "UNADJUSTED"
+                        and row[4] == "public.jpeg"
+                        and row[6] == 2
+                    ):
+                        if "edit_resource_id" in self._dbphotos[uuid]:
+                            logging.warning(
+                                f"WARNING: found more than one edit_resource_id for "
+                                f"UUID {row[0]},adjustmentID {row[1]}, modelID {row[2]}"
+                            )
+                        # TODO: I think there should never be more than one edit but
+                        # I've seen this once in my library
+                        # should we return all edits or just most recent one?
+                        self._dbphotos[uuid]["edit_resource_id"] = row[2]
+
+        # init any uuids that had no edits
+        for uuid in self._dbphotos:
+            if "edit_resource_id" not in self._dbphotos[uuid]:
+                self._dbphotos[uuid]["edit_resource_id"] = None
 
         conn.close()
 
@@ -1047,11 +1129,33 @@ class PhotoInfo:
         photopath = ""
 
         if self.__db._db_version < _PHOTOS_5_VERSION:
-            # TODO: implement this
-            photopath = None
-            logging.debug(
-                "WARNING: path_edited not implemented yet for this database version"
-            )
+            if self.__info["hasAdjustments"]:
+                edit_id = self.__info["edit_resource_id"]
+                if edit_id is not None:
+                    library = self.__db._library_path
+                    folder_id, file_id = _get_resource_loc(edit_id)
+                    # todo: is this always true or do we need to search file file_id under folder_id
+                    photopath = os.path.join(
+                        library,
+                        "resources",
+                        "media",
+                        "version",
+                        folder_id,
+                        "00",
+                        f"fullsizeoutput_{file_id}.jpeg",
+                    )
+                    if not os.path.isfile(photopath):
+                        logging.warning(
+                            f"edited file for UUID {self.__uuid} should be at {photopath} but does not appear to exist"
+                        )
+                        photopath = None
+                else:
+                    logging.warning(
+                        f"{self.uuid} hasAdjustments but edit_model_id is None"
+                    )
+            else:
+                photopath = None
+
             # if self.__info["isMissing"] == 1:
             #     photopath = None  # path would be meaningless until downloaded
         else:
@@ -1077,7 +1181,7 @@ class PhotoInfo:
 
                 if not os.path.isfile(photopath):
                     logging.warning(
-                        f"WARNING: edited file should be at {photopath} but does not appear to exist"
+                        f"edited file for UUID {self.__uuid} should be at {photopath} but does not appear to exist"
                     )
                     photopath = None
             else:
