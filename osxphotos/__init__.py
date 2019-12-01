@@ -627,6 +627,20 @@ class PhotosDB:
                         # should we return all edits or just most recent one?
                         self._dbphotos[uuid]["edit_resource_id"] = row[2]
 
+        # get details on external edits
+        c.execute(  "SELECT RKVersion.uuid, "
+                    "RKVersion.adjustmentUuid, "
+                    "RKAdjustmentData.originator, "
+                    "RKAdjustmentData.format "
+                    "FROM RKVersion, RKAdjustmentData "
+                    "WHERE RKVersion.adjustmentUuid = RKAdjustmentData.uuid "
+                    "AND RKVersion.isInTrash = 0")
+        
+        for row in c:
+            uuid = row[0]
+            if uuid in self._dbphotos:
+                self._dbphotos[uuid]["adjustmentFormatID"] = row[3] 
+
         # init any uuids that had no edits
         for uuid in self._dbphotos:
             if "edit_resource_id" not in self._dbphotos[uuid]:

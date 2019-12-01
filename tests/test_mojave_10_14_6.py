@@ -230,6 +230,30 @@ def test_hasadjustments2():
     assert p.hasadjustments() == False
 
 
+def test_external_edit1():
+    # test image has been edited in external editor
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=["3Jn73XpSQQCluzRBMWRsMA"])
+    assert len(photos) == 1
+    p = photos[0]
+
+    assert p.external_edit() == True
+
+
+def test_external_edit2():
+    # test image has not been edited in external editor
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=["6bxcNnzRQKGnK4uPrCJ9UQ"])
+    assert len(photos) == 1
+    p = photos[0]
+
+    assert p.external_edit() == False
+
+
 def test_path_edited1():
     # test a valid edited path
     import osxphotos
