@@ -387,10 +387,7 @@ class PhotosDB:
         c.execute(
             "SELECT value from LiGlobals where LiGlobals.keyPath is 'libraryVersion'"
         )
-        for ver in c:
-            version = ver[0]
-            break  # TODO: is there a more pythonic way to do get the first element from cursor?
-
+        version = c.fetchone()[0]
         conn.close()
 
         if version not in _TESTED_DB_VERSIONS:

@@ -43,7 +43,8 @@ def test_db_version():
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    assert photosdb.get_db_version() in osxphotos._TESTED_DB_VERSIONS
+    # assert photosdb.get_db_version() in osxphotos._TESTED_DB_VERSIONS
+    assert photosdb.get_db_version() == "2622"
 
 
 def test_os_version():
@@ -170,36 +171,3 @@ def test_keyword_not_in_album():
     assert len(photos3) == 1
     assert photos3[0].uuid() == "Pj99JmYjQkeezdY2OFuSaw"
 
-
-# def main():
-#     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-#     print(photosdb.keywords())
-#     print(photosdb.persons())
-#     print(photosdb.albums())
-
-#     print(photosdb.keywords_as_dict())
-#     print(photosdb.persons_as_dict())
-#     print(photosdb.albums_as_dict())
-
-# #      # find all photos with Keyword = Foo and containing John Smith
-#     #  photos = photosdb.photos(keywords=["Foo"],persons=["John Smith"])
-# #
-#     #  # find all photos that include Alice Smith but do not contain the keyword Bar
-#     #  photos = [p for p in photosdb.photos(persons=["Alice Smith"])
-# #                  if p not in photosdb.photos(keywords=["Bar"]) ]
-#     photos = photosdb.photos()
-#     for p in photos:
-#         print(
-#             p.uuid(),
-#             p.filename(),
-#             p.date(),
-#             p.description(),
-#             p.name(),
-#             p.keywords(),
-#             p.albums(),
-#             p.persons(),
-#             p.path(),
-#         )
-
-# if __name__ == "__main__":
-#     main()

@@ -43,7 +43,8 @@ def test_db_version():
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    assert photosdb.get_db_version() in osxphotos._TESTED_DB_VERSIONS
+    # assert photosdb.get_db_version() in osxphotos._TESTED_DB_VERSIONS
+    assert photosdb.get_db_version() == "6000" 
 
 
 def test_os_version():
