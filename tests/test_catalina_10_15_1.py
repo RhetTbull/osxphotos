@@ -44,7 +44,7 @@ def test_db_version():
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     # assert photosdb.get_db_version() in osxphotos._TESTED_DB_VERSIONS
-    assert photosdb.get_db_version() == "6000" 
+    assert photosdb.get_db_version() == "6000"
 
 
 def test_os_version():
@@ -229,6 +229,30 @@ def test_hasadjustments2():
     assert len(photos) == 1
     p = photos[0]
     assert p.hasadjustments() == False
+
+
+def test_external_edit1():
+    # test image has been edited in external editor
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=["DC99FBDD-7A52-4100-A5BB-344131646C30"])
+    assert len(photos) == 1
+    p = photos[0]
+
+    assert p.external_edit() == True
+
+
+def test_external_edit2():
+    # test image has not been edited in external editor
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=["E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"])
+    assert len(photos) == 1
+    p = photos[0]
+
+    assert p.external_edit() == False
 
 
 def test_path_edited1():

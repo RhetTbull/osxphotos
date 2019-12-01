@@ -580,6 +580,7 @@ class PhotosDB:
             self._dbphotos[uuid]["latitude"] = row[18]
             self._dbphotos[uuid]["longitude"] = row[19]
             self._dbphotos[uuid]["adjustmentUuid"] = row[20]
+            self._dbphotos[uuid]["adjustmentFormatID"] = None
 
         # get details needed to find path of the edited photos and live photos
         c.execute(
@@ -598,8 +599,8 @@ class PhotosDB:
         # 3     RKModelResource.resourceTag
         # 4     RKModelResource.UTI
         # 5     RKVersion.specialType
-        # 7     RKModelResource.attachedModelType
-        # 8     RKModelResource.resourceType
+        # 6     RKModelResource.attachedModelType
+        # 7     RKModelResource.resourceType
 
         # TODO: add live photos
         # attachedmodeltype is 2, it's a photo, could be more than one
@@ -619,7 +620,7 @@ class PhotosDB:
                         if "edit_resource_id" in self._dbphotos[uuid]:
                             logging.warning(
                                 f"WARNING: found more than one edit_resource_id for "
-                                f"UUID {row[0]},adjustmentID {row[1]}, modelID {row[2]}"
+                                f"UUID {row[0]},adjustmentUUID {row[1]}, modelID {row[2]}"
                             )
                         # TODO: I think there should never be more than one edit but
                         # I've seen this once in my library
@@ -892,6 +893,8 @@ class PhotosDB:
             self._dbphotos[uuid]["localAvailability"] = None
             self._dbphotos[uuid]["remoteAvailability"] = None
             self._dbphotos[uuid]["isMissing"] = None
+            self._dbphotos[uuid]["adjustmentUuid"] = None
+            self._dbphotos[uuid]["adjustmentFormatID"] = None
 
         # Get extended description
         c.execute(
@@ -915,7 +918,9 @@ class PhotosDB:
 
         # get information about adjusted/edited photos
         c.execute(
-            "SELECT ZGENERICASSET.ZUUID, ZGENERICASSET.ZHASADJUSTMENTS, ZUNMANAGEDADJUSTMENT.ZADJUSTMENTFORMATIDENTIFIER "
+            "SELECT ZGENERICASSET.ZUUID, "
+            "ZGENERICASSET.ZHASADJUSTMENTS, "
+            "ZUNMANAGEDADJUSTMENT.ZADJUSTMENTFORMATIDENTIFIER "
             "FROM ZGENERICASSET, ZUNMANAGEDADJUSTMENT "
             "JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK "
             "WHERE ZADDITIONALASSETATTRIBUTES.ZUNMANAGEDADJUSTMENT = ZUNMANAGEDADJUSTMENT.Z_PK "
@@ -924,7 +929,7 @@ class PhotosDB:
         for row in c:
             uuid = row[0]
             if uuid in self._dbphotos:
-                self._dbphotos[uuid]["adjustmentID"] = row[2]
+                self._dbphotos[uuid]["adjustmentFormatID"] = row[2]
             else:
                 logging.debug(
                     f"WARNING: found adjustmentformatidentifier {row[2]} but no photo for uuid {row[0]}"
@@ -1241,8 +1246,16 @@ class PhotoInfo:
         return True if self.__info["isMissing"] == 1 else False
 
     def hasadjustments(self):
-        """ True if picture has adjustments """
+        """ True if picture has adjustments / edits """
         return True if self.__info["hasAdjustments"] == 1 else False
+
+    def external_edit(self):
+        """ Returns True if picture was edited outside of Photos using external editor """
+        return (
+            True
+            if self.__info["adjustmentFormatID"] == "com.apple.Photos.externalEdit"
+            else False
+        )
 
     def favorite(self):
         """ True if picture is marked as favorite """
