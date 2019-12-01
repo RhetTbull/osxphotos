@@ -337,7 +337,10 @@ Returns the absolute path to the edited photo on disk as a string.  If the photo
 Returns `True` if the original image file is missing on disk, otherwise `False`.  This can occur if the file has been uploaded to iCloud but not yet downloaded to the local library or if the file was deleted or imported from a disk that has been unmounted. Note: this status is set by Photos and osxphotos does not verify that the file path returned by `path()` actually exists.  It merely reports what Photos has stored in the library database. 
 
 #### `hasadjustments()`
-Returns `True` if the file has been edited in Photos, otherwise `False`
+Returns `True` if the picture has been edited, otherwise `False`
+
+#### `external_edit()`
+Returns `True` if the picture was edited in an external editor (outside Photos.app), otherwise `False`
 
 #### `favorite()`
 Returns `True` if the picture has been marked as a favorite, otherwise `False`
