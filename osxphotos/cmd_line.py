@@ -7,12 +7,13 @@ import yaml
 
 import osxphotos
 
-# TODO: add query for description, name (contains text)
 # TODO: add "--any" to search any field (e.g. keyword, description, name contains "wedding") (add case insensitive option)
 
 
 class CLI_Obj:
-    def __init__(self, db=None, json=False):
+    def __init__(self, db=None, json=False, debug=False):
+        if debug:
+            osxphotos._debug(True)
         self.photosdb = osxphotos.PhotosDB(dbfile=db)
         self.json = json
 
@@ -35,9 +36,10 @@ CTX_SETTINGS = dict(help_option_names=["-h", "--help"])
     default=False,
     help="Print output in JSON format",
 )
+@click.option("--debug", required=False, is_flag=True, default=False, hidden=True)
 @click.pass_context
-def cli(ctx, db, json):
-    ctx.obj = CLI_Obj(db=db, json=json)
+def cli(ctx, db, json, debug):
+    ctx.obj = CLI_Obj(db=db, json=json, debug=debug)
 
 
 @cli.command()
@@ -136,7 +138,9 @@ def dump(cli_obj):
     multiple=True,
     help="search for TEXT in description of photo",
 )
-@click.option("--no-description", is_flag=True, help="search for photos with no description")
+@click.option(
+    "--no-description", is_flag=True, help="search for photos with no description"
+)
 @click.option(
     "-i",
     "--ignore-case",
@@ -223,11 +227,11 @@ def query(
     elif name and no_name:
         # can't search for both name and no_name
         print(cli.commands["query"].get_help(ctx))
-        return 
+        return
     elif description and no_description:
         # can't search for both description and no_description
         print(cli.commands["query"].get_help(ctx))
-        return 
+        return
     else:
         photos = cli_obj.photosdb.photos(
             keywords=keyword, persons=person, albums=album, uuid=uuid

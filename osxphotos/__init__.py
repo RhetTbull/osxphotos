@@ -44,16 +44,24 @@ _PHOTOS_5_VERSION = "6000"
 # which major version operating systems have been tested
 _TESTED_OS_VERSIONS = ["12", "13", "14", "15"]
 
-# set _debug = True to enable debug output
-_debug = False
+# set _DEBUG = True to enable debug output
+_DEBUG = False
 
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d - %(message)s",
 )
 
-if not _debug:
+if not _DEBUG:
     logging.disable(logging.DEBUG)
+
+
+def _debug(debug):
+    """ Enable or disable debug logging """
+    if debug:
+        logging.disable(logging.NOTSET)
+    else:
+        logging.disable(logging.DEBUG)
 
 
 def _get_os_version():
@@ -194,6 +202,7 @@ class PhotosDB:
             try:
                 os.remove(f)
             except Exception as e:
+                logging.debug(f"exception {e} removing {f}")
                 pass
                 # print(f"WARNING: Unable to remove tmp file {e}")
                 # raise e
@@ -362,6 +371,8 @@ class PhotosDB:
             raise Exception
 
         self._tmp_files.extend(tmp_files)
+        logging.debug(self._tmp_files)
+
         return tmp
 
     def _open_sql_file(self, file):
@@ -654,7 +665,7 @@ class PhotosDB:
         # remove temporary files
         self._cleanup_tmp_files()
 
-        if _debug:
+        if _DEBUG:
             logging.debug("Faces:")
             logging.debug(pformat(self._dbfaces_uuid))
 
@@ -839,8 +850,9 @@ class PhotosDB:
         for row in c:
             i = i + 1
             uuid = row[0]
-            if _debug:
+            if _DEBUG:
                 logging.debug(f"i = {i:d}, uuid = '{uuid}")
+
             self._dbphotos[uuid] = {}
             self._dbphotos[uuid]["modelID"] = None
             self._dbphotos[uuid]["masterUuid"] = None
@@ -940,7 +952,7 @@ class PhotosDB:
                 else:
                     self._dbphotos[uuid]["isMissing"] = 0
 
-        if _debug:
+        if _DEBUG:
             logging.debug(pformat(self._dbphotos))
 
         # add faces and keywords to photo data
@@ -971,7 +983,7 @@ class PhotosDB:
         conn.close()
         self._cleanup_tmp_files()
 
-        if _debug:
+        if _DEBUG:
             logging.debug("Faces:")
             logging.debug(pformat(self._dbfaces_uuid))
 
