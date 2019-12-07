@@ -194,21 +194,23 @@ def query(
     """
 
     # if no query terms, show help and return
-    if (
-        not keyword
-        and not person
-        and not album
-        and not uuid
-        and not name
-        and not no_name
-        and not description
-        and not no_description
-        and not favorite
-        and not not_favorite
-        and not hidden
-        and not not_hidden
-        and not missing
-        and not not_missing
+    if not any(
+        [
+            keyword,
+            person,
+            album,
+            uuid,
+            name,
+            no_name,
+            description,
+            no_description,
+            favorite,
+            not_favorite,
+            hidden,
+            not_hidden,
+            missing,
+            not_missing,
+        ]
     ):
         print(cli.commands["query"].get_help(ctx))
         return
