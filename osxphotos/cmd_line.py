@@ -7,6 +7,8 @@ import yaml
 
 import osxphotos
 
+from ._version import __version__
+
 # TODO: add "--any" to search any field (e.g. keyword, description, name contains "wedding") (add case insensitive option)
 
 
@@ -37,6 +39,7 @@ CTX_SETTINGS = dict(help_option_names=["-h", "--help"])
     help="Print output in JSON format",
 )
 @click.option("--debug", required=False, is_flag=True, default=False, hidden=True)
+@click.version_option(__version__, "--version", "-v")
 @click.pass_context
 def cli(ctx, db, json, debug):
     ctx.obj = CLI_Obj(db=db, json=json, debug=debug)
@@ -188,8 +191,8 @@ def query(
     missing,
     not_missing,
 ):
-    """ Query the Photos database using 1 or more search options\n
-        If more than one option is provided, they are treated as "AND" 
+    """ query the Photos database using 1 or more search options; 
+        if more than one option is provided, they are treated as "AND" 
         (e.g. search for photos matching all options)
     """
 

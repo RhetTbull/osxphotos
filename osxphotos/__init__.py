@@ -19,6 +19,7 @@ import objc
 from Foundation import *
 
 from . import _applescript
+from ._version import __version__
 
 # TODO: find edited photos: see https://github.com/orangeturtle739/photos-export/blob/master/extract_photos.py
 # TODO: Add test for imageTimeZoneOffsetSeconds = None
