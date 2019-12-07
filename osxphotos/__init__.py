@@ -240,12 +240,12 @@ class PhotosDB:
         return list(keywords)
 
     def persons(self):
-        """ return persons as dict of person, count in reverse sorted order (descending) """
+        """ return list of persons found in photos database """
         persons = self._dbfaces_person.keys()
         return list(persons)
 
     def albums(self):
-        """ return albums as dict of albums, count in reverse sorted order (descending) """
+        """ return list of albums found in photos database """
         albums = self._dbalbums_album.keys()
         return list(albums)
 
