@@ -656,13 +656,14 @@ class PhotosDB:
                         and row[6] == 2
                     ):
                         if "edit_resource_id" in self._dbphotos[uuid]:
-                            logging.warning(
+                            logging.debug(
                                 f"WARNING: found more than one edit_resource_id for "
                                 f"UUID {row[0]},adjustmentUUID {row[1]}, modelID {row[2]}"
                             )
                         # TODO: I think there should never be more than one edit but
                         # I've seen this once in my library
                         # should we return all edits or just most recent one?
+                        # For now, return most recent edit
                         self._dbphotos[uuid]["edit_resource_id"] = row[2]
 
         # get details on external edits
