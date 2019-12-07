@@ -9,7 +9,7 @@
 	<key>HistoricalMarker</key>
 	<dict>
 		<key>LastHistoryRowId</key>
-		<integer>522</integer>
+		<integer>575</integer>
 		<key>LibraryBuildTag</key>
 		<string>D8C4AAA1-3AB6-4A65-BEBD-99CC3E5D433E</string>
 		<key>LibrarySchemaVersion</key>
@@ -24,7 +24,7 @@
 	<key>SnapshotCompletedDate</key>
 	<date>2019-07-27T13:16:43Z</date>
 	<key>SnapshotLastValidated</key>
-	<date>2019-11-27T05:30:11Z</date>
+	<date>2019-12-07T22:47:19Z</date>
 	<key>SnapshotTables</key>
 	<dict/>
 </dict>

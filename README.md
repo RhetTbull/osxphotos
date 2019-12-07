@@ -7,13 +7,13 @@
 
 OSXPhotos provides the ability to interact with and query Apple's Photos.app library database on MacOS. Using this module you can query the Photos database for information about the photos stored in a Photos library on your Mac--for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc.
 
-NOTE: OSXPhotos currently only supports image files -- e.g. it does not handle movies.
+**NOTE**: OSXPhotos currently only supports image files -- e.g. it does not handle movies.
 
 ## Supported operating systems
 
 Only works on MacOS (aka Mac OS X). Tested on MacOS 10.12.6 / Photos 2.0, 10.13.6 / Photos 3.0 and MacOS 10.14.5, 10.14.6 / Photos 4.0. Requires python >= 3.6
 
-NOTE: Alpha support for Mac OS 10.15.0 / Photos 5.0.  Photos 5.0 uses a new database format which required rewrite of much of the code for this module.  If you find bugs, please open an [issue](https://github.com/RhetTbull/osxphotos/issues/).
+**NOTE**: Alpha support for Mac OS 10.15.0 / Photos 5.0.  Photos 5.0 uses a new database format which required rewrite of much of the code for this module.  If you find bugs, please open an [issue](https://github.com/RhetTbull/osxphotos/issues/).
 
 This module will read Photos databases for any supported version on any supported OS version.  E.g. you can read a database created with Photos 4.0 on MacOS 10.14 on a machine running MacOS 10.12
 
@@ -139,7 +139,7 @@ osxphotos.PhotosDB([dbfile="path to database file"])
 
 Opens the Photos library database and returns a PhotosDB object.  Optionally, pass the path to a specific database file.  If `dbfile` is not included, will open the default (last opened) Photos database.
 
-Note: this will open the last library that was opened in Photos. This is not necessarily the System Photos Library.  If you have more than one Photos library, you can select which to open by holding down Option key while opening Photos.
+**Note**: this will open the last library that was opened in Photos. This is not necessarily the System Photos Library.  If you have more than one Photos library, you can select which to open by holding down Option key while opening Photos.
 
 ```python
 import osxphotos
@@ -172,7 +172,9 @@ Returns a list of the keywords found in the Photos library
 albums = photosdb.albums()
 ```
 
-Returns a list of the albums found in the Photos library.  **Note**: It is possible to have more than one album with the same name in Photos.  Albums with duplicate names are treated as a single album and the photos in each are combined.  For example, if you have two albums named "Wedding" and each has 2 photos, osxphotos will treat this as a single album named "Wedding" with 4 photos in it.
+Returns a list of the albums found in the Photos library.  
+
+**Note**: In Photos 5.0 (MacOS 10.15/Catalina), It is possible to have more than one album with the same name in Photos.  Albums with duplicate names are treated as a single album and the photos in each are combined.  For example, if you have two albums named "Wedding" and each has 2 photos, osxphotos will treat this as a single album named "Wedding" with 4 photos in it.
 
 #### ```persons```
 ```python
@@ -204,7 +206,9 @@ Returns a dictionary of persons (faces) found in the Photos library where key is
 albums_dict = photosdb.albums_as_dict()
 ```
 
-Returns a dictionary of albums found in the Photos library where key is the album name and value is the count of how many photos are in the album.  Resulting dictionary is in reverse sorted order (e.g. album with the most photos is listed first).  **Note**: It is possible to have more than one album with the same name in Photos.  Albums with duplicate names are treated as a single album and the photos in each are combined.  For example, if you have two albums named "Wedding" and each has 2 photos, osxphotos will treat this as a single album named "Wedding" with 4 photos in it.
+Returns a dictionary of albums found in the Photos library where key is the album name and value is the count of how many photos are in the album.  Resulting dictionary is in reverse sorted order (e.g. album with the most photos is listed first).  
+
+**Note**: In Photos 5.0 (MacOS 10.15/Catalina), It is possible to have more than one album with the same name in Photos.  Albums with duplicate names are treated as a single album and the photos in each are combined.  For example, if you have two albums named "Wedding" and each has 2 photos, osxphotos will treat this as a single album named "Wedding" with 4 photos in it.
 
 #### ```get_photos_library_path```
 ```python
@@ -252,7 +256,7 @@ photos = photosdb.photos(
 ```
 
 - ```keywords```: list of one or more keywords.  Returns only photos containing the keyword(s).  If more than one keyword is provided finds photos matching any of the keywords (e.g. treated as "or")
-- ```uuid```: list of one or more uuids.  Returns only photos whos UUID matches.  Note: The UUID is the universally unique identifier that the Photos database uses to identify each photo.  You shouldn't normally need to use this but it is a way to access a specific photo if you know the UUID.  If more than more uuid is provided, returns photos that match any of the uuids (e.g. treated as "or")
+- ```uuid```: list of one or more uuids.  Returns only photos whos UUID matches.  **Note**: The UUID is the universally unique identifier that the Photos database uses to identify each photo.  You shouldn't normally need to use this but it is a way to access a specific photo if you know the UUID.  If more than more uuid is provided, returns photos that match any of the uuids (e.g. treated as "or")
 - ```persons```: list of one or more persons. Returns only photos containing the person(s).  If more than one person provided, returns photos that match any of the persons (e.g. treated as "or")
 - ```albums```: list of one or more album names.  Returns only photos contained in the album(s). If more than one album name is provided, returns photos contained in any of the albums (.e.g. treated as "or")
 
@@ -307,7 +311,7 @@ Returns the universally unique identifier (uuid) of the photo.  This is how Phot
 Returns the current filename of the photo on disk.  See also `original_filename()`
 
 #### `original_filename()`
-Returns the original filename of the photo when it was imported to Photos.  Note: Photos 5.0+ renames the photo when it adds the file to the library using UUID.  See also `filename()`
+Returns the original filename of the photo when it was imported to Photos.  **Note**: Photos 5.0+ renames the photo when it adds the file to the library using UUID.  See also `filename()`
 
 #### `date()`
 Returns the date of the photo as a datetime.datetime object
@@ -328,13 +332,13 @@ Returns a list of albums the photo is contained in
 Returns a list of the names of the persons in the photo
 
 #### `path()`
-Returns the absolute path to the photo on disk as a string.  Note: this returns the path to the *original* unedited file (see `hasadjustments()`).  If the file is missing on disk, path=`None` (see `ismissing()`)
+Returns the absolute path to the photo on disk as a string.  **Note**: this returns the path to the *original* unedited file (see `hasadjustments()`).  If the file is missing on disk, path=`None` (see `ismissing()`)
 
 #### `path_edited()`
 Returns the absolute path to the edited photo on disk as a string.  If the photo has not been edited, returns `None`.  See also `path()` and `hasadjustments()`.  
 
 #### `ismissing()`
-Returns `True` if the original image file is missing on disk, otherwise `False`.  This can occur if the file has been uploaded to iCloud but not yet downloaded to the local library or if the file was deleted or imported from a disk that has been unmounted. Note: this status is set by Photos and osxphotos does not verify that the file path returned by `path()` actually exists.  It merely reports what Photos has stored in the library database. 
+Returns `True` if the original image file is missing on disk, otherwise `False`.  This can occur if the file has been uploaded to iCloud but not yet downloaded to the local library or if the file was deleted or imported from a disk that has been unmounted. **Note**: this status is set by Photos and osxphotos does not verify that the file path returned by `path()` actually exists.  It merely reports what Photos has stored in the library database. 
 
 #### `hasadjustments()`
 Returns `True` if the picture has been edited, otherwise `False`
