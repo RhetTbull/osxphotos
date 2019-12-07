@@ -26,19 +26,22 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# from distutils.core import setup
-from setuptools import setup, find_packages
+import os
+from setuptools import find_packages, setup
 
-# read the contents of README file
-from os import path
-
-this_directory = path.abspath(path.dirname(__file__))
-with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
+this_directory = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(this_directory, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
+
+about = {}
+with open(
+    os.path.join(this_directory, "osxphotos", "_version.py"), mode="r", encoding="utf-8"
+) as f:
+    exec(f.read(), about)
 
 setup(
     name="osxphotos",
-    version="0.14.12",
+    version=about["__version__"],
     description="Manipulate (read-only) Apple's Photos app library on Mac OS X",
     long_description=long_description,
     long_description_content_type="text/markdown",
