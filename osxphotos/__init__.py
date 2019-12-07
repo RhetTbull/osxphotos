@@ -28,6 +28,7 @@ from . import _applescript
 # TODO: standardize _ and __ as leading char for private variables
 # TODO: fix docstrings
 # TODO: handle Null person for Photos 5
+# TODO: Add special albums and magic albums
 
 # which Photos library database versions have been tested
 # Photos 2.0 (10.12.6) == 2622
@@ -142,6 +143,8 @@ class PhotosDB:
         self._dbalbums_uuid = {}
         # Dict with information about all albums/photos by album
         self._dbalbums_album = {}
+        # Dict with information about album details
+        self._dbalbum_details = {}
         # Dict with information about all the volumes/photos by uuid
         self._dbvolumes = {}
 
@@ -230,7 +233,8 @@ class PhotosDB:
         """ return albums as dict of albums, count in reverse sorted order (descending) """
         albums = {}
         for k in self._dbalbums_album.keys():
-            albums[k] = len(self._dbalbums_album[k])
+            title = self._dbalbum_details[k]["title"]
+            albums[title] = len(self._dbalbums_album[k])
         albums = dict(sorted(albums.items(), key=lambda kv: kv[1], reverse=True))
         return albums
 
@@ -246,8 +250,12 @@ class PhotosDB:
 
     def albums(self):
         """ return list of albums found in photos database """
-        albums = self._dbalbums_album.keys()
-        return list(albums)
+        albums = []
+        for album in self._dbalbums_album.keys():
+            albums.append(self._dbalbum_details[album]["title"])
+        return albums
+        # albums = self._dbalbums_album.keys()
+        # return list(albums)
 
     def _setup_applescript(self):
         """ setup various applescripts used internally (e.g. to close Photos) """
@@ -457,7 +465,7 @@ class PhotosDB:
         )
         # c.execute("select RKPerson.name, RKFace.imageID from RKFace, RKPerson where RKFace.personID = RKperson.modelID")
         c.execute(
-            "select RKAlbum.name, RKVersion.uuid from RKAlbum, RKVersion, RKAlbumVersion "
+            "select RKAlbum.uuid, RKVersion.uuid from RKAlbum, RKVersion, RKAlbumVersion "
             + "where RKAlbum.modelID = RKAlbumVersion.albumId and "
             + "RKAlbumVersion.versionID = RKVersion.modelId and RKVersion.type = 2 and "
             + "RKVersion.filename not like '%.pdf' and RKVersion.isInTrash = 0"
@@ -471,6 +479,33 @@ class PhotosDB:
             self._dbalbums_uuid[album[1]].append(album[0])
             self._dbalbums_album[album[0]].append(album[1])
             i = i + 1
+
+        # now get additional details about albums
+        c.execute(
+            "SELECT "
+            "uuid, "  # 0
+            "name, "  # 1
+            "cloudLibraryState, "  # 2
+            "cloudIdentifier "  # 3
+            "FROM RKAlbum "
+            "WHERE isInTrash = 0"
+        )
+
+        for album in c:
+            self._dbalbum_details[album[0]] = {
+                "title": album[1],
+                "cloudlibrarystate": album[2],
+                "cloudidentifier": album[3],
+                "cloudlocalstate": None,  # Photos 5
+                "cloudownerfirstname": None,  # Photos 5
+                "cloudownderlastname": None,  # Photos 5
+                "cloudownerhashedpersonid": None,  # Photos 5
+            }
+
+        logging.debug(f"Finished walking through albums")
+        logging.debug(pformat(self._dbalbums_album))
+        logging.debug(pformat(self._dbalbums_uuid))
+        logging.debug(pformat(self._dbalbum_details))
 
         c.execute(
             "select count(*) from RKKeyword, RKKeywordForVersion,RKVersion, RKMaster "
@@ -628,18 +663,20 @@ class PhotosDB:
                         self._dbphotos[uuid]["edit_resource_id"] = row[2]
 
         # get details on external edits
-        c.execute(  "SELECT RKVersion.uuid, "
-                    "RKVersion.adjustmentUuid, "
-                    "RKAdjustmentData.originator, "
-                    "RKAdjustmentData.format "
-                    "FROM RKVersion, RKAdjustmentData "
-                    "WHERE RKVersion.adjustmentUuid = RKAdjustmentData.uuid "
-                    "AND RKVersion.isInTrash = 0")
-        
+        c.execute(
+            "SELECT RKVersion.uuid, "
+            "RKVersion.adjustmentUuid, "
+            "RKAdjustmentData.originator, "
+            "RKAdjustmentData.format "
+            "FROM RKVersion, RKAdjustmentData "
+            "WHERE RKVersion.adjustmentUuid = RKAdjustmentData.uuid "
+            "AND RKVersion.isInTrash = 0"
+        )
+
         for row in c:
             uuid = row[0]
             if uuid in self._dbphotos:
-                self._dbphotos[uuid]["adjustmentFormatID"] = row[3] 
+                self._dbphotos[uuid]["adjustmentFormatID"] = row[3]
 
         # init any uuids that had no edits
         for uuid in self._dbphotos:
@@ -756,7 +793,7 @@ class PhotosDB:
             "WHERE ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
         )
         c.execute(
-            "SELECT ZGENERICALBUM.ZTITLE, ZGENERICASSET.ZUUID "
+            "SELECT ZGENERICALBUM.ZUUID, ZGENERICASSET.ZUUID "
             "FROM ZGENERICASSET "
             "JOIN Z_26ASSETS ON Z_26ASSETS.Z_34ASSETS = ZGENERICASSET.Z_PK "
             "JOIN ZGENERICALBUM ON ZGENERICALBUM.Z_PK = Z_26ASSETS.Z_26ALBUMS "
@@ -771,9 +808,33 @@ class PhotosDB:
             self._dbalbums_uuid[album[1]].append(album[0])
             self._dbalbums_album[album[0]].append(album[1])
             i = i + 1
+
+        # now get additional details about albums
+        c.execute(
+            "SELECT "
+            "ZUUID, "  # 0
+            "ZTITLE, "  # 1
+            "ZCLOUDLOCALSTATE, "  # 2
+            "ZCLOUDOWNERFIRSTNAME, "  # 3
+            "ZCLOUDOWNERLASTNAME, "  # 4
+            "ZCLOUDOWNERHASHEDPERSONID "  # 5
+            "FROM ZGENERICALBUM"
+        )
+        for album in c:
+            self._dbalbum_details[album[0]] = {
+                "title": album[1],
+                "cloudlocalstate": album[2],
+                "cloudownerfirstname": album[3],
+                "cloudownderlastname": album[4],
+                "cloudownerhashedpersonid": album[5],
+                "cloudlibrarystate": None,  # Photos 4
+                "cloudidentifier": None,  # Photos4
+            }
+
         logging.debug(f"Finished walking through albums")
         logging.debug(pformat(self._dbalbums_album))
         logging.debug(pformat(self._dbalbums_uuid))
+        logging.debug(pformat(self._dbalbum_details))
 
         c.execute(
             "SELECT COUNT(*) "
@@ -1038,9 +1099,20 @@ class PhotosDB:
             photos_sets.append(set(self._dbphotos.keys()))
         else:
             if albums:
+                album_titles = {}
+                for album_id in self._dbalbum_details:
+                    title = self._dbalbum_details[album_id]["title"]
+                    if title in album_titles:
+                        album_titles[title].append(album_id)
+                    else:
+                        album_titles[title] = [album_id]
                 for album in albums:
-                    if album in self._dbalbums_album:
-                        photos_sets.append(set(self._dbalbums_album[album]))
+                    # TODO: can have >1 album with same name. This globs them together.
+                    # Need a way to select with album
+                    # TODO: document this in docs and add test
+                    if album in album_titles:
+                        for album_id in album_titles[album]:
+                            photos_sets.append(set(self._dbalbums_album[album_id]))
                     else:
                         logging.debug(f"Could not find album '{album}' in database")
 
@@ -1233,7 +1305,10 @@ class PhotoInfo:
 
     def albums(self):
         """ list of albums picture is contained in """
-        return self.__info["albums"]
+        albums = []
+        for album in self.__info["albums"]:
+            albums.append(self.__db._dbalbum_details[album]["title"])
+        return albums
 
     def keywords(self):
         """ list of keywords for picture """
