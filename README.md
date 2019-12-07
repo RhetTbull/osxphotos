@@ -172,7 +172,7 @@ Returns a list of the keywords found in the Photos library
 albums = photosdb.albums()
 ```
 
-Returns a list of the albums found in the Photos library
+Returns a list of the albums found in the Photos library.  **Note**: It is possible to have more than one album with the same name in Photos.  Albums with duplicate names are treated as a single album and the photos in each are combined.  For example, if you have two albums named "Wedding" and each has 2 photos, osxphotos will treat this as a single album named "Wedding" with 4 photos in it.
 
 #### ```persons```
 ```python
@@ -204,7 +204,7 @@ Returns a dictionary of persons (faces) found in the Photos library where key is
 albums_dict = photosdb.albums_as_dict()
 ```
 
-Returns a dictionary of albums found in the Photos library where key is the album name and value is the count of how many photos are in the album.  Resulting dictionary is in reverse sorted order (e.g. album with the most photos is listed first)
+Returns a dictionary of albums found in the Photos library where key is the album name and value is the count of how many photos are in the album.  Resulting dictionary is in reverse sorted order (e.g. album with the most photos is listed first).  **Note**: It is possible to have more than one album with the same name in Photos.  Albums with duplicate names are treated as a single album and the photos in each are combined.  For example, if you have two albums named "Wedding" and each has 2 photos, osxphotos will treat this as a single album named "Wedding" with 4 photos in it.
 
 #### ```get_photos_library_path```
 ```python

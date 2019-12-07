@@ -16,7 +16,7 @@ KEYWORDS = [
 ]
 # Photos 5 includes blank person for detected face
 PERSONS = ["Katie", "Suzy", "Maria", ""]
-ALBUMS = ["Pumpkin Farm"]
+ALBUMS = ["Pumpkin Farm", "Test Album"] # Note: there are 2 albums named "Test Album" for testing duplicate album names
 KEYWORDS_DICT = {
     "Kids": 4,
     "wedding": 2,
@@ -29,7 +29,8 @@ KEYWORDS_DICT = {
     "United Kingdom": 1,
 }
 PERSONS_DICT = {"Katie": 3, "Suzy": 2, "Maria": 1, "": 1}
-ALBUM_DICT = {"Pumpkin Farm": 3}
+ALBUM_DICT = {"Pumpkin Farm": 3, "Test Album": 2} # Note: there are 2 albums named "Test Album" for testing duplicate album names
+
 
 
 def test_init():
@@ -124,7 +125,7 @@ def test_attributes():
     )
     assert p.description() == "Girl holding pumpkin"
     assert p.name() == "I found one!"
-    assert p.albums() == ["Pumpkin Farm"]
+    assert p.albums() == ["Pumpkin Farm", "Test Album"]
     assert p.persons() == ["Katie"]
     assert p.path().endswith(
         "tests/Test-10.15.1.photoslibrary/originals/D/D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg"

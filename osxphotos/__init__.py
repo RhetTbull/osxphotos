@@ -234,7 +234,10 @@ class PhotosDB:
         albums = {}
         for k in self._dbalbums_album.keys():
             title = self._dbalbum_details[k]["title"]
-            albums[title] = len(self._dbalbums_album[k])
+            if title in albums:
+                albums[title] += len(self._dbalbums_album[k])
+            else:
+                albums[title] = len(self._dbalbums_album[k])
         albums = dict(sorted(albums.items(), key=lambda kv: kv[1], reverse=True))
         return albums
 
@@ -250,12 +253,12 @@ class PhotosDB:
 
     def albums(self):
         """ return list of albums found in photos database """
-        albums = []
+        # Could be more than one album with same name
+        # Right now, they are treated as same album and photos are combined from albums with same name
+        albums = set() 
         for album in self._dbalbums_album.keys():
-            albums.append(self._dbalbum_details[album]["title"])
-        return albums
-        # albums = self._dbalbums_album.keys()
-        # return list(albums)
+            albums.add(self._dbalbum_details[album]["title"])
+        return list(albums)
 
     def _setup_applescript(self):
         """ setup various applescripts used internally (e.g. to close Photos) """
@@ -1108,11 +1111,12 @@ class PhotosDB:
                         album_titles[title] = [album_id]
                 for album in albums:
                     # TODO: can have >1 album with same name. This globs them together.
-                    # Need a way to select with album
-                    # TODO: document this in docs and add test
+                    # Need a way to select with album?
                     if album in album_titles:
+                        album_set = set()
                         for album_id in album_titles[album]:
-                            photos_sets.append(set(self._dbalbums_album[album_id]))
+                            album_set.update(self._dbalbums_album[album_id])
+                        photos_sets.append(album_set)
                     else:
                         logging.debug(f"Could not find album '{album}' in database")
 
@@ -1140,12 +1144,15 @@ class PhotosDB:
         photoinfo = []
         if photos_sets:  # found some photos
             # get the intersection of each argument/search criteria
+            logging.debug(f"Got here: {photos_sets}")
             for p in set.intersection(*photos_sets):
                 info = PhotoInfo(db=self, uuid=p, info=self._dbphotos[p])
                 photoinfo.append(info)
+        logging.debug(f"photoinfo: {pformat(photoinfo)}")
         return photoinfo
 
     def __repr__(self):
+        # TODO: update to use __class__ and __name__
         return f"osxphotos.PhotosDB(dbfile='{self.get_db_path()}')"
 
 
@@ -1367,6 +1374,7 @@ class PhotoInfo:
         return self.__info["latitude"]
 
     def __repr__(self):
+        # TODO: update to use __class__ and __name__
         return f"osxphotos.PhotoInfo(db={self.__db}, uuid='{self.__uuid}', info={self.__info})"
 
     def __str__(self):
