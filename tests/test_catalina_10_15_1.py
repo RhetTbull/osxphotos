@@ -1,5 +1,7 @@
 import pytest
 
+from osxphotos import _UNKNOWN_PERSON
+
 # TODO: put some of this code into a pre-function
 
 PHOTOS_DB = "./tests/Test-10.15.1.photoslibrary/database/photos.db"
@@ -15,7 +17,7 @@ KEYWORDS = [
     "United Kingdom",
 ]
 # Photos 5 includes blank person for detected face
-PERSONS = ["Katie", "Suzy", "Maria", ""]
+PERSONS = ["Katie", "Suzy", "Maria", _UNKNOWN_PERSON]
 ALBUMS = ["Pumpkin Farm", "Test Album"] # Note: there are 2 albums named "Test Album" for testing duplicate album names
 KEYWORDS_DICT = {
     "Kids": 4,
@@ -28,7 +30,7 @@ KEYWORDS_DICT = {
     "UK": 1,
     "United Kingdom": 1,
 }
-PERSONS_DICT = {"Katie": 3, "Suzy": 2, "Maria": 1, "": 1}
+PERSONS_DICT = {"Katie": 3, "Suzy": 2, "Maria": 1, _UNKNOWN_PERSON: 1}
 ALBUM_DICT = {"Pumpkin Farm": 3, "Test Album": 2} # Note: there are 2 albums named "Test Album" for testing duplicate album names
 
 
