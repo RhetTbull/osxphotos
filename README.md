@@ -129,6 +129,12 @@ if __name__ == "__main__":
 
 ## Module Interface
 
+### Utility Functions
+
+#### ```get_system_library_path()```
+
+**MacOS 10.15 Only** Return path to System Photo Library as string.  On MacOS version < 10.15, raises Exception.
+
 ### PhotosDB
 
 #### Open the default Photos library

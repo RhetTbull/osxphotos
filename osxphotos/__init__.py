@@ -109,7 +109,33 @@ def _get_resource_loc(model_id):
 
     return folder_id, file_id
 
+def get_system_library_path():
+    """ return the path to the system Photos library as string """
+    """ only works on MacOS 10.15+ """
+    """ on earlier versions, will raise exception """
+    ver, major, minor = _get_os_version()
+    if int(major) < 15:
+        raise Exception("get_system_library_path not implemented for MacOS < 10.15",major)
 
+    plist_file = Path(
+        str(Path.home())
+        + "/Library/Containers/com.apple.photolibraryd/Data/Library/Preferences/com.apple.photolibraryd.plist"
+    )
+    if plist_file.is_file():
+        with open(plist_file, "rb") as fp:
+            pl = plistload(fp)
+    else:
+        logging.warning(f"could not find plist file: {str(plist_file)}")
+        return None
+
+    photospath = pl["SystemLibraryPath"]
+
+    if photospath is not None:
+        return photospath
+    else:
+        logging.warning("Could not get path to Photos database")
+        return None
+        
 class PhotosDB:
     def __init__(self, dbfile=None):
         """ create a new PhotosDB object """
