@@ -109,13 +109,16 @@ def _get_resource_loc(model_id):
 
     return folder_id, file_id
 
+
 def get_system_library_path():
     """ return the path to the system Photos library as string """
     """ only works on MacOS 10.15+ """
     """ on earlier versions, will raise exception """
-    ver, major, minor = _get_os_version()
+    _, major, _ = _get_os_version()
     if int(major) < 15:
-        raise Exception("get_system_library_path not implemented for MacOS < 10.15",major)
+        raise Exception(
+            "get_system_library_path not implemented for MacOS < 10.15", major
+        )
 
     plist_file = Path(
         str(Path.home())
@@ -135,7 +138,57 @@ def get_system_library_path():
     else:
         logging.warning("Could not get path to Photos database")
         return None
-        
+
+
+def get_last_library_path():
+    """ return the path to the last opened Photos library """
+    # TODO: Need a module level method for this and another PhotosDB method to get current library path
+    plist_file = Path(
+        str(Path.home())
+        + "/Library/Containers/com.apple.Photos/Data/Library/Preferences/com.apple.Photos.plist"
+    )
+    if plist_file.is_file():
+        with open(plist_file, "rb") as fp:
+            pl = plistload(fp)
+    else:
+        logging.warning(f"could not find plist file: {str(plist_file)}")
+        return None
+
+    # get the IPXDefaultLibraryURLBookmark from com.apple.Photos.plist
+    # this is a serialized CFData object
+    photosurlref = pl["IPXDefaultLibraryURLBookmark"]
+
+    if photosurlref is not None:
+        # use CFURLCreateByResolvingBookmarkData to de-serialize bookmark data into a CFURLRef
+        photosurl = CoreFoundation.CFURLCreateByResolvingBookmarkData(
+            kCFAllocatorDefault, photosurlref, 0, None, None, None, None
+        )
+
+        # the CFURLRef we got is a sruct that python treats as an array
+        # I'd like to pass this to CFURLGetFileSystemRepresentation to get the path but
+        # CFURLGetFileSystemRepresentation barfs when it gets an array from python instead of expected struct
+        # first element is the path string in form:
+        # file:///Users/username/Pictures/Photos%20Library.photoslibrary/
+        photosurlstr = photosurl[0].absoluteString() if photosurl[0] else None
+
+        # now coerce the file URI back into an OS path
+        # surely there must be a better way
+        if photosurlstr is not None:
+            photospath = os.path.normpath(
+                urllib.parse.unquote(urllib.parse.urlparse(photosurlstr).path)
+            )
+        else:
+            logging.warning(
+                "Could not extract photos URL String from IPXDefaultLibraryURLBookmark"
+            )
+            return None
+
+        return photospath
+    else:
+        logging.warning("Could not get path to Photos database")
+        return None
+
+
 class PhotosDB:
     def __init__(self, dbfile=None):
         """ create a new PhotosDB object """
@@ -181,7 +234,7 @@ class PhotosDB:
 
         logging.debug(f"dbfile = {dbfile}")
         if dbfile is None:
-            library_path = self.get_photos_library_path()
+            library_path = get_last_library_path()
             # TODO: verify library path not None
             dbfile = os.path.join(library_path, "database/photos.db")
 
@@ -283,7 +336,7 @@ class PhotosDB:
         """ return list of albums found in photos database """
         # Could be more than one album with same name
         # Right now, they are treated as same album and photos are combined from albums with same name
-        albums = set() 
+        albums = set()
         for album in self._dbalbums_album.keys():
             albums.add(self._dbalbum_details[album]["title"])
         return list(albums)
@@ -333,59 +386,12 @@ class PhotosDB:
         return self._db_version
 
     def get_db_path(self):
-        """ return path to the Photos library database PhotosDB was initialized with """
+        """ returns path to the Photos library database PhotosDB was initialized with """
         return os.path.abspath(self._dbfile)
 
-    def get_photos_library_path(self):
-        """ return the path to the last opened Photos library """
-        # TODO: this is only for last opened library
-        # TODO: Need a module level method for this and another PhotosDB method to get current library path
-        # TODO: Also need a way to get path of system library
-        plist_file = Path(
-            str(Path.home())
-            + "/Library/Containers/com.apple.Photos/Data/Library/Preferences/com.apple.Photos.plist"
-        )
-        if plist_file.is_file():
-            with open(plist_file, "rb") as fp:
-                pl = plistload(fp)
-        else:
-            print("could not find plist file: " + str(plist_file), file=sys.stderr)
-            return None
-
-        # get the IPXDefaultLibraryURLBookmark from com.apple.Photos.plist
-        # this is a serialized CFData object
-        photosurlref = pl["IPXDefaultLibraryURLBookmark"]
-
-        if photosurlref is not None:
-            # use CFURLCreateByResolvingBookmarkData to de-serialize bookmark data into a CFURLRef
-            photosurl = CoreFoundation.CFURLCreateByResolvingBookmarkData(
-                kCFAllocatorDefault, photosurlref, 0, None, None, None, None
-            )
-
-            # the CFURLRef we got is a sruct that python treats as an array
-            # I'd like to pass this to CFURLGetFileSystemRepresentation to get the path but
-            # CFURLGetFileSystemRepresentation barfs when it gets an array from python instead of expected struct
-            # first element is the path string in form:
-            # file:///Users/username/Pictures/Photos%20Library.photoslibrary/
-            photosurlstr = photosurl[0].absoluteString() if photosurl[0] else None
-
-            # now coerce the file URI back into an OS path
-            # surely there must be a better way
-            if photosurlstr is not None:
-                photospath = os.path.normpath(
-                    urllib.parse.unquote(urllib.parse.urlparse(photosurlstr).path)
-                )
-            else:
-                print(
-                    "Could not extract photos URL String from IPXDefaultLibraryURLBookmark",
-                    file=sys.stderr,
-                )
-                return None
-
-            return photospath
-        else:
-            print("Could not get path to Photos database", file=sys.stderr)
-            return None
+    def get_library_path(self):
+        """ returns path to the Photos library PhotosDB was initialized with """
+        return self._library_path
 
     def _copy_db_file(self, fname):
         """ copies the sqlite database file to a temp file """

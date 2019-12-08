@@ -5,6 +5,9 @@ from osxphotos import _UNKNOWN_PERSON
 # TODO: put some of this code into a pre-function
 
 PHOTOS_DB = "./tests/Test-10.15.1.photoslibrary/database/photos.db"
+PHOTOS_DB_PATH = "/Test-10.15.1.photoslibrary/database/Photos.sqlite"
+PHOTOS_LIBRARY_PATH = "/Test-10.15.1.photoslibrary"
+
 KEYWORDS = [
     "Kids",
     "wedding",
@@ -18,7 +21,10 @@ KEYWORDS = [
 ]
 # Photos 5 includes blank person for detected face
 PERSONS = ["Katie", "Suzy", "Maria", _UNKNOWN_PERSON]
-ALBUMS = ["Pumpkin Farm", "Test Album"] # Note: there are 2 albums named "Test Album" for testing duplicate album names
+ALBUMS = [
+    "Pumpkin Farm",
+    "Test Album",
+]  # Note: there are 2 albums named "Test Album" for testing duplicate album names
 KEYWORDS_DICT = {
     "Kids": 4,
     "wedding": 2,
@@ -31,8 +37,10 @@ KEYWORDS_DICT = {
     "United Kingdom": 1,
 }
 PERSONS_DICT = {"Katie": 3, "Suzy": 2, "Maria": 1, _UNKNOWN_PERSON: 1}
-ALBUM_DICT = {"Pumpkin Farm": 3, "Test Album": 2} # Note: there are 2 albums named "Test Album" for testing duplicate album names
-
+ALBUM_DICT = {
+    "Pumpkin Farm": 3,
+    "Test Album": 2,
+}  # Note: there are 2 albums named "Test Album" for testing duplicate album names
 
 
 def test_init():
@@ -311,4 +319,20 @@ def test_keyword_not_in_album():
     photos3 = [p for p in photos2 if p not in photos1]
     assert len(photos3) == 1
     assert photos3[0].uuid() == "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C"
+
+
+def test_get_db_path():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    db_path = photosdb.get_db_path()
+    assert db_path.endswith(PHOTOS_DB_PATH)
+
+
+def test_get_library_path():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    lib_path = photosdb.get_library_path()
+    assert lib_path.endswith(PHOTOS_LIBRARY_PATH)
 

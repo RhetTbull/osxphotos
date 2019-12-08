@@ -3,6 +3,9 @@ import pytest
 # TODO: put some of this code into a pre-function
 
 PHOTOS_DB = "./tests/Test-10.14.6.photoslibrary/database/photos.db"
+PHOTOS_DB_PATH = "/Test-10.14.6.photoslibrary/database/photos.db"
+PHOTOS_LIBRARY_PATH = "/Test-10.14.6.photoslibrary"
+
 KEYWORDS = [
     "Kids",
     "wedding",
@@ -307,35 +310,18 @@ def test_keyword_not_in_album():
     assert photos3[0].uuid() == "od0fmC7NQx+ayVr+%i06XA"
 
 
-# def main():
-#     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-#     print(photosdb.keywords())
-#     print(photosdb.persons())
-#     print(photosdb.albums())
+def test_get_db_path():
+    import osxphotos
 
-#     print(photosdb.keywords_as_dict())
-#     print(photosdb.persons_as_dict())
-#     print(photosdb.albums_as_dict())
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    db_path = photosdb.get_db_path()
+    assert db_path.endswith(PHOTOS_DB_PATH)
 
-# #      # find all photos with Keyword = Foo and containing John Smith
-#     #  photos = photosdb.photos(keywords=["Foo"],persons=["John Smith"])
-# #
-#     #  # find all photos that include Alice Smith but do not contain the keyword Bar
-#     #  photos = [p for p in photosdb.photos(persons=["Alice Smith"])
-# #                  if p not in photosdb.photos(keywords=["Bar"]) ]
-#     photos = photosdb.photos()
-#     for p in photos:
-#         print(
-#             p.uuid(),
-#             p.filename(),
-#             p.date(),
-#             p.description(),
-#             p.name(),
-#             p.keywords(),
-#             p.albums(),
-#             p.persons(),
-#             p.path(),
-#         )
 
-# if __name__ == "__main__":
-#     main()
+def test_get_library_path():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    lib_path = photosdb.get_library_path()
+    assert lib_path.endswith(PHOTOS_LIBRARY_PATH)
+

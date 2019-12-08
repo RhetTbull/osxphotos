@@ -133,7 +133,11 @@ if __name__ == "__main__":
 
 #### ```get_system_library_path()```
 
-**MacOS 10.15 Only** Return path to System Photo Library as string.  On MacOS version < 10.15, raises Exception.
+**MacOS 10.15 Only** Returns path to System Photo Library as string.  On MacOS version < 10.15, raises Exception.
+
+#### ```get_last_library_path()```
+
+Returns path to last opened Photo Library as string.  
 
 ### PhotosDB
 
@@ -216,7 +220,7 @@ Returns a dictionary of albums found in the Photos library where key is the albu
 
 **Note**: In Photos 5.0 (MacOS 10.15/Catalina), It is possible to have more than one album with the same name in Photos.  Albums with duplicate names are treated as a single album and the photos in each are combined.  For example, if you have two albums named "Wedding" and each has 2 photos, osxphotos will treat this as a single album named "Wedding" with 4 photos in it.
 
-#### ```get_photos_library_path```
+#### ```get_library_path```
 ```python
 # assumes photosdb is a PhotosDB object (see above)
 photosdb.get_photos_library_path()
