@@ -39,6 +39,7 @@ Usage: osxphotos [OPTIONS] COMMAND [ARGS]...
 Options:
   --db <Photos database path>  Specify database file
   --json                       Print output in JSON format
+  -v, --version                Show the version and exit.
   -h, --help                   Show this message and exit.
 
 Commands:
@@ -48,7 +49,7 @@ Commands:
   info      print out descriptive info of the Photos library database
   keywords  print out keywords found in the Photos library
   persons   print out persons (faces) found in the Photos library
-  query     query the Photos database using 1 or more search options
+  query     query the Photos database using 1 or more search options; if...
 ```
 
 To get help on a specific command, use `osxphotos help <command_name>`
@@ -58,10 +59,9 @@ Example: `osxphotos help query`
 ```
 Usage: osxphotos help [OPTIONS]
 
-  Query the Photos database using 1 or more search options
-
-  If more than one option is provided, they are treated as "AND"  (e.g.
-  search for photos matching all options)
+  query the Photos database using 1 or more search options;  if more than
+  one option is provided, they are treated as "AND"  (e.g. search for photos
+  matching all options)
 
 Options:
   --keyword TEXT      search for keyword(s)
