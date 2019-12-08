@@ -3,24 +3,24 @@
 <plist version="1.0">
 <dict>
 	<key>BackgroundHighlightCollection</key>
-	<date>0000-12-30T00:00:00Z</date>
+	<date>2019-12-08T05:40:32Z</date>
 	<key>BackgroundHighlightEnrichment</key>
-	<date>0000-12-30T00:00:00Z</date>
+	<date>2019-12-08T05:40:32Z</date>
 	<key>BackgroundJobAssetRevGeocode</key>
-	<date>0000-12-30T00:00:00Z</date>
+	<date>2019-12-08T05:40:32Z</date>
 	<key>BackgroundJobSearch</key>
-	<date>0000-12-30T00:00:00Z</date>
+	<date>2019-12-08T05:40:32Z</date>
 	<key>BackgroundPeopleSuggestion</key>
-	<date>0000-12-30T00:00:00Z</date>
+	<date>2019-12-08T05:40:31Z</date>
 	<key>BackgroundUserBehaviorProcessor</key>
-	<date>0000-12-30T00:00:00Z</date>
+	<date>2019-12-08T05:40:32Z</date>
 	<key>PhotoAnalysisGraphLastBackgroundGraphConsistencyUpdateJobDateKey</key>
-	<date>2019-12-07T19:48:13Z</date>
+	<date>2019-12-08T05:40:44Z</date>
 	<key>PhotoAnalysisGraphLastBackgroundGraphRebuildJobDate</key>
 	<date>2019-12-07T19:48:13Z</date>
 	<key>PhotoAnalysisGraphLastBackgroundMemoryGenerationJobDate</key>
-	<date>2019-12-01T15:27:51Z</date>
+	<date>2019-12-08T05:40:33Z</date>
 	<key>SiriPortraitDonation</key>
-	<date>0000-12-30T00:00:00Z</date>
+	<date>2019-12-08T05:40:32Z</date>
 </dict>
 </plist>
