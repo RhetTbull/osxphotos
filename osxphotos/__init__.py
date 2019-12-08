@@ -1,3 +1,4 @@
+import glob
 import json
 import logging
 import os.path
@@ -187,6 +188,12 @@ def get_last_library_path():
     else:
         logging.warning("Could not get path to Photos database")
         return None
+
+
+def list_photo_libraries():
+    """ returns list of Photos libraries found in the user's Pictures folder """
+    lib_list = glob.glob(f"{str(Path.home())}/Pictures/*.photoslibrary")
+    return lib_list
 
 
 class PhotosDB:

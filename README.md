@@ -139,6 +139,10 @@ if __name__ == "__main__":
 
 Returns path to last opened Photo Library as string.  
 
+#### ```list_photo_libraries()```
+
+Returns list of Photos libraries found in the user's Pictures folder.
+
 ### PhotosDB
 
 #### Open the default Photos library
