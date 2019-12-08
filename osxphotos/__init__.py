@@ -27,7 +27,6 @@ from ._version import __version__
 # TODO: Add test for __str__ and to_json
 # TODO: standardize _ and __ as leading char for private variables
 # TODO: fix docstrings
-# TODO: handle Null person for Photos 5
 # TODO: Add special albums and magic albums
 
 # which Photos library database versions have been tested
