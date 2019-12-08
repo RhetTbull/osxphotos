@@ -16,7 +16,7 @@ class CLI_Obj:
     def __init__(self, db=None, json=False, debug=False):
         if debug:
             osxphotos._debug(True)
-        self.photosdb = osxphotos.PhotosDB(dbfile=db)
+        self.db = db
         self.json = json
 
 
@@ -49,7 +49,8 @@ def cli(ctx, db, json, debug):
 @click.pass_obj
 def keywords(cli_obj):
     """ print out keywords found in the Photos library"""
-    keywords = {"keywords": cli_obj.photosdb.keywords_as_dict()}
+    photosdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
+    keywords = {"keywords": photosdb.keywords_as_dict()}
     if cli_obj.json:
         print(json.dumps(keywords))
     else:
@@ -60,7 +61,8 @@ def keywords(cli_obj):
 @click.pass_obj
 def albums(cli_obj):
     """ print out albums found in the Photos library """
-    albums = {"albums": cli_obj.photosdb.albums_as_dict()}
+    photosdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
+    albums = {"albums": photosdb.albums_as_dict()}
     if cli_obj.json:
         print(json.dumps(albums))
     else:
@@ -71,7 +73,8 @@ def albums(cli_obj):
 @click.pass_obj
 def persons(cli_obj):
     """ print out persons (faces) found in the Photos library """
-    persons = {"persons": cli_obj.photosdb.persons_as_dict()}
+    photosdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
+    persons = {"persons": photosdb.persons_as_dict()}
     if cli_obj.json:
         print(json.dumps(persons))
     else:
@@ -82,7 +85,7 @@ def persons(cli_obj):
 @click.pass_obj
 def info(cli_obj):
     """ print out descriptive info of the Photos library database """
-    pdb = cli_obj.photosdb
+    pdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
     info = {}
     info["database_path"] = pdb.get_db_path()
     info["database_version"] = pdb.get_db_version()
@@ -121,7 +124,7 @@ def info(cli_obj):
 @click.pass_obj
 def dump(cli_obj):
     """ print list of all photos & associated info from the Photos library """
-    pdb = cli_obj.photosdb
+    pdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
     photos = pdb.photos()
     print_photo_info(photos, cli_obj.json)
 
@@ -244,7 +247,8 @@ def query(
         print(cli.commands["query"].get_help(ctx))
         return
     else:
-        photos = cli_obj.photosdb.photos(
+        photosdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
+        photos = photosdb.photos(
             keywords=keyword, persons=person, albums=album, uuid=uuid
         )
 
@@ -287,7 +291,7 @@ def query(
         
         if external_edit:
             photos = [p for p in photos if p.external_edit()]
-            
+
         if favorite:
             photos = [p for p in photos if p.favorite()]
         elif not_favorite:
