@@ -778,13 +778,9 @@ class PhotosDB:
             "AND ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
         )
         for person in c:
-            person_name = None
             if person[0] is None:
                 continue
-            if person[0] == "":
-                person_name = _UNKNOWN_PERSON
-            else:
-                person_name = person[0]
+            person_name = person[0] if person[0] != "" else _UNKNOWN_PERSON
             if not person[1] in self._dbfaces_uuid:
                 self._dbfaces_uuid[person[1]] = []
             if not person_name in self._dbfaces_person:
