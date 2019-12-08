@@ -1,8 +1,8 @@
-import glob
 import json
 import logging
 import os.path
 import platform
+import subprocess
 import sqlite3
 import sys
 import tempfile
@@ -191,8 +191,16 @@ def get_last_library_path():
 
 
 def list_photo_libraries():
-    """ returns list of Photos libraries found in the user's Pictures folder """
-    lib_list = glob.glob(f"{str(Path.home())}/Pictures/*.photoslibrary")
+    """ returns list of Photos libraries found on the system """
+    # lib_list = glob.glob(f"{str(Path.home())}/Pictures/*.photoslibrary")
+    # return lib_list
+
+    lib_list = []
+    output = subprocess.check_output(
+        ["/usr/bin/mdfind", "-onlyin", "/", "-name", ".photoslibrary"]
+    ).splitlines()
+    for lib in output:
+        lib_list.append(lib.decode("utf-8"))
     return lib_list
 
 

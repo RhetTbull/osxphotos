@@ -141,7 +141,7 @@ Returns path to last opened Photo Library as string.
 
 #### ```list_photo_libraries()```
 
-Returns list of Photos libraries found in the user's Pictures folder.
+Returns list of Photos libraries found on the system 
 
 ### PhotosDB
 
