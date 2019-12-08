@@ -102,14 +102,16 @@ def info(cli_obj):
     info["albums"] = albums
 
     persons = pdb.persons_as_dict()
+
     # handle empty person names (added by Photos 5.0+ when face detected but not identified)
-    noperson = "UNKNOWN"
-    if "" in persons:
-        if noperson in persons:
-            persons[noperson].append(persons[""])
-        else:
-            persons[noperson] = persons[""]
-        persons.pop("", None)
+    # TODO: remove this
+    # noperson = "UNKNOWN"
+    # if "" in persons:
+    #     if noperson in persons:
+    #         persons[noperson].append(persons[""])
+    #     else:
+    #         persons[noperson] = persons[""]
+    #     persons.pop("", None)
 
     info["persons_count"] = len(persons)
     info["persons"] = persons

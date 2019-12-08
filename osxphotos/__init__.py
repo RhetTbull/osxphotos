@@ -12,10 +12,9 @@ from plistlib import load as plistload
 from pprint import pformat
 from shutil import copyfile
 
-import yaml
-
 import CoreFoundation
 import objc
+import yaml
 from Foundation import *
 
 # from . import _applescript
@@ -45,6 +44,9 @@ _PHOTOS_5_VERSION = "6000"
 
 # which major version operating systems have been tested
 _TESTED_OS_VERSIONS = ["12", "13", "14", "15"]
+
+# Photos 5 has persons who are empty string if unidentified face
+_UNKNOWN_PERSON = "_UNKNOWN_"
 
 # set _DEBUG = True to enable debug output
 _DEBUG = False
@@ -776,14 +778,19 @@ class PhotosDB:
             "AND ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
         )
         for person in c:
+            person_name = None
             if person[0] is None:
                 continue
+            if person[0] == "":
+                person_name = _UNKNOWN_PERSON
+            else:
+                person_name = person[0]
             if not person[1] in self._dbfaces_uuid:
                 self._dbfaces_uuid[person[1]] = []
-            if not person[0] in self._dbfaces_person:
-                self._dbfaces_person[person[0]] = []
-            self._dbfaces_uuid[person[1]].append(person[0])
-            self._dbfaces_person[person[0]].append(person[1])
+            if not person_name in self._dbfaces_person:
+                self._dbfaces_person[person_name] = []
+            self._dbfaces_uuid[person[1]].append(person_name)
+            self._dbfaces_person[person_name].append(person[1])
             i = i + 1
         logging.debug(f"Finished walking through persons")
         logging.debug(pformat(self._dbfaces_person))
