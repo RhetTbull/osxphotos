@@ -29,14 +29,14 @@ CTX_SETTINGS = dict(help_option_names=["-h", "--help"])
     required=False,
     metavar="<Photos database path>",
     default=None,
-    help="Specify database file",
+    help="Specify database file.",
 )
 @click.option(
     "--json",
     required=False,
     is_flag=True,
     default=False,
-    help="Print output in JSON format",
+    help="Print output in JSON format.",
 )
 @click.option("--debug", required=False, is_flag=True, default=False, hidden=True)
 @click.version_option(__version__, "--version", "-v")
@@ -48,43 +48,43 @@ def cli(ctx, db, json, debug):
 @cli.command()
 @click.pass_obj
 def keywords(cli_obj):
-    """ print out keywords found in the Photos library"""
+    """ Print out keywords found in the Photos library. """
     photosdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
     keywords = {"keywords": photosdb.keywords_as_dict()}
     if cli_obj.json:
-        print(json.dumps(keywords))
+        click.echo(json.dumps(keywords))
     else:
-        print(yaml.dump(keywords, sort_keys=False))
+        click.echo(yaml.dump(keywords, sort_keys=False))
 
 
 @cli.command()
 @click.pass_obj
 def albums(cli_obj):
-    """ print out albums found in the Photos library """
+    """ Print out albums found in the Photos library. """
     photosdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
     albums = {"albums": photosdb.albums_as_dict()}
     if cli_obj.json:
-        print(json.dumps(albums))
+        click.echo(json.dumps(albums))
     else:
-        print(yaml.dump(albums, sort_keys=False))
+        click.echo(yaml.dump(albums, sort_keys=False))
 
 
 @cli.command()
 @click.pass_obj
 def persons(cli_obj):
-    """ print out persons (faces) found in the Photos library """
+    """ Print out persons (faces) found in the Photos library. """
     photosdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
     persons = {"persons": photosdb.persons_as_dict()}
     if cli_obj.json:
-        print(json.dumps(persons))
+        click.echo(json.dumps(persons))
     else:
-        print(yaml.dump(persons, sort_keys=False))
+        click.echo(yaml.dump(persons, sort_keys=False))
 
 
 @cli.command()
 @click.pass_obj
 def info(cli_obj):
-    """ print out descriptive info of the Photos library database """
+    """ Print out descriptive info of the Photos library database. """
     pdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
     info = {}
     info["database_path"] = pdb.get_db_path()
@@ -117,57 +117,90 @@ def info(cli_obj):
     info["persons"] = persons
 
     if cli_obj.json:
-        print(json.dumps(info))
+        click.echo(json.dumps(info))
     else:
-        print(yaml.dump(info, sort_keys=False))
+        click.echo(yaml.dump(info, sort_keys=False))
 
 
 @cli.command()
 @click.pass_obj
 def dump(cli_obj):
-    """ print list of all photos & associated info from the Photos library """
+    """ Print list of all photos & associated info from the Photos library. """
     pdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
     photos = pdb.photos()
     print_photo_info(photos, cli_obj.json)
 
 
+@cli.command(name="list")
+@click.pass_obj
+def list_libraries(cli_obj):
+    """ Print list of Photos libraries found on the system. """
+    photo_libs = osxphotos.list_photo_libraries()
+    sys_lib = None
+    _, major, _ = osxphotos._get_os_version()
+    if int(major) >= 15:
+        sys_lib = osxphotos.get_system_library_path()
+    
+    last_lib = osxphotos.get_last_library_path()
+
+    last_lib_flag = sys_lib_flag = False
+
+    for lib in photo_libs:
+        if lib == sys_lib:
+            click.echo(f"(*)\t{lib}")
+            sys_lib_flag = True
+        elif lib == last_lib:
+            click.echo(f"(#)\t{lib}")
+            last_lib_flag = True
+        else:
+            click.echo(f"\t{lib}")
+
+    if sys_lib_flag or last_lib_flag:
+        click.echo("\n")
+    if sys_lib_flag:
+        click.echo("(*)\tSystem Photos Library")
+    if last_lib_flag:
+        click.echo("(#)\tLast opened Photos Library")
+
 @cli.command()
-@click.option("--keyword", default=None, multiple=True, help="search for keyword(s)")
-@click.option("--person", default=None, multiple=True, help="search for person(s)")
-@click.option("--album", default=None, multiple=True, help="search for album(s)")
-@click.option("--uuid", default=None, multiple=True, help="search for UUID(s)")
+@click.option("--keyword", default=None, multiple=True, help="Search for keyword(s).")
+@click.option("--person", default=None, multiple=True, help="Search for person(s).")
+@click.option("--album", default=None, multiple=True, help="Search for album(s).")
+@click.option("--uuid", default=None, multiple=True, help="Search for UUID(s).")
 @click.option(
-    "--name", default=None, multiple=True, help="search for TEXT in name of photo"
+    "--name", default=None, multiple=True, help="Search for TEXT in name of photo."
 )
-@click.option("--no-name", is_flag=True, help="search for photos with no name")
+@click.option("--no-name", is_flag=True, help="Search for photos with no name.")
 @click.option(
     "--description",
     default=None,
     multiple=True,
-    help="search for TEXT in description of photo",
+    help="Search for TEXT in description of photo.",
 )
 @click.option(
-    "--no-description", is_flag=True, help="search for photos with no description"
+    "--no-description", is_flag=True, help="Search for photos with no description."
 )
 @click.option(
     "-i",
     "--ignore-case",
     is_flag=True,
-    help="case insensitive search for name or description. Does not apply to keyword, person, or album",
+    help="Case insensitive search for name or description. Does not apply to keyword, person, or album.",
 )
-@click.option("--edited", is_flag=True, help="search for photos that have been edited")
-@click.option("--external-edit", is_flag=True, help="search for photos edited in external editor")
-@click.option("--favorite", is_flag=True, help="search for photos marked favorite")
+@click.option("--edited", is_flag=True, help="Search for photos that have been edited.")
 @click.option(
-    "--not-favorite", is_flag=True, help="search for photos not marked favorite"
+    "--external-edit", is_flag=True, help="Search for photos edited in external editor."
 )
-@click.option("--hidden", is_flag=True, help="search for photos marked hidden")
-@click.option("--not-hidden", is_flag=True, help="search for photos not marked hidden")
-@click.option("--missing", is_flag=True, help="search for photos missing from disk")
+@click.option("--favorite", is_flag=True, help="Search for photos marked favorite.")
+@click.option(
+    "--not-favorite", is_flag=True, help="Search for photos not marked favorite."
+)
+@click.option("--hidden", is_flag=True, help="Search for photos marked hidden.")
+@click.option("--not-hidden", is_flag=True, help="Search for photos not marked hidden.")
+@click.option("--missing", is_flag=True, help="Search for photos missing from disk.")
 @click.option(
     "--not-missing",
     is_flag=True,
-    help="search for photos present on disk (e.g. not missing)",
+    help="Search for photos present on disk (e.g. not missing).",
 )
 @click.option(
     "--json",
@@ -200,9 +233,9 @@ def query(
     missing,
     not_missing,
 ):
-    """ query the Photos database using 1 or more search options; 
+    """ Query the Photos database using 1 or more search options; 
         if more than one option is provided, they are treated as "AND" 
-        (e.g. search for photos matching all options)
+        (e.g. search for photos matching all options).
     """
 
     # if no query terms, show help and return
@@ -226,27 +259,27 @@ def query(
             not_missing,
         ]
     ):
-        print(cli.commands["query"].get_help(ctx))
+        click.echo(cli.commands["query"].get_help(ctx))
         return
     elif favorite and not_favorite:
         # can't search for both favorite and notfavorite
-        print(cli.commands["query"].get_help(ctx))
+        click.echo(cli.commands["query"].get_help(ctx))
         return
     elif hidden and not_hidden:
         # can't search for both hidden and nothidden
-        print(cli.commands["query"].get_help(ctx))
+        click.echo(cli.commands["query"].get_help(ctx))
         return
     elif missing and not_missing:
         # can't search for both missing and notmissing
-        print(cli.commands["query"].get_help(ctx))
+        click.echo(cli.commands["query"].get_help(ctx))
         return
     elif name and no_name:
         # can't search for both name and no_name
-        print(cli.commands["query"].get_help(ctx))
+        click.echo(cli.commands["query"].get_help(ctx))
         return
     elif description and no_description:
         # can't search for both description and no_description
-        print(cli.commands["query"].get_help(ctx))
+        click.echo(cli.commands["query"].get_help(ctx))
         return
     else:
         photosdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
@@ -290,7 +323,7 @@ def query(
 
         if edited:
             photos = [p for p in photos if p.hasadjustments()]
-        
+
         if external_edit:
             photos = [p for p in photos if p.external_edit()]
 
@@ -316,11 +349,11 @@ def query(
 @click.argument("topic", default=None, required=False, nargs=1)
 @click.pass_context
 def help(ctx, topic, **kw):
-    """ print help; for help on commands: help <command> """
+    """ Print help; for help on commands: help <command>. """
     if topic is None:
-        print(ctx.parent.get_help())
+        click.echo(ctx.parent.get_help())
     else:
-        print(cli.commands[topic].get_help(ctx))
+        click.echo(cli.commands[topic].get_help(ctx))
 
 
 def print_photo_info(photos, json=False):
@@ -328,7 +361,7 @@ def print_photo_info(photos, json=False):
         dump = []
         for p in photos:
             dump.append(p.to_json())
-        print(f"[{', '.join(dump)}]")
+        click.echo(f"[{', '.join(dump)}]")
     else:
         # dump as CSV
         csv_writer = csv.writer(

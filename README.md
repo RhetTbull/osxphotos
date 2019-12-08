@@ -37,19 +37,20 @@ After installing pipx:
 Usage: osxphotos [OPTIONS] COMMAND [ARGS]...
 
 Options:
-  --db <Photos database path>  Specify database file
-  --json                       Print output in JSON format
+  --db <Photos database path>  Specify database file.
+  --json                       Print output in JSON format.
   -v, --version                Show the version and exit.
   -h, --help                   Show this message and exit.
 
 Commands:
-  albums    print out albums found in the Photos library
-  dump      print list of all photos & associated info from the Photos...
-  help      print help; for help on commands: help <command>
-  info      print out descriptive info of the Photos library database
-  keywords  print out keywords found in the Photos library
-  persons   print out persons (faces) found in the Photos library
-  query     query the Photos database using 1 or more search options; if...
+  albums    Print out albums found in the Photos library.
+  dump      Print list of all photos & associated info from the Photos...
+  help      Print help; for help on commands: help <command>.
+  info      Print out descriptive info of the Photos library database.
+  keywords  Print out keywords found in the Photos library.
+  list      Print list of Photos libraries found on the system.
+  persons   Print out persons (faces) found in the Photos library.
+  query     Query the Photos database using 1 or more search options; if...
 ```
 
 To get help on a specific command, use `osxphotos help <command_name>`
@@ -59,27 +60,29 @@ Example: `osxphotos help query`
 ```
 Usage: osxphotos help [OPTIONS]
 
-  query the Photos database using 1 or more search options;  if more than
+  Query the Photos database using 1 or more search options;  if more than
   one option is provided, they are treated as "AND"  (e.g. search for photos
-  matching all options)
+  matching all options).
 
 Options:
-  --keyword TEXT      search for keyword(s)
-  --person TEXT       search for person(s)
-  --album TEXT        search for album(s)
-  --uuid TEXT         search for UUID(s)
-  --name TEXT         search for TEXT in name of photo
-  --no-name           search for photos with no name
-  --description TEXT  search for TEXT in description of photo
-  --no-description    search for photos with no description
-  -i, --ignore-case   case insensitive search for name or description. Does
-                      not apply to keyword, person, or album
-  --favorite          search for photos marked favorite
-  --not-favorite      search for photos not marked favorite
-  --hidden            search for photos marked hidden
-  --not-hidden        search for photos not marked hidden
-  --missing           search for photos missing from disk
-  --not-missing       search for photos present on disk (e.g. not missing)
+  --keyword TEXT      Search for keyword(s).
+  --person TEXT       Search for person(s).
+  --album TEXT        Search for album(s).
+  --uuid TEXT         Search for UUID(s).
+  --name TEXT         Search for TEXT in name of photo.
+  --no-name           Search for photos with no name.
+  --description TEXT  Search for TEXT in description of photo.
+  --no-description    Search for photos with no description.
+  -i, --ignore-case   Case insensitive search for name or description. Does
+                      not apply to keyword, person, or album.
+  --edited            Search for photos that have been edited.
+  --external-edit     Search for photos edited in external editor.
+  --favorite          Search for photos marked favorite.
+  --not-favorite      Search for photos not marked favorite.
+  --hidden            Search for photos marked hidden.
+  --not-hidden        Search for photos not marked hidden.
+  --missing           Search for photos missing from disk.
+  --not-missing       Search for photos present on disk (e.g. not missing).
   --json              Print output in JSON format
   -h, --help          Show this message and exit.
 ```
@@ -141,7 +144,7 @@ Returns path to last opened Photo Library as string.
 
 #### ```list_photo_libraries()```
 
-Returns list of Photos libraries found on the system 
+Returns list of Photos libraries found on the system.  **Note**: On MacOS 10.15, this appears to list all libraries. On older systems, it may not find some libraries if they are not located in ~/Pictures.  Provided for convenience but do not rely on this to find all libraries on the system.
 
 ### PhotosDB
 

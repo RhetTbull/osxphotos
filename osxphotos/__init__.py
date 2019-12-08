@@ -1,9 +1,10 @@
+import glob
 import json
 import logging
 import os.path
 import platform
-import subprocess
 import sqlite3
+import subprocess
 import sys
 import tempfile
 import urllib.parse
@@ -192,15 +193,25 @@ def get_last_library_path():
 
 def list_photo_libraries():
     """ returns list of Photos libraries found on the system """
-    # lib_list = glob.glob(f"{str(Path.home())}/Pictures/*.photoslibrary")
-    # return lib_list
+    """ on MacOS < 10.15, this may omit some libraries """
 
-    lib_list = []
+    # On 10.15, mdfind appears to find all libraries
+    # On older MacOS versions, mdfind appears to ignore some libraries
+    # glob to find libraries in ~/Pictures then mdfind to find all the others
+    lib_list = glob.glob(f"{str(Path.home())}/Pictures/*.photoslibrary")
+
+    # On older OS, may not get all libraries so make sure we get the last one
+    last_lib = get_last_library_path() 
+    if last_lib:
+        lib_list.append(last_lib)
+
     output = subprocess.check_output(
         ["/usr/bin/mdfind", "-onlyin", "/", "-name", ".photoslibrary"]
     ).splitlines()
     for lib in output:
         lib_list.append(lib.decode("utf-8"))
+    lib_list = list(set(lib_list))
+    lib_list.sort()
     return lib_list
 
 
