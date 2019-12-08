@@ -150,6 +150,8 @@ def dump(cli_obj):
     is_flag=True,
     help="case insensitive search for name or description. Does not apply to keyword, person, or album",
 )
+@click.option("--edited", is_flag=True, help="search for photos that have been edited")
+@click.option("--external-edit", is_flag=True, help="search for photos edited in external editor")
 @click.option("--favorite", is_flag=True, help="search for photos marked favorite")
 @click.option(
     "--not-favorite", is_flag=True, help="search for photos not marked favorite"
@@ -184,6 +186,8 @@ def query(
     no_description,
     ignore_case,
     json,
+    edited,
+    external_edit,
     favorite,
     not_favorite,
     hidden,
@@ -207,6 +211,8 @@ def query(
             no_name,
             description,
             no_description,
+            edited,
+            external_edit,
             favorite,
             not_favorite,
             hidden,
@@ -276,6 +282,12 @@ def query(
         elif no_description:
             photos = [p for p in photos if not p.description()]
 
+        if edited:
+            photos = [p for p in photos if p.hasadjustments()]
+        
+        if external_edit:
+            photos = [p for p in photos if p.external_edit()]
+            
         if favorite:
             photos = [p for p in photos if p.favorite()]
         elif not_favorite:
@@ -332,6 +344,7 @@ def print_photo_info(photos, json=False):
                 "path",
                 "ismissing",
                 "hasadjustments",
+                "external_edit",
                 "favorite",
                 "hidden",
                 "latitude",
@@ -354,6 +367,7 @@ def print_photo_info(photos, json=False):
                     p.path(),
                     p.ismissing(),
                     p.hasadjustments(),
+                    p.external_edit(),
                     p.favorite(),
                     p.hidden(),
                     p._latitude(),
