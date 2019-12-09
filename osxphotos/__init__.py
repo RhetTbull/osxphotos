@@ -198,10 +198,11 @@ def list_photo_libraries():
     # On 10.15, mdfind appears to find all libraries
     # On older MacOS versions, mdfind appears to ignore some libraries
     # glob to find libraries in ~/Pictures then mdfind to find all the others
+    # TODO: make this more robust
     lib_list = glob.glob(f"{str(Path.home())}/Pictures/*.photoslibrary")
 
     # On older OS, may not get all libraries so make sure we get the last one
-    last_lib = get_last_library_path() 
+    last_lib = get_last_library_path()
     if last_lib:
         lib_list.append(last_lib)
 
@@ -216,19 +217,20 @@ def list_photo_libraries():
 
 
 class PhotosDB:
-    def __init__(self, dbfile=None):
+    def __init__(self, *args, dbfile=None):
         """ create a new PhotosDB object """
-        """ optional: dbfile=path to photos.db from the Photos library """
+        """ path to photos library or database may be specified EITHER as first argument or as named argument dbfile=path """
+        """ optional: specify full path to photos library or photos.db as first argument """
+        """ optional: specify path to photos library or photos.db using named argument dbfile=path """
 
         # Check OS version
         system = platform.system()
         (_, major, _) = _get_os_version()
         if system != "Darwin" or (major not in _TESTED_OS_VERSIONS):
-            print(
+            logging.warning(
                 f"WARNING: This module has only been tested with MacOS 10."
                 f"[{', '.join(_TESTED_OS_VERSIONS)}]: "
-                f"you have {system}, OS version: {major}",
-                file=sys.stderr,
+                f"you have {system}, OS version: {major}"
             )
 
         # configure AppleScripts used to manipulate Photos
@@ -236,6 +238,8 @@ class PhotosDB:
 
         # set up the data structures used to store all the Photo database info
 
+        # Path to the Photos library database file
+        self._dbfile = None
         # Dict with information about all photos by uuid
         self._dbphotos = {}
         # Dict with information about all persons/photos by uuid
@@ -259,13 +263,40 @@ class PhotosDB:
         self._tmp_files = []
 
         logging.debug(f"dbfile = {dbfile}")
-        if dbfile is None:
+
+        # get the path to photos library database
+        if args:
+            # got a library path as argument
+            if dbfile:
+                # shouldn't pass via both *args and dbfile=
+                raise ValueError(
+                    f"photos database path must be specified as argument or named parameter dbfile but not both: args: {args}, dbfile: {dbfile}",
+                    args,
+                    dbfile,
+                )
+            elif len(args) == 1:
+                dbfile = args[0]
+            else:
+                raise ValueError(
+                    f"__init__ takes only a single argument (photos database path): {args}",
+                    args,
+                )
+        elif dbfile is None:
+            # no args and dbfile not passed, try to get last opened library
             library_path = get_last_library_path()
-            # TODO: verify library path not None
+            if not library_path:
+                raise ValueError("could not get library path")
             dbfile = os.path.join(library_path, "database/photos.db")
 
+        if os.path.isdir(dbfile):
+            # passed a directory, assume it's a photoslibrary
+            dbfile = os.path.join(dbfile, "database/photos.db")
+
+        # if get here, should have a dbfile path; make sure it exists
         if not _check_file_exists(dbfile):
-            sys.exit(f"_dbfile {dbfile} does not exist")
+            raise ValueError(f"dbfile {dbfile} does not exist", dbfile)
+
+        logging.debug(f"dbfile = {dbfile}")
 
         self._dbfile = dbfile
 

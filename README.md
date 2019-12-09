@@ -151,12 +151,18 @@ Returns list of Photos libraries found on the system.  **Note**: On MacOS 10.15,
 #### Open the default Photos library
 
 ```python
-osxphotos.PhotosDB([dbfile="path to database file"])
+osxphotos.PhotosDB()
+osxphotos.PhotosDB(path)
+osxphotos.PhotosDB(dbfile=path)
 ```
 
-Opens the Photos library database and returns a PhotosDB object.  Optionally, pass the path to a specific database file.  If `dbfile` is not included, will open the default (last opened) Photos database.
+Opens the Photos library database and returns a PhotosDB object.  
 
-**Note**: this will open the last library that was opened in Photos. This is not necessarily the System Photos Library.  If you have more than one Photos library, you can select which to open by holding down Option key while opening Photos.
+Optionally, pass the path to a specific database file or a Photos library (e.g. "/Users/smith/Pictures/Photos Library.photoslibrary" or "/Users/smith/Pictures/Photos Library.photoslibrary/database/photos.db").  Path to photos library may be passed **either** as first argument **or** as named argument `dbfile`. If path is not passed, PhotosDB will attempt to open the default Photos library (that is, the last library that was opened in Photos.app which may or may not also be the System Photos Library). **Note**: Users may specify a different library to open by holding down the *option* key while opening Photos.app. 
+
+If an invalid path is passed, PhotosDB will raise `ValueError` exception.
+
+Open the default (last opened) Photos library. (E.g. this is the library that would open if the user opened Photos.app)
 
 ```python
 import osxphotos
@@ -164,7 +170,25 @@ import osxphotos
 photosdb = osxphotos.PhotosDB()
 ```
 
-Returns a PhotosDB object. 
+#### Open System Photos library
+
+In Photos 5 (Catalina / MacOS 10.15), you can use `get_system_library_path()` to get the path to the System photo library if you want to ensure PhotosDB opens the system library.  This does not work on older versions of MacOS. E.g.
+
+```python
+import osxphotos
+
+path = osxphotos.get_system_library_path()
+photosdb = osxphotos.PhotosDB(path)
+```
+
+also,
+
+```python
+import osxphotos
+
+path = osxphotos.get_system_library_path()
+photosdb = osxphotos.PhotosDB(dbfile=path)
+```
 
 #### Open a specific Photos library
 ```python
@@ -173,7 +197,17 @@ import osxphotos
 photosdb = osxphotos.PhotosDB(dbfile="/Users/smith/Pictures/Test.photoslibrary/database/photos.db")
 ```
 
-Pass the fully qualified path to the specific Photos database you want to open. The database is called photos.db and resides in the database folder in your Photos library
+or
+
+```python
+import osxphotos
+
+photosdb = osxphotos.PhotosDB("/Users/smith/Pictures/Test.photoslibrary")
+```
+
+Pass the fully qualified path to the Photos library or the actual database file inside the library. The database is called photos.db and resides in the database folder in your Photos library.  If you pass only the path to the library, PhotosDB will add the database path automatically.  The option to pass the actual database path is provided so database files can be queried even if separated from the actual .photoslibrary file. 
+
+Returns a PhotosDB object. 
 
 #### ```keywords```
 ```python

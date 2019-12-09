@@ -44,10 +44,60 @@ ALBUM_DICT = {
 
 
 def test_init():
+    # test named argument
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     assert isinstance(photosdb, osxphotos.PhotosDB)
+
+
+def test_init2():
+    # test positional argument
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(PHOTOS_DB)
+    assert isinstance(photosdb, osxphotos.PhotosDB)
+
+
+def test_init3():
+    # test positional and named argument (raises exception)
+    import osxphotos
+
+    with pytest.raises(Exception):
+        assert osxphotos.PhotosDB(PHOTOS_DB, dbfile=PHOTOS_DB)
+
+
+def test_init4():
+    # test invalid db
+    import os
+    import tempfile
+    import osxphotos
+
+    bad_db = tempfile.mkstemp(suffix=".db", prefix="osxphotos-")
+
+    with pytest.raises(Exception):
+        assert osxphotos.PhotosDB(bad_db)
+
+    with pytest.raises(Exception):
+        assert osxphotos.PhotosDB(dbfile=bad_db)
+
+    try:
+        os.remove(bad_db)
+    except:
+        pass
+
+
+def test_init5():
+    # test failed get_last_library_path
+    import osxphotos
+
+    def bad_library():
+        return None
+
+    osxphotos.get_last_library_path = bad_library
+
+    with pytest.raises(Exception):
+        assert osxphotos.PhotosDB()
 
 
 def test_db_version():
