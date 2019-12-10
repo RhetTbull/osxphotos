@@ -27,7 +27,6 @@ from ._version import __version__
 # TODO: Fix command line so multiple --keyword, etc. are AND (instead of OR as they are in .photos())
 #       Or fix the help text to match behavior
 # TODO: Add test for __str__ and to_json
-# TODO: standardize _ and __ as leading char for private variables
 # TODO: fix docstrings
 # TODO: Add special albums and magic albums
 
@@ -1256,23 +1255,23 @@ class PhotoInfo:
     """
 
     def __init__(self, db=None, uuid=None, info=None):
-        self.__uuid = uuid
-        self.__info = info
-        self.__db = db
+        self._uuid = uuid
+        self._info = info
+        self._db = db
 
     def filename(self):
         """ filename of the picture """
-        return self.__info["filename"]
+        return self._info["filename"]
 
     def original_filename(self):
         """ original filename of the picture """
         """ Photos 5 mangles filenames upon import """
-        return self.__info["originalFilename"]
+        return self._info["originalFilename"]
 
     def date(self):
         """ image creation date as timezone aware datetime object """
-        imagedate = self.__info["imageDate"]
-        seconds = self.__info["imageTimeZoneOffsetSeconds"] or 0
+        imagedate = self._info["imageDate"]
+        seconds = self._info["imageTimeZoneOffsetSeconds"] or 0
         delta = timedelta(seconds=seconds)
         tz = timezone(delta)
         imagedate_utc = imagedate.astimezone(tz=tz)
@@ -1280,43 +1279,43 @@ class PhotoInfo:
 
     def tzoffset(self):
         """ timezone offset from UTC in seconds """
-        return self.__info["imageTimeZoneOffsetSeconds"]
+        return self._info["imageTimeZoneOffsetSeconds"]
 
     def path(self):
         """ absolute path on disk of the original picture """
         photopath = ""
 
-        if self.__db._db_version < _PHOTOS_5_VERSION:
-            vol = self.__info["volume"]
+        if self._db._db_version < _PHOTOS_5_VERSION:
+            vol = self._info["volume"]
             if vol is not None:
-                photopath = os.path.join("/Volumes", vol, self.__info["imagePath"])
+                photopath = os.path.join("/Volumes", vol, self._info["imagePath"])
             else:
                 photopath = os.path.join(
-                    self.__db._masters_path, self.__info["imagePath"]
+                    self._db._masters_path, self._info["imagePath"]
                 )
 
-            if self.__info["isMissing"] == 1:
+            if self._info["isMissing"] == 1:
                 photopath = None  # path would be meaningless until downloaded
                 # TODO: Is there a way to use applescript or PhotoKit to force the download in this
         else:
-            if self.__info["masterFingerprint"]:
+            if self._info["masterFingerprint"]:
                 # if masterFingerprint is not null, path appears to be valid
-                if self.__info["directory"].startswith("/"):
+                if self._info["directory"].startswith("/"):
                     photopath = os.path.join(
-                        self.__info["directory"], self.__info["filename"]
+                        self._info["directory"], self._info["filename"]
                     )
                 else:
                     photopath = os.path.join(
-                        self.__db._masters_path,
-                        self.__info["directory"],
-                        self.__info["filename"],
+                        self._db._masters_path,
+                        self._info["directory"],
+                        self._info["filename"],
                     )
             else:
                 photopath = None
-                logging.debug(f"WARNING: masterFingerprint null {pformat(self.__info)}")
+                logging.debug(f"WARNING: masterFingerprint null {pformat(self._info)}")
 
             # TODO: fix the logic for isMissing
-            if self.__info["isMissing"] == 1:
+            if self._info["isMissing"] == 1:
                 photopath = None  # path would be meaningless until downloaded
 
             logging.debug(photopath)
@@ -1328,11 +1327,11 @@ class PhotoInfo:
         """ None if photo has not been edited """
         photopath = ""
 
-        if self.__db._db_version < _PHOTOS_5_VERSION:
-            if self.__info["hasAdjustments"]:
-                edit_id = self.__info["edit_resource_id"]
+        if self._db._db_version < _PHOTOS_5_VERSION:
+            if self._info["hasAdjustments"]:
+                edit_id = self._info["edit_resource_id"]
                 if edit_id is not None:
-                    library = self.__db._library_path
+                    library = self._db._library_path
                     folder_id, file_id = _get_resource_loc(edit_id)
                     # todo: is this always true or do we need to search file file_id under folder_id
                     photopath = os.path.join(
@@ -1346,7 +1345,7 @@ class PhotoInfo:
                     )
                     if not os.path.isfile(photopath):
                         logging.warning(
-                            f"edited file for UUID {self.__uuid} should be at {photopath} but does not appear to exist"
+                            f"edited file for UUID {self._uuid} should be at {photopath} but does not appear to exist"
                         )
                         photopath = None
                 else:
@@ -1356,7 +1355,7 @@ class PhotoInfo:
             else:
                 photopath = None
 
-            # if self.__info["isMissing"] == 1:
+            # if self._info["isMissing"] == 1:
             #     photopath = None  # path would be meaningless until downloaded
         else:
             # in Photos 5.0 / Catalina / MacOS 10.15:
@@ -1368,27 +1367,27 @@ class PhotoInfo:
             # where original format was not jpg/jpeg
             # if more than one edit, previous edit is stored as UUID_p.jpeg
 
-            if self.__info["hasAdjustments"]:
-                library = self.__db._library_path
-                directory = self.__uuid[0]  # first char of uuid
+            if self._info["hasAdjustments"]:
+                library = self._db._library_path
+                directory = self._uuid[0]  # first char of uuid
                 photopath = os.path.join(
                     library,
                     "resources",
                     "renders",
                     directory,
-                    f"{self.__uuid}_1_201_a.jpeg",
+                    f"{self._uuid}_1_201_a.jpeg",
                 )
 
                 if not os.path.isfile(photopath):
                     logging.warning(
-                        f"edited file for UUID {self.__uuid} should be at {photopath} but does not appear to exist"
+                        f"edited file for UUID {self._uuid} should be at {photopath} but does not appear to exist"
                     )
                     photopath = None
             else:
                 photopath = None
 
             # TODO: might be possible for original/master to be missing but edit to still be there
-            # if self.__info["isMissing"] == 1:
+            # if self._info["isMissing"] == 1:
             #     photopath = None  # path would be meaningless until downloaded
 
             logging.debug(photopath)
@@ -1397,30 +1396,30 @@ class PhotoInfo:
 
     def description(self):
         """ long / extended description of picture """
-        return self.__info["extendedDescription"]
+        return self._info["extendedDescription"]
 
     def persons(self):
         """ list of persons in picture """
-        return self.__info["persons"]
+        return self._info["persons"]
 
     def albums(self):
         """ list of albums picture is contained in """
         albums = []
-        for album in self.__info["albums"]:
-            albums.append(self.__db._dbalbum_details[album]["title"])
+        for album in self._info["albums"]:
+            albums.append(self._db._dbalbum_details[album]["title"])
         return albums
 
     def keywords(self):
         """ list of keywords for picture """
-        return self.__info["keywords"]
+        return self._info["keywords"]
 
     def name(self):
         """ name / title of picture """
-        return self.__info["name"]
+        return self._info["name"]
 
     def uuid(self):
         """ UUID of picture """
-        return self.__uuid
+        return self._uuid
 
     def ismissing(self):
         """ returns true if photo is missing from disk (which means it's not been downloaded from iCloud) 
@@ -1432,27 +1431,27 @@ class PhotoInfo:
                 downloaded from cloud to local storate their status in the database might still show
                 isMissing = 1
         """
-        return True if self.__info["isMissing"] == 1 else False
+        return True if self._info["isMissing"] == 1 else False
 
     def hasadjustments(self):
         """ True if picture has adjustments / edits """
-        return True if self.__info["hasAdjustments"] == 1 else False
+        return True if self._info["hasAdjustments"] == 1 else False
 
     def external_edit(self):
         """ Returns True if picture was edited outside of Photos using external editor """
         return (
             True
-            if self.__info["adjustmentFormatID"] == "com.apple.Photos.externalEdit"
+            if self._info["adjustmentFormatID"] == "com.apple.Photos.externalEdit"
             else False
         )
 
     def favorite(self):
         """ True if picture is marked as favorite """
-        return True if self.__info["favorite"] == 1 else False
+        return True if self._info["favorite"] == 1 else False
 
     def hidden(self):
         """ True if picture is hidden """
-        return True if self.__info["hidden"] == 1 else False
+        return True if self._info["hidden"] == 1 else False
 
     def location(self):
         """ returns (latitude, longitude) as float in degrees or None """
@@ -1460,15 +1459,15 @@ class PhotoInfo:
 
     def _longitude(self):
         """ Returns longitude, in degrees """
-        return self.__info["longitude"]
+        return self._info["longitude"]
 
     def _latitude(self):
         """ Returns latitude, in degrees """
-        return self.__info["latitude"]
+        return self._info["latitude"]
 
     def __repr__(self):
         # TODO: update to use __class__ and __name__
-        return f"osxphotos.PhotoInfo(db={self.__db}, uuid='{self.__uuid}', info={self.__info})"
+        return f"osxphotos.PhotoInfo(db={self._db}, uuid='{self._uuid}', info={self._info})"
 
     def __str__(self):
         info = {
