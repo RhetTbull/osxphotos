@@ -3,9 +3,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-# Table of Contents
 - [OSXPhotos](#osxphotos)
-- [Table of Contents](#table-of-contents)
   * [What is osxphotos?](#what-is-osxphotos)
   * [Supported operating systems](#supported-operating-systems)
   * [Installation instructions](#installation-instructions)
@@ -56,7 +54,7 @@
   * [Implementation Notes](#implementation-notes)
   * [Dependencies](#dependencies)
   * [Acknowledgements](#acknowledgements)
-
+  
 ## What is osxphotos?
 
 OSXPhotos provides the ability to interact with and query Apple's Photos.app library database on MacOS. Using this module you can query the Photos database for information about the photos stored in a Photos library on your Mac--for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos.
