@@ -3,6 +3,60 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+# Table of Contents
+- [OSXPhotos](#osxphotos)
+- [Table of Contents](#table-of-contents)
+  * [What is osxphotos?](#what-is-osxphotos)
+  * [Supported operating systems](#supported-operating-systems)
+  * [Installation instructions](#installation-instructions)
+  * [Command Line Usage](#command-line-usage)
+  * [Example uses of the module](#example-uses-of-the-module)
+  * [Module Interface](#module-interface)
+    + [Utility Functions](#utility-functions)
+      - [```get_system_library_path()```](#get_system_library_path)
+      - [```get_last_library_path()```](#get_last_library_path)
+      - [```list_photo_libraries()```](#list_photo_libraries)
+    + [PhotosDB](#photosdb)
+      - [Open the default Photos library](#open-the-default-photos-library)
+      - [Open System Photos library](#open-system-photos-library)
+      - [Open a specific Photos library](#open-a-specific-photos-library)
+      - [```keywords()```](#keywords)
+      - [```albums()```](#albums)
+      - [```persons()```](#persons)
+      - [```keywords_as_dict()```](#keywords_as_dict)
+      - [```persons_as_dict()```](#persons_as_dict)
+      - [```albums_as_dict()```](#albums_as_dict)
+      - [```get_library_path()```](#get_library_path)
+      - [```get_db_path()```](#get_db_path)
+      - [```get_db_version()```](#get_db_version)
+      - [`photos(keywords=[], uuid=[], persons=[], albums=[])`](#photoskeywords-uuid-persons-albums)
+    + [PhotoInfo](#photoinfo)
+      - [`uuid()`](#uuid)
+      - [`filename()`](#filename)
+      - [`original_filename()`](#original_filename)
+      - [`date()`](#date)
+      - [`description()`](#description)
+      - [`name()`](#name)
+      - [`keywords()`](#keywords)
+      - [`albums()`](#albums)
+      - [`persons()`](#persons)
+      - [`path()`](#path)
+      - [`path_edited()`](#path_edited)
+      - [`ismissing()`](#ismissing)
+      - [`hasadjustments()`](#hasadjustments)
+      - [`external_edit()`](#external_edit)
+      - [`favorite()`](#favorite)
+      - [`hidden()`](#hidden)
+      - [`location()`](#location)
+      - [`to_json()`](#to_json)
+      - [`export(*args, edited=False, overwrite=False, increment=True)`](#exportargs-editedfalse-overwritefalse-incrementtrue)
+    + [Examples](#examples)
+  * [History](#history)
+  * [Contributing](#contributing)
+  * [Implementation Notes](#implementation-notes)
+  * [Dependencies](#dependencies)
+  * [Acknowledgements](#acknowledgements)
+
 ## What is osxphotos?
 
 OSXPhotos provides the ability to interact with and query Apple's Photos.app library database on MacOS. Using this module you can query the Photos database for information about the photos stored in a Photos library on your Mac--for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos.
@@ -237,7 +291,7 @@ Pass the fully qualified path to the Photos library or the actual database file 
 
 Returns a PhotosDB object. 
 
-#### ```keywords```
+#### ```keywords()```
 ```python
 # assumes photosdb is a PhotosDB object (see above)
 keywords = photosdb.keywords()
@@ -245,7 +299,7 @@ keywords = photosdb.keywords()
 
 Returns a list of the keywords found in the Photos library
 
-#### ```albums```
+#### ```albums()```
 ```python
 # assumes photosdb is a PhotosDB object (see above)
 albums = photosdb.albums()
@@ -255,7 +309,7 @@ Returns a list of the albums found in the Photos library.
 
 **Note**: In Photos 5.0 (MacOS 10.15/Catalina), It is possible to have more than one album with the same name in Photos.  Albums with duplicate names are treated as a single album and the photos in each are combined.  For example, if you have two albums named "Wedding" and each has 2 photos, osxphotos will treat this as a single album named "Wedding" with 4 photos in it.
 
-#### ```persons```
+#### ```persons()```
 ```python
 # assumes photosdb is a PhotosDB object (see above)
 persons = photosdb.persons()
@@ -263,7 +317,7 @@ persons = photosdb.persons()
 
 Returns a list of the persons (faces) found in the Photos library
 
-#### ```keywords_as_dict```
+#### ```keywords_as_dict()```
 ```python
 # assumes photosdb is a PhotosDB object (see above)
 keyword_dict = photosdb.keywords_as_dict()
@@ -271,7 +325,7 @@ keyword_dict = photosdb.keywords_as_dict()
 
 Returns a dictionary of keywords found in the Photos library where key is the keyword and value is the count of how many times that keyword appears in the library (ie. how many photos are tagged with the keyword).  Resulting dictionary is in reverse sorted order (e.g. keyword with the highest count is first).
 
-#### ```persons_as_dict```
+#### ```persons_as_dict()```
 ```python
 # assumes photosdb is a PhotosDB object (see above)
 persons_dict = photosdb.persons_as_dict()
@@ -279,7 +333,7 @@ persons_dict = photosdb.persons_as_dict()
 
 Returns a dictionary of persons (faces) found in the Photos library where key is the person name and value is the count of how many times that person appears in the library (ie. how many photos are tagged with the person).  Resulting dictionary is in reverse sorted order (e.g. person who appears in the most photos is listed first).
 
-#### ```albums_as_dict```
+#### ```albums_as_dict()```
 ```python
 # assumes photosdb is a PhotosDB object (see above)
 albums_dict = photosdb.albums_as_dict()
@@ -289,7 +343,7 @@ Returns a dictionary of albums found in the Photos library where key is the albu
 
 **Note**: In Photos 5.0 (MacOS 10.15/Catalina), It is possible to have more than one album with the same name in Photos.  Albums with duplicate names are treated as a single album and the photos in each are combined.  For example, if you have two albums named "Wedding" and each has 2 photos, osxphotos will treat this as a single album named "Wedding" with 4 photos in it.
 
-#### ```get_library_path```
+#### ```get_library_path()```
 ```python
 # assumes photosdb is a PhotosDB object (see above)
 photosdb.get_photos_library_path()
@@ -297,7 +351,7 @@ photosdb.get_photos_library_path()
 
 Returns the path to the Photos library as a string
 
-#### ```get_db_path```
+#### ```get_db_path()```
 ```python
 # assumes photosdb is a PhotosDB object (see above)
 photosdb.get_db_path()
@@ -305,7 +359,7 @@ photosdb.get_db_path()
 
 Returns the path to the Photos database PhotosDB was initialized with
 
-#### ```get_db_version```
+#### ```get_db_version()```
 ```python
 # assumes photosdb is a PhotosDB object (see above)
 photosdb.get_db_version()
@@ -314,7 +368,8 @@ photosdb.get_db_version()
 Returns the version number for Photos library database.  You likely won't need this but it's provided in case needed for debugging. PhotosDB will print a warning to `sys.stderr` if you open a database version that has not been tested. 
 
 
-#### ```photos```
+#### `photos(keywords=[], uuid=[], persons=[], albums=[])`
+
 ```python
 # assumes photosdb is a PhotosDB object (see above)
 photos = photosdb.photos([keywords=['keyword',]], [uuid=['uuid',]], [persons=['person',]], [albums=['album',]])
@@ -437,7 +492,7 @@ Returns latitude and longitude as a tuple of floats (latitude, longitude).  If l
 #### `to_json()`
 Returns a JSON representation of all photo info 
 
-#### `export(self, *args, edited=False, overwrite=False, increment=True)`
+#### `export(*args, edited=False, overwrite=False, increment=True)`
 Export photo from the Photos library to another destination on disk.  
 - First argument of *args must be valid destination path (or exception raised).
 - Second argument of *args (optional): name of picture; if not provided, will use current filename
