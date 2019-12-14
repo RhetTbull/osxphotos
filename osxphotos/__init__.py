@@ -2,6 +2,7 @@ import glob
 import json
 import logging
 import os.path
+import pathlib
 import platform
 import sqlite3
 import subprocess
@@ -1414,7 +1415,13 @@ class PhotoInfo:
         return self._info["keywords"]
 
     def name(self):
+        """ (deprecated) name / title of picture """
+        # TODO: add warning on deprecation
+        return self._info["name"]
+
+    def title(self):
         """ name / title of picture """
+        # TODO: Update documentation and tests to use title
         return self._info["name"]
 
     def uuid(self):
@@ -1456,6 +1463,126 @@ class PhotoInfo:
     def location(self):
         """ returns (latitude, longitude) as float in degrees or None """
         return (self._latitude(), self._longitude())
+
+    def export(self, *args, edited=False, overwrite=False, increment=True):
+        """ export photo """
+        """ first argument must be valid destination path (or exception raised) """
+        """ second argument (optional): name of picture; if not provided, will use current filename """
+        """ if edited=True (default=False), will export the edited version of the photo (or raise exception if no edited version) """
+        """ if overwrite=True (default=False), will overwrite files if they alreay exist """
+        """ if increment=True (default=True), will increment file name until a non-existant name is found """
+        """ if overwrite=False and increment=False, export will fail if destination file already exists """
+        """ returns the full path to the exported file """
+
+        # TODO: find better way to do *args
+        # maybe dest, *filename?
+        
+        # check arguments and get destination path and filename (if provided)
+        dest = None  # destination path
+        filename = None  # photo filename
+        if not args:
+            # need at least one arg (destination)
+            raise TypeError("Must pass destination as first argument")
+        else:
+            if len(args) > 2:
+                raise TypeError(
+                    "Too many positional arguments.  Should be at most two: destination, filename."
+                )
+            else:
+                # verify destination is a valid path
+                dest = args[0]
+                if dest is None:
+                    raise ValueError("Destination must not be None")
+                elif not os.path.isdir(dest):
+                    raise FileNotFoundError("Invalid path passed to export")
+
+                if len(args) == 2:
+                    # second arg is filename of picture
+                    filename = args[1]
+                else:
+                    # no filename provided so use the default
+                    # if edited file requested, use filename but add _edited
+                    # need to use file extension from edited file as Photos saves a jpeg once edited
+                    if edited:
+                        # verify we have a valid path_edited and use that to get filename
+                        if not self.path_edited():
+                            raise FileNotFoundError(
+                                f"edited=True but path_edited is none; hasadjustments: {self.hasadjustments()}"
+                            )
+                        edited_name = Path(self.path_edited()).name
+                        edited_suffix = Path(edited_name).suffix
+                        filename = (
+                            Path(self.filename()).stem + "_edited" + edited_suffix
+                        )
+                    else:
+                        filename = self.filename()
+
+        # get path to source file and verify it's not None and is valid file
+        # TODO: how to handle ismissing or not hasadjustments and edited=True cases?
+        if edited:
+            if not self.hasadjustments():
+                logging.warning(
+                    "Attempting to export edited photo but hasadjustments=False"
+                )
+
+            if self.path_edited() is not None:
+                src = self.path_edited()
+            else:
+                raise FileNotFoundError(
+                    f"edited=True but path_edited is none; hasadjustments: {self.hasadjustments()}"
+                )
+        else:
+            if self.ismissing():
+                logging.warning(
+                    f"Attempting to export photo with ismissing=True: path = {self.path()}"
+                )
+
+            if self.path() is None:
+                logging.warning(
+                    f"Attempting to export photo but path is None: ismissing = {self.ismissing()}"
+                )
+                raise FileNotFoundError("Cannot export photo if path is None")
+            else:
+                src = self.path()
+
+        if not os.path.isfile(src):
+            raise FileNotFoundError(f"{src} does not appear to exist")
+
+        dest = pathlib.Path(dest)
+        filename = pathlib.Path(filename)
+        dest = dest / filename
+
+        # check to see if file exists and if so, add (1), (2), etc until we find one that works
+        if increment and not overwrite:
+            count = 1
+            dest_new = dest
+            while dest_new.exists():
+                dest_new = dest.parent / f"{dest.stem} ({count}){dest.suffix}"
+                count += 1
+            dest = dest_new
+
+        logging.debug(
+            f"exporting {src} to {dest}, overwrite={overwrite}, incremetn={increment}, dest exists: {dest.exists()}"
+        )
+
+        # if overwrite==False and #increment==False, export should fail if file exists
+        if dest.exists() and not overwrite and not increment:
+            raise FileExistsError(
+                f"destination exists ({dest}); overwrite={overwrite}, increment={increment}"
+            )
+
+        # if error on copy, subprocess will raise CalledProcessError
+        try:
+            subprocess.run(
+                ["/usr/bin/ditto", src, dest], check=True, stderr=subprocess.PIPE
+            )
+        except subprocess.CalledProcessError as e:
+            logging.critical(
+                f"ditto returned error: {e.returncode} {e.stderr.decode(sys.getfilesystemencoding()).rstrip()}"
+            )
+            raise e
+
+        return str(dest)
 
     def _longitude(self):
         """ Returns longitude, in degrees """

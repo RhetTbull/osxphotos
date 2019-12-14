@@ -5,15 +5,14 @@
 
 ## What is osxphotos?
 
-OSXPhotos provides the ability to interact with and query Apple's Photos.app library database on MacOS. Using this module you can query the Photos database for information about the photos stored in a Photos library on your Mac--for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc.
+OSXPhotos provides the ability to interact with and query Apple's Photos.app library database on MacOS. Using this module you can query the Photos database for information about the photos stored in a Photos library on your Mac--for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos.
 
 **NOTE**: OSXPhotos currently only supports image files -- e.g. it does not handle movies.
 
 ## Supported operating systems
 
-Only works on MacOS (aka Mac OS X). Tested on MacOS 10.12.6 / Photos 2.0, 10.13.6 / Photos 3.0 and MacOS 10.14.5, 10.14.6 / Photos 4.0. Requires python >= 3.6
+Only works on MacOS (aka Mac OS X). Tested on MacOS 10.12.6 / Photos 2.0, 10.13.6 / Photos 3.0, MacOS 10.14.5, 10.14.6 / Photos 4.0, MacOS 10.15.1 / Photos 5.0. Requires python >= 3.6
 
-**NOTE**: Alpha support for Mac OS 10.15.0 / Photos 5.0.  Photos 5.0 uses a new database format which required rewrite of much of the code for this module.  If you find bugs, please open an [issue](https://github.com/RhetTbull/osxphotos/issues/).
 
 This module will read Photos databases for any supported version on any supported OS version.  E.g. you can read a database created with Photos 4.0 on MacOS 10.14 on a machine running MacOS 10.12
 
@@ -409,11 +408,28 @@ Returns latitude and longitude as a tuple of floats (latitude, longitude).  If l
 #### `to_json()`
 Returns a JSON representation of all photo info 
 
-Examples:
+#### `export(self, *args, edited=False, overwrite=False, increment=True)`
+Export photo from the Photos library to another destination on disk.  
+- First argument of *args must be valid destination path (or exception raised).
+- Second argument of *args (optional): name of picture; if not provided, will use current filename
+- edited: boolean; if True (default=False), will export the edited version of the photo (or raise exception if no edited version)
+- overwrite: boolean; if True (default=False), will overwrite files if they alreay exist
+- increment: boolean; if True (default=True), will increment file name until a non-existant name is found
+
+If overwrite=False and increment=False, export will fail if destination file already exists
+
+Returns the full path to the exported file
+
+**Implementation Note**: Because the usual python file copy methods don't preserve all the metadata available on MacOS, export uses /usr/bin/ditto to do the copy for export. ditto preserves most metadata such as extended attributes, permissions, ACLs, etc.
+
+### Examples
 
 ```python
-# assumes photosdb is a PhotosDB object (see above)
+import osxphotos
+
+photosdb = osxphotos.PhotosDB()
 photos=photosdb.photos()
+
 for p in photos:
     print(
         p.uuid(),
@@ -431,10 +447,42 @@ for p in photos:
     )
 ```
 
+```python
+""" Export all photos to ~/Desktop/export
+    If file has been edited, export the edited version, 
+    otherwise, export the original version """
+
+import os.path
+
+import osxphotos
+
+photosdb = osxphotos.PhotosDB()
+photos = photosdb.photos()
+
+export_path = os.path.expanduser("~/Desktop/export")
+
+for p in photos:
+    if not p.ismissing():
+        if p.hasadjustments():
+            exported = p.export(export_path, edited=True)
+        else:
+            exported = p.export(export_path)
+        print(f"Exported {p.filename()} to {exported}")
+    else:
+        print(f"Skipping missing photo: {p.filename()}")
+```
+
 ## History
 
 This project started as a command line utility, `photosmeta`, available at [photosmeta](https://github.com/RhetTbull/photosmeta) This module converts the photosmeta Photos library query functionality into a module.  
 
+## Contributing
+
+Contributing is easy!  If you find bugs or want to suggest additional features/changes, please open an [issue](https://github.com/RhetTbull/osxphotos/issues/).
+
+I'll gladly consider pull requests for bug fixes or feature implementations.  
+
+If you have an interesting example that shows usage of this module, submit an issue or pull request and I'll include it or link to it.
 
 ## Implementation Notes
 
@@ -450,7 +498,7 @@ Apple does provide a framework ([PhotoKit](https://developer.apple.com/documenta
 - [Click](https://pypi.org/project/click/)
 
 ## Acknowledgements
-This project was inspired by photo-export by Patrick Fältström see: (https://github.com/patrikhson/photo-export) Copyright (c) 2015 Patrik Fältström paf@frobbit.se
+This project was originally inspired by photo-export by Patrick Fältström see: (https://github.com/patrikhson/photo-export) Copyright (c) 2015 Patrik Fältström paf@frobbit.se
 
 To interact with the Photos app, I use [py-applescript]( https://github.com/rdhyee/py-applescript) by "Raymond Yee / rdhyee".  Rather than import this module, I included the entire module
 (which is published as public domain code) in a private module to prevent ambiguity with
