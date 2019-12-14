@@ -269,7 +269,7 @@ class PhotosDB:
             # got a library path as argument
             if dbfile:
                 # shouldn't pass via both *args and dbfile=
-                raise ValueError(
+                raise TypeError(
                     f"photos database path must be specified as argument or named parameter dbfile but not both: args: {args}, dbfile: {dbfile}",
                     args,
                     dbfile,
@@ -277,7 +277,7 @@ class PhotosDB:
             elif len(args) == 1:
                 dbfile = args[0]
             else:
-                raise ValueError(
+                raise TypeError(
                     f"__init__ takes only a single argument (photos database path): {args}",
                     args,
                 )
@@ -285,7 +285,7 @@ class PhotosDB:
             # no args and dbfile not passed, try to get last opened library
             library_path = get_last_library_path()
             if not library_path:
-                raise ValueError("could not get library path")
+                raise FileNotFoundError("could not get library path")
             dbfile = os.path.join(library_path, "database/photos.db")
 
         if os.path.isdir(dbfile):
@@ -294,7 +294,7 @@ class PhotosDB:
 
         # if get here, should have a dbfile path; make sure it exists
         if not _check_file_exists(dbfile):
-            raise ValueError(f"dbfile {dbfile} does not exist", dbfile)
+            raise FileNotFoundError(f"dbfile {dbfile} does not exist", dbfile)
 
         logging.debug(f"dbfile = {dbfile}")
 
@@ -1476,7 +1476,7 @@ class PhotoInfo:
 
         # TODO: find better way to do *args
         # maybe dest, *filename?
-        
+
         # check arguments and get destination path and filename (if provided)
         dest = None  # destination path
         filename = None  # photo filename

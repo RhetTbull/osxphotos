@@ -58,7 +58,7 @@ UUID_DICT = {
 }
 
 
-def test_init():
+def test_init1():
     # test named argument
     import osxphotos
 
