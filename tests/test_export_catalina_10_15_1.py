@@ -57,6 +57,7 @@ UUID_DICT = {
     "export": "D79B8D77-BFFC-460B-9312-034F2877D35B",  # "Pumkins2.jpg"
 }
 
+
 def test_export_1():
     # test basic export
     # get an unedited image and export it using default filename
@@ -390,3 +391,75 @@ def test_export_13():
     with pytest.raises(Exception) as e:
         assert photos[0].export(dest)
     assert e.type == type(FileNotFoundError())
+
+
+def test_dd_to_dms_str_1():
+    import osxphotos
+
+    lat_str, lon_str = osxphotos.dd_to_dms_str(
+        34.559331096, 69.206499174
+    )  # Kabul, 34°33'33.59" N 69°12'23.40" E
+
+    assert lat_str == "34 deg 33' 33.59\" N"
+    assert lon_str == "69 deg 12' 23.40\" E"
+
+
+def test_dd_to_dms_str_2():
+    import osxphotos
+
+    lat_str, lon_str = osxphotos.dd_to_dms_str(
+        -34.601997592, -58.375665164
+    )  # Buenos Aires, 34°36'7.19" S 58°22'32.39" W
+
+    assert lat_str == "34 deg 36' 7.19\" S"
+    assert lon_str == "58 deg 22' 32.39\" W"
+
+
+def test_dd_to_dms_str_3():
+    import osxphotos
+
+    lat_str, lon_str = osxphotos.dd_to_dms_str(
+        -1.2666656, 36.7999968
+    )  # Nairobi, 1°15'60.00" S 36°47'59.99" E
+
+    assert lat_str == "1 deg 15' 60.00\" S"
+    assert lon_str == "36 deg 47' 59.99\" E"
+
+
+def test_dd_to_dms_str_4():
+    import osxphotos
+
+    lat_str, lon_str = osxphotos.dd_to_dms_str(
+        38.889248, -77.050636
+    )  # DC: 38° 53' 21.2928" N, 77° 3' 2.2896" W
+
+    assert lat_str == "38 deg 53' 21.29\" N"
+    assert lon_str == "77 deg 3' 2.29\" W"
+
+
+def test_exiftool_json_sidecar():
+    import osxphotos
+    import json
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=[UUID_DICT["location"]])
+
+    json_expected = json.loads(
+        """
+    [{"FileName": "DC99FBDD-7A52-4100-A5BB-344131646C30.jpeg", 
+    "Title": "St. James\'s Park", 
+    "TagsList": ["London 2018", "St. James\'s Park", "England", "United Kingdom", "UK", "London"], 
+    "Keywords": ["London 2018", "St. James\'s Park", "England", "United Kingdom", "UK", "London"], 
+    "GPSLatitude": "51 deg 30\' 12.86\\" N", 
+    "GPSLongitude": "0 deg 7\' 54.50\\" W", 
+    "GPSPosition": "51 deg 30\' 12.86\\" N, 0 deg 7\' 54.50\\" W", 
+    "GPSLatitudeRef": "North", "GPSLongitudeRef": "West", 
+    "DateTimeOriginal": "2018:10:13 09:18:12", "OffsetTimeOriginal": "-04:00"}]
+    """
+    )
+
+    json_got = photos[0]._exiftool_json_sidecar()
+    json_got = json.loads(json_got)
+
+    assert sorted(json_got[0].items()) == sorted(json_expected[0].items())
+

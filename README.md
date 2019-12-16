@@ -47,7 +47,7 @@
       - [`hidden()`](#hidden)
       - [`location()`](#location)
       - [`to_json()`](#to_json)
-      - [`export(*args, edited=False, overwrite=False, increment=True)`](#exportargs-editedfalse-overwritefalse-incrementtrue)
+      - [`export(dest, *filename, edited=False, overwrite=False, increment=True)`](#exportdest-filename-editedfalse-overwritefalse-incrementtrue)
     + [Examples](#examples)
   * [History](#history)
   * [Contributing](#contributing)
@@ -490,10 +490,10 @@ Returns latitude and longitude as a tuple of floats (latitude, longitude).  If l
 #### `to_json()`
 Returns a JSON representation of all photo info 
 
-#### `export(*args, edited=False, overwrite=False, increment=True)`
+#### `export(dest, *filename, edited=False, overwrite=False, increment=True)`
 Export photo from the Photos library to another destination on disk.  
-- First argument of *args must be valid destination path (or exception raised).
-- Second argument of *args (optional): name of picture; if not provided, will use current filename
+- First argument dest must be valid destination path (or exception raised).
+- Second argument *filename (optional): name of picture; if not provided, will use current filename
 - edited: boolean; if True (default=False), will export the edited version of the photo (or raise exception if no edited version)
 - overwrite: boolean; if True (default=False), will overwrite files if they alreay exist
 - increment: boolean; if True (default=True), will increment file name until a non-existant name is found

@@ -4,6 +4,7 @@ import logging
 import os.path
 import pathlib
 import platform
+import re
 import sqlite3
 import subprocess
 import sys
@@ -88,8 +89,8 @@ def _get_os_version():
 
 
 def _check_file_exists(filename):
-    # returns true if file exists and is not a directory
-    # otherwise returns false
+    """ returns true if file exists and is not a directory
+        otherwise returns false """
     filename = os.path.abspath(filename)
     return os.path.exists(filename) and not os.path.isdir(filename)
 
@@ -110,6 +111,54 @@ def _get_resource_loc(model_id):
     folder_id = hex_id.zfill(4)[0:2]
 
     return folder_id, file_id
+
+
+def _dd_to_dms(dd):
+    """ convert lat or lon in decimal degrees (dd) to degrees, minutes, seconds """
+    """ return tuple of int(deg), int(min), float(sec) """
+    dd = float(dd)
+    negative = dd < 0
+    dd = abs(dd)
+    min_, sec_ = divmod(dd * 3600, 60)
+    deg_, min_ = divmod(min_, 60)
+    if negative:
+        if deg_ > 0:
+            deg_ = deg_ * -1
+        elif min_ > 0:
+            min_ = min_ * -1
+        else:
+            sec_ = sec_ * -1
+
+    return int(deg_), int(min_), sec_
+
+
+def dd_to_dms_str(lat, lon):
+    """ convert latitude, longitude in degrees to degrees, minutes, seconds as string """
+    """ lat: latitude in degrees  """
+    """ lon: longitude in degrees """
+    """ returns: string tuple in format ("51 deg 30' 12.86\" N", "0 deg 7' 54.50\" W") """
+    """ this is the same format used by exiftool's json format """
+    # TODO: add this to readme
+
+    lat_deg, lat_min, lat_sec = _dd_to_dms(lat)
+    lon_deg, lon_min, lon_sec = _dd_to_dms(lon)
+
+    lat_hemisphere = "N"
+    if any([lat_deg < 0, lat_min < 0, lat_sec < 0]):
+        lat_hemisphere = "S"
+
+    lon_hemisphere = "E"
+    if any([lon_deg < 0, lon_min < 0, lon_sec < 0]):
+        lon_hemisphere = "W"
+
+    lat_str = (
+        f"{abs(lat_deg)} deg {abs(lat_min)}' {abs(lat_sec):.2f}\" {lat_hemisphere}"
+    )
+    lon_str = (
+        f"{abs(lon_deg)} deg {abs(lon_min)}' {abs(lon_sec):.2f}\" {lon_hemisphere}"
+    )
+
+    return lat_str, lon_str
 
 
 def get_system_library_path():
@@ -1464,7 +1513,7 @@ class PhotoInfo:
         """ returns (latitude, longitude) as float in degrees or None """
         return (self._latitude(), self._longitude())
 
-    def export(self, *args, edited=False, overwrite=False, increment=True):
+    def export(self, dest, *filename, edited=False, overwrite=False, increment=True):
         """ export photo """
         """ first argument must be valid destination path (or exception raised) """
         """ second argument (optional): name of picture; if not provided, will use current filename """
@@ -1478,44 +1527,37 @@ class PhotoInfo:
         # maybe dest, *filename?
 
         # check arguments and get destination path and filename (if provided)
-        dest = None  # destination path
-        filename = None  # photo filename
-        if not args:
-            # need at least one arg (destination)
-            raise TypeError("Must pass destination as first argument")
+        if filename and len(filename) > 2:
+            raise TypeError(
+                "Too many positional arguments.  Should be at most two: destination, filename."
+            )
         else:
-            if len(args) > 2:
-                raise TypeError(
-                    "Too many positional arguments.  Should be at most two: destination, filename."
-                )
-            else:
-                # verify destination is a valid path
-                dest = args[0]
-                if dest is None:
-                    raise ValueError("Destination must not be None")
-                elif not os.path.isdir(dest):
-                    raise FileNotFoundError("Invalid path passed to export")
+            # verify destination is a valid path
+            if dest is None:
+                raise ValueError("Destination must not be None")
+            elif not os.path.isdir(dest):
+                raise FileNotFoundError("Invalid path passed to export")
 
-                if len(args) == 2:
-                    # second arg is filename of picture
-                    filename = args[1]
-                else:
-                    # no filename provided so use the default
-                    # if edited file requested, use filename but add _edited
-                    # need to use file extension from edited file as Photos saves a jpeg once edited
-                    if edited:
-                        # verify we have a valid path_edited and use that to get filename
-                        if not self.path_edited():
-                            raise FileNotFoundError(
-                                f"edited=True but path_edited is none; hasadjustments: {self.hasadjustments()}"
-                            )
-                        edited_name = Path(self.path_edited()).name
-                        edited_suffix = Path(edited_name).suffix
-                        filename = (
-                            Path(self.filename()).stem + "_edited" + edited_suffix
+            if filename and len(filename) == 1:
+                # second arg is filename of picture
+                filename = filename[0] 
+            else:
+                # no filename provided so use the default
+                # if edited file requested, use filename but add _edited
+                # need to use file extension from edited file as Photos saves a jpeg once edited
+                if edited:
+                    # verify we have a valid path_edited and use that to get filename
+                    if not self.path_edited():
+                        raise FileNotFoundError(
+                            f"edited=True but path_edited is none; hasadjustments: {self.hasadjustments()}"
                         )
-                    else:
-                        filename = self.filename()
+                    edited_name = Path(self.path_edited()).name
+                    edited_suffix = Path(edited_name).suffix
+                    filename = (
+                        Path(self.filename()).stem + "_edited" + edited_suffix
+                    )
+                else:
+                    filename = self.filename()
 
         # get path to source file and verify it's not None and is valid file
         # TODO: how to handle ismissing or not hasadjustments and edited=True cases?
@@ -1583,6 +1625,66 @@ class PhotoInfo:
             raise e
 
         return str(dest)
+
+    def _exiftool_json_sidecar(self):
+        """ return json string of EXIF details in exiftool sidecar format """
+        exif = {}
+        exif["FileName"] = self.filename()
+
+        if self.description():
+            exif["ImageDescription"] = self.description()
+            exif["Description"] = self.description()
+
+        if self.title():
+            exif["Title"] = self.title()
+
+        if self.keywords():
+            exif["TagsList"] = exif["Keywords"] = self.keywords()
+
+        if self.persons():
+            exif["PersonInImage"] = self.persons()
+
+        # if self.favorite():
+        #     exif["Rating"] = 5
+
+        (lat, lon) = self.location()
+        if lat is not None and lon is not None:
+            lat_str, lon_str = dd_to_dms_str(lat, lon)
+            exif["GPSLatitude"] = lat_str
+            exif["GPSLongitude"] = lon_str
+            exif["GPSPosition"] = f"{lat_str}, {lon_str}"
+            lat_ref = "North" if lat >= 0 else "South"
+            lon_ref = "East" if lon >= 0 else "West"
+            exif["GPSLatitudeRef"] = lat_ref
+            exif["GPSLongitudeRef"] = lon_ref
+
+        # process date/time and timezone offset
+        date = self.date()
+        # exiftool expects format to "2015:01:18 12:00:00"
+        datetimeoriginal = date.strftime("%Y:%m:%d %H:%M:%S")
+        offsettime = date.strftime("%z")
+        # find timezone offset in format "-04:00"
+        offset = re.findall(r"([+-]?)([\d]{2})([\d]{2})", offsettime)
+        offset = offset[0]  # findall returns list of tuples
+        offsettime = f"{offset[0]}{offset[1]}:{offset[2]}"
+        exif["DateTimeOriginal"] = datetimeoriginal
+        exif["OffsetTimeOriginal"] = offsettime
+
+        json_str = json.dumps([exif])
+        return json_str
+
+    def _write_sidecar_car(self, filename, json_str):
+        if not filename and not json_str:
+            raise (
+                ValueError(
+                    f"filename {filename} and json_str {json_str} must not be None"
+                )
+            )
+
+        # TODO: catch exception?
+        f = open(filename, "w")
+        f.write(json_str)
+        f.close()
 
     def _longitude(self):
         """ Returns longitude, in degrees """
