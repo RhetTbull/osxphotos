@@ -1513,7 +1513,15 @@ class PhotoInfo:
         """ returns (latitude, longitude) as float in degrees or None """
         return (self._latitude(), self._longitude())
 
-    def export(self, dest, *filename, edited=False, overwrite=False, increment=True):
+    def export(
+        self,
+        dest,
+        *filename,
+        edited=False,
+        overwrite=False,
+        increment=True,
+        sidecar=False,
+    ):
         """ export photo """
         """ first argument must be valid destination path (or exception raised) """
         """ second argument (optional): name of picture; if not provided, will use current filename """
@@ -1521,10 +1529,12 @@ class PhotoInfo:
         """ if overwrite=True (default=False), will overwrite files if they alreay exist """
         """ if increment=True (default=True), will increment file name until a non-existant name is found """
         """ if overwrite=False and increment=False, export will fail if destination file already exists """
+        """ if sidecar=True, will also write a json sidecar with EXIF data in format readable by exiftool """
+        """ sidecar filename will be dest/filename.ext.json where ext is suffix of the image file (e.g. jpeg or jpg) """
         """ returns the full path to the exported file """
 
-        # TODO: find better way to do *args
-        # maybe dest, *filename?
+        # TODO: add this docs:
+        #  ( for jpeg in *.jpeg; do exiftool -v -json=$jpeg.json $jpeg; done )
 
         # check arguments and get destination path and filename (if provided)
         if filename and len(filename) > 2:
@@ -1540,7 +1550,7 @@ class PhotoInfo:
 
             if filename and len(filename) == 1:
                 # second arg is filename of picture
-                filename = filename[0] 
+                filename = filename[0]
             else:
                 # no filename provided so use the default
                 # if edited file requested, use filename but add _edited
@@ -1553,9 +1563,7 @@ class PhotoInfo:
                         )
                     edited_name = Path(self.path_edited()).name
                     edited_suffix = Path(edited_name).suffix
-                    filename = (
-                        Path(self.filename()).stem + "_edited" + edited_suffix
-                    )
+                    filename = Path(self.filename()).stem + "_edited" + edited_suffix
                 else:
                     filename = self.filename()
 
@@ -1623,6 +1631,16 @@ class PhotoInfo:
                 f"ditto returned error: {e.returncode} {e.stderr.decode(sys.getfilesystemencoding()).rstrip()}"
             )
             raise e
+
+        if sidecar:
+            logging.debug("writing exiftool_json_sidecar")
+            sidecar_filename = f"{dest}.json"
+            json_sidecar_str = self._exiftool_json_sidecar()
+            try:
+                self._write_sidecar_car(sidecar_filename,json_sidecar_str)
+            except Exception as e:
+                logging.critical(f"Error writing json sidecar to {sidecar_filename}")
+                raise e
 
         return str(dest)
 
