@@ -41,6 +41,7 @@ UUID_DICT = {
     "has_adjustments": "6bxcNnzRQKGnK4uPrCJ9UQ",
     "no_adjustments": "15uNd7%8RguTEgNPKHfTWw",
     "export": "15uNd7%8RguTEgNPKHfTWw",
+    "location": "3Jn73XpSQQCluzRBMWRsMA",
 }
 
 def test_export_1():
@@ -376,3 +377,37 @@ def test_export_13():
     with pytest.raises(Exception) as e:
         assert photos[0].export(dest)
     assert e.type == type(FileNotFoundError())
+
+
+def test_exiftool_json_sidecar():
+    import osxphotos
+    import json
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=[UUID_DICT["location"]])
+
+    json_expected = json.loads(
+        """
+    [{"FileName": "St James Park.jpg", 
+    "Title": "St. James\'s Park", 
+    "TagsList": ["London 2018", "St. James\'s Park", "England", "United Kingdom", "UK", "London"], 
+    "Keywords": ["London 2018", "St. James\'s Park", "England", "United Kingdom", "UK", "London"], 
+    "GPSLatitude": "51 deg 30\' 12.86\\" N", 
+    "GPSLongitude": "0 deg 7\' 54.50\\" W", 
+    "GPSPosition": "51 deg 30\' 12.86\\" N, 0 deg 7\' 54.50\\" W", 
+    "GPSLatitudeRef": "North", "GPSLongitudeRef": "West", 
+    "DateTimeOriginal": "2018:10:13 09:18:12", "OffsetTimeOriginal": "-04:00"}]
+    """
+    )
+
+    json_got = photos[0]._exiftool_json_sidecar()
+    json_got = json.loads(json_got)
+
+    # some gymnastics to account for different sort order in different pythons
+    for item in zip(sorted(json_got[0].items()), sorted(json_expected[0].items())):
+        if type(item[0][1]) in (list, tuple):
+            assert sorted(item[0][1]) == sorted(item[1][1])
+        else:
+            assert item[0][1] == item[1][1]
+
+    # assert sorted(json_got[0].items()) == sorted(json_expected[0].items())

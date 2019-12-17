@@ -461,5 +461,12 @@ def test_exiftool_json_sidecar():
     json_got = photos[0]._exiftool_json_sidecar()
     json_got = json.loads(json_got)
 
-    assert sorted(json_got[0].items()) == sorted(json_expected[0].items())
+    # some gymnastics to account for different sort order in different pythons
+    for item in zip(sorted(json_got[0].items()), sorted(json_expected[0].items())):
+        if type(item[0][1]) in (list, tuple):
+            assert sorted(item[0][1]) == sorted(item[1][1])
+        else:
+            assert item[0][1] == item[1][1]
+
+    # assert sorted(json_got[0].items()) == sorted(json_expected[0].items())
 
