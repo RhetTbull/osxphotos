@@ -1,3 +1,8 @@
+"""
+PhotosDB class
+Processes a Photos.app library database to extract information about photos
+"""
+
 import logging
 import os.path
 import pathlib

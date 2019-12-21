@@ -1,3 +1,7 @@
+"""
+Constants used by osxphotos 
+"""
+
 # which Photos library database versions have been tested
 # Photos 2.0 (10.12.6) == 2622
 # Photos 3.0 (10.13.6) == 3301
