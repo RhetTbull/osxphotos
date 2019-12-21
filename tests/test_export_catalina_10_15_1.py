@@ -1,6 +1,7 @@
 import pytest
 
-from osxphotos import _UNKNOWN_PERSON
+from osxphotos._constants import _UNKNOWN_PERSON
+from osxphotos.utils import dd_to_dms_str
 
 # TODO: put some of this code into a pre-function
 
@@ -396,7 +397,7 @@ def test_export_13():
 def test_dd_to_dms_str_1():
     import osxphotos
 
-    lat_str, lon_str = osxphotos.dd_to_dms_str(
+    lat_str, lon_str = dd_to_dms_str(
         34.559331096, 69.206499174
     )  # Kabul, 34°33'33.59" N 69°12'23.40" E
 
@@ -407,7 +408,7 @@ def test_dd_to_dms_str_1():
 def test_dd_to_dms_str_2():
     import osxphotos
 
-    lat_str, lon_str = osxphotos.dd_to_dms_str(
+    lat_str, lon_str = dd_to_dms_str(
         -34.601997592, -58.375665164
     )  # Buenos Aires, 34°36'7.19" S 58°22'32.39" W
 
@@ -418,7 +419,7 @@ def test_dd_to_dms_str_2():
 def test_dd_to_dms_str_3():
     import osxphotos
 
-    lat_str, lon_str = osxphotos.dd_to_dms_str(
+    lat_str, lon_str = dd_to_dms_str(
         -1.2666656, 36.7999968
     )  # Nairobi, 1°15'60.00" S 36°47'59.99" E
 
@@ -429,7 +430,7 @@ def test_dd_to_dms_str_3():
 def test_dd_to_dms_str_4():
     import osxphotos
 
-    lat_str, lon_str = osxphotos.dd_to_dms_str(
+    lat_str, lon_str = dd_to_dms_str(
         38.889248, -77.050636
     )  # DC: 38° 53' 21.2928" N, 77° 3' 2.2896" W
 
@@ -469,4 +470,3 @@ def test_exiftool_json_sidecar():
             assert item[0][1] == item[1][1]
 
     # assert sorted(json_got[0].items()) == sorted(json_expected[0].items())
-

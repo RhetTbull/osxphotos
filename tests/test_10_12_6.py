@@ -50,8 +50,8 @@ def test_db_version():
 def test_os_version():
     import osxphotos
 
-    (_, major, _) = osxphotos._get_os_version()
-    assert major in osxphotos._TESTED_OS_VERSIONS
+    (_, major, _) = osxphotos.utils._get_os_version()
+    assert major in osxphotos._constants._TESTED_OS_VERSIONS
 
 
 def test_persons():
@@ -170,4 +170,3 @@ def test_keyword_not_in_album():
     photos3 = [p for p in photos2 if p not in photos1]
     assert len(photos3) == 1
     assert photos3[0].uuid() == "Pj99JmYjQkeezdY2OFuSaw"
-

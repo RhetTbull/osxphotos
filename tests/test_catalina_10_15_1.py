@@ -1,6 +1,6 @@
 import pytest
 
-from osxphotos import _UNKNOWN_PERSON
+from osxphotos._constants import _UNKNOWN_PERSON
 
 # TODO: put some of this code into a pre-function
 
@@ -109,7 +109,8 @@ def test_init5():
     def bad_library():
         return None
 
-    osxphotos.get_last_library_path = bad_library
+    # force get_last_library to return a bad path for testing
+    osxphotos.photosdb.get_last_library_path = bad_library
 
     with pytest.raises(Exception):
         assert osxphotos.PhotosDB()
@@ -126,8 +127,8 @@ def test_db_version():
 def test_os_version():
     import osxphotos
 
-    (_, major, _) = osxphotos._get_os_version()
-    assert major in osxphotos._TESTED_OS_VERSIONS
+    (_, major, _) = osxphotos.utils._get_os_version()
+    assert major in osxphotos._constants._TESTED_OS_VERSIONS
 
 
 def test_persons():
@@ -735,4 +736,3 @@ def test_export_13():
     with pytest.raises(Exception) as e:
         assert photos[0].export(dest)
     assert e.type == type(FileNotFoundError())
-

@@ -1,6 +1,6 @@
 import pytest
 
-from osxphotos import _UNKNOWN_PERSON
+from osxphotos._constants import _UNKNOWN_PERSON
 
 # TODO: put some of this code into a pre-function
 
@@ -43,6 +43,7 @@ UUID_DICT = {
     "export": "15uNd7%8RguTEgNPKHfTWw",
     "location": "3Jn73XpSQQCluzRBMWRsMA",
 }
+
 
 def test_export_1():
     # test basic export
@@ -409,5 +410,3 @@ def test_exiftool_json_sidecar():
             assert sorted(item[0][1]) == sorted(item[1][1])
         else:
             assert item[0][1] == item[1][1]
-
-    # assert sorted(json_got[0].items()) == sorted(json_expected[0].items())

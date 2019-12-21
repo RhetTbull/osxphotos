@@ -45,15 +45,15 @@ def test_db_version():
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    assert photosdb.get_db_version() in osxphotos._TESTED_DB_VERSIONS
+    assert photosdb.get_db_version() in osxphotos._constants._TESTED_DB_VERSIONS
     assert photosdb.get_db_version() == "4025"
 
 
 def test_os_version():
     import osxphotos
 
-    (_, major, _) = osxphotos._get_os_version()
-    assert major in osxphotos._TESTED_OS_VERSIONS
+    (_, major, _) = osxphotos.utils._get_os_version()
+    assert major in osxphotos._constants._TESTED_OS_VERSIONS
 
 
 def test_persons():
@@ -324,4 +324,3 @@ def test_get_library_path():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     lib_path = photosdb.get_library_path()
     assert lib_path.endswith(PHOTOS_LIBRARY_PATH)
-

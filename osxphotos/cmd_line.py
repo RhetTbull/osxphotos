@@ -135,13 +135,13 @@ def dump(cli_obj):
 @click.pass_obj
 def list_libraries(cli_obj):
     """ Print list of Photos libraries found on the system. """
-    photo_libs = osxphotos.list_photo_libraries()
+    photo_libs = osxphotos.utils.list_photo_libraries()
     sys_lib = None
-    _, major, _ = osxphotos._get_os_version()
+    _, major, _ = osxphotos.utils._get_os_version()
     if int(major) >= 15:
-        sys_lib = osxphotos.get_system_library_path()
-    
-    last_lib = osxphotos.get_last_library_path()
+        sys_lib = osxphotos.utils.get_system_library_path()
+
+    last_lib = osxphotos.utils.get_last_library_path()
 
     last_lib_flag = sys_lib_flag = False
 
@@ -161,6 +161,7 @@ def list_libraries(cli_obj):
         click.echo("(*)\tSystem Photos Library")
     if last_lib_flag:
         click.echo("(#)\tLast opened Photos Library")
+
 
 @cli.command()
 @click.option("--keyword", default=None, multiple=True, help="Search for keyword(s).")
