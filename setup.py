@@ -62,5 +62,5 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     install_requires=["pyobjc", "Click", "pyyaml"],
-    entry_points={"console_scripts": ["osxphotos=osxphotos.cmd_line:cli"]},
+    entry_points={"console_scripts": ["osxphotos=osxphotos.__main__:cli"]},
 )
