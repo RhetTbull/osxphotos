@@ -10,10 +10,6 @@
   * [Command Line Usage](#command-line-usage)
   * [Example uses of the module](#example-uses-of-the-module)
   * [Module Interface](#module-interface)
-    + [Utility Functions](#utility-functions)
-      - [```get_system_library_path()```](#get_system_library_path)
-      - [```get_last_library_path()```](#get_last_library_path)
-      - [```list_photo_libraries()```](#list_photo_libraries)
     + [PhotosDB](#photosdb)
       - [Open the default Photos library](#open-the-default-photos-library)
       - [Open System Photos library](#open-system-photos-library)
@@ -48,6 +44,11 @@
       - [`location()`](#location)
       - [`to_json()`](#to_json)
       - [`export(dest, *filename, edited=False, overwrite=False, increment=True)`](#exportdest-filename-editedfalse-overwritefalse-incrementtrue)
+    + [Utility Functions](#utility-functions)
+      - [```get_system_library_path()```](#get_system_library_path)
+      - [```get_last_library_path()```](#get_last_library_path)
+      - [```list_photo_libraries()```](#list_photo_libraries)
+      - [```dd_to_dms_str(lat, lon)```](#dd_to_dms_strlat-lon)
     + [Examples](#examples)
   * [History](#history)
   * [Contributing](#contributing)
@@ -211,20 +212,6 @@ if __name__ == "__main__":
 ```
 
 ## Module Interface
-
-### Utility Functions
-
-#### ```get_system_library_path()```
-
-**MacOS 10.15 Only** Returns path to System Photo Library as string.  On MacOS version < 10.15, raises Exception.
-
-#### ```get_last_library_path()```
-
-Returns path to last opened Photo Library as string.  
-
-#### ```list_photo_libraries()```
-
-Returns list of Photos libraries found on the system.  **Note**: On MacOS 10.15, this appears to list all libraries. On older systems, it may not find some libraries if they are not located in ~/Pictures.  Provided for convenience but do not rely on this to find all libraries on the system.
 
 ### PhotosDB
 
@@ -503,6 +490,30 @@ If overwrite=False and increment=False, export will fail if destination file alr
 Returns the full path to the exported file
 
 **Implementation Note**: Because the usual python file copy methods don't preserve all the metadata available on MacOS, export uses /usr/bin/ditto to do the copy for export. ditto preserves most metadata such as extended attributes, permissions, ACLs, etc.
+
+### Utility Functions
+
+The following functions are located in osxphotos.utils
+
+#### ```get_system_library_path()```
+
+**MacOS 10.15 Only** Returns path to System Photo Library as string.  On MacOS version < 10.15, raises Exception.
+
+#### ```get_last_library_path()```
+
+Returns path to last opened Photo Library as string.  
+
+#### ```list_photo_libraries()```
+
+Returns list of Photos libraries found on the system.  **Note**: On MacOS 10.15, this appears to list all libraries. On older systems, it may not find some libraries if they are not located in ~/Pictures.  Provided for convenience but do not rely on this to find all libraries on the system.
+
+#### ```dd_to_dms_str(lat, lon)```
+Convert latitude, longitude in degrees to degrees, minutes, seconds as string.
+lat: latitude in degrees
+lon: longitude in degrees
+returns: string tuple in format ("51 deg 30' 12.86\\" N", "0 deg 7' 54.50\\" W")
+This is the same format used by exiftool's json format.
+
 
 ### Examples
 
