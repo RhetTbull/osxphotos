@@ -179,6 +179,7 @@ class PhotosDB:
     def __del__(self):
         self._cleanup_tmp_files()
 
+    @property
     def keywords_as_dict(self):
         """ return keywords as dict of keyword, count in reverse sorted order (descending) """
         keywords = {}
@@ -187,6 +188,7 @@ class PhotosDB:
         keywords = dict(sorted(keywords.items(), key=lambda kv: kv[1], reverse=True))
         return keywords
 
+    @property
     def persons_as_dict(self):
         """ return persons as dict of person, count in reverse sorted order (descending) """
         persons = {}
@@ -195,6 +197,7 @@ class PhotosDB:
         persons = dict(sorted(persons.items(), key=lambda kv: kv[1], reverse=True))
         return persons
 
+    @property
     def albums_as_dict(self):
         """ return albums as dict of albums, count in reverse sorted order (descending) """
         albums = {}
@@ -207,16 +210,19 @@ class PhotosDB:
         albums = dict(sorted(albums.items(), key=lambda kv: kv[1], reverse=True))
         return albums
 
+    @property
     def keywords(self):
         """ return list of keywords found in photos database """
         keywords = self._dbkeywords_keyword.keys()
         return list(keywords)
 
+    @property
     def persons(self):
         """ return list of persons found in photos database """
         persons = self._dbfaces_person.keys()
         return list(persons)
 
+    @property
     def albums(self):
         """ return list of albums found in photos database """
         # Could be more than one album with same name
@@ -266,15 +272,18 @@ class PhotosDB:
     #         """
     #     )
 
-    def get_db_version(self):
+    @property
+    def db_version(self):
         """ return the database version as stored in LiGlobals table """
         return self._db_version
 
-    def get_db_path(self):
+    @property
+    def db_path(self):
         """ returns path to the Photos library database PhotosDB was initialized with """
         return os.path.abspath(self._dbfile)
 
-    def get_library_path(self):
+    @property
+    def library_path(self):
         """ returns path to the Photos library PhotosDB was initialized with """
         return self._library_path
 
@@ -1070,4 +1079,4 @@ class PhotosDB:
 
     def __repr__(self):
         # TODO: update to use __class__ and __name__
-        return f"osxphotos.PhotosDB(dbfile='{self.get_db_path()}')"
+        return f"osxphotos.PhotosDB(dbfile='{self.db_path}')"

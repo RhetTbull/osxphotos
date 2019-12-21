@@ -120,8 +120,8 @@ def test_db_version():
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    # assert photosdb.get_db_version() in osxphotos._TESTED_DB_VERSIONS
-    assert photosdb.get_db_version() == "6000"
+    # assert photosdb.db_version in osxphotos._TESTED_DB_VERSIONS
+    assert photosdb.db_version == "6000"
 
 
 def test_os_version():
@@ -136,8 +136,8 @@ def test_persons():
     import collections
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    assert "Katie" in photosdb.persons()
-    assert collections.Counter(PERSONS) == collections.Counter(photosdb.persons())
+    assert "Katie" in photosdb.persons
+    assert collections.Counter(PERSONS) == collections.Counter(photosdb.persons)
 
 
 def test_keywords():
@@ -145,8 +145,8 @@ def test_keywords():
     import collections
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    assert "wedding" in photosdb.keywords()
-    assert collections.Counter(KEYWORDS) == collections.Counter(photosdb.keywords())
+    assert "wedding" in photosdb.keywords
+    assert collections.Counter(KEYWORDS) == collections.Counter(photosdb.keywords)
 
 
 def test_albums():
@@ -154,15 +154,15 @@ def test_albums():
     import collections
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    assert "Pumpkin Farm" in photosdb.albums()
-    assert collections.Counter(ALBUMS) == collections.Counter(photosdb.albums())
+    assert "Pumpkin Farm" in photosdb.albums
+    assert collections.Counter(ALBUMS) == collections.Counter(photosdb.albums)
 
 
 def test_keywords_dict():
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    keywords = photosdb.keywords_as_dict()
+    keywords = photosdb.keywords_as_dict
     assert keywords["wedding"] == 2
     assert keywords == KEYWORDS_DICT
 
@@ -171,7 +171,7 @@ def test_persons_as_dict():
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    persons = photosdb.persons_as_dict()
+    persons = photosdb.persons_as_dict
     assert persons["Maria"] == 1
     assert persons == PERSONS_DICT
 
@@ -180,7 +180,7 @@ def test_albums_as_dict():
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    albums = photosdb.albums_as_dict()
+    albums = photosdb.albums_as_dict
     assert albums["Pumpkin Farm"] == 3
     assert albums == ALBUM_DICT
 
@@ -391,7 +391,7 @@ def test_get_db_path():
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    db_path = photosdb.get_db_path()
+    db_path = photosdb.db_path
     assert db_path.endswith(PHOTOS_DB_PATH)
 
 
@@ -399,7 +399,7 @@ def test_get_library_path():
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    lib_path = photosdb.get_library_path()
+    lib_path = photosdb.library_path
     assert lib_path.endswith(PHOTOS_LIBRARY_PATH)
 
 

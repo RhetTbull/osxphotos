@@ -3,16 +3,16 @@ import osxphotos
 
 def main():
     photosdb = osxphotos.PhotosDB()
-    print(f"db file = {photosdb.get_db_path()}")
-    print(f"db version = {photosdb.get_db_version()}")
+    print(f"db file = {photosdb.db_path}")
+    print(f"db version = {photosdb.db_version}")
 
-    print(photosdb.keywords())
-    print(photosdb.persons())
-    print(photosdb.albums())
+    print(photosdb.keywords)
+    print(photosdb.persons)
+    print(photosdb.albums)
 
-    print(photosdb.keywords_as_dict())
-    print(photosdb.persons_as_dict())
-    print(photosdb.albums_as_dict())
+    print(photosdb.keywords_as_dict)
+    print(photosdb.persons_as_dict)
+    print(photosdb.albums_as_dict)
 
     # find all photos with Keyword = Kids and containing person Katie
     photos = photosdb.photos(keywords=["Kids"], persons=["Katie"])

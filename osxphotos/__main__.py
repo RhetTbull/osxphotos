@@ -50,7 +50,7 @@ def cli(ctx, db, json, debug):
 def keywords(cli_obj):
     """ Print out keywords found in the Photos library. """
     photosdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
-    keywords = {"keywords": photosdb.keywords_as_dict()}
+    keywords = {"keywords": photosdb.keywords_as_dict}
     if cli_obj.json:
         click.echo(json.dumps(keywords))
     else:
@@ -62,7 +62,7 @@ def keywords(cli_obj):
 def albums(cli_obj):
     """ Print out albums found in the Photos library. """
     photosdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
-    albums = {"albums": photosdb.albums_as_dict()}
+    albums = {"albums": photosdb.albums_as_dict}
     if cli_obj.json:
         click.echo(json.dumps(albums))
     else:
@@ -74,7 +74,7 @@ def albums(cli_obj):
 def persons(cli_obj):
     """ Print out persons (faces) found in the Photos library. """
     photosdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
-    persons = {"persons": photosdb.persons_as_dict()}
+    persons = {"persons": photosdb.persons_as_dict}
     if cli_obj.json:
         click.echo(json.dumps(persons))
     else:
@@ -88,20 +88,20 @@ def info(cli_obj):
     pdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
     info = {}
     info["database_path"] = pdb.get_db_path()
-    info["database_version"] = pdb.get_db_version()
+    info["database_version"] = pdb.db_version
 
     photos = pdb.photos()
     info["photo_count"] = len(photos)
 
-    keywords = pdb.keywords_as_dict()
+    keywords = pdb.keywords_as_dict
     info["keywords_count"] = len(keywords)
     info["keywords"] = keywords
 
-    albums = pdb.albums_as_dict()
+    albums = pdb.albums_as_dict
     info["albums_count"] = len(albums)
     info["albums"] = albums
 
-    persons = pdb.persons_as_dict()
+    persons = pdb.persons_as_dict
 
     # handle empty person names (added by Photos 5.0+ when face detected but not identified)
     # TODO: remove this

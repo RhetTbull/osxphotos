@@ -3,59 +3,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-- [OSXPhotos](#osxphotos)
-  * [What is osxphotos?](#what-is-osxphotos)
-  * [Supported operating systems](#supported-operating-systems)
-  * [Installation instructions](#installation-instructions)
-  * [Command Line Usage](#command-line-usage)
-  * [Example uses of the module](#example-uses-of-the-module)
-  * [Module Interface](#module-interface)
-    + [PhotosDB](#photosdb)
-      - [Open the default Photos library](#open-the-default-photos-library)
-      - [Open System Photos library](#open-system-photos-library)
-      - [Open a specific Photos library](#open-a-specific-photos-library)
-      - [```keywords()```](#keywords)
-      - [```albums()```](#albums)
-      - [```persons()```](#persons)
-      - [```keywords_as_dict()```](#keywords_as_dict)
-      - [```persons_as_dict()```](#persons_as_dict)
-      - [```albums_as_dict()```](#albums_as_dict)
-      - [```get_library_path()```](#get_library_path)
-      - [```get_db_path()```](#get_db_path)
-      - [```get_db_version()```](#get_db_version)
-      - [`photos(keywords=[], uuid=[], persons=[], albums=[])`](#photoskeywords-uuid-persons-albums)
-    + [PhotoInfo](#photoinfo)
-      - [`uuid()`](#uuid)
-      - [`filename()`](#filename)
-      - [`original_filename()`](#original_filename)
-      - [`date()`](#date)
-      - [`description()`](#description)
-      - [`title()`](#title)
-      - [`keywords()`](#keywords)
-      - [`albums()`](#albums)
-      - [`persons()`](#persons)
-      - [`path()`](#path)
-      - [`path_edited()`](#path_edited)
-      - [`ismissing()`](#ismissing)
-      - [`hasadjustments()`](#hasadjustments)
-      - [`external_edit()`](#external_edit)
-      - [`favorite()`](#favorite)
-      - [`hidden()`](#hidden)
-      - [`location()`](#location)
-      - [`json()`](#json)
-      - [`export(dest, *filename, edited=False, overwrite=False, increment=True)`](#exportdest-filename-editedfalse-overwritefalse-incrementtrue)
-    + [Utility Functions](#utility-functions)
-      - [```get_system_library_path()```](#get_system_library_path)
-      - [```get_last_library_path()```](#get_last_library_path)
-      - [```list_photo_libraries()```](#list_photo_libraries)
-      - [```dd_to_dms_str(lat, lon)```](#dd_to_dms_strlat-lon)
-    + [Examples](#examples)
-  * [History](#history)
-  * [Contributing](#contributing)
-  * [Implementation Notes](#implementation-notes)
-  * [Dependencies](#dependencies)
-  * [Acknowledgements](#acknowledgements)
-  
+
 ## What is osxphotos?
 
 OSXPhotos provides the ability to interact with and query Apple's Photos.app library database on MacOS. Using this module you can query the Photos database for information about the photos stored in a Photos library on your Mac--for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos.
@@ -150,13 +98,13 @@ import osxphotos
 
 def main():
     photosdb = osxphotos.PhotosDB()
-    print(photosdb.keywords())
-    print(photosdb.persons())
-    print(photosdb.albums())
+    print(photosdb.keywords)
+    print(photosdb.persons)
+    print(photosdb.albums)
 
-    print(photosdb.keywords_as_dict())
-    print(photosdb.persons_as_dict())
-    print(photosdb.albums_as_dict())
+    print(photosdb.keywords_as_dict)
+    print(photosdb.persons_as_dict)
+    print(photosdb.albums_as_dict)
 
     # find all photos with Keyword = Foo and containing John Smith
     photos = photosdb.photos(keywords=["Foo"],persons=["John Smith"])
@@ -278,78 +226,78 @@ Pass the fully qualified path to the Photos library or the actual database file 
 
 Returns a PhotosDB object. 
 
-#### ```keywords()```
+#### ```keywords```
 ```python
 # assumes photosdb is a PhotosDB object (see above)
-keywords = photosdb.keywords()
+keywords = photosdb.keywords
 ```
 
 Returns a list of the keywords found in the Photos library
 
-#### ```albums()```
+#### ```albums```
 ```python
 # assumes photosdb is a PhotosDB object (see above)
-albums = photosdb.albums()
+albums = photosdb.albums
 ```
 
 Returns a list of the albums found in the Photos library.  
 
 **Note**: In Photos 5.0 (MacOS 10.15/Catalina), It is possible to have more than one album with the same name in Photos.  Albums with duplicate names are treated as a single album and the photos in each are combined.  For example, if you have two albums named "Wedding" and each has 2 photos, osxphotos will treat this as a single album named "Wedding" with 4 photos in it.
 
-#### ```persons()```
+#### ```persons```
 ```python
 # assumes photosdb is a PhotosDB object (see above)
-persons = photosdb.persons()
+persons = photosdb.persons
 ```
 
 Returns a list of the persons (faces) found in the Photos library
 
-#### ```keywords_as_dict()```
+#### ```keywords_as_dict```
 ```python
 # assumes photosdb is a PhotosDB object (see above)
-keyword_dict = photosdb.keywords_as_dict()
+keyword_dict = photosdb.keywords_as_dict
 ```
 
 Returns a dictionary of keywords found in the Photos library where key is the keyword and value is the count of how many times that keyword appears in the library (ie. how many photos are tagged with the keyword).  Resulting dictionary is in reverse sorted order (e.g. keyword with the highest count is first).
 
-#### ```persons_as_dict()```
+#### ```persons_as_dict```
 ```python
 # assumes photosdb is a PhotosDB object (see above)
-persons_dict = photosdb.persons_as_dict()
+persons_dict = photosdb.persons_as_dict
 ```
 
 Returns a dictionary of persons (faces) found in the Photos library where key is the person name and value is the count of how many times that person appears in the library (ie. how many photos are tagged with the person).  Resulting dictionary is in reverse sorted order (e.g. person who appears in the most photos is listed first).
 
-#### ```albums_as_dict()```
+#### ```albums_as_dict```
 ```python
 # assumes photosdb is a PhotosDB object (see above)
-albums_dict = photosdb.albums_as_dict()
+albums_dict = photosdb.albums_as_dict
 ```
 
 Returns a dictionary of albums found in the Photos library where key is the album name and value is the count of how many photos are in the album.  Resulting dictionary is in reverse sorted order (e.g. album with the most photos is listed first).  
 
 **Note**: In Photos 5.0 (MacOS 10.15/Catalina), It is possible to have more than one album with the same name in Photos.  Albums with duplicate names are treated as a single album and the photos in each are combined.  For example, if you have two albums named "Wedding" and each has 2 photos, osxphotos will treat this as a single album named "Wedding" with 4 photos in it.
 
-#### ```get_library_path()```
+#### ```library_path```
 ```python
 # assumes photosdb is a PhotosDB object (see above)
-photosdb.get_photos_library_path()
+photosdb.library_path
 ```
 
 Returns the path to the Photos library as a string
 
-#### ```get_db_path()```
+#### ```db_path```
 ```python
 # assumes photosdb is a PhotosDB object (see above)
-photosdb.get_db_path()
+photosdb.db_path
 ```
 
 Returns the path to the Photos database PhotosDB was initialized with
 
-#### ```get_db_version()```
+#### ```db_version```
 ```python
 # assumes photosdb is a PhotosDB object (see above)
-photosdb.get_db_version()
+photosdb.db_version
 ```
 
 Returns the version number for Photos library database.  You likely won't need this but it's provided in case needed for debugging. PhotosDB will print a warning to `sys.stderr` if you open a database version that has not been tested. 
@@ -425,55 +373,55 @@ photos3 = [p for p in photos2 if p not in photos1]
 ### PhotoInfo 
 PhotosDB.photos() returns a list of PhotoInfo objects.  Each PhotoInfo object represents a single photo in the Photos library.
 
-#### `uuid()`
+#### `uuid`
 Returns the universally unique identifier (uuid) of the photo.  This is how Photos keeps track of individual photos within the database.
 
-#### `filename()`
-Returns the current filename of the photo on disk.  See also `original_filename()`
+#### `filename`
+Returns the current filename of the photo on disk.  See also `original_filename`
 
-#### `original_filename()`
-Returns the original filename of the photo when it was imported to Photos.  **Note**: Photos 5.0+ renames the photo when it adds the file to the library using UUID.  See also `filename()`
+#### `original_filename`
+Returns the original filename of the photo when it was imported to Photos.  **Note**: Photos 5.0+ renames the photo when it adds the file to the library using UUID.  See also `filename`
 
-#### `date()`
+#### `date`
 Returns the date of the photo as a datetime.datetime object
 
-#### `description()`
+#### `description`
 Returns the description of the photo
 
-#### `title()`
+#### `title`
 Returns the title of the photo
 
-#### `keywords()`
+#### `keywords`
 Returns a list of keywords (e.g. tags) applied to the photo
 
-#### `albums()`
+#### `albums`
 Returns a list of albums the photo is contained in
 
-#### `persons()`
+#### `persons`
 Returns a list of the names of the persons in the photo
 
-#### `path()`
-Returns the absolute path to the photo on disk as a string.  **Note**: this returns the path to the *original* unedited file (see `hasadjustments()`).  If the file is missing on disk, path=`None` (see `ismissing()`)
+#### `path`
+Returns the absolute path to the photo on disk as a string.  **Note**: this returns the path to the *original* unedited file (see `hasadjustments`).  If the file is missing on disk, path=`None` (see `ismissing`)
 
-#### `path_edited()`
-Returns the absolute path to the edited photo on disk as a string.  If the photo has not been edited, returns `None`.  See also `path()` and `hasadjustments()`.  
+#### `path_edited`
+Returns the absolute path to the edited photo on disk as a string.  If the photo has not been edited, returns `None`.  See also `path` and `hasadjustments`.  
 
-#### `ismissing()`
-Returns `True` if the original image file is missing on disk, otherwise `False`.  This can occur if the file has been uploaded to iCloud but not yet downloaded to the local library or if the file was deleted or imported from a disk that has been unmounted. **Note**: this status is set by Photos and osxphotos does not verify that the file path returned by `path()` actually exists.  It merely reports what Photos has stored in the library database. 
+#### `ismissing`
+Returns `True` if the original image file is missing on disk, otherwise `False`.  This can occur if the file has been uploaded to iCloud but not yet downloaded to the local library or if the file was deleted or imported from a disk that has been unmounted. **Note**: this status is set by Photos and osxphotos does not verify that the file path returned by `path` actually exists.  It merely reports what Photos has stored in the library database. 
 
-#### `hasadjustments()`
+#### `hasadjustments`
 Returns `True` if the picture has been edited, otherwise `False`
 
-#### `external_edit()`
+#### `external_edit`
 Returns `True` if the picture was edited in an external editor (outside Photos.app), otherwise `False`
 
-#### `favorite()`
+#### `favorite`
 Returns `True` if the picture has been marked as a favorite, otherwise `False`
 
-#### `hidden()`
+#### `hidden`
 Returns `True` if the picture has been marked as hidden, otherwise `False`
 
-#### `location()`
+#### `location`
 Returns latitude and longitude as a tuple of floats (latitude, longitude).  If location is not set, latitude and longitude are returned as `None`
 
 #### `json()`
@@ -522,43 +470,69 @@ This is the same format used by exiftool's json format.
 ```python
 import osxphotos
 
-photosdb = osxphotos.PhotosDB()
-photos=photosdb.photos()
+def main():
+    photosdb = osxphotos.PhotosDB()
+    print(f"db file = {photosdb.db_path}")
+    print(f"db version = {photosdb.db_version}")
 
-for p in photos:
-    print(
-        p.uuid(),
-        p.filename(),
-        p.original_filename(),
-        p.date(),
-        p.description(),
-        p.name(),
-        p.keywords(),
-        p.albums(),
-        p.persons(),
-        p.path(),
-        p.ismissing(),
-        p.hasadjustments(),
-    )
+    print(photosdb.keywords)
+    print(photosdb.persons)
+    print(photosdb.albums)
+
+    print(photosdb.keywords_as_dict)
+    print(photosdb.persons_as_dict)
+    print(photosdb.albums_as_dict)
+
+    # find all photos with Keyword = Kids and containing person Katie
+    photos = photosdb.photos(keywords=["Kids"], persons=["Katie"])
+    print(f"found {len(photos)} photos")
+
+    # find all photos that include Katie but do not contain the keyword wedding
+    photos = [
+        p
+        for p in photosdb.photos(persons=["Katie"])
+        if p not in photosdb.photos(keywords=["wedding"])
+    ]
+
+    # get all photos in the database
+    photos = photosdb.photos()
+    for p in photos:
+        print(
+            p.uuid,
+            p.filename,
+            p.date,
+            p.description,
+            p.title,
+            p.keywords,
+            p.albums,
+            p.persons,
+            p.path,
+            p.ismissing,
+            p.hasadjustments,
+        )
+
+
+if __name__ == "__main__":
+    main()
 ```
 
-## History
+## Related Projects
 
-This project started as a command line utility, `photosmeta`, available at [photosmeta](https://github.com/RhetTbull/photosmeta) This module converts the photosmeta Photos library query functionality into a module.  
+[photosmeta](https://github.com/rhettbull/photosmeta): uses osxphotos and [exiftool](https://exiftool.org/) to apply metadata from Photos as exif data in the photo files.
 
 ## Contributing
 
-Contributing is easy!  If you find bugs or want to suggest additional features/changes, please open an [issue](https://github.com/RhetTbull/osxphotos/issues/).
+Contributing is easy!  if you find bugs or want to suggest additional features/changes, please open an [issue](https://github.com/rhettbull/osxphotos/issues/).
 
 I'll gladly consider pull requests for bug fixes or feature implementations.  
 
-If you have an interesting example that shows usage of this module, submit an issue or pull request and I'll include it or link to it.
+If you have an interesting example that shows usage of this module, submit an issue or pull request and i'll include it or link to it.
 
 ## Implementation Notes
 
-This module works by creating a copy of the sqlite3 database that Photos uses to store data about the Photos library. The class PhotosDB then queries this database to extract information about the photos such as persons (faces identified in the photos), albums, keywords, etc.  
+This module works by creating a copy of the sqlite3 database that photos uses to store data about the photos library. the class photosdb then queries this database to extract information about the photos such as persons (faces identified in the photos), albums, keywords, etc.  
 
-If Apple changes the database format this will likely break.
+If apple changes the database format this will likely break.
 
 Apple does provide a framework ([PhotoKit](https://developer.apple.com/documentation/photokit?language=objc)) for querying the user's Photos library and I attempted to create the funcationality in this module using this framework but unfortunately PhotoKit does not provide access to much of the needed metadata (such as Faces/Persons).  While copying the sqlite file is a bit kludgy, it allows osxphotos to provide access to all available metadata.
 
@@ -570,7 +544,3 @@ Apple does provide a framework ([PhotoKit](https://developer.apple.com/documenta
 ## Acknowledgements
 This project was originally inspired by photo-export by Patrick Fältström see: (https://github.com/patrikhson/photo-export) Copyright (c) 2015 Patrik Fältström paf@frobbit.se
 
-To interact with the Photos app, I use [py-applescript]( https://github.com/rdhyee/py-applescript) by "Raymond Yee / rdhyee".  Rather than import this module, I included the entire module
-(which is published as public domain code) in a private module to prevent ambiguity with
-other applescript modules on PyPi.  py-applescript uses a native bridge via PyObjC and
-is very fast compared to the other osascript based modules.
