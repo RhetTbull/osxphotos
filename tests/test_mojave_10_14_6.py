@@ -118,20 +118,20 @@ def test_attributes():
     photos = photosdb.photos(uuid=["15uNd7%8RguTEgNPKHfTWw"])
     assert len(photos) == 1
     p = photos[0]
-    assert p.keywords() == ["Kids"]
-    assert p.original_filename() == "Pumkins2.jpg"
-    assert p.filename() == "Pumkins2.jpg"
-    assert p.date() == datetime.datetime(
+    assert p.keywords == ["Kids"]
+    assert p.original_filename == "Pumkins2.jpg"
+    assert p.filename == "Pumkins2.jpg"
+    assert p.date == datetime.datetime(
         2018, 9, 28, 16, 7, 7, 0, datetime.timezone(datetime.timedelta(seconds=-14400))
     )
-    assert p.description() == "Girl holding pumpkin"
-    assert p.name() == "I found one!"
-    assert p.albums() == ["Pumpkin Farm", "Test Album (1)"]
-    assert p.persons() == ["Katie"]
-    assert p.path().endswith(
+    assert p.description == "Girl holding pumpkin"
+    assert p.title == "I found one!"
+    assert p.albums == ["Pumpkin Farm", "Test Album (1)"]
+    assert p.persons == ["Katie"]
+    assert p.path.endswith(
         "/tests/Test-10.14.6.photoslibrary/Masters/2019/07/27/20190727-131650/Pumkins2.jpg"
     )
-    assert p.ismissing() == False
+    assert p.ismissing == False
 
 
 def test_missing():
@@ -141,8 +141,8 @@ def test_missing():
     photos = photosdb.photos(uuid=["od0fmC7NQx+ayVr+%i06XA"])
     assert len(photos) == 1
     p = photos[0]
-    assert p.path() == None
-    assert p.ismissing() == True
+    assert p.path == None
+    assert p.ismissing == True
 
 
 def test_favorite():
@@ -152,7 +152,7 @@ def test_favorite():
     photos = photosdb.photos(uuid=["6bxcNnzRQKGnK4uPrCJ9UQ"])
     assert len(photos) == 1
     p = photos[0]
-    assert p.favorite() == True
+    assert p.favorite == True
 
 
 def test_not_favorite():
@@ -162,7 +162,7 @@ def test_not_favorite():
     photos = photosdb.photos(uuid=["od0fmC7NQx+ayVr+%i06XA"])
     assert len(photos) == 1
     p = photos[0]
-    assert p.favorite() == False
+    assert p.favorite == False
 
 
 def test_hidden():
@@ -172,7 +172,7 @@ def test_hidden():
     photos = photosdb.photos(uuid=["od0fmC7NQx+ayVr+%i06XA"])
     assert len(photos) == 1
     p = photos[0]
-    assert p.hidden() == True
+    assert p.hidden == True
 
 
 def test_not_hidden():
@@ -182,7 +182,7 @@ def test_not_hidden():
     photos = photosdb.photos(uuid=["6bxcNnzRQKGnK4uPrCJ9UQ"])
     assert len(photos) == 1
     p = photos[0]
-    assert p.hidden() == False
+    assert p.hidden == False
 
 
 def test_location_1():
@@ -193,7 +193,7 @@ def test_location_1():
     photos = photosdb.photos(uuid=["3Jn73XpSQQCluzRBMWRsMA"])
     assert len(photos) == 1
     p = photos[0]
-    lat, lon = p.location()
+    lat, lon = p.location
     assert lat == pytest.approx(51.50357167)
     assert lon == pytest.approx(-0.1318055)
 
@@ -206,7 +206,7 @@ def test_location_2():
     photos = photosdb.photos(uuid=["YZFCPY24TUySvpu7owiqxA"])
     assert len(photos) == 1
     p = photos[0]
-    lat, lon = p.location()
+    lat, lon = p.location
     assert lat is None
     assert lon is None
 
@@ -219,7 +219,7 @@ def test_hasadjustments1():
     photos = photosdb.photos(uuid=["6bxcNnzRQKGnK4uPrCJ9UQ"])
     assert len(photos) == 1
     p = photos[0]
-    assert p.hasadjustments() == True
+    assert p.hasadjustments == True
 
 
 def test_hasadjustments2():
@@ -230,7 +230,7 @@ def test_hasadjustments2():
     photos = photosdb.photos(uuid=["15uNd7%8RguTEgNPKHfTWw"])
     assert len(photos) == 1
     p = photos[0]
-    assert p.hasadjustments() == False
+    assert p.hasadjustments == False
 
 
 def test_external_edit1():
@@ -242,7 +242,7 @@ def test_external_edit1():
     assert len(photos) == 1
     p = photos[0]
 
-    assert p.external_edit() == True
+    assert p.external_edit == True
 
 
 def test_external_edit2():
@@ -254,7 +254,7 @@ def test_external_edit2():
     assert len(photos) == 1
     p = photos[0]
 
-    assert p.external_edit() == False
+    assert p.external_edit == False
 
 
 def test_path_edited1():
@@ -265,7 +265,7 @@ def test_path_edited1():
     photos = photosdb.photos(uuid=["6bxcNnzRQKGnK4uPrCJ9UQ"])
     assert len(photos) == 1
     p = photos[0]
-    path = p.path_edited()
+    path = p.path_edited
     assert path.endswith("resources/media/version/00/00/fullsizeoutput_9.jpeg")
 
 
@@ -277,7 +277,7 @@ def test_path_edited2():
     photos = photosdb.photos(uuid=["15uNd7%8RguTEgNPKHfTWw"])
     assert len(photos) == 1
     p = photos[0]
-    path = p.path_edited()
+    path = p.path_edited
     assert path is None
 
 
@@ -307,7 +307,7 @@ def test_keyword_not_in_album():
     photos2 = photosdb.photos(keywords=["Kids"])
     photos3 = [p for p in photos2 if p not in photos1]
     assert len(photos3) == 1
-    assert photos3[0].uuid() == "od0fmC7NQx+ayVr+%i06XA"
+    assert photos3[0].uuid == "od0fmC7NQx+ayVr+%i06XA"
 
 
 def test_get_db_path():

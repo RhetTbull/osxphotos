@@ -30,15 +30,18 @@ class PhotoInfo:
         self._info = info
         self._db = db
 
+    @property
     def filename(self):
         """ filename of the picture """
         return self._info["filename"]
 
+    @property
     def original_filename(self):
         """ original filename of the picture """
         """ Photos 5 mangles filenames upon import """
         return self._info["originalFilename"]
 
+    @property
     def date(self):
         """ image creation date as timezone aware datetime object """
         imagedate = self._info["imageDate"]
@@ -48,10 +51,12 @@ class PhotoInfo:
         imagedate_utc = imagedate.astimezone(tz=tz)
         return imagedate_utc
 
+    @property
     def tzoffset(self):
         """ timezone offset from UTC in seconds """
         return self._info["imageTimeZoneOffsetSeconds"]
 
+    @property
     def path(self):
         """ absolute path on disk of the original picture """
         photopath = ""
@@ -93,6 +98,7 @@ class PhotoInfo:
 
         return photopath
 
+    @property
     def path_edited(self):
         """ absolute path on disk of the edited picture """
         """ None if photo has not been edited """
@@ -165,14 +171,17 @@ class PhotoInfo:
 
         return photopath
 
+    @property
     def description(self):
         """ long / extended description of picture """
         return self._info["extendedDescription"]
 
+    @property
     def persons(self):
         """ list of persons in picture """
         return self._info["persons"]
 
+    @property
     def albums(self):
         """ list of albums picture is contained in """
         albums = []
@@ -180,24 +189,23 @@ class PhotoInfo:
             albums.append(self._db._dbalbum_details[album]["title"])
         return albums
 
+    @property
     def keywords(self):
         """ list of keywords for picture """
         return self._info["keywords"]
 
-    def name(self):
-        """ (deprecated) name / title of picture """
-        # TODO: add warning on deprecation
-        return self._info["name"]
-
+    @property
     def title(self):
         """ name / title of picture """
         # TODO: Update documentation and tests to use title
         return self._info["name"]
 
+    @property
     def uuid(self):
         """ UUID of picture """
         return self._uuid
 
+    @property
     def ismissing(self):
         """ returns true if photo is missing from disk (which means it's not been downloaded from iCloud) 
         NOTE:   the photos.db database uses an asynchrounous write-ahead log so changes in Photos
@@ -210,10 +218,12 @@ class PhotoInfo:
         """
         return True if self._info["isMissing"] == 1 else False
 
+    @property
     def hasadjustments(self):
         """ True if picture has adjustments / edits """
         return True if self._info["hasAdjustments"] == 1 else False
 
+    @property
     def external_edit(self):
         """ Returns True if picture was edited outside of Photos using external editor """
         return (
@@ -222,17 +232,20 @@ class PhotoInfo:
             else False
         )
 
+    @property
     def favorite(self):
         """ True if picture is marked as favorite """
         return True if self._info["favorite"] == 1 else False
 
+    @property
     def hidden(self):
         """ True if picture is hidden """
         return True if self._info["hidden"] == 1 else False
 
+    @property
     def location(self):
         """ returns (latitude, longitude) as float in degrees or None """
-        return (self._latitude(), self._longitude())
+        return (self._latitude, self._longitude)
 
     def export(
         self,
@@ -278,43 +291,43 @@ class PhotoInfo:
                 # need to use file extension from edited file as Photos saves a jpeg once edited
                 if edited:
                     # verify we have a valid path_edited and use that to get filename
-                    if not self.path_edited():
+                    if not self.path_edited:
                         raise FileNotFoundError(
-                            f"edited=True but path_edited is none; hasadjustments: {self.hasadjustments()}"
+                            f"edited=True but path_edited is none; hasadjustments: {self.hasadjustments}"
                         )
-                    edited_name = Path(self.path_edited()).name
+                    edited_name = Path(self.path_edited).name
                     edited_suffix = Path(edited_name).suffix
-                    filename = Path(self.filename()).stem + "_edited" + edited_suffix
+                    filename = Path(self.filename).stem + "_edited" + edited_suffix
                 else:
-                    filename = self.filename()
+                    filename = self.filename
 
         # get path to source file and verify it's not None and is valid file
         # TODO: how to handle ismissing or not hasadjustments and edited=True cases?
         if edited:
-            if not self.hasadjustments():
+            if not self.hasadjustments:
                 logging.warning(
                     "Attempting to export edited photo but hasadjustments=False"
                 )
 
-            if self.path_edited() is not None:
-                src = self.path_edited()
+            if self.path_edited is not None:
+                src = self.path_edited
             else:
                 raise FileNotFoundError(
-                    f"edited=True but path_edited is none; hasadjustments: {self.hasadjustments()}"
+                    f"edited=True but path_edited is none; hasadjustments: {self.hasadjustments}"
                 )
         else:
-            if self.ismissing():
+            if self.ismissing:
                 logging.warning(
-                    f"Attempting to export photo with ismissing=True: path = {self.path()}"
+                    f"Attempting to export photo with ismissing=True: path = {self.path}"
                 )
 
-            if self.path() is None:
+            if self.path is None:
                 logging.warning(
-                    f"Attempting to export photo but path is None: ismissing = {self.ismissing()}"
+                    f"Attempting to export photo but path is None: ismissing = {self.ismissing}"
                 )
                 raise FileNotFoundError("Cannot export photo if path is None")
             else:
-                src = self.path()
+                src = self.path
 
         if not os.path.isfile(src):
             raise FileNotFoundError(f"{src} does not appear to exist")
@@ -368,25 +381,25 @@ class PhotoInfo:
     def _exiftool_json_sidecar(self):
         """ return json string of EXIF details in exiftool sidecar format """
         exif = {}
-        exif["FileName"] = self.filename()
+        exif["FileName"] = self.filename
 
-        if self.description():
-            exif["ImageDescription"] = self.description()
-            exif["Description"] = self.description()
+        if self.description:
+            exif["ImageDescription"] = self.description
+            exif["Description"] = self.description
 
-        if self.title():
-            exif["Title"] = self.title()
+        if self.title:
+            exif["Title"] = self.title
 
-        if self.keywords():
-            exif["TagsList"] = exif["Keywords"] = self.keywords()
+        if self.keywords:
+            exif["TagsList"] = exif["Keywords"] = self.keywords
 
-        if self.persons():
-            exif["PersonInImage"] = self.persons()
+        if self.persons:
+            exif["PersonInImage"] = self.persons
 
         # if self.favorite():
         #     exif["Rating"] = 5
 
-        (lat, lon) = self.location()
+        (lat, lon) = self.location
         if lat is not None and lon is not None:
             lat_str, lon_str = dd_to_dms_str(lat, lon)
             exif["GPSLatitude"] = lat_str
@@ -398,7 +411,7 @@ class PhotoInfo:
             exif["GPSLongitudeRef"] = lon_ref
 
         # process date/time and timezone offset
-        date = self.date()
+        date = self.date
         # exiftool expects format to "2015:01:18 12:00:00"
         datetimeoriginal = date.strftime("%Y:%m:%d %H:%M:%S")
         offsettime = date.strftime("%z")
@@ -425,10 +438,12 @@ class PhotoInfo:
         f.write(json_str)
         f.close()
 
+    @property
     def _longitude(self):
         """ Returns longitude, in degrees """
         return self._info["longitude"]
 
+    @property
     def _latitude(self):
         """ Returns latitude, in degrees """
         return self._info["latitude"]
@@ -439,49 +454,49 @@ class PhotoInfo:
 
     def __str__(self):
         info = {
-            "uuid": self.uuid(),
-            "filename": self.filename(),
-            "original_filename": self.original_filename(),
-            "date": str(self.date()),
-            "description": self.description(),
-            "name": self.name(),
-            "keywords": self.keywords(),
-            "albums": self.albums(),
-            "persons": self.persons(),
-            "path": self.path(),
-            "ismissing": self.ismissing(),
-            "hasadjustments": self.hasadjustments(),
-            "external_edit": self.external_edit(),
-            "favorite": self.favorite(),
-            "hidden": self.hidden(),
-            "latitude": self._latitude(),
-            "longitude": self._longitude(),
-            "path_edited": self.path_edited(),
+            "uuid": self.uuid,
+            "filename": self.filename,
+            "original_filename": self.original_filename,
+            "date": str(self.date),
+            "description": self.description,
+            "name": self.name,
+            "keywords": self.keywords,
+            "albums": self.albums,
+            "persons": self.persons,
+            "path": self.path,
+            "ismissing": self.ismissing,
+            "hasadjustments": self.hasadjustments,
+            "external_edit": self.external_edit,
+            "favorite": self.favorite,
+            "hidden": self.hidden,
+            "latitude": self._latitude,
+            "longitude": self._longitude,
+            "path_edited": self.path_edited,
         }
         return yaml.dump(info, sort_keys=False)
 
-    def to_json(self):
+    def json(self):
         """ return JSON representation """
         # TODO: Add additional details here
         pic = {
-            "uuid": self.uuid(),
-            "filename": self.filename(),
-            "original_filename": self.original_filename(),
-            "date": str(self.date()),
-            "description": self.description(),
-            "name": self.name(),
-            "keywords": self.keywords(),
-            "albums": self.albums(),
-            "persons": self.persons(),
-            "path": self.path(),
-            "ismissing": self.ismissing(),
-            "hasadjustments": self.hasadjustments(),
-            "external_edit": self.external_edit(),
-            "favorite": self.favorite(),
-            "hidden": self.hidden(),
-            "latitude": self._latitude(),
-            "longitude": self._longitude(),
-            "path_edited": self.path_edited(),
+            "uuid": self.uuid,
+            "filename": self.filename,
+            "original_filename": self.original_filename,
+            "date": str(self.date),
+            "description": self.description,
+            "title": self.title,
+            "keywords": self.keywords,
+            "albums": self.albums,
+            "persons": self.persons,
+            "path": self.path,
+            "ismissing": self.ismissing,
+            "hasadjustments": self.hasadjustments,
+            "external_edit": self.external_edit,
+            "favorite": self.favorite,
+            "hidden": self.hidden,
+            "latitude": self._latitude,
+            "longitude": self._longitude,
+            "path_edited": self.path_edited,
         }
         return json.dumps(pic)
 

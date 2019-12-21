@@ -29,17 +29,17 @@ def main():
     photos = photosdb.photos()
     for p in photos:
         print(
-            p.uuid(),
-            p.filename(),
-            p.date(),
-            p.description(),
-            p.name(),
-            p.keywords(),
-            p.albums(),
-            p.persons(),
-            p.path(),
-            p.ismissing(),
-            p.hasadjustments(),
+            p.uuid,
+            p.filename,
+            p.date,
+            p.description,
+            p.title,
+            p.keywords,
+            p.albums,
+            p.persons,
+            p.path,
+            p.ismissing,
+            p.hasadjustments,
         )
 
 

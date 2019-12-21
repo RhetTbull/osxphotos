@@ -72,7 +72,7 @@ def test_export_1():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
-    filename = photos[0].filename()
+    filename = photos[0].filename
     expected_dest = os.path.join(dest, filename)
     got_dest = photos[0].export(dest)
 
@@ -121,7 +121,7 @@ def test_export_3():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
-    filename = photos[0].filename()
+    filename = photos[0].filename
     filename2 = pathlib.Path(filename)
     filename2 = f"{filename2.stem} (1){filename2.suffix}"
     expected_dest = os.path.join(dest, filename)
@@ -182,7 +182,7 @@ def test_export_5():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
-    filename = photos[0].filename()
+    filename = photos[0].filename
     expected_dest = os.path.join(dest, filename)
 
     got_dest = photos[0].export(dest)
@@ -239,7 +239,7 @@ def test_export_7():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
-    filename = photos[0].filename()
+    filename = photos[0].filename
     expected_dest = os.path.join(dest, filename)
 
     got_dest = photos[0].export(dest)
@@ -265,7 +265,7 @@ def test_export_8():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["missing"]])
 
-    filename = photos[0].filename()
+    filename = photos[0].filename
     expected_dest = os.path.join(dest, filename)
 
     with pytest.raises(Exception) as e:
@@ -286,7 +286,7 @@ def test_export_9():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["no_adjustments"]])
 
-    filename = photos[0].filename()
+    filename = photos[0].filename
     expected_dest = os.path.join(dest, filename)
 
     with pytest.raises(Exception) as e:
@@ -354,9 +354,9 @@ def test_export_12():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["has_adjustments"]])
 
-    edited_name = pathlib.Path(photos[0].path_edited()).name
+    edited_name = pathlib.Path(photos[0].path_edited).name
     edited_suffix = pathlib.Path(edited_name).suffix
-    filename = pathlib.Path(photos[0].filename()).stem + "_edited" + edited_suffix
+    filename = pathlib.Path(photos[0].filename).stem + "_edited" + edited_suffix
     expected_dest = os.path.join(dest, filename)
 
     got_dest = photos[0].export(dest, edited=True)
@@ -386,7 +386,7 @@ def test_export_13():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
-    filename = photos[0].filename()
+    filename = photos[0].filename
     expected_dest = os.path.join(dest, filename)
 
     with pytest.raises(Exception) as e:

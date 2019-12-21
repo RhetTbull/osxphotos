@@ -115,20 +115,20 @@ def test_attributes():
     photos = photosdb.photos(uuid=["15uNd7%8RguTEgNPKHfTWw"])
     assert len(photos) == 1
     p = photos[0]
-    assert p.keywords() == ["Kids"]
-    assert p.original_filename() == "Pumkins2.jpg"
-    assert p.filename() == "Pumkins2.jpg"
-    assert p.date() == datetime.datetime(
+    assert p.keywords == ["Kids"]
+    assert p.original_filename == "Pumkins2.jpg"
+    assert p.filename == "Pumkins2.jpg"
+    assert p.date == datetime.datetime(
         2018, 9, 28, 16, 7, 7, 0, datetime.timezone(datetime.timedelta(seconds=-14400))
     )
-    assert p.description() == "Girl holding pumpkin"
-    assert p.name() == "I found one!"
-    assert p.albums() == ["Pumpkin Farm"]
-    assert p.persons() == ["Katie"]
-    assert p.path().endswith(
+    assert p.description == "Girl holding pumpkin"
+    assert p.title == "I found one!"
+    assert p.albums == ["Pumpkin Farm"]
+    assert p.persons == ["Katie"]
+    assert p.path.endswith(
         "/tests/Test-10.14.5.photoslibrary/Masters/2019/07/27/20190727-131650/Pumkins2.jpg"
     )
-    assert p.ismissing() == False
+    assert p.ismissing == False
 
 
 def test_missing():
@@ -138,8 +138,8 @@ def test_missing():
     photos = photosdb.photos(uuid=["od0fmC7NQx+ayVr+%i06XA"])
     assert len(photos) == 1
     p = photos[0]
-    assert p.path() == None
-    assert p.ismissing() == True
+    assert p.path == None
+    assert p.ismissing == True
 
 
 def test_count():
@@ -168,4 +168,4 @@ def test_keyword_not_in_album():
     photos2 = photosdb.photos(keywords=["Kids"])
     photos3 = [p for p in photos2 if p not in photos1]
     assert len(photos3) == 1
-    assert photos3[0].uuid() == "od0fmC7NQx+ayVr+%i06XA"
+    assert photos3[0].uuid == "od0fmC7NQx+ayVr+%i06XA"

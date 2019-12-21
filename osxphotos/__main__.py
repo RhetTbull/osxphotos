@@ -9,7 +9,7 @@ import osxphotos
 
 from ._version import __version__
 
-# TODO: add "--any" to search any field (e.g. keyword, description, name contains "wedding") (add case insensitive option)
+# TODO: add "--any" to search any field (e.g. keyword, description, title contains "wedding") (add case insensitive option)
 
 
 class CLI_Obj:
@@ -169,9 +169,9 @@ def list_libraries(cli_obj):
 @click.option("--album", default=None, multiple=True, help="Search for album(s).")
 @click.option("--uuid", default=None, multiple=True, help="Search for UUID(s).")
 @click.option(
-    "--name", default=None, multiple=True, help="Search for TEXT in name of photo."
+    "--title", default=None, multiple=True, help="Search for TEXT in title of photo."
 )
-@click.option("--no-name", is_flag=True, help="Search for photos with no name.")
+@click.option("--no-title", is_flag=True, help="Search for photos with no title.")
 @click.option(
     "--description",
     default=None,
@@ -185,7 +185,7 @@ def list_libraries(cli_obj):
     "-i",
     "--ignore-case",
     is_flag=True,
-    help="Case insensitive search for name or description. Does not apply to keyword, person, or album.",
+    help="Case insensitive search for title or description. Does not apply to keyword, person, or album.",
 )
 @click.option("--edited", is_flag=True, help="Search for photos that have been edited.")
 @click.option(
@@ -219,8 +219,8 @@ def query(
     person,
     album,
     uuid,
-    name,
-    no_name,
+    title,
+    no_title,
     description,
     no_description,
     ignore_case,
@@ -246,8 +246,8 @@ def query(
             person,
             album,
             uuid,
-            name,
-            no_name,
+            title,
+            no_title,
             description,
             no_description,
             edited,
@@ -274,8 +274,8 @@ def query(
         # can't search for both missing and notmissing
         click.echo(cli.commands["query"].get_help(ctx))
         return
-    elif name and no_name:
-        # can't search for both name and no_name
+    elif title and no_title:
+        # can't search for both title and no_title
         click.echo(cli.commands["query"].get_help(ctx))
         return
     elif description and no_description:
@@ -288,19 +288,19 @@ def query(
             keywords=keyword, persons=person, albums=album, uuid=uuid
         )
 
-        if name:
-            # search name field for text
-            # if more than one, find photos with all name values in in name
+        if title:
+            # search title field for text
+            # if more than one, find photos with all title values in title
             if ignore_case:
                 # case-insensitive
-                for n in name:
-                    n = n.lower()
-                    photos = [p for p in photos if p.name() and n in p.name().lower()]
+                for t in title:
+                    t = t.lower()
+                    photos = [p for p in photos if p.title and t in p.title.lower()]
             else:
-                for n in name:
-                    photos = [p for p in photos if p.name() and n in p.name()]
-        elif no_name:
-            photos = [p for p in photos if not p.name()]
+                for t in title:
+                    photos = [p for p in photos if p.title and t in p.title]
+        elif no_title:
+            photos = [p for p in photos if not p.title]
 
         if description:
             # search description field for text
@@ -361,7 +361,7 @@ def print_photo_info(photos, json=False):
     if json:
         dump = []
         for p in photos:
-            dump.append(p.to_json())
+            dump.append(p.json())
         click.echo(f"[{', '.join(dump)}]")
     else:
         # dump as CSV
@@ -377,7 +377,7 @@ def print_photo_info(photos, json=False):
                 "original_filename",
                 "date",
                 "description",
-                "name",
+                "title",
                 "keywords",
                 "albums",
                 "persons",
@@ -395,24 +395,24 @@ def print_photo_info(photos, json=False):
         for p in photos:
             dump.append(
                 [
-                    p.uuid(),
-                    p.filename(),
-                    p.original_filename(),
-                    str(p.date()),
-                    p.description(),
-                    p.name(),
-                    ", ".join(p.keywords()),
-                    ", ".join(p.albums()),
-                    ", ".join(p.persons()),
-                    p.path(),
-                    p.ismissing(),
-                    p.hasadjustments(),
-                    p.external_edit(),
-                    p.favorite(),
-                    p.hidden(),
-                    p._latitude(),
-                    p._longitude(),
-                    p.path_edited(),
+                    p.uuid,
+                    p.filename,
+                    p.original_filename,
+                    str(p.date),
+                    p.description,
+                    p.title,
+                    ", ".join(p.keywords),
+                    ", ".join(p.albums),
+                    ", ".join(p.persons),
+                    p.path,
+                    p.ismissing,
+                    p.hasadjustments,
+                    p.external_edit,
+                    p.favorite,
+                    p.hidden,
+                    p._latitude,
+                    p._longitude,
+                    p.path_edited,
                 ]
             )
         for row in dump:

@@ -6,6 +6,7 @@ import os.path
 
 import osxphotos
 
+
 def main():
     photosdb = osxphotos.PhotosDB()
     photos = photosdb.photos()
@@ -13,14 +14,15 @@ def main():
     export_path = os.path.expanduser("~/Desktop/export")
 
     for p in photos:
-        if not p.ismissing():
-            if p.hasadjustments():
+        if not p.ismissing:
+            if p.hasadjustments:
                 exported = p.export(export_path, edited=True)
             else:
                 exported = p.export(export_path)
-            print(f"Exported {p.filename()} to {exported}")
+            print(f"Exported {p.filename} to {exported}")
         else:
-            print(f"Skipping missing photo: {p.filename()}")
+            print(f"Skipping missing photo: {p.filename}")
+
 
 if __name__ == "__main__":
     main()

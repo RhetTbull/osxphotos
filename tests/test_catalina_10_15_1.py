@@ -193,20 +193,20 @@ def test_attributes():
     photos = photosdb.photos(uuid=["D79B8D77-BFFC-460B-9312-034F2877D35B"])
     assert len(photos) == 1
     p = photos[0]
-    assert p.keywords() == ["Kids"]
-    assert p.original_filename() == "Pumkins2.jpg"
-    assert p.filename() == "D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg"
-    assert p.date() == datetime.datetime(
+    assert p.keywords == ["Kids"]
+    assert p.original_filename == "Pumkins2.jpg"
+    assert p.filename == "D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg"
+    assert p.date == datetime.datetime(
         2018, 9, 28, 16, 7, 7, 0, datetime.timezone(datetime.timedelta(seconds=-14400))
     )
-    assert p.description() == "Girl holding pumpkin"
-    assert p.name() == "I found one!"
-    assert p.albums() == ["Pumpkin Farm", "Test Album"]
-    assert p.persons() == ["Katie"]
-    assert p.path().endswith(
+    assert p.description == "Girl holding pumpkin"
+    assert p.title == "I found one!"
+    assert p.albums == ["Pumpkin Farm", "Test Album"]
+    assert p.persons == ["Katie"]
+    assert p.path.endswith(
         "tests/Test-10.15.1.photoslibrary/originals/D/D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg"
     )
-    assert p.ismissing() == False
+    assert p.ismissing == False
 
 
 def test_missing():
@@ -216,8 +216,8 @@ def test_missing():
     photos = photosdb.photos(uuid=[UUID_DICT["missing"]])
     assert len(photos) == 1
     p = photos[0]
-    assert p.path() == None
-    assert p.ismissing() == True
+    assert p.path == None
+    assert p.ismissing == True
 
 
 def test_favorite():
@@ -227,7 +227,7 @@ def test_favorite():
     photos = photosdb.photos(uuid=[UUID_DICT["favorite"]])
     assert len(photos) == 1
     p = photos[0]
-    assert p.favorite() == True
+    assert p.favorite == True
 
 
 def test_not_favorite():
@@ -237,7 +237,7 @@ def test_not_favorite():
     photos = photosdb.photos(uuid=[UUID_DICT["not_favorite"]])
     assert len(photos) == 1
     p = photos[0]
-    assert p.favorite() == False
+    assert p.favorite == False
 
 
 def test_hidden():
@@ -247,7 +247,7 @@ def test_hidden():
     photos = photosdb.photos(uuid=[UUID_DICT["hidden"]])
     assert len(photos) == 1
     p = photos[0]
-    assert p.hidden() == True
+    assert p.hidden == True
 
 
 def test_not_hidden():
@@ -257,7 +257,7 @@ def test_not_hidden():
     photos = photosdb.photos(uuid=[UUID_DICT["not_hidden"]])
     assert len(photos) == 1
     p = photos[0]
-    assert p.hidden() == False
+    assert p.hidden == False
 
 
 def test_location_1():
@@ -268,7 +268,7 @@ def test_location_1():
     photos = photosdb.photos(uuid=[UUID_DICT["location"]])
     assert len(photos) == 1
     p = photos[0]
-    lat, lon = p.location()
+    lat, lon = p.location
     assert lat == pytest.approx(51.50357167)
     assert lon == pytest.approx(-0.1318055)
 
@@ -281,7 +281,7 @@ def test_location_2():
     photos = photosdb.photos(uuid=[UUID_DICT["no_location"]])
     assert len(photos) == 1
     p = photos[0]
-    lat, lon = p.location()
+    lat, lon = p.location
     assert lat is None
     assert lon is None
 
@@ -294,7 +294,7 @@ def test_hasadjustments1():
     photos = photosdb.photos(uuid=[UUID_DICT["has_adjustments"]])
     assert len(photos) == 1
     p = photos[0]
-    assert p.hasadjustments() == True
+    assert p.hasadjustments == True
 
 
 def test_hasadjustments2():
@@ -305,7 +305,7 @@ def test_hasadjustments2():
     photos = photosdb.photos(uuid=[UUID_DICT["no_adjustments"]])
     assert len(photos) == 1
     p = photos[0]
-    assert p.hasadjustments() == False
+    assert p.hasadjustments == False
 
 
 def test_external_edit1():
@@ -317,7 +317,7 @@ def test_external_edit1():
     assert len(photos) == 1
     p = photos[0]
 
-    assert p.external_edit() == True
+    assert p.external_edit == True
 
 
 def test_external_edit2():
@@ -329,7 +329,7 @@ def test_external_edit2():
     assert len(photos) == 1
     p = photos[0]
 
-    assert p.external_edit() == False
+    assert p.external_edit == False
 
 
 def test_path_edited1():
@@ -340,7 +340,7 @@ def test_path_edited1():
     photos = photosdb.photos(uuid=["E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"])
     assert len(photos) == 1
     p = photos[0]
-    path = p.path_edited()
+    path = p.path_edited
     assert path.endswith(
         "resources/renders/E/E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51_1_201_a.jpeg"
     )
@@ -354,7 +354,7 @@ def test_path_edited2():
     photos = photosdb.photos(uuid=["6191423D-8DB8-4D4C-92BE-9BBBA308AAC4"])
     assert len(photos) == 1
     p = photos[0]
-    path = p.path_edited()
+    path = p.path_edited
     assert path is None
 
 
@@ -384,7 +384,7 @@ def test_keyword_not_in_album():
     photos2 = photosdb.photos(keywords=["Kids"])
     photos3 = [p for p in photos2 if p not in photos1]
     assert len(photos3) == 1
-    assert photos3[0].uuid() == "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C"
+    assert photos3[0].uuid == "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C"
 
 
 def test_get_db_path():
@@ -416,7 +416,7 @@ def test_export_1():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
-    filename = photos[0].filename()
+    filename = photos[0].filename
     expected_dest = os.path.join(dest, filename)
     got_dest = photos[0].export(dest)
 
@@ -465,7 +465,7 @@ def test_export_3():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
-    filename = photos[0].filename()
+    filename = photos[0].filename
     filename2 = pathlib.Path(filename)
     filename2 = f"{filename2.stem} (1){filename2.suffix}"
     expected_dest = os.path.join(dest, filename)
@@ -526,7 +526,7 @@ def test_export_5():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
-    filename = photos[0].filename()
+    filename = photos[0].filename
     expected_dest = os.path.join(dest, filename)
 
     got_dest = photos[0].export(dest)
@@ -583,7 +583,7 @@ def test_export_7():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
-    filename = photos[0].filename()
+    filename = photos[0].filename
     expected_dest = os.path.join(dest, filename)
 
     got_dest = photos[0].export(dest)
@@ -609,7 +609,7 @@ def test_export_8():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["missing"]])
 
-    filename = photos[0].filename()
+    filename = photos[0].filename
     expected_dest = os.path.join(dest, filename)
 
     with pytest.raises(Exception) as e:
@@ -630,7 +630,7 @@ def test_export_9():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["no_adjustments"]])
 
-    filename = photos[0].filename()
+    filename = photos[0].filename
     expected_dest = os.path.join(dest, filename)
 
     with pytest.raises(Exception) as e:
@@ -698,9 +698,9 @@ def test_export_12():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["has_adjustments"]])
 
-    edited_name = pathlib.Path(photos[0].path_edited()).name
+    edited_name = pathlib.Path(photos[0].path_edited).name
     edited_suffix = pathlib.Path(edited_name).suffix
-    filename = pathlib.Path(photos[0].filename()).stem + "_edited" + edited_suffix
+    filename = pathlib.Path(photos[0].filename).stem + "_edited" + edited_suffix
     expected_dest = os.path.join(dest, filename)
 
     got_dest = photos[0].export(dest, edited=True)
@@ -730,7 +730,7 @@ def test_export_13():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
-    filename = photos[0].filename()
+    filename = photos[0].filename
     expected_dest = os.path.join(dest, filename)
 
     with pytest.raises(Exception) as e:

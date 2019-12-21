@@ -30,7 +30,7 @@
       - [`original_filename()`](#original_filename)
       - [`date()`](#date)
       - [`description()`](#description)
-      - [`name()`](#name)
+      - [`title()`](#title)
       - [`keywords()`](#keywords)
       - [`albums()`](#albums)
       - [`persons()`](#persons)
@@ -42,7 +42,7 @@
       - [`favorite()`](#favorite)
       - [`hidden()`](#hidden)
       - [`location()`](#location)
-      - [`to_json()`](#to_json)
+      - [`json()`](#json)
       - [`export(dest, *filename, edited=False, overwrite=False, increment=True)`](#exportdest-filename-editedfalse-overwritefalse-incrementtrue)
     + [Utility Functions](#utility-functions)
       - [```get_system_library_path()```](#get_system_library_path)
@@ -121,11 +121,11 @@ Options:
   --person TEXT       Search for person(s).
   --album TEXT        Search for album(s).
   --uuid TEXT         Search for UUID(s).
-  --name TEXT         Search for TEXT in name of photo.
-  --no-name           Search for photos with no name.
+  --title TEXT        Search for TEXT in title of photo.
+  --no-title          Search for photos with no title.
   --description TEXT  Search for TEXT in description of photo.
   --no-description    Search for photos with no description.
-  -i, --ignore-case   Case insensitive search for name or description. Does
+  -i, --ignore-case   Case insensitive search for title or description. Does
                       not apply to keyword, person, or album.
   --edited            Search for photos that have been edited.
   --external-edit     Search for photos edited in external editor.
@@ -167,15 +167,15 @@ def main():
     for p in photos:
         print(
             p.uuid,
-            p.filename(),
-            p.original_filename(),
-            p.date(),
-            p.description(),
-            p.name(),
-            p.keywords(),
-            p.albums(),
-            p.persons(),
-            p.path(),
+            p.filename,
+            p.original_filename,
+            p.date,
+            p.description,
+            p.title,
+            p.keywords,
+            p.albums,
+            p.persons,
+            p.path,
         )
 
 if __name__ == "__main__":
@@ -191,6 +191,7 @@ import os.path
 
 import osxphotos
 
+
 def main():
     photosdb = osxphotos.PhotosDB()
     photos = photosdb.photos()
@@ -198,14 +199,15 @@ def main():
     export_path = os.path.expanduser("~/Desktop/export")
 
     for p in photos:
-        if not p.ismissing():
-            if p.hasadjustments():
+        if not p.ismissing:
+            if p.hasadjustments:
                 exported = p.export(export_path, edited=True)
             else:
                 exported = p.export(export_path)
-            print(f"Exported {p.filename()} to {exported}")
+            print(f"Exported {p.filename} to {exported}")
         else:
-            print(f"Skipping missing photo: {p.filename()}")
+            print(f"Skipping missing photo: {p.filename}")
+
 
 if __name__ == "__main__":
     main()
@@ -438,8 +440,8 @@ Returns the date of the photo as a datetime.datetime object
 #### `description()`
 Returns the description of the photo
 
-#### `name()`
-Returns the name (or the title as Photos calls it) of the photo
+#### `title()`
+Returns the title of the photo
 
 #### `keywords()`
 Returns a list of keywords (e.g. tags) applied to the photo
@@ -474,7 +476,7 @@ Returns `True` if the picture has been marked as hidden, otherwise `False`
 #### `location()`
 Returns latitude and longitude as a tuple of floats (latitude, longitude).  If location is not set, latitude and longitude are returned as `None`
 
-#### `to_json()`
+#### `json()`
 Returns a JSON representation of all photo info 
 
 #### `export(dest, *filename, edited=False, overwrite=False, increment=True)`
