@@ -123,12 +123,19 @@ def info(cli_obj):
 
 
 @cli.command()
+@click.option(
+    "--json",
+    required=False,
+    is_flag=True,
+    default=False,
+    help="Print output in JSON format.",
+)
 @click.pass_obj
-def dump(cli_obj):
+def dump(cli_obj, json):
     """ Print list of all photos & associated info from the Photos library. """
     pdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
     photos = pdb.photos()
-    print_photo_info(photos, cli_obj.json)
+    print_photo_info(photos, cli_obj.json or json)
 
 
 @cli.command(name="list")
