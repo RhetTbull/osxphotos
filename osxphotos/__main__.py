@@ -380,8 +380,8 @@ def query(
     help="Create json sidecar for each photo exported "
     f"in format useable by exiftool ({_EXIF_TOOL_URL}) "
     "The sidecar file can be used to apply metadata to the file with exiftool, for example: "
-    '"exiftool -j=photo.jpg.json photo.jpg" '
-    "The sidecar file is named in format photofilename.ext.json where ext is extension of the photo (e.g. jpg)",
+    '"exiftool -j=photoname.jpg.json photoname.jpg" '
+    "The sidecar file is named in format photoname.ext.json where ext is extension of the photo (e.g. jpg)",
 )
 @click.argument("dest", nargs=1)
 @click.pass_obj
