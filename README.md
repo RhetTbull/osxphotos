@@ -77,14 +77,18 @@ osxmetadata uses setuptools, thus simply run:
 
 ## Command Line Usage
 
-This module will install a command line utility called `osxphotos` that allows you to query the Photos database.
+This module will install a command line utility called `osxphotos` that allows you to query the Photos database.  Alternatively, you can also run the command line utility like this: `python3 -m osxphotos`
 
 If you only care about the command line tool, I recommend installing with [pipx](https://github.com/pipxproject/pipx)
 
 After installing pipx:
 `pipx install osxphotos`
 
+Then you should be able to run `osxphotos` on the command line:
+
 ```
+> osxphotos
+
 Usage: osxphotos [OPTIONS] COMMAND [ARGS]...
 
 Options:
