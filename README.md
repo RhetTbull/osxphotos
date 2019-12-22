@@ -88,7 +88,6 @@ Then you should be able to run `osxphotos` on the command line:
 
 ```
 > osxphotos
-
 Usage: osxphotos [OPTIONS] COMMAND [ARGS]...
 
 Options:
@@ -100,6 +99,7 @@ Options:
 Commands:
   albums    Print out albums found in the Photos library.
   dump      Print list of all photos & associated info from the Photos...
+  export    Export photos from the Photos database.
   help      Print help; for help on commands: help <command>.
   info      Print out descriptive info of the Photos library database.
   keywords  Print out keywords found in the Photos library.
