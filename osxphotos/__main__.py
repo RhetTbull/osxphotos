@@ -1,5 +1,8 @@
 import csv
+import datetime
 import json
+import os
+import os.path
 import sys
 
 import click
@@ -8,6 +11,8 @@ import yaml
 import osxphotos
 
 from ._version import __version__
+from ._constants import _EXIF_TOOL_URL
+
 
 # TODO: add "--any" to search any field (e.g. keyword, description, title contains "wedding") (add case insensitive option)
 
@@ -315,6 +320,147 @@ def query(
 
 
 @cli.command()
+@click.option("--keyword", default=None, multiple=True, help="Search for keyword(s).")
+@click.option("--person", default=None, multiple=True, help="Search for person(s).")
+@click.option("--album", default=None, multiple=True, help="Search for album(s).")
+@click.option("--uuid", default=None, multiple=True, help="Search for UUID(s).")
+@click.option(
+    "--title", default=None, multiple=True, help="Search for TEXT in title of photo."
+)
+@click.option("--no-title", is_flag=True, help="Search for photos with no title.")
+@click.option(
+    "--description",
+    default=None,
+    multiple=True,
+    help="Search for TEXT in description of photo.",
+)
+@click.option(
+    "--no-description", is_flag=True, help="Search for photos with no description."
+)
+@click.option(
+    "-i",
+    "--ignore-case",
+    is_flag=True,
+    help="Case insensitive search for title or description. Does not apply to keyword, person, or album.",
+)
+@click.option("--edited", is_flag=True, help="Search for photos that have been edited.")
+@click.option(
+    "--external-edit", is_flag=True, help="Search for photos edited in external editor."
+)
+@click.option("--favorite", is_flag=True, help="Search for photos marked favorite.")
+@click.option(
+    "--not-favorite", is_flag=True, help="Search for photos not marked favorite."
+)
+@click.option("--hidden", is_flag=True, help="Search for photos marked hidden.")
+@click.option("--not-hidden", is_flag=True, help="Search for photos not marked hidden.")
+@click.option("--verbose", is_flag=True, help="Print verbose output")
+@click.option(
+    "--overwrite",
+    is_flag=True,
+    help="Overwrite existing files. "
+    "Default behavior is to add (1), (2), etc to filename if file already exists. "
+    "Use this with caution as it may create name collisions on export "
+    "(e.g. if two files happen to have the same name)",
+)
+@click.option(
+    "--export-by-date",
+    is_flag=True,
+    help="Automatically create output folders to organize photos by date created (e.g. DEST/2019/12/20/photoname.jpg)",
+)
+@click.option(
+    "--sidecar",
+    is_flag=True,
+    help="Create json sidecar for each photo exported "
+    f"in format useable by exiftool ({_EXIF_TOOL_URL}) "
+    "The sidecar file can be used to apply metadata to the file with exiftool, for example: "
+    '"exiftool -j=photo.jpg.json photo.jpg" '
+    "The sidecar file is named in format photofilename.ext.json where ext is extension of the photo (e.g. jpg)",
+)
+@click.argument("dest", nargs=1)
+@click.pass_obj
+@click.pass_context
+def export(
+    ctx,
+    cli_obj,
+    keyword,
+    person,
+    album,
+    uuid,
+    title,
+    no_title,
+    description,
+    no_description,
+    ignore_case,
+    edited,
+    external_edit,
+    favorite,
+    not_favorite,
+    hidden,
+    not_hidden,
+    verbose,
+    overwrite,
+    export_by_date,
+    sidecar,
+    dest,
+):
+    """ Export photos from the Photos database.
+        Export path DEST is required.
+        Optionally, query the Photos database using 1 or more search options; 
+        if more than one option is provided, they are treated as "AND" 
+        (e.g. search for photos matching all options).
+        If no query options are provided, all photos will be exported.
+    """
+
+    # TODO: --export-edited, --export-original
+    # todo: add sidecar
+    # TODO: add tqdm
+
+    if not os.path.isdir(dest):
+        sys.exit("DEST must be valid path")
+
+    # if no query terms, show help and return
+    photos = _query(
+        cli_obj,
+        keyword,
+        person,
+        album,
+        uuid,
+        title,
+        no_title,
+        description,
+        no_description,
+        ignore_case,
+        json,
+        edited,
+        external_edit,
+        favorite,
+        not_favorite,
+        hidden,
+        not_hidden,
+        None,  # missing -- won't export these but will warn user
+        None,  # not-missing
+    )
+
+    if photos:
+        num_photos = len(photos)
+        photo_str = "photos" if num_photos > 1 else "photo"
+        click.echo(f"Exporting {num_photos} {photo_str} to {dest}...")
+        if not verbose:
+            # show progress bar
+            with click.progressbar(photos) as bar:
+                for p in bar:
+                    export_photo(p, dest, verbose, export_by_date, sidecar, overwrite)
+        else:
+            for p in photos:
+                export_path = export_photo(
+                    p, dest, verbose, export_by_date, sidecar, overwrite
+                )
+                click.echo(f"Exported {p.filename} to {export_path}")
+    else:
+        click.echo("Did not find any photos to export")
+
+
+@cli.command()
 @click.argument("topic", default=None, required=False, nargs=1)
 @click.pass_context
 def help(ctx, topic, **kw):
@@ -468,6 +614,47 @@ def _query(
         photos = [p for p in photos if not p.ismissing]
 
     return photos
+
+
+def export_photo(photo, dest, verbose, export_by_date, sidecar, overwrite):
+    """ Helper function for export that does the actual export
+        photo: PhotoInfo object
+        dest: destination path as string
+        verbose: boolean; print verbose output
+        export_by_date: boolean; create export folder in form dest/YYYY/MM/DD
+        sidecar: boolean; create json sidecar file with export
+        overwrite: boolean; overwrite dest file if it already exists
+        returns destination path of exported photo or None if photo was missing 
+    """
+
+    if photo.ismissing:
+        space = " " if not verbose else ""
+        click.echo(f"{space}Skipping missing photos {photo.filename}")
+        return None
+    if verbose:
+        click.echo(f"Exporting {photo.filename}")
+    if export_by_date:
+        date_created = photo.date.timetuple()
+        dest = create_path_by_date(dest, date_created)
+    return photo.export(dest, sidecar=sidecar, overwrite=overwrite)
+
+
+def create_path_by_date(dest, dt):
+    """ Creates a path in dest folder in form dest/YYYY/MM/DD/
+        dest: valid path as str
+        dt: datetime.timetuple() object
+        Checks to see if path exists, if it does, do nothing and return path
+        If path does not exist, creates it and returns path"""
+    if not os.path.isdir(dest):
+        raise FileNotFoundError(f"dest {dest} must be valid path")
+    yyyy, mm, dd = dt[0:3]
+    yyyy = str(yyyy).zfill(4)
+    mm = str(mm).zfill(2)
+    dd = str(dd).zfill(2)
+    new_dest = os.path.join(dest, yyyy, mm, dd)
+    if not os.path.isdir(new_dest):
+        os.makedirs(new_dest)
+    return new_dest
 
 
 if __name__ == "__main__":
