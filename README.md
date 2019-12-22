@@ -3,6 +3,58 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+- [OSXPhotos](#osxphotos)
+  * [What is osxphotos?](#what-is-osxphotos)
+  * [Supported operating systems](#supported-operating-systems)
+  * [Installation instructions](#installation-instructions)
+  * [Command Line Usage](#command-line-usage)
+  * [Example uses of the module](#example-uses-of-the-module)
+  * [Module Interface](#module-interface)
+    + [PhotosDB](#photosdb)
+      - [Open the default Photos library](#open-the-default-photos-library)
+      - [Open System Photos library](#open-system-photos-library)
+      - [Open a specific Photos library](#open-a-specific-photos-library)
+      - [```keywords```](#keywords)
+      - [```albums```](#albums)
+      - [```persons```](#persons)
+      - [```keywords_as_dict```](#keywords_as_dict)
+      - [```persons_as_dict```](#persons_as_dict)
+      - [```albums_as_dict```](#albums_as_dict)
+      - [```library_path```](#library_path)
+      - [```db_path```](#db_path)
+      - [```db_version```](#db_version)
+      - [`photos(keywords=[], uuid=[], persons=[], albums=[])`](#photoskeywords-uuid-persons-albums)
+    + [PhotoInfo](#photoinfo)
+      - [`uuid`](#uuid)
+      - [`filename`](#filename)
+      - [`original_filename`](#original_filename)
+      - [`date`](#date)
+      - [`description`](#description)
+      - [`title`](#title)
+      - [`keywords`](#keywords)
+      - [`albums`](#albums)
+      - [`persons`](#persons)
+      - [`path`](#path)
+      - [`path_edited`](#path_edited)
+      - [`ismissing`](#ismissing)
+      - [`hasadjustments`](#hasadjustments)
+      - [`external_edit`](#external_edit)
+      - [`favorite`](#favorite)
+      - [`hidden`](#hidden)
+      - [`location`](#location)
+      - [`json()`](#json)
+      - [`export(dest, *filename, edited=False, overwrite=False, increment=True, sidecar=False)`](#exportdest-filename-editedfalse-overwritefalse-incrementtrue-sidecarfalse)
+    + [Utility Functions](#utility-functions)
+      - [```get_system_library_path()```](#get_system_library_path)
+      - [```get_last_library_path()```](#get_last_library_path)
+      - [```list_photo_libraries()```](#list_photo_libraries)
+      - [```dd_to_dms_str(lat, lon)```](#dd_to_dms_strlat-lon)
+    + [Examples](#examples)
+  * [Related Projects](#related-projects)
+  * [Contributing](#contributing)
+  * [Implementation Notes](#implementation-notes)
+  * [Dependencies](#dependencies)
+  * [Acknowledgements](#acknowledgements)
 
 ## What is osxphotos?
 
@@ -13,7 +65,6 @@ OSXPhotos provides the ability to interact with and query Apple's Photos.app lib
 ## Supported operating systems
 
 Only works on MacOS (aka Mac OS X). Tested on MacOS 10.12.6 / Photos 2.0, 10.13.6 / Photos 3.0, MacOS 10.14.5, 10.14.6 / Photos 4.0, MacOS 10.15.1 / Photos 5.0. Requires python >= 3.6
-
 
 This module will read Photos databases for any supported version on any supported OS version.  E.g. you can read a database created with Photos 4.0 on MacOS 10.14 on a machine running MacOS 10.12
 
@@ -427,13 +478,15 @@ Returns latitude and longitude as a tuple of floats (latitude, longitude).  If l
 #### `json()`
 Returns a JSON representation of all photo info 
 
-#### `export(dest, *filename, edited=False, overwrite=False, increment=True)`
+#### `export(dest, *filename, edited=False, overwrite=False, increment=True, sidecar=False)`
+
 Export photo from the Photos library to another destination on disk.  
-- First argument dest must be valid destination path (or exception raised).
-- Second argument *filename (optional): name of picture; if not provided, will use current filename
+- dest: must be valid destination path as str (or exception raised).
+- *filename (optional): name of picture as str; if not provided, will use current filename
 - edited: boolean; if True (default=False), will export the edited version of the photo (or raise exception if no edited version)
 - overwrite: boolean; if True (default=False), will overwrite files if they alreay exist
 - increment: boolean; if True (default=True), will increment file name until a non-existant name is found
+- sidecar: boolean; if True (default=False) will also write a json sidecar file with EXIF data in format readable by [exiftool](https://exiftool.org/); filename will be dest/filename.ext.json where ext is suffix of the image file (e.g. jpeg or jpg)
 
 If overwrite=False and increment=False, export will fail if destination file already exists
 

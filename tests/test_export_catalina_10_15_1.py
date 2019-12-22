@@ -469,4 +469,3 @@ def test_exiftool_json_sidecar():
         else:
             assert item[0][1] == item[1][1]
 
-    # assert sorted(json_got[0].items()) == sorted(json_expected[0].items())
