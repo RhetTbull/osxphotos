@@ -290,66 +290,27 @@ def query(
         click.echo(cli.commands["query"].get_help(ctx))
         return
     else:
-        photosdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
-        photos = photosdb.photos(
-            keywords=keyword, persons=person, albums=album, uuid=uuid
+        photos = _query(
+            cli_obj,
+            keyword,
+            person,
+            album,
+            uuid,
+            title,
+            no_title,
+            description,
+            no_description,
+            ignore_case,
+            json,
+            edited,
+            external_edit,
+            favorite,
+            not_favorite,
+            hidden,
+            not_hidden,
+            missing,
+            not_missing,
         )
-
-        if title:
-            # search title field for text
-            # if more than one, find photos with all title values in title
-            if ignore_case:
-                # case-insensitive
-                for t in title:
-                    t = t.lower()
-                    photos = [p for p in photos if p.title and t in p.title.lower()]
-            else:
-                for t in title:
-                    photos = [p for p in photos if p.title and t in p.title]
-        elif no_title:
-            photos = [p for p in photos if not p.title]
-
-        if description:
-            # search description field for text
-            # if more than one, find photos with all name values in in description
-            if ignore_case:
-                # case-insensitive
-                for d in description:
-                    d = d.lower()
-                    photos = [
-                        p
-                        for p in photos
-                        if p.description() and d in p.description().lower()
-                    ]
-            else:
-                for d in description:
-                    photos = [
-                        p for p in photos if p.description() and d in p.description()
-                    ]
-        elif no_description:
-            photos = [p for p in photos if not p.description()]
-
-        if edited:
-            photos = [p for p in photos if p.hasadjustments()]
-
-        if external_edit:
-            photos = [p for p in photos if p.external_edit()]
-
-        if favorite:
-            photos = [p for p in photos if p.favorite()]
-        elif not_favorite:
-            photos = [p for p in photos if not p.favorite()]
-
-        if hidden:
-            photos = [p for p in photos if p.hidden()]
-        elif not_hidden:
-            photos = [p for p in photos if not p.hidden()]
-
-        if missing:
-            photos = [p for p in photos if p.ismissing()]
-        elif not_missing:
-            photos = [p for p in photos if not p.ismissing()]
-
         print_photo_info(photos, cli_obj.json or json)
 
 
@@ -424,6 +385,89 @@ def print_photo_info(photos, json=False):
             )
         for row in dump:
             csv_writer.writerow(row)
+
+
+def _query(
+    cli_obj,
+    keyword,
+    person,
+    album,
+    uuid,
+    title,
+    no_title,
+    description,
+    no_description,
+    ignore_case,
+    json,
+    edited,
+    external_edit,
+    favorite,
+    not_favorite,
+    hidden,
+    not_hidden,
+    missing,
+    not_missing,
+):
+    """ run a query against PhotosDB to extract the photos based on user supply criteria """
+    """ used by query and export commands """
+    """ arguments must be passed in same order as query and export """
+    """ if either is modified, need to ensure all three functions are updated """
+
+    photosdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
+    photos = photosdb.photos(keywords=keyword, persons=person, albums=album, uuid=uuid)
+
+    if title:
+        # search title field for text
+        # if more than one, find photos with all title values in title
+        if ignore_case:
+            # case-insensitive
+            for t in title:
+                t = t.lower()
+                photos = [p for p in photos if p.title and t in p.title.lower()]
+        else:
+            for t in title:
+                photos = [p for p in photos if p.title and t in p.title]
+    elif no_title:
+        photos = [p for p in photos if not p.title]
+
+    if description:
+        # search description field for text
+        # if more than one, find photos with all name values in in description
+        if ignore_case:
+            # case-insensitive
+            for d in description:
+                d = d.lower()
+                photos = [
+                    p for p in photos if p.description and d in p.description.lower()
+                ]
+        else:
+            for d in description:
+                photos = [p for p in photos if p.description and d in p.description]
+    elif no_description:
+        photos = [p for p in photos if not p.description]
+
+    if edited:
+        photos = [p for p in photos if p.hasadjustments]
+
+    if external_edit:
+        photos = [p for p in photos if p.external_edit]
+
+    if favorite:
+        photos = [p for p in photos if p.favorite]
+    elif not_favorite:
+        photos = [p for p in photos if not p.favorite]
+
+    if hidden:
+        photos = [p for p in photos if p.hidden]
+    elif not_hidden:
+        photos = [p for p in photos if not p.hidden]
+
+    if missing:
+        photos = [p for p in photos if p.ismissing]
+    elif not_missing:
+        photos = [p for p in photos if not p.ismissing]
+
+    return photos
 
 
 if __name__ == "__main__":
