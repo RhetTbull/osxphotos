@@ -87,7 +87,7 @@ def info(cli_obj):
     """ Print out descriptive info of the Photos library database. """
     pdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
     info = {}
-    info["database_path"] = pdb.get_db_path()
+    info["database_path"] = pdb.db_path
     info["database_version"] = pdb.db_version
 
     photos = pdb.photos()
