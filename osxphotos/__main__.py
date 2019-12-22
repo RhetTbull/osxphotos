@@ -3,6 +3,7 @@ import datetime
 import json
 import os
 import os.path
+import pathlib
 import sys
 
 import click
@@ -10,9 +11,8 @@ import yaml
 
 import osxphotos
 
-from ._version import __version__
 from ._constants import _EXIF_TOOL_URL
-
+from ._version import __version__
 
 # TODO: add "--any" to search any field (e.g. keyword, description, title contains "wedding") (add case insensitive option)
 
@@ -353,19 +353,26 @@ def query(
 )
 @click.option("--hidden", is_flag=True, help="Search for photos marked hidden.")
 @click.option("--not-hidden", is_flag=True, help="Search for photos not marked hidden.")
-@click.option("--verbose", is_flag=True, help="Print verbose output")
+@click.option("--verbose", is_flag=True, help="Print verbose output.")
 @click.option(
     "--overwrite",
     is_flag=True,
     help="Overwrite existing files. "
     "Default behavior is to add (1), (2), etc to filename if file already exists. "
-    "Use this with caution as it may create name collisions on export "
+    "Use this with caution as it may create name collisions on export. "
     "(e.g. if two files happen to have the same name)",
 )
 @click.option(
     "--export-by-date",
     is_flag=True,
-    help="Automatically create output folders to organize photos by date created (e.g. DEST/2019/12/20/photoname.jpg)",
+    help="Automatically create output folders to organize photos by date created "
+    "(e.g. DEST/2019/12/20/photoname.jpg).",
+)
+@click.option(
+    "--export-edited",
+    is_flag=True,
+    help="Also export edited version of photo "
+    'if an edited version exists.  Edited photo will be named in form of "photoname_edited.ext"',
 )
 @click.option(
     "--sidecar",
@@ -400,6 +407,7 @@ def export(
     verbose,
     overwrite,
     export_by_date,
+    export_edited,
     sidecar,
     dest,
 ):
@@ -412,8 +420,6 @@ def export(
     """
 
     # TODO: --export-edited, --export-original
-    # todo: add sidecar
-    # TODO: add tqdm
 
     if not os.path.isdir(dest):
         sys.exit("DEST must be valid path")
@@ -449,11 +455,19 @@ def export(
             # show progress bar
             with click.progressbar(photos) as bar:
                 for p in bar:
-                    export_photo(p, dest, verbose, export_by_date, sidecar, overwrite)
+                    export_photo(
+                        p,
+                        dest,
+                        verbose,
+                        export_by_date,
+                        sidecar,
+                        overwrite,
+                        export_edited,
+                    )
         else:
             for p in photos:
                 export_path = export_photo(
-                    p, dest, verbose, export_by_date, sidecar, overwrite
+                    p, dest, verbose, export_by_date, sidecar, overwrite, export_edited
                 )
                 click.echo(f"Exported {p.filename} to {export_path}")
     else:
@@ -616,7 +630,9 @@ def _query(
     return photos
 
 
-def export_photo(photo, dest, verbose, export_by_date, sidecar, overwrite):
+def export_photo(
+    photo, dest, verbose, export_by_date, sidecar, overwrite, export_edited
+):
     """ Helper function for export that does the actual export
         photo: PhotoInfo object
         dest: destination path as string
@@ -636,7 +652,20 @@ def export_photo(photo, dest, verbose, export_by_date, sidecar, overwrite):
     if export_by_date:
         date_created = photo.date.timetuple()
         dest = create_path_by_date(dest, date_created)
-    return photo.export(dest, sidecar=sidecar, overwrite=overwrite)
+    photo_path = photo.export(dest, sidecar=sidecar, overwrite=overwrite)
+
+    # if export-edited, also export the edited version
+    # verify the photo has adjustments and valid path to avoid raising an exception
+    if export_edited and photo.hasadjustments and photo.path_edited is not None:
+        edited_name = pathlib.Path(photo.filename)
+        edited_name = f"{edited_name.stem}_edited{edited_name.suffix}"
+        if verbose:
+            click.echo(f"Exporting edited version of {photo.filename} as {edited_name}")
+        photo.export(
+            dest, edited_name, sidecar=sidecar, overwrite=overwrite, edited=True
+        )
+
+    return photo_path
 
 
 def create_path_by_date(dest, dt):
