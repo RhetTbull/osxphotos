@@ -488,6 +488,20 @@ Export photo from the Photos library to another destination on disk.
 - increment: boolean; if True (default=True), will increment file name until a non-existant name is found
 - sidecar: boolean; if True (default=False) will also write a json sidecar file with EXIF data in format readable by [exiftool](https://exiftool.org/); filename will be dest/filename.ext.json where ext is suffix of the image file (e.g. jpeg or jpg)
 
+The json sidecar file can be used by exiftool to apply the metadata from the json file to the image.  For example: 
+
+```python
+import osxphotos
+
+photosdb = osxphotos.PhotosDB()
+photos = photosdb.photos()
+photos[0].export("/tmp","photo_name.jpg",sidecar=True)
+```
+
+Then
+
+`exiftool -j=photo_name.jpg.json photo_name.jpg`
+
 If overwrite=False and increment=False, export will fail if destination file already exists
 
 Returns the full path to the exported file
