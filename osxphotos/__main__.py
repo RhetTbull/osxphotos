@@ -474,7 +474,14 @@ def export(
         else:
             for p in photos:
                 export_path = export_photo(
-                    p, dest, verbose, export_by_date, sidecar, overwrite, export_edited, original_name,
+                    p,
+                    dest,
+                    verbose,
+                    export_by_date,
+                    sidecar,
+                    overwrite,
+                    export_edited,
+                    original_name,
                 )
                 click.echo(f"Exported {p.filename} to {export_path}")
     else:
@@ -638,7 +645,14 @@ def _query(
 
 
 def export_photo(
-    photo, dest, verbose, export_by_date, sidecar, overwrite, export_edited, original_name
+    photo,
+    dest,
+    verbose,
+    export_by_date,
+    sidecar,
+    overwrite,
+    export_edited,
+    original_name,
 ):
     """ Helper function for export that does the actual export
         photo: PhotoInfo object
@@ -655,7 +669,7 @@ def export_photo(
         space = " " if not verbose else ""
         click.echo(f"{space}Skipping missing photos {photo.filename}")
         return None
-    
+
     filename = None
     if original_name:
         filename = photo.original_filename
