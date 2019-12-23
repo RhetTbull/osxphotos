@@ -375,6 +375,11 @@ def query(
     'if an edited version exists.  Edited photo will be named in form of "photoname_edited.ext"',
 )
 @click.option(
+    "--original-name",
+    is_flag=True,
+    help="Use photo's original filename instead of current filename for export",
+)
+@click.option(
     "--sidecar",
     is_flag=True,
     help="Create json sidecar for each photo exported "
@@ -408,6 +413,7 @@ def export(
     overwrite,
     export_by_date,
     export_edited,
+    original_name,
     sidecar,
     dest,
 ):
@@ -463,11 +469,12 @@ def export(
                         sidecar,
                         overwrite,
                         export_edited,
+                        original_name,
                     )
         else:
             for p in photos:
                 export_path = export_photo(
-                    p, dest, verbose, export_by_date, sidecar, overwrite, export_edited
+                    p, dest, verbose, export_by_date, sidecar, overwrite, export_edited, original_name,
                 )
                 click.echo(f"Exported {p.filename} to {export_path}")
     else:
@@ -631,7 +638,7 @@ def _query(
 
 
 def export_photo(
-    photo, dest, verbose, export_by_date, sidecar, overwrite, export_edited
+    photo, dest, verbose, export_by_date, sidecar, overwrite, export_edited, original_name
 ):
     """ Helper function for export that does the actual export
         photo: PhotoInfo object
@@ -640,6 +647,7 @@ def export_photo(
         export_by_date: boolean; create export folder in form dest/YYYY/MM/DD
         sidecar: boolean; create json sidecar file with export
         overwrite: boolean; overwrite dest file if it already exists
+        original_name: boolean; use original filename instead of current filename
         returns destination path of exported photo or None if photo was missing 
     """
 
@@ -647,20 +655,29 @@ def export_photo(
         space = " " if not verbose else ""
         click.echo(f"{space}Skipping missing photos {photo.filename}")
         return None
+    
+    filename = None
+    if original_name:
+        filename = photo.original_filename
+    else:
+        filename = photo.filename
+
     if verbose:
-        click.echo(f"Exporting {photo.filename}")
+        click.echo(f"Exporting {photo.filename} as {filename}")
+
     if export_by_date:
         date_created = photo.date.timetuple()
         dest = create_path_by_date(dest, date_created)
-    photo_path = photo.export(dest, sidecar=sidecar, overwrite=overwrite)
+
+    photo_path = photo.export(dest, filename, sidecar=sidecar, overwrite=overwrite)
 
     # if export-edited, also export the edited version
     # verify the photo has adjustments and valid path to avoid raising an exception
     if export_edited and photo.hasadjustments and photo.path_edited is not None:
-        edited_name = pathlib.Path(photo.filename)
+        edited_name = pathlib.Path(filename)
         edited_name = f"{edited_name.stem}_edited{edited_name.suffix}"
         if verbose:
-            click.echo(f"Exporting edited version of {photo.filename} as {edited_name}")
+            click.echo(f"Exporting edited version of {filename} as {edited_name}")
         photo.export(
             dest, edited_name, sidecar=sidecar, overwrite=overwrite, edited=True
         )
