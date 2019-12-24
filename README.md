@@ -73,7 +73,7 @@ This module will read Photos databases for any supported version on any supporte
 
 osxmetadata uses setuptools, thus simply run:
 
-	python setup.py install
+	python3 setup.py install
 
 ## Command Line Usage
 
