@@ -669,6 +669,13 @@ def export_photo(
         space = " " if not verbose else ""
         click.echo(f"{space}Skipping missing photos {photo.filename}")
         return None
+    elif not os.path.exists(photo.path):
+        space = " " if not verbose else ""
+        click.echo(
+            f"{space}WARNING: file {photo.path} is missing but ismissing=False, "
+            f"skipping {photo.filename}"
+        )
+        return None
 
     filename = None
     if original_name:
