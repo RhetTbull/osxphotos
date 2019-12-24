@@ -13,6 +13,7 @@ import osxphotos
 
 from ._constants import _EXIF_TOOL_URL
 from ._version import __version__
+from .utils import create_path_by_date
 
 # TODO: add "--any" to search any field (e.g. keyword, description, title contains "wedding") (add case insensitive option)
 
@@ -483,7 +484,10 @@ def export(
                     export_edited,
                     original_name,
                 )
-                click.echo(f"Exported {p.filename} to {export_path}")
+                if export_path:
+                    click.echo(f"Exported {p.filename} to {export_path}")
+                else:
+                    click.echo(f"Did not export missing file {p.filename}")
     else:
         click.echo("Did not find any photos to export")
 
@@ -704,24 +708,6 @@ def export_photo(
         )
 
     return photo_path
-
-
-def create_path_by_date(dest, dt):
-    """ Creates a path in dest folder in form dest/YYYY/MM/DD/
-        dest: valid path as str
-        dt: datetime.timetuple() object
-        Checks to see if path exists, if it does, do nothing and return path
-        If path does not exist, creates it and returns path"""
-    if not os.path.isdir(dest):
-        raise FileNotFoundError(f"dest {dest} must be valid path")
-    yyyy, mm, dd = dt[0:3]
-    yyyy = str(yyyy).zfill(4)
-    mm = str(mm).zfill(2)
-    dd = str(dd).zfill(2)
-    new_dest = os.path.join(dest, yyyy, mm, dd)
-    if not os.path.isdir(new_dest):
-        os.makedirs(new_dest)
-    return new_dest
 
 
 if __name__ == "__main__":

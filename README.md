@@ -49,6 +49,7 @@
       - [```get_last_library_path()```](#get_last_library_path)
       - [```list_photo_libraries()```](#list_photo_libraries)
       - [```dd_to_dms_str(lat, lon)```](#dd_to_dms_strlat-lon)
+      - [```create_path_by_date(dest, dt)```](#create_path_by_datedest-dt)
     + [Examples](#examples)
   * [Related Projects](#related-projects)
   * [Contributing](#contributing)
@@ -56,6 +57,7 @@
   * [Dependencies](#dependencies)
   * [Acknowledgements](#acknowledgements)
 
+  
 ## What is osxphotos?
 
 OSXPhotos provides the ability to interact with and query Apple's Photos.app library database on MacOS. Using this module you can query the Photos database for information about the photos stored in a Photos library on your Mac--for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos.
@@ -535,6 +537,11 @@ lon: longitude in degrees
 returns: string tuple in format ("51 deg 30' 12.86\\" N", "0 deg 7' 54.50\\" W")
 This is the same format used by exiftool's json format.
 
+#### ```create_path_by_date(dest, dt)```
+Creates a path in dest folder in form dest/YYYY/MM/DD/
+dest: valid path as str
+dt: datetime.timetuple() object
+Checks to see if path exists, if it does, do nothing and return path. If path does not exist, creates it and returns path.  Useful for exporting photos to a date-based folder structure.
 
 ### Examples
 

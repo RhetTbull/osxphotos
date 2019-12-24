@@ -205,3 +205,21 @@ def list_photo_libraries():
     lib_list = list(set(lib_list))
     lib_list.sort()
     return lib_list
+
+
+def create_path_by_date(dest, dt):
+    """ Creates a path in dest folder in form dest/YYYY/MM/DD/
+        dest: valid path as str
+        dt: datetime.timetuple() object
+        Checks to see if path exists, if it does, do nothing and return path
+        If path does not exist, creates it and returns path"""
+    if not os.path.isdir(dest):
+        raise FileNotFoundError(f"dest {dest} must be valid path")
+    yyyy, mm, dd = dt[0:3]
+    yyyy = str(yyyy).zfill(4)
+    mm = str(mm).zfill(2)
+    dd = str(dd).zfill(2)
+    new_dest = os.path.join(dest, yyyy, mm, dd)
+    if not os.path.isdir(new_dest):
+        os.makedirs(new_dest)
+    return new_dest
