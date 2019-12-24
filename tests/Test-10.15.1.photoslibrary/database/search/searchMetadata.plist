@@ -4,6 +4,8 @@
 <dict>
 	<key>BlacklistedMeaningsByMeaning</key>
 	<dict/>
+	<key>MePersonUUID</key>
+	<string>39488755-78C0-40B2-B378-EDA280E1823C</string>
 	<key>SceneWhitelist</key>
 	<array>
 		<string>Graduation</string>
