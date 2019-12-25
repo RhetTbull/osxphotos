@@ -8,11 +8,9 @@ import os.path
 import pathlib
 import platform
 import sqlite3
-import subprocess
 import sys
 import tempfile
-from datetime import datetime, timedelta, timezone
-from pathlib import Path
+from datetime import datetime
 from pprint import pformat
 from shutil import copyfile
 
@@ -24,15 +22,7 @@ from ._constants import (
 )
 from ._version import __version__
 from .photoinfo import PhotoInfo
-from .utils import (
-    _check_file_exists,
-    _get_os_version,
-    _get_resource_loc,
-    dd_to_dms_str,
-    get_last_library_path,
-    get_system_library_path,
-    list_photo_libraries,
-)
+from .utils import _check_file_exists, _get_os_version, get_last_library_path
 
 # TODO: find edited photos: see https://github.com/orangeturtle739/photos-export/blob/master/extract_photos.py
 # TODO: Add test for imageTimeZoneOffsetSeconds = None
@@ -45,6 +35,8 @@ from .utils import (
 
 
 class PhotosDB:
+    """ Processes a Photos.app library database to extract information about photos """
+
     def __init__(self, *args, dbfile=None):
         """ create a new PhotosDB object """
         """ path to photos library or database may be specified EITHER as first argument or as named argument dbfile=path """
@@ -134,7 +126,7 @@ class PhotosDB:
         self._db_version = self._get_db_version()
         if int(self._db_version) >= int(_PHOTOS_5_VERSION):
             logging.debug(f"version is {self._db_version}")
-            dbpath = Path(self._dbfile).parent
+            dbpath = pathlib.Path(self._dbfile).parent
             dbfile = dbpath / "Photos.sqlite"
             logging.debug(f"dbfile = {dbfile}")
             if not _check_file_exists(dbfile):
@@ -349,8 +341,8 @@ class PhotosDB:
         return version
 
     def _process_database4(self):
-        """ process the Photos database to extract info """
-        """ works on Photos version <= 4.0 """
+        """ process the Photos database to extract info
+            works on Photos version <= 4.0 """
 
         # TODO: Update strings to remove + (not needed)
         # Epoch is Jan 1, 2001
@@ -1014,6 +1006,7 @@ class PhotosDB:
         logging.debug("Photos:")
         logging.debug(pformat(self._dbphotos))
 
+    # TODO: fix default values to None instead of []
     def photos(self, keywords=[], uuid=[], persons=[], albums=[]):
         """ 
         Return a list of PhotoInfo objects

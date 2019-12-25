@@ -10,13 +10,16 @@ import os.path
 import pathlib
 import re
 import subprocess
-from datetime import datetime, timedelta, timezone
-from pathlib import Path
+import sys
+from datetime import timedelta, timezone
+from pprint import pformat
 
 import yaml
 
 from ._constants import _PHOTOS_5_VERSION
 from .utils import _get_resource_loc, dd_to_dms_str
+
+# TODO: check pylint output
 
 
 class PhotoInfo:
@@ -37,8 +40,8 @@ class PhotoInfo:
 
     @property
     def original_filename(self):
-        """ original filename of the picture """
-        """ Photos 5 mangles filenames upon import """
+        """ original filename of the picture 
+            Photos 5 mangles filenames upon import """
         return self._info["originalFilename"]
 
     @property
@@ -293,11 +296,14 @@ class PhotoInfo:
                     # verify we have a valid path_edited and use that to get filename
                     if not self.path_edited:
                         raise FileNotFoundError(
-                            f"edited=True but path_edited is none; hasadjustments: {self.hasadjustments}"
+                            "edited=True but path_edited is none; hasadjustments: "
+                            f" {self.hasadjustments}"
                         )
-                    edited_name = Path(self.path_edited).name
-                    edited_suffix = Path(edited_name).suffix
-                    filename = Path(self.filename).stem + "_edited" + edited_suffix
+                    edited_name = pathlib.Path(self.path_edited).name
+                    edited_suffix = pathlib.Path(edited_name).suffix
+                    filename = (
+                        pathlib.Path(self.filename).stem + "_edited" + edited_suffix
+                    )
                 else:
                     filename = self.filename
 
@@ -459,7 +465,7 @@ class PhotoInfo:
             "original_filename": self.original_filename,
             "date": str(self.date),
             "description": self.description,
-            "name": self.name,
+            "title": self.title,
             "keywords": self.keywords,
             "albums": self.albums,
             "persons": self.persons,
@@ -504,8 +510,8 @@ class PhotoInfo:
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return self.__dict__ == other.__dict__
-        else:
-            return False
+
+        return False
 
     def __ne__(self, other):
         return not self.__eq__(other)

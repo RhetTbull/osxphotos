@@ -736,3 +736,19 @@ def test_export_13():
     with pytest.raises(Exception) as e:
         assert photos[0].export(dest)
     assert e.type == type(FileNotFoundError())
+
+def test_eq():
+    import osxphotos
+    
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos1 = photosdb.photos(uuid=[UUID_DICT["export"]])
+    photos2 = photosdb.photos(uuid=[UUID_DICT["export"]])
+    assert photos1[0] == photos2[0]
+
+def test_not_eq():
+    import osxphotos
+    
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos1 = photosdb.photos(uuid=[UUID_DICT["export"]])
+    photos2 = photosdb.photos(uuid=[UUID_DICT["missing"]])
+    assert photos1[0] != photos2[0]
