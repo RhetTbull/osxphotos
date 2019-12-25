@@ -514,6 +514,7 @@ class PhotosDB:
             uuid = row[0]
             logging.debug(f"i = {i:d}, uuid = '{uuid}, master = '{row[2]}")
             self._dbphotos[uuid] = {}
+            self._dbphotos[uuid]["_uuid"] = uuid # stored here for easier debugging
             self._dbphotos[uuid]["modelID"] = row[1]
             self._dbphotos[uuid]["masterUuid"] = row[2]
             self._dbphotos[uuid]["filename"] = row[3]
@@ -860,6 +861,7 @@ class PhotosDB:
             logging.debug(f"i = {i:d}, uuid = '{uuid}")
 
             self._dbphotos[uuid] = {}
+            self._dbphotos[uuid]["_uuid"] = uuid # stored here for easier debugging
             self._dbphotos[uuid]["modelID"] = None
             self._dbphotos[uuid]["masterUuid"] = None
             self._dbphotos[uuid]["masterFingerprint"] = row[1]
