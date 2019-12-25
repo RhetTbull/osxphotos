@@ -4,6 +4,7 @@ Processes a Photos.app library database to extract information about photos
 """
 
 import logging
+import os
 import os.path
 import pathlib
 import platform
@@ -155,21 +156,27 @@ class PhotosDB:
             self._process_database5()
 
     def _cleanup_tmp_files(self):
-        """ removes all temporary files whose names are stored in self.tmp_files """
-        """ does not raise exception if file cannot be deleted (e.g. it was already cleaned up) """
-        logging.debug(f"tmp files ={self._tmp_files}")
+        """ removes all temporary files whose names are stored in self.tmp_files
+        does not raise exception if file cannot be deleted (e.g. it was already cleaned up) """
+
+        # logging.debug(f"tmp files = {self._tmp_files}")
         for f in self._tmp_files:
-            logging.debug(f"cleaning up {f}")
-            try:
-                os.remove(f)
-            except Exception as e:
-                logging.debug(f"exception {e} removing {f}")
-                pass
-                # print(f"WARNING: Unable to remove tmp file {e}")
-                # raise e
+            if os.path.exists(f):
+                logging.debug(f"cleaning up {f}")
+                try:
+                    os.remove(f)
+                    self._tmp_files.remove(f)
+                except Exception as e:
+                    logging.debug("exception %e removing %s" % (e, f))
+            else:
+                self._tmp_files.remove(f)
 
     def __del__(self):
-        self._cleanup_tmp_files()
+        pass
+        # TODO: not sure this is needed as cleanup called in process_database
+        # but commenting out for now as it was causing weird error during testing
+        # AttributeError: 'NoneType' object has no attribute 'exists'
+        # self._cleanup_tmp_files()
 
     @property
     def keywords_as_dict(self):
