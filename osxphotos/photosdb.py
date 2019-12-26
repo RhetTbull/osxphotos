@@ -830,7 +830,8 @@ class PhotosDB:
             "ZGENERICASSET.ZFILENAME, "
             "ZGENERICASSET.ZLATITUDE, "
             "ZGENERICASSET.ZLONGITUDE, "
-            "ZGENERICASSET.ZHASADJUSTMENTS "
+            "ZGENERICASSET.ZHASADJUSTMENTS, "
+            "ZGENERICASSET.ZCLOUDOWNERHASHEDPERSONID "
             "FROM ZGENERICASSET "
             "JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK "
             "WHERE ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
@@ -853,12 +854,18 @@ class PhotosDB:
         # 13   "ZGENERICASSET.ZLATITUDE, "
         # 14   "ZGENERICASSET.ZLONGITUDE, "
         # 15   "ZGENERICASSET.ZHASADJUSTMENTS "
+        # 16   "ZCLOUDOWNERHASHEDPERSONID "
 
         i = 0
         for row in c:
             i = i + 1
             uuid = row[0]
             logging.debug(f"i = {i:d}, uuid = '{uuid}")
+
+            # TODO: temporary fix for shared cloud photos
+            if row[16] is not None:
+                logging.debug(f"skipping shared cloud photo {uuid}, ZCLOUDOWNERHASHEDPERSONID: {row[16]}")
+                continue
 
             self._dbphotos[uuid] = {}
             self._dbphotos[uuid]["_uuid"] = uuid # stored here for easier debugging
@@ -893,6 +900,7 @@ class PhotosDB:
                 self._dbphotos[uuid]["longitude"] = row[14]
 
             self._dbphotos[uuid]["hasAdjustments"] = row[15]
+            self._dbphotos[uuid]["cloudOwnerHashedPersonID"] = row[16]
 
             # these will get filled in later
             # init to avoid key errors
