@@ -21,3 +21,6 @@ _TESTED_OS_VERSIONS = ["12", "13", "14", "15"]
 _UNKNOWN_PERSON = "_UNKNOWN_"
 
 _EXIF_TOOL_URL = "https://exiftool.org/"
+
+# Where are shared iCloud photos located?
+_PHOTOS_5_SHARED_PHOTO_PATH = "resources/cloudsharing/data"

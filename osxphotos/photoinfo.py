@@ -16,7 +16,7 @@ from pprint import pformat
 
 import yaml
 
-from ._constants import _PHOTOS_5_VERSION
+from ._constants import _PHOTOS_5_VERSION, _PHOTOS_5_SHARED_PHOTO_PATH
 from .utils import _get_resource_loc, dd_to_dms_str
 
 # TODO: check pylint output
@@ -62,7 +62,10 @@ class PhotoInfo:
     @property
     def path(self):
         """ absolute path on disk of the original picture """
-        photopath = ""
+
+        photopath = None
+        if self._info["isMissing"] == 1:
+            return photopath  # path would be meaningless until downloaded
 
         if self._db._db_version < _PHOTOS_5_VERSION:
             vol = self._info["volume"]
@@ -72,33 +75,38 @@ class PhotoInfo:
                 photopath = os.path.join(
                     self._db._masters_path, self._info["imagePath"]
                 )
+            return photopath
+            # TODO: Is there a way to use applescript or PhotoKit to force the download in this
 
-            if self._info["isMissing"] == 1:
-                photopath = None  # path would be meaningless until downloaded
-                # TODO: Is there a way to use applescript or PhotoKit to force the download in this
-        else:
-            if self._info["masterFingerprint"]:
-                # if masterFingerprint is not null, path appears to be valid
-                if self._info["directory"].startswith("/"):
-                    photopath = os.path.join(
-                        self._info["directory"], self._info["filename"]
-                    )
-                else:
-                    photopath = os.path.join(
-                        self._db._masters_path,
-                        self._info["directory"],
-                        self._info["filename"],
-                    )
+        if self._info["masterFingerprint"]:
+            # if masterFingerprint is not null, path appears to be valid
+            if self._info["directory"].startswith("/"):
+                photopath = os.path.join(
+                    self._info["directory"], self._info["filename"]
+                )
             else:
-                photopath = None
-                logging.debug(f"WARNING: masterFingerprint null {pformat(self._info)}")
+                photopath = os.path.join(
+                    self._db._masters_path,
+                    self._info["directory"],
+                    self._info["filename"],
+                )
+            return photopath
 
-            # TODO: fix the logic for isMissing
-            if self._info["isMissing"] == 1:
-                photopath = None  # path would be meaningless until downloaded
+        if self._info["shared"]:
+            # shared photo
+            photopath = os.path.join(
+                self._db._library_path,
+                _PHOTOS_5_SHARED_PHOTO_PATH,
+                self._info["directory"],
+                self._info["filename"],
+            )
+            return photopath
 
-            logging.debug(photopath)
-
+        # if all else fails, photopath = None
+        photopath = None
+        logging.debug(
+            f"WARNING: photopath None, masterFingerprint null, not shared {pformat(self._info)}"
+        )
         return photopath
 
     @property
@@ -249,6 +257,15 @@ class PhotoInfo:
     def location(self):
         """ returns (latitude, longitude) as float in degrees or None """
         return (self._latitude, self._longitude)
+
+    @property
+    def shared(self):
+        """ returns True if photos is in a shared iCloud album otherwise false
+            Only valid on Photos 5; returns None on older versions """
+        if self._db._db_version >= _PHOTOS_5_VERSION:
+            return self._info["shared"]
+        else:
+            return None
 
     def export(
         self,

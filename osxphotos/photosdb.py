@@ -900,7 +900,9 @@ class PhotosDB:
                 self._dbphotos[uuid]["longitude"] = row[14]
 
             self._dbphotos[uuid]["hasAdjustments"] = row[15]
+            
             self._dbphotos[uuid]["cloudOwnerHashedPersonID"] = row[16]
+            self._dbphotos[uuid]["shared"] = True if row[16] is not None else False
 
             # these will get filled in later
             # init to avoid key errors
