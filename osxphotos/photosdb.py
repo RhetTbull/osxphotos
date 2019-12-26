@@ -514,7 +514,7 @@ class PhotosDB:
             uuid = row[0]
             logging.debug(f"i = {i:d}, uuid = '{uuid}, master = '{row[2]}")
             self._dbphotos[uuid] = {}
-            self._dbphotos[uuid]["_uuid"] = uuid # stored here for easier debugging
+            self._dbphotos[uuid]["_uuid"] = uuid  # stored here for easier debugging
             self._dbphotos[uuid]["modelID"] = row[1]
             self._dbphotos[uuid]["masterUuid"] = row[2]
             self._dbphotos[uuid]["filename"] = row[3]
@@ -863,12 +863,12 @@ class PhotosDB:
             logging.debug(f"i = {i:d}, uuid = '{uuid}")
 
             # TODO: temporary fix for shared cloud photos
-            if row[16] is not None:
-                logging.debug(f"skipping shared cloud photo {uuid}, ZCLOUDOWNERHASHEDPERSONID: {row[16]}")
-                continue
+            # if row[16] is not None:
+            #     logging.debug(f"skipping shared cloud photo {uuid}, ZCLOUDOWNERHASHEDPERSONID: {row[16]}")
+            #     continue
 
             self._dbphotos[uuid] = {}
-            self._dbphotos[uuid]["_uuid"] = uuid # stored here for easier debugging
+            self._dbphotos[uuid]["_uuid"] = uuid  # stored here for easier debugging
             self._dbphotos[uuid]["modelID"] = None
             self._dbphotos[uuid]["masterUuid"] = None
             self._dbphotos[uuid]["masterFingerprint"] = row[1]
@@ -963,6 +963,28 @@ class PhotosDB:
         i = 0
         for row in c:
             i = i + 1
+            uuid = row[0]
+            if uuid in self._dbphotos:
+                self._dbphotos[uuid]["localAvailability"] = row[1]
+                self._dbphotos[uuid]["remoteAvailability"] = row[2]
+                if row[1] != 1:
+                    self._dbphotos[uuid]["isMissing"] = 1
+                else:
+                    self._dbphotos[uuid]["isMissing"] = 0
+
+        # temp fix for cloud shared files
+        c.execute(
+            """ SELECT 
+                ZGENERICASSET.ZUUID, 
+                ZINTERNALRESOURCE.ZLOCALAVAILABILITY, 
+                ZINTERNALRESOURCE.ZREMOTEAVAILABILITY
+                FROM ZGENERICASSET
+                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK 
+                JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZASSET = ZADDITIONALASSETATTRIBUTES.ZASSET 
+                WHERE ZINTERNALRESOURCE.ZFINGERPRINT IS NULL AND ZINTERNALRESOURCE.ZDATASTORESUBTYPE = 3 """
+        )
+
+        for row in c:
             uuid = row[0]
             if uuid in self._dbphotos:
                 self._dbphotos[uuid]["localAvailability"] = row[1]
