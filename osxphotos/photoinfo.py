@@ -488,7 +488,7 @@ class PhotoInfo:
             "uuid": self.uuid,
             "filename": self.filename,
             "original_filename": self.original_filename,
-            "date": str(self.date),
+            "date": self.date.isoformat(),
             "description": self.description,
             "title": self.title,
             "keywords": self.keywords,
