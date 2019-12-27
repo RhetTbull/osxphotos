@@ -472,8 +472,7 @@ class PhotoInfo:
         return self._info["latitude"]
 
     def __repr__(self):
-        # TODO: update to use __class__ and __name__
-        return f"osxphotos.PhotoInfo(db={self._db}, uuid='{self._uuid}', info={self._info})"
+        return f"osxphotos.{self.__class__.__name__}(db={self._db}, uuid='{self._uuid}', info={self._info})"
 
     def __str__(self):
         info = {
@@ -495,12 +494,12 @@ class PhotoInfo:
             "latitude": self._latitude,
             "longitude": self._longitude,
             "path_edited": self.path_edited,
+            "shared": self.shared,
         }
         return yaml.dump(info, sort_keys=False)
 
     def json(self):
         """ return JSON representation """
-        # TODO: Add additional details here
         pic = {
             "uuid": self.uuid,
             "filename": self.filename,
@@ -520,6 +519,7 @@ class PhotoInfo:
             "latitude": self._latitude,
             "longitude": self._longitude,
             "path_edited": self.path_edited,
+            "shared": self.shared,
         }
         return json.dumps(pic)
 

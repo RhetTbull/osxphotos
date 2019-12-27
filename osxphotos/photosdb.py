@@ -1118,5 +1118,4 @@ class PhotosDB:
         return photoinfo
 
     def __repr__(self):
-        # TODO: update to use __class__ and __name__
-        return f"osxphotos.PhotosDB(dbfile='{self.db_path}')"
+        return f"osxphotos.{self.__class__.__name__}(dbfile='{self.db_path}')"
