@@ -25,7 +25,6 @@ from ._version import __version__
 from .photoinfo import PhotoInfo
 from .utils import _check_file_exists, _get_os_version, get_last_library_path
 
-# TODO: find edited photos: see https://github.com/orangeturtle739/photos-export/blob/master/extract_photos.py
 # TODO: Add test for imageTimeZoneOffsetSeconds = None
 # TODO: Fix command line so multiple --keyword, etc. are AND (instead of OR as they are in .photos())
 #       Or fix the help text to match behavior
@@ -53,9 +52,6 @@ class PhotosDB:
                 f"[{', '.join(_TESTED_OS_VERSIONS)}]: "
                 f"you have {system}, OS version: {major}"
             )
-
-        # configure AppleScripts used to manipulate Photos
-        # self._setup_applescript()
 
         # set up the data structures used to store all the Photo database info
 
@@ -121,8 +117,6 @@ class PhotosDB:
 
         self._dbfile = dbfile
 
-        # force Photos to quit (TODO: this might not be needed since we copy the file)
-        # self._scpt_quit.run()
         self._tmp_db = self._copy_db_file(self._dbfile)
         self._db_version = self._get_db_version()
         if int(self._db_version) >= int(_PHOTOS_5_VERSION):
@@ -296,46 +290,6 @@ class PhotosDB:
             albums.add(self._dbalbum_details[album]["title"])
         return list(albums)
 
-    # def _setup_applescript(self):
-    #     """ setup various applescripts used internally (e.g. to close Photos) """
-    #     self._scpt_export = ""
-    #     self._scpt_launch = ""
-    #     self._scpt_quit = ""
-
-    #     # Compile apple script that exports one image
-    #     #          self._scpt_export = _applescript.AppleScript('''
-    #     #  on run {arg}
-    #     #  set thepath to "%s"
-    #     #  tell application "Photos"
-    #     #  set theitem to media item id arg
-    #     #  set thelist to {theitem}
-    #     #  export thelist to POSIX file thepath
-    #     #  end tell
-    #     #  end run
-    #     #  ''' % (tmppath))
-    #     #
-    #     # Compile apple script that launches Photos.App
-    #     self._scpt_launch = _applescript.AppleScript(
-    #         """
-    #         on run
-    #           tell application "Photos"
-    #             activate
-    #           end tell
-    #         end run
-    #         """
-    #     )
-
-    #     # Compile apple script that quits Photos.App
-    #     self._scpt_quit = _applescript.AppleScript(
-    #         """
-    #         on run
-    #           tell application "Photos"
-    #             quit
-    #           end tell
-    #         end run
-    #         """
-    #     )
-
     @property
     def db_version(self):
         """ return the database version as stored in LiGlobals table """
@@ -419,10 +373,6 @@ class PhotosDB:
         # TODO: Update strings to remove + (not needed)
         # Epoch is Jan 1, 2001
         td = (datetime(2001, 1, 1, 0, 0) - datetime(1970, 1, 1, 0, 0)).total_seconds()
-
-        # Ensure Photos.App is not running
-        # TODO: Don't think we need this here
-        # self._scpt_quit.run()
 
         (conn, c) = self._open_sql_file(self._tmp_db)
 
@@ -743,10 +693,6 @@ class PhotosDB:
 
         # Epoch is Jan 1, 2001
         td = (datetime(2001, 1, 1, 0, 0) - datetime(1970, 1, 1, 0, 0)).total_seconds()
-
-        # Ensure Photos.App is not running
-        # TODO: Don't think we need this here
-        # self._scpt_quit.run()
 
         (conn, c) = self._open_sql_file(self._tmp_db)
 
