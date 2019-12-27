@@ -11,7 +11,7 @@ import yaml
 
 import osxphotos
 
-from ._constants import _EXIF_TOOL_URL
+from ._constants import _EXIF_TOOL_URL, _PHOTOS_5_VERSION
 from ._version import __version__
 from .utils import create_path_by_date
 
@@ -69,10 +69,14 @@ def albums(cli_obj):
     """ Print out albums found in the Photos library. """
     photosdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
     albums = {"albums": photosdb.albums_as_dict}
+    if photosdb.db_version >= _PHOTOS_5_VERSION:
+        albums["shared albums"] = photosdb.albums_shared_as_dict
+
     if cli_obj.json:
         click.echo(json.dumps(albums))
     else:
         click.echo(yaml.dump(albums, sort_keys=False))
+
 
 
 @cli.command()
@@ -106,6 +110,11 @@ def info(cli_obj):
     albums = pdb.albums_as_dict
     info["albums_count"] = len(albums)
     info["albums"] = albums
+
+    if pdb.db_version >= _PHOTOS_5_VERSION:
+        albums_shared = pdb.albums_shared_as_dict
+        info["shared_albums_count"] = len(albums_shared)
+        info["shared_albums"] = albums_shared
 
     persons = pdb.persons_as_dict
 
@@ -217,6 +226,12 @@ def list_libraries(cli_obj):
     help="Search for photos present on disk (e.g. not missing).",
 )
 @click.option(
+    "--shared", is_flag=True, help="Search for photos in shared iCloud album (Photos 5 only)."
+)
+@click.option(
+    "--not-shared", is_flag=True, help="Search for photos not in shared iCloud album (Photos 5 only)."
+)
+@click.option(
     "--json",
     required=False,
     is_flag=True,
@@ -246,6 +261,8 @@ def query(
     not_hidden,
     missing,
     not_missing,
+    shared,
+    not_shared,
 ):
     """ Query the Photos database using 1 or more search options; 
         if more than one option is provided, they are treated as "AND" 
@@ -271,6 +288,8 @@ def query(
             not_hidden,
             missing,
             not_missing,
+            shared,
+            not_shared,
         ]
     ):
         click.echo(cli.commands["query"].get_help(ctx))
@@ -316,6 +335,8 @@ def query(
             not_hidden,
             missing,
             not_missing,
+            shared,
+            not_shared,
         )
         print_photo_info(photos, cli_obj.json or json)
 
@@ -354,6 +375,12 @@ def query(
 )
 @click.option("--hidden", is_flag=True, help="Search for photos marked hidden.")
 @click.option("--not-hidden", is_flag=True, help="Search for photos not marked hidden.")
+@click.option(
+    "--shared", is_flag=True, help="Search for photos in shared iCloud album (Photos 5 only)."
+)
+@click.option(
+    "--not-shared", is_flag=True, help="Search for photos not in shared iCloud album (Photos 5 only)."
+)
 @click.option("--verbose", is_flag=True, help="Print verbose output.")
 @click.option(
     "--overwrite",
@@ -378,7 +405,7 @@ def query(
 @click.option(
     "--original-name",
     is_flag=True,
-    help="Use photo's original filename instead of current filename for export",
+    help="Use photo's original filename instead of current filename for export.",
 )
 @click.option(
     "--sidecar",
@@ -387,7 +414,7 @@ def query(
     f"in format useable by exiftool ({_EXIF_TOOL_URL}) "
     "The sidecar file can be used to apply metadata to the file with exiftool, for example: "
     '"exiftool -j=photoname.jpg.json photoname.jpg" '
-    "The sidecar file is named in format photoname.ext.json where ext is extension of the photo (e.g. jpg)",
+    "The sidecar file is named in format photoname.ext.json where ext is extension of the photo (e.g. jpg).",
 )
 @click.argument("dest", nargs=1)
 @click.pass_obj
@@ -410,6 +437,8 @@ def export(
     not_favorite,
     hidden,
     not_hidden,
+    shared,
+    not_shared,
     verbose,
     overwrite,
     export_by_date,
@@ -452,6 +481,8 @@ def export(
         not_hidden,
         None,  # missing -- won't export these but will warn user
         None,  # not-missing
+        shared,
+        not_shared,
     )
 
     if photos:
@@ -533,6 +564,7 @@ def print_photo_info(photos, json=False):
                 "external_edit",
                 "favorite",
                 "hidden",
+                "shared",
                 "latitude",
                 "longitude",
                 "path_edited",
@@ -556,6 +588,7 @@ def print_photo_info(photos, json=False):
                     p.external_edit,
                     p.favorite,
                     p.hidden,
+                    p.shared,
                     p._latitude,
                     p._longitude,
                     p.path_edited,
@@ -585,6 +618,8 @@ def _query(
     not_hidden,
     missing,
     not_missing,
+    shared,
+    not_shared,
 ):
     """ run a query against PhotosDB to extract the photos based on user supply criteria """
     """ used by query and export commands """
@@ -645,6 +680,11 @@ def _query(
     elif not_missing:
         photos = [p for p in photos if not p.ismissing]
 
+    if shared:
+        photos = [p for p in photos if p.shared]
+    elif not_shared:
+        photos = [p for p in photos if not p.shared]
+
     return photos
 
 
@@ -671,7 +711,7 @@ def export_photo(
 
     if photo.ismissing:
         space = " " if not verbose else ""
-        click.echo(f"{space}Skipping missing photos {photo.filename}")
+        click.echo(f"{space}Skipping missing photo {photo.filename}")
         return None
     elif not os.path.exists(photo.path):
         space = " " if not verbose else ""
