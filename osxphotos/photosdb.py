@@ -200,7 +200,39 @@ class PhotosDB:
     def albums_as_dict(self):
         """ return albums as dict of albums, count in reverse sorted order (descending) """
         albums = {}
-        for k in self._dbalbums_album.keys():
+        album_keys = [
+            k
+            for k in self._dbalbums_album.keys()
+            if self._dbalbum_details[k]["cloudownerhashedpersonid"] is None
+        ]
+        for k in album_keys:
+            title = self._dbalbum_details[k]["title"]
+            if title in albums:
+                albums[title] += len(self._dbalbums_album[k])
+            else:
+                albums[title] = len(self._dbalbums_album[k])
+        albums = dict(sorted(albums.items(), key=lambda kv: kv[1], reverse=True))
+        return albums
+
+    @property
+    def albums_shared_as_dict(self):
+        """ returns shared albums as dict of albums, count in reverse sorted order (descending)
+            valid only on Photos 5; on Photos <= 4, prints warning and returns empty dict """
+
+        # if _dbalbum_details[key]["cloudownerhashedpersonid"] is not None, then it's a shared album
+        if self._db_version < _PHOTOS_5_VERSION:
+            logging.warning(
+                f"albums_shared not implemented for Photos versions < {_PHOTOS_5_VERSION}"
+            )
+            return {}
+
+        albums = {}
+        album_keys = [
+            k
+            for k in self._dbalbums_album.keys()
+            if self._dbalbum_details[k]["cloudownerhashedpersonid"] is not None
+        ]
+        for k in album_keys:
             title = self._dbalbum_details[k]["title"]
             if title in albums:
                 albums[title] += len(self._dbalbums_album[k])
@@ -224,10 +256,43 @@ class PhotosDB:
     @property
     def albums(self):
         """ return list of albums found in photos database """
+        
         # Could be more than one album with same name
         # Right now, they are treated as same album and photos are combined from albums with same name
+
         albums = set()
-        for album in self._dbalbums_album.keys():
+        album_keys = [
+            k
+            for k in self._dbalbums_album.keys()
+            if self._dbalbum_details[k]["cloudownerhashedpersonid"] is None
+        ]
+        for album in album_keys:
+            albums.add(self._dbalbum_details[album]["title"])
+        return list(albums)
+
+    @property
+    def albums_shared(self):
+        """ return list of shared albums found in photos database
+            only valid for Photos 5; on Photos <= 4, prints warning and returns empty list """
+            
+        # Could be more than one album with same name
+        # Right now, they are treated as same album and photos are combined from albums with same name
+
+        # if _dbalbum_details[key]["cloudownerhashedpersonid"] is not None, then it's a shared album
+
+        if self._db_version < _PHOTOS_5_VERSION:
+            logging.warning(
+                f"albums_shared not implemented for Photos versions < {_PHOTOS_5_VERSION}"
+            )
+            return []
+
+        albums = set()
+        album_keys = [
+            k
+            for k in self._dbalbums_album.keys()
+            if self._dbalbum_details[k]["cloudownerhashedpersonid"] is not None
+        ]
+        for album in album_keys:
             albums.add(self._dbalbum_details[album]["title"])
         return list(albums)
 
@@ -854,18 +919,13 @@ class PhotosDB:
         # 13   "ZGENERICASSET.ZLATITUDE, "
         # 14   "ZGENERICASSET.ZLONGITUDE, "
         # 15   "ZGENERICASSET.ZHASADJUSTMENTS "
-        # 16   "ZCLOUDOWNERHASHEDPERSONID "
+        # 16   "ZCLOUDOWNERHASHEDPERSONID "   -- If not null, indicates a shared photo
 
         i = 0
         for row in c:
             i = i + 1
             uuid = row[0]
             logging.debug(f"i = {i:d}, uuid = '{uuid}")
-
-            # TODO: temporary fix for shared cloud photos
-            # if row[16] is not None:
-            #     logging.debug(f"skipping shared cloud photo {uuid}, ZCLOUDOWNERHASHEDPERSONID: {row[16]}")
-            #     continue
 
             self._dbphotos[uuid] = {}
             self._dbphotos[uuid]["_uuid"] = uuid  # stored here for easier debugging
@@ -900,7 +960,7 @@ class PhotosDB:
                 self._dbphotos[uuid]["longitude"] = row[14]
 
             self._dbphotos[uuid]["hasAdjustments"] = row[15]
-            
+
             self._dbphotos[uuid]["cloudOwnerHashedPersonID"] = row[16]
             self._dbphotos[uuid]["shared"] = True if row[16] is not None else False
 

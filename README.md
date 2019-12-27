@@ -14,15 +14,17 @@
       - [Open the default Photos library](#open-the-default-photos-library)
       - [Open System Photos library](#open-system-photos-library)
       - [Open a specific Photos library](#open-a-specific-photos-library)
-      - [```keywords```](#keywords)
-      - [```albums```](#albums)
-      - [```persons```](#persons)
-      - [```keywords_as_dict```](#keywords_as_dict)
-      - [```persons_as_dict```](#persons_as_dict)
-      - [```albums_as_dict```](#albums_as_dict)
-      - [```library_path```](#library_path)
-      - [```db_path```](#db_path)
-      - [```db_version```](#db_version)
+      - [`keywords`](#keywords)
+      - [`albums`](#albums)
+      - [`albums_shared`](#albums_shared)
+      - [`persons`](#persons)
+      - [`keywords_as_dict`](#keywords_as_dict)
+      - [`persons_as_dict`](#persons_as_dict)
+      - [`albums_as_dict`](#albums_as_dict)
+      - [`albums_shared_as_dict`](#albums_shared_as_dict)
+      - [`library_path`](#library_path)
+      - [`db_path`](#db_path)
+      - [`db_version`](#db_version)
       - [`photos(keywords=[], uuid=[], persons=[], albums=[])`](#photoskeywords-uuid-persons-albums)
     + [PhotoInfo](#photoinfo)
       - [`uuid`](#uuid)
@@ -31,9 +33,9 @@
       - [`date`](#date)
       - [`description`](#description)
       - [`title`](#title)
-      - [`keywords`](#keywords)
-      - [`albums`](#albums)
-      - [`persons`](#persons)
+      - [`keywords`](#keywords-1)
+      - [`albums`](#albums-1)
+      - [`persons`](#persons-1)
       - [`path`](#path)
       - [`path_edited`](#path_edited)
       - [`ismissing`](#ismissing)
@@ -42,6 +44,7 @@
       - [`favorite`](#favorite)
       - [`hidden`](#hidden)
       - [`location`](#location)
+      - [`shared`](#shared)
       - [`json()`](#json)
       - [`export(dest, *filename, edited=False, overwrite=False, increment=True, sidecar=False)`](#exportdest-filename-editedfalse-overwritefalse-incrementtrue-sidecarfalse)
     + [Utility Functions](#utility-functions)
@@ -56,7 +59,6 @@
   * [Implementation Notes](#implementation-notes)
   * [Dependencies](#dependencies)
   * [Acknowledgements](#acknowledgements)
-
   
 ## What is osxphotos?
 
@@ -283,7 +285,7 @@ Pass the fully qualified path to the Photos library or the actual database file 
 
 Returns a PhotosDB object. 
 
-#### ```keywords```
+#### `keywords`
 ```python
 # assumes photosdb is a PhotosDB object (see above)
 keywords = photosdb.keywords
@@ -291,7 +293,7 @@ keywords = photosdb.keywords
 
 Returns a list of the keywords found in the Photos library
 
-#### ```albums```
+#### `albums`
 ```python
 # assumes photosdb is a PhotosDB object (see above)
 albums = photosdb.albums
@@ -301,7 +303,13 @@ Returns a list of the albums found in the Photos library.
 
 **Note**: In Photos 5.0 (MacOS 10.15/Catalina), It is possible to have more than one album with the same name in Photos.  Albums with duplicate names are treated as a single album and the photos in each are combined.  For example, if you have two albums named "Wedding" and each has 2 photos, osxphotos will treat this as a single album named "Wedding" with 4 photos in it.
 
-#### ```persons```
+#### `albums_shared`
+
+Returns list of shared albums found in photos database (e.g. albums shared via iCloud photo sharing)
+
+**Note**: *Only valid for Photos 5 / MacOS 10.15*; on Photos <= 4, prints warning and returns empty list.
+
+#### `persons`
 ```python
 # assumes photosdb is a PhotosDB object (see above)
 persons = photosdb.persons
@@ -309,7 +317,7 @@ persons = photosdb.persons
 
 Returns a list of the persons (faces) found in the Photos library
 
-#### ```keywords_as_dict```
+#### `keywords_as_dict`
 ```python
 # assumes photosdb is a PhotosDB object (see above)
 keyword_dict = photosdb.keywords_as_dict
@@ -317,7 +325,7 @@ keyword_dict = photosdb.keywords_as_dict
 
 Returns a dictionary of keywords found in the Photos library where key is the keyword and value is the count of how many times that keyword appears in the library (ie. how many photos are tagged with the keyword).  Resulting dictionary is in reverse sorted order (e.g. keyword with the highest count is first).
 
-#### ```persons_as_dict```
+#### `persons_as_dict`
 ```python
 # assumes photosdb is a PhotosDB object (see above)
 persons_dict = photosdb.persons_as_dict
@@ -325,7 +333,7 @@ persons_dict = photosdb.persons_as_dict
 
 Returns a dictionary of persons (faces) found in the Photos library where key is the person name and value is the count of how many times that person appears in the library (ie. how many photos are tagged with the person).  Resulting dictionary is in reverse sorted order (e.g. person who appears in the most photos is listed first).
 
-#### ```albums_as_dict```
+#### `albums_as_dict`
 ```python
 # assumes photosdb is a PhotosDB object (see above)
 albums_dict = photosdb.albums_as_dict
@@ -335,7 +343,17 @@ Returns a dictionary of albums found in the Photos library where key is the albu
 
 **Note**: In Photos 5.0 (MacOS 10.15/Catalina), It is possible to have more than one album with the same name in Photos.  Albums with duplicate names are treated as a single album and the photos in each are combined.  For example, if you have two albums named "Wedding" and each has 2 photos, osxphotos will treat this as a single album named "Wedding" with 4 photos in it.
 
-#### ```library_path```
+#### `albums_shared_as_dict`
+```python
+# assumes photosdb is a PhotosDB object (see above)
+albums_shared_dict = photosdb.albums_shared_as_dict
+```
+
+Returns a dictionary of shared albums (e.g. shared via iCloud photo sharing) found in the Photos library where key is the album name and value is the count of how many photos are in the album.  Resulting dictionary is in reverse sorted order (e.g. album with the most photos is listed first).   
+
+**Note**: *Photos 5 / MacOS 10.15 only*.  On earlier versions of Photos, prints warning and returns empty dictionary.
+
+#### `library_path`
 ```python
 # assumes photosdb is a PhotosDB object (see above)
 photosdb.library_path
@@ -343,7 +361,7 @@ photosdb.library_path
 
 Returns the path to the Photos library as a string
 
-#### ```db_path```
+#### `db_path`
 ```python
 # assumes photosdb is a PhotosDB object (see above)
 photosdb.db_path
@@ -351,7 +369,7 @@ photosdb.db_path
 
 Returns the path to the Photos database PhotosDB was initialized with
 
-#### ```db_version```
+#### `db_version`
 ```python
 # assumes photosdb is a PhotosDB object (see above)
 photosdb.db_version
@@ -480,6 +498,11 @@ Returns `True` if the picture has been marked as hidden, otherwise `False`
 
 #### `location`
 Returns latitude and longitude as a tuple of floats (latitude, longitude).  If location is not set, latitude and longitude are returned as `None`
+
+#### `shared`
+Returns True if photo is in a shared album, otherwise False.
+
+**Note**: *Only valid on Photos 5 / MacOS 10.15*; on Photos <= 4, returns None instead of True/False. 
 
 #### `json()`
 Returns a JSON representation of all photo info 
