@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Photos</key>
+	<dict>
+		<key>CollapsedSidebarSectionIdentifiers</key>
+		<array/>
+		<key>ExpandedSidebarItemIdentifiers</key>
+		<array>
+			<string>TopLevelAlbums</string>
+			<string>TopLevelSlideshows</string>
+		</array>
+		<key>lastKnownItemCounts</key>
+		<dict>
+			<key>other</key>
+			<integer>0</integer>
+			<key>photos</key>
+			<integer>6</integer>
+			<key>videos</key>
+			<integer>1</integer>
+		</dict>
+	</dict>
+</dict>
+</plist>

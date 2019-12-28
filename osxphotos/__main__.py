@@ -103,6 +103,9 @@ def info(cli_obj):
     photos = pdb.photos()
     info["photo_count"] = len(photos)
 
+    movies = pdb.photos(images=False, movies=True)
+    info["movie_count"] = len(movies)
+
     keywords = pdb.keywords_as_dict
     info["keywords_count"] = len(keywords)
     info["keywords"] = keywords
@@ -149,7 +152,7 @@ def info(cli_obj):
 def dump(cli_obj, json):
     """ Print list of all photos & associated info from the Photos library. """
     pdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
-    photos = pdb.photos()
+    photos = pdb.photos(movies=True)
     print_photo_info(photos, cli_obj.json or json)
 
 
@@ -627,7 +630,7 @@ def _query(
     """ if either is modified, need to ensure all three functions are updated """
 
     photosdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
-    photos = photosdb.photos(keywords=keyword, persons=person, albums=album, uuid=uuid)
+    photos = photosdb.photos(keywords=keyword, persons=person, albums=album, uuid=uuid, movies=True)
 
     if title:
         # search title field for text

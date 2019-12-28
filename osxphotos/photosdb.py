@@ -20,6 +20,8 @@ from ._constants import (
     _TESTED_DB_VERSIONS,
     _TESTED_OS_VERSIONS,
     _UNKNOWN_PERSON,
+    _PHOTO_TYPE,
+    _MOVIE_TYPE,
 )
 from ._version import __version__
 from .photoinfo import PhotoInfo
@@ -381,11 +383,10 @@ class PhotosDB:
         (conn, c) = self._open_sql_file(self._tmp_db)
 
         # Look for all combinations of persons and pictures
-        # c.execute("select RKPerson.name, RKFace.imageID from RKFace, RKPerson where RKFace.personID = RKperson.modelID")
         c.execute(
             "select RKPerson.name, RKVersion.uuid from RKFace, RKPerson, RKVersion, RKMaster "
             + "where RKFace.personID = RKperson.modelID and RKVersion.modelId = RKFace.ImageModelId "
-            + "and RKVersion.type = 2 and RKVersion.masterUuid = RKMaster.uuid and "
+            + "and RKVersion.masterUuid = RKMaster.uuid and "
             + "RKVersion.filename not like '%.pdf' and RKVersion.isInTrash = 0"
         )
         for person in c:
@@ -398,10 +399,11 @@ class PhotosDB:
             self._dbfaces_uuid[person[1]].append(person[0])
             self._dbfaces_person[person[0]].append(person[1])
 
+        # Get info on albums
         c.execute(
             "select RKAlbum.uuid, RKVersion.uuid from RKAlbum, RKVersion, RKAlbumVersion "
             + "where RKAlbum.modelID = RKAlbumVersion.albumId and "
-            + "RKAlbumVersion.versionID = RKVersion.modelId and RKVersion.type = 2 and "
+            + "RKAlbumVersion.versionID = RKVersion.modelId and "
             + "RKVersion.filename not like '%.pdf' and RKVersion.isInTrash = 0"
         )
         for album in c:
@@ -440,12 +442,13 @@ class PhotosDB:
         logging.debug(pformat(self._dbalbums_uuid))
         logging.debug(pformat(self._dbalbum_details))
 
+        # Get info on keywords
         c.execute(
             "select RKKeyword.name, RKVersion.uuid, RKMaster.uuid from "
             + "RKKeyword, RKKeywordForVersion, RKVersion, RKMaster "
             + "where RKKeyword.modelId = RKKeyWordForVersion.keywordID and "
             + "RKVersion.modelID = RKKeywordForVersion.versionID "
-            + "and RKMaster.uuid = RKVersion.masterUuid and RKVersion.type = 2 "
+            + "and RKMaster.uuid = RKVersion.masterUuid "
             + "and RKVersion.filename not like '%.pdf' and RKVersion.isInTrash = 0"
         )
         for keyword in c:
@@ -456,10 +459,12 @@ class PhotosDB:
             self._dbkeywords_uuid[keyword[1]].append(keyword[0])
             self._dbkeywords_keyword[keyword[0]].append(keyword[1])
 
+        # Get info on disk volumes
         c.execute("select RKVolume.modelId, RKVolume.name from RKVolume")
         for vol in c:
             self._dbvolumes[vol[0]] = vol[1]
 
+        # Get photo details
         c.execute(
             "select RKVersion.uuid, RKVersion.modelId, RKVersion.masterUuid, RKVersion.filename, "
             + "RKVersion.lastmodifieddate, RKVersion.imageDate, RKVersion.mainRating, "
@@ -467,8 +472,8 @@ class PhotosDB:
             + "RKMaster.volumeId, RKMaster.imagePath, RKVersion.extendedDescription, RKVersion.name, "
             + "RKMaster.isMissing, RKMaster.originalFileName, RKVersion.isFavorite, RKVersion.isHidden, "
             + "RKVersion.latitude, RKVersion.longitude, "
-            + "RKVersion.adjustmentUuid "
-            + "from RKVersion, RKMaster where RKVersion.isInTrash = 0 and RKVersion.type = 2 and "
+            + "RKVersion.adjustmentUuid, RKVersion.type, RKMaster.UTI "
+            + "from RKVersion, RKMaster where RKVersion.isInTrash = 0 and "
             + "RKVersion.masterUuid = RKMaster.uuid and RKVersion.filename not like '%.pdf'"
         )
 
@@ -494,6 +499,8 @@ class PhotosDB:
         # 18    RKVersion.latitude
         # 19    RKVersion.longitude
         # 20    RKVersion.adjustmentUuid
+        # 21    RKVersion.type
+        # 22    RKMaster.UTI
 
         for row in c:
             uuid = row[0]
@@ -533,6 +540,20 @@ class PhotosDB:
             self._dbphotos[uuid]["adjustmentUuid"] = row[20]
             self._dbphotos[uuid]["adjustmentFormatID"] = None
 
+            # find type
+            if row[21] == 2:
+                # photo
+                self._dbphotos[uuid]["type"] = _PHOTO_TYPE
+            elif row[21] == 8:
+                # movie
+                self._dbphotos[uuid]["type"] = _MOVIE_TYPE
+            else:
+                # unknown
+                logging.debug(f"WARNING: {uuid} found unknown type {row[21]}")
+                self._dbphotos[uuid]["type"] = None
+
+            self._dbphotos[uuid]["UTI"] = row[22]
+
         # get details needed to find path of the edited photos and live photos
         c.execute(
             "SELECT RKVersion.uuid, RKVersion.adjustmentUuid, RKModelResource.modelId, "
@@ -555,6 +576,7 @@ class PhotosDB:
 
         # TODO: add live photos
         # attachedmodeltype is 2, it's a photo, could be more than one
+        # attachedmodeltype == 2 could also be movie?
         # if 5, it's a facetile
         # specialtype = 0 == image, 5 or 8 == live photo movie
 
@@ -565,7 +587,7 @@ class PhotosDB:
                     if (
                         row[1] != "UNADJUSTEDNONRAW"
                         and row[1] != "UNADJUSTED"
-                        and row[4] == "public.jpeg"
+                        # and row[4] == "public.jpeg"
                         and row[6] == 2
                     ):
                         if "edit_resource_id" in self._dbphotos[uuid]:
@@ -673,7 +695,7 @@ class PhotosDB:
             "SELECT ZPERSON.ZFULLNAME, ZGENERICASSET.ZUUID "
             "FROM ZPERSON, ZDETECTEDFACE, ZGENERICASSET "
             "WHERE ZDETECTEDFACE.ZPERSON = ZPERSON.Z_PK AND ZDETECTEDFACE.ZASSET = ZGENERICASSET.Z_PK "
-            "AND ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
+            "AND ZGENERICASSET.ZTRASHEDSTATE = 0"
         )
         for person in c:
             if person[0] is None:
@@ -694,7 +716,7 @@ class PhotosDB:
             "FROM ZGENERICASSET "
             "JOIN Z_26ASSETS ON Z_26ASSETS.Z_34ASSETS = ZGENERICASSET.Z_PK "
             "JOIN ZGENERICALBUM ON ZGENERICALBUM.Z_PK = Z_26ASSETS.Z_26ALBUMS "
-            "WHERE ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
+            "WHERE ZGENERICASSET.ZTRASHEDSTATE = 0 "
         )
         for album in c:
             # store by uuid in _dbalbums_uuid and by album in _dbalbums_album
@@ -732,13 +754,14 @@ class PhotosDB:
         logging.debug(pformat(self._dbalbums_uuid))
         logging.debug(pformat(self._dbalbum_details))
 
+        # get details on keywords
         c.execute(
             "SELECT ZKEYWORD.ZTITLE, ZGENERICASSET.ZUUID "
             "FROM ZGENERICASSET "
             "JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK "
             "JOIN Z_1KEYWORDS ON Z_1KEYWORDS.Z_1ASSETATTRIBUTES = ZADDITIONALASSETATTRIBUTES.Z_PK "
             "JOIN ZKEYWORD ON ZKEYWORD.Z_PK = Z_1KEYWORDS.Z_37KEYWORDS "
-            "WHERE ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
+            "WHERE ZGENERICASSET.ZTRASHEDSTATE = 0 "
         )
         for keyword in c:
             if not keyword[1] in self._dbkeywords_uuid:
@@ -751,12 +774,14 @@ class PhotosDB:
         logging.debug(pformat(self._dbkeywords_keyword))
         logging.debug(pformat(self._dbkeywords_uuid))
 
+        # get details on disk volumes
         c.execute("SELECT ZUUID, ZNAME from ZFILESYSTEMVOLUME")
         for vol in c:
             self._dbvolumes[vol[0]] = vol[1]
         logging.debug(f"Finished walking through volumes")
         logging.debug(self._dbvolumes)
 
+        # get details about photos
         logging.debug(f"Getting information about photos")
         c.execute(
             "SELECT ZGENERICASSET.ZUUID, "
@@ -775,10 +800,12 @@ class PhotosDB:
             "ZGENERICASSET.ZLATITUDE, "
             "ZGENERICASSET.ZLONGITUDE, "
             "ZGENERICASSET.ZHASADJUSTMENTS, "
-            "ZGENERICASSET.ZCLOUDOWNERHASHEDPERSONID "
+            "ZGENERICASSET.ZCLOUDOWNERHASHEDPERSONID, "
+            "ZGENERICASSET.ZKIND, "
+            "ZGENERICASSET.ZUNIFORMTYPEIDENTIFIER "
             "FROM ZGENERICASSET "
             "JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK "
-            "WHERE ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
+            "WHERE ZGENERICASSET.ZTRASHEDSTATE = 0  "
             "ORDER BY ZGENERICASSET.ZUUID "
         )
         # Order of results
@@ -799,6 +826,8 @@ class PhotosDB:
         # 14   "ZGENERICASSET.ZLONGITUDE, "
         # 15   "ZGENERICASSET.ZHASADJUSTMENTS "
         # 16   "ZCLOUDOWNERHASHEDPERSONID "   -- If not null, indicates a shared photo
+        # 17    "ZKIND," -- 0 = photo, 1 = movie
+        # 18    " ZUNIFORMTYPEIDENTIFIER " -- UTI
 
         for row in c:
             uuid = row[0]
@@ -848,6 +877,17 @@ class PhotosDB:
             self._dbphotos[uuid]["adjustmentUuid"] = None
             self._dbphotos[uuid]["adjustmentFormatID"] = None
 
+            # find type
+            if row[17] == 0:
+                self._dbphotos[uuid]["type"] = _PHOTO_TYPE
+            elif row[17] == 1:
+                self._dbphotos[uuid]["type"] = _MOVIE_TYPE
+            else:
+                logging.debug(f"WARNING: {uuid} found unknown type {row[17]}")
+                self._dbphotos[uuid]["type"] = None
+
+            self._dbphotos[uuid]["UTI"] = row[18]
+
         # Get extended description
         c.execute(
             "SELECT ZGENERICASSET.ZUUID, "
@@ -874,7 +914,7 @@ class PhotosDB:
             "FROM ZGENERICASSET, ZUNMANAGEDADJUSTMENT "
             "JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK "
             "WHERE ZADDITIONALASSETATTRIBUTES.ZUNMANAGEDADJUSTMENT = ZUNMANAGEDADJUSTMENT.Z_PK "
-            "AND ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
+            "AND ZGENERICASSET.ZTRASHEDSTATE = 0 "
         )
         for row in c:
             uuid = row[0]
@@ -980,16 +1020,26 @@ class PhotosDB:
         logging.debug(pformat(self._dbphotos))
 
     # TODO: fix default values to None instead of []
-    def photos(self, keywords=[], uuid=[], persons=[], albums=[]):
+    def photos(
+        self,
+        keywords=None,
+        uuid=None,
+        persons=None,
+        albums=None,
+        images=True,
+        movies=False,
+    ):
         """ 
         Return a list of PhotoInfo objects
         If called with no args, returns the entire database of photos
         If called with args, returns photos matching the args (e.g. keywords, persons, etc.)
         If more than one arg, returns photos matching all the criteria (e.g. keywords AND persons)
+        images: if True, returns image files, if False, does not return images; default is True
+        movies: if True, returns movie files, if False, does not return movies; default is False
         """
         photos_sets = []  # list of photo sets to perform intersection of
         if not keywords and not uuid and not persons and not albums:
-            # return all the photos
+            # return all the photos, filtering for images and movies
             # append keys of all photos as a single set to photos_sets
             photos_sets.append(set(self._dbphotos.keys()))
         else:
@@ -1036,10 +1086,14 @@ class PhotosDB:
         photoinfo = []
         if photos_sets:  # found some photos
             # get the intersection of each argument/search criteria
-            logging.debug(f"Got here: {photos_sets}")
+            logging.debug(f"Got photo_sets: {photos_sets}")
             for p in set.intersection(*photos_sets):
-                info = PhotoInfo(db=self, uuid=p, info=self._dbphotos[p])
-                photoinfo.append(info)
+                # filter for images and/or movies
+                if (images and self._dbphotos[p]["type"] == _PHOTO_TYPE) or (
+                    movies and self._dbphotos[p]["type"] == _MOVIE_TYPE
+                ):
+                    info = PhotoInfo(db=self, uuid=p, info=self._dbphotos[p])
+                    photoinfo.append(info)
         logging.debug(f"photoinfo: {pformat(photoinfo)}")
         return photoinfo
 

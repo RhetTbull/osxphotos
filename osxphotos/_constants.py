@@ -24,3 +24,7 @@ _EXIF_TOOL_URL = "https://exiftool.org/"
 
 # Where are shared iCloud photos located?
 _PHOTOS_5_SHARED_PHOTO_PATH = "resources/cloudsharing/data"
+
+# What type of file? Based on ZGENERICASSET.ZKIND in Photos 5 database
+_PHOTO_TYPE = 0
+_MOVIE_TYPE = 1

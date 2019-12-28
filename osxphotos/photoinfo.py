@@ -16,7 +16,12 @@ from pprint import pformat
 
 import yaml
 
-from ._constants import _PHOTOS_5_VERSION, _PHOTOS_5_SHARED_PHOTO_PATH
+from ._constants import (
+    _MOVIE_TYPE,
+    _PHOTO_TYPE,
+    _PHOTOS_5_SHARED_PHOTO_PATH,
+    _PHOTOS_5_VERSION,
+)
 from .utils import _get_resource_loc, dd_to_dms_str
 
 # TODO: check pylint output
@@ -122,6 +127,19 @@ class PhotoInfo:
                     library = self._db._library_path
                     folder_id, file_id = _get_resource_loc(edit_id)
                     # todo: is this always true or do we need to search file file_id under folder_id
+                    # figure out what kind it is and build filename
+                    filename = None
+                    if self._info["type"] == _PHOTO_TYPE:
+                        # it's a photo
+                        filename = f"fullsizeoutput_{file_id}.jpeg"
+                    elif self._info["type"] == _MOVIE_TYPE:
+                        # it's a movie
+                        filename = f"fullsizeoutput_{file_id}.mov"
+                    else:
+                        # don't know what it is!
+                        logging.debug(f"WARNING: unknown type {self._info['type']}")
+                        return None
+
                     photopath = os.path.join(
                         library,
                         "resources",
@@ -129,7 +147,7 @@ class PhotoInfo:
                         "version",
                         folder_id,
                         "00",
-                        f"fullsizeoutput_{file_id}.jpeg",
+                        filename,
                     )
                     if not os.path.isfile(photopath):
                         logging.warning(
@@ -138,7 +156,7 @@ class PhotoInfo:
                         photopath = None
                 else:
                     logging.warning(
-                        f"{self.uuid} hasAdjustments but edit_model_id is None"
+                        f"{self.uuid} hasAdjustments but edit_resource_id is None"
                     )
             else:
                 photopath = None
@@ -266,6 +284,25 @@ class PhotoInfo:
             return self._info["shared"]
         else:
             return None
+
+    @property
+    def uti(self):
+        """ Returns Uniform Type Identifier (UTI) for the image
+            for example: public.jpeg or com.apple.quicktime-movie
+        """
+        return self._info["UTI"]
+
+    @property
+    def ismovie(self):
+        """ Returns True if file is a movie, otherwise False
+        """
+        return True if self._info["type"] == _MOVIE_TYPE else False
+
+    @property
+    def isphoto(self):
+        """ Returns True if file is an image, otherwise False
+        """
+        return True if self._info["type"] == _PHOTO_TYPE else False
 
     def export(
         self,
