@@ -26,6 +26,15 @@ if not _DEBUG:
     logging.disable(logging.DEBUG)
 
 
+def _get_logger():
+    """Used only for testing
+    
+    Returns:
+        logging.Logger object -- logging.Logger object for osxphotos
+    """
+    return logging.Logger(__name__)
+
+
 def _debug(debug):
     """ Enable or disable debug logging """
     if debug:
