@@ -324,3 +324,17 @@ def test_get_library_path():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     lib_path = photosdb.library_path
     assert lib_path.endswith(PHOTOS_LIBRARY_PATH)
+
+
+def test_photosdb_repr():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    print(repr(photosdb))
+    photosdb2 = eval(repr(photosdb))
+
+    ignore_keys = ["_tmp_db", "_tmp_files"]
+    assert {k: v for k, v in photosdb.__dict__.items() if k not in ignore_keys} == {
+        k: v for k, v in photosdb2.__dict__.items() if k not in ignore_keys
+    }
+

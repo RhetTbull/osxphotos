@@ -5,7 +5,7 @@ from osxphotos._constants import _UNKNOWN_PERSON
 # TODO: put some of this code into a pre-function
 
 PHOTOS_DB = "./tests/Test-10.15.1.photoslibrary/database/photos.db"
-PHOTOS_DB_PATH = "/Test-10.15.1.photoslibrary/database/Photos.sqlite"
+PHOTOS_DB_PATH = "/Test-10.15.1.photoslibrary/database/photos.db"
 PHOTOS_LIBRARY_PATH = "/Test-10.15.1.photoslibrary"
 
 KEYWORDS = [
@@ -737,18 +737,34 @@ def test_export_13():
         assert photos[0].export(dest)
     assert e.type == type(FileNotFoundError())
 
+
 def test_eq():
     import osxphotos
-    
+
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos1 = photosdb.photos(uuid=[UUID_DICT["export"]])
     photos2 = photosdb.photos(uuid=[UUID_DICT["export"]])
     assert photos1[0] == photos2[0]
 
+
 def test_not_eq():
     import osxphotos
-    
+
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos1 = photosdb.photos(uuid=[UUID_DICT["export"]])
     photos2 = photosdb.photos(uuid=[UUID_DICT["missing"]])
     assert photos1[0] != photos2[0]
+
+
+def test_photosdb_repr():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    print(repr(photosdb))
+    photosdb2 = eval(repr(photosdb))
+
+    ignore_keys = ["_tmp_db", "_tmp_files"]
+    assert {k: v for k, v in photosdb.__dict__.items() if k not in ignore_keys} == {
+        k: v for k, v in photosdb2.__dict__.items() if k not in ignore_keys
+    }
+

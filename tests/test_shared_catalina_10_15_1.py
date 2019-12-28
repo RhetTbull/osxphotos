@@ -4,7 +4,7 @@ import pytest
 # TODO: put some of this code into a pre-function
 
 PHOTOS_DB = "./tests/Test-Shared-10.15.1.photoslibrary/database/photos.db"
-PHOTOS_DB_PATH = "/Test-Shared-10.15.1.photoslibrary/database/Photos.sqlite"
+PHOTOS_DB_PATH = "/Test-Shared-10.15.1.photoslibrary/database/photos.db"
 PHOTOS_LIBRARY_PATH = "/Test-Shared-10.15.1.photoslibrary"
 
 KEYWORDS = ["portrait"]

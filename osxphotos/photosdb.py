@@ -57,6 +57,8 @@ class PhotosDB:
 
         # Path to the Photos library database file
         self._dbfile = None
+        # the actual file with library data which on Photos 5 is Photos.sqlite instead of photos.db
+        self._dbfile_actual = None
         # Dict with information about all photos by uuid
         self._dbphotos = {}
         # Dict with information about all persons/photos by uuid
@@ -115,25 +117,27 @@ class PhotosDB:
 
         logging.debug(f"dbfile = {dbfile}")
 
-        self._dbfile = dbfile
+        self._dbfile = self._dbfile_actual = os.path.abspath(dbfile)
 
         self._tmp_db = self._copy_db_file(self._dbfile)
         self._db_version = self._get_db_version()
+
+        # If Photos >= 5, actual data isn't in photos.db but in Photos.sqlite
         if int(self._db_version) >= int(_PHOTOS_5_VERSION):
             logging.debug(f"version is {self._db_version}")
             dbpath = pathlib.Path(self._dbfile).parent
             dbfile = dbpath / "Photos.sqlite"
-            logging.debug(f"dbfile = {dbfile}")
             if not _check_file_exists(dbfile):
                 sys.exit(f"dbfile {dbfile} does not exist")
             else:
-                self._dbfile = dbfile
-                self._tmp_db = self._copy_db_file(self._dbfile)
+                self._tmp_db = self._copy_db_file(dbfile)
+                self._dbfile_actual = dbfile
+            logging.debug(
+                f"_dbfile = {self._dbfile}, _dbfile_actual = {self._dbfile_actual}"
+            )
 
-        # TODO: replace os.path with pathlib?
-        # TODO: clean this up -- library path computed twice
         library_path = os.path.dirname(os.path.abspath(dbfile))
-        (library_path, _) = os.path.split(library_path)
+        (library_path, _) = os.path.split(library_path)  # drop /database from path
         self._library_path = library_path
         if int(self._db_version) < int(_PHOTOS_5_VERSION):
             masters_path = os.path.join(library_path, "Masters")
@@ -250,7 +254,7 @@ class PhotosDB:
     @property
     def albums(self):
         """ return list of albums found in photos database """
-        
+
         # Could be more than one album with same name
         # Right now, they are treated as same album and photos are combined from albums with same name
 
@@ -268,7 +272,7 @@ class PhotosDB:
     def albums_shared(self):
         """ return list of shared albums found in photos database
             only valid for Photos 5; on Photos <= 4, prints warning and returns empty list """
-            
+
         # Could be more than one album with same name
         # Right now, they are treated as same album and photos are combined from albums with same name
 
@@ -1119,3 +1123,10 @@ class PhotosDB:
 
     def __repr__(self):
         return f"osxphotos.{self.__class__.__name__}(dbfile='{self.db_path}')"
+
+    # compare two PhotosDB objects for equality
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.__dict__ == other.__dict__
+
+        return False
