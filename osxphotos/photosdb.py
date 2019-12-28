@@ -669,13 +669,6 @@ class PhotosDB:
         # Look for all combinations of persons and pictures
         logging.debug(f"Getting information about persons")
 
-        i = 0
-        c.execute(
-            "SELECT COUNT(*) "
-            "FROM ZPERSON, ZDETECTEDFACE, ZGENERICASSET "
-            "WHERE ZDETECTEDFACE.ZPERSON = ZPERSON.Z_PK AND ZDETECTEDFACE.ZASSET = ZGENERICASSET.Z_PK "
-            "AND ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
-        )
         c.execute(
             "SELECT ZPERSON.ZFULLNAME, ZGENERICASSET.ZUUID "
             "FROM ZPERSON, ZDETECTEDFACE, ZGENERICASSET "
@@ -692,19 +685,10 @@ class PhotosDB:
                 self._dbfaces_person[person_name] = []
             self._dbfaces_uuid[person[1]].append(person_name)
             self._dbfaces_person[person_name].append(person[1])
-            i = i + 1
         logging.debug(f"Finished walking through persons")
         logging.debug(pformat(self._dbfaces_person))
         logging.debug(self._dbfaces_uuid)
 
-        i = 0
-        c.execute(
-            "SELECT COUNT(*)"
-            "FROM ZGENERICASSET "
-            "JOIN Z_26ASSETS ON Z_26ASSETS.Z_34ASSETS = ZGENERICASSET.Z_PK "
-            "JOIN ZGENERICALBUM ON ZGENERICALBUM.Z_PK = Z_26ASSETS.Z_26ALBUMS "
-            "WHERE ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
-        )
         c.execute(
             "SELECT ZGENERICALBUM.ZUUID, ZGENERICASSET.ZUUID "
             "FROM ZGENERICASSET "
@@ -720,7 +704,6 @@ class PhotosDB:
                 self._dbalbums_album[album[0]] = []
             self._dbalbums_uuid[album[1]].append(album[0])
             self._dbalbums_album[album[0]].append(album[1])
-            i = i + 1
 
         # now get additional details about albums
         c.execute(
@@ -750,14 +733,6 @@ class PhotosDB:
         logging.debug(pformat(self._dbalbum_details))
 
         c.execute(
-            "SELECT COUNT(*) "
-            "FROM ZGENERICASSET "
-            "JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK "
-            "JOIN Z_1KEYWORDS ON Z_1KEYWORDS.Z_1ASSETATTRIBUTES = ZADDITIONALASSETATTRIBUTES.Z_PK "
-            "JOIN ZKEYWORD ON ZKEYWORD.Z_PK = Z_1KEYWORDS.Z_37KEYWORDS "
-            "WHERE ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
-        )
-        c.execute(
             "SELECT ZKEYWORD.ZTITLE, ZGENERICASSET.ZUUID "
             "FROM ZGENERICASSET "
             "JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK "
@@ -765,7 +740,6 @@ class PhotosDB:
             "JOIN ZKEYWORD ON ZKEYWORD.Z_PK = Z_1KEYWORDS.Z_37KEYWORDS "
             "WHERE ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
         )
-        i = 0
         for keyword in c:
             if not keyword[1] in self._dbkeywords_uuid:
                 self._dbkeywords_uuid[keyword[1]] = []
@@ -773,28 +747,17 @@ class PhotosDB:
                 self._dbkeywords_keyword[keyword[0]] = []
             self._dbkeywords_uuid[keyword[1]].append(keyword[0])
             self._dbkeywords_keyword[keyword[0]].append(keyword[1])
-            i = i + 1
         logging.debug(f"Finished walking through keywords")
         logging.debug(pformat(self._dbkeywords_keyword))
         logging.debug(pformat(self._dbkeywords_uuid))
 
-        c.execute("SELECT COUNT(*) FROM ZFILESYSTEMVOLUME")
         c.execute("SELECT ZUUID, ZNAME from ZFILESYSTEMVOLUME")
-        i = 0
         for vol in c:
             self._dbvolumes[vol[0]] = vol[1]
-            i = i + 1
         logging.debug(f"Finished walking through volumes")
         logging.debug(self._dbvolumes)
 
         logging.debug(f"Getting information about photos")
-        # TODO: Since I don't use progress bars now, can probably remove the count
-        c.execute(
-            "SELECT COUNT(*) "
-            "FROM ZGENERICASSET "
-            "JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK "
-            "WHERE ZGENERICASSET.ZTRASHEDSTATE = 0 AND ZGENERICASSET.ZKIND = 0 "
-        )
         c.execute(
             "SELECT ZGENERICASSET.ZUUID, "
             "ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT, "
@@ -837,12 +800,8 @@ class PhotosDB:
         # 15   "ZGENERICASSET.ZHASADJUSTMENTS "
         # 16   "ZCLOUDOWNERHASHEDPERSONID "   -- If not null, indicates a shared photo
 
-        i = 0
         for row in c:
-            i = i + 1
             uuid = row[0]
-            logging.debug(f"i = {i:d}, uuid = '{uuid}")
-
             self._dbphotos[uuid] = {}
             self._dbphotos[uuid]["_uuid"] = uuid  # stored here for easier debugging
             self._dbphotos[uuid]["modelID"] = None
@@ -898,9 +857,7 @@ class PhotosDB:
             "JOIN ZASSETDESCRIPTION ON ZASSETDESCRIPTION.Z_PK = ZADDITIONALASSETATTRIBUTES.ZASSETDESCRIPTION "
             "ORDER BY ZGENERICASSET.ZUUID "
         )
-        i = 0
         for row in c:
-            i = i + 1
             uuid = row[0]
             if uuid in self._dbphotos:
                 self._dbphotos[uuid]["extendedDescription"] = row[1]
@@ -938,9 +895,7 @@ class PhotosDB:
             "JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZFINGERPRINT = ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT "
         )
 
-        i = 0
         for row in c:
-            i = i + 1
             uuid = row[0]
             if uuid in self._dbphotos:
                 self._dbphotos[uuid]["localAvailability"] = row[1]
@@ -950,7 +905,8 @@ class PhotosDB:
                 else:
                     self._dbphotos[uuid]["isMissing"] = 0
 
-        # temp fix for cloud shared files
+        # Get info on remote/local availability for photos in shared albums
+        # Shared photos have a null fingerprint
         c.execute(
             """ SELECT 
                 ZGENERICASSET.ZUUID, 
