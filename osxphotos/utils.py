@@ -134,7 +134,8 @@ def get_system_library_path():
 
 
 def get_last_library_path():
-    """ return the path to the last opened Photos library """
+    """ returns the path to the last opened Photos library 
+        If a library has never been opened, returns None """
     # TODO: Need a module level method for this and another PhotosDB method to get current library path
     plist_file = Path(
         str(Path.home())
@@ -144,7 +145,7 @@ def get_last_library_path():
         with open(plist_file, "rb") as fp:
             pl = plistload(fp)
     else:
-        logging.warning(f"could not find plist file: {str(plist_file)}")
+        logging.debug(f"could not find plist file: {str(plist_file)}")
         return None
 
     # get the IPXDefaultLibraryURLBookmark from com.apple.Photos.plist
@@ -178,7 +179,7 @@ def get_last_library_path():
 
         return photospath
     else:
-        logging.warning("Could not get path to Photos database")
+        logging.debug("Could not get path to Photos database")
         return None
 
 
