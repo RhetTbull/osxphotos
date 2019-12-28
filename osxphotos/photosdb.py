@@ -381,12 +381,6 @@ class PhotosDB:
         (conn, c) = self._open_sql_file(self._tmp_db)
 
         # Look for all combinations of persons and pictures
-
-        i = 0
-        c.execute(
-            "select count(*) from RKFace, RKPerson, RKVersion where RKFace.personID = RKperson.modelID "
-            + "and RKFace.imageModelId = RKVersion.modelId and RKVersion.isInTrash = 0"
-        )
         # c.execute("select RKPerson.name, RKFace.imageID from RKFace, RKPerson where RKFace.personID = RKperson.modelID")
         c.execute(
             "select RKPerson.name, RKVersion.uuid from RKFace, RKPerson, RKVersion, RKMaster "
@@ -403,16 +397,7 @@ class PhotosDB:
                 self._dbfaces_person[person[0]] = []
             self._dbfaces_uuid[person[1]].append(person[0])
             self._dbfaces_person[person[0]].append(person[1])
-            i = i + 1
 
-        i = 0
-        c.execute(
-            "select count(*) from RKAlbum, RKVersion, RKAlbumVersion where "
-            + "RKAlbum.modelID = RKAlbumVersion.albumId and "
-            + "RKAlbumVersion.versionID = RKVersion.modelId and "
-            + "RKVersion.filename not like '%.pdf' and RKVersion.isInTrash = 0"
-        )
-        # c.execute("select RKPerson.name, RKFace.imageID from RKFace, RKPerson where RKFace.personID = RKperson.modelID")
         c.execute(
             "select RKAlbum.uuid, RKVersion.uuid from RKAlbum, RKVersion, RKAlbumVersion "
             + "where RKAlbum.modelID = RKAlbumVersion.albumId and "
@@ -427,7 +412,6 @@ class PhotosDB:
                 self._dbalbums_album[album[0]] = []
             self._dbalbums_uuid[album[1]].append(album[0])
             self._dbalbums_album[album[0]].append(album[1])
-            i = i + 1
 
         # now get additional details about albums
         c.execute(
@@ -457,12 +441,6 @@ class PhotosDB:
         logging.debug(pformat(self._dbalbum_details))
 
         c.execute(
-            "select count(*) from RKKeyword, RKKeywordForVersion,RKVersion, RKMaster "
-            + "where RKKeyword.modelId = RKKeyWordForVersion.keywordID and "
-            + "RKVersion.modelID = RKKeywordForVersion.versionID and RKMaster.uuid = "
-            + "RKVersion.masterUuid and RKVersion.filename not like '%.pdf' and RKVersion.isInTrash = 0"
-        )
-        c.execute(
             "select RKKeyword.name, RKVersion.uuid, RKMaster.uuid from "
             + "RKKeyword, RKKeywordForVersion, RKVersion, RKMaster "
             + "where RKKeyword.modelId = RKKeyWordForVersion.keywordID and "
@@ -470,7 +448,6 @@ class PhotosDB:
             + "and RKMaster.uuid = RKVersion.masterUuid and RKVersion.type = 2 "
             + "and RKVersion.filename not like '%.pdf' and RKVersion.isInTrash = 0"
         )
-        i = 0
         for keyword in c:
             if not keyword[1] in self._dbkeywords_uuid:
                 self._dbkeywords_uuid[keyword[1]] = []
@@ -478,20 +455,11 @@ class PhotosDB:
                 self._dbkeywords_keyword[keyword[0]] = []
             self._dbkeywords_uuid[keyword[1]].append(keyword[0])
             self._dbkeywords_keyword[keyword[0]].append(keyword[1])
-            i = i + 1
 
-        c.execute("select count(*) from RKVolume")
         c.execute("select RKVolume.modelId, RKVolume.name from RKVolume")
-        i = 0
         for vol in c:
             self._dbvolumes[vol[0]] = vol[1]
-            i = i + 1
 
-        c.execute(
-            "select count(*) from RKVersion, RKMaster where RKVersion.isInTrash = 0 and "
-            + "RKVersion.type = 2 and RKVersion.masterUuid = RKMaster.uuid and "
-            + "RKVersion.filename not like '%.pdf'"
-        )
         c.execute(
             "select RKVersion.uuid, RKVersion.modelId, RKVersion.masterUuid, RKVersion.filename, "
             + "RKVersion.lastmodifieddate, RKVersion.imageDate, RKVersion.mainRating, "
@@ -527,11 +495,9 @@ class PhotosDB:
         # 19    RKVersion.longitude
         # 20    RKVersion.adjustmentUuid
 
-        i = 0
         for row in c:
-            i = i + 1
             uuid = row[0]
-            logging.debug(f"i = {i:d}, uuid = '{uuid}, master = '{row[2]}")
+            logging.debug(f"uuid = '{uuid}, master = '{row[2]}")
             self._dbphotos[uuid] = {}
             self._dbphotos[uuid]["_uuid"] = uuid  # stored here for easier debugging
             self._dbphotos[uuid]["modelID"] = row[1]
