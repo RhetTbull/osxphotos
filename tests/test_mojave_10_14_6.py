@@ -33,6 +33,8 @@ KEYWORDS_DICT = {
 PERSONS_DICT = {"Katie": 3, "Suzy": 2, "Maria": 1}
 ALBUM_DICT = {"Pumpkin Farm": 3, "Test Album": 1, "Test Album (1)": 1}
 
+UUID_DICT = {"favorite": "6bxcNnzRQKGnK4uPrCJ9UQ"}
+
 
 def test_init():
     import osxphotos
@@ -149,7 +151,7 @@ def test_favorite():
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    photos = photosdb.photos(uuid=["6bxcNnzRQKGnK4uPrCJ9UQ"])
+    photos = photosdb.photos(uuid=[UUID_DICT["favorite"]])
     assert len(photos) == 1
     p = photos[0]
     assert p.favorite == True
@@ -330,7 +332,6 @@ def test_photosdb_repr():
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    print(repr(photosdb))
     photosdb2 = eval(repr(photosdb))
 
     ignore_keys = ["_tmp_db", "_tmp_files"]
@@ -338,3 +339,16 @@ def test_photosdb_repr():
         k: v for k, v in photosdb2.__dict__.items() if k not in ignore_keys
     }
 
+
+def test_photosinfo_repr():
+    import osxphotos
+    import datetime
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=[UUID_DICT["favorite"]])
+    photo = photos[0]
+    photo2 = eval(repr(photo))
+
+    assert {k: str(v).encode("utf-8") for k, v in photo.__dict__.items()} == {
+        k: str(v).encode("utf-8") for k, v in photo2.__dict__.items()
+    }
