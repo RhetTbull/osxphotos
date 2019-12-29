@@ -18,6 +18,7 @@ from .utils import create_path_by_date
 # TODO: add "--any" to search any field (e.g. keyword, description, title contains "wedding") (add case insensitive option)
 # TODO: add search for filename
 
+
 class CLI_Obj:
     def __init__(self, db=None, json=False, debug=False):
         if debug:
@@ -78,7 +79,6 @@ def albums(cli_obj):
         click.echo(yaml.dump(albums, sort_keys=False))
 
 
-
 @cli.command()
 @click.pass_obj
 def persons(cli_obj):
@@ -112,7 +112,6 @@ def info(cli_obj):
 
         shared_movies = [p for p in movies if p.shared]
         info["shared_movie_count"] = len(shared_movies)
-    
 
     keywords = pdb.keywords_as_dict
     info["keywords_count"] = len(keywords)
@@ -215,6 +214,12 @@ def list_libraries(cli_obj):
     "--no-description", is_flag=True, help="Search for photos with no description."
 )
 @click.option(
+    "--uti",
+    default=None,
+    multiple=False,
+    help="Search for photos whose uniform type identifier (UTI) matches TEXT",
+)
+@click.option(
     "-i",
     "--ignore-case",
     is_flag=True,
@@ -237,10 +242,24 @@ def list_libraries(cli_obj):
     help="Search for photos present on disk (e.g. not missing).",
 )
 @click.option(
-    "--shared", is_flag=True, help="Search for photos in shared iCloud album (Photos 5 only)."
+    "--shared",
+    is_flag=True,
+    help="Search for photos in shared iCloud album (Photos 5 only).",
 )
 @click.option(
-    "--not-shared", is_flag=True, help="Search for photos not in shared iCloud album (Photos 5 only)."
+    "--not-shared",
+    is_flag=True,
+    help="Search for photos not in shared iCloud album (Photos 5 only).",
+)
+@click.option(
+    "--only-movies",
+    is_flag=True,
+    help="Search only for movies (default searches both images and movies)",
+)
+@click.option(
+    "--only-photos",
+    is_flag=True,
+    help="Search only for photos/images (default searches both images and movies)",
 )
 @click.option(
     "--json",
@@ -274,6 +293,9 @@ def query(
     not_missing,
     shared,
     not_shared,
+    only_movies,
+    only_photos,
+    uti,
 ):
     """ Query the Photos database using 1 or more search options; 
         if more than one option is provided, they are treated as "AND" 
@@ -301,6 +323,9 @@ def query(
             not_missing,
             shared,
             not_shared,
+            only_movies,
+            only_photos,
+            uti,
         ]
     ):
         click.echo(cli.commands["query"].get_help(ctx))
@@ -325,31 +350,45 @@ def query(
         # can't search for both description and no_description
         click.echo(cli.commands["query"].get_help(ctx))
         return
-    else:
-        photos = _query(
-            cli_obj,
-            keyword,
-            person,
-            album,
-            uuid,
-            title,
-            no_title,
-            description,
-            no_description,
-            ignore_case,
-            json,
-            edited,
-            external_edit,
-            favorite,
-            not_favorite,
-            hidden,
-            not_hidden,
-            missing,
-            not_missing,
-            shared,
-            not_shared,
-        )
-        print_photo_info(photos, cli_obj.json or json)
+    elif only_photos and only_movies:
+        # can't have only photos and only movies
+        click.echo(cli.commands["query"].get_help(ctx))
+        return
+
+    # actually have something to query
+    isphoto = ismovie = True # default searches for everything
+    if only_movies:
+        isphoto = False
+    if only_photos:
+        ismovie = False
+
+    photos = _query(
+        cli_obj,
+        keyword,
+        person,
+        album,
+        uuid,
+        title,
+        no_title,
+        description,
+        no_description,
+        ignore_case,
+        json,
+        edited,
+        external_edit,
+        favorite,
+        not_favorite,
+        hidden,
+        not_hidden,
+        missing,
+        not_missing,
+        shared,
+        not_shared,
+        isphoto,
+        ismovie,
+        uti,
+    )
+    print_photo_info(photos, cli_obj.json or json)
 
 
 @cli.command()
@@ -371,6 +410,12 @@ def query(
     "--no-description", is_flag=True, help="Search for photos with no description."
 )
 @click.option(
+    "--uti",
+    default=None,
+    multiple=False,
+    help="Search for photos whose uniform type identifier (UTI) matches TEXT",
+)
+@click.option(
     "-i",
     "--ignore-case",
     is_flag=True,
@@ -387,10 +432,14 @@ def query(
 @click.option("--hidden", is_flag=True, help="Search for photos marked hidden.")
 @click.option("--not-hidden", is_flag=True, help="Search for photos not marked hidden.")
 @click.option(
-    "--shared", is_flag=True, help="Search for photos in shared iCloud album (Photos 5 only)."
+    "--shared",
+    is_flag=True,
+    help="Search for photos in shared iCloud album (Photos 5 only).",
 )
 @click.option(
-    "--not-shared", is_flag=True, help="Search for photos not in shared iCloud album (Photos 5 only)."
+    "--not-shared",
+    is_flag=True,
+    help="Search for photos not in shared iCloud album (Photos 5 only).",
 )
 @click.option("--verbose", is_flag=True, help="Print verbose output.")
 @click.option(
@@ -427,6 +476,16 @@ def query(
     '"exiftool -j=photoname.jpg.json photoname.jpg" '
     "The sidecar file is named in format photoname.ext.json where ext is extension of the photo (e.g. jpg).",
 )
+@click.option(
+    "--only-movies",
+    is_flag=True,
+    help="Search only for movies (default searches both images and movies)",
+)
+@click.option(
+    "--only-photos",
+    is_flag=True,
+    help="Search only for photos/images (default searches both images and movies)",
+)
 @click.argument("dest", nargs=1)
 @click.pass_obj
 @click.pass_context
@@ -441,6 +500,7 @@ def export(
     no_title,
     description,
     no_description,
+    uti,
     ignore_case,
     edited,
     external_edit,
@@ -456,6 +516,8 @@ def export(
     export_edited,
     original_name,
     sidecar,
+    only_photos,
+    only_movies,
     dest,
 ):
     """ Export photos from the Photos database.
@@ -471,7 +533,34 @@ def export(
     if not os.path.isdir(dest):
         sys.exit("DEST must be valid path")
 
-    # if no query terms, show help and return
+    # sanity check input args
+    if favorite and not_favorite:
+        # can't search for both favorite and notfavorite
+        click.echo(cli.commands["export"].get_help(ctx))
+        return
+    elif hidden and not_hidden:
+        # can't search for both hidden and nothidden
+        click.echo(cli.commands["export"].get_help(ctx))
+        return
+    elif title and no_title:
+        # can't search for both title and no_title
+        click.echo(cli.commands["export"].get_help(ctx))
+        return
+    elif description and no_description:
+        # can't search for both description and no_description
+        click.echo(cli.commands["export"].get_help(ctx))
+        return
+    elif only_photos and only_movies:
+        # can't have only photos and only movies
+        click.echo(cli.commands["export"].get_help(ctx))
+        return
+
+    isphoto = ismovie = True # default searches for everything
+    if only_movies:
+        isphoto = False
+    if only_photos:
+        ismovie = False
+
     photos = _query(
         cli_obj,
         keyword,
@@ -494,6 +583,9 @@ def export(
         None,  # not-missing
         shared,
         not_shared,
+        isphoto,
+        ismovie,
+        uti,
     )
 
     if photos:
@@ -579,6 +671,9 @@ def print_photo_info(photos, json=False):
                 "latitude",
                 "longitude",
                 "path_edited",
+                "isphoto",
+                "ismovie",
+                "uti",
             ]
         )
         for p in photos:
@@ -587,7 +682,7 @@ def print_photo_info(photos, json=False):
                     p.uuid,
                     p.filename,
                     p.original_filename,
-                    str(p.date),
+                    p.date.isoformat(),
                     p.description,
                     p.title,
                     ", ".join(p.keywords),
@@ -603,6 +698,9 @@ def print_photo_info(photos, json=False):
                     p._latitude,
                     p._longitude,
                     p.path_edited,
+                    p.isphoto,
+                    p.ismovie,
+                    p.uti,
                 ]
             )
         for row in dump:
@@ -631,6 +729,9 @@ def _query(
     not_missing,
     shared,
     not_shared,
+    isphoto,
+    ismovie,
+    uti,
 ):
     """ run a query against PhotosDB to extract the photos based on user supply criteria """
     """ used by query and export commands """
@@ -638,7 +739,14 @@ def _query(
     """ if either is modified, need to ensure all three functions are updated """
 
     photosdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
-    photos = photosdb.photos(keywords=keyword, persons=person, albums=album, uuid=uuid, movies=True)
+    photos = photosdb.photos(
+        keywords=keyword,
+        persons=person,
+        albums=album,
+        uuid=uuid,
+        images=isphoto,
+        movies=ismovie,
+    )
 
     if title:
         # search title field for text
@@ -656,7 +764,7 @@ def _query(
 
     if description:
         # search description field for text
-        # if more than one, find photos with all name values in in description
+        # if more than one, find photos with all name values in description
         if ignore_case:
             # case-insensitive
             for d in description:
@@ -695,6 +803,14 @@ def _query(
         photos = [p for p in photos if p.shared]
     elif not_shared:
         photos = [p for p in photos if not p.shared]
+
+    if shared:
+        photos = [p for p in photos if p.shared]
+    elif not_shared:
+        photos = [p for p in photos if not p.shared]
+
+    if uti:
+        photos = [p for p in photos if uti in p.uti]
 
     return photos
 

@@ -536,6 +536,9 @@ class PhotoInfo:
             "longitude": self._longitude,
             "path_edited": self.path_edited,
             "shared": self.shared,
+            "isphoto": self.isphoto,
+            "ismovie": self.ismovie,
+            "uti": self.uti,
         }
         return yaml.dump(info, sort_keys=False)
 
@@ -561,6 +564,9 @@ class PhotoInfo:
             "longitude": self._longitude,
             "path_edited": self.path_edited,
             "shared": self.shared,
+            "isphoto": self.isphoto,
+            "ismovie": self.ismovie,
+            "uti": self.uti,
         }
         return json.dumps(pic)
 
