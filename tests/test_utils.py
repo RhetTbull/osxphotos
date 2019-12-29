@@ -5,9 +5,8 @@ def test_debug_enable():
     import osxphotos
     import logging
 
-    osxphotos._debug(True)
+    osxphotos._set_debug(True)
     logger = osxphotos._get_logger()
-    logging.warning(logger)
     assert logger.isEnabledFor(logging.DEBUG)
 
 
@@ -15,9 +14,8 @@ def test_debug_disable():
     import osxphotos
     import logging
 
-    osxphotos._debug(False)
+    osxphotos._set_debug(False)
     logger = osxphotos._get_logger()
-    logging.warning(logger)
     assert not logger.isEnabledFor(logging.DEBUG)
 
 

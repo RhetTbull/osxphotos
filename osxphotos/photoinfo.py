@@ -83,20 +83,6 @@ class PhotoInfo:
             return photopath
             # TODO: Is there a way to use applescript or PhotoKit to force the download in this
 
-        if self._info["masterFingerprint"]:
-            # if masterFingerprint is not null, path appears to be valid
-            if self._info["directory"].startswith("/"):
-                photopath = os.path.join(
-                    self._info["directory"], self._info["filename"]
-                )
-            else:
-                photopath = os.path.join(
-                    self._db._masters_path,
-                    self._info["directory"],
-                    self._info["filename"],
-                )
-            return photopath
-
         if self._info["shared"]:
             # shared photo
             photopath = os.path.join(
@@ -107,12 +93,22 @@ class PhotoInfo:
             )
             return photopath
 
-        # if all else fails, photopath = None
-        photopath = None
-        logging.debug(
-            f"WARNING: photopath None, masterFingerprint null, not shared {pformat(self._info)}"
-        )
+        # if self._info["masterFingerprint"]:
+        # if masterFingerprint is not null, path appears to be valid
+        if self._info["directory"].startswith("/"):
+            photopath = os.path.join(self._info["directory"], self._info["filename"])
+        else:
+            photopath = os.path.join(
+                self._db._masters_path, self._info["directory"], self._info["filename"]
+            )
         return photopath
+
+        # if all else fails, photopath = None
+        # photopath = None
+        # logging.debug(
+        #     f"WARNING: photopath None, masterFingerprint null, not shared {pformat(self._info)}"
+        # )
+        # return photopath
 
     @property
     def path_edited(self):
@@ -176,12 +172,20 @@ class PhotoInfo:
             if self._info["hasAdjustments"]:
                 library = self._db._library_path
                 directory = self._uuid[0]  # first char of uuid
+                filename = None
+                if self._info["type"] == _PHOTO_TYPE:
+                    # it's a photo
+                    filename = f"{self._uuid}_1_201_a.jpeg"
+                elif self._info["type"] == _MOVIE_TYPE:
+                    # it's a movie
+                    filename = f"{self._uuid}_2_0_a.mov"
+                else:
+                    # don't know what it is!
+                    logging.debug(f"WARNING: unknown type {self._info['type']}")
+                    return None
+
                 photopath = os.path.join(
-                    library,
-                    "resources",
-                    "renders",
-                    directory,
-                    f"{self._uuid}_1_201_a.jpeg",
+                    library, "resources", "renders", directory, filename
                 )
 
                 if not os.path.isfile(photopath):
