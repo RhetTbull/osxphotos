@@ -16,12 +16,12 @@ from ._version import __version__
 from .utils import create_path_by_date
 
 # TODO: add "--any" to search any field (e.g. keyword, description, title contains "wedding") (add case insensitive option)
-
+# TODO: add search for filename
 
 class CLI_Obj:
     def __init__(self, db=None, json=False, debug=False):
         if debug:
-            osxphotos._debug(True)
+            osxphotos._set_debug(True)
         self.db = db
         self.json = json
 
@@ -105,6 +105,14 @@ def info(cli_obj):
 
     movies = pdb.photos(images=False, movies=True)
     info["movie_count"] = len(movies)
+
+    if pdb.db_version >= _PHOTOS_5_VERSION:
+        shared_photos = [p for p in photos if p.shared]
+        info["shared_photo_count"] = len(shared_photos)
+
+        shared_movies = [p for p in movies if p.shared]
+        info["shared_movie_count"] = len(shared_movies)
+    
 
     keywords = pdb.keywords_as_dict
     info["keywords_count"] = len(keywords)

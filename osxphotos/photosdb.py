@@ -16,16 +16,16 @@ from pprint import pformat
 from shutil import copyfile
 
 from ._constants import (
+    _MOVIE_TYPE,
+    _PHOTO_TYPE,
     _PHOTOS_5_VERSION,
     _TESTED_DB_VERSIONS,
     _TESTED_OS_VERSIONS,
     _UNKNOWN_PERSON,
-    _PHOTO_TYPE,
-    _MOVIE_TYPE,
 )
 from ._version import __version__
 from .photoinfo import PhotoInfo
-from .utils import _check_file_exists, _get_os_version, get_last_library_path
+from .utils import _check_file_exists, _get_os_version, get_last_library_path, _debug
 
 # TODO: Add test for imageTimeZoneOffsetSeconds = None
 # TODO: Fix command line so multiple --keyword, etc. are AND (instead of OR as they are in .photos())
@@ -83,7 +83,8 @@ class PhotosDB:
         # list of temporary files created so we can clean them up later
         self._tmp_files = []
 
-        logging.debug(f"dbfile = {dbfile}")
+        if _debug():
+            logging.debug(f"dbfile = {dbfile}")
 
         # get the path to photos library database
         if args:
@@ -117,7 +118,8 @@ class PhotosDB:
         if not _check_file_exists(dbfile):
             raise FileNotFoundError(f"dbfile {dbfile} does not exist", dbfile)
 
-        logging.debug(f"dbfile = {dbfile}")
+        if _debug():
+            logging.debug(f"dbfile = {dbfile}")
 
         self._dbfile = self._dbfile_actual = os.path.abspath(dbfile)
 
@@ -126,7 +128,8 @@ class PhotosDB:
 
         # If Photos >= 5, actual data isn't in photos.db but in Photos.sqlite
         if int(self._db_version) >= int(_PHOTOS_5_VERSION):
-            logging.debug(f"version is {self._db_version}")
+            if _debug():
+                logging.debug(f"version is {self._db_version}")
             dbpath = pathlib.Path(self._dbfile).parent
             dbfile = dbpath / "Photos.sqlite"
             if not _check_file_exists(dbfile):
@@ -134,9 +137,10 @@ class PhotosDB:
             else:
                 self._tmp_db = self._copy_db_file(dbfile)
                 self._dbfile_actual = dbfile
-            logging.debug(
-                f"_dbfile = {self._dbfile}, _dbfile_actual = {self._dbfile_actual}"
-            )
+            if _debug():
+                logging.debug(
+                    f"_dbfile = {self._dbfile}, _dbfile_actual = {self._dbfile_actual}"
+                )
 
         library_path = os.path.dirname(os.path.abspath(dbfile))
         (library_path, _) = os.path.split(library_path)  # drop /database from path
@@ -148,7 +152,8 @@ class PhotosDB:
             masters_path = os.path.join(library_path, "originals")
             self._masters_path = masters_path
 
-        logging.debug(f"library = {library_path}, masters = {masters_path}")
+        if _debug():
+            logging.debug(f"library = {library_path}, masters = {masters_path}")
 
         if int(self._db_version) < int(_PHOTOS_5_VERSION):
             self._process_database4()
@@ -162,12 +167,14 @@ class PhotosDB:
         # logging.debug(f"tmp files = {self._tmp_files}")
         for f in self._tmp_files:
             if os.path.exists(f):
-                logging.debug(f"cleaning up {f}")
+                if _debug():
+                    logging.debug(f"cleaning up {f}")
                 try:
                     os.remove(f)
                     self._tmp_files.remove(f)
                 except Exception as e:
-                    logging.debug("exception %e removing %s" % (e, f))
+                    if _debug():
+                        logging.debug("exception %e removing %s" % (e, f))
             else:
                 self._tmp_files.remove(f)
 
@@ -334,7 +341,8 @@ class PhotosDB:
             raise Exception
 
         self._tmp_files.extend(tmp_files)
-        logging.debug(self._tmp_files)
+        if _debug():
+            logging.debug(self._tmp_files)
 
         return tmp
 
@@ -437,10 +445,11 @@ class PhotosDB:
                 "cloudownerhashedpersonid": None,  # Photos 5
             }
 
-        logging.debug(f"Finished walking through albums")
-        logging.debug(pformat(self._dbalbums_album))
-        logging.debug(pformat(self._dbalbums_uuid))
-        logging.debug(pformat(self._dbalbum_details))
+        if _debug():
+            logging.debug(f"Finished walking through albums")
+            logging.debug(pformat(self._dbalbums_album))
+            logging.debug(pformat(self._dbalbums_uuid))
+            logging.debug(pformat(self._dbalbum_details))
 
         # Get info on keywords
         c.execute(
@@ -504,7 +513,8 @@ class PhotosDB:
 
         for row in c:
             uuid = row[0]
-            logging.debug(f"uuid = '{uuid}, master = '{row[2]}")
+            if _debug():
+                logging.debug(f"uuid = '{uuid}, master = '{row[2]}")
             self._dbphotos[uuid] = {}
             self._dbphotos[uuid]["_uuid"] = uuid  # stored here for easier debugging
             self._dbphotos[uuid]["modelID"] = row[1]
@@ -549,7 +559,8 @@ class PhotosDB:
                 self._dbphotos[uuid]["type"] = _MOVIE_TYPE
             else:
                 # unknown
-                logging.debug(f"WARNING: {uuid} found unknown type {row[21]}")
+                if _debug():
+                    logging.debug(f"WARNING: {uuid} found unknown type {row[21]}")
                 self._dbphotos[uuid]["type"] = None
 
             self._dbphotos[uuid]["UTI"] = row[22]
@@ -591,10 +602,11 @@ class PhotosDB:
                         and row[6] == 2
                     ):
                         if "edit_resource_id" in self._dbphotos[uuid]:
-                            logging.debug(
-                                f"WARNING: found more than one edit_resource_id for "
-                                f"UUID {row[0]},adjustmentUUID {row[1]}, modelID {row[2]}"
-                            )
+                            if _debug():
+                                logging.debug(
+                                    f"WARNING: found more than one edit_resource_id for "
+                                    f"UUID {row[0]},adjustmentUUID {row[1]}, modelID {row[2]}"
+                                )
                         # TODO: I think there should never be more than one edit but
                         # I've seen this once in my library
                         # should we return all edits or just most recent one?
@@ -656,32 +668,34 @@ class PhotosDB:
         # remove temporary files
         self._cleanup_tmp_files()
 
-        logging.debug("Faces:")
-        logging.debug(pformat(self._dbfaces_uuid))
+        if _debug():
+            logging.debug("Faces:")
+            logging.debug(pformat(self._dbfaces_uuid))
 
-        logging.debug("Keywords by uuid:")
-        logging.debug(pformat(self._dbkeywords_uuid))
+            logging.debug("Keywords by uuid:")
+            logging.debug(pformat(self._dbkeywords_uuid))
 
-        logging.debug("Keywords by keyword:")
-        logging.debug(pformat(self._dbkeywords_keyword))
+            logging.debug("Keywords by keyword:")
+            logging.debug(pformat(self._dbkeywords_keyword))
 
-        logging.debug("Albums by uuid:")
-        logging.debug(pformat(self._dbalbums_uuid))
+            logging.debug("Albums by uuid:")
+            logging.debug(pformat(self._dbalbums_uuid))
 
-        logging.debug("Albums by album:")
-        logging.debug(pformat(self._dbalbums_album))
+            logging.debug("Albums by album:")
+            logging.debug(pformat(self._dbalbums_album))
 
-        logging.debug("Volumes:")
-        logging.debug(pformat(self._dbvolumes))
+            logging.debug("Volumes:")
+            logging.debug(pformat(self._dbvolumes))
 
-        logging.debug("Photos:")
-        logging.debug(pformat(self._dbphotos))
+            logging.debug("Photos:")
+            logging.debug(pformat(self._dbphotos))
 
     def _process_database5(self):
         """ process the Photos database to extract info """
         """ works on Photos version >= 5.0 """
 
-        logging.debug(f"_process_database5")
+        if _debug():
+            logging.debug(f"_process_database5")
 
         # Epoch is Jan 1, 2001
         td = (datetime(2001, 1, 1, 0, 0) - datetime(1970, 1, 1, 0, 0)).total_seconds()
@@ -689,7 +703,8 @@ class PhotosDB:
         (conn, c) = self._open_sql_file(self._tmp_db)
 
         # Look for all combinations of persons and pictures
-        logging.debug(f"Getting information about persons")
+        if _debug():
+            logging.debug(f"Getting information about persons")
 
         c.execute(
             "SELECT ZPERSON.ZFULLNAME, ZGENERICASSET.ZUUID "
@@ -707,9 +722,11 @@ class PhotosDB:
                 self._dbfaces_person[person_name] = []
             self._dbfaces_uuid[person[1]].append(person_name)
             self._dbfaces_person[person_name].append(person[1])
-        logging.debug(f"Finished walking through persons")
-        logging.debug(pformat(self._dbfaces_person))
-        logging.debug(self._dbfaces_uuid)
+
+        if _debug():
+            logging.debug(f"Finished walking through persons")
+            logging.debug(pformat(self._dbfaces_person))
+            logging.debug(self._dbfaces_uuid)
 
         c.execute(
             "SELECT ZGENERICALBUM.ZUUID, ZGENERICASSET.ZUUID "
@@ -749,10 +766,11 @@ class PhotosDB:
                 "cloudidentifier": None,  # Photos4
             }
 
-        logging.debug(f"Finished walking through albums")
-        logging.debug(pformat(self._dbalbums_album))
-        logging.debug(pformat(self._dbalbums_uuid))
-        logging.debug(pformat(self._dbalbum_details))
+        if _debug():
+            logging.debug(f"Finished walking through albums")
+            logging.debug(pformat(self._dbalbums_album))
+            logging.debug(pformat(self._dbalbums_uuid))
+            logging.debug(pformat(self._dbalbum_details))
 
         # get details on keywords
         c.execute(
@@ -770,16 +788,20 @@ class PhotosDB:
                 self._dbkeywords_keyword[keyword[0]] = []
             self._dbkeywords_uuid[keyword[1]].append(keyword[0])
             self._dbkeywords_keyword[keyword[0]].append(keyword[1])
-        logging.debug(f"Finished walking through keywords")
-        logging.debug(pformat(self._dbkeywords_keyword))
-        logging.debug(pformat(self._dbkeywords_uuid))
+
+        if _debug():
+            logging.debug(f"Finished walking through keywords")
+            logging.debug(pformat(self._dbkeywords_keyword))
+            logging.debug(pformat(self._dbkeywords_uuid))
 
         # get details on disk volumes
         c.execute("SELECT ZUUID, ZNAME from ZFILESYSTEMVOLUME")
         for vol in c:
             self._dbvolumes[vol[0]] = vol[1]
-        logging.debug(f"Finished walking through volumes")
-        logging.debug(self._dbvolumes)
+
+        if _debug():
+            logging.debug(f"Finished walking through volumes")
+            logging.debug(self._dbvolumes)
 
         # get details about photos
         logging.debug(f"Getting information about photos")
@@ -800,7 +822,7 @@ class PhotosDB:
             "ZGENERICASSET.ZLATITUDE, "
             "ZGENERICASSET.ZLONGITUDE, "
             "ZGENERICASSET.ZHASADJUSTMENTS, "
-            "ZGENERICASSET.ZCLOUDOWNERHASHEDPERSONID, "
+            "ZGENERICASSET.ZCLOUDBATCHPUBLISHDATE, "
             "ZGENERICASSET.ZKIND, "
             "ZGENERICASSET.ZUNIFORMTYPEIDENTIFIER "
             "FROM ZGENERICASSET "
@@ -825,7 +847,7 @@ class PhotosDB:
         # 13   "ZGENERICASSET.ZLATITUDE, "
         # 14   "ZGENERICASSET.ZLONGITUDE, "
         # 15   "ZGENERICASSET.ZHASADJUSTMENTS "
-        # 16   "ZCLOUDOWNERHASHEDPERSONID "   -- If not null, indicates a shared photo
+        # 16   "ZCLOUDBATCHPUBLISHDATE "   -- If not null, indicates a shared photo
         # 17    "ZKIND," -- 0 = photo, 1 = movie
         # 18    " ZUNIFORMTYPEIDENTIFIER " -- UTI
 
@@ -865,7 +887,7 @@ class PhotosDB:
 
             self._dbphotos[uuid]["hasAdjustments"] = row[15]
 
-            self._dbphotos[uuid]["cloudOwnerHashedPersonID"] = row[16]
+            self._dbphotos[uuid]["cloudbatchpublishdate"] = row[16]
             self._dbphotos[uuid]["shared"] = True if row[16] is not None else False
 
             # these will get filled in later
@@ -883,7 +905,8 @@ class PhotosDB:
             elif row[17] == 1:
                 self._dbphotos[uuid]["type"] = _MOVIE_TYPE
             else:
-                logging.debug(f"WARNING: {uuid} found unknown type {row[17]}")
+                if _debug():
+                    logging.debug(f"WARNING: {uuid} found unknown type {row[17]}")
                 self._dbphotos[uuid]["type"] = None
 
             self._dbphotos[uuid]["UTI"] = row[18]
@@ -902,9 +925,10 @@ class PhotosDB:
             if uuid in self._dbphotos:
                 self._dbphotos[uuid]["extendedDescription"] = row[1]
             else:
-                logging.debug(
-                    f"WARNING: found description {row[1]} but no photo for {uuid}"
-                )
+                if _debug():
+                    logging.debug(
+                        f"WARNING: found description {row[1]} but no photo for {uuid}"
+                    )
 
         # get information about adjusted/edited photos
         c.execute(
@@ -921,32 +945,18 @@ class PhotosDB:
             if uuid in self._dbphotos:
                 self._dbphotos[uuid]["adjustmentFormatID"] = row[2]
             else:
-                logging.debug(
-                    f"WARNING: found adjustmentformatidentifier {row[2]} but no photo for uuid {row[0]}"
-                )
+                if _debug():
+                    logging.debug(
+                        f"WARNING: found adjustmentformatidentifier {row[2]} but no photo for uuid {row[0]}"
+                    )
 
-        # get information on local/remote availability
-        c.execute(
-            "SELECT ZGENERICASSET.ZUUID, "
-            "ZINTERNALRESOURCE.ZLOCALAVAILABILITY, "
-            "ZINTERNALRESOURCE.ZREMOTEAVAILABILITY "
-            "FROM ZGENERICASSET "
-            "JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK "
-            "JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZFINGERPRINT = ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT "
-        )
-
-        for row in c:
-            uuid = row[0]
-            if uuid in self._dbphotos:
-                self._dbphotos[uuid]["localAvailability"] = row[1]
-                self._dbphotos[uuid]["remoteAvailability"] = row[2]
-                if row[1] != 1:
-                    self._dbphotos[uuid]["isMissing"] = 1
-                else:
-                    self._dbphotos[uuid]["isMissing"] = 0
+        # Find missing photos
+        # TODO: this code is very kludgy and I had to make lots of assumptions
+        # it's probably wrong and needs to be re-worked once I figure out how to reliably
+        # determine if a photo is missing in Photos 5
 
         # Get info on remote/local availability for photos in shared albums
-        # Shared photos have a null fingerprint
+        # Shared photos have a null fingerprint (and some other photos do too)
         c.execute(
             """ SELECT 
                 ZGENERICASSET.ZUUID, 
@@ -955,7 +965,37 @@ class PhotosDB:
                 FROM ZGENERICASSET
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK 
                 JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZASSET = ZADDITIONALASSETATTRIBUTES.ZASSET 
-                WHERE ZINTERNALRESOURCE.ZFINGERPRINT IS NULL AND ZINTERNALRESOURCE.ZDATASTORESUBTYPE = 3 """
+                WHERE  ZDATASTORESUBTYPE = 0 OR ZDATASTORESUBTYPE = 3 """
+            # WHERE ZINTERNALRESOURCE.ZFINGERPRINT IS NULL AND ZINTERNALRESOURCE.ZDATASTORESUBTYPE = 3 """
+        )
+
+        for row in c:
+            uuid = row[0]
+            if uuid in self._dbphotos:
+                #  and self._dbphotos[uuid]["isMissing"] is None:
+                self._dbphotos[uuid]["localAvailability"] = row[1]
+                self._dbphotos[uuid]["remoteAvailability"] = row[2]
+
+                # old = self._dbphotos[uuid]["isMissing"]
+
+                if row[1] != 1:
+                    self._dbphotos[uuid]["isMissing"] = 1
+                else:
+                    self._dbphotos[uuid]["isMissing"] = 0
+
+                # if old is not None and old != self._dbphotos[uuid]["isMissing"]:
+                #     logging.warning(
+                #         f"{uuid} isMissing changed: {old} {self._dbphotos[uuid]['isMissing']}"
+                #     )
+
+        # get information on local/remote availability
+        c.execute(
+            """ SELECT ZGENERICASSET.ZUUID,
+                ZINTERNALRESOURCE.ZLOCALAVAILABILITY,
+                ZINTERNALRESOURCE.ZREMOTEAVAILABILITY
+                FROM ZGENERICASSET
+                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK
+                JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZFINGERPRINT = ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT """
         )
 
         for row in c:
@@ -963,12 +1003,21 @@ class PhotosDB:
             if uuid in self._dbphotos:
                 self._dbphotos[uuid]["localAvailability"] = row[1]
                 self._dbphotos[uuid]["remoteAvailability"] = row[2]
+
+                # old = self._dbphotos[uuid]["isMissing"]
+
                 if row[1] != 1:
                     self._dbphotos[uuid]["isMissing"] = 1
                 else:
                     self._dbphotos[uuid]["isMissing"] = 0
 
-        logging.debug(pformat(self._dbphotos))
+                # if old is not None and old != self._dbphotos[uuid]["isMissing"]:
+                #     logging.warning(
+                #         f"{uuid} isMissing changed: {old} {self._dbphotos[uuid]['isMissing']}"
+                #     )
+
+        if _debug():
+            logging.debug(pformat(self._dbphotos))
 
         # add faces and keywords to photo data
         for uuid in self._dbphotos:
@@ -998,26 +1047,30 @@ class PhotosDB:
         conn.close()
         self._cleanup_tmp_files()
 
-        logging.debug("Faces:")
-        logging.debug(pformat(self._dbfaces_uuid))
+        if _debug():
+            logging.debug("Faces:")
+            logging.debug(pformat(self._dbfaces_uuid))
 
-        logging.debug("Keywords by uuid:")
-        logging.debug(pformat(self._dbkeywords_uuid))
+            logging.debug("Keywords by uuid:")
+            logging.debug(pformat(self._dbkeywords_uuid))
 
-        logging.debug("Keywords by keyword:")
-        logging.debug(pformat(self._dbkeywords_keyword))
+            logging.debug("Keywords by keyword:")
+            logging.debug(pformat(self._dbkeywords_keyword))
 
-        logging.debug("Albums by uuid:")
-        logging.debug(pformat(self._dbalbums_uuid))
+            logging.debug("Albums by uuid:")
+            logging.debug(pformat(self._dbalbums_uuid))
 
-        logging.debug("Albums by album:")
-        logging.debug(pformat(self._dbalbums_album))
+            logging.debug("Albums by album:")
+            logging.debug(pformat(self._dbalbums_album))
 
-        logging.debug("Volumes:")
-        logging.debug(pformat(self._dbvolumes))
+            logging.debug("Album details:")
+            logging.debug(pformat(self._dbalbum_details))
 
-        logging.debug("Photos:")
-        logging.debug(pformat(self._dbphotos))
+            logging.debug("Volumes:")
+            logging.debug(pformat(self._dbvolumes))
+
+            logging.debug("Photos:")
+            logging.debug(pformat(self._dbphotos))
 
     # TODO: fix default values to None instead of []
     def photos(

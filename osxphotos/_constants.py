@@ -2,6 +2,7 @@
 Constants used by osxphotos 
 """
 
+
 # which Photos library database versions have been tested
 # Photos 2.0 (10.12.6) == 2622
 # Photos 3.0 (10.13.6) == 3301
@@ -28,3 +29,4 @@ _PHOTOS_5_SHARED_PHOTO_PATH = "resources/cloudsharing/data"
 # What type of file? Based on ZGENERICASSET.ZKIND in Photos 5 database
 _PHOTO_TYPE = 0
 _MOVIE_TYPE = 1
+

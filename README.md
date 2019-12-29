@@ -25,7 +25,7 @@
       - [`library_path`](#library_path)
       - [`db_path`](#db_path)
       - [`db_version`](#db_version)
-      - [`photos(keywords=[], uuid=[], persons=[], albums=[])`](#photoskeywords-uuid-persons-albums)
+      - [` photos(keywords=None, uuid=None, persons=None, albums=None, images=True, movies=False)`](#-photoskeywordsnone-uuidnone-personsnone-albumsnone-imagestrue-moviesfalse)
     + [PhotoInfo](#photoinfo)
       - [`uuid`](#uuid)
       - [`filename`](#filename)
@@ -45,6 +45,9 @@
       - [`hidden`](#hidden)
       - [`location`](#location)
       - [`shared`](#shared)
+      - [`isphoto`](#isphoto)
+      - [`ismovie`](#ismovie)
+      - [`uti`](#uti)
       - [`json()`](#json)
       - [`export(dest, *filename, edited=False, overwrite=False, increment=True, sidecar=False)`](#exportdest-filename-editedfalse-overwritefalse-incrementtrue-sidecarfalse)
     + [Utility Functions](#utility-functions)
@@ -380,7 +383,7 @@ photosdb.db_version
 Returns the version number for Photos library database.  You likely won't need this but it's provided in case needed for debugging. PhotosDB will print a warning to `sys.stderr` if you open a database version that has not been tested. 
 
 
-#### `photos(keywords=[], uuid=[], persons=[], albums=[])`
+#### ` photos(keywords=None, uuid=None, persons=None, albums=None, images=True, movies=False)`
 
 ```python
 # assumes photosdb is a PhotosDB object (see above)
@@ -397,7 +400,9 @@ photos = photosdb.photos(
     keywords = [],
     uuid = [],
     persons = [],
-    albums = []
+    albums = [],
+    images = bool,
+    movies = bool,
 )
 ```
 
@@ -405,8 +410,10 @@ photos = photosdb.photos(
 - ```uuid```: list of one or more uuids.  Returns only photos whos UUID matches.  **Note**: The UUID is the universally unique identifier that the Photos database uses to identify each photo.  You shouldn't normally need to use this but it is a way to access a specific photo if you know the UUID.  If more than more uuid is provided, returns photos that match any of the uuids (e.g. treated as "or")
 - ```persons```: list of one or more persons. Returns only photos containing the person(s).  If more than one person provided, returns photos that match any of the persons (e.g. treated as "or")
 - ```albums```: list of one or more album names.  Returns only photos contained in the album(s). If more than one album name is provided, returns photos contained in any of the albums (.e.g. treated as "or")
+- ```images```: bool; if True, returns photos/images; default is True
+- ```movies```: bool; if True, returns movies/videos; default is False
 
-If more than one of these parameters is provided, they are treated as "and" criteria. E.g.
+If more than one of (keywords, uuid, persons, albums) is provided, they are treated as "and" criteria. E.g.
 
 Finds all photos with (keyword = "wedding" or "birthday") and (persons = "Juan Rodriguez")
 
@@ -445,6 +452,16 @@ If you need to do more complicated searches, you can do this programmaticaly.  F
 photos1 = photosdb.photos(albums=["Vacation 2019"])
 photos2 = photosdb.photos(keywords=["Kids"])
 photos3 = [p for p in photos2 if p not in photos1]
+```
+
+By default, photos() only returns images, not movies.  To also get movies, pass movies=True:
+```python
+photos_and_movies = photosdb.photos(movies=True)
+```
+
+To get only movies:
+```python
+movies = photosdb.photos(images=False, movies=True)
 ```
 
 ### PhotoInfo 
@@ -505,6 +522,15 @@ Returns latitude and longitude as a tuple of floats (latitude, longitude).  If l
 Returns True if photo is in a shared album, otherwise False.
 
 **Note**: *Only valid on Photos 5 / MacOS 10.15*; on Photos <= 4, returns None instead of True/False. 
+
+#### `isphoto`
+Returns True if type is photo/still image, otherwise False
+
+#### `ismovie`
+Returns True if type is movie/video, otherwise False
+
+#### `uti`
+Returns Uniform Type Identifier (UTI) for the image, for example: 'public.jpeg' or 'com.apple.quicktime-movie'
 
 #### `json()`
 Returns a JSON representation of all photo info 
