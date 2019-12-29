@@ -441,7 +441,7 @@ def query(
     is_flag=True,
     help="Search for photos not in shared iCloud album (Photos 5 only).",
 )
-@click.option("--verbose", is_flag=True, help="Print verbose output.")
+@click.option("--verbose","-V", is_flag=True, help="Print verbose output.")
 @click.option(
     "--overwrite",
     is_flag=True,
