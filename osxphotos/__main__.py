@@ -104,6 +104,9 @@ def info(cli_obj):
     not_shared_photos = [p for p in photos if not p.shared]
     info["photo_count"] = len(not_shared_photos)
 
+    hidden = [p for p in photos if p.hidden]
+    info["hidden_photo_count"] = len(hidden)
+
     movies = pdb.photos(images=False, movies=True)
     not_shared_movies = [p for p in movies if not p.shared]
     info["movie_count"] = len(not_shared_movies)
