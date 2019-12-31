@@ -101,10 +101,12 @@ def info(cli_obj):
     info["database_version"] = pdb.db_version
 
     photos = pdb.photos()
-    info["photo_count"] = len(photos)
+    not_shared_photos = [p for p in photos if not p.shared]
+    info["photo_count"] = len(not_shared_photos)
 
     movies = pdb.photos(images=False, movies=True)
-    info["movie_count"] = len(movies)
+    not_shared_movies = [p for p in movies if not p.shared]
+    info["movie_count"] = len(not_shared_movies)
 
     if pdb.db_version >= _PHOTOS_5_VERSION:
         shared_photos = [p for p in photos if p.shared]
