@@ -806,7 +806,7 @@ class PhotosDB:
         # get details about photos
         logging.debug(f"Getting information about photos")
         c.execute(
-            """ SELECT ZGENERICASSET.ZUUID, 
+            """SELECT ZGENERICASSET.ZUUID, 
                 ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT, 
                 ZADDITIONALASSETATTRIBUTES.ZTITLE, 
                 ZADDITIONALASSETATTRIBUTES.ZORIGINALFILENAME, 
@@ -824,92 +824,102 @@ class PhotosDB:
                 ZGENERICASSET.ZHASADJUSTMENTS, 
                 ZGENERICASSET.ZCLOUDBATCHPUBLISHDATE, 
                 ZGENERICASSET.ZKIND, 
-                ZGENERICASSET.ZUNIFORMTYPEIDENTIFIER 
+                ZGENERICASSET.ZUNIFORMTYPEIDENTIFIER,
+				ZGENERICASSET.ZAVALANCHEUUID,
+				ZGENERICASSET.ZAVALANCHEPICKTYPE
                 FROM ZGENERICASSET 
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK 
                 WHERE ZGENERICASSET.ZTRASHEDSTATE = 0  
-                ORDER BY ZGENERICASSET.ZUUID """
+                ORDER BY ZGENERICASSET.ZUUID  """
         )
         # Order of results
-        # 0    "SELECT ZGENERICASSET.ZUUID, "
-        # 1    "ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT, "
-        # 2    "ZADDITIONALASSETATTRIBUTES.ZTITLE, "
-        # 3    "ZADDITIONALASSETATTRIBUTES.ZORIGINALFILENAME, "
-        # 4    "ZGENERICASSET.ZMODIFICATIONDATE, "
-        # 5    "ZGENERICASSET.ZDATECREATED, "
-        # 6    "ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET, "
-        # 7    "ZADDITIONALASSETATTRIBUTES.ZINFERREDTIMEZONEOFFSET, "
-        # 8    "ZADDITIONALASSETATTRIBUTES.ZTIMEZONENAME, "
-        # 9    "ZGENERICASSET.ZHIDDEN, "
-        # 10   "ZGENERICASSET.ZFAVORITE, "
-        # 11   "ZGENERICASSET.ZDIRECTORY, "
-        # 12   "ZGENERICASSET.ZFILENAME, "
-        # 13   "ZGENERICASSET.ZLATITUDE, "
-        # 14   "ZGENERICASSET.ZLONGITUDE, "
-        # 15   "ZGENERICASSET.ZHASADJUSTMENTS "
-        # 16   "ZCLOUDBATCHPUBLISHDATE "   -- If not null, indicates a shared photo
-        # 17    "ZKIND," -- 0 = photo, 1 = movie
-        # 18    " ZUNIFORMTYPEIDENTIFIER " -- UTI
+        # 0    SELECT ZGENERICASSET.ZUUID,
+        # 1    ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT,
+        # 2    ZADDITIONALASSETATTRIBUTES.ZTITLE,
+        # 3    ZADDITIONALASSETATTRIBUTES.ZORIGINALFILENAME,
+        # 4    ZGENERICASSET.ZMODIFICATIONDATE,
+        # 5    ZGENERICASSET.ZDATECREATED,
+        # 6    ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET,
+        # 7    ZADDITIONALASSETATTRIBUTES.ZINFERREDTIMEZONEOFFSET,
+        # 8    ZADDITIONALASSETATTRIBUTES.ZTIMEZONENAME,
+        # 9    ZGENERICASSET.ZHIDDEN,
+        # 10   ZGENERICASSET.ZFAVORITE,
+        # 11   ZGENERICASSET.ZDIRECTORY,
+        # 12   ZGENERICASSET.ZFILENAME,
+        # 13   ZGENERICASSET.ZLATITUDE,
+        # 14   ZGENERICASSET.ZLONGITUDE,
+        # 15   ZGENERICASSET.ZHASADJUSTMENTS
+        # 16   ZCLOUDBATCHPUBLISHDATE   -- If not null, indicates a shared photo
+        # 17   ZKIND, -- 0 = photo, 1 = movie
+        # 18   ZUNIFORMTYPEIDENTIFIER  -- UTI
+        # 19   ZGENERICASSET.ZAVALANCHEUUID, -- if not NULL, is burst photo
+        # 20   ZGENERICASSET.ZAVALANCHEPICKTYPE -- if not 2, is a selected burst photo
 
         for row in c:
             uuid = row[0]
-            self._dbphotos[uuid] = {}
-            self._dbphotos[uuid]["_uuid"] = uuid  # stored here for easier debugging
-            self._dbphotos[uuid]["modelID"] = None
-            self._dbphotos[uuid]["masterUuid"] = None
-            self._dbphotos[uuid]["masterFingerprint"] = row[1]
-            self._dbphotos[uuid]["name"] = row[2]
+            info = {}
+            info["_uuid"] = uuid  # stored here for easier debugging
+            info["modelID"] = None
+            info["masterUuid"] = None
+            info["masterFingerprint"] = row[1]
+            info["name"] = row[2]
             try:
-                self._dbphotos[uuid]["lastmodifieddate"] = datetime.fromtimestamp(
+                info["lastmodifieddate"] = datetime.fromtimestamp(
                     row[4] + td
                 )
             except:
-                self._dbphotos[uuid]["lastmodifieddate"] = datetime.fromtimestamp(
+                info["lastmodifieddate"] = datetime.fromtimestamp(
                     row[5] + td
                 )
 
-            self._dbphotos[uuid]["imageDate"] = datetime.fromtimestamp(row[5] + td)
-            self._dbphotos[uuid]["imageTimeZoneOffsetSeconds"] = row[6]
-            self._dbphotos[uuid]["hidden"] = row[9]
-            self._dbphotos[uuid]["favorite"] = row[10]
-            self._dbphotos[uuid]["originalFilename"] = row[3]
-            self._dbphotos[uuid]["filename"] = row[12]
-            self._dbphotos[uuid]["directory"] = row[11]
+            info["imageDate"] = datetime.fromtimestamp(row[5] + td)
+            info["imageTimeZoneOffsetSeconds"] = row[6]
+            info["hidden"] = row[9]
+            info["favorite"] = row[10]
+            info["originalFilename"] = row[3]
+            info["filename"] = row[12]
+            info["directory"] = row[11]
 
             # set latitude and longitude
             # if both latitude and longitude = -180.0, then they are NULL
             if row[13] == -180.0 and row[14] == -180.0:
-                self._dbphotos[uuid]["latitude"] = None
-                self._dbphotos[uuid]["longitude"] = None
+                info["latitude"] = None
+                info["longitude"] = None
             else:
-                self._dbphotos[uuid]["latitude"] = row[13]
-                self._dbphotos[uuid]["longitude"] = row[14]
+                info["latitude"] = row[13]
+                info["longitude"] = row[14]
 
-            self._dbphotos[uuid]["hasAdjustments"] = row[15]
+            info["hasAdjustments"] = row[15]
 
-            self._dbphotos[uuid]["cloudbatchpublishdate"] = row[16]
-            self._dbphotos[uuid]["shared"] = True if row[16] is not None else False
+            info["cloudbatchpublishdate"] = row[16]
+            info["shared"] = True if row[16] is not None else False
 
             # these will get filled in later
             # init to avoid key errors
-            self._dbphotos[uuid]["extendedDescription"] = None  # fill this in later
-            self._dbphotos[uuid]["localAvailability"] = None
-            self._dbphotos[uuid]["remoteAvailability"] = None
-            self._dbphotos[uuid]["isMissing"] = None
-            self._dbphotos[uuid]["adjustmentUuid"] = None
-            self._dbphotos[uuid]["adjustmentFormatID"] = None
+            info["extendedDescription"] = None  # fill this in later
+            info["localAvailability"] = None
+            info["remoteAvailability"] = None
+            info["isMissing"] = None
+            info["adjustmentUuid"] = None
+            info["adjustmentFormatID"] = None
 
             # find type
             if row[17] == 0:
-                self._dbphotos[uuid]["type"] = _PHOTO_TYPE
+                info["type"] = _PHOTO_TYPE
             elif row[17] == 1:
-                self._dbphotos[uuid]["type"] = _MOVIE_TYPE
+                info["type"] = _MOVIE_TYPE
             else:
                 if _debug():
                     logging.debug(f"WARNING: {uuid} found unknown type {row[17]}")
-                self._dbphotos[uuid]["type"] = None
+                info["type"] = None
 
-            self._dbphotos[uuid]["UTI"] = row[18]
+            info["UTI"] = row[18]
+
+            # TODO: fixme temp fix to filter unselected burst photos
+            if row[19] is not None and ((row[20] == 2) or (row[20] == 4)):
+                # burst photo
+                continue
+            self._dbphotos[uuid] = info
 
         # Get extended description
         c.execute(
