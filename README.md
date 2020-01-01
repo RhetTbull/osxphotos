@@ -48,6 +48,8 @@
       - [`isphoto`](#isphoto)
       - [`ismovie`](#ismovie)
       - [`uti`](#uti)
+      - [`burst`](#burst)
+      - [`burst_photos`](#burst_photos)
       - [`json()`](#json)
       - [`export(dest, *filename, edited=False, overwrite=False, increment=True, sidecar=False)`](#exportdest-filename-editedfalse-overwritefalse-incrementtrue-sidecarfalse)
     + [Utility Functions](#utility-functions)
@@ -388,7 +390,7 @@ Returns the version number for Photos library database.  You likely won't need t
 photos = photosdb.photos([keywords=['keyword',]], [uuid=['uuid',]], [persons=['person',]], [albums=['album',]])
 ```
 
-Returns a list of PhotoInfo objects.  Each PhotoInfo object represents a photo in the Photos Libary.
+Returns a list of [PhotoInfo](#PhotoInfo) objects.  Each PhotoInfo object represents a photo in the Photos Libary.
 
 If called with no parameters, returns a list of every photo in the Photos library. 
 
@@ -461,6 +463,33 @@ To get only movies:
 ```python
 movies = photosdb.photos(images=False, movies=True)
 ```
+**Note** PhotosDB.photos() may return a different number of photos than Photos.app reports in the GUI. This is because photos() returns [hidden](#hidden) photos, [shared](#shared) photos, and for [burst](#burst) photos, all selected burst images even if non-selected burst images have not been deleted. Photos only reports 1 single photo for each set of burst images until you "finalize" the burst by selecting key photos and deleting the others using the "Make a selection" option. 
+
+For example, in my library, Photos says I have 19,386 photos and 474 movies.  However, PhotosDB.photos() reports 25,002 photos.  The difference is due to 5,609 shared photos and 7 hidden photos.  (*Note* Shared photos only valid for Photos 5).  Similarly, filtering for just movies returns 625 results.  The difference between 625 and 474 reported by Photos is due to 151 shared movies.
+
+```python
+>>> import osxphotos
+>>> photosdb = osxphotos.PhotosDB()
+>>> photos = photosdb.photos()
+>>> len(photos)
+25002
+>>> shared = [p for p in photos if p.shared]
+>>> len(shared)
+5609
+>>> not_shared = [p for p in photos if not p.shared]
+>>> len(not_shared)
+19393
+>>> hidden = [p for p in photos if p.hidden]
+>>> len(hidden)
+7
+>>> movies = photosdb.photos(movies=True, images=False)
+>>> len(movies)
+625
+>>> shared_movies = [m for m in movies if m.shared]
+>>> len(shared_movies)
+151
+>>>
+```
 
 ### PhotoInfo 
 PhotosDB.photos() returns a list of PhotoInfo objects.  Each PhotoInfo object represents a single photo in the Photos library.
@@ -469,10 +498,10 @@ PhotosDB.photos() returns a list of PhotoInfo objects.  Each PhotoInfo object re
 Returns the universally unique identifier (uuid) of the photo.  This is how Photos keeps track of individual photos within the database.
 
 #### `filename`
-Returns the current filename of the photo on disk.  See also `original_filename`
+Returns the current filename of the photo on disk.  See also [original_filename](#original_filename)
 
 #### `original_filename`
-Returns the original filename of the photo when it was imported to Photos.  **Note**: Photos 5.0+ renames the photo when it adds the file to the library using UUID.  See also `filename`
+Returns the original filename of the photo when it was imported to Photos.  **Note**: Photos 5.0+ renames the photo when it adds the file to the library using UUID.  See also [filename](#filename)
 
 #### `date`
 Returns the date of the photo as a datetime.datetime object
@@ -493,10 +522,10 @@ Returns a list of albums the photo is contained in
 Returns a list of the names of the persons in the photo
 
 #### `path`
-Returns the absolute path to the photo on disk as a string.  **Note**: this returns the path to the *original* unedited file (see `hasadjustments`).  If the file is missing on disk, path=`None` (see `ismissing`)
+Returns the absolute path to the photo on disk as a string.  **Note**: this returns the path to the *original* unedited file (see [hasadjustments](#hasadjustments)).  If the file is missing on disk, path=`None` (see [ismissing](#ismissing))
 
 #### `path_edited`
-Returns the absolute path to the edited photo on disk as a string.  If the photo has not been edited, returns `None`.  See also `path` and `hasadjustments`.  
+Returns the absolute path to the edited photo on disk as a string.  If the photo has not been edited, returns `None`.  See also [path](#path) and [hasadjustments](#hasadjustments).  
 
 #### `ismissing`
 Returns `True` if the original image file is missing on disk, otherwise `False`.  This can occur if the file has been uploaded to iCloud but not yet downloaded to the local library or if the file was deleted or imported from a disk that has been unmounted. **Note**: this status is set by Photos and osxphotos does not verify that the file path returned by `path` actually exists.  It merely reports what Photos has stored in the library database. 
@@ -529,6 +558,33 @@ Returns True if type is movie/video, otherwise False
 
 #### `uti`
 Returns Uniform Type Identifier (UTI) for the image, for example: 'public.jpeg' or 'com.apple.quicktime-movie'
+
+#### `burst`
+Returns True if photos is a burst image (e.g. part of a set of burst images), otherwise False.
+See [burst_photos](#burst_photos)
+
+#### `burst_photos`
+If photo is a burst image (see [burst](#burst)), returns a list of PhotoInfo objects for all other photos in the same burst set. If not a burst image, returns empty list.
+
+Example below gets list of all photos that are bursts, selects one of of them and prints out the names of the other images in the burst set.  PhotosDB.photos() will only return the photos in the burst set that the user [selected](https://support.apple.com/guide/photos/view-photo-bursts-phtde06a275d/mac) using "Make a Selection..." in Photos or the key image Photos selected if the user has not yet made a selection.  This is similar to how Photos displays and counts burst photos.  Using `burst_photos` you can access the other images in the burst set to export them, etc. 
+
+```python
+>>> import osxphotos
+>>> photosdb = osxphotos.PhotosDB()
+>>> bursts = [p for p in photosdb.photos() if p.burst]
+>>> burst_photo = bursts[5]
+>>> len(burst_photo.burst_photos)
+4
+>>> burst_photo.original_filename
+'IMG_9851.JPG'
+>>> for photo in burst_photo.burst_photos:
+...     print(photo.original_filename)
+...
+IMG_9853.JPG
+IMG_9852.JPG
+IMG_9854.JPG
+IMG_9855.JPG
+```
 
 #### `json()`
 Returns a JSON representation of all photo info 

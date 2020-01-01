@@ -311,7 +311,6 @@ class PhotoInfo:
     @property
     def burst(self):
         """ Returns True if photo is part of a Burst photo set, otherwise False """
-        # TODO: update for Photos 4
         return self._info["burst"]
 
     @property
@@ -320,7 +319,7 @@ class PhotoInfo:
             that are part of the same burst photo set; otherwise returns empty list.
             self is not included in the returned list """
         if self._info["burst"]:
-            burst_uuid = self._info["avalancheUUID"]
+            burst_uuid = self._info["burstUUID"]
             burst_photos = [
                 PhotoInfo(db=self._db, uuid=u, info=self._db._dbphotos[u])
                 for u in self._db._dbphotos_burst[burst_uuid]
@@ -561,6 +560,7 @@ class PhotoInfo:
             "isphoto": self.isphoto,
             "ismovie": self.ismovie,
             "uti": self.uti,
+            "burst": self.burst,
         }
         return yaml.dump(info, sort_keys=False)
 
@@ -589,6 +589,7 @@ class PhotoInfo:
             "isphoto": self.isphoto,
             "ismovie": self.ismovie,
             "uti": self.uti,
+            "burst": self.burst,
         }
         return json.dumps(pic)
 
