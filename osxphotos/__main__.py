@@ -256,15 +256,17 @@ def list_libraries(cli_obj):
     is_flag=True,
     help="Search for photos not in shared iCloud album (Photos 5 only).",
 )
+@click.option("--burst", is_flag=True, help="Search for photos that were taken in a burst.")
+@click.option("--not-burst", is_flag=True, help="Search for photos that are not part of a burst.")
 @click.option(
     "--only-movies",
     is_flag=True,
-    help="Search only for movies (default searches both images and movies)",
+    help="Search only for movies (default searches both images and movies).",
 )
 @click.option(
     "--only-photos",
     is_flag=True,
-    help="Search only for photos/images (default searches both images and movies)",
+    help="Search only for photos/images (default searches both images and movies).",
 )
 @click.option(
     "--json",
@@ -301,6 +303,8 @@ def query(
     only_movies,
     only_photos,
     uti,
+    burst,
+    not_burst,
 ):
     """ Query the Photos database using 1 or more search options; 
         if more than one option is provided, they are treated as "AND" 
@@ -331,6 +335,8 @@ def query(
             only_movies,
             only_photos,
             uti,
+            burst,
+            not_burst,
         ]
     ):
         click.echo(cli.commands["query"].get_help(ctx))
@@ -357,6 +363,10 @@ def query(
         return
     elif only_photos and only_movies:
         # can't have only photos and only movies
+        click.echo(cli.commands["query"].get_help(ctx))
+        return
+    elif burst and not_burst:
+        # can't search for both burst and not_burst
         click.echo(cli.commands["query"].get_help(ctx))
         return
 
@@ -392,6 +402,8 @@ def query(
         isphoto,
         ismovie,
         uti,
+        burst,
+        not_burst
     )
     print_photo_info(photos, cli_obj.json or json)
 
@@ -436,6 +448,8 @@ def query(
 )
 @click.option("--hidden", is_flag=True, help="Search for photos marked hidden.")
 @click.option("--not-hidden", is_flag=True, help="Search for photos not marked hidden.")
+@click.option("--burst", is_flag=True, help="Search for photos that were taken in a burst.")
+@click.option("--not-burst", is_flag=True, help="Search for photos that are not part of a burst.")
 @click.option(
     "--shared",
     is_flag=True,
@@ -468,6 +482,11 @@ def query(
     'if an edited version exists.  Edited photo will be named in form of "photoname_edited.ext"',
 )
 @click.option(
+    "--export-bursts",
+    is_flag=True,
+    help="If a photo is a burst photo export all associated burst images in the library."
+)
+@click.option(
     "--original-name",
     is_flag=True,
     help="Use photo's original filename instead of current filename for export.",
@@ -484,12 +503,12 @@ def query(
 @click.option(
     "--only-movies",
     is_flag=True,
-    help="Search only for movies (default searches both images and movies)",
+    help="Search only for movies (default searches both images and movies).",
 )
 @click.option(
     "--only-photos",
     is_flag=True,
-    help="Search only for photos/images (default searches both images and movies)",
+    help="Search only for photos/images (default searches both images and movies).",
 )
 @click.argument("dest", nargs=1)
 @click.pass_obj
@@ -519,10 +538,13 @@ def export(
     overwrite,
     export_by_date,
     export_edited,
+    export_bursts,
     original_name,
     sidecar,
     only_photos,
     only_movies,
+    burst,
+    not_burst,
     dest,
 ):
     """ Export photos from the Photos database.
@@ -559,6 +581,10 @@ def export(
         # can't have only photos and only movies
         click.echo(cli.commands["export"].get_help(ctx))
         return
+    elif burst and not_burst:
+        # can't search for both burst and not_burst
+        click.echo(cli.commands["export"].get_help(ctx))
+        return
 
     isphoto = ismovie = True # default searches for everything
     if only_movies:
@@ -591,9 +617,18 @@ def export(
         isphoto,
         ismovie,
         uti,
+        burst,
+        not_burst,
     )
 
     if photos:
+        if export_bursts:
+            # add the burst_photos to the export set
+            photos_burst = [p for p in photos if p.burst]
+            for burst in photos_burst:
+                burst_set = [p for p in burst.burst_photos if not p.ismissing]
+                photos.extend(burst_set)
+
         num_photos = len(photos)
         photo_str = "photos" if num_photos > 1 else "photo"
         click.echo(f"Exporting {num_photos} {photo_str} to {dest}...")
@@ -679,6 +714,7 @@ def print_photo_info(photos, json=False):
                 "isphoto",
                 "ismovie",
                 "uti",
+                "burst",
             ]
         )
         for p in photos:
@@ -706,6 +742,7 @@ def print_photo_info(photos, json=False):
                     p.isphoto,
                     p.ismovie,
                     p.uti,
+                    p.burst,
                 ]
             )
         for row in dump:
@@ -737,6 +774,8 @@ def _query(
     isphoto,
     ismovie,
     uti,
+    burst,
+    not_burst,
 ):
     """ run a query against PhotosDB to extract the photos based on user supply criteria """
     """ used by query and export commands """
@@ -816,6 +855,11 @@ def _query(
 
     if uti:
         photos = [p for p in photos if uti in p.uti]
+
+    if burst:
+        photos = [p for p in photos if p.burst]
+    elif not_burst:
+        photos = [p for p in photos if not p.burst]
 
     return photos
 

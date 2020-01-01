@@ -477,15 +477,16 @@ class PhotosDB:
 
         # Get photo details
         c.execute(
-            "select RKVersion.uuid, RKVersion.modelId, RKVersion.masterUuid, RKVersion.filename, "
-            + "RKVersion.lastmodifieddate, RKVersion.imageDate, RKVersion.mainRating, "
-            + "RKVersion.hasAdjustments, RKVersion.hasKeywords, RKVersion.imageTimeZoneOffsetSeconds, "
-            + "RKMaster.volumeId, RKMaster.imagePath, RKVersion.extendedDescription, RKVersion.name, "
-            + "RKMaster.isMissing, RKMaster.originalFileName, RKVersion.isFavorite, RKVersion.isHidden, "
-            + "RKVersion.latitude, RKVersion.longitude, "
-            + "RKVersion.adjustmentUuid, RKVersion.type, RKMaster.UTI "
-            + "from RKVersion, RKMaster where RKVersion.isInTrash = 0 and "
-            + "RKVersion.masterUuid = RKMaster.uuid and RKVersion.filename not like '%.pdf'"
+            """ SELECT RKVersion.uuid, RKVersion.modelId, RKVersion.masterUuid, RKVersion.filename, 
+                RKVersion.lastmodifieddate, RKVersion.imageDate, RKVersion.mainRating, 
+                RKVersion.hasAdjustments, RKVersion.hasKeywords, RKVersion.imageTimeZoneOffsetSeconds, 
+                RKMaster.volumeId, RKMaster.imagePath, RKVersion.extendedDescription, RKVersion.name, 
+                RKMaster.isMissing, RKMaster.originalFileName, RKVersion.isFavorite, RKVersion.isHidden, 
+                RKVersion.latitude, RKVersion.longitude, 
+                RKVersion.adjustmentUuid, RKVersion.type, RKMaster.UTI,
+                RKVersion.burstUuid, RKVersion.burstPickType
+                from RKVersion, RKMaster where RKVersion.isInTrash = 0 and 
+                RKVersion.masterUuid = RKMaster.uuid and RKVersion.filename not like '%.pdf' """
         )
 
         # order of results
@@ -512,17 +513,14 @@ class PhotosDB:
         # 20    RKVersion.adjustmentUuid
         # 21    RKVersion.type
         # 22    RKMaster.UTI
+        # 23    RKVersion.burstUuid
+        # 24    RKVersion.burstPickType
 
         for row in c:
             uuid = row[0]
             if _debug():
                 logging.debug(f"uuid = '{uuid}, master = '{row[2]}")
             self._dbphotos[uuid] = {}
-
-            # temp fix for burst until burst photos implemented for photos 4
-            # TODO: fixme
-            self._dbphotos[uuid]["burst"] = self._dbphotos[uuid]["burst_key"] = None
-
             self._dbphotos[uuid]["_uuid"] = uuid  # stored here for easier debugging
             self._dbphotos[uuid]["modelID"] = row[1]
             self._dbphotos[uuid]["masterUuid"] = row[2]
@@ -557,7 +555,7 @@ class PhotosDB:
             self._dbphotos[uuid]["adjustmentUuid"] = row[20]
             self._dbphotos[uuid]["adjustmentFormatID"] = None
 
-            # find type
+            # find type and UTI
             if row[21] == 2:
                 # photo
                 self._dbphotos[uuid]["type"] = _PHOTO_TYPE
@@ -571,6 +569,26 @@ class PhotosDB:
                 self._dbphotos[uuid]["type"] = None
 
             self._dbphotos[uuid]["UTI"] = row[22]
+
+            # handle burst photos
+            # if burst photo, determine whether or not it's a selected burst photo
+            self._dbphotos[uuid]["burstUUID"] = row[23]
+            self._dbphotos[uuid]["burstPickType"] = row[24]
+            if row[23] is not None:
+                # it's a burst photo
+                self._dbphotos[uuid]["burst"] = True
+                burst_uuid = row[23]
+                if burst_uuid not in self._dbphotos_burst:
+                    self._dbphotos_burst[burst_uuid] = set() 
+                self._dbphotos_burst[burst_uuid].add(uuid)
+                if row[24] != 2 and row[24] != 4:
+                    self._dbphotos[uuid]["burst_key"] = True # it's a key photo (selected from the burst)
+                else:
+                    self._dbphotos[uuid]["burst_key"] = False # it's a burst photo but not one that's selected
+            else:
+                # not a burst photo
+                self._dbphotos[uuid]["burst"] = False
+                self._dbphotos[uuid]["burst_key"] = None
 
         # get details needed to find path of the edited photos and live photos
         c.execute(
@@ -917,11 +935,12 @@ class PhotosDB:
                 info["type"] = None
 
             info["UTI"] = row[18]
-            info["avalancheUUID"] = row[19]
-            info["avalanchePickType"] = row[20]
 
             # handle burst photos
             # if burst photo, determine whether or not it's a selected burst photo
+            # in Photos 5, burstUUID is called avalancheUUID
+            info["burstUUID"] = row[19] # avalancheUUID
+            info["burstPickType"] = row[20] #avalanchePickType
             if row[19] is not None:
                 # it's a burst photo
                 info["burst"] = True
