@@ -308,6 +308,28 @@ class PhotoInfo:
         """
         return True if self._info["type"] == _PHOTO_TYPE else False
 
+    @property
+    def burst(self):
+        """ Returns True if photo is part of a Burst photo set, otherwise False """
+        # TODO: update for Photos 4
+        return self._info["burst"]
+
+    @property
+    def burst_photos(self):
+        """ If photo is a burst photo, returns list of PhotoInfo objects 
+            that are part of the same burst photo set; otherwise returns empty list.
+            self is not included in the returned list """
+        if self._info["burst"]:
+            burst_uuid = self._info["avalancheUUID"]
+            burst_photos = [
+                PhotoInfo(db=self._db, uuid=u, info=self._db._dbphotos[u])
+                for u in self._db._dbphotos_burst[burst_uuid]
+                if u != self._uuid
+            ]
+            return burst_photos
+        else:
+            return []
+
     def export(
         self,
         dest,

@@ -63,6 +63,8 @@ class PhotosDB:
         self._dbfile_actual = None
         # Dict with information about all photos by uuid
         self._dbphotos = {}
+        # Dict with information about all burst photos by burst uuid
+        self._dbphotos_burst = {}
         # Dict with information about all persons/photos by uuid
         self._dbfaces_uuid = {}
         # Dict with information about all persons/photos by person
@@ -516,6 +518,11 @@ class PhotosDB:
             if _debug():
                 logging.debug(f"uuid = '{uuid}, master = '{row[2]}")
             self._dbphotos[uuid] = {}
+
+            # temp fix for burst until burst photos implemented for photos 4
+            # TODO: fixme
+            self._dbphotos[uuid]["burst"] = self._dbphotos[uuid]["burst_key"] = None
+
             self._dbphotos[uuid]["_uuid"] = uuid  # stored here for easier debugging
             self._dbphotos[uuid]["modelID"] = row[1]
             self._dbphotos[uuid]["masterUuid"] = row[2]
@@ -864,13 +871,9 @@ class PhotosDB:
             info["masterFingerprint"] = row[1]
             info["name"] = row[2]
             try:
-                info["lastmodifieddate"] = datetime.fromtimestamp(
-                    row[4] + td
-                )
+                info["lastmodifieddate"] = datetime.fromtimestamp(row[4] + td)
             except:
-                info["lastmodifieddate"] = datetime.fromtimestamp(
-                    row[5] + td
-                )
+                info["lastmodifieddate"] = datetime.fromtimestamp(row[5] + td)
 
             info["imageDate"] = datetime.fromtimestamp(row[5] + td)
             info["imageTimeZoneOffsetSeconds"] = row[6]
@@ -914,12 +917,40 @@ class PhotosDB:
                 info["type"] = None
 
             info["UTI"] = row[18]
+            info["avalancheUUID"] = row[19]
+            info["avalanchePickType"] = row[20]
 
-            # TODO: fixme temp fix to filter unselected burst photos
-            if row[19] is not None and ((row[20] == 2) or (row[20] == 4)):
-                # burst photo
-                continue
+            # handle burst photos
+            # if burst photo, determine whether or not it's a selected burst photo
+            if row[19] is not None:
+                # it's a burst photo
+                info["burst"] = True
+                burst_uuid = row[19]
+                if burst_uuid not in self._dbphotos_burst:
+                    self._dbphotos_burst[burst_uuid] = set() 
+                self._dbphotos_burst[burst_uuid].add(uuid)
+                if row[20] != 2 and row[20] != 4:
+                    info["burst_key"] = True # it's a key photo (selected from the burst)
+                else:
+                    info["burst_key"] = False # it's a burst photo but not one that's selected
+            else:
+                # not a burst photo
+                info["burst"] = False
+                info["burst_key"] = None
+
             self._dbphotos[uuid] = info
+
+            # # if row[19] is not None and ((row[20] == 2) or (row[20] == 4)):
+            # # burst photo
+            # if row[19] is not None:
+            #     # burst photo, add to _dbphotos_burst
+            #     info["burst"] = True
+            #     burst_uuid = row[19]
+            #     if burst_uuid not in self._dbphotos_burst:
+            #         self._dbphotos_burst[burst_uuid] = {}
+            #     self._dbphotos_burst[burst_uuid][uuid] = info
+            # else:
+            #     info["burst"] = False
 
         # Get extended description
         c.execute(
@@ -1082,6 +1113,9 @@ class PhotosDB:
             logging.debug("Photos:")
             logging.debug(pformat(self._dbphotos))
 
+            logging.debug("Burst Photos:")
+            logging.debug(pformat(self._dbphotos_burst))
+
     # TODO: fix default values to None instead of []
     def photos(
         self,
@@ -1151,6 +1185,11 @@ class PhotosDB:
             # get the intersection of each argument/search criteria
             logging.debug(f"Got photo_sets: {photos_sets}")
             for p in set.intersection(*photos_sets):
+                # filter for non-selected burst photos
+                if self._dbphotos[p]["burst"] and not self._dbphotos[p]["burst_key"]:
+                    # not a key/selected burst photo, don't include in returned results
+                    continue
+
                 # filter for images and/or movies
                 if (images and self._dbphotos[p]["type"] == _PHOTO_TYPE) or (
                     movies and self._dbphotos[p]["type"] == _MOVIE_TYPE
