@@ -114,7 +114,8 @@ class PhotoInfo:
     def path_edited(self):
         """ absolute path on disk of the edited picture """
         """ None if photo has not been edited """
-        photopath = ""
+
+        photopath = None
 
         if self._db._db_version < _PHOTOS_5_VERSION:
             if self._info["hasAdjustments"]:
@@ -328,6 +329,41 @@ class PhotoInfo:
             return burst_photos
         else:
             return []
+
+    @property
+    def live_photo(self):
+        """ Returns True if photo is a live photo, otherwise False """
+        # TODO: fixme for Photos 4
+        if self._db._db_version >= _PHOTOS_5_VERSION:
+            return self._info["live_photo"]
+        else:
+            return None
+
+    @property
+    def path_live_photo(self):
+        """ Returns path to the associated video file for a live photo
+            If photo is not a live photo, returns None
+            If photo is missing, returns None """
+
+        photopath = None
+        # TODO: fixme for Photos 4
+        if self._db._db_version < _PHOTOS_5_VERSION:
+            photopath = None
+        else:
+            if self.live_photo and not self.ismissing:
+                filename = pathlib.Path(self.path)
+                photopath = filename.parent.joinpath(f"{filename.stem}_3.mov")
+                if not os.path.isfile(photopath):
+                    photopath = None
+                    # In testing, I've seen occasional missing movie for live photo
+                    # TODO: should this be a warning or debug?
+                    logging.debug(
+                        f"live photo path for UUID {self._uuid} should be at {photopath} but does not appear to exist"
+                    )
+            else:
+                photopath = None
+
+        return photopath
 
     def export(
         self,

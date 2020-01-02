@@ -851,7 +851,8 @@ class PhotosDB:
                 ZGENERICASSET.ZKIND, 
                 ZGENERICASSET.ZUNIFORMTYPEIDENTIFIER,
 				ZGENERICASSET.ZAVALANCHEUUID,
-				ZGENERICASSET.ZAVALANCHEPICKTYPE
+				ZGENERICASSET.ZAVALANCHEPICKTYPE,
+                ZGENERICASSET.ZKINDSUBTYPE
                 FROM ZGENERICASSET 
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK 
                 WHERE ZGENERICASSET.ZTRASHEDSTATE = 0  
@@ -879,6 +880,8 @@ class PhotosDB:
         # 18   ZUNIFORMTYPEIDENTIFIER  -- UTI
         # 19   ZGENERICASSET.ZAVALANCHEUUID, -- if not NULL, is burst photo
         # 20   ZGENERICASSET.ZAVALANCHEPICKTYPE -- if not 2, is a selected burst photo
+        # 21   ZGENERICASSET.ZKINDSUBTYPE
+
 
         for row in c:
             uuid = row[0]
@@ -956,6 +959,10 @@ class PhotosDB:
                 # not a burst photo
                 info["burst"] = False
                 info["burst_key"] = None
+
+            # Info on sub-type (live photo, panorama, etc)
+            info["subtype"] = row[21]
+            info["live_photo"] = True if row[21] == 2 else False
 
             self._dbphotos[uuid] = info
 
