@@ -50,6 +50,8 @@
       - [`uti`](#uti)
       - [`burst`](#burst)
       - [`burst_photos`](#burst_photos)
+      - [`live_photo`](#live_photo)
+      - [`path_live_photo`](#path_live_photo)
       - [`json()`](#json)
       - [`export(dest, *filename, edited=False, overwrite=False, increment=True, sidecar=False)`](#exportdest-filename-editedfalse-overwritefalse-incrementtrue-sidecarfalse)
     + [Utility Functions](#utility-functions)
@@ -522,13 +524,15 @@ Returns a list of albums the photo is contained in
 Returns a list of the names of the persons in the photo
 
 #### `path`
-Returns the absolute path to the photo on disk as a string.  **Note**: this returns the path to the *original* unedited file (see [hasadjustments](#hasadjustments)).  If the file is missing on disk, path=`None` (see [ismissing](#ismissing))
+Returns the absolute path to the photo on disk as a string.  **Note**: this returns the path to the *original* unedited file (see [hasadjustments](#hasadjustments)).  If the file is missing on disk, path=`None` (see [ismissing](#ismissing)).
 
 #### `path_edited`
 Returns the absolute path to the edited photo on disk as a string.  If the photo has not been edited, returns `None`.  See also [path](#path) and [hasadjustments](#hasadjustments).  
 
+**Note**: will also return None if the edited photo is missing on disk. 
+
 #### `ismissing`
-Returns `True` if the original image file is missing on disk, otherwise `False`.  This can occur if the file has been uploaded to iCloud but not yet downloaded to the local library or if the file was deleted or imported from a disk that has been unmounted. **Note**: this status is set by Photos and osxphotos does not verify that the file path returned by `path` actually exists.  It merely reports what Photos has stored in the library database. 
+Returns `True` if the original image file is missing on disk, otherwise `False`.  This can occur if the file has been uploaded to iCloud but not yet downloaded to the local library or if the file was deleted or imported from a disk that has been unmounted and user hasn't enabled "Copy items to the Photos library" in Photos preferences. **Note**: this status is computed based on data in the Photos library and `ismissing` does not verify if the photo is actually missing. See also [path](#path).
 
 #### `hasadjustments`
 Returns `True` if the picture has been edited, otherwise `False`
@@ -585,6 +589,14 @@ IMG_9852.JPG
 IMG_9854.JPG
 IMG_9855.JPG
 ```
+
+#### `live_photo`
+Returns True if photo is an Apple live photo (ie. it has an associated "live" video component), otherwise returns False.  See [path_live_photo](#path_live_photo).
+
+#### `path_live_photo`
+Returns the path to the live video component of a [live photo](#live_photo). If photo is not a live photo, returns None.
+
+**Note**: will also return None if the live video component is missing on disk. It's possible that the original photo may be on disk ([ismissing](#ismissing)==False) but the video component is missing, likely because it has not been downloaded from iCloud.
 
 #### `json()`
 Returns a JSON representation of all photo info 

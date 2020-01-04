@@ -484,9 +484,10 @@ class PhotosDB:
                 RKMaster.isMissing, RKMaster.originalFileName, RKVersion.isFavorite, RKVersion.isHidden, 
                 RKVersion.latitude, RKVersion.longitude, 
                 RKVersion.adjustmentUuid, RKVersion.type, RKMaster.UTI,
-                RKVersion.burstUuid, RKVersion.burstPickType
-                from RKVersion, RKMaster where RKVersion.isInTrash = 0 and 
-                RKVersion.masterUuid = RKMaster.uuid and RKVersion.filename not like '%.pdf' """
+                RKVersion.burstUuid, RKVersion.burstPickType,
+                RKVersion.specialType, RKMaster.modelID
+                FROM RKVersion, RKMaster WHERE RKVersion.isInTrash = 0 AND 
+                RKVersion.masterUuid = RKMaster.uuid AND RKVersion.filename NOT LIKE '%.pdf' """
         )
 
         # order of results
@@ -515,6 +516,8 @@ class PhotosDB:
         # 22    RKMaster.UTI
         # 23    RKVersion.burstUuid
         # 24    RKVersion.burstPickType
+        # 25    RKVersion.specialType
+        # 26    RKMaster.modelID
 
         for row in c:
             uuid = row[0]
@@ -579,26 +582,56 @@ class PhotosDB:
                 self._dbphotos[uuid]["burst"] = True
                 burst_uuid = row[23]
                 if burst_uuid not in self._dbphotos_burst:
-                    self._dbphotos_burst[burst_uuid] = set() 
+                    self._dbphotos_burst[burst_uuid] = set()
                 self._dbphotos_burst[burst_uuid].add(uuid)
                 if row[24] != 2 and row[24] != 4:
-                    self._dbphotos[uuid]["burst_key"] = True # it's a key photo (selected from the burst)
+                    self._dbphotos[uuid][
+                        "burst_key"
+                    ] = True  # it's a key photo (selected from the burst)
                 else:
-                    self._dbphotos[uuid]["burst_key"] = False # it's a burst photo but not one that's selected
+                    self._dbphotos[uuid][
+                        "burst_key"
+                    ] = False  # it's a burst photo but not one that's selected
             else:
                 # not a burst photo
                 self._dbphotos[uuid]["burst"] = False
                 self._dbphotos[uuid]["burst_key"] = None
 
-        # get details needed to find path of the edited photos and live photos
+            # RKVersion.specialType
+            # 1 == panorama
+            # 2 == slow-mo movie
+            # 3 == time-lapse movie
+            # 4 == HDR
+            # 5 == live photo
+            # 6 == screenshot
+            # 8 == HDR live photo
+            # 9 = portrait
+
+            # get info on special types
+            self._dbphotos[uuid]["specialType"] = row[25]
+            self._dbphotos[uuid]["masterModelID"] = row[26]
+            self._dbphotos[uuid]["panorama"] = True if row[25] == 1 else False
+            self._dbphotos[uuid]["slow_mo"] = True if row[25] == 2 else False
+            self._dbphotos[uuid]["time_lapse"] = True if row[25] == 3 else False
+            self._dbphotos[uuid]["hdr"] = (
+                True if (row[25] == 4 or row[25] == 8) else False
+            )
+            self._dbphotos[uuid]["live_photo"] = (
+                True if (row[25] == 5 or row[25] == 8) else False
+            )
+            self._dbphotos[uuid]["screenshot"] = True if row[25] == 6 else False
+            self._dbphotos[uuid]["portrait"] = True if row[25] == 9 else False
+
+        # get details needed to find path of the edited photos
         c.execute(
-            "SELECT RKVersion.uuid, RKVersion.adjustmentUuid, RKModelResource.modelId, "
-            "RKModelResource.resourceTag, RKModelResource.UTI, RKVersion.specialType, "
-            "RKModelResource.attachedModelType, RKModelResource.resourceType "
-            "FROM RKVersion "
-            "JOIN RKModelResource on RKModelResource.attachedModelId = RKVersion.modelId "
-            "WHERE RKVersion.isInTrash = 0 "
+            """ SELECT RKVersion.uuid, RKVersion.adjustmentUuid, RKModelResource.modelId,
+                RKModelResource.resourceTag, RKModelResource.UTI, RKVersion.specialType,
+                RKModelResource.attachedModelType, RKModelResource.resourceType
+                FROM RKVersion
+                JOIN RKModelResource on RKModelResource.attachedModelId = RKVersion.modelId
+                WHERE RKVersion.isInTrash = 0 """
         )
+        # get info on path of live photo movie
 
         # Order of results:
         # 0     RKVersion.uuid
@@ -610,15 +643,10 @@ class PhotosDB:
         # 6     RKModelResource.attachedModelType
         # 7     RKModelResource.resourceType
 
-        # TODO: add live photos
-        # attachedmodeltype is 2, it's a photo, could be more than one
-        # attachedmodeltype == 2 could also be movie?
-        # if 5, it's a facetile
-        # specialtype = 0 == image, 5 or 8 == live photo movie
-
         for row in c:
             uuid = row[0]
             if uuid in self._dbphotos:
+                # get info on adjustments (edits)
                 if self._dbphotos[uuid]["adjustmentUuid"] == row[3]:
                     if (
                         row[1] != "UNADJUSTEDNONRAW"
@@ -654,10 +682,50 @@ class PhotosDB:
             if uuid in self._dbphotos:
                 self._dbphotos[uuid]["adjustmentFormatID"] = row[3]
 
-        # init any uuids that had no edits
+
+
+        # get details to find path of live photos
+        c.execute(
+            """ SELECT 
+                RKVersion.uuid, 
+                RKModelResource.modelId,
+                RKModelResource.UTI,
+                RKVersion.specialType, 
+                RKModelResource.attachedModelType,
+                RKModelResource.resourceType,
+                RKModelResource.isOnDisk
+                FROM RKVersion 
+                INNER JOIN RKMaster on RKVersion.masterUuid = RKMaster.uuid 
+                INNER JOIN RKModelResource on RKMaster.modelId = RKModelResource.attachedModelId  
+                WHERE RKModelResource.UTI = 'com.apple.quicktime-movie'
+				AND RKMaster.isInTrash = 0
+                AND RKVersion.isInTrash = 0 
+              """
+        )
+
+        # Order of results
+        # 0     RKVersion.uuid, 
+        # 1     RKModelResource.modelId,
+        # 2     RKModelResource.UTI,
+        # 3     RKVersion.specialType, 
+        # 4     RKModelResource.attachedModelType,
+        # 5     RKModelResource.resourceType
+        # 6     RKModelResource.isOnDisk
+
+        # TODO: don't think we need most of these fields, remove from SQL query?
+        for row in c:
+            uuid = row[0]
+            if uuid in self._dbphotos:
+                self._dbphotos[uuid]["live_model_id"] = row[1]
+                self._dbphotos[uuid]["modeResourceIsOnDisk"] = True if row[6] == 1 else False
+
+        # init any uuids that had no edits or live photos
         for uuid in self._dbphotos:
             if "edit_resource_id" not in self._dbphotos[uuid]:
                 self._dbphotos[uuid]["edit_resource_id"] = None
+            if "live_model_id" not in self._dbphotos[uuid]:
+                self._dbphotos[uuid]["live_model_id"] = None
+                self._dbphotos[uuid]["modeResourceIsOnDisk"] = None
 
         conn.close()
 
@@ -852,7 +920,8 @@ class PhotosDB:
                 ZGENERICASSET.ZUNIFORMTYPEIDENTIFIER,
 				ZGENERICASSET.ZAVALANCHEUUID,
 				ZGENERICASSET.ZAVALANCHEPICKTYPE,
-                ZGENERICASSET.ZKINDSUBTYPE
+                ZGENERICASSET.ZKINDSUBTYPE,
+                ZGENERICASSET.ZCUSTOMRENDEREDVALUE
                 FROM ZGENERICASSET 
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK 
                 WHERE ZGENERICASSET.ZTRASHEDSTATE = 0  
@@ -880,8 +949,8 @@ class PhotosDB:
         # 18   ZUNIFORMTYPEIDENTIFIER  -- UTI
         # 19   ZGENERICASSET.ZAVALANCHEUUID, -- if not NULL, is burst photo
         # 20   ZGENERICASSET.ZAVALANCHEPICKTYPE -- if not 2, is a selected burst photo
-        # 21   ZGENERICASSET.ZKINDSUBTYPE
-
+        # 21   ZGENERICASSET.ZKINDSUBTYPE -- determine if live photos, etc
+        # 22   ZGENERICASSET.ZCUSTOMRENDEREDVALUE -- determine if HDR photo
 
         for row in c:
             uuid = row[0]
@@ -942,27 +1011,51 @@ class PhotosDB:
             # handle burst photos
             # if burst photo, determine whether or not it's a selected burst photo
             # in Photos 5, burstUUID is called avalancheUUID
-            info["burstUUID"] = row[19] # avalancheUUID
-            info["burstPickType"] = row[20] #avalanchePickType
+            info["burstUUID"] = row[19]  # avalancheUUID
+            info["burstPickType"] = row[20]  # avalanchePickType
             if row[19] is not None:
                 # it's a burst photo
                 info["burst"] = True
                 burst_uuid = row[19]
                 if burst_uuid not in self._dbphotos_burst:
-                    self._dbphotos_burst[burst_uuid] = set() 
+                    self._dbphotos_burst[burst_uuid] = set()
                 self._dbphotos_burst[burst_uuid].add(uuid)
                 if row[20] != 2 and row[20] != 4:
-                    info["burst_key"] = True # it's a key photo (selected from the burst)
+                    info[
+                        "burst_key"
+                    ] = True  # it's a key photo (selected from the burst)
                 else:
-                    info["burst_key"] = False # it's a burst photo but not one that's selected
+                    info[
+                        "burst_key"
+                    ] = False  # it's a burst photo but not one that's selected
             else:
                 # not a burst photo
                 info["burst"] = False
                 info["burst_key"] = None
 
             # Info on sub-type (live photo, panorama, etc)
+            # ZGENERICASSET.ZKINDSUBTYPE
+            # 1 == panorama
+            # 2 == live photo
+            # 10 = screenshot
+            # 100 = shared movie (MP4) ??
+            # 101 = slow-motion video
+            # 102 = Time lapse video
             info["subtype"] = row[21]
+            info["panorama"] = True if row[21] == 1 else False
             info["live_photo"] = True if row[21] == 2 else False
+            info["screenshot"] = True if row[21] == 10 else False
+            info["slow_mo"] = True if row[21] == 101 else False
+            info["time_lapse"] = True if row[21] == 102 else False
+
+            # Handle HDR photos and portraits
+            # ZGENERICASSET.ZCUSTOMRENDEREDVALUE
+            # 3 = HDR photo
+            # 4 = non-HDR version of the photo
+            # 8 = portrait
+            info["customRenderedValue"] = row[22]
+            info["hdr"] = True if row[22] == 3 else False
+            info["portrait"] = True if row[22] == 8 else False
 
             self._dbphotos[uuid] = info
 

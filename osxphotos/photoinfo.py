@@ -115,6 +115,9 @@ class PhotoInfo:
         """ absolute path on disk of the edited picture """
         """ None if photo has not been edited """
 
+        # TODO: break this code into a _path_edited_4 and _path_edited_5
+        # version to simplify the big if/then; same for path_live_photo
+
         photopath = None
 
         if self._db._db_version < _PHOTOS_5_VERSION:
@@ -148,13 +151,14 @@ class PhotoInfo:
                     )
                     if not os.path.isfile(photopath):
                         logging.warning(
-                            f"edited file for UUID {self._uuid} should be at {photopath} but does not appear to exist"
+                            f"MISSING PATH: edited file for UUID {self._uuid} should be at {photopath} but does not appear to exist"
                         )
                         photopath = None
                 else:
                     logging.warning(
                         f"{self.uuid} hasAdjustments but edit_resource_id is None"
                     )
+                    photopath = None
             else:
                 photopath = None
 
@@ -231,7 +235,6 @@ class PhotoInfo:
     @property
     def title(self):
         """ name / title of picture """
-        # TODO: Update documentation and tests to use title
         return self._info["name"]
 
     @property
@@ -333,11 +336,7 @@ class PhotoInfo:
     @property
     def live_photo(self):
         """ Returns True if photo is a live photo, otherwise False """
-        # TODO: fixme for Photos 4
-        if self._db._db_version >= _PHOTOS_5_VERSION:
-            return self._info["live_photo"]
-        else:
-            return None
+        return self._info["live_photo"]
 
     @property
     def path_live_photo(self):
@@ -346,20 +345,49 @@ class PhotoInfo:
             If photo is missing, returns None """
 
         photopath = None
-        # TODO: fixme for Photos 4
         if self._db._db_version < _PHOTOS_5_VERSION:
-            photopath = None
+            if self.live_photo and not self.ismissing:
+                live_model_id = self._info["live_model_id"]
+                if live_model_id == None:
+                    logging.debug(f"missing live_model_id: {self._uuid}")
+                    photopath = None
+                else:
+                    folder_id, file_id = _get_resource_loc(live_model_id)
+                    library_path = self._db.library_path
+                    photopath = os.path.join(
+                        library_path,
+                        "resources",
+                        "media",
+                        "master",
+                        folder_id,
+                        "00",
+                        f"jpegvideocomplement_{file_id}.mov",
+                    )
+                    if not os.path.isfile(photopath):
+                        # In testing, I've seen occasional missing movie for live photo
+                        # These appear to be valid -- e.g. live component hasn't been downloaded from iCloud
+                        # photos 4 has "isOnDisk" column we could check
+                        # or could do the actual check with "isfile"
+                        # TODO: should this be a warning or debug?
+                        logging.debug(
+                            f"MISSING PATH: live photo path for UUID {self._uuid} should be at {photopath} but does not appear to exist"
+                        )
+                        photopath = None
+            else:
+                photopath = None
         else:
+            # Photos 5
             if self.live_photo and not self.ismissing:
                 filename = pathlib.Path(self.path)
                 photopath = filename.parent.joinpath(f"{filename.stem}_3.mov")
                 if not os.path.isfile(photopath):
-                    photopath = None
                     # In testing, I've seen occasional missing movie for live photo
+                    # these appear to be valid -- e.g. video component not yet downloaded from iCloud
                     # TODO: should this be a warning or debug?
                     logging.debug(
-                        f"live photo path for UUID {self._uuid} should be at {photopath} but does not appear to exist"
+                        f"MISSING PATH: live photo path for UUID {self._uuid} should be at {photopath} but does not appear to exist"
                     )
+                    photopath = None
             else:
                 photopath = None
 
