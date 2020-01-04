@@ -261,6 +261,7 @@ def test_external_edit2():
 
 def test_path_edited1():
     # test a valid edited path
+    import os.path
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
@@ -269,6 +270,7 @@ def test_path_edited1():
     p = photos[0]
     path = p.path_edited
     assert path.endswith("resources/media/version/00/00/fullsizeoutput_9.jpeg")
+    assert os.path.exists(path)
 
 
 def test_path_edited2():
