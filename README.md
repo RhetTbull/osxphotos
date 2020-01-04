@@ -119,14 +119,16 @@ Commands:
 
 To get help on a specific command, use `osxphotos help <command_name>`
 
-Example: `osxphotos help query`
+Example: `osxphotos help export`
 
 ```
-Usage: osxphotos help [OPTIONS]
+Usage: osxphotos help [OPTIONS] DEST
 
-  Query the Photos database using 1 or more search options;  if more than
-  one option is provided, they are treated as "AND"  (e.g. search for photos
-  matching all options).
+  Export photos from the Photos database. Export path DEST is required.
+  Optionally, query the Photos database using 1 or more search options;  if
+  more than one option is provided, they are treated as "AND"  (e.g. search
+  for photos matching all options). If no query options are provided, all
+  photos will be exported.
 
 Options:
   --keyword TEXT      Search for keyword(s).
@@ -137,6 +139,8 @@ Options:
   --no-title          Search for photos with no title.
   --description TEXT  Search for TEXT in description of photo.
   --no-description    Search for photos with no description.
+  --uti TEXT          Search for photos whose uniform type identifier (UTI)
+                      matches TEXT
   -i, --ignore-case   Case insensitive search for title or description. Does
                       not apply to keyword, person, or album.
   --edited            Search for photos that have been edited.
@@ -145,9 +149,42 @@ Options:
   --not-favorite      Search for photos not marked favorite.
   --hidden            Search for photos marked hidden.
   --not-hidden        Search for photos not marked hidden.
-  --missing           Search for photos missing from disk.
-  --not-missing       Search for photos present on disk (e.g. not missing).
-  --json              Print output in JSON format
+  --burst             Search for photos that were taken in a burst.
+  --not-burst         Search for photos that are not part of a burst.
+  --live              Search for Apple live photos
+  --not-live          Search for photos that are not Apple live photos
+  --shared            Search for photos in shared iCloud album (Photos 5
+                      only).
+  --not-shared        Search for photos not in shared iCloud album (Photos 5
+                      only).
+  -V, --verbose       Print verbose output.
+  --overwrite         Overwrite existing files. Default behavior is to add
+                      (1), (2), etc to filename if file already exists. Use
+                      this with caution as it may create name collisions on
+                      export. (e.g. if two files happen to have the same name)
+  --export-by-date    Automatically create output folders to organize photos
+                      by date created (e.g. DEST/2019/12/20/photoname.jpg).
+  --export-edited     Also export edited version of photo if an edited version
+                      exists.  Edited photo will be named in form of
+                      "photoname_edited.ext"
+  --export-bursts     If a photo is a burst photo export all associated burst
+                      images in the library.
+  --export-live       If a photo is a live photo export the associated live
+                      video component.  Live video will be named in form of
+                      "photoname_live.mov"
+  --original-name     Use photo's original filename instead of current
+                      filename for export.
+  --sidecar           Create json sidecar for each photo exported in format
+                      useable by exiftool (https://exiftool.org/) The sidecar
+                      file can be used to apply metadata to the file with
+                      exiftool, for example: "exiftool -j=photoname.jpg.json
+                      photoname.jpg" The sidecar file is named in format
+                      photoname.ext.json where ext is extension of the photo
+                      (e.g. jpg).
+  --only-movies       Search only for movies (default searches both images and
+                      movies).
+  --only-photos       Search only for photos/images (default searches both
+                      images and movies).
   -h, --help          Show this message and exit.
 ```
 

@@ -109,6 +109,29 @@ def _dd_to_dms(dd):
     return int(deg_), int(min_), sec_
 
 
+def _copy_file(src, dest):
+    """ Copies a file from src path to dest path 
+        Uses ditto to perform copy 
+        Raises exception if copy fails or either path is None """
+
+    if src is None or dest is None:
+        raise ValueError("src and dest must not be None", src, dest)
+
+    if not os.path.isfile(src):
+        raise ValueError("src file does not appear to exist", src)
+
+    # if error on copy, subprocess will raise CalledProcessError
+    try:
+        subprocess.run(
+            ["/usr/bin/ditto", src, dest], check=True, stderr=subprocess.PIPE
+        )
+    except subprocess.CalledProcessError as e:
+        logging.critical(
+            f"ditto returned error: {e.returncode} {e.stderr.decode(sys.getfilesystemencoding()).rstrip()}"
+        )
+        raise e
+
+
 def dd_to_dms_str(lat, lon):
     """ convert latitude, longitude in degrees to degrees, minutes, seconds as string """
     """ lat: latitude in degrees  """

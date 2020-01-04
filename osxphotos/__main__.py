@@ -13,7 +13,7 @@ import osxphotos
 
 from ._constants import _EXIF_TOOL_URL, _PHOTOS_5_VERSION
 from ._version import __version__
-from .utils import create_path_by_date
+from .utils import create_path_by_date, _copy_file
 
 # TODO: add "--any" to search any field (e.g. keyword, description, title contains "wedding") (add case insensitive option)
 # TODO: add search for filename
@@ -258,6 +258,8 @@ def list_libraries(cli_obj):
 )
 @click.option("--burst", is_flag=True, help="Search for photos that were taken in a burst.")
 @click.option("--not-burst", is_flag=True, help="Search for photos that are not part of a burst.")
+@click.option("--live", is_flag=True, help="Search for Apple live photos")
+@click.option("--not-live", is_flag=True, help="Search for photos that are not Apple live photos")
 @click.option(
     "--only-movies",
     is_flag=True,
@@ -305,6 +307,8 @@ def query(
     uti,
     burst,
     not_burst,
+    live,
+    not_live,
 ):
     """ Query the Photos database using 1 or more search options; 
         if more than one option is provided, they are treated as "AND" 
@@ -337,6 +341,8 @@ def query(
             uti,
             burst,
             not_burst,
+            live,
+            not_live,
         ]
     ):
         click.echo(cli.commands["query"].get_help(ctx))
@@ -367,6 +373,10 @@ def query(
         return
     elif burst and not_burst:
         # can't search for both burst and not_burst
+        click.echo(cli.commands["query"].get_help(ctx))
+        return
+    elif live and not_live:
+        # can't search for both live and not_live
         click.echo(cli.commands["query"].get_help(ctx))
         return
 
@@ -403,7 +413,9 @@ def query(
         ismovie,
         uti,
         burst,
-        not_burst
+        not_burst,
+        live,
+        not_live,
     )
     print_photo_info(photos, cli_obj.json or json)
 
@@ -450,6 +462,8 @@ def query(
 @click.option("--not-hidden", is_flag=True, help="Search for photos not marked hidden.")
 @click.option("--burst", is_flag=True, help="Search for photos that were taken in a burst.")
 @click.option("--not-burst", is_flag=True, help="Search for photos that are not part of a burst.")
+@click.option("--live", is_flag=True, help="Search for Apple live photos")
+@click.option("--not-live", is_flag=True, help="Search for photos that are not Apple live photos")
 @click.option(
     "--shared",
     is_flag=True,
@@ -478,13 +492,19 @@ def query(
 @click.option(
     "--export-edited",
     is_flag=True,
-    help="Also export edited version of photo "
-    'if an edited version exists.  Edited photo will be named in form of "photoname_edited.ext"',
+    help="Also export edited version of photo if an edited version exists.  "
+    'Edited photo will be named in form of "photoname_edited.ext"',
 )
 @click.option(
     "--export-bursts",
     is_flag=True,
     help="If a photo is a burst photo export all associated burst images in the library."
+)
+@click.option(
+    "--export-live",
+    is_flag=True,
+    help="If a photo is a live photo export the associated live video component."
+    '  Live video will be named in form of "photoname_live.mov"'
 )
 @click.option(
     "--original-name",
@@ -539,12 +559,15 @@ def export(
     export_by_date,
     export_edited,
     export_bursts,
+    export_live,
     original_name,
     sidecar,
     only_photos,
     only_movies,
     burst,
     not_burst,
+    live,
+    not_live,
     dest,
 ):
     """ Export photos from the Photos database.
@@ -554,8 +577,6 @@ def export(
         (e.g. search for photos matching all options).
         If no query options are provided, all photos will be exported.
     """
-
-    # TODO: --export-edited, --export-original
 
     if not os.path.isdir(dest):
         sys.exit("DEST must be valid path")
@@ -583,6 +604,10 @@ def export(
         return
     elif burst and not_burst:
         # can't search for both burst and not_burst
+        click.echo(cli.commands["export"].get_help(ctx))
+        return
+    elif live and not_live:
+        # can't search for both live and not_live
         click.echo(cli.commands["export"].get_help(ctx))
         return
 
@@ -619,6 +644,8 @@ def export(
         uti,
         burst,
         not_burst,
+        live,
+        not_live,
     )
 
     if photos:
@@ -645,6 +672,7 @@ def export(
                         overwrite,
                         export_edited,
                         original_name,
+                        export_live,
                     )
         else:
             for p in photos:
@@ -657,6 +685,7 @@ def export(
                     overwrite,
                     export_edited,
                     original_name,
+                    export_live,
                 )
                 if export_path:
                     click.echo(f"Exported {p.filename} to {export_path}")
@@ -715,6 +744,8 @@ def print_photo_info(photos, json=False):
                 "ismovie",
                 "uti",
                 "burst",
+                "live_photo",
+                "path_live_photo",
             ]
         )
         for p in photos:
@@ -743,6 +774,8 @@ def print_photo_info(photos, json=False):
                     p.ismovie,
                     p.uti,
                     p.burst,
+                    p.live_photo,
+                    p.path_live_photo
                 ]
             )
         for row in dump:
@@ -776,11 +809,15 @@ def _query(
     uti,
     burst,
     not_burst,
+    live,
+    not_live
 ):
     """ run a query against PhotosDB to extract the photos based on user supply criteria """
     """ used by query and export commands """
     """ arguments must be passed in same order as query and export """
     """ if either is modified, need to ensure all three functions are updated """
+
+    # TODO: this is getting too hairy -- need to change to named args
 
     photosdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
     photos = photosdb.photos(
@@ -861,6 +898,12 @@ def _query(
     elif not_burst:
         photos = [p for p in photos if not p.burst]
 
+    if live:
+        photos = [p for p in photos if p.live_photo]
+    elif not_live:
+        photos = [p for p in photos if not p.live_photo]
+
+
     return photos
 
 
@@ -873,6 +916,7 @@ def export_photo(
     overwrite,
     export_edited,
     original_name,
+    export_live,
 ):
     """ Helper function for export that does the actual export
         photo: PhotoInfo object
@@ -923,6 +967,15 @@ def export_photo(
             dest, edited_name, sidecar=sidecar, overwrite=overwrite, edited=True
         )
 
+    if export_live and photo.live_photo and photo.path_live_photo is not None:
+        live_name = pathlib.Path(filename)
+        live_name = f"{live_name.stem}_live.mov"
+        
+        src_live = pathlib.Path(photo.path_live_photo)
+        dest_live = os.path.join(dest, live_name)
+        if verbose:
+            click.echo(f"Exporting live photo video of {filename} as {live_name}")
+            _copy_file(src_live, dest_live)
     return photo_path
 
 

@@ -22,7 +22,7 @@ from ._constants import (
     _PHOTOS_5_SHARED_PHOTO_PATH,
     _PHOTOS_5_VERSION,
 )
-from .utils import _get_resource_loc, dd_to_dms_str
+from .utils import _get_resource_loc, dd_to_dms_str, _copy_file
 
 # TODO: check pylint output
 
@@ -504,16 +504,8 @@ class PhotoInfo:
                 f"destination exists ({dest}); overwrite={overwrite}, increment={increment}"
             )
 
-        # if error on copy, subprocess will raise CalledProcessError
-        try:
-            subprocess.run(
-                ["/usr/bin/ditto", src, dest], check=True, stderr=subprocess.PIPE
-            )
-        except subprocess.CalledProcessError as e:
-            logging.critical(
-                f"ditto returned error: {e.returncode} {e.stderr.decode(sys.getfilesystemencoding()).rstrip()}"
-            )
-            raise e
+        # copy the file, _copy_file uses ditto to preserve Mac extended attributes
+        _copy_file(src, dest)
 
         if sidecar:
             logging.debug("writing exiftool_json_sidecar")
@@ -625,6 +617,8 @@ class PhotoInfo:
             "ismovie": self.ismovie,
             "uti": self.uti,
             "burst": self.burst,
+            "live_photo": self.live_photo,
+            "path_live_photo": self.path_live_photo,
         }
         return yaml.dump(info, sort_keys=False)
 
@@ -654,6 +648,8 @@ class PhotoInfo:
             "ismovie": self.ismovie,
             "uti": self.uti,
             "burst": self.burst,
+            "live_photo": self.live_photo,
+            "path_live_photo": self.path_live_photo,
         }
         return json.dumps(pic)
 
