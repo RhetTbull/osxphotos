@@ -170,8 +170,8 @@ Options:
   --export-bursts     If a photo is a burst photo export all associated burst
                       images in the library.
   --export-live       If a photo is a live photo export the associated live
-                      video component.  Live video will be named in form of
-                      "photoname_live.mov"
+                      video component.  Live video will have same name as 
+                      photo but with .mov extension.
   --original-name     Use photo's original filename instead of current
                       filename for export.
   --sidecar           Create json sidecar for each photo exported in format

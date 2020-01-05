@@ -111,7 +111,9 @@ def _dd_to_dms(dd):
 
 def _copy_file(src, dest):
     """ Copies a file from src path to dest path 
-        Uses ditto to perform copy 
+        src: source path as string 
+        dest: destination path as string
+        Uses ditto to perform copy; will silently overwrite dest if it exists
         Raises exception if copy fails or either path is None """
 
     if src is None or dest is None:

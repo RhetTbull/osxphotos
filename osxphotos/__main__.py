@@ -256,10 +256,16 @@ def list_libraries(cli_obj):
     is_flag=True,
     help="Search for photos not in shared iCloud album (Photos 5 only).",
 )
-@click.option("--burst", is_flag=True, help="Search for photos that were taken in a burst.")
-@click.option("--not-burst", is_flag=True, help="Search for photos that are not part of a burst.")
+@click.option(
+    "--burst", is_flag=True, help="Search for photos that were taken in a burst."
+)
+@click.option(
+    "--not-burst", is_flag=True, help="Search for photos that are not part of a burst."
+)
 @click.option("--live", is_flag=True, help="Search for Apple live photos")
-@click.option("--not-live", is_flag=True, help="Search for photos that are not Apple live photos")
+@click.option(
+    "--not-live", is_flag=True, help="Search for photos that are not Apple live photos"
+)
 @click.option(
     "--only-movies",
     is_flag=True,
@@ -381,7 +387,7 @@ def query(
         return
 
     # actually have something to query
-    isphoto = ismovie = True # default searches for everything
+    isphoto = ismovie = True  # default searches for everything
     if only_movies:
         isphoto = False
     if only_photos:
@@ -460,10 +466,16 @@ def query(
 )
 @click.option("--hidden", is_flag=True, help="Search for photos marked hidden.")
 @click.option("--not-hidden", is_flag=True, help="Search for photos not marked hidden.")
-@click.option("--burst", is_flag=True, help="Search for photos that were taken in a burst.")
-@click.option("--not-burst", is_flag=True, help="Search for photos that are not part of a burst.")
+@click.option(
+    "--burst", is_flag=True, help="Search for photos that were taken in a burst."
+)
+@click.option(
+    "--not-burst", is_flag=True, help="Search for photos that are not part of a burst."
+)
 @click.option("--live", is_flag=True, help="Search for Apple live photos")
-@click.option("--not-live", is_flag=True, help="Search for photos that are not Apple live photos")
+@click.option(
+    "--not-live", is_flag=True, help="Search for photos that are not Apple live photos"
+)
 @click.option(
     "--shared",
     is_flag=True,
@@ -474,7 +486,7 @@ def query(
     is_flag=True,
     help="Search for photos not in shared iCloud album (Photos 5 only).",
 )
-@click.option("--verbose","-V", is_flag=True, help="Print verbose output.")
+@click.option("--verbose", "-V", is_flag=True, help="Print verbose output.")
 @click.option(
     "--overwrite",
     is_flag=True,
@@ -498,13 +510,13 @@ def query(
 @click.option(
     "--export-bursts",
     is_flag=True,
-    help="If a photo is a burst photo export all associated burst images in the library."
+    help="If a photo is a burst photo export all associated burst images in the library.",
 )
 @click.option(
     "--export-live",
     is_flag=True,
     help="If a photo is a live photo export the associated live video component."
-    '  Live video will be named in form of "photoname_live.mov"'
+    "  Live video will have same name as photo but with .mov extension. ",
 )
 @click.option(
     "--original-name",
@@ -611,7 +623,7 @@ def export(
         click.echo(cli.commands["export"].get_help(ctx))
         return
 
-    isphoto = ismovie = True # default searches for everything
+    isphoto = ismovie = True  # default searches for everything
     if only_movies:
         isphoto = False
     if only_photos:
@@ -775,7 +787,7 @@ def print_photo_info(photos, json=False):
                     p.uti,
                     p.burst,
                     p.live_photo,
-                    p.path_live_photo
+                    p.path_live_photo,
                 ]
             )
         for row in dump:
@@ -810,7 +822,7 @@ def _query(
     burst,
     not_burst,
     live,
-    not_live
+    not_live,
 ):
     """ run a query against PhotosDB to extract the photos based on user supply criteria """
     """ used by query and export commands """
@@ -903,7 +915,6 @@ def _query(
     elif not_live:
         photos = [p for p in photos if not p.live_photo]
 
-
     return photos
 
 
@@ -926,6 +937,8 @@ def export_photo(
         sidecar: boolean; create json sidecar file with export
         overwrite: boolean; overwrite dest file if it already exists
         original_name: boolean; use original filename instead of current filename
+        export_live: boolean; also export live video component if photo is a live photo
+                     live video will have same name as photo but with .mov extension
         returns destination path of exported photo or None if photo was missing 
     """
 
@@ -968,14 +981,17 @@ def export_photo(
         )
 
     if export_live and photo.live_photo and photo.path_live_photo is not None:
-        live_name = pathlib.Path(filename)
-        live_name = f"{live_name.stem}_live.mov"
-        
-        src_live = pathlib.Path(photo.path_live_photo)
-        dest_live = os.path.join(dest, live_name)
+        # if destination exists, will be overwritten regardless of overwrite
+        # so that name matches name of live photo
+        live_name = pathlib.Path(photo_path)
+        live_name = f"{live_name.stem}.mov"
+
+        src_live = photo.path_live_photo
+        dest_live = pathlib.Path(photo_path).parent / pathlib.Path(live_name)
+
         if verbose:
             click.echo(f"Exporting live photo video of {filename} as {live_name}")
-            _copy_file(src_live, dest_live)
+            _copy_file(src_live, str(dest_live))
     return photo_path
 
 
