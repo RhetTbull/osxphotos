@@ -490,6 +490,8 @@ class PhotosDB:
                 RKVersion.masterUuid = RKMaster.uuid AND RKVersion.filename NOT LIKE '%.pdf' """
         )
 
+        #  TODO:               RKVersion.selfPortrait -- only in Photos 3 and up
+
         # order of results
         # 0     RKVersion.uuid
         # 1     RKVersion.modelId
@@ -518,6 +520,8 @@ class PhotosDB:
         # 24    RKVersion.burstPickType
         # 25    RKVersion.specialType
         # 26    RKMaster.modelID
+       
+        # 27    RKVersion.selfPortrait -- 1 if selfie (not yet implemented)
 
         for row in c:
             uuid = row[0]
@@ -621,6 +625,9 @@ class PhotosDB:
             )
             self._dbphotos[uuid]["screenshot"] = True if row[25] == 6 else False
             self._dbphotos[uuid]["portrait"] = True if row[25] == 9 else False
+
+            # TODO: Handle selfies (front facing camera, RKVersion.selfPortrait == 1)
+            # self._dbphotos[uuid]["selfie"] = True if row[27] == 1 else False 
 
         # get details needed to find path of the edited photos
         c.execute(
@@ -921,7 +928,8 @@ class PhotosDB:
 				ZGENERICASSET.ZAVALANCHEUUID,
 				ZGENERICASSET.ZAVALANCHEPICKTYPE,
                 ZGENERICASSET.ZKINDSUBTYPE,
-                ZGENERICASSET.ZCUSTOMRENDEREDVALUE
+                ZGENERICASSET.ZCUSTOMRENDEREDVALUE,
+                ZADDITIONALASSETATTRIBUTES.ZCAMERACAPTUREDEVICE
                 FROM ZGENERICASSET 
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK 
                 WHERE ZGENERICASSET.ZTRASHEDSTATE = 0  
@@ -951,6 +959,8 @@ class PhotosDB:
         # 20   ZGENERICASSET.ZAVALANCHEPICKTYPE -- if not 2, is a selected burst photo
         # 21   ZGENERICASSET.ZKINDSUBTYPE -- determine if live photos, etc
         # 22   ZGENERICASSET.ZCUSTOMRENDEREDVALUE -- determine if HDR photo
+        # 23   ZADDITIONALASSETATTRIBUTES.ZCAMERACAPTUREDEVICE -- 1 if selfie (front facing camera)
+
 
         for row in c:
             uuid = row[0]
@@ -1056,6 +1066,9 @@ class PhotosDB:
             info["customRenderedValue"] = row[22]
             info["hdr"] = True if row[22] == 3 else False
             info["portrait"] = True if row[22] == 8 else False
+
+            # Handle selfies (front facing camera, ZCAMERACAPTUREDEVICE=1)
+            info["selfie"] = True if row[23] == 1 else False
 
             self._dbphotos[uuid] = info
 
