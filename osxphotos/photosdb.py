@@ -1130,6 +1130,10 @@ class PhotosDB:
 
         # Get info on remote/local availability for photos in shared albums
         # Shared photos have a null fingerprint (and some other photos do too)
+        # TODO: There may be a bug here, perhaps ZDATASTORESUBTYPE should be 1 --> it's the longest ZDATALENGTH (is this the original)
+        # Also, doesn't seem to be entirely accurate for PNGs (screenshots mostly)
+        # for PNGs, JPEG render seems to be used unless edited or exported
+        # see for example ./resources/renders/F/F2FF9B89-FB6F-4853-942B-9F8BEE8DFFA1_1_201_a.jpeg
         c.execute(
             """ SELECT 
                 ZGENERICASSET.ZUUID, 
@@ -1139,6 +1143,8 @@ class PhotosDB:
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK 
                 JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZASSET = ZADDITIONALASSETATTRIBUTES.ZASSET 
                 WHERE  ZDATASTORESUBTYPE = 0 OR ZDATASTORESUBTYPE = 3 """
+                # WHERE  ZDATASTORESUBTYPE = 1 OR ZDATASTORESUBTYPE = 3 """
+                # WHERE  ZDATASTORESUBTYPE = 0 OR ZDATASTORESUBTYPE = 3 """
             # WHERE ZINTERNALRESOURCE.ZFINGERPRINT IS NULL AND ZINTERNALRESOURCE.ZDATASTORESUBTYPE = 3 """
         )
 

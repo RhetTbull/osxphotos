@@ -991,7 +991,9 @@ def export_photo(
 
         if verbose:
             click.echo(f"Exporting live photo video of {filename} as {live_name}")
-            _copy_file(src_live, str(dest_live))
+        
+        _copy_file(src_live, str(dest_live))
+        
     return photo_path
 
 
