@@ -325,7 +325,15 @@ class PhotoInfo:
         """ Returns True if photo is a cloud asset (in an iCloud library),
             otherwise False 
         """
-        return True if self._info["cloudAssetGUID"] is not None else False
+        if self._db._db_version < _PHOTOS_5_VERSION:
+            return (
+                True
+                if self._info["cloudLibraryState"] is not None
+                and self._info["cloudLibraryState"] != 0
+                else False
+            )
+        else:
+            return True if self._info["cloudAssetGUID"] is not None else False
 
     @property
     def burst(self):

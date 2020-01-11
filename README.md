@@ -602,12 +602,10 @@ Returns True if type is movie/video, otherwise False
 #### `iscloudasset`
 Returns True if photo is a cloud asset, that is, it is in a library synched to iCloud.  See also [incloud](#incloud)
 
-**Note**: Currently only implemented for Photos 5 / MacOS Catalina. On earlier versions, returns None.
-
 #### `incloud`
 Returns True if photo is a [cloud asset](#iscloudasset) and is synched to iCloud otherwise False if photo is a cloud asset and not yet synched to iCloud. Returns None if photo is not a cloud asset.
 
-**Note**: Currently only implemented for Photos 5 / MacOS Catalina. On earlier versions, returns None.
+**Note**: Applies to master (original) photo only.  It's possible for the master to be in iCloud but a local edited version is not yet synched to iCloud. `incloud` provides status of only the master photo.  osxphotos does not yet provide a means to determine if the edited version is in iCloud.  If you need this feature, please open a [issue](https://github.com/RhetTbull/osxphotos/issues)
 
 #### `uti`
 Returns Uniform Type Identifier (UTI) for the image, for example: 'public.jpeg' or 'com.apple.quicktime-movie'

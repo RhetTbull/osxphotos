@@ -520,7 +520,7 @@ class PhotosDB:
         # 24    RKVersion.burstPickType
         # 25    RKVersion.specialType
         # 26    RKMaster.modelID
-       
+
         # 27    RKVersion.selfPortrait -- 1 if selfie (not yet implemented)
 
         for row in c:
@@ -627,13 +627,16 @@ class PhotosDB:
             self._dbphotos[uuid]["portrait"] = True if row[25] == 9 else False
 
             # TODO: Handle selfies (front facing camera, RKVersion.selfPortrait == 1)
-            # self._dbphotos[uuid]["selfie"] = True if row[27] == 1 else False 
+            # self._dbphotos[uuid]["selfie"] = True if row[27] == 1 else False
             self._dbphotos[uuid]["selfie"] = None
 
-            # Init cloud details that will be filled in later
-            self._dbphotos[uuid]["cloudAssetGUID"] = None
-            self._dbphotos[uuid]["cloudLocalState"] = None # will be initialized later if is cloud asset
-            self._dbphotos[uuid]["incloud"] = None # will be initialized later if is cloud asset
+            # Init cloud details that will be filled in later if cloud asset
+            self._dbphotos[uuid]["cloudAssetGUID"] = None  # Photos 5
+            self._dbphotos[uuid]["cloudLocalState"] = None  # Photos 5
+            self._dbphotos[uuid]["cloudLibraryState"] = None
+            self._dbphotos[uuid]["cloudStatus"] = None
+            self._dbphotos[uuid]["cloudAvailable"] = None
+            self._dbphotos[uuid]["incloud"] = None
 
         # get details needed to find path of the edited photos
         c.execute(
@@ -695,8 +698,6 @@ class PhotosDB:
             if uuid in self._dbphotos:
                 self._dbphotos[uuid]["adjustmentFormatID"] = row[3]
 
-
-
         # get details to find path of live photos
         c.execute(
             """ SELECT 
@@ -717,10 +718,10 @@ class PhotosDB:
         )
 
         # Order of results
-        # 0     RKVersion.uuid, 
+        # 0     RKVersion.uuid,
         # 1     RKModelResource.modelId,
         # 2     RKModelResource.UTI,
-        # 3     RKVersion.specialType, 
+        # 3     RKVersion.specialType,
         # 4     RKModelResource.attachedModelType,
         # 5     RKModelResource.resourceType
         # 6     RKModelResource.isOnDisk
@@ -730,7 +731,9 @@ class PhotosDB:
             uuid = row[0]
             if uuid in self._dbphotos:
                 self._dbphotos[uuid]["live_model_id"] = row[1]
-                self._dbphotos[uuid]["modeResourceIsOnDisk"] = True if row[6] == 1 else False
+                self._dbphotos[uuid]["modeResourceIsOnDisk"] = (
+                    True if row[6] == 1 else False
+                )
 
         # init any uuids that had no edits or live photos
         for uuid in self._dbphotos:
@@ -740,6 +743,33 @@ class PhotosDB:
                 self._dbphotos[uuid]["live_model_id"] = None
                 self._dbphotos[uuid]["modeResourceIsOnDisk"] = None
 
+        # get cloud details
+        c.execute(
+            """ SELECT 
+                RKVersion.uuid, 
+                RKMaster.cloudLibraryState,
+                RKCloudResource.available, 
+                RKCloudResource.status
+                FROM RKCloudResource
+                INNER JOIN RKMaster ON RKMaster.fingerprint = RKCloudResource.fingerprint
+                INNER JOIN RKVersion ON RKVersion.masterUuid = RKMaster.uuid """
+        )
+
+        # Order of results
+        # 0  RKMaster.uuid,
+        # 1  RKMaster.cloudLibraryState,
+        # 2  RKCloudResource.available,
+        # 3  RKCloudResource.status
+
+        for row in c:
+            uuid = row[0]
+            if uuid in self._dbphotos:
+                self._dbphotos[uuid]["cloudLibraryState"] = row[1]
+                self._dbphotos[uuid]["cloudAvailable"] = row[2]
+                self._dbphotos[uuid]["cloudStatus"] = row[3]
+                self._dbphotos[uuid]["incloud"] = True if row[2] == 1 else False
+
+        # done with the database connection
         conn.close()
 
         # add faces and keywords to photo data
@@ -967,10 +997,8 @@ class PhotosDB:
         # 21   ZGENERICASSET.ZKINDSUBTYPE -- determine if live photos, etc
         # 22   ZGENERICASSET.ZCUSTOMRENDEREDVALUE -- determine if HDR photo
         # 23   ZADDITIONALASSETATTRIBUTES.ZCAMERACAPTUREDEVICE -- 1 if selfie (front facing camera)
-        # 25   ZGENERICASSET.ZCLOUDASSETGUID  -- not null if asset is cloud asset 
+        # 25   ZGENERICASSET.ZCLOUDASSETGUID  -- not null if asset is cloud asset
         #       (e.g. user has "iCloud Photos" checked in Photos preferences)
-
-
 
         for row in c:
             uuid = row[0]
@@ -1081,9 +1109,13 @@ class PhotosDB:
             info["selfie"] = True if row[23] == 1 else False
 
             # Determine if photo is part of cloud library (ZGENERICASSET.ZCLOUDASSETGUID not NULL)
+            # Initialize cloud fields that will filled in later
             info["cloudAssetGUID"] = row[24]
-            info["cloudLocalState"] = None # will be initialized later if is cloud asset
-            info["incloud"] = None # will be initialized later if is cloud asset 
+            info["cloudLocalState"] = None
+            info["incloud"] = None
+            info["cloudLibraryState"] = None  # Photos 4
+            info["cloudStatus"] = None  # Photos 4
+            info["cloudAvailable"] = None  # Photos 4
 
             self._dbphotos[uuid] = info
 
@@ -1155,8 +1187,8 @@ class PhotosDB:
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK 
                 JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZASSET = ZADDITIONALASSETATTRIBUTES.ZASSET 
                 WHERE  ZDATASTORESUBTYPE = 0 OR ZDATASTORESUBTYPE = 3 """
-                # WHERE  ZDATASTORESUBTYPE = 1 OR ZDATASTORESUBTYPE = 3 """
-                # WHERE  ZDATASTORESUBTYPE = 0 OR ZDATASTORESUBTYPE = 3 """
+            # WHERE  ZDATASTORESUBTYPE = 1 OR ZDATASTORESUBTYPE = 3 """
+            # WHERE  ZDATASTORESUBTYPE = 0 OR ZDATASTORESUBTYPE = 3 """
             # WHERE ZINTERNALRESOURCE.ZFINGERPRINT IS NULL AND ZINTERNALRESOURCE.ZDATASTORESUBTYPE = 3 """
         )
 
