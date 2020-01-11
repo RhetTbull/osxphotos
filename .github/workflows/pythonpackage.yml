@@ -5,7 +5,7 @@ on: [push]
 jobs:
   build:
 
-    runs-on: macOS-10.14
+    runs-on: macOS-latest
     strategy:
       max-parallel: 4
       matrix:
