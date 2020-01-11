@@ -628,6 +628,12 @@ class PhotosDB:
 
             # TODO: Handle selfies (front facing camera, RKVersion.selfPortrait == 1)
             # self._dbphotos[uuid]["selfie"] = True if row[27] == 1 else False 
+            self._dbphotos[uuid]["selfie"] = None
+
+            # Init cloud details that will be filled in later
+            self._dbphotos[uuid]["cloudAssetGUID"] = None
+            self._dbphotos[uuid]["cloudLocalState"] = None # will be initialized later if is cloud asset
+            self._dbphotos[uuid]["incloud"] = None # will be initialized later if is cloud asset
 
         # get details needed to find path of the edited photos
         c.execute(
@@ -929,7 +935,8 @@ class PhotosDB:
 				ZGENERICASSET.ZAVALANCHEPICKTYPE,
                 ZGENERICASSET.ZKINDSUBTYPE,
                 ZGENERICASSET.ZCUSTOMRENDEREDVALUE,
-                ZADDITIONALASSETATTRIBUTES.ZCAMERACAPTUREDEVICE
+                ZADDITIONALASSETATTRIBUTES.ZCAMERACAPTUREDEVICE,
+                ZGENERICASSET.ZCLOUDASSETGUID 
                 FROM ZGENERICASSET 
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK 
                 WHERE ZGENERICASSET.ZTRASHEDSTATE = 0  
@@ -960,6 +967,9 @@ class PhotosDB:
         # 21   ZGENERICASSET.ZKINDSUBTYPE -- determine if live photos, etc
         # 22   ZGENERICASSET.ZCUSTOMRENDEREDVALUE -- determine if HDR photo
         # 23   ZADDITIONALASSETATTRIBUTES.ZCAMERACAPTUREDEVICE -- 1 if selfie (front facing camera)
+        # 25   ZGENERICASSET.ZCLOUDASSETGUID  -- not null if asset is cloud asset 
+        #       (e.g. user has "iCloud Photos" checked in Photos preferences)
+
 
 
         for row in c:
@@ -1070,6 +1080,11 @@ class PhotosDB:
             # Handle selfies (front facing camera, ZCAMERACAPTUREDEVICE=1)
             info["selfie"] = True if row[23] == 1 else False
 
+            # Determine if photo is part of cloud library (ZGENERICASSET.ZCLOUDASSETGUID not NULL)
+            info["cloudAssetGUID"] = row[24]
+            info["cloudLocalState"] = None # will be initialized later if is cloud asset
+            info["incloud"] = None # will be initialized later if is cloud asset 
+
             self._dbphotos[uuid] = info
 
             # # if row[19] is not None and ((row[20] == 2) or (row[20] == 4)):
@@ -1131,9 +1146,6 @@ class PhotosDB:
         # Get info on remote/local availability for photos in shared albums
         # Shared photos have a null fingerprint (and some other photos do too)
         # TODO: There may be a bug here, perhaps ZDATASTORESUBTYPE should be 1 --> it's the longest ZDATALENGTH (is this the original)
-        # Also, doesn't seem to be entirely accurate for PNGs (screenshots mostly)
-        # for PNGs, JPEG render seems to be used unless edited or exported
-        # see for example ./resources/renders/F/F2FF9B89-FB6F-4853-942B-9F8BEE8DFFA1_1_201_a.jpeg
         c.execute(
             """ SELECT 
                 ZGENERICASSET.ZUUID, 
@@ -1195,8 +1207,19 @@ class PhotosDB:
                 #         f"{uuid} isMissing changed: {old} {self._dbphotos[uuid]['isMissing']}"
                 #     )
 
-        if _debug():
-            logging.debug(pformat(self._dbphotos))
+        # get information about cloud sync state
+        c.execute(
+            """ SELECT
+                ZGENERICASSET.ZUUID,
+                ZCLOUDMASTER.ZCLOUDLOCALSTATE
+                FROM ZCLOUDMASTER, ZGENERICASSET
+                WHERE ZGENERICASSET.ZMASTER = ZCLOUDMASTER.Z_PK """
+        )
+        for row in c:
+            uuid = row[0]
+            if uuid in self._dbphotos:
+                self._dbphotos[uuid]["cloudLocalState"] = row[1]
+                self._dbphotos[uuid]["incloud"] = True if row[1] == 3 else False
 
         # add faces and keywords to photo data
         for uuid in self._dbphotos:
@@ -1226,6 +1249,7 @@ class PhotosDB:
         conn.close()
         self._cleanup_tmp_files()
 
+        # done processing, dump debug data if requested
         if _debug():
             logging.debug("Faces:")
             logging.debug(pformat(self._dbfaces_uuid))
@@ -1254,7 +1278,6 @@ class PhotosDB:
             logging.debug("Burst Photos:")
             logging.debug(pformat(self._dbphotos_burst))
 
-    # TODO: fix default values to None instead of []
     def photos(
         self,
         keywords=None,

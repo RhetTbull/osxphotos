@@ -313,6 +313,21 @@ class PhotoInfo:
         return True if self._info["type"] == _PHOTO_TYPE else False
 
     @property
+    def incloud(self):
+        """ Returns True if photo is cloud asset and is synched to cloud
+                    False if photo is cloud asset and not yet synched to cloud
+                    None if photo is not cloud asset
+        """
+        return self._info["incloud"]
+
+    @property
+    def iscloudasset(self):
+        """ Returns True if photo is a cloud asset (in an iCloud library),
+            otherwise False 
+        """
+        return True if self._info["cloudAssetGUID"] is not None else False
+
+    @property
     def burst(self):
         """ Returns True if photo is part of a Burst photo set, otherwise False """
         return self._info["burst"]
