@@ -68,7 +68,7 @@
   * [Implementation Notes](#implementation-notes)
   * [Dependencies](#dependencies)
   * [Acknowledgements](#acknowledgements)
-  
+
 ## What is osxphotos?
 
 OSXPhotos provides the ability to interact with and query Apple's Photos.app library database on MacOS. Using this module you can query the Photos database for information about the photos stored in a Photos library on your Mac--for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos.
@@ -602,8 +602,12 @@ Returns True if type is movie/video, otherwise False
 #### `iscloudasset`
 Returns True if photo is a cloud asset, that is, it is in a library synched to iCloud.  See also [incloud](#incloud)
 
+**Note**: Currently only implemented for Photos 5 / MacOS Catalina. On earlier versions, returns None.
+
 #### `incloud`
 Returns True if photo is a [cloud asset](#iscloudasset) and is synched to iCloud otherwise False if photo is a cloud asset and not yet synched to iCloud. Returns None if photo is not a cloud asset.
+
+**Note**: Currently only implemented for Photos 5 / MacOS Catalina. On earlier versions, returns None.
 
 #### `uti`
 Returns Uniform Type Identifier (UTI) for the image, for example: 'public.jpeg' or 'com.apple.quicktime-movie'
