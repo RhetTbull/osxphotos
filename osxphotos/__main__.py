@@ -266,10 +266,26 @@ def list_libraries(cli_obj):
 @click.option(
     "--not-live", is_flag=True, help="Search for photos that are not Apple live photos"
 )
-@click.option("--cloudasset", is_flag=True, help="Search for photos that are part of an iCloud library")
-@click.option("--not-cloudasset", is_flag=True, help="Search for photos that are not part of an iCloud library")
-@click.option("--incloud", is_flag=True, help="Search for photos that are in iCloud (have been synched)")
-@click.option("--not-incloud", is_flag=True, help="Search for photos that are not in iCloud (have not been synched)")
+@click.option(
+    "--cloudasset",
+    is_flag=True,
+    help="Search for photos that are part of an iCloud library",
+)
+@click.option(
+    "--not-cloudasset",
+    is_flag=True,
+    help="Search for photos that are not part of an iCloud library",
+)
+@click.option(
+    "--incloud",
+    is_flag=True,
+    help="Search for photos that are in iCloud (have been synched)",
+)
+@click.option(
+    "--not-incloud",
+    is_flag=True,
+    help="Search for photos that are not in iCloud (have not been synched)",
+)
 @click.option(
     "--only-movies",
     is_flag=True,
@@ -445,7 +461,7 @@ def query(
         cloudasset,
         not_cloudasset,
         incloud,
-        not_incloud
+        not_incloud,
     )
     print_photo_info(photos, cli_obj.json or json)
 
@@ -550,11 +566,12 @@ def query(
 @click.option(
     "--sidecar",
     is_flag=True,
-    help="Create json sidecar for each photo exported "
+    help="Create JSON sidecar for each photo exported "
     f"in format useable by exiftool ({_EXIF_TOOL_URL}) "
     "The sidecar file can be used to apply metadata to the file with exiftool, for example: "
     '"exiftool -j=photoname.jpg.json photoname.jpg" '
-    "The sidecar file is named in format photoname.ext.json where ext is extension of the photo (e.g. jpg).",
+    "The sidecar file is named in format photoname.ext.json where ext is extension of the photo (e.g. jpg). "
+    "Note: this does not create an XMP sidecar as used by Lightroom, etc.",
 )
 @click.option(
     "--only-movies",
@@ -565,6 +582,14 @@ def query(
     "--only-photos",
     is_flag=True,
     help="Search only for photos/images (default searches both images and movies).",
+)
+@click.option(
+    "--download-missing",
+    is_flag=True,
+    help="Attempt to download missing photos from iCloud. The current implementation uses Applescript "
+    "to interact with Photos to export the photo which will force Photos to download from iCloud if "
+    "the photo does not exist on disk.  This will be slow and will require internet connection. "
+    "This obviously only works if the Photos library is synched to iCloud.",
 )
 @click.argument("dest", nargs=1)
 @click.pass_obj
@@ -604,6 +629,7 @@ def export(
     not_burst,
     live,
     not_live,
+    download_missing,
     dest,
 ):
     """ Export photos from the Photos database.
@@ -682,6 +708,10 @@ def export(
         not_burst,
         live,
         not_live,
+        False, # cloudasset
+        False, # not_cloudasset
+        False, # incloud
+        False # not_incloud
     )
 
     if photos:
@@ -709,6 +739,7 @@ def export(
                         export_edited,
                         original_name,
                         export_live,
+                        download_missing
                     )
         else:
             for p in photos:
@@ -722,6 +753,7 @@ def export(
                     export_edited,
                     original_name,
                     export_live,
+                    download_missing
                 )
                 if export_path:
                     click.echo(f"Exported {p.filename} to {export_path}")
@@ -951,12 +983,12 @@ def _query(
         photos = [p for p in photos if p.iscloudasset]
     elif not_cloudasset:
         photos = [p for p in photos if not p.iscloudasset]
-    
+
     if incloud:
         photos = [p for p in photos if p.incloud]
     elif not_incloud:
         photos = [p for p in photos if not p.incloud]
-        
+
     return photos
 
 
@@ -970,6 +1002,7 @@ def export_photo(
     export_edited,
     original_name,
     export_live,
+    download_missing,
 ):
     """ Helper function for export that does the actual export
         photo: PhotoInfo object
@@ -981,19 +1014,24 @@ def export_photo(
         original_name: boolean; use original filename instead of current filename
         export_live: boolean; also export live video component if photo is a live photo
                      live video will have same name as photo but with .mov extension
+        download_missing: attempt download of missing iCloud photos
         returns destination path of exported photo or None if photo was missing 
     """
 
-    if photo.ismissing:
-        space = " " if not verbose else ""
-        click.echo(f"{space}Skipping missing photo {photo.filename}")
-        return None
-    elif not os.path.exists(photo.path):
-        space = " " if not verbose else ""
-        click.echo(
-            f"{space}WARNING: file {photo.path} is missing but ismissing=False, "
-            f"skipping {photo.filename}"
-        )
+    if not download_missing:
+        if photo.ismissing:
+            space = " " if not verbose else ""
+            click.echo(f"{space}Skipping missing photo {photo.filename}")
+            return None
+        elif not os.path.exists(photo.path):
+            space = " " if not verbose else ""
+            click.echo(
+                f"{space}WARNING: file {photo.path} is missing but ismissing=False, "
+                f"skipping {photo.filename}"
+            )
+            return None
+    elif photo.ismissing and not photo.iscloudasset or not photo.incloud:
+        click.echo(f"Skipping missing {photo.filename}: not iCloud asset or missing from cloud")
         return None
 
     filename = None
@@ -1009,18 +1047,32 @@ def export_photo(
         date_created = photo.date.timetuple()
         dest = create_path_by_date(dest, date_created)
 
-    photo_path = photo.export(dest, filename, sidecar=sidecar, overwrite=overwrite)
+    photo_path = photo.export(
+        dest,
+        filename,
+        sidecar=sidecar,
+        overwrite=overwrite,
+        use_photos_export=download_missing,
+    )
 
     # if export-edited, also export the edited version
     # verify the photo has adjustments and valid path to avoid raising an exception
-    if export_edited and photo.hasadjustments and photo.path_edited is not None:
-        edited_name = pathlib.Path(filename)
-        edited_name = f"{edited_name.stem}_edited{edited_name.suffix}"
-        if verbose:
-            click.echo(f"Exporting edited version of {filename} as {edited_name}")
-        photo.export(
-            dest, edited_name, sidecar=sidecar, overwrite=overwrite, edited=True
-        )
+    if export_edited and photo.hasadjustments:
+        if download_missing or photo.path_edited is not None:
+            edited_name = pathlib.Path(filename)
+            edited_name = f"{edited_name.stem}_edited{edited_name.suffix}"
+            if verbose:
+                click.echo(f"Exporting edited version of {filename} as {edited_name}")
+            photo.export(
+                dest,
+                edited_name,
+                sidecar=sidecar,
+                overwrite=overwrite,
+                edited=True,
+                use_photos_export=download_missing,
+            )
+        else:
+            click.echo(f"Skipping missing edited photo for {filename}")
 
     if export_live and photo.live_photo and photo.path_live_photo is not None:
         # if destination exists, will be overwritten regardless of overwrite
@@ -1031,11 +1083,14 @@ def export_photo(
         src_live = photo.path_live_photo
         dest_live = pathlib.Path(photo_path).parent / pathlib.Path(live_name)
 
-        if verbose:
-            click.echo(f"Exporting live photo video of {filename} as {live_name}")
-        
-        _copy_file(src_live, str(dest_live))
-        
+        if src_live is not None:
+            if verbose:
+                click.echo(f"Exporting live photo video of {filename} as {live_name}")
+
+            _copy_file(src_live, str(dest_live))
+        else:
+           click.echo(f"Skipping missing live movie for {filename}")
+
     return photo_path
 
 

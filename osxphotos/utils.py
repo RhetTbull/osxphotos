@@ -300,6 +300,7 @@ def _export_photo_uuid_applescript(
         edited: (boolean) if True, export edited photo; default = False
                 will produce an error if image does not have edits/adjustments  
         timeout: timeout value in seconds; export will fail if applescript run time exceeds timeout
+        Returns: path to exported file or None if export failed
     """
 
     # setup the applescript to do the export
@@ -345,7 +346,10 @@ def _export_photo_uuid_applescript(
         return None
 
     if filename is not None:
-        path = os.path.join(tmpdir.name, filename)
+        # need to find actual filename as sometimes Photos renames JPG to jpeg on export
+        # this assumes only a single file in export folder, which should be true as
+        # TemporaryDirectory will cleanup on return
+        path = glob.glob(os.path.join(tmpdir.name, "*"))[0]
         _copy_file(path, dest)
         if os.path.isdir(dest):
             new_path = os.path.join(dest, filename)

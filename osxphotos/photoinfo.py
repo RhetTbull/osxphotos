@@ -16,9 +16,18 @@ from pprint import pformat
 
 import yaml
 
-from ._constants import (_MOVIE_TYPE, _PHOTO_TYPE, _PHOTOS_5_SHARED_PHOTO_PATH,
-                         _PHOTOS_5_VERSION)
-from .utils import _copy_file, _get_resource_loc, dd_to_dms_str
+from ._constants import (
+    _MOVIE_TYPE,
+    _PHOTO_TYPE,
+    _PHOTOS_5_SHARED_PHOTO_PATH,
+    _PHOTOS_5_VERSION,
+)
+from .utils import (
+    _copy_file,
+    _get_resource_loc,
+    dd_to_dms_str,
+    _export_photo_uuid_applescript,
+)
 
 # TODO: check pylint output
 
@@ -151,18 +160,15 @@ class PhotoInfo:
 
                     if not os.path.isfile(photopath):
                         rootdir = os.path.join(
-                        library,
-                        "resources",
-                        "media",
-                        "version",
-                        folder_id)
-                        
+                            library, "resources", "media", "version", folder_id
+                        )
+
                         for dirname, _, filelist in os.walk(rootdir):
                             if filename in filelist:
                                 photopath = os.path.join(dirname, filename)
                                 break
 
-                    # check again to see if we found a valid file    
+                    # check again to see if we found a valid file
                     if not os.path.isfile(photopath):
                         logging.warning(
                             f"MISSING PATH: edited file for UUID {self._uuid} should be at {photopath} but does not appear to exist"
@@ -492,37 +498,7 @@ class PhotoInfo:
                 else:
                     filename = self.filename
 
-        # get path to source file and verify it's not None and is valid file
-        # TODO: how to handle ismissing or not hasadjustments and edited=True cases?
-        if edited:
-            if not self.hasadjustments:
-                logging.warning(
-                    "Attempting to export edited photo but hasadjustments=False"
-                )
-
-            if self.path_edited is not None:
-                src = self.path_edited
-            else:
-                raise FileNotFoundError(
-                    f"edited=True but path_edited is none; hasadjustments: {self.hasadjustments}"
-                )
-        else:
-            if self.ismissing:
-                logging.warning(
-                    f"Attempting to export photo with ismissing=True: path = {self.path}"
-                )
-
-            if self.path is None:
-                logging.warning(
-                    f"Attempting to export photo but path is None: ismissing = {self.ismissing}"
-                )
-                raise FileNotFoundError("Cannot export photo if path is None")
-            else:
-                src = self.path
-
-        if not os.path.isfile(src):
-            raise FileNotFoundError(f"{src} does not appear to exist")
-
+        # check destination path
         dest = pathlib.Path(dest)
         filename = pathlib.Path(filename)
         dest = dest / filename
@@ -536,18 +512,67 @@ class PhotoInfo:
                 count += 1
             dest = dest_new
 
-        logging.debug(
-            f"exporting {src} to {dest}, overwrite={overwrite}, incremetn={increment}, dest exists: {dest.exists()}"
-        )
-
         # if overwrite==False and #increment==False, export should fail if file exists
         if dest.exists() and not overwrite and not increment:
             raise FileExistsError(
                 f"destination exists ({dest}); overwrite={overwrite}, increment={increment}"
             )
 
-        # copy the file, _copy_file uses ditto to preserve Mac extended attributes
-        _copy_file(src, dest)
+        if not use_photos_export:
+            # find the source file on disk and export
+            # get path to source file and verify it's not None and is valid file
+            # TODO: how to handle ismissing or not hasadjustments and edited=True cases?
+            if edited:
+                if not self.hasadjustments:
+                    logging.warning(
+                        "Attempting to export edited photo but hasadjustments=False"
+                    )
+
+                if self.path_edited is not None:
+                    src = self.path_edited
+                else:
+                    raise FileNotFoundError(
+                        f"edited=True but path_edited is none; hasadjustments: {self.hasadjustments}"
+                    )
+            else:
+                if self.ismissing:
+                    logging.warning(
+                        f"Attempting to export photo with ismissing=True: path = {self.path}"
+                    )
+
+                if self.path is None:
+                    logging.warning(
+                        f"Attempting to export photo but path is None: ismissing = {self.ismissing}"
+                    )
+                    raise FileNotFoundError("Cannot export photo if path is None")
+                else:
+                    src = self.path
+
+            if not os.path.isfile(src):
+                raise FileNotFoundError(f"{src} does not appear to exist")
+
+            logging.debug(
+                f"exporting {src} to {dest}, overwrite={overwrite}, increment={increment}, dest exists: {dest.exists()}"
+            )
+
+            # copy the file, _copy_file uses ditto to preserve Mac extended attributes
+            _copy_file(src, dest)
+        else:
+            # use_photo_export
+            exported = None
+            if edited:
+                # exported edited version and not original
+                exported = _export_photo_uuid_applescript(
+                    self.uuid, dest, original=False, edited=True, timeout=timeout
+                )
+            else:
+                # export original version and not edited
+                exported = _export_photo_uuid_applescript(
+                    self.uuid, dest, original=True, edited=False, timeout=timeout
+                )
+
+            if exported is None:
+                logging.warning(f"Error exporting photo {photo.uuid} to {dest}")
 
         if sidecar:
             logging.debug("writing exiftool_json_sidecar")

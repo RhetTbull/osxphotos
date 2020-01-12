@@ -648,7 +648,7 @@ Returns the path to the live video component of a [live photo](#live_photo). If 
 #### `json()`
 Returns a JSON representation of all photo info 
 
-#### `export(dest, *filename, edited=False, overwrite=False, increment=True, sidecar=False)`
+#### `export(dest, *filename, edited=False, overwrite=False, increment=True, sidecar=False, use_photos_export=False, timeout=120)`
 
 Export photo from the Photos library to another destination on disk.  
 - dest: must be valid destination path as str (or exception raised).
@@ -656,7 +656,9 @@ Export photo from the Photos library to another destination on disk.
 - edited: boolean; if True (default=False), will export the edited version of the photo (or raise exception if no edited version)
 - overwrite: boolean; if True (default=False), will overwrite files if they alreay exist
 - increment: boolean; if True (default=True), will increment file name until a non-existant name is found
-- sidecar: boolean; if True (default=False) will also write a json sidecar file with EXIF data in format readable by [exiftool](https://exiftool.org/); filename will be dest/filename.ext.json where ext is suffix of the image file (e.g. jpeg or jpg)
+- sidecar: boolean; if True (default=False) will also write a json sidecar file with EXIF data in format readable by [exiftool](https://exiftool.org/); filename will be dest/filename.ext.json where ext is suffix of the image file (e.g. jpeg or jpg). Note: this is not an XMP sidecar.
+- use_photos_export: boolean; (default=False), if True will attempt to export photo via applescript interaction with Photos--useful for forcing download of missing photos
+- timeout: (int, default=120) timeout in seconds used with use_photos_export
 
 The json sidecar file can be used by exiftool to apply the metadata from the json file to the image.  For example: 
 
