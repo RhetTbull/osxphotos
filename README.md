@@ -187,6 +187,13 @@ Options:
                       movies).
   --only-photos       Search only for photos/images (default searches both
                       images and movies).
+  --download-missing  Attempt to download missing photos from iCloud. The
+                      current implementation uses Applescript to interact with
+                      Photos to export the photo which will force Photos to
+                      download from iCloud if the photo does not exist on
+                      disk.  This will be slow and will require internet
+                      connection. This obviously only works if the Photos
+                      library is synched to iCloud.
   -h, --help          Show this message and exit.
 ```
 
