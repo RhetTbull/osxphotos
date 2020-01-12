@@ -786,5 +786,7 @@ Apple does provide a framework ([PhotoKit](https://developer.apple.com/documenta
 - [Click](https://pypi.org/project/click/)
 
 ## Acknowledgements
-This project was originally inspired by photo-export by Patrick Fältström see: (https://github.com/patrikhson/photo-export) Copyright (c) 2015 Patrik Fältström paf@frobbit.se
+This project was originally inspired by [photo-export](https://github.com/patrikhson/photo-export) by Patrick Fältström,  Copyright (c) 2015 Patrik Fältström paf@frobbit.se
+
+I use [py-applescript](https://github.com/rdhyee/py-applescript) by "Raymond Yee / rdhyee" to interact with Photos. Rather than import this module, I included the entire module (which is published as public domain code) in a private module to prevent ambiguity with other applescript modules on PyPi. py-applescript uses a native bridge via PyObjC and is very fast compared to the other osascript based modules.
 
