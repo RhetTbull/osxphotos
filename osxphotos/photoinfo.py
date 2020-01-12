@@ -661,6 +661,8 @@ class PhotoInfo:
             "burst": self.burst,
             "live_photo": self.live_photo,
             "path_live_photo": self.path_live_photo,
+            "iscloudasset": self.iscloudasset,
+            "incloud": self.incloud,
         }
         return yaml.dump(info, sort_keys=False)
 
@@ -692,6 +694,8 @@ class PhotoInfo:
             "burst": self.burst,
             "live_photo": self.live_photo,
             "path_live_photo": self.path_live_photo,
+            "iscloudasset": self.iscloudasset,
+            "incloud": self.incloud,
         }
         return json.dumps(pic)
 

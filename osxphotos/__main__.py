@@ -266,6 +266,10 @@ def list_libraries(cli_obj):
 @click.option(
     "--not-live", is_flag=True, help="Search for photos that are not Apple live photos"
 )
+@click.option("--cloudasset", is_flag=True, help="Search for photos that are part of an iCloud library")
+@click.option("--not-cloudasset", is_flag=True, help="Search for photos that are not part of an iCloud library")
+@click.option("--incloud", is_flag=True, help="Search for photos that are in iCloud (have been synched)")
+@click.option("--not-incloud", is_flag=True, help="Search for photos that are not in iCloud (have not been synched)")
 @click.option(
     "--only-movies",
     is_flag=True,
@@ -315,6 +319,10 @@ def query(
     not_burst,
     live,
     not_live,
+    cloudasset,
+    not_cloudasset,
+    incloud,
+    not_incloud,
 ):
     """ Query the Photos database using 1 or more search options; 
         if more than one option is provided, they are treated as "AND" 
@@ -349,6 +357,10 @@ def query(
             not_burst,
             live,
             not_live,
+            cloudasset,
+            not_cloudasset,
+            incloud,
+            not_incloud,
         ]
     ):
         click.echo(cli.commands["query"].get_help(ctx))
@@ -382,6 +394,14 @@ def query(
         click.echo(cli.commands["query"].get_help(ctx))
         return
     elif live and not_live:
+        # can't search for both live and not_live
+        click.echo(cli.commands["query"].get_help(ctx))
+        return
+    elif cloudasset and not_cloudasset:
+        # can't search for both live and not_live
+        click.echo(cli.commands["query"].get_help(ctx))
+        return
+    elif incloud and not_incloud:
         # can't search for both live and not_live
         click.echo(cli.commands["query"].get_help(ctx))
         return
@@ -422,6 +442,10 @@ def query(
         not_burst,
         live,
         not_live,
+        cloudasset,
+        not_cloudasset,
+        incloud,
+        not_incloud
     )
     print_photo_info(photos, cli_obj.json or json)
 
@@ -758,6 +782,8 @@ def print_photo_info(photos, json=False):
                 "burst",
                 "live_photo",
                 "path_live_photo",
+                "iscloudasset",
+                "incloud",
             ]
         )
         for p in photos:
@@ -788,6 +814,8 @@ def print_photo_info(photos, json=False):
                     p.burst,
                     p.live_photo,
                     p.path_live_photo,
+                    p.iscloudasset,
+                    p.incloud,
                 ]
             )
         for row in dump:
@@ -823,6 +851,10 @@ def _query(
     not_burst,
     live,
     not_live,
+    cloudasset,
+    not_cloudasset,
+    incloud,
+    not_incloud,
 ):
     """ run a query against PhotosDB to extract the photos based on user supply criteria """
     """ used by query and export commands """
@@ -915,6 +947,16 @@ def _query(
     elif not_live:
         photos = [p for p in photos if not p.live_photo]
 
+    if cloudasset:
+        photos = [p for p in photos if p.iscloudasset]
+    elif not_cloudasset:
+        photos = [p for p in photos if not p.iscloudasset]
+    
+    if incloud:
+        photos = [p for p in photos if p.incloud]
+    elif not_incloud:
+        photos = [p for p in photos if not p.incloud]
+        
     return photos
 
 
