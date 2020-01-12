@@ -3,6 +3,7 @@ import logging
 import os.path
 import platform
 import subprocess
+import tempfile
 import urllib.parse
 from pathlib import Path
 from plistlib import load as plistload
@@ -10,6 +11,8 @@ from plistlib import load as plistload
 import CoreFoundation
 import objc
 from Foundation import *
+
+from osxphotos._applescript import AppleScript
 
 _DEBUG = False
 
@@ -284,3 +287,70 @@ def create_path_by_date(dest, dt):
     if not os.path.isdir(new_dest):
         os.makedirs(new_dest)
     return new_dest
+
+
+def _export_photo_uuid_applescript(
+    uuid, dest, original=True, edited=False, timeout=120
+):
+    """ Export photo to dest path using applescript to control Photos
+        uuid: UUID of photo to export
+        dest: destination path to export to; may be either a directory or a filename
+              if filename provided and file exists, exiting file will be overwritten
+        original: (boolean) if True, export original image; default = True
+        edited: (boolean) if True, export edited photo; default = False
+                will produce an error if image does not have edits/adjustments  
+        timeout: timeout value in seconds; export will fail if applescript run time exceeds timeout
+    """
+
+    # setup the applescript to do the export
+    export_scpt = AppleScript(
+        """ 
+		on export_by_uuid(theUUID, thePath, original, edited, theTimeOut)
+			tell application "Photos"
+				activate
+				set thePath to thePath
+				set theItem to media item id theUUID
+				set theFilename to filename of theItem
+				set itemList to {theItem}
+				
+				if original then
+					with timeout of theTimeOut seconds
+						export itemList to POSIX file thePath with using originals
+					end timeout
+				end if
+				
+				if edited then
+					with timeout of theTimeOut seconds
+						export itemList to POSIX file thePath
+					end timeout
+				end if
+				
+				return theFilename
+			end tell
+
+		end export_by_uuid
+		"""
+    )
+
+    tmpdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+
+    # export original
+    filename = None
+    try:
+        filename = export_scpt.call(
+            "export_by_uuid", uuid, tmpdir.name, original, edited, timeout
+        )
+    except Exception as e:
+        logging.warning("Error exporting uuid %s: %s" % (uuid, str(e)))
+        return None
+
+    if filename is not None:
+        path = os.path.join(tmpdir.name, filename)
+        _copy_file(path, dest)
+        if os.path.isdir(dest):
+            new_path = os.path.join(dest, filename)
+        else:
+            new_path = dest
+        return new_path
+    else:
+        return None

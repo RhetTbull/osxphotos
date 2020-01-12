@@ -16,13 +16,9 @@ from pprint import pformat
 
 import yaml
 
-from ._constants import (
-    _MOVIE_TYPE,
-    _PHOTO_TYPE,
-    _PHOTOS_5_SHARED_PHOTO_PATH,
-    _PHOTOS_5_VERSION,
-)
-from .utils import _get_resource_loc, dd_to_dms_str, _copy_file
+from ._constants import (_MOVIE_TYPE, _PHOTO_TYPE, _PHOTOS_5_SHARED_PHOTO_PATH,
+                         _PHOTOS_5_VERSION)
+from .utils import _copy_file, _get_resource_loc, dd_to_dms_str
 
 # TODO: check pylint output
 
@@ -140,6 +136,9 @@ class PhotoInfo:
                         logging.debug(f"WARNING: unknown type {self._info['type']}")
                         return None
 
+                    # photopath appears to usually be in "00" subfolder but
+                    # could be elsewhere--I haven't figured out this logic yet
+                    # first see if it's in 00
                     photopath = os.path.join(
                         library,
                         "resources",
@@ -149,6 +148,21 @@ class PhotoInfo:
                         "00",
                         filename,
                     )
+
+                    if not os.path.isfile(photopath):
+                        rootdir = os.path.join(
+                        library,
+                        "resources",
+                        "media",
+                        "version",
+                        folder_id)
+                        
+                        for dirname, _, filelist in os.walk(rootdir):
+                            if filename in filelist:
+                                photopath = os.path.join(dirname, filename)
+                                break
+
+                    # check again to see if we found a valid file    
                     if not os.path.isfile(photopath):
                         logging.warning(
                             f"MISSING PATH: edited file for UUID {self._uuid} should be at {photopath} but does not appear to exist"
@@ -424,17 +438,22 @@ class PhotoInfo:
         overwrite=False,
         increment=True,
         sidecar=False,
+        use_photos_export=False,
+        timeout=120,
     ):
-        """ export photo """
-        """ first argument must be valid destination path (or exception raised) """
-        """ second argument (optional): name of picture; if not provided, will use current filename """
-        """ if edited=True (default=False), will export the edited version of the photo (or raise exception if no edited version) """
-        """ if overwrite=True (default=False), will overwrite files if they alreay exist """
-        """ if increment=True (default=True), will increment file name until a non-existant name is found """
-        """ if overwrite=False and increment=False, export will fail if destination file already exists """
-        """ if sidecar=True, will also write a json sidecar with EXIF data in format readable by exiftool """
-        """ sidecar filename will be dest/filename.ext.json where ext is suffix of the image file (e.g. jpeg or jpg) """
-        """ returns the full path to the exported file """
+        """ export photo 
+            dest: must be valid destination path (or exception raised) 
+            filename: (optional): name of picture; if not provided, will use current filename 
+            edited: (boolean, default=False); if True will export the edited version of the photo 
+                    (or raise exception if no edited version) 
+            overwrite: (boolean, default=False); if True will overwrite files if they alreay exist 
+            increment: (boolean, default=True); if True, will increment file name until a non-existant name is found 
+                       if overwrite=False and increment=False, export will fail if destination file already exists 
+            sidecar: (boolean, default = False); if True will also write a json sidecar with EXIF data in format readable by exiftool
+                      sidecar filename will be dest/filename.ext.json where ext is suffix of the image file (e.g. jpeg or jpg)
+            use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos
+            timeout: (int, default=120) timeout in seconds used with use_photos_export
+            returns the full path to the exported file """
 
         # TODO: add this docs:
         #  ( for jpeg in *.jpeg; do exiftool -v -json=$jpeg.json $jpeg; done )
