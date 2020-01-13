@@ -55,7 +55,7 @@
       - [`live_photo`](#live_photo)
       - [`path_live_photo`](#path_live_photo)
       - [`json()`](#json)
-      - [`export(dest, *filename, edited=False, overwrite=False, increment=True, sidecar=False)`](#exportdest-filename-editedfalse-overwritefalse-incrementtrue-sidecarfalse)
+      - [`export(dest, *filename, edited=False, overwrite=False, increment=True, sidecar=False, use_photos_export=False, timeout=120)`](#exportdest-filename-editedfalse-overwritefalse-incrementtrue-sidecarfalse-use_photos_exportfalse-timeout120)
     + [Utility Functions](#utility-functions)
       - [```get_system_library_path()```](#get_system_library_path)
       - [```get_last_library_path()```](#get_last_library_path)
@@ -68,7 +68,6 @@
   * [Implementation Notes](#implementation-notes)
   * [Dependencies](#dependencies)
   * [Acknowledgements](#acknowledgements)
-
 ## What is osxphotos?
 
 OSXPhotos provides the ability to interact with and query Apple's Photos.app library database on MacOS. Using this module you can query the Photos database for information about the photos stored in a Photos library on your Mac--for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos.
@@ -664,7 +663,7 @@ Export photo from the Photos library to another destination on disk.
 - overwrite: boolean; if True (default=False), will overwrite files if they alreay exist
 - increment: boolean; if True (default=True), will increment file name until a non-existant name is found
 - sidecar: boolean; if True (default=False) will also write a json sidecar file with EXIF data in format readable by [exiftool](https://exiftool.org/); filename will be dest/filename.ext.json where ext is suffix of the image file (e.g. jpeg or jpg). Note: this is not an XMP sidecar.
-- use_photos_export: boolean; (default=False), if True will attempt to export photo via applescript interaction with Photos--useful for forcing download of missing photos
+- use_photos_export: boolean; (default=False), if True will attempt to export photo via applescript interaction with Photos; useful for forcing download of missing photos.  This only works if the Photos library being used is the default library (last opened by Photos) as applescript will directly interact with whichever library Photos is currently using.
 - timeout: (int, default=120) timeout in seconds used with use_photos_export
 
 The json sidecar file can be used by exiftool to apply the metadata from the json file to the image.  For example: 
