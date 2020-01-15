@@ -199,7 +199,6 @@ def get_system_library_path():
 def get_last_library_path():
     """ returns the path to the last opened Photos library 
         If a library has never been opened, returns None """
-    # TODO: Need a module level method for this and another PhotosDB method to get current library path
     plist_file = Path(
         str(Path.home())
         + "/Library/Containers/com.apple.Photos/Data/Library/Preferences/com.apple.Photos.plist"
