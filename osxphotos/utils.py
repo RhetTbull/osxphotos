@@ -169,12 +169,13 @@ def dd_to_dms_str(lat, lon):
 def get_system_library_path():
     """ return the path to the system Photos library as string """
     """ only works on MacOS 10.15+ """
-    """ on earlier versions, will raise exception """
+    """ on earlier versions, returns None """
     _, major, _ = _get_os_version()
     if int(major) < 15:
-        raise Exception(
-            "get_system_library_path not implemented for MacOS < 10.15", major
+        logging.debug(
+            f"get_system_library_path not implemented for MacOS < 10.15: you have {major}"
         )
+        return None
 
     plist_file = Path(
         str(Path.home())

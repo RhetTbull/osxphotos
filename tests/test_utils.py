@@ -31,8 +31,7 @@ def test_get_system_library_path():
 
     _, major, _ = osxphotos.utils._get_os_version()
     if int(major) < 15:
-        with pytest.raises(Exception):
-            assert osxphotos.utils.get_system_library_path()
+        assert osxphotos.utils.get_system_library_path() is None
     else:
         assert osxphotos.utils.get_system_library_path() is not None
 

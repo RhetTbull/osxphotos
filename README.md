@@ -692,7 +692,7 @@ The following functions are located in osxphotos.utils
 
 #### ```get_system_library_path()```
 
-**MacOS 10.15 Only** Returns path to System Photo Library as string.  On MacOS version < 10.15, raises Exception.
+**MacOS 10.15 Only** Returns path to System Photo Library as string.  On MacOS version < 10.15, returns None.
 
 #### ```get_last_library_path()```
 
