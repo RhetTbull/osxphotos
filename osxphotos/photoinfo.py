@@ -572,7 +572,7 @@ class PhotoInfo:
                 )
 
             if exported is None:
-                logging.warning(f"Error exporting photo {photo.uuid} to {dest}")
+                logging.warning(f"Error exporting photo {self.uuid} to {dest}")
 
         if sidecar:
             logging.debug("writing exiftool_json_sidecar")
