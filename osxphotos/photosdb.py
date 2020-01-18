@@ -39,11 +39,11 @@ from .utils import _check_file_exists, _get_os_version, get_last_library_path, _
 class PhotosDB:
     """ Processes a Photos.app library database to extract information about photos """
 
-    def __init__(self, *args, dbfile=None):
-        """ create a new PhotosDB object """
-        """ path to photos library or database may be specified EITHER as first argument or as named argument dbfile=path """
-        """ optional: specify full path to photos library or photos.db as first argument """
-        """ optional: specify path to photos library or photos.db using named argument dbfile=path """
+    def __init__(self, *dbfile_, dbfile=None):
+        """ create a new PhotosDB object 
+            path to photos library or database may be specified EITHER as first argument or as named argument dbfile=path 
+            specify full path to photos library or photos.db as first argument 
+            specify path to photos library or photos.db using named argument dbfile=path """
 
         # Check OS version
         system = platform.system()
@@ -89,28 +89,28 @@ class PhotosDB:
             logging.debug(f"dbfile = {dbfile}")
 
         # get the path to photos library database
-        if args:
+        if dbfile_:
             # got a library path as argument
             if dbfile:
                 # shouldn't pass via both *args and dbfile=
                 raise TypeError(
                     f"photos database path must be specified as argument or named parameter dbfile but not both: args: {args}, dbfile: {dbfile}",
-                    args,
+                    dbfile_,
                     dbfile,
                 )
-            elif len(args) == 1:
-                dbfile = args[0]
+            elif len(dbfile_) == 1:
+                dbfile = dbfile_[0]
             else:
                 raise TypeError(
-                    f"__init__ takes only a single argument (photos database path): {args}",
-                    args,
+                    f"__init__ takes only a single argument (photos database path): {dbfile_}",
+                    dbfile_,
                 )
         elif dbfile is None:
-            # no args and dbfile not passed, try to get last opened library
-            library_path = get_last_library_path()
-            if not library_path:
-                raise FileNotFoundError("could not get library path")
-            dbfile = os.path.join(library_path, "database/photos.db")
+            raise TypeError(
+                f"photos database path must be specified as argument or named parameter dbfile",
+                dbfile_,
+                dbfile,
+            )
 
         if os.path.isdir(dbfile):
             # passed a directory, assume it's a photoslibrary

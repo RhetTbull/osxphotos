@@ -1,8 +1,14 @@
 import osxphotos
+import os.path
 
 
 def main():
-    photosdb = osxphotos.PhotosDB()
+    db = osxphotos.utils.get_system_library_path()
+    if db is None:
+        # Note: get_system_library_path only works on MacOS 10.15+
+        db = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
+
+    photosdb = osxphotos.PhotosDB(db)
     print(f"db file = {photosdb.db_path}")
     print(f"db version = {photosdb.db_version}")
 

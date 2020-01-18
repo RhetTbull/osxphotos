@@ -11,7 +11,7 @@
   * [Example uses of the module](#example-uses-of-the-module)
   * [Module Interface](#module-interface)
     + [PhotosDB](#photosdb)
-      - [Open the default Photos library](#open-the-default-photos-library)
+      - [Read a Photos library database](#read-a-photos-library-database)
       - [Open System Photos library](#open-system-photos-library)
       - [Open a specific Photos library](#open-a-specific-photos-library)
       - [`keywords`](#keywords)
@@ -68,6 +68,7 @@
   * [Implementation Notes](#implementation-notes)
   * [Dependencies](#dependencies)
   * [Acknowledgements](#acknowledgements)
+  
 ## What is osxphotos?
 
 OSXPhotos provides the ability to interact with and query Apple's Photos.app library database on MacOS. Using this module you can query the Photos database for information about the photos stored in a Photos library on your Mac--for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos.
@@ -123,7 +124,7 @@ To get help on a specific command, use `osxphotos help <command_name>`
 Example: `osxphotos help export`
 
 ```
-Usage: osxphotos help [OPTIONS] DEST
+Usage: osxphotos help [OPTIONS] [PHOTOS_LIBRARY]... DEST
 
   Export photos from the Photos database. Export path DEST is required.
   Optionally, query the Photos database using 1 or more search options;  if
@@ -132,81 +133,101 @@ Usage: osxphotos help [OPTIONS] DEST
   photos will be exported.
 
 Options:
-  --keyword TEXT      Search for keyword(s).
-  --person TEXT       Search for person(s).
-  --album TEXT        Search for album(s).
-  --uuid TEXT         Search for UUID(s).
-  --title TEXT        Search for TEXT in title of photo.
-  --no-title          Search for photos with no title.
-  --description TEXT  Search for TEXT in description of photo.
-  --no-description    Search for photos with no description.
-  --uti TEXT          Search for photos whose uniform type identifier (UTI)
-                      matches TEXT
-  -i, --ignore-case   Case insensitive search for title or description. Does
-                      not apply to keyword, person, or album.
-  --edited            Search for photos that have been edited.
-  --external-edit     Search for photos edited in external editor.
-  --favorite          Search for photos marked favorite.
-  --not-favorite      Search for photos not marked favorite.
-  --hidden            Search for photos marked hidden.
-  --not-hidden        Search for photos not marked hidden.
-  --burst             Search for photos that were taken in a burst.
-  --not-burst         Search for photos that are not part of a burst.
-  --live              Search for Apple live photos
-  --not-live          Search for photos that are not Apple live photos
-  --shared            Search for photos in shared iCloud album (Photos 5
-                      only).
-  --not-shared        Search for photos not in shared iCloud album (Photos 5
-                      only).
-  -V, --verbose       Print verbose output.
-  --overwrite         Overwrite existing files. Default behavior is to add
-                      (1), (2), etc to filename if file already exists. Use
-                      this with caution as it may create name collisions on
-                      export. (e.g. if two files happen to have the same name)
-  --export-by-date    Automatically create output folders to organize photos
-                      by date created (e.g. DEST/2019/12/20/photoname.jpg).
-  --export-edited     Also export edited version of photo if an edited version
-                      exists.  Edited photo will be named in form of
-                      "photoname_edited.ext"
-  --export-bursts     If a photo is a burst photo export all associated burst
-                      images in the library.
-  --export-live       If a photo is a live photo export the associated live
-                      video component.  Live video will have same name as 
-                      photo but with .mov extension.
-  --original-name     Use photo's original filename instead of current
-                      filename for export.
-  --sidecar           Create json sidecar for each photo exported in format
-                      useable by exiftool (https://exiftool.org/) The sidecar
-                      file can be used to apply metadata to the file with
-                      exiftool, for example: "exiftool -j=photoname.jpg.json
-                      photoname.jpg" The sidecar file is named in format
-                      photoname.ext.json where ext is extension of the photo
-                      (e.g. jpg).
-  --only-movies       Search only for movies (default searches both images and
-                      movies).
-  --only-photos       Search only for photos/images (default searches both
-                      images and movies).
-  --download-missing  Attempt to download missing photos from iCloud. The
-                      current implementation uses Applescript to interact with
-                      Photos to export the photo which will force Photos to
-                      download from iCloud if the photo does not exist on
-                      disk.  This will be slow and will require internet
-                      connection. This obviously only works if the Photos
-                      library is synched to iCloud.
-  -h, --help          Show this message and exit.
+  --db <Photos database path>  Specify Photos database path.
+  --keyword TEXT               Search for keyword(s).
+  --person TEXT                Search for person(s).
+  --album TEXT                 Search for album(s).
+  --uuid TEXT                  Search for UUID(s).
+  --title TEXT                 Search for TEXT in title of photo.
+  --no-title                   Search for photos with no title.
+  --description TEXT           Search for TEXT in description of photo.
+  --no-description             Search for photos with no description.
+  --uti TEXT                   Search for photos whose uniform type identifier
+                               (UTI) matches TEXT
+  -i, --ignore-case            Case insensitive search for title or
+                               description. Does not apply to keyword, person,
+                               or album.
+  --edited                     Search for photos that have been edited.
+  --external-edit              Search for photos edited in external editor.
+  --favorite                   Search for photos marked favorite.
+  --not-favorite               Search for photos not marked favorite.
+  --hidden                     Search for photos marked hidden.
+  --not-hidden                 Search for photos not marked hidden.
+  --burst                      Search for photos that were taken in a burst.
+  --not-burst                  Search for photos that are not part of a burst.
+  --live                       Search for Apple live photos
+  --not-live                   Search for photos that are not Apple live
+                               photos
+  --shared                     Search for photos in shared iCloud album
+                               (Photos 5 only).
+  --not-shared                 Search for photos not in shared iCloud album
+                               (Photos 5 only).
+  -V, --verbose                Print verbose output.
+  --overwrite                  Overwrite existing files. Default behavior is
+                               to add (1), (2), etc to filename if file
+                               already exists. Use this with caution as it may
+                               create name collisions on export. (e.g. if two
+                               files happen to have the same name)
+  --export-by-date             Automatically create output folders to organize
+                               photos by date created (e.g.
+                               DEST/2019/12/20/photoname.jpg).
+  --export-edited              Also export edited version of photo if an
+                               edited version exists.  Edited photo will be
+                               named in form of "photoname_edited.ext"
+  --export-bursts              If a photo is a burst photo export all
+                               associated burst images in the library.
+  --export-live                If a photo is a live photo export the
+                               associated live video component.  Live video
+                               will have same name as photo but with .mov
+                               extension.
+  --original-name              Use photo's original filename instead of
+                               current filename for export.
+  --sidecar                    Create JSON sidecar for each photo exported in
+                               format useable by exiftool
+                               (https://exiftool.org/) The sidecar file can be
+                               used to apply metadata to the file with
+                               exiftool, for example: "exiftool
+                               -j=photoname.jpg.json photoname.jpg" The
+                               sidecar file is named in format
+                               photoname.ext.json where ext is extension of
+                               the photo (e.g. jpg). Note: this does not
+                               create an XMP sidecar as used by Lightroom,
+                               etc.
+  --only-movies                Search only for movies (default searches both
+                               images and movies).
+  --only-photos                Search only for photos/images (default searches
+                               both images and movies).
+  --download-missing           Attempt to download missing photos from iCloud.
+                               The current implementation uses Applescript to
+                               interact with Photos to export the photo which
+                               will force Photos to download from iCloud if
+                               the photo does not exist on disk.  This will be
+                               slow and will require internet connection. This
+                               obviously only works if the Photos library is
+                               synched to iCloud.
+  -h, --help                   Show this message and exit.
 ```
+
+Example: export all photos to ~/Desktop/export, including edited versions and live photo movies, group in folders by date created
+`osxphotos export --export-edited --export-live --export-by-date ~/Pictures/Photos\ Library.photoslibrary ~/Desktop/export`
+
+**Note**: Photos library/database path can also be specified using --db option:
+`osxphotos export --export-edited --export-live --export-by-date --db ~/Pictures/Photos\ Library.photoslibrary ~/Desktop/export`
 
 Example: find all photos with keyword "Kids" and output results to json file named results.json:
 
-`osxphotos query --keyword Kids --json >results.json`
+`osxphotos query --keyword Kids --json ~/Pictures/Photos\ Library.photoslibrary >results.json`
 
 ## Example uses of the module 
 
 ```python
+import os.path
+
 import osxphotos
 
 def main():
-    photosdb = osxphotos.PhotosDB()
+    db = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
+    photosdb = osxphotos.PhotosDB(db)
     print(photosdb.keywords)
     print(photosdb.persons)
     print(photosdb.albums)
@@ -245,12 +266,12 @@ if __name__ == "__main__":
     otherwise, export the original version """
 
 import os.path
-
 import osxphotos
 
 
 def main():
-    photosdb = osxphotos.PhotosDB()
+    db = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
+    photosdb = osxphotos.PhotosDB(db)
     photos = photosdb.photos()
 
     export_path = os.path.expanduser("~/Desktop/export")
@@ -274,17 +295,16 @@ if __name__ == "__main__":
 
 ### PhotosDB
 
-#### Open the default Photos library
+#### Read a Photos library database
 
 ```python
-osxphotos.PhotosDB()
 osxphotos.PhotosDB(path)
 osxphotos.PhotosDB(dbfile=path)
 ```
 
-Opens the Photos library database and returns a PhotosDB object.  
+Reads the Photos library database and returns a PhotosDB object.  
 
-Optionally, pass the path to a specific database file or a Photos library (e.g. "/Users/smith/Pictures/Photos Library.photoslibrary" or "/Users/smith/Pictures/Photos Library.photoslibrary/database/photos.db").  Path to photos library may be passed **either** as first argument **or** as named argument `dbfile`. If path is not passed, PhotosDB will attempt to open the default Photos library (that is, the last library that was opened in Photos.app which may or may not also be the System Photos Library). **Note**: Users may specify a different library to open by holding down the *option* key while opening Photos.app. 
+Pass the path to a Photos library or to a specific database file (e.g. "/Users/smith/Pictures/Photos Library.photoslibrary" or "/Users/smith/Pictures/Photos Library.photoslibrary/database/photos.db").  Normally, it's recommended you pass the path the .photoslibrary folder, not the actual database path.  The latter option is provided for debugging -- e.g. for reading a database file if you don't have the entire library. Path to photos library may be passed **either** as first argument **or** as named argument `dbfile`. **Note**: In Photos, users may specify a different library to open by holding down the *option* key while opening Photos.app. See also [get_last_library_path](#get_last_library_path) and [get_system_library_path](#get_system_library_path)
 
 If an invalid path is passed, PhotosDB will raise `ValueError` exception.
 
@@ -292,8 +312,7 @@ Open the default (last opened) Photos library. (E.g. this is the library that wo
 
 ```python
 import osxphotos
-
-photosdb = osxphotos.PhotosDB()
+photosdb = osxphotos.PhotosDB(osxphotos.utils.get_last_library_path())
 ```
 
 #### Open System Photos library
@@ -516,7 +535,7 @@ For example, in my library, Photos says I have 19,386 photos and 474 movies.  Ho
 
 ```python
 >>> import osxphotos
->>> photosdb = osxphotos.PhotosDB()
+>>> photosdb = osxphotos.PhotosDB("/Users/smith/Pictures/Photos Library.photoslibrary")
 >>> photos = photosdb.photos()
 >>> len(photos)
 25002
@@ -627,7 +646,7 @@ Example below gets list of all photos that are bursts, selects one of of them an
 
 ```python
 >>> import osxphotos
->>> photosdb = osxphotos.PhotosDB()
+>>> photosdb = osxphotos.PhotosDB("/Users/smith/Pictures/Photos Library.photoslibrary")
 >>> bursts = [p for p in photosdb.photos() if p.burst]
 >>> burst_photo = bursts[5]
 >>> len(burst_photo.burst_photos)
@@ -671,7 +690,7 @@ The json sidecar file can be used by exiftool to apply the metadata from the jso
 ```python
 import osxphotos
 
-photosdb = osxphotos.PhotosDB()
+photosdb = osxphotos.PhotosDB("/Users/smith/Pictures/Photos Library.photoslibrary")
 photos = photosdb.photos()
 photos[0].export("/tmp","photo_name.jpg",sidecar=True)
 ```
@@ -721,7 +740,8 @@ Checks to see if path exists, if it does, do nothing and return path. If path do
 import osxphotos
 
 def main():
-    photosdb = osxphotos.PhotosDB()
+
+    photosdb = osxphotos.PhotosDB("/Users/smith/Pictures/Photos Library.photoslibrary")
     print(f"db file = {photosdb.db_path}")
     print(f"db version = {photosdb.db_version}")
 

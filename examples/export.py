@@ -8,7 +8,8 @@ import osxphotos
 
 
 def main():
-    photosdb = osxphotos.PhotosDB()
+    db = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
+    photosdb = osxphotos.PhotosDB(db)
     photos = photosdb.photos()
 
     export_path = os.path.expanduser("~/Desktop/export")

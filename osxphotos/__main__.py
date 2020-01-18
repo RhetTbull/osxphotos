@@ -19,6 +19,42 @@ from .utils import create_path_by_date, _copy_file
 # TODO: add search for filename
 
 
+def get_photos_db(*db_options):
+    """ Return path to photos db, select first non-None arg 
+    """
+    if db_options:
+        for db in db_options:
+            if db is not None:
+                return db
+
+    # _list_libraries()
+    return None
+
+    # if get here, no valid database paths passed, so ask user
+
+    # _, major, _ = osxphotos.utils._get_os_version()
+
+    # last_lib = osxphotos.utils.get_last_library_path()
+    # if last_lib is not None:
+    #     db = last_lib
+    #     return db
+
+    # sys_lib = None
+    # if int(major) >= 15:
+    #     sys_lib = osxphotos.utils.get_system_library_path()
+
+    # if sys_lib is not None:
+    #     db = sys_lib
+    #     return db
+
+    # db = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
+    # if os.path.isdir(db):
+    #     return db
+    # else:
+    #     return None  ### TODO: put list here
+
+
+# Click CLI object & context settings
 class CLI_Obj:
     def __init__(self, db=None, json=False, debug=False):
         if debug:
@@ -36,7 +72,8 @@ CTX_SETTINGS = dict(help_option_names=["-h", "--help"])
     required=False,
     metavar="<Photos database path>",
     default=None,
-    help="Specify database file.",
+    help="Specify Photos database path.",
+    type=click.Path(exists=True),
 )
 @click.option(
     "--json",
@@ -53,49 +90,153 @@ def cli(ctx, db, json, debug):
 
 
 @cli.command()
+@click.option(
+    "--db",
+    required=False,
+    metavar="<Photos database path>",
+    default=None,
+    help="Specify Photos database path.",
+    type=click.Path(exists=True),
+)
+@click.option(
+    "--json",
+    "json_",
+    required=False,
+    is_flag=True,
+    default=False,
+    help="Print output in JSON format.",
+)
+@click.argument("photos_library", nargs=-1, type=click.Path(exists=True))
 @click.pass_obj
-def keywords(cli_obj):
+@click.pass_context
+def keywords(ctx, cli_obj, db, json_, photos_library):
     """ Print out keywords found in the Photos library. """
-    photosdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
+
+    db = get_photos_db(*photos_library, db, cli_obj.db)
+    if db is None:
+        click.echo(cli.commands["keywords"].get_help(ctx))
+        click.echo("\n\nLocated the following Photos library databases: ")
+        _list_libraries()
+        return
+
+    photosdb = osxphotos.PhotosDB(dbfile=db)
     keywords = {"keywords": photosdb.keywords_as_dict}
-    if cli_obj.json:
+    if json_ or cli_obj.json:
         click.echo(json.dumps(keywords))
     else:
         click.echo(yaml.dump(keywords, sort_keys=False))
 
 
 @cli.command()
+@click.option(
+    "--db",
+    required=False,
+    metavar="<Photos database path>",
+    default=None,
+    help="Specify Photos database path.",
+    type=click.Path(exists=True),
+)
+@click.option(
+    "--json",
+    "json_",
+    required=False,
+    is_flag=True,
+    default=False,
+    help="Print output in JSON format.",
+)
+@click.argument("photos_library", nargs=-1, type=click.Path(exists=True))
 @click.pass_obj
-def albums(cli_obj):
+@click.pass_context
+def albums(ctx, cli_obj, db, json_, photos_library):
     """ Print out albums found in the Photos library. """
-    photosdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
+
+    db = get_photos_db(*photos_library, db, cli_obj.db)
+    if db is None:
+        click.echo(cli.commands["albums"].get_help(ctx))
+        click.echo("\n\nLocated the following Photos library databases: ")
+        _list_libraries()
+        return
+
+    photosdb = osxphotos.PhotosDB(dbfile=db)
     albums = {"albums": photosdb.albums_as_dict}
     if photosdb.db_version >= _PHOTOS_5_VERSION:
         albums["shared albums"] = photosdb.albums_shared_as_dict
 
-    if cli_obj.json:
+    if json_ or cli_obj.json:
         click.echo(json.dumps(albums))
     else:
         click.echo(yaml.dump(albums, sort_keys=False))
 
 
 @cli.command()
+@click.option(
+    "--db",
+    required=False,
+    metavar="<Photos database path>",
+    default=None,
+    help="Specify Photos database path.",
+    type=click.Path(exists=True),
+)
+@click.option(
+    "--json",
+    "json_",
+    required=False,
+    is_flag=True,
+    default=False,
+    help="Print output in JSON format.",
+)
+@click.argument("photos_library", nargs=-1, type=click.Path(exists=True))
 @click.pass_obj
-def persons(cli_obj):
+@click.pass_context
+def persons(ctx, cli_obj, db, json_, photos_library):
     """ Print out persons (faces) found in the Photos library. """
-    photosdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
+
+    db = get_photos_db(*photos_library, db, cli_obj.db)
+    if db is None:
+        click.echo(cli.commands["persons"].get_help(ctx))
+        click.echo("\n\nLocated the following Photos library databases: ")
+        _list_libraries()
+        return
+
+    photosdb = osxphotos.PhotosDB(dbfile=db)
     persons = {"persons": photosdb.persons_as_dict}
-    if cli_obj.json:
+    if json_ or cli_obj.json:
         click.echo(json.dumps(persons))
     else:
         click.echo(yaml.dump(persons, sort_keys=False))
 
 
 @cli.command()
+@click.option(
+    "--db",
+    required=False,
+    metavar="<Photos database path>",
+    default=None,
+    help="Specify Photos database path.",
+    type=click.Path(exists=True),
+)
+@click.option(
+    "--json",
+    "json_",
+    required=False,
+    is_flag=True,
+    default=False,
+    help="Print output in JSON format.",
+)
+@click.argument("photos_library", nargs=-1, type=click.Path(exists=True))
 @click.pass_obj
-def info(cli_obj):
+@click.pass_context
+def info(ctx, cli_obj, db, json_, photos_library):
     """ Print out descriptive info of the Photos library database. """
-    pdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
+
+    db = get_photos_db(*photos_library, db, cli_obj.db)
+    if db is None:
+        click.echo(cli.commands["info"].get_help(ctx))
+        click.echo("\n\nLocated the following Photos library databases: ")
+        _list_libraries()
+        return
+
+    pdb = osxphotos.PhotosDB(dbfile=db)
     info = {}
     info["database_path"] = pdb.db_path
     info["database_version"] = pdb.db_version
@@ -146,7 +287,7 @@ def info(cli_obj):
     info["persons_count"] = len(persons)
     info["persons"] = persons
 
-    if cli_obj.json:
+    if cli_obj.json or json_:
         click.echo(json.dumps(info))
     else:
         click.echo(yaml.dump(info, sort_keys=False))
@@ -154,53 +295,108 @@ def info(cli_obj):
 
 @cli.command()
 @click.option(
+    "--db",
+    required=False,
+    metavar="<Photos database path>",
+    default=None,
+    help="Specify Photos database path.",
+    type=click.Path(exists=True),
+)
+@click.option(
     "--json",
+    "json_",
+    required=False,
+    is_flag=True,
+    default=False,
+    help="Print output in JSON format.",
+)
+@click.argument("photos_library", nargs=-1, type=click.Path(exists=True))
+@click.pass_obj
+@click.pass_context
+def dump(ctx, cli_obj, db, json_, photos_library):
+    """ Print list of all photos & associated info from the Photos library. """
+
+    db = get_photos_db(*photos_library, db, cli_obj.db)
+    if db is None:
+        click.echo(cli.commands["dump"].get_help(ctx))
+        click.echo("\n\nLocated the following Photos library databases: ")
+        _list_libraries()
+        return
+
+    pdb = osxphotos.PhotosDB(dbfile=db)
+    photos = pdb.photos(movies=True)
+    print_photo_info(photos, json_ or cli_obj.json)
+
+
+@cli.command(name="list")
+@click.option(
+    "--json",
+    "json_",
     required=False,
     is_flag=True,
     default=False,
     help="Print output in JSON format.",
 )
 @click.pass_obj
-def dump(cli_obj, json):
-    """ Print list of all photos & associated info from the Photos library. """
-    pdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
-    photos = pdb.photos(movies=True)
-    print_photo_info(photos, cli_obj.json or json)
-
-
-@cli.command(name="list")
-@click.pass_obj
-def list_libraries(cli_obj):
+@click.pass_context
+def list_libraries(ctx, cli_obj, json_):
     """ Print list of Photos libraries found on the system. """
-    photo_libs = osxphotos.utils.list_photo_libraries()
-    sys_lib = None
-    _, major, _ = osxphotos.utils._get_os_version()
-    if int(major) >= 15:
-        sys_lib = osxphotos.utils.get_system_library_path()
+    _list_libraries(json_=json_ or cli_obj.json)
 
+
+def _list_libraries(json_=False):
+    """ Print list of Photos libraries found on the system. 
+        If json_ == True, print output as JSON (default = False) """
+
+    photo_libs = osxphotos.utils.list_photo_libraries()
+    sys_lib = osxphotos.utils.get_system_library_path()
     last_lib = osxphotos.utils.get_last_library_path()
 
-    last_lib_flag = sys_lib_flag = False
+    if json_:
+        libs = {
+            "photo_libraries": photo_libs,
+            "system_library": sys_lib,
+            "last_library": last_lib,
+        }
+        click.echo(json.dumps(libs))
+    else:
+        last_lib_flag = sys_lib_flag = False
 
-    for lib in photo_libs:
-        if lib == sys_lib:
-            click.echo(f"(*)\t{lib}")
-            sys_lib_flag = True
-        elif lib == last_lib:
-            click.echo(f"(#)\t{lib}")
-            last_lib_flag = True
-        else:
-            click.echo(f"\t{lib}")
+        for lib in photo_libs:
+            if lib == sys_lib:
+                click.echo(f"(*)\t{lib}")
+                sys_lib_flag = True
+            elif lib == last_lib:
+                click.echo(f"(#)\t{lib}")
+                last_lib_flag = True
+            else:
+                click.echo(f"\t{lib}")
 
-    if sys_lib_flag or last_lib_flag:
-        click.echo("\n")
-    if sys_lib_flag:
-        click.echo("(*)\tSystem Photos Library")
-    if last_lib_flag:
-        click.echo("(#)\tLast opened Photos Library")
+        if sys_lib_flag or last_lib_flag:
+            click.echo("\n")
+        if sys_lib_flag:
+            click.echo("(*)\tSystem Photos Library")
+        if last_lib_flag:
+            click.echo("(#)\tLast opened Photos Library")
 
 
 @cli.command()
+@click.option(
+    "--db",
+    required=False,
+    metavar="<Photos database path>",
+    default=None,
+    help="Specify Photos database path.",
+    type=click.Path(exists=True),
+)
+@click.option(
+    "--json",
+    "json_",
+    required=False,
+    is_flag=True,
+    default=False,
+    help="Print output in JSON format.",
+)
 @click.option("--keyword", default=None, multiple=True, help="Search for keyword(s).")
 @click.option("--person", default=None, multiple=True, help="Search for person(s).")
 @click.option("--album", default=None, multiple=True, help="Search for album(s).")
@@ -296,18 +492,14 @@ def list_libraries(cli_obj):
     is_flag=True,
     help="Search only for photos/images (default searches both images and movies).",
 )
-@click.option(
-    "--json",
-    required=False,
-    is_flag=True,
-    default=False,
-    help="Print output in JSON format",
-)
+@click.argument("photos_library", nargs=-1, type=click.Path(exists=True))
 @click.pass_obj
 @click.pass_context
 def query(
     ctx,
     cli_obj,
+    db,
+    photos_library,
     keyword,
     person,
     album,
@@ -317,7 +509,7 @@ def query(
     description,
     no_description,
     ignore_case,
-    json,
+    json_,
     edited,
     external_edit,
     favorite,
@@ -429,8 +621,15 @@ def query(
     if only_photos:
         ismovie = False
 
+    db = get_photos_db(*photos_library, db, cli_obj.db)
+    if db is None:
+        click.echo(cli.commands["query"].get_help(ctx))
+        click.echo("\n\nLocated the following Photos library databases: ")
+        _list_libraries()
+        return
+
     photos = _query(
-        cli_obj,
+        db,
         keyword,
         person,
         album,
@@ -440,7 +639,6 @@ def query(
         description,
         no_description,
         ignore_case,
-        json,
         edited,
         external_edit,
         favorite,
@@ -463,10 +661,18 @@ def query(
         incloud,
         not_incloud,
     )
-    print_photo_info(photos, cli_obj.json or json)
+    print_photo_info(photos, cli_obj.json or json_)
 
 
 @cli.command()
+@click.option(
+    "--db",
+    required=False,
+    metavar="<Photos database path>",
+    default=None,
+    help="Specify Photos database path.",
+    type=click.Path(exists=True),
+)
 @click.option("--keyword", default=None, multiple=True, help="Search for keyword(s).")
 @click.option("--person", default=None, multiple=True, help="Search for person(s).")
 @click.option("--album", default=None, multiple=True, help="Search for album(s).")
@@ -591,12 +797,15 @@ def query(
     "the photo does not exist on disk.  This will be slow and will require internet connection. "
     "This obviously only works if the Photos library is synched to iCloud.",
 )
-@click.argument("dest", nargs=1)
+@click.argument("photos_library", nargs=-1, type=click.Path(exists=True))
+@click.argument("dest", nargs=1, type=click.Path(exists=True))
 @click.pass_obj
 @click.pass_context
 def export(
     ctx,
     cli_obj,
+    db,
+    photos_library,
     keyword,
     person,
     album,
@@ -679,8 +888,15 @@ def export(
     if only_photos:
         ismovie = False
 
+    db = get_photos_db(*photos_library, db, cli_obj.db)
+    if db is None:
+        click.echo(cli.commands["export"].get_help(ctx))
+        click.echo("\n\nLocated the following Photos library databases: ")
+        _list_libraries()
+        return
+
     photos = _query(
-        cli_obj,
+        db,
         keyword,
         person,
         album,
@@ -690,7 +906,6 @@ def export(
         description,
         no_description,
         ignore_case,
-        json,
         edited,
         external_edit,
         favorite,
@@ -708,10 +923,10 @@ def export(
         not_burst,
         live,
         not_live,
-        False, # cloudasset
-        False, # not_cloudasset
-        False, # incloud
-        False # not_incloud
+        False,  # cloudasset
+        False,  # not_cloudasset
+        False,  # incloud
+        False,  # not_incloud
     )
 
     if photos:
@@ -739,7 +954,7 @@ def export(
                         export_edited,
                         original_name,
                         export_live,
-                        download_missing
+                        download_missing,
                     )
         else:
             for p in photos:
@@ -753,7 +968,7 @@ def export(
                     export_edited,
                     original_name,
                     export_live,
-                    download_missing
+                    download_missing,
                 )
                 if export_path:
                     click.echo(f"Exported {p.filename} to {export_path}")
@@ -855,7 +1070,7 @@ def print_photo_info(photos, json=False):
 
 
 def _query(
-    cli_obj,
+    db,
     keyword,
     person,
     album,
@@ -865,7 +1080,6 @@ def _query(
     description,
     no_description,
     ignore_case,
-    json,
     edited,
     external_edit,
     favorite,
@@ -895,7 +1109,7 @@ def _query(
 
     # TODO: this is getting too hairy -- need to change to named args
 
-    photosdb = osxphotos.PhotosDB(dbfile=cli_obj.db)
+    photosdb = osxphotos.PhotosDB(dbfile=db)
     photos = photosdb.photos(
         keywords=keyword,
         persons=person,
@@ -1031,7 +1245,9 @@ def export_photo(
             )
             return None
     elif photo.ismissing and not photo.iscloudasset or not photo.incloud:
-        click.echo(f"Skipping missing {photo.filename}: not iCloud asset or missing from cloud")
+        click.echo(
+            f"Skipping missing {photo.filename}: not iCloud asset or missing from cloud"
+        )
         return None
 
     filename = None
@@ -1089,7 +1305,7 @@ def export_photo(
 
             _copy_file(src_live, str(dest_live))
         else:
-           click.echo(f"Skipping missing live movie for {filename}")
+            click.echo(f"Skipping missing live movie for {filename}")
 
     return photo_path
 
