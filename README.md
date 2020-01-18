@@ -124,7 +124,7 @@ To get help on a specific command, use `osxphotos help <command_name>`
 Example: `osxphotos help export`
 
 ```
-Usage: osxphotos help [OPTIONS] [PHOTOS_LIBRARY]... DEST
+Usage: osxphotos export [OPTIONS] [PHOTOS_LIBRARY]... DEST
 
   Export photos from the Photos database. Export path DEST is required.
   Optionally, query the Photos database using 1 or more search options;  if

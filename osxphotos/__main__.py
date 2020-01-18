@@ -95,7 +95,9 @@ def cli(ctx, db, json, debug):
     required=False,
     metavar="<Photos database path>",
     default=None,
-    help="Specify Photos database path.",
+    help="Specify Photos database path. "
+        "Path to Photos library/database can be specified using either --db "
+        "or directly as PHOTOS_LIBRARY positional argument.",
     type=click.Path(exists=True),
 )
 @click.option(
@@ -133,7 +135,9 @@ def keywords(ctx, cli_obj, db, json_, photos_library):
     required=False,
     metavar="<Photos database path>",
     default=None,
-    help="Specify Photos database path.",
+    help="Specify Photos database path. "
+        "Path to Photos library/database can be specified using either --db "
+        "or directly as PHOTOS_LIBRARY positional argument.",
     type=click.Path(exists=True),
 )
 @click.option(
@@ -174,7 +178,9 @@ def albums(ctx, cli_obj, db, json_, photos_library):
     required=False,
     metavar="<Photos database path>",
     default=None,
-    help="Specify Photos database path.",
+    help="Specify Photos database path. "
+        "Path to Photos library/database can be specified using either --db "
+        "or directly as PHOTOS_LIBRARY positional argument.",
     type=click.Path(exists=True),
 )
 @click.option(
@@ -212,7 +218,9 @@ def persons(ctx, cli_obj, db, json_, photos_library):
     required=False,
     metavar="<Photos database path>",
     default=None,
-    help="Specify Photos database path.",
+    help="Specify Photos database path. "
+        "Path to Photos library/database can be specified using either --db "
+        "or directly as PHOTOS_LIBRARY positional argument.",
     type=click.Path(exists=True),
 )
 @click.option(
@@ -299,7 +307,9 @@ def info(ctx, cli_obj, db, json_, photos_library):
     required=False,
     metavar="<Photos database path>",
     default=None,
-    help="Specify Photos database path.",
+    help="Specify Photos database path. "
+        "Path to Photos library/database can be specified using either --db "
+        "or directly as PHOTOS_LIBRARY positional argument.",
     type=click.Path(exists=True),
 )
 @click.option(
@@ -386,7 +396,9 @@ def _list_libraries(json_=False):
     required=False,
     metavar="<Photos database path>",
     default=None,
-    help="Specify Photos database path.",
+    help="Specify Photos database path. "
+        "Path to Photos library/database can be specified using either --db "
+        "or directly as PHOTOS_LIBRARY positional argument.",
     type=click.Path(exists=True),
 )
 @click.option(
@@ -670,7 +682,9 @@ def query(
     required=False,
     metavar="<Photos database path>",
     default=None,
-    help="Specify Photos database path.",
+    help="Specify Photos database path. "
+        "Path to Photos library/database can be specified using either --db "
+        "or directly as PHOTOS_LIBRARY positional argument.",
     type=click.Path(exists=True),
 )
 @click.option("--keyword", default=None, multiple=True, help="Search for keyword(s).")
@@ -986,6 +1000,7 @@ def help(ctx, topic, **kw):
     if topic is None:
         click.echo(ctx.parent.get_help())
     else:
+        ctx.info_name = topic 
         click.echo(cli.commands[topic].get_help(ctx))
 
 
