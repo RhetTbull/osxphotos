@@ -202,8 +202,8 @@ def keywords(ctx, cli_obj, db, json_, photos_library):
 
     db = get_photos_db(*photos_library, db, cli_obj.db)
     if db is None:
-        click.echo(cli.commands["keywords"].get_help(ctx))
-        click.echo("\n\nLocated the following Photos library databases: ")
+        click.echo(cli.commands["keywords"].get_help(ctx), err=True)
+        click.echo("\n\nLocated the following Photos library databases: ", err=True)
         _list_libraries()
         return
 
@@ -226,8 +226,8 @@ def albums(ctx, cli_obj, db, json_, photos_library):
 
     db = get_photos_db(*photos_library, db, cli_obj.db)
     if db is None:
-        click.echo(cli.commands["albums"].get_help(ctx))
-        click.echo("\n\nLocated the following Photos library databases: ")
+        click.echo(cli.commands["albums"].get_help(ctx), err=True)
+        click.echo("\n\nLocated the following Photos library databases: ", err=True)
         _list_libraries()
         return
 
@@ -253,8 +253,8 @@ def persons(ctx, cli_obj, db, json_, photos_library):
 
     db = get_photos_db(*photos_library, db, cli_obj.db)
     if db is None:
-        click.echo(cli.commands["persons"].get_help(ctx))
-        click.echo("\n\nLocated the following Photos library databases: ")
+        click.echo(cli.commands["persons"].get_help(ctx), err=True)
+        click.echo("\n\nLocated the following Photos library databases: ", err=True)
         _list_libraries()
         return
 
@@ -277,8 +277,8 @@ def info(ctx, cli_obj, db, json_, photos_library):
 
     db = get_photos_db(*photos_library, db, cli_obj.db)
     if db is None:
-        click.echo(cli.commands["info"].get_help(ctx))
-        click.echo("\n\nLocated the following Photos library databases: ")
+        click.echo(cli.commands["info"].get_help(ctx), err=True)
+        click.echo("\n\nLocated the following Photos library databases: ", err=True)
         _list_libraries()
         return
 
@@ -350,8 +350,8 @@ def dump(ctx, cli_obj, db, json_, photos_library):
 
     db = get_photos_db(*photos_library, db, cli_obj.db)
     if db is None:
-        click.echo(cli.commands["dump"].get_help(ctx))
-        click.echo("\n\nLocated the following Photos library databases: ")
+        click.echo(cli.commands["dump"].get_help(ctx), err=True)
+        click.echo("\n\nLocated the following Photos library databases: ", err=True)
         _list_libraries()
         return
 
@@ -366,10 +366,10 @@ def dump(ctx, cli_obj, db, json_, photos_library):
 @click.pass_context
 def list_libraries(ctx, cli_obj, json_):
     """ Print list of Photos libraries found on the system. """
-    _list_libraries(json_=json_ or cli_obj.json)
+    _list_libraries(json_=json_ or cli_obj.json, error=False)
 
 
-def _list_libraries(json_=False):
+def _list_libraries(json_=False, error=True):
     """ Print list of Photos libraries found on the system. 
         If json_ == True, print output as JSON (default = False) """
 
@@ -389,20 +389,20 @@ def _list_libraries(json_=False):
 
         for lib in photo_libs:
             if lib == sys_lib:
-                click.echo(f"(*)\t{lib}")
+                click.echo(f"(*)\t{lib}", err=error)
                 sys_lib_flag = True
             elif lib == last_lib:
-                click.echo(f"(#)\t{lib}")
+                click.echo(f"(#)\t{lib}", err=error)
                 last_lib_flag = True
             else:
-                click.echo(f"\t{lib}")
+                click.echo(f"\t{lib}", err=error)
 
         if sys_lib_flag or last_lib_flag:
-            click.echo("\n")
+            click.echo("\n", err=error)
         if sys_lib_flag:
-            click.echo("(*)\tSystem Photos Library")
+            click.echo("(*)\tSystem Photos Library", err=error)
         if last_lib_flag:
-            click.echo("(#)\tLast opened Photos Library")
+            click.echo("(#)\tLast opened Photos Library", err=error)
 
 
 @cli.command()
@@ -566,8 +566,8 @@ def query(
 
     db = get_photos_db(*photos_library, db, cli_obj.db)
     if db is None:
-        click.echo(cli.commands["query"].get_help(ctx))
-        click.echo("\n\nLocated the following Photos library databases: ")
+        click.echo(cli.commands["query"].get_help(ctx), err=True)
+        click.echo("\n\nLocated the following Photos library databases: ", err=True)
         _list_libraries()
         return
 
@@ -758,8 +758,8 @@ def export(
 
     db = get_photos_db(*photos_library, db, cli_obj.db)
     if db is None:
-        click.echo(cli.commands["export"].get_help(ctx))
-        click.echo("\n\nLocated the following Photos library databases: ")
+        click.echo(cli.commands["export"].get_help(ctx), err=True)
+        click.echo("\n\nLocated the following Photos library databases: ", err=True)
         _list_libraries()
         return
 
@@ -854,7 +854,7 @@ def help(ctx, topic, **kw):
     if topic is None:
         click.echo(ctx.parent.get_help())
     else:
-        ctx.info_name = topic 
+        ctx.info_name = topic
         click.echo(cli.commands[topic].get_help(ctx))
 
 
