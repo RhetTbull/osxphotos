@@ -15,9 +15,6 @@ from ._constants import _EXIF_TOOL_URL, _PHOTOS_5_VERSION
 from ._version import __version__
 from .utils import create_path_by_date, _copy_file
 
-# TODO: add "--any" to search any field (e.g. keyword, description, title contains "wedding") (add case insensitive option)
-# TODO: add search for filename
-
 
 def get_photos_db(*db_options):
     """ Return path to photos db, select first non-None arg 
@@ -367,6 +364,9 @@ def dump(ctx, cli_obj, db, json_, photos_library):
 @click.pass_context
 def list_libraries(ctx, cli_obj, json_):
     """ Print list of Photos libraries found on the system. """
+
+    # implemented in _list_libraries so it can be called by other CLI functions
+    # without errors due to passing ctx and cli_obj
     _list_libraries(json_=json_ or cli_obj.json, error=False)
 
 
@@ -761,7 +761,6 @@ def export(
         isphoto = False
     if only_photos:
         ismovie = False
-
 
     # below needed for to make CliRunner work for testing
     cli_db = cli_obj.db if cli_obj is not None else None
