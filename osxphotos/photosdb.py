@@ -1328,6 +1328,8 @@ class PhotosDB:
         If more than one arg, returns photos matching all the criteria (e.g. keywords AND persons)
         images: if True, returns image files, if False, does not return images; default is True
         movies: if True, returns movie files, if False, does not return movies; default is False
+        from_date: return photos with creation date >= from_date (datetime.datetime object, default None)
+        to_date: return photos with creation date <= to_date (datetime.datetime object, default None)
         """
         photos_sets = []  # list of photo sets to perform intersection of
         if not any([keywords, uuid, persons, albums, from_date, to_date]):

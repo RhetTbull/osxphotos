@@ -449,11 +449,11 @@ photosdb.db_version
 Returns the version number for Photos library database.  You likely won't need this but it's provided in case needed for debugging. PhotosDB will print a warning to `sys.stderr` if you open a database version that has not been tested. 
 
 
-#### ` photos(keywords=None, uuid=None, persons=None, albums=None, images=True, movies=False)`
+#### ` photos(keywords=None, uuid=None, persons=None, albums=None, images=True, movies=False, from_date=None, to_date=None)`
 
 ```python
 # assumes photosdb is a PhotosDB object (see above)
-photos = photosdb.photos([keywords=['keyword',]], [uuid=['uuid',]], [persons=['person',]], [albums=['album',]])
+photos = photosdb.photos([keywords=['keyword',]], [uuid=['uuid',]], [persons=['person',]], [albums=['album',]],[from_date=datetime.datetime],[to_date=datetime.datetime])
 ```
 
 Returns a list of [PhotoInfo](#PhotoInfo) objects.  Each PhotoInfo object represents a photo in the Photos Libary.
@@ -469,6 +469,8 @@ photos = photosdb.photos(
     albums = [],
     images = bool,
     movies = bool,
+    from_date = datetime.datetime,
+    to_date = datetime.datetime
 )
 ```
 
@@ -478,8 +480,10 @@ photos = photosdb.photos(
 - ```albums```: list of one or more album names.  Returns only photos contained in the album(s). If more than one album name is provided, returns photos contained in any of the albums (.e.g. treated as "or")
 - ```images```: bool; if True, returns photos/images; default is True
 - ```movies```: bool; if True, returns movies/videos; default is False
+- ```from_date```: datetime.datetime; if provided, finds photos where creation date >= from_date; default is None
+- ```to_date```: datetime.datetime; if provided, finds photos where creation date <= to_date; default is None
 
-If more than one of (keywords, uuid, persons, albums) is provided, they are treated as "and" criteria. E.g.
+If more than one of (keywords, uuid, persons, albums,from_date, to_date) is provided, they are treated as "and" criteria. E.g.
 
 Finds all photos with (keyword = "wedding" or "birthday") and (persons = "Juan Rodriguez")
 

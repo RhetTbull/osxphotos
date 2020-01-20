@@ -289,6 +289,24 @@ def create_path_by_date(dest, dt):
     return new_dest
 
 
+# TODO: this doesn't always work, still looking for a way to
+# force Photos to open the library being operated on
+# def _open_photos_library_applescript(library_path):
+#     """ Force Photos to open a specific library
+#         library_path: path to the Photos library """
+#     open_scpt = AppleScript(
+#         f"""
+#         on openLibrary
+#             tell application "Photos"
+# 	         activate
+# 	         open POSIX file "{library_path}"
+#             end tell
+#         end openLibrary
+#         """
+#     )
+#     open_scpt.run()
+
+
 def _export_photo_uuid_applescript(
     uuid, dest, original=True, edited=False, timeout=120
 ):
