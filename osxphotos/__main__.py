@@ -17,38 +17,36 @@ from .utils import create_path_by_date, _copy_file
 
 
 def get_photos_db(*db_options):
-    """ Return path to photos db, select first non-None arg 
+    """ Return path to photos db, select first non-None db_options
+        If no db_options are non-None, try to find library to use in
+        the following order:
+        - last library opened
+        - system library
+        - ~/Pictures/Photos Library.photoslibrary
+        - failing above, returns None
     """
     if db_options:
         for db in db_options:
             if db is not None:
                 return db
 
-    # _list_libraries()
-    return None
+    # if get here, no valid database paths passed, so try to figure out which to use
+    db = osxphotos.utils.get_last_library_path()
+    if db is not None:
+        click.echo(f"Using last opened Photos library: {db}", err=True)
+        return db
 
-    # if get here, no valid database paths passed, so ask user
+    db = osxphotos.utils.get_system_library_path()
+    if db is not None:
+        click.echo(f"Using system Photos library: {db}", err=True)
+        return db
 
-    # _, major, _ = osxphotos.utils._get_os_version()
-
-    # last_lib = osxphotos.utils.get_last_library_path()
-    # if last_lib is not None:
-    #     db = last_lib
-    #     return db
-
-    # sys_lib = None
-    # if int(major) >= 15:
-    #     sys_lib = osxphotos.utils.get_system_library_path()
-
-    # if sys_lib is not None:
-    #     db = sys_lib
-    #     return db
-
-    # db = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
-    # if os.path.isdir(db):
-    #     return db
-    # else:
-    #     return None  ### TODO: put list here
+    db = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
+    if os.path.isdir(db):
+        click.echo(f"Using Photos library: {db}", err=True)
+        return db
+    else:
+        return None 
 
 
 # Click CLI object & context settings
@@ -69,7 +67,9 @@ DB_OPTION = click.option(
     help=(
         "Specify Photos database path. "
         "Path to Photos library/database can be specified using either --db "
-        "or directly as PHOTOS_LIBRARY positional argument."
+        "or directly as PHOTOS_LIBRARY positional argument. "
+        "If neither --db or PHOTOS_LIBRARY provided, will attempt to find the library "
+        "to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary"
     ),
     type=click.Path(exists=True),
 )
