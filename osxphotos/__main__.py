@@ -762,7 +762,10 @@ def export(
     if only_photos:
         ismovie = False
 
-    db = get_photos_db(*photos_library, db, cli_obj.db)
+
+    # below needed for to make CliRunner work for testing
+    cli_db = cli_obj.db if cli_obj is not None else None
+    db = get_photos_db(*photos_library, db, cli_db)
     if db is None:
         click.echo(cli.commands["export"].get_help(ctx), err=True)
         click.echo("\n\nLocated the following Photos library databases: ", err=True)
