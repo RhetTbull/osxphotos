@@ -80,7 +80,7 @@ DB_OPTION = click.option(
 DB_ARGUMENT = click.argument("photos_library", nargs=-1, type=click.Path(exists=True))
 
 JSON_OPTION = click.option(
-    "--json",
+    "--json", "json_",
     required=False,
     is_flag=True,
     default=False,
@@ -187,8 +187,8 @@ def query_options(f):
 @click.option("--debug", required=False, is_flag=True, default=False, hidden=True)
 @click.version_option(__version__, "--version", "-v")
 @click.pass_context
-def cli(ctx, db, json, debug):
-    ctx.obj = CLI_Obj(db=db, json=json, debug=debug)
+def cli(ctx, db, json_, debug):
+    ctx.obj = CLI_Obj(db=db, json=json_, debug=debug)
 
 
 @cli.command()
