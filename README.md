@@ -84,79 +84,93 @@ Usage: osxphotos export [OPTIONS] [PHOTOS_LIBRARY]... DEST
   photos will be exported.
 
 Options:
-  --db <Photos database path>  Specify Photos database path.
-  --keyword TEXT               Search for keyword(s).
-  --person TEXT                Search for person(s).
-  --album TEXT                 Search for album(s).
-  --uuid TEXT                  Search for UUID(s).
-  --title TEXT                 Search for TEXT in title of photo.
-  --no-title                   Search for photos with no title.
-  --description TEXT           Search for TEXT in description of photo.
-  --no-description             Search for photos with no description.
-  --uti TEXT                   Search for photos whose uniform type identifier
-                               (UTI) matches TEXT
-  -i, --ignore-case            Case insensitive search for title or
-                               description. Does not apply to keyword, person,
-                               or album.
-  --edited                     Search for photos that have been edited.
-  --external-edit              Search for photos edited in external editor.
-  --favorite                   Search for photos marked favorite.
-  --not-favorite               Search for photos not marked favorite.
-  --hidden                     Search for photos marked hidden.
-  --not-hidden                 Search for photos not marked hidden.
-  --burst                      Search for photos that were taken in a burst.
-  --not-burst                  Search for photos that are not part of a burst.
-  --live                       Search for Apple live photos
-  --not-live                   Search for photos that are not Apple live
-                               photos
-  --shared                     Search for photos in shared iCloud album
-                               (Photos 5 only).
-  --not-shared                 Search for photos not in shared iCloud album
-                               (Photos 5 only).
-  -V, --verbose                Print verbose output.
-  --overwrite                  Overwrite existing files. Default behavior is
-                               to add (1), (2), etc to filename if file
-                               already exists. Use this with caution as it may
-                               create name collisions on export. (e.g. if two
-                               files happen to have the same name)
-  --export-by-date             Automatically create output folders to organize
-                               photos by date created (e.g.
-                               DEST/2019/12/20/photoname.jpg).
-  --export-edited              Also export edited version of photo if an
-                               edited version exists.  Edited photo will be
-                               named in form of "photoname_edited.ext"
-  --export-bursts              If a photo is a burst photo export all
-                               associated burst images in the library.
-  --export-live                If a photo is a live photo export the
-                               associated live video component.  Live video
-                               will have same name as photo but with .mov
-                               extension.
-  --original-name              Use photo's original filename instead of
-                               current filename for export.
-  --sidecar                    Create JSON sidecar for each photo exported in
-                               format useable by exiftool
-                               (https://exiftool.org/) The sidecar file can be
-                               used to apply metadata to the file with
-                               exiftool, for example: "exiftool
-                               -j=photoname.jpg.json photoname.jpg" The
-                               sidecar file is named in format
-                               photoname.ext.json where ext is extension of
-                               the photo (e.g. jpg). Note: this does not
-                               create an XMP sidecar as used by Lightroom,
-                               etc.
-  --only-movies                Search only for movies (default searches both
-                               images and movies).
-  --only-photos                Search only for photos/images (default searches
-                               both images and movies).
-  --download-missing           Attempt to download missing photos from iCloud.
-                               The current implementation uses Applescript to
-                               interact with Photos to export the photo which
-                               will force Photos to download from iCloud if
-                               the photo does not exist on disk.  This will be
-                               slow and will require internet connection. This
-                               obviously only works if the Photos library is
-                               synched to iCloud.
-  -h, --help                   Show this message and exit.
+  --db <Photos database path>     Specify Photos database path. Path to Photos
+                                  library/database can be specified using
+                                  either --db or directly as PHOTOS_LIBRARY
+                                  positional argument.
+  --keyword TEXT                  Search for keyword(s).
+  --person TEXT                   Search for person(s).
+  --album TEXT                    Search for album(s).
+  --uuid TEXT                     Search for UUID(s).
+  --title TEXT                    Search for TEXT in title of photo.
+  --no-title                      Search for photos with no title.
+  --description TEXT              Search for TEXT in description of photo.
+  --no-description                Search for photos with no description.
+  --uti TEXT                      Search for photos whose uniform type
+                                  identifier (UTI) matches TEXT
+  -i, --ignore-case               Case insensitive search for title or
+                                  description. Does not apply to keyword,
+                                  person, or album.
+  --edited                        Search for photos that have been edited.
+  --external-edit                 Search for photos edited in external editor.
+  --favorite                      Search for photos marked favorite.
+  --not-favorite                  Search for photos not marked favorite.
+  --hidden                        Search for photos marked hidden.
+  --not-hidden                    Search for photos not marked hidden.
+  --shared                        Search for photos in shared iCloud album
+                                  (Photos 5 only).
+  --not-shared                    Search for photos not in shared iCloud album
+                                  (Photos 5 only).
+  --burst                         Search for photos that were taken in a
+                                  burst.
+  --not-burst                     Search for photos that are not part of a
+                                  burst.
+  --live                          Search for Apple live photos
+  --not-live                      Search for photos that are not Apple live
+                                  photos
+  --only-movies                   Search only for movies (default searches
+                                  both images and movies).
+  --only-photos                   Search only for photos/images (default
+                                  searches both images and movies).
+  --from-date [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]
+                                  Search by start item date, e.g.
+                                  2000-01-12T12:00:00 or 2000-12-31 (ISO 8601
+                                  w/o TZ).
+  --to-date [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]
+                                  Search by end item date, e.g.
+                                  2000-01-12T12:00:00 or 2000-12-31 (ISO 8601
+                                  w/o TZ).
+  -V, --verbose                   Print verbose output.
+  --overwrite                     Overwrite existing files. Default behavior
+                                  is to add (1), (2), etc to filename if file
+                                  already exists. Use this with caution as it
+                                  may create name collisions on export. (e.g.
+                                  if two files happen to have the same name)
+  --export-by-date                Automatically create output folders to
+                                  organize photos by date created (e.g.
+                                  DEST/2019/12/20/photoname.jpg).
+  --export-edited                 Also export edited version of photo if an
+                                  edited version exists.  Edited photo will be
+                                  named in form of "photoname_edited.ext"
+  --export-bursts                 If a photo is a burst photo export all
+                                  associated burst images in the library.
+  --export-live                   If a photo is a live photo export the
+                                  associated live video component.  Live video
+                                  will have same name as photo but with .mov
+                                  extension.
+  --original-name                 Use photo's original filename instead of
+                                  current filename for export.
+  --sidecar                       Create JSON sidecar for each photo exported
+                                  in format useable by exiftool
+                                  (https://exiftool.org/) The sidecar file can
+                                  be used to apply metadata to the file with
+                                  exiftool, for example: "exiftool
+                                  -j=photoname.jpg.json photoname.jpg" The
+                                  sidecar file is named in format
+                                  photoname.ext.json where ext is extension of
+                                  the photo (e.g. jpg). Note: this does not
+                                  create an XMP sidecar as used by Lightroom,
+                                  etc.
+  --download-missing              Attempt to download missing photos from
+                                  iCloud. The current implementation uses
+                                  Applescript to interact with Photos to
+                                  export the photo which will force Photos to
+                                  download from iCloud if the photo does not
+                                  exist on disk.  This will be slow and will
+                                  require internet connection. This obviously
+                                  only works if the Photos library is synched
+                                  to iCloud.
+  -h, --help                      Show this message and exit.
 ```
 
 Example: export all photos to ~/Desktop/export, including edited versions and live photo movies, group in folders by date created
