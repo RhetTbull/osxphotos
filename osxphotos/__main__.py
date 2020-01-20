@@ -565,7 +565,9 @@ def query(
     if only_photos:
         ismovie = False
 
-    db = get_photos_db(*photos_library, db, cli_obj.db)
+    # below needed for to make CliRunner work for testing
+    cli_db = cli_obj.db if cli_obj is not None else None
+    db = get_photos_db(*photos_library, db, cli_db)
     if db is None:
         click.echo(cli.commands["query"].get_help(ctx), err=True)
         click.echo("\n\nLocated the following Photos library databases: ", err=True)
@@ -605,7 +607,10 @@ def query(
         incloud=incloud,
         not_incloud=not_incloud,
     )
-    print_photo_info(photos, cli_obj.json or json_)
+
+    # below needed for to make CliRunner work for testing
+    cli_json = cli_obj.json if cli_obj is not None else None
+    print_photo_info(photos, cli_json or json_)
 
 
 @cli.command()
