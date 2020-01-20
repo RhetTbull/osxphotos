@@ -103,3 +103,25 @@ def test_export():
         )
         files = glob.glob("*.jpg")
         assert files.sort() == CLI_EXPORT_FILENAMES.sort()
+
+
+def test_query_date():
+    import json
+    import osxphotos
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            "./tests/Test-10.15.1.photoslibrary",
+            "--from-date=2018-09-28",
+            "--to-date=2018-09-28T23:00:00"
+        ],
+    )
+    assert result.exit_code == 0
+
+    json_got = json.loads(result.output)
+    assert len(json_got) == 4

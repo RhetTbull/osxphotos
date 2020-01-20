@@ -173,6 +173,16 @@ def query_options(f):
             is_flag=True,
             help="Search only for photos/images (default searches both images and movies).",
         ),
+        o(
+            "--from-date",
+            help="Search by start item date, e.g. 2000-01-12T12:00:00 or 2000-12-31 (ISO 8601 w/o TZ).",
+            type=click.DateTime(),
+        ),
+        o(
+            "--to-date",
+            help="Search by end item date, e.g. 2000-01-12T12:00:00 or 2000-12-31 (ISO 8601 w/o TZ).",
+            type=click.DateTime(),
+        ),
     ]
     for o in options[::-1]:
         f = o(f)
@@ -475,6 +485,8 @@ def query(
     not_cloudasset,
     incloud,
     not_incloud,
+    from_date,
+    to_date,
 ):
     """ Query the Photos database using 1 or more search options; 
         if more than one option is provided, they are treated as "AND" 
@@ -482,80 +494,33 @@ def query(
     """
 
     # if no query terms, show help and return
-    if not any(
-        [
-            keyword,
-            person,
-            album,
-            uuid,
-            title,
-            no_title,
-            description,
-            no_description,
-            edited,
-            external_edit,
-            favorite,
-            not_favorite,
-            hidden,
-            not_hidden,
-            missing,
-            not_missing,
-            shared,
-            not_shared,
-            only_movies,
-            only_photos,
-            uti,
-            burst,
-            not_burst,
-            live,
-            not_live,
-            cloudasset,
-            not_cloudasset,
-            incloud,
-            not_incloud,
-        ]
-    ):
-        click.echo(cli.commands["query"].get_help(ctx))
-        return
-    elif favorite and not_favorite:
-        # can't search for both favorite and notfavorite
-        click.echo(cli.commands["query"].get_help(ctx))
-        return
-    elif hidden and not_hidden:
-        # can't search for both hidden and nothidden
-        click.echo(cli.commands["query"].get_help(ctx))
-        return
-    elif missing and not_missing:
-        # can't search for both missing and notmissing
-        click.echo(cli.commands["query"].get_help(ctx))
-        return
-    elif title and no_title:
-        # can't search for both title and no_title
-        click.echo(cli.commands["query"].get_help(ctx))
-        return
-    elif description and no_description:
-        # can't search for both description and no_description
-        click.echo(cli.commands["query"].get_help(ctx))
-        return
-    elif only_photos and only_movies:
-        # can't have only photos and only movies
-        click.echo(cli.commands["query"].get_help(ctx))
-        return
-    elif burst and not_burst:
-        # can't search for both burst and not_burst
-        click.echo(cli.commands["query"].get_help(ctx))
-        return
-    elif live and not_live:
-        # can't search for both live and not_live
-        click.echo(cli.commands["query"].get_help(ctx))
-        return
-    elif cloudasset and not_cloudasset:
-        # can't search for both live and not_live
-        click.echo(cli.commands["query"].get_help(ctx))
-        return
-    elif incloud and not_incloud:
-        # can't search for both live and not_live
-        click.echo(cli.commands["query"].get_help(ctx))
+    # sanity check input args
+    nonexclusive = [
+        keyword,
+        person,
+        album,
+        uuid,
+        edited,
+        external_edit,
+        uti,
+        from_date,
+        to_date,
+    ]
+    exclusive = [
+        (favorite, not_favorite),
+        (hidden, not_hidden),
+        (missing, not_missing),
+        (any(title), no_title),
+        (any(description), no_description),
+        (only_photos, only_movies),
+        (burst, not_burst),
+        (live, not_live),
+        (cloudasset, not_cloudasset),
+        (incloud, not_incloud),
+    ]
+    # print help if no non-exclusive term or a double exclusive term is given
+    if not any(nonexclusive + [b ^ n for b, n in exclusive]):
+        click.echo(cli.commands["query"].get_help(ctx), err=True)
         return
 
     # actually have something to query
@@ -606,6 +571,8 @@ def query(
         not_cloudasset=not_cloudasset,
         incloud=incloud,
         not_incloud=not_incloud,
+        from_date=from_date,
+        to_date=to_date,
     )
 
     # below needed for to make CliRunner work for testing
@@ -698,6 +665,8 @@ def export(
     not_hidden,
     shared,
     not_shared,
+    from_date,
+    to_date,
     verbose,
     overwrite,
     export_by_date,
@@ -727,33 +696,17 @@ def export(
         sys.exit("DEST must be valid path")
 
     # sanity check input args
-    if favorite and not_favorite:
-        # can't search for both favorite and notfavorite
-        click.echo(cli.commands["export"].get_help(ctx))
-        return
-    elif hidden and not_hidden:
-        # can't search for both hidden and nothidden
-        click.echo(cli.commands["export"].get_help(ctx))
-        return
-    elif title and no_title:
-        # can't search for both title and no_title
-        click.echo(cli.commands["export"].get_help(ctx))
-        return
-    elif description and no_description:
-        # can't search for both description and no_description
-        click.echo(cli.commands["export"].get_help(ctx))
-        return
-    elif only_photos and only_movies:
-        # can't have only photos and only movies
-        click.echo(cli.commands["export"].get_help(ctx))
-        return
-    elif burst and not_burst:
-        # can't search for both burst and not_burst
-        click.echo(cli.commands["export"].get_help(ctx))
-        return
-    elif live and not_live:
-        # can't search for both live and not_live
-        click.echo(cli.commands["export"].get_help(ctx))
+    exclusive = [
+        (favorite, not_favorite),
+        (hidden, not_hidden),
+        (any(title), no_title),
+        (any(description), no_description),
+        (only_photos, only_movies),
+        (burst, not_burst),
+        (live, not_live),
+    ]
+    if any([all(bb) for bb in exclusive]):
+        click.echo(cli.commands["export"].get_help(ctx), err=True)
         return
 
     isphoto = ismovie = True  # default searches for everything
@@ -803,6 +756,8 @@ def export(
         not_cloudasset=False,
         incloud=False,
         not_incloud=False,
+        from_date=from_date,
+        to_date=to_date,
     )
 
     if photos:
@@ -978,6 +933,8 @@ def _query(
     not_cloudasset=None,
     incloud=None,
     not_incloud=None,
+    from_date=None,
+    to_date=None,
 ):
     """ run a query against PhotosDB to extract the photos based on user supply criteria """
     """ used by query and export commands """
@@ -992,6 +949,8 @@ def _query(
         uuid=uuid,
         images=isphoto,
         movies=ismovie,
+        from_date=from_date,
+        to_date=to_date,
     )
 
     if title:

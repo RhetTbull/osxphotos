@@ -786,3 +786,20 @@ def test_photosinfo_repr():
         k: str(v).encode("utf-8")
         for k, v in photo2.__dict__.items()
     }
+
+
+def test_from_to_date():
+    import osxphotos
+    import datetime as dt
+
+    photosdb = osxphotos.PhotosDB(PHOTOS_DB)
+
+    photos = photosdb.photos(from_date=dt.datetime(2018, 10, 28))
+    assert len(photos) == 2
+
+    photos = photosdb.photos(to_date=dt.datetime(2018, 10, 28))
+    assert len(photos) == 5
+
+    photos = photosdb.photos(from_date=dt.datetime(2018, 9, 28),
+                             to_date=dt.datetime(2018, 9, 29))
+    assert len(photos) == 4

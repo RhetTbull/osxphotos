@@ -1318,6 +1318,8 @@ class PhotosDB:
         albums=None,
         images=True,
         movies=False,
+        from_date=None,
+        to_date=None,
     ):
         """ 
         Return a list of PhotoInfo objects
@@ -1328,7 +1330,7 @@ class PhotosDB:
         movies: if True, returns movie files, if False, does not return movies; default is False
         """
         photos_sets = []  # list of photo sets to perform intersection of
-        if not keywords and not uuid and not persons and not albums:
+        if not any([keywords, uuid, persons, albums, from_date, to_date]):
             # return all the photos, filtering for images and movies
             # append keys of all photos as a single set to photos_sets
             photos_sets.append(set(self._dbphotos.keys()))
@@ -1372,6 +1374,19 @@ class PhotosDB:
                         photos_sets.append(set(self._dbfaces_person[person]))
                     else:
                         logging.debug(f"Could not find person '{person}' in database")
+            if from_date or to_date:
+                dsel = self._dbphotos
+                if from_date:
+                    dsel = {
+                        k: v for k, v in dsel.items() if v["imageDate"] >= from_date
+                    }
+                    logging.debug(
+                        f"Found %i items with from_date {from_date}" % len(dsel)
+                    )
+                if to_date:
+                    dsel = {k: v for k, v in dsel.items() if v["imageDate"] <= to_date}
+                    logging.debug(f"Found %i items with to_date {to_date}" % len(dsel))
+                photos_sets.append(set(dsel.keys()))
 
         photoinfo = []
         if photos_sets:  # found some photos
