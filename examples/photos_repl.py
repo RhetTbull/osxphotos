@@ -1,8 +1,11 @@
 #!/usr/bin/env python3 -i
 
-# open an interactive REPL with photosdb and photos defined
+# Open an interactive REPL with photosdb and photos defined
 # as osxphotos.PhotosDB() and PhotosDB.photos respectively
 # useful for debugging or exploring the Photos database
+
+# If you run this using python from command line, do so with -i flag:
+# python3 -i examples/photos_repl.py
 
 import sys
 
