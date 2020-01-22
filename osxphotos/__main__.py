@@ -15,43 +15,38 @@ from ._constants import _EXIF_TOOL_URL, _PHOTOS_5_VERSION
 from ._version import __version__
 from .utils import create_path_by_date, _copy_file
 
-# TODO: add "--any" to search any field (e.g. keyword, description, title contains "wedding") (add case insensitive option)
-# TODO: add search for filename
-
 
 def get_photos_db(*db_options):
-    """ Return path to photos db, select first non-None arg 
+    """ Return path to photos db, select first non-None db_options
+        If no db_options are non-None, try to find library to use in
+        the following order:
+        - last library opened
+        - system library
+        - ~/Pictures/Photos Library.photoslibrary
+        - failing above, returns None
     """
     if db_options:
         for db in db_options:
             if db is not None:
                 return db
 
-    # _list_libraries()
-    return None
+    # if get here, no valid database paths passed, so try to figure out which to use
+    db = osxphotos.utils.get_last_library_path()
+    if db is not None:
+        click.echo(f"Using last opened Photos library: {db}", err=True)
+        return db
 
-    # if get here, no valid database paths passed, so ask user
+    db = osxphotos.utils.get_system_library_path()
+    if db is not None:
+        click.echo(f"Using system Photos library: {db}", err=True)
+        return db
 
-    # _, major, _ = osxphotos.utils._get_os_version()
-
-    # last_lib = osxphotos.utils.get_last_library_path()
-    # if last_lib is not None:
-    #     db = last_lib
-    #     return db
-
-    # sys_lib = None
-    # if int(major) >= 15:
-    #     sys_lib = osxphotos.utils.get_system_library_path()
-
-    # if sys_lib is not None:
-    #     db = sys_lib
-    #     return db
-
-    # db = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
-    # if os.path.isdir(db):
-    #     return db
-    # else:
-    #     return None  ### TODO: put list here
+    db = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
+    if os.path.isdir(db):
+        click.echo(f"Using Photos library: {db}", err=True)
+        return db
+    else:
+        return None 
 
 
 # Click CLI object & context settings
@@ -64,43 +59,24 @@ class CLI_Obj:
 
 
 CTX_SETTINGS = dict(help_option_names=["-h", "--help"])
-
-
-@click.group(context_settings=CTX_SETTINGS)
-@click.option(
+DB_OPTION = click.option(
     "--db",
     required=False,
     metavar="<Photos database path>",
     default=None,
-    help="Specify Photos database path.",
-    type=click.Path(exists=True),
-)
-@click.option(
-    "--json",
-    required=False,
-    is_flag=True,
-    default=False,
-    help="Print output in JSON format.",
-)
-@click.option("--debug", required=False, is_flag=True, default=False, hidden=True)
-@click.version_option(__version__, "--version", "-v")
-@click.pass_context
-def cli(ctx, db, json, debug):
-    ctx.obj = CLI_Obj(db=db, json=json, debug=debug)
-
-
-@cli.command()
-@click.option(
-    "--db",
-    required=False,
-    metavar="<Photos database path>",
-    default=None,
-    help="Specify Photos database path. "
+    help=(
+        "Specify Photos database path. "
         "Path to Photos library/database can be specified using either --db "
-        "or directly as PHOTOS_LIBRARY positional argument.",
+        "or directly as PHOTOS_LIBRARY positional argument. "
+        "If neither --db or PHOTOS_LIBRARY provided, will attempt to find the library "
+        "to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary"
+    ),
     type=click.Path(exists=True),
 )
-@click.option(
+
+DB_ARGUMENT = click.argument("photos_library", nargs=-1, type=click.Path(exists=True))
+
+JSON_OPTION = click.option(
     "--json",
     "json_",
     required=False,
@@ -108,7 +84,125 @@ def cli(ctx, db, json, debug):
     default=False,
     help="Print output in JSON format.",
 )
-@click.argument("photos_library", nargs=-1, type=click.Path(exists=True))
+
+
+def query_options(f):
+    o = click.option
+    options = [
+        o("--keyword", default=None, multiple=True, help="Search for keyword(s)."),
+        o("--person", default=None, multiple=True, help="Search for person(s)."),
+        o("--album", default=None, multiple=True, help="Search for album(s)."),
+        o("--uuid", default=None, multiple=True, help="Search for UUID(s)."),
+        o(
+            "--title",
+            default=None,
+            multiple=True,
+            help="Search for TEXT in title of photo.",
+        ),
+        o("--no-title", is_flag=True, help="Search for photos with no title."),
+        o(
+            "--description",
+            default=None,
+            multiple=True,
+            help="Search for TEXT in description of photo.",
+        ),
+        o(
+            "--no-description",
+            is_flag=True,
+            help="Search for photos with no description.",
+        ),
+        o(
+            "--uti",
+            default=None,
+            multiple=False,
+            help="Search for photos whose uniform type identifier (UTI) matches TEXT",
+        ),
+        o(
+            "-i",
+            "--ignore-case",
+            is_flag=True,
+            help="Case insensitive search for title or description. Does not apply to keyword, person, or album.",
+        ),
+        o("--edited", is_flag=True, help="Search for photos that have been edited."),
+        o(
+            "--external-edit",
+            is_flag=True,
+            help="Search for photos edited in external editor.",
+        ),
+        o("--favorite", is_flag=True, help="Search for photos marked favorite."),
+        o(
+            "--not-favorite",
+            is_flag=True,
+            help="Search for photos not marked favorite.",
+        ),
+        o("--hidden", is_flag=True, help="Search for photos marked hidden."),
+        o("--not-hidden", is_flag=True, help="Search for photos not marked hidden."),
+        o(
+            "--shared",
+            is_flag=True,
+            help="Search for photos in shared iCloud album (Photos 5 only).",
+        ),
+        o(
+            "--not-shared",
+            is_flag=True,
+            help="Search for photos not in shared iCloud album (Photos 5 only).",
+        ),
+        o(
+            "--burst",
+            is_flag=True,
+            help="Search for photos that were taken in a burst.",
+        ),
+        o(
+            "--not-burst",
+            is_flag=True,
+            help="Search for photos that are not part of a burst.",
+        ),
+        o("--live", is_flag=True, help="Search for Apple live photos"),
+        o(
+            "--not-live",
+            is_flag=True,
+            help="Search for photos that are not Apple live photos",
+        ),
+        o(
+            "--only-movies",
+            is_flag=True,
+            help="Search only for movies (default searches both images and movies).",
+        ),
+        o(
+            "--only-photos",
+            is_flag=True,
+            help="Search only for photos/images (default searches both images and movies).",
+        ),
+        o(
+            "--from-date",
+            help="Search by start item date, e.g. 2000-01-12T12:00:00 or 2000-12-31 (ISO 8601 w/o TZ).",
+            type=click.DateTime(),
+        ),
+        o(
+            "--to-date",
+            help="Search by end item date, e.g. 2000-01-12T12:00:00 or 2000-12-31 (ISO 8601 w/o TZ).",
+            type=click.DateTime(),
+        ),
+    ]
+    for o in options[::-1]:
+        f = o(f)
+    return f
+
+
+@click.group(context_settings=CTX_SETTINGS)
+@DB_OPTION
+@JSON_OPTION
+@click.option("--debug", required=False, is_flag=True, default=False, hidden=True)
+@click.version_option(__version__, "--version", "-v")
+@click.pass_context
+def cli(ctx, db, json_, debug):
+    ctx.obj = CLI_Obj(db=db, json=json_, debug=debug)
+
+
+@cli.command()
+@DB_OPTION
+@JSON_OPTION
+@DB_ARGUMENT
 @click.pass_obj
 @click.pass_context
 def keywords(ctx, cli_obj, db, json_, photos_library):
@@ -116,8 +210,8 @@ def keywords(ctx, cli_obj, db, json_, photos_library):
 
     db = get_photos_db(*photos_library, db, cli_obj.db)
     if db is None:
-        click.echo(cli.commands["keywords"].get_help(ctx))
-        click.echo("\n\nLocated the following Photos library databases: ")
+        click.echo(cli.commands["keywords"].get_help(ctx), err=True)
+        click.echo("\n\nLocated the following Photos library databases: ", err=True)
         _list_libraries()
         return
 
@@ -130,25 +224,9 @@ def keywords(ctx, cli_obj, db, json_, photos_library):
 
 
 @cli.command()
-@click.option(
-    "--db",
-    required=False,
-    metavar="<Photos database path>",
-    default=None,
-    help="Specify Photos database path. "
-        "Path to Photos library/database can be specified using either --db "
-        "or directly as PHOTOS_LIBRARY positional argument.",
-    type=click.Path(exists=True),
-)
-@click.option(
-    "--json",
-    "json_",
-    required=False,
-    is_flag=True,
-    default=False,
-    help="Print output in JSON format.",
-)
-@click.argument("photos_library", nargs=-1, type=click.Path(exists=True))
+@DB_OPTION
+@JSON_OPTION
+@DB_ARGUMENT
 @click.pass_obj
 @click.pass_context
 def albums(ctx, cli_obj, db, json_, photos_library):
@@ -156,8 +234,8 @@ def albums(ctx, cli_obj, db, json_, photos_library):
 
     db = get_photos_db(*photos_library, db, cli_obj.db)
     if db is None:
-        click.echo(cli.commands["albums"].get_help(ctx))
-        click.echo("\n\nLocated the following Photos library databases: ")
+        click.echo(cli.commands["albums"].get_help(ctx), err=True)
+        click.echo("\n\nLocated the following Photos library databases: ", err=True)
         _list_libraries()
         return
 
@@ -173,25 +251,9 @@ def albums(ctx, cli_obj, db, json_, photos_library):
 
 
 @cli.command()
-@click.option(
-    "--db",
-    required=False,
-    metavar="<Photos database path>",
-    default=None,
-    help="Specify Photos database path. "
-        "Path to Photos library/database can be specified using either --db "
-        "or directly as PHOTOS_LIBRARY positional argument.",
-    type=click.Path(exists=True),
-)
-@click.option(
-    "--json",
-    "json_",
-    required=False,
-    is_flag=True,
-    default=False,
-    help="Print output in JSON format.",
-)
-@click.argument("photos_library", nargs=-1, type=click.Path(exists=True))
+@DB_OPTION
+@JSON_OPTION
+@DB_ARGUMENT
 @click.pass_obj
 @click.pass_context
 def persons(ctx, cli_obj, db, json_, photos_library):
@@ -199,8 +261,8 @@ def persons(ctx, cli_obj, db, json_, photos_library):
 
     db = get_photos_db(*photos_library, db, cli_obj.db)
     if db is None:
-        click.echo(cli.commands["persons"].get_help(ctx))
-        click.echo("\n\nLocated the following Photos library databases: ")
+        click.echo(cli.commands["persons"].get_help(ctx), err=True)
+        click.echo("\n\nLocated the following Photos library databases: ", err=True)
         _list_libraries()
         return
 
@@ -213,25 +275,9 @@ def persons(ctx, cli_obj, db, json_, photos_library):
 
 
 @cli.command()
-@click.option(
-    "--db",
-    required=False,
-    metavar="<Photos database path>",
-    default=None,
-    help="Specify Photos database path. "
-        "Path to Photos library/database can be specified using either --db "
-        "or directly as PHOTOS_LIBRARY positional argument.",
-    type=click.Path(exists=True),
-)
-@click.option(
-    "--json",
-    "json_",
-    required=False,
-    is_flag=True,
-    default=False,
-    help="Print output in JSON format.",
-)
-@click.argument("photos_library", nargs=-1, type=click.Path(exists=True))
+@DB_OPTION
+@JSON_OPTION
+@DB_ARGUMENT
 @click.pass_obj
 @click.pass_context
 def info(ctx, cli_obj, db, json_, photos_library):
@@ -239,8 +285,8 @@ def info(ctx, cli_obj, db, json_, photos_library):
 
     db = get_photos_db(*photos_library, db, cli_obj.db)
     if db is None:
-        click.echo(cli.commands["info"].get_help(ctx))
-        click.echo("\n\nLocated the following Photos library databases: ")
+        click.echo(cli.commands["info"].get_help(ctx), err=True)
+        click.echo("\n\nLocated the following Photos library databases: ", err=True)
         _list_libraries()
         return
 
@@ -302,25 +348,9 @@ def info(ctx, cli_obj, db, json_, photos_library):
 
 
 @cli.command()
-@click.option(
-    "--db",
-    required=False,
-    metavar="<Photos database path>",
-    default=None,
-    help="Specify Photos database path. "
-        "Path to Photos library/database can be specified using either --db "
-        "or directly as PHOTOS_LIBRARY positional argument.",
-    type=click.Path(exists=True),
-)
-@click.option(
-    "--json",
-    "json_",
-    required=False,
-    is_flag=True,
-    default=False,
-    help="Print output in JSON format.",
-)
-@click.argument("photos_library", nargs=-1, type=click.Path(exists=True))
+@DB_OPTION
+@JSON_OPTION
+@DB_ARGUMENT
 @click.pass_obj
 @click.pass_context
 def dump(ctx, cli_obj, db, json_, photos_library):
@@ -328,8 +358,8 @@ def dump(ctx, cli_obj, db, json_, photos_library):
 
     db = get_photos_db(*photos_library, db, cli_obj.db)
     if db is None:
-        click.echo(cli.commands["dump"].get_help(ctx))
-        click.echo("\n\nLocated the following Photos library databases: ")
+        click.echo(cli.commands["dump"].get_help(ctx), err=True)
+        click.echo("\n\nLocated the following Photos library databases: ", err=True)
         _list_libraries()
         return
 
@@ -339,22 +369,18 @@ def dump(ctx, cli_obj, db, json_, photos_library):
 
 
 @cli.command(name="list")
-@click.option(
-    "--json",
-    "json_",
-    required=False,
-    is_flag=True,
-    default=False,
-    help="Print output in JSON format.",
-)
+@JSON_OPTION
 @click.pass_obj
 @click.pass_context
 def list_libraries(ctx, cli_obj, json_):
     """ Print list of Photos libraries found on the system. """
-    _list_libraries(json_=json_ or cli_obj.json)
+
+    # implemented in _list_libraries so it can be called by other CLI functions
+    # without errors due to passing ctx and cli_obj
+    _list_libraries(json_=json_ or cli_obj.json, error=False)
 
 
-def _list_libraries(json_=False):
+def _list_libraries(json_=False, error=True):
     """ Print list of Photos libraries found on the system. 
         If json_ == True, print output as JSON (default = False) """
 
@@ -374,105 +400,31 @@ def _list_libraries(json_=False):
 
         for lib in photo_libs:
             if lib == sys_lib:
-                click.echo(f"(*)\t{lib}")
+                click.echo(f"(*)\t{lib}", err=error)
                 sys_lib_flag = True
             elif lib == last_lib:
-                click.echo(f"(#)\t{lib}")
+                click.echo(f"(#)\t{lib}", err=error)
                 last_lib_flag = True
             else:
-                click.echo(f"\t{lib}")
+                click.echo(f"\t{lib}", err=error)
 
         if sys_lib_flag or last_lib_flag:
-            click.echo("\n")
+            click.echo("\n", err=error)
         if sys_lib_flag:
-            click.echo("(*)\tSystem Photos Library")
+            click.echo("(*)\tSystem Photos Library", err=error)
         if last_lib_flag:
-            click.echo("(#)\tLast opened Photos Library")
+            click.echo("(#)\tLast opened Photos Library", err=error)
 
 
 @cli.command()
-@click.option(
-    "--db",
-    required=False,
-    metavar="<Photos database path>",
-    default=None,
-    help="Specify Photos database path. "
-        "Path to Photos library/database can be specified using either --db "
-        "or directly as PHOTOS_LIBRARY positional argument.",
-    type=click.Path(exists=True),
-)
-@click.option(
-    "--json",
-    "json_",
-    required=False,
-    is_flag=True,
-    default=False,
-    help="Print output in JSON format.",
-)
-@click.option("--keyword", default=None, multiple=True, help="Search for keyword(s).")
-@click.option("--person", default=None, multiple=True, help="Search for person(s).")
-@click.option("--album", default=None, multiple=True, help="Search for album(s).")
-@click.option("--uuid", default=None, multiple=True, help="Search for UUID(s).")
-@click.option(
-    "--title", default=None, multiple=True, help="Search for TEXT in title of photo."
-)
-@click.option("--no-title", is_flag=True, help="Search for photos with no title.")
-@click.option(
-    "--description",
-    default=None,
-    multiple=True,
-    help="Search for TEXT in description of photo.",
-)
-@click.option(
-    "--no-description", is_flag=True, help="Search for photos with no description."
-)
-@click.option(
-    "--uti",
-    default=None,
-    multiple=False,
-    help="Search for photos whose uniform type identifier (UTI) matches TEXT",
-)
-@click.option(
-    "-i",
-    "--ignore-case",
-    is_flag=True,
-    help="Case insensitive search for title or description. Does not apply to keyword, person, or album.",
-)
-@click.option("--edited", is_flag=True, help="Search for photos that have been edited.")
-@click.option(
-    "--external-edit", is_flag=True, help="Search for photos edited in external editor."
-)
-@click.option("--favorite", is_flag=True, help="Search for photos marked favorite.")
-@click.option(
-    "--not-favorite", is_flag=True, help="Search for photos not marked favorite."
-)
-@click.option("--hidden", is_flag=True, help="Search for photos marked hidden.")
-@click.option("--not-hidden", is_flag=True, help="Search for photos not marked hidden.")
+@DB_OPTION
+@JSON_OPTION
+@query_options
 @click.option("--missing", is_flag=True, help="Search for photos missing from disk.")
 @click.option(
     "--not-missing",
     is_flag=True,
     help="Search for photos present on disk (e.g. not missing).",
-)
-@click.option(
-    "--shared",
-    is_flag=True,
-    help="Search for photos in shared iCloud album (Photos 5 only).",
-)
-@click.option(
-    "--not-shared",
-    is_flag=True,
-    help="Search for photos not in shared iCloud album (Photos 5 only).",
-)
-@click.option(
-    "--burst", is_flag=True, help="Search for photos that were taken in a burst."
-)
-@click.option(
-    "--not-burst", is_flag=True, help="Search for photos that are not part of a burst."
-)
-@click.option("--live", is_flag=True, help="Search for Apple live photos")
-@click.option(
-    "--not-live", is_flag=True, help="Search for photos that are not Apple live photos"
 )
 @click.option(
     "--cloudasset",
@@ -494,17 +446,7 @@ def _list_libraries(json_=False):
     is_flag=True,
     help="Search for photos that are not in iCloud (have not been synched)",
 )
-@click.option(
-    "--only-movies",
-    is_flag=True,
-    help="Search only for movies (default searches both images and movies).",
-)
-@click.option(
-    "--only-photos",
-    is_flag=True,
-    help="Search only for photos/images (default searches both images and movies).",
-)
-@click.argument("photos_library", nargs=-1, type=click.Path(exists=True))
+@DB_ARGUMENT
 @click.pass_obj
 @click.pass_context
 def query(
@@ -543,6 +485,8 @@ def query(
     not_cloudasset,
     incloud,
     not_incloud,
+    from_date,
+    to_date,
 ):
     """ Query the Photos database using 1 or more search options; 
         if more than one option is provided, they are treated as "AND" 
@@ -550,80 +494,33 @@ def query(
     """
 
     # if no query terms, show help and return
-    if not any(
-        [
-            keyword,
-            person,
-            album,
-            uuid,
-            title,
-            no_title,
-            description,
-            no_description,
-            edited,
-            external_edit,
-            favorite,
-            not_favorite,
-            hidden,
-            not_hidden,
-            missing,
-            not_missing,
-            shared,
-            not_shared,
-            only_movies,
-            only_photos,
-            uti,
-            burst,
-            not_burst,
-            live,
-            not_live,
-            cloudasset,
-            not_cloudasset,
-            incloud,
-            not_incloud,
-        ]
-    ):
-        click.echo(cli.commands["query"].get_help(ctx))
-        return
-    elif favorite and not_favorite:
-        # can't search for both favorite and notfavorite
-        click.echo(cli.commands["query"].get_help(ctx))
-        return
-    elif hidden and not_hidden:
-        # can't search for both hidden and nothidden
-        click.echo(cli.commands["query"].get_help(ctx))
-        return
-    elif missing and not_missing:
-        # can't search for both missing and notmissing
-        click.echo(cli.commands["query"].get_help(ctx))
-        return
-    elif title and no_title:
-        # can't search for both title and no_title
-        click.echo(cli.commands["query"].get_help(ctx))
-        return
-    elif description and no_description:
-        # can't search for both description and no_description
-        click.echo(cli.commands["query"].get_help(ctx))
-        return
-    elif only_photos and only_movies:
-        # can't have only photos and only movies
-        click.echo(cli.commands["query"].get_help(ctx))
-        return
-    elif burst and not_burst:
-        # can't search for both burst and not_burst
-        click.echo(cli.commands["query"].get_help(ctx))
-        return
-    elif live and not_live:
-        # can't search for both live and not_live
-        click.echo(cli.commands["query"].get_help(ctx))
-        return
-    elif cloudasset and not_cloudasset:
-        # can't search for both live and not_live
-        click.echo(cli.commands["query"].get_help(ctx))
-        return
-    elif incloud and not_incloud:
-        # can't search for both live and not_live
-        click.echo(cli.commands["query"].get_help(ctx))
+    # sanity check input args
+    nonexclusive = [
+        keyword,
+        person,
+        album,
+        uuid,
+        edited,
+        external_edit,
+        uti,
+        from_date,
+        to_date,
+    ]
+    exclusive = [
+        (favorite, not_favorite),
+        (hidden, not_hidden),
+        (missing, not_missing),
+        (any(title), no_title),
+        (any(description), no_description),
+        (only_photos, only_movies),
+        (burst, not_burst),
+        (live, not_live),
+        (cloudasset, not_cloudasset),
+        (incloud, not_incloud),
+    ]
+    # print help if no non-exclusive term or a double exclusive term is given
+    if not any(nonexclusive + [b ^ n for b, n in exclusive]):
+        click.echo(cli.commands["query"].get_help(ctx), err=True)
         return
 
     # actually have something to query
@@ -633,119 +530,59 @@ def query(
     if only_photos:
         ismovie = False
 
-    db = get_photos_db(*photos_library, db, cli_obj.db)
+    # below needed for to make CliRunner work for testing
+    cli_db = cli_obj.db if cli_obj is not None else None
+    db = get_photos_db(*photos_library, db, cli_db)
     if db is None:
-        click.echo(cli.commands["query"].get_help(ctx))
-        click.echo("\n\nLocated the following Photos library databases: ")
+        click.echo(cli.commands["query"].get_help(ctx), err=True)
+        click.echo("\n\nLocated the following Photos library databases: ", err=True)
         _list_libraries()
         return
 
     photos = _query(
-        db,
-        keyword,
-        person,
-        album,
-        uuid,
-        title,
-        no_title,
-        description,
-        no_description,
-        ignore_case,
-        edited,
-        external_edit,
-        favorite,
-        not_favorite,
-        hidden,
-        not_hidden,
-        missing,
-        not_missing,
-        shared,
-        not_shared,
-        isphoto,
-        ismovie,
-        uti,
-        burst,
-        not_burst,
-        live,
-        not_live,
-        cloudasset,
-        not_cloudasset,
-        incloud,
-        not_incloud,
+        db=db,
+        keyword=keyword,
+        person=person,
+        album=album,
+        uuid=uuid,
+        title=title,
+        no_title=no_title,
+        description=description,
+        no_description=no_description,
+        ignore_case=ignore_case,
+        edited=edited,
+        external_edit=external_edit,
+        favorite=favorite,
+        not_favorite=not_favorite,
+        hidden=hidden,
+        not_hidden=not_hidden,
+        missing=missing,
+        not_missing=not_missing,
+        shared=shared,
+        not_shared=not_shared,
+        isphoto=isphoto,
+        ismovie=ismovie,
+        uti=uti,
+        burst=burst,
+        not_burst=not_burst,
+        live=live,
+        not_live=not_live,
+        cloudasset=cloudasset,
+        not_cloudasset=not_cloudasset,
+        incloud=incloud,
+        not_incloud=not_incloud,
+        from_date=from_date,
+        to_date=to_date,
     )
-    print_photo_info(photos, cli_obj.json or json_)
+
+    # below needed for to make CliRunner work for testing
+    cli_json = cli_obj.json if cli_obj is not None else None
+    print_photo_info(photos, cli_json or json_)
 
 
 @cli.command()
-@click.option(
-    "--db",
-    required=False,
-    metavar="<Photos database path>",
-    default=None,
-    help="Specify Photos database path. "
-        "Path to Photos library/database can be specified using either --db "
-        "or directly as PHOTOS_LIBRARY positional argument.",
-    type=click.Path(exists=True),
-)
-@click.option("--keyword", default=None, multiple=True, help="Search for keyword(s).")
-@click.option("--person", default=None, multiple=True, help="Search for person(s).")
-@click.option("--album", default=None, multiple=True, help="Search for album(s).")
-@click.option("--uuid", default=None, multiple=True, help="Search for UUID(s).")
-@click.option(
-    "--title", default=None, multiple=True, help="Search for TEXT in title of photo."
-)
-@click.option("--no-title", is_flag=True, help="Search for photos with no title.")
-@click.option(
-    "--description",
-    default=None,
-    multiple=True,
-    help="Search for TEXT in description of photo.",
-)
-@click.option(
-    "--no-description", is_flag=True, help="Search for photos with no description."
-)
-@click.option(
-    "--uti",
-    default=None,
-    multiple=False,
-    help="Search for photos whose uniform type identifier (UTI) matches TEXT",
-)
-@click.option(
-    "-i",
-    "--ignore-case",
-    is_flag=True,
-    help="Case insensitive search for title or description. Does not apply to keyword, person, or album.",
-)
-@click.option("--edited", is_flag=True, help="Search for photos that have been edited.")
-@click.option(
-    "--external-edit", is_flag=True, help="Search for photos edited in external editor."
-)
-@click.option("--favorite", is_flag=True, help="Search for photos marked favorite.")
-@click.option(
-    "--not-favorite", is_flag=True, help="Search for photos not marked favorite."
-)
-@click.option("--hidden", is_flag=True, help="Search for photos marked hidden.")
-@click.option("--not-hidden", is_flag=True, help="Search for photos not marked hidden.")
-@click.option(
-    "--burst", is_flag=True, help="Search for photos that were taken in a burst."
-)
-@click.option(
-    "--not-burst", is_flag=True, help="Search for photos that are not part of a burst."
-)
-@click.option("--live", is_flag=True, help="Search for Apple live photos")
-@click.option(
-    "--not-live", is_flag=True, help="Search for photos that are not Apple live photos"
-)
-@click.option(
-    "--shared",
-    is_flag=True,
-    help="Search for photos in shared iCloud album (Photos 5 only).",
-)
-@click.option(
-    "--not-shared",
-    is_flag=True,
-    help="Search for photos not in shared iCloud album (Photos 5 only).",
-)
+@DB_OPTION
+@query_options
 @click.option("--verbose", "-V", is_flag=True, help="Print verbose output.")
 @click.option(
     "--overwrite",
@@ -794,16 +631,6 @@ def query(
     "Note: this does not create an XMP sidecar as used by Lightroom, etc.",
 )
 @click.option(
-    "--only-movies",
-    is_flag=True,
-    help="Search only for movies (default searches both images and movies).",
-)
-@click.option(
-    "--only-photos",
-    is_flag=True,
-    help="Search only for photos/images (default searches both images and movies).",
-)
-@click.option(
     "--download-missing",
     is_flag=True,
     help="Attempt to download missing photos from iCloud. The current implementation uses Applescript "
@@ -811,7 +638,7 @@ def query(
     "the photo does not exist on disk.  This will be slow and will require internet connection. "
     "This obviously only works if the Photos library is synched to iCloud.",
 )
-@click.argument("photos_library", nargs=-1, type=click.Path(exists=True))
+@DB_ARGUMENT
 @click.argument("dest", nargs=1, type=click.Path(exists=True))
 @click.pass_obj
 @click.pass_context
@@ -838,6 +665,8 @@ def export(
     not_hidden,
     shared,
     not_shared,
+    from_date,
+    to_date,
     verbose,
     overwrite,
     export_by_date,
@@ -867,33 +696,17 @@ def export(
         sys.exit("DEST must be valid path")
 
     # sanity check input args
-    if favorite and not_favorite:
-        # can't search for both favorite and notfavorite
-        click.echo(cli.commands["export"].get_help(ctx))
-        return
-    elif hidden and not_hidden:
-        # can't search for both hidden and nothidden
-        click.echo(cli.commands["export"].get_help(ctx))
-        return
-    elif title and no_title:
-        # can't search for both title and no_title
-        click.echo(cli.commands["export"].get_help(ctx))
-        return
-    elif description and no_description:
-        # can't search for both description and no_description
-        click.echo(cli.commands["export"].get_help(ctx))
-        return
-    elif only_photos and only_movies:
-        # can't have only photos and only movies
-        click.echo(cli.commands["export"].get_help(ctx))
-        return
-    elif burst and not_burst:
-        # can't search for both burst and not_burst
-        click.echo(cli.commands["export"].get_help(ctx))
-        return
-    elif live and not_live:
-        # can't search for both live and not_live
-        click.echo(cli.commands["export"].get_help(ctx))
+    exclusive = [
+        (favorite, not_favorite),
+        (hidden, not_hidden),
+        (any(title), no_title),
+        (any(description), no_description),
+        (only_photos, only_movies),
+        (burst, not_burst),
+        (live, not_live),
+    ]
+    if any([all(bb) for bb in exclusive]):
+        click.echo(cli.commands["export"].get_help(ctx), err=True)
         return
 
     isphoto = ismovie = True  # default searches for everything
@@ -902,45 +715,49 @@ def export(
     if only_photos:
         ismovie = False
 
-    db = get_photos_db(*photos_library, db, cli_obj.db)
+    # below needed for to make CliRunner work for testing
+    cli_db = cli_obj.db if cli_obj is not None else None
+    db = get_photos_db(*photos_library, db, cli_db)
     if db is None:
-        click.echo(cli.commands["export"].get_help(ctx))
-        click.echo("\n\nLocated the following Photos library databases: ")
+        click.echo(cli.commands["export"].get_help(ctx), err=True)
+        click.echo("\n\nLocated the following Photos library databases: ", err=True)
         _list_libraries()
         return
 
     photos = _query(
-        db,
-        keyword,
-        person,
-        album,
-        uuid,
-        title,
-        no_title,
-        description,
-        no_description,
-        ignore_case,
-        edited,
-        external_edit,
-        favorite,
-        not_favorite,
-        hidden,
-        not_hidden,
-        None,  # missing -- won't export these but will warn user
-        None,  # not-missing
-        shared,
-        not_shared,
-        isphoto,
-        ismovie,
-        uti,
-        burst,
-        not_burst,
-        live,
-        not_live,
-        False,  # cloudasset
-        False,  # not_cloudasset
-        False,  # incloud
-        False,  # not_incloud
+        db=db,
+        keyword=keyword,
+        person=person,
+        album=album,
+        uuid=uuid,
+        title=title,
+        no_title=no_title,
+        description=description,
+        no_description=no_description,
+        ignore_case=ignore_case,
+        edited=edited,
+        external_edit=external_edit,
+        favorite=favorite,
+        not_favorite=not_favorite,
+        hidden=hidden,
+        not_hidden=not_hidden,
+        missing=None,  # missing -- won't export these but will warn user
+        not_missing=None,
+        shared=shared,
+        not_shared=not_shared,
+        isphoto=isphoto,
+        ismovie=ismovie,
+        uti=uti,
+        burst=burst,
+        not_burst=not_burst,
+        live=live,
+        not_live=not_live,
+        cloudasset=False,
+        not_cloudasset=False,
+        incloud=False,
+        not_incloud=False,
+        from_date=from_date,
+        to_date=to_date,
     )
 
     if photos:
@@ -1000,7 +817,7 @@ def help(ctx, topic, **kw):
     if topic is None:
         click.echo(ctx.parent.get_help())
     else:
-        ctx.info_name = topic 
+        ctx.info_name = topic
         click.echo(cli.commands[topic].get_help(ctx))
 
 
@@ -1085,44 +902,44 @@ def print_photo_info(photos, json=False):
 
 
 def _query(
-    db,
-    keyword,
-    person,
-    album,
-    uuid,
-    title,
-    no_title,
-    description,
-    no_description,
-    ignore_case,
-    edited,
-    external_edit,
-    favorite,
-    not_favorite,
-    hidden,
-    not_hidden,
-    missing,
-    not_missing,
-    shared,
-    not_shared,
-    isphoto,
-    ismovie,
-    uti,
-    burst,
-    not_burst,
-    live,
-    not_live,
-    cloudasset,
-    not_cloudasset,
-    incloud,
-    not_incloud,
+    db=None,
+    keyword=None,
+    person=None,
+    album=None,
+    uuid=None,
+    title=None,
+    no_title=None,
+    description=None,
+    no_description=None,
+    ignore_case=None,
+    edited=None,
+    external_edit=None,
+    favorite=None,
+    not_favorite=None,
+    hidden=None,
+    not_hidden=None,
+    missing=None,
+    not_missing=None,
+    shared=None,
+    not_shared=None,
+    isphoto=None,
+    ismovie=None,
+    uti=None,
+    burst=None,
+    not_burst=None,
+    live=None,
+    not_live=None,
+    cloudasset=None,
+    not_cloudasset=None,
+    incloud=None,
+    not_incloud=None,
+    from_date=None,
+    to_date=None,
 ):
     """ run a query against PhotosDB to extract the photos based on user supply criteria """
     """ used by query and export commands """
     """ arguments must be passed in same order as query and export """
     """ if either is modified, need to ensure all three functions are updated """
-
-    # TODO: this is getting too hairy -- need to change to named args
 
     photosdb = osxphotos.PhotosDB(dbfile=db)
     photos = photosdb.photos(
@@ -1132,6 +949,8 @@ def _query(
         uuid=uuid,
         images=isphoto,
         movies=ismovie,
+        from_date=from_date,
+        to_date=to_date,
     )
 
     if title:

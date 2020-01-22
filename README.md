@@ -11,63 +11,14 @@
   * [Example uses of the module](#example-uses-of-the-module)
   * [Module Interface](#module-interface)
     + [PhotosDB](#photosdb)
-      - [Read a Photos library database](#read-a-photos-library-database)
-      - [Open System Photos library](#open-system-photos-library)
-      - [Open a specific Photos library](#open-a-specific-photos-library)
-      - [`keywords`](#keywords)
-      - [`albums`](#albums)
-      - [`albums_shared`](#albums_shared)
-      - [`persons`](#persons)
-      - [`keywords_as_dict`](#keywords_as_dict)
-      - [`persons_as_dict`](#persons_as_dict)
-      - [`albums_as_dict`](#albums_as_dict)
-      - [`albums_shared_as_dict`](#albums_shared_as_dict)
-      - [`library_path`](#library_path)
-      - [`db_path`](#db_path)
-      - [`db_version`](#db_version)
-      - [` photos(keywords=None, uuid=None, persons=None, albums=None, images=True, movies=False)`](#-photoskeywordsnone-uuidnone-personsnone-albumsnone-imagestrue-moviesfalse)
     + [PhotoInfo](#photoinfo)
-      - [`uuid`](#uuid)
-      - [`filename`](#filename)
-      - [`original_filename`](#original_filename)
-      - [`date`](#date)
-      - [`description`](#description)
-      - [`title`](#title)
-      - [`keywords`](#keywords-1)
-      - [`albums`](#albums-1)
-      - [`persons`](#persons-1)
-      - [`path`](#path)
-      - [`path_edited`](#path_edited)
-      - [`ismissing`](#ismissing)
-      - [`hasadjustments`](#hasadjustments)
-      - [`external_edit`](#external_edit)
-      - [`favorite`](#favorite)
-      - [`hidden`](#hidden)
-      - [`location`](#location)
-      - [`shared`](#shared)
-      - [`isphoto`](#isphoto)
-      - [`ismovie`](#ismovie)
-      - [`iscloudasset`](#iscloudasset)
-      - [`incloud`](#incloud)
-      - [`uti`](#uti)
-      - [`burst`](#burst)
-      - [`burst_photos`](#burst_photos)
-      - [`live_photo`](#live_photo)
-      - [`path_live_photo`](#path_live_photo)
-      - [`json()`](#json)
-      - [`export(dest, *filename, edited=False, overwrite=False, increment=True, sidecar=False, use_photos_export=False, timeout=120)`](#exportdest-filename-editedfalse-overwritefalse-incrementtrue-sidecarfalse-use_photos_exportfalse-timeout120)
     + [Utility Functions](#utility-functions)
-      - [```get_system_library_path()```](#get_system_library_path)
-      - [```get_last_library_path()```](#get_last_library_path)
-      - [```list_photo_libraries()```](#list_photo_libraries)
-      - [```dd_to_dms_str(lat, lon)```](#dd_to_dms_strlat-lon)
-      - [```create_path_by_date(dest, dt)```](#create_path_by_datedest-dt)
     + [Examples](#examples)
   * [Related Projects](#related-projects)
   * [Contributing](#contributing)
   * [Implementation Notes](#implementation-notes)
   * [Dependencies](#dependencies)
-  * [Acknowledgements](#acknowledgements)
+  * [Acknowledgements](#acknowledgements) 
   
 ## What is osxphotos?
 
@@ -133,79 +84,98 @@ Usage: osxphotos export [OPTIONS] [PHOTOS_LIBRARY]... DEST
   photos will be exported.
 
 Options:
-  --db <Photos database path>  Specify Photos database path.
-  --keyword TEXT               Search for keyword(s).
-  --person TEXT                Search for person(s).
-  --album TEXT                 Search for album(s).
-  --uuid TEXT                  Search for UUID(s).
-  --title TEXT                 Search for TEXT in title of photo.
-  --no-title                   Search for photos with no title.
-  --description TEXT           Search for TEXT in description of photo.
-  --no-description             Search for photos with no description.
-  --uti TEXT                   Search for photos whose uniform type identifier
-                               (UTI) matches TEXT
-  -i, --ignore-case            Case insensitive search for title or
-                               description. Does not apply to keyword, person,
-                               or album.
-  --edited                     Search for photos that have been edited.
-  --external-edit              Search for photos edited in external editor.
-  --favorite                   Search for photos marked favorite.
-  --not-favorite               Search for photos not marked favorite.
-  --hidden                     Search for photos marked hidden.
-  --not-hidden                 Search for photos not marked hidden.
-  --burst                      Search for photos that were taken in a burst.
-  --not-burst                  Search for photos that are not part of a burst.
-  --live                       Search for Apple live photos
-  --not-live                   Search for photos that are not Apple live
-                               photos
-  --shared                     Search for photos in shared iCloud album
-                               (Photos 5 only).
-  --not-shared                 Search for photos not in shared iCloud album
-                               (Photos 5 only).
-  -V, --verbose                Print verbose output.
-  --overwrite                  Overwrite existing files. Default behavior is
-                               to add (1), (2), etc to filename if file
-                               already exists. Use this with caution as it may
-                               create name collisions on export. (e.g. if two
-                               files happen to have the same name)
-  --export-by-date             Automatically create output folders to organize
-                               photos by date created (e.g.
-                               DEST/2019/12/20/photoname.jpg).
-  --export-edited              Also export edited version of photo if an
-                               edited version exists.  Edited photo will be
-                               named in form of "photoname_edited.ext"
-  --export-bursts              If a photo is a burst photo export all
-                               associated burst images in the library.
-  --export-live                If a photo is a live photo export the
-                               associated live video component.  Live video
-                               will have same name as photo but with .mov
-                               extension.
-  --original-name              Use photo's original filename instead of
-                               current filename for export.
-  --sidecar                    Create JSON sidecar for each photo exported in
-                               format useable by exiftool
-                               (https://exiftool.org/) The sidecar file can be
-                               used to apply metadata to the file with
-                               exiftool, for example: "exiftool
-                               -j=photoname.jpg.json photoname.jpg" The
-                               sidecar file is named in format
-                               photoname.ext.json where ext is extension of
-                               the photo (e.g. jpg). Note: this does not
-                               create an XMP sidecar as used by Lightroom,
-                               etc.
-  --only-movies                Search only for movies (default searches both
-                               images and movies).
-  --only-photos                Search only for photos/images (default searches
-                               both images and movies).
-  --download-missing           Attempt to download missing photos from iCloud.
-                               The current implementation uses Applescript to
-                               interact with Photos to export the photo which
-                               will force Photos to download from iCloud if
-                               the photo does not exist on disk.  This will be
-                               slow and will require internet connection. This
-                               obviously only works if the Photos library is
-                               synched to iCloud.
-  -h, --help                   Show this message and exit.
+  --db <Photos database path>     Specify Photos database path. Path to Photos
+                                  library/database can be specified using
+                                  either --db or directly as PHOTOS_LIBRARY
+                                  positional argument. If neither --db or
+                                  PHOTOS_LIBRARY provided, will attempt to
+                                  find the library to use in the following
+                                  order: 1. last opened library, 2. system
+                                  library, 3. ~/Pictures/Photos
+                                  Library.photoslibrary
+  --keyword TEXT                  Search for keyword(s).
+  --person TEXT                   Search for person(s).
+  --album TEXT                    Search for album(s).
+  --uuid TEXT                     Search for UUID(s).
+  --title TEXT                    Search for TEXT in title of photo.
+  --no-title                      Search for photos with no title.
+  --description TEXT              Search for TEXT in description of photo.
+  --no-description                Search for photos with no description.
+  --uti TEXT                      Search for photos whose uniform type
+                                  identifier (UTI) matches TEXT
+  -i, --ignore-case               Case insensitive search for title or
+                                  description. Does not apply to keyword,
+                                  person, or album.
+  --edited                        Search for photos that have been edited.
+  --external-edit                 Search for photos edited in external editor.
+  --favorite                      Search for photos marked favorite.
+  --not-favorite                  Search for photos not marked favorite.
+  --hidden                        Search for photos marked hidden.
+  --not-hidden                    Search for photos not marked hidden.
+  --shared                        Search for photos in shared iCloud album
+                                  (Photos 5 only).
+  --not-shared                    Search for photos not in shared iCloud album
+                                  (Photos 5 only).
+  --burst                         Search for photos that were taken in a
+                                  burst.
+  --not-burst                     Search for photos that are not part of a
+                                  burst.
+  --live                          Search for Apple live photos
+  --not-live                      Search for photos that are not Apple live
+                                  photos
+  --only-movies                   Search only for movies (default searches
+                                  both images and movies).
+  --only-photos                   Search only for photos/images (default
+                                  searches both images and movies).
+  --from-date [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]
+                                  Search by start item date, e.g.
+                                  2000-01-12T12:00:00 or 2000-12-31 (ISO 8601
+                                  w/o TZ).
+  --to-date [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]
+                                  Search by end item date, e.g.
+                                  2000-01-12T12:00:00 or 2000-12-31 (ISO 8601
+                                  w/o TZ).
+  -V, --verbose                   Print verbose output.
+  --overwrite                     Overwrite existing files. Default behavior
+                                  is to add (1), (2), etc to filename if file
+                                  already exists. Use this with caution as it
+                                  may create name collisions on export. (e.g.
+                                  if two files happen to have the same name)
+  --export-by-date                Automatically create output folders to
+                                  organize photos by date created (e.g.
+                                  DEST/2019/12/20/photoname.jpg).
+  --export-edited                 Also export edited version of photo if an
+                                  edited version exists.  Edited photo will be
+                                  named in form of "photoname_edited.ext"
+  --export-bursts                 If a photo is a burst photo export all
+                                  associated burst images in the library.
+  --export-live                   If a photo is a live photo export the
+                                  associated live video component.  Live video
+                                  will have same name as photo but with .mov
+                                  extension.
+  --original-name                 Use photo's original filename instead of
+                                  current filename for export.
+  --sidecar                       Create JSON sidecar for each photo exported
+                                  in format useable by exiftool
+                                  (https://exiftool.org/) The sidecar file can
+                                  be used to apply metadata to the file with
+                                  exiftool, for example: "exiftool
+                                  -j=photoname.jpg.json photoname.jpg" The
+                                  sidecar file is named in format
+                                  photoname.ext.json where ext is extension of
+                                  the photo (e.g. jpg). Note: this does not
+                                  create an XMP sidecar as used by Lightroom,
+                                  etc.
+  --download-missing              Attempt to download missing photos from
+                                  iCloud. The current implementation uses
+                                  Applescript to interact with Photos to
+                                  export the photo which will force Photos to
+                                  download from iCloud if the photo does not
+                                  exist on disk.  This will be slow and will
+                                  require internet connection. This obviously
+                                  only works if the Photos library is synched
+                                  to iCloud.
+  -h, --help                      Show this message and exit.
 ```
 
 Example: export all photos to ~/Desktop/export, including edited versions and live photo movies, group in folders by date created
@@ -449,11 +419,11 @@ photosdb.db_version
 Returns the version number for Photos library database.  You likely won't need this but it's provided in case needed for debugging. PhotosDB will print a warning to `sys.stderr` if you open a database version that has not been tested. 
 
 
-#### ` photos(keywords=None, uuid=None, persons=None, albums=None, images=True, movies=False)`
+#### ` photos(keywords=None, uuid=None, persons=None, albums=None, images=True, movies=False, from_date=None, to_date=None)`
 
 ```python
 # assumes photosdb is a PhotosDB object (see above)
-photos = photosdb.photos([keywords=['keyword',]], [uuid=['uuid',]], [persons=['person',]], [albums=['album',]])
+photos = photosdb.photos([keywords=['keyword',]], [uuid=['uuid',]], [persons=['person',]], [albums=['album',]],[from_date=datetime.datetime],[to_date=datetime.datetime])
 ```
 
 Returns a list of [PhotoInfo](#PhotoInfo) objects.  Each PhotoInfo object represents a photo in the Photos Libary.
@@ -469,6 +439,8 @@ photos = photosdb.photos(
     albums = [],
     images = bool,
     movies = bool,
+    from_date = datetime.datetime,
+    to_date = datetime.datetime
 )
 ```
 
@@ -478,8 +450,10 @@ photos = photosdb.photos(
 - ```albums```: list of one or more album names.  Returns only photos contained in the album(s). If more than one album name is provided, returns photos contained in any of the albums (.e.g. treated as "or")
 - ```images```: bool; if True, returns photos/images; default is True
 - ```movies```: bool; if True, returns movies/videos; default is False
+- ```from_date```: datetime.datetime; if provided, finds photos where creation date >= from_date; default is None
+- ```to_date```: datetime.datetime; if provided, finds photos where creation date <= to_date; default is None
 
-If more than one of (keywords, uuid, persons, albums) is provided, they are treated as "and" criteria. E.g.
+If more than one of (keywords, uuid, persons, albums,from_date, to_date) is provided, they are treated as "and" criteria. E.g.
 
 Finds all photos with (keyword = "wedding" or "birthday") and (persons = "Juan Rodriguez")
 
