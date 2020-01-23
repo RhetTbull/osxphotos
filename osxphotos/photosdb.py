@@ -1090,7 +1090,6 @@ class PhotosDB:
             # 101 = slow-motion video
             # 102 = Time lapse video
             info["subtype"] = row[21]
-            info["panorama"] = True if row[21] == 1 else False
             info["live_photo"] = True if row[21] == 2 else False
             info["screenshot"] = True if row[21] == 10 else False
             info["slow_mo"] = True if row[21] == 101 else False
@@ -1100,10 +1099,14 @@ class PhotosDB:
             # ZGENERICASSET.ZCUSTOMRENDEREDVALUE
             # 3 = HDR photo
             # 4 = non-HDR version of the photo
+            # 6 = panorama
             # 8 = portrait
             info["customRenderedValue"] = row[22]
             info["hdr"] = True if row[22] == 3 else False
             info["portrait"] = True if row[22] == 8 else False
+
+            # Set panorama from either KindSubType or RenderedValue
+            info["panorama"] = True if row[21] == 1 or row[22] == 6 else False
 
             # Handle selfies (front facing camera, ZCAMERACAPTUREDEVICE=1)
             info["selfie"] = True if row[23] == 1 else False
