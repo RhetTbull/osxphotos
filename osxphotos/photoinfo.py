@@ -437,6 +437,7 @@ class PhotoInfo:
             if self.live_photo and not self.ismissing:
                 filename = pathlib.Path(self.path)
                 photopath = filename.parent.joinpath(f"{filename.stem}_3.mov")
+                photopath = str(photopath)
                 if not os.path.isfile(photopath):
                     # In testing, I've seen occasional missing movie for live photo
                     # these appear to be valid -- e.g. video component not yet downloaded from iCloud
@@ -680,7 +681,9 @@ class PhotoInfo:
         """ string representation of PhotoInfo object """
 
         date_iso = self.date.isoformat()
-        date_modified_iso = self.date_modified.isoformat() if self.date_modified else None
+        date_modified_iso = (
+            self.date_modified.isoformat() if self.date_modified else None
+        )
 
         info = {
             "uuid": self.uuid,
@@ -717,7 +720,9 @@ class PhotoInfo:
     def json(self):
         """ return JSON representation """
 
-        date_modified_iso = self.date_modified.isoformat() if self.date_modified else None
+        date_modified_iso = (
+            self.date_modified.isoformat() if self.date_modified else None
+        )
 
         pic = {
             "uuid": self.uuid,

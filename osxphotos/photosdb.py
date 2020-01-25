@@ -532,9 +532,17 @@ class PhotosDB:
             self._dbphotos[uuid]["modelID"] = row[1]
             self._dbphotos[uuid]["masterUuid"] = row[2]
             self._dbphotos[uuid]["filename"] = row[3]
-            self._dbphotos[uuid]["lastmodifieddate"] = (
-                datetime.fromtimestamp(row[4] + td) if row[4] is not None else None
-            )
+
+            # There are sometimes negative values for lastmodifieddate in the database
+            # I don't know what these mean but they will raise exception in datetime if
+            # not accounted for
+            if row[4] is not None and row[4] >= 0:
+                self._dbphotos[uuid]["lastmodifieddate"] = datetime.fromtimestamp(
+                    row[4] + td
+                )
+            else:
+                self._dbphotos[uuid]["lastmodifieddate"] = None
+
             self._dbphotos[uuid]["imageDate"] = datetime.fromtimestamp(row[5] + td)
             self._dbphotos[uuid]["mainRating"] = row[6]
             self._dbphotos[uuid]["hasAdjustments"] = row[7]
@@ -998,9 +1006,15 @@ class PhotosDB:
             info["masterUuid"] = None
             info["masterFingerprint"] = row[1]
             info["name"] = row[2]
-            info["lastmodifieddate"] = (
-                datetime.fromtimestamp(row[4] + td) if row[4] is not None else None
-            )
+
+            # There are sometimes negative values for lastmodifieddate in the database
+            # I don't know what these mean but they will raise exception in datetime if
+            # not accounted for
+            if row[4] is not None and row[4] >= 0:
+                info["lastmodifieddate"] = datetime.fromtimestamp(row[4] + td)
+            else:
+                info["lastmodifieddate"] = None
+                
             info["imageDate"] = datetime.fromtimestamp(row[5] + td)
             info["imageTimeZoneOffsetSeconds"] = row[6]
             info["hidden"] = row[9]
