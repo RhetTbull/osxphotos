@@ -65,6 +65,20 @@ class PhotoInfo:
         return imagedate_utc
 
     @property
+    def date_modified(self):
+        """ image modification date as timezone aware datetime object
+            or None if no modification date set """
+        imagedate = self._info["lastmodifieddate"]
+        if imagedate:
+            seconds = self._info["imageTimeZoneOffsetSeconds"] or 0
+            delta = timedelta(seconds=seconds)
+            tz = timezone(delta)
+            imagedate_utc = imagedate.astimezone(tz=tz)
+            return imagedate_utc
+        else:
+            return None
+
+    @property
     def tzoffset(self):
         """ timezone offset from UTC in seconds """
         return self._info["imageTimeZoneOffsetSeconds"]
@@ -630,6 +644,9 @@ class PhotoInfo:
         exif["DateTimeOriginal"] = datetimeoriginal
         exif["OffsetTimeOriginal"] = offsettime
 
+        if self.date_modified is not None:
+            exif["ModifyDate"] = self.date_modified.strftime("%Y:%m:%d %H:%M:%S")
+
         json_str = json.dumps([exif])
         return json_str
 
@@ -660,11 +677,16 @@ class PhotoInfo:
         return f"osxphotos.{self.__class__.__name__}(db={self._db}, uuid='{self._uuid}', info={self._info})"
 
     def __str__(self):
+        """ string representation of PhotoInfo object """
+
+        date_iso = self.date.isoformat()
+        date_modified_iso = self.date_modified.isoformat() if self.date_modified else None
+
         info = {
             "uuid": self.uuid,
             "filename": self.filename,
             "original_filename": self.original_filename,
-            "date": str(self.date),
+            "date": date_iso,
             "description": self.description,
             "title": self.title,
             "keywords": self.keywords,
@@ -688,11 +710,15 @@ class PhotoInfo:
             "path_live_photo": self.path_live_photo,
             "iscloudasset": self.iscloudasset,
             "incloud": self.incloud,
+            "date_modified": date_modified_iso,
         }
         return yaml.dump(info, sort_keys=False)
 
     def json(self):
         """ return JSON representation """
+
+        date_modified_iso = self.date_modified.isoformat() if self.date_modified else None
+
         pic = {
             "uuid": self.uuid,
             "filename": self.filename,
@@ -721,6 +747,7 @@ class PhotoInfo:
             "path_live_photo": self.path_live_photo,
             "iscloudasset": self.iscloudasset,
             "incloud": self.incloud,
+            "date_modified": date_modified_iso,
         }
         return json.dumps(pic)
 

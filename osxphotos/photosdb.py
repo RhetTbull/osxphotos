@@ -94,7 +94,7 @@ class PhotosDB:
             if dbfile:
                 # shouldn't pass via both *args and dbfile=
                 raise TypeError(
-                    f"photos database path must be specified as argument or named parameter dbfile but not both: args: {args}, dbfile: {dbfile}",
+                    f"photos database path must be specified as argument or named parameter dbfile but not both: args: {dbfile_}, dbfile: {dbfile}",
                     dbfile_,
                     dbfile,
                 )
@@ -532,19 +532,10 @@ class PhotosDB:
             self._dbphotos[uuid]["modelID"] = row[1]
             self._dbphotos[uuid]["masterUuid"] = row[2]
             self._dbphotos[uuid]["filename"] = row[3]
-
-            try:
-                self._dbphotos[uuid]["lastmodifieddate"] = datetime.fromtimestamp(
-                    row[4] + td
-                )
-            except:
-                self._dbphotos[uuid]["lastmodifieddate"] = datetime.fromtimestamp(
-                    row[5] + td
-                )
-
-            self._dbphotos[uuid]["imageDate"] = datetime.fromtimestamp(
-                row[5] + td
-            )  # - row[9],  timezone.utc)
+            self._dbphotos[uuid]["lastmodifieddate"] = (
+                datetime.fromtimestamp(row[4] + td) if row[4] is not None else None
+            )
+            self._dbphotos[uuid]["imageDate"] = datetime.fromtimestamp(row[5] + td)
             self._dbphotos[uuid]["mainRating"] = row[6]
             self._dbphotos[uuid]["hasAdjustments"] = row[7]
             self._dbphotos[uuid]["hasKeywords"] = row[8]
@@ -647,7 +638,6 @@ class PhotosDB:
                 JOIN RKModelResource on RKModelResource.attachedModelId = RKVersion.modelId
                 WHERE RKVersion.isInTrash = 0 """
         )
-        # get info on path of live photo movie
 
         # Order of results:
         # 0     RKVersion.uuid
@@ -1008,11 +998,9 @@ class PhotosDB:
             info["masterUuid"] = None
             info["masterFingerprint"] = row[1]
             info["name"] = row[2]
-            try:
-                info["lastmodifieddate"] = datetime.fromtimestamp(row[4] + td)
-            except:
-                info["lastmodifieddate"] = datetime.fromtimestamp(row[5] + td)
-
+            info["lastmodifieddate"] = (
+                datetime.fromtimestamp(row[4] + td) if row[4] is not None else None
+            )
             info["imageDate"] = datetime.fromtimestamp(row[5] + td)
             info["imageTimeZoneOffsetSeconds"] = row[6]
             info["hidden"] = row[9]

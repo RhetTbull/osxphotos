@@ -455,8 +455,9 @@ def test_exiftool_json_sidecar():
     "GPSLongitude": "0 deg 7\' 54.50\\" W", 
     "GPSPosition": "51 deg 30\' 12.86\\" N, 0 deg 7\' 54.50\\" W", 
     "GPSLatitudeRef": "North", "GPSLongitudeRef": "West", 
-    "DateTimeOriginal": "2018:10:13 09:18:12", "OffsetTimeOriginal": "-04:00"}]
-    """
+    "DateTimeOriginal": "2018:10:13 09:18:12",
+    "OffsetTimeOriginal": "-04:00",
+    "ModifyDate": "2019:12:08 14:06:44"}] """
     )
 
     json_got = photos[0]._exiftool_json_sidecar()
