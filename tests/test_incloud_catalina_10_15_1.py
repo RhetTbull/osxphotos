@@ -7,7 +7,7 @@ PHOTOS_DB_NOT_CLOUD = "./tests/Test-10.15.1.photoslibrary/database/photos.db"
 
 UUID_DICT = {
     "incloud": "37210110-E940-4227-92D3-45C40F68EB0A",
-    "not_incloud": "E5BC411D-30EE-44D3-84C0-54760A10579D",
+    "not_incloud": "63048B89-158C-4BA7-9687-4ABF394DCD9C",
     "cloudasset": "D11D25FF-5F31-47D2-ABA9-58418878DC15",
     "not_cloudasset": "6191423D-8DB8-4D4C-92BE-9BBBA308AAC4",
 }

@@ -9,12 +9,12 @@
 	<key>cloudAssetCountPerType</key>
 	<dict>
 		<key>public.image</key>
-		<integer>8</integer>
+		<integer>15</integer>
 		<key>public.movie</key>
-		<integer>4</integer>
+		<integer>6</integer>
 	</dict>
 	<key>cloudAssetCountPerTypeLastCheckDate</key>
-	<date>2020-01-11T05:20:12Z</date>
+	<date>2020-01-25T16:49:27Z</date>
 	<key>connectedToNetwork</key>
 	<false/>
 	<key>constrainedNetwork</key>
@@ -34,6 +34,6 @@
 	<key>lastCompletePrefetchDate</key>
 	<date>2019-12-27T04:15:43Z</date>
 	<key>lastSyncDate</key>
-	<date>2020-01-11T05:22:12Z</date>
+	<date>2020-01-25T17:04:35Z</date>
 </dict>
 </plist>

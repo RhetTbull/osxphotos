@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>NumberOfFacesProcessedOnLastRun</key>
-	<integer>0</integer>
+	<integer>2</integer>
 	<key>ProcessedInQuiescentState</key>
 	<true/>
 	<key>Version</key>

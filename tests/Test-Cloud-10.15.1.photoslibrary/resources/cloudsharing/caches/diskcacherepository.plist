@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>checkedinlist</key>
+	<dict>
+		<key>https://cvws.icloud-content.com/S/ASO4YPrD_OrtYZPk9yitfxy98Eum/30716CBB-9783-4346-9CE4-6142D05076DB.mp4</key>
+		<string>/Users/test/Pictures/Test Shared 10.15.1.photoslibrary/resources/cloudsharing/caches/CachedMedia-K1JnGh</string>
+		<key>https://cvws.icloud-content.com/S/AdkZBqdcbKgJabZ0iaJPLJ8TIVtQ/AC560A79-69D2-450A-A7F9-33B8D3DC99FD.mp4</key>
+		<string>/Users/test/Pictures/Test Shared 10.15.1.photoslibrary/resources/cloudsharing/caches/CachedMedia-vgMT5l</string>
+	</dict>
+	<key>checkedoutlist</key>
+	<dict/>
+	<key>lastmodpid</key>
+	<integer>1632</integer>
+	<key>lastmodtime</key>
+	<real>601539064.56681502</real>
+	<key>targetfilesize</key>
+	<integer>52428800</integer>
+	<key>targetsize</key>
+	<integer>209715200</integer>
+</dict>
+</plist>

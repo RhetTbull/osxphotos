@@ -7,9 +7,14 @@
 	<key>ExpandedSidebarItemIdentifiers</key>
 	<array>
 		<string>PXSharedAlbumsVirtualCollection</string>
-		<string>13A08E24-F8C0-458F-9D29-BDDCAE13BB00/L0/020</string>
 		<string>PXMediaTypesVirtualCollection</string>
+		<string>13A08E24-F8C0-458F-9D29-BDDCAE13BB00/L0/020</string>
 	</array>
+	<key>IPXWorkspaceControllerZoomLevelsKey</key>
+	<dict>
+		<key>kZoomLevelIdentifierAlbums</key>
+		<integer>10</integer>
+	</dict>
 	<key>lastAddToDestination</key>
 	<data>
 	YnBsaXN0MDDUAQIDBAUGBwpYJHZlcnNpb25ZJGFyY2hpdmVyVCR0b3BYJG9iamVjdHMS

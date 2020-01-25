@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>coalesceDate</key>
+	<date>2020-01-20T20:10:35Z</date>
+	<key>coalescePayloadVersion</key>
+	<integer>2</integer>
 	<key>currentPayloadVersion</key>
 	<integer>2</integer>
 	<key>snapshotDate</key>
