@@ -184,12 +184,12 @@ class PhotoInfo:
 
                     # check again to see if we found a valid file
                     if not os.path.isfile(photopath):
-                        logging.warning(
+                        logging.debug(
                             f"MISSING PATH: edited file for UUID {self._uuid} should be at {photopath} but does not appear to exist"
                         )
                         photopath = None
                 else:
-                    logging.warning(
+                    logging.debug(
                         f"{self.uuid} hasAdjustments but edit_resource_id is None"
                     )
                     photopath = None
@@ -228,7 +228,7 @@ class PhotoInfo:
                 )
 
                 if not os.path.isfile(photopath):
-                    logging.warning(
+                    logging.debug(
                         f"edited file for UUID {self._uuid} should be at {photopath} but does not appear to exist"
                     )
                     photopath = None
