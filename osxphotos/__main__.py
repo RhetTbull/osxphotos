@@ -46,7 +46,7 @@ def get_photos_db(*db_options):
         click.echo(f"Using Photos library: {db}", err=True)
         return db
     else:
-        return None 
+        return None
 
 
 # Click CLI object & context settings
@@ -863,9 +863,11 @@ def print_photo_info(photos, json=False):
                 "path_live_photo",
                 "iscloudasset",
                 "incloud",
+                "date_modified",
             ]
         )
         for p in photos:
+            date_modified_iso = p.date_modified.isoformat() if p.date_modified else None
             dump.append(
                 [
                     p.uuid,
@@ -895,6 +897,7 @@ def print_photo_info(photos, json=False):
                     p.path_live_photo,
                     p.iscloudasset,
                     p.incloud,
+                    date_modified_iso,
                 ]
             )
         for row in dump:

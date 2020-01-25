@@ -544,7 +544,10 @@ Returns the current filename of the photo on disk.  See also [original_filename]
 Returns the original filename of the photo when it was imported to Photos.  **Note**: Photos 5.0+ renames the photo when it adds the file to the library using UUID.  See also [filename](#filename)
 
 #### `date`
-Returns the date of the photo as a datetime.datetime object
+Returns the create date of the photo as a datetime.datetime object
+
+#### `date_modified`
+Returns the modification date of the photo as a datetime.datetime object or None if photo has no modification date
 
 #### `description`
 Returns the description of the photo
