@@ -15,18 +15,21 @@ from datetime import timedelta, timezone
 from pprint import pformat
 
 import yaml
+from mako.template import Template
 
 from ._constants import (
     _MOVIE_TYPE,
     _PHOTO_TYPE,
     _PHOTOS_5_SHARED_PHOTO_PATH,
     _PHOTOS_5_VERSION,
+    _TEMPLATE_DIR,
+    _XMP_TEMPLATE_NAME,
 )
 from .utils import (
     _copy_file,
+    _export_photo_uuid_applescript,
     _get_resource_loc,
     dd_to_dms_str,
-    _export_photo_uuid_applescript,
 )
 
 # TODO: check pylint output
@@ -458,7 +461,8 @@ class PhotoInfo:
         edited=False,
         overwrite=False,
         increment=True,
-        sidecar=False,
+        sidecar_json=False,
+        sidecar_xmp=False,
         use_photos_export=False,
         timeout=120,
     ):
@@ -470,8 +474,10 @@ class PhotoInfo:
             overwrite: (boolean, default=False); if True will overwrite files if they alreay exist 
             increment: (boolean, default=True); if True, will increment file name until a non-existant name is found 
                        if overwrite=False and increment=False, export will fail if destination file already exists 
-            sidecar: (boolean, default = False); if True will also write a json sidecar with EXIF data in format readable by exiftool
+            sidecar_json: (boolean, default = False); if True will also write a json sidecar with IPTC data in format readable by exiftool
                       sidecar filename will be dest/filename.ext.json where ext is suffix of the image file (e.g. jpeg or jpg)
+            sidecar_xmp: (boolean, default = False); if True will also write a XMP sidecar with IPTC data 
+                      sidecar filename will be dest/filename.ext.xmp where ext is suffix of the image file (e.g. jpeg or jpg)
             use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos
             timeout: (int, default=120) timeout in seconds used with use_photos_export
             returns the full path to the exported file """
@@ -589,20 +595,47 @@ class PhotoInfo:
             if exported is None:
                 logging.warning(f"Error exporting photo {self.uuid} to {dest}")
 
-        if sidecar:
+        if sidecar_json:
             logging.debug("writing exiftool_json_sidecar")
             sidecar_filename = f"{dest}.json"
-            json_sidecar_str = self._exiftool_json_sidecar()
+            sidecar_str = self._exiftool_json_sidecar()
             try:
-                self._write_sidecar_car(sidecar_filename, json_sidecar_str)
+                self._write_sidecar(sidecar_filename, sidecar_str)
             except Exception as e:
-                logging.critical(f"Error writing json sidecar to {sidecar_filename}")
+                logging.warning(f"Error writing json sidecar to {sidecar_filename}")
+                raise e
+
+        if sidecar_xmp:
+            logging.debug("writing xmp_sidecar")
+            sidecar_filename = f"{dest}.xmp"
+            sidecar_str = self._xmp_sidecar()
+            try:
+                self._write_sidecar(sidecar_filename, sidecar_str)
+            except Exception as e:
+                logging.warning(f"Error writing xmp sidecar to {sidecar_filename}")
                 raise e
 
         return str(dest)
 
     def _exiftool_json_sidecar(self):
-        """ return json string of EXIF details in exiftool sidecar format """
+        """ return json string of EXIF details in exiftool sidecar format
+            Does not include all the EXIF fields as those are likely already in the image
+            Exports the following:
+                FileName
+                ImageDescription
+                Description
+                Title
+                TagsList
+                Keywords
+                Subject
+                PersonInImage
+                GPSLatitude, GPSLongitude
+                GPSPosition
+                GPSLatitudeRef, GPSLongitudeRef
+                DateTimeOriginal
+                OffsetTimeOriginal
+                ModifyDate """
+
         exif = {}
         exif["FileName"] = self.filename
 
@@ -658,17 +691,27 @@ class PhotoInfo:
         json_str = json.dumps([exif])
         return json_str
 
-    def _write_sidecar_car(self, filename, json_str):
-        if not filename and not json_str:
+    def _xmp_sidecar(self):
+        """ returns string for XMP sidecar """
+        xmp_template = Template(
+            filename=os.path.join(_TEMPLATE_DIR, _XMP_TEMPLATE_NAME)
+        )
+        xmp_str = xmp_template.render(photo=self)
+        return xmp_str
+
+    def _write_sidecar(self, filename, sidecar_str):
+        """ write sidecar_str to filename
+            used for exporting sidecar info """
+        if not filename and not sidecar_str:
             raise (
                 ValueError(
-                    f"filename {filename} and json_str {json_str} must not be None"
+                    f"filename {filename} and sidecar_str {sidecar_str} must not be None"
                 )
             )
 
         # TODO: catch exception?
         f = open(filename, "w")
-        f.write(json_str)
+        f.write(sidecar_str)
         f.close()
 
     @property

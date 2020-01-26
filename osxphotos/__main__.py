@@ -622,13 +622,17 @@ def query(
 )
 @click.option(
     "--sidecar",
-    is_flag=True,
-    help="Create JSON sidecar for each photo exported "
-    f"in format useable by exiftool ({_EXIF_TOOL_URL}) "
+    default=None, 
+    multiple=True,
+    metavar="FORMAT",
+    type=click.Choice(['xmp', 'json'], case_sensitive=False),
+    help="Create sidecar for each photo exported; valid FORMAT values: xmp, json; "
+    f"--sidecar json: create JSON sidecar useable by exiftool ({_EXIF_TOOL_URL}) "
     "The sidecar file can be used to apply metadata to the file with exiftool, for example: "
     '"exiftool -j=photoname.jpg.json photoname.jpg" '
     "The sidecar file is named in format photoname.ext.json where ext is extension of the photo (e.g. jpg). "
-    "Note: this does not create an XMP sidecar as used by Lightroom, etc.",
+    "--sidecar xmp: create XMP sidecar used by Adobe Lightroom, etc."
+    "The sidecar file is named in format photoname.ext.xmp where ext is extension of the photo (e.g. jpg). "
 )
 @click.option(
     "--download-missing",
@@ -1060,7 +1064,7 @@ def export_photo(
         dest: destination path as string
         verbose: boolean; print verbose output
         export_by_date: boolean; create export folder in form dest/YYYY/MM/DD
-        sidecar: boolean; create json sidecar file with export
+        sidecar: list zero, 1 or 2 of ["json","xmp"] of sidecar variety to export
         overwrite: boolean; overwrite dest file if it already exists
         original_name: boolean; use original filename instead of current filename
         export_live: boolean; also export live video component if photo is a live photo
@@ -1100,10 +1104,18 @@ def export_photo(
         date_created = photo.date.timetuple()
         dest = create_path_by_date(dest, date_created)
 
+    sidecar = [s.lower() for s in sidecar]
+    sidecar_json = sidecar_xmp = False
+    if "json" in sidecar:
+        sidecar_json = True
+    if "xmp" in sidecar:
+        sidecar_xmp = True
+
     photo_path = photo.export(
         dest,
         filename,
-        sidecar=sidecar,
+        sidecar_json=sidecar_json,
+        sidecar_xmp=sidecar_xmp,
         overwrite=overwrite,
         use_photos_export=download_missing,
     )
@@ -1119,7 +1131,8 @@ def export_photo(
             photo.export(
                 dest,
                 edited_name,
-                sidecar=sidecar,
+                sidecar_json=sidecar_json,
+                sidecar_xmp=sidecar_xmp,
                 overwrite=overwrite,
                 edited=True,
                 use_photos_export=download_missing,

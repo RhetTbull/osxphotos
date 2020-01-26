@@ -2,6 +2,7 @@
 Constants used by osxphotos 
 """
 
+import os.path
 
 # which Photos library database versions have been tested
 # Photos 2.0 (10.12.6) == 2622
@@ -30,3 +31,6 @@ _PHOTOS_5_SHARED_PHOTO_PATH = "resources/cloudsharing/data"
 _PHOTO_TYPE = 0
 _MOVIE_TYPE = 1
 
+# Name of XMP template file
+_TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), "templates")
+_XMP_TEMPLATE_NAME = "xmp_sidecar.mako"

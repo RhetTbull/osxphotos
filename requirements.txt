@@ -143,3 +143,4 @@ termcolor==1.1.0
 wcwidth==0.1.7
 wrapt==1.11.1
 zipp==0.5.2
+Mako==1.1.1
