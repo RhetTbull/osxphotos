@@ -393,6 +393,7 @@ def test_exiftool_json_sidecar():
     "Title": "St. James\'s Park", 
     "TagsList": ["London 2018", "St. James\'s Park", "England", "United Kingdom", "UK", "London"], 
     "Keywords": ["London 2018", "St. James\'s Park", "England", "United Kingdom", "UK", "London"], 
+    "Subject": ["London 2018", "St. James\'s Park", "England", "United Kingdom", "UK", "London"], 
     "GPSLatitude": "51 deg 30\' 12.86\\" N", 
     "GPSLongitude": "0 deg 7\' 54.50\\" W", 
     "GPSPosition": "51 deg 30\' 12.86\\" N, 0 deg 7\' 54.50\\" W", 

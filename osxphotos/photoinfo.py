@@ -614,10 +614,17 @@ class PhotoInfo:
             exif["Title"] = self.title
 
         if self.keywords:
-            exif["TagsList"] = exif["Keywords"] = self.keywords
+            exif["TagsList"] = exif["Keywords"] = list(self.keywords)
+            # Photos puts both keywords and persons in Subject when using "Export IPTC as XMP"
+            exif["Subject"] = list(self.keywords)
 
         if self.persons:
             exif["PersonInImage"] = self.persons
+            # Photos puts both keywords and persons in Subject when using "Export IPTC as XMP"
+            if "Subject" in exif:
+                exif["Subject"].extend(self.persons)
+            else:
+                exif["Subject"] = self.persons
 
         # if self.favorite():
         #     exif["Rating"] = 5
