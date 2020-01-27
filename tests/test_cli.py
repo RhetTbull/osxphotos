@@ -35,6 +35,10 @@ CLI_EXPORT_FILENAMES = [
     "wedding_edited.jpg",
 ]
 
+CLI_EXPORT_UUID = "D79B8D77-BFFC-460B-9312-034F2877D35B"
+
+CLI_EXPORT_SIDECAR_FILENAMES = ["Pumkins2.jpg", "Pumpkins2.json", "Pumpkins2.xmp"]
+
 
 def test_osxphotos():
     import osxphotos
@@ -118,10 +122,36 @@ def test_query_date():
             "--db",
             "./tests/Test-10.15.1.photoslibrary",
             "--from-date=2018-09-28",
-            "--to-date=2018-09-28T23:00:00"
+            "--to-date=2018-09-28T23:00:00",
         ],
     )
     assert result.exit_code == 0
 
     json_got = json.loads(result.output)
     assert len(json_got) == 4
+
+
+def test_export_sidecar():
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, "tests/Test-10.15.1.photoslibrary"),
+                ".",
+                "--original-name",
+                "-V",
+                "--sidecar json",
+                "--sidecar xmp",
+                f"--uuid {CLI_EXPORT_UUID}",
+            ],
+        )
+        files = glob.glob("*")
+        assert files.sort() == CLI_EXPORT_SIDECAR_FILENAMES.sort()

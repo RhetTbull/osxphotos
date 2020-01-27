@@ -629,10 +629,10 @@ def query(
     help="Create sidecar for each photo exported; valid FORMAT values: xmp, json; "
     f"--sidecar json: create JSON sidecar useable by exiftool ({_EXIF_TOOL_URL}) "
     "The sidecar file can be used to apply metadata to the file with exiftool, for example: "
-    '"exiftool -j=photoname.jpg.json photoname.jpg" '
-    "The sidecar file is named in format photoname.ext.json where ext is extension of the photo (e.g. jpg). "
+    '"exiftool -j=photoname.json photoname.jpg" '
+    "The sidecar file is named in format photoname.json  "
     "--sidecar xmp: create XMP sidecar used by Adobe Lightroom, etc."
-    "The sidecar file is named in format photoname.ext.xmp where ext is extension of the photo (e.g. jpg). "
+    "The sidecar file is named in format photoname.xmp"
 )
 @click.option(
     "--download-missing",

@@ -4,6 +4,7 @@ Represents a single photo in the Photos library and provides access to the photo
 PhotosDB.photos() returns a list of PhotoInfo objects
 """
 
+import glob
 import json
 import logging
 import os.path
@@ -31,8 +32,6 @@ from .utils import (
     _get_resource_loc,
     dd_to_dms_str,
 )
-
-# TODO: check pylint output
 
 
 class PhotoInfo:
@@ -525,13 +524,20 @@ class PhotoInfo:
         dest = dest / filename
 
         # check to see if file exists and if so, add (1), (2), etc until we find one that works
+        # Photos checks the stem and adds (1), (2), etc which avoids collision with sidecars
+        # e.g. exporting sidecar for file1.png and file1.jpeg
+        # if file1.png exists and exporting file1.jpeg,
+        # dest will be file1 (1).jpeg even though file1.jpeg doesn't exist to prevent sidecar collision
         if increment and not overwrite:
             count = 1
-            dest_new = dest
-            while dest_new.exists():
-                dest_new = dest.parent / f"{dest.stem} ({count}){dest.suffix}"
+            glob_str = str(dest.parent / f"{dest.stem}*")
+            dest_files = glob.glob(glob_str)
+            dest_files = [pathlib.Path(f).stem for f in dest_files]
+            dest_new = dest.stem
+            while dest_new in dest_files:
+                dest_new = f"{dest.stem} ({count})"
                 count += 1
-            dest = dest_new
+            dest = dest.parent / f"{dest_new}{dest.suffix}"
 
         # if overwrite==False and #increment==False, export should fail if file exists
         if dest.exists() and not overwrite and not increment:
@@ -597,7 +603,7 @@ class PhotoInfo:
 
         if sidecar_json:
             logging.debug("writing exiftool_json_sidecar")
-            sidecar_filename = f"{dest}.json"
+            sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}.json")
             sidecar_str = self._exiftool_json_sidecar()
             try:
                 self._write_sidecar(sidecar_filename, sidecar_str)
@@ -607,7 +613,7 @@ class PhotoInfo:
 
         if sidecar_xmp:
             logging.debug("writing xmp_sidecar")
-            sidecar_filename = f"{dest}.xmp"
+            sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}.xmp")
             sidecar_str = self._xmp_sidecar()
             try:
                 self._write_sidecar(sidecar_filename, sidecar_str)
@@ -637,6 +643,7 @@ class PhotoInfo:
                 ModifyDate """
 
         exif = {}
+        exif["_CreatedBy"] = "osxphotos, https://github.com/RhetTbull/osxphotos"
         exif["FileName"] = self.filename
 
         if self.description:
@@ -693,10 +700,14 @@ class PhotoInfo:
 
     def _xmp_sidecar(self):
         """ returns string for XMP sidecar """
+        # TODO: add additional fields to XMP file?
+        
         xmp_template = Template(
             filename=os.path.join(_TEMPLATE_DIR, _XMP_TEMPLATE_NAME)
         )
         xmp_str = xmp_template.render(photo=self)
+        # remove extra lines that mako inserts from template
+        xmp_str = "\n".join([line for line in xmp_str.split("\n") if line.strip() != ""])
         return xmp_str
 
     def _write_sidecar(self, filename, sidecar_str):

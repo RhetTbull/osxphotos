@@ -42,6 +42,7 @@ UUID_DICT = {
     "no_adjustments": "15uNd7%8RguTEgNPKHfTWw",
     "export": "15uNd7%8RguTEgNPKHfTWw",
     "location": "3Jn73XpSQQCluzRBMWRsMA",
+    "xmp": "8SOE9s0XQVGsuq4ONohTng",
 }
 
 
@@ -413,3 +414,63 @@ def test_exiftool_json_sidecar():
             assert sorted(item[0][1]) == sorted(item[1][1])
         else:
             assert item[0][1] == item[1][1]
+
+
+def test_xmp_sidecar():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=[UUID_DICT["xmp"]])
+
+    xmp_expected = """<!-- Created with osxphotos https://github.com/RhetTbull/osxphotos -->
+        <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 5.4.0">
+        <!-- mirrors Photos 5 "Export IPTC as XMP" option -->
+        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+        <rdf:Description rdf:about="" 
+            xmlns:dc="http://purl.org/dc/elements/1.1/" 
+            xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/">
+        <dc:description>Girls with pumpkins</dc:description>
+        <dc:title>Can we carry this?</dc:title>
+        <!-- keywords and persons listed in <dc:subject> as Photos does -->
+        <dc:subject>
+            <rdf:Seq>
+                <rdf:li>Kids</rdf:li>
+                <rdf:li>Suzy</rdf:li>
+                <rdf:li>Katie</rdf:li>
+            </rdf:Seq>
+        </dc:subject>
+        <photoshop:DateCreated>2018-09-28T15:35:49.063000-04:00</photoshop:DateCreated>
+        </rdf:Description>
+        <rdf:Description rdf:about='' 
+            xmlns:Iptc4xmpExt='http://iptc.org/std/Iptc4xmpExt/2008-02-29/'>
+        <Iptc4xmpExt:PersonInImage>
+            <rdf:Bag>
+                    <rdf:li>Suzy</rdf:li>
+                    <rdf:li>Katie</rdf:li>
+            </rdf:Bag>
+        </Iptc4xmpExt:PersonInImage>
+        </rdf:Description>
+        <rdf:Description rdf:about='' 
+            xmlns:digiKam='http://www.digikam.org/ns/1.0/'>
+        <digiKam:TagsList>
+            <rdf:Seq>
+                <rdf:li>Kids</rdf:li>
+            </rdf:Seq>
+        </digiKam:TagsList>
+        </rdf:Description>
+        <rdf:Description rdf:about='' 
+            xmlns:xmp='http://ns.adobe.com/xap/1.0/'>
+        <xmp:CreateDate>2018-09-28T15:35:49</xmp:CreateDate>
+        <xmp:ModifyDate>2018-09-28T15:35:49</xmp:ModifyDate>
+        </rdf:Description>
+        </rdf:RDF>
+         </x:xmpmeta>"""
+
+    xmp_expected_lines = [line.strip() for line in xmp_expected.split("\n")]
+
+    xmp_got = photos[0]._xmp_sidecar()
+    xmp_got_lines = [line.strip() for line in xmp_got.split("\n")]
+
+    for line_expected, line_got in zip(xmp_expected_lines, xmp_got_lines):
+        assert line_expected == line_got
+
