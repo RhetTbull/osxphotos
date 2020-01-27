@@ -93,16 +93,16 @@ Options:
                                   order: 1. last opened library, 2. system
                                   library, 3. ~/Pictures/Photos
                                   Library.photoslibrary
-  --keyword TEXT                  Search for keyword(s).
-  --person TEXT                   Search for person(s).
-  --album TEXT                    Search for album(s).
-  --uuid TEXT                     Search for UUID(s).
-  --title TEXT                    Search for TEXT in title of photo.
+  --keyword KEYWORD               Search for keyword(s).
+  --person PERSON                 Search for person(s).
+  --album ALBUM                   Search for album(s).
+  --uuid UUID                     Search for UUID(s).
+  --title TITLE                   Search for TITLE in title of photo.
   --no-title                      Search for photos with no title.
-  --description TEXT              Search for TEXT in description of photo.
+  --description DESC              Search for DESC in description of photo.
   --no-description                Search for photos with no description.
-  --uti TEXT                      Search for photos whose uniform type
-                                  identifier (UTI) matches TEXT
+  --uti UTI                       Search for photos whose uniform type
+                                  identifier (UTI) matches UTI
   -i, --ignore-case               Case insensitive search for title or
                                   description. Does not apply to keyword,
                                   person, or album.
@@ -155,17 +155,17 @@ Options:
                                   extension.
   --original-name                 Use photo's original filename instead of
                                   current filename for export.
-  --sidecar                       Create JSON sidecar for each photo exported
-                                  in format useable by exiftool
-                                  (https://exiftool.org/) The sidecar file can
-                                  be used to apply metadata to the file with
-                                  exiftool, for example: "exiftool
-                                  -j=photoname.jpg.json photoname.jpg" The
-                                  sidecar file is named in format
-                                  photoname.ext.json where ext is extension of
-                                  the photo (e.g. jpg). Note: this does not
-                                  create an XMP sidecar as used by Lightroom,
-                                  etc.
+  --sidecar FORMAT                Create sidecar for each photo exported;
+                                  valid FORMAT values: xmp, json; --sidecar
+                                  json: create JSON sidecar useable by
+                                  exiftool (https://exiftool.org/) The sidecar
+                                  file can be used to apply metadata to the
+                                  file with exiftool, for example: "exiftool
+                                  -j=photoname.json photoname.jpg" The sidecar
+                                  file is named in format photoname.json
+                                  --sidecar xmp: create XMP sidecar used by
+                                  Adobe Lightroom, etc. The sidecar file is
+                                  named in format photoname.xmp
   --download-missing              Attempt to download missing photos from
                                   iCloud. The current implementation uses
                                   Applescript to interact with Photos to
@@ -650,15 +650,16 @@ Returns the path to the live video component of a [live photo](#live_photo). If 
 #### `json()`
 Returns a JSON representation of all photo info 
 
-#### `export(dest, *filename, edited=False, overwrite=False, increment=True, sidecar=False, use_photos_export=False, timeout=120)`
+#### `export(dest, *filename, edited=False, overwrite=False, increment=True, sidecar_json=False, sidecar_xmp=False, use_photos_export=False, timeout=120,)`
 
 Export photo from the Photos library to another destination on disk.  
 - dest: must be valid destination path as str (or exception raised).
 - *filename (optional): name of picture as str; if not provided, will use current filename
 - edited: boolean; if True (default=False), will export the edited version of the photo (or raise exception if no edited version)
 - overwrite: boolean; if True (default=False), will overwrite files if they alreay exist
-- increment: boolean; if True (default=True), will increment file name until a non-existant name is found
-- sidecar: boolean; if True (default=False) will also write a json sidecar file with EXIF data in format readable by [exiftool](https://exiftool.org/); filename will be dest/filename.ext.json where ext is suffix of the image file (e.g. jpeg or jpg). Note: this is not an XMP sidecar.
+- increment: boolean; if True (default=True), will increment file name until a non-existent name is found
+- sidecar_json: (boolean, default = False); if True will also write a json sidecar with IPTC data in format readable by exiftool; sidecar filename will be dest/filename.ext.json where ext is suffix of the image file (e.g. jpeg or jpg) 
+- sidecar_xmp: (boolean, default = False); if True will also write a XMP sidecar with IPTC data; sidecar filename will be dest/filename.ext.xmp where ext is suffix of the image file (e.g. jpeg or jpg)
 - use_photos_export: boolean; (default=False), if True will attempt to export photo via applescript interaction with Photos; useful for forcing download of missing photos.  This only works if the Photos library being used is the default library (last opened by Photos) as applescript will directly interact with whichever library Photos is currently using.
 - timeout: (int, default=120) timeout in seconds used with use_photos_export
 
@@ -669,12 +670,12 @@ import osxphotos
 
 photosdb = osxphotos.PhotosDB("/Users/smith/Pictures/Photos Library.photoslibrary")
 photos = photosdb.photos()
-photos[0].export("/tmp","photo_name.jpg",sidecar=True)
+photos[0].export("/tmp","photo_name.jpg",sidecar_json=True)
 ```
 
 Then
 
-`exiftool -j=photo_name.jpg.json photo_name.jpg`
+`exiftool -j=photo_name.json photo_name.jpg`
 
 If overwrite=False and increment=False, export will fail if destination file already exists
 

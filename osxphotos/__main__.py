@@ -89,22 +89,48 @@ JSON_OPTION = click.option(
 def query_options(f):
     o = click.option
     options = [
-        o("--keyword", default=None, multiple=True, help="Search for keyword(s)."),
-        o("--person", default=None, multiple=True, help="Search for person(s)."),
-        o("--album", default=None, multiple=True, help="Search for album(s)."),
-        o("--uuid", default=None, multiple=True, help="Search for UUID(s)."),
         o(
-            "--title",
+            "--keyword",
+            metavar="KEYWORD",
             default=None,
             multiple=True,
-            help="Search for TEXT in title of photo.",
+            help="Search for keyword(s).",
+        ),
+        o(
+            "--person",
+            metavar="PERSON",
+            default=None,
+            multiple=True,
+            help="Search for person(s).",
+        ),
+        o(
+            "--album",
+            metavar="ALBUM",
+            default=None,
+            multiple=True,
+            help="Search for album(s).",
+        ),
+        o(
+            "--uuid",
+            metavar="UUID",
+            default=None,
+            multiple=True,
+            help="Search for UUID(s).",
+        ),
+        o(
+            "--title",
+            metavar="TITLE",
+            default=None,
+            multiple=True,
+            help="Search for TITLE in title of photo.",
         ),
         o("--no-title", is_flag=True, help="Search for photos with no title."),
         o(
             "--description",
+            metavar="DESC",
             default=None,
             multiple=True,
-            help="Search for TEXT in description of photo.",
+            help="Search for DESC in description of photo.",
         ),
         o(
             "--no-description",
@@ -113,9 +139,10 @@ def query_options(f):
         ),
         o(
             "--uti",
+            metavar="UTI",
             default=None,
             multiple=False,
-            help="Search for photos whose uniform type identifier (UTI) matches TEXT",
+            help="Search for photos whose uniform type identifier (UTI) matches UTI",
         ),
         o(
             "-i",
@@ -622,17 +649,17 @@ def query(
 )
 @click.option(
     "--sidecar",
-    default=None, 
+    default=None,
     multiple=True,
     metavar="FORMAT",
-    type=click.Choice(['xmp', 'json'], case_sensitive=False),
+    type=click.Choice(["xmp", "json"], case_sensitive=False),
     help="Create sidecar for each photo exported; valid FORMAT values: xmp, json; "
     f"--sidecar json: create JSON sidecar useable by exiftool ({_EXIF_TOOL_URL}) "
     "The sidecar file can be used to apply metadata to the file with exiftool, for example: "
     '"exiftool -j=photoname.json photoname.jpg" '
     "The sidecar file is named in format photoname.json  "
     "--sidecar xmp: create XMP sidecar used by Adobe Lightroom, etc."
-    "The sidecar file is named in format photoname.xmp"
+    "The sidecar file is named in format photoname.xmp",
 )
 @click.option(
     "--download-missing",
