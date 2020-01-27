@@ -790,6 +790,7 @@ Apple does provide a framework ([PhotoKit](https://developer.apple.com/documenta
 - [PyObjC](https://pythonhosted.org/pyobjc/)
 - [PyYAML](https://pypi.org/project/PyYAML/)
 - [Click](https://pypi.org/project/click/)
+- [Mako](https://www.makotemplates.org/)
 
 ## Acknowledgements
 This project was originally inspired by [photo-export](https://github.com/patrikhson/photo-export) by Patrick Fältström,  Copyright (c) 2015 Patrik Fältström paf@frobbit.se
