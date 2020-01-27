@@ -474,9 +474,9 @@ class PhotoInfo:
             increment: (boolean, default=True); if True, will increment file name until a non-existant name is found 
                        if overwrite=False and increment=False, export will fail if destination file already exists 
             sidecar_json: (boolean, default = False); if True will also write a json sidecar with IPTC data in format readable by exiftool
-                      sidecar filename will be dest/filename.ext.json where ext is suffix of the image file (e.g. jpeg or jpg)
+                      sidecar filename will be dest/filename.json 
             sidecar_xmp: (boolean, default = False); if True will also write a XMP sidecar with IPTC data 
-                      sidecar filename will be dest/filename.ext.xmp where ext is suffix of the image file (e.g. jpeg or jpg)
+                      sidecar filename will be dest/filename.xmp 
             use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos
             timeout: (int, default=120) timeout in seconds used with use_photos_export
             returns the full path to the exported file """

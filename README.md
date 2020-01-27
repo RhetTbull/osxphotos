@@ -658,8 +658,8 @@ Export photo from the Photos library to another destination on disk.
 - edited: boolean; if True (default=False), will export the edited version of the photo (or raise exception if no edited version)
 - overwrite: boolean; if True (default=False), will overwrite files if they alreay exist
 - increment: boolean; if True (default=True), will increment file name until a non-existent name is found
-- sidecar_json: (boolean, default = False); if True will also write a json sidecar with IPTC data in format readable by exiftool; sidecar filename will be dest/filename.ext.json where ext is suffix of the image file (e.g. jpeg or jpg) 
-- sidecar_xmp: (boolean, default = False); if True will also write a XMP sidecar with IPTC data; sidecar filename will be dest/filename.ext.xmp where ext is suffix of the image file (e.g. jpeg or jpg)
+- sidecar_json: (boolean, default = False); if True will also write a json sidecar with IPTC data in format readable by exiftool; sidecar filename will be dest/filename.json where filename is the stem of the photo name
+- sidecar_xmp: (boolean, default = False); if True will also write a XMP sidecar with IPTC data; sidecar filename will be dest/filename.xmp where filename is the stem of the photo name
 - use_photos_export: boolean; (default=False), if True will attempt to export photo via applescript interaction with Photos; useful for forcing download of missing photos.  This only works if the Photos library being used is the default library (last opened by Photos) as applescript will directly interact with whichever library Photos is currently using.
 - timeout: (int, default=120) timeout in seconds used with use_photos_export
 
