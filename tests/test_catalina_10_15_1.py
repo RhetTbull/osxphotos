@@ -88,16 +88,17 @@ def test_init4():
     import tempfile
     import osxphotos
 
-    bad_db = tempfile.mkstemp(suffix=".db", prefix="osxphotos-")
+    (bad_db, bad_db_name) = tempfile.mkstemp(suffix=".db", prefix="osxphotos-")
+    os.close(bad_db)
 
     with pytest.raises(Exception):
-        assert osxphotos.PhotosDB(bad_db)
+        assert osxphotos.PhotosDB(bad_db_name)
 
     with pytest.raises(Exception):
-        assert osxphotos.PhotosDB(dbfile=bad_db)
+        assert osxphotos.PhotosDB(dbfile=bad_db_name)
 
     try:
-        os.remove(bad_db)
+        os.remove(bad_db_name)
     except:
         pass
 
@@ -764,7 +765,7 @@ def test_photosdb_repr():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photosdb2 = eval(repr(photosdb))
 
-    ignore_keys = ["_tmp_db", "_tmp_files"]
+    ignore_keys = ["_tmp_db", "_tmp_files", "_tempdir", "_tempdir_name"]
     assert {k: v for k, v in photosdb.__dict__.items() if k not in ignore_keys} == {
         k: v for k, v in photosdb2.__dict__.items() if k not in ignore_keys
     }
