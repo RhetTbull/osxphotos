@@ -31,9 +31,7 @@ from .utils import _check_file_exists, _get_os_version, get_last_library_path, _
 # TODO: Fix command line so multiple --keyword, etc. are AND (instead of OR as they are in .photos())
 #       Or fix the help text to match behavior
 # TODO: Add test for __str__ and to_json
-# TODO: fix docstrings
 # TODO: Add special albums and magic albums
-# TODO: cleanup os.path and pathlib code (import pathlib and also from pathlib import Path)
 
 
 class PhotosDB:
@@ -54,6 +52,11 @@ class PhotosDB:
                 f"[{', '.join(_TESTED_OS_VERSIONS)}]: "
                 f"you have {system}, OS version: {major}"
             )
+
+        # create a temporary directory
+        # tempfile.TemporaryDirectory gets cleaned up when the object does
+        self._tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+        self._tempdir_name = self._tempdir.name
 
         # set up the data structures used to store all the Photo database info
 
@@ -83,6 +86,7 @@ class PhotosDB:
         self._dbvolumes = {}
 
         # list of temporary files created so we can clean them up later
+        # TODO: remove this, don't think it's needed with switch to TemporaryDirectory
         self._tmp_files = []
 
         if _debug():
@@ -161,31 +165,6 @@ class PhotosDB:
             self._process_database4()
         else:
             self._process_database5()
-
-    def _cleanup_tmp_files(self):
-        """ removes all temporary files whose names are stored in self.tmp_files
-        does not raise exception if file cannot be deleted (e.g. it was already cleaned up) """
-
-        # logging.debug(f"tmp files = {self._tmp_files}")
-        for f in self._tmp_files:
-            if os.path.exists(f):
-                if _debug():
-                    logging.debug(f"cleaning up {f}")
-                try:
-                    os.remove(f)
-                    self._tmp_files.remove(f)
-                except Exception as e:
-                    if _debug():
-                        logging.debug("exception %e removing %s" % (e, f))
-            else:
-                self._tmp_files.remove(f)
-
-    def __del__(self):
-        pass
-        # TODO: not sure this is needed as cleanup called in process_database
-        # but commenting out for now as it was causing weird error during testing
-        # AttributeError: 'NoneType' object has no attribute 'exists'
-        # self._cleanup_tmp_files()
 
     @property
     def keywords_as_dict(self):
@@ -328,25 +307,26 @@ class PhotosDB:
         _, suffix = os.path.splitext(fname)
         tmp_files = []
         try:
-            _, tmp = tempfile.mkstemp(suffix=suffix, prefix="osxphotos-")
-            copyfile(fname, tmp)
-            tmp_files.append(tmp)
+            dest_name = pathlib.Path(fname).name
+            dest_path = os.path.join(self._tempdir_name, dest_name)
+            copyfile(fname, dest_path)
+            tmp_files.append(dest_path)
             # copy write-ahead log and shared memory files (-wal and -shm) files if they exist
             if os.path.exists(f"{fname}-wal"):
-                copyfile(f"{fname}-wal", f"{tmp}-wal")
-                tmp_files.append(f"{tmp}-wal")
+                copyfile(f"{fname}-wal", f"{dest_path}-wal")
+                tmp_files.append(f"{dest_path}-wal")
             if os.path.exists(f"{fname}-shm"):
-                copyfile(f"{fname}-shm", f"{tmp}-shm")
-                tmp_files.append(f"{tmp}-shm")
+                copyfile(f"{fname}-shm", f"{dest_path}-shm")
+                tmp_files.append(f"{dest_path}-shm")
         except:
-            print("Error copying " + fname + " to " + tmp, file=sys.stderr)
+            print("Error copying " + fname + " to " + dest_path, file=sys.stderr)
             raise Exception
 
         self._tmp_files.extend(tmp_files)
         if _debug():
-            logging.debug(self._tmp_files)
+            logging.debug(self._dest_path)
 
-        return tmp
+        return dest_path
 
     def _open_sql_file(self, file):
         """ opens sqlite file and returns connection to the database """
@@ -799,9 +779,6 @@ class PhotosDB:
             else:
                 self._dbphotos[uuid]["volume"] = None
 
-        # remove temporary files
-        self._cleanup_tmp_files()
-
         if _debug():
             logging.debug("Faces:")
             logging.debug(pformat(self._dbfaces_uuid))
@@ -1014,7 +991,7 @@ class PhotosDB:
                 info["lastmodifieddate"] = datetime.fromtimestamp(row[4] + td)
             else:
                 info["lastmodifieddate"] = None
-                
+
             info["imageDate"] = datetime.fromtimestamp(row[5] + td)
             info["imageTimeZoneOffsetSeconds"] = row[6]
             info["hidden"] = row[9]
@@ -1284,7 +1261,6 @@ class PhotosDB:
 
         # close connection and remove temporary files
         conn.close()
-        self._cleanup_tmp_files()
 
         # done processing, dump debug data if requested
         if _debug():
