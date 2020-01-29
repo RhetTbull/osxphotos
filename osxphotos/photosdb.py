@@ -85,10 +85,6 @@ class PhotosDB:
         # Dict with information about all the volumes/photos by uuid
         self._dbvolumes = {}
 
-        # list of temporary files created so we can clean them up later
-        # TODO: remove this, don't think it's needed with switch to TemporaryDirectory
-        self._tmp_files = []
-
         if _debug():
             logging.debug(f"dbfile = {dbfile}")
 
@@ -301,28 +297,23 @@ class PhotosDB:
 
     def _copy_db_file(self, fname):
         """ copies the sqlite database file to a temp file """
-        """ returns the name of the temp file and appends name to self->_tmp_files """
+        """ returns the name of the temp file """
         """ If sqlite shared memory and write-ahead log files exist, those are copied too """
         # required because python's sqlite3 implementation can't read a locked file
         _, suffix = os.path.splitext(fname)
-        tmp_files = []
         try:
             dest_name = pathlib.Path(fname).name
             dest_path = os.path.join(self._tempdir_name, dest_name)
             copyfile(fname, dest_path)
-            tmp_files.append(dest_path)
             # copy write-ahead log and shared memory files (-wal and -shm) files if they exist
             if os.path.exists(f"{fname}-wal"):
                 copyfile(f"{fname}-wal", f"{dest_path}-wal")
-                tmp_files.append(f"{dest_path}-wal")
             if os.path.exists(f"{fname}-shm"):
                 copyfile(f"{fname}-shm", f"{dest_path}-shm")
-                tmp_files.append(f"{dest_path}-shm")
         except:
             print("Error copying " + fname + " to " + dest_path, file=sys.stderr)
             raise Exception
 
-        self._tmp_files.extend(tmp_files)
         if _debug():
             logging.debug(self._dest_path)
 
@@ -343,7 +334,6 @@ class PhotosDB:
         version = None
 
         (conn, c) = self._open_sql_file(self._tmp_db)
-        # (conn, c) = self._open_sql_file(self._dbfile)
 
         # get database version
         c.execute(
