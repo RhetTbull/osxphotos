@@ -328,15 +328,13 @@ class PhotosDB:
 
         return dest_path
 
-    def _open_sql_file(self, file):
-        """ opens sqlite file and returns connection to the database """
-        fname = file
+    def _open_sql_file(self, fname):
+        """ opens sqlite file fname and returns connection to the database """
         try:
-            conn = sqlite3.connect(f"{fname}")
+            conn = sqlite3.connect(f"{pathlib.Path(fname).as_uri()}?mode=ro", uri=True)
             c = conn.cursor()
         except sqlite3.Error as e:
-            print(f"An error occurred: {e.args[0]} {fname}", file=sys.stderr)
-            sys.exit(3)
+            sys.exit(f"An error occurred opening sqlite file: {e.args[0]} {fname}")
         return (conn, c)
 
     def _get_db_version(self):
