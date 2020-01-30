@@ -1,5 +1,9 @@
 import pytest
 
+DB_LOCKED_10_12 = "./tests/Test-Lock-10_12.photoslibrary/database/photos.db"
+DB_LOCKED_10_15 = "./tests/Test-Lock-10_15_1.photoslibrary/database/Photos.sqlite"
+DB_UNLOCKED_10_15 = "./tests/Test-10.15.1.photoslibrary/database/photos.db"
+
 
 def test_debug_enable():
     import osxphotos
@@ -35,3 +39,15 @@ def test_get_system_library_path():
     else:
         assert osxphotos.utils.get_system_library_path() is not None
 
+
+def test_db_is_locked_locked():
+    import osxphotos
+
+    assert osxphotos.utils._db_is_locked(DB_LOCKED_10_12)
+    assert osxphotos.utils._db_is_locked(DB_LOCKED_10_15)
+
+
+def test_db_is_locked_unlocked():
+    import osxphotos
+
+    assert not osxphotos.utils._db_is_locked(DB_UNLOCKED_10_15)

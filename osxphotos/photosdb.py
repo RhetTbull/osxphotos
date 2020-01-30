@@ -25,12 +25,19 @@ from ._constants import (
 )
 from ._version import __version__
 from .photoinfo import PhotoInfo
-from .utils import _check_file_exists, _get_os_version, get_last_library_path, _debug
+from .utils import (
+    _check_file_exists,
+    _get_os_version,
+    get_last_library_path,
+    _debug,
+    _open_sql_file,
+    _db_is_locked,
+)
 
 # TODO: Add test for imageTimeZoneOffsetSeconds = None
 # TODO: Fix command line so multiple --keyword, etc. are AND (instead of OR as they are in .photos())
 #       Or fix the help text to match behavior
-# TODO: Add test for __str__ and to_json
+# TODO: Add test for __str__
 # TODO: Add special albums and magic albums
 
 
@@ -62,7 +69,7 @@ class PhotosDB:
 
         # Path to the Photos library database file
         self._dbfile = None
-        # the actual file with library data which on Photos 5 is Photos.sqlite instead of photos.db
+        # the actual file with library data, which on Photos 5 is Photos.sqlite instead of photos.db
         self._dbfile_actual = None
         # Dict with information about all photos by uuid
         self._dbphotos = {}
@@ -94,7 +101,8 @@ class PhotosDB:
             if dbfile:
                 # shouldn't pass via both *args and dbfile=
                 raise TypeError(
-                    f"photos database path must be specified as argument or named parameter dbfile but not both: args: {dbfile_}, dbfile: {dbfile}",
+                    f"photos database path must be specified as argument or "
+                    f"named parameter dbfile but not both: args: {dbfile_}, dbfile: {dbfile}",
                     dbfile_,
                     dbfile,
                 )
@@ -123,22 +131,38 @@ class PhotosDB:
         if _debug():
             logging.debug(f"dbfile = {dbfile}")
 
-        self._dbfile = self._dbfile_actual = os.path.abspath(dbfile)
+        # init database names
+        # _tmp_db is the file that will processed by _process_database4/5
+        # assume _tmp_db will be _dbfile or _dbfile_actual based on Photos version
+        # unless DB is locked, in which case _tmp_db will point to a temporary copy
+        # if Photos <=4, _dbfile = _dbfile_actual = photos.db
+        # if Photos >= 5, _dbfile = photos.db, from which we get DB version but the actual
+        # photos data is in Photos.sqlite
+        # In either case, a temporary copy will be made if the DB is locked by Photos
+        # or photosanalysisd
+        self._dbfile = self._dbfile_actual = self._tmp_db = os.path.abspath(dbfile)
 
-        self._tmp_db = self._copy_db_file(self._dbfile)
+        # if database is exclusively locked, make a copy of it and use the copy
+        # Photos maintains an exclusive lock on the database file while Photos is open
+        # photoanalysisd sometimes maintains this lock even after Photos is closed
+        # In those cases, make a temp copy of the file for sqlite3 to read
+        if _db_is_locked(self._dbfile):
+            self._tmp_db = self._copy_db_file(self._dbfile)
+
         self._db_version = self._get_db_version()
 
         # If Photos >= 5, actual data isn't in photos.db but in Photos.sqlite
         if int(self._db_version) >= int(_PHOTOS_5_VERSION):
-            if _debug():
-                logging.debug(f"version is {self._db_version}")
             dbpath = pathlib.Path(self._dbfile).parent
             dbfile = dbpath / "Photos.sqlite"
             if not _check_file_exists(dbfile):
-                sys.exit(f"dbfile {dbfile} does not exist")
+                raise FileNotFoundError(f"dbfile {dbfile} does not exist", dbfile)
             else:
-                self._tmp_db = self._copy_db_file(dbfile)
-                self._dbfile_actual = dbfile
+                self._dbfile_actual = self._tmp_db = dbfile
+                # if database is exclusively locked, make a copy of it and use the copy
+                if _db_is_locked(self._dbfile_actual):
+                    self._tmp_db = self._copy_db_file(self._dbfile_actual)
+
             if _debug():
                 logging.debug(
                     f"_dbfile = {self._dbfile}, _dbfile_actual = {self._dbfile_actual}"
@@ -319,21 +343,24 @@ class PhotosDB:
 
         return dest_path
 
-    def _open_sql_file(self, fname):
-        """ opens sqlite file fname and returns connection to the database """
-        try:
-            conn = sqlite3.connect(f"{pathlib.Path(fname).as_uri()}?mode=ro", uri=True)
-            c = conn.cursor()
-        except sqlite3.Error as e:
-            sys.exit(f"An error occurred opening sqlite file: {e.args[0]} {fname}")
-        return (conn, c)
+    # def _open_sql_file(self, fname):
+    #     """ opens sqlite file fname in read-only mode
+    #         returns tuple of (connection, cursor) """
+    #     try:
+    #         conn = sqlite3.connect(
+    #             f"{pathlib.Path(fname).as_uri()}?mode=ro", timeout=1, uri=True
+    #         )
+    #         c = conn.cursor()
+    #     except sqlite3.Error as e:
+    #         sys.exit(f"An error occurred opening sqlite file: {e.args[0]} {fname}")
+    #     return (conn, c)
 
     def _get_db_version(self):
         """ gets the Photos DB version from LiGlobals table """
         """ returns the version as str"""
         version = None
 
-        (conn, c) = self._open_sql_file(self._tmp_db)
+        (conn, c) = _open_sql_file(self._tmp_db)
 
         # get database version
         c.execute(
@@ -358,7 +385,7 @@ class PhotosDB:
         # Epoch is Jan 1, 2001
         td = (datetime(2001, 1, 1, 0, 0) - datetime(1970, 1, 1, 0, 0)).total_seconds()
 
-        (conn, c) = self._open_sql_file(self._tmp_db)
+        (conn, c) = _open_sql_file(self._tmp_db)
 
         # Look for all combinations of persons and pictures
         c.execute(
@@ -799,7 +826,7 @@ class PhotosDB:
         # Epoch is Jan 1, 2001
         td = (datetime(2001, 1, 1, 0, 0) - datetime(1970, 1, 1, 0, 0)).total_seconds()
 
-        (conn, c) = self._open_sql_file(self._tmp_db)
+        (conn, c) = _open_sql_file(self._tmp_db)
 
         # Look for all combinations of persons and pictures
         if _debug():

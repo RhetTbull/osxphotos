@@ -2,10 +2,11 @@ import glob
 import logging
 import os.path
 import platform
+import sqlite3
 import subprocess
 import tempfile
 import urllib.parse
-from pathlib import Path
+import pathlib
 from plistlib import load as plistload
 
 import CoreFoundation
@@ -177,8 +178,8 @@ def get_system_library_path():
         )
         return None
 
-    plist_file = Path(
-        str(Path.home())
+    plist_file = pathlib.Path(
+        str(pathlib.Path.home())
         + "/Library/Containers/com.apple.photolibraryd/Data/Library/Preferences/com.apple.photolibraryd.plist"
     )
     if plist_file.is_file():
@@ -200,8 +201,8 @@ def get_system_library_path():
 def get_last_library_path():
     """ returns the path to the last opened Photos library 
         If a library has never been opened, returns None """
-    plist_file = Path(
-        str(Path.home())
+    plist_file = pathlib.Path(
+        str(pathlib.Path.home())
         + "/Library/Containers/com.apple.Photos/Data/Library/Preferences/com.apple.Photos.plist"
     )
     if plist_file.is_file():
@@ -376,3 +377,41 @@ def _export_photo_uuid_applescript(
         return new_path
     else:
         return None
+
+
+def _open_sql_file(dbname):
+    """ opens sqlite file dbname in read-only mode
+        returns tuple of (connection, cursor) """
+    try:
+        dbpath = pathlib.Path(dbname).resolve()
+        conn = sqlite3.connect(f"{dbpath.as_uri()}?mode=ro", timeout=1, uri=True)
+        c = conn.cursor()
+    except sqlite3.Error as e:
+        sys.exit(f"An error occurred opening sqlite file: {e.args[0]} {dbname}")
+    return (conn, c)
+
+
+def _db_is_locked(dbname):
+    """ check to see if a sqlite3 db is locked
+        returns True if database is locked, otherwise False
+        dbname: name of database to test """
+
+    # first, check to see if lock file exists, if so, assume the file is locked
+    lock_name = f"{dbname}.lock"
+    if os.path.exists(lock_name):
+        logging.debug(f"{dbname} is locked")
+        return True
+
+    # no lock file so try to read from the database to see if it's locked
+    locked = None
+    try:
+        (conn, c) = _open_sql_file(dbname)
+        c.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;")
+        conn.close()
+        logging.debug(f"{dbname} is not locked")
+        locked = False
+    except Exception as e:
+        logging.debug(f"{dbname} is locked")
+        locked = True
+
+    return locked
