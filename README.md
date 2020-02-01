@@ -281,7 +281,9 @@ If an invalid path is passed, PhotosDB will raise `FileNotFoundError` exception.
 
 **Note**: If neither path or dbfile is passed, PhotosDB will use get_last_library_path to open the last opened Photos library.  This usually works but is not 100% reliable.  It can also lead to loading a different library than expected if the user has held down *option* key when opening Photos to switch libraries.  It is therefore recommended you explicitely pass the path to `PhotosDB()`.  
 
-Open the default (last opened) Photos library. (E.g. this is the library that would open if the user opened Photos.app)
+#### Open the default (last opened) Photos library
+
+The default library is the library that would open if the user opened Photos.app.
 
 ```python
 import osxphotos
