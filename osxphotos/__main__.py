@@ -94,21 +94,24 @@ def query_options(f):
             metavar="KEYWORD",
             default=None,
             multiple=True,
-            help="Search for keyword(s).",
+            help="Search for keyword KEYWORD. "
+            'If more than one keyword, treated as "OR", e.g. find photos match any keyword',
         ),
         o(
             "--person",
             metavar="PERSON",
             default=None,
             multiple=True,
-            help="Search for person(s).",
+            help="Search for person PERSON. "
+            'If more than one person, treated as "OR", e.g. find photos match any person',
         ),
         o(
             "--album",
             metavar="ALBUM",
             default=None,
             multiple=True,
-            help="Search for album(s).",
+            help="Search for album ALBUM. "
+            'If more than one album, treated as "OR", e.g. find photos match any album',
         ),
         o(
             "--uuid",
