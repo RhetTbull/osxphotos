@@ -268,6 +268,7 @@ if __name__ == "__main__":
 #### Read a Photos library database
 
 ```python
+osxphotos.PhotosDB() # not recommended, see Note below
 osxphotos.PhotosDB(path)
 osxphotos.PhotosDB(dbfile=path)
 ```
@@ -277,6 +278,8 @@ Reads the Photos library database and returns a PhotosDB object.
 Pass the path to a Photos library or to a specific database file (e.g. "/Users/smith/Pictures/Photos Library.photoslibrary" or "/Users/smith/Pictures/Photos Library.photoslibrary/database/photos.db").  Normally, it's recommended you pass the path the .photoslibrary folder, not the actual database path.  The latter option is provided for debugging -- e.g. for reading a database file if you don't have the entire library. Path to photos library may be passed **either** as first argument **or** as named argument `dbfile`. **Note**: In Photos, users may specify a different library to open by holding down the *option* key while opening Photos.app. See also [get_last_library_path](#get_last_library_path) and [get_system_library_path](#get_system_library_path)
 
 If an invalid path is passed, PhotosDB will raise `ValueError` exception.
+
+**Note**: If neither path or dbfile is passed, PhotosDB will use get_last_library_path to open the last opened Photos library.  This usually works but is not 100% reliable.  It can also lead to loading a different library than expected if the user has held down *option* key when opening Photos to switch libraries.  It is therefore recommended you explicitely pass the path to `PhotosDB()`.  
 
 Open the default (last opened) Photos library. (E.g. this is the library that would open if the user opened Photos.app)
 

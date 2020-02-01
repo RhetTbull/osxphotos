@@ -165,11 +165,10 @@ class PhotosDB:
                     dbfile_,
                 )
         elif dbfile is None:
-            raise TypeError(
-                f"photos database path must be specified as argument or named parameter dbfile",
-                dbfile_,
-                dbfile,
-            )
+            dbfile = get_last_library_path()
+            if dbfile is None:
+                # get_last_library_path must have failed to find library
+                raise FileNotFoundError("Could not get path to photo library database")
 
         if os.path.isdir(dbfile):
             # passed a directory, assume it's a photoslibrary
