@@ -68,28 +68,79 @@ class PhotosDB:
         # set up the data structures used to store all the Photo database info
 
         # Path to the Photos library database file
+        # photos.db in the photos library database/ directory
         self._dbfile = None
-        # the actual file with library data, which on Photos 5 is Photos.sqlite instead of photos.db
+
+        # the actual file with library data
+        # in Photos 5 this is Photos.sqlite instead of photos.db
         self._dbfile_actual = None
+
         # Dict with information about all photos by uuid
+        # This is the "master" data structure, built by process_database
+        # key is a photo UUID, value is a dictionary with all the information
+        # known about a photo
+        # this is built by joining data from multiple queries against the photos database
+        # several of the keys in the info dictionary point to other data structures described below
+        # e.g. self._dbphotos[uuid]["keywords"] = self._dbkeywords_uuid[uuid]
+        #      self._dbphotos[uuid]["persons"] = self._dbfaces_uuid[uuid]
+        #      self._dbphotos[uuid]["albums"] = self._dbalbums_uuid[uuid]
         self._dbphotos = {}
+
         # Dict with information about all burst photos by burst uuid
+        # key is UUID of the burst set, value is a set of photo UUIDs in the burst set
+        # e.g. {'BD94B7C0-2EB8-43DB-98B4-3B8E9653C255': {'8B386814-CA8A-42AA-BCA8-97C1AA746D8A', '52B95550-DE4A-44DD-9E67-89E979F2E97F'}}
         self._dbphotos_burst = {}
+
         # Dict with information about all persons/photos by uuid
+        # key is photo UUID, value is list of face names in that photo
+        # Note: Photos 5 identifies faces even if not given a name
+        # and those are labeled by process_database as _UNKNOWN_
+        # e.g. {'1EB2B765-0765-43BA-A90C-0D0580E6172C': ['Katie', '_UNKNOWN_', 'Suzy']}
         self._dbfaces_uuid = {}
+
         # Dict with information about all persons/photos by person
+        # key is person name, value is list of photo UUIDs
+        # e.g. {'Maria': ['E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51']}
         self._dbfaces_person = {}
+
         # Dict with information about all keywords/photos by uuid
+        # key is photo uuid and value is list of keywords
+        # e.g.  {'1EB2B765-0765-43BA-A90C-0D0580E6172C': ['Kids']}
         self._dbkeywords_uuid = {}
+
         # Dict with information about all keywords/photos by keyword
+        # key is keyword and value is list of photo UUIDs that have that keyword
+        # e.g. {'England': ['DC99FBDD-7A52-4100-A5BB-344131646C30']}
         self._dbkeywords_keyword = {}
+
         # Dict with information about all albums/photos by uuid
+        # key is photo UUID, value is list of album UUIDs the photo is contained in
+        # e.g.  {'1EB2B765-0765-43BA-A90C-0D0580E6172C': ['0C514A98-7B77-4E4F-801B-364B7B65EAFA']}
         self._dbalbums_uuid = {}
+
         # Dict with information about all albums/photos by album
+        # key is album UUID, value is list of photo UUIDs contained in that album
+        # e.g. {'0C514A98-7B77-4E4F-801B-364B7B65EAFA': ['1EB2B765-0765-43BA-A90C-0D0580E6172C']}
         self._dbalbums_album = {}
+
         # Dict with information about album details
+        # key is album UUID, value is a dict with some additional details
+        # (mostly about cloud status) of the album
+        # e.g.  {'0C514A98-7B77-4E4F-801B-364B7B65EAFA': {'cloudidentifier': None,
+        #       'cloudlibrarystate': None, 'cloudlocalstate': 0, 'cloudownderlastname': None,
+        #       'cloudownerfirstname': None, 'cloudownerhashedpersonid': None, 'title': 'Pumpkin Farm'}}
         self._dbalbum_details = {}
-        # Dict with information about all the volumes/photos by uuid
+
+        # Dict with information about album titles
+        # key is title of album, value is list of album UUIDs with that title
+        # (It's possible to have more than one album with the same title)
+        # e.g. {'Pumpkin Farm': ['0C514A98-7B77-4E4F-801B-364B7B65EAFA']}
+        self._dbalbum_titles = {}
+
+        # Dict with information about all the file system volumes/photos by uuid
+        # key is volume UUID, value is name of file system volume
+        # e.g. {'8A0B2944-7B09-4D06-9AC3-4B0BF3F363F1': 'MacBook Mojave'}
+        # Used to find path of photos imported but not copied to the Photos library
         self._dbvolumes = {}
 
         if _debug():
@@ -339,7 +390,7 @@ class PhotosDB:
             raise Exception
 
         if _debug():
-            logging.debug(self._dest_path)
+            logging.debug(dest_path)
 
         return dest_path
 
@@ -762,6 +813,14 @@ class PhotosDB:
                 self._dbphotos[uuid]["cloudStatus"] = row[3]
                 self._dbphotos[uuid]["incloud"] = True if row[2] == 1 else False
 
+        # build album_titles dictionary
+        for album_id in self._dbalbum_details:
+            title = self._dbalbum_details[album_id]["title"]
+            if title in self._dbalbum_titles:
+                self._dbalbum_titles[title].append(album_id)
+            else:
+                self._dbalbum_titles[title] = [album_id]
+
         # done with the database connection
         conn.close()
 
@@ -794,27 +853,40 @@ class PhotosDB:
             else:
                 self._dbphotos[uuid]["volume"] = None
 
+        # done processing, dump debug data if requested
         if _debug():
-            logging.debug("Faces:")
+            logging.debug("Faces (_dbfaces_uuid):")
             logging.debug(pformat(self._dbfaces_uuid))
 
-            logging.debug("Keywords by uuid:")
+            logging.debug("Faces by person (_dbfaces_person):")
+            logging.debug(pformat(self._dbfaces_person))
+
+            logging.debug("Keywords by uuid (_dbkeywords_uuid):")
             logging.debug(pformat(self._dbkeywords_uuid))
 
-            logging.debug("Keywords by keyword:")
+            logging.debug("Keywords by keyword (_dbkeywords_keywords):")
             logging.debug(pformat(self._dbkeywords_keyword))
 
-            logging.debug("Albums by uuid:")
+            logging.debug("Albums by uuid (_dbalbums_uuid):")
             logging.debug(pformat(self._dbalbums_uuid))
 
-            logging.debug("Albums by album:")
+            logging.debug("Albums by album (_dbalbums_albums):")
             logging.debug(pformat(self._dbalbums_album))
 
-            logging.debug("Volumes:")
+            logging.debug("Album details (_dbalbum_details):")
+            logging.debug(pformat(self._dbalbum_details))
+
+            logging.debug("Album titles (_dbalbum_titles):")
+            logging.debug(pformat(self._dbalbum_titles))
+
+            logging.debug("Volumes (_dbvolumes):")
             logging.debug(pformat(self._dbvolumes))
 
-            logging.debug("Photos:")
+            logging.debug("Photos (_dbphotos):")
             logging.debug(pformat(self._dbphotos))
+
+            logging.debug("Burst Photos (dbphotos_burst:")
+            logging.debug(pformat(self._dbphotos_burst))
 
     def _process_database5(self):
         """ process the Photos database to extract info """
@@ -1274,36 +1346,50 @@ class PhotosDB:
                 self._dbphotos[uuid]["albums"] = []
                 self._dbphotos[uuid]["hasAlbums"] = 0
 
+        # build album_titles dictionary
+        for album_id in self._dbalbum_details:
+            title = self._dbalbum_details[album_id]["title"]
+            if title in self._dbalbum_titles:
+                self._dbalbum_titles[title].append(album_id)
+            else:
+                self._dbalbum_titles[title] = [album_id]
+
         # close connection and remove temporary files
         conn.close()
 
         # done processing, dump debug data if requested
         if _debug():
-            logging.debug("Faces:")
+            logging.debug("Faces (_dbfaces_uuid):")
             logging.debug(pformat(self._dbfaces_uuid))
 
-            logging.debug("Keywords by uuid:")
+            logging.debug("Faces by person (_dbfaces_person):")
+            logging.debug(pformat(self._dbfaces_person))
+
+            logging.debug("Keywords by uuid (_dbkeywords_uuid):")
             logging.debug(pformat(self._dbkeywords_uuid))
 
-            logging.debug("Keywords by keyword:")
+            logging.debug("Keywords by keyword (_dbkeywords_keywords):")
             logging.debug(pformat(self._dbkeywords_keyword))
 
-            logging.debug("Albums by uuid:")
+            logging.debug("Albums by uuid (_dbalbums_uuid):")
             logging.debug(pformat(self._dbalbums_uuid))
 
-            logging.debug("Albums by album:")
+            logging.debug("Albums by album (_dbalbums_albums):")
             logging.debug(pformat(self._dbalbums_album))
 
-            logging.debug("Album details:")
+            logging.debug("Album details (_dbalbum_details):")
             logging.debug(pformat(self._dbalbum_details))
 
-            logging.debug("Volumes:")
+            logging.debug("Album titles (_dbalbum_titles):")
+            logging.debug(pformat(self._dbalbum_titles))
+
+            logging.debug("Volumes (_dbvolumes):")
             logging.debug(pformat(self._dbvolumes))
 
-            logging.debug("Photos:")
+            logging.debug("Photos (_dbphotos):")
             logging.debug(pformat(self._dbphotos))
 
-            logging.debug("Burst Photos:")
+            logging.debug("Burst Photos (dbphotos_burst:")
             logging.debug(pformat(self._dbphotos_burst))
 
     def photos(
@@ -1333,6 +1419,11 @@ class PhotosDB:
         from_date: return photos with creation date >= from_date (datetime.datetime object, default None)
         to_date: return photos with creation date <= to_date (datetime.datetime object, default None)
         """
+
+        # implementation is a bit kludgy but it works
+        # build a set of each search argument then compute the intersection of the sets
+        # use results to build a list of PhotoInfo objects
+
         photos_sets = []  # list of photo sets to perform intersection of
         if not any([keywords, uuid, persons, albums, from_date, to_date]):
             # return all the photos, filtering for images and movies
@@ -1340,19 +1431,12 @@ class PhotosDB:
             photos_sets.append(set(self._dbphotos.keys()))
         else:
             if albums:
-                album_titles = {}
-                for album_id in self._dbalbum_details:
-                    title = self._dbalbum_details[album_id]["title"]
-                    if title in album_titles:
-                        album_titles[title].append(album_id)
-                    else:
-                        album_titles[title] = [album_id]
                 for album in albums:
                     # TODO: can have >1 album with same name. This globs them together.
-                    # Need a way to select with album?
-                    if album in album_titles:
+                    # Need a way to select which album?
+                    if album in self._dbalbum_titles:
                         album_set = set()
-                        for album_id in album_titles[album]:
+                        for album_id in self._dbalbum_titles[album]:
                             album_set.update(self._dbalbums_album[album_id])
                         photos_sets.append(album_set)
                     else:
@@ -1378,6 +1462,7 @@ class PhotosDB:
                         photos_sets.append(set(self._dbfaces_person[person]))
                     else:
                         logging.debug(f"Could not find person '{person}' in database")
+
             if from_date or to_date:
                 dsel = self._dbphotos
                 if from_date:
@@ -1408,7 +1493,9 @@ class PhotosDB:
                 ):
                     info = PhotoInfo(db=self, uuid=p, info=self._dbphotos[p])
                     photoinfo.append(info)
-        logging.debug(f"photoinfo: {pformat(photoinfo)}")
+        if _debug:
+            logging.debug(f"photoinfo: {pformat(photoinfo)}")
+
         return photoinfo
 
     def __repr__(self):
