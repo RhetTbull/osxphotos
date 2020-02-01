@@ -1322,6 +1322,12 @@ class PhotosDB:
         If called with no args, returns the entire database of photos
         If called with args, returns photos matching the args (e.g. keywords, persons, etc.)
         If more than one arg, returns photos matching all the criteria (e.g. keywords AND persons)
+        If more than one keyword, uuid, persons, albums is passed, they are treated as "OR" criteria
+        e.g. keywords=["wedding","vacation"] returns photos matching either keyword
+        keywords: list of keywords to search for
+        uuid: list of UUIDs to search for
+        persons: list of persons to search for
+        albums: list of album names to search for
         images: if True, returns image files, if False, does not return images; default is True
         movies: if True, returns movie files, if False, does not return movies; default is False
         from_date: return photos with creation date >= from_date (datetime.datetime object, default None)
