@@ -8,6 +8,7 @@
 # python3 -i examples/photos_repl.py
 
 import sys
+import time
 
 # click needed since this uses a couple of functions from CLI (__main__.py)
 import click
@@ -25,13 +26,23 @@ def main():
         db = get_photos_db()
 
     if db:
-        return osxphotos.PhotosDB(dbfile=db)
+        print("loading database")
+        tic = time.perf_counter()
+        photosdb = osxphotos.PhotosDB(dbfile=db)
+        toc = time.perf_counter()
+        print(f"done: took {toc-tic} seconds")
+        return photosdb
     else:
         _list_libraries()
         sys.exit()
 
 
 if __name__ == "__main__":
-    print(f"Version: {osxphotos._version.__version__}")
+    print(f"osxphotos version: {osxphotos._version.__version__}")
     photosdb = main()
+    print(f"database version: {photosdb.db_version}")
+    print("getting photos")
+    tic = time.perf_counter()
     photos = photosdb.photos(images=True, movies=True)
+    toc = time.perf_counter()
+    print(f"found {len(photos)} photos in {toc-tic} seconds")
