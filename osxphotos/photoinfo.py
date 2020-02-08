@@ -611,7 +611,6 @@ class PhotoInfo:
                     filestem = dest.stem
                 else:
                     # didn't get passed a filename, add _edited
-                    # TODO: add a test for this
                     filestem = f"{dest.stem}_edited"
                     exported = _export_photo_uuid_applescript(
                         self.uuid,

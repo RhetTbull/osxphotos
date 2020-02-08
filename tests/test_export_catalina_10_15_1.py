@@ -6,8 +6,6 @@ from osxphotos.utils import dd_to_dms_str
 # TODO: put some of this code into a pre-function
 
 PHOTOS_DB = "./tests/Test-10.15.1.photoslibrary/database/photos.db"
-PHOTOS_DB_PATH = "/Test-10.15.1.photoslibrary/database/photos.db"
-PHOTOS_LIBRARY_PATH = "/Test-10.15.1.photoslibrary"
 
 KEYWORDS = [
     "Kids",
