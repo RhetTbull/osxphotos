@@ -1161,23 +1161,6 @@ def export_photo(
         else:
             click.echo(f"Skipping missing edited photo for {filename}")
 
-    # if export_live and photo.live_photo and photo.path_live_photo is not None:
-    #     # if destination exists, will be overwritten regardless of overwrite
-    #     # so that name matches name of live photo
-    #     live_name = pathlib.Path(photo_path)
-    #     live_name = f"{live_name.stem}.mov"
-
-    #     src_live = photo.path_live_photo
-    #     dest_live = pathlib.Path(photo_path).parent / pathlib.Path(live_name)
-
-    #     if src_live is not None:
-    #         if verbose:
-    #             click.echo(f"Exporting live photo video of {filename} as {live_name}")
-
-    #         _copy_file(src_live, str(dest_live))
-    #     else:
-    #         click.echo(f"Skipping missing live movie for {filename}")
-
     return photo_path
 
 
