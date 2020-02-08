@@ -309,17 +309,32 @@ def create_path_by_date(dest, dt):
 
 
 def _export_photo_uuid_applescript(
-    uuid, dest, original=True, edited=False, timeout=120
+    uuid,
+    dest,
+    filestem=None,
+    original=True,
+    edited=False,
+    live_photo=False,
+    timeout=120,
 ):
     """ Export photo to dest path using applescript to control Photos
+        If photo is a live photo, exports both the photo and associated .mov file
         uuid: UUID of photo to export
-        dest: destination path to export to; may be either a directory or a filename
-              if filename provided and file exists, exiting file will be overwritten
+        dest: destination path to export to
+        filestem: (string) if provided, exported filename will be named stem.ext 
+                  where ext is extension of the file exported by photos (e.g. .jpeg, .mov, etc)
+                  If not provided, file will be named with whatever name Photos uses
+                  If filestem.ext exists, it wil be overwritten
         original: (boolean) if True, export original image; default = True
         edited: (boolean) if True, export edited photo; default = False
-                will produce an error if image does not have edits/adjustments  
+                will produce an error if image does not have edits/adjustments 
+        *Note*: must be called with either edited or original but not both, 
+                will raise error if called with both edited and original = True
+        live_photo: (boolean) if True, export associated .mov live photo; default = False
         timeout: timeout value in seconds; export will fail if applescript run time exceeds timeout
-        Returns: path to exported file or None if export failed
+        Returns: list of paths to exported file(s) or None if export failed
+        Note: For Live Photos, if edited=True, will export a jpeg but not the movie, even if photo
+              has not been edited. This is due to how Photos Applescript interface works.
     """
 
     # setup the applescript to do the export
@@ -352,6 +367,13 @@ def _export_photo_uuid_applescript(
 		"""
     )
 
+    dest = pathlib.Path(dest)
+    if not dest.is_dir:
+        raise ValueError(f"dest {dest} must be a directory")
+
+    if not original ^ edited:
+        raise ValueError(f"edited or original must be True but not both")
+
     tmpdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
 
     # export original
@@ -366,15 +388,26 @@ def _export_photo_uuid_applescript(
 
     if filename is not None:
         # need to find actual filename as sometimes Photos renames JPG to jpeg on export
-        # this assumes only a single file in export folder, which should be true as
+        # may be more than one file exported (e.g. if Live Photo, Photos exports both .jpeg and .mov)
         # TemporaryDirectory will cleanup on return
-        path = glob.glob(os.path.join(tmpdir.name, "*"))[0]
-        _copy_file(path, dest)
-        if os.path.isdir(dest):
-            new_path = os.path.join(dest, filename)
-        else:
-            new_path = dest
-        return new_path
+        files = glob.glob(os.path.join(tmpdir.name, "*"))
+        exported_paths = []
+        for fname in files:
+            path = pathlib.Path(fname)
+            if len(files) > 1 and not live_photo and path.suffix.lower() == ".mov":
+                # it's the .mov part of live photo but not requested, so don't export
+                logging.debug(f"Skipping live photo file {path}")
+                continue
+            if filestem:
+                # rename the file based on filestem, keeping original extension
+                dest_new = dest / f"{filestem}{path.suffix}"
+            else:
+                # use the name Photos provided
+                dest_new = dest / path.name
+            logging.debug(f"exporting {path} to dest_new: {dest_new}")
+            _copy_file(str(path), str(dest_new))
+            exported_paths.append(str(dest_new))
+        return exported_paths
     else:
         return None
 

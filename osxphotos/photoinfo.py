@@ -458,6 +458,7 @@ class PhotoInfo:
         dest,
         *filename,
         edited=False,
+        live_photo=False,
         overwrite=False,
         increment=True,
         sidecar_json=False,
@@ -470,6 +471,7 @@ class PhotoInfo:
             filename: (optional): name of picture; if not provided, will use current filename 
             edited: (boolean, default=False); if True will export the edited version of the photo 
                     (or raise exception if no edited version) 
+            live_photo: (boolean, default=False); if True, will also export the associted .mov for live photos
             overwrite: (boolean, default=False); if True will overwrite files if they alreay exist 
             increment: (boolean, default=True); if True, will increment file name until a non-existant name is found 
                        if overwrite=False and increment=False, export will fail if destination file already exists 
@@ -503,7 +505,7 @@ class PhotoInfo:
                 # no filename provided so use the default
                 # if edited file requested, use filename but add _edited
                 # need to use file extension from edited file as Photos saves a jpeg once edited
-                if edited:
+                if edited and not use_photos_export:
                     # verify we have a valid path_edited and use that to get filename
                     if not self.path_edited:
                         raise FileNotFoundError(
@@ -584,18 +586,53 @@ class PhotoInfo:
 
             # copy the file, _copy_file uses ditto to preserve Mac extended attributes
             _copy_file(src, dest)
+
+            # copy live photo associated .mov if requested
+            if live_photo and self.live_photo:
+                live_name = dest.parent / f"{dest.stem}.mov"
+                src_live = self.path_live_photo
+
+                if src_live is not None:
+                    logging.debug(
+                        f"Exporting live photo video of {filename} as {live_name.name}"
+                    )
+                    _copy_file(src_live, str(live_name))
+                else:
+                    logging.warning(f"Skipping missing live movie for {filename}")
         else:
             # use_photo_export
             exported = None
+            # export live_photo .mov file?
+            live_photo = True if live_photo and self.live_photo else False
             if edited:
                 # exported edited version and not original
-                exported = _export_photo_uuid_applescript(
-                    self.uuid, dest, original=False, edited=True, timeout=timeout
-                )
+                if filename:
+                    # use filename stem provided
+                    filestem = dest.stem
+                else:
+                    # didn't get passed a filename, add _edited
+                    # TODO: add a test for this
+                    filestem = f"{dest.stem}_edited"
+                    exported = _export_photo_uuid_applescript(
+                        self.uuid,
+                        dest.parent,
+                        filestem=filestem,
+                        original=False,
+                        edited=True,
+                        live_photo=live_photo,
+                        timeout=timeout,
+                    )
             else:
                 # export original version and not edited
+                filestem = dest.stem
                 exported = _export_photo_uuid_applescript(
-                    self.uuid, dest, original=True, edited=False, timeout=timeout
+                    self.uuid,
+                    dest.parent,
+                    filestem=filestem,
+                    original=True,
+                    edited=False,
+                    live_photo=live_photo,
+                    timeout=timeout,
                 )
 
             if exported is None:
@@ -701,13 +738,15 @@ class PhotoInfo:
     def _xmp_sidecar(self):
         """ returns string for XMP sidecar """
         # TODO: add additional fields to XMP file?
-        
+
         xmp_template = Template(
             filename=os.path.join(_TEMPLATE_DIR, _XMP_TEMPLATE_NAME)
         )
         xmp_str = xmp_template.render(photo=self)
         # remove extra lines that mako inserts from template
-        xmp_str = "\n".join([line for line in xmp_str.split("\n") if line.strip() != ""])
+        xmp_str = "\n".join(
+            [line for line in xmp_str.split("\n") if line.strip() != ""]
+        )
         return xmp_str
 
     def _write_sidecar(self, filename, sidecar_str):

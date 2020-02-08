@@ -1,6 +1,9 @@
 import pytest
 from click.testing import CliRunner
 
+CLI_PHOTOS_DB = "tests/Test-10.15.1.photoslibrary"
+LIVE_PHOTOS_DB = "tests/Test-Cloud-10.15.1.photoslibrary/database/photos.db"
+
 CLI_OUTPUT_NO_SUBCOMMAND = [
     "Options:",
     "--db <Photos database path>  Specify Photos database path. Path to Photos",
@@ -37,7 +40,14 @@ CLI_EXPORT_FILENAMES = [
 
 CLI_EXPORT_UUID = "D79B8D77-BFFC-460B-9312-034F2877D35B"
 
-CLI_EXPORT_SIDECAR_FILENAMES = ["Pumkins2.jpg", "Pumpkins2.json", "Pumpkins2.xmp"]
+CLI_EXPORT_SIDECAR_FILENAMES = ["Pumkins2.jpg", "Pumkins2.json", "Pumkins2.xmp"]
+
+CLI_EXPORT_LIVE = [
+    "51F2BEF7-431A-4D31-8AC1-3284A57826AE.jpeg",
+    "51F2BEF7-431A-4D31-8AC1-3284A57826AE.mov",
+]
+
+CLI_EXPORT_LIVE_ORIGINAL = ["IMG_0728.JPG", "IMG_0728.mov"]
 
 
 def test_osxphotos():
@@ -54,16 +64,20 @@ def test_osxphotos():
 
 def test_query_uuid():
     import json
+    import os
+    import os.path
     import osxphotos
     from osxphotos.__main__ import query
 
     runner = CliRunner()
+    cwd = os.getcwd()
     result = runner.invoke(
         query,
         [
             "--json",
             "--db",
-            "./tests/Test-10.15.1.photoslibrary",
+            os.path.join(cwd, CLI_PHOTOS_DB),
+            # "./tests/Test-10.15.1.photoslibrary",
             "--uuid",
             "D79B8D77-BFFC-460B-9312-034F2877D35B",
         ],
@@ -98,7 +112,7 @@ def test_export():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, "tests/Test-10.15.1.photoslibrary"),
+                os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
                 "--original-name",
                 "--export-edited",
@@ -106,32 +120,67 @@ def test_export():
             ],
         )
         files = glob.glob("*.jpg")
-        assert files.sort() == CLI_EXPORT_FILENAMES.sort()
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
 
 
 def test_query_date():
     import json
     import osxphotos
+    import os
+    import os.path
     from osxphotos.__main__ import query
 
     runner = CliRunner()
+    cwd = os.getcwd()
     result = runner.invoke(
         query,
         [
             "--json",
             "--db",
-            "./tests/Test-10.15.1.photoslibrary",
+            os.path.join(cwd, CLI_PHOTOS_DB),
             "--from-date=2018-09-28",
             "--to-date=2018-09-28T23:00:00",
         ],
     )
     assert result.exit_code == 0
+    import logging
+
+    logging.warning(result.output)
 
     json_got = json.loads(result.output)
     assert len(json_got) == 4
 
 
 def test_export_sidecar():
+    import glob
+    import os
+    import os.path
+    import osxphotos
+
+    from osxphotos.__main__ import cli
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "export",
+                "--db",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "--original-name",
+                "--sidecar=json",
+                "--sidecar=xmp",
+                f"--uuid={CLI_EXPORT_UUID}",
+                "-V",
+            ],
+        )
+        files = glob.glob("*.*")
+        assert sorted(files) == sorted(CLI_EXPORT_SIDECAR_FILENAMES)
+
+
+def test_export_live():
     import glob
     import os
     import os.path
@@ -144,14 +193,14 @@ def test_export_sidecar():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, "tests/Test-10.15.1.photoslibrary"),
+                os.path.join(cwd, LIVE_PHOTOS_DB),
                 ".",
+                "--live",
                 "--original-name",
+                "--export-live",
                 "-V",
-                "--sidecar json",
-                "--sidecar xmp",
-                f"--uuid {CLI_EXPORT_UUID}",
             ],
         )
         files = glob.glob("*")
-        assert files.sort() == CLI_EXPORT_SIDECAR_FILENAMES.sort()
+        assert sorted(files) == sorted(CLI_EXPORT_LIVE_ORIGINAL)
+
