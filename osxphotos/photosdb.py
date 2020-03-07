@@ -39,6 +39,7 @@ from .utils import (
 #       Or fix the help text to match behavior
 # TODO: Add test for __str__
 # TODO: Add special albums and magic albums
+# TODO: fix "if X not in y" dictionary checks to use try/except EAFP style
 
 
 class PhotosDB:
