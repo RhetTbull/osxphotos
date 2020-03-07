@@ -175,6 +175,11 @@ Options:
                                   require internet connection. This obviously
                                   only works if the Photos library is synched
                                   to iCloud.
+  --exiftool                      Use exiftool to write metadata directly to
+                                  exported photos. To use this option,
+                                  exiftool must be installed and in the path.
+                                  exiftool may be installed from
+                                  https://exiftool.org/
   -h, --help                      Show this message and exit.
 ```
 
