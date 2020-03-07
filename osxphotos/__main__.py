@@ -14,6 +14,7 @@ import osxphotos
 from ._constants import _EXIF_TOOL_URL, _PHOTOS_5_VERSION
 from ._version import __version__
 from .utils import create_path_by_date, _copy_file
+from .exiftool import get_exiftool_path
 
 
 def get_photos_db(*db_options):
@@ -740,6 +741,18 @@ def export(
     if any([all(bb) for bb in exclusive]):
         click.echo(cli.commands["export"].get_help(ctx), err=True)
         return
+
+    # verify exiftool installed an in path
+    if exiftool:
+        try:
+            _ = get_exiftool_path()
+        except FileNotFoundError:
+            click.echo(
+                "Could not find exiftool. Please download and install"
+                " from https://exiftool.org/",
+                err=True,
+            )
+            ctx.exit(2)
 
     isphoto = ismovie = True  # default searches for everything
     if only_movies:
