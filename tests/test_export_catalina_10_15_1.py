@@ -446,29 +446,38 @@ def test_exiftool_json_sidecar():
 
     json_expected = json.loads(
         """
-    [{"FileName": "DC99FBDD-7A52-4100-A5BB-344131646C30.jpeg", 
-    "Title": "St. James\'s Park", 
-    "TagsList": ["London 2018", "St. James\'s Park", "England", "United Kingdom", "UK", "London"], 
-    "Keywords": ["London 2018", "St. James\'s Park", "England", "United Kingdom", "UK", "London"], 
-    "Subject": ["London 2018", "St. James\'s Park", "England", "United Kingdom", "UK", "London"], 
-    "GPSLatitude": "51 deg 30\' 12.86\\" N", 
-    "GPSLongitude": "0 deg 7\' 54.50\\" W", 
-    "GPSPosition": "51 deg 30\' 12.86\\" N, 0 deg 7\' 54.50\\" W", 
-    "GPSLatitudeRef": "North", "GPSLongitudeRef": "West", 
-    "DateTimeOriginal": "2018:10:13 09:18:12",
-    "OffsetTimeOriginal": "-04:00",
-    "ModifyDate": "2019:12:08 14:06:44"}] """
-    )
+    [{"File:FileName": "DC99FBDD-7A52-4100-A5BB-344131646C30.jpeg", 
+    "XMP:Title": "St. James\'s Park", 
+    "XMP:TagsList": ["London 2018", "St. James\'s Park", "England", "United Kingdom", "UK", "London"], 
+    "IPTC:Keywords": ["London 2018", "St. James\'s Park", "England", "United Kingdom", "UK", "London"], 
+    "XMP:Subject": ["London 2018", "St. James\'s Park", "England", "United Kingdom", "UK", "London"], 
+    "EXIF:GPSLatitude": "51 deg 30\' 12.86\\" N", 
+    "EXIF:GPSLongitude": "0 deg 7\' 54.50\\" W", 
+    "Composite:GPSPosition": "51 deg 30\' 12.86\\" N, 0 deg 7\' 54.50\\" W", 
+    "EXIF:GPSLatitudeRef": "North", "EXIF:GPSLongitudeRef": "West", 
+    "EXIF:DateTimeOriginal": "2018:10:13 09:18:12",
+    "EXIF:OffsetTimeOriginal": "-04:00",
+    "EXIF:ModifyDate": "2019:12:08 14:06:44",
+    "_CreatedBy": "osxphotos, https://github.com/RhetTbull/osxphotos"
+    }] """
+    )[0]
 
     json_got = photos[0]._exiftool_json_sidecar()
-    json_got = json.loads(json_got)
+    json_got = json.loads(json_got)[0]
 
     # some gymnastics to account for different sort order in different pythons
-    for item in zip(sorted(json_got[0].items()), sorted(json_expected[0].items())):
-        if type(item[0][1]) in (list, tuple):
-            assert sorted(item[0][1]) == sorted(item[1][1])
+    # some gymnastics to account for different sort order in different pythons
+    for k, v in json_got.items():
+        if type(v) in (list, tuple):
+            assert sorted(json_expected[k]) == sorted(v)
         else:
-            assert item[0][1] == item[1][1]
+            assert json_expected[k] == v
+
+    for k, v in json_expected.items():
+        if type(v) in (list, tuple):
+            assert sorted(json_got[k]) == sorted(v)
+        else:
+            assert json_got[k] == v
 
 
 def test_xmp_sidecar():

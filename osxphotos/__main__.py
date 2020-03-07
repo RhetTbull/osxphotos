@@ -662,6 +662,13 @@ def query(
     "the photo does not exist on disk.  This will be slow and will require internet connection. "
     "This obviously only works if the Photos library is synched to iCloud.",
 )
+@click.option(
+    "--exiftool",
+    is_flag=True,
+    help="Use exiftool to write metadata directly to exported photos. "
+    "To use this option, exiftool must be installed and in the path.  "
+    "exiftool may be installed from https://exiftool.org/",
+)
 @DB_ARGUMENT
 @click.argument("dest", nargs=1, type=click.Path(exists=True))
 @click.pass_obj
@@ -707,6 +714,7 @@ def export(
     not_live,
     download_missing,
     dest,
+    exiftool,
 ):
     """ Export photos from the Photos database.
         Export path DEST is required.
@@ -810,6 +818,7 @@ def export(
                         original_name,
                         export_live,
                         download_missing,
+                        exiftool,
                     )
         else:
             for p in photos:
@@ -824,6 +833,7 @@ def export(
                     original_name,
                     export_live,
                     download_missing,
+                    exiftool,
                 )
                 if export_path:
                     click.echo(f"Exported {p.filename} to {export_path}")
@@ -1078,6 +1088,7 @@ def export_photo(
     original_name,
     export_live,
     download_missing,
+    exiftool,
 ):
     """ Helper function for export that does the actual export
         photo: PhotoInfo object
@@ -1090,6 +1101,7 @@ def export_photo(
         export_live: boolean; also export live video component if photo is a live photo
                      live video will have same name as photo but with .mov extension
         download_missing: attempt download of missing iCloud photos
+        exiftool: use exiftool to write EXIF metadata directly to exported photo
         returns destination path of exported photo or None if photo was missing 
     """
 
@@ -1139,6 +1151,7 @@ def export_photo(
         live_photo=export_live,
         overwrite=overwrite,
         use_photos_export=download_missing,
+        exiftool=exiftool,
     )
 
     # if export-edited, also export the edited version
@@ -1157,6 +1170,7 @@ def export_photo(
                 overwrite=overwrite,
                 edited=True,
                 use_photos_export=download_missing,
+                exiftool=exiftool,
             )
         else:
             click.echo(f"Skipping missing edited photo for {filename}")

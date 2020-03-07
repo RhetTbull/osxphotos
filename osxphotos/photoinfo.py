@@ -32,6 +32,7 @@ from .utils import (
     _get_resource_loc,
     dd_to_dms_str,
 )
+from .exiftool import ExifTool
 
 
 class PhotoInfo:
@@ -465,6 +466,7 @@ class PhotoInfo:
         sidecar_xmp=False,
         use_photos_export=False,
         timeout=120,
+        exiftool=False,
     ):
         """ export photo 
             dest: must be valid destination path (or exception raised) 
@@ -481,10 +483,14 @@ class PhotoInfo:
                       sidecar filename will be dest/filename.xmp 
             use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos
             timeout: (int, default=120) timeout in seconds used with use_photos_export
+            exiftool: (boolean, default = False); if True, will use exiftool to write metadata to export file
             returns the full path to the exported file """
 
         # TODO: add this docs:
         #  ( for jpeg in *.jpeg; do exiftool -v -json=$jpeg.json $jpeg; done )
+
+        # list of all files exported during this call to export
+        exported_files = []
 
         # check arguments and get destination path and filename (if provided)
         if filename and len(filename) > 2:
@@ -586,6 +592,7 @@ class PhotoInfo:
 
             # copy the file, _copy_file uses ditto to preserve Mac extended attributes
             _copy_file(src, dest)
+            exported_files.append(str(dest))
 
             # copy live photo associated .mov if requested
             if live_photo and self.live_photo:
@@ -597,6 +604,7 @@ class PhotoInfo:
                         f"Exporting live photo video of {filename} as {live_name.name}"
                     )
                     _copy_file(src_live, str(live_name))
+                    exported_files.append(str(live_name))
                 else:
                     logging.warning(f"Skipping missing live movie for {filename}")
         else:
@@ -634,7 +642,9 @@ class PhotoInfo:
                     timeout=timeout,
                 )
 
-            if exported is None:
+            if exported is not None:
+                exported_files.extend(exported)
+            else:
                 logging.warning(f"Error exporting photo {self.uuid} to {dest}")
 
         if sidecar_json:
@@ -657,7 +667,31 @@ class PhotoInfo:
                 logging.warning(f"Error writing xmp sidecar to {sidecar_filename}")
                 raise e
 
+        logging.debug(f"export exported_files: {exported_files}")
+
+        # if exiftool, write the metadata
+        if exiftool and exported_files:
+            for exported_file in exported_files:
+                self._write_exif_data(exported_file)
+
         return str(dest)
+
+    def _write_exif_data(self, filepath):
+        """ write exif data to image file at filepath
+        filepath: full path to the image file """
+        if not os.path.exists(filepath):
+            raise FileNotFoundError(f"Could not find file {filepath}")
+        exiftool = ExifTool(filepath)
+        exif_info = json.loads(self._exiftool_json_sidecar())[0]
+        for exiftag, val in exif_info.items():
+            if type(val) == list:
+                # more than one, set first value the add additional values
+                exiftool.setvalue(exiftag, val.pop(0))
+                if val:
+                    # add any remaining items
+                    exiftool.addvalues(exiftag, *val)
+            else:
+                exiftool.setvalue(exiftag, val)
 
     def _exiftool_json_sidecar(self):
         """ return json string of EXIF details in exiftool sidecar format
@@ -680,27 +714,27 @@ class PhotoInfo:
 
         exif = {}
         exif["_CreatedBy"] = "osxphotos, https://github.com/RhetTbull/osxphotos"
-        exif["FileName"] = self.filename
+        exif["File:FileName"] = self.filename
 
         if self.description:
-            exif["ImageDescription"] = self.description
-            exif["Description"] = self.description
+            exif["EXIF:ImageDescription"] = self.description
+            exif["XMP:Description"] = self.description
 
         if self.title:
-            exif["Title"] = self.title
+            exif["XMP:Title"] = self.title
 
         if self.keywords:
-            exif["TagsList"] = exif["Keywords"] = list(self.keywords)
+            exif["XMP:TagsList"] = exif["IPTC:Keywords"] = list(self.keywords)
             # Photos puts both keywords and persons in Subject when using "Export IPTC as XMP"
-            exif["Subject"] = list(self.keywords)
+            exif["XMP:Subject"] = list(self.keywords)
 
         if self.persons:
-            exif["PersonInImage"] = self.persons
+            exif["XMP:PersonInImage"] = self.persons
             # Photos puts both keywords and persons in Subject when using "Export IPTC as XMP"
-            if "Subject" in exif:
-                exif["Subject"].extend(self.persons)
+            if "XMP:Subject" in exif:
+                exif["XMP:Subject"].extend(self.persons)
             else:
-                exif["Subject"] = self.persons
+                exif["XMP:Subject"] = self.persons
 
         # if self.favorite():
         #     exif["Rating"] = 5
@@ -708,13 +742,13 @@ class PhotoInfo:
         (lat, lon) = self.location
         if lat is not None and lon is not None:
             lat_str, lon_str = dd_to_dms_str(lat, lon)
-            exif["GPSLatitude"] = lat_str
-            exif["GPSLongitude"] = lon_str
-            exif["GPSPosition"] = f"{lat_str}, {lon_str}"
+            exif["EXIF:GPSLatitude"] = lat_str
+            exif["EXIF:GPSLongitude"] = lon_str
+            exif["Composite:GPSPosition"] = f"{lat_str}, {lon_str}"
             lat_ref = "North" if lat >= 0 else "South"
             lon_ref = "East" if lon >= 0 else "West"
-            exif["GPSLatitudeRef"] = lat_ref
-            exif["GPSLongitudeRef"] = lon_ref
+            exif["EXIF:GPSLatitudeRef"] = lat_ref
+            exif["EXIF:GPSLongitudeRef"] = lon_ref
 
         # process date/time and timezone offset
         date = self.date
@@ -725,11 +759,11 @@ class PhotoInfo:
         offset = re.findall(r"([+-]?)([\d]{2})([\d]{2})", offsettime)
         offset = offset[0]  # findall returns list of tuples
         offsettime = f"{offset[0]}{offset[1]}:{offset[2]}"
-        exif["DateTimeOriginal"] = datetimeoriginal
-        exif["OffsetTimeOriginal"] = offsettime
+        exif["EXIF:DateTimeOriginal"] = datetimeoriginal
+        exif["EXIF:OffsetTimeOriginal"] = offsettime
 
         if self.date_modified is not None:
-            exif["ModifyDate"] = self.date_modified.strftime("%Y:%m:%d %H:%M:%S")
+            exif["EXIF:ModifyDate"] = self.date_modified.strftime("%Y:%m:%d %H:%M:%S")
 
         json_str = json.dumps([exif])
         return json_str

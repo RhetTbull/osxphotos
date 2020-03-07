@@ -138,8 +138,13 @@ class _ExifToolProc:
 class ExifTool:
     """ Basic exiftool interface for reading and writing EXIF tags """
 
-    def __init__(self, file, exiftool=None):
-        self.file = file
+    def __init__(self, filepath, exiftool=None, overwrite=True):
+        """ Return ExifTool object
+            file: path to image file
+            exiftool: path to exiftool, if not specified will look in path
+            overwrite: if True, will overwrite image file without creating backup, default=False """
+        self.file = filepath
+        self.overwrite = overwrite
         self.data = {}
         self._exiftoolproc = _ExifToolProc(exiftool=exiftool)
         self._process = self._exiftoolproc.process
@@ -151,8 +156,11 @@ class ExifTool:
 
         if value is None:
             value = ""
-        command = f"-{tag}={value}"
-        self.run_commands(command)
+        command = []
+        command.append(f"-{tag}={value}")
+        if self.overwrite:
+            command.append("-overwrite_original")
+        self.run_commands(*command)
 
     def addvalues(self, tag, *values):
         """ Add one or more value(s) to tag
@@ -173,6 +181,9 @@ class ExifTool:
             if value is None:
                 raise ValueError("Can't add None value to tag")
             command.append(f"-{tag}+={value}")
+
+        if self.overwrite:
+            command.append("-overwrite_original")
 
         if command:
             self.run_commands(*command)
@@ -237,3 +248,4 @@ class ExifTool:
     def __str__(self):
         str_ = f"file: {self.file}\nexiftool: {self._exiftoolproc._exiftool}"
         return str_
+

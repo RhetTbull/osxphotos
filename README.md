@@ -655,7 +655,7 @@ Returns the path to the live video component of a [live photo](#live_photo). If 
 #### `json()`
 Returns a JSON representation of all photo info 
 
-#### `export(dest, *filename, edited=False, live_photo=False, overwrite=False, increment=True, sidecar_json=False, sidecar_xmp=False, use_photos_export=False, timeout=120,)`
+#### `export(dest, *filename, edited=False, live_photo=False, overwrite=False, increment=True, sidecar_json=False, sidecar_xmp=False, use_photos_export=False, timeout=120, exiftool=False)`
 
 Export photo from the Photos library to another destination on disk.  
 - dest: must be valid destination path as str (or exception raised).
@@ -664,10 +664,11 @@ Export photo from the Photos library to another destination on disk.
 - overwrite: boolean; if True (default=False), will overwrite files if they alreay exist
 - live_photo: boolean; if True (default=False), will also export the associted .mov for live photos; exported live photo will be named filename.mov
 - increment: boolean; if True (default=True), will increment file name until a non-existent name is found
-- sidecar_json: (boolean, default = False); if True will also write a json sidecar with IPTC data in format readable by exiftool; sidecar filename will be dest/filename.json where filename is the stem of the photo name
-- sidecar_xmp: (boolean, default = False); if True will also write a XMP sidecar with IPTC data; sidecar filename will be dest/filename.xmp where filename is the stem of the photo name
+- sidecar_json: (boolean, default = False); if True will also write a json sidecar with metadata in format readable by exiftool; sidecar filename will be dest/filename.json where filename is the stem of the photo name
+- sidecar_xmp: (boolean, default = False); if True will also write a XMP sidecar with metadata; sidecar filename will be dest/filename.xmp where filename is the stem of the photo name
 - use_photos_export: boolean; (default=False), if True will attempt to export photo via applescript interaction with Photos; useful for forcing download of missing photos.  This only works if the Photos library being used is the default library (last opened by Photos) as applescript will directly interact with whichever library Photos is currently using.
 - timeout: (int, default=120) timeout in seconds used with use_photos_export
+- exiftool: (boolean, default = False) if True, will use [exiftool](https://exiftool.org/) to write metadata directly to the exported photo; exiftool must be installed and in the system path
 
 The json sidecar file can be used by exiftool to apply the metadata from the json file to the image.  For example: 
 
