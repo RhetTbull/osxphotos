@@ -657,6 +657,25 @@ Returns the path to the live video component of a [live photo](#live_photo). If 
 
 **Note**: will also return None if the live video component is missing on disk. It's possible that the original photo may be on disk ([ismissing](#ismissing)==False) but the video component is missing, likely because it has not been downloaded from iCloud.
 
+#### `portrait`
+Returns True if photo was taken in iPhone portrait mode, otherwise False.
+
+#### `hdr`
+Returns True if photo was taken in High Dynamic Range (HDR) mode, otherwise False.
+
+#### `selfie`
+Returns True if photo is a selfie (taken with front-facing camera), otherwise False.  
+
+**Note**: Only implemented for Photos version 3.0+.  On Photos version < 3.0, returns None.
+
+#### `time_lapse`
+Returns True if photo is a time lapse video, otherwise False.
+
+#### `panorama`
+Returns True if photo is a panorama, otherwise False.
+
+**Note**: The result of `PhotoInfo.panorama` will differ from the "Panoramas" Media Types smart album in that it will also identify panorama photos from older phones that Photos does not recognize as panoramas. 
+
 #### `json()`
 Returns a JSON representation of all photo info 
 

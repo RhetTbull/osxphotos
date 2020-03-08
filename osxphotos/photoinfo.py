@@ -454,6 +454,41 @@ class PhotoInfo:
 
         return photopath
 
+    @property
+    def panorama(self):
+        """ Returns True if photo is a panorama, otherwise False """
+        return self._info["panorama"]
+
+    @property
+    def slow_mo(self):
+        """ Returns True if photo is a slow motion video, otherwise False """
+        return self._info["slow_mo"]
+
+    @property
+    def time_lapse(self):
+        """ Returns True if photo is a time lapse video, otherwise False """
+        return self._info["time_lapse"]
+
+    @property
+    def hdr(self):
+        """ Returns True if photo is an HDR photo, otherwise False """
+        return self._info["hdr"]
+
+    @property
+    def screenshot(self):
+        """ Returns True if photo is an HDR photo, otherwise False """
+        return self._info["screenshot"]
+
+    @property
+    def portrait(self):
+        """ Returns True if photo is a portrait, otherwise False """
+        return self._info["portrait"]
+
+    @property
+    def selfie(self):
+        """ Returns True if photo is a selfie (front facing camera), otherwise False """
+        return self._info["selfie"]
+
     def export(
         self,
         dest,

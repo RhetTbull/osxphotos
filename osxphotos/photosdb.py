@@ -18,6 +18,7 @@ from shutil import copyfile
 from ._constants import (
     _MOVIE_TYPE,
     _PHOTO_TYPE,
+    _PHOTOS_3_VERSION,
     _PHOTOS_5_VERSION,
     _TESTED_DB_VERSIONS,
     _TESTED_OS_VERSIONS,
@@ -522,21 +523,36 @@ class PhotosDB:
             self._dbvolumes[vol[0]] = vol[1]
 
         # Get photo details
-        c.execute(
-            """ SELECT RKVersion.uuid, RKVersion.modelId, RKVersion.masterUuid, RKVersion.filename, 
-                RKVersion.lastmodifieddate, RKVersion.imageDate, RKVersion.mainRating, 
-                RKVersion.hasAdjustments, RKVersion.hasKeywords, RKVersion.imageTimeZoneOffsetSeconds, 
-                RKMaster.volumeId, RKMaster.imagePath, RKVersion.extendedDescription, RKVersion.name, 
-                RKMaster.isMissing, RKMaster.originalFileName, RKVersion.isFavorite, RKVersion.isHidden, 
-                RKVersion.latitude, RKVersion.longitude, 
-                RKVersion.adjustmentUuid, RKVersion.type, RKMaster.UTI,
-                RKVersion.burstUuid, RKVersion.burstPickType,
-                RKVersion.specialType, RKMaster.modelID
-                FROM RKVersion, RKMaster WHERE RKVersion.isInTrash = 0 AND 
-                RKVersion.masterUuid = RKMaster.uuid AND RKVersion.filename NOT LIKE '%.pdf' """
-        )
-
-        #  TODO:               RKVersion.selfPortrait -- only in Photos 3 and up
+        if self._db_version < _PHOTOS_3_VERSION:
+            # Photos < 3.0 doesn't have RKVersion.selfPortrait (selfie)
+            c.execute(
+                """ SELECT RKVersion.uuid, RKVersion.modelId, RKVersion.masterUuid, RKVersion.filename, 
+                    RKVersion.lastmodifieddate, RKVersion.imageDate, RKVersion.mainRating, 
+                    RKVersion.hasAdjustments, RKVersion.hasKeywords, RKVersion.imageTimeZoneOffsetSeconds, 
+                    RKMaster.volumeId, RKMaster.imagePath, RKVersion.extendedDescription, RKVersion.name, 
+                    RKMaster.isMissing, RKMaster.originalFileName, RKVersion.isFavorite, RKVersion.isHidden, 
+                    RKVersion.latitude, RKVersion.longitude, 
+                    RKVersion.adjustmentUuid, RKVersion.type, RKMaster.UTI,
+                    RKVersion.burstUuid, RKVersion.burstPickType,
+                    RKVersion.specialType, RKMaster.modelID
+                    FROM RKVersion, RKMaster WHERE RKVersion.isInTrash = 0 AND 
+                    RKVersion.masterUuid = RKMaster.uuid AND RKVersion.filename NOT LIKE '%.pdf' """
+            )
+        else:
+            c.execute(
+                """ SELECT RKVersion.uuid, RKVersion.modelId, RKVersion.masterUuid, RKVersion.filename, 
+                    RKVersion.lastmodifieddate, RKVersion.imageDate, RKVersion.mainRating, 
+                    RKVersion.hasAdjustments, RKVersion.hasKeywords, RKVersion.imageTimeZoneOffsetSeconds, 
+                    RKMaster.volumeId, RKMaster.imagePath, RKVersion.extendedDescription, RKVersion.name, 
+                    RKMaster.isMissing, RKMaster.originalFileName, RKVersion.isFavorite, RKVersion.isHidden, 
+                    RKVersion.latitude, RKVersion.longitude, 
+                    RKVersion.adjustmentUuid, RKVersion.type, RKMaster.UTI,
+                    RKVersion.burstUuid, RKVersion.burstPickType,
+                    RKVersion.specialType, RKMaster.modelID,
+                    RKVersion.selfPortrait 
+                    FROM RKVersion, RKMaster WHERE RKVersion.isInTrash = 0 AND 
+                    RKVersion.masterUuid = RKMaster.uuid AND RKVersion.filename NOT LIKE '%.pdf' """
+            )
 
         # order of results
         # 0     RKVersion.uuid
@@ -566,8 +582,7 @@ class PhotosDB:
         # 24    RKVersion.burstPickType
         # 25    RKVersion.specialType
         # 26    RKMaster.modelID
-
-        # 27    RKVersion.selfPortrait -- 1 if selfie (not yet implemented)
+        # 27    RKVersion.selfPortrait -- 1 if selfie, Photos >= 3, not present for Photos < 3
 
         for row in c:
             uuid = row[0]
@@ -671,9 +686,11 @@ class PhotosDB:
             self._dbphotos[uuid]["screenshot"] = True if row[25] == 6 else False
             self._dbphotos[uuid]["portrait"] = True if row[25] == 9 else False
 
-            # TODO: Handle selfies (front facing camera, RKVersion.selfPortrait == 1)
-            # self._dbphotos[uuid]["selfie"] = True if row[27] == 1 else False
-            self._dbphotos[uuid]["selfie"] = None
+            # selfies (front facing camera, RKVersion.selfPortrait == 1)
+            if self._db_version >= _PHOTOS_3_VERSION:
+                self._dbphotos[uuid]["selfie"] = True if row[27] == 1 else False
+            else:
+                self._dbphotos[uuid]["selfie"] = None
 
             # Init cloud details that will be filled in later if cloud asset
             self._dbphotos[uuid]["cloudAssetGUID"] = None  # Photos 5

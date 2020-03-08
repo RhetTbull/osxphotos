@@ -13,6 +13,9 @@ import os.path
 # TODO: Should this also use compatibleBackToVersion from LiGlobals?
 _TESTED_DB_VERSIONS = ["6000", "4025", "4016", "3301", "2622"]
 
+# only version 3 - 4 have RKVersion.selfPortrait
+_PHOTOS_3_VERSION = "3301"
+
 # versions later than this have a different database structure
 _PHOTOS_5_VERSION = "6000"
 
