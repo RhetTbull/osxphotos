@@ -192,7 +192,45 @@ def query_options(f):
         o(
             "--not-live",
             is_flag=True,
-            help="Search for photos that are not Apple live photos",
+            help="Search for photos that are not Apple live photos.",
+        ),
+        o("--portrait", is_flag=True, help="Search for Apple portrait mode photos."),
+        o(
+            "--not-portrait",
+            is_flag=True,
+            help="Search for photos that are not Apple portrait mode photos.",
+        ),
+        o("--screenshot", is_flag=True, help="Search for screenshot photos."),
+        o(
+            "--not-screenshot",
+            is_flag=True,
+            help="Search for photos that are not screenshot photos.",
+        ),
+        o("--slow-mo", is_flag=True, help="Search for slow motion videos."),
+        o(
+            "--not-slow-mo",
+            is_flag=True,
+            help="Search for photos that are not slow motion videos.",
+        ),
+        o("--time-lapse", is_flag=True, help="Search for time lapse videos."),
+        o(
+            "--not-time-lapse",
+            is_flag=True,
+            help="Search for photos that are not time lapse videos.",
+        ),
+        o("--hdr", is_flag=True, help="Search for high dynamic range (HDR) photos."),
+        o("--not-hdr", is_flag=True, help="Search for photos that are not HDR photos."),
+        o(
+            "--selfie",
+            is_flag=True,
+            help="Search for selfies (photos taken with front-facing cameras).",
+        ),
+        o("--not-selfie", is_flag=True, help="Search for photos that are not selfies."),
+        o("--panorama", is_flag=True, help="Search for panorama photos."),
+        o(
+            "--not-panorama",
+            is_flag=True,
+            help="Search for photos that are not panoramas.",
         ),
         o(
             "--only-movies",
@@ -508,6 +546,20 @@ def query(
     not_incloud,
     from_date,
     to_date,
+    portrait,
+    not_portrait,
+    screenshot,
+    not_screenshot,
+    slow_mo,
+    not_slow_mo,
+    time_lapse,
+    not_time_lapse,
+    hdr,
+    not_hdr,
+    selfie,
+    not_selfie,
+    panorama,
+    not_panorama,
 ):
     """ Query the Photos database using 1 or more search options; 
         if more than one option is provided, they are treated as "AND" 
@@ -538,6 +590,13 @@ def query(
         (live, not_live),
         (cloudasset, not_cloudasset),
         (incloud, not_incloud),
+        (portrait, not_portrait),
+        (screenshot, not_screenshot),
+        (slow_mo, not_slow_mo),
+        (time_lapse, not_time_lapse),
+        (hdr, not_hdr),
+        (selfie, not_selfie),
+        (panorama, not_panorama),
     ]
     # print help if no non-exclusive term or a double exclusive term is given
     if not any(nonexclusive + [b ^ n for b, n in exclusive]):
@@ -594,6 +653,20 @@ def query(
         not_incloud=not_incloud,
         from_date=from_date,
         to_date=to_date,
+        portrait=portrait,
+        not_portrait=not_portrait,
+        screenshot=screenshot,
+        not_screenshot=not_screenshot,
+        slow_mo=slow_mo,
+        not_slow_mo=not_slow_mo,
+        time_lapse=time_lapse,
+        not_time_lapse=not_time_lapse,
+        hdr=hdr,
+        not_hdr=not_hdr,
+        selfie=selfie,
+        not_selfie=not_selfie,
+        panorama=panorama,
+        not_panorama=not_panorama,
     )
 
     # below needed for to make CliRunner work for testing
@@ -716,6 +789,20 @@ def export(
     download_missing,
     dest,
     exiftool,
+    portrait,
+    not_portrait,
+    screenshot,
+    not_screenshot,
+    slow_mo,
+    not_slow_mo,
+    time_lapse,
+    not_time_lapse,
+    hdr,
+    not_hdr,
+    selfie,
+    not_selfie,
+    panorama,
+    not_panorama,
 ):
     """ Export photos from the Photos database.
         Export path DEST is required.
@@ -737,6 +824,13 @@ def export(
         (only_photos, only_movies),
         (burst, not_burst),
         (live, not_live),
+        (portrait, not_portrait),
+        (screenshot, not_screenshot),
+        (slow_mo, not_slow_mo),
+        (time_lapse, not_time_lapse),
+        (hdr, not_hdr),
+        (selfie, not_selfie),
+        (panorama, not_panorama),
     ]
     if any([all(bb) for bb in exclusive]):
         click.echo(cli.commands["export"].get_help(ctx), err=True)
@@ -803,6 +897,20 @@ def export(
         not_incloud=False,
         from_date=from_date,
         to_date=to_date,
+        portrait=portrait,
+        not_portrait=not_portrait,
+        screenshot=screenshot,
+        not_screenshot=not_screenshot,
+        slow_mo=slow_mo,
+        not_slow_mo=not_slow_mo,
+        time_lapse=time_lapse,
+        not_time_lapse=not_time_lapse,
+        hdr=hdr,
+        not_hdr=not_hdr,
+        selfie=selfie,
+        not_selfie=not_selfie,
+        panorama=panorama,
+        not_panorama=not_panorama,
     )
 
     if photos:
@@ -985,6 +1093,20 @@ def _query(
     not_incloud=None,
     from_date=None,
     to_date=None,
+    portrait=None,
+    not_portrait=None,
+    screenshot=None,
+    not_screenshot=None,
+    slow_mo=None,
+    not_slow_mo=None,
+    time_lapse=None,
+    not_time_lapse=None,
+    hdr=None,
+    not_hdr=None,
+    selfie=None,
+    not_selfie=None,
+    panorama=None,
+    not_panorama=None,
 ):
     """ run a query against PhotosDB to extract the photos based on user supply criteria """
     """ used by query and export commands """
@@ -1076,6 +1198,41 @@ def _query(
         photos = [p for p in photos if p.live_photo]
     elif not_live:
         photos = [p for p in photos if not p.live_photo]
+
+    if portrait:
+        photos = [p for p in photos if p.portrait]
+    elif not_portrait:
+        photos = [p for p in photos if not p.portrait]
+
+    if screenshot:
+        photos = [p for p in photos if p.screenshot]
+    elif not_screenshot:
+        photos = [p for p in photos if not p.screenshot]
+
+    if slow_mo:
+        photos = [p for p in photos if p.slow_mo]
+    elif not_slow_mo:
+        photos = [p for p in photos if not p.slow_mo]
+
+    if time_lapse:
+        photos = [p for p in photos if p.time_lapse]
+    elif not_time_lapse:
+        photos = [p for p in photos if not p.time_lapse]
+
+    if hdr:
+        photos = [p for p in photos if p.hdr]
+    elif not_hdr:
+        photos = [p for p in photos if not p.hdr]
+
+    if selfie:
+        photos = [p for p in photos if p.selfie]
+    elif not_selfie:
+        photos = [p for p in photos if not p.selfie]
+
+    if panorama:
+        photos = [p for p in photos if p.panorama]
+    elif not_panorama:
+        photos = [p for p in photos if not p.panorama]
 
     if cloudasset:
         photos = [p for p in photos if p.iscloudasset]
