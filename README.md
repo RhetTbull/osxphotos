@@ -3,13 +3,14 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+
 - [OSXPhotos](#osxphotos)
   * [What is osxphotos?](#what-is-osxphotos)
   * [Supported operating systems](#supported-operating-systems)
   * [Installation instructions](#installation-instructions)
   * [Command Line Usage](#command-line-usage)
-  * [Example uses of the module](#example-uses-of-the-module)
-  * [Module Interface](#module-interface)
+  * [Example uses of the package](#example-uses-of-the-package)
+  * [Package Interface](#package-interface)
     + [PhotosDB](#photosdb)
     + [PhotoInfo](#photoinfo)
     + [Utility Functions](#utility-functions)
@@ -18,17 +19,18 @@
   * [Contributing](#contributing)
   * [Implementation Notes](#implementation-notes)
   * [Dependencies](#dependencies)
-  * [Acknowledgements](#acknowledgements) 
+  * [Acknowledgements](#acknowledgements)
+
   
 ## What is osxphotos?
 
-OSXPhotos provides the ability to interact with and query Apple's Photos.app library database on MacOS. Using this module you can query the Photos database for information about the photos stored in a Photos library on your Mac--for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos.
+OSXPhotos provides the ability to interact with and query Apple's Photos.app library database on MacOS. Using this package you can query the Photos database for information about the photos stored in a Photos library on your Mac--for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos.
 
 ## Supported operating systems
 
 Only works on MacOS (aka Mac OS X). Tested on MacOS 10.12.6 / Photos 2.0, 10.13.6 / Photos 3.0, MacOS 10.14.5, 10.14.6 / Photos 4.0, MacOS 10.15.1 / Photos 5.0. Requires python >= 3.6
 
-This module will read Photos databases for any supported version on any supported OS version.  E.g. you can read a database created with Photos 4.0 on MacOS 10.14 on a machine running MacOS 10.12
+This package will read Photos databases for any supported version on any supported OS version.  E.g. you can read a database created with Photos 4.0 on MacOS 10.14 on a machine running MacOS 10.12
 
 
 ## Installation instructions
@@ -39,7 +41,7 @@ osxmetadata uses setuptools, thus simply run:
 
 ## Command Line Usage
 
-This module will install a command line utility called `osxphotos` that allows you to query the Photos database.  Alternatively, you can also run the command line utility like this: `python3 -m osxphotos`
+This package will install a command line utility called `osxphotos` that allows you to query the Photos database.  Alternatively, you can also run the command line utility like this: `python3 -m osxphotos`
 
 If you only care about the command line tool, I recommend installing with [pipx](https://github.com/pipxproject/pipx)
 
@@ -93,9 +95,15 @@ Options:
                                   order: 1. last opened library, 2. system
                                   library, 3. ~/Pictures/Photos
                                   Library.photoslibrary
-  --keyword KEYWORD               Search for keyword(s).
-  --person PERSON                 Search for person(s).
-  --album ALBUM                   Search for album(s).
+  --keyword KEYWORD               Search for keyword KEYWORD. If more than one
+                                  keyword, treated as "OR", e.g. find photos
+                                  match any keyword
+  --person PERSON                 Search for person PERSON. If more than one
+                                  person, treated as "OR", e.g. find photos
+                                  match any person
+  --album ALBUM                   Search for album ALBUM. If more than one
+                                  album, treated as "OR", e.g. find photos
+                                  match any album
   --uuid UUID                     Search for UUID(s).
   --title TITLE                   Search for TITLE in title of photo.
   --no-title                      Search for photos with no title.
@@ -122,7 +130,26 @@ Options:
                                   burst.
   --live                          Search for Apple live photos
   --not-live                      Search for photos that are not Apple live
-                                  photos
+                                  photos.
+  --portrait                      Search for Apple portrait mode photos.
+  --not-portrait                  Search for photos that are not Apple
+                                  portrait mode photos.
+  --screenshot                    Search for screenshot photos.
+  --not-screenshot                Search for photos that are not screenshot
+                                  photos.
+  --slow-mo                       Search for slow motion videos.
+  --not-slow-mo                   Search for photos that are not slow motion
+                                  videos.
+  --time-lapse                    Search for time lapse videos.
+  --not-time-lapse                Search for photos that are not time lapse
+                                  videos.
+  --hdr                           Search for high dynamic range (HDR) photos.
+  --not-hdr                       Search for photos that are not HDR photos.
+  --selfie                        Search for selfies (photos taken with front-
+                                  facing cameras).
+  --not-selfie                    Search for photos that are not selfies.
+  --panorama                      Search for panorama photos.
+  --not-panorama                  Search for photos that are not panoramas.
   --only-movies                   Search only for movies (default searches
                                   both images and movies).
   --only-photos                   Search only for photos/images (default
@@ -164,7 +191,7 @@ Options:
                                   -j=photoname.json photoname.jpg" The sidecar
                                   file is named in format photoname.json
                                   --sidecar xmp: create XMP sidecar used by
-                                  Adobe Lightroom, etc. The sidecar file is
+                                  Adobe Lightroom, etc.The sidecar file is
                                   named in format photoname.xmp
   --download-missing              Attempt to download missing photos from
                                   iCloud. The current implementation uses
@@ -193,7 +220,7 @@ Example: find all photos with keyword "Kids" and output results to json file nam
 
 `osxphotos query --keyword Kids --json ~/Pictures/Photos\ Library.photoslibrary >results.json`
 
-## Example uses of the module 
+## Example uses of the package 
 
 ```python
 import os.path
@@ -266,7 +293,7 @@ if __name__ == "__main__":
     main()
 ```
 
-## Module Interface
+## Package Interface
 
 ### PhotosDB
 
@@ -805,17 +832,17 @@ Contributing is easy!  if you find bugs or want to suggest additional features/c
 
 I'll gladly consider pull requests for bug fixes or feature implementations.  
 
-If you have an interesting example that shows usage of this module, submit an issue or pull request and i'll include it or link to it.
+If you have an interesting example that shows usage of this package, submit an issue or pull request and i'll include it or link to it.
 
 Testing against "real world" Photos libraries would be especially helpful.  If you discover issues in testing against your Photos libraries, please open an issue.  I've done extensive testing against my own Photos library but that's a since data point and I'm certain there are issues lurking in various edge cases I haven't discovered yet.
 
 ## Implementation Notes
 
-This module works by creating a copy of the sqlite3 database that photos uses to store data about the photos library. the class photosdb then queries this database to extract information about the photos such as persons (faces identified in the photos), albums, keywords, etc.  If your library is large, the database can be hundreds of MB in size and the copy then read can take many 10s of seconds to complete.  Once copied, the entire database is processed and an in-memory data structure is created meaning all subsequent accesses of the PhotosDB object occur much more quickly. 
+This packge works by creating a copy of the sqlite3 database that photos uses to store data about the photos library. the class photosdb then queries this database to extract information about the photos such as persons (faces identified in the photos), albums, keywords, etc.  If your library is large, the database can be hundreds of MB in size and the copy then read can take many 10s of seconds to complete.  Once copied, the entire database is processed and an in-memory data structure is created meaning all subsequent accesses of the PhotosDB object occur much more quickly. 
 
 If apple changes the database format this will likely break.
 
-Apple does provide a framework ([PhotoKit](https://developer.apple.com/documentation/photokit?language=objc)) for querying the user's Photos library and I attempted to create the funcationality in this module using this framework but unfortunately PhotoKit does not provide access to much of the needed metadata (such as Faces/Persons).  While copying the sqlite file is a bit kludgy, it allows osxphotos to provide access to all available metadata.
+Apple does provide a framework ([PhotoKit](https://developer.apple.com/documentation/photokit?language=objc)) for querying the user's Photos library and I attempted to create the funcationality in this package using this framework but unfortunately PhotoKit does not provide access to much of the needed metadata (such as Faces/Persons).  While copying the sqlite file is a bit kludgy, it allows osxphotos to provide access to all available metadata.
 
 ## Dependencies
 - [PyObjC](https://pythonhosted.org/pyobjc/)
@@ -826,5 +853,5 @@ Apple does provide a framework ([PhotoKit](https://developer.apple.com/documenta
 ## Acknowledgements
 This project was originally inspired by [photo-export](https://github.com/patrikhson/photo-export) by Patrick Fältström,  Copyright (c) 2015 Patrik Fältström paf@frobbit.se
 
-I use [py-applescript](https://github.com/rdhyee/py-applescript) by "Raymond Yee / rdhyee" to interact with Photos. Rather than import this module, I included the entire module (which is published as public domain code) in a private module to prevent ambiguity with other applescript modules on PyPi. py-applescript uses a native bridge via PyObjC and is very fast compared to the other osascript based modules.
+I use [py-applescript](https://github.com/rdhyee/py-applescript) by "Raymond Yee / rdhyee" to interact with Photos. Rather than import this package, I included the entire package (which is published as public domain code) in a private package to prevent ambiguity with other applescript packages on PyPi. py-applescript uses a native bridge via PyObjC and is very fast compared to the other osascript based packages.
 
