@@ -882,6 +882,13 @@ class PhotoInfo:
             "iscloudasset": self.iscloudasset,
             "incloud": self.incloud,
             "date_modified": date_modified_iso,
+            "portrait": self.portrait,
+            "screenshot": self.screenshot,
+            "slow_mo": self.slow_mo,
+            "time_lapse": self.time_lapse,
+            "hdr": self.hdr,
+            "selfie": self.selfie,
+            "panorama": self.panorama,
         }
         return yaml.dump(info, sort_keys=False)
 
@@ -921,6 +928,13 @@ class PhotoInfo:
             "iscloudasset": self.iscloudasset,
             "incloud": self.incloud,
             "date_modified": date_modified_iso,
+            "portrait": self.portrait,
+            "screenshot": self.screenshot,
+            "slow_mo": self.slow_mo,
+            "time_lapse": self.time_lapse,
+            "hdr": self.hdr,
+            "selfie": self.selfie,
+            "panorama": self.panorama,
         }
         return json.dumps(pic)
 

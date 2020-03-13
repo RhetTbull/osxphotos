@@ -1019,6 +1019,13 @@ def print_photo_info(photos, json=False):
                 "iscloudasset",
                 "incloud",
                 "date_modified",
+                "portrait",
+                "screenshot",
+                "slow_mo",
+                "time_lapse",
+                "hdr",
+                "selfie",
+                "panorama",
             ]
         )
         for p in photos:
@@ -1053,6 +1060,13 @@ def print_photo_info(photos, json=False):
                     p.iscloudasset,
                     p.incloud,
                     date_modified_iso,
+                    p.portrait,
+                    p.screenshot,
+                    p.slow_mo,
+                    p.time_lapse,
+                    p.hdr,
+                    p.selfie,
+                    p.panorama,
                 ]
             )
         for row in dump:
