@@ -299,8 +299,7 @@ def create_path_by_date(dest, dt):
 #         f"""
 #         on openLibrary
 #             tell application "Photos"
-# 	         activate
-# 	         open POSIX file "{library_path}"
+# 	          open POSIX file "{library_path}"
 #             end tell
 #         end openLibrary
 #         """
@@ -342,7 +341,6 @@ def _export_photo_uuid_applescript(
         """ 
 		on export_by_uuid(theUUID, thePath, original, edited, theTimeOut)
 			tell application "Photos"
-				activate
 				set thePath to thePath
 				set theItem to media item id theUUID
 				set theFilename to filename of theItem
