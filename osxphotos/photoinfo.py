@@ -524,6 +524,8 @@ class PhotoInfo:
         # list of all files exported during this call to export
         exported_files = []
 
+        logging.debug(f"dest ={dest}.filename={filename}")
+
         # check arguments and get destination path and filename (if provided)
         if filename and len(filename) > 2:
             raise TypeError(
@@ -561,6 +563,7 @@ class PhotoInfo:
         # check destination path
         dest = pathlib.Path(dest)
         filename = pathlib.Path(filename)
+        logging.debug(f"dest ={dest}.filename={filename}")
         dest = dest / filename
 
         # check to see if file exists and if so, add (1), (2), etc until we find one that works

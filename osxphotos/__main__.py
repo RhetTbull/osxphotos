@@ -1330,6 +1330,11 @@ def export_photo(
     if "xmp" in sidecar:
         sidecar_xmp = True
 
+    # if download_missing and the photo is missing or path doesn't exist,
+    # try to download with Photos
+    use_photos_export = download_missing and (
+        photo.ismissing or not os.path.exists(photo.path)
+    )
     photo_path = photo.export(
         dest,
         filename,
@@ -1337,14 +1342,19 @@ def export_photo(
         sidecar_xmp=sidecar_xmp,
         live_photo=export_live,
         overwrite=overwrite,
-        use_photos_export=download_missing,
+        use_photos_export=use_photos_export,
         exiftool=exiftool,
     )
 
     # if export-edited, also export the edited version
     # verify the photo has adjustments and valid path to avoid raising an exception
     if export_edited and photo.hasadjustments:
-        if download_missing or photo.path_edited is not None:
+        # if download_missing and the photo is missing or path doesn't exist,
+        # try to download with Photos
+        use_photos_export = download_missing and photo.path_edited is None
+        if not download_missing and photo.path_edited is None:
+            click.echo(f"Skipping missing edited photo for {filename}")
+        else:
             edited_name = pathlib.Path(filename)
             edited_name = f"{edited_name.stem}_edited{edited_name.suffix}"
             if verbose:
@@ -1356,11 +1366,9 @@ def export_photo(
                 sidecar_xmp=sidecar_xmp,
                 overwrite=overwrite,
                 edited=True,
-                use_photos_export=download_missing,
+                use_photos_export=use_photos_export,
                 exiftool=exiftool,
             )
-        else:
-            click.echo(f"Skipping missing edited photo for {filename}")
 
     return photo_path
 
