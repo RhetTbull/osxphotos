@@ -521,9 +521,6 @@ class PhotoInfo:
             exiftool: (boolean, default = False); if True, will use exiftool to write metadata to export file
             returns the full path to the exported file """
 
-        # TODO: add this docs:
-        #  ( for jpeg in *.jpeg; do exiftool -v -json=$jpeg.json $jpeg; done )
-
         # list of all files exported during this call to export
         exported_files = []
 
