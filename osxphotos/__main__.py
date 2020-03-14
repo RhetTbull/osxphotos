@@ -701,7 +701,8 @@ def query(
 @click.option(
     "--export-bursts",
     is_flag=True,
-    help="If a photo is a burst photo export all associated burst images in the library.",
+    help="If a photo is a burst photo export all associated burst images in the library.  "
+    "Not currently compatible with --download-misssing; see note on --download-missing.",
 )
 @click.option(
     "--export-live",
@@ -734,7 +735,9 @@ def query(
     help="Attempt to download missing photos from iCloud. The current implementation uses Applescript "
     "to interact with Photos to export the photo which will force Photos to download from iCloud if "
     "the photo does not exist on disk.  This will be slow and will require internet connection. "
-    "This obviously only works if the Photos library is synched to iCloud.",
+    "This obviously only works if the Photos library is synched to iCloud.  "
+    "Note: --download-missing is not currently compatabile with --export-bursts; "
+    "only the primary photo will be exported--associated burst images will be skipped.",
 )
 @click.option(
     "--exiftool",

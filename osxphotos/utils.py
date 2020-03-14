@@ -315,6 +315,7 @@ def _export_photo_uuid_applescript(
     edited=False,
     live_photo=False,
     timeout=120,
+    burst=False,
 ):
     """ Export photo to dest path using applescript to control Photos
         If photo is a live photo, exports both the photo and associated .mov file
@@ -331,6 +332,7 @@ def _export_photo_uuid_applescript(
                 will raise error if called with both edited and original = True
         live_photo: (boolean) if True, export associated .mov live photo; default = False
         timeout: timeout value in seconds; export will fail if applescript run time exceeds timeout
+        burst: (boolean) set to True if file is a burst image to avoid Photos export error
         Returns: list of paths to exported file(s) or None if export failed
         Note: For Live Photos, if edited=True, will export a jpeg but not the movie, even if photo
               has not been edited. This is due to how Photos Applescript interface works.
@@ -388,6 +390,7 @@ def _export_photo_uuid_applescript(
         # need to find actual filename as sometimes Photos renames JPG to jpeg on export
         # may be more than one file exported (e.g. if Live Photo, Photos exports both .jpeg and .mov)
         # TemporaryDirectory will cleanup on return
+        filename_stem = pathlib.Path(filename).stem
         files = glob.glob(os.path.join(tmpdir.name, "*"))
         exported_paths = []
         for fname in files:
@@ -395,6 +398,10 @@ def _export_photo_uuid_applescript(
             if len(files) > 1 and not live_photo and path.suffix.lower() == ".mov":
                 # it's the .mov part of live photo but not requested, so don't export
                 logging.debug(f"Skipping live photo file {path}")
+                continue
+            if len(files) > 1 and burst and path.stem != filename_stem:
+                # skip any burst photo that's not the one we asked for
+                logging.debug(f"Skipping burst photo file {path}")
                 continue
             if filestem:
                 # rename the file based on filestem, keeping original extension

@@ -663,6 +663,7 @@ class PhotoInfo:
                         edited=True,
                         live_photo=live_photo,
                         timeout=timeout,
+                        burst=self.burst,
                     )
             else:
                 # export original version and not edited
@@ -675,6 +676,7 @@ class PhotoInfo:
                     edited=False,
                     live_photo=live_photo,
                     timeout=timeout,
+                    burst=self.burst,
                 )
 
             if exported is not None:

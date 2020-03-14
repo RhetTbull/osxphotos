@@ -175,7 +175,9 @@ Options:
                                   edited version exists.  Edited photo will be
                                   named in form of "photoname_edited.ext"
   --export-bursts                 If a photo is a burst photo export all
-                                  associated burst images in the library.
+                                  associated burst images in the library.  Not
+                                  currently compatible with --download-
+                                  misssing; see note on --download-missing.
   --export-live                   If a photo is a live photo export the
                                   associated live video component.  Live video
                                   will have same name as photo but with .mov
@@ -201,7 +203,10 @@ Options:
                                   exist on disk.  This will be slow and will
                                   require internet connection. This obviously
                                   only works if the Photos library is synched
-                                  to iCloud.
+                                  to iCloud.  Note: --download-missing is not
+                                  currently compatabile with --export-bursts;
+                                  only the primary photo will be exported--
+                                  associated burst images will be skipped.
   --exiftool                      Use exiftool to write metadata directly to
                                   exported photos. To use this option,
                                   exiftool must be installed and in the path.
