@@ -725,6 +725,7 @@ Export photo from the Photos library to another destination on disk.
 - use_photos_export: boolean; (default=False), if True will attempt to export photo via applescript interaction with Photos; useful for forcing download of missing photos.  This only works if the Photos library being used is the default library (last opened by Photos) as applescript will directly interact with whichever library Photos is currently using.
 - timeout: (int, default=120) timeout in seconds used with use_photos_export
 - exiftool: (boolean, default = False) if True, will use [exiftool](https://exiftool.org/) to write metadata directly to the exported photo; exiftool must be installed and in the system path
+
 Returns: list of paths to exported files. More than one file could be exported, for example if live_photo=True, both the original imaage and the associated .mov file will be exported
 
 The json sidecar file can be used by exiftool to apply the metadata from the json file to the image.  For example: 
