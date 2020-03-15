@@ -506,6 +506,12 @@ class PhotoInfo:
         """ export photo 
             dest: must be valid destination path (or exception raised) 
             filename: (optional): name of picture; if not provided, will use current filename 
+                      **NOTE**: if provided, user must ensure file extension (suffix) is correct. 
+                      For example, if photo is .CR2 file, edited image may be .jpeg.  
+                      If you provide an extension different than what the actual file is, 
+                      export will print a warning but will happily export the photo using the 
+                      incorrect file extension.  e.g. to get the extension of the edited photo, 
+                      reference PhotoInfo.path_edited
             edited: (boolean, default=False); if True will export the edited version of the photo 
                     (or raise exception if no edited version) 
             live_photo: (boolean, default=False); if True, will also export the associted .mov for live photos
