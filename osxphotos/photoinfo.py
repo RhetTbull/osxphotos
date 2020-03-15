@@ -539,7 +539,7 @@ class PhotoInfo:
                 raise FileNotFoundError("Invalid path passed to export")
 
             if filename and len(filename) == 1:
-                # second arg is filename of picture
+                # if filename passed, use it, but verify extension
                 filename = filename[0]
             else:
                 # no filename provided so use the default
@@ -565,6 +565,20 @@ class PhotoInfo:
         filename = pathlib.Path(filename)
         logging.debug(f"dest ={dest}.filename={filename}")
         dest = dest / filename
+
+        # check extension of destination
+        if edited and self.path_edited is not None:
+            actual_suffix = pathlib.Path(self.path_edited).suffix
+        elif edited:
+            logging.warning("Invalid suffix check for missing edited file")
+            actual_suffix = ""
+        else:
+            actual_suffix = pathlib.Path(self.filename).suffix
+
+        if dest.suffix != actual_suffix:
+            logging.warning(
+                f"Invalid destination suffix: {dest.suffix}, should be {actual_suffix}"
+            )
 
         # check to see if file exists and if so, add (1), (2), etc until we find one that works
         # Photos checks the stem and adds (1), (2), etc which avoids collision with sidecars

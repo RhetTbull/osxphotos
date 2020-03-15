@@ -1356,7 +1356,14 @@ def export_photo(
             click.echo(f"Skipping missing edited photo for {filename}")
         else:
             edited_name = pathlib.Path(filename)
-            edited_name = f"{edited_name.stem}_edited{edited_name.suffix}"
+            # check for correct edited suffix
+            if photo.path_edited is not None:
+                edited_suffix = pathlib.Path(photo.path_edited).suffix
+            else:
+                # use filename suffix which might be wrong,
+                # will be corrected by use_photos_export
+                edited_suffix = pathlib.Path(photo.filename).suffix
+            edited_name = f"{edited_name.stem}_edited{edited_suffix}"
             if verbose:
                 click.echo(f"Exporting edited version of {filename} as {edited_name}")
             photo.export(

@@ -3,6 +3,7 @@ from click.testing import CliRunner
 
 CLI_PHOTOS_DB = "tests/Test-10.15.1.photoslibrary"
 LIVE_PHOTOS_DB = "tests/Test-Cloud-10.15.1.photoslibrary/database/photos.db"
+RAW_PHOTOS_DB = "tests/Test-RAW-10.15.1.photoslibrary"
 
 CLI_OUTPUT_NO_SUBCOMMAND = [
     "Options:",
@@ -32,10 +33,10 @@ CLI_EXPORT_FILENAMES = [
     "Pumkins2.jpg",
     "Pumpkins3.jpg",
     "St James Park.jpg",
-    "St James Park_edited.jpg",
+    "St James Park_edited.jpeg",
     "Tulips.jpg",
     "wedding.jpg",
-    "wedding_edited.jpg",
+    "wedding_edited.jpeg",
 ]
 
 CLI_EXPORT_UUID = "D79B8D77-BFFC-460B-9312-034F2877D35B"
@@ -48,6 +49,14 @@ CLI_EXPORT_LIVE = [
 ]
 
 CLI_EXPORT_LIVE_ORIGINAL = ["IMG_0728.JPG", "IMG_0728.mov"]
+
+CLI_EXPORT_RAW = ["441DFE2A-A69B-4C79-A69B-3F51D1B9B29C.cr2"]
+CLI_EXPORT_RAW_ORIGINAL = ["IMG_0476_2.CR2"]
+CLI_EXPORT_RAW_EDITED = [
+    "441DFE2A-A69B-4C79-A69B-3F51D1B9B29C.cr2",
+    "441DFE2A-A69B-4C79-A69B-3F51D1B9B29C_edited.jpeg",
+]
+CLI_EXPORT_RAW_EDITED_ORIGINAL = ["IMG_0476_2.CR2", "IMG_0476_2_edited.jpeg"]
 
 
 def test_osxphotos():
@@ -119,7 +128,8 @@ def test_export():
                 "-V",
             ],
         )
-        files = glob.glob("*.jpg")
+        assert result.exit_code == 0
+        files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
 
 
@@ -204,3 +214,75 @@ def test_export_live():
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_LIVE_ORIGINAL)
 
+
+def test_export_raw():
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    with runner.isolated_filesystem():
+        result = runner.invoke(export, [os.path.join(cwd, RAW_PHOTOS_DB), ".", "-V"])
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_RAW)
+
+
+def test_export_raw_original():
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export, [os.path.join(cwd, RAW_PHOTOS_DB), ".", "--original-name", "-V"]
+        )
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_RAW_ORIGINAL)
+
+
+def test_export_raw_edited():
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export, [os.path.join(cwd, RAW_PHOTOS_DB), ".", "--export-edited", "-V"]
+        )
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_RAW_EDITED)
+
+
+def test_export_raw_edited_original():
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, RAW_PHOTOS_DB),
+                ".",
+                "--export-edited",
+                "--original-name",
+                "-V",
+            ],
+        )
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_RAW_EDITED_ORIGINAL)

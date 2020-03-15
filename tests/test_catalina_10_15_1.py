@@ -471,7 +471,6 @@ def test_export_3():
     filename = photos[0].filename
     filename2 = pathlib.Path(filename)
     filename2 = f"{filename2.stem} (1){filename2.suffix}"
-    expected_dest = os.path.join(dest, filename)
     expected_dest_2 = os.path.join(dest, filename2)
 
     got_dest = photos[0].export(dest)
@@ -502,7 +501,6 @@ def test_export_4():
     timestamp = time.time()
     filename = f"osxphotos-export-2-test-{timestamp}.jpg"
     filename2 = f"osxphotos-export-2-test-{timestamp} (1).jpg"
-    expected_dest = os.path.join(dest, filename)
     expected_dest_2 = os.path.join(dest, filename2)
 
     got_dest = photos[0].export(dest, filename)
@@ -587,7 +585,6 @@ def test_export_7():
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
     filename = photos[0].filename
-    expected_dest = os.path.join(dest, filename)
 
     got_dest = photos[0].export(dest)
     with pytest.raises(Exception) as e:
@@ -613,7 +610,6 @@ def test_export_8():
     photos = photosdb.photos(uuid=[UUID_DICT["missing"]])
 
     filename = photos[0].filename
-    expected_dest = os.path.join(dest, filename)
 
     with pytest.raises(Exception) as e:
         assert photos[0].export(dest)
@@ -634,7 +630,6 @@ def test_export_9():
     photos = photosdb.photos(uuid=[UUID_DICT["no_adjustments"]])
 
     filename = photos[0].filename
-    expected_dest = os.path.join(dest, filename)
 
     with pytest.raises(Exception) as e:
         assert photos[0].export(dest, edited=True)
@@ -657,7 +652,6 @@ def test_export_10():
 
     timestamp = time.time()
     filename = f"osxphotos-export-test-{timestamp}.jpg"
-    expected_dest = os.path.join(dest, filename)
 
     with pytest.raises(Exception) as e:
         assert photos[0].export(dest, filename, edited=True)
@@ -734,7 +728,6 @@ def test_export_13():
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
     filename = photos[0].filename
-    expected_dest = os.path.join(dest, filename)
 
     with pytest.raises(Exception) as e:
         assert photos[0].export(dest)
@@ -780,12 +773,8 @@ def test_photosinfo_repr():
     photo = photos[0]
     photo2 = eval(repr(photo))
 
-    assert {
-        k: str(v).encode("utf-8")
-        for k, v in photo.__dict__.items()
-    } == {
-        k: str(v).encode("utf-8")
-        for k, v in photo2.__dict__.items()
+    assert {k: str(v).encode("utf-8") for k, v in photo.__dict__.items()} == {
+        k: str(v).encode("utf-8") for k, v in photo2.__dict__.items()
     }
 
 
@@ -801,6 +790,7 @@ def test_from_to_date():
     photos = photosdb.photos(to_date=dt.datetime(2018, 10, 28))
     assert len(photos) == 5
 
-    photos = photosdb.photos(from_date=dt.datetime(2018, 9, 28),
-                             to_date=dt.datetime(2018, 9, 29))
+    photos = photosdb.photos(
+        from_date=dt.datetime(2018, 9, 28), to_date=dt.datetime(2018, 9, 29)
+    )
     assert len(photos) == 4
