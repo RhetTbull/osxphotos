@@ -46,9 +46,8 @@ def test_export_live_1():
 
     filename = photos[0].filename
     expected_dest = os.path.join(dest.name, filename)
-    got_dest = photos[0].export(dest.name, live_photo=True)
+    got_dest = photos[0].export(dest.name, live_photo=True)[0]
     got_movie = f"{pathlib.Path(got_dest).parent / pathlib.Path(got_dest).stem}.mov"
-    expected_dest = os.path.join(dest.name, filename)
     files = glob.glob(os.path.join(dest.name, "*"))
 
     assert len(files) == 2
@@ -73,7 +72,7 @@ def test_export_live_2():
 
     filename = photos[0].filename
     expected_dest = os.path.join(dest.name, filename)
-    got_dest = photos[0].export(dest.name, live_photo=False)
+    got_dest = photos[0].export(dest.name, live_photo=False)[0]
     got_movie = f"{pathlib.Path(got_dest).parent / pathlib.Path(got_dest).stem}.mov"
     files = glob.glob(os.path.join(dest.name, "*"))
 
@@ -81,6 +80,34 @@ def test_export_live_2():
     assert expected_dest == got_dest
     assert expected_dest in files
     assert got_movie not in files
+
+
+def test_export_live_3():
+    # export a live photo and associated .mov,
+    # check list return of export
+    import glob
+    import os.path
+    import pathlib
+    import tempfile
+
+    import osxphotos
+
+    dest = tempfile.TemporaryDirectory(prefix="osxphotos_")
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=[UUID_DICT["live"]])
+
+    filename = photos[0].filename
+    expected_dest = os.path.join(dest.name, filename)
+    expected_mov = f"{dest.name}/{pathlib.Path(expected_dest).stem}.mov"
+    got_files = photos[0].export(dest.name, live_photo=True)
+    # got_dest = got_files[0]
+    # got_movie = f"{pathlib.Path(got_dest).parent / pathlib.Path(got_dest).stem}.mov"
+    # files = glob.glob(os.path.join(dest.name, "*"))
+
+    assert len(got_files) == 2
+    assert expected_dest in got_files
+    assert expected_mov in got_files
 
 
 # def test_export_live_3():

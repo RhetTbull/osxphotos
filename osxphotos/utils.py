@@ -255,7 +255,7 @@ def list_photo_libraries():
     # On older MacOS versions, mdfind appears to ignore some libraries
     # glob to find libraries in ~/Pictures then mdfind to find all the others
     # TODO: make this more robust
-    lib_list = glob.glob(f"{str(Path.home())}/Pictures/*.photoslibrary")
+    lib_list = glob.glob(f"{str(pathlib.Path.home())}/Pictures/*.photoslibrary")
 
     # On older OS, may not get all libraries so make sure we get the last one
     last_lib = get_last_library_path()
@@ -327,7 +327,8 @@ def _export_photo_uuid_applescript(
                   If filestem.ext exists, it wil be overwritten
         original: (boolean) if True, export original image; default = True
         edited: (boolean) if True, export edited photo; default = False
-                will produce an error if image does not have edits/adjustments 
+                If photo not edited and edited=True, will still export the original image
+                caller must verify image has been edited
         *Note*: must be called with either edited or original but not both, 
                 will raise error if called with both edited and original = True
         live_photo: (boolean) if True, export associated .mov live photo; default = False
@@ -448,7 +449,7 @@ def _db_is_locked(dbname):
         conn.close()
         logging.debug(f"{dbname} is not locked")
         locked = False
-    except Exception as e:
+    except:
         logging.debug(f"{dbname} is locked")
         locked = True
 

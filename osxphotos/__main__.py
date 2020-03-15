@@ -1344,7 +1344,7 @@ def export_photo(
         overwrite=overwrite,
         use_photos_export=use_photos_export,
         exiftool=exiftool,
-    )
+    )[0]
 
     # if export-edited, also export the edited version
     # verify the photo has adjustments and valid path to avoid raising an exception

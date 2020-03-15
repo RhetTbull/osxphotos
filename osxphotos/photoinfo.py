@@ -505,7 +505,7 @@ class PhotoInfo:
     ):
         """ export photo 
             dest: must be valid destination path (or exception raised) 
-            filename: (optional): name of picture; if not provided, will use current filename 
+            filename: (optional): name of exported picture; if not provided, will use current filename 
                       **NOTE**: if provided, user must ensure file extension (suffix) is correct. 
                       For example, if photo is .CR2 file, edited image may be .jpeg.  
                       If you provide an extension different than what the actual file is, 
@@ -525,12 +525,17 @@ class PhotoInfo:
             use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos
             timeout: (int, default=120) timeout in seconds used with use_photos_export
             exiftool: (boolean, default = False); if True, will use exiftool to write metadata to export file
-            returns the full path to the exported file """
+            returns list of full paths to the exported files """
 
         # list of all files exported during this call to export
         exported_files = []
 
-        logging.debug(f"dest ={dest}.filename={filename}")
+        # check edited and raise exception trying to export edited version of
+        # photo that hasn't been edited
+        if edited and not self.hasadjustments:
+            raise ValueError(
+                "Photo does not have adjustments, cannot export edited version"
+            )
 
         # check arguments and get destination path and filename (if provided)
         if filename and len(filename) > 2:
@@ -545,8 +550,8 @@ class PhotoInfo:
                 raise FileNotFoundError("Invalid path passed to export")
 
             if filename and len(filename) == 1:
-                # if filename passed, use it, but verify extension
-                filename = filename[0]
+                # if filename passed, use it
+                fname = filename[0]
             else:
                 # no filename provided so use the default
                 # if edited file requested, use filename but add _edited
@@ -560,25 +565,26 @@ class PhotoInfo:
                         )
                     edited_name = pathlib.Path(self.path_edited).name
                     edited_suffix = pathlib.Path(edited_name).suffix
-                    filename = (
-                        pathlib.Path(self.filename).stem + "_edited" + edited_suffix
-                    )
+                    fname = pathlib.Path(self.filename).stem + "_edited" + edited_suffix
                 else:
-                    filename = self.filename
+                    fname = self.filename
 
         # check destination path
         dest = pathlib.Path(dest)
-        filename = pathlib.Path(filename)
-        logging.debug(f"dest ={dest}.filename={filename}")
-        dest = dest / filename
+        fname = pathlib.Path(fname)
+        dest = dest / fname
 
         # check extension of destination
         if edited and self.path_edited is not None:
+            # use suffix from edited file
             actual_suffix = pathlib.Path(self.path_edited).suffix
         elif edited:
-            logging.warning("Invalid suffix check for missing edited file")
-            actual_suffix = ""
+            # use .jpeg as that's probably correct
+            # if edited and path_edited is None, will raise FileNotFoundError below
+            # unless use_photos_export is True
+            actual_suffix = ".jpeg"
         else:
+            # use suffix from the non-edited file
             actual_suffix = pathlib.Path(self.filename).suffix
 
         if dest.suffix != actual_suffix:
@@ -613,16 +619,11 @@ class PhotoInfo:
             # get path to source file and verify it's not None and is valid file
             # TODO: how to handle ismissing or not hasadjustments and edited=True cases?
             if edited:
-                if not self.hasadjustments:
-                    logging.warning(
-                        "Attempting to export edited photo but hasadjustments=False"
-                    )
-
                 if self.path_edited is not None:
                     src = self.path_edited
                 else:
                     raise FileNotFoundError(
-                        f"edited=True but path_edited is none; hasadjustments: {self.hasadjustments}"
+                        f"Cannot export edited photo if path_edited is None"
                     )
             else:
                 if self.ismissing:
@@ -630,13 +631,10 @@ class PhotoInfo:
                         f"Attempting to export photo with ismissing=True: path = {self.path}"
                     )
 
-                if self.path is None:
-                    logging.warning(
-                        f"Attempting to export photo but path is None: ismissing = {self.ismissing}"
-                    )
-                    raise FileNotFoundError("Cannot export photo if path is None")
-                else:
+                if self.path is not None:
                     src = self.path
+                else:
+                    raise FileNotFoundError("Cannot export photo if path is None")
 
             if not os.path.isfile(src):
                 raise FileNotFoundError(f"{src} does not appear to exist")
@@ -675,16 +673,18 @@ class PhotoInfo:
                 else:
                     # didn't get passed a filename, add _edited
                     filestem = f"{dest.stem}_edited"
-                    exported = _export_photo_uuid_applescript(
-                        self.uuid,
-                        dest.parent,
-                        filestem=filestem,
-                        original=False,
-                        edited=True,
-                        live_photo=live_photo,
-                        timeout=timeout,
-                        burst=self.burst,
-                    )
+                    dest = dest.parent / f"{filestem}.jpeg"
+
+                exported = _export_photo_uuid_applescript(
+                    self.uuid,
+                    dest.parent,
+                    filestem=filestem,
+                    original=False,
+                    edited=True,
+                    live_photo=live_photo,
+                    timeout=timeout,
+                    burst=self.burst,
+                )
             else:
                 # export original version and not edited
                 filestem = dest.stem
@@ -702,7 +702,9 @@ class PhotoInfo:
             if exported is not None:
                 exported_files.extend(exported)
             else:
-                logging.warning(f"Error exporting photo {self.uuid} to {dest}")
+                logging.warning(
+                    f"Error exporting photo {self.uuid} to {dest} with use_photos_export"
+                )
 
         if sidecar_json:
             logging.debug("writing exiftool_json_sidecar")
@@ -724,14 +726,12 @@ class PhotoInfo:
                 logging.warning(f"Error writing xmp sidecar to {sidecar_filename}")
                 raise e
 
-        logging.debug(f"export exported_files: {exported_files}")
-
         # if exiftool, write the metadata
         if exiftool and exported_files:
             for exported_file in exported_files:
                 self._write_exif_data(exported_file)
 
-        return str(dest)
+        return exported_files
 
     def _write_exif_data(self, filepath):
         """ write exif data to image file at filepath
@@ -771,7 +771,6 @@ class PhotoInfo:
 
         exif = {}
         exif["_CreatedBy"] = "osxphotos, https://github.com/RhetTbull/osxphotos"
-        exif["File:FileName"] = self.filename
 
         if self.description:
             exif["EXIF:ImageDescription"] = self.description

@@ -31,7 +31,7 @@ def test_export_1():
 
     filename = photos[0].filename
     expected_dest = os.path.join(dest, filename)
-    got_dest = photos[0].export(dest)
+    got_dest = photos[0].export(dest)[0]
 
     assert got_dest == expected_dest
     assert os.path.isfile(got_dest)
@@ -55,7 +55,7 @@ def test_export_2():
 
     filename = photos[0].original_filename
     expected_dest = os.path.join(dest, filename)
-    got_dest = photos[0].export(dest, filename)
+    got_dest = photos[0].export(dest, filename)[0]
 
     assert got_dest == expected_dest
     assert os.path.isfile(got_dest)
@@ -81,7 +81,7 @@ def test_export_edited_name():
     filename = f"osxphotos-export-test-{timestamp}.jpg"
     expected_dest = os.path.join(dest, filename)
 
-    got_dest = photos[0].export(dest, filename, edited=True)
+    got_dest = photos[0].export(dest, filename, edited=True)[0]
     assert got_dest == expected_dest
     assert pathlib.Path(got_dest).name == filename
 
@@ -100,7 +100,7 @@ def test_export_edited_default():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["has_adjustments"]])
 
-    got_dest = photos[0].export(dest, edited=True)
+    got_dest = photos[0].export(dest, edited=True)[0]
     assert pathlib.Path(got_dest).name == FILENAME_DICT["current_edited"]
 
 
@@ -125,7 +125,7 @@ def test_export_edited_wrong_suffix(caplog):
     filename = f"osxphotos-export-test-{timestamp}.cr2"
     expected_dest = os.path.join(dest, filename)
 
-    got_dest = photos[0].export(dest, filename, edited=True)
+    got_dest = photos[0].export(dest, filename, edited=True)[0]
     assert "Invalid destination suffix" in caplog.text
     assert got_dest == expected_dest
     assert pathlib.Path(got_dest).name == filename

@@ -55,19 +55,17 @@ def test_export_1():
 
     import osxphotos
 
-    dest = tempfile.gettempdir()
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    dest = tempdir.name
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
     filename = photos[0].filename
     expected_dest = os.path.join(dest, filename)
-    got_dest = photos[0].export(dest)
+    got_dest = photos[0].export(dest)[0]
 
     assert got_dest == expected_dest
     assert os.path.isfile(got_dest)
-
-    # remove the temporary file
-    os.remove(got_dest)
 
 
 def test_export_2():
@@ -79,20 +77,18 @@ def test_export_2():
 
     import osxphotos
 
-    dest = tempfile.gettempdir()
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    dest = tempdir.name
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
     timestamp = time.time()
     filename = f"osxphotos-export-2-test-{timestamp}.jpg"
     expected_dest = os.path.join(dest, filename)
-    got_dest = photos[0].export(dest, filename)
+    got_dest = photos[0].export(dest, filename)[0]
 
     assert got_dest == expected_dest
     assert os.path.isfile(got_dest)
-
-    # remove the temporary file
-    os.remove(got_dest)
 
 
 def test_export_3():
@@ -104,7 +100,8 @@ def test_export_3():
 
     import osxphotos
 
-    dest = tempfile.gettempdir()
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    dest = tempdir.name
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
@@ -114,15 +111,11 @@ def test_export_3():
     expected_dest = os.path.join(dest, filename)
     expected_dest_2 = os.path.join(dest, filename2)
 
-    got_dest = photos[0].export(dest)
-    got_dest_2 = photos[0].export(dest)
+    got_dest = photos[0].export(dest)[0]
+    got_dest_2 = photos[0].export(dest)[0]
 
     assert got_dest_2 == expected_dest_2
     assert os.path.isfile(got_dest_2)
-
-    # remove the temporary file
-    os.remove(got_dest)
-    os.remove(got_dest_2)
 
 
 def test_export_4():
@@ -135,7 +128,8 @@ def test_export_4():
 
     import osxphotos
 
-    dest = tempfile.gettempdir()
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    dest = tempdir.name
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
@@ -145,15 +139,11 @@ def test_export_4():
     expected_dest = os.path.join(dest, filename)
     expected_dest_2 = os.path.join(dest, filename2)
 
-    got_dest = photos[0].export(dest, filename)
-    got_dest_2 = photos[0].export(dest, filename)
+    got_dest = photos[0].export(dest, filename)[0]
+    got_dest_2 = photos[0].export(dest, filename)[0]
 
     assert got_dest_2 == expected_dest_2
     assert os.path.isfile(got_dest_2)
-
-    # remove the temporary file
-    os.remove(got_dest)
-    os.remove(got_dest_2)
 
 
 def test_export_5():
@@ -165,22 +155,20 @@ def test_export_5():
 
     import osxphotos
 
-    dest = tempfile.gettempdir()
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    dest = tempdir.name
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
     filename = photos[0].filename
     expected_dest = os.path.join(dest, filename)
 
-    got_dest = photos[0].export(dest)
-    got_dest_2 = photos[0].export(dest, overwrite=True)
+    got_dest = photos[0].export(dest)[0]
+    got_dest_2 = photos[0].export(dest, overwrite=True)[0]
 
     assert got_dest_2 == got_dest
     assert got_dest_2 == expected_dest
     assert os.path.isfile(got_dest_2)
-
-    # remove the temporary file
-    os.remove(got_dest)
 
 
 def test_export_6():
@@ -194,7 +182,8 @@ def test_export_6():
 
     import osxphotos
 
-    dest = tempfile.gettempdir()
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    dest = tempdir.name
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
@@ -202,15 +191,12 @@ def test_export_6():
     filename = f"osxphotos-export-test-{timestamp}.jpg"
     expected_dest = os.path.join(dest, filename)
 
-    got_dest = photos[0].export(dest, filename)
-    got_dest_2 = photos[0].export(dest, filename, overwrite=True)
+    got_dest = photos[0].export(dest, filename)[0]
+    got_dest_2 = photos[0].export(dest, filename, overwrite=True)[0]
 
     assert got_dest_2 == got_dest
     assert got_dest_2 == expected_dest
     assert os.path.isfile(got_dest_2)
-
-    # remove the temporary file
-    os.remove(got_dest)
 
 
 def test_export_7():
@@ -222,21 +208,19 @@ def test_export_7():
 
     import osxphotos
 
-    dest = tempfile.gettempdir()
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    dest = tempdir.name
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
     filename = photos[0].filename
     expected_dest = os.path.join(dest, filename)
 
-    got_dest = photos[0].export(dest)
+    got_dest = photos[0].export(dest)[0]
     with pytest.raises(Exception) as e:
         # try to export again with increment = False
-        assert photos[0].export(dest, increment=False)
+        assert photos[0].export(dest, increment=False)[0]
     assert e.type == type(FileExistsError())
-
-    # remove the temporary file
-    os.remove(got_dest)
 
 
 def test_export_8():
@@ -248,7 +232,8 @@ def test_export_8():
 
     import osxphotos
 
-    dest = tempfile.gettempdir()
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    dest = tempdir.name
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["missing"]])
 
@@ -256,7 +241,7 @@ def test_export_8():
     expected_dest = os.path.join(dest, filename)
 
     with pytest.raises(Exception) as e:
-        assert photos[0].export(dest)
+        assert photos[0].export(dest)[0]
     assert e.type == type(FileNotFoundError())
 
 
@@ -269,7 +254,8 @@ def test_export_9():
 
     import osxphotos
 
-    dest = tempfile.gettempdir()
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    dest = tempdir.name
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["no_adjustments"]])
 
@@ -278,7 +264,7 @@ def test_export_9():
 
     with pytest.raises(Exception) as e:
         assert photos[0].export(dest, edited=True)
-    assert e.type == type(FileNotFoundError())
+    assert e.type == ValueError
 
 
 def test_export_10():
@@ -291,7 +277,8 @@ def test_export_10():
 
     import osxphotos
 
-    dest = tempfile.gettempdir()
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    dest = tempdir.name
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["no_adjustments"]])
 
@@ -300,8 +287,8 @@ def test_export_10():
     expected_dest = os.path.join(dest, filename)
 
     with pytest.raises(Exception) as e:
-        assert photos[0].export(dest, filename, edited=True)
-    assert e.type == type(FileNotFoundError())
+        assert photos[0].export(dest, filename, edited=True)[0]
+    assert e.type == ValueError
 
 
 def test_export_11():
@@ -313,7 +300,8 @@ def test_export_11():
 
     import osxphotos
 
-    dest = tempfile.gettempdir()
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    dest = tempdir.name
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["has_adjustments"]])
 
@@ -321,11 +309,8 @@ def test_export_11():
     filename = f"osxphotos-export-test-{timestamp}.jpg"
     expected_dest = os.path.join(dest, filename)
 
-    got_dest = photos[0].export(dest, filename, edited=True)
+    got_dest = photos[0].export(dest, filename, edited=True)[0]
     assert got_dest == expected_dest
-
-    # remove the temporary file
-    os.remove(got_dest)
 
 
 def test_export_12():
@@ -337,7 +322,8 @@ def test_export_12():
 
     import osxphotos
 
-    dest = tempfile.gettempdir()
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    dest = tempdir.name
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["has_adjustments"]])
 
@@ -346,11 +332,8 @@ def test_export_12():
     filename = pathlib.Path(photos[0].filename).stem + "_edited" + edited_suffix
     expected_dest = os.path.join(dest, filename)
 
-    got_dest = photos[0].export(dest, edited=True)
+    got_dest = photos[0].export(dest, edited=True)[0]
     assert got_dest == expected_dest
-
-    # remove the temporary file
-    os.remove(got_dest)
 
 
 def test_export_13():
@@ -362,7 +345,8 @@ def test_export_13():
 
     import osxphotos
 
-    dest = tempfile.gettempdir()
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    dest = tempdir.name
 
     # create a folder that doesn't exist
     i = 0
@@ -377,7 +361,7 @@ def test_export_13():
     expected_dest = os.path.join(dest, filename)
 
     with pytest.raises(Exception) as e:
-        assert photos[0].export(dest)
+        assert photos[0].export(dest)[0]
     assert e.type == type(FileNotFoundError())
 
 
@@ -390,8 +374,7 @@ def test_exiftool_json_sidecar():
 
     json_expected = json.loads(
         """
-    [{"File:FileName": "St James Park.jpg",
-    "XMP:Title": "St. James\'s Park", 
+    [{"XMP:Title": "St. James\'s Park", 
     "XMP:TagsList": ["London 2018", "St. James\'s Park", "England", "United Kingdom", "UK", "London"], 
     "IPTC:Keywords": ["London 2018", "St. James\'s Park", "England", "United Kingdom", "UK", "London"], 
     "XMP:Subject": ["London 2018", "St. James\'s Park", "England", "United Kingdom", "UK", "London"], 
