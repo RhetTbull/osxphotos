@@ -62,7 +62,7 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     install_requires=[
-        "pycodestyle==2.3.1",  # needed by bpylist==2.0.3
+        "pycodestyle<2.6.0,>=2.5.0'",  # needed by bpylist==2.0.3
         "pyobjc>=6.0.1",
         "Click>=7",
         "PyYAML>=5.1.2",
