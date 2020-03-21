@@ -61,7 +61,13 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    install_requires=["pyobjc>=6.0.1", "Click>=7", "PyYAML>=5.1.2", "Mako>=1.1.1"],
+    install_requires=[
+        "pyobjc>=6.0.1",
+        "Click>=7",
+        "PyYAML>=5.1.2",
+        "Mako>=1.1.1",
+        "bpylist2>=2.0.3",
+    ],
     entry_points={"console_scripts": ["osxphotos=osxphotos.__main__:cli"]},
     include_package_data=True,
 )

@@ -13,6 +13,7 @@
   * [Package Interface](#package-interface)
     + [PhotosDB](#photosdb)
     + [PhotoInfo](#photoinfo)
+    + [PlaceInfo](#placeinfo)
     + [Utility Functions](#utility-functions)
     + [Examples](#examples)
   * [Related Projects](#related-projects)
@@ -632,6 +633,9 @@ Returns `True` if the picture has been marked as hidden, otherwise `False`
 #### `location`
 Returns latitude and longitude as a tuple of floats (latitude, longitude).  If location is not set, latitude and longitude are returned as `None`
 
+#### `place`
+Returns a [PlaceInfo](#PlaceInfo) object with reverse geolocation data or None if there is the photo has no reverse geolocation information.
+
 #### `shared`
 Returns True if photo is in a shared album, otherwise False.
 
@@ -744,8 +748,62 @@ Then
 
 If overwrite=False and increment=False, export will fail if destination file already exists
 
-
 **Implementation Note**: Because the usual python file copy methods don't preserve all the metadata available on MacOS, export uses /usr/bin/ditto to do the copy for export. ditto preserves most metadata such as extended attributes, permissions, ACLs, etc.
+
+### PlaceInfo
+[PhotoInfo.place](#place) returns a PlaceInfo object if the photo contains valid reverse geolocation information.  PlaceInfo has the following properties.  
+
+**Note** For Photos versions <= 4, only `name`, `names`, and `country_code` properties are defined.  All others return `None`.  This is because older versions of Photos do not store the more detailed reverse geolocation information.
+
+#### `ishome`
+Returns `True` if photo place is user's home address, otherwise `False`.
+
+#### `name`
+Returns the name of the local place as str.  This may be a street address (e.g. "2038 18th St NW") or a public place (e.g. "St James\'s Park").
+
+Returns `None` if photo does not contain a name.
+
+#### `names`
+Returns a list of place names in ascending order by area, starting with the smallest area (most local) to largest area (least local).  For example:
+
+        ["2038 18th St NW",
+        "Adams Morgan",
+        "Washington",
+        "Washington",
+        "Washington",
+        "District of Columbia",
+        "United States"]
+
+`names[0]` will always be the most local (e.g. street address) component and `names[-1]` will always be the least local which is almost always the country name.
+
+**Note**: names may contain duplicates as in above.  The data is returned exactly as it is stored by Photos.  
+
+#### `country_code`
+Returns the country_code of place, for example "GB".  Returns `None` if PhotoInfo contains no country code.
+
+#### `address_str`
+Returns the full postal address as a string if defined, otherwise `None`.
+
+For example: "2038 18th St NW, Washington, DC  20009, United States"
+
+#### `address`:
+Returns a `PostalAddress` tuple with details of the postal address containing the following fields:
+- city
+- country
+- postal_code
+- state
+- street
+- sub_administrative_area
+- sub_locality
+- iso_country_code
+
+For example:
+```python
+>>> photo.place.address
+PostalAddress(street='3700 Wailea Alanui Dr', sub_locality=None, city='Kihei', sub_administrative_area='Maui', state='HI', postal_code='96753', country='United States', iso_country_code='US')
+>>> photo.place.address.postal_code
+'96753'
+```
 
 ### Utility Functions
 

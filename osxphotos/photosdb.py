@@ -28,11 +28,11 @@ from ._version import __version__
 from .photoinfo import PhotoInfo
 from .utils import (
     _check_file_exists,
-    _get_os_version,
-    get_last_library_path,
-    _debug,
-    _open_sql_file,
     _db_is_locked,
+    _debug,
+    _get_os_version,
+    _open_sql_file,
+    get_last_library_path,
 )
 
 # TODO: Add test for imageTimeZoneOffsetSeconds = None
@@ -830,6 +830,52 @@ class PhotosDB:
                 self._dbphotos[uuid]["cloudStatus"] = row[3]
                 self._dbphotos[uuid]["incloud"] = True if row[2] == 1 else False
 
+        # get location data
+        # get the country codes
+        country_codes = c.execute(
+            "SELECT modelID, countryCode "
+            "FROM RKPlace "
+            "WHERE countryCode IS NOT NULL "
+        ).fetchall()
+        countries = {code[0]: code[1] for code in country_codes}
+        self._db_countries = countries
+
+        # save existing row_factory
+        old_row_factory = c.row_factory
+
+        # want only the list of values, not a list of tuples
+        c.row_factory = lambda cursor, row: row[0]
+
+        for uuid in self._dbphotos:
+            # get placeId which is then used to lookup defaultName
+            place_ids = c.execute(
+                "SELECT placeId "
+                "FROM RKPlaceForVersion "
+                f"WHERE versionId = '{self._dbphotos[uuid]['modelID']}'"
+            ).fetchall()
+            self._dbphotos[uuid]["placeIDs"] = place_ids
+            country_code = [countries[x] for x in place_ids if x in countries]
+            if len(country_code) > 1:
+                logging.warning(f"Found more than one country code for uuid: {uuid}")
+
+            if country_code:
+                self._dbphotos[uuid]["countryCode"] = country_code[0]
+            else:
+                self._dbphotos[uuid]["countryCode"] = None
+
+            place_names = c.execute(
+                "SELECT DISTINCT defaultName AS name "
+                "FROM RKPlace "
+                f"WHERE modelId IN({','.join(map(str,place_ids))}) "
+                "ORDER BY area ASC "
+            ).fetchall()
+
+            self._dbphotos[uuid]["placeNames"] = place_names
+            self._dbphotos[uuid]["reverse_geolocation"] = None  # Photos 5
+
+        # restore row_factory
+        c.row_factory = old_row_factory
+
         # build album_titles dictionary
         for album_id in self._dbalbum_details:
             title = self._dbalbum_details[album_id]["title"]
@@ -1045,7 +1091,8 @@ class PhotosDB:
                 ZGENERICASSET.ZKINDSUBTYPE,
                 ZGENERICASSET.ZCUSTOMRENDEREDVALUE,
                 ZADDITIONALASSETATTRIBUTES.ZCAMERACAPTUREDEVICE,
-                ZGENERICASSET.ZCLOUDASSETGUID 
+                ZGENERICASSET.ZCLOUDASSETGUID,
+                ZADDITIONALASSETATTRIBUTES.ZREVERSELOCATIONDATA
                 FROM ZGENERICASSET 
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK 
                 WHERE ZGENERICASSET.ZTRASHEDSTATE = 0  
@@ -1076,8 +1123,9 @@ class PhotosDB:
         # 21   ZGENERICASSET.ZKINDSUBTYPE -- determine if live photos, etc
         # 22   ZGENERICASSET.ZCUSTOMRENDEREDVALUE -- determine if HDR photo
         # 23   ZADDITIONALASSETATTRIBUTES.ZCAMERACAPTUREDEVICE -- 1 if selfie (front facing camera)
-        # 25   ZGENERICASSET.ZCLOUDASSETGUID  -- not null if asset is cloud asset
+        # 24   ZGENERICASSET.ZCLOUDASSETGUID  -- not null if asset is cloud asset
         #       (e.g. user has "iCloud Photos" checked in Photos preferences)
+        # 25   ZADDITIONALASSETATTRIBUTES.ZREVERSELOCATIONDATA -- reverse geolocation data
 
         for row in c:
             uuid = row[0]
@@ -1202,6 +1250,12 @@ class PhotosDB:
             info["cloudLibraryState"] = None  # Photos 4
             info["cloudStatus"] = None  # Photos 4
             info["cloudAvailable"] = None  # Photos 4
+
+            # reverse geolocation info
+            info["reverse_geolocation"] = row[25]
+            info["placeIDs"] = None  # Photos 4
+            info["placeNames"] = None  # Photos 4
+            info["countryCode"] = None  # Photos 4
 
             self._dbphotos[uuid] = info
 
@@ -1370,6 +1424,9 @@ class PhotosDB:
                 self._dbalbum_titles[title].append(album_id)
             else:
                 self._dbalbum_titles[title] = [album_id]
+
+        # country codes (only used in Photos <=4)
+        self._db_countries = None
 
         # close connection and remove temporary files
         conn.close()
@@ -1715,8 +1772,8 @@ class PhotosDB:
                     info.burst_key = True  # it's a key photo (selected from the burst)
                 else:
                     info.burst_key = (
-                        False
-                    )  # it's a burst photo but not one that's selected
+                        False  # it's a burst photo but not one that's selected
+                    )
             else:
                 # not a burst photo
                 info.burst = False

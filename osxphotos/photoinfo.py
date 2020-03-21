@@ -26,13 +26,14 @@ from ._constants import (
     _TEMPLATE_DIR,
     _XMP_TEMPLATE_NAME,
 )
+from .exiftool import ExifTool
+from .placeinfo import PlaceInfo4, PlaceInfo5
 from .utils import (
     _copy_file,
     _export_photo_uuid_applescript,
     _get_resource_loc,
     dd_to_dms_str,
 )
-from .exiftool import ExifTool
 
 
 class PhotoInfo:
@@ -488,6 +489,34 @@ class PhotoInfo:
     def selfie(self):
         """ Returns True if photo is a selfie (front facing camera), otherwise False """
         return self._info["selfie"]
+
+    @property
+    def place(self):
+        """ If Photos version >= 5, returns PlaceInfo object containing reverse geolocation info """
+
+        # implementation note: doesn't create the PlaceInfo object until requested
+        # then memoizes the object in self._place to avoid recreating the object
+
+        if self._db._db_version < _PHOTOS_5_VERSION:
+            try:
+                return self._place  # pylint: disable=access-member-before-definition
+            except:
+                if self._info["placeNames"]:
+                    self._place = PlaceInfo4(
+                        self._info["placeNames"], self._info["countryCode"]
+                    )
+                else:
+                    self._place = None
+                return self._place
+        else:
+            try:
+                return self._place  # pylint: disable=access-member-before-definition
+            except AttributeError:
+                if self._info["reverse_geolocation"]:
+                    self._place = PlaceInfo5(self._info["reverse_geolocation"])
+                else:
+                    self._place = None
+                return self._place
 
     def export(
         self,
