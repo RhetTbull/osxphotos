@@ -7,6 +7,7 @@ attrs==19.1.0
 better-exceptions-fork==0.2.1.post6
 black==19.10b0
 bpylist2==2.0.3
+pycodestyle==2.3.1
 certifi==2019.3.9
 Click==7.0
 colorama==0.4.1
