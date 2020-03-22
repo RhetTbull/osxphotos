@@ -1408,8 +1408,8 @@ def export_photo(
             click.echo(
                 f"Possible unmatched substitution in template: {unmatched}", err=True
             )
-        dirname = sanitize_filepath(dirname)
-        if not is_valid_filepath(dirname):
+        dirname = sanitize_filepath(dirname, platform="auto")
+        if not is_valid_filepath(dirname, platform="auto"):
             raise ValueError(f"Invalid file path: {dirname}")
         dest = os.path.join(dest, dirname)
         if not os.path.isdir(dest):
