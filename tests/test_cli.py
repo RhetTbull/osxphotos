@@ -39,6 +39,33 @@ CLI_EXPORT_FILENAMES = [
     "wedding_edited.jpeg",
 ]
 
+CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES1 = [
+    "2019/April/wedding.jpg",
+    "2019/July/Tulips.jpg",
+    "2018/October/St James Park.jpg",
+    "2018/September/Pumpkins3.jpg",
+    "2018/September/Pumkins2.jpg",
+    "2018/September/Pumkins1.jpg",
+]
+
+CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES2 = [
+    "St James's Park/St James Park.jpg",
+    "_/Pumpkins3.jpg",
+    "_/Pumkins2.jpg",
+    "_/Pumkins1.jpg",
+    "_/Tulips.jpg",
+    "_/wedding.jpg",
+]
+
+CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES3 = [
+    "2019/{foo}/wedding.jpg",
+    "2019/{foo}/Tulips.jpg",
+    "2018/{foo}/St James Park.jpg",
+    "2018/{foo}/Pumpkins3.jpg",
+    "2018/{foo}/Pumkins2.jpg",
+    "2018/{foo}/Pumkins1.jpg",
+]
+
 CLI_EXPORT_UUID = "D79B8D77-BFFC-460B-9312-034F2877D35B"
 
 CLI_EXPORT_SIDECAR_FILENAMES = ["Pumkins2.jpg", "Pumkins2.json", "Pumkins2.xmp"]
@@ -117,6 +144,7 @@ def test_export():
 
     runner = CliRunner()
     cwd = os.getcwd()
+    # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
             export,
@@ -171,6 +199,7 @@ def test_export_sidecar():
 
     runner = CliRunner()
     cwd = os.getcwd()
+    # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
             cli,
@@ -199,6 +228,7 @@ def test_export_live():
 
     runner = CliRunner()
     cwd = os.getcwd()
+    # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
             export,
@@ -224,6 +254,7 @@ def test_export_raw():
 
     runner = CliRunner()
     cwd = os.getcwd()
+    # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(export, [os.path.join(cwd, RAW_PHOTOS_DB), ".", "-V"])
         files = glob.glob("*")
@@ -239,6 +270,7 @@ def test_export_raw_original():
 
     runner = CliRunner()
     cwd = os.getcwd()
+    # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
             export, [os.path.join(cwd, RAW_PHOTOS_DB), ".", "--original-name", "-V"]
@@ -256,6 +288,7 @@ def test_export_raw_edited():
 
     runner = CliRunner()
     cwd = os.getcwd()
+    # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
             export, [os.path.join(cwd, RAW_PHOTOS_DB), ".", "--export-edited", "-V"]
@@ -273,6 +306,7 @@ def test_export_raw_edited_original():
 
     runner = CliRunner()
     cwd = os.getcwd()
+    # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
             export,
@@ -286,3 +320,91 @@ def test_export_raw_edited_original():
         )
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_RAW_EDITED_ORIGINAL)
+
+
+def test_export_directory_template_1():
+    # test export using directory template
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "--original-name",
+                "-V",
+                "--directory",
+                "{created.year}/{created.month}",
+            ],
+        )
+        assert result.exit_code == 0
+        workdir = os.getcwd()
+        for filepath in CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES1:
+            assert os.path.isfile(os.path.join(workdir, filepath))
+
+
+def test_export_directory_template_2():
+    # test export using directory template with missing substitution value
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "--original-name",
+                "-V",
+                "--directory",
+                "{place.name}",
+            ],
+        )
+        assert result.exit_code == 0
+        workdir = os.getcwd()
+        for filepath in CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES2:
+            assert os.path.isfile(os.path.join(workdir, filepath))
+
+
+def test_export_directory_template_3():
+    # test export using directory template with unmatched substituion value
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "--original-name",
+                "-V",
+                "--directory",
+                "{created.year}/{foo}",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Possible unmatched substitution in template: ['{foo}']" in result.output
+        workdir = os.getcwd()
+        for filepath in CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES3:
+            assert os.path.isfile(os.path.join(workdir, filepath))

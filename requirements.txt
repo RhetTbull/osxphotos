@@ -24,6 +24,7 @@ modulegraph==0.18
 more-itertools==7.2.0
 packaging==19.0
 pathspec==0.7.0
+pathvalidate==2.2.1
 pluggy==0.12.0
 py==1.8.0
 py2app==0.21

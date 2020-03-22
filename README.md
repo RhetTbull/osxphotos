@@ -213,18 +213,99 @@ Options:
                                   exiftool must be installed and in the path.
                                   exiftool may be installed from
                                   https://exiftool.org/
+  --directory DIRECTORY           Optional template for specifying name of
+                                  output directory.  See below for additional
+                                  details on templating system
   -h, --help                      Show this message and exit.
+
+**Templating System**
+
+With the --directory option, you may specify a template for the export
+directory.  This directory will be appended to the export path specified  in
+the export DEST argument to export.  For example, if template is
+'{created.year}/{created.month}', and export desitnation DEST is
+'/Users/maria/Pictures/export',  the actual export directory for a photo would
+be '/Users/maria/Pictures/export/2020/March'  if the photo was created in
+March 2020.
+
+In the template, valid template substitutions will be replaced by the
+corresponding value from the table below.  Invalid substitutions will result
+in a warning but will be left unchanged. e.g. if you put '{foo}' in your
+template, e.g. '{created.year}/{foo}', the resulting output directory would
+look like '/Users/maria/Pictures/export/2020/{foo}'
+
+If you want the actual text of the template substition to appear in the
+rendered name, escape the curly braces with \, for example, using
+'{created.year}/\{name\}' for --directory would result in output of
+2020/{name}/photoname.jpg
+
+In the current implementation, substitutions which have no value will be
+replaced by '_', for example, your template looked like
+'{created.year}/{place.address}' but there was no address associated with the
+photo, the resulting output would be: '2020/_/photoname.jpg'
+
+I plan to add the option to specify the value to be used for missing
+subsitutions in a future version. I also plan to extend the templating system
+to the exported filename so you can specify the filename using a template.
+
+Substitution          Description
+{name}                Filename of the photo
+{original_name}       Photo's original filename when imported to Photos
+{title}               Title of the photo
+{descr}               Description of the photo
+{created.date}        Photo's creation date in ISO format, e.g. '2020-03-22'
+{created.year}        4-digit year of file creation time
+{created.yy}          2-digit year of file creation time
+{created.mm}          2-digit month of the file creation time (zero padded)
+{created.month}       Month name in user's locale of the file creation time
+{created.mon}         Month abbreviation in the user's locale of the file
+                      creation time
+{created.doy}         3-digit day of year (e.g Julian day) of file creation
+                      time, starting from 1 (zero padded)
+{modified.date}       Photo's modification date in ISO format, e.g.
+                      '2020-03-22'
+{modified.year}       4-digit year of file modification time
+{modified.yy}         2-digit year of file modification time
+{modified.mm}         2-digit month of the file modification time (zero
+                      padded)
+{modified.month}      Month name in user's locale of the file modification
+                      time
+{modified.mon}        Month abbreviation in the user's locale of the file
+                      modification time
+{modified.doy}        3-digit day of year (e.g Julian day) of file
+                      modification time, starting from 1 (zero padded)
+{place.name}          Place name from the photo's reverse geolocation data
+{place.names}         list of place names from the photo's reverse
+                      geolocation data, joined with '_', for example, '18th
+                      St NW_Washington_DC_United States'
+{place.address}       Postal address from the photo's reverse geolocation
+                      data, e.g. '2007 18th St NW, Washington, DC 20009,
+                      United States'
+{place.street}        Street part of the postal address, e.g. '2007 18th St
+                      NW'
+{place.city}          City part of the postal address, e.g. 'Washington'
+{place.state}         State part of the postal address, e.g. 'DC'
+{place.postal_code}   Postal code part of the postal address, e.g. '20009'
+{place.country}       Country name of the postal code, e.g. 'United States'
+{place.country_code}  ISO country code of the postal address, e.g. 'US'
 ```
 
 Example: export all photos to ~/Desktop/export, including edited versions and live photo movies, group in folders by date created
+
 `osxphotos export --export-edited --export-live --export-by-date ~/Pictures/Photos\ Library.photoslibrary ~/Desktop/export`
 
 **Note**: Photos library/database path can also be specified using --db option:
+
 `osxphotos export --export-edited --export-live --export-by-date --db ~/Pictures/Photos\ Library.photoslibrary ~/Desktop/export`
 
 Example: find all photos with keyword "Kids" and output results to json file named results.json:
 
 `osxphotos query --keyword Kids --json ~/Pictures/Photos\ Library.photoslibrary >results.json`
+
+Example: export photos to file structure based on 4-digit year and full name of month of photo's creation date:
+
+`osxphotos export ~/Desktop/export --directory "{created.year}/{created.month}"`
+
 
 ## Example uses of the package 
 

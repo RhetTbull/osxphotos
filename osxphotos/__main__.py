@@ -1,6 +1,7 @@
 import csv
 import datetime
 import json
+import logging
 import os
 import os.path
 import pathlib
@@ -8,13 +9,20 @@ import sys
 
 import click
 import yaml
+from pathvalidate import (
+    is_valid_filename,
+    is_valid_filepath,
+    sanitize_filepath,
+    sanitize_filename,
+)
 
 import osxphotos
 
 from ._constants import _EXIF_TOOL_URL, _PHOTOS_5_VERSION
 from ._version import __version__
-from .utils import create_path_by_date, _copy_file
 from .exiftool import get_exiftool_path
+from .template import render_filename_template, TEMPLATE_SUBSTITUTIONS
+from .utils import _copy_file, create_path_by_date
 
 
 def get_photos_db(*db_options):
@@ -57,6 +65,65 @@ class CLI_Obj:
             osxphotos._set_debug(True)
         self.db = db
         self.json = json
+
+
+class ExportCommand(click.Command):
+    """ Custom click.Command that overrides get_help() to show additional help info for export """
+
+    def get_help(self, ctx):
+        help_text = super().get_help(ctx)
+        formatter = click.HelpFormatter()
+
+        formatter.write("\n\n")
+        # passed to click.HelpFormatter.write_dl for formatting
+        formatter.write_text("**Templating System**")
+        formatter.write("\n")
+        formatter.write_text(
+            "With the --directory option, you may specify a template for the "
+            + "export directory.  This directory will be appended to the export path specified "
+            + " in the export DEST argument to export.  For example, if template is "
+            + "'{created.year}/{created.month}', and export desitnation DEST is "
+            + "'/Users/maria/Pictures/export', "
+            + " the actual export directory for a photo would be '/Users/maria/Pictures/export/2020/March' "
+            + " if the photo was created in March 2020. "
+        )
+        formatter.write("\n")
+        formatter.write_text(
+            "In the template, valid template substitutions will be replaced by "
+            + "the corresponding value from the table below.  Invalid substitutions will result in a "
+            + "warning but will be left unchanged. e.g. if you put '{foo}' in your template, "
+            + "e.g. '{created.year}/{foo}', the resulting output directory would look like "
+            + "'/Users/maria/Pictures/export/2020/{foo}' "
+        )
+        formatter.write("\n")
+        formatter.write_text(
+            "If you want the actual text of the template substition to appear "
+            + "in the rendered name, escape the curly braces with \\, for example, "
+            + "using '{created.year}/\\{name\\}' for --directory "
+            + "would result in output of 2020/{name}/photoname.jpg"
+        )
+        formatter.write("\n")
+        formatter.write_text(
+            "In the current implementation, substitutions which have no value "
+            + "will be replaced by '_', "
+            + "for example, your template looked like '{created.year}/{place.address}' "
+            + "but there was no address associated with the photo, the resulting output would be: "
+            + "'2020/_/photoname.jpg' "
+        )
+        formatter.write("\n")
+        formatter.write_text(
+            "I plan to add the option to specify the value to be used for missing "
+            + "subsitutions in a future version. I also plan to extend the templating system "
+            + "to the exported filename so you can specify the filename using a template."
+        )
+
+        formatter.write("\n")
+        templ_tuples = [("Substitution", "Description")]
+        templ_tuples.extend((k, v) for k, v in TEMPLATE_SUBSTITUTIONS.items())
+
+        formatter.write_dl(templ_tuples)
+        help_text += formatter.getvalue()
+        return help_text
 
 
 CTX_SETTINGS = dict(help_option_names=["-h", "--help"])
@@ -674,7 +741,7 @@ def query(
     print_photo_info(photos, cli_json or json_)
 
 
-@cli.command()
+@cli.command(cls=ExportCommand)
 @DB_OPTION
 @query_options
 @click.option("--verbose", "-V", is_flag=True, help="Print verbose output.")
@@ -746,6 +813,13 @@ def query(
     "To use this option, exiftool must be installed and in the path.  "
     "exiftool may be installed from https://exiftool.org/",
 )
+@click.option(
+    "--directory",
+    metavar="DIRECTORY",
+    default=None,
+    help="Optional template for specifying name of output directory.  "
+    "See below for additional details on templating system",
+)
 @DB_ARGUMENT
 @click.argument("dest", nargs=1, type=click.Path(exists=True))
 @click.pass_obj
@@ -806,6 +880,7 @@ def export(
     not_selfie,
     panorama,
     not_panorama,
+    directory,
 ):
     """ Export photos from the Photos database.
         Export path DEST is required.
@@ -834,6 +909,7 @@ def export(
         (hdr, not_hdr),
         (selfie, not_selfie),
         (panorama, not_panorama),
+        (export_by_date, directory),
     ]
     if any([all(bb) for bb in exclusive]):
         click.echo(cli.commands["export"].get_help(ctx), err=True)
@@ -943,6 +1019,7 @@ def export(
                         export_live,
                         download_missing,
                         exiftool,
+                        directory,
                     )
         else:
             for p in photos:
@@ -958,6 +1035,7 @@ def export(
                     export_live,
                     download_missing,
                     exiftool,
+                    directory,
                 )
                 if export_path:
                     click.echo(f"Exported {p.filename} to {export_path}")
@@ -1276,6 +1354,7 @@ def export_photo(
     export_live,
     download_missing,
     exiftool,
+    directory,
 ):
     """ Helper function for export that does the actual export
         photo: PhotoInfo object
@@ -1289,6 +1368,7 @@ def export_photo(
                      live video will have same name as photo but with .mov extension
         download_missing: attempt download of missing iCloud photos
         exiftool: use exiftool to write EXIF metadata directly to exported photo
+        directory: template used to determine output directory
         returns destination path of exported photo or None if photo was missing 
     """
 
@@ -1322,6 +1402,18 @@ def export_photo(
     if export_by_date:
         date_created = photo.date.timetuple()
         dest = create_path_by_date(dest, date_created)
+    elif directory:
+        dirname, unmatched = render_filename_template(directory, photo)
+        if unmatched:
+            click.echo(
+                f"Possible unmatched substitution in template: {unmatched}", err=True
+            )
+        dirname = sanitize_filepath(dirname)
+        if not is_valid_filepath(dirname):
+            raise ValueError(f"Invalid file path: {dirname}")
+        dest = os.path.join(dest, dirname)
+        if not os.path.isdir(dest):
+            os.makedirs(dest)
 
     sidecar = [s.lower() for s in sidecar]
     sidecar_json = sidecar_xmp = False
@@ -1382,4 +1474,3 @@ def export_photo(
 
 if __name__ == "__main__":
     cli()  # pylint: disable=no-value-for-parameter
-
