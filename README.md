@@ -1001,6 +1001,7 @@ Apple does provide a framework ([PhotoKit](https://developer.apple.com/documenta
 - [Click](https://pypi.org/project/click/)
 - [Mako](https://www.makotemplates.org/)
 - [bpylist2](https://pypi.org/project/bpylist2/)
+- [pathvalidate](https://pypi.org/project/pathvalidate/)
 
 ## Acknowledgements
 This project was originally inspired by [photo-export](https://github.com/patrikhson/photo-export) by Patrick Fältström,  Copyright (c) 2015 Patrik Fältström paf@frobbit.se
