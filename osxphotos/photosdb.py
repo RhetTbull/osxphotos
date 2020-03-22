@@ -1468,6 +1468,7 @@ class PhotosDB:
 
     def _process_database5X(self):
         """ ALPHA: TESTING using SimpleNamespace to clean up code for info, DO NOT CALL THIS METHOD """
+        """ Needs to be updated for changes in process_database5 due to adding PlaceInfo """
         """ process the Photos database to extract info """
         """ works on Photos version >= 5.0 """
 
