@@ -14,8 +14,9 @@
     + [PhotosDB](#photosdb)
     + [PhotoInfo](#photoinfo)
     + [PlaceInfo](#placeinfo)
+    + [Template Functions](#template-functions)
     + [Utility Functions](#utility-functions)
-    + [Examples](#examples)
+  * [Examples](#examples)
   * [Related Projects](#related-projects)
   * [Contributing](#contributing)
   * [Implementation Notes](#implementation-notes)
@@ -310,6 +311,7 @@ Example: export photos to file structure based on 4-digit year and full name of 
 ## Example uses of the package 
 
 ```python
+""" Simple usage of the package """
 import os.path
 
 import osxphotos
@@ -350,34 +352,81 @@ if __name__ == "__main__":
 ```
 
 ```python
-""" Export all photos to ~/Desktop/export
-    If file has been edited, export the edited version, 
-    otherwise, export the original version """
+""" Export all photos to specified directory using album names as folders
+    If file has been edited, also export the edited version, 
+    otherwise, export the original version 
+    This will result in duplicate photos if photo is in more than album """
 
 import os.path
+import pathlib
+import sys
+
+import click
+from pathvalidate import is_valid_filepath, sanitize_filepath
+
 import osxphotos
 
 
-def main():
-    db = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
-    photosdb = osxphotos.PhotosDB(db)
-    photos = photosdb.photos()
+@click.command()
+@click.argument("export_path", type=click.Path(exists=True))
+@click.option(
+    "--default-album",
+    help="Default folder for photos with no album. Defaults to 'unfiled'",
+    default="unfiled",
+)
+@click.option(
+    "--library-path",
+    help="Path to Photos library, default to last used library",
+    default=None,
+)
+def export(export_path, default_album, library_path):
+    export_path = os.path.expanduser(export_path)
+    library_path = os.path.expanduser(library_path) if library_path else None
 
-    export_path = os.path.expanduser("~/Desktop/export")
+    if library_path is not None:
+        photosdb = osxphotos.PhotosDB(library_path)
+    else:
+        photosdb = osxphotos.PhotosDB()
+
+    photos = photosdb.photos()
 
     for p in photos:
         if not p.ismissing:
-            if p.hasadjustments:
-                exported = p.export(export_path, edited=True)
-            else:
-                exported = p.export(export_path)
-            print(f"Exported {p.filename} to {exported}")
+            albums = p.albums
+            if not albums:
+                albums = [default_album]
+            for album in albums:
+                click.echo(f"exporting {p.filename} in album {album}")
+
+                # make sure no invalid characters in destination path (could be in album name)
+                album_name = sanitize_filepath(album, platform="auto")
+
+                # create destination folder, if necessary, based on album name
+                dest_dir = os.path.join(export_path, album_name)
+
+                # verify path is a valid path
+                if not is_valid_filepath(dest_dir, platform="auto"):
+                    sys.exit(f"Invalid filepath {dest_dir}")
+
+                # create destination dir if needed
+                if not os.path.isdir(dest_dir):
+                    os.makedirs(dest_dir)
+
+                # export the photo
+                if p.hasadjustments:
+                    # export edited version
+                    exported = p.export(dest_dir, edited=True)
+                    edited_name = pathlib.Path(p.path_edited).name
+                    click.echo(f"Exported {edited_name} to {exported}")
+                # export unedited version
+                exported = p.export(dest_dir)
+                click.echo(f"Exported {p.filename} to {exported}")
         else:
-            print(f"Skipping missing photo: {p.filename}")
+            click.echo(f"Skipping missing photo: {p.filename}")
 
 
 if __name__ == "__main__":
-    main()
+    export()  # pylint: disable=no-value-for-parameter
 ```
 
 ## Package Interface
@@ -885,37 +934,99 @@ PostalAddress(street='3700 Wailea Alanui Dr', sub_locality=None, city='Kihei', s
 >>> photo.place.address.postal_code
 '96753'
 ```
+### Template Functions
+
+OSXPhotos provides a very basic template system used by the command line interface for specifying export directory.
+
+#### `render_filename_template(template: str, photo: PhotoInfo, none_str: str = "_") -> Tuple[str, list]`
+Renders a file or path template `template` based on information in `photo`.  Optionally, takes a value `none_str` which is substituted for any template substitution which returns `None`.  
+Returns tuple of (rendered str, and list of any substitutions that weren't found in the list of possible substitutions).
+ - template: template str
+ - photo: a PhotoInfo object whose information will be used to make the substitutions
+ - none_str: value to use for template substitutions which return None (default is "_")
+ - Returns: tuple (rendered template string, list of strings that looked like substitutions but didn't match)
+
+template string is in form "{created.year}/{name}" where any word inside paired curly braces is considerd a possible template match.  If the word matches a known template value, the curly braces and the word are replaced with the matching value.  If the word matches but the replacement value is None, `{word}` is replaced by `none_str`.
+
+Valid template replacements are: 
+
+| Substitution | Description |
+|--------------|-------------|
+|{name}|Filename of the photo|
+|{original_name}|Photo's original filename when imported to Photos|
+|{title}|Title of the photo|
+|{descr}|Description of the photo|
+|{created.date}|Photo's creation date in ISO format, e.g. '2020-03-22'|
+|{created.year}|4-digit year of file creation time|
+|{created.yy}|2-digit year of file creation time|
+|{created.mm}|2-digit month of the file creation time (zero padded)|
+|{created.month}|Month name in user's locale of the file creation time|
+|{created.mon}|Month abbreviation in the user's locale of the file creation time|
+|{created.doy}|3-digit day of year (e.g Julian day) of file creation time, starting from 1 (zero padded)|
+|{modified.date}|Photo's modification date in ISO format, e.g. '2020-03-22'|
+|{modified.year}|4-digit year of file modification time|
+|{modified.yy}|2-digit year of file modification time|
+|{modified.mm}|2-digit month of the file modification time (zero padded)|
+|{modified.month}|Month name in user's locale of the file modification time|
+|{modified.mon}|Month abbreviation in the user's locale of the file modification time|
+|{modified.doy}|3-digit day of year (e.g Julian day) of file modification time, starting from 1 (zero padded)|
+|{place.name}|Place name from the photo's reverse geolocation data|
+|{place.names}|list of place names from the photo's reverse geolocation data, joined with '_', for example, '18th St NW_Washington_DC_United States'|
+|{place.address}|Postal address from the photo's reverse geolocation data, e.g. '2007 18th St NW, Washington, DC 20009, United States'|
+|{place.street}|Street part of the postal address, e.g. '2007 18th St NW'|
+|{place.city}|City part of the postal address, e.g. 'Washington'|
+|{place.state}|State part of the postal address, e.g. 'DC'|
+|{place.postal_code}|Postal code part of the postal address, e.g. '20009'|
+|{place.country}|Country name of the postal code, e.g. 'United States'|
+|{place.country_code}|ISO country code of the postal address, e.g. 'US'|
+
+#### `DateTimeFormatter(dt)`
+
+Class used by template system to provide easy access to formatted values from datetime.datetime objects. For example: `{created.year}` in the template system gives access to the 4-digit photo creation year. 
+
+- dt: datetime.datetime object
+- Returns: DateTimeFormatter object
+
+Has the following properties.  All values with specified digits are zero-padded if necessary.
+
+- year: 4-digit year
+- yy: 2-digit year
+- mm: 2-digit month
+- month: full month name in user's locale
+- mon: abbreviated month name in user's locale
+- doy: 3-digit day of year (e.g. Julian day)
+
 
 ### Utility Functions
 
 The following functions are located in osxphotos.utils
 
-#### ```get_system_library_path()```
+#### `get_system_library_path()`
 
 **MacOS 10.15 Only** Returns path to System Photo Library as string.  On MacOS version < 10.15, returns None.
 
-#### ```get_last_library_path()```
+#### `get_last_library_path()`
 
 Returns path to last opened Photo Library as string.  
 
-#### ```list_photo_libraries()```
+#### `list_photo_libraries()`
 
 Returns list of Photos libraries found on the system.  **Note**: On MacOS 10.15, this appears to list all libraries. On older systems, it may not find some libraries if they are not located in ~/Pictures.  Provided for convenience but do not rely on this to find all libraries on the system.
 
-#### ```dd_to_dms_str(lat, lon)```
+#### `dd_to_dms_str(lat, lon)`
 Convert latitude, longitude in degrees to degrees, minutes, seconds as string.
 lat: latitude in degrees
 lon: longitude in degrees
 returns: string tuple in format ("51 deg 30' 12.86\\" N", "0 deg 7' 54.50\\" W")
 This is the same format used by exiftool's json format.
 
-#### ```create_path_by_date(dest, dt)```
+#### `create_path_by_date(dest, dt)`
 Creates a path in dest folder in form dest/YYYY/MM/DD/
 dest: valid path as str
 dt: datetime.timetuple() object
 Checks to see if path exists, if it does, do nothing and return path. If path does not exist, creates it and returns path.  Useful for exporting photos to a date-based folder structure.
 
-### Examples
+## Examples
 
 ```python
 import osxphotos
@@ -969,7 +1080,7 @@ if __name__ == "__main__":
 
 ## Related Projects
 
-- [photosmeta](https://github.com/rhettbull/photosmeta): uses osxphotos and [exiftool](https://exiftool.org/) to apply metadata from Photos as exif data in the photo files.  Can also export photos while preserving metadata and also apply Photos keywords as spotlight tags to make it easier to search for photos using spotlight.  This is mostly made obsolete by osxphotos.  The one feature that photosmeta has that osxphotos does not is ability to update the metadata of the actual photo files in the Photos library without exporting them. (Use with caution!)
+- [rhettbull/photosmeta](https://github.com/rhettbull/photosmeta): uses osxphotos and [exiftool](https://exiftool.org/) to apply metadata from Photos as exif data in the photo files.  Can also export photos while preserving metadata and also apply Photos keywords as spotlight tags to make it easier to search for photos using spotlight.  This is mostly made obsolete by osxphotos.  The one feature that photosmeta has that osxphotos does not is ability to update the metadata of the actual photo files in the Photos library without exporting them. (Use with caution!)
 - [patrikhson/photo-export](https://github.com/patrikhson/photo-export): Exports older versions of Photos databases.  Provided the inspiration for osxphotos.
 - [orangeturtle739/photos-export](https://github.com/orangeturtle739/photos-export): Set of scripts to export Photos libraries.
 - [ndbroadbent/icloud_photos_downloader](https://github.com/ndbroadbent/icloud_photos_downloader): Download photos from iCloud.  Currently unmaintained.
