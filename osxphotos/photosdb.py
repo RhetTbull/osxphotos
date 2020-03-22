@@ -534,7 +534,7 @@ class PhotosDB:
                     RKVersion.latitude, RKVersion.longitude, 
                     RKVersion.adjustmentUuid, RKVersion.type, RKMaster.UTI,
                     RKVersion.burstUuid, RKVersion.burstPickType,
-                    RKVersion.specialType, RKMaster.modelID
+                    RKVersion.specialType, RKMaster.modelID, RKVersion.momentUuid
                     FROM RKVersion, RKMaster WHERE RKVersion.isInTrash = 0 AND 
                     RKVersion.masterUuid = RKMaster.uuid AND RKVersion.filename NOT LIKE '%.pdf' """
             )
@@ -549,7 +549,8 @@ class PhotosDB:
                     RKVersion.adjustmentUuid, RKVersion.type, RKMaster.UTI,
                     RKVersion.burstUuid, RKVersion.burstPickType,
                     RKVersion.specialType, RKMaster.modelID,
-                    RKVersion.selfPortrait 
+                    RKVersion.selfPortrait, 
+                    RKVersion.momentUuid
                     FROM RKVersion, RKMaster WHERE RKVersion.isInTrash = 0 AND 
                     RKVersion.masterUuid = RKMaster.uuid AND RKVersion.filename NOT LIKE '%.pdf' """
             )
@@ -583,6 +584,7 @@ class PhotosDB:
         # 25    RKVersion.specialType
         # 26    RKMaster.modelID
         # 27    RKVersion.selfPortrait -- 1 if selfie, Photos >= 3, not present for Photos < 3
+        # 28    RKVersion.momentID (# 27 for Photos < 3)
 
         for row in c:
             uuid = row[0]
@@ -689,8 +691,10 @@ class PhotosDB:
             # selfies (front facing camera, RKVersion.selfPortrait == 1)
             if self._db_version >= _PHOTOS_3_VERSION:
                 self._dbphotos[uuid]["selfie"] = True if row[27] == 1 else False
+                self._dbphotos[uuid]["momentID"] = row[28]
             else:
                 self._dbphotos[uuid]["selfie"] = None
+                self._dbphotos[uuid]["momentID"] = row[27]
 
             # Init cloud details that will be filled in later if cloud asset
             self._dbphotos[uuid]["cloudAssetGUID"] = None  # Photos 5
@@ -1092,7 +1096,8 @@ class PhotosDB:
                 ZGENERICASSET.ZCUSTOMRENDEREDVALUE,
                 ZADDITIONALASSETATTRIBUTES.ZCAMERACAPTUREDEVICE,
                 ZGENERICASSET.ZCLOUDASSETGUID,
-                ZADDITIONALASSETATTRIBUTES.ZREVERSELOCATIONDATA
+                ZADDITIONALASSETATTRIBUTES.ZREVERSELOCATIONDATA,
+                ZGENERICASSET.ZMOMENT
                 FROM ZGENERICASSET 
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK 
                 WHERE ZGENERICASSET.ZTRASHEDSTATE = 0  
@@ -1126,6 +1131,7 @@ class PhotosDB:
         # 24   ZGENERICASSET.ZCLOUDASSETGUID  -- not null if asset is cloud asset
         #       (e.g. user has "iCloud Photos" checked in Photos preferences)
         # 25   ZADDITIONALASSETATTRIBUTES.ZREVERSELOCATIONDATA -- reverse geolocation data
+        # 26   ZGENERICASSET.ZMOMENT -- FK for ZMOMENT.Z_PK
 
         for row in c:
             uuid = row[0]
@@ -1256,6 +1262,9 @@ class PhotosDB:
             info["placeIDs"] = None  # Photos 4
             info["placeNames"] = None  # Photos 4
             info["countryCode"] = None  # Photos 4
+
+            # moment info
+            info["momentID"] = row[26]
 
             self._dbphotos[uuid] = info
 
@@ -1666,7 +1675,7 @@ class PhotosDB:
                 ZGENERICASSET.ZKINDSUBTYPE,
                 ZGENERICASSET.ZCUSTOMRENDEREDVALUE,
                 ZADDITIONALASSETATTRIBUTES.ZCAMERACAPTUREDEVICE,
-                ZGENERICASSET.ZCLOUDASSETGUID 
+                ZGENERICASSET.ZCLOUDASSETGUID
                 FROM ZGENERICASSET 
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK 
                 WHERE ZGENERICASSET.ZTRASHEDSTATE = 0  
