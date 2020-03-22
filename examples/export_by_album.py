@@ -45,13 +45,13 @@ def export(export_path, default_album, library_path):
                 click.echo(f"exporting {p.filename} in album {album}")
 
                 # make sure no invalid characters in destination path (could be in album name)
-                album_name = sanitize_filepath(album, platform="macOS")
+                album_name = sanitize_filepath(album, platform="auto")
 
                 # create destination folder, if necessary, based on album name
                 dest_dir = os.path.join(export_path, album_name)
 
                 # verify path is a valid path
-                if not is_valid_filepath(dest_dir, platform="macOS"):
+                if not is_valid_filepath(dest_dir, platform="auto"):
                     sys.exit(f"Invalid filepath {dest_dir}")
 
                 # create destination dir if needed
