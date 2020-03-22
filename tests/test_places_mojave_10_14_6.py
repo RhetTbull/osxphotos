@@ -45,3 +45,15 @@ def test_place_no_place_info():
     photo = photosdb.photos(uuid=[UUID_DICT["no_place"]])[0]
 
     assert photo.place is None
+
+
+def test_place_str():
+    # test __str__
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photo = photosdb.photos(uuid=[UUID_DICT["place_uk"]])[0]
+    assert (
+        str(photo.place)
+        == "PlaceInfo(name='St James's Park', names='[\"St James's Park\", 'Westminster', 'London', 'England', 'United Kingdom']', country_code='GB')"
+    )

@@ -3,8 +3,9 @@
     Provides reverse geolocation info for photos 
 """
 from abc import ABC, abstractmethod
-from collections import namedtuple
+from collections import namedtuple  # pylint: disable=syntax-error
 
+import yaml
 from bpylist import archiver
 
 # postal address information, returned by PlaceInfo.address
@@ -362,6 +363,15 @@ class PlaceInfo4(PlaceInfo):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def __str__(self):
+        info = {
+            "name": self.name,
+            "names": self.names,
+            "country_code": self.country_code,
+        }
+        strval = "PlaceInfo(" + ", ".join([f"{k}='{v}'" for k, v in info.items()]) + ")"
+        return strval
+
 
 class PlaceInfo5(PlaceInfo):
     """ Reverse geolocation place info for a photo (Photos >= 5) """
@@ -431,3 +441,15 @@ class PlaceInfo5(PlaceInfo):
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    def __str__(self):
+        info = {
+            "name": self.name,
+            "names": self.names,
+            "country_code": self.country_code,
+            "ishome": self.ishome,
+            "address_str": self.address_str,
+            "address": str(self.address),
+        }
+        strval = "PlaceInfo(" + ", ".join([f"{k}='{v}'" for k, v in info.items()]) + ")"
+        return strval
