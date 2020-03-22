@@ -616,7 +616,12 @@ class PhotoInfo:
             # use suffix from the non-edited file
             actual_suffix = pathlib.Path(self.filename).suffix
 
-        if dest.suffix != actual_suffix:
+        # warn if suffixes don't match but ignore .JPG / .jpeg as
+        # Photo's often converts .JPG to .jpeg
+        if dest.suffix != actual_suffix and sorted([dest.suffix, actual_suffix]) != [
+            ".JPG",
+            ".jpeg",
+        ]:
             logging.warning(
                 f"Invalid destination suffix: {dest.suffix}, should be {actual_suffix}"
             )

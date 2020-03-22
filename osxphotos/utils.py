@@ -218,6 +218,8 @@ def get_last_library_path():
 
     if photosurlref is not None:
         # use CFURLCreateByResolvingBookmarkData to de-serialize bookmark data into a CFURLRef
+        # pylint: disable=no-member
+        # pylint: disable=undefined-variable
         photosurl = CoreFoundation.CFURLCreateByResolvingBookmarkData(
             kCFAllocatorDefault, photosurlref, 0, None, None, None, None
         )
