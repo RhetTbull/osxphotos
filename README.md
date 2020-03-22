@@ -888,7 +888,13 @@ if __name__ == "__main__":
 
 ## Related Projects
 
-[photosmeta](https://github.com/rhettbull/photosmeta): uses osxphotos and [exiftool](https://exiftool.org/) to apply metadata from Photos as exif data in the photo files.  Can also export photos while preserving metadata and also apply Photos keywords as spotlight tags to make it easier to search for photos using spotlight.
+- [photosmeta](https://github.com/rhettbull/photosmeta): uses osxphotos and [exiftool](https://exiftool.org/) to apply metadata from Photos as exif data in the photo files.  Can also export photos while preserving metadata and also apply Photos keywords as spotlight tags to make it easier to search for photos using spotlight.  This is mostly made obsolete by osxphotos.  The one feature that photosmeta has that osxphotos does not is ability to update the metadata of the actual photo files in the Photos library without exporting them. (Use with caution!)
+- [patrikhson/photo-export](https://github.com/patrikhson/photo-export): Exports older versions of Photos databases.  Provided the inspiration for osxphotos.
+- [orangeturtle739/photos-export](https://github.com/orangeturtle739/photos-export): Set of scripts to export Photos libraries.
+- [ndbroadbent/icloud_photos_downloader](https://github.com/ndbroadbent/icloud_photos_downloader): Download photos from iCloud.  Currently unmaintained.
+- [AaronVanGeffen/ExportPhotosLibrary](https://github.com/AaronVanGeffen/ExportPhotosLibrary): Another python script for exporting older versions of Photos libraries.
+- [MossieurPropre/PhotosAlbumExporter](https://github.com/MossieurPropre/PhotosAlbumExporter): Javascript script to export photos while maintaining album structure.
+- [ajslater/magritte](https://github.com/ajslater/magritte): Another python command line script for exporting photos from older versions of Photos libraries.
 
 ## Contributing
 
@@ -913,6 +919,7 @@ Apple does provide a framework ([PhotoKit](https://developer.apple.com/documenta
 - [PyYAML](https://pypi.org/project/PyYAML/)
 - [Click](https://pypi.org/project/click/)
 - [Mako](https://www.makotemplates.org/)
+- [bpylist2](https://pypi.org/project/bpylist2/)
 
 ## Acknowledgements
 This project was originally inspired by [photo-export](https://github.com/patrikhson/photo-export) by Patrick Fältström,  Copyright (c) 2015 Patrik Fältström paf@frobbit.se
