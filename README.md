@@ -14,7 +14,6 @@
     + [PhotosDB](#photosdb)
     + [PhotoInfo](#photoinfo)
     + [PlaceInfo](#placeinfo)
-    + [Template Functions](#template-functions)
     + [Utility Functions](#utility-functions)
   * [Examples](#examples)
   * [Related Projects](#related-projects)
@@ -934,68 +933,6 @@ PostalAddress(street='3700 Wailea Alanui Dr', sub_locality=None, city='Kihei', s
 >>> photo.place.address.postal_code
 '96753'
 ```
-### Template Functions
-
-OSXPhotos provides a very basic template system used by the command line interface for specifying export directory.
-
-#### `render_filename_template(template: str, photo: PhotoInfo, none_str: str = "_") -> Tuple[str, list]`
-Renders a file or path template `template` based on information in `photo`.  Optionally, takes a value `none_str` which is substituted for any template substitution which returns `None`.  
-Returns tuple of (rendered str, and list of any substitutions that weren't found in the list of possible substitutions).
- - template: template str
- - photo: a PhotoInfo object whose information will be used to make the substitutions
- - none_str: value to use for template substitutions which return None (default is "_")
- - Returns: tuple (rendered template string, list of strings that looked like substitutions but didn't match)
-
-template string is in form "{created.year}/{name}" where any word inside paired curly braces is considerd a possible template match.  If the word matches a known template value, the curly braces and the word are replaced with the matching value.  If the word matches but the replacement value is None, `{word}` is replaced by `none_str`.
-
-Valid template replacements are: 
-
-| Substitution | Description |
-|--------------|-------------|
-|{name}|Filename of the photo|
-|{original_name}|Photo's original filename when imported to Photos|
-|{title}|Title of the photo|
-|{descr}|Description of the photo|
-|{created.date}|Photo's creation date in ISO format, e.g. '2020-03-22'|
-|{created.year}|4-digit year of file creation time|
-|{created.yy}|2-digit year of file creation time|
-|{created.mm}|2-digit month of the file creation time (zero padded)|
-|{created.month}|Month name in user's locale of the file creation time|
-|{created.mon}|Month abbreviation in the user's locale of the file creation time|
-|{created.doy}|3-digit day of year (e.g Julian day) of file creation time, starting from 1 (zero padded)|
-|{modified.date}|Photo's modification date in ISO format, e.g. '2020-03-22'|
-|{modified.year}|4-digit year of file modification time|
-|{modified.yy}|2-digit year of file modification time|
-|{modified.mm}|2-digit month of the file modification time (zero padded)|
-|{modified.month}|Month name in user's locale of the file modification time|
-|{modified.mon}|Month abbreviation in the user's locale of the file modification time|
-|{modified.doy}|3-digit day of year (e.g Julian day) of file modification time, starting from 1 (zero padded)|
-|{place.name}|Place name from the photo's reverse geolocation data|
-|{place.names}|list of place names from the photo's reverse geolocation data, joined with '_', for example, '18th St NW_Washington_DC_United States'|
-|{place.address}|Postal address from the photo's reverse geolocation data, e.g. '2007 18th St NW, Washington, DC 20009, United States'|
-|{place.street}|Street part of the postal address, e.g. '2007 18th St NW'|
-|{place.city}|City part of the postal address, e.g. 'Washington'|
-|{place.state}|State part of the postal address, e.g. 'DC'|
-|{place.postal_code}|Postal code part of the postal address, e.g. '20009'|
-|{place.country}|Country name of the postal code, e.g. 'United States'|
-|{place.country_code}|ISO country code of the postal address, e.g. 'US'|
-
-#### `DateTimeFormatter(dt)`
-
-Class used by template system to provide easy access to formatted values from datetime.datetime objects. For example: `{created.year}` in the template system gives access to the 4-digit photo creation year. 
-
-- dt: datetime.datetime object
-- Returns: DateTimeFormatter object
-
-Has the following properties.  All values with specified digits are zero-padded if necessary.
-
-- year: 4-digit year
-- yy: 2-digit year
-- mm: 2-digit month
-- month: full month name in user's locale
-- mon: abbreviated month name in user's locale
-- doy: 3-digit day of year (e.g. Julian day)
-
 
 ### Utility Functions
 
