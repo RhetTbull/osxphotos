@@ -31,7 +31,7 @@ TEMPLATE_SUBSTITUTIONS = {
     "{place.city}": "City part of the postal address, e.g. 'Washington'",
     "{place.state}": "State part of the postal address, e.g. 'DC'",
     "{place.postal_code}": "Postal code part of the postal address, e.g. '20009'",
-    "{place.country}": "Country name of the postal code, e.g. 'United States'",
+    "{place.country}": "Country name of the postal address, e.g. 'United States'",
     "{place.country_code}": "ISO country code of the postal address, e.g. 'US'",
 }
 
