@@ -844,21 +844,26 @@ class PhotosDB:
         countries = {code[0]: code[1] for code in country_codes}
         self._db_countries = countries
 
-        # save existing row_factory
-        old_row_factory = c.row_factory
-
-        # want only the list of values, not a list of tuples
-        c.row_factory = lambda cursor, row: row[0]
+        # get the place data
+        place_data = c.execute(
+            "SELECT modelID, defaultName, type, area " "FROM RKPlace "
+        ).fetchall()
+        places = {p[0]: p for p in place_data}
+        self._db_places = places
 
         for uuid in self._dbphotos:
             # get placeId which is then used to lookup defaultName
-            place_ids = c.execute(
+            place_ids_query = c.execute(
                 "SELECT placeId "
                 "FROM RKPlaceForVersion "
                 f"WHERE versionId = '{self._dbphotos[uuid]['modelID']}'"
-            ).fetchall()
-            self._dbphotos[uuid]["placeIDs"] = place_ids
-            country_code = [countries[x] for x in place_ids if x in countries]
+            )
+            
+            place_ids = [id[0] for id in place_ids_query.fetchall()]
+            self._dbphotos[uuid]["placeIDs"]  = place_ids
+            country_code = [
+                countries[x] for x in place_ids if x in countries
+            ]
             if len(country_code) > 1:
                 logging.warning(f"Found more than one country code for uuid: {uuid}")
 
@@ -867,18 +872,18 @@ class PhotosDB:
             else:
                 self._dbphotos[uuid]["countryCode"] = None
 
-            place_names = c.execute(
-                "SELECT DISTINCT defaultName AS name "
-                "FROM RKPlace "
-                f"WHERE modelId IN({','.join(map(str,place_ids))}) "
-                "ORDER BY area ASC "
-            ).fetchall()
+            # get the place info that matches the RKPlace modelIDs for this photo 
+            # (place_ids), sort by area (element 3 of the place_data tuple in places)
+            place_names = [
+                pname
+                for pname in sorted(
+                    [places[p] for p in places if p in place_ids],
+                    key=lambda place: place[3],
+                )
+            ]
 
             self._dbphotos[uuid]["placeNames"] = place_names
             self._dbphotos[uuid]["reverse_geolocation"] = None  # Photos 5
-
-        # restore row_factory
-        c.row_factory = old_row_factory
 
         # build album_titles dictionary
         for album_id in self._dbalbum_details:

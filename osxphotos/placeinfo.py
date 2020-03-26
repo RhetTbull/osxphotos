@@ -341,11 +341,11 @@ class PlaceInfo4(PlaceInfo):
 
     @property
     def name(self):
-        return self._place_names[0]
+        return self._place_names[0][1]
 
     @property
     def names(self):
-        return self._place_names
+        return [p[1] for p in self._place_names]
 
     @property
     def address(self):
