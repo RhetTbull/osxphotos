@@ -26,6 +26,7 @@ TEMPLATE_VALUES = {
     "{modified.mon}": "Mar",
     "{modified.doy}": "081",
     "{place.name}": "Washington, District of Columbia, United States",
+    "{place.country_code}": "US",
     "{place.name.country}": "United States",
     "{place.name.state_province}": "District of Columbia",
     "{place.name.city}": "Washington",
