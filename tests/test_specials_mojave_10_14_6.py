@@ -14,7 +14,7 @@ UUID_DICT = {
 }
 
 
-@pytest.mark.skip(reason="don't have portrait photo in the 10.14.6yy database")
+@pytest.mark.skip(reason="don't have portrait photo in the 10.14.6 database")
 def test_portrait():
     import osxphotos
 
