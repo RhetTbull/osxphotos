@@ -1007,7 +1007,7 @@ e.g. `render_filepath_template("{created.year}/{foo}", photo)` would return `("2
 |{modified.mon}|Month abbreviation in the user's locale of the file modification time|
 |{modified.doy}|3-digit day of year (e.g Julian day) of file modification time, starting from 1 (zero padded)|
 |{place.name}|Place name from the photo's reverse geolocation data, as displayed in Photos|
-|{place.country_code}|The ISO country code from the photo's reverse geolocationo data|
+|{place.country_code}|The ISO country code from the photo's reverse geolocation data|
 |{place.name.country}|Country name from the photo's reverse geolocation data|
 |{place.name.state_province}|State or province name from the photo's reverse geolocation data|
 |{place.name.city}|City or locality name from the photo's reverse geolocation data|
