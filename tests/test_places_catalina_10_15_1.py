@@ -1,8 +1,6 @@
 """ Test PlaceInfo """
 import pytest
 
-from osxphotos._constants import _UNKNOWN_PERSON
-
 
 PHOTOS_DB = "./tests/Test-Places-Catalina-10_15_1.photoslibrary/database/photos.db"
 
@@ -62,23 +60,11 @@ def test_place_place_info_2():
     assert not photo.place.ishome
     assert photo.place.name == "Maui, Wailea, Hawai'i, United States"
     assert photo.place.names.street_address == ["3700 Wailea Alanui Dr"]
-    assert photo.place.names.city == [
-        "Wailea",
-        "Kihei",
-        "Kihei",
-    ]
-    assert photo.place.names.region == [
-        "Maui",
-        ]
-    assert photo.place.names.sub_administrative_area == [
-        "Maui",
-    ]
-    assert photo.place.names.state_province == [
-        "Hawai'i",
-    ]
-    assert photo.place.names.country == [
-        "United States",
-    ]
+    assert photo.place.names.city == ["Wailea", "Kihei", "Kihei"]
+    assert photo.place.names.region == ["Maui"]
+    assert photo.place.names.sub_administrative_area == ["Maui"]
+    assert photo.place.names.state_province == ["Hawai'i"]
+    assert photo.place.names.country == ["United States"]
 
     assert photo.place.country_code == "US"
     assert (

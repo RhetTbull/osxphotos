@@ -25,17 +25,17 @@ TEMPLATE_SUBSTITUTIONS = {
     "{modified.mon}": "Month abbreviation in the user's locale of the file modification time",
     "{modified.doy}": "3-digit day of year (e.g Julian day) of file modification time, starting from 1 (zero padded)",
     "{place.name}": "Place name from the photo's reverse geolocation data, as displayed in Photos",
-    "{place.names.country}": "Country name from the photo's reverse geolocation data",
-    "{place.names.state_province}": "State or province name from the photo's reverse geolocation data",
-    "{place.names.city}": "City or locality name from the photo's reverse geolocation data",
-    "{place.names.area_of_interest}": "Area of interest name (e.g. landmark or public place) from the photo's reverse geolocation data",
+    "{place.name.country}": "Country name from the photo's reverse geolocation data",
+    "{place.name.state_province}": "State or province name from the photo's reverse geolocation data",
+    "{place.name.city}": "City or locality name from the photo's reverse geolocation data",
+    "{place.name.area_of_interest}": "Area of interest name (e.g. landmark or public place) from the photo's reverse geolocation data",
     "{place.address}": "Postal address from the photo's reverse geolocation data, e.g. '2007 18th St NW, Washington, DC 20009, United States'",
-    "{place.street}": "Street part of the postal address, e.g. '2007 18th St NW'",
-    "{place.city}": "City part of the postal address, e.g. 'Washington'",
-    "{place.state_province}": "State/province part of the postal address, e.g. 'DC'",
-    "{place.postal_code}": "Postal code part of the postal address, e.g. '20009'",
-    "{place.country}": "Country name of the postal address, e.g. 'United States'",
-    "{place.country_code}": "ISO country code of the postal address, e.g. 'US'",
+    "{place.address.street}": "Street part of the postal address, e.g. '2007 18th St NW'",
+    "{place.address.city}": "City part of the postal address, e.g. 'Washington'",
+    "{place.address.state_province}": "State/province part of the postal address, e.g. 'DC'",
+    "{place.address.postal_code}": "Postal code part of the postal address, e.g. '20009'",
+    "{place.address.country}": "Country name of the postal address, e.g. 'United States'",
+    "{place.address.country_code}": "ISO country code of the postal address, e.g. 'US'",
 }
 
 
@@ -119,31 +119,78 @@ def get_template_value(lookup, photo):
     if lookup == "place.name":
         return photo.place.name if photo.place else None
 
-    if lookup == "place.names.country":
+    if lookup == "place.name.country":
         return (
             photo.place.names.country[0]
             if photo.place and photo.place.names.country
             else None
         )
 
-    if lookup == "place.names.state_province":
+    if lookup == "place.name.state_province":
         return (
             photo.place.names.state_province[0]
             if photo.place and photo.place.names.state_province
             else None
         )
 
-    if lookup == "place.names.city":
+    if lookup == "place.name.city":
         return (
             photo.place.names.city[0]
             if photo.place and photo.place.names.city
             else None
         )
 
-    if lookup == "place.names.area_of_interest":
+    if lookup == "place.name.area_of_interest":
         return (
             photo.place.names.area_of_interest[0]
             if photo.place and photo.place.names.area_of_interest
+            else None
+        )
+
+    if lookup == "place.address":
+        return (
+            photo.place.address_str if photo.place and photo.place.address_str else None
+        )
+
+    if lookup == "place.address.street":
+        return (
+            photo.place.address.street
+            if photo.place and photo.place.address.street
+            else None
+        )
+
+    if lookup == "place.address.city":
+        return (
+            photo.place.address.city
+            if photo.place and photo.place.address.city
+            else None
+        )
+
+    if lookup == "place.address.state_province":
+        return (
+            photo.place.address.state_province
+            if photo.place and photo.place.address.state_province
+            else None
+        )
+
+    if lookup == "place.address.postal_code":
+        return (
+            photo.place.address.postal_code
+            if photo.place and photo.place.address.postal_code
+            else None
+        )
+
+    if lookup == "place.address.country":
+        return (
+            photo.place.address.country
+            if photo.place and photo.place.address.country
+            else None
+        )
+
+    if lookup == "place.address.country_code":
+        return (
+            photo.place.address.iso_country_code
+            if photo.place and photo.place.address.iso_country_code
             else None
         )
 

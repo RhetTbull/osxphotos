@@ -109,11 +109,7 @@ def test_PlaceInfo5():
     assert place.name == "Washington, District of Columbia, United States"
     assert place.names.street_address == ["2038 18th St NW"]
     assert place.names.additional_city_info == ["Adams Morgan"]
-    assert place.names.city == [
-        "Washington",
-        "Washington",
-        "Washington",
-    ]
+    assert place.names.city == ["Washington", "Washington", "Washington"]
     assert place.names.state_province == ["District of Columbia"]
     assert place.names.country == ["United States"]
     assert place.country_code == "US"

@@ -1,8 +1,6 @@
 """ Test PlaceInfo """
 import pytest
 
-from osxphotos._constants import _UNKNOWN_PERSON
-
 PHOTOS_DB = "./tests/Test-Places-High-Sierra-10.13.6.photoslibrary/database/photos.db"
 
 UUID_DICT = {
@@ -143,6 +141,7 @@ def test_place_place_info_4():
     assert photo.place.names.street_address == []
     assert photo.place.names.sub_throughfare == []
     assert photo.place.names.body_of_water == ["River Torrens"]
+
 
 def test_place_no_place_info():
     # test valid place info

@@ -81,11 +81,11 @@ class ExportCommand(click.Command):
         formatter.write_text(
             "With the --directory option, you may specify a template for the "
             + "export directory.  This directory will be appended to the export path specified "
-            + " in the export DEST argument to export.  For example, if template is "
+            + "in the export DEST argument to export.  For example, if template is "
             + "'{created.year}/{created.month}', and export desitnation DEST is "
             + "'/Users/maria/Pictures/export', "
-            + " the actual export directory for a photo would be '/Users/maria/Pictures/export/2020/March' "
-            + " if the photo was created in March 2020. "
+            + "the actual export directory for a photo would be '/Users/maria/Pictures/export/2020/March' "
+            + "if the photo was created in March 2020. "
         )
         formatter.write("\n")
         formatter.write_text(
@@ -104,16 +104,22 @@ class ExportCommand(click.Command):
         )
         formatter.write("\n")
         formatter.write_text(
-            "In the current implementation, substitutions which have no value "
-            + "will be replaced by '_', "
-            + "for example, your template looked like '{created.year}/{place.address}' "
+            "You may specify an optional default value to use if the substitution does not contain a value "
+            + "(e.g. the value is null) "
+            + "by specifying the default value after a ',' in the template string: "
+            + "for example, if template is '{created.year}/{place.address,'NO_ADDRESS'}' "
             + "but there was no address associated with the photo, the resulting output would be: "
-            + "'2020/_/photoname.jpg' "
+            + "'2020/NO_ADDRESS/photoname.jpg'. "
+            + "If specified, the default value may not contain a brace symbol ('{' or '}')."
         )
         formatter.write("\n")
         formatter.write_text(
-            "I plan to add the option to specify the value to be used for missing "
-            + "subsitutions in a future version. I also plan to extend the templating system "
+            "If you do not specify a default value and the template substitution "
+            + "has no value, '_' (underscore) will be used as the default value. For example, in the "
+            + "above example, this would result in '2020/_/photoname.jpg' if address was null"
+        )
+        formatter.write_text(
+            "I plan to eventually extend the templating system "
             + "to the exported filename so you can specify the filename using a template."
         )
 
@@ -817,8 +823,8 @@ def query(
     "--directory",
     metavar="DIRECTORY",
     default=None,
-    help="Optional template for specifying name of output directory.  "
-    "See below for additional details on templating system",
+    help="Optional template for specifying name of output directory in the form '{name,DEFAULT}'. "
+    "See below for additional details on templating system.",
 )
 @DB_ARGUMENT
 @click.argument("dest", nargs=1, type=click.Path(exists=True))

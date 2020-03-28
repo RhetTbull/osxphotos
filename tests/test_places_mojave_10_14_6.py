@@ -1,8 +1,6 @@
 """ Test PlaceInfo """
 import pytest
 
-from osxphotos._constants import _UNKNOWN_PERSON
-
 PHOTOS_DB = "./tests/Test-10.14.6.photoslibrary/database/photos.db"
 
 UUID_DICT = {"place_uk": "3Jn73XpSQQCluzRBMWRsMA", "no_place": "15uNd7%8RguTEgNPKHfTWw"}
@@ -58,7 +56,7 @@ def test_place_str():
         "names='PlaceNames(field0=[], country=['United Kingdom'], "
         "state_province=['England'], sub_administrative_area=['London'], "
         "city=['Westminster'], field5=[], additional_city_info=[], ocean=[], "
-        "area_of_interest=[\"St James's Park\"], inland_water=[], field10=[], "
+        'area_of_interest=["St James\'s Park"], inland_water=[], field10=[], '
         "region=[], sub_throughfare=[], field13=[], postal_code=[], field15=[], "
         "field16=[], street_address=[], body_of_water=[])', country_code='GB')"
     )

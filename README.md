@@ -214,19 +214,20 @@ Options:
                                   exiftool may be installed from
                                   https://exiftool.org/
   --directory DIRECTORY           Optional template for specifying name of
-                                  output directory.  See below for additional
-                                  details on templating system
+                                  output directory in the form
+                                  '{name,DEFAULT}'. See below for additional
+                                  details on templating system.
   -h, --help                      Show this message and exit.
 
 **Templating System**
 
 With the --directory option, you may specify a template for the export
-directory.  This directory will be appended to the export path specified  in
+directory.  This directory will be appended to the export path specified in
 the export DEST argument to export.  For example, if template is
 '{created.year}/{created.month}', and export desitnation DEST is
-'/Users/maria/Pictures/export',  the actual export directory for a photo would
-be '/Users/maria/Pictures/export/2020/March'  if the photo was created in
-March 2020.
+'/Users/maria/Pictures/export', the actual export directory for a photo would
+be '/Users/maria/Pictures/export/2020/March' if the photo was created in March
+2020.
 
 In the template, valid template substitutions will be replaced by the
 corresponding value from the table below.  Invalid substitutions will result
@@ -239,54 +240,77 @@ rendered name, escape the curly braces with \, for example, using
 '{created.year}/\{name\}' for --directory would result in output of
 2020/{name}/photoname.jpg
 
-In the current implementation, substitutions which have no value will be
-replaced by '_', for example, your template looked like
-'{created.year}/{place.address}' but there was no address associated with the
-photo, the resulting output would be: '2020/_/photoname.jpg'
+You may specify an optional default value to use if the substitution does not
+contain a value (e.g. the value is null) by specifying the default value after
+a ',' in the template string: for example, if template is
+'{created.year}/{place.address,'NO_ADDRESS'}' but there was no address
+associated with the photo, the resulting output would be:
+'2020/NO_ADDRESS/photoname.jpg'. If specified, the default value may not
+contain a brace symbol ('{' or '}').
 
-I plan to extend the templating system to the exported filename so you can specify the filename using a template.
+If you do not specify a default value and the template substitution has no
+value, '_' (underscore) will be used as the default value. For example, in the
+above example, this would result in '2020/_/photoname.jpg' if address was null
+I plan to eventually extend the templating system to the exported filename so
+you can specify the filename using a template.
 
-Substitution          Description
-{name}                Filename of the photo
-{original_name}       Photo's original filename when imported to Photos
-{title}               Title of the photo
-{descr}               Description of the photo
-{created.date}        Photo's creation date in ISO format, e.g. '2020-03-22'
-{created.year}        4-digit year of file creation time
-{created.yy}          2-digit year of file creation time
-{created.mm}          2-digit month of the file creation time (zero padded)
-{created.month}       Month name in user's locale of the file creation time
-{created.mon}         Month abbreviation in the user's locale of the file
-                      creation time
-{created.doy}         3-digit day of year (e.g Julian day) of file creation
-                      time, starting from 1 (zero padded)
-{modified.date}       Photo's modification date in ISO format, e.g.
-                      '2020-03-22'
-{modified.year}       4-digit year of file modification time
-{modified.yy}         2-digit year of file modification time
-{modified.mm}         2-digit month of the file modification time (zero
-                      padded)
-{modified.month}      Month name in user's locale of the file modification
-                      time
-{modified.mon}        Month abbreviation in the user's locale of the file
-                      modification time
-{modified.doy}        3-digit day of year (e.g Julian day) of file
-                      modification time, starting from 1 (zero padded)
-{place.name}          Place name from the photo's reverse geolocation data; 
-                      this is the place name shown in the Photos Info window
-{place.names}         list of place names from the photo's reverse
-                      geolocation data, joined with '_', for example, '18th
-                      St NW_Washington_DC_United States'
-{place.address}       Postal address from the photo's reverse geolocation
-                      data, e.g. '2007 18th St NW, Washington, DC 20009,
-                      United States'
-{place.street}        Street part of the postal address, e.g. '2007 18th St
-                      NW'
-{place.city}          City part of the postal address, e.g. 'Washington'
-{place.state}         State part of the postal address, e.g. 'DC'
-{place.postal_code}   Postal code part of the postal address, e.g. '20009'
-{place.country}       Country name of the postal address, e.g. 'United States'
-{place.country_code}  ISO country code of the postal address, e.g. 'US'
+Substitution                    Description
+{name}                          Filename of the photo
+{original_name}                 Photo's original filename when imported to
+                                Photos
+{title}                         Title of the photo
+{descr}                         Description of the photo
+{created.date}                  Photo's creation date in ISO format, e.g.
+                                '2020-03-22'
+{created.year}                  4-digit year of file creation time
+{created.yy}                    2-digit year of file creation time
+{created.mm}                    2-digit month of the file creation time
+                                (zero padded)
+{created.month}                 Month name in user's locale of the file
+                                creation time
+{created.mon}                   Month abbreviation in the user's locale of
+                                the file creation time
+{created.doy}                   3-digit day of year (e.g Julian day) of file
+                                creation time, starting from 1 (zero padded)
+{modified.date}                 Photo's modification date in ISO format,
+                                e.g. '2020-03-22'
+{modified.year}                 4-digit year of file modification time
+{modified.yy}                   2-digit year of file modification time
+{modified.mm}                   2-digit month of the file modification time
+                                (zero padded)
+{modified.month}                Month name in user's locale of the file
+                                modification time
+{modified.mon}                  Month abbreviation in the user's locale of
+                                the file modification time
+{modified.doy}                  3-digit day of year (e.g Julian day) of file
+                                modification time, starting from 1 (zero
+                                padded)
+{place.name}                    Place name from the photo's reverse
+                                geolocation data, as displayed in Photos
+{place.name.country}            Country name from the photo's reverse
+                                geolocation data
+{place.name.state_province}     State or province name from the photo's
+                                reverse geolocation data
+{place.name.city}               City or locality name from the photo's
+                                reverse geolocation data
+{place.name.area_of_interest}   Area of interest name (e.g. landmark or
+                                public place) from the photo's reverse
+                                geolocation data
+{place.address}                 Postal address from the photo's reverse
+                                geolocation data, e.g. '2007 18th St NW,
+                                Washington, DC 20009, United States'
+{place.address.street}          Street part of the postal address, e.g.
+                                '2007 18th St NW'
+{place.address.city}            City part of the postal address, e.g.
+                                'Washington'
+{place.address.state_province}  State/province part of the postal address,
+                                e.g. 'DC'
+{place.address.postal_code}     Postal code part of the postal address, e.g.
+                                '20009'
+{place.address.country}         Country name of the postal address, e.g.
+                                'United States'
+{place.address.country_code}    ISO country code of the postal address, e.g.
+                                'US'
 ```
 
 Example: export all photos to ~/Desktop/export, including edited versions and live photo movies, group in folders by date created
@@ -930,14 +954,14 @@ For example: "2038 18th St NW, Washington, DC  20009, United States"
 
 #### `address`:
 Returns a `PostalAddress` namedtuple with details of the postal address containing the following fields:
-- city
-- country
-- postal_code
-- state
-- street
-- sub_administrative_area
-- sub_locality
-- iso_country_code
+- `city`
+- `country`
+- `postal_code`
+- `state`
+- `street`
+- `sub_administrative_area`
+- `sub_locality`
+- `iso_country_code`
 
 For example:
 ```python
@@ -946,6 +970,68 @@ PostalAddress(street='3700 Wailea Alanui Dr', sub_locality=None, city='Kihei', s
 >>> photo.place.address.postal_code
 '96753'
 ```
+
+### Template Functions
+
+There is a simple template system used by the command line client to specify the output directory using a template.  The following are available in `osxphotos.template`.
+
+#### `render_filepath_template(template, photo, none_str="_")`
+Render template string for photo.  none_str is used if template substitution results in None value and no default specified. 
+- `template`: str in form "{name,DEFAULT}" where name is one of the values in table below. The "," and default value that follows are optional. If specified, "DEFAULT" will be used if "name" is None.  This is useful for values which are not always present, for example reverse geolocation data.
+- `photo`: a [PhotoInfo](#photoinfo) object
+- `none_str`: optional str to use as substitution when template value is None and no default specified in the template string.  default is "_".
+
+Returns a tuple of (rendered, unmatched) where rendered is the rendered template string with all substitutions made and unmatched is a list of any strings that resembled a template substitution but did not match a known substitution. E.g. strings in the form "{foo}".
+
+e.g. `render_filepath_template("{created.year}/{foo}", photo)` would return `("2020/{foo}",["{foo}"])`
+
+| Substitution | Description |
+|--------------|-------------|
+|{name}|Filename of the photo|
+|{original_name}|Photo's original filename when imported to Photos|
+|{title}|Title of the photo|
+|{descr}|Description of the photo|
+|{created.date}|Photo's creation date in ISO format, e.g. '2020-03-22'|
+|{created.year}|4-digit year of file creation time|
+|{created.yy}|2-digit year of file creation time|
+|{created.mm}|2-digit month of the file creation time (zero padded)|
+|{created.month}|Month name in user's locale of the file creation time|
+|{created.mon}|Month abbreviation in the user's locale of the file creation time|
+|{created.doy}|3-digit day of year (e.g Julian day) of file creation time, starting from 1 (zero padded)|
+|{modified.date}|Photo's modification date in ISO format, e.g. '2020-03-22'|
+|{modified.year}|4-digit year of file modification time|
+|{modified.yy}|2-digit year of file modification time|
+|{modified.mm}|2-digit month of the file modification time (zero padded)|
+|{modified.month}|Month name in user's locale of the file modification time|
+|{modified.mon}|Month abbreviation in the user's locale of the file modification time|
+|{modified.doy}|3-digit day of year (e.g Julian day) of file modification time, starting from 1 (zero padded)|
+|{place.name}|Place name from the photo's reverse geolocation data, as displayed in Photos|
+|{place.name.country}|Country name from the photo's reverse geolocation data|
+|{place.name.state_province}|State or province name from the photo's reverse geolocation data|
+|{place.name.city}|City or locality name from the photo's reverse geolocation data|
+|{place.name.area_of_interest}|Area of interest name (e.g. landmark or public place) from the photo's reverse geolocation data|
+|{place.address}|Postal address from the photo's reverse geolocation data, e.g. '2007 18th St NW, Washington, DC 20009, United States'|
+|{place.address.street}|Street part of the postal address, e.g. '2007 18th St NW'|
+|{place.address.city}|City part of the postal address, e.g. 'Washington'|
+|{place.address.state_province}|State/province part of the postal address, e.g. 'DC'|
+|{place.address.postal_code}|Postal code part of the postal address, e.g. '20009'|
+|{place.address.country}|Country name of the postal address, e.g. 'United States'|
+|{place.address.country_code}|ISO country code of the postal address, e.g. 'US'|
+
+#### `DateTimeFormatter(dt)`
+Class that provides easy access to formatted datetime values.
+- `dt`: a datetime.datetime object
+
+Returnes `DateTimeFormater` class.
+
+Has the following properties:
+- `date`: Date in ISO format without timezone, e.g. "2020-03-04"
+- `year`: 4-digit year
+- `yy`: 2-digit year
+- `month`: month name in user's locale
+- `mon`: month abbreviation in user's locale
+- `mm`: 2-digit month
+- `doy`: 3-digit day of year (e.g. Julian day)
 
 ### Utility Functions
 
@@ -965,15 +1051,15 @@ Returns list of Photos libraries found on the system.  **Note**: On MacOS 10.15,
 
 #### `dd_to_dms_str(lat, lon)`
 Convert latitude, longitude in degrees to degrees, minutes, seconds as string.
-lat: latitude in degrees
-lon: longitude in degrees
+- `lat`: latitude in degrees
+- `lon`: longitude in degrees
 returns: string tuple in format ("51 deg 30' 12.86\\" N", "0 deg 7' 54.50\\" W")
 This is the same format used by exiftool's json format.
 
 #### `create_path_by_date(dest, dt)`
 Creates a path in dest folder in form dest/YYYY/MM/DD/
-dest: valid path as str
-dt: datetime.timetuple() object
+- `dest`: valid path as str
+- `dt`: datetime.timetuple() object
 Checks to see if path exists, if it does, do nothing and return path. If path does not exist, creates it and returns path.  Useful for exporting photos to a date-based folder structure.
 
 ## Examples
