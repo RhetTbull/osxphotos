@@ -14,6 +14,7 @@
     + [PhotosDB](#photosdb)
     + [PhotoInfo](#photoinfo)
     + [PlaceInfo](#placeinfo)
+    + [Template Functions](#template-functions)
     + [Utility Functions](#utility-functions)
   * [Examples](#examples)
   * [Related Projects](#related-projects)
