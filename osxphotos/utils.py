@@ -1,12 +1,13 @@
 import glob
 import logging
 import os.path
+import pathlib
 import platform
 import sqlite3
 import subprocess
+import sys
 import tempfile
 import urllib.parse
-import pathlib
 from plistlib import load as plistload
 
 import CoreFoundation
