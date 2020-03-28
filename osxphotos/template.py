@@ -39,10 +39,141 @@ TEMPLATE_SUBSTITUTIONS = {
 }
 
 
-def render_filename_template(
+def get_template_value(lookup, photo):
+    """ lookup: value to find a match for
+        photo: PhotoInfo object whose data will be used for value substitutions
+        returns: either the matching template value (which may be None)
+        raises: KeyError if no rule exists for lookup """
+
+    # must be a valid keyword
+    if lookup == "name":
+        return pathlib.Path(photo.filename).stem
+
+    if lookup == "original_name":
+        return pathlib.Path(photo.original_filename).stem
+
+    if lookup == "title":
+        return photo.title
+
+    if lookup == "descr":
+        return photo.description
+
+    if lookup == "created.date":
+        return DateTimeFormatter(photo.date).date
+
+    if lookup == "created.year":
+        return DateTimeFormatter(photo.date).year
+
+    if lookup == "created.yy":
+        return DateTimeFormatter(photo.date).yy
+
+    if lookup == "created.mm":
+        return DateTimeFormatter(photo.date).mm
+
+    if lookup == "created.month":
+        return DateTimeFormatter(photo.date).month
+
+    if lookup == "created.mon":
+        return DateTimeFormatter(photo.date).mon
+
+    if lookup == "created.doy":
+        return DateTimeFormatter(photo.date).doy
+
+    if lookup == "modified.date":
+        return (
+            DateTimeFormatter(photo.date_modified).date if photo.date_modified else None
+        )
+
+    if lookup == "modified.year":
+        return (
+            DateTimeFormatter(photo.date_modified).year if photo.date_modified else None
+        )
+
+    if lookup == "modified.yy":
+        return (
+            DateTimeFormatter(photo.date_modified).yy if photo.date_modified else None
+        )
+
+    if lookup == "modified.mm":
+        return (
+            DateTimeFormatter(photo.date_modified).mm if photo.date_modified else None
+        )
+
+    if lookup == "modified.month":
+        return (
+            DateTimeFormatter(photo.date_modified).month
+            if photo.date_modified
+            else None
+        )
+
+    if lookup == "modified.mon":
+        return (
+            DateTimeFormatter(photo.date_modified).mon if photo.date_modified else None
+        )
+
+    if lookup == "modified.doy":
+        return (
+            DateTimeFormatter(photo.date_modified).doy if photo.date_modified else None
+        )
+
+    if lookup == "place.name":
+        return photo.place.name if photo.place else None
+
+    if lookup == "place.names.country":
+        return (
+            photo.place.names.country[0]
+            if photo.place and photo.place.names.country
+            else None
+        )
+
+    if lookup == "place.names.state_province":
+        return (
+            photo.place.names.state_province[0]
+            if photo.place and photo.place.names.state_province
+            else None
+        )
+
+    if lookup == "place.names.city":
+        return (
+            photo.place.names.city[0]
+            if photo.place and photo.place.names.city
+            else None
+        )
+
+    if lookup == "place.names.area_of_interest":
+        return (
+            photo.place.names.area_of_interest[0]
+            if photo.place and photo.place.names.area_of_interest
+            else None
+        )
+
+    # if here, didn't get a match
+    raise KeyError(f"No rule for processing {lookup}")
+
+
+def render_filepath_template(
     template: str, photo: PhotoInfo, none_str: str = "_"
 ) -> Tuple[str, list]:
     """ render a filename or directory template """
+
+    # pylint: disable=anomalous-backslash-in-string
+    regex = r"""(?<!\\)\{([^\\,}]+)(,{0,1}(([\w\-. ]+))?)\}"""
+
+    # pylint: disable=anomalous-backslash-in-string
+    unmatched_regex = r"(?<!\\)(\{[^\\,}]+\})"
+
+    # Explanation for regex:
+    # (?<!\\) Negative Lookbehind to skip escaped braces
+    #     assert regex following does not match "\" preceeding "{"
+    # \{ Match the opening brace
+    # 1st Capturing Group ([^\\,}]+)  Don't match "\", ",", or "}"
+    # 2nd Capturing Group (,?(([\w\-. ]+))?)
+    #     ,{0,1} optional ","
+    # 3rd Capturing Group (([\w\-. ]+))?
+    #     Matches the comma and any word characters after
+    # 4th Capturing Group ([\w\-. ]+)
+    #     Matches just the characters after the comma
+    # \} Matches the closing brace
 
     if type(template) is not str:
         raise TypeError(f"template must be type str, not {type(template)}")
@@ -50,114 +181,43 @@ def render_filename_template(
     if type(photo) is not PhotoInfo:
         raise TypeError(f"photo must be type osxphotos.PhotoInfo, not {type(photo)}")
 
-    rendered = template
-    original_name = pathlib.Path(photo.original_filename).stem
-    current_name = pathlib.Path(photo.filename).stem
-    created = DateTimeFormatter(photo.date)
-    if photo.date_modified:
-        modified = DateTimeFormatter(photo.date_modified)
-    else:
-        modified = None
+    def make_subst_function(photo, none_str):
+        """ returns: substitution function for use in re.sub """
+        # closure to capture photo, none_str in subst
+        def subst(matchobj):
+            groups = len(matchobj.groups())
+            if groups == 4:
+                try:
+                    val = get_template_value(matchobj.group(1), photo)
+                except KeyError:
+                    return matchobj.group(0)
 
-    # make substitutions
-    rendered = rendered.replace("{name}", current_name)
-    rendered = rendered.replace("{original_name}", original_name)
+                if val is None:
+                    return (
+                        matchobj.group(3) if matchobj.group(3) is not None else none_str
+                    )
+                else:
+                    return val
+            else:
+                raise ValueError(
+                    f"Unexpected number of groups: expected 4, got {groups}"
+                )
 
-    title = photo.title if photo.title is not None else none_str
-    rendered = rendered.replace("{title}", f"{title}")
+        return subst
 
-    descr = photo.description if photo.description is not None else none_str
-    rendered = rendered.replace("{descr}", f"{descr}")
+    subst_func = make_subst_function(photo, none_str)
 
-    rendered = rendered.replace("{created.date}", photo.date.date().isoformat())
-    rendered = rendered.replace("{created.year}", created.year)
-    rendered = rendered.replace("{created.yy}", created.yy)
-    rendered = rendered.replace("{created.mm}", created.mm)
-    rendered = rendered.replace("{created.month}", created.month)
-    rendered = rendered.replace("{created.mon}", created.mon)
-    rendered = rendered.replace("{created.doy}", created.doy)
+    # do the replacements
+    rendered = re.sub(regex, subst_func, template)
 
-    if modified is not None:
-        rendered = rendered.replace(
-            "{modified.date}", photo.date_modified.date().isoformat()
-        )
-        rendered = rendered.replace("{modified.year}", modified.year)
-        rendered = rendered.replace("{modified.yy}", modified.yy)
-        rendered = rendered.replace("{modified.mm}", modified.mm)
-        rendered = rendered.replace("{modified.month}", modified.month)
-        rendered = rendered.replace("{modified.mon}", modified.mon)
-        rendered = rendered.replace("{modified.doy}", modified.doy)
-    else:
-        rendered = rendered.replace("{modified.year}", none_str)
-        rendered = rendered.replace("{modified.yy}", none_str)
-        rendered = rendered.replace("{modified.mm}", none_str)
-        rendered = rendered.replace("{modified.month}", none_str)
-        rendered = rendered.replace("{modified.mon}", none_str)
-        rendered = rendered.replace("{modified.doy}", none_str)
-
-    place_name = photo.place.name if photo.place and photo.place.name else none_str
-    rendered = rendered.replace("{place.name}", place_name)
-
-    # place_names = (
-    #     "_".join(photo.place.names) if photo.place and photo.place.names else none_str
-    # )
-    # rendered = rendered.replace("{place.names}", place_names)
-
-    address = (
-        photo.place.address_str if photo.place and photo.place.address_str else none_str
-    )
-    rendered = rendered.replace("{place.address}", address)
-
-    street = (
-        photo.place.address.street
-        if photo.place and photo.place.address.street
-        else none_str
-    )
-    rendered = rendered.replace("{place.street}", street)
-
-    city = (
-        photo.place.address.city
-        if photo.place and photo.place.address.city
-        else none_str
-    )
-    rendered = rendered.replace("{place.city}", city)
-
-    state_province = (
-        photo.place.address.state_province
-        if photo.place and photo.place.address.state_province
-        else none_str
-    )
-    rendered = rendered.replace("{place.state_province}", state_province)
-
-    postal_code = (
-        photo.place.address.postal_code
-        if photo.place and photo.place.address.postal_code
-        else none_str
-    )
-    rendered = rendered.replace("{place.postal_code}", postal_code)
-
-    country = (
-        photo.place.address.country
-        if photo.place and photo.place.address.country
-        else none_str
-    )
-    rendered = rendered.replace("{place.country}", country)
-
-    country_code = (
-        photo.place.country_code
-        if photo.place and photo.place.country_code
-        else none_str
-    )
-    rendered = rendered.replace("{place.country_code}", country_code)
+    # find any {words} that weren't replaced
+    unmatched = re.findall(unmatched_regex, rendered)
 
     # fix any escaped curly braces
     rendered = re.sub(r"\\{", "{", rendered)
     rendered = re.sub(r"\\}", "}", rendered)
 
-    # find any {words} that weren't replaced
-    unmatched = re.findall(r"{\w+}", rendered)
-
-    return (rendered, unmatched)
+    return rendered, unmatched
 
 
 class DateTimeFormatter:
@@ -165,6 +225,12 @@ class DateTimeFormatter:
 
     def __init__(self, dt: datetime.datetime):
         self.dt = dt
+
+    @property
+    def date(self):
+        """ ISO date in form 2020-03-22 """
+        date = self.dt.date().isoformat()
+        return date
 
     @property
     def year(self):

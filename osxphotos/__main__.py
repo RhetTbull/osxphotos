@@ -21,7 +21,7 @@ import osxphotos
 from ._constants import _EXIF_TOOL_URL, _PHOTOS_5_VERSION
 from ._version import __version__
 from .exiftool import get_exiftool_path
-from .template import render_filename_template, TEMPLATE_SUBSTITUTIONS
+from .template import render_filepath_template, TEMPLATE_SUBSTITUTIONS
 from .utils import _copy_file, create_path_by_date
 
 
@@ -1403,7 +1403,7 @@ def export_photo(
         date_created = photo.date.timetuple()
         dest = create_path_by_date(dest, date_created)
     elif directory:
-        dirname, unmatched = render_filename_template(directory, photo)
+        dirname, unmatched = render_filepath_template(directory, photo)
         if unmatched:
             click.echo(
                 f"Possible unmatched substitution in template: {unmatched}", err=True
