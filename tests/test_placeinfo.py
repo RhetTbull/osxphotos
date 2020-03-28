@@ -7,11 +7,11 @@ REVERSE_GEO_LOC_DATA_2 = b'bplist00\xd4\x01\x02\x03\x04\x05\x06\x07\nX$versionY$
 
 # below is just test data, not accurate representation of actual values
 PLACE_4_INFO_1 = [
-    (1, "St James's Park", 43, 0),
-    (2, "Westminster", 45, 0),
-    (3, "London", 5, 0),
-    (4, "England", 2, 0),
-    (5, "United Kingdom", 1, 0),
+    (5, "St James's Park", 45, 0),
+    (4, "Westminster", 16, 22097376),
+    (3, "London", 4, 1596146816),
+    (2, "England", 2, 180406091776),
+    (1, "United Kingdom", 1, 414681432064),
 ]
 PLACE_4_NAMES_1 = [
     "St James's Park",
@@ -44,14 +44,19 @@ def test_placeInfo4():
     place = PlaceInfo4(PLACE_4_INFO_1, PLACE_4_COUNTRY_1)
     assert place is not None
     assert isinstance(place, PlaceInfo)
-    assert place.name == "St James's Park"
-    assert place.names == PLACE_4_NAMES_1
+    assert place.name == "St James's Park, Westminster, United Kingdom"
+    assert place.names.city == ["Westminster"]
+    assert place.names.country == ["United Kingdom"]
+    assert place.names.area_of_interest == ["St James's Park"]
+    assert place.names.state_province == ["England"]
+    assert place.names.sub_administrative_area == ["London"]
+    assert place.names.region == []
     assert place.country_code == "GB"
     assert place.address_str is None
     assert place.address.city is None
     assert place.address.country is None
     assert place.address.postal_code is None
-    assert place.address.state is None
+    assert place.address.state_province is None
     assert place.address.street is None
     assert place.address.sub_administrative_area is None
     assert place.address.sub_locality is None
@@ -101,22 +106,22 @@ def test_PlaceInfo5():
     assert place is not None
     assert isinstance(place, PlaceInfo)
     assert not place.ishome
-    assert place.name == "2038 18th St NW"
-    assert place.names == [
-        "2038 18th St NW",
-        "Adams Morgan",
+    assert place.name == "Washington, District of Columbia, United States"
+    assert place.names.street_address == ["2038 18th St NW"]
+    assert place.names.additional_city_info == ["Adams Morgan"]
+    assert place.names.city == [
         "Washington",
         "Washington",
         "Washington",
-        "District of Columbia",
-        "United States",
     ]
+    assert place.names.state_province == ["District of Columbia"]
+    assert place.names.country == ["United States"]
     assert place.country_code == "US"
     assert place.address_str == "2038 18th St NW, Washington, DC  20009, United States"
     assert place.address.city == "Washington"
     assert place.address.country == "United States"
     assert place.address.postal_code == "20009"
-    assert place.address.state == "DC"
+    assert place.address.state_province == "DC"
     assert place.address.street == "2038 18th St NW"
     assert place.address.sub_administrative_area is None
     assert place.address.sub_locality == "Adams Morgan"

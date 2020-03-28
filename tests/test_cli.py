@@ -49,7 +49,7 @@ CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES1 = [
 ]
 
 CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES2 = [
-    "St James's Park/St James Park.jpg",
+    "St James's Park, Great Britain, Westminster, England, United Kingdom/St James Park.jpg",
     "_/Pumpkins3.jpg",
     "_/Pumkins2.jpg",
     "_/Pumkins1.jpg",

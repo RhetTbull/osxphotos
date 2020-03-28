@@ -24,12 +24,15 @@ TEMPLATE_SUBSTITUTIONS = {
     "{modified.month}": "Month name in user's locale of the file modification time",
     "{modified.mon}": "Month abbreviation in the user's locale of the file modification time",
     "{modified.doy}": "3-digit day of year (e.g Julian day) of file modification time, starting from 1 (zero padded)",
-    "{place.name}": "Place name from the photo's reverse geolocation data",
-    "{place.names}": "list of place names from the photo's reverse geolocation data, joined with '_', for example, '18th St NW_Washington_DC_United States'",
+    "{place.name}": "Place name from the photo's reverse geolocation data, as displayed in Photos",
+    "{place.names.country}": "Country name from the photo's reverse geolocation data",
+    "{place.names.state_province}": "State or province name from the photo's reverse geolocation data",
+    "{place.names.city}": "City or locality name from the photo's reverse geolocation data",
+    "{place.names.area_of_interest}": "Area of interest name (e.g. landmark or public place) from the photo's reverse geolocation data",
     "{place.address}": "Postal address from the photo's reverse geolocation data, e.g. '2007 18th St NW, Washington, DC 20009, United States'",
     "{place.street}": "Street part of the postal address, e.g. '2007 18th St NW'",
     "{place.city}": "City part of the postal address, e.g. 'Washington'",
-    "{place.state}": "State part of the postal address, e.g. 'DC'",
+    "{place.state_province}": "State/province part of the postal address, e.g. 'DC'",
     "{place.postal_code}": "Postal code part of the postal address, e.g. '20009'",
     "{place.country}": "Country name of the postal address, e.g. 'United States'",
     "{place.country_code}": "ISO country code of the postal address, e.g. 'US'",
@@ -95,10 +98,10 @@ def render_filename_template(
     place_name = photo.place.name if photo.place and photo.place.name else none_str
     rendered = rendered.replace("{place.name}", place_name)
 
-    place_names = (
-        "_".join(photo.place.names) if photo.place and photo.place.names else none_str
-    )
-    rendered = rendered.replace("{place.names}", place_names)
+    # place_names = (
+    #     "_".join(photo.place.names) if photo.place and photo.place.names else none_str
+    # )
+    # rendered = rendered.replace("{place.names}", place_names)
 
     address = (
         photo.place.address_str if photo.place and photo.place.address_str else none_str
@@ -119,22 +122,22 @@ def render_filename_template(
     )
     rendered = rendered.replace("{place.city}", city)
 
-    state = (
-        photo.place.address.state
-        if photo.place and photo.place.address.state
+    state_province = (
+        photo.place.address.state_province
+        if photo.place and photo.place.address.state_province
         else none_str
     )
-    rendered = rendered.replace("{place.state}", state)
+    rendered = rendered.replace("{place.state_province}", state_province)
 
     postal_code = (
-        photo.place.address.state
+        photo.place.address.postal_code
         if photo.place and photo.place.address.postal_code
         else none_str
     )
     rendered = rendered.replace("{place.postal_code}", postal_code)
 
     country = (
-        photo.place.address.state
+        photo.place.address.country
         if photo.place and photo.place.address.country
         else none_str
     )

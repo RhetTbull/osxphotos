@@ -116,8 +116,6 @@ class PhotoInfo:
             )
             return photopath
 
-        # if self._info["masterFingerprint"]:
-        # if masterFingerprint is not null, path appears to be valid
         if self._info["directory"].startswith("/"):
             photopath = os.path.join(self._info["directory"], self._info["filename"])
         else:
@@ -125,13 +123,6 @@ class PhotoInfo:
                 self._db._masters_path, self._info["directory"], self._info["filename"]
             )
         return photopath
-
-        # if all else fails, photopath = None
-        # photopath = None
-        # logging.debug(
-        #     f"WARNING: photopath None, masterFingerprint null, not shared {pformat(self._info)}"
-        # )
-        # return photopath
 
     @property
     def path_edited(self):
@@ -492,7 +483,7 @@ class PhotoInfo:
 
     @property
     def place(self):
-        """ If Photos version >= 5, returns PlaceInfo object containing reverse geolocation info """
+        """ Returns PlaceInfo object containing reverse geolocation info """
 
         # implementation note: doesn't create the PlaceInfo object until requested
         # then memoizes the object in self._place to avoid recreating the object
@@ -500,7 +491,7 @@ class PhotoInfo:
         if self._db._db_version < _PHOTOS_5_VERSION:
             try:
                 return self._place  # pylint: disable=access-member-before-definition
-            except:
+            except AttributeError:
                 if self._info["placeNames"]:
                     self._place = PlaceInfo4(
                         self._info["placeNames"], self._info["countryCode"]

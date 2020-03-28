@@ -1,6 +1,9 @@
 """ 
     PlaceInfo class
     Provides reverse geolocation info for photos 
+    
+    See https://developer.apple.com/documentation/corelocation/clplacemark
+    for additional documentation on reverse geolocation data
 """
 from abc import ABC, abstractmethod
 from collections import namedtuple  # pylint: disable=syntax-error
@@ -16,10 +19,42 @@ PostalAddress = namedtuple(
         "sub_locality",
         "city",
         "sub_administrative_area",
-        "state",
+        "state_province",
         "postal_code",
         "country",
         "iso_country_code",
+    ],
+)
+
+# PlaceNames tuple returned by PlaceInfo.names
+# order of fields 0 - 17 is mapped to placeType value in
+# PLRevGeoLocationInfo.mapInfo.sortedPlaceInfos
+# field 18 is combined bodies of water (ocean + inland_water)
+# and maps to Photos <= 4, RKPlace.type == 44
+# (Photos <= 4 doesn't have ocean or inland_water types)
+# The fields named "field0", etc. appear to be unused
+PlaceNames = namedtuple(
+    "PlaceNames",
+    [
+        "field0",
+        "country",  # The name of the country associated with the placemark.
+        "state_province",  # administrativeArea, The state or province associated with the placemark.
+        "sub_administrative_area",  # Additional administrative area information for the placemark.
+        "city",  # locality, The city associated with the placemark.
+        "field5",
+        "additional_city_info",  # subLocality, Additional city-level information for the placemark.
+        "ocean",  # The name of the ocean associated with the placemark.
+        "area_of_interest",  # areasOfInterest, The relevant areas of interest associated with the placemark.
+        "inland_water",  # The name of the inland water body associated with the placemark.
+        "field10",
+        "region",  # The geographic region associated with the placemark.
+        "sub_throughfare",  # Additional street-level information for the placemark.
+        "field13",
+        "postal_code",  # The postal code associated with the placemark.
+        "field15",
+        "field16",
+        "street_address",  # throughfare, The street address associated with the placemark.
+        "body_of_water",  # RKPlace.type == 44, appears to be any body of water (ocean or inland)
     ],
 )
 
@@ -323,9 +358,18 @@ class PlaceInfo4(PlaceInfo):
     """ Reverse geolocation place info for a photo (Photos <= 4) """
 
     def __init__(self, place_names, country_code):
-        """ place_names: list of place names in ascending order by area """
+        """ place_names: list of place name tuples in ascending order by area 
+            tuple fields are: modelID, place name, place type, area, e.g.
+            [(5, "St James's Park", 45, 0), 
+            (4, 'Westminster', 16, 22097376), 
+            (3, 'London', 4, 1596146816), 
+            (2, 'England', 2, 180406091776), 
+            (1, 'United Kingdom', 1, 414681432064)] 
+            country_code: two letter country code for the country
+        """
         self._place_names = place_names
         self._country_code = country_code
+        self._process_place_info()
 
     @property
     def address_str(self):
@@ -341,11 +385,11 @@ class PlaceInfo4(PlaceInfo):
 
     @property
     def name(self):
-        return self._place_names[0][1]
+        return self._name
 
     @property
     def names(self):
-        return [p[1] for p in self._place_names]
+        return self._names
 
     @property
     def address(self):
@@ -359,6 +403,83 @@ class PlaceInfo4(PlaceInfo):
                 self._place_names == other._place_names
                 and self._country_code == other._country_code
             )
+
+    def _process_place_info(self):
+        """ Process place_names to set self._name and self._names """
+        places = self._place_names
+
+        # build a dictionary where key is placetype
+        places_dict = {}
+        for p in places:
+            # places in format:
+            # [(5, "St James's Park", 45, 0), ]
+            #   0: modelID
+            #   1: name
+            #   2: type
+            #   3: area
+            try:
+                places_dict[p[2]].append((p[1], p[3]))
+            except KeyError:
+                places_dict[p[2]] = [(p[1], p[3])]
+
+        # build list to populate PlaceNames tuple
+        # initialize with empty lists for each field in PlaceNames
+        place_info = [[]] * 19
+
+        # add the place names sorted by area (ascending)
+        # in Photos <=4, possible place type values are:
+        # 45: areasOfInterest (The relevant areas of interest associated with the placemark.)
+        # 44: body of water (includes both inlandWater and ocean)
+        # 43: subLocality (Additional city-level information for the placemark.
+        # 16: locality (The city associated with the placemark.)
+        # 4: subAdministrativeArea (Additional administrative area information for the placemark.)
+        # 2: administrativeArea (The state or province associated with the placemark.)
+        # 1: country
+        # mapping = mapping from PlaceNames to field in places_dict
+        # PlaceNames fields map to the placeType value in Photos5 (0..17)
+        # but place type in Photos <=4 has different values
+        # hence (3, 4) means PlaceNames[3] = places_dict[4] (sub_administrative_area)
+        mapping = [(1, 1), (2, 2), (3, 4), (4, 16), (18, 44), (8, 45)]
+        for field5, field4 in mapping:
+            try:
+                place_info[field5] = [
+                    p[0]
+                    for p in sorted(places_dict[field4], key=lambda place: place[1])
+                ]
+            except KeyError:
+                pass
+
+        place_names = PlaceNames(*place_info)
+        self._names = place_names
+
+        # build the name as it appears in Photos
+        # the length of the name is at most 3 fields and appears to be based on available
+        # reverse geolocation data in the following order (left to right, joined by ',')
+        # always has country if available then either area of interest and city OR
+        # city and state
+        # e.g. 4, 2, 1 OR 8, 4, 1
+        # 8 (45): area_of_interest
+        # 4 (16): locality / city
+        # 2 (2): administrative area (state/province)
+        # 1 (1): country
+        name_list = []
+        if place_names[8]:
+            name_list.append(place_names[8][0])
+            if place_names[4]:
+                name_list.append(place_names[4][0])
+        elif place_names[4]:
+            name_list.append(place_names[4][0])
+            if place_names[2]:
+                name_list.append(place_names[2][0])
+        elif place_names[2]:
+            name_list.append(place_names[2][0])
+
+        # add country
+        if place_names[1]:
+            name_list.append(place_names[1][0])
+
+        name = ", ".join(name_list)
+        self._name = name if name != "" else None
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -382,6 +503,7 @@ class PlaceInfo5(PlaceInfo):
         self._bplist = revgeoloc_bplist
         # todo: check for None?
         self._plrevgeoloc = archiver.unarchive(revgeoloc_bplist)
+        self._process_place_info()
 
     @property
     def address_str(self):
@@ -401,22 +523,12 @@ class PlaceInfo5(PlaceInfo):
     @property
     def name(self):
         """ returns local place name """
-        name = (
-            self._plrevgeoloc.mapItem.sortedPlaceInfos[0].name
-            if self._plrevgeoloc.mapItem.sortedPlaceInfos
-            else None
-        )
-        return name
+        return self._name
 
     @property
     def names(self):
-        """ returns list of all place names in reverse order by area
-            e.g. most local is at index 0, least local (usually country) is at index -1 """
-        names = []
-        # todo: strip duplicates
-        for name in self._plrevgeoloc.mapItem.sortedPlaceInfos:
-            names.append(name.name)
-        return names
+        """ returns PlaceNames tuple with detailed reverse geolocation place names """
+        return self._names
 
     @property
     def address(self):
@@ -426,12 +538,71 @@ class PlaceInfo5(PlaceInfo):
             sub_locality=addr._subLocality,
             city=addr._city,
             sub_administrative_area=addr._subAdministrativeArea,
-            state=addr._state,
+            state_province=addr._state,
             postal_code=addr._postalCode,
             country=addr._country,
             iso_country_code=addr._ISOCountryCode,
         )
         return address
+
+    def _process_place_info(self):
+        """ Process sortedPlaceInfos to set self._name and self._names """
+        places = self._plrevgeoloc.mapItem.sortedPlaceInfos
+
+        # build a dictionary where key is placetype
+        places_dict = {}
+        for p in places:
+            try:
+                places_dict[p.placeType].append((p.name, p.area))
+            except KeyError:
+                places_dict[p.placeType] = [(p.name, p.area)]
+
+        # build list to populate PlaceNames tuple
+        place_info = []
+        for field in range(18):
+            try:
+                # add the place names sorted by area (ascending)
+                place_info.append(
+                    [
+                        p[0]
+                        for p in sorted(places_dict[field], key=lambda place: place[1])
+                    ]
+                )
+            except:
+                place_info.append([])
+
+        # fill in body_of_water for compatibility with Photos <= 4
+        place_info.append(place_info[7] + place_info[9])
+
+        place_names = PlaceNames(*place_info)
+        self._names = place_names
+
+        # build the name as it appears in Photos
+        # the length of the name is variable and appears to be based on available
+        # reverse geolocation data in the following order (left to right, joined by ',')
+        # 8: area_of_interest
+        # 11: region (I've only seen this applied to islands)
+        # 4: locality / city
+        # 2: administrative area (state/province)
+        # 1: country
+        # 9: inland_water
+        # 7: ocean
+        name = ", ".join(
+            [
+                p[0]
+                for p in [
+                    place_names[8],  # area of interest
+                    place_names[11],  # region (I've only seen this applied to islands)
+                    place_names[4],  # locality / city
+                    place_names[2],  # administrative area (state/province)
+                    place_names[1],  # country
+                    place_names[9],  # inland_water
+                    place_names[7],  # ocean
+                ]
+                if p and p[0]
+            ]
+        )
+        self._name = name if name != "" else None
 
     def __eq__(self, other):
         if not isinstance(other, type(self)):

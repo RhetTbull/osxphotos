@@ -244,9 +244,7 @@ replaced by '_', for example, your template looked like
 '{created.year}/{place.address}' but there was no address associated with the
 photo, the resulting output would be: '2020/_/photoname.jpg'
 
-I plan to add the option to specify the value to be used for missing
-subsitutions in a future version. I also plan to extend the templating system
-to the exported filename so you can specify the filename using a template.
+I plan to extend the templating system to the exported filename so you can specify the filename using a template.
 
 Substitution          Description
 {name}                Filename of the photo
@@ -274,7 +272,8 @@ Substitution          Description
                       modification time
 {modified.doy}        3-digit day of year (e.g Julian day) of file
                       modification time, starting from 1 (zero padded)
-{place.name}          Place name from the photo's reverse geolocation data
+{place.name}          Place name from the photo's reverse geolocation data; 
+                      this is the place name shown in the Photos Info window
 {place.names}         list of place names from the photo's reverse
                       geolocation data, joined with '_', for example, '18th
                       St NW_Washington_DC_United States'
@@ -888,24 +887,38 @@ If overwrite=False and increment=False, export will fail if destination file alr
 Returns `True` if photo place is user's home address, otherwise `False`.
 
 #### `name`
-Returns the name of the local place as str.  This may be a street address (e.g. "2038 18th St NW") or a public place (e.g. "St James\'s Park").
+Returns the name of the local place as str.  This is what Photos displays in the Info window.  **Note** Photos 5 uses a different algorithm to determine the name than earlier versions which means the same Photo may have a different place name in Photos 4 and Photos 5. `PhotoInfo.name` will return the name Photos would have shown depending on the version of the library being processed.  In Photos 5, the place name is generally more detailed than in earlier versions of Photos.
+
+For example, I have photo in my library that under Photos 4, has place name of "‎⁨Mayfair Shopping Centre⁩, ⁨Victoria⁩, ⁨Canada⁩" and under Photos 5 the same photo has place name of "Mayfair⁩, ⁨Vancouver Island⁩, ⁨Victoria⁩, ⁨British Columbia⁩, ⁨Canada⁩".
 
 Returns `None` if photo does not contain a name.
 
 #### `names`
-Returns a list of place names in ascending order by area, starting with the smallest area (most local) to largest area (least local).  For example:
+Returns a `PlaceNames` namedtuple with the following fields.  Each field is a list with zero or more values, sorted by area in ascending order.  E.g. `names.area_of_interest` could be ['Gulf Islands National Seashore', 'Santa Rosa Island'], ["Knott's Berry Farm"], or [] if `area_of_interest` not defined.  The value shown in Photos is the first value in the list. With the exception of `body_of_water` each of these field corresponds to an attribute of a [CLPlacemark](https://developer.apple.com/documentation/corelocation/clplacemark) object.  **Note** The `PlaceNames` namedtuple contains reserved fields not listed below (see implementation for details), thus it should be referenced only by name (e.g. `names.city`) and not by index.
 
-        ["2038 18th St NW",
-        "Adams Morgan",
-        "Washington",
-        "Washington",
-        "Washington",
-        "District of Columbia",
-        "United States"]
+- `country`; the name of the country associated with the placemark.
+- `state_province`; administrativeArea, The state or province associated with the placemark.
+- `sub_administrative_area`; additional administrative area information for the placemark.
+- `city`; locality; the city associated with the placemark.
+- `additional_city_info`; subLocality, Additional city-level information for the placemark.
+- `ocean`; the name of the ocean associated with the placemark.
+- `area_of_interest`; areasOfInterest, The relevant areas of interest associated with the placemark.
+- `inland_water`; the name of the inland water body associated with the placemark.
+- `region`; the geographic region associated with the placemark.
+- `sub_throughfare`; additional street-level information for the placemark.
+- `postal_code`; the postal code associated with the placemark.
+- `street_address`; throughfare, The street address associated with the placemark.
+- `body_of_water`; in Photos 4, any body of water; in Photos 5 contains the union of ocean and inland_water
 
-`names[0]` will always be the most local (e.g. street address) component and `names[-1]` will always be the least local which is almost always the country name.
+**Note**: In Photos <= 4.0, only the following fields are defined; all others are set to empty list:
 
-**Note**: names may contain duplicates as in above.  The data is returned exactly as it is stored by Photos.  
+- `country`
+- `state_province`
+- `sub_administrative_area`
+- `city` 
+- `additional_city_info`
+- `area_of_interest`
+- `body_of_water`
 
 #### `country_code`
 Returns the country_code of place, for example "GB".  Returns `None` if PhotoInfo contains no country code.
@@ -916,7 +929,7 @@ Returns the full postal address as a string if defined, otherwise `None`.
 For example: "2038 18th St NW, Washington, DC  20009, United States"
 
 #### `address`:
-Returns a `PostalAddress` tuple with details of the postal address containing the following fields:
+Returns a `PostalAddress` namedtuple with details of the postal address containing the following fields:
 - city
 - country
 - postal_code

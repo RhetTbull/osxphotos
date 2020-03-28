@@ -10,7 +10,7 @@ import logging
 import os
 import subprocess
 import sys
-from functools import lru_cache
+from functools import lru_cache # pylint: disable=syntax-error
 
 from .utils import _debug
 

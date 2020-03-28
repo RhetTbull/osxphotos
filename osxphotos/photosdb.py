@@ -395,18 +395,6 @@ class PhotosDB:
 
         return dest_path
 
-    # def _open_sql_file(self, fname):
-    #     """ opens sqlite file fname in read-only mode
-    #         returns tuple of (connection, cursor) """
-    #     try:
-    #         conn = sqlite3.connect(
-    #             f"{pathlib.Path(fname).as_uri()}?mode=ro", timeout=1, uri=True
-    #         )
-    #         c = conn.cursor()
-    #     except sqlite3.Error as e:
-    #         sys.exit(f"An error occurred opening sqlite file: {e.args[0]} {fname}")
-    #     return (conn, c)
-
     def _get_db_version(self):
         """ gets the Photos DB version from LiGlobals table """
         """ returns the version as str"""
