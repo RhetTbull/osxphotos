@@ -4,6 +4,7 @@ from click.testing import CliRunner
 CLI_PHOTOS_DB = "tests/Test-10.15.1.photoslibrary"
 LIVE_PHOTOS_DB = "tests/Test-Cloud-10.15.1.photoslibrary/database/photos.db"
 RAW_PHOTOS_DB = "tests/Test-RAW-10.15.1.photoslibrary"
+PLACES_PHOTOS_DB = "tests/Test-Places-Catalina-10_15_1.photoslibrary"
 
 CLI_OUTPUT_NO_SUBCOMMAND = [
     "Options:",
@@ -84,6 +85,8 @@ CLI_EXPORT_RAW_EDITED = [
     "441DFE2A-A69B-4C79-A69B-3F51D1B9B29C_edited.jpeg",
 ]
 CLI_EXPORT_RAW_EDITED_ORIGINAL = ["IMG_0476_2.CR2", "IMG_0476_2_edited.jpeg"]
+
+CLI_PLACES_JSON = """{"places": {"_UNKNOWN_": 1, "Maui, Wailea, Hawai'i, United States": 1, "Washington, District of Columbia, United States": 1}}"""
 
 
 def test_osxphotos():
@@ -408,3 +411,20 @@ def test_export_directory_template_3():
         workdir = os.getcwd()
         for filepath in CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES3:
             assert os.path.isfile(os.path.join(workdir, filepath))
+
+
+def test_places():
+    import json
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import places
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(places, [os.path.join(cwd, PLACES_PHOTOS_DB), "--json"])
+        assert result.exit_code == 0
+        json_got = json.loads(result.output)
+        assert json_got == json.loads(CLI_PLACES_JSON)

@@ -57,7 +57,14 @@ Then you should be able to run `osxphotos` on the command line:
 Usage: osxphotos [OPTIONS] COMMAND [ARGS]...
 
 Options:
-  --db <Photos database path>  Specify database file.
+  --db <Photos database path>  Specify Photos database path. Path to Photos
+                               library/database can be specified using either
+                               --db or directly as PHOTOS_LIBRARY positional
+                               argument. If neither --db or PHOTOS_LIBRARY
+                               provided, will attempt to find the library to
+                               use in the following order: 1. last opened
+                               library, 2. system library, 3.
+                               ~/Pictures/Photos Library.photoslibrary
   --json                       Print output in JSON format.
   -v, --version                Show the version and exit.
   -h, --help                   Show this message and exit.
@@ -71,6 +78,7 @@ Commands:
   keywords  Print out keywords found in the Photos library.
   list      Print list of Photos libraries found on the system.
   persons   Print out persons (faces) found in the Photos library.
+  places    Print out places found in the Photos library.
   query     Query the Photos database using 1 or more search options; if...
 ```
 

@@ -25,6 +25,9 @@ _TESTED_OS_VERSIONS = ["12", "13", "14", "15"]
 # Photos 5 has persons who are empty string if unidentified face
 _UNKNOWN_PERSON = "_UNKNOWN_"
 
+# photos with no reverse geolocation info (place)
+_UNKNOWN_PLACE = "_UNKNOWN_"
+
 _EXIF_TOOL_URL = "https://exiftool.org/"
 
 # Where are shared iCloud photos located?
