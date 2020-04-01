@@ -25,7 +25,14 @@ import osxphotos
     help="Path to Photos library, default to last used library",
     default=None,
 )
-def export(export_path, default_album, library_path):
+@click.option(
+    "--edited",
+    help="Also export edited versions of photos (default is originals only)",
+    is_flag=True,
+    default=False,
+)
+def export(export_path, default_album, library_path, edited):
+    """ Export all photos, organized by album """
     export_path = os.path.expanduser(export_path)
     library_path = os.path.expanduser(library_path) if library_path else None
 
@@ -42,7 +49,7 @@ def export(export_path, default_album, library_path):
             if not albums:
                 albums = [default_album]
             for album in albums:
-                click.echo(f"exporting {p.filename} in album {album}")
+                click.echo(f"exporting {p.original_filename} in album {album}")
 
                 # make sure no invalid characters in destination path (could be in album name)
                 album_name = sanitize_filepath(album, platform="auto")
@@ -58,17 +65,21 @@ def export(export_path, default_album, library_path):
                 if not os.path.isdir(dest_dir):
                     os.makedirs(dest_dir)
 
-                # export the photo
-                if p.hasadjustments:
+                filename = p.original_filename
+                # export the photo but only if --edited, photo has adjustments, and 
+                # path_edited is not None (can be None if edited photo is missing)
+                if edited and p.hasadjustments and p.path_edited:
                     # export edited version
-                    exported = p.export(dest_dir, edited=True)
-                    edited_name = pathlib.Path(p.path_edited).name
-                    click.echo(f"Exported {edited_name} to {exported}")
+                    # use original filename with _edited appended but make sure suffix is 
+                    # same as edited file
+                    edited_filename = f"{pathlib.Path(filename).stem}_edited{pathlib.Path(p.path_edited).suffix}"
+                    exported = p.export(dest_dir, edited_filename, edited=True)
+                    click.echo(f"Exported {edited_filename} to {exported}")
                 # export unedited version
-                exported = p.export(dest_dir)
-                click.echo(f"Exported {p.filename} to {exported}")
+                exported = p.export(dest_dir, filename)
+                click.echo(f"Exported {filename} to {exported}")
         else:
-            click.echo(f"Skipping missing photo: {p.filename}")
+            click.echo(f"Skipping missing photo: {p.original_filename} in album {album}")
 
 
 if __name__ == "__main__":
