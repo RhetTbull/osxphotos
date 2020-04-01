@@ -215,6 +215,18 @@ def query_options(f):
             help="Search for photos with no description.",
         ),
         o(
+            "--place",
+            metavar="PLACE",
+            default=None,
+            multiple=True,
+            help="Search for PLACE in photo's reverse geolocation info",
+        ),
+        o(
+            "--no-place",
+            is_flag=True,
+            help="Search for photos with no associated place name info (no reverse geolocation info)",
+        ),
+        o(
             "--uti",
             metavar="UTI",
             default=None,
@@ -225,7 +237,7 @@ def query_options(f):
             "-i",
             "--ignore-case",
             is_flag=True,
-            help="Case insensitive search for title or description. Does not apply to keyword, person, or album.",
+            help="Case insensitive search for title, description, or place. Does not apply to keyword, person, or album.",
         ),
         o("--edited", is_flag=True, help="Search for photos that have been edited."),
         o(
@@ -683,6 +695,8 @@ def query(
     not_selfie,
     panorama,
     not_panorama,
+    place,
+    no_place,
 ):
     """ Query the Photos database using 1 or more search options; 
         if more than one option is provided, they are treated as "AND" 
@@ -720,6 +734,7 @@ def query(
         (hdr, not_hdr),
         (selfie, not_selfie),
         (panorama, not_panorama),
+        (any(place), no_place),
     ]
     # print help if no non-exclusive term or a double exclusive term is given
     if not any(nonexclusive + [b ^ n for b, n in exclusive]):
@@ -790,6 +805,8 @@ def query(
         not_selfie=not_selfie,
         panorama=panorama,
         not_panorama=not_panorama,
+        place=place,
+        no_place=no_place,
     )
 
     # below needed for to make CliRunner work for testing
@@ -937,6 +954,8 @@ def export(
     panorama,
     not_panorama,
     directory,
+    place,
+    no_place,
 ):
     """ Export photos from the Photos database.
         Export path DEST is required.
@@ -966,6 +985,7 @@ def export(
         (selfie, not_selfie),
         (panorama, not_panorama),
         (export_by_date, directory),
+        (any(place), no_place),
     ]
     if any([all(bb) for bb in exclusive]):
         click.echo(cli.commands["export"].get_help(ctx), err=True)
@@ -1046,6 +1066,8 @@ def export(
         not_selfie=not_selfie,
         panorama=panorama,
         not_panorama=not_panorama,
+        place=place,
+        no_place=no_place,
     )
 
     if photos:
@@ -1258,6 +1280,8 @@ def _query(
     not_selfie=None,
     panorama=None,
     not_panorama=None,
+    place=None,
+    no_place=None,
 ):
     """ run a query against PhotosDB to extract the photos based on user supply criteria """
     """ used by query and export commands """
@@ -1292,7 +1316,7 @@ def _query(
 
     if description:
         # search description field for text
-        # if more than one, find photos with all name values in description
+        # if more than one, find photos with all description values in description
         if ignore_case:
             # case-insensitive
             for d in description:
@@ -1305,6 +1329,40 @@ def _query(
                 photos = [p for p in photos if p.description and d in p.description]
     elif no_description:
         photos = [p for p in photos if not p.description]
+
+    if place:
+        # search place.names for text matching place
+        # if more than one place, find photos with all place values in description
+        if ignore_case:
+            # case-insensitive
+            for place_name in place:
+                place_name = place_name.lower()
+                photos = [
+                    p
+                    for p in photos
+                    if p.place
+                    and any(
+                        pname
+                        for pname in p.place.names
+                        if any(
+                            pvalue for pvalue in pname if place_name in pvalue.lower()
+                        )
+                    )
+                ]
+        else:
+            for place_name in place:
+                photos = [
+                    p
+                    for p in photos
+                    if p.place
+                    and any(
+                        pname
+                        for pname in p.place.names
+                        if any(pvalue for pvalue in pname if place_name in pvalue)
+                    )
+                ]
+    elif no_place:
+        photos = [p for p in photos if not p.place]
 
     if edited:
         photos = [p for p in photos if p.hasadjustments]

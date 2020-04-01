@@ -88,6 +88,7 @@ Example: `osxphotos help export`
 
 ```
 Usage: osxphotos export [OPTIONS] [PHOTOS_LIBRARY]... DEST
+Usage: __main__.py export [OPTIONS] [PHOTOS_LIBRARY]... DEST
 
   Export photos from the Photos database. Export path DEST is required.
   Optionally, query the Photos database using 1 or more search options;  if
@@ -119,11 +120,15 @@ Options:
   --no-title                      Search for photos with no title.
   --description DESC              Search for DESC in description of photo.
   --no-description                Search for photos with no description.
+  --place PLACE                   Search for PLACE in photo's reverse
+                                  geolocation info
+  --no-place                      Search for photos with no associated place
+                                  name info (no reverse geolocation info)
   --uti UTI                       Search for photos whose uniform type
                                   identifier (UTI) matches UTI
-  -i, --ignore-case               Case insensitive search for title or
-                                  description. Does not apply to keyword,
-                                  person, or album.
+  -i, --ignore-case               Case insensitive search for title,
+                                  description, or place. Does not apply to
+                                  keyword, person, or album.
   --edited                        Search for photos that have been edited.
   --external-edit                 Search for photos edited in external editor.
   --favorite                      Search for photos marked favorite.
@@ -296,6 +301,8 @@ Substitution                    Description
                                 padded)
 {place.name}                    Place name from the photo's reverse
                                 geolocation data, as displayed in Photos
+{place.country_code}            The ISO country code from the photo's
+                                reverse geolocation data
 {place.name.country}            Country name from the photo's reverse
                                 geolocation data
 {place.name.state_province}     State or province name from the photo's

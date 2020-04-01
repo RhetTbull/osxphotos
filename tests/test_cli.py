@@ -5,6 +5,7 @@ CLI_PHOTOS_DB = "tests/Test-10.15.1.photoslibrary"
 LIVE_PHOTOS_DB = "tests/Test-Cloud-10.15.1.photoslibrary/database/photos.db"
 RAW_PHOTOS_DB = "tests/Test-RAW-10.15.1.photoslibrary"
 PLACES_PHOTOS_DB = "tests/Test-Places-Catalina-10_15_1.photoslibrary"
+PLACES_PHOTOS_DB_13 = "tests/Test-Places-High-Sierra-10.13.6.photoslibrary"
 
 CLI_OUTPUT_NO_SUBCOMMAND = [
     "Options:",
@@ -428,3 +429,118 @@ def test_places():
         assert result.exit_code == 0
         json_got = json.loads(result.output)
         assert json_got == json.loads(CLI_PLACES_JSON)
+
+
+def test_place_13():
+    # test --place on 10.13
+    import json
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            query,
+            [os.path.join(cwd, PLACES_PHOTOS_DB_13), "--json", "--place", "Adelaide"],
+        )
+        assert result.exit_code == 0
+        json_got = json.loads(result.output)
+
+        assert len(json_got) == 1  # single element
+        assert json_got[0]["uuid"] == "2L6X2hv3ROWRSCU3WRRAGQ"
+
+def test_no_place_13():
+    # test --no-place on 10.13
+    import json
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            query,
+            [os.path.join(cwd, PLACES_PHOTOS_DB_13), "--json", "--no-place"],
+        )
+        assert result.exit_code == 0
+        json_got = json.loads(result.output)
+
+        assert len(json_got) == 1  # single element
+        assert json_got[0]["uuid"] == "pERZk5T1Sb+XcKDFRCsGpA"
+
+
+def test_place_15_1():
+    # test --place on 10.15
+    import json
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            query,
+            [os.path.join(cwd, PLACES_PHOTOS_DB), "--json", "--place", "Washington"],
+        )
+        assert result.exit_code == 0
+        json_got = json.loads(result.output)
+
+        assert len(json_got) == 1  # single element
+        assert json_got[0]["uuid"] == "128FB4C6-0B16-4E7D-9108-FB2E90DA1546"
+
+def test_place_15_2():
+    # test --place on 10.15
+    import json
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            query,
+            [os.path.join(cwd, PLACES_PHOTOS_DB), "--json", "--place", "United States"],
+        )
+        assert result.exit_code == 0
+        json_got = json.loads(result.output)
+
+        assert len(json_got) == 2  # single element
+        uuid = [json_got[x]["uuid"] for x in (0,1)]
+        assert "128FB4C6-0B16-4E7D-9108-FB2E90DA1546" in uuid
+        assert "FF7AFE2C-49B0-4C9B-B0D7-7E1F8B8F2F0C" in uuid
+
+
+def test_no_place_15():
+    # test --no-place on 10.15
+    import json
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            query,
+            [os.path.join(cwd, PLACES_PHOTOS_DB), "--json", "--no-place"],
+        )
+        assert result.exit_code == 0
+        json_got = json.loads(result.output)
+
+        assert len(json_got) == 1  # single element
+        assert json_got[0]["uuid"] == "A9B73E13-A6F2-4915-8D67-7213B39BAE9F"
