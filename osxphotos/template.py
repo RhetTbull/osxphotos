@@ -54,9 +54,9 @@ TEMPLATE_SUBSTITUTIONS = {
 
 # Permitted multi-value substitutions (each of these returns None or 1 or more values)
 TEMPLATE_SUBSTITUTIONS_MULTI_VALUED = {
-    "{album}": "Album photo is contained in",
-    "{keyword}": "Keywords assigned to photo",
-    "{person}": "Person / face in a photo",
+    "{album}": "Album(s) photo is contained in",
+    "{keyword}": "Keyword(s) assigned to photo",
+    "{person}": "Person(s) / face(s) in a photo",
 }
 
 # Just the multi-valued substitution names without the braces
@@ -311,7 +311,7 @@ def render_filepath_template(template, photo, none_str="_"):
     #    '2011/Album2/keyword1/person1',
     #    '2011/Album2/keyword2/person1',]
 
-    rendered_strings = [rendered]
+    rendered_strings = set([rendered])
     for field in MULTI_VALUE_SUBSTITUTIONS:
         if field == "album":
             values = photo.albums
@@ -320,11 +320,7 @@ def render_filepath_template(template, photo, none_str="_"):
         elif field == "person":
             values = photo.persons
             # remove any _UNKNOWN_PERSON values
-            try:
-                values.remove(_UNKNOWN_PERSON)
-            except:
-                pass
-
+            values = [val for val in values if val != _UNKNOWN_PERSON]
         else:
             raise ValueError(f"Unhandleded template value: {field}")
 
@@ -334,7 +330,10 @@ def render_filepath_template(template, photo, none_str="_"):
         # Build a regex that matches only the field being processed
         re_str = r"(?<!\\)\{(" + field + r")(,{0,1}(([\w\-. ]+))?)\}"
         regex_multi = re.compile(re_str)
-        new_strings = []  # holds each of the new rendered_strings
+
+        # holds each of the new rendered_strings, set() to avoid duplicates
+        new_strings = set()
+
         for str_template in rendered_strings:
             for val in values:
 
@@ -351,7 +350,7 @@ def render_filepath_template(template, photo, none_str="_"):
                     photo, none_str, get_func=get_template_value_multi
                 )
                 new_string = regex_multi.sub(subst, str_template)
-                new_strings.append(new_string)
+                new_strings.add(new_string)
 
         # update rendered_strings for the next field to process
         rendered_strings = new_strings

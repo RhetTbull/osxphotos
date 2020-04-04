@@ -88,7 +88,6 @@ Example: `osxphotos help export`
 
 ```
 Usage: osxphotos export [OPTIONS] [PHOTOS_LIBRARY]... DEST
-Usage: __main__.py export [OPTIONS] [PHOTOS_LIBRARY]... DEST
 
   Export photos from the Photos database. Export path DEST is required.
   Optionally, query the Photos database using 1 or more search options;  if
@@ -245,13 +244,11 @@ be '/Users/maria/Pictures/export/2020/March' if the photo was created in March
 
 In the template, valid template substitutions will be replaced by the
 corresponding value from the table below.  Invalid substitutions will result
-in a warning but will be left unchanged. e.g. if you put '{foo}' in your
-template, e.g. '{created.year}/{foo}', the resulting output directory would
-look like '/Users/maria/Pictures/export/2020/{foo}'
+in a an error and the script will abort.
 
 If you want the actual text of the template substition to appear in the
-rendered name, escape the curly braces with \, for example, using
-'{created.year}/\{name\}' for --directory would result in output of
+rendered name, use double braces, e.g. '{{' or '}}', thus using
+'{created.year}/{{name}}' for --directory would result in output of
 2020/{name}/photoname.jpg
 
 You may specify an optional default value to use if the substitution does not
@@ -327,6 +324,18 @@ Substitution                    Description
                                 'United States'
 {place.address.country_code}    ISO country code of the postal address, e.g.
                                 'US'
+
+The following substitutions may result in multiple values. Thus if specified
+for --directory these could result in multiple copies of a photo being being
+exported, one to each directory.  For example: --directory
+'{created.year}/{album}' could result in the same photo being exported to each
+of the following directories if the photos were created in 2019 and were in
+albums 'Vacation' and 'Family': 2019/Vacation, 2019/Family
+
+Substitution  Description
+{album}       Album(s) photo is contained in
+{keyword}     Keyword(s) assigned to photo
+{person}      Person(s) / face(s) in a photo
 ```
 
 Example: export all photos to ~/Desktop/export, including edited versions and live photo movies, group in folders by date created
@@ -1005,7 +1014,6 @@ If you want to include "{" or "}" in the output, use "{{" or "}}"
 
 e.g. `render_filepath_template("{created.year}/{{foo}}", photo)` would return `("2020/{foo}",[])`
 
-
 | Substitution | Description |
 |--------------|-------------|
 |{name}|Filename of the photo|
@@ -1039,6 +1047,10 @@ e.g. `render_filepath_template("{created.year}/{{foo}}", photo)` would return `(
 |{place.address.postal_code}|Postal code part of the postal address, e.g. '20009'|
 |{place.address.country}|Country name of the postal address, e.g. 'United States'|
 |{place.address.country_code}|ISO country code of the postal address, e.g. 'US'|
+|{album}|Album(s) photo is contained in|
+|{keyword}|Keyword(s) assigned to photo|
+|{person}|Person(s) / face(s) in a photo|
+
 
 #### `DateTimeFormatter(dt)`
 Class that provides easy access to formatted datetime values.

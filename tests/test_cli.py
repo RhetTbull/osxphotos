@@ -50,6 +50,26 @@ CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES1 = [
     "2018/September/Pumkins1.jpg",
 ]
 
+CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES_ALBUM1 = [
+    "_/wedding.jpg",
+    "_/Tulips.jpg",
+    "_/St James Park.jpg",
+    "Pumpkin Farm/Pumpkins3.jpg",
+    "Pumpkin Farm/Pumkins2.jpg",
+    "Pumpkin Farm/Pumkins1.jpg",
+    "Test Album/Pumkins1.jpg",
+]
+
+CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES_ALBUM2 = [
+    "NOALBUM/wedding.jpg",
+    "NOALBUM/Tulips.jpg",
+    "NOALBUM/St James Park.jpg",
+    "Pumpkin Farm/Pumpkins3.jpg",
+    "Pumpkin Farm/Pumkins2.jpg",
+    "Pumpkin Farm/Pumkins1.jpg",
+    "Test Album/Pumkins1.jpg",
+]
+
 CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES2 = [
     "St James's Park, Great Britain, Westminster, England, United Kingdom/St James Park.jpg",
     "_/Pumpkins3.jpg",
@@ -407,10 +427,66 @@ def test_export_directory_template_3():
                 "{created.year}/{foo}",
             ],
         )
+        assert result.exit_code == 2
+        assert "Error: Invalid substitution in template" in result.output
+
+
+def test_export_directory_template_album_1():
+    # test export using directory template with multiple albums
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "--original-name",
+                "-V",
+                "--directory",
+                "{album}",
+            ],
+        )
         assert result.exit_code == 0
-        assert "Possible unmatched substitution in template: ['foo']" in result.output
         workdir = os.getcwd()
-        for filepath in CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES3:
+        for filepath in CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES_ALBUM1:
+            assert os.path.isfile(os.path.join(workdir, filepath))
+
+
+def test_export_directory_template_album_2():
+    # test export using directory template with multiple albums
+    # specify default value
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "--original-name",
+                "-V",
+                "--directory",
+                "{album,NOALBUM}",
+            ],
+        )
+        assert result.exit_code == 0
+        workdir = os.getcwd()
+        for filepath in CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES_ALBUM2:
             assert os.path.isfile(os.path.join(workdir, filepath))
 
 

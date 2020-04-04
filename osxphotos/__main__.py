@@ -21,7 +21,11 @@ import osxphotos
 from ._constants import _EXIF_TOOL_URL, _PHOTOS_5_VERSION, _UNKNOWN_PLACE
 from ._version import __version__
 from .exiftool import get_exiftool_path
-from .template import render_filepath_template, TEMPLATE_SUBSTITUTIONS
+from .template import (
+    render_filepath_template,
+    TEMPLATE_SUBSTITUTIONS,
+    TEMPLATE_SUBSTITUTIONS_MULTI_VALUED,
+)
 from .utils import _copy_file, create_path_by_date
 
 
@@ -91,15 +95,13 @@ class ExportCommand(click.Command):
         formatter.write_text(
             "In the template, valid template substitutions will be replaced by "
             + "the corresponding value from the table below.  Invalid substitutions will result in a "
-            + "warning but will be left unchanged. e.g. if you put '{foo}' in your template, "
-            + "e.g. '{created.year}/{foo}', the resulting output directory would look like "
-            + "'/Users/maria/Pictures/export/2020/{foo}' "
+            + "an error and the script will abort."
         )
         formatter.write("\n")
         formatter.write_text(
             "If you want the actual text of the template substition to appear "
-            + "in the rendered name, escape the curly braces with \\, for example, "
-            + "using '{created.year}/\\{name\\}' for --directory "
+            + "in the rendered name, use double braces, e.g. '{{' or '}}', thus "
+            + "using '{created.year}/{{name}}' for --directory "
             + "would result in output of 2020/{name}/photoname.jpg"
         )
         formatter.write("\n")
@@ -126,6 +128,23 @@ class ExportCommand(click.Command):
         formatter.write("\n")
         templ_tuples = [("Substitution", "Description")]
         templ_tuples.extend((k, v) for k, v in TEMPLATE_SUBSTITUTIONS.items())
+        formatter.write_dl(templ_tuples)
+
+        formatter.write("\n")
+        formatter.write_text(
+            "The following substitutions may result in multiple values. Thus "
+            + "if specified for --directory these could result in multiple copies of a photo being "
+            + "being exported, one to each directory.  For example: "
+            + "--directory '{created.year}/{album}' could result in the same photo being exported "
+            + "to each of the following directories if the photos were created in 2019 "
+            + "and were in albums 'Vacation' and 'Family': "
+            + "2019/Vacation, 2019/Family"
+        )
+        formatter.write("\n")
+        templ_tuples = [("Substitution", "Description")]
+        templ_tuples.extend(
+            (k, v) for k, v in TEMPLATE_SUBSTITUTIONS_MULTI_VALUED.items()
+        )
 
         formatter.write_dl(templ_tuples)
         help_text += formatter.getvalue()
@@ -1101,7 +1120,7 @@ def export(
                     )
         else:
             for p in photos:
-                export_path = export_photo(
+                export_paths = export_photo(
                     p,
                     dest,
                     verbose,
@@ -1115,8 +1134,8 @@ def export(
                     exiftool,
                     directory,
                 )
-                if export_path:
-                    click.echo(f"Exported {p.filename} to {export_path}")
+                if export_paths:
+                    click.echo(f"Exported {p.filename} to {export_paths}")
                 else:
                     click.echo(f"Did not export missing file {p.filename}")
     else:
@@ -1132,7 +1151,7 @@ def help(ctx, topic, **kw):
         click.echo(ctx.parent.get_help())
     else:
         ctx.info_name = topic
-        click.echo(cli.commands[topic].get_help(ctx))
+        click.echo_via_pager(cli.commands[topic].get_help(ctx))
 
 
 def print_photo_info(photos, json=False):
@@ -1483,8 +1502,12 @@ def export_photo(
         download_missing: attempt download of missing iCloud photos
         exiftool: use exiftool to write EXIF metadata directly to exported photo
         directory: template used to determine output directory
-        returns destination path of exported photo or None if photo was missing 
+        returns list of path(s) of exported photo or None if photo was missing 
     """
+
+    # Can export to multiple paths
+    # Start with single path [dest] but direcotry and export_by_date will modify dest_paths
+    dest_paths = [dest]
 
     if not download_missing:
         if photo.ismissing:
@@ -1515,20 +1538,25 @@ def export_photo(
 
     if export_by_date:
         date_created = photo.date.timetuple()
-        dest = create_path_by_date(dest, date_created)
+        dest_path = create_path_by_date(dest, date_created)
+        dest_paths = [dest_path]
     elif directory:
-        dirname, unmatched = render_filepath_template(directory, photo)
-        dirname = dirname[0]
+        # got a directory template, render it and check results are valid
+        dirnames, unmatched = render_filepath_template(directory, photo)
         if unmatched:
-            click.echo(
-                f"Possible unmatched substitution in template: {unmatched}", err=True
+            raise click.BadOptionUsage(
+                "directory",
+                f"Invalid substitution in template '{directory}': {unmatched}",
             )
-        dirname = sanitize_filepath(dirname, platform="auto")
-        if not is_valid_filepath(dirname, platform="auto"):
-            raise ValueError(f"Invalid file path: {dirname}")
-        dest = os.path.join(dest, dirname)
-        if not os.path.isdir(dest):
-            os.makedirs(dest)
+        dest_paths = []
+        for dirname in dirnames:
+            dirname = sanitize_filepath(dirname, platform="auto")
+            if not is_valid_filepath(dirname, platform="auto"):
+                raise ValueError(f"Invalid file path: {dirname}")
+            dest_path = os.path.join(dest, dirname)
+            if not os.path.isdir(dest_path):
+                os.makedirs(dest_path)
+            dest_paths.append(dest_path)
 
     sidecar = [s.lower() for s in sidecar]
     sidecar_json = sidecar_xmp = False
@@ -1542,49 +1570,56 @@ def export_photo(
     use_photos_export = download_missing and (
         photo.ismissing or not os.path.exists(photo.path)
     )
-    photo_path = photo.export(
-        dest,
-        filename,
-        sidecar_json=sidecar_json,
-        sidecar_xmp=sidecar_xmp,
-        live_photo=export_live,
-        overwrite=overwrite,
-        use_photos_export=use_photos_export,
-        exiftool=exiftool,
-    )[0]
 
-    # if export-edited, also export the edited version
-    # verify the photo has adjustments and valid path to avoid raising an exception
-    if export_edited and photo.hasadjustments:
-        # if download_missing and the photo is missing or path doesn't exist,
-        # try to download with Photos
-        use_photos_export = download_missing and photo.path_edited is None
-        if not download_missing and photo.path_edited is None:
-            click.echo(f"Skipping missing edited photo for {filename}")
-        else:
-            edited_name = pathlib.Path(filename)
-            # check for correct edited suffix
-            if photo.path_edited is not None:
-                edited_suffix = pathlib.Path(photo.path_edited).suffix
+    # export the photo to each path in dest_paths
+    photo_paths = []
+    for dest_path in dest_paths:
+        photo_path = photo.export(
+            dest_path,
+            filename,
+            sidecar_json=sidecar_json,
+            sidecar_xmp=sidecar_xmp,
+            live_photo=export_live,
+            overwrite=overwrite,
+            use_photos_export=use_photos_export,
+            exiftool=exiftool,
+        )[0]
+        photo_paths.append(photo_path)
+
+        # if export-edited, also export the edited version
+        # verify the photo has adjustments and valid path to avoid raising an exception
+        if export_edited and photo.hasadjustments:
+            # if download_missing and the photo is missing or path doesn't exist,
+            # try to download with Photos
+            use_photos_export = download_missing and photo.path_edited is None
+            if not download_missing and photo.path_edited is None:
+                click.echo(f"Skipping missing edited photo for {filename}")
             else:
-                # use filename suffix which might be wrong,
-                # will be corrected by use_photos_export
-                edited_suffix = pathlib.Path(photo.filename).suffix
-            edited_name = f"{edited_name.stem}_edited{edited_suffix}"
-            if verbose:
-                click.echo(f"Exporting edited version of {filename} as {edited_name}")
-            photo.export(
-                dest,
-                edited_name,
-                sidecar_json=sidecar_json,
-                sidecar_xmp=sidecar_xmp,
-                overwrite=overwrite,
-                edited=True,
-                use_photos_export=use_photos_export,
-                exiftool=exiftool,
-            )
+                edited_name = pathlib.Path(filename)
+                # check for correct edited suffix
+                if photo.path_edited is not None:
+                    edited_suffix = pathlib.Path(photo.path_edited).suffix
+                else:
+                    # use filename suffix which might be wrong,
+                    # will be corrected by use_photos_export
+                    edited_suffix = pathlib.Path(photo.filename).suffix
+                edited_name = f"{edited_name.stem}_edited{edited_suffix}"
+                if verbose:
+                    click.echo(
+                        f"Exporting edited version of {filename} as {edited_name}"
+                    )
+                photo.export(
+                    dest_path,
+                    edited_name,
+                    sidecar_json=sidecar_json,
+                    sidecar_xmp=sidecar_xmp,
+                    overwrite=overwrite,
+                    edited=True,
+                    use_photos_export=use_photos_export,
+                    exiftool=exiftool,
+                )
 
-    return photo_path
+    return photo_paths
 
 
 if __name__ == "__main__":

@@ -190,6 +190,22 @@ def test_subst_multi_2_1_1():
     assert sorted(rendered) == sorted(expected)
 
 
+def test_subst_multi_2_1_1_single():
+    """ Test that substitutions are correct """
+    # 2 albums, 1 keyword, 1 person but only do keywords
+    import osxphotos
+    from osxphotos.template import render_filepath_template
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_2)
+    # one album, one keyword, two persons
+    photo = photosdb.photos(uuid=[UUID_DICT["2_1_1"]])[0]
+
+    template = "{keyword}"
+    expected = ["Kids"]
+    rendered, _ = render_filepath_template(template, photo)
+    assert sorted(rendered) == sorted(expected)
+
+
 def test_subst_multi_0_2_0():
     """ Test that substitutions are correct """
     # 0 albums, 2 keywords, 0 persons
@@ -202,6 +218,22 @@ def test_subst_multi_0_2_0():
 
     template = "{created.year}/{album}/{keyword}/{person}"
     expected = ["2019/_/wedding/_", "2019/_/flowers/_"]
+    rendered, _ = render_filepath_template(template, photo)
+    assert sorted(rendered) == sorted(expected)
+
+
+def test_subst_multi_0_2_0_single():
+    """ Test that substitutions are correct """
+    # 0 albums, 2 keywords, 0 persons, but only do albums
+    import osxphotos
+    from osxphotos.template import render_filepath_template
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_2)
+    # one album, one keyword, two persons
+    photo = photosdb.photos(uuid=[UUID_DICT["0_2_0"]])[0]
+
+    template = "{created.year}/{album}"
+    expected = ["2019/_"]
     rendered, _ = render_filepath_template(template, photo)
     assert sorted(rendered) == sorted(expected)
 
