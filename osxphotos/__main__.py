@@ -1518,6 +1518,7 @@ def export_photo(
         dest = create_path_by_date(dest, date_created)
     elif directory:
         dirname, unmatched = render_filepath_template(directory, photo)
+        dirname = dirname[0]
         if unmatched:
             click.echo(
                 f"Possible unmatched substitution in template: {unmatched}", err=True

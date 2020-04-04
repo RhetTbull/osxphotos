@@ -1,10 +1,23 @@
+""" Custom template system for osxphotos """
+
+# Rolled my own template system because:
+# 1. Needed to handle multiple values (e.g. album, keyword)
+# 2. Needed to handle default values if template not found
+# 3. Didn't want user to need to know python (e.g. by using Mako which is
+#    already used elsewhere in this project)
+# 4. Couldn't figure out how to do #1 and #2 with str.format()
+#
+# This code isn't elegant but it seems to work well.  PRs gladly accepted.
+
 import datetime
 import pathlib
 import re
-from typing import Tuple  # pylint: disable=syntax-error
+from typing import Tuple, List  # pylint: disable=syntax-error
 
 from .photoinfo import PhotoInfo
+from ._constants import _UNKNOWN_PERSON
 
+# Permitted substitutions (each of these returns a single value or None)
 TEMPLATE_SUBSTITUTIONS = {
     "{name}": "Filename of the photo",
     "{original_name}": "Photo's original filename when imported to Photos",
@@ -39,9 +52,23 @@ TEMPLATE_SUBSTITUTIONS = {
     "{place.address.country_code}": "ISO country code of the postal address, e.g. 'US'",
 }
 
+# Permitted multi-value substitutions (each of these returns None or 1 or more values)
+TEMPLATE_SUBSTITUTIONS_MULTI_VALUED = {
+    "{album}": "Album photo is contained in",
+    "{keyword}": "Keywords assigned to photo",
+    "{person}": "Person / face in a photo",
+}
+
+# Just the multi-valued substitution names without the braces
+MULTI_VALUE_SUBSTITUTIONS = [
+    field.replace("{", "").replace("}", "")
+    for field in TEMPLATE_SUBSTITUTIONS_MULTI_VALUED.keys()
+]
+
 
 def get_template_value(lookup, photo):
-    """ lookup: value to find a match for
+    """ lookup template value (single-value template substitutions) for use in make_subst_function
+        lookup: value to find a match for
         photo: PhotoInfo object whose data will be used for value substitutions
         returns: either the matching template value (which may be None)
         raises: KeyError if no rule exists for lookup """
@@ -202,29 +229,24 @@ def get_template_value(lookup, photo):
     raise KeyError(f"No rule for processing {lookup}")
 
 
-def render_filepath_template(
-    template: str, photo: PhotoInfo, none_str: str = "_"
-) -> Tuple[str, list]:
-    """ render a filename or directory template """
+def render_filepath_template(template, photo, none_str="_"):
+    """ render a filename or directory template 
+        template: str template 
+        photo: PhotoInfo object
+        none_str: str to use default for None values, default is '_' """
 
+    # the rendering happens in two phases:
+    # phase 1: handle all the single-value template substitutions
+    #          results in a single string with all the template fields replaced
+    # phase 2: loop through all the multi-value template substitutions
+    #          could result in multiple strings
+    #          e.g. if template is "{album}/{person}" and there are 2 albums and 3 persons in the photo
+    #          there would be 6 possible renderings (2 albums x 3 persons)
+
+    # regex to find {template_field,optional_default} in strings
+    # for explanation of regex see https://regex101.com/r/4JJg42/1
     # pylint: disable=anomalous-backslash-in-string
-    regex = r"""(?<!\\)\{([^\\,}]+)(,{0,1}(([\w\-. ]+))?)\}"""
-
-    # pylint: disable=anomalous-backslash-in-string
-    unmatched_regex = r"(?<!\\)(\{[^\\,}]+\})"
-
-    # Explanation for regex:
-    # (?<!\\) Negative Lookbehind to skip escaped braces
-    #     assert regex following does not match "\" preceeding "{"
-    # \{ Match the opening brace
-    # 1st Capturing Group ([^\\,}]+)  Don't match "\", ",", or "}"
-    # 2nd Capturing Group (,?(([\w\-. ]+))?)
-    #     ,{0,1} optional ","
-    # 3rd Capturing Group (([\w\-. ]+))?
-    #     Matches the comma and any word characters after
-    # 4th Capturing Group ([\w\-. ]+)
-    #     Matches just the characters after the comma
-    # \} Matches the closing brace
+    regex = r"(?<!\{)\{([^\\,}]+)(,{0,1}(([\w\-. ]+))?)(?=\}(?!\}))\}"
 
     if type(template) is not str:
         raise TypeError(f"template must be type str, not {type(template)}")
@@ -232,14 +254,19 @@ def render_filepath_template(
     if type(photo) is not PhotoInfo:
         raise TypeError(f"photo must be type osxphotos.PhotoInfo, not {type(photo)}")
 
-    def make_subst_function(photo, none_str):
-        """ returns: substitution function for use in re.sub """
+    def make_subst_function(photo, none_str, get_func=get_template_value):
+        """ returns: substitution function for use in re.sub 
+            photo: a PhotoInfo object
+            none_str: value to use if substitution lookup is None and no default provided
+            get_func: function that gets the substitution value for a given template field
+                      default is get_template_value which handles the single-value fields """
+
         # closure to capture photo, none_str in subst
         def subst(matchobj):
             groups = len(matchobj.groups())
             if groups == 4:
                 try:
-                    val = get_template_value(matchobj.group(1), photo)
+                    val = get_func(matchobj.group(1), photo)
                 except KeyError:
                     return matchobj.group(0)
 
@@ -261,14 +288,92 @@ def render_filepath_template(
     # do the replacements
     rendered = re.sub(regex, subst_func, template)
 
-    # find any {words} that weren't replaced
-    unmatched = re.findall(unmatched_regex, rendered)
+    # do multi-valued placements
+    # start with the single string from phase 1 above then loop through all
+    # multi-valued fields and all values for each of those fields
+    # rendered_strings will be updated as each field is processed
+    # for example: if two albums, two keywords, and one person and template is:
+    # "{created.year}/{album}/{keyword}/{person}"
+    # rendered strings would do the following:
+    # start (created.year filled in phase 1)
+    #   ['2011/{album}/{keyword}/{person}']
+    # after processing albums:
+    #   ['2011/Album1/{keyword}/{person}',
+    #    '2011/Album2/{keyword}/{person}',]
+    # after processing keywords:
+    #   ['2011/Album1/keyword1/{person}',
+    #    '2011/Album1/keyword2/{person}',
+    #    '2011/Album2/keyword1/{person}',
+    #    '2011/Album2/keyword2/{person}',]
+    # after processing person:
+    #   ['2011/Album1/keyword1/person1',
+    #    '2011/Album1/keyword2/person1',
+    #    '2011/Album2/keyword1/person1',
+    #    '2011/Album2/keyword2/person1',]
+
+    rendered_strings = [rendered]
+    for field in MULTI_VALUE_SUBSTITUTIONS:
+        if field == "album":
+            values = photo.albums
+        elif field == "keyword":
+            values = photo.keywords
+        elif field == "person":
+            values = photo.persons
+            # remove any _UNKNOWN_PERSON values
+            try:
+                values.remove(_UNKNOWN_PERSON)
+            except:
+                pass
+
+        else:
+            raise ValueError(f"Unhandleded template value: {field}")
+
+        # If no values, insert None so code below will substite none_str for None
+        values = values or [None]
+
+        # Build a regex that matches only the field being processed
+        re_str = r"(?<!\\)\{(" + field + r")(,{0,1}(([\w\-. ]+))?)\}"
+        regex_multi = re.compile(re_str)
+        new_strings = []  # holds each of the new rendered_strings
+        for str_template in rendered_strings:
+            for val in values:
+
+                def get_template_value_multi(lookup_value, photo):
+                    """ Closure passed to make_subst_function get_func 
+                        Capture val and field in the closure 
+                        Allows make_subst_function to be re-used w/o modification """
+                    if lookup_value == field:
+                        return val
+                    else:
+                        raise KeyError(f"Unexpected value: {lookup_value}")
+
+                subst = make_subst_function(
+                    photo, none_str, get_func=get_template_value_multi
+                )
+                new_string = regex_multi.sub(subst, str_template)
+                new_strings.append(new_string)
+
+        # update rendered_strings for the next field to process
+        rendered_strings = new_strings
+
+    # find any {fields} that weren't replaced
+    unmatched = []
+    for rendered_str in rendered_strings:
+        unmatched.extend(
+            [
+                no_match[0]
+                for no_match in re.findall(regex, rendered_str)
+                if no_match[0] not in unmatched
+            ]
+        )
 
     # fix any escaped curly braces
-    rendered = re.sub(r"\\{", "{", rendered)
-    rendered = re.sub(r"\\}", "}", rendered)
+    rendered_strings = [
+        rendered_str.replace("{{", "{").replace("}}", "}")
+        for rendered_str in rendered_strings
+    ]
 
-    return rendered, unmatched
+    return rendered_strings, unmatched
 
 
 class DateTimeFormatter:

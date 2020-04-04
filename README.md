@@ -997,9 +997,14 @@ Render template string for photo.  none_str is used if template substitution res
 - `photo`: a [PhotoInfo](#photoinfo) object
 - `none_str`: optional str to use as substitution when template value is None and no default specified in the template string.  default is "_".
 
-Returns a tuple of (rendered, unmatched) where rendered is the rendered template string with all substitutions made and unmatched is a list of any strings that resembled a template substitution but did not match a known substitution. E.g. strings in the form "{foo}".
+Returns a tuple of (rendered, unmatched) where rendered is a list of rendered strings with all substitutions made and unmatched is a list of any strings that resembled a template substitution but did not match a known substitution. E.g. if template contained "{foo}", unmatched would be ["foo"].
 
-e.g. `render_filepath_template("{created.year}/{foo}", photo)` would return `("2020/{foo}",["{foo}"])`
+e.g. `render_filepath_template("{created.year}/{foo}", photo)` would return `("2020/{foo}",["foo"])`
+
+If you want to include "{" or "}" in the output, use "{{" or "}}"
+
+e.g. `render_filepath_template("{created.year}/{{foo}}", photo)` would return `("2020/{foo}",[])`
+
 
 | Substitution | Description |
 |--------------|-------------|

@@ -408,7 +408,7 @@ def test_export_directory_template_3():
             ],
         )
         assert result.exit_code == 0
-        assert "Possible unmatched substitution in template: ['{foo}']" in result.output
+        assert "Possible unmatched substitution in template: ['foo']" in result.output
         workdir = os.getcwd()
         for filepath in CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES3:
             assert os.path.isfile(os.path.join(workdir, filepath))
@@ -453,6 +453,7 @@ def test_place_13():
         assert len(json_got) == 1  # single element
         assert json_got[0]["uuid"] == "2L6X2hv3ROWRSCU3WRRAGQ"
 
+
 def test_no_place_13():
     # test --no-place on 10.13
     import json
@@ -466,8 +467,7 @@ def test_no_place_13():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            query,
-            [os.path.join(cwd, PLACES_PHOTOS_DB_13), "--json", "--no-place"],
+            query, [os.path.join(cwd, PLACES_PHOTOS_DB_13), "--json", "--no-place"]
         )
         assert result.exit_code == 0
         json_got = json.loads(result.output)
@@ -498,6 +498,7 @@ def test_place_15_1():
         assert len(json_got) == 1  # single element
         assert json_got[0]["uuid"] == "128FB4C6-0B16-4E7D-9108-FB2E90DA1546"
 
+
 def test_place_15_2():
     # test --place on 10.15
     import json
@@ -518,7 +519,7 @@ def test_place_15_2():
         json_got = json.loads(result.output)
 
         assert len(json_got) == 2  # single element
-        uuid = [json_got[x]["uuid"] for x in (0,1)]
+        uuid = [json_got[x]["uuid"] for x in (0, 1)]
         assert "128FB4C6-0B16-4E7D-9108-FB2E90DA1546" in uuid
         assert "FF7AFE2C-49B0-4C9B-B0D7-7E1F8B8F2F0C" in uuid
 
@@ -536,8 +537,7 @@ def test_no_place_15():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            query,
-            [os.path.join(cwd, PLACES_PHOTOS_DB), "--json", "--no-place"],
+            query, [os.path.join(cwd, PLACES_PHOTOS_DB), "--json", "--no-place"]
         )
         assert result.exit_code == 0
         json_got = json.loads(result.output)
