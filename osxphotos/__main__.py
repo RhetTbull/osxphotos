@@ -912,6 +912,14 @@ def query(
     help="Optional template for specifying name of output directory in the form '{name,DEFAULT}'. "
     "See below for additional details on templating system.",
 )
+@click.option(
+    "--no-extended-attributes",
+    is_flag=True,
+    default=False,
+    help="Don't copy extended attributes when exporting.  You only need this if exporting "
+    "to a filesystem that doesn't support Mac OS extended attributes.  Only use this if you get "
+    "an error while exporting.",
+)
 @DB_ARGUMENT
 @click.argument("dest", nargs=1, type=click.Path(exists=True))
 @click.pass_obj
@@ -975,6 +983,7 @@ def export(
     directory,
     place,
     no_place,
+    no_extended_attributes,
 ):
     """ Export photos from the Photos database.
         Export path DEST is required.
@@ -1117,6 +1126,7 @@ def export(
                         download_missing,
                         exiftool,
                         directory,
+                        no_extended_attributes,
                     )
         else:
             for p in photos:
@@ -1133,6 +1143,7 @@ def export(
                     download_missing,
                     exiftool,
                     directory,
+                    no_extended_attributes,
                 )
                 if export_paths:
                     click.echo(f"Exported {p.filename} to {export_paths}")
@@ -1491,6 +1502,7 @@ def export_photo(
     download_missing,
     exiftool,
     directory,
+    no_extended_attributes,
 ):
     """ Helper function for export that does the actual export
         photo: PhotoInfo object
@@ -1505,6 +1517,7 @@ def export_photo(
         download_missing: attempt download of missing iCloud photos
         exiftool: use exiftool to write EXIF metadata directly to exported photo
         directory: template used to determine output directory
+        no_extended_attributes: boolean; if True, exports photo without preserving extended attributes
         returns list of path(s) of exported photo or None if photo was missing 
     """
 
@@ -1586,6 +1599,7 @@ def export_photo(
             overwrite=overwrite,
             use_photos_export=use_photos_export,
             exiftool=exiftool,
+            no_xattr=no_extended_attributes,
         )[0]
         photo_paths.append(photo_path)
 
@@ -1620,6 +1634,7 @@ def export_photo(
                     edited=True,
                     use_photos_export=use_photos_export,
                     exiftool=exiftool,
+                    no_xattr=no_extended_attributes,
                 )
 
     return photo_paths

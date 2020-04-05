@@ -114,10 +114,14 @@ def _dd_to_dms(dd):
     return int(deg_), int(min_), sec_
 
 
-def _copy_file(src, dest):
+def _copy_file(src, dest, norsrc=False):
     """ Copies a file from src path to dest path 
         src: source path as string 
         dest: destination path as string
+        norsrc: (bool) if True, uses --norsrc flag with ditto so it will not copy
+                resource fork or extended attributes.  May be useful on volumes that
+                don't work with extended attributes (likely only certain SMB mounts)
+                default is False
         Uses ditto to perform copy; will silently overwrite dest if it exists
         Raises exception if copy fails or either path is None """
 
@@ -125,18 +129,23 @@ def _copy_file(src, dest):
         raise ValueError("src and dest must not be None", src, dest)
 
     if not os.path.isfile(src):
-        raise ValueError("src file does not appear to exist", src)
+        raise FileNotFoundError("src file does not appear to exist", src)
+
+    if norsrc:
+        command = ["/usr/bin/ditto", "--norsrc", src, dest]
+    else:
+        command = ["/usr/bin/ditto", src, dest]
 
     # if error on copy, subprocess will raise CalledProcessError
     try:
-        subprocess.run(
-            ["/usr/bin/ditto", src, dest], check=True, stderr=subprocess.PIPE
-        )
+        result = subprocess.run(command, check=True, stderr=subprocess.PIPE)
     except subprocess.CalledProcessError as e:
         logging.critical(
             f"ditto returned error: {e.returncode} {e.stderr.decode(sys.getfilesystemencoding()).rstrip()}"
         )
         raise e
+
+    return result.returncode
 
 
 def dd_to_dms_str(lat, lon):

@@ -374,6 +374,28 @@ def test_export_13():
     assert e.type == type(FileNotFoundError())
 
 
+def test_export_no_xattr():
+    # test basic export with no_xattr=True
+    # get an unedited image and export it using default filename
+    import os
+    import os.path
+    import tempfile
+
+    import osxphotos
+
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    dest = tempdir.name
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=[UUID_DICT["export"]])
+
+    filename = photos[0].filename
+    expected_dest = os.path.join(dest, filename)
+    got_dest = photos[0].export(dest, no_xattr=True)[0]
+
+    assert got_dest == expected_dest
+    assert os.path.isfile(got_dest)
+
+
 def test_dd_to_dms_str_1():
     import osxphotos
 
@@ -517,4 +539,3 @@ def test_xmp_sidecar():
 
     for line_expected, line_got in zip(xmp_expected_lines, xmp_got_lines):
         assert line_expected == line_got
-

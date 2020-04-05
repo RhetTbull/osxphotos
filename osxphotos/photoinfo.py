@@ -522,6 +522,7 @@ class PhotoInfo:
         use_photos_export=False,
         timeout=120,
         exiftool=False,
+        no_xattr=False,
     ):
         """ export photo 
             dest: must be valid destination path (or exception raised) 
@@ -545,6 +546,7 @@ class PhotoInfo:
             use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos
             timeout: (int, default=120) timeout in seconds used with use_photos_export
             exiftool: (boolean, default = False); if True, will use exiftool to write metadata to export file
+            no_xattr: (boolean, default = False); if True, exports file without preserving extended attributes
             returns list of full paths to the exported files """
 
         # list of all files exported during this call to export
@@ -667,7 +669,7 @@ class PhotoInfo:
             )
 
             # copy the file, _copy_file uses ditto to preserve Mac extended attributes
-            _copy_file(src, dest)
+            _copy_file(src, dest, norsrc=no_xattr)
             exported_files.append(str(dest))
 
             # copy live photo associated .mov if requested
@@ -679,7 +681,7 @@ class PhotoInfo:
                     logging.debug(
                         f"Exporting live photo video of {filename} as {live_name.name}"
                     )
-                    _copy_file(src_live, str(live_name))
+                    _copy_file(src_live, str(live_name), norsrc=no_xattr)
                     exported_files.append(str(live_name))
                 else:
                     logging.warning(f"Skipping missing live movie for {filename}")

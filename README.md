@@ -892,7 +892,7 @@ Returns True if photo is a panorama, otherwise False.
 #### `json()`
 Returns a JSON representation of all photo info 
 
-#### `export(dest, *filename, edited=False, live_photo=False, overwrite=False, increment=True, sidecar_json=False, sidecar_xmp=False, use_photos_export=False, timeout=120, exiftool=False)`
+#### `export(dest, *filename, edited=False, live_photo=False, overwrite=False, increment=True, sidecar_json=False, sidecar_xmp=False, use_photos_export=False, timeout=120, exiftool=False, no_xattr=False)`
 
 Export photo from the Photos library to another destination on disk.  
 - dest: must be valid destination path as str (or exception raised).
@@ -906,6 +906,7 @@ Export photo from the Photos library to another destination on disk.
 - use_photos_export: boolean; (default=False), if True will attempt to export photo via applescript interaction with Photos; useful for forcing download of missing photos.  This only works if the Photos library being used is the default library (last opened by Photos) as applescript will directly interact with whichever library Photos is currently using.
 - timeout: (int, default=120) timeout in seconds used with use_photos_export
 - exiftool: (boolean, default = False) if True, will use [exiftool](https://exiftool.org/) to write metadata directly to the exported photo; exiftool must be installed and in the system path
+- no_xattr: (boolean, default = False); if True, exports file without preserving extended attributes
 
 Returns: list of paths to exported files. More than one file could be exported, for example if live_photo=True, both the original imaage and the associated .mov file will be exported
 
