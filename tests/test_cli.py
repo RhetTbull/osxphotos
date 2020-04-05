@@ -25,6 +25,7 @@ CLI_OUTPUT_NO_SUBCOMMAND = [
     "  keywords  Print out keywords found in the Photos library.",
     "  list      Print list of Photos libraries found on the system.",
     "  persons   Print out persons (faces) found in the Photos library.",
+    "  places    Print out places found in the Photos library.",
     "  query     Query the Photos database using 1 or more search options; if",
 ]
 
@@ -120,6 +121,43 @@ def test_osxphotos():
     assert result.exit_code == 0
     for line in CLI_OUTPUT_NO_SUBCOMMAND:
         assert line in output
+
+
+def test_osxphotos_help_1():
+    # test help command no topic
+    import osxphotos
+    from osxphotos.__main__ import cli
+
+    runner = CliRunner()
+    result = runner.invoke(cli, ["help"])
+    output = result.output
+    assert result.exit_code == 0
+    for line in CLI_OUTPUT_NO_SUBCOMMAND:
+        assert line in output
+
+
+def test_osxphotos_help_2():
+    # test help command valid topic
+    import osxphotos
+    from osxphotos.__main__ import cli
+
+    runner = CliRunner()
+    result = runner.invoke(cli, ["help", "persons"])
+    output = result.output
+    assert result.exit_code == 0
+    assert "Print out persons (faces) found in the Photos library." in result.output
+
+
+def test_osxphotos_help_3():
+    # test help command invalid topic
+    import osxphotos
+    from osxphotos.__main__ import cli
+
+    runner = CliRunner()
+    result = runner.invoke(cli, ["help", "foo"])
+    output = result.output
+    assert result.exit_code == 0
+    assert "Invalid command: foo" in result.output
 
 
 def test_query_uuid():

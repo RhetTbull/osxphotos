@@ -1149,9 +1149,12 @@ def help(ctx, topic, **kw):
     """ Print help; for help on commands: help <command>. """
     if topic is None:
         click.echo(ctx.parent.get_help())
-    else:
+    elif topic in cli.commands:
         ctx.info_name = topic
         click.echo_via_pager(cli.commands[topic].get_help(ctx))
+    else:
+        click.echo(f"Invalid command: {topic}", err=True)
+        click.echo(ctx.parent.get_help())
 
 
 def print_photo_info(photos, json=False):
