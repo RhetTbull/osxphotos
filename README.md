@@ -1009,11 +1009,14 @@ Render template string for photo.  none_str is used if template substitution res
 
 Returns a tuple of (rendered, unmatched) where rendered is a list of rendered strings with all substitutions made and unmatched is a list of any strings that resembled a template substitution but did not match a known substitution. E.g. if template contained "{foo}", unmatched would be ["foo"].
 
-e.g. `render_filepath_template("{created.year}/{foo}", photo)` would return `("2020/{foo}",["foo"])`
+e.g. `render_filepath_template("{created.year}/{foo}", photo)` would return `(["2020/{foo}"],["foo"])`
 
 If you want to include "{" or "}" in the output, use "{{" or "}}"
 
-e.g. `render_filepath_template("{created.year}/{{foo}}", photo)` would return `("2020/{foo}",[])`
+e.g. `render_filepath_template("{created.year}/{{foo}}", photo)` would return `(["2020/{foo}"],[])`
+
+Some substitutions, notably `album`, `keyword`, and `person` could return multiple values, hence a new string will be return for each possible substitution (hence why a list of rendered strings is returned).  For example, a photo in 2 albums: 'Vacation' and 'Family' would result in the following rendered values if template was "{created.year}/{album}" and created.year == 2020: `["2020/Vacation","2020/Family"]` 
+
 
 | Substitution | Description |
 |--------------|-------------|
