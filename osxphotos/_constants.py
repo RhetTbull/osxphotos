@@ -40,3 +40,9 @@ _MOVIE_TYPE = 1
 # Name of XMP template file
 _TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), "templates")
 _XMP_TEMPLATE_NAME = "xmp_sidecar.mako"
+
+# Constants used for processing folders and albums
+_PHOTOS_5_ALBUM_KIND = 2  # normal user album
+_PHOTOS_5_SHARED_ALBUM_KIND = 1505  # shared album
+_PHOTOS_5_FOLDER_KIND = 4000  # user folder
+_PHOTOS_5_ROOT_FOLDER_KIND = 3999  # root folder
