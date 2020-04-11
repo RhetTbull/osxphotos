@@ -13,6 +13,8 @@
   * [Package Interface](#package-interface)
     + [PhotosDB](#photosdb)
     + [PhotoInfo](#photoinfo)
+    + [AlbumInfo](#albuminfo)
+    + [FolderInfo](#folderinfo)
     + [PlaceInfo](#placeinfo)
     + [Template Functions](#template-functions)
     + [Utility Functions](#utility-functions)
