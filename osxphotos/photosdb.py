@@ -120,6 +120,12 @@ class PhotosDB:
         # e.g.  {'1EB2B765-0765-43BA-A90C-0D0580E6172C': ['0C514A98-7B77-4E4F-801B-364B7B65EAFA']}
         self._dbalbums_uuid = {}
 
+        # Dict with information about all albums/photos by primary key in the album database
+        # key is album pk, value is album uuid
+        # e.g.  {'43': '0C514A98-7B77-4E4F-801B-364B7B65EAFA'}
+        # specific to Photos versions >= 5
+        self._dbalbums_pk = {}
+
         # Dict with information about all albums/photos by album
         # key is album UUID, value is list of photo UUIDs contained in that album
         # e.g. {'0C514A98-7B77-4E4F-801B-364B7B65EAFA': ['1EB2B765-0765-43BA-A90C-0D0580E6172C']}
@@ -264,6 +270,7 @@ class PhotosDB:
             k
             for k in self._dbalbums_album.keys()
             if self._dbalbum_details[k]["cloudownerhashedpersonid"] is None
+            and self._dbalbum_details[k]["intrash"] == 0
         ]
         for k in album_keys:
             title = self._dbalbum_details[k]["title"]
@@ -314,7 +321,7 @@ class PhotosDB:
         return list(persons)
 
     @property
-    def albums(self):
+    def album_names(self):
         """ return list of albums found in photos database """
 
         # Could be more than one album with same name
@@ -331,7 +338,7 @@ class PhotosDB:
         return list(albums)
 
     @property
-    def albums_shared(self):
+    def album_names_shared(self):
         """ return list of shared albums found in photos database
             only valid for Photos 5; on Photos <= 4, prints warning and returns empty list """
 
@@ -466,9 +473,9 @@ class PhotosDB:
             "uuid, "  # 0
             "name, "  # 1
             "cloudLibraryState, "  # 2
-            "cloudIdentifier "  # 3
+            "cloudIdentifier, "  # 3
+            "isInTrash "  # 4
             "FROM RKAlbum "
-            "WHERE isInTrash = 0"
         )
 
         for album in c:
@@ -476,6 +483,7 @@ class PhotosDB:
                 "title": album[1],
                 "cloudlibrarystate": album[2],
                 "cloudidentifier": album[3],
+                "intrash": album[4],
                 "cloudlocalstate": None,  # Photos 5
                 "cloudownerfirstname": None,  # Photos 5
                 "cloudownderlastname": None,  # Photos 5
@@ -846,12 +854,10 @@ class PhotosDB:
                 "FROM RKPlaceForVersion "
                 f"WHERE versionId = '{self._dbphotos[uuid]['modelID']}'"
             )
-            
+
             place_ids = [id[0] for id in place_ids_query.fetchall()]
-            self._dbphotos[uuid]["placeIDs"]  = place_ids
-            country_code = [
-                countries[x] for x in place_ids if x in countries
-            ]
+            self._dbphotos[uuid]["placeIDs"] = place_ids
+            country_code = [countries[x] for x in place_ids if x in countries]
             if len(country_code) > 1:
                 logging.warning(f"Found more than one country code for uuid: {uuid}")
 
@@ -860,7 +866,7 @@ class PhotosDB:
             else:
                 self._dbphotos[uuid]["countryCode"] = None
 
-            # get the place info that matches the RKPlace modelIDs for this photo 
+            # get the place info that matches the RKPlace modelIDs for this photo
             # (place_ids), sort by area (element 3 of the place_data tuple in places)
             place_names = [
                 pname
@@ -986,6 +992,7 @@ class PhotosDB:
             logging.debug(pformat(self._dbfaces_person))
             logging.debug(self._dbfaces_uuid)
 
+        # get details about albums
         c.execute(
             "SELECT ZGENERICALBUM.ZUUID, ZGENERICASSET.ZUUID "
             "FROM ZGENERICASSET "
@@ -995,12 +1002,15 @@ class PhotosDB:
         )
         for album in c:
             # store by uuid in _dbalbums_uuid and by album in _dbalbums_album
-            if not album[1] in self._dbalbums_uuid:
-                self._dbalbums_uuid[album[1]] = []
-            if not album[0] in self._dbalbums_album:
-                self._dbalbums_album[album[0]] = []
-            self._dbalbums_uuid[album[1]].append(album[0])
-            self._dbalbums_album[album[0]].append(album[1])
+            try:
+                self._dbalbums_uuid[album[1]].append(album[0])
+            except KeyError:
+                self._dbalbums_uuid[album[1]] = [album[0]]
+
+            try:
+                self._dbalbums_album[album[0]].append(album[1])
+            except KeyError:
+                self._dbalbums_album[album[0]] = [album[1]]
 
         # now get additional details about albums
         c.execute(
@@ -1010,8 +1020,12 @@ class PhotosDB:
             "ZCLOUDLOCALSTATE, "  # 2
             "ZCLOUDOWNERFIRSTNAME, "  # 3
             "ZCLOUDOWNERLASTNAME, "  # 4
-            "ZCLOUDOWNERHASHEDPERSONID "  # 5
-            "FROM ZGENERICALBUM"
+            "ZCLOUDOWNERHASHEDPERSONID, "  # 5
+            "ZKIND, "  # 6
+            "ZPARENTFOLDER, "  # 7
+            "Z_PK, "  # 8
+            "ZTRASHEDSTATE "  # 9
+            "FROM ZGENERICALBUM "
         )
         for album in c:
             self._dbalbum_details[album[0]] = {
@@ -1021,8 +1035,17 @@ class PhotosDB:
                 "cloudownderlastname": album[4],
                 "cloudownerhashedpersonid": album[5],
                 "cloudlibrarystate": None,  # Photos 4
-                "cloudidentifier": None,  # Photos4
+                "cloudidentifier": None,  # Photos 4
+                "kind": album[6],
+                "parentfolder": album[7],
+                "pk": album[8],
+                "intrash": album[9],
             }
+
+            # add cross-reference by pk to uuid
+            # needed to extract folder hierarchy
+            # in Photos >= 5, folders are special albums
+            self._dbalbums_pk[album[8]] = album[0]
 
         if _debug():
             logging.debug(f"Finished walking through albums")

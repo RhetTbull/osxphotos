@@ -26,11 +26,11 @@ UUID_SHARED = [
 UUID_NOT_SHARED = ["37210110-E940-4227-92D3-45C40F68EB0A"]
 
 
-def test_albums():
+def test_album_names():
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    albums = photosdb.albums
+    albums = photosdb.album_names
 
     assert len(albums) == 1
     assert albums[0] == ALBUMS[0]
@@ -40,7 +40,7 @@ def test_albums_shared():
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    albums_shared = photosdb.albums_shared
+    albums_shared = photosdb.album_names_shared
 
     assert len(albums_shared) == 1
     assert albums_shared[0] == ALBUMS_SHARED[0]

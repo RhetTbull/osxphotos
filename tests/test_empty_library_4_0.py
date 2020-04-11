@@ -52,12 +52,12 @@ def test_keywords():
     assert photosdb.keywords == []
 
 
-def test_albums():
+def test_album_names():
     import osxphotos
     import collections
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    assert photosdb.albums == []
+    assert photosdb.album_names == []
 
 
 def test_keywords_dict():

@@ -11,22 +11,22 @@ ALBUMS = ["Pumpkin Farm", "Test Album", "Test Album (1)"]
 ALBUM_DICT = {"Pumpkin Farm": 3, "Test Album": 1, "Test Album (1)": 1}
 
 
-def test_albums():
+def test_album_names():
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    albums = photosdb.albums
+    albums = photosdb.album_names
 
     assert len(albums) == len(ALBUMS)
     for album in albums:
         assert album in ALBUMS
 
 
-def test_albums_shared():
+def test_albums_names_shared():
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    albums_shared = photosdb.albums_shared
+    albums_shared = photosdb.album_names_shared
 
     assert len(albums_shared) == 0
 
@@ -65,4 +65,3 @@ def test_not_shared():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = [p for p in photosdb.photos() if not p.shared]
     assert len(photos) == 7
-

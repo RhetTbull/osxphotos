@@ -150,13 +150,13 @@ def test_keywords():
     assert collections.Counter(KEYWORDS) == collections.Counter(photosdb.keywords)
 
 
-def test_albums():
+def test_album_names():
     import osxphotos
     import collections
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    assert "Pumpkin Farm" in photosdb.albums
-    assert collections.Counter(ALBUMS) == collections.Counter(photosdb.albums)
+    assert "Pumpkin Farm" in photosdb.album_names
+    assert collections.Counter(ALBUMS) == collections.Counter(photosdb.album_names)
 
 
 def test_keywords_dict():
@@ -366,7 +366,7 @@ def test_count():
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos()
-    assert len(photos) == 8 
+    assert len(photos) == 8
 
 
 def test_keyword_2():
@@ -772,7 +772,7 @@ def test_from_to_date():
     assert len(photos) == 2
 
     photos = photosdb.photos(to_date=dt.datetime(2018, 10, 28))
-    assert len(photos) == 6 
+    assert len(photos) == 6
 
     photos = photosdb.photos(
         from_date=dt.datetime(2018, 9, 28), to_date=dt.datetime(2018, 9, 29)

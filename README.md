@@ -368,7 +368,7 @@ def main():
     photosdb = osxphotos.PhotosDB(db)
     print(photosdb.keywords)
     print(photosdb.persons)
-    print(photosdb.albums)
+    print(photosdb.album_names)
 
     print(photosdb.keywords_as_dict)
     print(photosdb.persons_as_dict)
@@ -554,17 +554,17 @@ keywords = photosdb.keywords
 
 Returns a list of the keywords found in the Photos library
 
-#### `albums`
+#### `album_names`
 ```python
 # assumes photosdb is a PhotosDB object (see above)
-albums = photosdb.albums
+albums = photosdb.album_names
 ```
 
 Returns a list of the albums found in the Photos library.  
 
 **Note**: In Photos 5.0 (MacOS 10.15/Catalina), It is possible to have more than one album with the same name in Photos.  Albums with duplicate names are treated as a single album and the photos in each are combined.  For example, if you have two albums named "Wedding" and each has 2 photos, osxphotos will treat this as a single album named "Wedding" with 4 photos in it.
 
-#### `albums_shared`
+#### `album_names_shared`
 
 Returns list of shared albums found in photos database (e.g. albums shared via iCloud photo sharing)
 
@@ -1113,7 +1113,7 @@ def main():
 
     print(photosdb.keywords)
     print(photosdb.persons)
-    print(photosdb.albums)
+    print(photosdb.album_names)
 
     print(photosdb.keywords_as_dict)
     print(photosdb.persons_as_dict)
