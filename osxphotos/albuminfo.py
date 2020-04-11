@@ -10,7 +10,9 @@ Represents a single Folder in the Photos library and provides access to the fold
 PhotosDB.folders() returns a list of FolderInfo objects
 """
 
-from ._constants import _PHOTOS_5_ALBUM_KIND, _PHOTOS_5_FOLDER_KIND
+import logging
+
+from ._constants import _PHOTOS_5_ALBUM_KIND, _PHOTOS_5_FOLDER_KIND, _PHOTOS_5_VERSION
 
 
 class AlbumInfo:
@@ -50,6 +52,11 @@ class AlbumInfo:
             the folder list is in form:
             ["Top level folder", "sub folder 1", "sub folder 2", ...]
             returns empty list if album is not in any folders """
+
+        if self._db._db_version < _PHOTOS_5_VERSION:
+            logging.warning("Folders not yet implemented for this DB version")
+            return []
+
         try:
             return self._folder_names
         except AttributeError:
@@ -57,11 +64,16 @@ class AlbumInfo:
             return self._folder_names
 
     @property
-    def folders(self):
+    def folder_list(self):
         """ return hierarchical list of folders the album is contained in
             as list of FolderInfo objects in form 
             ["Top level folder", "sub folder 1", "sub folder 2", ...]
             returns empty list if album is not in any folders """
+
+        if self._db._db_version < _PHOTOS_5_VERSION:
+            logging.warning("Folders not yet implemented for this DB version")
+            return []
+
         try:
             return self._folders
         except AttributeError:
@@ -71,6 +83,10 @@ class AlbumInfo:
     @property
     def parent(self):
         """ returns FolderInfo object for parent folder or None if no parent (e.g. top-level album) """
+        if self._db._db_version < _PHOTOS_5_VERSION:
+            logging.warning("Folders not yet implemented for this DB version")
+            return None
+
         try:
             return self._parent
         except AttributeError:

@@ -343,7 +343,8 @@ class PhotosDB:
     def folders(self):
         """ return list of top-level folders in the photos database """
         if self._db_version < _PHOTOS_5_VERSION:
-            raise AttributeError("Not yet implemented for this DB version")
+            logging.warning("Folders not yet implemented for this DB version")
+            return []
 
         folders = [
             FolderInfo(db=self, uuid=album)
@@ -355,6 +356,23 @@ class PhotosDB:
         return folders
 
     @property
+    def folder_names(self):
+        """ return list of top-level folder names in the photos database """
+        if self._db_version < _PHOTOS_5_VERSION:
+            logging.warning("Folders not yet implemented for this DB version")
+            return []
+
+        folder_names = [
+            detail["title"]
+            for detail in self._dbalbum_details.values()
+            if detail["intrash"] == 0
+            and detail["kind"] == _PHOTOS_5_FOLDER_KIND
+            and detail["parentfolder"] == self._folder_root_pk
+        ]
+        return folder_names
+
+
+    @property
     def albums(self):
         """ return list of AlbumInfo objects for each album in the photos database """
 
@@ -362,6 +380,7 @@ class PhotosDB:
             AlbumInfo(db=self, uuid=album)
             for album in self._dbalbums_album.keys()
             if self._dbalbum_details[album]["cloudownerhashedpersonid"] is None
+            and self._dbalbum_details[album]["intrash"] == 0
         ]
         return albums
 
@@ -381,6 +400,7 @@ class PhotosDB:
             AlbumInfo(db=self, uuid=album)
             for album in self._dbalbums_album.keys()
             if self._dbalbum_details[album]["cloudownerhashedpersonid"] is not None
+            and self._dbalbum_details[album]["intrash"] == 0
         ]
         return albums_shared
 
@@ -395,6 +415,7 @@ class PhotosDB:
             self._dbalbum_details[album]["title"]
             for album in self._dbalbums_album.keys()
             if self._dbalbum_details[album]["cloudownerhashedpersonid"] is None
+            and self._dbalbum_details[album]["intrash"] == 0
         }
         return list(albums)
 
@@ -418,6 +439,7 @@ class PhotosDB:
             self._dbalbum_details[album]["title"]
             for album in self._dbalbums_album.keys()
             if self._dbalbum_details[album]["cloudownerhashedpersonid"] is not None
+            and self._dbalbum_details[album]["intrash"] == 0
         }
         return list(albums)
 

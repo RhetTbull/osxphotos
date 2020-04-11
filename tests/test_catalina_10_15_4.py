@@ -24,6 +24,7 @@ PERSONS = ["Katie", "Suzy", "Maria", _UNKNOWN_PERSON]
 ALBUMS = [
     "Pumpkin Farm",
     "Test Album",
+    "AlbumInFolder",
 ]  # Note: there are 2 albums named "Test Album" for testing duplicate album names
 KEYWORDS_DICT = {
     "Kids": 4,
@@ -40,6 +41,7 @@ PERSONS_DICT = {"Katie": 3, "Suzy": 2, "Maria": 1, _UNKNOWN_PERSON: 1}
 ALBUM_DICT = {
     "Pumpkin Farm": 3,
     "Test Album": 2,
+    "AlbumInFolder": 2,
 }  # Note: there are 2 albums named "Test Album" for testing duplicate album names
 
 UUID_DICT = {
