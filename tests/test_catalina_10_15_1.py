@@ -24,6 +24,7 @@ PERSONS = ["Katie", "Suzy", "Maria", _UNKNOWN_PERSON]
 ALBUMS = [
     "Pumpkin Farm",
     "Test Album",
+    "Multi Keyword",
 ]  # Note: there are 2 albums named "Test Album" for testing duplicate album names
 KEYWORDS_DICT = {
     "Kids": 4,
@@ -40,6 +41,7 @@ PERSONS_DICT = {"Katie": 3, "Suzy": 2, "Maria": 1, _UNKNOWN_PERSON: 1}
 ALBUM_DICT = {
     "Pumpkin Farm": 3,
     "Test Album": 2,
+    "Multi Keyword": 2,
 }  # Note: there are 2 albums named "Test Album" for testing duplicate album names
 
 UUID_DICT = {
@@ -55,6 +57,8 @@ UUID_DICT = {
     "external_edit": "DC99FBDD-7A52-4100-A5BB-344131646C30",
     "no_external_edit": "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51",
     "export": "D79B8D77-BFFC-460B-9312-034F2877D35B",  # "Pumkins2.jpg"
+    "multi_query_1": "D79B8D77-BFFC-460B-9312-034F2877D35B",
+    "multi_query_2": "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51",
 }
 
 
@@ -202,7 +206,7 @@ def test_attributes():
     )
     assert p.description == "Girl holding pumpkin"
     assert p.title == "I found one!"
-    assert p.albums == ["Pumpkin Farm", "Test Album"]
+    assert p.albums == ["Pumpkin Farm", "Test Album", "Multi Keyword"]
     assert p.persons == ["Katie"]
     assert p.path.endswith(
         "tests/Test-10.15.1.photoslibrary/originals/D/D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg"
@@ -778,3 +782,50 @@ def test_from_to_date():
         from_date=dt.datetime(2018, 9, 28), to_date=dt.datetime(2018, 9, 29)
     )
     assert len(photos) == 4
+
+
+def test_multi_uuid():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(PHOTOS_DB)
+    photos = photosdb.photos(uuid=[UUID_DICT["favorite"], UUID_DICT["not_favorite"]])
+
+    assert len(photos) == 2
+
+
+def test_multi_keyword():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(PHOTOS_DB)
+    photos = photosdb.photos(keywords=["Kids", "wedding"])
+
+    assert len(photos) == 6
+
+
+def test_multi_album():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(PHOTOS_DB)
+    photos = photosdb.photos(albums=["Pumpkin Farm", "Test Album"])
+
+    assert len(photos) == 3
+
+
+def test_multi_person():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(PHOTOS_DB)
+    photos = photosdb.photos(persons=["Katie", "Suzy"])
+
+    assert len(photos) == 3
+
+
+def test_compound_query():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(PHOTOS_DB)
+    photos = photosdb.photos(persons=["Katie", "Maria"], albums=["Multi Keyword"])
+
+    assert len(photos) == 2
+    assert UUID_DICT["multi_query_1"] in [p.uuid for p in photos]
+    assert UUID_DICT["multi_query_2"] in [p.uuid for p in photos]

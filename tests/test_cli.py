@@ -29,7 +29,7 @@ CLI_OUTPUT_NO_SUBCOMMAND = [
     "  query     Query the Photos database using 1 or more search options; if",
 ]
 
-CLI_OUTPUT_QUERY_UUID = '[{"uuid": "D79B8D77-BFFC-460B-9312-034F2877D35B", "filename": "D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg", "original_filename": "Pumkins2.jpg", "date": "2018-09-28T16:07:07-04:00", "description": "Girl holding pumpkin", "title": "I found one!", "keywords": ["Kids"], "albums": ["Pumpkin Farm", "Test Album"], "persons": ["Katie"], "path": "/tests/Test-10.15.1.photoslibrary/originals/D/D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg", "ismissing": false, "hasadjustments": false, "external_edit": false, "favorite": false, "hidden": false, "latitude": null, "longitude": null, "path_edited": null, "shared": false, "isphoto": true, "ismovie": false, "uti": "public.jpeg", "burst": false, "live_photo": false, "path_live_photo": null, "iscloudasset": false, "incloud": null}]'
+CLI_OUTPUT_QUERY_UUID = '[{"uuid": "D79B8D77-BFFC-460B-9312-034F2877D35B", "filename": "D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg", "original_filename": "Pumkins2.jpg", "date": "2018-09-28T16:07:07-04:00", "description": "Girl holding pumpkin", "title": "I found one!", "keywords": ["Kids"], "albums": ["Pumpkin Farm", "Test Album", "Multi Keyword"], "persons": ["Katie"], "path": "/tests/Test-10.15.1.photoslibrary/originals/D/D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg", "ismissing": false, "hasadjustments": false, "external_edit": false, "favorite": false, "hidden": false, "latitude": null, "longitude": null, "path_edited": null, "shared": false, "isphoto": true, "ismovie": false, "uti": "public.jpeg", "burst": false, "live_photo": false, "path_live_photo": null, "iscloudasset": false, "incloud": null}]'
 
 CLI_EXPORT_FILENAMES = [
     "Pumkins1.jpg",
@@ -52,7 +52,7 @@ CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES1 = [
 ]
 
 CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES_ALBUM1 = [
-    "_/wedding.jpg",
+    "Multi Keyword/wedding.jpg",
     "_/Tulips.jpg",
     "_/St James Park.jpg",
     "Pumpkin Farm/Pumpkins3.jpg",
@@ -62,7 +62,7 @@ CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES_ALBUM1 = [
 ]
 
 CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES_ALBUM2 = [
-    "NOALBUM/wedding.jpg",
+    "Multi Keyword/wedding.jpg",
     "NOALBUM/Tulips.jpg",
     "NOALBUM/St James Park.jpg",
     "Pumpkin Farm/Pumpkins3.jpg",

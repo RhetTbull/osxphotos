@@ -33,7 +33,10 @@ KEYWORDS_DICT = {
 PERSONS_DICT = {"Katie": 3, "Suzy": 2, "Maria": 1}
 ALBUM_DICT = {"Pumpkin Farm": 3, "Test Album": 1, "Test Album (1)": 1}
 
-UUID_DICT = {"favorite": "6bxcNnzRQKGnK4uPrCJ9UQ"}
+UUID_DICT = {
+    "favorite": "6bxcNnzRQKGnK4uPrCJ9UQ",
+    "not_favorite": "8SOE9s0XQVGsuq4ONohTng",
+}
 
 
 def test_init():
@@ -354,3 +357,39 @@ def test_photosinfo_repr():
     assert {k: str(v).encode("utf-8") for k, v in photo.__dict__.items()} == {
         k: str(v).encode("utf-8") for k, v in photo2.__dict__.items()
     }
+
+
+def test_multi_uuid():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(PHOTOS_DB)
+    photos = photosdb.photos(uuid=[UUID_DICT["favorite"], UUID_DICT["not_favorite"]])
+
+    assert len(photos) == 2
+
+
+def test_multi_keyword():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(PHOTOS_DB)
+    photos = photosdb.photos(keywords=["Kids", "wedding"])
+
+    assert len(photos) == 6
+
+
+def test_multi_album():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(PHOTOS_DB)
+    photos = photosdb.photos(albums=["Pumpkin Farm", "Test Album"])
+
+    assert len(photos) == 3
+
+
+def test_multi_person():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(PHOTOS_DB)
+    photos = photosdb.photos(persons=["Katie", "Suzy"])
+
+    assert len(photos) == 3

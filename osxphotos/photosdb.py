@@ -2089,37 +2089,45 @@ class PhotosDB:
             photos_sets.append(set(self._dbphotos.keys()))
         else:
             if albums:
+                album_set = set()
                 for album in albums:
                     # TODO: can have >1 album with same name. This globs them together.
                     # Need a way to select which album?
                     if album in self._dbalbum_titles:
-                        album_set = set()
+                        title_set = set()
                         for album_id in self._dbalbum_titles[album]:
-                            album_set.update(self._dbalbums_album[album_id])
-                        photos_sets.append(album_set)
+                            title_set.update(self._dbalbums_album[album_id])
+                        album_set.update(title_set)
                     else:
                         logging.debug(f"Could not find album '{album}' in database")
+                photos_sets.append(album_set)
 
             if uuid:
+                uuid_set = set()
                 for u in uuid:
                     if u in self._dbphotos:
-                        photos_sets.append(set([u]))
+                        uuid_set.update([u])
                     else:
                         logging.debug(f"Could not find uuid '{u}' in database")
+                photos_sets.append(uuid_set)
 
             if keywords:
+                keyword_set = set()
                 for keyword in keywords:
                     if keyword in self._dbkeywords_keyword:
-                        photos_sets.append(set(self._dbkeywords_keyword[keyword]))
+                        keyword_set.update(self._dbkeywords_keyword[keyword])
                     else:
                         logging.debug(f"Could not find keyword '{keyword}' in database")
+                photos_sets.append(keyword_set)
 
             if persons:
+                person_set = set()
                 for person in persons:
                     if person in self._dbfaces_person:
-                        photos_sets.append(set(self._dbfaces_person[person]))
+                        person_set.update(self._dbfaces_person[person])
                     else:
                         logging.debug(f"Could not find person '{person}' in database")
+                photos_sets.append(person_set)
 
             if from_date or to_date:
                 dsel = self._dbphotos

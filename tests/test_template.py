@@ -185,7 +185,11 @@ def test_subst_multi_2_1_1():
     photo = photosdb.photos(uuid=[UUID_DICT["2_1_1"]])[0]
 
     template = "{created.year}/{album}/{keyword}/{person}"
-    expected = ["2018/Pumpkin Farm/Kids/Katie", "2018/Test Album/Kids/Katie"]
+    expected = [
+        "2018/Pumpkin Farm/Kids/Katie",
+        "2018/Test Album/Kids/Katie",
+        "2018/Multi Keyword/Kids/Katie",
+    ]
     rendered, _ = render_filepath_template(template, photo)
     assert sorted(rendered) == sorted(expected)
 
