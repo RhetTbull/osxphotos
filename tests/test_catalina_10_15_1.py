@@ -159,8 +159,8 @@ def test_album_names():
     import collections
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    assert "Pumpkin Farm" in photosdb.album_names
-    assert collections.Counter(ALBUMS) == collections.Counter(photosdb.album_names)
+    assert "Pumpkin Farm" in photosdb.albums
+    assert collections.Counter(ALBUMS) == collections.Counter(photosdb.albums)
 
 
 def test_keywords_dict():

@@ -126,7 +126,7 @@ class FolderInfo:
         return self._uuid
 
     @property
-    def albums(self):
+    def album_info(self):
         """ return list of albums (as AlbumInfo objects) contained in the folder """
         try:
             return self._albums
@@ -156,7 +156,7 @@ class FolderInfo:
             return self._parent
 
     @property
-    def folders(self):
+    def subfolders(self):
         """ return list of folders (as FolderInfo objects) contained in the folder """
         try:
             return self._folders
@@ -173,4 +173,4 @@ class FolderInfo:
 
     def __len__(self):
         """ returns count of folders + albums contained in the folder """
-        return len(self.folders) + len(self.albums)
+        return len(self.subfolders) + len(self.album_info)

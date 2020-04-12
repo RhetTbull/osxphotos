@@ -33,7 +33,11 @@ ALBUM_LEN_DICT = {
 }
 
 ALBUM_PHOTO_UUID_DICT = {
-    "Pumpkin Farm": ["HrK3ZQdlQ7qpDA0FgOYXLA","15uNd7%8RguTEgNPKHfTWw","8SOE9s0XQVGsuq4ONohTng"],
+    "Pumpkin Farm": [
+        "HrK3ZQdlQ7qpDA0FgOYXLA",
+        "15uNd7%8RguTEgNPKHfTWw",
+        "8SOE9s0XQVGsuq4ONohTng",
+    ],
     "Test Album": ["8SOE9s0XQVGsuq4ONohTng"],
     "Test Album (1)": ["15uNd7%8RguTEgNPKHfTWw"],
     # "AlbumInFolder": [
@@ -62,16 +66,18 @@ def test_folders_1(caplog):
     # folder_names = [f.title for f in folders]
     # assert sorted(folder_names) == sorted(TOP_LEVEL_FOLDERS)
 
+
 def test_folder_names(caplog):
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
 
     # check folder names
-    folder_names = photosdb.folder_names
+    folder_names = photosdb.folders
     assert folder_names == []
     assert "Folders not yet implemented for this DB version" in caplog.text
     # assert sorted(folder_names) == sorted(TOP_LEVEL_FOLDERS)
+
 
 @pytest.mark.skip(reason="Folders not yet impleted in Photos < 5")
 def test_folders_len():
@@ -137,11 +143,11 @@ def test_folders_albums():
 
     for folder in folders:
         name = folder.title
-        albums = [a.title for a in folder.albums]
+        albums = [a.title for a in folder.album_info]
         assert sorted(albums) == sorted(FOLDER_ALBUM_DICT[name])
         for child in folder.folders:
             name = child.title
-            albums = [a.title for a in child.albums]
+            albums = [a.title for a in child.album_info]
             assert sorted(albums) == sorted(FOLDER_ALBUM_DICT[name])
 
 
@@ -153,7 +159,7 @@ def test_albums_1():
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
 
-    albums = photosdb.albums
+    albums = photosdb.album_info
     assert len(albums) == 3
 
     # check names
@@ -166,7 +172,7 @@ def test_albums_parent(caplog):
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
 
-    albums = photosdb.albums
+    albums = photosdb.album_info
 
     for album in albums:
         parent = album.parent.title if album.parent else None
@@ -179,7 +185,7 @@ def test_albums_folder_names(caplog):
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
 
-    albums = photosdb.albums
+    albums = photosdb.album_info
 
     for album in albums:
         folder_names = album.folder_names
@@ -192,7 +198,7 @@ def test_albums_folders(caplog):
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
 
-    albums = photosdb.albums
+    albums = photosdb.album_info
 
     for album in albums:
         folders = album.folder_list
@@ -206,7 +212,7 @@ def test_albums_len():
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
 
-    albums = photosdb.albums
+    albums = photosdb.album_info
 
     for album in albums:
         assert len(album) == ALBUM_LEN_DICT[album.title]
@@ -217,7 +223,7 @@ def test_albums_photos():
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
 
-    albums = photosdb.albums
+    albums = photosdb.album_info
 
     for album in albums:
         photos = album.photos

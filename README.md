@@ -556,44 +556,46 @@ keywords = photosdb.keywords
 
 Returns a list of the keywords found in the Photos library
 
+#### `album_info`
+```python
+# assumes photosdb is a PhotosDB object (see above)
+albums = photosdb.album_info
+```
+
+Returns a list of [AlbumInfo](#AlbumInfo) objects representing albums in the database or empty list if there are no albums.  See also [albums](#albums).
+
 #### `albums`
 ```python
 # assumes photosdb is a PhotosDB object (see above)
-albums = photosdb.albums
-```
-
-Returns a list of [AlbumInfo](#AlbumInfo) objects representing albums in the database or empty list if there are no albums.  See also [album_names](#album_names).
-
-#### `album_names`
-```python
-# assumes photosdb is a PhotosDB object (see above)
-album_names = photosdb.album_names
+album_names = photosdb.albums
 ```
 
 Returns a list of the album names found in the Photos library.  
 
 **Note**: In Photos 5.0 (MacOS 10.15/Catalina), It is possible to have more than one album with the same name in Photos.  Albums with duplicate names are treated as a single album and the photos in each are combined.  For example, if you have two albums named "Wedding" and each has 2 photos, osxphotos will treat this as a single album named "Wedding" with 4 photos in it.
 
-#### `album_names_shared`
+See also [album_info](#album_info.)
+
+#### `albums_shared`
 
 Returns list of shared album names found in photos database (e.g. albums shared via iCloud photo sharing)
 
 **Note**: *Only valid for Photos 5 / MacOS 10.15*; on Photos <= 4, prints warning and returns empty list.
 
+#### `folder_info`
+```python
+# assumes photosdb is a PhotosDB object (see above)
+folders = photosdb.folder_info
+```
+
+Returns a list of [FolderInfo](#FolderInfo) objects representing top level folders in the database or empty list if there are no folders.  See also [folders](#folders).
+
+**Note**: Currently folder_info is only implemented for Photos 5 (Catalina); will return empty list and output warning if called on earlier database versions.
+
 #### `folders`
 ```python
 # assumes photosdb is a PhotosDB object (see above)
 folders = photosdb.folders
-```
-
-Returns a list of [FolderInfo](#FolderInfo) objects representing top level folders in the database or empty list if there are no folders.  See also [folder_names](#folder_names).
-
-**Note**: Currently folders is only implemented for Photos 5 (Catalina); will return empty list and output warning if called on earlier database versions.
-
-#### `folder_names`
-```python
-# assumes photosdb is a PhotosDB object (see above)
-folder_names = photosdb.folder_names
 ```
 
 Returns a list names of top level folder names in the database. 
@@ -809,7 +811,10 @@ Returns the title of the photo
 Returns a list of keywords (e.g. tags) applied to the photo
 
 #### `albums`
-Returns a list of albums the photo is contained in
+Returns a list of albums the photo is contained in. See also [album_info](#album_info).
+
+#### `album_info`
+Returns a list of [AlbumInfo](#AlbumInfo) objects representing the albums the photo is contained in.  See also [albums](#albums).
 
 #### `persons`
 Returns a list of the names of the persons in the photo
@@ -956,10 +961,10 @@ Then
 
 If overwrite=False and increment=False, export will fail if destination file already exists
 
-**Implementation Note**: Because the usual python file copy methods don't preserve all the metadata available on MacOS, export uses /usr/bin/ditto to do the copy for export. ditto preserves most metadata such as extended attributes, permissions, ACLs, etc.
+**Implementation Note**: Because the usual python file copy methods don't preserve all the metadata available on MacOS, export uses `/usr/bin/ditto` to do the copy for export. ditto preserves most metadata such as extended attributes, permissions, ACLs, etc.
 
-### AlbumInfo 
-PhotosDB.albums returns a list of AlbumInfo objects.  Each AlbumInfo object represents a single album in the Photos library.
+### AlbumInfo
+PhotosDB.album_info and PhotoInfo.album_info return a list of AlbumInfo objects.  Each AlbumInfo object represents a single album in the Photos library.
 
 #### `uuid`
 Returns the universally unique identifier (uuid) of the album.  This is how Photos keeps track of individual objects within the database.
@@ -971,7 +976,7 @@ Returns the title or name of the album.
 Returns a list of [PhotoInfo](#PhotoInfo) objects representing each photo contained in the album.
 
 #### `folder_list`
-Returns a hierarchical list of [FolderInfo](#FolderInfo) objects representing the folders the album is contained in.  For example, if album "AlbumInFolder" is in SubFolder1 of Folder1 as illustrated below, would return a list of `FolderInfo` objects representing ["Folder1", "SubFolder2"] 
+Returns a hierarchical list of [FolderInfo](#FolderInfo) objects representing the folders the album is contained in.  For example, if album "AlbumInFolder" is in SubFolder2 of Folder1 as illustrated below, would return a list of `FolderInfo` objects representing ["Folder1", "SubFolder2"] 
 
 ```txt
 Photos Library
@@ -1005,31 +1010,31 @@ Returns the universally unique identifier (uuid) of the folder.  This is how Pho
 #### `title`
 Returns the title or name of the folder.
 
-#### `albums`
+#### `album_info`
 Returns a list of [AlbumInfo](#AlbumInfo) objects representing each album contained in the folder.
 
-#### `folders`
+#### `subfolders`
 Returns a list of [FolderInfo](#FolderInfo) objects representing the sub-folders of the folder.  
 
 #### `parent`
 Returns a [FolderInfo](#FolderInfo) object representing the folder's parent folder or `None` if album is not a in a folder.
 
-**Note**: FolderInfo and AlbumInfo objects effectively work as a linked list.  The children of a folder are contained in `folders` and `albums` and the parent object of both `AlbumInfo` and `FolderInfo` is represented by `parent`.  For example:
+**Note**: FolderInfo and AlbumInfo objects effectively work as a linked list.  The children of a folder are contained in `subfolders` and `album_info` and the parent object of both `AlbumInfo` and `FolderInfo` is represented by `parent`.  For example:
 
 ```python
 >>> import osxphotos
 >>> photosdb = osxphotos.PhotosDB()
->>> photosdb.folders
+>>> photosdb.subfolders
 [<osxphotos.albuminfo.FolderInfo object at 0x10fcc0160>]
->>> photosdb.folders[0].title
+>>> photosdb.folder_info[0].title
 'Folder1'
->>> photosdb.folders[0].folders[1].title
+>>> photosdb.folder_info[0].subfolders[1].title
 'SubFolder2'
->>> photosdb.folders[0].folders[1].albums[0].title
+>>> photosdb.folder_info[0].subfolders[1].album_info[0].title
 'AlbumInFolder'
->>> photosdb.folders[0].folders[1].albums[0].parent.title
+>>> photosdb.folder_info[0].subfolders[1].album_info[0].parent.title
 'SubFolder2'
->>> photosdb.folders[0].folders[1].albums[0].parent.albums[0].title
+>>> photosdb.folder_info[0].subfolders[1].album_info[0].parent.album_info[0].title
 'AlbumInFolder'
 ```
 

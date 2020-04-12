@@ -28,6 +28,7 @@ from ._constants import (
 )
 from .exiftool import ExifTool
 from .placeinfo import PlaceInfo4, PlaceInfo5
+from .albuminfo import AlbumInfo
 from .utils import (
     _copy_file,
     _export_photo_uuid_applescript,
@@ -254,6 +255,15 @@ class PhotoInfo:
         albums = []
         for album in self._info["albums"]:
             albums.append(self._db._dbalbum_details[album]["title"])
+        return albums
+
+    @property
+    def album_info(self):
+        """ list of AlbumInfo objects representing albums the photos is contained in """
+        albums = []
+        for album in self._info["albums"]:
+            albums.append(AlbumInfo(db=self._db, uuid=album))
+
         return albums
 
     @property

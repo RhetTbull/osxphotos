@@ -55,6 +55,7 @@ TEMPLATE_SUBSTITUTIONS = {
 # Permitted multi-value substitutions (each of these returns None or 1 or more values)
 TEMPLATE_SUBSTITUTIONS_MULTI_VALUED = {
     "{album}": "Album(s) photo is contained in",
+    # "{folder}": "Folder path + album photo is contained in. e.g. Folder/Subfolder/Album",
     "{keyword}": "Keyword(s) assigned to photo",
     "{person}": "Person(s) / face(s) in a photo",
 }
@@ -321,6 +322,13 @@ def render_filepath_template(template, photo, none_str="_"):
             values = photo.persons
             # remove any _UNKNOWN_PERSON values
             values = [val for val in values if val != _UNKNOWN_PERSON]
+        # elif field == "folder":
+        #     folders = []
+        #     # photos must be in an album to be in a folder
+        #     albums = photo.albums
+        #     for album in albums:
+        #         zzz
+
         else:
             raise ValueError(f"Unhandleded template value: {field}")
 

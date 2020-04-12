@@ -30,7 +30,7 @@ def test_album_names():
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    albums = photosdb.album_names
+    albums = photosdb.albums
 
     assert len(albums) == 1
     assert albums[0] == ALBUMS[0]
@@ -40,7 +40,7 @@ def test_albums_shared():
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    albums_shared = photosdb.album_names_shared
+    albums_shared = photosdb.albums_shared
 
     assert len(albums_shared) == 1
     assert albums_shared[0] == ALBUMS_SHARED[0]

@@ -340,8 +340,8 @@ class PhotosDB:
         return list(persons)
 
     @property
-    def folders(self):
-        """ return list of top-level folders in the photos database """
+    def folder_info(self):
+        """ return list FolderInfo objects representing top-level folders in the photos database """
         if self._db_version < _PHOTOS_5_VERSION:
             logging.warning("Folders not yet implemented for this DB version")
             return []
@@ -356,7 +356,7 @@ class PhotosDB:
         return folders
 
     @property
-    def folder_names(self):
+    def folders(self):
         """ return list of top-level folder names in the photos database """
         if self._db_version < _PHOTOS_5_VERSION:
             logging.warning("Folders not yet implemented for this DB version")
@@ -371,9 +371,8 @@ class PhotosDB:
         ]
         return folder_names
 
-
     @property
-    def albums(self):
+    def album_info(self):
         """ return list of AlbumInfo objects for each album in the photos database """
 
         albums = [
@@ -385,7 +384,7 @@ class PhotosDB:
         return albums
 
     @property
-    def albums_shared(self):
+    def album_info_shared(self):
         """ return list of AlbumInfo objects for each shared album in the photos database
             only valid for Photos 5; on Photos <= 4, prints warning and returns empty list """
         # if _dbalbum_details[key]["cloudownerhashedpersonid"] is not None, then it's a shared album
@@ -405,7 +404,7 @@ class PhotosDB:
         return albums_shared
 
     @property
-    def album_names(self):
+    def albums(self):
         """ return list of albums found in photos database """
 
         # Could be more than one album with same name
@@ -420,7 +419,7 @@ class PhotosDB:
         return list(albums)
 
     @property
-    def album_names_shared(self):
+    def albums_shared(self):
         """ return list of shared albums found in photos database
             only valid for Photos 5; on Photos <= 4, prints warning and returns empty list """
 
