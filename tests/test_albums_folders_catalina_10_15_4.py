@@ -42,7 +42,7 @@ ALBUM_PHOTO_UUID_DICT = {
     ],
 }
 
-######### Test FolderInfo ##########
+UUID_DICT = {"two_albums": "F12384F6-CD17-4151-ACBA-AE0E3688539E"}
 
 
 def test_folders_1():
@@ -213,3 +213,27 @@ def test_albums_photos():
         assert len(photos) == len(album)
         for photo in photos:
             assert photo.uuid in ALBUM_PHOTO_UUID_DICT[album.title]
+
+
+def test_photoinfo_albums():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=ALBUM_PHOTO_UUID_DICT["Pumpkin Farm"])
+
+    albums = photos[0].albums
+    assert "Pumpkin Farm" in albums
+
+
+def test_photoinfo_album_info():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=[UUID_DICT["two_albums"]])
+
+    album_info = photos[0].album_info
+    assert len(album_info) == 2
+    assert album_info[0].title in ["Pumpkin Farm", "Test Album"]
+    assert album_info[1].title in ["Pumpkin Farm", "Test Album"]
+
+    assert photos[0] in album_info[0].photos
