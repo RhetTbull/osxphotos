@@ -134,7 +134,7 @@ class FolderInfo:
             albums = [
                 AlbumInfo(db=self._db, uuid=album)
                 for album, detail in self._db._dbalbum_details.items()
-                if detail["intrash"] == 0
+                if not detail["intrash"]
                 and detail["kind"] == _PHOTOS_5_ALBUM_KIND
                 and detail["parentfolder"] == self._pk
             ]
@@ -164,7 +164,7 @@ class FolderInfo:
             folders = [
                 FolderInfo(db=self._db, uuid=album)
                 for album, detail in self._db._dbalbum_details.items()
-                if detail["intrash"] == 0
+                if not detail["intrash"]
                 and detail["kind"] == _PHOTOS_5_FOLDER_KIND
                 and detail["parentfolder"] == self._pk
             ]

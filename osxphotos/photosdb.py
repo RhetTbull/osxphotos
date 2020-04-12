@@ -289,7 +289,7 @@ class PhotosDB:
             k
             for k in self._dbalbums_album.keys()
             if self._dbalbum_details[k]["cloudownerhashedpersonid"] is None
-            and self._dbalbum_details[k]["intrash"] == 0
+            and not self._dbalbum_details[k]["intrash"]
         ]
         for k in album_keys:
             title = self._dbalbum_details[k]["title"]
@@ -349,7 +349,7 @@ class PhotosDB:
         folders = [
             FolderInfo(db=self, uuid=album)
             for album, detail in self._dbalbum_details.items()
-            if detail["intrash"] == 0
+            if not detail["intrash"]
             and detail["kind"] == _PHOTOS_5_FOLDER_KIND
             and detail["parentfolder"] == self._folder_root_pk
         ]
@@ -365,7 +365,7 @@ class PhotosDB:
         folder_names = [
             detail["title"]
             for detail in self._dbalbum_details.values()
-            if detail["intrash"] == 0
+            if not detail["intrash"]
             and detail["kind"] == _PHOTOS_5_FOLDER_KIND
             and detail["parentfolder"] == self._folder_root_pk
         ]
@@ -379,7 +379,7 @@ class PhotosDB:
             AlbumInfo(db=self, uuid=album)
             for album in self._dbalbums_album.keys()
             if self._dbalbum_details[album]["cloudownerhashedpersonid"] is None
-            and self._dbalbum_details[album]["intrash"] == 0
+            and not self._dbalbum_details[album]["intrash"]
         ]
         return albums
 
@@ -399,7 +399,7 @@ class PhotosDB:
             AlbumInfo(db=self, uuid=album)
             for album in self._dbalbums_album.keys()
             if self._dbalbum_details[album]["cloudownerhashedpersonid"] is not None
-            and self._dbalbum_details[album]["intrash"] == 0
+            and not self._dbalbum_details[album]["intrash"]
         ]
         return albums_shared
 
@@ -414,7 +414,7 @@ class PhotosDB:
             self._dbalbum_details[album]["title"]
             for album in self._dbalbums_album.keys()
             if self._dbalbum_details[album]["cloudownerhashedpersonid"] is None
-            and self._dbalbum_details[album]["intrash"] == 0
+            and not self._dbalbum_details[album]["intrash"]
         }
         return list(albums)
 
@@ -438,7 +438,7 @@ class PhotosDB:
             self._dbalbum_details[album]["title"]
             for album in self._dbalbums_album.keys()
             if self._dbalbum_details[album]["cloudownerhashedpersonid"] is not None
-            and self._dbalbum_details[album]["intrash"] == 0
+            and not self._dbalbum_details[album]["intrash"]
         }
         return list(albums)
 
@@ -562,7 +562,7 @@ class PhotosDB:
                 "title": album[1],
                 "cloudlibrarystate": album[2],
                 "cloudidentifier": album[3],
-                "intrash": album[4],
+                "intrash": False if album[4] == 0 else True,
                 "cloudlocalstate": None,  # Photos 5
                 "cloudownerfirstname": None,  # Photos 5
                 "cloudownderlastname": None,  # Photos 5
@@ -1119,7 +1119,7 @@ class PhotosDB:
                 "kind": album[6],
                 "parentfolder": album[7],
                 "pk": album[8],
-                "intrash": album[9],
+                "intrash": False if album[9] == 0 else True,
             }
 
             # add cross-reference by pk to uuid

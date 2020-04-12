@@ -254,7 +254,8 @@ class PhotoInfo:
         """ list of albums picture is contained in """
         albums = []
         for album in self._info["albums"]:
-            albums.append(self._db._dbalbum_details[album]["title"])
+            if not self._db._dbalbum_details[album]["intrash"]:
+                albums.append(self._db._dbalbum_details[album]["title"])
         return albums
 
     @property
@@ -262,7 +263,8 @@ class PhotoInfo:
         """ list of AlbumInfo objects representing albums the photos is contained in """
         albums = []
         for album in self._info["albums"]:
-            albums.append(AlbumInfo(db=self._db, uuid=album))
+            if not self._db._dbalbum_details[album]["intrash"]:
+                albums.append(AlbumInfo(db=self._db, uuid=album))
 
         return albums
 
