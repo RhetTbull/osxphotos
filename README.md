@@ -107,16 +107,21 @@ Options:
                                   order: 1. last opened library, 2. system
                                   library, 3. ~/Pictures/Photos
                                   Library.photoslibrary
-  --keyword KEYWORD               Search for keyword KEYWORD. If more than one
-                                  keyword, treated as "OR", e.g. find photos
-                                  match any keyword
-  --person PERSON                 Search for person PERSON. If more than one
-                                  person, treated as "OR", e.g. find photos
-                                  match any person
-  --album ALBUM                   Search for album ALBUM. If more than one
-                                  album, treated as "OR", e.g. find photos
-                                  match any album
-  --uuid UUID                     Search for UUID(s).
+  --keyword KEYWORD               Search for photos with keyword KEYWORD. If
+                                  more than one keyword, treated as "OR", e.g.
+                                  find photos match any keyword
+  --person PERSON                 Search for photos with person PERSON. If
+                                  more than one person, treated as "OR", e.g.
+                                  find photos match any person
+  --album ALBUM                   Search for photos in album ALBUM. If more
+                                  than one album, treated as "OR", e.g. find
+                                  photos match any album
+  --folder FOLDER                 Search for photos in an album in folder
+                                  FOLDER. If more than one folder, treated as
+                                  "OR", e.g. find photos in any FOLDER.  Only
+                                  searches top level folders (e.g. does not
+                                  look at subfolders)
+  --uuid UUID                     Search for photos with UUID(s).
   --title TITLE                   Search for TITLE in title of photo.
   --no-title                      Search for photos with no title.
   --description DESC              Search for DESC in description of photo.
@@ -232,6 +237,11 @@ Options:
                                   output directory in the form
                                   '{name,DEFAULT}'. See below for additional
                                   details on templating system.
+  --no-extended-attributes        Don't copy extended attributes when
+                                  exporting.  You only need this if exporting
+                                  to a filesystem that doesn't support Mac OS
+                                  extended attributes.  Only use this if you
+                                  get an error while exporting.
   -h, --help                      Show this message and exit.
 
 **Templating System**
@@ -334,10 +344,13 @@ exported, one to each directory.  For example: --directory
 of the following directories if the photos were created in 2019 and were in
 albums 'Vacation' and 'Family': 2019/Vacation, 2019/Family
 
-Substitution  Description
-{album}       Album(s) photo is contained in
-{keyword}     Keyword(s) assigned to photo
-{person}      Person(s) / face(s) in a photo
+Substitution    Description
+{album}         Album(s) photo is contained in
+{folder_album}  Folder path + album photo is contained in. e.g.
+                'Folder/Subfolder/Album' or just 'Album' if no enclosing
+                folder
+{keyword}       Keyword(s) assigned to photo
+{person}        Person(s) / face(s) in a photo
 ```
 
 Example: export all photos to ~/Desktop/export, including edited versions and live photo movies, group in folders by date created

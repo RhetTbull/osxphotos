@@ -187,7 +187,7 @@ def query_options(f):
             metavar="KEYWORD",
             default=None,
             multiple=True,
-            help="Search for keyword KEYWORD. "
+            help="Search for photos with keyword KEYWORD. "
             'If more than one keyword, treated as "OR", e.g. find photos match any keyword',
         ),
         o(
@@ -195,7 +195,7 @@ def query_options(f):
             metavar="PERSON",
             default=None,
             multiple=True,
-            help="Search for person PERSON. "
+            help="Search for photos with person PERSON. "
             'If more than one person, treated as "OR", e.g. find photos match any person',
         ),
         o(
@@ -203,15 +203,24 @@ def query_options(f):
             metavar="ALBUM",
             default=None,
             multiple=True,
-            help="Search for album ALBUM. "
+            help="Search for photos in album ALBUM. "
             'If more than one album, treated as "OR", e.g. find photos match any album',
+        ),
+        o(
+            "--folder",
+            metavar="FOLDER",
+            default=None,
+            multiple=True,
+            help="Search for photos in an album in folder FOLDER. "
+            'If more than one folder, treated as "OR", e.g. find photos in any FOLDER.  '
+            "Only searches top level folders (e.g. does not look at subfolders)",
         ),
         o(
             "--uuid",
             metavar="UUID",
             default=None,
             multiple=True,
-            help="Search for UUID(s).",
+            help="Search for photos with UUID(s).",
         ),
         o(
             "--title",
@@ -670,6 +679,7 @@ def query(
     keyword,
     person,
     album,
+    folder,
     uuid,
     title,
     no_title,
@@ -728,6 +738,7 @@ def query(
         keyword,
         person,
         album,
+        folder,
         uuid,
         edited,
         external_edit,
@@ -781,6 +792,7 @@ def query(
         keyword=keyword,
         person=person,
         album=album,
+        folder=folder,
         uuid=uuid,
         title=title,
         no_title=no_title,
@@ -932,6 +944,7 @@ def export(
     keyword,
     person,
     album,
+    folder,
     uuid,
     title,
     no_title,
@@ -1051,6 +1064,7 @@ def export(
         keyword=keyword,
         person=person,
         album=album,
+        folder=folder,
         uuid=uuid,
         title=title,
         no_title=no_title,
@@ -1270,6 +1284,7 @@ def _query(
     keyword=None,
     person=None,
     album=None,
+    folder=None,
     uuid=None,
     title=None,
     no_title=None,
@@ -1316,10 +1331,10 @@ def _query(
     place=None,
     no_place=None,
 ):
-    """ run a query against PhotosDB to extract the photos based on user supply criteria """
-    """ used by query and export commands """
-    """ arguments must be passed in same order as query and export """
-    """ if either is modified, need to ensure all three functions are updated """
+    """ run a query against PhotosDB to extract the photos based on user supply criteria 
+        used by query and export commands 
+        arguments must be passed in same order as query and export 
+        if either is modified, need to ensure all three functions are updated """
 
     photosdb = osxphotos.PhotosDB(dbfile=db)
     photos = photosdb.photos(
@@ -1332,6 +1347,21 @@ def _query(
         from_date=from_date,
         to_date=to_date,
     )
+
+    if folder:
+        # search for photos in an album in folder
+        # finds photos that have albums whose top level folder matches folder
+        photo_list = []
+        for f in folder:
+            photo_list.extend(
+                [
+                    p
+                    for p in photos
+                    if p.album_info
+                    and f in [a.folder_names[0] for a in p.album_info if a.folder_names]
+                ]
+            )
+        photos = photo_list
 
     if title:
         # search title field for text

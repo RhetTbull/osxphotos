@@ -2,10 +2,12 @@ import pytest
 from click.testing import CliRunner
 
 CLI_PHOTOS_DB = "tests/Test-10.15.1.photoslibrary"
-LIVE_PHOTOS_DB = "tests/Test-Cloud-10.15.1.photoslibrary/database/photos.db"
+LIVE_PHOTOS_DB = "tests/Test-Cloud-10.15.1.photoslibrary"
 RAW_PHOTOS_DB = "tests/Test-RAW-10.15.1.photoslibrary"
 PLACES_PHOTOS_DB = "tests/Test-Places-Catalina-10_15_1.photoslibrary"
 PLACES_PHOTOS_DB_13 = "tests/Test-Places-High-Sierra-10.13.6.photoslibrary"
+PHOTOS_DB_15_4 = "tests/Test-10.15.4.photoslibrary"
+PHOTOS_DB_14_6 = "tests/Test-10.14.6.photoslibrary"
 
 CLI_OUTPUT_NO_SUBCOMMAND = [
     "Options:",
@@ -658,3 +660,84 @@ def test_no_place_15():
 
         assert len(json_got) == 1  # single element
         assert json_got[0]["uuid"] == "A9B73E13-A6F2-4915-8D67-7213B39BAE9F"
+
+
+def test_no_folder_1_15():
+    # test --folder on 10.15
+    import json
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            query, [os.path.join(cwd, PHOTOS_DB_15_4), "--json", "--folder", "Folder1"]
+        )
+        assert result.exit_code == 0
+        json_got = json.loads(result.output)
+
+        assert len(json_got) == 2  # single element
+        for item in json_got:
+            assert item["uuid"] in [
+                "3DD2C897-F19E-4CA6-8C22-B027D5A71907",
+                "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51",
+            ]
+            assert item["albums"] == ["AlbumInFolder"]
+
+
+def test_no_folder_2_15():
+    # test --folder with --uuid on 10.15
+    import json
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            query,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_4),
+                "--json",
+                "--folder",
+                "Folder1",
+                "--uuid",
+                "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51",
+            ],
+        )
+        assert result.exit_code == 0
+        json_got = json.loads(result.output)
+
+        assert len(json_got) == 1  # single element
+        for item in json_got:
+            assert item["uuid"] == "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"
+            assert item["albums"] == ["AlbumInFolder"]
+
+
+def test_no_folder_1_14(caplog):
+    # test --folder on 10.14
+    import json
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            query, [os.path.join(cwd, PHOTOS_DB_14_6), "--json", "--folder", "Folder1"]
+        )
+        assert result.exit_code == 0
+        json_got = json.loads(result.output)
+
+        assert len(json_got) == 0  # single element
+        assert "not yet implemented" in caplog.text
