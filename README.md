@@ -1298,11 +1298,11 @@ Testing against "real world" Photos libraries would be especially helpful.  If y
 
 ## Implementation Notes
 
-This package works by creating a copy of the sqlite3 database that photos uses to store data about the photos library. the class photosdb then queries this database to extract information about the photos such as persons (faces identified in the photos), albums, keywords, etc.  If your library is large, the database can be hundreds of MB in size and the copy read then  can take many 10s of seconds to complete.  Once copied, the entire database is processed and an in-memory data structure is created meaning all subsequent accesses of the PhotosDB object occur much more quickly. 
+This package works by creating a copy of the sqlite3 database that photos uses to store data about the photos library. The class PhotosDB then queries this database to extract information about the photos such as persons (faces identified in the photos), albums, keywords, etc.  If your library is large, the database can be hundreds of MB in size and the copy read then  can take many 10s of seconds to complete.  Once copied, the entire database is processed and an in-memory data structure is created meaning all subsequent accesses of the PhotosDB object occur much more quickly. 
 
 If apple changes the database format this will likely break.
 
-Apple does provide a framework ([PhotoKit](https://developer.apple.com/documentation/photokit?language=objc)) for querying the user's Photos library and I attempted to create the funcationality in this package using this framework but unfortunately PhotoKit does not provide access to much of the needed metadata (such as Faces/Persons).  While copying the sqlite file is a bit kludgy, it allows osxphotos to provide access to all available metadata.
+Apple does provide a framework ([PhotoKit](https://developer.apple.com/documentation/photokit?language=objc)) for querying the user's Photos library and I attempted to create the funcationality in this package using this framework but unfortunately PhotoKit does not provide access to much of the needed metadata (such as Faces/Persons) and Apple's System Integrity Protection (SIP) made the interface unreliable.  If you'd like to experiment with the PhotoKit interface, here's some sample [code](https://gist.github.com/RhetTbull/41cc85e5bdeb30f761147ce32fba5c94).  While copying the sqlite file is a bit kludgy, it allows osxphotos to provide access to all available metadata.
 
 ## Dependencies
 - [PyObjC](https://pythonhosted.org/pyobjc/)
