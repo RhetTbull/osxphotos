@@ -14,7 +14,7 @@ def main():
 
     print(photosdb.keywords)
     print(photosdb.persons)
-    print(photosdb.album_names)
+    print(photosdb.albums)
 
     print(photosdb.keywords_as_dict)
     print(photosdb.persons_as_dict)
