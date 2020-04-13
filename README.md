@@ -1015,7 +1015,7 @@ Returns a [FolderInfo](#FolderInfo) object representing the albums parent folder
 
 
 ### FolderInfo 
-PhotosDB.folders returns a list of FolderInfo objects representing the top level folders in the library.  Each FolderInfo object represents a single folder in the Photos library.
+PhotosDB.folder_info returns a list of FolderInfo objects representing the top level folders in the library.  Each FolderInfo object represents a single folder in the Photos library.
 
 #### `uuid`
 Returns the universally unique identifier (uuid) of the folder.  This is how Photos keeps track of individual objects within the database.
