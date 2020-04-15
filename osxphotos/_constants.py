@@ -16,8 +16,9 @@ _TESTED_DB_VERSIONS = ["6000", "4025", "4016", "3301", "2622"]
 # only version 3 - 4 have RKVersion.selfPortrait
 _PHOTOS_3_VERSION = "3301"
 
-# versions later than this have a different database structure
-_PHOTOS_5_VERSION = "6000"
+# versions 5.0 and later have a different database structure
+_PHOTOS_4_VERSION = "4025" # latest Mojove version on 10.14.6
+_PHOTOS_5_VERSION = "6000" # seems to be current on 10.15.1 through 10.14.4
 
 # which major version operating systems have been tested
 _TESTED_OS_VERSIONS = ["12", "13", "14", "15"]

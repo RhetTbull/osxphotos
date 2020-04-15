@@ -19,6 +19,7 @@ from ._constants import (
     _MOVIE_TYPE,
     _PHOTO_TYPE,
     _PHOTOS_3_VERSION,
+    _PHOTOS_4_VERSION,
     _PHOTOS_5_VERSION,
     _TESTED_DB_VERSIONS,
     _TESTED_OS_VERSIONS,
@@ -258,7 +259,7 @@ class PhotosDB:
         if _debug():
             logging.debug(f"library = {library_path}, masters = {masters_path}")
 
-        if int(self._db_version) < int(_PHOTOS_5_VERSION):
+        if int(self._db_version) <= int(_PHOTOS_4_VERSION):
             self._process_database4()
         else:
             self._process_database5()
