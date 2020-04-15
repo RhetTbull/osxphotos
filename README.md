@@ -21,6 +21,7 @@
   * [Examples](#examples)
   * [Related Projects](#related-projects)
   * [Contributing](#contributing)
+  * [Known Bugs](#known-bugs)
   * [Implementation Notes](#implementation-notes)
   * [Dependencies](#dependencies)
   * [Acknowledgements](#acknowledgements)
@@ -1295,6 +1296,13 @@ I'll gladly consider pull requests for bug fixes or feature implementations.
 If you have an interesting example that shows usage of this package, submit an issue or pull request and i'll include it or link to it.
 
 Testing against "real world" Photos libraries would be especially helpful.  If you discover issues in testing against your Photos libraries, please open an issue.  I've done extensive testing against my own Photos library but that's a since data point and I'm certain there are issues lurking in various edge cases I haven't discovered yet.
+
+## Known Bugs
+
+My goal is make osxphotos as reliable and comprehensive as possible.  The test suite currently has over 400 tests--but there are still some [bugs](https://github.com/RhetTbull/osxphotos/issues?q=is%3Aissue+is%3Aopen+label%3Abug) or incomplete features lurking.  If you find bugs please open in [issue](https://github.com/RhetTbull/osxphotos/issues).  Notable issues include:
+
+- RAW images imported to Photos with an associated jpeg preview are not handled correctly by osxphotos.  osxphotos query and export will operate on the jpeg preview instead of the RAW image as will `PhotoInfo.path`.  If the user selects "Use RAW as original" in Photos, the RAW image will be exported or operated on but the jpeg will be ignored.  See [Issue #101](https://github.com/RhetTbull/osxphotos/issues/101) 
+- The `--download-missing` option for `osxphotos export` does not work correctly with burst images.  It will download the primary image but not the other burst images if `--export-bursts` option is used.  See [Issue #75](https://github.com/RhetTbull/osxphotos/issues/75)
 
 ## Implementation Notes
 
