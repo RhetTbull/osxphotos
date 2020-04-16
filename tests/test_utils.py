@@ -4,6 +4,8 @@ DB_LOCKED_10_12 = "./tests/Test-Lock-10_12.photoslibrary/database/photos.db"
 DB_LOCKED_10_15 = "./tests/Test-Lock-10_15_1.photoslibrary/database/Photos.sqlite"
 DB_UNLOCKED_10_15 = "./tests/Test-10.15.1.photoslibrary/database/photos.db"
 
+UTI_DICT = {"public.jpeg": "jpeg", "com.canon.cr2-raw-image": "cr2"}
+
 
 def test_debug_enable():
     import osxphotos
@@ -89,3 +91,26 @@ def test_copy_file_norsrc():
     result = _copy_file(src, temp_dir.name, norsrc=True)
     assert result == 0
     assert os.path.isfile(os.path.join(temp_dir.name, "wedding.jpg"))
+
+
+def test_get_preferred_uti_extension():
+    from osxphotos.utils import get_preferred_uti_extension
+
+    for uti, extension in UTI_DICT.items():
+        assert get_preferred_uti_extension(uti) == extension
+
+
+def test_findfiles():
+    import tempfile
+    import os.path
+    from osxphotos.utils import findfiles
+
+    temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    fd = open(os.path.join(temp_dir.name, "file1.jpg"), "w+")
+    fd.close
+    fd = open(os.path.join(temp_dir.name, "file2.JPG"), "w+")
+    fd.close
+    files = findfiles("*.jpg", temp_dir.name)
+    assert len(files) == 2
+    assert "file1.jpg" in files
+    assert "file2.JPG" in files

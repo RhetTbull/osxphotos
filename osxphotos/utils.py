@@ -1,8 +1,11 @@
+import fnmatch
 import glob
 import logging
+import os
 import os.path
 import pathlib
 import platform
+import re
 import sqlite3
 import subprocess
 import sys
@@ -11,6 +14,7 @@ import urllib.parse
 from plistlib import load as plistload
 
 import CoreFoundation
+import CoreServices
 import objc
 from Foundation import *
 
@@ -300,6 +304,28 @@ def create_path_by_date(dest, dt):
     if not os.path.isdir(new_dest):
         os.makedirs(new_dest)
     return new_dest
+
+
+def get_preferred_uti_extension(uti):
+    """ get preferred extension for a UTI type
+        uti: UTI str, e.g. 'public.jpeg'
+        returns: preferred extension as str """
+
+    # reference: https://developer.apple.com/documentation/coreservices/1442744-uttypecopypreferredtagwithclass?language=objc
+
+    ext = CoreServices.UTTypeCopyPreferredTagWithClass(
+        uti, CoreServices.kUTTagClassFilenameExtension
+    )
+    return ext
+
+
+def findfiles(pattern, path_):
+    """Returns list of filenames from path_ matched by pattern
+       shell pattern. Matching is case-insensitive."""
+    # See: https://gist.github.com/techtonik/5694830
+
+    rule = re.compile(fnmatch.translate(pattern), re.IGNORECASE)
+    return [name for name in os.listdir(path_) if rule.match(name)]
 
 
 # TODO: this doesn't always work, still looking for a way to

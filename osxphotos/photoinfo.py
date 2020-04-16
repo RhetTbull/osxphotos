@@ -34,6 +34,8 @@ from .utils import (
     _export_photo_uuid_applescript,
     _get_resource_loc,
     dd_to_dms_str,
+    findfiles,
+    get_preferred_uti_extension,
 )
 
 
@@ -240,6 +242,60 @@ class PhotoInfo:
         return photopath
 
     @property
+    def path_raw(self):
+        """ absolute path of associated RAW image or None if there is not one """
+
+        # In Photos 5, raw is in same folder as original but with _4.ext
+        # Unless "Copy Items to the Photos Library" is not checked
+        # then RAW image is not renamed but has same name is jpeg buth with raw extension
+        # Current implementation uses findfiles to find images with the correct raw UTI extension
+        # in same folder as the original and with same stem as original in form: original_stem*.raw_ext
+        # TODO: I don't like this -- would prefer a more deterministic approach but until I have more
+        # data on how Photos stores and retrieves RAW images, this seems to be working
+
+        if self._db._db_version < _PHOTOS_5_VERSION:
+            logging.warning("Not yet implemented for Photos version < 5")
+            return None
+
+        if self._info["isMissing"] == 1:
+            return None  # path would be meaningless until downloaded
+
+        if not self.has_raw:
+            return None  # no raw image to get path for
+
+        # if self._info["shared"]:
+        #     # shared photo
+        #     photopath = os.path.join(
+        #         self._db._library_path,
+        #         _PHOTOS_5_SHARED_PHOTO_PATH,
+        #         self._info["directory"],
+        #         self._info["filename"],
+        #     )
+        #     return photopath
+
+        filestem = pathlib.Path(self._info["filename"]).stem
+        raw_ext = get_preferred_uti_extension(self._info["UTI_raw"])
+
+        if self._info["directory"].startswith("/"):
+            filepath = self._info["directory"]
+        else:
+            filepath = os.path.join(self._db._masters_path, self._info["directory"])
+
+        glob_str = f"{filestem}*.{raw_ext}"
+        raw_file = findfiles(glob_str, filepath)
+        if len(raw_file) != 1:
+            logging.warning(f"Error getting path to RAW file: {filepath}/{glob_str}")
+            photopath = None
+        else:
+            photopath = os.path.join(filepath, raw_file[0])
+            if not os.path.isfile(photopath):
+                logging.debug(
+                    f"MISSING PATH: RAW photo for UUID {self._uuid} should be at {photopath} but does not appear to exist"
+                )
+                photopath = None
+        return photopath
+
+    @property
     def description(self):
         """ long / extended description of picture """
         return self._info["extendedDescription"]
@@ -340,6 +396,14 @@ class PhotoInfo:
             for example: public.jpeg or com.apple.quicktime-movie
         """
         return self._info["UTI"]
+
+    @property
+    def uti_raw(self):
+        """ Returns Uniform Type Identifier (UTI) for the RAW image if there is one
+            for example: com.canon.cr2-raw-image
+            Returns None if no associated RAW image
+        """
+        return self._info["UTI_raw"]
 
     @property
     def ismovie(self):
@@ -520,6 +584,22 @@ class PhotoInfo:
                 else:
                     self._place = None
                 return self._place
+
+    @property
+    def has_raw(self):
+        """ returns True if photo has an associated RAW image, otherwise False """
+        if self._db._db_version < _PHOTOS_5_VERSION:
+            logging.warning("Not yet implemented for Photos version < 5")
+            return None
+
+        return self._info["has_raw"]
+
+    @property
+    def raw_original(self):
+        """ returns True if associated RAW image and the RAW image is selected in Photos
+            via "Use RAW as Original "
+            otherwise returns False """
+        return True if self._info["original_resource_choice"] == 1 else False
 
     def export(
         self,
