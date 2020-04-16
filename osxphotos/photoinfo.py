@@ -1027,6 +1027,9 @@ class PhotoInfo:
             "hdr": self.hdr,
             "selfie": self.selfie,
             "panorama": self.panorama,
+            "has_raw": self.has_raw,
+            "uti_raw": self.uti_raw,
+            "path_raw": self.path_raw,
         }
         return yaml.dump(info, sort_keys=False)
 
@@ -1073,6 +1076,9 @@ class PhotoInfo:
             "hdr": self.hdr,
             "selfie": self.selfie,
             "panorama": self.panorama,
+            "has_raw": self.has_raw,
+            "uti_raw": self.uti_raw,
+            "path_raw": self.path_raw,
         }
         return json.dumps(pic)
 
