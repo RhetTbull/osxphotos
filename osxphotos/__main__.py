@@ -346,6 +346,11 @@ def query_options(f):
             help="Search for photos that are not panoramas.",
         ),
         o(
+            "--has-raw",
+            is_flag=True,
+            help="Search for photos with both a jpeg and RAW version",
+        ),
+        o(
             "--only-movies",
             is_flag=True,
             help="Search only for movies (default searches both images and movies).",
@@ -724,6 +729,7 @@ def query(
     not_selfie,
     panorama,
     not_panorama,
+    has_raw,
     place,
     no_place,
 ):
@@ -743,6 +749,7 @@ def query(
         edited,
         external_edit,
         uti,
+        has_raw,
         from_date,
         to_date,
     ]
@@ -836,6 +843,7 @@ def query(
         not_selfie=not_selfie,
         panorama=panorama,
         not_panorama=not_panorama,
+        has_raw=has_raw,
         place=place,
         no_place=no_place,
     )
@@ -993,6 +1001,7 @@ def export(
     not_selfie,
     panorama,
     not_panorama,
+    has_raw,
     directory,
     place,
     no_place,
@@ -1108,6 +1117,7 @@ def export(
         not_selfie=not_selfie,
         panorama=panorama,
         not_panorama=not_panorama,
+        has_raw=has_raw,
         place=place,
         no_place=no_place,
     )
@@ -1232,6 +1242,9 @@ def print_photo_info(photos, json=False):
                 "hdr",
                 "selfie",
                 "panorama",
+                "has_raw",
+                "uti_raw",
+                "path_raw",
             ]
         )
         for p in photos:
@@ -1273,6 +1286,9 @@ def print_photo_info(photos, json=False):
                     p.hdr,
                     p.selfie,
                     p.panorama,
+                    p.has_raw,
+                    p.uti_raw,
+                    p.path_raw,
                 ]
             )
         for row in dump:
@@ -1328,6 +1344,7 @@ def _query(
     not_selfie=None,
     panorama=None,
     not_panorama=None,
+    has_raw=None,
     place=None,
     no_place=None,
 ):
@@ -1515,6 +1532,9 @@ def _query(
         photos = [p for p in photos if p.incloud]
     elif not_incloud:
         photos = [p for p in photos if not p.incloud]
+
+    if has_raw:
+        photos = [p for p in photos if p.has_raw]
 
     return photos
 
