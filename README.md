@@ -1038,7 +1038,7 @@ Returns a [FolderInfo](#FolderInfo) object representing the folder's parent fold
 ```python
 >>> import osxphotos
 >>> photosdb = osxphotos.PhotosDB()
->>> photosdb.subfolders
+>>> photosdb.folder_info
 [<osxphotos.albuminfo.FolderInfo object at 0x10fcc0160>]
 >>> photosdb.folder_info[0].title
 'Folder1'
