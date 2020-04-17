@@ -99,6 +99,11 @@ class PhotosDB:
         # e.g. {'BD94B7C0-2EB8-43DB-98B4-3B8E9653C255': {'8B386814-CA8A-42AA-BCA8-97C1AA746D8A', '52B95550-DE4A-44DD-9E67-89E979F2E97F'}}
         self._dbphotos_burst = {}
 
+        # Dict with additional information from RKMaster
+        # key is UUID from RKMaster, value is dict with info related to each master
+        # currently used to get information on RAW images
+        self._dbphotos_master = {}
+
         # Dict with information about all persons/photos by uuid
         # key is photo UUID, value is list of face names in that photo
         # Note: Photos 5 identifies faces even if not given a name
@@ -610,7 +615,10 @@ class PhotosDB:
                     RKVersion.latitude, RKVersion.longitude, 
                     RKVersion.adjustmentUuid, RKVersion.type, RKMaster.UTI,
                     RKVersion.burstUuid, RKVersion.burstPickType,
-                    RKVersion.specialType, RKMaster.modelID, RKVersion.momentUuid
+                    RKVersion.specialType, RKMaster.modelID, null, RKVersion.momentUuid,
+                    RKVersion.rawMasterUuid,
+                    RKVersion.nonRawMasterUuid,
+                    RKMaster.alternateMasterUuid
                     FROM RKVersion, RKMaster WHERE RKVersion.isInTrash = 0 AND 
                     RKVersion.masterUuid = RKMaster.uuid AND RKVersion.filename NOT LIKE '%.pdf' """
             )
@@ -625,8 +633,11 @@ class PhotosDB:
                     RKVersion.adjustmentUuid, RKVersion.type, RKMaster.UTI,
                     RKVersion.burstUuid, RKVersion.burstPickType,
                     RKVersion.specialType, RKMaster.modelID,
-                    RKVersion.selfPortrait, 
-                    RKVersion.momentUuid
+                    RKVersion.selfPortrait,
+                    RKVersion.momentUuid,
+                    RKVersion.rawMasterUuid,
+                    RKVersion.nonRawMasterUuid,
+                    RKMaster.alternateMasterUuid
                     FROM RKVersion, RKMaster WHERE RKVersion.isInTrash = 0 AND 
                     RKVersion.masterUuid = RKMaster.uuid AND RKVersion.filename NOT LIKE '%.pdf' """
             )
@@ -661,6 +672,9 @@ class PhotosDB:
         # 26    RKMaster.modelID
         # 27    RKVersion.selfPortrait -- 1 if selfie, Photos >= 3, not present for Photos < 3
         # 28    RKVersion.momentID (# 27 for Photos < 3)
+        # 29    RKVersion.rawMasterUuid, -- UUID of RAW master
+        # 30    RKVersion.nonRawMasterUuid, -- UUID of non-RAW master
+        # 31    RKMaster.alternateMasterUuid -- UUID of alternate master (will be RAW master for JPEG and JPEG master for RAW)
 
         for row in c:
             uuid = row[0]
@@ -746,6 +760,7 @@ class PhotosDB:
             # 4 == HDR
             # 5 == live photo
             # 6 == screenshot
+            # 7 == JPEG/RAW pair
             # 8 == HDR live photo
             # 9 = portrait
 
@@ -765,12 +780,12 @@ class PhotosDB:
             self._dbphotos[uuid]["portrait"] = True if row[25] == 9 else False
 
             # selfies (front facing camera, RKVersion.selfPortrait == 1)
-            if self._db_version >= _PHOTOS_3_VERSION:
+            if row[27] is not None:
                 self._dbphotos[uuid]["selfie"] = True if row[27] == 1 else False
-                self._dbphotos[uuid]["momentID"] = row[28]
             else:
                 self._dbphotos[uuid]["selfie"] = None
-                self._dbphotos[uuid]["momentID"] = row[27]
+
+            self._dbphotos[uuid]["momentID"] = row[28]
 
             # Init cloud details that will be filled in later if cloud asset
             self._dbphotos[uuid]["cloudAssetGUID"] = None  # Photos 5
@@ -785,12 +800,59 @@ class PhotosDB:
             self._dbphotos[uuid]["original_resource_choice"] = None
 
             # associated RAW image info
-            # will be filled in later
-            self._dbphotos[uuid]["has_raw"] = None
+            self._dbphotos[uuid]["has_raw"] = True if row[25] == 7 else False
             self._dbphotos[uuid]["UTI_raw"] = None
             self._dbphotos[uuid]["raw_data_length"] = None
-            self._dbphotos[uuid]["resource_type"] = None
-            self._dbphotos[uuid]["datastore_subtype"] = None
+            self._dbphotos[uuid]["raw_info"] = None
+            self._dbphotos[uuid]["resource_type"] = None  # Photos 5
+            self._dbphotos[uuid]["datastore_subtype"] = None  # Photos 5
+            self._dbphotos[uuid]["raw_master_uuid"] = row[29]
+            self._dbphotos[uuid]["non_raw_master_uuid"] = row[30]
+            self._dbphotos[uuid]["alt_master_uuid"] = row[31]
+
+        # get additional details from RKMaster, needed for RAW processing
+        c.execute(
+            """ SELECT 
+	            RKMaster.uuid,
+                RKMaster.volumeId, 
+                RKMaster.imagePath, 
+	            RKMaster.isMissing, 
+                RKMaster.originalFileName, 
+                RKMaster.UTI,
+	            RKMaster.modelID, 
+                RKMaster.fileSize, 
+                RKMaster.isTrulyRaw,
+	            RKMaster.alternateMasterUuid
+	            FROM RKMaster
+            """
+        )
+
+        # Order of results:
+        # 0     RKMaster.uuid,
+        # 1     RKMaster.volumeId,
+        # 2     RKMaster.imagePath,
+        # 3     RKMaster.isMissing,
+        # 4     RKMaster.originalFileName,
+        # 5     RKMaster.UTI,
+        # 6     RKMaster.modelID,
+        # 7     RKMaster.fileSize,
+        # 8     RKMaster.isTrulyRaw,
+        # 9     RKMaster.alternateMasterUuid
+
+        for row in c:
+            uuid = row[0]
+            info = {}
+            info["_uuid"] = uuid
+            info["volumeId"] = row[1]
+            info["imagePath"] = row[2]
+            info["isMissing"] = row[3]
+            info["originalFilename"] = row[4]
+            info["UTI"] = row[5]
+            info["modelID"] = row[6]
+            info["fileSize"] = row[7]
+            info["isTrulyRAW"] = row[8]
+            info["alternateMasterUuid"] = row[9]
+            self._dbphotos_master[uuid] = info
 
         # get details needed to find path of the edited photos
         c.execute(
@@ -978,6 +1040,20 @@ class PhotosDB:
                 self._dbalbum_titles[title].append(album_id)
             else:
                 self._dbalbum_titles[title] = [album_id]
+
+        # add volume name to _dbphotos_master
+        for info in self._dbphotos_master.values():
+            info["volume"] = (
+                self._dbvolumes[info["volumeId"]]
+                if info["volumeId"] is not None
+                else None
+            )
+
+        # add data on RAW images
+        for info in self._dbphotos.values():
+            if info["has_raw"]:
+                raw_uuid = info["raw_master_uuid"]
+                info["raw_info"] = self._dbphotos_master[raw_uuid]
 
         # done with the database connection
         conn.close()
@@ -1423,6 +1499,10 @@ class PhotosDB:
             info["UTI_raw"] = None
             info["datastore_subtype"] = None
             info["resource_type"] = None
+            info["raw_master_uuid"] = None  # Photos 4
+            info["non_raw_master_uuid"] = None  # Photos 4
+            info["alt_master_uuid"] = None  # Photos 4
+            info["raw_info"] = None  # Photos 4
 
             self._dbphotos[uuid] = info
 

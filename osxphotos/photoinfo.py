@@ -253,10 +253,6 @@ class PhotoInfo:
         # TODO: I don't like this -- would prefer a more deterministic approach but until I have more
         # data on how Photos stores and retrieves RAW images, this seems to be working
 
-        if self._db._db_version < _PHOTOS_5_VERSION:
-            logging.warning("RAW support not yet implemented for Photos version < 5")
-            return None
-
         if self._info["isMissing"] == 1:
             return None  # path would be meaningless until downloaded
 
@@ -273,26 +269,45 @@ class PhotoInfo:
         #     )
         #     return photopath
 
-        filestem = pathlib.Path(self._info["filename"]).stem
-        raw_ext = get_preferred_uti_extension(self._info["UTI_raw"])
-
-        if self._info["directory"].startswith("/"):
-            filepath = self._info["directory"]
-        else:
-            filepath = os.path.join(self._db._masters_path, self._info["directory"])
-
-        glob_str = f"{filestem}*.{raw_ext}"
-        raw_file = findfiles(glob_str, filepath)
-        if len(raw_file) != 1:
-            logging.warning(f"Error getting path to RAW file: {filepath}/{glob_str}")
-            photopath = None
-        else:
-            photopath = os.path.join(filepath, raw_file[0])
+        if self._db._db_version < _PHOTOS_5_VERSION:
+            vol = self._info["raw_info"]["volume"]
+            if vol is not None:
+                photopath = os.path.join(
+                    "/Volumes", vol, self._info["raw_info"]["imagePath"]
+                )
+            else:
+                photopath = os.path.join(
+                    self._db._masters_path, self._info["raw_info"]["imagePath"]
+                )
             if not os.path.isfile(photopath):
                 logging.debug(
                     f"MISSING PATH: RAW photo for UUID {self._uuid} should be at {photopath} but does not appear to exist"
                 )
                 photopath = None
+        else:
+            filestem = pathlib.Path(self._info["filename"]).stem
+            raw_ext = get_preferred_uti_extension(self._info["UTI_raw"])
+
+            if self._info["directory"].startswith("/"):
+                filepath = self._info["directory"]
+            else:
+                filepath = os.path.join(self._db._masters_path, self._info["directory"])
+
+            glob_str = f"{filestem}*.{raw_ext}"
+            raw_file = findfiles(glob_str, filepath)
+            if len(raw_file) != 1:
+                logging.warning(
+                    f"Error getting path to RAW file: {filepath}/{glob_str}"
+                )
+                photopath = None
+            else:
+                photopath = os.path.join(filepath, raw_file[0])
+                if not os.path.isfile(photopath):
+                    logging.debug(
+                        f"MISSING PATH: RAW photo for UUID {self._uuid} should be at {photopath} but does not appear to exist"
+                    )
+                    photopath = None
+
         return photopath
 
     @property
@@ -588,10 +603,6 @@ class PhotoInfo:
     @property
     def has_raw(self):
         """ returns True if photo has an associated RAW image, otherwise False """
-        if self._db._db_version < _PHOTOS_5_VERSION:
-            logging.warning("RAW support not yet implemented for Photos version < 5")
-            return None
-
         return self._info["has_raw"]
 
     @property

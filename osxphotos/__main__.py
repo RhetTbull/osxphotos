@@ -855,8 +855,14 @@ def query(
 
 @cli.command(cls=ExportCommand)
 @DB_OPTION
-@query_options
+# @click.option(
+#     "--all",
+#     is_flag=True,
+#     help="Export all versions of photos including "
+#     "edited photos, live photos, burst photos, and RAW photos.",
+# )
 @click.option("--verbose", "-V", is_flag=True, help="Print verbose output.")
+@query_options
 @click.option(
     "--overwrite",
     is_flag=True,
