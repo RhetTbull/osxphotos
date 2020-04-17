@@ -254,7 +254,7 @@ class PhotoInfo:
         # data on how Photos stores and retrieves RAW images, this seems to be working
 
         if self._db._db_version < _PHOTOS_5_VERSION:
-            logging.warning("Not yet implemented for Photos version < 5")
+            logging.warning("RAW support not yet implemented for Photos version < 5")
             return None
 
         if self._info["isMissing"] == 1:
@@ -589,7 +589,7 @@ class PhotoInfo:
     def has_raw(self):
         """ returns True if photo has an associated RAW image, otherwise False """
         if self._db._db_version < _PHOTOS_5_VERSION:
-            logging.warning("Not yet implemented for Photos version < 5")
+            logging.warning("RAW support not yet implemented for Photos version < 5")
             return None
 
         return self._info["has_raw"]
@@ -607,6 +607,7 @@ class PhotoInfo:
         *filename,
         edited=False,
         live_photo=False,
+        raw_photo=False,
         overwrite=False,
         increment=True,
         sidecar_json=False,
@@ -628,6 +629,7 @@ class PhotoInfo:
             edited: (boolean, default=False); if True will export the edited version of the photo 
                     (or raise exception if no edited version) 
             live_photo: (boolean, default=False); if True, will also export the associted .mov for live photos
+            raw_photo: (boolean, default=False); if True, will also export the associted RAW photo
             overwrite: (boolean, default=False); if True will overwrite files if they alreay exist 
             increment: (boolean, default=True); if True, will increment file name until a non-existant name is found 
                        if overwrite=False and increment=False, export will fail if destination file already exists 
@@ -777,6 +779,20 @@ class PhotoInfo:
                     exported_files.append(str(live_name))
                 else:
                     logging.warning(f"Skipping missing live movie for {filename}")
+
+            # copy associated RAW image if requested
+            if raw_photo and self.has_raw:
+                raw_path = pathlib.Path(self.path_raw)
+                raw_ext = raw_path.suffix
+                raw_name = dest.parent / f"{dest.stem}{raw_ext}"
+                if raw_path is not None:
+                    logging.debug(
+                        f"Exporting RAW photo of {filename} as {raw_name.name}"
+                    )
+                    _copy_file(str(raw_path), str(raw_name), norsrc=no_xattr)
+                    exported_files.append(str(raw_name))
+                else:
+                    logging.warning(f"Skipping missing RAW photo for {filename}")
         else:
             # use_photo_export
             exported = None

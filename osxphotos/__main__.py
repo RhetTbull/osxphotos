@@ -890,6 +890,13 @@ def query(
     "  Live video will have same name as photo but with .mov extension. ",
 )
 @click.option(
+    "--export-raw",
+    is_flag=True,
+    help="If a photo was imported in RAW format with associated jpeg, also export the "
+    "RAW photo in addition to the jpeg.  (By default, Photos treats the jpeg as the "
+    "original image.)",
+)
+@click.option(
     "--original-name",
     is_flag=True,
     help="Use photo's original filename instead of current filename for export.",
@@ -976,6 +983,7 @@ def export(
     export_edited,
     export_bursts,
     export_live,
+    export_raw,
     original_name,
     sidecar,
     only_photos,
@@ -1151,6 +1159,7 @@ def export(
                         exiftool,
                         directory,
                         no_extended_attributes,
+                        export_raw,
                     )
         else:
             for p in photos:
@@ -1168,6 +1177,7 @@ def export(
                     exiftool,
                     directory,
                     no_extended_attributes,
+                    export_raw,
                 )
                 if export_paths:
                     click.echo(f"Exported {p.filename} to {export_paths}")
@@ -1553,6 +1563,7 @@ def export_photo(
     exiftool,
     directory,
     no_extended_attributes,
+    export_raw,
 ):
     """ Helper function for export that does the actual export
         photo: PhotoInfo object
@@ -1568,6 +1579,7 @@ def export_photo(
         exiftool: use exiftool to write EXIF metadata directly to exported photo
         directory: template used to determine output directory
         no_extended_attributes: boolean; if True, exports photo without preserving extended attributes
+        export_raw: boolean; if True exports RAW image associate with the photo
         returns list of path(s) of exported photo or None if photo was missing 
     """
 
@@ -1646,6 +1658,7 @@ def export_photo(
             sidecar_json=sidecar_json,
             sidecar_xmp=sidecar_xmp,
             live_photo=export_live,
+            raw_photo=export_raw,
             overwrite=overwrite,
             use_photos_export=use_photos_export,
             exiftool=exiftool,
