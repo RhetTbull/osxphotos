@@ -16,7 +16,7 @@ KEYWORDS = [
     "United Kingdom",
 ]
 PERSONS = ["Katie", "Suzy", "Maria"]
-ALBUMS = ["Pumpkin Farm", "Last Import"]
+ALBUMS = ["Pumpkin Farm", "Last Import", "AlbumInFolder"]
 KEYWORDS_DICT = {
     "Kids": 4,
     "wedding": 2,
@@ -29,7 +29,7 @@ KEYWORDS_DICT = {
     "United Kingdom": 1,
 }
 PERSONS_DICT = {"Katie": 3, "Suzy": 2, "Maria": 1}
-ALBUM_DICT = {"Pumpkin Farm": 3, "Last Import": 1}
+ALBUM_DICT = {"Pumpkin Farm": 3, "Last Import": 1, "AlbumInFolder": 1}
 
 
 def test_init():
@@ -124,7 +124,7 @@ def test_attributes():
     )
     assert p.description == "Girl holding pumpkin"
     assert p.title == "I found one!"
-    assert p.albums == ["Pumpkin Farm"]
+    assert p.albums == ["Pumpkin Farm", "AlbumInFolder"]
     assert p.persons == ["Katie"]
     assert p.path.endswith(
         "/tests/Test-10.12.6.photoslibrary/Masters/2019/08/24/20190824-030824/Pumkins2.jpg"
@@ -148,7 +148,7 @@ def test_count():
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos()
-    assert len(photos) == 7
+    assert len(photos) == 9
 
 
 def test_keyword_2():
