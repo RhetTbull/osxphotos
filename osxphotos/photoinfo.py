@@ -717,8 +717,11 @@ class PhotoInfo:
         # warn if suffixes don't match but ignore .JPG / .jpeg as
         # Photo's often converts .JPG to .jpeg
         suffixes = sorted([x.lower() for x in [dest.suffix, actual_suffix]])
-        if dest.suffix != actual_suffix and suffixes != [".jpeg", ".jpg"]:
-            logging.debug(
+        if dest.suffix.lower() != actual_suffix.lower() and suffixes != [
+            ".jpeg",
+            ".jpg",
+        ]:
+            logging.warning(
                 f"Invalid destination suffix: {dest.suffix}, should be {actual_suffix}"
             )
 
