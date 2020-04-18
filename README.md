@@ -363,13 +363,13 @@ Substitution    Description
 {person}        Person(s) / face(s) in a photo
 ```
 
-Example: export all photos to ~/Desktop/export, including edited versions and live photo movies, group in folders by date created
+Example: export all photos to ~/Desktop/export group in folders by date created
 
-`osxphotos export --export-edited --export-live --export-by-date ~/Pictures/Photos\ Library.photoslibrary ~/Desktop/export`
+`osxphotos export --export-by-date ~/Pictures/Photos\ Library.photoslibrary ~/Desktop/export`
 
 **Note**: Photos library/database path can also be specified using --db option:
 
-`osxphotos export --export-edited --export-live --export-by-date --db ~/Pictures/Photos\ Library.photoslibrary ~/Desktop/export`
+`osxphotos export --export-by-date --db ~/Pictures/Photos\ Library.photoslibrary ~/Desktop/export`
 
 Example: find all photos with keyword "Kids" and output results to json file named results.json:
 
