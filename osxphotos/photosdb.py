@@ -903,17 +903,17 @@ class PhotosDB:
         # get additional details from RKMaster, needed for RAW processing
         c.execute(
             """ SELECT 
-	            RKMaster.uuid,
+                RKMaster.uuid,
                 RKMaster.volumeId, 
                 RKMaster.imagePath, 
-	            RKMaster.isMissing, 
+                RKMaster.isMissing, 
                 RKMaster.originalFileName, 
                 RKMaster.UTI,
-	            RKMaster.modelID, 
+                RKMaster.modelID, 
                 RKMaster.fileSize, 
                 RKMaster.isTrulyRaw,
-	            RKMaster.alternateMasterUuid
-	            FROM RKMaster
+                RKMaster.alternateMasterUuid
+                FROM RKMaster
             """
         )
 
