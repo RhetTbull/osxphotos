@@ -780,7 +780,7 @@ def test_no_folder_2_15():
             assert item["albums"] == ["AlbumInFolder"]
 
 
-def test_no_folder_1_14(caplog):
+def test_no_folder_1_14():
     # test --folder on 10.14
     import json
     import os
@@ -797,6 +797,5 @@ def test_no_folder_1_14(caplog):
         )
         assert result.exit_code == 0
         json_got = json.loads(result.output)
-
-        assert len(json_got) == 0  # single element
-        assert "not yet implemented" in caplog.text
+        assert len(json_got) == 1  # single element
+        assert json_got[0]["uuid"] == "15uNd7%8RguTEgNPKHfTWw"

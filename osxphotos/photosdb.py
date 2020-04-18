@@ -24,6 +24,8 @@ from ._constants import (
     _TESTED_DB_VERSIONS,
     _TESTED_OS_VERSIONS,
     _UNKNOWN_PERSON,
+    _PHOTOS_4_ALBUM_KIND,
+    _PHOTOS_4_TOP_LEVEL_ALBUM,
     _PHOTOS_5_ROOT_FOLDER_KIND,
     _PHOTOS_5_FOLDER_KIND,
     _PHOTOS_5_ALBUM_KIND,
@@ -173,6 +175,9 @@ class PhotosDB:
         # e.g. {'AA4145F5-098C-496E-9197-B7584958FF9B': {'99D24D3E-59E7-465F-B386-A48A94B00BC1': {'F2246D82-1A12-4994-9654-3DC6FE38A7A8': None}}, }
         self._dbalbum_folders = {}
 
+        # Dict with information about folders
+        self._dbfolder_details = {}
+
         # Will hold the primary key of root folder
         self._folder_root_pk = None
 
@@ -312,7 +317,7 @@ class PhotosDB:
             valid only on Photos 5; on Photos <= 4, prints warning and returns empty dict """
 
         # if _dbalbum_details[key]["cloudownerhashedpersonid"] is not None, then it's a shared album
-        if self._db_version < _PHOTOS_5_VERSION:
+        if self._db_version <= _PHOTOS_4_VERSION:
             logging.warning(
                 f"albums_shared not implemented for Photos versions < {_PHOTOS_5_VERSION}"
             )
@@ -348,33 +353,43 @@ class PhotosDB:
     @property
     def folder_info(self):
         """ return list FolderInfo objects representing top-level folders in the photos database """
-        if self._db_version < _PHOTOS_5_VERSION:
-            logging.warning("Folders not yet implemented for this DB version")
-            return []
-
-        folders = [
-            FolderInfo(db=self, uuid=album)
-            for album, detail in self._dbalbum_details.items()
-            if not detail["intrash"]
-            and detail["kind"] == _PHOTOS_5_FOLDER_KIND
-            and detail["parentfolder"] == self._folder_root_pk
-        ]
+        if self._db_version <= _PHOTOS_4_VERSION:
+            folders = [
+                FolderInfo(db=self, uuid=folder)
+                for folder, detail in self._dbfolder_details.items()
+                if not detail["intrash"]
+                and not detail["isMagic"]
+                and detail["parentFolderUuid"] == _PHOTOS_4_TOP_LEVEL_ALBUM
+            ]
+        else:
+            folders = [
+                FolderInfo(db=self, uuid=album)
+                for album, detail in self._dbalbum_details.items()
+                if not detail["intrash"]
+                and detail["kind"] == _PHOTOS_5_FOLDER_KIND
+                and detail["parentfolder"] == self._folder_root_pk
+            ]
         return folders
 
     @property
     def folders(self):
         """ return list of top-level folder names in the photos database """
-        if self._db_version < _PHOTOS_5_VERSION:
-            logging.warning("Folders not yet implemented for this DB version")
-            return []
-
-        folder_names = [
-            detail["title"]
-            for detail in self._dbalbum_details.values()
-            if not detail["intrash"]
-            and detail["kind"] == _PHOTOS_5_FOLDER_KIND
-            and detail["parentfolder"] == self._folder_root_pk
-        ]
+        if self._db_version <= _PHOTOS_4_VERSION:
+            folder_names = [
+                folder["name"]
+                for folder in self._dbfolder_details.values()
+                if not folder["intrash"]
+                and not folder["isMagic"]
+                and folder["parentFolderUuid"] == _PHOTOS_4_TOP_LEVEL_ALBUM
+            ]
+        else:
+            folder_names = [
+                detail["title"]
+                for detail in self._dbalbum_details.values()
+                if not detail["intrash"]
+                and detail["kind"] == _PHOTOS_5_FOLDER_KIND
+                and detail["parentfolder"] == self._folder_root_pk
+            ]
         return folder_names
 
     @property
@@ -395,7 +410,7 @@ class PhotosDB:
             only valid for Photos 5; on Photos <= 4, prints warning and returns empty list """
         # if _dbalbum_details[key]["cloudownerhashedpersonid"] is not None, then it's a shared album
 
-        if self._db_version < _PHOTOS_5_VERSION:
+        if self._db_version <= _PHOTOS_4_VERSION:
             logging.warning(
                 f"albums_shared not implemented for Photos versions < {_PHOTOS_5_VERSION}"
             )
@@ -434,7 +449,7 @@ class PhotosDB:
 
         # if _dbalbum_details[key]["cloudownerhashedpersonid"] is not None, then it's a shared album
 
-        if self._db_version < _PHOTOS_5_VERSION:
+        if self._db_version <= _PHOTOS_4_VERSION:
             logging.warning(
                 f"album_names_shared not implemented for Photos versions < {_PHOTOS_5_VERSION}"
             )
@@ -538,7 +553,10 @@ class PhotosDB:
 
         # Get info on albums
         c.execute(
-            """ select RKAlbum.uuid, RKVersion.uuid from RKAlbum, RKVersion, RKAlbumVersion 
+            """ select 
+                RKAlbum.uuid, 
+                RKVersion.uuid 
+                from RKAlbum, RKVersion, RKAlbumVersion 
                 where RKAlbum.modelID = RKAlbumVersion.albumId and 
                 RKAlbumVersion.versionID = RKVersion.modelId  
                 and RKVersion.isInTrash = 0 """
@@ -554,17 +572,31 @@ class PhotosDB:
 
         # now get additional details about albums
         c.execute(
-            "SELECT "
-            "uuid, "  # 0
-            "name, "  # 1
-            "cloudLibraryState, "  # 2
-            "cloudIdentifier, "  # 3
-            "isInTrash "  # 4
-            "FROM RKAlbum "
+            """ SELECT 
+                uuid, 
+                name, 
+                cloudLibraryState, 
+                cloudIdentifier, 
+                isInTrash, 
+                folderUuid,
+                albumType, 
+                albumSubclass 
+                FROM RKAlbum """
         )
+
+        # Order of results
+        # 0:    uuid
+        # 1:    name
+        # 2:    cloudLibraryState
+        # 3:    cloudIdentifier
+        # 4:    isInTrash
+        # 5:    folderUuid
+        # 6:    albumType
+        # 7:    albumSubclass -- if 3, normal user album
 
         for album in c:
             self._dbalbum_details[album[0]] = {
+                "_uuid": album[0],
                 "title": album[1],
                 "cloudlibrarystate": album[2],
                 "cloudidentifier": album[3],
@@ -573,13 +605,71 @@ class PhotosDB:
                 "cloudownerfirstname": None,  # Photos 5
                 "cloudownderlastname": None,  # Photos 5
                 "cloudownerhashedpersonid": None,  # Photos 5
+                "folderUuid": album[5],
+                "albumType": album[6],
+                "albumSubclass": album[7],
             }
+
+        # get details about folders
+        c.execute(
+            """ SELECT 
+                uuid, 
+                modelId, 
+                name, 
+                isMagic, 
+                isInTrash, 
+                folderType, 
+                parentFolderUuid, 
+                folderPath
+                FROM RKFolder """
+        )
+
+        # Order of results
+        # 0     uuid,
+        # 1     modelId,
+        # 2     name,
+        # 3     isMagic,
+        # 4     isInTrash,
+        # 5     folderType,
+        # 6     parentFolderUuid,
+        # 7     folderPath
+
+        for row in c:
+            uuid = row[0]
+            self._dbfolder_details[uuid] = {
+                "_uuid": row[0],
+                "modelId": row[1],
+                "name": row[2],
+                "isMagic": row[3],
+                "intrash": row[4],
+                "folderType": row[5],
+                "parentFolderUuid": row[6],
+                "folderPath": row[7],
+            }
+
+        # build _dbalbum_folders in form uuid: [parent uuid] to be consistent with _process_database5
+        for album, details in self._dbalbum_details.items():
+            # album can be in a single folder
+            parent = details["folderUuid"]
+            self._dbalbum_parent_folders[album] = [parent]
+
+        # build folder hierarchy
+        for album, details in self._dbalbum_details.items():
+            parent_folder = details["folderUuid"]
+            if parent_folder != _PHOTOS_4_TOP_LEVEL_ALBUM:
+                # logging.warning(f"album = {details['title']}, parent = {parent_folder}")
+                folder_hierarchy = self._build_album_folder_hierarchy_4(parent_folder)
+                self._dbalbum_folders[album] = folder_hierarchy
+            else:
+                self._dbalbum_folders[album] = {}
 
         if _debug():
             logging.debug(f"Finished walking through albums")
             logging.debug(pformat(self._dbalbums_album))
             logging.debug(pformat(self._dbalbums_uuid))
             logging.debug(pformat(self._dbalbum_details))
+            logging.debug(pformat(self._dbalbum_folders))
+            logging.debug(pformat(self._dbfolder_details))
 
         # Get info on keywords
         c.execute(
@@ -1122,6 +1212,30 @@ class PhotosDB:
             logging.debug("Burst Photos (dbphotos_burst:")
             logging.debug(pformat(self._dbphotos_burst))
 
+    def _build_album_folder_hierarchy_4(self, uuid, folders=None):
+        """ recursively build folder/album hierarchy
+            uuid: uuid of the album/folder being processed
+            folders: dict holding the folder hierarchy """
+
+        parent_uuid = self._dbfolder_details[uuid]["parentFolderUuid"]
+
+        # logging.warning(f"uuid = {uuid}, parent = {parent_uuid}, folders = {folders}")
+
+        if parent_uuid is None:
+            return folders
+
+        if parent_uuid == _PHOTOS_4_TOP_LEVEL_ALBUM:
+            # at top of hierarchy, we're done
+            return folders
+
+        # recurse to keep building
+        if not folders:
+            # first time building
+            folders = {uuid: None}
+        folders = {parent_uuid: folders}
+        folders = self._build_album_folder_hierarchy_4(parent_uuid, folders=folders)
+        return folders
+
     def _process_database5(self):
         """ process the Photos database to extract info """
         """ works on Photos version >= 5.0 """
@@ -1228,6 +1342,8 @@ class PhotosDB:
             self._folder_root_pk = self._dbalbum_details[root_uuid[0]]["pk"]
 
         # build _dbalbum_folders which is in form uuid: [list of parent uuids]
+        # TODO: look at this code...it works but I think I album can only be in a single folder
+        # which means there's a code path that will never get executed
         for album, details in self._dbalbum_details.items():
             pk_parent = details["parentfolder"]
             if pk_parent is None:
@@ -1246,10 +1362,10 @@ class PhotosDB:
         for album, details in self._dbalbum_details.items():
             # if details["kind"] in [_PHOTOS_5_ALBUM_KIND, _PHOTOS_5_FOLDER_KIND]:
             if details["kind"] == _PHOTOS_5_ALBUM_KIND:
-                folder_hierarchy = self._build_album_folder_hierarchy(album)
+                folder_hierarchy = self._build_album_folder_hierarchy_5(album)
                 self._dbalbum_folders[album] = folder_hierarchy
             elif details["kind"] == _PHOTOS_5_SHARED_ALBUM_KIND:
-                # shared albums can be in folders
+                # shared albums can't be in folders
                 self._dbalbum_folders[album] = []
 
         if _debug():
@@ -1257,6 +1373,7 @@ class PhotosDB:
             logging.debug(pformat(self._dbalbums_album))
             logging.debug(pformat(self._dbalbums_uuid))
             logging.debug(pformat(self._dbalbum_details))
+            logging.debug(pformat(self._dbalbum_folders))
 
         # get details on keywords
         c.execute(
@@ -1747,13 +1864,10 @@ class PhotosDB:
             logging.debug("Burst Photos (dbphotos_burst:")
             logging.debug(pformat(self._dbphotos_burst))
 
-    def _build_album_folder_hierarchy(self, uuid, folders=None):
+    def _build_album_folder_hierarchy_5(self, uuid, folders=None):
         """ recursively build folder/album hierarchy
             uuid: uuid of the album/folder being processed
             folders: dict holding the folder hierarchy """
-
-        if self._db_version < _PHOTOS_5_VERSION:
-            raise AttributeError("Not yet implemented for this DB version")
 
         # get parent uuid
         parent = self._dbalbum_details[uuid]["parentfolder"]
@@ -1770,10 +1884,50 @@ class PhotosDB:
 
         # recurse to keep building
         folders = {parent_uuid: folders}
-        folders = self._build_album_folder_hierarchy(parent_uuid, folders=folders)
+        folders = self._build_album_folder_hierarchy_5(parent_uuid, folders=folders)
         return folders
 
     def _album_folder_hierarchy_list(self, album_uuid):
+        if self._db_version <= _PHOTOS_4_VERSION:
+            return self._album_folder_hierarchy_list_4(album_uuid)
+        else:
+            return self._album_folder_hierarchy_list_5(album_uuid)
+
+    def _album_folder_hierarchy_list_4(self, album_uuid):
+        """ return hierarchical list of folder names album_uuid is contained in
+            the folder list is in form:
+            ["Top level folder", "sub folder 1", "sub folder 2"]
+            returns empty list of album is not in any folders """
+        # title = photosdb._dbalbum_details[album_uuid]["title"]
+        folders = self._dbalbum_folders[album_uuid]
+
+        def _recurse_folder_hierarchy(folders, hierarchy=[]):
+            """ recursively walk the folders dict to build list of folder hierarchy """
+            if not folders:
+                # empty folder dict (album has no folder hierarchy)
+                return []
+
+            if len(folders) != 1:
+                raise ValueError("Expected only a single key in folders dict")
+
+            folder_uuid = list(folders)[0]  # first and only key of dict
+
+            parent_title = self._dbfolder_details[folder_uuid]["name"]
+            hierarchy.append(parent_title)
+
+            folders = folders[folder_uuid]
+            if folders:
+                # still have elements left to recurse
+                hierarchy = _recurse_folder_hierarchy(folders, hierarchy=hierarchy)
+                return hierarchy
+
+            # no elements left to recurse
+            return hierarchy
+
+        hierarchy = _recurse_folder_hierarchy(folders)
+        return hierarchy
+
+    def _album_folder_hierarchy_list_5(self, album_uuid):
         """ return hierarchical list of folder names album_uuid is contained in
             the folder list is in form:
             ["Top level folder", "sub folder 1", "sub folder 2"]
@@ -1808,6 +1962,46 @@ class PhotosDB:
         return hierarchy
 
     def _album_folder_hierarchy_folderinfo(self, album_uuid):
+        if self._db_version <= _PHOTOS_4_VERSION:
+            return self._album_folder_hierarchy_folderinfo_4(album_uuid)
+        else:
+            return self._album_folder_hierarchy_folderinfo_5(album_uuid)
+
+    def _album_folder_hierarchy_folderinfo_4(self, album_uuid):
+        """ return hierarchical list of FolderInfo objects album_uuid is contained in
+            ["Top level folder", "sub folder 1", "sub folder 2"]
+            returns empty list of album is not in any folders """
+        # title = photosdb._dbalbum_details[album_uuid]["title"]
+        folders = self._dbalbum_folders[album_uuid]
+        # logging.warning(f"uuid = {album_uuid}, folder = {folders}")
+
+        def _recurse_folder_hierarchy(folders, hierarchy=[]):
+            """ recursively walk the folders dict to build list of folder hierarchy """
+            # logging.warning(f"folders={folders},hierarchy = {hierarchy}")
+            if not folders:
+                # empty folder dict (album has no folder hierarchy)
+                return []
+
+            if len(folders) != 1:
+                raise ValueError("Expected only a single key in folders dict")
+
+            folder_uuid = list(folders)[0]  # first and only key of dict
+            hierarchy.append(FolderInfo(db=self, uuid=folder_uuid))
+
+            folders = folders[folder_uuid]
+            if folders:
+                # still have elements left to recurse
+                hierarchy = _recurse_folder_hierarchy(folders, hierarchy=hierarchy)
+                return hierarchy
+
+            # no elements left to recurse
+            return hierarchy
+
+        hierarchy = _recurse_folder_hierarchy(folders)
+        # logging.warning(f"hierarchy = {hierarchy}")
+        return hierarchy
+
+    def _album_folder_hierarchy_folderinfo_5(self, album_uuid):
         """ return hierarchical list of FolderInfo objects album_uuid is contained in
             ["Top level folder", "sub folder 1", "sub folder 2"]
             returns empty list of album is not in any folders """

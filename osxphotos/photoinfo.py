@@ -21,8 +21,8 @@ from mako.template import Template
 from ._constants import (
     _MOVIE_TYPE,
     _PHOTO_TYPE,
+    _PHOTOS_4_VERSION,
     _PHOTOS_5_SHARED_PHOTO_PATH,
-    _PHOTOS_5_VERSION,
     _TEMPLATE_DIR,
     _XMP_TEMPLATE_NAME,
 )
@@ -98,7 +98,7 @@ class PhotoInfo:
         if self._info["isMissing"] == 1:
             return photopath  # path would be meaningless until downloaded
 
-        if self._db._db_version < _PHOTOS_5_VERSION:
+        if self._db._db_version <= _PHOTOS_4_VERSION:
             vol = self._info["volume"]
             if vol is not None:
                 photopath = os.path.join("/Volumes", vol, self._info["imagePath"])
@@ -137,7 +137,7 @@ class PhotoInfo:
 
         photopath = None
 
-        if self._db._db_version < _PHOTOS_5_VERSION:
+        if self._db._db_version <= _PHOTOS_4_VERSION:
             if self._info["hasAdjustments"]:
                 edit_id = self._info["edit_resource_id"]
                 if edit_id is not None:
@@ -269,7 +269,7 @@ class PhotoInfo:
         #     )
         #     return photopath
 
-        if self._db._db_version < _PHOTOS_5_VERSION:
+        if self._db._db_version <= _PHOTOS_4_VERSION:
             vol = self._info["raw_info"]["volume"]
             if vol is not None:
                 photopath = os.path.join(
@@ -400,7 +400,7 @@ class PhotoInfo:
     def shared(self):
         """ returns True if photos is in a shared iCloud album otherwise false
             Only valid on Photos 5; returns None on older versions """
-        if self._db._db_version >= _PHOTOS_5_VERSION:
+        if self._db._db_version > _PHOTOS_4_VERSION:
             return self._info["shared"]
         else:
             return None
@@ -445,7 +445,7 @@ class PhotoInfo:
         """ Returns True if photo is a cloud asset (in an iCloud library),
             otherwise False 
         """
-        if self._db._db_version < _PHOTOS_5_VERSION:
+        if self._db._db_version <= _PHOTOS_4_VERSION:
             return (
                 True
                 if self._info["cloudLibraryState"] is not None
@@ -488,7 +488,7 @@ class PhotoInfo:
             If photo is missing, returns None """
 
         photopath = None
-        if self._db._db_version < _PHOTOS_5_VERSION:
+        if self._db._db_version <= _PHOTOS_4_VERSION:
             if self.live_photo and not self.ismissing:
                 live_model_id = self._info["live_model_id"]
                 if live_model_id == None:
@@ -579,7 +579,7 @@ class PhotoInfo:
         # implementation note: doesn't create the PlaceInfo object until requested
         # then memoizes the object in self._place to avoid recreating the object
 
-        if self._db._db_version < _PHOTOS_5_VERSION:
+        if self._db._db_version <= _PHOTOS_4_VERSION:
             try:
                 return self._place  # pylint: disable=access-member-before-definition
             except AttributeError:

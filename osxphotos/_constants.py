@@ -17,8 +17,8 @@ _TESTED_DB_VERSIONS = ["6000", "4025", "4016", "3301", "2622"]
 _PHOTOS_3_VERSION = "3301"
 
 # versions 5.0 and later have a different database structure
-_PHOTOS_4_VERSION = "4025" # latest Mojove version on 10.14.6
-_PHOTOS_5_VERSION = "6000" # seems to be current on 10.15.1 through 10.14.4
+_PHOTOS_4_VERSION = "4025"  # latest Mojove version on 10.14.6
+_PHOTOS_5_VERSION = "6000"  # seems to be current on 10.15.1 through 10.15.4
 
 # which major version operating systems have been tested
 _TESTED_OS_VERSIONS = ["12", "13", "14", "15"]
@@ -47,3 +47,7 @@ _PHOTOS_5_ALBUM_KIND = 2  # normal user album
 _PHOTOS_5_SHARED_ALBUM_KIND = 1505  # shared album
 _PHOTOS_5_FOLDER_KIND = 4000  # user folder
 _PHOTOS_5_ROOT_FOLDER_KIND = 3999  # root folder
+
+_PHOTOS_4_ALBUM_KIND = 3  # RKAlbum.albumSubclass
+_PHOTOS_4_TOP_LEVEL_ALBUM = "TopLevelAlbums"
+_PHOTOS_4_ROOT_FOLDER = "LibraryFolder"

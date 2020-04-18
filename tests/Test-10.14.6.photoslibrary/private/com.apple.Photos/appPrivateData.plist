@@ -9,12 +9,14 @@
 		<key>ExpandedSidebarItemIdentifiers</key>
 		<array>
 			<string>TopLevelAlbums</string>
+			<string>QtSnVvTkQ%i2z3hB834M1A</string>
 			<string>TopLevelSlideshows</string>
+			<string>N7eQ4VhfTfeHFp9PPHaJDw</string>
 		</array>
 		<key>IPXWorkspaceControllerZoomLevelsKey</key>
 		<dict>
 			<key>kZoomLevelIdentifierAlbums</key>
-			<integer>10</integer>
+			<integer>5</integer>
 			<key>kZoomLevelIdentifierVersions</key>
 			<integer>7</integer>
 		</dict>
@@ -23,11 +25,11 @@
 			<key>key</key>
 			<integer>1</integer>
 			<key>lastKnownDisplayName</key>
-			<string>Test Album (1)</string>
+			<string>Pumpkin Farm (1)</string>
 			<key>type</key>
 			<string>album</string>
 			<key>uuid</key>
-			<string>Uq6qsKihRRSjMHTiD+0Azg</string>
+			<string>xJ8ya3NBRWC24gKhcwwNeQ</string>
 		</dict>
 		<key>lastKnownItemCounts</key>
 		<dict>

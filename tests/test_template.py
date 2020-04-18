@@ -15,7 +15,7 @@ UUID_DICT = {
     "0_2_0": "6191423D-8DB8-4D4C-92BE-9BBBA308AAC4",
     "folder_album_1": "3DD2C897-F19E-4CA6-8C22-B027D5A71907",
     "folder_album_no_folder": "D79B8D77-BFFC-460B-9312-034F2877D35B",
-    "mojave_no_folder": "15uNd7%8RguTEgNPKHfTWw",
+    "mojave_album_1": "15uNd7%8RguTEgNPKHfTWw",
 }
 
 TEMPLATE_VALUES = {
@@ -341,17 +341,16 @@ def test_subst_multi_folder_albums_2():
 
 
 def test_subst_multi_folder_albums_3(caplog):
-    """ Test substitutions for folder_album on < Photos 5 (not implemented) """
+    """ Test substitutions for folder_album on < Photos 5 """
     import osxphotos
     from osxphotos.template import render_filepath_template
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_14_6)
 
     # photo in an album in a folder
-    photo = photosdb.photos(uuid=[UUID_DICT["mojave_no_folder"]])[0]
+    photo = photosdb.photos(uuid=[UUID_DICT["mojave_album_1"]])[0]
     template = "{folder_album}"
-    expected = ["Pumpkin Farm", "Test Album (1)"]
+    expected = ["Folder1/SubFolder2/AlbumInFolder", "Pumpkin Farm", "Test Album (1)"]
     rendered, unknown = render_filepath_template(template, photo)
     assert sorted(rendered) == sorted(expected)
     assert unknown == []
-    assert "not yet implemented" in caplog.text

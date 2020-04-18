@@ -7,8 +7,13 @@ PHOTOS_DB = "./tests/Test-10.14.6.photoslibrary/database/photos.db"
 PHOTOS_DB_PATH = "/Test-10.14.6.photoslibrary/database/photos.db"
 PHOTOS_LIBRARY_PATH = "/Test-10.14.6.photoslibrary"
 
-ALBUMS = ["Pumpkin Farm", "Test Album", "Test Album (1)"]
-ALBUM_DICT = {"Pumpkin Farm": 3, "Test Album": 1, "Test Album (1)": 1}
+ALBUMS = ["Pumpkin Farm", "AlbumInFolder", "Test Album", "Test Album (1)"]
+ALBUM_DICT = {
+    "Pumpkin Farm": 3,
+    "AlbumInFolder": 1,
+    "Test Album": 1,
+    "Test Album (1)": 1,
+}
 
 
 def test_album_names():

@@ -12,7 +12,13 @@ PhotosDB.folders() returns a list of FolderInfo objects
 
 import logging
 
-from ._constants import _PHOTOS_5_ALBUM_KIND, _PHOTOS_5_FOLDER_KIND, _PHOTOS_5_VERSION
+from ._constants import (
+    _PHOTOS_4_ALBUM_KIND,
+    _PHOTOS_4_TOP_LEVEL_ALBUM,
+    _PHOTOS_4_VERSION,
+    _PHOTOS_5_ALBUM_KIND,
+    _PHOTOS_5_FOLDER_KIND,
+)
 
 
 class AlbumInfo:
@@ -53,14 +59,13 @@ class AlbumInfo:
             ["Top level folder", "sub folder 1", "sub folder 2", ...]
             returns empty list if album is not in any folders """
 
-        if self._db._db_version < _PHOTOS_5_VERSION:
-            logging.warning("Folders not yet implemented for this DB version")
-            return []
-
         try:
             return self._folder_names
         except AttributeError:
-            self._folder_names = self._db._album_folder_hierarchy_list(self._uuid)
+            if self._db._db_version <= _PHOTOS_4_VERSION:
+                self._folder_names = self._db._album_folder_hierarchy_list(self._uuid)
+            else:
+                self._folder_names = self._db._album_folder_hierarchy_list(self._uuid)
             return self._folder_names
 
     @property
@@ -69,10 +74,6 @@ class AlbumInfo:
             as list of FolderInfo objects in form 
             ["Top level folder", "sub folder 1", "sub folder 2", ...]
             returns empty list if album is not in any folders """
-
-        if self._db._db_version < _PHOTOS_5_VERSION:
-            logging.warning("Folders not yet implemented for this DB version")
-            return []
 
         try:
             return self._folders
@@ -83,19 +84,23 @@ class AlbumInfo:
     @property
     def parent(self):
         """ returns FolderInfo object for parent folder or None if no parent (e.g. top-level album) """
-        if self._db._db_version < _PHOTOS_5_VERSION:
-            logging.warning("Folders not yet implemented for this DB version")
-            return None
-
         try:
             return self._parent
         except AttributeError:
-            parent_pk = self._db._dbalbum_details[self._uuid]["parentfolder"]
-            self._parent = (
-                FolderInfo(db=self._db, uuid=self._db._dbalbums_pk[parent_pk])
-                if parent_pk != self._db._folder_root_pk
-                else None
-            )
+            if self._db._db_version <= _PHOTOS_4_VERSION:
+                parent_uuid = self._db._dbalbum_details[self._uuid]["folderUuid"]
+                self._parent = (
+                    FolderInfo(db=self._db, uuid=parent_uuid)
+                    if parent_uuid != _PHOTOS_4_TOP_LEVEL_ALBUM
+                    else None
+                )
+            else:
+                parent_pk = self._db._dbalbum_details[self._uuid]["parentfolder"]
+                self._parent = (
+                    FolderInfo(db=self._db, uuid=self._db._dbalbums_pk[parent_pk])
+                    if parent_pk != self._db._folder_root_pk
+                    else None
+                )
             return self._parent
 
     def __len__(self):
@@ -112,8 +117,12 @@ class FolderInfo:
     def __init__(self, db=None, uuid=None):
         self._uuid = uuid
         self._db = db
-        self._pk = self._db._dbalbum_details[uuid]["pk"]
-        self._title = self._db._dbalbum_details[uuid]["title"]
+        if self._db._db_version <= _PHOTOS_4_VERSION:
+            self._pk = None
+            self._title = self._db._dbfolder_details[uuid]["name"]
+        else:
+            self._pk = self._db._dbalbum_details[uuid]["pk"]
+            self._title = self._db._dbalbum_details[uuid]["title"]
 
     @property
     def title(self):
@@ -131,13 +140,22 @@ class FolderInfo:
         try:
             return self._albums
         except AttributeError:
-            albums = [
-                AlbumInfo(db=self._db, uuid=album)
-                for album, detail in self._db._dbalbum_details.items()
-                if not detail["intrash"]
-                and detail["kind"] == _PHOTOS_5_ALBUM_KIND
-                and detail["parentfolder"] == self._pk
-            ]
+            if self._db._db_version <= _PHOTOS_4_VERSION:
+                albums = [
+                    AlbumInfo(db=self._db, uuid=album)
+                    for album, detail in self._db._dbalbum_details.items()
+                    if not detail["intrash"]
+                    and detail["albumSubclass"] == _PHOTOS_4_ALBUM_KIND
+                    and detail["folderUuid"] == self._uuid
+                ]
+            else:
+                albums = [
+                    AlbumInfo(db=self._db, uuid=album)
+                    for album, detail in self._db._dbalbum_details.items()
+                    if not detail["intrash"]
+                    and detail["kind"] == _PHOTOS_5_ALBUM_KIND
+                    and detail["parentfolder"] == self._pk
+                ]
             self._albums = albums
             return self._albums
 
@@ -147,12 +165,20 @@ class FolderInfo:
         try:
             return self._parent
         except AttributeError:
-            parent_pk = self._db._dbalbum_details[self._uuid]["parentfolder"]
-            self._parent = (
-                FolderInfo(db=self._db, uuid=self._db._dbalbums_pk[parent_pk])
-                if parent_pk != self._db._folder_root_pk
-                else None
-            )
+            if self._db._db_version <= _PHOTOS_4_VERSION:
+                parent_uuid = self._db._dbfolder_details[self._uuid]["parentFolderUuid"]
+                self._parent = (
+                    FolderInfo(db=self._db, uuid=parent_uuid)
+                    if parent_uuid != _PHOTOS_4_TOP_LEVEL_ALBUM
+                    else None
+                )
+            else:
+                parent_pk = self._db._dbalbum_details[self._uuid]["parentfolder"]
+                self._parent = (
+                    FolderInfo(db=self._db, uuid=self._db._dbalbums_pk[parent_pk])
+                    if parent_pk != self._db._folder_root_pk
+                    else None
+                )
             return self._parent
 
     @property
@@ -161,13 +187,22 @@ class FolderInfo:
         try:
             return self._folders
         except AttributeError:
-            folders = [
-                FolderInfo(db=self._db, uuid=album)
-                for album, detail in self._db._dbalbum_details.items()
-                if not detail["intrash"]
-                and detail["kind"] == _PHOTOS_5_FOLDER_KIND
-                and detail["parentfolder"] == self._pk
-            ]
+            if self._db._db_version <= _PHOTOS_4_VERSION:
+                folders = [
+                    FolderInfo(db=self._db, uuid=folder)
+                    for folder, detail in self._db._dbfolder_details.items()
+                    if not detail["intrash"]
+                    and not detail["isMagic"]
+                    and detail["parentFolderUuid"] == self._uuid
+                ]
+            else:
+                folders = [
+                    FolderInfo(db=self._db, uuid=album)
+                    for album, detail in self._db._dbalbum_details.items()
+                    if not detail["intrash"]
+                    and detail["kind"] == _PHOTOS_5_FOLDER_KIND
+                    and detail["parentfolder"] == self._pk
+                ]
             self._folders = folders
             return self._folders
 
