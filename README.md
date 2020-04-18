@@ -96,7 +96,10 @@ Usage: osxphotos export [OPTIONS] [PHOTOS_LIBRARY]... DEST
   Optionally, query the Photos database using 1 or more search options;  if
   more than one option is provided, they are treated as "AND"  (e.g. search
   for photos matching all options). If no query options are provided, all
-  photos will be exported.
+  photos will be exported. By default, all versions of all photos will be
+  exported including edited versions, live photo movies, burst photos, and
+  associated RAW images.  See --skip-edited, --skip-live, --skip-bursts, and
+  --skip-raw options to modify this behavior.
 
 Options:
   --db <Photos database path>     Specify Photos database path. Path to Photos
@@ -108,6 +111,7 @@ Options:
                                   order: 1. last opened library, 2. system
                                   library, 3. ~/Pictures/Photos
                                   Library.photoslibrary
+  -V, --verbose                   Print verbose output.
   --keyword KEYWORD               Search for photos with keyword KEYWORD. If
                                   more than one keyword, treated as "OR", e.g.
                                   find photos match any keyword
@@ -172,6 +176,8 @@ Options:
   --not-selfie                    Search for photos that are not selfies.
   --panorama                      Search for panorama photos.
   --not-panorama                  Search for photos that are not panoramas.
+  --has-raw                       Search for photos with both a jpeg and RAW
+                                  version
   --only-movies                   Search only for movies (default searches
                                   both images and movies).
   --only-photos                   Search only for photos/images (default
@@ -184,7 +190,6 @@ Options:
                                   Search by end item date, e.g.
                                   2000-01-12T12:00:00 or 2000-12-31 (ISO 8601
                                   w/o TZ).
-  -V, --verbose                   Print verbose output.
   --overwrite                     Overwrite existing files. Default behavior
                                   is to add (1), (2), etc to filename if file
                                   already exists. Use this with caution as it
@@ -193,19 +198,23 @@ Options:
   --export-by-date                Automatically create output folders to
                                   organize photos by date created (e.g.
                                   DEST/2019/12/20/photoname.jpg).
-  --export-edited                 Also export edited version of photo if an
-                                  edited version exists.  Edited photo will be
-                                  named in form of "photoname_edited.ext"
-  --export-bursts                 If a photo is a burst photo export all
-                                  associated burst images in the library.  Not
-                                  currently compatible with --download-
-                                  misssing; see note on --download-missing.
-  --export-live                   If a photo is a live photo export the
-                                  associated live video component.  Live video
-                                  will have same name as photo but with .mov
-                                  extension.
-  --original-name                 Use photo's original filename instead of
-                                  current filename for export.
+  --skip-edited                   Do not export edited version of photo if an
+                                  edited version exists.
+  --skip-bursts                   Do not export all associated burst images in
+                                  the library if a photo is a burst photo.
+  --skip-live                     Do not export the associated live video
+                                  component of a live photo.
+  --skip-raw                      Do not export associated RAW images of a
+                                  RAW/jpeg pair.  Note: this does not skip RAW
+                                  photos if the RAW photo does not have an
+                                  associated jpeg image (e.g. the RAW file was
+                                  imported to Photos without a jpeg preview).
+  --current-name                  Use photo's current filename instead of
+                                  original filename for export.  Note:
+                                  Starting with Photos 5, all photos are
+                                  renamed upon import.  By default, photos are
+                                  exported with the the original name they had
+                                  before import.
   --sidecar FORMAT                Create sidecar for each photo exported;
                                   valid FORMAT values: xmp, json; --sidecar
                                   json: create JSON sidecar useable by
@@ -225,9 +234,9 @@ Options:
                                   exist on disk.  This will be slow and will
                                   require internet connection. This obviously
                                   only works if the Photos library is synched
-                                  to iCloud.  Note: --download-missing is not
-                                  currently compatabile with --export-bursts;
-                                  only the primary photo will be exported--
+                                  to iCloud.  Note: --download-missing does
+                                  not currently export all burst images; only
+                                  the primary photo will be exported--
                                   associated burst images will be skipped.
   --exiftool                      Use exiftool to write metadata directly to
                                   exported photos. To use this option,
@@ -1301,8 +1310,8 @@ Testing against "real world" Photos libraries would be especially helpful.  If y
 
 My goal is make osxphotos as reliable and comprehensive as possible.  The test suite currently has over 400 tests--but there are still some [bugs](https://github.com/RhetTbull/osxphotos/issues?q=is%3Aissue+is%3Aopen+label%3Abug) or incomplete features lurking.  If you find bugs please open an [issue](https://github.com/RhetTbull/osxphotos/issues).  Notable issues include:
 
-- RAW images imported to Photos with an associated jpeg preview are not handled correctly by osxphotos.  osxphotos query and export will operate on the jpeg preview instead of the RAW image as will `PhotoInfo.path`.  If the user selects "Use RAW as original" in Photos, the RAW image will be exported or operated on but the jpeg will be ignored.  See [Issue #101](https://github.com/RhetTbull/osxphotos/issues/101) 
-- The `--download-missing` option for `osxphotos export` does not work correctly with burst images.  It will download the primary image but not the other burst images if `--export-bursts` option is used.  See [Issue #75](https://github.com/RhetTbull/osxphotos/issues/75)
+- RAW images imported to Photos with an associated jpeg preview are not handled correctly by osxphotos.  osxphotos query and export will operate on the jpeg preview instead of the RAW image as will `PhotoInfo.path`.  If the user selects "Use RAW as original" in Photos, the RAW image will be exported or operated on but the jpeg will be ignored.  See [Issue #101](https://github.com/RhetTbull/osxphotos/issues/101) Note: Alpha version of fix for this bug is implemented in the current version of osxphotos.
+- The `--download-missing` option for `osxphotos export` does not work correctly with burst images.  It will download the primary image but not the other burst images.  See [Issue #75](https://github.com/RhetTbull/osxphotos/issues/75)
 
 ## Implementation Notes
 

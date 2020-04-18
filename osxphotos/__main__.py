@@ -891,12 +891,14 @@ def query(
     is_flag=True,
     help="Do not export associated RAW images of a RAW/jpeg pair.  "
     "Note: this does not skip RAW photos if the RAW photo does not have an associated jpeg image "
-    "(e.g. the RAW file was imported to Photos without a jpeg preview.",
+    "(e.g. the RAW file was imported to Photos without a jpeg preview).",
 )
 @click.option(
-    "--original-name",
+    "--current-name",
     is_flag=True,
-    help="Use photo's original filename instead of current filename for export.",
+    help="Use photo's current filename instead of original filename for export.  "
+    "Note: Starting with Photos 5, all photos are renamed upon import.  By default, "
+    "photos are exported with the the original name they had before import.",
 )
 @click.option(
     "--sidecar",
@@ -919,7 +921,7 @@ def query(
     "to interact with Photos to export the photo which will force Photos to download from iCloud if "
     "the photo does not exist on disk.  This will be slow and will require internet connection. "
     "This obviously only works if the Photos library is synched to iCloud.  "
-    "Note: --download-missing is not currently compatabile with --export-bursts; "
+    "Note: --download-missing does not currently export all burst images; "
     "only the primary photo will be exported--associated burst images will be skipped.",
 )
 @click.option(
@@ -981,7 +983,7 @@ def export(
     skip_bursts,
     skip_live,
     skip_raw,
-    original_name,
+    current_name,
     sidecar,
     only_photos,
     only_movies,
@@ -1055,6 +1057,11 @@ def export(
     (export_edited, export_bursts, export_live, export_raw) = [
         not x for x in [skip_edited, skip_bursts, skip_live, skip_raw]
     ]
+
+    # though the command line option is current_name, internally all processing
+    # logic uses original_name which is the boolean inverse of current_name
+    # because the original code used --original-name as an option
+    original_name = not current_name
 
     # verify exiftool installed an in path
     if exiftool:

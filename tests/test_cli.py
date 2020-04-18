@@ -44,6 +44,18 @@ CLI_EXPORT_FILENAMES = [
     "wedding_edited.jpeg",
 ]
 
+CLI_EXPORT_FILENAMES_CURRENT = [
+    "1EB2B765-0765-43BA-A90C-0D0580E6172C.jpeg",
+    "DC99FBDD-7A52-4100-A5BB-344131646C30.jpeg",
+    "DC99FBDD-7A52-4100-A5BB-344131646C30_edited.jpeg",
+    "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51.jpeg",
+    "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51_edited.jpeg",
+    "D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg",
+    "F12384F6-CD17-4151-ACBA-AE0E3688539E.jpeg",
+    "6191423D-8DB8-4D4C-92BE-9BBBA308AAC4.jpeg",
+    "3DD2C897-F19E-4CA6-8C22-B027D5A71907.jpeg",
+]
+
 CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES1 = [
     "2019/April/wedding.jpg",
     "2019/July/Tulips.jpg",
@@ -210,12 +222,29 @@ def test_export():
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
-        result = runner.invoke(
-            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--original-name", "-V"]
-        )
+        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
         assert result.exit_code == 0
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
+
+
+def test_export_current_name():
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export, [os.path.join(cwd, PHOTOS_DB_15_4), ".", "--current-name", "-V"]
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_CURRENT)
 
 
 def test_export_skip_edited():
@@ -230,14 +259,7 @@ def test_export_skip_edited():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export,
-            [
-                os.path.join(cwd, CLI_PHOTOS_DB),
-                ".",
-                "--skip-edited",
-                "--original-name",
-                "-V",
-            ],
+            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--skip-edited", "-V"]
         )
         assert result.exit_code == 0
         files = glob.glob("*")
@@ -291,7 +313,6 @@ def test_export_sidecar():
                 "--db",
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
-                "--original-name",
                 "--sidecar=json",
                 "--sidecar=xmp",
                 f"--uuid={CLI_EXPORT_UUID}",
@@ -314,8 +335,7 @@ def test_export_live():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export,
-            [os.path.join(cwd, LIVE_PHOTOS_DB), ".", "--live", "--original-name", "-V"],
+            export, [os.path.join(cwd, LIVE_PHOTOS_DB), ".", "--live", "-V"]
         )
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_LIVE_ORIGINAL)
@@ -333,14 +353,7 @@ def test_export_skip_live():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export,
-            [
-                os.path.join(cwd, LIVE_PHOTOS_DB),
-                ".",
-                "--skip-live",
-                "--original-name",
-                "-V",
-            ],
+            export, [os.path.join(cwd, LIVE_PHOTOS_DB), ".", "--skip-live", "-V"]
         )
         files = glob.glob("*")
         assert "img_0728.mov" not in [f.lower() for f in files]
@@ -358,7 +371,14 @@ def test_export_raw():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export, [os.path.join(cwd, RAW_PHOTOS_DB), ".", "--skip-edited", "-V"]
+            export,
+            [
+                os.path.join(cwd, RAW_PHOTOS_DB),
+                ".",
+                "--current-name",
+                "--skip-edited",
+                "-V",
+            ],
         )
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_RAW)
@@ -396,14 +416,7 @@ def test_export_raw_original():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export,
-            [
-                os.path.join(cwd, RAW_PHOTOS_DB),
-                ".",
-                "--skip-edited",
-                "--original-name",
-                "-V",
-            ],
+            export, [os.path.join(cwd, RAW_PHOTOS_DB), ".", "--skip-edited", "-V"]
         )
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_RAW_ORIGINAL)
@@ -420,7 +433,9 @@ def test_export_raw_edited():
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
-        result = runner.invoke(export, [os.path.join(cwd, RAW_PHOTOS_DB), ".", "-V"])
+        result = runner.invoke(
+            export, [os.path.join(cwd, RAW_PHOTOS_DB), ".", "--current-name", "-V"]
+        )
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_RAW_EDITED)
 
@@ -436,9 +451,7 @@ def test_export_raw_edited_original():
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
-        result = runner.invoke(
-            export, [os.path.join(cwd, RAW_PHOTOS_DB), ".", "--original-name", "-V"]
-        )
+        result = runner.invoke(export, [os.path.join(cwd, RAW_PHOTOS_DB), ".", "-V"])
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_RAW_EDITED_ORIGINAL)
 
@@ -460,7 +473,6 @@ def test_export_directory_template_1():
             [
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
-                "--original-name",
                 "-V",
                 "--directory",
                 "{created.year}/{created.month}",
@@ -489,7 +501,6 @@ def test_export_directory_template_2():
             [
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
-                "--original-name",
                 "-V",
                 "--directory",
                 "{place.name}",
@@ -518,7 +529,6 @@ def test_export_directory_template_3():
             [
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
-                "--original-name",
                 "-V",
                 "--directory",
                 "{created.year}/{foo}",
@@ -542,14 +552,7 @@ def test_export_directory_template_album_1():
     with runner.isolated_filesystem():
         result = runner.invoke(
             export,
-            [
-                os.path.join(cwd, CLI_PHOTOS_DB),
-                ".",
-                "--original-name",
-                "-V",
-                "--directory",
-                "{album}",
-            ],
+            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--directory", "{album}"],
         )
         assert result.exit_code == 0
         workdir = os.getcwd()
@@ -575,7 +578,6 @@ def test_export_directory_template_album_2():
             [
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
-                "--original-name",
                 "-V",
                 "--directory",
                 "{album,NOALBUM}",
