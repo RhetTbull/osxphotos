@@ -521,10 +521,10 @@ class PhotosDB:
 
         # Look for all combinations of persons and pictures
         c.execute(
-            "select RKPerson.name, RKVersion.uuid from RKFace, RKPerson, RKVersion, RKMaster "
-            + "where RKFace.personID = RKperson.modelID and RKVersion.modelId = RKFace.ImageModelId "
-            + "and RKVersion.masterUuid = RKMaster.uuid and "
-            + "RKVersion.filename not like '%.pdf' and RKVersion.isInTrash = 0"
+            """ select RKPerson.name, RKVersion.uuid from RKFace, RKPerson, RKVersion, RKMaster 
+                where RKFace.personID = RKperson.modelID and RKVersion.modelId = RKFace.ImageModelId 
+                and RKVersion.masterUuid = RKMaster.uuid  
+                and RKVersion.isInTrash = 0 """
         )
         for person in c:
             if person[0] is None:
@@ -538,10 +538,10 @@ class PhotosDB:
 
         # Get info on albums
         c.execute(
-            "select RKAlbum.uuid, RKVersion.uuid from RKAlbum, RKVersion, RKAlbumVersion "
-            + "where RKAlbum.modelID = RKAlbumVersion.albumId and "
-            + "RKAlbumVersion.versionID = RKVersion.modelId and "
-            + "RKVersion.filename not like '%.pdf' and RKVersion.isInTrash = 0"
+            """ select RKAlbum.uuid, RKVersion.uuid from RKAlbum, RKVersion, RKAlbumVersion 
+                where RKAlbum.modelID = RKAlbumVersion.albumId and 
+                RKAlbumVersion.versionID = RKVersion.modelId  
+                and RKVersion.isInTrash = 0 """
         )
         for album in c:
             # store by uuid in _dbalbums_uuid and by album in _dbalbums_album
@@ -583,12 +583,12 @@ class PhotosDB:
 
         # Get info on keywords
         c.execute(
-            "select RKKeyword.name, RKVersion.uuid, RKMaster.uuid from "
-            + "RKKeyword, RKKeywordForVersion, RKVersion, RKMaster "
-            + "where RKKeyword.modelId = RKKeyWordForVersion.keywordID and "
-            + "RKVersion.modelID = RKKeywordForVersion.versionID "
-            + "and RKMaster.uuid = RKVersion.masterUuid "
-            + "and RKVersion.filename not like '%.pdf' and RKVersion.isInTrash = 0"
+            """ select RKKeyword.name, RKVersion.uuid, RKMaster.uuid from 
+                RKKeyword, RKKeywordForVersion, RKVersion, RKMaster 
+                where RKKeyword.modelId = RKKeyWordForVersion.keywordID and 
+                RKVersion.modelID = RKKeywordForVersion.versionID and 
+                RKMaster.uuid = RKVersion.masterUuid and 
+                RKVersion.isInTrash = 0 """
         )
         for keyword in c:
             if not keyword[1] in self._dbkeywords_uuid:
@@ -899,13 +899,13 @@ class PhotosDB:
 
         # get details on external edits
         c.execute(
-            "SELECT RKVersion.uuid, "
-            "RKVersion.adjustmentUuid, "
-            "RKAdjustmentData.originator, "
-            "RKAdjustmentData.format "
-            "FROM RKVersion, RKAdjustmentData "
-            "WHERE RKVersion.adjustmentUuid = RKAdjustmentData.uuid "
-            "AND RKVersion.isInTrash = 0"
+            """ SELECT RKVersion.uuid, 
+                RKVersion.adjustmentUuid, 
+                RKAdjustmentData.originator, 
+                RKAdjustmentData.format 
+                FROM RKVersion, RKAdjustmentData 
+                WHERE RKVersion.adjustmentUuid = RKAdjustmentData.uuid 
+                AND RKVersion.isInTrash = 0 """
         )
 
         for row in c:
