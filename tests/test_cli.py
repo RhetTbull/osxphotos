@@ -211,18 +211,37 @@ def test_export():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
+            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--original-name", "-V"]
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
+
+
+def test_export_skip_edited():
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
             export,
             [
                 os.path.join(cwd, CLI_PHOTOS_DB),
                 ".",
+                "--skip-edited",
                 "--original-name",
-                "--export-edited",
                 "-V",
             ],
         )
         assert result.exit_code == 0
         files = glob.glob("*")
-        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
+        assert "St James Park_edited.jpeg" not in files
 
 
 def test_query_date():
@@ -296,17 +315,35 @@ def test_export_live():
     with runner.isolated_filesystem():
         result = runner.invoke(
             export,
+            [os.path.join(cwd, LIVE_PHOTOS_DB), ".", "--live", "--original-name", "-V"],
+        )
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_LIVE_ORIGINAL)
+
+
+def test_export_skip_live():
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
             [
                 os.path.join(cwd, LIVE_PHOTOS_DB),
                 ".",
-                "--live",
+                "--skip-live",
                 "--original-name",
-                "--export-live",
                 "-V",
             ],
         )
         files = glob.glob("*")
-        assert sorted(files) == sorted(CLI_EXPORT_LIVE_ORIGINAL)
+        assert "img_0728.mov" not in [f.lower() for f in files]
 
 
 def test_export_raw():
@@ -320,9 +357,31 @@ def test_export_raw():
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
-        result = runner.invoke(export, [os.path.join(cwd, RAW_PHOTOS_DB), ".", "-V"])
+        result = runner.invoke(
+            export, [os.path.join(cwd, RAW_PHOTOS_DB), ".", "--skip-edited", "-V"]
+        )
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_RAW)
+
+
+# TODO: Update this once RAW db is added
+# def test_skip_raw():
+#     import glob
+#     import os
+#     import os.path
+#     import osxphotos
+#     from osxphotos.__main__ import export
+
+#     runner = CliRunner()
+#     cwd = os.getcwd()
+#     # pylint: disable=not-context-manager
+#     with runner.isolated_filesystem():
+#         result = runner.invoke(
+#             export, [os.path.join(cwd, RAW_PHOTOS_DB), ".", "--skip-raw", "-V"]
+#         )
+#         files = glob.glob("*")
+#         for rawname in CLI_EXPORT_RAW:
+#             assert rawname.lower() not in [f.lower() for f in files]
 
 
 def test_export_raw_original():
@@ -337,7 +396,14 @@ def test_export_raw_original():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export, [os.path.join(cwd, RAW_PHOTOS_DB), ".", "--original-name", "-V"]
+            export,
+            [
+                os.path.join(cwd, RAW_PHOTOS_DB),
+                ".",
+                "--skip-edited",
+                "--original-name",
+                "-V",
+            ],
         )
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_RAW_ORIGINAL)
@@ -354,9 +420,7 @@ def test_export_raw_edited():
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
-        result = runner.invoke(
-            export, [os.path.join(cwd, RAW_PHOTOS_DB), ".", "--export-edited", "-V"]
-        )
+        result = runner.invoke(export, [os.path.join(cwd, RAW_PHOTOS_DB), ".", "-V"])
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_RAW_EDITED)
 
@@ -373,14 +437,7 @@ def test_export_raw_edited_original():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export,
-            [
-                os.path.join(cwd, RAW_PHOTOS_DB),
-                ".",
-                "--export-edited",
-                "--original-name",
-                "-V",
-            ],
+            export, [os.path.join(cwd, RAW_PHOTOS_DB), ".", "--original-name", "-V"]
         )
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_RAW_EDITED_ORIGINAL)

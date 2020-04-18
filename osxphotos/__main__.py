@@ -855,12 +855,6 @@ def query(
 
 @cli.command(cls=ExportCommand)
 @DB_OPTION
-# @click.option(
-#     "--all",
-#     is_flag=True,
-#     help="Export all versions of photos including "
-#     "edited photos, live photos, burst photos, and RAW photos.",
-# )
 @click.option("--verbose", "-V", is_flag=True, help="Print verbose output.")
 @query_options
 @click.option(
@@ -878,29 +872,26 @@ def query(
     "(e.g. DEST/2019/12/20/photoname.jpg).",
 )
 @click.option(
-    "--export-edited",
+    "--skip-edited",
     is_flag=True,
-    help="Also export edited version of photo if an edited version exists.  "
-    'Edited photo will be named in form of "photoname_edited.ext"',
+    help="Do not export edited version of photo if an edited version exists.",
 )
 @click.option(
-    "--export-bursts",
+    "--skip-bursts",
     is_flag=True,
-    help="If a photo is a burst photo export all associated burst images in the library.  "
-    "Not currently compatible with --download-misssing; see note on --download-missing.",
+    help="Do not export all associated burst images in the library if a photo is a burst photo.  ",
 )
 @click.option(
-    "--export-live",
+    "--skip-live",
     is_flag=True,
-    help="If a photo is a live photo export the associated live video component."
-    "  Live video will have same name as photo but with .mov extension. ",
+    help="Do not export the associated live video component of a live photo.",
 )
 @click.option(
-    "--export-raw",
+    "--skip-raw",
     is_flag=True,
-    help="If a photo was imported in RAW format with associated jpeg, also export the "
-    "RAW photo in addition to the jpeg.  (By default, Photos treats the jpeg as the "
-    "original image.)",
+    help="Do not export associated RAW images of a RAW/jpeg pair.  "
+    "Note: this does not skip RAW photos if the RAW photo does not have an associated jpeg image "
+    "(e.g. the RAW file was imported to Photos without a jpeg preview.",
 )
 @click.option(
     "--original-name",
@@ -986,10 +977,10 @@ def export(
     verbose,
     overwrite,
     export_by_date,
-    export_edited,
-    export_bursts,
-    export_live,
-    export_raw,
+    skip_edited,
+    skip_bursts,
+    skip_live,
+    skip_raw,
     original_name,
     sidecar,
     only_photos,
@@ -1027,6 +1018,10 @@ def export(
         if more than one option is provided, they are treated as "AND" 
         (e.g. search for photos matching all options).
         If no query options are provided, all photos will be exported.
+        By default, all versions of all photos will be exported including edited
+        versions, live photo movies, burst photos, and associated RAW images. 
+        See --skip-edited, --skip-live, --skip-bursts, and --skip-raw options
+        to modify this behavior. 
     """
 
     if not os.path.isdir(dest):
@@ -1054,6 +1049,12 @@ def export(
     if any([all(bb) for bb in exclusive]):
         click.echo(cli.commands["export"].get_help(ctx), err=True)
         return
+
+    # initialize export flags
+    # by default, will export all versions of photos unless skip flag is set
+    (export_edited, export_bursts, export_live, export_raw) = [
+        not x for x in [skip_edited, skip_bursts, skip_live, skip_raw]
+    ]
 
     # verify exiftool installed an in path
     if exiftool:
