@@ -276,7 +276,7 @@ rendered name, use double braces, e.g. '{{' or '}}', thus using
 You may specify an optional default value to use if the substitution does not
 contain a value (e.g. the value is null) by specifying the default value after
 a ',' in the template string: for example, if template is
-'{created.year}/{place.address,'NO_ADDRESS'}' but there was no address
+'{created.year}/{place.address,NO_ADDRESS}' but there was no address
 associated with the photo, the resulting output would be:
 '2020/NO_ADDRESS/photoname.jpg'. If specified, the default value may not
 contain a brace symbol ('{' or '}').
