@@ -240,7 +240,7 @@ class PhotosDB:
         self._db_version = self._get_db_version()
 
         # If Photos >= 5, actual data isn't in photos.db but in Photos.sqlite
-        if int(self._db_version) >= int(_PHOTOS_5_VERSION):
+        if int(self._db_version) > int(_PHOTOS_4_VERSION):
             dbpath = pathlib.Path(self._dbfile).parent
             dbfile = dbpath / "Photos.sqlite"
             if not _check_file_exists(dbfile):
@@ -259,7 +259,7 @@ class PhotosDB:
         library_path = os.path.dirname(os.path.abspath(dbfile))
         (library_path, _) = os.path.split(library_path)  # drop /database from path
         self._library_path = library_path
-        if int(self._db_version) < int(_PHOTOS_5_VERSION):
+        if int(self._db_version) <= int(_PHOTOS_4_VERSION):
             masters_path = os.path.join(library_path, "Masters")
             self._masters_path = masters_path
         else:
@@ -1878,7 +1878,7 @@ class PhotosDB:
             # folder with no parent (e.g. shared iCloud folders)
             return folders
 
-        if self._db_version >= _PHOTOS_5_VERSION and parent == self._folder_root_pk:
+        if self._db_version > _PHOTOS_4_VERSION and parent == self._folder_root_pk:
             # at the top of the folder hierarchy, we're done
             return folders
 

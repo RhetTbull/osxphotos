@@ -18,7 +18,7 @@ from pathvalidate import (
 
 import osxphotos
 
-from ._constants import _EXIF_TOOL_URL, _PHOTOS_5_VERSION, _UNKNOWN_PLACE
+from ._constants import _EXIF_TOOL_URL, _PHOTOS_4_VERSION, _UNKNOWN_PLACE
 from ._version import __version__
 from .exiftool import get_exiftool_path
 from .template import (
@@ -428,7 +428,7 @@ def albums(ctx, cli_obj, db, json_, photos_library):
 
     photosdb = osxphotos.PhotosDB(dbfile=db)
     albums = {"albums": photosdb.albums_as_dict}
-    if photosdb.db_version >= _PHOTOS_5_VERSION:
+    if photosdb.db_version > _PHOTOS_4_VERSION:
         albums["shared albums"] = photosdb.albums_shared_as_dict
 
     if json_ or cli_obj.json:
@@ -493,7 +493,7 @@ def info(ctx, cli_obj, db, json_, photos_library):
     not_shared_movies = [p for p in movies if not p.shared]
     info["movie_count"] = len(not_shared_movies)
 
-    if pdb.db_version >= _PHOTOS_5_VERSION:
+    if pdb.db_version > _PHOTOS_4_VERSION:
         shared_photos = [p for p in photos if p.shared]
         info["shared_photo_count"] = len(shared_photos)
 
@@ -508,7 +508,7 @@ def info(ctx, cli_obj, db, json_, photos_library):
     info["albums_count"] = len(albums)
     info["albums"] = albums
 
-    if pdb.db_version >= _PHOTOS_5_VERSION:
+    if pdb.db_version > _PHOTOS_4_VERSION:
         albums_shared = pdb.albums_shared_as_dict
         info["shared_albums_count"] = len(albums_shared)
         info["shared_albums"] = albums_shared
