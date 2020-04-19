@@ -118,6 +118,13 @@ def test_init5():
     with pytest.raises(Exception):
         assert osxphotos.PhotosDB()
 
+def test_db_len():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    # assert photosdb.db_version in osxphotos._TESTED_DB_VERSIONS
+    assert len(photosdb) == 8 
+
 
 def test_db_version():
     import osxphotos

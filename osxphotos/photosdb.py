@@ -2156,3 +2156,7 @@ class PhotosDB:
             return self.__dict__ == other.__dict__
 
         return False
+
+    def __len__(self):
+        """ returns number of photos in the database """
+        return len(self._dbphotos)

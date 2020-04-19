@@ -58,6 +58,13 @@ def test_db_version():
     assert photosdb.db_version in osxphotos._constants._TESTED_DB_VERSIONS
     assert photosdb.db_version == "4025"
 
+def test_db_len():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    # assert photosdb.db_version in osxphotos._TESTED_DB_VERSIONS
+    assert len(photosdb) == 7
+
 
 def test_os_version():
     import osxphotos
