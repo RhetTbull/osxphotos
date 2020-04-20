@@ -296,7 +296,10 @@ class PhotoInfo:
             glob_str = f"{filestem}*.{raw_ext}"
             raw_file = findfiles(glob_str, filepath)
             if len(raw_file) != 1:
-                logging.warning(
+                # Note: In Photos Version 5.0 (141.19.150), images not copied to Photos Library
+                # that are missing do not always trigger is_missing = True as happens
+                # in earlier version so it's possible for this check to fail, if so, return None
+                logging.debug(
                     f"Error getting path to RAW file: {filepath}/{glob_str}"
                 )
                 photopath = None
