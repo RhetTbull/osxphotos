@@ -53,7 +53,12 @@ class PhotoInfo:
     @property
     def filename(self):
         """ filename of the picture """
-        return self._info["filename"]
+        if self.has_raw and self.raw_original:
+            # return name of the RAW file
+            # TODO: not yet implemented
+            return self._info["filename"]
+        else:
+            return self._info["filename"]
 
     @property
     def original_filename(self):
@@ -613,7 +618,7 @@ class PhotoInfo:
         """ returns True if associated RAW image and the RAW image is selected in Photos
             via "Use RAW as Original "
             otherwise returns False """
-        return True if self._info["original_resource_choice"] == 1 else False
+        return self._info["raw_is_original"]
 
     def export(
         self,

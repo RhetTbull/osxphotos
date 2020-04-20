@@ -528,7 +528,6 @@ class PhotosDB:
         """ process the Photos database to extract info
             works on Photos version <= 4.0 """
 
-        # TODO: Update strings to remove + (not needed)
         # Epoch is Jan 1, 2001
         td = (datetime(2001, 1, 1, 0, 0) - datetime(1970, 1, 1, 0, 0)).total_seconds()
 
@@ -888,6 +887,7 @@ class PhotosDB:
             # TODO: NOT YET USED -- PLACEHOLDER for RAW processing (currently only in _process_database5)
             # original resource choice (e.g. RAW or jpeg)
             self._dbphotos[uuid]["original_resource_choice"] = None
+            self._dbphotos[uuid]["raw_is_original"] = None
 
             # associated RAW image info
             self._dbphotos[uuid]["has_raw"] = True if row[25] == 7 else False
@@ -1607,7 +1607,12 @@ class PhotosDB:
             info["momentID"] = row[26]
 
             # original resource choice (e.g. RAW or jpeg)
+            # for images part of a RAW/jpeg pair, 
+            # ZADDITIONALASSETATTRIBUTES.ZORIGINALRESOURCECHOICE 
+            # = 0 if jpeg is selected as "original" in Photos (the default)
+            # = 1 if RAW is selected as "original" in Photos
             info["original_resource_choice"] = row[27]
+            info["raw_is_original"] = True if row[27] == 1 else False
 
             # associated RAW image info
             # will be filled in later
