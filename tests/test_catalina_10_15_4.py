@@ -123,7 +123,7 @@ def test_db_len():
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     # assert photosdb.db_version in osxphotos._TESTED_DB_VERSIONS
-    assert len(photosdb) == 8 
+    assert len(photosdb) == 12 
 
 
 def test_db_version():
@@ -375,7 +375,7 @@ def test_count():
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos()
-    assert len(photos) == 8
+    assert len(photos) == 12 
 
 
 def test_keyword_2():
@@ -778,7 +778,7 @@ def test_from_to_date():
     photosdb = osxphotos.PhotosDB(PHOTOS_DB)
 
     photos = photosdb.photos(from_date=dt.datetime(2018, 10, 28))
-    assert len(photos) == 2
+    assert len(photos) ==6 
 
     photos = photosdb.photos(to_date=dt.datetime(2018, 10, 28))
     assert len(photos) == 6
