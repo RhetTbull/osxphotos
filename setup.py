@@ -86,7 +86,7 @@ setup(
         "Click>=7",
         "PyYAML>=5.1.2",
         "Mako>=1.1.1",
-        "bpylist2==2.0.3;python_version<'3.8'",
+        # "bpylist2==2.0.3;python_version<'3.8'",
         "bpylist2==3.0.0;python_version>='3.8'",
         "pathvalidate==2.2.1",
     ],
