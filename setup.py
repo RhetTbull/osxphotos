@@ -3,7 +3,7 @@
 #
 # setup.py script for osxphotos
 #
-# Copyright (c) 2019 Rhet Turnbull, rturnbull+git@gmail.com
+# Copyright (c) 2019, 2020 Rhet Turnbull, rturnbull+git@gmail.com
 # All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person
@@ -27,23 +27,43 @@
 # SOFTWARE.
 
 import os
+import platform
+
 from setuptools import find_packages, setup
 
-this_directory = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(this_directory, "README.md"), encoding="utf-8") as f:
-    long_description = f.read()
+# python version as 2-digit float (e.g. 3.6)
+py_ver = float(".".join(platform.python_version_tuple()[:2]))
 
+# holds config info read from disk
 about = {}
+this_directory = os.path.abspath(os.path.dirname(__file__))
+
+# get version info from _version
 with open(
     os.path.join(this_directory, "osxphotos", "_version.py"), mode="r", encoding="utf-8"
 ) as f:
     exec(f.read(), about)
 
+# read README.md into long_description
+with open(os.path.join(this_directory, "README.md"), encoding="utf-8") as f:
+    about["long_description"] = f.read()
+
+# ugly hack to install custom version of bpylist2 needed for Python < 3.8
+# the stock version of bylist2==2.0.3 causes an error related to
+# "pkg_resources.ContextualVersionConflict: (pycodestyle 2.3.1..."
+# PEP 508 no help here as URL-based lookups not allowed in PyPI packages
+# if you know a better way, PRs welcome!
+# once I go to 3.8+ required, this won't be necessary as bpylist2 3.0+ solves this issue
+if py_ver < 3.8:
+    os.system(
+        "python3 -m pip install git+git://github.com/RhetTbull/bpylist2.git#egg=bpylist2"
+    )
+
 setup(
     name="osxphotos",
     version=about["__version__"],
     description="Manipulate (read-only) Apple's Photos app library on Mac OS X",
-    long_description=long_description,
+    long_description=about["long_description"],
     long_description_content_type="text/markdown",
     author="Rhet Turnbull",
     author_email="rturnbull+git@gmail.com",
