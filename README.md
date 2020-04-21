@@ -44,6 +44,10 @@ osxmetadata uses setuptools, thus simply run:
 
 	python3 setup.py install
 
+If you're using python 3.6 or 3.7, you'll need to do this first to get around an issue with bpylist2:
+
+	pip install -r requirements.txt
+	
 ## Command Line Usage
 
 This package will install a command line utility called `osxphotos` that allows you to query the Photos database.  Alternatively, you can also run the command line utility like this: `python3 -m osxphotos`
