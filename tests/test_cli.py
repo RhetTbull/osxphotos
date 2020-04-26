@@ -1,3 +1,4 @@
+import os
 import pytest
 from click.testing import CliRunner
 
@@ -601,6 +602,10 @@ def test_export_directory_template_album_2():
             assert os.path.isfile(os.path.join(workdir, filepath))
 
 
+@pytest.mark.skipif(
+    "OSXPHOTOS_TEST_LOCALE" not in os.environ,
+    reason="Skip if running in Github actions",
+)
 def test_export_directory_template_locale():
     # test export using directory template in user locale non-US
     import os
