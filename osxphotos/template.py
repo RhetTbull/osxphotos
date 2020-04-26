@@ -10,6 +10,7 @@
 # This code isn't elegant but it seems to work well.  PRs gladly accepted.
 
 import datetime
+import locale
 import os
 import pathlib
 import re
@@ -17,6 +18,9 @@ from typing import Tuple, List  # pylint: disable=syntax-error
 
 from .photoinfo import PhotoInfo
 from ._constants import _UNKNOWN_PERSON
+
+# ensure locale set to user's locale
+locale.setlocale(locale.LC_ALL, "")
 
 # Permitted substitutions (each of these returns a single value or None)
 TEMPLATE_SUBSTITUTIONS = {

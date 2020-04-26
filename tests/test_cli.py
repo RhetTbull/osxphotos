@@ -71,6 +71,12 @@ CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES1 = [
     "2018/September/Pumkins1.jpg",
 ]
 
+CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES_LOCALE = [
+    "2019/September/IMG_9975.JPEG",
+    "2020/Februar/IMG_1064.JPEG",
+    "2016/März/IMG_3984.JPEG",
+]
+
 CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES_ALBUM1 = [
     "Multi Keyword/wedding.jpg",
     "_/Tulips.jpg",
@@ -592,6 +598,45 @@ def test_export_directory_template_album_2():
         assert result.exit_code == 0
         workdir = os.getcwd()
         for filepath in CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES_ALBUM2:
+            assert os.path.isfile(os.path.join(workdir, filepath))
+
+
+def test_export_directory_template_locale():
+    # test export using directory template in user locale non-US
+    import os
+    import glob
+    import locale
+    import os.path
+
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        # set locale environment
+        os.environ["LANG"] = "de_DE.UTF-8"
+        os.environ["LC_COLLATE"] = "de_DE.UTF-8"
+        os.environ["LC_CTYPE"] = "de_DE.UTF-8"
+        os.environ["LC_MESSAGES"] = "de_DE.UTF-8"
+        os.environ["LC_MONETARY"] = "de_DE.UTF-8"
+        os.environ["LC_NUMERIC"] = "de_DE.UTF-8"
+        os.environ["LC_TIME"] = "de_DE.UTF-8"
+        locale.setlocale(locale.LC_ALL, "")
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PLACES_PHOTOS_DB),
+                ".",
+                "-V",
+                "--directory",
+                "{created.year}/{created.month}",
+            ],
+        )
+        assert result.exit_code == 0
+        workdir = os.getcwd()
+        for filepath in CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES_LOCALE:
             assert os.path.isfile(os.path.join(workdir, filepath))
 
 

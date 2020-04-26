@@ -53,6 +53,41 @@ TEMPLATE_VALUES = {
 }
 
 
+TEMPLATE_VALUES_DEU = {
+    "{name}": "128FB4C6-0B16-4E7D-9108-FB2E90DA1546",
+    "{original_name}": "IMG_1064",
+    "{title}": "Glen Ord",
+    "{descr}": "Jack Rose Dining Saloon",
+    "{created.date}": "2020-02-04",
+    "{created.year}": "2020",
+    "{created.yy}": "20",
+    "{created.mm}": "02",
+    "{created.month}": "Februar",
+    "{created.mon}": "Feb",
+    "{created.doy}": "035",
+    "{modified.date}": "2020-03-21",
+    "{modified.year}": "2020",
+    "{modified.yy}": "20",
+    "{modified.mm}": "03",
+    "{modified.month}": "März",
+    "{modified.mon}": "Mär",
+    "{modified.doy}": "081",
+    "{place.name}": "Washington, District of Columbia, United States",
+    "{place.country_code}": "US",
+    "{place.name.country}": "United States",
+    "{place.name.state_province}": "District of Columbia",
+    "{place.name.city}": "Washington",
+    "{place.name.area_of_interest}": "_",
+    "{place.address}": "2038 18th St NW, Washington, DC  20009, United States",
+    "{place.address.street}": "2038 18th St NW",
+    "{place.address.city}": "Washington",
+    "{place.address.state_province}": "DC",
+    "{place.address.postal_code}": "20009",
+    "{place.address.country}": "United States",
+    "{place.address.country_code}": "US",
+}
+
+
 def test_lookup():
     """ Test that a lookup is returned for every possible value """
     import re
@@ -85,6 +120,49 @@ def test_subst():
     for template in TEMPLATE_VALUES:
         rendered, _ = render_filepath_template(template, photo)
         assert rendered[0] == TEMPLATE_VALUES[template]
+
+
+def test_subst_locale_1():
+    """ Test that substitutions are correct in user locale"""
+    import locale
+    import osxphotos
+
+    # osxphotos.template sets local on load so set the environment first
+    # set locale to DE
+    locale.setlocale(locale.LC_ALL, "de_DE.UTF-8")
+    from osxphotos.template import render_filepath_template
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
+    photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
+
+    for template in TEMPLATE_VALUES_DEU:
+        rendered, _ = render_filepath_template(template, photo)
+        assert rendered[0] == TEMPLATE_VALUES_DEU[template]
+
+
+def test_subst_locale_2():
+    """ Test that substitutions are correct in user locale"""
+    import locale
+    import os
+    import osxphotos
+
+    # osxphotos.template sets local on load so set the environment first
+    os.environ["LANG"] = "de_DE.UTF-8"
+    os.environ["LC_COLLATE"] = "de_DE.UTF-8"
+    os.environ["LC_CTYPE"] = "de_DE.UTF-8"
+    os.environ["LC_MESSAGES"] = "de_DE.UTF-8"
+    os.environ["LC_MONETARY"] = "de_DE.UTF-8"
+    os.environ["LC_NUMERIC"] = "de_DE.UTF-8"
+    os.environ["LC_TIME"] = "de_DE.UTF-8"
+
+    from osxphotos.template import render_filepath_template
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
+    photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
+
+    for template in TEMPLATE_VALUES_DEU:
+        rendered, _ = render_filepath_template(template, photo)
+        assert rendered[0] == TEMPLATE_VALUES_DEU[template]
 
 
 def test_subst_default_val():
