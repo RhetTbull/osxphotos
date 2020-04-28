@@ -77,6 +77,12 @@ class PhotosDB:
 
         # set up the data structures used to store all the Photo database info
 
+        # if True, will treat persons as keywords when exporting metadata
+        self.use_persons_as_keywords = False 
+
+        # if True, will treat albums as keywords when exporting metadata
+        self.use_albums_as_keywords = False 
+
         # Path to the Photos library database file
         # photos.db in the photos library database/ directory
         self._dbfile = None

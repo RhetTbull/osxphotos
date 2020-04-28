@@ -894,6 +894,16 @@ def query(
     "(e.g. the RAW file was imported to Photos without a jpeg preview).",
 )
 @click.option(
+    "--person-keyword",
+    is_flag = True,
+    help = "Use person in image as keyword/tag when exporting metadata."
+)
+@click.option(
+    "--album-keyword",
+    is_flag = True,
+    help = "Use album name as keyword/tag when exporting metadata."
+)
+@click.option(
     "--current-name",
     is_flag=True,
     help="Use photo's current filename instead of original filename for export.  "
@@ -983,6 +993,8 @@ def export(
     skip_bursts,
     skip_live,
     skip_raw,
+    person_keyword,
+    album_keyword,
     current_name,
     sidecar,
     only_photos,
@@ -1145,6 +1157,16 @@ def export(
     )
 
     if photos:
+        # set the persons_as_keywords and albums_as_keywords on the database object
+        # to control metadata export
+        photosdb = photos[0]._db
+        if person_keyword:
+            # add persons as keywords
+            photosdb.use_persons_as_keywords = True 
+        if album_keyword:
+            # add albums as keywords
+            photosdb.use_albums_as_keywords = True 
+
         if export_bursts:
             # add the burst_photos to the export set
             photos_burst = [p for p in photos if p.burst]

@@ -24,6 +24,7 @@ from ._constants import (
     _PHOTOS_4_VERSION,
     _PHOTOS_5_SHARED_PHOTO_PATH,
     _TEMPLATE_DIR,
+    _UNKNOWN_PERSON,
     _XMP_TEMPLATE_NAME,
 )
 from .exiftool import ExifTool
@@ -304,9 +305,7 @@ class PhotoInfo:
                 # Note: In Photos Version 5.0 (141.19.150), images not copied to Photos Library
                 # that are missing do not always trigger is_missing = True as happens
                 # in earlier version so it's possible for this check to fail, if so, return None
-                logging.debug(
-                    f"Error getting path to RAW file: {filepath}/{glob_str}"
-                )
+                logging.debug(f"Error getting path to RAW file: {filepath}/{glob_str}")
                 photopath = None
             else:
                 photopath = os.path.join(filepath, raw_file[0])
@@ -934,18 +933,30 @@ class PhotoInfo:
         if self.title:
             exif["XMP:Title"] = self.title
 
+        keyword_list = []
         if self.keywords:
-            exif["XMP:TagsList"] = exif["IPTC:Keywords"] = list(self.keywords)
-            # Photos puts both keywords and persons in Subject when using "Export IPTC as XMP"
-            exif["XMP:Subject"] = list(self.keywords)
+            keyword_list.extend(self.keywords)
 
+        person_list = []
         if self.persons:
-            exif["XMP:PersonInImage"] = self.persons
+            # filter out _UNKNOWN_PERSON
+            person_list = [p for p in self.persons if p != _UNKNOWN_PERSON]
+
+        if self._db.use_persons_as_keywords and person_list:
+            keyword_list.extend(person_list)
+
+        if self._db.use_albums_as_keywords and self.albums:
+            keyword_list.extend(self.albums)
+
+        if keyword_list:
+            exif["XMP:TagsList"] = exif["IPTC:Keywords"] = keyword_list
+
+        if person_list:
+            exif["XMP:PersonInImage"] = person_list
+
+        if self.keywords or person_list:
             # Photos puts both keywords and persons in Subject when using "Export IPTC as XMP"
-            if "XMP:Subject" in exif:
-                exif["XMP:Subject"].extend(self.persons)
-            else:
-                exif["XMP:Subject"] = self.persons
+            exif["XMP:Subject"] = list(self.keywords) + person_list
 
         # if self.favorite():
         #     exif["Rating"] = 5
@@ -986,7 +997,34 @@ class PhotoInfo:
         xmp_template = Template(
             filename=os.path.join(_TEMPLATE_DIR, _XMP_TEMPLATE_NAME)
         )
-        xmp_str = xmp_template.render(photo=self)
+
+        keyword_list = []
+        if self.keywords:
+            keyword_list.extend(self.keywords)
+
+        person_list = []
+        if self.persons:
+            # filter out _UNKNOWN_PERSON
+            person_list = [p for p in self.persons if p != _UNKNOWN_PERSON]
+
+        if self._db.use_persons_as_keywords and person_list:
+            keyword_list.extend(person_list)
+
+        if self._db.use_albums_as_keywords and self.albums:
+            keyword_list.extend(self.albums)
+
+        subject_list = []
+        if self.keywords or person_list:
+            # Photos puts both keywords and persons in Subject when using "Export IPTC as XMP"
+            subject_list = list(self.keywords) + person_list
+
+        xmp_str = xmp_template.render(
+            photo=self,
+            keywords=keyword_list,
+            persons=person_list,
+            subjects=subject_list,
+        )
+
         # remove extra lines that mako inserts from template
         xmp_str = "\n".join(
             [line for line in xmp_str.split("\n") if line.strip() != ""]

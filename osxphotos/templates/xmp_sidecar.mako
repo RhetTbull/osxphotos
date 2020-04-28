@@ -79,16 +79,16 @@
             xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/">
             ${dc_description(photo.description)}
             ${dc_title(photo.title)}
-            ${dc_subject(photo.keywords + photo.persons)}
+            ${dc_subject(subjects)}
             ${dc_datecreated(photo.date)}
         </rdf:Description>
         <rdf:Description rdf:about='' 
             xmlns:Iptc4xmpExt='http://iptc.org/std/Iptc4xmpExt/2008-02-29/'>
-            ${iptc_personinimage(photo.persons)}
+            ${iptc_personinimage(persons)}
         </rdf:Description>
         <rdf:Description rdf:about='' 
             xmlns:digiKam='http://www.digikam.org/ns/1.0/'>
-            ${dk_tagslist(photo.keywords)}
+            ${dk_tagslist(keywords)}
         </rdf:Description>
         <rdf:Description rdf:about='' 
             xmlns:xmp='http://ns.adobe.com/xap/1.0/'>

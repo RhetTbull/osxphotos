@@ -217,6 +217,10 @@ Options:
                                   photos if the RAW photo does not have an
                                   associated jpeg image (e.g. the RAW file was
                                   imported to Photos without a jpeg preview).
+  --person-keyword                Use person in image as keyword/tag when
+                                  exporting metadata.
+  --album-keyword                 Use album name as keyword/tag when exporting
+                                  metadata.
   --current-name                  Use photo's current filename instead of
                                   original filename for export.  Note:
                                   Starting with Photos 5, all photos are
@@ -814,6 +818,12 @@ For example, in my library, Photos says I have 19,386 photos and 474 movies.  Ho
 >>>
 ```
 
+#### `use_persons_as_keywords`
+If True, person names (face/person in image) will be used as keywords when exporting metadata with [PhotoInfo](#PhotoInfo) [export()](#export).
+
+#### `use_albums_as_keywords`
+If True, album names will be used as keywords when exporting metadata with [PhotoInfo](#PhotoInfo) [export()](#export). 
+
 ### PhotoInfo 
 PhotosDB.photos() returns a list of PhotoInfo objects.  Each PhotoInfo object represents a single photo in the Photos library.
 
@@ -958,7 +968,8 @@ Returns True if photo is a panorama, otherwise False.
 #### `json()`
 Returns a JSON representation of all photo info 
 
-#### `export(dest, *filename, edited=False, live_photo=False, overwrite=False, increment=True, sidecar_json=False, sidecar_xmp=False, use_photos_export=False, timeout=120, exiftool=False, no_xattr=False)`
+#### `export()`
+`export(dest, *filename, edited=False, live_photo=False, overwrite=False, increment=True, sidecar_json=False, sidecar_xmp=False, use_photos_export=False, timeout=120, exiftool=False, no_xattr=False)`
 
 Export photo from the Photos library to another destination on disk.  
 - dest: must be valid destination path as str (or exception raised).
