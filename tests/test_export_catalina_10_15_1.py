@@ -487,7 +487,6 @@ def test_exiftool_json_sidecar_use_persons_keyword():
     import json
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    photosdb.use_persons_as_keywords = True
     photos = photosdb.photos(uuid=[UUID_DICT["xmp"]])
 
     json_expected = json.loads(
@@ -506,7 +505,7 @@ def test_exiftool_json_sidecar_use_persons_keyword():
         """
     )[0]
 
-    json_got = photos[0]._exiftool_json_sidecar()
+    json_got = photos[0]._exiftool_json_sidecar(use_persons_as_keywords=True)
     json_got = json.loads(json_got)[0]
 
     # some gymnastics to account for different sort order in different pythons
@@ -529,7 +528,6 @@ def test_exiftool_json_sidecar_use_albums_keyword():
     import json
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    photosdb.use_albums_as_keywords = True
     photos = photosdb.photos(uuid=[UUID_DICT["xmp"]])
 
     json_expected = json.loads(
@@ -548,7 +546,7 @@ def test_exiftool_json_sidecar_use_albums_keyword():
         """
     )[0]
 
-    json_got = photos[0]._exiftool_json_sidecar()
+    json_got = photos[0]._exiftool_json_sidecar(use_albums_as_keywords=True)
     json_got = json.loads(json_got)[0]
 
     # some gymnastics to account for different sort order in different pythons
@@ -624,11 +622,11 @@ def test_xmp_sidecar():
     for line_expected, line_got in zip(xmp_expected_lines, xmp_got_lines):
         assert line_expected == line_got
 
+
 def test_xmp_sidecar_use_persons_keyword():
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    photosdb.use_persons_as_keywords = True
     photos = photosdb.photos(uuid=[UUID_DICT["xmp"]])
 
     xmp_expected = """<!-- Created with osxphotos https://github.com/RhetTbull/osxphotos -->
@@ -679,17 +677,17 @@ def test_xmp_sidecar_use_persons_keyword():
 
     xmp_expected_lines = [line.strip() for line in xmp_expected.split("\n")]
 
-    xmp_got = photos[0]._xmp_sidecar()
+    xmp_got = photos[0]._xmp_sidecar(use_persons_as_keywords=True)
     xmp_got_lines = [line.strip() for line in xmp_got.split("\n")]
 
     for line_expected, line_got in zip(xmp_expected_lines, xmp_got_lines):
         assert line_expected == line_got
 
+
 def test_xmp_sidecar_use_albums_keyword():
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    photosdb.use_albums_as_keywords = True
     photos = photosdb.photos(uuid=[UUID_DICT["xmp"]])
 
     xmp_expected = """<!-- Created with osxphotos https://github.com/RhetTbull/osxphotos -->
@@ -740,7 +738,7 @@ def test_xmp_sidecar_use_albums_keyword():
 
     xmp_expected_lines = [line.strip() for line in xmp_expected.split("\n")]
 
-    xmp_got = photos[0]._xmp_sidecar()
+    xmp_got = photos[0]._xmp_sidecar(use_albums_as_keywords=True)
     xmp_got_lines = [line.strip() for line in xmp_got.split("\n")]
 
     for line_expected, line_got in zip(xmp_expected_lines, xmp_got_lines):

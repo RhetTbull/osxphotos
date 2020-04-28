@@ -634,6 +634,8 @@ class PhotoInfo:
         timeout=120,
         exiftool=False,
         no_xattr=False,
+        use_albums_as_keywords=False,
+        use_persons_as_keywords=False,
     ):
         """ export photo 
             dest: must be valid destination path (or exception raised) 
@@ -659,7 +661,12 @@ class PhotoInfo:
             timeout: (int, default=120) timeout in seconds used with use_photos_export
             exiftool: (boolean, default = False); if True, will use exiftool to write metadata to export file
             no_xattr: (boolean, default = False); if True, exports file without preserving extended attributes
-            returns list of full paths to the exported files """
+            returns list of full paths to the exported files
+            use_albums_as_keywords: (boolean, default = False); if True, will include album names in keywords
+            when exporting metadata with exiftool or sidecar
+            use_persons_as_keywords: (boolean, default = False); if True, will include person names in keywords
+            when exporting metadata with exiftool or sidecar
+             """
 
         # list of all files exported during this call to export
         exported_files = []
@@ -863,7 +870,10 @@ class PhotoInfo:
         if sidecar_json:
             logging.debug("writing exiftool_json_sidecar")
             sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}.json")
-            sidecar_str = self._exiftool_json_sidecar()
+            sidecar_str = self._exiftool_json_sidecar(
+                use_albums_as_keywords=use_albums_as_keywords,
+                use_persons_as_keywords=use_persons_as_keywords,
+            )
             try:
                 self._write_sidecar(sidecar_filename, sidecar_str)
             except Exception as e:
@@ -873,7 +883,10 @@ class PhotoInfo:
         if sidecar_xmp:
             logging.debug("writing xmp_sidecar")
             sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}.xmp")
-            sidecar_str = self._xmp_sidecar()
+            sidecar_str = self._xmp_sidecar(
+                use_albums_as_keywords=use_albums_as_keywords,
+                use_persons_as_keywords=use_persons_as_keywords,
+            )
             try:
                 self._write_sidecar(sidecar_filename, sidecar_str)
             except Exception as e:
@@ -883,17 +896,28 @@ class PhotoInfo:
         # if exiftool, write the metadata
         if exiftool and exported_files:
             for exported_file in exported_files:
-                self._write_exif_data(exported_file)
+                self._write_exif_data(
+                    exported_file,
+                    use_albums_as_keywords=use_albums_as_keywords,
+                    use_persons_as_keywords=use_persons_as_keywords,
+                )
 
         return exported_files
 
-    def _write_exif_data(self, filepath):
+    def _write_exif_data(
+        self, filepath, use_albums_as_keywords=False, use_persons_as_keywords=False
+    ):
         """ write exif data to image file at filepath
         filepath: full path to the image file """
         if not os.path.exists(filepath):
             raise FileNotFoundError(f"Could not find file {filepath}")
         exiftool = ExifTool(filepath)
-        exif_info = json.loads(self._exiftool_json_sidecar())[0]
+        exif_info = json.loads(
+            self._exiftool_json_sidecar(
+                use_albums_as_keywords=use_albums_as_keywords,
+                use_persons_as_keywords=use_persons_as_keywords,
+            )
+        )[0]
         for exiftag, val in exif_info.items():
             if type(val) == list:
                 # more than one, set first value the add additional values
@@ -904,7 +928,9 @@ class PhotoInfo:
             else:
                 exiftool.setvalue(exiftag, val)
 
-    def _exiftool_json_sidecar(self):
+    def _exiftool_json_sidecar(
+        self, use_albums_as_keywords=False, use_persons_as_keywords=False
+    ):
         """ return json string of EXIF details in exiftool sidecar format
             Does not include all the EXIF fields as those are likely already in the image
             Exports the following:
@@ -942,10 +968,10 @@ class PhotoInfo:
             # filter out _UNKNOWN_PERSON
             person_list = [p for p in self.persons if p != _UNKNOWN_PERSON]
 
-        if self._db.use_persons_as_keywords and person_list:
+        if use_persons_as_keywords and person_list:
             keyword_list.extend(person_list)
 
-        if self._db.use_albums_as_keywords and self.albums:
+        if use_albums_as_keywords and self.albums:
             keyword_list.extend(self.albums)
 
         if keyword_list:
@@ -990,7 +1016,7 @@ class PhotoInfo:
         json_str = json.dumps([exif])
         return json_str
 
-    def _xmp_sidecar(self):
+    def _xmp_sidecar(self, use_albums_as_keywords=False, use_persons_as_keywords=False):
         """ returns string for XMP sidecar """
         # TODO: add additional fields to XMP file?
 
@@ -1007,10 +1033,10 @@ class PhotoInfo:
             # filter out _UNKNOWN_PERSON
             person_list = [p for p in self.persons if p != _UNKNOWN_PERSON]
 
-        if self._db.use_persons_as_keywords and person_list:
+        if use_persons_as_keywords and person_list:
             keyword_list.extend(person_list)
 
-        if self._db.use_albums_as_keywords and self.albums:
+        if use_albums_as_keywords and self.albums:
             keyword_list.extend(self.albums)
 
         subject_list = []

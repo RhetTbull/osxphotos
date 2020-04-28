@@ -895,13 +895,13 @@ def query(
 )
 @click.option(
     "--person-keyword",
-    is_flag = True,
-    help = "Use person in image as keyword/tag when exporting metadata."
+    is_flag=True,
+    help="Use person in image as keyword/tag when exporting metadata.",
 )
 @click.option(
     "--album-keyword",
-    is_flag = True,
-    help = "Use album name as keyword/tag when exporting metadata."
+    is_flag=True,
+    help="Use album name as keyword/tag when exporting metadata.",
 )
 @click.option(
     "--current-name",
@@ -1157,16 +1157,6 @@ def export(
     )
 
     if photos:
-        # set the persons_as_keywords and albums_as_keywords on the database object
-        # to control metadata export
-        photosdb = photos[0]._db
-        if person_keyword:
-            # add persons as keywords
-            photosdb.use_persons_as_keywords = True 
-        if album_keyword:
-            # add albums as keywords
-            photosdb.use_albums_as_keywords = True 
-
         if export_bursts:
             # add the burst_photos to the export set
             photos_burst = [p for p in photos if p.burst]
@@ -1196,6 +1186,8 @@ def export(
                         directory,
                         no_extended_attributes,
                         export_raw,
+                        album_keyword,
+                        person_keyword,
                     )
         else:
             for p in photos:
@@ -1214,6 +1206,8 @@ def export(
                     directory,
                     no_extended_attributes,
                     export_raw,
+                    album_keyword,
+                    person_keyword,
                 )
                 if export_paths:
                     click.echo(f"Exported {p.filename} to {export_paths}")
@@ -1600,6 +1594,8 @@ def export_photo(
     directory,
     no_extended_attributes,
     export_raw,
+    album_keyword,
+    person_keyword,
 ):
     """ Helper function for export that does the actual export
         photo: PhotoInfo object
@@ -1616,6 +1612,8 @@ def export_photo(
         directory: template used to determine output directory
         no_extended_attributes: boolean; if True, exports photo without preserving extended attributes
         export_raw: boolean; if True exports RAW image associate with the photo
+        album_keyword: boolean; if True, exports album names as keywords in metadata
+        person_keyword: boolean; if True, exports person names as keywords in metadata
         returns list of path(s) of exported photo or None if photo was missing 
     """
 
@@ -1699,6 +1697,8 @@ def export_photo(
             use_photos_export=use_photos_export,
             exiftool=exiftool,
             no_xattr=no_extended_attributes,
+            use_albums_as_keywords=album_keyword,
+            use_persons_as_keywords=person_keyword,
         )[0]
         photo_paths.append(photo_path)
 
@@ -1734,6 +1734,8 @@ def export_photo(
                     use_photos_export=use_photos_export,
                     exiftool=exiftool,
                     no_xattr=no_extended_attributes,
+                    use_albums_as_keywords=album_keyword,
+                    use_persons_as_keywords=person_keyword,
                 )
 
     return photo_paths
