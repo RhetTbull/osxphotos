@@ -816,13 +816,7 @@ For example, in my library, Photos says I have 19,386 photos and 474 movies.  Ho
 >>> len(shared_movies)
 151
 >>>
-```
 
-#### `use_persons_as_keywords`
-If True, person names (face/person in image) will be used as keywords when exporting metadata with [PhotoInfo](#PhotoInfo) [export()](#export).
-
-#### `use_albums_as_keywords`
-If True, album names will be used as keywords when exporting metadata with [PhotoInfo](#PhotoInfo) [export()](#export). 
 
 ### PhotoInfo 
 PhotosDB.photos() returns a list of PhotoInfo objects.  Each PhotoInfo object represents a single photo in the Photos library.
