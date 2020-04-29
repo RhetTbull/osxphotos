@@ -19,17 +19,17 @@ from ._constants import (
     _MOVIE_TYPE,
     _PHOTO_TYPE,
     _PHOTOS_3_VERSION,
+    _PHOTOS_4_ALBUM_KIND,
+    _PHOTOS_4_TOP_LEVEL_ALBUM,
     _PHOTOS_4_VERSION,
+    _PHOTOS_5_ALBUM_KIND,
+    _PHOTOS_5_FOLDER_KIND,
+    _PHOTOS_5_ROOT_FOLDER_KIND,
+    _PHOTOS_5_SHARED_ALBUM_KIND,
     _PHOTOS_5_VERSION,
     _TESTED_DB_VERSIONS,
     _TESTED_OS_VERSIONS,
     _UNKNOWN_PERSON,
-    _PHOTOS_4_ALBUM_KIND,
-    _PHOTOS_4_TOP_LEVEL_ALBUM,
-    _PHOTOS_5_ROOT_FOLDER_KIND,
-    _PHOTOS_5_FOLDER_KIND,
-    _PHOTOS_5_ALBUM_KIND,
-    _PHOTOS_5_SHARED_ALBUM_KIND,
 )
 from ._version import __version__
 from .albuminfo import AlbumInfo, FolderInfo
@@ -78,10 +78,10 @@ class PhotosDB:
         # set up the data structures used to store all the Photo database info
 
         # if True, will treat persons as keywords when exporting metadata
-        self.use_persons_as_keywords = False 
+        self.use_persons_as_keywords = False
 
         # if True, will treat albums as keywords when exporting metadata
-        self.use_albums_as_keywords = False 
+        self.use_albums_as_keywords = False
 
         # Path to the Photos library database file
         # photos.db in the photos library database/ directory
@@ -661,8 +661,10 @@ class PhotosDB:
         # build folder hierarchy
         for album, details in self._dbalbum_details.items():
             parent_folder = details["folderUuid"]
-            if parent_folder != _PHOTOS_4_TOP_LEVEL_ALBUM:
-                # logging.warning(f"album = {details['title']}, parent = {parent_folder}")
+            if (
+                details["albumSubclass"] == _PHOTOS_4_ALBUM_KIND
+                and parent_folder != _PHOTOS_4_TOP_LEVEL_ALBUM
+            ):
                 folder_hierarchy = self._build_album_folder_hierarchy_4(parent_folder)
                 self._dbalbum_folders[album] = folder_hierarchy
             else:
@@ -1613,8 +1615,8 @@ class PhotosDB:
             info["momentID"] = row[26]
 
             # original resource choice (e.g. RAW or jpeg)
-            # for images part of a RAW/jpeg pair, 
-            # ZADDITIONALASSETATTRIBUTES.ZORIGINALRESOURCECHOICE 
+            # for images part of a RAW/jpeg pair,
+            # ZADDITIONALASSETATTRIBUTES.ZORIGINALRESOURCECHOICE
             # = 0 if jpeg is selected as "original" in Photos (the default)
             # = 1 if RAW is selected as "original" in Photos
             info["original_resource_choice"] = row[27]
