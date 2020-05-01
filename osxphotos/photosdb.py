@@ -20,6 +20,7 @@ from ._constants import (
     _PHOTO_TYPE,
     _PHOTOS_3_VERSION,
     _PHOTOS_4_ALBUM_KIND,
+    _PHOTOS_4_ROOT_FOLDER,
     _PHOTOS_4_TOP_LEVEL_ALBUM,
     _PHOTOS_4_VERSION,
     _PHOTOS_5_ALBUM_KIND,
@@ -661,10 +662,11 @@ class PhotosDB:
         # build folder hierarchy
         for album, details in self._dbalbum_details.items():
             parent_folder = details["folderUuid"]
-            if (
-                details["albumSubclass"] == _PHOTOS_4_ALBUM_KIND
-                and parent_folder != _PHOTOS_4_TOP_LEVEL_ALBUM
-            ):
+            if details[
+                "albumSubclass"
+            ] == _PHOTOS_4_ALBUM_KIND and parent_folder not in [
+                _PHOTOS_4_TOP_LEVEL_ALBUM
+            ]:
                 folder_hierarchy = self._build_album_folder_hierarchy_4(parent_folder)
                 self._dbalbum_folders[album] = folder_hierarchy
             else:
@@ -1222,17 +1224,24 @@ class PhotosDB:
 
     def _build_album_folder_hierarchy_4(self, uuid, folders=None):
         """ recursively build folder/album hierarchy
-            uuid: uuid of the album/folder being processed
-            folders: dict holding the folder hierarchy """
+            uuid: parent uuid of the album being processed 
+                 (parent uuid is a folder in RKFolders)
+            folders: dict holding the folder hierarchy 
+            NOTE: This implementation is different than _build_album_folder_hierarchy_5 
+            which takes the uuid of the album being processed.  Here uuid is the parent uuid
+            of the parent folder album because in Photos <=4, folders are in RKFolders and 
+            albums in RKAlbums.  In Photos 5, folders are just special albums 
+            with kind = _PHOTOS_5_FOLDER_KIND """
 
         parent_uuid = self._dbfolder_details[uuid]["parentFolderUuid"]
-
-        # logging.warning(f"uuid = {uuid}, parent = {parent_uuid}, folders = {folders}")
 
         if parent_uuid is None:
             return folders
 
         if parent_uuid == _PHOTOS_4_TOP_LEVEL_ALBUM:
+            if not folders:
+                # this is a top-level folder with no sub-folders
+                folders = {uuid: None}
             # at top of hierarchy, we're done
             return folders
 

@@ -15,7 +15,7 @@ KEYWORDS = [
     "United Kingdom",
 ]
 PERSONS = ["Katie", "Suzy", "Maria"]
-ALBUMS = ["Pumpkin Farm"]
+ALBUMS = ["Pumpkin Farm", "AlbumInFolder", "TestAlbum"]
 KEYWORDS_DICT = {
     "Kids": 4,
     "wedding": 2,
@@ -28,7 +28,7 @@ KEYWORDS_DICT = {
     "United Kingdom": 1,
 }
 PERSONS_DICT = {"Katie": 3, "Suzy": 2, "Maria": 1}
-ALBUM_DICT = {"Pumpkin Farm": 3}
+ALBUM_DICT = {"Pumpkin Farm": 3, "TestAlbum": 1, "AlbumInFolder": 1}
 
 
 def test_init():
@@ -123,7 +123,7 @@ def test_attributes():
     )
     assert p.description == "Girl holding pumpkin"
     assert p.title == "I found one!"
-    assert p.albums == ["Pumpkin Farm"]
+    assert sorted(p.albums) == ["AlbumInFolder", "Pumpkin Farm"]
     assert p.persons == ["Katie"]
     assert p.path.endswith(
         "/tests/Test-10.13.6.photoslibrary/Masters/2019/07/26/20190726-203227/Pumkins2.jpg"
