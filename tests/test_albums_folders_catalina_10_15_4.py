@@ -4,27 +4,34 @@ from osxphotos._constants import _UNKNOWN_PERSON
 
 PHOTOS_DB = "./tests/Test-10.15.4.photoslibrary/database/photos.db"
 
-TOP_LEVEL_FOLDERS = ["Folder1"]
+TOP_LEVEL_FOLDERS = ["Folder1", "Folder2"]
 
 TOP_LEVEL_CHILDREN = ["SubFolder1", "SubFolder2"]
 
-FOLDER_ALBUM_DICT = {"Folder1": [], "SubFolder1": [], "SubFolder2": ["AlbumInFolder"]}
+FOLDER_ALBUM_DICT = {
+    "Folder1": [],
+    "SubFolder1": [],
+    "SubFolder2": ["AlbumInFolder"],
+    "Folder2": ["Raw"],
+}
 
-ALBUM_NAMES = ["Pumpkin Farm", "AlbumInFolder", "Test Album", "Test Album"]
+ALBUM_NAMES = ["Pumpkin Farm", "AlbumInFolder", "Test Album", "Test Album", "Raw"]
 
 ALBUM_PARENT_DICT = {
     "Pumpkin Farm": None,
     "AlbumInFolder": "SubFolder2",
     "Test Album": None,
+    "Raw": "Folder2",
 }
 
 ALBUM_FOLDER_NAMES_DICT = {
     "Pumpkin Farm": [],
     "AlbumInFolder": ["Folder1", "SubFolder2"],
     "Test Album": [],
+    "Raw": ["Folder2"],
 }
 
-ALBUM_LEN_DICT = {"Pumpkin Farm": 3, "AlbumInFolder": 2, "Test Album": 1}
+ALBUM_LEN_DICT = {"Pumpkin Farm": 3, "AlbumInFolder": 2, "Test Album": 1, "Raw": 4}
 
 ALBUM_PHOTO_UUID_DICT = {
     "Pumpkin Farm": [
@@ -40,6 +47,12 @@ ALBUM_PHOTO_UUID_DICT = {
         "3DD2C897-F19E-4CA6-8C22-B027D5A71907",
         "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51",
     ],
+    "Raw": [
+        "D05A5FE3-15FB-49A1-A15D-AB3DA6F8B068",
+        "A92D9C26-3A50-4197-9388-CB5F7DB9FA91",
+        "4D521201-92AC-43E5-8F7C-59BC41C37A96",
+        "8E1D7BC9-9321-44F9-8CFB-4083F6B9232A",
+    ],
 }
 
 UUID_DICT = {"two_albums": "F12384F6-CD17-4151-ACBA-AE0E3688539E"}
@@ -52,7 +65,7 @@ def test_folders_1():
 
     # top level folders
     folders = photosdb.folder_info
-    assert len(folders) == 1
+    assert len(folders) == len(TOP_LEVEL_FOLDERS)
 
     # check folder names
     folder_names = [f.title for f in folders]
@@ -146,7 +159,7 @@ def test_albums_1():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
 
     albums = photosdb.album_info
-    assert len(albums) == 4
+    assert len(albums) == len(ALBUM_NAMES)
 
     # check names
     album_names = [a.title for a in albums]
