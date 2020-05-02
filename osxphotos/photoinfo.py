@@ -7,6 +7,7 @@ PhotosDB.photos() returns a list of PhotoInfo objects
 import glob
 import json
 import logging
+import os
 import os.path
 import pathlib
 import re
@@ -19,7 +20,9 @@ import yaml
 from mako.template import Template
 
 from ._constants import (
+    _MAX_IPTC_KEYWORD_LEN,
     _MOVIE_TYPE,
+    _OSXPHOTOS_NONE_SENTINEL,
     _PHOTO_TYPE,
     _PHOTOS_4_VERSION,
     _PHOTOS_5_SHARED_PHOTO_PATH,
@@ -27,9 +30,15 @@ from ._constants import (
     _UNKNOWN_PERSON,
     _XMP_TEMPLATE_NAME,
 )
+from .albuminfo import AlbumInfo
+from .datetime_formatter import DateTimeFormatter
 from .exiftool import ExifTool
 from .placeinfo import PlaceInfo4, PlaceInfo5
-from .albuminfo import AlbumInfo
+from .template import (
+    MULTI_VALUE_SUBSTITUTIONS,
+    TEMPLATE_SUBSTITUTIONS,
+    TEMPLATE_SUBSTITUTIONS_MULTI_VALUED,
+)
 from .utils import (
     _copy_file,
     _export_photo_uuid_applescript,
@@ -636,6 +645,7 @@ class PhotoInfo:
         no_xattr=False,
         use_albums_as_keywords=False,
         use_persons_as_keywords=False,
+        keyword_template=None,
     ):
         """ export photo 
             dest: must be valid destination path (or exception raised) 
@@ -666,6 +676,7 @@ class PhotoInfo:
             when exporting metadata with exiftool or sidecar
             use_persons_as_keywords: (boolean, default = False); if True, will include person names in keywords
             when exporting metadata with exiftool or sidecar
+            keyword_template: (list of strings); list of template strings that will be rendered as used as keywords
              """
 
         # list of all files exported during this call to export
@@ -873,6 +884,7 @@ class PhotoInfo:
             sidecar_str = self._exiftool_json_sidecar(
                 use_albums_as_keywords=use_albums_as_keywords,
                 use_persons_as_keywords=use_persons_as_keywords,
+                keyword_template=keyword_template,
             )
             try:
                 self._write_sidecar(sidecar_filename, sidecar_str)
@@ -886,6 +898,7 @@ class PhotoInfo:
             sidecar_str = self._xmp_sidecar(
                 use_albums_as_keywords=use_albums_as_keywords,
                 use_persons_as_keywords=use_persons_as_keywords,
+                keyword_template=keyword_template,
             )
             try:
                 self._write_sidecar(sidecar_filename, sidecar_str)
@@ -900,12 +913,350 @@ class PhotoInfo:
                     exported_file,
                     use_albums_as_keywords=use_albums_as_keywords,
                     use_persons_as_keywords=use_persons_as_keywords,
+                    keyword_template=keyword_template,
                 )
 
         return exported_files
 
+    def render_template(self, template, none_str="_", path_sep=None):
+        """ render a filename or directory template 
+            template: str template 
+            none_str: str to use default for None values, default is '_' 
+            path_sep: optional character to use as path separator, default is os.path.sep """
+
+        if path_sep is None:
+            path_sep = os.path.sep
+        elif path_sep is not None and len(path_sep) != 1:
+            raise ValueError(f"path_sep must be single character: {path_sep}")
+
+        # the rendering happens in two phases:
+        # phase 1: handle all the single-value template substitutions
+        #          results in a single string with all the template fields replaced
+        # phase 2: loop through all the multi-value template substitutions
+        #          could result in multiple strings
+        #          e.g. if template is "{album}/{person}" and there are 2 albums and 3 persons in the photo
+        #          there would be 6 possible renderings (2 albums x 3 persons)
+
+        # regex to find {template_field,optional_default} in strings
+        # for explanation of regex see https://regex101.com/r/4JJg42/1
+        # pylint: disable=anomalous-backslash-in-string
+        regex = r"(?<!\{)\{([^\\,}]+)(,{0,1}(([\w\-. ]+))?)(?=\}(?!\}))\}"
+
+        if type(template) is not str:
+            raise TypeError(f"template must be type str, not {type(template)}")
+
+        def make_subst_function(self, none_str, get_func=self.get_template_value):
+            """ returns: substitution function for use in re.sub 
+                photo: a PhotoInfo object
+                none_str: value to use if substitution lookup is None and no default provided
+                get_func: function that gets the substitution value for a given template field
+                        default is get_template_value which handles the single-value fields """
+
+            # closure to capture photo, none_str in subst
+            def subst(matchobj):
+                groups = len(matchobj.groups())
+                if groups == 4:
+                    try:
+                        val = get_func(matchobj.group(1))
+                    except KeyError:
+                        return matchobj.group(0)
+
+                    if val is None:
+                        return (
+                            matchobj.group(3)
+                            if matchobj.group(3) is not None
+                            else none_str
+                        )
+                    else:
+                        return val
+                else:
+                    raise ValueError(
+                        f"Unexpected number of groups: expected 4, got {groups}"
+                    )
+
+            return subst
+
+        subst_func = make_subst_function(self, none_str)
+
+        # do the replacements
+        rendered = re.sub(regex, subst_func, template)
+
+        # do multi-valued placements
+        # start with the single string from phase 1 above then loop through all
+        # multi-valued fields and all values for each of those fields
+        # rendered_strings will be updated as each field is processed
+        # for example: if two albums, two keywords, and one person and template is:
+        # "{created.year}/{album}/{keyword}/{person}"
+        # rendered strings would do the following:
+        # start (created.year filled in phase 1)
+        #   ['2011/{album}/{keyword}/{person}']
+        # after processing albums:
+        #   ['2011/Album1/{keyword}/{person}',
+        #    '2011/Album2/{keyword}/{person}',]
+        # after processing keywords:
+        #   ['2011/Album1/keyword1/{person}',
+        #    '2011/Album1/keyword2/{person}',
+        #    '2011/Album2/keyword1/{person}',
+        #    '2011/Album2/keyword2/{person}',]
+        # after processing person:
+        #   ['2011/Album1/keyword1/person1',
+        #    '2011/Album1/keyword2/person1',
+        #    '2011/Album2/keyword1/person1',
+        #    '2011/Album2/keyword2/person1',]
+
+        rendered_strings = set([rendered])
+        for field in MULTI_VALUE_SUBSTITUTIONS:
+            if field == "album":
+                values = self.albums
+            elif field == "keyword":
+                values = self.keywords
+            elif field == "person":
+                values = self.persons
+                # remove any _UNKNOWN_PERSON values
+                values = [val for val in values if val != _UNKNOWN_PERSON]
+            elif field == "folder_album":
+                values = []
+                # photos must be in an album to be in a folder
+                for album in self.album_info:
+                    if album.folder_names:
+                        # album in folder
+                        folder = path_sep.join(album.folder_names)
+                        folder += path_sep + album.title
+                        values.append(folder)
+                    else:
+                        # album not in folder
+                        values.append(album.title)
+
+            else:
+                raise ValueError(f"Unhandleded template value: {field}")
+
+            # If no values, insert None so code below will substite none_str for None
+            values = values or [None]
+
+            # Build a regex that matches only the field being processed
+            re_str = r"(?<!\\)\{(" + field + r")(,{0,1}(([\w\-. ]+))?)\}"
+            regex_multi = re.compile(re_str)
+
+            # holds each of the new rendered_strings, set() to avoid duplicates
+            new_strings = set()
+
+            for str_template in rendered_strings:
+                for val in values:
+
+                    def get_template_value_multi(lookup_value):
+                        """ Closure passed to make_subst_function get_func 
+                            Capture val and field in the closure 
+                            Allows make_subst_function to be re-used w/o modification """
+                        if lookup_value == field:
+                            return val
+                        else:
+                            raise KeyError(f"Unexpected value: {lookup_value}")
+
+                    subst = make_subst_function(
+                        self, none_str, get_func=get_template_value_multi
+                    )
+                    new_string = regex_multi.sub(subst, str_template)
+                    new_strings.add(new_string)
+
+            # update rendered_strings for the next field to process
+            rendered_strings = new_strings
+
+        # find any {fields} that weren't replaced
+        unmatched = []
+        for rendered_str in rendered_strings:
+            unmatched.extend(
+                [
+                    no_match[0]
+                    for no_match in re.findall(regex, rendered_str)
+                    if no_match[0] not in unmatched
+                ]
+            )
+
+        # fix any escaped curly braces
+        rendered_strings = [
+            rendered_str.replace("{{", "{").replace("}}", "}")
+            for rendered_str in rendered_strings
+        ]
+
+        return rendered_strings, unmatched
+
+    def get_template_value(self, lookup):
+        """ lookup template value (single-value template substitutions) for use in make_subst_function
+            lookup: value to find a match for
+            returns: either the matching template value (which may be None)
+            raises: KeyError if no rule exists for lookup """
+
+        # must be a valid keyword
+        if lookup == "name":
+            return pathlib.Path(self.filename).stem
+
+        if lookup == "original_name":
+            return pathlib.Path(self.original_filename).stem
+
+        if lookup == "title":
+            return self.title
+
+        if lookup == "descr":
+            return self.description
+
+        if lookup == "created.date":
+            return DateTimeFormatter(self.date).date
+
+        if lookup == "created.year":
+            return DateTimeFormatter(self.date).year
+
+        if lookup == "created.yy":
+            return DateTimeFormatter(self.date).yy
+
+        if lookup == "created.mm":
+            return DateTimeFormatter(self.date).mm
+
+        if lookup == "created.month":
+            return DateTimeFormatter(self.date).month
+
+        if lookup == "created.mon":
+            return DateTimeFormatter(self.date).mon
+
+        if lookup == "created.doy":
+            return DateTimeFormatter(self.date).doy
+
+        if lookup == "modified.date":
+            return (
+                DateTimeFormatter(self.date_modified).date
+                if self.date_modified
+                else None
+            )
+
+        if lookup == "modified.year":
+            return (
+                DateTimeFormatter(self.date_modified).year
+                if self.date_modified
+                else None
+            )
+
+        if lookup == "modified.yy":
+            return (
+                DateTimeFormatter(self.date_modified).yy if self.date_modified else None
+            )
+
+        if lookup == "modified.mm":
+            return (
+                DateTimeFormatter(self.date_modified).mm if self.date_modified else None
+            )
+
+        if lookup == "modified.month":
+            return (
+                DateTimeFormatter(self.date_modified).month
+                if self.date_modified
+                else None
+            )
+
+        if lookup == "modified.mon":
+            return (
+                DateTimeFormatter(self.date_modified).mon
+                if self.date_modified
+                else None
+            )
+
+        if lookup == "modified.doy":
+            return (
+                DateTimeFormatter(self.date_modified).doy
+                if self.date_modified
+                else None
+            )
+
+        if lookup == "place.name":
+            return self.place.name if self.place else None
+
+        if lookup == "place.country_code":
+            return self.place.country_code if self.place else None
+
+        if lookup == "place.name.country":
+            return (
+                self.place.names.country[0]
+                if self.place and self.place.names.country
+                else None
+            )
+
+        if lookup == "place.name.state_province":
+            return (
+                self.place.names.state_province[0]
+                if self.place and self.place.names.state_province
+                else None
+            )
+
+        if lookup == "place.name.city":
+            return (
+                self.place.names.city[0]
+                if self.place and self.place.names.city
+                else None
+            )
+
+        if lookup == "place.name.area_of_interest":
+            return (
+                self.place.names.area_of_interest[0]
+                if self.place and self.place.names.area_of_interest
+                else None
+            )
+
+        if lookup == "place.address":
+            return (
+                self.place.address_str
+                if self.place and self.place.address_str
+                else None
+            )
+
+        if lookup == "place.address.street":
+            return (
+                self.place.address.street
+                if self.place and self.place.address.street
+                else None
+            )
+
+        if lookup == "place.address.city":
+            return (
+                self.place.address.city
+                if self.place and self.place.address.city
+                else None
+            )
+
+        if lookup == "place.address.state_province":
+            return (
+                self.place.address.state_province
+                if self.place and self.place.address.state_province
+                else None
+            )
+
+        if lookup == "place.address.postal_code":
+            return (
+                self.place.address.postal_code
+                if self.place and self.place.address.postal_code
+                else None
+            )
+
+        if lookup == "place.address.country":
+            return (
+                self.place.address.country
+                if self.place and self.place.address.country
+                else None
+            )
+
+        if lookup == "place.address.country_code":
+            return (
+                self.place.address.iso_country_code
+                if self.place and self.place.address.iso_country_code
+                else None
+            )
+
+        # if here, didn't get a match
+        raise KeyError(f"No rule for processing {lookup}")
+
     def _write_exif_data(
-        self, filepath, use_albums_as_keywords=False, use_persons_as_keywords=False
+        self,
+        filepath,
+        use_albums_as_keywords=False,
+        use_persons_as_keywords=False,
+        keyword_template=None,
     ):
         """ write exif data to image file at filepath
         filepath: full path to the image file """
@@ -916,6 +1267,7 @@ class PhotoInfo:
             self._exiftool_json_sidecar(
                 use_albums_as_keywords=use_albums_as_keywords,
                 use_persons_as_keywords=use_persons_as_keywords,
+                keyword_template=keyword_template,
             )
         )[0]
         for exiftag, val in exif_info.items():
@@ -929,17 +1281,23 @@ class PhotoInfo:
                 exiftool.setvalue(exiftag, val)
 
     def _exiftool_json_sidecar(
-        self, use_albums_as_keywords=False, use_persons_as_keywords=False
+        self,
+        use_albums_as_keywords=False,
+        use_persons_as_keywords=False,
+        keyword_template=None,
     ):
         """ return json string of EXIF details in exiftool sidecar format
             Does not include all the EXIF fields as those are likely already in the image
+            use_albums_as_keywords: treat album names as keywords
+            use_persons_as_keywords: treat person names as keywords
+            keyword_template: (list of strings); list of template strings to render as keywords
             Exports the following:
                 FileName
                 ImageDescription
                 Description
                 Title
                 TagsList
-                Keywords
+                Keywords (may include album name, person name, or template)
                 Subject
                 PersonInImage
                 GPSLatitude, GPSLongitude
@@ -974,6 +1332,39 @@ class PhotoInfo:
         if use_albums_as_keywords and self.albums:
             keyword_list.extend(self.albums)
 
+        if keyword_template:
+            rendered_keywords = []
+            for template_str in keyword_template:
+                rendered, unmatched = self.render_template(
+                    template_str, none_str=_OSXPHOTOS_NONE_SENTINEL, path_sep="/"
+                )
+                if unmatched:
+                    logging.warning(
+                        f"Unmatched template substitution for template: {template_str} {unmatched}"
+                    )
+                rendered_keywords.extend(rendered)
+
+            # filter out any template values that didn't match by looking for sentinel
+            rendered_keywords = [
+                keyword
+                for keyword in rendered_keywords
+                if _OSXPHOTOS_NONE_SENTINEL not in keyword
+            ]
+
+            # check to see if any keywords too long
+            long_keywords = [
+                long_str
+                for long_str in rendered_keywords
+                if len(long_str) > _MAX_IPTC_KEYWORD_LEN
+            ]
+            if long_keywords:
+                logging.warning(
+                    f"Some keywords exceed max IPTC Keyword length of {_MAX_IPTC_KEYWORD_LEN}: {long_keywords}"
+                )
+
+            logging.debug(f"rendered_keywords: {rendered_keywords}")
+            keyword_list.extend(rendered_keywords)
+
         if keyword_list:
             exif["XMP:TagsList"] = exif["IPTC:Keywords"] = keyword_list
 
@@ -982,6 +1373,7 @@ class PhotoInfo:
 
         if self.keywords or person_list:
             # Photos puts both keywords and persons in Subject when using "Export IPTC as XMP"
+            # only use Photos' keywords for subject
             exif["XMP:Subject"] = list(self.keywords) + person_list
 
         # if self.favorite():
@@ -1016,8 +1408,17 @@ class PhotoInfo:
         json_str = json.dumps([exif])
         return json_str
 
-    def _xmp_sidecar(self, use_albums_as_keywords=False, use_persons_as_keywords=False):
-        """ returns string for XMP sidecar """
+    def _xmp_sidecar(
+        self,
+        use_albums_as_keywords=False,
+        use_persons_as_keywords=False,
+        keyword_template=None,
+    ):
+        """ returns string for XMP sidecar 
+            use_albums_as_keywords: treat album names as keywords
+            use_persons_as_keywords: treat person names as keywords
+            keyword_template: (list of strings); list of template strings to render as keywords """
+
         # TODO: add additional fields to XMP file?
 
         xmp_template = Template(
@@ -1027,6 +1428,9 @@ class PhotoInfo:
         keyword_list = []
         if self.keywords:
             keyword_list.extend(self.keywords)
+
+        # TODO: keyword handling in this and _exiftool_json_sidecar is
+        # good candidate for pulling out in a function
 
         person_list = []
         if self.persons:
@@ -1038,6 +1442,39 @@ class PhotoInfo:
 
         if use_albums_as_keywords and self.albums:
             keyword_list.extend(self.albums)
+
+        if keyword_template:
+            rendered_keywords = []
+            for template_str in keyword_template:
+                rendered, unmatched = self.render_template(
+                    template_str, none_str=_OSXPHOTOS_NONE_SENTINEL, path_sep="/"
+                )
+                if unmatched:
+                    logging.warning(
+                        f"Unmatched template substitution for template: {template_str} {unmatched}"
+                    )
+                rendered_keywords.extend(rendered)
+
+            # filter out any template values that didn't match by looking for sentinel
+            rendered_keywords = [
+                keyword
+                for keyword in rendered_keywords
+                if _OSXPHOTOS_NONE_SENTINEL not in keyword
+            ]
+
+            # check to see if any keywords too long
+            long_keywords = [
+                long_str
+                for long_str in rendered_keywords
+                if len(long_str) > _MAX_IPTC_KEYWORD_LEN
+            ]
+            if long_keywords:
+                logging.warning(
+                    f"Some keywords exceed max IPTC Keyword length of {_MAX_IPTC_KEYWORD_LEN}: {long_keywords}"
+                )
+
+            logging.debug(f"rendered_keywords: {rendered_keywords}")
+            keyword_list.extend(rendered_keywords)
 
         subject_list = []
         if self.keywords or person_list:

@@ -468,7 +468,6 @@ def test_exiftool_json_sidecar():
     json_got = json.loads(json_got)[0]
 
     # some gymnastics to account for different sort order in different pythons
-    # some gymnastics to account for different sort order in different pythons
     for k, v in json_got.items():
         if type(v) in (list, tuple):
             assert sorted(json_expected[k]) == sorted(v)
@@ -509,7 +508,6 @@ def test_exiftool_json_sidecar_use_persons_keyword():
     json_got = json.loads(json_got)[0]
 
     # some gymnastics to account for different sort order in different pythons
-    # some gymnastics to account for different sort order in different pythons
     for k, v in json_got.items():
         if type(v) in (list, tuple):
             assert sorted(json_expected[k]) == sorted(v)
@@ -549,7 +547,6 @@ def test_exiftool_json_sidecar_use_albums_keyword():
     json_got = photos[0]._exiftool_json_sidecar(use_albums_as_keywords=True)
     json_got = json.loads(json_got)[0]
 
-    # some gymnastics to account for different sort order in different pythons
     # some gymnastics to account for different sort order in different pythons
     for k, v in json_got.items():
         if type(v) in (list, tuple):
@@ -612,14 +609,16 @@ def test_xmp_sidecar():
         <xmp:ModifyDate>2018-09-28T15:35:49</xmp:ModifyDate>
         </rdf:Description>
         </rdf:RDF>
-         </x:xmpmeta>"""
+    </x:xmpmeta>"""
 
     xmp_expected_lines = [line.strip() for line in xmp_expected.split("\n")]
 
     xmp_got = photos[0]._xmp_sidecar()
     xmp_got_lines = [line.strip() for line in xmp_got.split("\n")]
 
-    for line_expected, line_got in zip(xmp_expected_lines, xmp_got_lines):
+    for line_expected, line_got in zip(
+        sorted(xmp_expected_lines), sorted(xmp_got_lines)
+    ):
         assert line_expected == line_got
 
 
@@ -673,14 +672,16 @@ def test_xmp_sidecar_use_persons_keyword():
         <xmp:ModifyDate>2018-09-28T15:35:49</xmp:ModifyDate>
         </rdf:Description>
         </rdf:RDF>
-         </x:xmpmeta>"""
+    </x:xmpmeta>"""
 
     xmp_expected_lines = [line.strip() for line in xmp_expected.split("\n")]
 
     xmp_got = photos[0]._xmp_sidecar(use_persons_as_keywords=True)
     xmp_got_lines = [line.strip() for line in xmp_got.split("\n")]
 
-    for line_expected, line_got in zip(xmp_expected_lines, xmp_got_lines):
+    for line_expected, line_got in zip(
+        sorted(xmp_expected_lines), sorted(xmp_got_lines)
+    ):
         assert line_expected == line_got
 
 
@@ -734,12 +735,14 @@ def test_xmp_sidecar_use_albums_keyword():
         <xmp:ModifyDate>2018-09-28T15:35:49</xmp:ModifyDate>
         </rdf:Description>
         </rdf:RDF>
-         </x:xmpmeta>"""
+    </x:xmpmeta>"""
 
     xmp_expected_lines = [line.strip() for line in xmp_expected.split("\n")]
 
     xmp_got = photos[0]._xmp_sidecar(use_albums_as_keywords=True)
     xmp_got_lines = [line.strip() for line in xmp_got.split("\n")]
 
-    for line_expected, line_got in zip(xmp_expected_lines, xmp_got_lines):
+    for line_expected, line_got in zip(
+        sorted(xmp_expected_lines), sorted(xmp_got_lines)
+    ):
         assert line_expected == line_got

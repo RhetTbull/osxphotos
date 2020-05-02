@@ -51,3 +51,12 @@ _PHOTOS_5_ROOT_FOLDER_KIND = 3999  # root folder
 _PHOTOS_4_ALBUM_KIND = 3  # RKAlbum.albumSubclass
 _PHOTOS_4_TOP_LEVEL_ALBUM = "TopLevelAlbums"
 _PHOTOS_4_ROOT_FOLDER = "LibraryFolder"
+
+# EXIF related constants
+# max keyword length for IPTC:Keyword, reference
+# https://www.iptc.org/std/photometadata/documentation/userguide/
+_MAX_IPTC_KEYWORD_LEN = 64
+
+# Sentinel value for detecting if a template in keyword_template doesn't match
+# If anyone has a keyword matching this, then too bad...
+_OSXPHOTOS_NONE_SENTINEL = "OSXPhotosXYZZY42_Sentinel$"

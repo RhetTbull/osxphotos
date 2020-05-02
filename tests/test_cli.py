@@ -332,6 +332,7 @@ def test_export_sidecar():
                 "-V",
             ],
         )
+        assert result.exit_code == 0
         files = glob.glob("*.*")
         assert sorted(files) == sorted(CLI_EXPORT_SIDECAR_FILENAMES)
 
@@ -855,3 +856,70 @@ def test_no_folder_1_14():
         json_got = json.loads(result.output)
         assert len(json_got) == 1  # single element
         assert json_got[0]["uuid"] == "15uNd7%8RguTEgNPKHfTWw"
+
+
+def test_export_sidecar_keyword_template():
+    import json
+    import glob
+    import os
+    import os.path
+    import osxphotos
+
+    from osxphotos.__main__ import cli
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "export",
+                "--db",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "--sidecar=json",
+                "--sidecar=xmp",
+                "--keyword-template",
+                "{folder_album}",
+                f"--uuid={CLI_EXPORT_UUID}",
+                "-V",
+            ],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*.*")
+        assert sorted(files) == sorted(CLI_EXPORT_SIDECAR_FILENAMES)
+
+        json_expected = json.loads(
+            """
+        [{"_CreatedBy": "osxphotos, https://github.com/RhetTbull/osxphotos",
+        "EXIF:ImageDescription": "Girl holding pumpkin",
+        "XMP:Description": "Girl holding pumpkin",
+        "XMP:Title": "I found one!",
+        "XMP:TagsList": ["Kids", "Multi Keyword", "Test Album", "Pumpkin Farm"],
+        "IPTC:Keywords": ["Kids", "Multi Keyword", "Test Album", "Pumpkin Farm"],
+        "XMP:PersonInImage": ["Katie"],
+        "XMP:Subject": ["Kids", "Katie"],
+        "EXIF:DateTimeOriginal": "2018:09:28 16:07:07",
+        "EXIF:OffsetTimeOriginal": "-04:00",
+        "EXIF:ModifyDate": "2020:04:11 12:34:16"}]"""
+        )[0]
+
+        import logging
+
+        json_file = open("Pumkins2.json", "r")
+        json_got = json.load(json_file)[0]
+        json_file.close()
+
+        # some gymnastics to account for different sort order in different pythons
+        for k, v in json_got.items():
+            if type(v) in (list, tuple):
+                assert sorted(json_expected[k]) == sorted(v)
+            else:
+                assert json_expected[k] == v
+
+        for k, v in json_expected.items():
+            if type(v) in (list, tuple):
+                assert sorted(json_got[k]) == sorted(v)
+            else:
+                assert json_got[k] == v

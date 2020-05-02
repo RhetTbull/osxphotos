@@ -92,18 +92,14 @@ def test_lookup():
     """ Test that a lookup is returned for every possible value """
     import re
     import osxphotos
-    from osxphotos.template import (
-        get_template_value,
-        render_filepath_template,
-        TEMPLATE_SUBSTITUTIONS,
-    )
+    from osxphotos.template import TEMPLATE_SUBSTITUTIONS
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
     photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     for subst in TEMPLATE_SUBSTITUTIONS:
         lookup_str = re.match(r"\{([^\\,}]+)\}", subst).group(1)
-        lookup = get_template_value(lookup_str, photo)
+        lookup = photo.get_template_value(lookup_str)
         assert lookup or lookup is None
 
 
@@ -111,14 +107,13 @@ def test_subst():
     """ Test that substitutions are correct """
     import locale
     import osxphotos
-    from osxphotos.template import render_filepath_template
 
     locale.setlocale(locale.LC_ALL, "en_US")
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
     photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     for template in TEMPLATE_VALUES:
-        rendered, _ = render_filepath_template(template, photo)
+        rendered, _ = photo.render_template(template)
         assert rendered[0] == TEMPLATE_VALUES[template]
 
 
@@ -130,13 +125,12 @@ def test_subst_locale_1():
     # osxphotos.template sets local on load so set the environment first
     # set locale to DE
     locale.setlocale(locale.LC_ALL, "de_DE.UTF-8")
-    from osxphotos.template import render_filepath_template
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
     photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     for template in TEMPLATE_VALUES_DEU:
-        rendered, _ = render_filepath_template(template, photo)
+        rendered, _ = photo.render_template(template)
         assert rendered[0] == TEMPLATE_VALUES_DEU[template]
 
 
@@ -155,13 +149,11 @@ def test_subst_locale_2():
     os.environ["LC_NUMERIC"] = "de_DE.UTF-8"
     os.environ["LC_TIME"] = "de_DE.UTF-8"
 
-    from osxphotos.template import render_filepath_template
-
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
     photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     for template in TEMPLATE_VALUES_DEU:
-        rendered, _ = render_filepath_template(template, photo)
+        rendered, _ = photo.render_template(template)
         assert rendered[0] == TEMPLATE_VALUES_DEU[template]
 
 
@@ -169,14 +161,13 @@ def test_subst_default_val():
     """ Test substitution with default value specified """
     import locale
     import osxphotos
-    from osxphotos.template import render_filepath_template
 
     locale.setlocale(locale.LC_ALL, "en_US")
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
     photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     template = "{place.name.area_of_interest,UNKNOWN}"
-    rendered, _ = render_filepath_template(template, photo)
+    rendered, _ = photo.render_template(template)
     assert rendered[0] == "UNKNOWN"
 
 
@@ -184,14 +175,13 @@ def test_subst_default_val_2():
     """ Test substitution with ',' but no default value """
     import locale
     import osxphotos
-    from osxphotos.template import render_filepath_template
 
     locale.setlocale(locale.LC_ALL, "en_US")
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
     photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     template = "{place.name.area_of_interest,}"
-    rendered, _ = render_filepath_template(template, photo)
+    rendered, _ = photo.render_template(template)
     assert rendered[0] == "_"
 
 
@@ -199,32 +189,30 @@ def test_subst_unknown_val():
     """ Test substitution with unknown value specified """
     import locale
     import osxphotos
-    from osxphotos.template import render_filepath_template
 
     locale.setlocale(locale.LC_ALL, "en_US")
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
     photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     template = "{created.year}/{foo}"
-    rendered, unknown = render_filepath_template(template, photo)
+    rendered, unknown = photo.render_template(template)
     assert rendered[0] == "2020/{foo}"
     assert unknown == ["foo"]
 
     template = "{place.name.area_of_interest,}"
-    rendered, _ = render_filepath_template(template, photo)
+    rendered, _ = photo.render_template(template)
     assert rendered[0] == "_"
 
 
 def test_subst_double_brace():
     """ Test substitution with double brace {{ which should be ignored """
     import osxphotos
-    from osxphotos.template import render_filepath_template
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
     photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     template = "{created.year}/{{foo}}"
-    rendered, unknown = render_filepath_template(template, photo)
+    rendered, unknown = photo.render_template(template)
     assert rendered[0] == "2020/{foo}"
     assert not unknown
 
@@ -233,14 +221,13 @@ def test_subst_unknown_val_with_default():
     """ Test substitution with unknown value specified """
     import locale
     import osxphotos
-    from osxphotos.template import render_filepath_template
 
     locale.setlocale(locale.LC_ALL, "en_US")
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
     photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     template = "{created.year}/{foo,bar}"
-    rendered, unknown = render_filepath_template(template, photo)
+    rendered, unknown = photo.render_template(template)
     assert rendered[0] == "2020/{foo,bar}"
     assert unknown == ["foo"]
 
@@ -249,14 +236,13 @@ def test_subst_multi_1_1_2():
     """ Test that substitutions are correct """
     # one album, one keyword, two persons
     import osxphotos
-    from osxphotos.template import render_filepath_template
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_1)
     photo = photosdb.photos(uuid=[UUID_DICT["1_1_2"]])[0]
 
     template = "{created.year}/{album}/{keyword}/{person}"
     expected = ["2018/Pumpkin Farm/Kids/Katie", "2018/Pumpkin Farm/Kids/Suzy"]
-    rendered, _ = render_filepath_template(template, photo)
+    rendered, _ = photo.render_template(template)
     assert sorted(rendered) == sorted(expected)
 
 
@@ -264,7 +250,6 @@ def test_subst_multi_2_1_1():
     """ Test that substitutions are correct """
     # 2 albums, 1 keyword, 1 person
     import osxphotos
-    from osxphotos.template import render_filepath_template
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_1)
     # one album, one keyword, two persons
@@ -276,7 +261,7 @@ def test_subst_multi_2_1_1():
         "2018/Test Album/Kids/Katie",
         "2018/Multi Keyword/Kids/Katie",
     ]
-    rendered, _ = render_filepath_template(template, photo)
+    rendered, _ = photo.render_template(template)
     assert sorted(rendered) == sorted(expected)
 
 
@@ -284,7 +269,6 @@ def test_subst_multi_2_1_1_single():
     """ Test that substitutions are correct """
     # 2 albums, 1 keyword, 1 person but only do keywords
     import osxphotos
-    from osxphotos.template import render_filepath_template
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_1)
     # one album, one keyword, two persons
@@ -292,7 +276,7 @@ def test_subst_multi_2_1_1_single():
 
     template = "{keyword}"
     expected = ["Kids"]
-    rendered, _ = render_filepath_template(template, photo)
+    rendered, _ = photo.render_template(template)
     assert sorted(rendered) == sorted(expected)
 
 
@@ -300,7 +284,6 @@ def test_subst_multi_0_2_0():
     """ Test that substitutions are correct """
     # 0 albums, 2 keywords, 0 persons
     import osxphotos
-    from osxphotos.template import render_filepath_template
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_1)
     # one album, one keyword, two persons
@@ -308,7 +291,7 @@ def test_subst_multi_0_2_0():
 
     template = "{created.year}/{album}/{keyword}/{person}"
     expected = ["2019/_/wedding/_", "2019/_/flowers/_"]
-    rendered, _ = render_filepath_template(template, photo)
+    rendered, _ = photo.render_template(template)
     assert sorted(rendered) == sorted(expected)
 
 
@@ -316,7 +299,6 @@ def test_subst_multi_0_2_0_single():
     """ Test that substitutions are correct """
     # 0 albums, 2 keywords, 0 persons, but only do albums
     import osxphotos
-    from osxphotos.template import render_filepath_template
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_1)
     # one album, one keyword, two persons
@@ -324,7 +306,7 @@ def test_subst_multi_0_2_0_single():
 
     template = "{created.year}/{album}"
     expected = ["2019/_"]
-    rendered, _ = render_filepath_template(template, photo)
+    rendered, _ = photo.render_template(template)
     assert sorted(rendered) == sorted(expected)
 
 
@@ -332,7 +314,6 @@ def test_subst_multi_0_2_0_default_val():
     """ Test that substitutions are correct """
     # 0 albums, 2 keywords, 0 persons, default vals provided
     import osxphotos
-    from osxphotos.template import render_filepath_template
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_1)
     # one album, one keyword, two persons
@@ -340,7 +321,7 @@ def test_subst_multi_0_2_0_default_val():
 
     template = "{created.year}/{album,NOALBUM}/{keyword,NOKEYWORD}/{person,NOPERSON}"
     expected = ["2019/NOALBUM/wedding/NOPERSON", "2019/NOALBUM/flowers/NOPERSON"]
-    rendered, _ = render_filepath_template(template, photo)
+    rendered, _ = photo.render_template(template)
     assert sorted(rendered) == sorted(expected)
 
 
@@ -348,7 +329,6 @@ def test_subst_multi_0_2_0_default_val_unknown_val():
     """ Test that substitutions are correct """
     # 0 albums, 2 keywords, 0 persons, default vals provided, unknown val in template
     import osxphotos
-    from osxphotos.template import render_filepath_template
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_1)
     # one album, one keyword, two persons
@@ -361,7 +341,7 @@ def test_subst_multi_0_2_0_default_val_unknown_val():
         "2019/NOALBUM/wedding/_/{foo}/{baz}",
         "2019/NOALBUM/flowers/_/{foo}/{baz}",
     ]
-    rendered, unknown = render_filepath_template(template, photo)
+    rendered, unknown = photo.render_template(template)
     assert sorted(rendered) == sorted(expected)
     assert unknown == ["foo"]
 
@@ -370,7 +350,6 @@ def test_subst_multi_0_2_0_default_val_unknown_val_2():
     """ Test that substitutions are correct """
     # 0 albums, 2 keywords, 0 persons, default vals provided, unknown val in template
     import osxphotos
-    from osxphotos.template import render_filepath_template
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_1)
     # one album, one keyword, two persons
@@ -381,7 +360,7 @@ def test_subst_multi_0_2_0_default_val_unknown_val_2():
         "2019/NOALBUM/wedding/_/{foo,bar}/{baz,bar}",
         "2019/NOALBUM/flowers/_/{foo,bar}/{baz,bar}",
     ]
-    rendered, unknown = render_filepath_template(template, photo)
+    rendered, unknown = photo.render_template(template)
     assert sorted(rendered) == sorted(expected)
     assert unknown == ["foo"]
 
@@ -389,7 +368,6 @@ def test_subst_multi_0_2_0_default_val_unknown_val_2():
 def test_subst_multi_folder_albums_1():
     """ Test substitutions for folder_album are correct """
     import osxphotos
-    from osxphotos.template import render_filepath_template
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_4)
 
@@ -397,7 +375,7 @@ def test_subst_multi_folder_albums_1():
     photo = photosdb.photos(uuid=[UUID_DICT["folder_album_1"]])[0]
     template = "{folder_album}"
     expected = ["Folder1/SubFolder2/AlbumInFolder"]
-    rendered, unknown = render_filepath_template(template, photo)
+    rendered, unknown = photo.render_template(template)
     assert sorted(rendered) == sorted(expected)
     assert unknown == []
 
@@ -405,7 +383,6 @@ def test_subst_multi_folder_albums_1():
 def test_subst_multi_folder_albums_2():
     """ Test substitutions for folder_album are correct """
     import osxphotos
-    from osxphotos.template import render_filepath_template
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_4)
 
@@ -413,15 +390,14 @@ def test_subst_multi_folder_albums_2():
     photo = photosdb.photos(uuid=[UUID_DICT["folder_album_no_folder"]])[0]
     template = "{folder_album}"
     expected = ["Pumpkin Farm", "Test Album"]
-    rendered, unknown = render_filepath_template(template, photo)
+    rendered, unknown = photo.render_template(template)
     assert sorted(rendered) == sorted(expected)
     assert unknown == []
 
 
-def test_subst_multi_folder_albums_3(caplog):
+def test_subst_multi_folder_albums_3():
     """ Test substitutions for folder_album on < Photos 5 """
     import osxphotos
-    from osxphotos.template import render_filepath_template
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_14_6)
 
@@ -429,6 +405,6 @@ def test_subst_multi_folder_albums_3(caplog):
     photo = photosdb.photos(uuid=[UUID_DICT["mojave_album_1"]])[0]
     template = "{folder_album}"
     expected = ["Folder1/SubFolder2/AlbumInFolder", "Pumpkin Farm", "Test Album (1)"]
-    rendered, unknown = render_filepath_template(template, photo)
+    rendered, unknown = photo.render_template(template)
     assert sorted(rendered) == sorted(expected)
     assert unknown == []

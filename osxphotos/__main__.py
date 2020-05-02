@@ -21,11 +21,7 @@ import osxphotos
 from ._constants import _EXIF_TOOL_URL, _PHOTOS_4_VERSION, _UNKNOWN_PLACE
 from ._version import __version__
 from .exiftool import get_exiftool_path
-from .template import (
-    render_filepath_template,
-    TEMPLATE_SUBSTITUTIONS,
-    TEMPLATE_SUBSTITUTIONS_MULTI_VALUED,
-)
+from .template import TEMPLATE_SUBSTITUTIONS, TEMPLATE_SUBSTITUTIONS_MULTI_VALUED
 from .utils import _copy_file, create_path_by_date
 
 
@@ -83,13 +79,20 @@ class ExportCommand(click.Command):
         formatter.write_text("**Templating System**")
         formatter.write("\n")
         formatter.write_text(
-            "With the --directory option, you may specify a template for the "
+            "With the --directory option you may specify a template for the "
             + "export directory.  This directory will be appended to the export path specified "
             + "in the export DEST argument to export.  For example, if template is "
             + "'{created.year}/{created.month}', and export desitnation DEST is "
             + "'/Users/maria/Pictures/export', "
             + "the actual export directory for a photo would be '/Users/maria/Pictures/export/2020/March' "
             + "if the photo was created in March 2020. "
+        )
+        formatter.write("\n")
+        formatter.write_text(
+            "The templating system may also be used with the --keyword-template option "
+            + "to set keywords on export (with --exiftool or --sidecar), "
+            + "for example, to set a new keyword in format 'folder/subfolder/album' to "
+            + 'preserve the folder/album structure, you can use --keyword-template "{folder_album}"'
         )
         formatter.write("\n")
         formatter.write_text(
@@ -904,6 +907,20 @@ def query(
     help="Use album name as keyword/tag when exporting metadata.",
 )
 @click.option(
+    "--keyword-template",
+    metavar="TEMPLATE",
+    multiple=True,
+    default=None,
+    help="For use with --exiftool, --sidecar; specify a template string to use as "
+    "keyword in the form '{name,DEFAULT}' "
+    "This is the same format as --directory.  For example, if you wanted to add "
+    "the full path to the folder and album photo is contained in as a keyword when exporting "
+    'you could specify --keyword-template "{folder_album}" '
+    'You may specify more than one template, for example --keyword-template "{folder_album}" '
+    '--keyword-template "{created.year}" '
+    "See Templating System below.",
+)
+@click.option(
     "--current-name",
     is_flag=True,
     help="Use photo's current filename instead of original filename for export.  "
@@ -995,6 +1012,7 @@ def export(
     skip_raw,
     person_keyword,
     album_keyword,
+    keyword_template,
     current_name,
     sidecar,
     only_photos,
@@ -1188,6 +1206,7 @@ def export(
                         export_raw,
                         album_keyword,
                         person_keyword,
+                        keyword_template,
                     )
         else:
             for p in photos:
@@ -1208,6 +1227,7 @@ def export(
                     export_raw,
                     album_keyword,
                     person_keyword,
+                    keyword_template,
                 )
                 if export_paths:
                     click.echo(f"Exported {p.filename} to {export_paths}")
@@ -1596,6 +1616,7 @@ def export_photo(
     export_raw,
     album_keyword,
     person_keyword,
+    keyword_template,
 ):
     """ Helper function for export that does the actual export
         photo: PhotoInfo object
@@ -1614,6 +1635,7 @@ def export_photo(
         export_raw: boolean; if True exports RAW image associate with the photo
         album_keyword: boolean; if True, exports album names as keywords in metadata
         person_keyword: boolean; if True, exports person names as keywords in metadata
+        keyword_template: list of strings; if provided use rendered template strings as keywords
         returns list of path(s) of exported photo or None if photo was missing 
     """
 
@@ -1654,7 +1676,7 @@ def export_photo(
         dest_paths = [dest_path]
     elif directory:
         # got a directory template, render it and check results are valid
-        dirnames, unmatched = render_filepath_template(directory, photo)
+        dirnames, unmatched = photo.render_template(directory)
         if unmatched:
             raise click.BadOptionUsage(
                 "directory",
@@ -1699,6 +1721,7 @@ def export_photo(
             no_xattr=no_extended_attributes,
             use_albums_as_keywords=album_keyword,
             use_persons_as_keywords=person_keyword,
+            keyword_template=keyword_template,
         )[0]
         photo_paths.append(photo_path)
 
@@ -1736,6 +1759,7 @@ def export_photo(
                     no_xattr=no_extended_attributes,
                     use_albums_as_keywords=album_keyword,
                     use_persons_as_keywords=person_keyword,
+                    keyword_template=keyword_template,
                 )
 
     return photo_paths

@@ -16,7 +16,7 @@
     + [AlbumInfo](#albuminfo)
     + [FolderInfo](#folderinfo)
     + [PlaceInfo](#placeinfo)
-    + [Template Functions](#template-functions)
+    + [Template Substitutions](#template-substitutions)
     + [Utility Functions](#utility-functions)
   * [Examples](#examples)
   * [Related Projects](#related-projects)
@@ -101,6 +101,7 @@ Example: `osxphotos help export`
 
 ```
 Usage: osxphotos export [OPTIONS] [PHOTOS_LIBRARY]... DEST
+Usage: __main__.py export [OPTIONS] [PHOTOS_LIBRARY]... DEST
 
   Export photos from the Photos database. Export path DEST is required.
   Optionally, query the Photos database using 1 or more search options;  if
@@ -223,6 +224,18 @@ Options:
                                   exporting metadata.
   --album-keyword                 Use album name as keyword/tag when exporting
                                   metadata.
+  --keyword-template TEMPLATE     For use with --exiftool, --sidecar; specify
+                                  a template string to use as keyword in the
+                                  form '{name,DEFAULT}' This is the same
+                                  format as --directory.  For example, if you
+                                  wanted to add the full path to the folder
+                                  and album photo is contained in as a keyword
+                                  when exporting you could specify --keyword-
+                                  template "{folder_album}" You may specify
+                                  more than one template, for example
+                                  --keyword-template "{folder_album}"
+                                  --keyword-template "{created.year}" See
+                                  Templating System below.
   --current-name                  Use photo's current filename instead of
                                   original filename for export.  Note:
                                   Starting with Photos 5, all photos are
@@ -270,13 +283,18 @@ Options:
 
 **Templating System**
 
-With the --directory option, you may specify a template for the export
+With the --directory option you may specify a template for the export
 directory.  This directory will be appended to the export path specified in
 the export DEST argument to export.  For example, if template is
 '{created.year}/{created.month}', and export desitnation DEST is
 '/Users/maria/Pictures/export', the actual export directory for a photo would
 be '/Users/maria/Pictures/export/2020/March' if the photo was created in March
 2020.
+
+The templating system may also be used with the --keyword-template option to
+set keywords on export (with --exiftool or --sidecar), for example, to set a
+new keyword in format 'folder/subfolder/album' to preserve the folder/album
+structure, you can use --keyword-template "{folder_album}"
 
 In the template, valid template substitutions will be replaced by the
 corresponding value from the table below.  Invalid substitutions will result
@@ -302,7 +320,7 @@ I plan to eventually extend the templating system to the exported filename so
 you can specify the filename using a template.
 
 Substitution                    Description
-{name}                          Filename of the photo
+{name}                          Current filename of the photo
 {original_name}                 Photo's original filename when imported to
                                 Photos
 {title}                         Title of the photo
@@ -1004,6 +1022,26 @@ If overwrite=False and increment=False, export will fail if destination file alr
 
 **Implementation Note**: Because the usual python file copy methods don't preserve all the metadata available on MacOS, export uses `/usr/bin/ditto` to do the copy for export. ditto preserves most metadata such as extended attributes, permissions, ACLs, etc.
 
+#### <a name="rendertemplate">`render_template()`</a>
+
+`render_template(template, none_str = "_", path_sep = None)`
+Render template string for photo.  none_str is used if template substitution results in None value and no default specified. 
+- `template`: str in form "{name,DEFAULT}" where name is one of the values in table below. The "," and default value that follows are optional. If specified, "DEFAULT" will be used if "name" is None.  This is useful for values which are not always present, for example reverse geolocation data.
+- `none_str`: optional str to use as substitution when template value is None and no default specified in the template string.  default is "_".
+- `path_sep`: optional character to use as path separator, default is os.path.sep
+
+Returns a tuple of (rendered, unmatched) where rendered is a list of rendered strings with all substitutions made and unmatched is a list of any strings that resembled a template substitution but did not match a known substitution. E.g. if template contained "{foo}", unmatched would be ["foo"].
+
+e.g. `render_filepath_template("{created.year}/{foo}", photo)` would return `(["2020/{foo}"],["foo"])`
+
+If you want to include "{" or "}" in the output, use "{{" or "}}"
+
+e.g. `render_filepath_template("{created.year}/{{foo}}", photo)` would return `(["2020/{foo}"],[])`
+
+Some substitutions, notably `album`, `keyword`, and `person` could return multiple values, hence a new string will be return for each possible substitution (hence why a list of rendered strings is returned).  For example, a photo in 2 albums: 'Vacation' and 'Family' would result in the following rendered values if template was "{created.year}/{album}" and created.year == 2020: `["2020/Vacation","2020/Family"]` 
+
+See [Template Substitutions](#template-substitutions) for additional details.
+
 ### AlbumInfo
 PhotosDB.album_info and PhotoInfo.album_info return a list of AlbumInfo objects.  Each AlbumInfo object represents a single album in the Photos library.
 
@@ -1149,26 +1187,9 @@ PostalAddress(street='3700 Wailea Alanui Dr', sub_locality=None, city='Kihei', s
 '96753'
 ```
 
-### Template Functions
+### Template Substitutions
 
-There is a simple template system used by the command line client to specify the output directory using a template.  The following are available in `osxphotos.template`.
-
-#### `render_filepath_template(template, photo, none_str="_")`
-Render template string for photo.  none_str is used if template substitution results in None value and no default specified. 
-- `template`: str in form "{name,DEFAULT}" where name is one of the values in table below. The "," and default value that follows are optional. If specified, "DEFAULT" will be used if "name" is None.  This is useful for values which are not always present, for example reverse geolocation data.
-- `photo`: a [PhotoInfo](#photoinfo) object
-- `none_str`: optional str to use as substitution when template value is None and no default specified in the template string.  default is "_".
-
-Returns a tuple of (rendered, unmatched) where rendered is a list of rendered strings with all substitutions made and unmatched is a list of any strings that resembled a template substitution but did not match a known substitution. E.g. if template contained "{foo}", unmatched would be ["foo"].
-
-e.g. `render_filepath_template("{created.year}/{foo}", photo)` would return `(["2020/{foo}"],["foo"])`
-
-If you want to include "{" or "}" in the output, use "{{" or "}}"
-
-e.g. `render_filepath_template("{created.year}/{{foo}}", photo)` would return `(["2020/{foo}"],[])`
-
-Some substitutions, notably `album`, `keyword`, and `person` could return multiple values, hence a new string will be return for each possible substitution (hence why a list of rendered strings is returned).  For example, a photo in 2 albums: 'Vacation' and 'Family' would result in the following rendered values if template was "{created.year}/{album}" and created.year == 2020: `["2020/Vacation","2020/Family"]` 
-
+The following substitutions are availabe for use with `PhotoInfo.render_template()` 
 
 | Substitution | Description |
 |--------------|-------------|
@@ -1207,21 +1228,6 @@ Some substitutions, notably `album`, `keyword`, and `person` could return multip
 |{keyword}|Keyword(s) assigned to photo|
 |{person}|Person(s) / face(s) in a photo|
 
-
-#### `DateTimeFormatter(dt)`
-Class that provides easy access to formatted datetime values.
-- `dt`: a datetime.datetime object
-
-Returnes `DateTimeFormater` class.
-
-Has the following properties:
-- `date`: Date in ISO format without timezone, e.g. "2020-03-04"
-- `year`: 4-digit year
-- `yy`: 2-digit year
-- `month`: month name in user's locale
-- `mon`: month abbreviation in user's locale
-- `mm`: 2-digit month
-- `doy`: 3-digit day of year (e.g. Julian day)
 
 ### Utility Functions
 
@@ -1328,7 +1334,7 @@ Testing against "real world" Photos libraries would be especially helpful.  If y
 
 My goal is make osxphotos as reliable and comprehensive as possible.  The test suite currently has over 400 tests--but there are still some [bugs](https://github.com/RhetTbull/osxphotos/issues?q=is%3Aissue+is%3Aopen+label%3Abug) or incomplete features lurking.  If you find bugs please open an [issue](https://github.com/RhetTbull/osxphotos/issues).  Notable issues include:
 
-- RAW images imported to Photos with an associated jpeg preview are not handled correctly by osxphotos.  osxphotos query and export will operate on the jpeg preview instead of the RAW image as will `PhotoInfo.path`.  If the user selects "Use RAW as original" in Photos, the RAW image will be exported or operated on but the jpeg will be ignored.  See [Issue #101](https://github.com/RhetTbull/osxphotos/issues/101) Note: Alpha version of fix for this bug is implemented in the current version of osxphotos.
+- RAW images imported to Photos with an associated jpeg preview are not handled correctly by osxphotos.  osxphotos query and export will operate on the jpeg preview instead of the RAW image as will `PhotoInfo.path`.  If the user selects "Use RAW as original" in Photos, the RAW image will be exported or operated on but the jpeg will be ignored.  See [Issue #101](https://github.com/RhetTbull/osxphotos/issues/101) Note: Beta version of fix for this bug is implemented in the current version of osxphotos.
 - The `--download-missing` option for `osxphotos export` does not work correctly with burst images.  It will download the primary image but not the other burst images.  See [Issue #75](https://github.com/RhetTbull/osxphotos/issues/75)
 
 ## Implementation Notes
