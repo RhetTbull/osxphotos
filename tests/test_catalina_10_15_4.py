@@ -25,6 +25,7 @@ ALBUMS = [
     "Pumpkin Farm",
     "Test Album",
     "AlbumInFolder",
+    "Raw"
 ]  # Note: there are 2 albums named "Test Album" for testing duplicate album names
 KEYWORDS_DICT = {
     "Kids": 4,
@@ -42,6 +43,7 @@ ALBUM_DICT = {
     "Pumpkin Farm": 3,
     "Test Album": 2,
     "AlbumInFolder": 2,
+    "Raw": 4,
 }  # Note: there are 2 albums named "Test Album" for testing duplicate album names
 
 UUID_DICT = {
