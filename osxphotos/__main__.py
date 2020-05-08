@@ -89,7 +89,7 @@ class ExportCommand(click.Command):
         )
         formatter.write("\n")
         formatter.write_text(
-            "The templating system may also be used with the --keyword-template option "
+                        "The templating system may also be used with the --keyword-template option "
             + "to set keywords on export (with --exiftool or --sidecar), "
             + "for example, to set a new keyword in format 'folder/subfolder/album' to "
             + 'preserve the folder/album structure, you can use --keyword-template "{folder_album}"'
@@ -861,6 +861,11 @@ def query(
 @click.option("--verbose", "-V", is_flag=True, help="Print verbose output.")
 @query_options
 @click.option(
+    "--export-as-hardlink",
+    is_flag=True,
+    help="Hardlink files instead of copying them. ",
+)
+@click.option(
     "--overwrite",
     is_flag=True,
     help="Overwrite existing files. "
@@ -1004,6 +1009,7 @@ def export(
     from_date,
     to_date,
     verbose,
+    export_as_hardlink,
     overwrite,
     export_by_date,
     skip_edited,
@@ -1195,6 +1201,7 @@ def export(
                         verbose,
                         export_by_date,
                         sidecar,
+                        export_as_hardlink,
                         overwrite,
                         export_edited,
                         original_name,
@@ -1216,6 +1223,7 @@ def export(
                     verbose,
                     export_by_date,
                     sidecar,
+                    export_as_hardlink,
                     overwrite,
                     export_edited,
                     original_name,
@@ -1605,6 +1613,7 @@ def export_photo(
     verbose,
     export_by_date,
     sidecar,
+    export_as_hardlink,
     overwrite,
     export_edited,
     original_name,
@@ -1624,6 +1633,7 @@ def export_photo(
         verbose: boolean; print verbose output
         export_by_date: boolean; create export folder in form dest/YYYY/MM/DD
         sidecar: list zero, 1 or 2 of ["json","xmp"] of sidecar variety to export
+        export_as_hardlink: boolean; hardlink files instead of copying them
         overwrite: boolean; overwrite dest file if it already exists
         original_name: boolean; use original filename instead of current filename
         export_live: boolean; also export live video component if photo is a live photo
@@ -1715,6 +1725,7 @@ def export_photo(
             sidecar_xmp=sidecar_xmp,
             live_photo=export_live,
             raw_photo=export_raw,
+            export_as_hardlink=export_as_hardlink,
             overwrite=overwrite,
             use_photos_export=use_photos_export,
             exiftool=exiftool,
@@ -1752,6 +1763,7 @@ def export_photo(
                     edited_name,
                     sidecar_json=sidecar_json,
                     sidecar_xmp=sidecar_xmp,
+                    export_as_hardlink=export_as_hardlink,
                     overwrite=overwrite,
                     edited=True,
                     use_photos_export=use_photos_export,

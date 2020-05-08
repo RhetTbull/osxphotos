@@ -40,6 +40,7 @@ from .template import (
     TEMPLATE_SUBSTITUTIONS_MULTI_VALUED,
 )
 from .utils import (
+    _hardlink_file,
     _copy_file,
     _export_photo_uuid_applescript,
     _get_resource_loc,
@@ -635,6 +636,7 @@ class PhotoInfo:
         edited=False,
         live_photo=False,
         raw_photo=False,
+        export_as_hardlink=False,
         overwrite=False,
         increment=True,
         sidecar_json=False,
@@ -660,6 +662,7 @@ class PhotoInfo:
                     (or raise exception if no edited version) 
             live_photo: (boolean, default=False); if True, will also export the associted .mov for live photos
             raw_photo: (boolean, default=False); if True, will also export the associted RAW photo
+            export_as_hardlink: (boolean, default=False); if True, will hardlink files instead of copying them
             overwrite: (boolean, default=False); if True will overwrite files if they alreay exist 
             increment: (boolean, default=True); if True, will increment file name until a non-existant name is found 
                        if overwrite=False and increment=False, export will fail if destination file already exists 
@@ -802,7 +805,10 @@ class PhotoInfo:
             )
 
             # copy the file, _copy_file uses ditto to preserve Mac extended attributes
-            _copy_file(src, dest, norsrc=no_xattr)
+            if export_as_hardlink:
+                _hardlink_file(src, dest)
+            else:
+                _copy_file(src, dest, norsrc=no_xattr)          
             exported_files.append(str(dest))
 
             # copy live photo associated .mov if requested
@@ -814,7 +820,10 @@ class PhotoInfo:
                     logging.debug(
                         f"Exporting live photo video of {filename} as {live_name.name}"
                     )
-                    _copy_file(src_live, str(live_name), norsrc=no_xattr)
+                    if export_as_hardlink:
+                        _hardlink_file(src_live, str(live_name))
+                    else:
+                        _copy_file(src_live, str(live_name), norsrc=no_xattr)
                     exported_files.append(str(live_name))
                 else:
                     logging.warning(f"Skipping missing live movie for {filename}")
@@ -828,7 +837,10 @@ class PhotoInfo:
                     logging.debug(
                         f"Exporting RAW photo of {filename} as {raw_name.name}"
                     )
-                    _copy_file(str(raw_path), str(raw_name), norsrc=no_xattr)
+                    if export_as_hardlink:
+                        _hardlink_file(str(raw_path), str(raw_name))
+                    else:
+                        _copy_file(str(raw_path), str(raw_name), norsrc=no_xattr)
                     exported_files.append(str(raw_name))
                 else:
                     logging.warning(f"Skipping missing RAW photo for {filename}")

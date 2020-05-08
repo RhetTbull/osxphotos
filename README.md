@@ -201,6 +201,7 @@ Options:
                                   Search by end item date, e.g.
                                   2000-01-12T12:00:00 or 2000-12-31 (ISO 8601
                                   w/o TZ).
+  --export-as-hardlink            Hardlink files instead of copying them.
   --overwrite                     Overwrite existing files. Default behavior
                                   is to add (1), (2), etc to filename if file
                                   already exists. Use this with caution as it
@@ -984,12 +985,13 @@ Returns True if photo is a panorama, otherwise False.
 Returns a JSON representation of all photo info 
 
 #### `export()`
-`export(dest, *filename, edited=False, live_photo=False, overwrite=False, increment=True, sidecar_json=False, sidecar_xmp=False, use_photos_export=False, timeout=120, exiftool=False, no_xattr=False, use_albums_as_keywords=False, use_persons_as_keywords=False)`
+`export(dest, *filename, edited=False, live_photo=False, export_as_hardlink=False, overwrite=False, increment=True, sidecar_json=False, sidecar_xmp=False, use_photos_export=False, timeout=120, exiftool=False, no_xattr=False, use_albums_as_keywords=False, use_persons_as_keywords=False)`
 
 Export photo from the Photos library to another destination on disk.  
 - dest: must be valid destination path as str (or exception raised).
 - *filename (optional): name of picture as str; if not provided, will use current filename.  **NOTE**: if provided, user must ensure file extension (suffix) is correct. For example, if photo is .CR2 file, edited image may be .jpeg.  If you provide an extension different than what the actual file is, export will print a warning but will happily export the photo using the incorrect file extension.  e.g. to get the extension of the edited photo, look at [PhotoInfo.path_edited](#path_edited).
 - edited: boolean; if True (default=False), will export the edited version of the photo (or raise exception if no edited version)
+- export_as_hardlink: boolean; if True (default=False), will hardlink files instead of copying them
 - overwrite: boolean; if True (default=False), will overwrite files if they alreay exist
 - live_photo: boolean; if True (default=False), will also export the associted .mov for live photos; exported live photo will be named filename.mov
 - increment: boolean; if True (default=True), will increment file name until a non-existent name is found

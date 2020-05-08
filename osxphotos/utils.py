@@ -118,6 +118,30 @@ def _dd_to_dms(dd):
     return int(deg_), int(min_), sec_
 
 
+def _hardlink_file(src, dest):
+    """ Hardlinks a file from src path to dest path 
+        src: source path as string 
+        dest: destination path as string
+        Raises exception if linking fails or either path is None """
+
+    if src is None or dest is None:
+        raise ValueError("src and dest must not be None", src, dest)
+
+    if not os.path.isfile(src):
+        raise FileNotFoundError("src file does not appear to exist", src)
+
+
+    # if error on copy, subprocess will raise CalledProcessError
+    try:
+        os.link(src, dest)
+    except Exception as e:
+        logging.critical(
+            f"ln returned error: {e.returncode} {e.stderr.decode(sys.getfilesystemencoding()).rstrip()}"
+        )
+        raise e
+
+    
+
 def _copy_file(src, dest, norsrc=False):
     """ Copies a file from src path to dest path 
         src: source path as string 
