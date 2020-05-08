@@ -134,7 +134,7 @@ def _hardlink_file(src, dest):
     # if error on copy, subprocess will raise CalledProcessError
     try:
         os.link(src, dest)
-    except subprocess.CalledProcessError as e:
+    except Exception as e:
         logging.critical(
             f"ln returned error: {e.returncode} {e.stderr.decode(sys.getfilesystemencoding()).rstrip()}"
         )
