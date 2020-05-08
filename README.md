@@ -2,7 +2,7 @@
 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
+![Python package](https://github.com/RhetTbull/osxphotos/workflows/Python%20package/badge.svg)
 
 - [OSXPhotos](#osxphotos)
   * [What is osxphotos?](#what-is-osxphotos)
