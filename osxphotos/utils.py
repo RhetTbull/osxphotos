@@ -130,7 +130,6 @@ def _hardlink_file(src, dest):
     if not os.path.isfile(src):
         raise FileNotFoundError("src file does not appear to exist", src)
 
-    command = ["ln", src, dest]
 
     # if error on copy, subprocess will raise CalledProcessError
     try:
