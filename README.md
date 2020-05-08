@@ -42,7 +42,7 @@ This package will read Photos databases for any supported version on any support
 
 ## Installation instructions
 
-osxmetadata uses setuptools, thus simply run:
+OSXPhotos uses setuptools, thus simply run:
 
 	python3 setup.py install
 
