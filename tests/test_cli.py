@@ -241,6 +241,23 @@ def test_export():
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
 
 
+def test_export_using_hardlinks():
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--export-as-hardlink","-V"])
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
+
+
 def test_export_current_name():
     import glob
     import os
@@ -473,10 +490,13 @@ def test_export_raw_edited_original():
 def test_export_directory_template_1():
     # test export using directory template
     import glob
+    import locale
     import os
     import os.path
     import osxphotos
     from osxphotos.__main__ import export
+
+    locale.setlocale(locale.LC_ALL, "en_US")
 
     runner = CliRunner()
     cwd = os.getcwd()
