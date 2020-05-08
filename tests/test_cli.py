@@ -118,6 +118,8 @@ CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES3 = [
 
 CLI_EXPORT_UUID = "D79B8D77-BFFC-460B-9312-034F2877D35B"
 
+CLI_EXPORT_UUID_FILENAME = "Pumkins2.jpg"
+
 CLI_EXPORT_SIDECAR_FILENAMES = ["Pumkins2.jpg", "Pumkins2.json", "Pumkins2.xmp"]
 
 CLI_EXPORT_LIVE = [
@@ -252,10 +254,42 @@ def test_export_using_hardlinks():
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
-        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--export-as-hardlink","-V"])
+        result = runner.invoke(
+            export,
+            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--export-as-hardlink", "-V"],
+        )
         assert result.exit_code == 0
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
+
+
+def test_export_using_hardlinks_samefile():
+    # test that --export-as-hardlink actually creates a hardlink
+    # src and dest should be same file
+    import os
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    photosdb = osxphotos.PhotosDB(dbfile=CLI_PHOTOS_DB)
+    photo = photosdb.photos(uuid=[CLI_EXPORT_UUID])[0]
+
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                f"--uuid={CLI_EXPORT_UUID}",
+                "--export-as-hardlink",
+                "-V",
+            ],
+        )
+        assert result.exit_code == 0
+        assert os.path.exists(CLI_EXPORT_UUID_FILENAME)
+        assert os.path.samefile(CLI_EXPORT_UUID_FILENAME, photo.path)
 
 
 def test_export_current_name():
