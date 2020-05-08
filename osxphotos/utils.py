@@ -140,7 +140,6 @@ def _hardlink_file(src, dest):
         )
         raise e
 
-    return result.returncode
     
 
 def _copy_file(src, dest, norsrc=False):
