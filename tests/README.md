@@ -1,8 +1,9 @@
 # Tests for osxphotos #
 
 ## Running Tests ##
-Tests require pytest:
+Tests require pytest and pytest-mock:
 `pip install pytest`
+`pip install pytest-mock`
 
 To run the tests, do the following from the main source folder:
 `python -m pytest tests/`

@@ -107,18 +107,20 @@ def test_init4():
         pass
 
 
-def test_init5():
+def test_init5(mocker):
     # test failed get_last_library_path
     import osxphotos
-
+    
     def bad_library():
         return None
 
-    # force get_last_library to return a bad path for testing
-    osxphotos.photosdb.get_last_library_path = bad_library
-
+    # get_last_library actually in utils but need to patch it in photosdb because it's imported into photosdb
+    # as: from .utils import get_last_library
+    mocker.patch("osxphotos.photosdb.get_last_library_path", new=bad_library)
+    
     with pytest.raises(Exception):
         assert osxphotos.PhotosDB()
+
 
 def test_db_len():
     import osxphotos
