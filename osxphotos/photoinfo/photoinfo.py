@@ -19,7 +19,7 @@ from pprint import pformat
 import yaml
 from mako.template import Template
 
-from ._constants import (
+from .._constants import (
     _MAX_IPTC_KEYWORD_LEN,
     _MOVIE_TYPE,
     _OSXPHOTOS_NONE_SENTINEL,
@@ -30,16 +30,16 @@ from ._constants import (
     _UNKNOWN_PERSON,
     _XMP_TEMPLATE_NAME,
 )
-from .albuminfo import AlbumInfo
-from .datetime_formatter import DateTimeFormatter
-from .exiftool import ExifTool
-from .placeinfo import PlaceInfo4, PlaceInfo5
-from .template import (
+from ..albuminfo import AlbumInfo
+from ..datetime_formatter import DateTimeFormatter
+from ..exiftool import ExifTool
+from ..placeinfo import PlaceInfo4, PlaceInfo5
+from ..template import (
     MULTI_VALUE_SUBSTITUTIONS,
     TEMPLATE_SUBSTITUTIONS,
     TEMPLATE_SUBSTITUTIONS_MULTI_VALUED,
 )
-from .utils import (
+from ..utils import (
     _hardlink_file,
     _copy_file,
     _export_photo_uuid_applescript,
@@ -49,8 +49,11 @@ from .utils import (
     get_preferred_uti_extension,
 )
 
+# Mixins
+from .photoinfo_mixin_searchinfo import PhotoInfoMixinSearchInfo, SearchInfo
 
-class PhotoInfo:
+
+class PhotoInfo(PhotoInfoMixinSearchInfo):
     """
     Info about a specific photo, contains all the details about the photo
     including keywords, persons, albums, uuid, path, etc.
@@ -808,7 +811,7 @@ class PhotoInfo:
             if export_as_hardlink:
                 _hardlink_file(src, dest)
             else:
-                _copy_file(src, dest, norsrc=no_xattr)          
+                _copy_file(src, dest, norsrc=no_xattr)
             exported_files.append(str(dest))
 
             # copy live photo associated .mov if requested

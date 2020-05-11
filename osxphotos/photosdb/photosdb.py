@@ -15,7 +15,7 @@ from datetime import datetime
 from pprint import pformat
 from shutil import copyfile
 
-from ._constants import (
+from .._constants import (
     _MOVIE_TYPE,
     _PHOTO_TYPE,
     _PHOTOS_3_VERSION,
@@ -32,10 +32,10 @@ from ._constants import (
     _TESTED_OS_VERSIONS,
     _UNKNOWN_PERSON,
 )
-from ._version import __version__
-from .albuminfo import AlbumInfo, FolderInfo
-from .photoinfo import PhotoInfo
-from .utils import (
+from .._version import __version__
+from ..albuminfo import AlbumInfo, FolderInfo
+from ..photoinfo import PhotoInfo
+from ..utils import (
     _check_file_exists,
     _db_is_locked,
     _debug,
@@ -43,6 +43,9 @@ from .utils import (
     _open_sql_file,
     get_last_library_path,
 )
+
+# mixins
+from .photosdb_mixin_searchinfo import PhotosDBMixinSearchInfo
 
 # TODO: Add test for imageTimeZoneOffsetSeconds = None
 # TODO: Fix command line so multiple --keyword, etc. are AND (instead of OR as they are in .photos())
@@ -52,7 +55,7 @@ from .utils import (
 # TODO: fix "if X not in y" dictionary checks to use try/except EAFP style
 
 
-class PhotosDB:
+class PhotosDB(PhotosDBMixinSearchInfo):
     """ Processes a Photos.app library database to extract information about photos """
 
     def __init__(self, *dbfile_, dbfile=None):
@@ -1841,6 +1844,9 @@ class PhotosDB:
 
         # close connection and remove temporary files
         conn.close()
+
+        # process search info
+        self._process_searchinfo()
 
         # done processing, dump debug data if requested
         if _debug():

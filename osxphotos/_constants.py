@@ -60,3 +60,6 @@ _MAX_IPTC_KEYWORD_LEN = 64
 # Sentinel value for detecting if a template in keyword_template doesn't match
 # If anyone has a keyword matching this, then too bad...
 _OSXPHOTOS_NONE_SENTINEL = "OSXPhotosXYZZY42_Sentinel$"
+
+# SearchInfo categories for Photos 5, corresponds to categories in database/search/psi.sqlite
+SEARCH_CATEGORY_LABEL = 2024
