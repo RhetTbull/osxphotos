@@ -10,7 +10,7 @@ import logging
 import os
 import subprocess
 import sys
-from functools import lru_cache # pylint: disable=syntax-error
+from functools import lru_cache  # pylint: disable=syntax-error
 
 from .utils import _debug
 
@@ -232,20 +232,27 @@ class ExifTool:
         ver = self.run_commands("-ver", no_file=True)
         return ver.decode("utf-8")
 
-    def json(self):
-        """ return JSON dictionary from exiftool as dict """
+    def as_dict(self):
+        """ return dictionary of all EXIF tags and values from exiftool 
+            returns empty dict if no tags
+        """
         json_str = self.run_commands("-json")
         if json_str:
-            return json.loads(json_str)
+            exifdict = json.loads(json_str)
+            return exifdict[0]
         else:
-            return None
+            return dict()
+
+    def json(self):
+        """ returns JSON string containing all EXIF tags and values from exiftool """
+        json_str = self.run_commands("-json")
+        return json_str
 
     def _read_exif(self):
         """ read exif data from file """
-        json = self.json()
-        self.data = {k: v for k, v in json[0].items()}
+        data = self.as_dict()
+        self.data = {k: v for k, v in data.items()}
 
     def __str__(self):
         str_ = f"file: {self.file}\nexiftool: {self._exiftoolproc._exiftool}"
         return str_
-

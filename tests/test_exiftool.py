@@ -161,13 +161,21 @@ def test_exiftoolproc_exiftool():
     assert exif1._exiftoolproc.exiftool == osxphotos.exiftool.get_exiftool_path()
 
 
+def test_as_dict():
+    import osxphotos.exiftool
+
+    exif1 = osxphotos.exiftool.ExifTool(TEST_FILE_ONE_KEYWORD)
+    exifdata = exif1.as_dict()
+    assert exifdata["XMP:TagsList"] == "wedding"
+
+
 def test_json():
     import osxphotos.exiftool
     import json
 
     exif1 = osxphotos.exiftool.ExifTool(TEST_FILE_ONE_KEYWORD)
-    json1 = exif1.json()
-    assert json1[0]["XMP:TagsList"] == "wedding"
+    exifdata = json.loads(exif1.json())
+    assert exifdata[0]["XMP:TagsList"] == "wedding"
 
 
 def test_str():
