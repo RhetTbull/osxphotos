@@ -1,4 +1,7 @@
-""" Mixin class for PhotosDB to add Photos 5 search info such as machine learning labels """
+""" Mixin class for PhotosDB to add Photos 5 search info such as machine learning labels 
+    Kudos to Simon Willison who figured out how to extract this data from psi.sql
+    ref: https://github.com/dogsheep/photos-to-sqlite/issues/16
+"""
 
 import logging
 import pathlib
