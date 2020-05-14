@@ -44,19 +44,26 @@ from ..utils import (
     get_last_library_path,
 )
 
-# mixins
-from .photosdb_mixin_searchinfo import PhotosDBMixinSearchInfo
 
 # TODO: Add test for imageTimeZoneOffsetSeconds = None
 # TODO: Fix command line so multiple --keyword, etc. are AND (instead of OR as they are in .photos())
 #       Or fix the help text to match behavior
 # TODO: Add test for __str__
 # TODO: Add special albums and magic albums
-# TODO: fix "if X not in y" dictionary checks to use try/except EAFP style
 
 
-class PhotosDB(PhotosDBMixinSearchInfo):
+class PhotosDB:
     """ Processes a Photos.app library database to extract information about photos """
+
+    # import additional methods
+    from ._photosdb_process_exif import _process_exifinfo
+    from ._photosdb_process_searchinfo import (
+        _process_searchinfo,
+        labels,
+        labels_normalized,
+        labels_as_dict,
+        labels_normalized_as_dict,
+    )
 
     def __init__(self, *dbfile_, dbfile=None):
         """ create a new PhotosDB object 
@@ -1847,6 +1854,9 @@ class PhotosDB(PhotosDBMixinSearchInfo):
 
         # process search info
         self._process_searchinfo()
+
+        # process exif info
+        self._process_exifinfo()
 
         # done processing, dump debug data if requested
         if _debug():

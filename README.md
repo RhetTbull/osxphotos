@@ -13,6 +13,7 @@
   * [Package Interface](#package-interface)
     + [PhotosDB](#photosdb)
     + [PhotoInfo](#photoinfo)
+    + [ExifInfo](#exifinfo)
     + [AlbumInfo](#albuminfo)
     + [FolderInfo](#folderinfo)
     + [PlaceInfo](#placeinfo)
@@ -1022,7 +1023,10 @@ for photo in photosdb.photos():
 
 **Note**: Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also [labels](#labels).  
 
+#### `exif_info`
+Returns an [ExifInfo](#exifinfo) object with EXIF details from the Photos database.  See [ExifInfo](#exifinfo) for additional details.
 
+**Note**: Only valid on Photos 5; on earlier versions, returns `None`.  The EXIF details returned are a subset of the actual EXIF data in a typical image.  At import Photos stores this subset in the database and it's this stored data that `exif_info` returns.
 
 #### `json()`
 Returns a JSON representation of all photo info 
@@ -1086,6 +1090,43 @@ e.g. `render_filepath_template("{created.year}/{{foo}}", photo)` would return `(
 Some substitutions, notably `album`, `keyword`, and `person` could return multiple values, hence a new string will be return for each possible substitution (hence why a list of rendered strings is returned).  For example, a photo in 2 albums: 'Vacation' and 'Family' would result in the following rendered values if template was "{created.year}/{album}" and created.year == 2020: `["2020/Vacation","2020/Family"]` 
 
 See [Template Substitutions](#template-substitutions) for additional details.
+
+### ExifInfo
+[PhotosInfo.exif_info](#exif-info) returns an `ExifInfo` object with some EXIF data about the photo (Photos 5 only).  `ExifInfo` contains the following properties:
+
+```python
+    flash_fired: bool
+    iso: int
+    metering_mode: int
+    sample_rate: int
+    track_format: int
+    white_balance: int
+    aperture: float
+    bit_rate: float
+    duration: float
+    exposure_bias: float
+    focal_length: float
+    fps: float
+    latitude: float
+    longitude: float
+    shutter_speed: float
+    camera_make: str
+    camera_model: str
+    codec: str
+    lens_model: str
+```
+
+For example:
+
+```python
+import osxphotos
+
+nikon_photos = [
+    p
+    for p in osxphotos.PhotosDB().photos()
+    if p.exif_info.camera_make and "nikon" in p.exif_info.camera_make.lower()
+]
+```
 
 ### AlbumInfo
 PhotosDB.album_info and PhotoInfo.album_info return a list of AlbumInfo objects.  Each AlbumInfo object represents a single album in the Photos library.

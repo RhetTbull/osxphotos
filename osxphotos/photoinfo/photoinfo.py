@@ -19,6 +19,7 @@ from pprint import pformat
 import yaml
 from mako.template import Template
 
+
 from .._constants import (
     _MAX_IPTC_KEYWORD_LEN,
     _MOVIE_TYPE,
@@ -49,15 +50,21 @@ from ..utils import (
     get_preferred_uti_extension,
 )
 
-# Mixins
-from .photoinfo_mixin_searchinfo import PhotoInfoMixinSearchInfo, SearchInfo
 
-
-class PhotoInfo(PhotoInfoMixinSearchInfo):
+class PhotoInfo:
     """
     Info about a specific photo, contains all the details about the photo
     including keywords, persons, albums, uuid, path, etc.
     """
+
+    # import additional methods
+    from ._photoinfo_searchinfo import (
+        search_info,
+        labels,
+        labels_normalized,
+        SearchInfo,
+    )
+    from ._photoinfo_exifinfo import exif_info, ExifInfo
 
     def __init__(self, db=None, uuid=None, info=None):
         self._uuid = uuid

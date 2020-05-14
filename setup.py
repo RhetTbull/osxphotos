@@ -89,6 +89,7 @@ setup(
         "bpylist2==2.0.3;python_version<'3.8'",
         "bpylist2==3.0.0;python_version>='3.8'",
         "pathvalidate==2.2.1",
+        "dataclasses==0.7;python_version<'3.7'",
     ],
     entry_points={"console_scripts": ["osxphotos=osxphotos.__main__:cli"]},
     include_package_data=True,
