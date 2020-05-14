@@ -24,6 +24,39 @@ TEST_MULTI_KEYWORDS = [
     "photography",
 ]
 
+PHOTOS_DB = "tests/Test-10.15.4.photoslibrary"
+EXIF_UUID = {
+    "6191423D-8DB8-4D4C-92BE-9BBBA308AAC4": {
+        "EXIF:DateTimeOriginal": "2019:07:04 16:24:01",
+        "EXIF:LensModel": "XF18-55mmF2.8-4 R LM OIS",
+        "IPTC:Keywords": [
+            "Digital Nomad",
+            "Indoor",
+            "Reiseblogger",
+            "Stock Photography",
+            "Top Shot",
+            "close up",
+            "colorful",
+            "design",
+            "display",
+            "fake",
+            "flower",
+            "outdoor",
+            "photography",
+            "plastic",
+            "stock photo",
+            "vibrant",
+        ],
+        "IPTC:DocumentNotes": "https://flickr.com/e/l7FkSm4f2lQkSV3CG6xlv8Sde5uF3gVu4Hf0Qk11AnU%3D",
+    },
+    "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51": {
+        "EXIF:Make": "NIKON CORPORATION",
+        "EXIF:Model": "NIKON D810",
+        "IPTC:DateCreated": "2019:04:15",
+    },
+}
+EXIF_UUID_NONE = ["A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C"]
+
 try:
     exiftool = get_exiftool_path()
 except:
@@ -184,3 +217,26 @@ def test_str():
     exif1 = osxphotos.exiftool.ExifTool(TEST_FILE_ONE_KEYWORD)
     assert "file: " in str(exif1)
     assert "exiftool: " in str(exif1)
+
+
+def test_photoinfo_exiftool():
+    """ test PhotoInfo.exiftool which returns ExifTool object for photo """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    for uuid in EXIF_UUID:
+        photo = photosdb.photos(uuid=[uuid])[0]
+        exiftool = photo.exiftool
+        exif_dict = exiftool.as_dict()
+        for key, val in EXIF_UUID[uuid].items():
+            assert exif_dict[key] == val
+
+
+def test_photoinfo_exiftool_none():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    for uuid in EXIF_UUID_NONE:
+        photo = photosdb.photos(uuid=[uuid])[0]
+        exiftool = photo.exiftool
+        assert exiftool is None

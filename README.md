@@ -1028,6 +1028,50 @@ Returns an [ExifInfo](#exifinfo) object with EXIF details from the Photos databa
 
 **Note**: Only valid on Photos 5; on earlier versions, returns `None`.  The EXIF details returned are a subset of the actual EXIF data in a typical image.  At import Photos stores this subset in the database and it's this stored data that `exif_info` returns.
 
+See also `exiftool`.
+
+#### `exiftool`
+Returns an ExifTool object for the photo which provides an interface to [exiftool](https://exiftool.org/) allowing you to read or write the actual EXIF data in the image file inside the Photos library.  If [exif_info](#exif-info) doesn't give you all the data you need, you can use `exiftool` to read the entire EXIF contents of the image.
+
+If the file is missing from the library (e.g. not downloaded from iCloud), returns None. 
+
+exiftool must be installed in the path for this to work.  If exiftool cannot be found in the path, calling `exiftool` will log a warning and return `None`.  You can check the exiftool path using `osxphotos.exiftool.get_exiftool_path` which will raise FileNotFoundError if exiftool cannot be found.
+
+```python
+>>> import osxphotos
+>>> osxphotos.exiftool.get_exiftool_path()
+'/usr/local/bin/exiftool'
+>>>
+```
+
+`ExifTool` provides the following methods:
+
+- `as_dict()`: returns all EXIF metadata found in the file as a dictionary in following form (Note: this shows just a subset of available metadata).  See [exiftool](https://exiftool.org/) documentation to understand which metadata keys are available.
+```python
+{'Composite:Aperture': 2.2,
+ 'Composite:GPSPosition': '-34.9188916666667 138.596861111111',
+ 'Composite:ImageSize': '2754 2754',
+ 'EXIF:CreateDate': '2017:06:20 17:18:56',
+ 'EXIF:LensMake': 'Apple',
+ 'EXIF:LensModel': 'iPhone 6s back camera 4.15mm f/2.2',
+ 'EXIF:Make': 'Apple',
+ 'XMP:Title': 'Elder Park',
+}
+```
+
+- `json()`: returns same information as `as_dict()` but as a serialized JSON string.
+
+- `setvalue(tag, value)`: write to the EXIF data in the photo file. To delete a tag, use setvalue with value = `None`. For example:
+```python
+photo.exiftool.setvalue("XMP:Title", "Title of photo")
+```
+- `addvalues(tag, *values)`: Add one or more value(s) to tag.  For a tag that accepts multiple values, like "IPTC:Keywords", this will add the values as additional list values.  However, for tags which are not usually lists, such as "EXIF:ISO" this will literally add the new value to the old value which is probably not the desired effect.  Be sure you understand the behavior of the individual tag before using this. For example:
+```python
+photo.exiftool.addvalues("IPTC:Keywords", "vacation", "beach")
+```
+
+**Caution**: I caution against  writing new EXIF data to photos in the Photos library because this will overwrite the original copy of the photo and could adversely affect how Photos behaves.  `exiftool.as_dict()` is useful for getting access to all the photos information but if you want to write new EXIF data, I recommend you export the photo first then write the data.  [PhotoInfo.export()](#export) does this if called with `exiftool=True`.
+
 #### `json()`
 Returns a JSON representation of all photo info 
 

@@ -65,6 +65,7 @@ class PhotoInfo:
         SearchInfo,
     )
     from ._photoinfo_exifinfo import exif_info, ExifInfo
+    from ._photoinfo_exiftool import exiftool
 
     def __init__(self, db=None, uuid=None, info=None):
         self._uuid = uuid
