@@ -1,6 +1,6 @@
 """ Builds the template table in markdown format for README.md """
 
-from osxphotos.template import (
+from osxphotos.photoinfo.template import (
     TEMPLATE_SUBSTITUTIONS,
     TEMPLATE_SUBSTITUTIONS_MULTI_VALUED,
 )

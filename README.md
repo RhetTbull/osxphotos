@@ -387,13 +387,16 @@ exported, one to each directory.  For example: --directory
 of the following directories if the photos were created in 2019 and were in
 albums 'Vacation' and 'Family': 2019/Vacation, 2019/Family
 
-Substitution    Description
-{album}         Album(s) photo is contained in
-{folder_album}  Folder path + album photo is contained in. e.g.
-                'Folder/Subfolder/Album' or just 'Album' if no enclosing
-                folder
-{keyword}       Keyword(s) assigned to photo
-{person}        Person(s) / face(s) in a photo
+Substitution        Description
+{album}             Album(s) photo is contained in
+{folder_album}      Folder path + album photo is contained in. e.g.
+                    'Folder/Subfolder/Album' or just 'Album' if no enclosing
+                    folder
+{keyword}           Keyword(s) assigned to photo
+{person}            Person(s) / face(s) in a photo
+{label}             Image categorization label associated with a photo
+                    (Photos 5 only)
+{label_normalized}  All lower case version of 'label' (Photos 5 only)
 ```
 
 Example: export all photos to ~/Desktop/export group in folders by date created
@@ -1323,7 +1326,7 @@ The following substitutions are availabe for use with `PhotoInfo.render_template
 
 | Substitution | Description |
 |--------------|-------------|
-|{name}|Filename of the photo|
+|{name}|Current filename of the photo|
 |{original_name}|Photo's original filename when imported to Photos|
 |{title}|Title of the photo|
 |{descr}|Description of the photo|
@@ -1355,8 +1358,11 @@ The following substitutions are availabe for use with `PhotoInfo.render_template
 |{place.address.country}|Country name of the postal address, e.g. 'United States'|
 |{place.address.country_code}|ISO country code of the postal address, e.g. 'US'|
 |{album}|Album(s) photo is contained in|
+|{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
 |{keyword}|Keyword(s) assigned to photo|
 |{person}|Person(s) / face(s) in a photo|
+|{label}|Image categorization label associated with a photo (Photos 5 only)|
+|{label_normalized}|All lower case version of 'label' (Photos 5 only)|
 
 
 ### Utility Functions
