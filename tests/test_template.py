@@ -92,7 +92,7 @@ def test_lookup():
     """ Test that a lookup is returned for every possible value """
     import re
     import osxphotos
-    from osxphotos.template import TEMPLATE_SUBSTITUTIONS
+    from osxphotos.photoinfo.template import TEMPLATE_SUBSTITUTIONS
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
     photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]

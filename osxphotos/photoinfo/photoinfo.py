@@ -18,8 +18,6 @@ from pprint import pformat
 
 import yaml
 from mako.template import Template
-
-
 from .._constants import (
     _MAX_IPTC_KEYWORD_LEN,
     _MOVIE_TYPE,
@@ -35,19 +33,19 @@ from ..albuminfo import AlbumInfo
 from ..datetime_formatter import DateTimeFormatter
 from ..exiftool import ExifTool
 from ..placeinfo import PlaceInfo4, PlaceInfo5
-from ..template import (
-    MULTI_VALUE_SUBSTITUTIONS,
-    TEMPLATE_SUBSTITUTIONS,
-    TEMPLATE_SUBSTITUTIONS_MULTI_VALUED,
-)
 from ..utils import (
-    _hardlink_file,
     _copy_file,
     _export_photo_uuid_applescript,
     _get_resource_loc,
+    _hardlink_file,
     dd_to_dms_str,
     findfiles,
     get_preferred_uti_extension,
+)
+from .template import (
+    MULTI_VALUE_SUBSTITUTIONS,
+    TEMPLATE_SUBSTITUTIONS,
+    TEMPLATE_SUBSTITUTIONS_MULTI_VALUED,
 )
 
 
@@ -964,13 +962,11 @@ class PhotoInfo:
         # for explanation of regex see https://regex101.com/r/4JJg42/1
         # pylint: disable=anomalous-backslash-in-string
         regex = r"(?<!\{)\{([^\\,}]+)(,{0,1}(([\w\-. ]+))?)(?=\}(?!\}))\}"
-
         if type(template) is not str:
             raise TypeError(f"template must be type str, not {type(template)}")
 
         def make_subst_function(self, none_str, get_func=self.get_template_value):
             """ returns: substitution function for use in re.sub 
-                photo: a PhotoInfo object
                 none_str: value to use if substitution lookup is None and no default provided
                 get_func: function that gets the substitution value for a given template field
                         default is get_template_value which handles the single-value fields """
@@ -1037,6 +1033,10 @@ class PhotoInfo:
                 values = self.persons
                 # remove any _UNKNOWN_PERSON values
                 values = [val for val in values if val != _UNKNOWN_PERSON]
+            elif field == "label":
+                values = self.labels
+            elif field == "label_normalized":
+                values = self.labels_normalized
             elif field == "folder_album":
                 values = []
                 # photos must be in an album to be in a folder
@@ -1049,7 +1049,6 @@ class PhotoInfo:
                     else:
                         # album not in folder
                         values.append(album.title)
-
             else:
                 raise ValueError(f"Unhandleded template value: {field}")
 
@@ -1057,7 +1056,7 @@ class PhotoInfo:
             values = values or [None]
 
             # Build a regex that matches only the field being processed
-            re_str = r"(?<!\\)\{(" + field + r")(,{0,1}(([\w\-. ]+))?)\}"
+            re_str = r"(?<!\\)\{(" + field + r")(,(([\w\-. ]{0,})))?\}"
             regex_multi = re.compile(re_str)
 
             # holds each of the new rendered_strings, set() to avoid duplicates

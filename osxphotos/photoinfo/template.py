@@ -55,6 +55,8 @@ TEMPLATE_SUBSTITUTIONS_MULTI_VALUED = {
     "{folder_album}": "Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder",
     "{keyword}": "Keyword(s) assigned to photo",
     "{person}": "Person(s) / face(s) in a photo",
+    "{label}": "Image categorization label associated with a photo (Photos 5 only)",
+    "{label_normalized}": "All lower case version of 'label' (Photos 5 only)",
 }
 
 # Just the multi-valued substitution names without the braces

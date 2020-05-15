@@ -21,7 +21,7 @@ import osxphotos
 from ._constants import _EXIF_TOOL_URL, _PHOTOS_4_VERSION, _UNKNOWN_PLACE
 from ._version import __version__
 from .exiftool import get_exiftool_path
-from .template import TEMPLATE_SUBSTITUTIONS, TEMPLATE_SUBSTITUTIONS_MULTI_VALUED
+from .photoinfo.template import TEMPLATE_SUBSTITUTIONS, TEMPLATE_SUBSTITUTIONS_MULTI_VALUED
 from .utils import _copy_file, create_path_by_date
 
 
@@ -1695,9 +1695,9 @@ def export_photo(
         dest_paths = []
         for dirname in dirnames:
             dirname = sanitize_filepath(dirname, platform="auto")
-            if not is_valid_filepath(dirname, platform="auto"):
-                raise ValueError(f"Invalid file path: {dirname}")
             dest_path = os.path.join(dest, dirname)
+            if not is_valid_filepath(dest_path, platform="auto"):
+                raise ValueError(f"Invalid file path: '{dest_path}'")
             if not os.path.isdir(dest_path):
                 os.makedirs(dest_path)
             dest_paths.append(dest_path)
