@@ -21,7 +21,10 @@ import osxphotos
 from ._constants import _EXIF_TOOL_URL, _PHOTOS_4_VERSION, _UNKNOWN_PLACE
 from ._version import __version__
 from .exiftool import get_exiftool_path
-from .photoinfo.template import TEMPLATE_SUBSTITUTIONS, TEMPLATE_SUBSTITUTIONS_MULTI_VALUED
+from .photoinfo.template import (
+    TEMPLATE_SUBSTITUTIONS,
+    TEMPLATE_SUBSTITUTIONS_MULTI_VALUED,
+)
 from .utils import _copy_file, create_path_by_date
 
 
@@ -89,7 +92,7 @@ class ExportCommand(click.Command):
         )
         formatter.write("\n")
         formatter.write_text(
-                        "The templating system may also be used with the --keyword-template option "
+            "The templating system may also be used with the --keyword-template option "
             + "to set keywords on export (with --exiftool or --sidecar), "
             + "for example, to set a new keyword in format 'folder/subfolder/album' to "
             + 'preserve the folder/album structure, you can use --keyword-template "{folder_album}"'
@@ -778,6 +781,7 @@ def query(
     ]
     # print help if no non-exclusive term or a double exclusive term is given
     if not any(nonexclusive + [b ^ n for b, n in exclusive]):
+        click.echo("Incompatible query options", err=True)
         click.echo(cli.commands["query"].get_help(ctx), err=True)
         return
 
@@ -863,7 +867,8 @@ def query(
 @click.option(
     "--export-as-hardlink",
     is_flag=True,
-    help="Hardlink files instead of copying them. ",
+    help="Hardlink files instead of copying them.  "
+    "Cannot be used with --exiftool which creates copies of the files with embedded EXIF data.",
 )
 @click.option(
     "--overwrite",
@@ -961,7 +966,8 @@ def query(
     is_flag=True,
     help="Use exiftool to write metadata directly to exported photos. "
     "To use this option, exiftool must be installed and in the path.  "
-    "exiftool may be installed from https://exiftool.org/",
+    "exiftool may be installed from https://exiftool.org/.  "
+    "Cannot be used with --export-as-hardlink.",
 )
 @click.option(
     "--directory",
@@ -1082,9 +1088,11 @@ def export(
         (selfie, not_selfie),
         (panorama, not_panorama),
         (export_by_date, directory),
+        (export_as_hardlink, exiftool),
         (any(place), no_place),
     ]
     if any([all(bb) for bb in exclusive]):
+        click.echo("Incompatible export options",err=True)
         click.echo(cli.commands["export"].get_help(ctx), err=True)
         return
 

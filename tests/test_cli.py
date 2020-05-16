@@ -243,7 +243,7 @@ def test_export():
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
 
 
-def test_export_using_hardlinks():
+def test_export_as_hardlink():
     import glob
     import os
     import os.path
@@ -263,7 +263,7 @@ def test_export_using_hardlinks():
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
 
 
-def test_export_using_hardlinks_samefile():
+def test_export_as_hardlink_samefile():
     # test that --export-as-hardlink actually creates a hardlink
     # src and dest should be same file
     import os
@@ -291,7 +291,33 @@ def test_export_using_hardlinks_samefile():
         assert os.path.exists(CLI_EXPORT_UUID_FILENAME)
         assert os.path.samefile(CLI_EXPORT_UUID_FILENAME, photo.path)
 
+def test_export_using_hardlinks_incompat_options():
+    # test that error shown if --export-as-hardlink used with --exiftool
+    import os
+    import osxphotos
+    from osxphotos.__main__ import export
 
+    runner = CliRunner()
+    cwd = os.getcwd()
+    photosdb = osxphotos.PhotosDB(dbfile=CLI_PHOTOS_DB)
+    photo = photosdb.photos(uuid=[CLI_EXPORT_UUID])[0]
+
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                f"--uuid={CLI_EXPORT_UUID}",
+                "--export-as-hardlink",
+                "--exiftool",
+                "-V",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Incompatible export options" in result.output
+        
 def test_export_current_name():
     import glob
     import os
