@@ -1517,7 +1517,13 @@ class PhotosDB:
             else:
                 info["lastmodifieddate"] = None
 
-            info["imageDate"] = datetime.fromtimestamp(row[5] + td)
+            # Sometimes the year is waaay out of range (82665413681585!) so
+            # like lastmodifieddate, skip setting this if it is out of whack
+            #
+            if row[5] is not None and row[5] <= 9999999999:
+                info["imageDate"] = datetime.fromtimestamp(row[5] + td)
+            else:
+                info["imageDate"] = None
             info["imageTimeZoneOffsetSeconds"] = row[6]
             info["hidden"] = row[9]
             info["favorite"] = row[10]
