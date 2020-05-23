@@ -805,7 +805,11 @@ class PhotosDB:
             else:
                 self._dbphotos[uuid]["lastmodifieddate"] = None
 
-            self._dbphotos[uuid]["imageDate"] = datetime.fromtimestamp(row[5] + td)
+            try:
+                self._dbphotos[uuid]["imageDate"] = datetime.fromtimestamp(row[5] + td)
+            except ValueError:
+                self._dbphotos[uuid]["imageDate"] = datetime.date(1970,1,1)
+
             self._dbphotos[uuid]["mainRating"] = row[6]
             self._dbphotos[uuid]["hasAdjustments"] = row[7]
             self._dbphotos[uuid]["hasKeywords"] = row[8]
