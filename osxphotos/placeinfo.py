@@ -493,6 +493,14 @@ class PlaceInfo4(PlaceInfo):
         strval = "PlaceInfo(" + ", ".join([f"{k}='{v}'" for k, v in info.items()]) + ")"
         return strval
 
+    def as_dict(self):
+        info = {
+            "name": self.name,
+            "names": self.names._asdict(),
+            "country_code": self.country_code,
+        }
+        return info
+
 
 class PlaceInfo5(PlaceInfo):
     """ Reverse geolocation place info for a photo (Photos >= 5) """
@@ -624,3 +632,14 @@ class PlaceInfo5(PlaceInfo):
         }
         strval = "PlaceInfo(" + ", ".join([f"{k}='{v}'" for k, v in info.items()]) + ")"
         return strval
+
+    def as_dict(self):
+        info = {
+            "name": self.name,
+            "names": self.names._asdict(),
+            "country_code": self.country_code,
+            "ishome": self.ishome,
+            "address_str": self.address_str,
+            "address": self.address._asdict(),
+        }
+        return info

@@ -10,6 +10,44 @@ UUID_DICT = {
     "no_place": "A9B73E13-A6F2-4915-8D67-7213B39BAE9F",
 }
 
+MAUI_DICT = {
+    "name": "Maui, Wailea, Hawai'i, United States",
+    "names": {
+        "field0": [],
+        "country": ["United States"],
+        "state_province": ["Hawai'i"],
+        "sub_administrative_area": ["Maui"],
+        "city": ["Wailea", "Kihei", "Kihei"],
+        "field5": [],
+        "additional_city_info": [],
+        "ocean": [],
+        "area_of_interest": [],
+        "inland_water": [],
+        "field10": [],
+        "region": ["Maui"],
+        "sub_throughfare": [],
+        "field13": [],
+        "postal_code": [],
+        "field15": [],
+        "field16": [],
+        "street_address": ["3700 Wailea Alanui Dr"],
+        "body_of_water": [],
+    },
+    "country_code": "US",
+    "ishome": False,
+    "address_str": "3700 Wailea Alanui Dr, Kihei, HI  96753, United States",
+    "address": {
+        "street": "3700 Wailea Alanui Dr",
+        "sub_locality": None,
+        "city": "Kihei",
+        "sub_administrative_area": "Maui",
+        "state_province": "HI",
+        "postal_code": "96753",
+        "country": "United States",
+        "iso_country_code": "US",
+    },
+}
+
 
 def test_place_place_info_1():
     # test valid place info
@@ -90,6 +128,17 @@ def test_place_no_place_info():
     photo = photosdb.photos(uuid=[UUID_DICT["no_place"]])[0]
 
     assert photo.place is None
+
+
+def test_place_place_info_as_dict():
+    # test PlaceInfo.as_dict()
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photo = photosdb.photos(uuid=[UUID_DICT["place_maui"]])[0]
+
+    assert isinstance(photo.place, osxphotos.placeinfo.PlaceInfo)
+    assert photo.place.as_dict() == MAUI_DICT
 
 
 # def test_place_str():

@@ -5,6 +5,32 @@ PHOTOS_DB = "./tests/Test-10.14.6.photoslibrary/database/photos.db"
 
 UUID_DICT = {"place_uk": "3Jn73XpSQQCluzRBMWRsMA", "no_place": "15uNd7%8RguTEgNPKHfTWw"}
 
+UK_DICT = {
+    "name": "St James's Park, Westminster, United Kingdom",
+    "names": {
+        "field0": [],
+        "country": ["United Kingdom"],
+        "state_province": ["England"],
+        "sub_administrative_area": ["London"],
+        "city": ["Westminster"],
+        "field5": [],
+        "additional_city_info": [],
+        "ocean": [],
+        "area_of_interest": ["St James's Park"],
+        "inland_water": [],
+        "field10": [],
+        "region": [],
+        "sub_throughfare": [],
+        "field13": [],
+        "postal_code": [],
+        "field15": [],
+        "field16": [],
+        "street_address": [],
+        "body_of_water": [],
+    },
+    "country_code": "GB",
+}
+
 
 def test_place_place_info_1():
     # test valid place info
@@ -60,3 +86,13 @@ def test_place_str():
         "region=[], sub_throughfare=[], field13=[], postal_code=[], field15=[], "
         "field16=[], street_address=[], body_of_water=[])', country_code='GB')"
     )
+
+def test_place_as_dict():
+    # test PlaceInfo.as_dict()
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photo = photosdb.photos(uuid=[UUID_DICT["place_uk"]])[0]
+    assert photo.place is not None
+    assert isinstance(photo.place, osxphotos.placeinfo.PlaceInfo)
+    assert photo.place.as_dict() == UK_DICT
