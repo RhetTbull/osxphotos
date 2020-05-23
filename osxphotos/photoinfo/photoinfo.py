@@ -4,6 +4,7 @@ Represents a single photo in the Photos library and provides access to the photo
 PhotosDB.photos() returns a list of PhotoInfo objects
 """
 
+import dataclasses
 import glob
 import json
 import logging
@@ -17,31 +18,18 @@ from datetime import timedelta, timezone
 from pprint import pformat
 
 import yaml
-from mako.template import Template
+
 from .._constants import (
-    _MAX_IPTC_KEYWORD_LEN,
     _MOVIE_TYPE,
-    _OSXPHOTOS_NONE_SENTINEL,
     _PHOTO_TYPE,
     _PHOTOS_4_VERSION,
     _PHOTOS_5_SHARED_PHOTO_PATH,
-    _TEMPLATE_DIR,
     _UNKNOWN_PERSON,
-    _XMP_TEMPLATE_NAME,
 )
 from ..albuminfo import AlbumInfo
 from ..datetime_formatter import DateTimeFormatter
-from ..exiftool import ExifTool
 from ..placeinfo import PlaceInfo4, PlaceInfo5
-from ..utils import (
-    _copy_file,
-    _export_photo_uuid_applescript,
-    _get_resource_loc,
-    _hardlink_file,
-    dd_to_dms_str,
-    findfiles,
-    get_preferred_uti_extension,
-)
+from ..utils import _debug, _get_resource_loc, findfiles, get_preferred_uti_extension
 from .template import (
     MULTI_VALUE_SUBSTITUTIONS,
     TEMPLATE_SUBSTITUTIONS,
@@ -64,6 +52,16 @@ class PhotoInfo:
     )
     from ._photoinfo_exifinfo import exif_info, ExifInfo
     from ._photoinfo_exiftool import exiftool
+    from ._photoinfo_export import (
+        export,
+        export2,
+        _export_photo,
+        _exiftool_json_sidecar,
+        _write_exif_data,
+        _write_sidecar,
+        _xmp_sidecar,
+        ExportResults,
+    )
 
     def __init__(self, db=None, uuid=None, info=None):
         self._uuid = uuid
@@ -262,7 +260,7 @@ class PhotoInfo:
             # if self._info["isMissing"] == 1:
             #     photopath = None  # path would be meaningless until downloaded
 
-            logging.debug(photopath)
+            # logging.debug(photopath)
 
         return photopath
 
@@ -638,307 +636,6 @@ class PhotoInfo:
             otherwise returns False """
         return self._info["raw_is_original"]
 
-    def export(
-        self,
-        dest,
-        *filename,
-        edited=False,
-        live_photo=False,
-        raw_photo=False,
-        export_as_hardlink=False,
-        overwrite=False,
-        increment=True,
-        sidecar_json=False,
-        sidecar_xmp=False,
-        use_photos_export=False,
-        timeout=120,
-        exiftool=False,
-        no_xattr=False,
-        use_albums_as_keywords=False,
-        use_persons_as_keywords=False,
-        keyword_template=None,
-    ):
-        """ export photo 
-            dest: must be valid destination path (or exception raised) 
-            filename: (optional): name of exported picture; if not provided, will use current filename 
-                      **NOTE**: if provided, user must ensure file extension (suffix) is correct. 
-                      For example, if photo is .CR2 file, edited image may be .jpeg.  
-                      If you provide an extension different than what the actual file is, 
-                      export will print a warning but will happily export the photo using the 
-                      incorrect file extension.  e.g. to get the extension of the edited photo, 
-                      reference PhotoInfo.path_edited
-            edited: (boolean, default=False); if True will export the edited version of the photo 
-                    (or raise exception if no edited version) 
-            live_photo: (boolean, default=False); if True, will also export the associted .mov for live photos
-            raw_photo: (boolean, default=False); if True, will also export the associted RAW photo
-            export_as_hardlink: (boolean, default=False); if True, will hardlink files instead of copying them
-            overwrite: (boolean, default=False); if True will overwrite files if they alreay exist 
-            increment: (boolean, default=True); if True, will increment file name until a non-existant name is found 
-                       if overwrite=False and increment=False, export will fail if destination file already exists 
-            sidecar_json: (boolean, default = False); if True will also write a json sidecar with IPTC data in format readable by exiftool
-                      sidecar filename will be dest/filename.json 
-            sidecar_xmp: (boolean, default = False); if True will also write a XMP sidecar with IPTC data 
-                      sidecar filename will be dest/filename.xmp 
-            use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos
-            timeout: (int, default=120) timeout in seconds used with use_photos_export
-            exiftool: (boolean, default = False); if True, will use exiftool to write metadata to export file
-            no_xattr: (boolean, default = False); if True, exports file without preserving extended attributes
-            returns list of full paths to the exported files
-            use_albums_as_keywords: (boolean, default = False); if True, will include album names in keywords
-            when exporting metadata with exiftool or sidecar
-            use_persons_as_keywords: (boolean, default = False); if True, will include person names in keywords
-            when exporting metadata with exiftool or sidecar
-            keyword_template: (list of strings); list of template strings that will be rendered as used as keywords
-             """
-
-        # list of all files exported during this call to export
-        exported_files = []
-
-        # check edited and raise exception trying to export edited version of
-        # photo that hasn't been edited
-        if edited and not self.hasadjustments:
-            raise ValueError(
-                "Photo does not have adjustments, cannot export edited version"
-            )
-
-        # check arguments and get destination path and filename (if provided)
-        if filename and len(filename) > 2:
-            raise TypeError(
-                "Too many positional arguments.  Should be at most two: destination, filename."
-            )
-        else:
-            # verify destination is a valid path
-            if dest is None:
-                raise ValueError("Destination must not be None")
-            elif not os.path.isdir(dest):
-                raise FileNotFoundError("Invalid path passed to export")
-
-            if filename and len(filename) == 1:
-                # if filename passed, use it
-                fname = filename[0]
-            else:
-                # no filename provided so use the default
-                # if edited file requested, use filename but add _edited
-                # need to use file extension from edited file as Photos saves a jpeg once edited
-                if edited and not use_photos_export:
-                    # verify we have a valid path_edited and use that to get filename
-                    if not self.path_edited:
-                        raise FileNotFoundError(
-                            "edited=True but path_edited is none; hasadjustments: "
-                            f" {self.hasadjustments}"
-                        )
-                    edited_name = pathlib.Path(self.path_edited).name
-                    edited_suffix = pathlib.Path(edited_name).suffix
-                    fname = pathlib.Path(self.filename).stem + "_edited" + edited_suffix
-                else:
-                    fname = self.filename
-
-        # check destination path
-        dest = pathlib.Path(dest)
-        fname = pathlib.Path(fname)
-        dest = dest / fname
-
-        # check extension of destination
-        if edited and self.path_edited is not None:
-            # use suffix from edited file
-            actual_suffix = pathlib.Path(self.path_edited).suffix
-        elif edited:
-            # use .jpeg as that's probably correct
-            # if edited and path_edited is None, will raise FileNotFoundError below
-            # unless use_photos_export is True
-            actual_suffix = ".jpeg"
-        else:
-            # use suffix from the non-edited file
-            actual_suffix = pathlib.Path(self.filename).suffix
-
-        # warn if suffixes don't match but ignore .JPG / .jpeg as
-        # Photo's often converts .JPG to .jpeg
-        suffixes = sorted([x.lower() for x in [dest.suffix, actual_suffix]])
-        if dest.suffix.lower() != actual_suffix.lower() and suffixes != [
-            ".jpeg",
-            ".jpg",
-        ]:
-            logging.warning(
-                f"Invalid destination suffix: {dest.suffix}, should be {actual_suffix}"
-            )
-
-        # check to see if file exists and if so, add (1), (2), etc until we find one that works
-        # Photos checks the stem and adds (1), (2), etc which avoids collision with sidecars
-        # e.g. exporting sidecar for file1.png and file1.jpeg
-        # if file1.png exists and exporting file1.jpeg,
-        # dest will be file1 (1).jpeg even though file1.jpeg doesn't exist to prevent sidecar collision
-        if increment and not overwrite:
-            count = 1
-            glob_str = str(dest.parent / f"{dest.stem}*")
-            dest_files = glob.glob(glob_str)
-            dest_files = [pathlib.Path(f).stem for f in dest_files]
-            dest_new = dest.stem
-            while dest_new in dest_files:
-                dest_new = f"{dest.stem} ({count})"
-                count += 1
-            dest = dest.parent / f"{dest_new}{dest.suffix}"
-
-        # if overwrite==False and #increment==False, export should fail if file exists
-        if dest.exists() and not overwrite and not increment:
-            raise FileExistsError(
-                f"destination exists ({dest}); overwrite={overwrite}, increment={increment}"
-            )
-
-        if not use_photos_export:
-            # find the source file on disk and export
-            # get path to source file and verify it's not None and is valid file
-            # TODO: how to handle ismissing or not hasadjustments and edited=True cases?
-            if edited:
-                if self.path_edited is not None:
-                    src = self.path_edited
-                else:
-                    raise FileNotFoundError(
-                        f"Cannot export edited photo if path_edited is None"
-                    )
-            else:
-                if self.ismissing:
-                    logging.warning(
-                        f"Attempting to export photo with ismissing=True: path = {self.path}"
-                    )
-
-                if self.path is not None:
-                    src = self.path
-                else:
-                    raise FileNotFoundError("Cannot export photo if path is None")
-
-            if not os.path.isfile(src):
-                raise FileNotFoundError(f"{src} does not appear to exist")
-
-            logging.debug(
-                f"exporting {src} to {dest}, overwrite={overwrite}, increment={increment}, dest exists: {dest.exists()}"
-            )
-
-            # copy the file, _copy_file uses ditto to preserve Mac extended attributes
-            if export_as_hardlink:
-                _hardlink_file(src, dest)
-            else:
-                _copy_file(src, dest, norsrc=no_xattr)
-            exported_files.append(str(dest))
-
-            # copy live photo associated .mov if requested
-            if live_photo and self.live_photo:
-                live_name = dest.parent / f"{dest.stem}.mov"
-                src_live = self.path_live_photo
-
-                if src_live is not None:
-                    logging.debug(
-                        f"Exporting live photo video of {filename} as {live_name.name}"
-                    )
-                    if export_as_hardlink:
-                        _hardlink_file(src_live, str(live_name))
-                    else:
-                        _copy_file(src_live, str(live_name), norsrc=no_xattr)
-                    exported_files.append(str(live_name))
-                else:
-                    logging.warning(f"Skipping missing live movie for {filename}")
-
-            # copy associated RAW image if requested
-            if raw_photo and self.has_raw:
-                raw_path = pathlib.Path(self.path_raw)
-                raw_ext = raw_path.suffix
-                raw_name = dest.parent / f"{dest.stem}{raw_ext}"
-                if raw_path is not None:
-                    logging.debug(
-                        f"Exporting RAW photo of {filename} as {raw_name.name}"
-                    )
-                    if export_as_hardlink:
-                        _hardlink_file(str(raw_path), str(raw_name))
-                    else:
-                        _copy_file(str(raw_path), str(raw_name), norsrc=no_xattr)
-                    exported_files.append(str(raw_name))
-                else:
-                    logging.warning(f"Skipping missing RAW photo for {filename}")
-        else:
-            # use_photo_export
-            exported = None
-            # export live_photo .mov file?
-            live_photo = True if live_photo and self.live_photo else False
-            if edited:
-                # exported edited version and not original
-                if filename:
-                    # use filename stem provided
-                    filestem = dest.stem
-                else:
-                    # didn't get passed a filename, add _edited
-                    filestem = f"{dest.stem}_edited"
-                    dest = dest.parent / f"{filestem}.jpeg"
-
-                exported = _export_photo_uuid_applescript(
-                    self.uuid,
-                    dest.parent,
-                    filestem=filestem,
-                    original=False,
-                    edited=True,
-                    live_photo=live_photo,
-                    timeout=timeout,
-                    burst=self.burst,
-                )
-            else:
-                # export original version and not edited
-                filestem = dest.stem
-                exported = _export_photo_uuid_applescript(
-                    self.uuid,
-                    dest.parent,
-                    filestem=filestem,
-                    original=True,
-                    edited=False,
-                    live_photo=live_photo,
-                    timeout=timeout,
-                    burst=self.burst,
-                )
-
-            if exported is not None:
-                exported_files.extend(exported)
-            else:
-                logging.warning(
-                    f"Error exporting photo {self.uuid} to {dest} with use_photos_export"
-                )
-
-        if sidecar_json:
-            logging.debug("writing exiftool_json_sidecar")
-            sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}.json")
-            sidecar_str = self._exiftool_json_sidecar(
-                use_albums_as_keywords=use_albums_as_keywords,
-                use_persons_as_keywords=use_persons_as_keywords,
-                keyword_template=keyword_template,
-            )
-            try:
-                self._write_sidecar(sidecar_filename, sidecar_str)
-            except Exception as e:
-                logging.warning(f"Error writing json sidecar to {sidecar_filename}")
-                raise e
-
-        if sidecar_xmp:
-            logging.debug("writing xmp_sidecar")
-            sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}.xmp")
-            sidecar_str = self._xmp_sidecar(
-                use_albums_as_keywords=use_albums_as_keywords,
-                use_persons_as_keywords=use_persons_as_keywords,
-                keyword_template=keyword_template,
-            )
-            try:
-                self._write_sidecar(sidecar_filename, sidecar_str)
-            except Exception as e:
-                logging.warning(f"Error writing xmp sidecar to {sidecar_filename}")
-                raise e
-
-        # if exiftool, write the metadata
-        if exiftool and exported_files:
-            for exported_file in exported_files:
-                self._write_exif_data(
-                    exported_file,
-                    use_albums_as_keywords=use_albums_as_keywords,
-                    use_persons_as_keywords=use_persons_as_keywords,
-                    keyword_template=keyword_template,
-                )
-
-        return exported_files
-
     def render_template(self, template, none_str="_", path_sep=None):
         """ render a filename or directory template 
             template: str template 
@@ -1273,264 +970,6 @@ class PhotoInfo:
         # if here, didn't get a match
         raise KeyError(f"No rule for processing {lookup}")
 
-    def _write_exif_data(
-        self,
-        filepath,
-        use_albums_as_keywords=False,
-        use_persons_as_keywords=False,
-        keyword_template=None,
-    ):
-        """ write exif data to image file at filepath
-        filepath: full path to the image file """
-        if not os.path.exists(filepath):
-            raise FileNotFoundError(f"Could not find file {filepath}")
-        exiftool = ExifTool(filepath)
-        exif_info = json.loads(
-            self._exiftool_json_sidecar(
-                use_albums_as_keywords=use_albums_as_keywords,
-                use_persons_as_keywords=use_persons_as_keywords,
-                keyword_template=keyword_template,
-            )
-        )[0]
-        for exiftag, val in exif_info.items():
-            if type(val) == list:
-                # more than one, set first value the add additional values
-                exiftool.setvalue(exiftag, val.pop(0))
-                if val:
-                    # add any remaining items
-                    exiftool.addvalues(exiftag, *val)
-            else:
-                exiftool.setvalue(exiftag, val)
-
-    def _exiftool_json_sidecar(
-        self,
-        use_albums_as_keywords=False,
-        use_persons_as_keywords=False,
-        keyword_template=None,
-    ):
-        """ return json string of EXIF details in exiftool sidecar format
-            Does not include all the EXIF fields as those are likely already in the image
-            use_albums_as_keywords: treat album names as keywords
-            use_persons_as_keywords: treat person names as keywords
-            keyword_template: (list of strings); list of template strings to render as keywords
-            Exports the following:
-                FileName
-                ImageDescription
-                Description
-                Title
-                TagsList
-                Keywords (may include album name, person name, or template)
-                Subject
-                PersonInImage
-                GPSLatitude, GPSLongitude
-                GPSPosition
-                GPSLatitudeRef, GPSLongitudeRef
-                DateTimeOriginal
-                OffsetTimeOriginal
-                ModifyDate """
-
-        exif = {}
-        exif["_CreatedBy"] = "osxphotos, https://github.com/RhetTbull/osxphotos"
-
-        if self.description:
-            exif["EXIF:ImageDescription"] = self.description
-            exif["XMP:Description"] = self.description
-
-        if self.title:
-            exif["XMP:Title"] = self.title
-
-        keyword_list = []
-        if self.keywords:
-            keyword_list.extend(self.keywords)
-
-        person_list = []
-        if self.persons:
-            # filter out _UNKNOWN_PERSON
-            person_list = [p for p in self.persons if p != _UNKNOWN_PERSON]
-
-        if use_persons_as_keywords and person_list:
-            keyword_list.extend(person_list)
-
-        if use_albums_as_keywords and self.albums:
-            keyword_list.extend(self.albums)
-
-        if keyword_template:
-            rendered_keywords = []
-            for template_str in keyword_template:
-                rendered, unmatched = self.render_template(
-                    template_str, none_str=_OSXPHOTOS_NONE_SENTINEL, path_sep="/"
-                )
-                if unmatched:
-                    logging.warning(
-                        f"Unmatched template substitution for template: {template_str} {unmatched}"
-                    )
-                rendered_keywords.extend(rendered)
-
-            # filter out any template values that didn't match by looking for sentinel
-            rendered_keywords = [
-                keyword
-                for keyword in rendered_keywords
-                if _OSXPHOTOS_NONE_SENTINEL not in keyword
-            ]
-
-            # check to see if any keywords too long
-            long_keywords = [
-                long_str
-                for long_str in rendered_keywords
-                if len(long_str) > _MAX_IPTC_KEYWORD_LEN
-            ]
-            if long_keywords:
-                logging.warning(
-                    f"Some keywords exceed max IPTC Keyword length of {_MAX_IPTC_KEYWORD_LEN}: {long_keywords}"
-                )
-
-            logging.debug(f"rendered_keywords: {rendered_keywords}")
-            keyword_list.extend(rendered_keywords)
-
-        if keyword_list:
-            exif["XMP:TagsList"] = exif["IPTC:Keywords"] = keyword_list
-
-        if person_list:
-            exif["XMP:PersonInImage"] = person_list
-
-        if self.keywords or person_list:
-            # Photos puts both keywords and persons in Subject when using "Export IPTC as XMP"
-            # only use Photos' keywords for subject
-            exif["XMP:Subject"] = list(self.keywords) + person_list
-
-        # if self.favorite():
-        #     exif["Rating"] = 5
-
-        (lat, lon) = self.location
-        if lat is not None and lon is not None:
-            lat_str, lon_str = dd_to_dms_str(lat, lon)
-            exif["EXIF:GPSLatitude"] = lat_str
-            exif["EXIF:GPSLongitude"] = lon_str
-            exif["Composite:GPSPosition"] = f"{lat_str}, {lon_str}"
-            lat_ref = "North" if lat >= 0 else "South"
-            lon_ref = "East" if lon >= 0 else "West"
-            exif["EXIF:GPSLatitudeRef"] = lat_ref
-            exif["EXIF:GPSLongitudeRef"] = lon_ref
-
-        # process date/time and timezone offset
-        date = self.date
-        # exiftool expects format to "2015:01:18 12:00:00"
-        datetimeoriginal = date.strftime("%Y:%m:%d %H:%M:%S")
-        offsettime = date.strftime("%z")
-        # find timezone offset in format "-04:00"
-        offset = re.findall(r"([+-]?)([\d]{2})([\d]{2})", offsettime)
-        offset = offset[0]  # findall returns list of tuples
-        offsettime = f"{offset[0]}{offset[1]}:{offset[2]}"
-        exif["EXIF:DateTimeOriginal"] = datetimeoriginal
-        exif["EXIF:OffsetTimeOriginal"] = offsettime
-
-        if self.date_modified is not None:
-            exif["EXIF:ModifyDate"] = self.date_modified.strftime("%Y:%m:%d %H:%M:%S")
-
-        json_str = json.dumps([exif])
-        return json_str
-
-    def _xmp_sidecar(
-        self,
-        use_albums_as_keywords=False,
-        use_persons_as_keywords=False,
-        keyword_template=None,
-    ):
-        """ returns string for XMP sidecar 
-            use_albums_as_keywords: treat album names as keywords
-            use_persons_as_keywords: treat person names as keywords
-            keyword_template: (list of strings); list of template strings to render as keywords """
-
-        # TODO: add additional fields to XMP file?
-
-        xmp_template = Template(
-            filename=os.path.join(_TEMPLATE_DIR, _XMP_TEMPLATE_NAME)
-        )
-
-        keyword_list = []
-        if self.keywords:
-            keyword_list.extend(self.keywords)
-
-        # TODO: keyword handling in this and _exiftool_json_sidecar is
-        # good candidate for pulling out in a function
-
-        person_list = []
-        if self.persons:
-            # filter out _UNKNOWN_PERSON
-            person_list = [p for p in self.persons if p != _UNKNOWN_PERSON]
-
-        if use_persons_as_keywords and person_list:
-            keyword_list.extend(person_list)
-
-        if use_albums_as_keywords and self.albums:
-            keyword_list.extend(self.albums)
-
-        if keyword_template:
-            rendered_keywords = []
-            for template_str in keyword_template:
-                rendered, unmatched = self.render_template(
-                    template_str, none_str=_OSXPHOTOS_NONE_SENTINEL, path_sep="/"
-                )
-                if unmatched:
-                    logging.warning(
-                        f"Unmatched template substitution for template: {template_str} {unmatched}"
-                    )
-                rendered_keywords.extend(rendered)
-
-            # filter out any template values that didn't match by looking for sentinel
-            rendered_keywords = [
-                keyword
-                for keyword in rendered_keywords
-                if _OSXPHOTOS_NONE_SENTINEL not in keyword
-            ]
-
-            # check to see if any keywords too long
-            long_keywords = [
-                long_str
-                for long_str in rendered_keywords
-                if len(long_str) > _MAX_IPTC_KEYWORD_LEN
-            ]
-            if long_keywords:
-                logging.warning(
-                    f"Some keywords exceed max IPTC Keyword length of {_MAX_IPTC_KEYWORD_LEN}: {long_keywords}"
-                )
-
-            logging.debug(f"rendered_keywords: {rendered_keywords}")
-            keyword_list.extend(rendered_keywords)
-
-        subject_list = []
-        if self.keywords or person_list:
-            # Photos puts both keywords and persons in Subject when using "Export IPTC as XMP"
-            subject_list = list(self.keywords) + person_list
-
-        xmp_str = xmp_template.render(
-            photo=self,
-            keywords=keyword_list,
-            persons=person_list,
-            subjects=subject_list,
-        )
-
-        # remove extra lines that mako inserts from template
-        xmp_str = "\n".join(
-            [line for line in xmp_str.split("\n") if line.strip() != ""]
-        )
-        return xmp_str
-
-    def _write_sidecar(self, filename, sidecar_str):
-        """ write sidecar_str to filename
-            used for exporting sidecar info """
-        if not filename and not sidecar_str:
-            raise (
-                ValueError(
-                    f"filename {filename} and sidecar_str {sidecar_str} must not be None"
-                )
-            )
-
-        # TODO: catch exception?
-        f = open(filename, "w")
-        f.write(sidecar_str)
-        f.close()
-
     @property
     def _longitude(self):
         """ Returns longitude, in degrees """
@@ -1600,6 +1039,9 @@ class PhotoInfo:
         date_modified_iso = (
             self.date_modified.isoformat() if self.date_modified else None
         )
+        folders = {album.title: album.folder_names for album in self.album_info}
+        exif = dataclasses.asdict(self.exif_info) if self.exif_info else {}
+        place = self.place.as_dict() if self.place else {}
 
         pic = {
             "uuid": self.uuid,
@@ -1609,7 +1051,10 @@ class PhotoInfo:
             "description": self.description,
             "title": self.title,
             "keywords": self.keywords,
+            "labels": self.labels,
+            "keywords": self.keywords,
             "albums": self.albums,
+            "folders": folders,
             "persons": self.persons,
             "path": self.path,
             "ismissing": self.ismissing,
@@ -1640,6 +1085,8 @@ class PhotoInfo:
             "has_raw": self.has_raw,
             "uti_raw": self.uti_raw,
             "path_raw": self.path_raw,
+            "place": place,
+            "exif": exif,
         }
         return json.dumps(pic)
 

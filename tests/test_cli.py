@@ -2,6 +2,8 @@ import os
 import pytest
 from click.testing import CliRunner
 
+from osxphotos.exiftool import get_exiftool_path
+
 CLI_PHOTOS_DB = "tests/Test-10.15.1.photoslibrary"
 LIVE_PHOTOS_DB = "tests/Test-Cloud-10.15.1.photoslibrary"
 RAW_PHOTOS_DB = "tests/Test-RAW-10.15.1.photoslibrary"
@@ -120,6 +122,11 @@ CLI_EXPORT_UUID = "D79B8D77-BFFC-460B-9312-034F2877D35B"
 
 CLI_EXPORT_UUID_FILENAME = "Pumkins2.jpg"
 
+CLI_EXPORT_BY_DATE = [
+    "2018/09/28/Pumpkins3.jpg",
+    "2018/09/28/Pumkins1.jpg",
+]
+
 CLI_EXPORT_SIDECAR_FILENAMES = ["Pumkins2.jpg", "Pumkins2.json", "Pumkins2.xmp"]
 
 CLI_EXPORT_LIVE = [
@@ -138,6 +145,24 @@ CLI_EXPORT_RAW_EDITED = [
 CLI_EXPORT_RAW_EDITED_ORIGINAL = ["IMG_0476_2.CR2", "IMG_0476_2_edited.jpeg"]
 
 CLI_PLACES_JSON = """{"places": {"_UNKNOWN_": 1, "Maui, Wailea, Hawai'i, United States": 1, "Washington, District of Columbia, United States": 1}}"""
+
+CLI_EXIFTOOL = {
+    "D79B8D77-BFFC-460B-9312-034F2877D35B": {
+        "File:FileName": "Pumkins2.jpg",
+        "IPTC:Keywords": "Kids",
+        "XMP:TagsList": "Kids",
+        "XMP:Title": "I found one!",
+        "EXIF:ImageDescription": "Girl holding pumpkin",
+        "XMP:Description": "Girl holding pumpkin",
+        "XMP:PersonInImage": "Katie",
+        "XMP:Subject": ["Kids", "Katie"],
+    }
+}
+# determine if exiftool installed so exiftool tests can be skipped
+try:
+    exiftool = get_exiftool_path()
+except:
+    exiftool = None
 
 
 def test_osxphotos():
@@ -291,6 +316,7 @@ def test_export_as_hardlink_samefile():
         assert os.path.exists(CLI_EXPORT_UUID_FILENAME)
         assert os.path.samefile(CLI_EXPORT_UUID_FILENAME, photo.path)
 
+
 def test_export_using_hardlinks_incompat_options():
     # test that error shown if --export-as-hardlink used with --exiftool
     import os
@@ -317,7 +343,8 @@ def test_export_using_hardlinks_incompat_options():
         )
         assert result.exit_code == 0
         assert "Incompatible export options" in result.output
-        
+
+
 def test_export_current_name():
     import glob
     import os
@@ -354,6 +381,40 @@ def test_export_skip_edited():
         assert result.exit_code == 0
         files = glob.glob("*")
         assert "St James Park_edited.jpeg" not in files
+
+
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+def test_export_exiftool():
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+    from osxphotos.exiftool import ExifTool
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        for uuid in CLI_EXIFTOOL:
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_4),
+                    ".",
+                    "-V",
+                    "--exiftool",
+                    "--uuid",
+                    f"{uuid}",
+                ],
+            )
+            assert result.exit_code == 0
+            files = glob.glob("*")
+            assert sorted(files) == sorted([CLI_EXIFTOOL[uuid]["File:FileName"]])
+
+            exif = ExifTool(CLI_EXIFTOOL[uuid]["File:FileName"]).as_dict()
+            for key in CLI_EXIFTOOL[uuid]:
+                assert exif[key] == CLI_EXIFTOOL[uuid][key]
 
 
 def test_query_date():
@@ -1003,3 +1064,243 @@ def test_export_sidecar_keyword_template():
                 assert sorted(json_got[k]) == sorted(v)
             else:
                 assert json_got[k] == v
+
+
+def test_export_update_basic():
+    """ test export then update """
+    import glob
+    import os
+    import os.path
+
+    import osxphotos
+    from osxphotos.__main__ import export, OSXPHOTOS_EXPORT_DB
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        # basic export
+        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
+        assert os.path.isfile(OSXPHOTOS_EXPORT_DB)
+
+        # update
+        result = runner.invoke(
+            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--update"]
+        )
+        assert result.exit_code == 0
+        assert (
+            "Exported: 0 photos, updated: 0 photos, skipped: 8 photos, updated EXIF data: 0 photos"
+            in result.output
+        )
+
+
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+def test_export_update_exiftool():
+    """ test export then update with exiftool """
+    import glob
+    import os
+    import os.path
+
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        # basic export
+        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
+
+        # update with exiftool
+        result = runner.invoke(
+            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--update", "--exiftool"]
+        )
+        assert result.exit_code == 0
+        assert (
+            "Exported: 0 photos, updated: 8 photos, skipped: 0 photos, updated EXIF data: 8 photos"
+            in result.output
+        )
+
+
+def test_export_update_hardlink():
+    """ test export with hardlink then update """
+    import glob
+    import os
+    import os.path
+
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    photosdb = osxphotos.PhotosDB(dbfile=CLI_PHOTOS_DB)
+    photo = photosdb.photos(uuid=[CLI_EXPORT_UUID])[0]
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        # basic export
+        result = runner.invoke(
+            export,
+            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--export-as-hardlink"],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
+        assert os.path.samefile(CLI_EXPORT_UUID_FILENAME, photo.path)
+
+        # update, should replace the hardlink files with new copies
+        result = runner.invoke(
+            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--update"]
+        )
+        assert result.exit_code == 0
+        assert (
+            "Exported: 0 photos, updated: 8 photos, skipped: 0 photos, updated EXIF data: 0 photos"
+            in result.output
+        )
+        assert not os.path.samefile(CLI_EXPORT_UUID_FILENAME, photo.path)
+
+
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+def test_export_update_hardlink_exiftool():
+    """ test export with hardlink then update with exiftool """
+    import glob
+    import os
+    import os.path
+
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    photosdb = osxphotos.PhotosDB(dbfile=CLI_PHOTOS_DB)
+    photo = photosdb.photos(uuid=[CLI_EXPORT_UUID])[0]
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        # basic export
+        result = runner.invoke(
+            export,
+            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--export-as-hardlink"],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
+        assert os.path.samefile(CLI_EXPORT_UUID_FILENAME, photo.path)
+
+        # update, should replace the hardlink files with new copies
+        result = runner.invoke(
+            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--update", "--exiftool"]
+        )
+        assert result.exit_code == 0
+        assert (
+            "Exported: 0 photos, updated: 8 photos, skipped: 0 photos, updated EXIF data: 8 photos"
+            in result.output
+        )
+        assert not os.path.samefile(CLI_EXPORT_UUID_FILENAME, photo.path)
+
+
+def test_export_update_edits():
+    """ test export then update after removing and editing files """
+    import glob
+    import os
+    import os.path
+    import shutil
+
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        # basic export
+        result = runner.invoke(
+            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--export-by-date"]
+        )
+        assert result.exit_code == 0
+
+        # change a couple of destination photos
+        os.unlink(CLI_EXPORT_BY_DATE[1])
+        shutil.copyfile(CLI_EXPORT_BY_DATE[0], CLI_EXPORT_BY_DATE[1])
+        os.unlink(CLI_EXPORT_BY_DATE[0])
+
+        # update
+        result = runner.invoke(
+            export,
+            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--update", "--export-by-date"],
+        )
+        assert result.exit_code == 0
+        assert (
+            "Exported: 1 photo, updated: 1 photo, skipped: 6 photos, updated EXIF data: 0 photos"
+            in result.output
+        )
+
+
+def test_export_update_no_db():
+    """ test export then update after db has been deleted """
+    import glob
+    import os
+    import os.path
+
+    import osxphotos
+    from osxphotos.__main__ import export, OSXPHOTOS_EXPORT_DB
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        # basic export
+        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
+        assert os.path.isfile(OSXPHOTOS_EXPORT_DB)
+        os.unlink(OSXPHOTOS_EXPORT_DB)
+
+        # update
+        result = runner.invoke(
+            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--update"]
+        )
+        assert result.exit_code == 0
+        assert (
+            "Exported: 0 photos, updated: 0 photos, skipped: 8 photos, updated EXIF data: 0 photos"
+            in result.output
+        )
+        assert os.path.isfile(OSXPHOTOS_EXPORT_DB)
+
+
+def test_export_then_hardlink():
+    """ test export then hardlink """
+    import glob
+    import os
+    import os.path
+
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    photosdb = osxphotos.PhotosDB(dbfile=CLI_PHOTOS_DB)
+    photo = photosdb.photos(uuid=[CLI_EXPORT_UUID])[0]
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        # basic export
+        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V",],)
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
+        assert not os.path.samefile(CLI_EXPORT_UUID_FILENAME, photo.path)
+
+        result = runner.invoke(
+            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--export-as-hardlink", "--overwrite"]
+        )
+        assert result.exit_code == 0
+        assert "Exported: 8 photos" in result.output
+        assert os.path.samefile(CLI_EXPORT_UUID_FILENAME, photo.path)

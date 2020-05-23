@@ -201,7 +201,11 @@ Options:
                                   Search by end item date, e.g.
                                   2000-01-12T12:00:00 or 2000-12-31 (ISO 8601
                                   w/o TZ).
+  --update                        Only export new or updated files. See notes
+                                  below on export and --update.
   --export-as-hardlink            Hardlink files instead of copying them.
+                                  Cannot be used with --exiftool which creates
+                                  copies of the files with embedded EXIF data.
   --overwrite                     Overwrite existing files. Default behavior
                                   is to add (1), (2), etc to filename if file
                                   already exists. Use this with caution as it
@@ -270,7 +274,8 @@ Options:
                                   exported photos. To use this option,
                                   exiftool must be installed and in the path.
                                   exiftool may be installed from
-                                  https://exiftool.org/
+                                  https://exiftool.org/.  Cannot be used with
+                                  --export-as-hardlink.
   --directory DIRECTORY           Optional template for specifying name of
                                   output directory in the form
                                   '{name,DEFAULT}'. See below for additional
@@ -282,7 +287,35 @@ Options:
                                   get an error while exporting.
   -h, --help                      Show this message and exit.
 
-**Templating System**
+** Export **
+When exporting photos, osxphotos creates a database in the top-level export
+folder called '.osxphotos_export.db'.  This database preserves state
+information used for determining which files need to be updated when run with
+--update.  It is recommended that if you later move the export folder tree you
+also move the database file.
+
+The --update option will only copy new or updated files from the library to
+the export folder.  If a file is changed in the export folder (for example,
+you edited the exported image), osxphotos will detect this as a difference and
+re-export the original image from the library thus overwriting the changes.
+If using --update, the exported library should be treated as a backup, not a
+working copy where you intend to make changes.
+
+Note: The number of files reported for export and the number actually exported
+may differ due to live photos, associated RAW images, and edited photos which
+are reported in the total photos exported.
+
+Implementation note: To determine which files need to be updated, osxphotos
+stores file signature information in the '.osxphotos_export.db' database. The
+signature includes size, modification time, and filename.  In order to
+minimize run time, --update does not do a full comparison (diff) of the files
+nor does it compare hashes of the files.  In normal usage, this is sufficient
+for updating the library. You can always run export without the --update
+option to re-export the entire library thus rebuilding the
+'.osxphotos_export.db' database.
+
+
+** Templating System **
 
 With the --directory option you may specify a template for the export
 directory.  This directory will be appended to the export path specified in
@@ -1098,7 +1131,7 @@ Export photo from the Photos library to another destination on disk.
 - use_albums_as_keywords: (boolean, default = False); if True, will use album names as keywords when exporting metadata with exiftool or sidecar
 - use_persons_as_keywords: (boolean, default = False); if True, will use person names as keywords when exporting metadata with exiftool or sidecar
 
-Returns: list of paths to exported files. More than one file could be exported, for example if live_photo=True, both the original imaage and the associated .mov file will be exported
+Returns: list of paths to exported files. More than one file could be exported, for example if live_photo=True, both the original image and the associated .mov file will be exported
 
 The json sidecar file can be used by exiftool to apply the metadata from the json file to the image.  For example: 
 

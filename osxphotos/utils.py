@@ -130,17 +130,13 @@ def _hardlink_file(src, dest):
     if not os.path.isfile(src):
         raise FileNotFoundError("src file does not appear to exist", src)
 
-
     # if error on copy, subprocess will raise CalledProcessError
     try:
         os.link(src, dest)
     except Exception as e:
-        logging.critical(
-            f"ln returned error: {e.returncode} {e.stderr.decode(sys.getfilesystemencoding()).rstrip()}"
-        )
+        logging.critical(f"os.link returned error: {e}")
         raise e
 
-    
 
 def _copy_file(src, dest, norsrc=False):
     """ Copies a file from src path to dest path 
@@ -516,3 +512,30 @@ def _db_is_locked(dbname):
         locked = True
 
     return locked
+
+
+# OSXPHOTOS_XATTR_UUID = "com.osxphotos.uuid"
+
+# def get_uuid_for_file(filepath):
+#     """ returns UUID associated with an exported file
+#         filepath: path to exported photo
+#     """
+#     attr = xattr.xattr(filepath)
+#     try:
+#         uuid_bytes = attr[OSXPHOTOS_XATTR_UUID]
+#         uuid_str = uuid_bytes.decode('utf-8')
+#     except KeyError:
+#         uuid_str = None
+#     return uuid_str
+    
+# def set_uuid_for_file(filepath, uuid):
+#     """ sets the UUID associated with an exported file
+#         filepath: path to exported photo
+#         uuid: uuid string for photo
+#     """
+#     if not os.path.exists(filepath):
+#         raise FileNotFoundError(f"Missing file: {filepath}")
+
+#     attr = xattr.xattr(filepath)
+#     uuid_bytes = bytes(uuid, 'utf-8')
+#     attr.set(OSXPHOTOS_XATTR_UUID, uuid_bytes)

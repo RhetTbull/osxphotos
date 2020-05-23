@@ -6,6 +6,7 @@ import os
 import os.path
 import pathlib
 import sys
+import time
 
 import click
 import yaml
@@ -21,11 +22,25 @@ import osxphotos
 from ._constants import _EXIF_TOOL_URL, _PHOTOS_4_VERSION, _UNKNOWN_PLACE
 from ._version import __version__
 from .exiftool import get_exiftool_path
+from .photoinfo import ExportResults
 from .photoinfo.template import (
     TEMPLATE_SUBSTITUTIONS,
     TEMPLATE_SUBSTITUTIONS_MULTI_VALUED,
 )
 from .utils import _copy_file, create_path_by_date
+from ._export_db import ExportDB
+
+# global variable to control verbose output
+# set via --verbose/-V
+VERBOSE = False
+
+# name of export DB
+OSXPHOTOS_EXPORT_DB = ".osxphotos_export.db"
+
+
+def verbose(*args, **kwargs):
+    if VERBOSE:
+        click.echo(*args, **kwargs)
 
 
 def get_photos_db(*db_options):
@@ -77,9 +92,41 @@ class ExportCommand(click.Command):
         help_text = super().get_help(ctx)
         formatter = click.HelpFormatter()
 
-        formatter.write("\n\n")
         # passed to click.HelpFormatter.write_dl for formatting
-        formatter.write_text("**Templating System**")
+
+        formatter.write("\n\n")
+        formatter.write_text("** Export **")
+        formatter.write_text(
+            "When exporting photos, osxphotos creates a database in the top-level "
+            + f"export folder called '{OSXPHOTOS_EXPORT_DB}'.  This database preserves state information "
+            + "used for determining which files need to be updated when run with --update.  It is recommended "
+            + "that if you later move the export folder tree you also move the database file."
+        )
+        formatter.write("\n")
+        formatter.write_text(
+            "The --update option will only copy new or updated files from the library "
+            + "to the export folder.  If a file is changed in the export folder (for example, you edited the "
+            + "exported image), osxphotos will detect this as a difference and re-export the original image "
+            + "from the library thus overwriting the changes.  If using --update, the exported library "
+            + "should be treated as a backup, not a working copy where you intend to make changes. "
+        )
+        formatter.write("\n")
+        formatter.write_text("Note: The number of files reported for export and the number actually exported "
+            +"may differ due to live photos, associated RAW images, and edited photos which are reported "
+            +"in the total photos exported.")
+        formatter.write("\n")
+        formatter.write_text(
+            "Implementation note: To determine which files need to be updated, "
+            + f"osxphotos stores file signature information in the '{OSXPHOTOS_EXPORT_DB}' database. "
+            + "The signature includes size, modification time, and filename.  In order to minimize "
+            + "run time, --update does not do a full comparison (diff) of the files nor does it compare "
+            + "hashes of the files.  In normal usage, this is sufficient for updating the library. "
+            + "You can always run export without the --update option to re-export the entire library thus "
+            + f"rebuilding the '{OSXPHOTOS_EXPORT_DB}' database."
+        )
+
+        formatter.write("\n\n")
+        formatter.write_text("** Templating System **")
         formatter.write("\n")
         formatter.write_text(
             "With the --directory option you may specify a template for the "
@@ -862,8 +909,13 @@ def query(
 
 @cli.command(cls=ExportCommand)
 @DB_OPTION
-@click.option("--verbose", "-V", is_flag=True, help="Print verbose output.")
+@click.option("--verbose", "-V", "verbose_", is_flag=True, help="Print verbose output.")
 @query_options
+@click.option(
+    "--update",
+    is_flag=True,
+    help="Only export new or updated files. See notes below on export and --update.",
+)
 @click.option(
     "--export-as-hardlink",
     is_flag=True,
@@ -1014,7 +1066,8 @@ def export(
     not_shared,
     from_date,
     to_date,
-    verbose,
+    verbose_,
+    update,
     export_as_hardlink,
     overwrite,
     export_by_date,
@@ -1068,6 +1121,9 @@ def export(
         to modify this behavior. 
     """
 
+    global VERBOSE
+    VERBOSE = True if verbose_ else False
+
     if not os.path.isdir(dest):
         sys.exit("DEST must be valid path")
 
@@ -1092,7 +1148,7 @@ def export(
         (any(place), no_place),
     ]
     if any([all(bb) for bb in exclusive]):
-        click.echo("Incompatible export options",err=True)
+        click.echo("Incompatible export options", err=True)
         click.echo(cli.commands["export"].get_help(ctx), err=True)
         return
 
@@ -1133,6 +1189,9 @@ def export(
         click.echo("\n\nLocated the following Photos library databases: ", err=True)
         _list_libraries()
         return
+
+    # open export database
+    export_db = ExportDB(os.path.join(dest, OSXPHOTOS_EXPORT_DB))
 
     photos = _query(
         db=db,
@@ -1188,6 +1247,11 @@ def export(
         no_place=no_place,
     )
 
+    results_exported = []
+    results_new = []
+    results_updated = []
+    results_skipped = []
+    results_exif_updated = []
     if photos:
         if export_bursts:
             # add the burst_photos to the export set
@@ -1199,16 +1263,18 @@ def export(
         num_photos = len(photos)
         photo_str = "photos" if num_photos > 1 else "photo"
         click.echo(f"Exporting {num_photos} {photo_str} to {dest}...")
-        if not verbose:
+        start_time = time.perf_counter()
+        if not verbose_:
             # show progress bar
             with click.progressbar(photos) as bar:
                 for p in bar:
-                    export_photo(
+                    results = export_photo(
                         p,
                         dest,
-                        verbose,
+                        verbose_,
                         export_by_date,
                         sidecar,
+                        update,
                         export_as_hardlink,
                         overwrite,
                         export_edited,
@@ -1222,15 +1288,22 @@ def export(
                         album_keyword,
                         person_keyword,
                         keyword_template,
+                        export_db,
                     )
+                    results_exported.extend(results.exported)
+                    results_new.extend(results.new)
+                    results_updated.extend(results.updated)
+                    results_skipped.extend(results.skipped)
+                    results_exif_updated.extend(results.exif_updated)
         else:
             for p in photos:
-                export_paths = export_photo(
+                results = export_photo(
                     p,
                     dest,
-                    verbose,
+                    verbose_,
                     export_by_date,
                     sidecar,
+                    update,
                     export_as_hardlink,
                     overwrite,
                     export_edited,
@@ -1244,13 +1317,39 @@ def export(
                     album_keyword,
                     person_keyword,
                     keyword_template,
+                    export_db,
                 )
-                if export_paths:
-                    click.echo(f"Exported {p.filename} to {export_paths}")
-                else:
-                    click.echo(f"Did not export missing file {p.filename}")
+                results_exported.extend(results.exported)
+                results_new.extend(results.new)
+                results_updated.extend(results.updated)
+                results_skipped.extend(results.skipped)
+                results_exif_updated.extend(results.exif_updated)
+
+        stop_time = time.perf_counter()
+        # print summary results
+        if not update:
+            photo_str = "photos" if len(results_exported) != 1 else "photo"
+            click.echo(f"Exported: {len(results_exported)} {photo_str}")
+            click.echo(f"Elapsed time: {stop_time-start_time} seconds")
+        else:
+            photo_str_new = "photos" if len(results_new) != 1 else "photo"
+            photo_str_updated = "photos" if len(results_new) != 1 else "photo"
+            photo_str_skipped = "photos" if len(results_skipped) != 1 else "photo"
+            photo_str_exif_updated = (
+                "photos" if len(results_exif_updated) != 1 else "photo"
+            )
+            click.echo(
+                f"Exported: {len(results_new)} {photo_str_new}, "
+                + f"updated: {len(results_updated)} {photo_str_updated}, "
+                + f"skipped: {len(results_skipped)} {photo_str_skipped}, "
+                + f"updated EXIF data: {len(results_exif_updated)} {photo_str_exif_updated}"
+            )
+            click.echo(f"Elapsed time: {stop_time-start_time} seconds")
+
     else:
         click.echo("Did not find any photos to export")
+
+    export_db.close()
 
 
 @cli.command()
@@ -1618,9 +1717,10 @@ def _query(
 def export_photo(
     photo,
     dest,
-    verbose,
+    verbose_,
     export_by_date,
     sidecar,
+    update,
     export_as_hardlink,
     overwrite,
     export_edited,
@@ -1634,11 +1734,12 @@ def export_photo(
     album_keyword,
     person_keyword,
     keyword_template,
+    export_db,
 ):
     """ Helper function for export that does the actual export
         photo: PhotoInfo object
         dest: destination path as string
-        verbose: boolean; print verbose output
+        verbose_: boolean; print verbose output
         export_by_date: boolean; create export folder in form dest/YYYY/MM/DD
         sidecar: list zero, 1 or 2 of ["json","xmp"] of sidecar variety to export
         export_as_hardlink: boolean; hardlink files instead of copying them
@@ -1656,6 +1757,8 @@ def export_photo(
         keyword_template: list of strings; if provided use rendered template strings as keywords
         returns list of path(s) of exported photo or None if photo was missing 
     """
+    global VERBOSE
+    VERBOSE = True if verbose_ else False
 
     # Can export to multiple paths
     # Start with single path [dest] but direcotry and export_by_date will modify dest_paths
@@ -1663,21 +1766,21 @@ def export_photo(
 
     if not download_missing:
         if photo.ismissing:
-            space = " " if not verbose else ""
-            click.echo(f"{space}Skipping missing photo {photo.filename}")
-            return None
+            space = " " if not verbose_ else ""
+            verbose(f"{space}Skipping missing photo {photo.filename}")
+            return ExportResults([], [], [], [], [])
         elif not os.path.exists(photo.path):
-            space = " " if not verbose else ""
-            click.echo(
+            space = " " if not verbose_ else ""
+            verbose(
                 f"{space}WARNING: file {photo.path} is missing but ismissing=False, "
                 f"skipping {photo.filename}"
             )
-            return None
+            return ExportResults([], [], [], [], [])
     elif photo.ismissing and not photo.iscloudasset or not photo.incloud:
-        click.echo(
+        verbose(
             f"Skipping missing {photo.filename}: not iCloud asset or missing from cloud"
         )
-        return None
+        return ExportResults([], [], [], [], [])
 
     filename = None
     if original_name:
@@ -1685,8 +1788,7 @@ def export_photo(
     else:
         filename = photo.filename
 
-    if verbose:
-        click.echo(f"Exporting {photo.filename} as {filename}")
+    verbose(f"Exporting {photo.filename} as {filename}")
 
     if export_by_date:
         date_created = photo.date.timetuple()
@@ -1724,9 +1826,13 @@ def export_photo(
     )
 
     # export the photo to each path in dest_paths
-    photo_paths = []
+    results_exported = []
+    results_new = []
+    results_updated = []
+    results_skipped = []
+    results_exif_updated = []
     for dest_path in dest_paths:
-        photo_path = photo.export(
+        export_results = photo.export2(
             dest_path,
             filename,
             sidecar_json=sidecar_json,
@@ -1741,8 +1847,25 @@ def export_photo(
             use_albums_as_keywords=album_keyword,
             use_persons_as_keywords=person_keyword,
             keyword_template=keyword_template,
-        )[0]
-        photo_paths.append(photo_path)
+            update=update,
+            export_db=export_db,
+        )
+
+        results_exported.extend(export_results.exported)
+        results_new.extend(export_results.new)
+        results_updated.extend(export_results.updated)
+        results_skipped.extend(export_results.skipped)
+        results_exif_updated.extend(export_results.exif_updated)
+
+        if verbose_:
+            for exported in export_results.exported:
+                verbose(f"Exported {exported}")
+            for new in export_results.new:
+                verbose(f"Exported new file {new}")
+            for updated in export_results.updated:
+                verbose(f"Exported updated file {updated}")
+            for skipped in export_results.skipped:
+                verbose(f"Skipped up to date file {skipped}")
 
         # if export-edited, also export the edited version
         # verify the photo has adjustments and valid path to avoid raising an exception
@@ -1751,7 +1874,7 @@ def export_photo(
             # try to download with Photos
             use_photos_export = download_missing and photo.path_edited is None
             if not download_missing and photo.path_edited is None:
-                click.echo(f"Skipping missing edited photo for {filename}")
+                verbose(f"Skipping missing edited photo for {filename}")
             else:
                 edited_name = pathlib.Path(filename)
                 # check for correct edited suffix
@@ -1762,11 +1885,8 @@ def export_photo(
                     # will be corrected by use_photos_export
                     edited_suffix = pathlib.Path(photo.filename).suffix
                 edited_name = f"{edited_name.stem}_edited{edited_suffix}"
-                if verbose:
-                    click.echo(
-                        f"Exporting edited version of {filename} as {edited_name}"
-                    )
-                photo.export(
+                verbose(f"Exporting edited version of {filename} as {edited_name}")
+                export_results_edited = photo.export2(
                     dest_path,
                     edited_name,
                     sidecar_json=sidecar_json,
@@ -1780,9 +1900,33 @@ def export_photo(
                     use_albums_as_keywords=album_keyword,
                     use_persons_as_keywords=person_keyword,
                     keyword_template=keyword_template,
+                    update=update,
+                    export_db=export_db,
                 )
 
-    return photo_paths
+                results_exported.extend(export_results_edited.exported)
+                results_new.extend(export_results_edited.new)
+                results_updated.extend(export_results_edited.updated)
+                results_skipped.extend(export_results_edited.skipped)
+                results_exif_updated.extend(export_results_edited.exif_updated)
+
+                if verbose_:
+                    for exported in export_results_edited.exported:
+                        verbose(f"Exported {exported}")
+                    for new in export_results_edited.new:
+                        verbose(f"Exported new file {new}")
+                    for updated in export_results_edited.updated:
+                        verbose(f"Exported updated file {updated}")
+                    for skipped in export_results_edited.skipped:
+                        verbose(f"Skipped up to date file {skipped}")
+
+    return ExportResults(
+        results_exported,
+        results_new,
+        results_updated,
+        results_skipped,
+        results_exif_updated,
+    )
 
 
 if __name__ == "__main__":

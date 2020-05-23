@@ -4,5 +4,6 @@ Represents a single photo in the Photos library and provides access to the photo
 PhotosDB.photos() returns a list of PhotoInfo objects
 """
 
-from .photoinfo import PhotoInfo
 from ._photoinfo_exifinfo import ExifInfo
+from ._photoinfo_export import ExportResults
+from .photoinfo import PhotoInfo
