@@ -50,7 +50,13 @@ class DateTimeFormatter:
         """ 2-digit day of the month """
         dd = f"{self.dt.strftime('%d')}"
         return dd
-        
+
+    @property
+    def dow(self):
+        """ Day of week as locale's name """
+        dow = f"{self.dt.strftime('%A')}"
+        return dow
+
     @property
     def doy(self):
         """ Julian day of year starting from 001 """

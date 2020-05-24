@@ -27,6 +27,7 @@ TEMPLATE_SUBSTITUTIONS = {
     "{created.month}": "Month name in user's locale of the file creation time",
     "{created.mon}": "Month abbreviation in the user's locale of the file creation time",
     "{created.dd}": "2-digit day of the month (zero padded) of file creation time",
+    "{created.dow}": "Day of week in user's locale of the file creation time",
     "{created.doy}": "3-digit day of year (e.g Julian day) of file creation time, starting from 1 (zero padded)",
     "{modified.date}": "Photo's modification date in ISO format, e.g. '2020-03-22'",
     "{modified.year}": "4-digit year of file modification time",

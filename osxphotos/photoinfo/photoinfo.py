@@ -839,6 +839,9 @@ class PhotoInfo:
         if lookup == "created.dd":
             return DateTimeFormatter(self.date).dd
 
+        if lookup == "created.dow":
+            return DateTimeFormatter(self.date).dow
+
         if lookup == "created.doy":
             return DateTimeFormatter(self.date).doy
 
