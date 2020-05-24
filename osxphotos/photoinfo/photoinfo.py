@@ -836,6 +836,9 @@ class PhotoInfo:
         if lookup == "created.mon":
             return DateTimeFormatter(self.date).mon
 
+        if lookup == "created.dd":
+            return DateTimeFormatter(self.date).dd
+
         if lookup == "created.doy":
             return DateTimeFormatter(self.date).doy
 
@@ -875,6 +878,11 @@ class PhotoInfo:
                 DateTimeFormatter(self.date_modified).mon
                 if self.date_modified
                 else None
+            )
+
+        if lookup == "modified.dd":
+            return (
+                DateTimeFormatter(self.date_modified).dd if self.date_modified else None
             )
 
         if lookup == "modified.doy":

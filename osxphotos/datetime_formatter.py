@@ -46,6 +46,12 @@ class DateTimeFormatter:
         return mon
 
     @property
+    def dd(self):
+        """ 2-digit day of the month """
+        dd = f"{self.dt.strftime('%d')}"
+        return dd
+        
+    @property
     def doy(self):
         """ Julian day of year starting from 001 """
         doy = f"{self.dt.strftime('%j')}"

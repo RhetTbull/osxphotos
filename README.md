@@ -369,6 +369,8 @@ Substitution                    Description
                                 creation time
 {created.mon}                   Month abbreviation in the user's locale of
                                 the file creation time
+{created.dd}                    2-digit day of the month (zero padded) of
+                                file creation time
 {created.doy}                   3-digit day of year (e.g Julian day) of file
                                 creation time, starting from 1 (zero padded)
 {modified.date}                 Photo's modification date in ISO format,
@@ -380,6 +382,8 @@ Substitution                    Description
 {modified.month}                Month name in user's locale of the file
                                 modification time
 {modified.mon}                  Month abbreviation in the user's locale of
+                                the file modification time
+{modified.dd}                   2-digit day of the month (zero padded) of
                                 the file modification time
 {modified.doy}                  3-digit day of year (e.g Julian day) of file
                                 modification time, starting from 1 (zero
@@ -1369,6 +1373,7 @@ The following substitutions are availabe for use with `PhotoInfo.render_template
 |{created.mm}|2-digit month of the file creation time (zero padded)|
 |{created.month}|Month name in user's locale of the file creation time|
 |{created.mon}|Month abbreviation in the user's locale of the file creation time|
+|{created.dd}|2-digit day of the month (zero padded) of file creation time|
 |{created.doy}|3-digit day of year (e.g Julian day) of file creation time, starting from 1 (zero padded)|
 |{modified.date}|Photo's modification date in ISO format, e.g. '2020-03-22'|
 |{modified.year}|4-digit year of file modification time|
@@ -1376,6 +1381,7 @@ The following substitutions are availabe for use with `PhotoInfo.render_template
 |{modified.mm}|2-digit month of the file modification time (zero padded)|
 |{modified.month}|Month name in user's locale of the file modification time|
 |{modified.mon}|Month abbreviation in the user's locale of the file modification time|
+|{modified.dd}|2-digit day of the month (zero padded) of the file modification time|
 |{modified.doy}|3-digit day of year (e.g Julian day) of file modification time, starting from 1 (zero padded)|
 |{place.name}|Place name from the photo's reverse geolocation data, as displayed in Photos|
 |{place.country_code}|The ISO country code from the photo's reverse geolocation data|
