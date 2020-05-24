@@ -798,17 +798,19 @@ class PhotosDB:
             # There are sometimes negative values for lastmodifieddate in the database
             # I don't know what these mean but they will raise exception in datetime if
             # not accounted for
-            if row[4] is not None and row[4] >= 0:
+            try:
                 self._dbphotos[uuid]["lastmodifieddate"] = datetime.fromtimestamp(
                     row[4] + td
                 )
-            else:
+            except ValueError:
+                self._dbphotos[uuid]["lastmodifieddate"] = None
+            except TypeError:
                 self._dbphotos[uuid]["lastmodifieddate"] = None
 
             try:
                 self._dbphotos[uuid]["imageDate"] = datetime.fromtimestamp(row[5] + td)
             except ValueError:
-                self._dbphotos[uuid]["imageDate"] = datetime.date(1970,1,1)
+                self._dbphotos[uuid]["imageDate"] = datetime.date(1970, 1, 1)
 
             self._dbphotos[uuid]["mainRating"] = row[6]
             self._dbphotos[uuid]["hasAdjustments"] = row[7]
@@ -1516,12 +1518,18 @@ class PhotosDB:
             # There are sometimes negative values for lastmodifieddate in the database
             # I don't know what these mean but they will raise exception in datetime if
             # not accounted for
-            if row[4] is not None and row[4] >= 0:
+            try:
                 info["lastmodifieddate"] = datetime.fromtimestamp(row[4] + td)
-            else:
+            except ValueError:
+                info["lastmodifieddate"] = None
+            except TypeError:
                 info["lastmodifieddate"] = None
 
-            info["imageDate"] = datetime.fromtimestamp(row[5] + td)
+            try:
+                info["imageDate"] = datetime.fromtimestamp(row[5] + td)
+            except ValueError:
+                info["imageDate"] = datetime.date(1970, 1, 1)
+
             info["imageTimeZoneOffsetSeconds"] = row[6]
             info["hidden"] = row[9]
             info["favorite"] = row[10]
