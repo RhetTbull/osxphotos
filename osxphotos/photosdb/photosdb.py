@@ -1938,6 +1938,7 @@ class PhotosDB:
         return folders
 
     def _album_folder_hierarchy_list(self, album_uuid):
+        """ return appropriate album_folder_hierarchy_list for the _db_version """
         if self._db_version <= _PHOTOS_4_VERSION:
             return self._album_folder_hierarchy_list_4(album_uuid)
         else:
@@ -1948,8 +1949,11 @@ class PhotosDB:
             the folder list is in form:
             ["Top level folder", "sub folder 1", "sub folder 2"]
             returns empty list of album is not in any folders """
-        # title = photosdb._dbalbum_details[album_uuid]["title"]
-        folders = self._dbalbum_folders[album_uuid]
+        try:
+            folders = self._dbalbum_folders[album_uuid]
+        except KeyError:
+            logging.debug(f"Caught _dbalbum_folders KeyError for album: {album_uuid}")
+            return []
 
         def _recurse_folder_hierarchy(folders, hierarchy=[]):
             """ recursively walk the folders dict to build list of folder hierarchy """
@@ -1982,8 +1986,11 @@ class PhotosDB:
             the folder list is in form:
             ["Top level folder", "sub folder 1", "sub folder 2"]
             returns empty list of album is not in any folders """
-        # title = photosdb._dbalbum_details[album_uuid]["title"]
-        folders = self._dbalbum_folders[album_uuid]
+        try:
+            folders = self._dbalbum_folders[album_uuid]
+        except KeyError:
+            logging.debug(f"Caught _dbalbum_folders KeyError for album: {album_uuid}")
+            return []
 
         def _recurse_folder_hierarchy(folders, hierarchy=[]):
             """ recursively walk the folders dict to build list of folder hierarchy """
