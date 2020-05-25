@@ -203,6 +203,8 @@ Options:
                                   w/o TZ).
   --update                        Only export new or updated files. See notes
                                   below on export and --update.
+  --dry-run                       Dry run (test) the export but don't actually
+                                  export any files; most useful with --verbose
   --export-as-hardlink            Hardlink files instead of copying them.
                                   Cannot be used with --exiftool which creates
                                   copies of the files with embedded EXIF data.
@@ -1427,11 +1429,6 @@ Convert latitude, longitude in degrees to degrees, minutes, seconds as string.
 returns: string tuple in format ("51 deg 30' 12.86\\" N", "0 deg 7' 54.50\\" W")
 This is the same format used by exiftool's json format.
 
-#### `create_path_by_date(dest, dt)`
-Creates a path in dest folder in form dest/YYYY/MM/DD/
-- `dest`: valid path as str
-- `dt`: datetime.timetuple() object
-Checks to see if path exists, if it does, do nothing and return path. If path does not exist, creates it and returns path.  Useful for exporting photos to a date-based folder structure.
 
 ## Examples
 

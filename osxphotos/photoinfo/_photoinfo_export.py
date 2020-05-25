@@ -1,4 +1,13 @@
-""" export methods for PhotoInfo """
+""" Export methods for PhotoInfo 
+    The following methods are defined and must be imported into PhotoInfo as instance methods:
+    export
+    export2
+    _export_photo
+    _write_exif_data
+    _exiftool_json_sidecar
+    _xmp_sidecar
+    _write_sidecar
+    """
 
 # TODO: should this be its own PhotoExporter class?
 
@@ -9,10 +18,12 @@ import logging
 import os
 import pathlib
 import re
+import tempfile
 from collections import namedtuple  # pylint: disable=syntax-error
 
 from mako.template import Template
 
+from .._applescript import AppleScript
 from .._constants import (
     _MAX_IPTC_KEYWORD_LEN,
     _OSXPHOTOS_NONE_SENTINEL,
@@ -20,19 +31,129 @@ from .._constants import (
     _UNKNOWN_PERSON,
     _XMP_TEMPLATE_NAME,
 )
-from ..exiftool import ExifTool
 from .._export_db import ExportDBNoOp
-from .._filecmp import cmp_file, file_sig
-from ..utils import (
-    _copy_file,
-    _export_photo_uuid_applescript,
-    _hardlink_file,
-    dd_to_dms_str,
-)
+from ..exiftool import ExifTool
+from ..fileutil import FileUtil
+from ..utils import dd_to_dms_str
 
 ExportResults = namedtuple(
     "ExportResults", ["exported", "new", "updated", "skipped", "exif_updated"]
 )
+
+
+# _export_photo_uuid_applescript is not a class method, don't import this into PhotoInfo
+def _export_photo_uuid_applescript(
+    uuid,
+    dest,
+    filestem=None,
+    original=True,
+    edited=False,
+    live_photo=False,
+    timeout=120,
+    burst=False,
+    dry_run=False,
+):
+    """ Export photo to dest path using applescript to control Photos
+        If photo is a live photo, exports both the photo and associated .mov file
+        uuid: UUID of photo to export
+        dest: destination path to export to
+        filestem: (string) if provided, exported filename will be named stem.ext 
+                  where ext is extension of the file exported by photos (e.g. .jpeg, .mov, etc)
+                  If not provided, file will be named with whatever name Photos uses
+                  If filestem.ext exists, it wil be overwritten
+        original: (boolean) if True, export original image; default = True
+        edited: (boolean) if True, export edited photo; default = False
+                If photo not edited and edited=True, will still export the original image
+                caller must verify image has been edited
+        *Note*: must be called with either edited or original but not both, 
+                will raise error if called with both edited and original = True
+        live_photo: (boolean) if True, export associated .mov live photo; default = False
+        timeout: timeout value in seconds; export will fail if applescript run time exceeds timeout
+        burst: (boolean) set to True if file is a burst image to avoid Photos export error
+        dry_run: (boolean) set to True to run in "dry run" mode which will download file but not actually copy to destination
+        Returns: list of paths to exported file(s) or None if export failed
+        Note: For Live Photos, if edited=True, will export a jpeg but not the movie, even if photo
+              has not been edited. This is due to how Photos Applescript interface works.
+    """
+
+    # setup the applescript to do the export
+    export_scpt = AppleScript(
+        """ 
+		on export_by_uuid(theUUID, thePath, original, edited, theTimeOut)
+			tell application "Photos"
+				set thePath to thePath
+				set theItem to media item id theUUID
+				set theFilename to filename of theItem
+				set itemList to {theItem}
+				
+				if original then
+					with timeout of theTimeOut seconds
+						export itemList to POSIX file thePath with using originals
+					end timeout
+				end if
+				
+				if edited then
+					with timeout of theTimeOut seconds
+						export itemList to POSIX file thePath
+					end timeout
+				end if
+				
+				return theFilename
+			end tell
+
+		end export_by_uuid
+		"""
+    )
+
+    dest = pathlib.Path(dest)
+    if not dest.is_dir:
+        raise ValueError(f"dest {dest} must be a directory")
+
+    if not original ^ edited:
+        raise ValueError(f"edited or original must be True but not both")
+
+    tmpdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+
+    # export original
+    filename = None
+    try:
+        filename = export_scpt.call(
+            "export_by_uuid", uuid, tmpdir.name, original, edited, timeout
+        )
+    except Exception as e:
+        logging.warning(f"Error exporting uuid {uuid}: {e}")
+        return None
+
+    if filename is not None:
+        # need to find actual filename as sometimes Photos renames JPG to jpeg on export
+        # may be more than one file exported (e.g. if Live Photo, Photos exports both .jpeg and .mov)
+        # TemporaryDirectory will cleanup on return
+        filename_stem = pathlib.Path(filename).stem
+        files = glob.glob(os.path.join(tmpdir.name, "*"))
+        exported_paths = []
+        for fname in files:
+            path = pathlib.Path(fname)
+            if len(files) > 1 and not live_photo and path.suffix.lower() == ".mov":
+                # it's the .mov part of live photo but not requested, so don't export
+                logging.debug(f"Skipping live photo file {path}")
+                continue
+            if len(files) > 1 and burst and path.stem != filename_stem:
+                # skip any burst photo that's not the one we asked for
+                logging.debug(f"Skipping burst photo file {path}")
+                continue
+            if filestem:
+                # rename the file based on filestem, keeping original extension
+                dest_new = dest / f"{filestem}{path.suffix}"
+            else:
+                # use the name Photos provided
+                dest_new = dest / path.name
+            logging.debug(f"exporting {path} to dest_new: {dest_new}")
+            if not dry_run:
+                FileUtil.copy(str(path), str(dest_new))
+            exported_paths.append(str(dest_new))
+        return exported_paths
+    else:
+        return None
 
 
 def export(
@@ -135,8 +256,10 @@ def export2(
     keyword_template=None,
     update=False,
     export_db=None,
+    fileutil=FileUtil,
+    dry_run=False,
 ):
-    """ export photo 
+    """ export photo, like export but with update and dry_run options
         dest: must be valid destination path (or exception raised) 
         filename: (optional): name of exported picture; if not provided, will use current filename 
                     **NOTE**: if provided, user must ensure file extension (suffix) is correct. 
@@ -171,12 +294,17 @@ def export2(
                 not export the photo if the current version already exists in the destination
         export_db: (ExportDB_ABC); instance of a class that conforms to ExportDB_ABC with methods
                 for getting/setting data related to exported files to compare update state
+        fileutil: (FileUtilABC); class that conforms to FileUtilABC with various file utilities
+        dry_run: (boolean, default=False); set to True to run in "dry run" mode
+
         Returns: ExportResults namedtuple with fields: exported, new, updated, skipped 
                     where each field is a list of file paths
+        
+        Note: to use dry run mode, you must set dry_run=True and also pass in memory version of export_db,
+              and no-op fileutil (e.g. ExportDBInMemory and FileUtilNoOp)
             """
 
-    # if update, caller may pass function refs to get/set uuid for file being exported
-    # and for setting/getting the PhotoInfo json info for an exported file
+    # when called from export(), won't get an export_db, so use no-op version
     if export_db is None:
         export_db = ExportDBNoOp()
 
@@ -212,7 +340,7 @@ def export2(
         # verify destination is a valid path
         if dest is None:
             raise ValueError("Destination must not be None")
-        elif not os.path.isdir(dest):
+        elif not dry_run and not os.path.isdir(dest):
             raise FileNotFoundError("Invalid path passed to export")
 
         if filename and len(filename) == 1:
@@ -279,10 +407,6 @@ def export2(
             count += 1
         dest = dest.parent / f"{dest_new}{dest.suffix}"
 
-    # TODO: need way to check if DB is missing, try to find the right photo anyway by seeing if they're the same and then updating
-    # move the checks into "if not use_photos_export" block below
-    # if use_photos_export is True then we'll export wether destination exists or not
-
     # if overwrite==False and #increment==False, export should fail if file exists
     if dest.exists() and not update and not overwrite and not increment:
         raise FileExistsError(
@@ -330,7 +454,7 @@ def export2(
                 dest_uuid = self.uuid
                 export_db.set_uuid_for_file(dest, self.uuid)
                 export_db.set_info_for_uuid(self.uuid, self.json())
-                export_db.set_stat_orig_for_file(dest, file_sig(dest))
+                export_db.set_stat_orig_for_file(dest, fileutil.file_sig(dest))
                 export_db.set_stat_exif_for_file(dest, (None, None, None))
                 export_db.set_exifdata_for_file(dest, None)
             if dest_uuid != self.uuid:
@@ -360,7 +484,7 @@ def export2(
                         found_match = True
                         export_db.set_uuid_for_file(file_, self.uuid)
                         export_db.set_info_for_uuid(self.uuid, self.json())
-                        export_db.set_stat_orig_for_file(dest, file_sig(dest))
+                        export_db.set_stat_orig_for_file(dest, fileutil.file_sig(dest))
                         export_db.set_stat_exif_for_file(dest, (None, None, None))
                         export_db.set_exifdata_for_file(dest, None)
                         break
@@ -392,6 +516,7 @@ def export2(
             no_xattr,
             export_as_hardlink,
             exiftool,
+            fileutil,
         )
         exported_files = results.exported
         update_new_files = results.new
@@ -416,6 +541,7 @@ def export2(
                     no_xattr,
                     export_as_hardlink,
                     exiftool,
+                    fileutil,
                 )
                 exported_files.extend(results.exported)
                 update_new_files.extend(results.new)
@@ -440,6 +566,7 @@ def export2(
                     no_xattr,
                     export_as_hardlink,
                     exiftool,
+                    fileutil,
                 )
                 exported_files.extend(results.exported)
                 update_new_files.extend(results.new)
@@ -471,6 +598,7 @@ def export2(
                 live_photo=live_photo,
                 timeout=timeout,
                 burst=self.burst,
+                dry_run=dry_run,
             )
         else:
             # export original version and not edited
@@ -484,6 +612,7 @@ def export2(
                 live_photo=live_photo,
                 timeout=timeout,
                 burst=self.burst,
+                dry_run=dry_run,
             )
 
         if exported is not None:
@@ -504,11 +633,12 @@ def export2(
             use_persons_as_keywords=use_persons_as_keywords,
             keyword_template=keyword_template,
         )
-        try:
-            self._write_sidecar(sidecar_filename, sidecar_str)
-        except Exception as e:
-            logging.warning(f"Error writing json sidecar to {sidecar_filename}")
-            raise e
+        if not dry_run:
+            try:
+                self._write_sidecar(sidecar_filename, sidecar_str)
+            except Exception as e:
+                logging.warning(f"Error writing json sidecar to {sidecar_filename}")
+                raise e
 
     if sidecar_xmp:
         logging.debug("writing xmp_sidecar")
@@ -518,11 +648,12 @@ def export2(
             use_persons_as_keywords=use_persons_as_keywords,
             keyword_template=keyword_template,
         )
-        try:
-            self._write_sidecar(sidecar_filename, sidecar_str)
-        except Exception as e:
-            logging.warning(f"Error writing xmp sidecar to {sidecar_filename}")
-            raise e
+        if not dry_run:
+            try:
+                self._write_sidecar(sidecar_filename, sidecar_str)
+            except Exception as e:
+                logging.warning(f"Error writing xmp sidecar to {sidecar_filename}")
+                raise e
 
     # if exiftool, write the metadata
     if update:
@@ -552,12 +683,13 @@ def export2(
                 # didn't have old data, assume we need to write it
                 # or files were different
                 logging.debug(f"No exifdata for {exported_file}, writing it")
-                self._write_exif_data(
-                    exported_file,
-                    use_albums_as_keywords=use_albums_as_keywords,
-                    use_persons_as_keywords=use_persons_as_keywords,
-                    keyword_template=keyword_template,
-                )
+                if not dry_run:
+                    self._write_exif_data(
+                        exported_file,
+                        use_albums_as_keywords=use_albums_as_keywords,
+                        use_persons_as_keywords=use_persons_as_keywords,
+                        keyword_template=keyword_template,
+                    )
                 export_db.set_exifdata_for_file(
                     exported_file,
                     self._exiftool_json_sidecar(
@@ -566,17 +698,20 @@ def export2(
                         keyword_template=keyword_template,
                     ),
                 )
-                export_db.set_stat_exif_for_file(exported_file, file_sig(exported_file))
+                export_db.set_stat_exif_for_file(
+                    exported_file, fileutil.file_sig(exported_file)
+                )
                 exif_files_updated.append(exported_file)
     elif exiftool and exif_files:
         for exported_file in exif_files:
             logging.debug(f"Writing exif data to {exported_file}")
-            self._write_exif_data(
-                exported_file,
-                use_albums_as_keywords=use_albums_as_keywords,
-                use_persons_as_keywords=use_persons_as_keywords,
-                keyword_template=keyword_template,
-            )
+            if not dry_run:
+                self._write_exif_data(
+                    exported_file,
+                    use_albums_as_keywords=use_albums_as_keywords,
+                    use_persons_as_keywords=use_persons_as_keywords,
+                    keyword_template=keyword_template,
+                )
             export_db.set_exifdata_for_file(
                 exported_file,
                 self._exiftool_json_sidecar(
@@ -585,7 +720,9 @@ def export2(
                     keyword_template=keyword_template,
                 ),
             )
-            export_db.set_stat_exif_for_file(exported_file, file_sig(exported_file))
+            export_db.set_stat_exif_for_file(
+                exported_file, fileutil.file_sig(exported_file)
+            )
             exif_files_updated.append(exported_file)
 
     return ExportResults(
@@ -607,6 +744,7 @@ def _export_photo(
     no_xattr,
     export_as_hardlink,
     exiftool,
+    fileutil=FileUtil,
 ):
     """ Helper function for export()
         Does the actual copy or hardlink taking the appropriate 
@@ -621,6 +759,7 @@ def _export_photo(
         no_xattr: don't copy extended attributes
         export_as_hardlink: bool
         exiftool: bool
+        fileutil: FileUtil class that conforms to fileutil.FileUtilABC
         Returns: ExportResults
     """
 
@@ -637,12 +776,13 @@ def _export_photo(
             # not update, do the the hardlink
             if overwrite and dest.exists():
                 # need to remove the destination first
-                dest.unlink()
+                # dest.unlink()
+                fileutil.unlink(dest)
             logging.debug(f"Not update: export_as_hardlink linking file {src} {dest}")
-            _hardlink_file(src, dest)
+            fileutil.hardlink(src, dest)
             export_db.set_uuid_for_file(dest_str, self.uuid)
             export_db.set_info_for_uuid(self.uuid, self.json())
-            export_db.set_stat_orig_for_file(dest_str, file_sig(dest_str))
+            export_db.set_stat_orig_for_file(dest_str, fileutil.file_sig(dest_str))
             export_db.set_stat_exif_for_file(dest_str, (None, None, None))
             export_db.set_exifdata_for_file(dest_str, None)
             exported_files.append(dest_str)
@@ -657,11 +797,12 @@ def _export_photo(
             logging.debug(
                 f"Update: removing existing file prior to export_as_hardlink {src} {dest}"
             )
-            dest.unlink()
-            _hardlink_file(src, dest)
+            # dest.unlink()
+            fileutil.unlink(dest)
+            fileutil.hardlink(src, dest)
             export_db.set_uuid_for_file(dest_str, self.uuid)
             export_db.set_info_for_uuid(self.uuid, self.json())
-            export_db.set_stat_orig_for_file(dest_str, file_sig(dest_str))
+            export_db.set_stat_orig_for_file(dest_str, fileutil.file_sig(dest_str))
             export_db.set_stat_exif_for_file(dest_str, (None, None, None))
             export_db.set_exifdata_for_file(dest_str, None)
             update_updated_files.append(dest_str)
@@ -671,10 +812,10 @@ def _export_photo(
             logging.debug(
                 f"Update: exporting new file with export_as_hardlink {src} {dest}"
             )
-            _hardlink_file(src, dest)
+            fileutil.hardlink(src, dest)
             export_db.set_uuid_for_file(dest_str, self.uuid)
             export_db.set_info_for_uuid(self.uuid, self.json())
-            export_db.set_stat_orig_for_file(dest_str, file_sig(dest_str))
+            export_db.set_stat_orig_for_file(dest_str, fileutil.file_sig(dest_str))
             export_db.set_stat_exif_for_file(dest_str, (None, None, None))
             export_db.set_exifdata_for_file(dest_str, None)
             exported_files.append(dest_str)
@@ -684,12 +825,13 @@ def _export_photo(
             # not update, do the the copy
             if overwrite and dest.exists():
                 # need to remove the destination first
-                dest.unlink()
+                # dest.unlink()
+                fileutil.unlink(dest)
             logging.debug(f"Not update: copying file {src} {dest}")
-            _copy_file(src, dest_str, norsrc=no_xattr)
+            fileutil.copy(src, dest_str, norsrc=no_xattr)
             export_db.set_uuid_for_file(dest_str, self.uuid)
             export_db.set_info_for_uuid(self.uuid, self.json())
-            export_db.set_stat_orig_for_file(dest_str, file_sig(dest_str))
+            export_db.set_stat_orig_for_file(dest_str, fileutil.file_sig(dest_str))
             export_db.set_stat_exif_for_file(dest_str, (None, None, None))
             export_db.set_exifdata_for_file(dest_str, None)
             exported_files.append(dest_str)
@@ -704,12 +846,12 @@ def _export_photo(
             logging.debug(f"Update: skipping identifical original files {src} {dest}")
             # call set_stat because code can reach this spot if no export DB but exporting a RAW or live photo
             # potentially re-writes the data in the database but ensures database is complete
-            export_db.set_stat_orig_for_file(dest_str, file_sig(dest_str))
+            export_db.set_stat_orig_for_file(dest_str, fileutil.file_sig(dest_str))
             update_skipped_files.append(dest_str)
         elif (
             dest_exists
             and exiftool
-            and cmp_file(dest_str, export_db.get_stat_exif_for_file(dest_str))
+            and fileutil.cmp_sig(dest_str, export_db.get_stat_exif_for_file(dest_str))
             and not dest.samefile(src)
         ):
             # destination exists but is identical
@@ -720,11 +862,12 @@ def _export_photo(
             logging.debug(f"Update: removing existing file prior to copy {src} {dest}")
             stat_src = os.stat(src)
             stat_dest = os.stat(dest)
-            dest.unlink()
-            _copy_file(src, dest_str, norsrc=no_xattr)
+            # dest.unlink()
+            fileutil.unlink(dest)
+            fileutil.copy(src, dest_str, norsrc=no_xattr)
             export_db.set_uuid_for_file(dest_str, self.uuid)
             export_db.set_info_for_uuid(self.uuid, self.json())
-            export_db.set_stat_orig_for_file(dest_str, file_sig(dest_str))
+            export_db.set_stat_orig_for_file(dest_str, fileutil.file_sig(dest_str))
             export_db.set_stat_exif_for_file(dest_str, (None, None, None))
             export_db.set_exifdata_for_file(dest_str, None)
             exported_files.append(dest_str)
@@ -732,10 +875,10 @@ def _export_photo(
         else:
             # destination doesn't exist, copy the file
             logging.debug(f"Update: copying new file {src} {dest}")
-            _copy_file(src, dest_str, norsrc=no_xattr)
+            fileutil.copy(src, dest_str, norsrc=no_xattr)
             export_db.set_uuid_for_file(dest_str, self.uuid)
             export_db.set_info_for_uuid(self.uuid, self.json())
-            export_db.set_stat_orig_for_file(dest_str, file_sig(dest_str))
+            export_db.set_stat_orig_for_file(dest_str, fileutil.file_sig(dest_str))
             export_db.set_stat_exif_for_file(dest_str, (None, None, None))
             export_db.set_exifdata_for_file(dest_str, None)
             exported_files.append(dest_str)

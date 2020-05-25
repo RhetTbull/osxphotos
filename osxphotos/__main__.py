@@ -1,5 +1,7 @@
+""" command line interface for osxphotos """
 import csv
 import datetime
+import functools
 import json
 import logging
 import os
@@ -20,15 +22,16 @@ from pathvalidate import (
 import osxphotos
 
 from ._constants import _EXIF_TOOL_URL, _PHOTOS_4_VERSION, _UNKNOWN_PLACE
+from .datetime_formatter import DateTimeFormatter
 from ._version import __version__
 from .exiftool import get_exiftool_path
+from .fileutil import FileUtil, FileUtilNoOp
 from .photoinfo import ExportResults
 from .photoinfo.template import (
     TEMPLATE_SUBSTITUTIONS,
     TEMPLATE_SUBSTITUTIONS_MULTI_VALUED,
 )
-from .utils import _copy_file, create_path_by_date
-from ._export_db import ExportDB
+from ._export_db import ExportDB, ExportDBInMemory
 
 # global variable to control verbose output
 # set via --verbose/-V
@@ -111,9 +114,11 @@ class ExportCommand(click.Command):
             + "should be treated as a backup, not a working copy where you intend to make changes. "
         )
         formatter.write("\n")
-        formatter.write_text("Note: The number of files reported for export and the number actually exported "
-            +"may differ due to live photos, associated RAW images, and edited photos which are reported "
-            +"in the total photos exported.")
+        formatter.write_text(
+            "Note: The number of files reported for export and the number actually exported "
+            + "may differ due to live photos, associated RAW images, and edited photos which are reported "
+            + "in the total photos exported."
+        )
         formatter.write("\n")
         formatter.write_text(
             "Implementation note: To determine which files need to be updated, "
@@ -917,6 +922,11 @@ def query(
     help="Only export new or updated files. See notes below on export and --update.",
 )
 @click.option(
+    "--dry-run",
+    is_flag=True,
+    help="Dry run (test) the export but don't actually export any files; most useful with --verbose",
+)
+@click.option(
     "--export-as-hardlink",
     is_flag=True,
     help="Hardlink files instead of copying them.  "
@@ -1068,6 +1078,7 @@ def export(
     to_date,
     verbose_,
     update,
+    dry_run,
     export_as_hardlink,
     overwrite,
     export_by_date,
@@ -1190,8 +1201,15 @@ def export(
         _list_libraries()
         return
 
-    # open export database
-    export_db = ExportDB(os.path.join(dest, OSXPHOTOS_EXPORT_DB))
+    # open export database and assign copy/link/unlink functions
+    if dry_run:
+        export_db = ExportDBInMemory(os.path.join(dest, OSXPHOTOS_EXPORT_DB))
+        # echo = functools.partial(click.echo, err=True)
+        # fileutil = FileUtilNoOp(verbose=echo)
+        fileutil = FileUtilNoOp
+    else:
+        export_db = ExportDB(os.path.join(dest, OSXPHOTOS_EXPORT_DB))
+        fileutil = FileUtil
 
     photos = _query(
         db=db,
@@ -1269,26 +1287,28 @@ def export(
             with click.progressbar(photos) as bar:
                 for p in bar:
                     results = export_photo(
-                        p,
-                        dest,
-                        verbose_,
-                        export_by_date,
-                        sidecar,
-                        update,
-                        export_as_hardlink,
-                        overwrite,
-                        export_edited,
-                        original_name,
-                        export_live,
-                        download_missing,
-                        exiftool,
-                        directory,
-                        no_extended_attributes,
-                        export_raw,
-                        album_keyword,
-                        person_keyword,
-                        keyword_template,
-                        export_db,
+                        photo=p,
+                        dest=dest,
+                        verbose_=verbose_,
+                        export_by_date=export_by_date,
+                        sidecar=sidecar,
+                        update=update,
+                        export_as_hardlink=export_as_hardlink,
+                        overwrite=overwrite,
+                        export_edited=export_edited,
+                        original_name=original_name,
+                        export_live=export_live,
+                        download_missing=download_missing,
+                        exiftool=exiftool,
+                        directory=directory,
+                        no_extended_attributes=no_extended_attributes,
+                        export_raw=export_raw,
+                        album_keyword=album_keyword,
+                        person_keyword=person_keyword,
+                        keyword_template=keyword_template,
+                        export_db=export_db,
+                        fileutil=fileutil,
+                        dry_run = dry_run,
                     )
                     results_exported.extend(results.exported)
                     results_new.extend(results.new)
@@ -1298,26 +1318,28 @@ def export(
         else:
             for p in photos:
                 results = export_photo(
-                    p,
-                    dest,
-                    verbose_,
-                    export_by_date,
-                    sidecar,
-                    update,
-                    export_as_hardlink,
-                    overwrite,
-                    export_edited,
-                    original_name,
-                    export_live,
-                    download_missing,
-                    exiftool,
-                    directory,
-                    no_extended_attributes,
-                    export_raw,
-                    album_keyword,
-                    person_keyword,
-                    keyword_template,
-                    export_db,
+                    photo=p,
+                    dest=dest,
+                    verbose_=verbose_,
+                    export_by_date=export_by_date,
+                    sidecar=sidecar,
+                    update=update,
+                    export_as_hardlink=export_as_hardlink,
+                    overwrite=overwrite,
+                    export_edited=export_edited,
+                    original_name=original_name,
+                    export_live=export_live,
+                    download_missing=download_missing,
+                    exiftool=exiftool,
+                    directory=directory,
+                    no_extended_attributes=no_extended_attributes,
+                    export_raw=export_raw,
+                    album_keyword=album_keyword,
+                    person_keyword=person_keyword,
+                    keyword_template=keyword_template,
+                    export_db=export_db,
+                    fileutil=fileutil,
+                    dry_run=dry_run,
                 )
                 results_exported.extend(results.exported)
                 results_new.extend(results.new)
@@ -1715,26 +1737,28 @@ def _query(
 
 
 def export_photo(
-    photo,
-    dest,
-    verbose_,
-    export_by_date,
-    sidecar,
-    update,
-    export_as_hardlink,
-    overwrite,
-    export_edited,
-    original_name,
-    export_live,
-    download_missing,
-    exiftool,
-    directory,
-    no_extended_attributes,
-    export_raw,
-    album_keyword,
-    person_keyword,
-    keyword_template,
-    export_db,
+    photo=None,
+    dest=None,
+    verbose_=None,
+    export_by_date=None,
+    sidecar=None,
+    update=None,
+    export_as_hardlink=None,
+    overwrite=None,
+    export_edited=None,
+    original_name=None,
+    export_live=None,
+    download_missing=None,
+    exiftool=None,
+    directory=None,
+    no_extended_attributes=None,
+    export_raw=None,
+    album_keyword=None,
+    person_keyword=None,
+    keyword_template=None,
+    export_db=None,
+    fileutil=FileUtil,
+    dry_run=None,
 ):
     """ Helper function for export that does the actual export
         photo: PhotoInfo object
@@ -1755,6 +1779,9 @@ def export_photo(
         album_keyword: boolean; if True, exports album names as keywords in metadata
         person_keyword: boolean; if True, exports person names as keywords in metadata
         keyword_template: list of strings; if provided use rendered template strings as keywords
+        export_db: export database instance compatible with ExportDB_ABC
+        fileutil: file util class compatible with FileUtilABC
+        dry_run: boolean; if True, doesn't actually export or update any files
         returns list of path(s) of exported photo or None if photo was missing 
     """
     global VERBOSE
@@ -1791,8 +1818,10 @@ def export_photo(
     verbose(f"Exporting {photo.filename} as {filename}")
 
     if export_by_date:
-        date_created = photo.date.timetuple()
-        dest_path = create_path_by_date(dest, date_created)
+        date_created = DateTimeFormatter(photo.date)
+        dest_path = os.path.join(dest, date_created.year, date_created.mm, date_created.dd)
+        if not dry_run and not os.path.isdir(dest_path):
+            os.makedirs(dest_path)
         dest_paths = [dest_path]
     elif directory:
         # got a directory template, render it and check results are valid
@@ -1808,7 +1837,7 @@ def export_photo(
             dest_path = os.path.join(dest, dirname)
             if not is_valid_filepath(dest_path, platform="auto"):
                 raise ValueError(f"Invalid file path: '{dest_path}'")
-            if not os.path.isdir(dest_path):
+            if not dry_run and not os.path.isdir(dest_path):
                 os.makedirs(dest_path)
             dest_paths.append(dest_path)
 
@@ -1849,6 +1878,8 @@ def export_photo(
             keyword_template=keyword_template,
             update=update,
             export_db=export_db,
+            fileutil=fileutil,
+            dry_run = dry_run,
         )
 
         results_exported.extend(export_results.exported)
@@ -1902,6 +1933,8 @@ def export_photo(
                     keyword_template=keyword_template,
                     update=update,
                     export_db=export_db,
+                    fileutil=fileutil,
+                    dry_run = dry_run,
                 )
 
                 results_exported.extend(export_results_edited.exported)

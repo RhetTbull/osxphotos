@@ -94,12 +94,12 @@ def test_setvalue_1():
     # test setting a tag value
     import os.path
     import tempfile
-    from osxphotos.utils import _copy_file
     import osxphotos.exiftool
+    from osxphotos.fileutil import FileUtil
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     tempfile = os.path.join(tempdir.name, os.path.basename(TEST_FILE_ONE_KEYWORD))
-    _copy_file(TEST_FILE_ONE_KEYWORD, tempfile)
+    FileUtil.copy(TEST_FILE_ONE_KEYWORD, tempfile)
 
     exif = osxphotos.exiftool.ExifTool(tempfile)
     exif.setvalue("IPTC:Keywords", "test")
@@ -111,12 +111,12 @@ def test_clear_value():
     # test clearing a tag value
     import os.path
     import tempfile
-    from osxphotos.utils import _copy_file
     import osxphotos.exiftool
+    from osxphotos.fileutil import FileUtil
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     tempfile = os.path.join(tempdir.name, os.path.basename(TEST_FILE_ONE_KEYWORD))
-    _copy_file(TEST_FILE_ONE_KEYWORD, tempfile)
+    FileUtil.copy(TEST_FILE_ONE_KEYWORD, tempfile)
 
     exif = osxphotos.exiftool.ExifTool(tempfile)
     assert "IPTC:Keywords" in exif.data
@@ -130,12 +130,12 @@ def test_addvalues_1():
     # test setting a tag value
     import os.path
     import tempfile
-    from osxphotos.utils import _copy_file
     import osxphotos.exiftool
+    from osxphotos.fileutil import FileUtil
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     tempfile = os.path.join(tempdir.name, os.path.basename(TEST_FILE_ONE_KEYWORD))
-    _copy_file(TEST_FILE_ONE_KEYWORD, tempfile)
+    FileUtil.copy(TEST_FILE_ONE_KEYWORD, tempfile)
 
     exif = osxphotos.exiftool.ExifTool(tempfile)
     exif.addvalues("IPTC:Keywords", "test")
@@ -147,12 +147,12 @@ def test_addvalues_2():
     # test setting a tag value where multiple values already exist
     import os.path
     import tempfile
-    from osxphotos.utils import _copy_file
     import osxphotos.exiftool
+    from osxphotos.fileutil import FileUtil
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     tempfile = os.path.join(tempdir.name, os.path.basename(TEST_FILE_MULTI_KEYWORD))
-    _copy_file(TEST_FILE_MULTI_KEYWORD, tempfile)
+    FileUtil.copy(TEST_FILE_MULTI_KEYWORD, tempfile)
 
     exif = osxphotos.exiftool.ExifTool(tempfile)
     assert sorted(exif.data["IPTC:Keywords"]) == sorted(TEST_MULTI_KEYWORDS)

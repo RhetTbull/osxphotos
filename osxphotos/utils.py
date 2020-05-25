@@ -18,7 +18,7 @@ import CoreServices
 import objc
 from Foundation import *
 
-from osxphotos._applescript import AppleScript
+from .fileutil import FileUtil
 
 _DEBUG = False
 
@@ -116,60 +116,6 @@ def _dd_to_dms(dd):
             sec_ = sec_ * -1
 
     return int(deg_), int(min_), sec_
-
-
-def _hardlink_file(src, dest):
-    """ Hardlinks a file from src path to dest path 
-        src: source path as string 
-        dest: destination path as string
-        Raises exception if linking fails or either path is None """
-
-    if src is None or dest is None:
-        raise ValueError("src and dest must not be None", src, dest)
-
-    if not os.path.isfile(src):
-        raise FileNotFoundError("src file does not appear to exist", src)
-
-    # if error on copy, subprocess will raise CalledProcessError
-    try:
-        os.link(src, dest)
-    except Exception as e:
-        logging.critical(f"os.link returned error: {e}")
-        raise e
-
-
-def _copy_file(src, dest, norsrc=False):
-    """ Copies a file from src path to dest path 
-        src: source path as string 
-        dest: destination path as string
-        norsrc: (bool) if True, uses --norsrc flag with ditto so it will not copy
-                resource fork or extended attributes.  May be useful on volumes that
-                don't work with extended attributes (likely only certain SMB mounts)
-                default is False
-        Uses ditto to perform copy; will silently overwrite dest if it exists
-        Raises exception if copy fails or either path is None """
-
-    if src is None or dest is None:
-        raise ValueError("src and dest must not be None", src, dest)
-
-    if not os.path.isfile(src):
-        raise FileNotFoundError("src file does not appear to exist", src)
-
-    if norsrc:
-        command = ["/usr/bin/ditto", "--norsrc", src, dest]
-    else:
-        command = ["/usr/bin/ditto", src, dest]
-
-    # if error on copy, subprocess will raise CalledProcessError
-    try:
-        result = subprocess.run(command, check=True, stderr=subprocess.PIPE)
-    except subprocess.CalledProcessError as e:
-        logging.critical(
-            f"ditto returned error: {e.returncode} {e.stderr.decode(sys.getfilesystemencoding()).rstrip()}"
-        )
-        raise e
-
-    return result.returncode
 
 
 def dd_to_dms_str(lat, lon):
@@ -308,24 +254,6 @@ def list_photo_libraries():
     return lib_list
 
 
-def create_path_by_date(dest, dt):
-    """ Creates a path in dest folder in form dest/YYYY/MM/DD/
-        dest: valid path as str
-        dt: datetime.timetuple() object
-        Checks to see if path exists, if it does, do nothing and return path
-        If path does not exist, creates it and returns path"""
-    if not os.path.isdir(dest):
-        raise FileNotFoundError(f"dest {dest} must be valid path")
-    yyyy, mm, dd = dt[0:3]
-    yyyy = str(yyyy).zfill(4)
-    mm = str(mm).zfill(2)
-    dd = str(dd).zfill(2)
-    new_dest = os.path.join(dest, yyyy, mm, dd)
-    if not os.path.isdir(new_dest):
-        os.makedirs(new_dest)
-    return new_dest
-
-
 def get_preferred_uti_extension(uti):
     """ get preferred extension for a UTI type
         uti: UTI str, e.g. 'public.jpeg'
@@ -363,117 +291,6 @@ def findfiles(pattern, path_):
 #         """
 #     )
 #     open_scpt.run()
-
-
-def _export_photo_uuid_applescript(
-    uuid,
-    dest,
-    filestem=None,
-    original=True,
-    edited=False,
-    live_photo=False,
-    timeout=120,
-    burst=False,
-):
-    """ Export photo to dest path using applescript to control Photos
-        If photo is a live photo, exports both the photo and associated .mov file
-        uuid: UUID of photo to export
-        dest: destination path to export to
-        filestem: (string) if provided, exported filename will be named stem.ext 
-                  where ext is extension of the file exported by photos (e.g. .jpeg, .mov, etc)
-                  If not provided, file will be named with whatever name Photos uses
-                  If filestem.ext exists, it wil be overwritten
-        original: (boolean) if True, export original image; default = True
-        edited: (boolean) if True, export edited photo; default = False
-                If photo not edited and edited=True, will still export the original image
-                caller must verify image has been edited
-        *Note*: must be called with either edited or original but not both, 
-                will raise error if called with both edited and original = True
-        live_photo: (boolean) if True, export associated .mov live photo; default = False
-        timeout: timeout value in seconds; export will fail if applescript run time exceeds timeout
-        burst: (boolean) set to True if file is a burst image to avoid Photos export error
-        Returns: list of paths to exported file(s) or None if export failed
-        Note: For Live Photos, if edited=True, will export a jpeg but not the movie, even if photo
-              has not been edited. This is due to how Photos Applescript interface works.
-    """
-
-    # setup the applescript to do the export
-    export_scpt = AppleScript(
-        """ 
-		on export_by_uuid(theUUID, thePath, original, edited, theTimeOut)
-			tell application "Photos"
-				set thePath to thePath
-				set theItem to media item id theUUID
-				set theFilename to filename of theItem
-				set itemList to {theItem}
-				
-				if original then
-					with timeout of theTimeOut seconds
-						export itemList to POSIX file thePath with using originals
-					end timeout
-				end if
-				
-				if edited then
-					with timeout of theTimeOut seconds
-						export itemList to POSIX file thePath
-					end timeout
-				end if
-				
-				return theFilename
-			end tell
-
-		end export_by_uuid
-		"""
-    )
-
-    dest = pathlib.Path(dest)
-    if not dest.is_dir:
-        raise ValueError(f"dest {dest} must be a directory")
-
-    if not original ^ edited:
-        raise ValueError(f"edited or original must be True but not both")
-
-    tmpdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
-
-    # export original
-    filename = None
-    try:
-        filename = export_scpt.call(
-            "export_by_uuid", uuid, tmpdir.name, original, edited, timeout
-        )
-    except Exception as e:
-        logging.warning("Error exporting uuid %s: %s" % (uuid, str(e)))
-        return None
-
-    if filename is not None:
-        # need to find actual filename as sometimes Photos renames JPG to jpeg on export
-        # may be more than one file exported (e.g. if Live Photo, Photos exports both .jpeg and .mov)
-        # TemporaryDirectory will cleanup on return
-        filename_stem = pathlib.Path(filename).stem
-        files = glob.glob(os.path.join(tmpdir.name, "*"))
-        exported_paths = []
-        for fname in files:
-            path = pathlib.Path(fname)
-            if len(files) > 1 and not live_photo and path.suffix.lower() == ".mov":
-                # it's the .mov part of live photo but not requested, so don't export
-                logging.debug(f"Skipping live photo file {path}")
-                continue
-            if len(files) > 1 and burst and path.stem != filename_stem:
-                # skip any burst photo that's not the one we asked for
-                logging.debug(f"Skipping burst photo file {path}")
-                continue
-            if filestem:
-                # rename the file based on filestem, keeping original extension
-                dest_new = dest / f"{filestem}{path.suffix}"
-            else:
-                # use the name Photos provided
-                dest_new = dest / path.name
-            logging.debug(f"exporting {path} to dest_new: {dest_new}")
-            _copy_file(str(path), str(dest_new))
-            exported_paths.append(str(dest_new))
-        return exported_paths
-    else:
-        return None
 
 
 def _open_sql_file(dbname):
@@ -527,7 +344,7 @@ def _db_is_locked(dbname):
 #     except KeyError:
 #         uuid_str = None
 #     return uuid_str
-    
+
 # def set_uuid_for_file(filepath, uuid):
 #     """ sets the UUID associated with an exported file
 #         filepath: path to exported photo

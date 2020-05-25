@@ -1299,8 +1299,116 @@ def test_export_then_hardlink():
         assert not os.path.samefile(CLI_EXPORT_UUID_FILENAME, photo.path)
 
         result = runner.invoke(
-            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--export-as-hardlink", "--overwrite"]
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "--export-as-hardlink",
+                "--overwrite",
+            ],
         )
         assert result.exit_code == 0
         assert "Exported: 8 photos" in result.output
         assert os.path.samefile(CLI_EXPORT_UUID_FILENAME, photo.path)
+
+
+def test_export_dry_run():
+    """ test export with dry-run flag """
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--dry-run"]
+        )
+        assert result.exit_code == 0
+        assert "Exported: 8 photos" in result.output
+        for filepath in CLI_EXPORT_FILENAMES:
+            assert f"Exported {filepath}" in result.output
+            assert not os.path.isfile(filepath)
+
+
+def test_export_update_edits_dry_run():
+    """ test export then update after removing and editing files with dry-run flag """
+    import glob
+    import os
+    import os.path
+    import shutil
+
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        # basic export
+        result = runner.invoke(
+            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--export-by-date"]
+        )
+        assert result.exit_code == 0
+
+        # change a couple of destination photos
+        os.unlink(CLI_EXPORT_BY_DATE[1])
+        shutil.copyfile(CLI_EXPORT_BY_DATE[0], CLI_EXPORT_BY_DATE[1])
+        os.unlink(CLI_EXPORT_BY_DATE[0])
+
+        # update dry-run
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "--update",
+                "--export-by-date",
+                "--dry-run",
+            ],
+        )
+        assert result.exit_code == 0
+        assert (
+            "Exported: 1 photo, updated: 1 photo, skipped: 6 photos, updated EXIF data: 0 photos"
+            in result.output
+        )
+
+        # make sure file didn't really get copied
+        assert not os.path.isfile(CLI_EXPORT_BY_DATE[0])
+
+
+def test_export_directory_template_1_dry_run():
+    """ test export using directory template with dry-run flag """
+    import glob
+    import locale
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    locale.setlocale(locale.LC_ALL, "en_US")
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--directory",
+                "{created.year}/{created.month}",
+                "--dry-run",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Exported: 8 photos" in result.output
+        workdir = os.getcwd()
+        for filepath in CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES1:
+            assert f"Exported {filepath}" in result.output
+            assert not os.path.isfile(os.path.join(workdir, filepath))

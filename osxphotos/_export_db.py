@@ -9,6 +9,7 @@ import pathlib
 import sqlite3
 import sys
 from abc import ABC, abstractmethod
+from io import StringIO
 from sqlite3 import Error
 
 from ._version import __version__
@@ -17,6 +18,7 @@ OSXPHOTOS_EXPORTDB_VERSION = "1.0"
 
 
 class ExportDB_ABC(ABC):
+    """ abstract base class for ExportDB """
     @abstractmethod
     def get_uuid_for_file(self, filename):
         pass
@@ -58,7 +60,7 @@ class ExportDB_ABC(ABC):
         pass
 
     @abstractmethod
-    def set_data(self, file, uuid, orig_stat, exif_stat, info_json, exif_json):
+    def set_data(self, filename, uuid, orig_stat, exif_stat, info_json, exif_json):
         pass
 
 
@@ -95,7 +97,7 @@ class ExportDBNoOp(ExportDB_ABC):
     def set_exifdata_for_file(self, uuid, exifdata):
         pass
 
-    def set_data(self, file, uuid, orig_stat, exif_stat, info_json, exif_json):
+    def set_data(self, filename, uuid, orig_stat, exif_stat, info_json, exif_json):
         pass
 
 
@@ -302,7 +304,7 @@ class ExportDB(ExportDB_ABC):
 
         logging.debug(f"set_exifdata: {filename}, {exifdata}")
 
-    def set_data(self, file, uuid, orig_stat, exif_stat, info_json, exif_json):
+    def set_data(self, filename, uuid, orig_stat, exif_stat, info_json, exif_json):
         """ sets all the data for file and uuid at once 
             calls set_uuid_for_file
                   set_info_for_uuid
@@ -310,8 +312,6 @@ class ExportDB(ExportDB_ABC):
                   set_stat_exif_for_file
                   set_exifdata_for_file        
         """
-        filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
-
         self.set_uuid_for_file(filename, uuid)
         self.set_info_for_uuid(uuid, info_json)
         self.set_stat_orig_for_file(filename, orig_stat)
@@ -437,3 +437,64 @@ class ExportDB(ExportDB_ABC):
             conn.commit()
         except Error as e:
             logging.warning(e)
+
+
+class ExportDBInMemory(ExportDB):
+    """ In memory version of ExportDB
+        Copies the on-disk database into memory so it may be operated on without 
+        modifying the on-disk verison 
+    """
+
+    def init(self, dbfile):
+        self._dbfile = dbfile
+        # _path is parent of the database
+        # all files referenced by get_/set_uuid_for_file will be converted to
+        # relative paths to this parent _path
+        # this allows the entire export tree to be moved to a new disk/location
+        # whilst preserving the UUID to filename mappping
+        self._path = pathlib.Path(dbfile).parent
+        self._conn = self._open_export_db(dbfile)
+        self._insert_run_info()
+
+    def _open_export_db(self, dbfile):
+        """ open export database and return a db connection
+            if dbfile does not exist, will create and initialize the database 
+            returns: connection to the database 
+        """
+        if not os.path.isfile(dbfile):
+            logging.debug(f"dbfile {dbfile} doesn't exist, creating in memory version")
+            conn = self._get_db_connection()
+            if conn:
+                self._create_db_tables(conn)
+            else:
+                raise Exception("Error getting connection to in-memory database")
+        else:
+            logging.debug(f"dbfile {dbfile} exists, opening it and copying to memory")
+            try:
+                conn = sqlite3.connect(dbfile)
+            except Error as e:
+                logging.warning(e)
+                raise e
+            
+            tempfile = StringIO()
+            for line in conn.iterdump():
+                tempfile.write("%s\n" % line)
+            conn.close()
+            tempfile.seek(0)
+
+            # Create a database in memory and import from tempfile
+            conn = sqlite3.connect(":memory:")
+            conn.cursor().executescript(tempfile.read())
+            conn.commit()
+
+        return conn
+
+    def _get_db_connection(self):
+        """ return db connection to in memory database """
+        try:
+            conn = sqlite3.connect(":memory:")
+        except Error as e:
+            logging.warning(e)
+            conn = None
+
+        return conn

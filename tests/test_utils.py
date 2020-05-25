@@ -55,44 +55,6 @@ def test_db_is_locked_unlocked():
     assert not osxphotos.utils._db_is_locked(DB_UNLOCKED_10_15)
 
 
-def test_copy_file_valid():
-    # _copy_file with valid src, dest
-    import os.path
-    import tempfile
-    from osxphotos.utils import _copy_file
-
-    temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
-    src = "tests/test-images/wedding.jpg"
-    result = _copy_file(src, temp_dir.name)
-    assert result == 0
-    assert os.path.isfile(os.path.join(temp_dir.name, "wedding.jpg"))
-
-
-def test_copy_file_invalid():
-    # _copy_file with invalid src
-    import tempfile
-    from osxphotos.utils import _copy_file
-
-    temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
-    src = "tests/test-images/wedding_DOES_NOT_EXIST.jpg"
-    with pytest.raises(Exception) as e:
-        assert _copy_file(src, temp_dir.name)
-    assert e.type == FileNotFoundError
-
-
-def test_copy_file_norsrc():
-    # _copy_file with --norsrc
-    import os.path
-    import tempfile
-    from osxphotos.utils import _copy_file
-
-    temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
-    src = "tests/test-images/wedding.jpg"
-    result = _copy_file(src, temp_dir.name, norsrc=True)
-    assert result == 0
-    assert os.path.isfile(os.path.join(temp_dir.name, "wedding.jpg"))
-
-
 def test_get_preferred_uti_extension():
     from osxphotos.utils import get_preferred_uti_extension
 
