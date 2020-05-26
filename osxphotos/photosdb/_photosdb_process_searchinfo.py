@@ -39,6 +39,19 @@ def _process_searchinfo(self):
         search terms.  In Photos 5, this is called psi.sqlite
         Note: Only works on Photos version == 5.0 """
 
+    # _db_searchinfo_uuid is dict in form {uuid : [list of associated search info records]
+    self._db_searchinfo_uuid = _db_searchinfo_uuid = {}
+
+    # _db_searchinfo_categories is dict in form {search info category id: list normalized strings for the category
+    # right now, this is mostly for debugging to easily see which search terms are in the library
+    self._db_searchinfo_categories = _db_searchinfo_categories = {}
+
+    # _db_searchinfo_labels is dict in form {normalized label: [list of photo uuids]}
+    # this serves as a reverse index from label to photos containing the label
+    # _db_searchinfo_labels_normalized is the same but with normalized (lower case) version of the label
+    self._db_searchinfo_labels = _db_searchinfo_labels = {}
+    self._db_searchinfo_labels_normalized = _db_searchinfo_labels_normalized = {}
+
     if self._db_version <= _PHOTOS_4_VERSION:
         raise NotImplementedError(
             f"search info not implemented for this database version"
@@ -46,7 +59,8 @@ def _process_searchinfo(self):
 
     search_db_path = pathlib.Path(self._dbfile).parent / "search" / "psi.sqlite"
     if not search_db_path.exists():
-        raise FileNotFoundError(f"could not find search db: {search_db_path}")
+        logging.warning(f"could not find search db: {search_db_path}")
+        return None
 
     if _db_is_locked(search_db_path):
         search_db = self._copy_db_file(search_db_path)
@@ -75,19 +89,6 @@ def _process_searchinfo(self):
         ga.rowid
         """
     )
-
-    # _db_searchinfo_uuid is dict in form {uuid : [list of associated search info records]
-    _db_searchinfo_uuid = {}
-
-    # _db_searchinfo_categories is dict in form {search info category id: list normalized strings for the category
-    # right now, this is mostly for debugging to easily see which search terms are in the library
-    _db_searchinfo_categories = {}
-
-    # _db_searchinfo_labels is dict in form {normalized label: [list of photo uuids]}
-    # this serves as a reverse index from label to photos containing the label
-    # _db_searchinfo_labels_normalized is the same but with normalized (lower case) version of the label
-    _db_searchinfo_labels = {}
-    _db_searchinfo_labels_normalized = {}
 
     cols = [c[0] for c in result.description]
     for row in result.fetchall():
@@ -122,10 +123,10 @@ def _process_searchinfo(self):
                 _db_searchinfo_labels[label] = [uuid]
                 _db_searchinfo_labels_normalized[label_norm] = [uuid]
 
-    self._db_searchinfo_categories = _db_searchinfo_categories
-    self._db_searchinfo_uuid = _db_searchinfo_uuid
-    self._db_searchinfo_labels = _db_searchinfo_labels
-    self._db_searchinfo_labels_normalized = _db_searchinfo_labels_normalized
+    # self._db_searchinfo_categories = _db_searchinfo_categories
+    # self._db_searchinfo_uuid = _db_searchinfo_uuid
+    # self._db_searchinfo_labels = _db_searchinfo_labels
+    # self._db_searchinfo_labels_normalized = _db_searchinfo_labels_normalized
 
     if _debug():
         logging.debug(
