@@ -19,6 +19,7 @@ OSXPHOTOS_EXPORTDB_VERSION = "1.0"
 
 class ExportDB_ABC(ABC):
     """ abstract base class for ExportDB """
+
     @abstractmethod
     def get_uuid_for_file(self, filename):
         pass
@@ -306,17 +307,39 @@ class ExportDB(ExportDB_ABC):
 
     def set_data(self, filename, uuid, orig_stat, exif_stat, info_json, exif_json):
         """ sets all the data for file and uuid at once 
-            calls set_uuid_for_file
-                  set_info_for_uuid
-                  set_stat_orig_for_file
-                  set_stat_exif_for_file
-                  set_exifdata_for_file        
         """
-        self.set_uuid_for_file(filename, uuid)
-        self.set_info_for_uuid(uuid, info_json)
-        self.set_stat_orig_for_file(filename, orig_stat)
-        self.set_stat_exif_for_file(filename, exif_stat)
-        self.set_exifdata_for_file(filename, exif_json)
+        filename = str(pathlib.Path(filename).relative_to(self._path))
+        filename_normalized = filename.lower()
+        conn = self._conn
+        try:
+            c = conn.cursor()
+            c.execute(
+                f"INSERT OR REPLACE INTO files(filepath, filepath_normalized, uuid) VALUES (?, ?, ?);",
+                (filename, filename_normalized, uuid),
+            )
+            c.execute(
+                "UPDATE files "
+                + "SET orig_mode = ?, orig_size = ?, orig_mtime = ? "
+                + "WHERE filepath_normalized = ?;",
+                (*orig_stat, filename_normalized),
+            )
+            c.execute(
+                "UPDATE files "
+                + "SET exif_mode = ?, exif_size = ?, exif_mtime = ? "
+                + "WHERE filepath_normalized = ?;",
+                (*exif_stat, filename_normalized),
+            )
+            c.execute(
+                "INSERT OR REPLACE INTO info(uuid, json_info) VALUES (?, ?);",
+                (uuid, info_json),
+            )
+            c.execute(
+                "INSERT OR REPLACE INTO exifdata(filepath_normalized, json_exifdata) VALUES (?, ?);",
+                (filename_normalized, exif_json),
+            )
+            conn.commit()
+        except Error as e:
+            logging.warning(e)
 
     def close(self):
         """ close the database connection """
@@ -475,7 +498,7 @@ class ExportDBInMemory(ExportDB):
             except Error as e:
                 logging.warning(e)
                 raise e
-            
+
             tempfile = StringIO()
             for line in conn.iterdump():
                 tempfile.write("%s\n" % line)

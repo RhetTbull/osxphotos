@@ -452,11 +452,14 @@ def export2(
                     f"Found matching file with blank uuid: {self.uuid}, {dest}"
                 )
                 dest_uuid = self.uuid
-                export_db.set_uuid_for_file(dest, self.uuid)
-                export_db.set_info_for_uuid(self.uuid, self.json())
-                export_db.set_stat_orig_for_file(dest, fileutil.file_sig(dest))
-                export_db.set_stat_exif_for_file(dest, (None, None, None))
-                export_db.set_exifdata_for_file(dest, None)
+                export_db.set_data(
+                    dest,
+                    self.uuid,
+                    fileutil.file_sig(dest),
+                    (None, None, None),
+                    self.json(),
+                    None,
+                )
             if dest_uuid != self.uuid:
                 # not the right file, find the right one
                 logging.debug(
@@ -482,11 +485,14 @@ def export2(
                         )
                         dest = pathlib.Path(file_)
                         found_match = True
-                        export_db.set_uuid_for_file(file_, self.uuid)
-                        export_db.set_info_for_uuid(self.uuid, self.json())
-                        export_db.set_stat_orig_for_file(dest, fileutil.file_sig(dest))
-                        export_db.set_stat_exif_for_file(dest, (None, None, None))
-                        export_db.set_exifdata_for_file(dest, None)
+                        export_db.set_data(
+                            dest,
+                            self.uuid,
+                            fileutil.file_sig(dest),
+                            (None, None, None),
+                            self.json(),
+                            None,
+                        )
                         break
 
                 if not found_match:
@@ -780,11 +786,14 @@ def _export_photo(
                 fileutil.unlink(dest)
             logging.debug(f"Not update: export_as_hardlink linking file {src} {dest}")
             fileutil.hardlink(src, dest)
-            export_db.set_uuid_for_file(dest_str, self.uuid)
-            export_db.set_info_for_uuid(self.uuid, self.json())
-            export_db.set_stat_orig_for_file(dest_str, fileutil.file_sig(dest_str))
-            export_db.set_stat_exif_for_file(dest_str, (None, None, None))
-            export_db.set_exifdata_for_file(dest_str, None)
+            export_db.set_data(
+                dest_str,
+                self.uuid,
+                fileutil.file_sig(dest_str),
+                (None, None, None),
+                self.json(),
+                None,
+            )
             exported_files.append(dest_str)
         elif dest_exists and dest.samefile(src):
             # update, hardlink and it already points to the right file, do nothing
@@ -800,11 +809,14 @@ def _export_photo(
             # dest.unlink()
             fileutil.unlink(dest)
             fileutil.hardlink(src, dest)
-            export_db.set_uuid_for_file(dest_str, self.uuid)
-            export_db.set_info_for_uuid(self.uuid, self.json())
-            export_db.set_stat_orig_for_file(dest_str, fileutil.file_sig(dest_str))
-            export_db.set_stat_exif_for_file(dest_str, (None, None, None))
-            export_db.set_exifdata_for_file(dest_str, None)
+            export_db.set_data(
+                dest_str,
+                self.uuid,
+                fileutil.file_sig(dest_str),
+                (None, None, None),
+                self.json(),
+                None,
+            )
             update_updated_files.append(dest_str)
             exported_files.append(dest_str)
         else:
@@ -813,11 +825,14 @@ def _export_photo(
                 f"Update: exporting new file with export_as_hardlink {src} {dest}"
             )
             fileutil.hardlink(src, dest)
-            export_db.set_uuid_for_file(dest_str, self.uuid)
-            export_db.set_info_for_uuid(self.uuid, self.json())
-            export_db.set_stat_orig_for_file(dest_str, fileutil.file_sig(dest_str))
-            export_db.set_stat_exif_for_file(dest_str, (None, None, None))
-            export_db.set_exifdata_for_file(dest_str, None)
+            export_db.set_data(
+                dest_str,
+                self.uuid,
+                fileutil.file_sig(dest_str),
+                (None, None, None),
+                self.json(),
+                None,
+            )
             exported_files.append(dest_str)
             update_new_files.append(dest_str)
     else:
@@ -829,12 +844,15 @@ def _export_photo(
                 fileutil.unlink(dest)
             logging.debug(f"Not update: copying file {src} {dest}")
             fileutil.copy(src, dest_str, norsrc=no_xattr)
-            export_db.set_uuid_for_file(dest_str, self.uuid)
-            export_db.set_info_for_uuid(self.uuid, self.json())
-            export_db.set_stat_orig_for_file(dest_str, fileutil.file_sig(dest_str))
-            export_db.set_stat_exif_for_file(dest_str, (None, None, None))
-            export_db.set_exifdata_for_file(dest_str, None)
             exported_files.append(dest_str)
+            export_db.set_data(
+                dest_str,
+                self.uuid,
+                fileutil.file_sig(dest_str),
+                (None, None, None),
+                self.json(),
+                None,
+            )
         # elif dest_exists and not exiftool and cmp_file(dest_str, export_db.get_stat_orig_for_file(dest_str)):
         elif (
             dest_exists
@@ -865,22 +883,28 @@ def _export_photo(
             # dest.unlink()
             fileutil.unlink(dest)
             fileutil.copy(src, dest_str, norsrc=no_xattr)
-            export_db.set_uuid_for_file(dest_str, self.uuid)
-            export_db.set_info_for_uuid(self.uuid, self.json())
-            export_db.set_stat_orig_for_file(dest_str, fileutil.file_sig(dest_str))
-            export_db.set_stat_exif_for_file(dest_str, (None, None, None))
-            export_db.set_exifdata_for_file(dest_str, None)
+            export_db.set_data(
+                dest_str,
+                self.uuid,
+                fileutil.file_sig(dest_str),
+                (None, None, None),
+                self.json(),
+                None,
+            )
             exported_files.append(dest_str)
             update_updated_files.append(dest_str)
         else:
             # destination doesn't exist, copy the file
             logging.debug(f"Update: copying new file {src} {dest}")
             fileutil.copy(src, dest_str, norsrc=no_xattr)
-            export_db.set_uuid_for_file(dest_str, self.uuid)
-            export_db.set_info_for_uuid(self.uuid, self.json())
-            export_db.set_stat_orig_for_file(dest_str, fileutil.file_sig(dest_str))
-            export_db.set_stat_exif_for_file(dest_str, (None, None, None))
-            export_db.set_exifdata_for_file(dest_str, None)
+            export_db.set_data(
+                dest_str,
+                self.uuid,
+                fileutil.file_sig(dest_str),
+                (None, None, None),
+                self.json(),
+                None,
+            )
             exported_files.append(dest_str)
             update_new_files.append(dest_str)
 

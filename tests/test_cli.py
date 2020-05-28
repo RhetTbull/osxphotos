@@ -122,10 +122,7 @@ CLI_EXPORT_UUID = "D79B8D77-BFFC-460B-9312-034F2877D35B"
 
 CLI_EXPORT_UUID_FILENAME = "Pumkins2.jpg"
 
-CLI_EXPORT_BY_DATE = [
-    "2018/09/28/Pumpkins3.jpg",
-    "2018/09/28/Pumkins1.jpg",
-]
+CLI_EXPORT_BY_DATE = ["2018/09/28/Pumpkins3.jpg", "2018/09/28/Pumkins1.jpg"]
 
 CLI_EXPORT_SIDECAR_FILENAMES = ["Pumkins2.jpg", "Pumkins2.json", "Pumkins2.xmp"]
 
@@ -1292,7 +1289,7 @@ def test_export_then_hardlink():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         # basic export
-        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V",],)
+        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
         assert result.exit_code == 0
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
