@@ -641,7 +641,6 @@ class PhotoInfo:
             template: str template 
             none_str: str to use default for None values, default is '_' 
             path_sep: optional character to use as path separator, default is os.path.sep """
-
         if path_sep is None:
             path_sep = os.path.sep
         elif path_sep is not None and len(path_sep) != 1:
@@ -722,36 +721,6 @@ class PhotoInfo:
 
         rendered_strings = set([rendered])
         for field in MULTI_VALUE_SUBSTITUTIONS:
-            if field == "album":
-                values = self.albums
-            elif field == "keyword":
-                values = self.keywords
-            elif field == "person":
-                values = self.persons
-                # remove any _UNKNOWN_PERSON values
-                values = [val for val in values if val != _UNKNOWN_PERSON]
-            elif field == "label":
-                values = self.labels
-            elif field == "label_normalized":
-                values = self.labels_normalized
-            elif field == "folder_album":
-                values = []
-                # photos must be in an album to be in a folder
-                for album in self.album_info:
-                    if album.folder_names:
-                        # album in folder
-                        folder = path_sep.join(album.folder_names)
-                        folder += path_sep + album.title
-                        values.append(folder)
-                    else:
-                        # album not in folder
-                        values.append(album.title)
-            else:
-                raise ValueError(f"Unhandleded template value: {field}")
-
-            # If no values, insert None so code below will substite none_str for None
-            values = values or [None]
-
             # Build a regex that matches only the field being processed
             re_str = r"(?<!\\)\{(" + field + r")(,(([\w\-. ]{0,})))?\}"
             regex_multi = re.compile(re_str)
@@ -760,25 +729,27 @@ class PhotoInfo:
             new_strings = set()
 
             for str_template in rendered_strings:
-                for val in values:
+                if regex_multi.search(str_template):
+                    values = self._template_value_multi(field, path_sep)
+                    for val in values:
 
-                    def get_template_value_multi(lookup_value):
-                        """ Closure passed to make_subst_function get_func 
-                            Capture val and field in the closure 
-                            Allows make_subst_function to be re-used w/o modification """
-                        if lookup_value == field:
-                            return val
-                        else:
-                            raise KeyError(f"Unexpected value: {lookup_value}")
+                        def get_template_value_multi(lookup_value):
+                            """ Closure passed to make_subst_function get_func 
+                                Capture val and field in the closure 
+                                Allows make_subst_function to be re-used w/o modification """
+                            if lookup_value == field:
+                                return val
+                            else:
+                                raise KeyError(f"Unexpected value: {lookup_value}")
 
-                    subst = make_subst_function(
-                        self, none_str, get_func=get_template_value_multi
-                    )
-                    new_string = regex_multi.sub(subst, str_template)
-                    new_strings.add(new_string)
+                        subst = make_subst_function(
+                            self, none_str, get_func=get_template_value_multi
+                        )
+                        new_string = regex_multi.sub(subst, str_template)
+                        new_strings.add(new_string)
 
-            # update rendered_strings for the next field to process
-            rendered_strings = new_strings
+                    # update rendered_strings for the next field to process
+                    rendered_strings = new_strings
 
         # find any {fields} that weren't replaced
         unmatched = []
@@ -980,6 +951,39 @@ class PhotoInfo:
 
         # if here, didn't get a match
         raise KeyError(f"No rule for processing {lookup}")
+
+    def _template_value_multi(self, field, path_sep):
+        """ return list of values for a multi-valued template field """
+        if field == "album":
+            values = self.albums
+        elif field == "keyword":
+            values = self.keywords
+        elif field == "person":
+            values = self.persons
+            # remove any _UNKNOWN_PERSON values
+            values = [val for val in values if val != _UNKNOWN_PERSON]
+        elif field == "label":
+            values = self.labels
+        elif field == "label_normalized":
+            values = self.labels_normalized
+        elif field == "folder_album":
+            values = []
+            # photos must be in an album to be in a folder
+            for album in self.album_info:
+                if album.folder_names:
+                    # album in folder
+                    folder = path_sep.join(album.folder_names)
+                    folder += path_sep + album.title
+                    values.append(folder)
+                else:
+                    # album not in folder
+                    values.append(album.title)
+        else:
+            raise ValueError(f"Unhandleded template value: {field}")
+
+        # If no values, insert None so code below will substite none_str for None
+        values = values or [None]
+        return values
 
     @property
     def _longitude(self):
