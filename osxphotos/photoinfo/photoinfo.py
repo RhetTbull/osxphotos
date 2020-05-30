@@ -638,7 +638,7 @@ class PhotoInfo:
                 fields like folder_album; if not provided, defaults to os.path.sep
         """
         template = PhotoTemplate(self)
-        return template.render_template(template_str, none_str, path_sep)
+        return template.render(template_str, none_str, path_sep)
 
     @property
     def _longitude(self):

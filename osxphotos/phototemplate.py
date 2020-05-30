@@ -78,24 +78,15 @@ MULTI_VALUE_SUBSTITUTIONS = [
 class PhotoTemplate:
     """ PhotoTemplate class to render a template string from a PhotoInfo object """
 
-    def __init__(self, photo, none_str="_", path_sep=None):
+    def __init__(self, photo):
         """ Inits PhotoTemplate class with photo, non_str, and path_sep
 
         Args:
             photo: a PhotoInfo instance.
-            none_str: a str to use if template field renders to None, default is "_".
-            path_sep: a single character str to use as path separator when joining 
-                fields like folder_album; if not provided, defaults to os.path.sep
         """
         self.photo = photo
-        self.none_str = none_str
-        self.path_sep = path_sep
-        if path_sep is None:
-            self.path_sep = os.path.sep
-        elif path_sep is not None and len(path_sep) != 1:
-            raise ValueError(f"path_sep must be single character: {path_sep}")
 
-    def render_template(self, template, none_str="_", path_sep=None):
+    def render(self, template, none_str="_", path_sep=None):
         """ render a filename or directory template 
             template: str template 
             none_str: str to use default for None values, default is '_' 
@@ -132,7 +123,7 @@ class PhotoTemplate:
                 if groups == 4:
                     try:
                         val = get_func(matchobj.group(1))
-                    except KeyError:
+                    except ValueError:
                         return matchobj.group(0)
 
                     if val is None:
@@ -189,20 +180,20 @@ class PhotoTemplate:
 
             for str_template in rendered_strings:
                 if regex_multi.search(str_template):
-                    values = self._template_value_multi(field, path_sep)
+                    values = self.get_template_value_multi(field, path_sep)
                     for val in values:
 
-                        def get_template_value_multi(lookup_value):
+                        def lookup_template_value_multi(lookup_value):
                             """ Closure passed to make_subst_function get_func 
                                 Capture val and field in the closure 
                                 Allows make_subst_function to be re-used w/o modification """
                             if lookup_value == field:
                                 return val
                             else:
-                                raise KeyError(f"Unexpected value: {lookup_value}")
+                                raise ValueError(f"Unexpected value: {lookup_value}")
 
                         subst = make_subst_function(
-                            self, none_str, get_func=get_template_value_multi
+                            self, none_str, get_func=lookup_template_value_multi
                         )
                         new_string = regex_multi.sub(subst, str_template)
                         new_strings.add(new_string)
@@ -229,179 +220,186 @@ class PhotoTemplate:
 
         return rendered_strings, unmatched
 
-    def get_template_value(self, lookup):
-        """ lookup template value (single-value template substitutions) for use in make_subst_function
-            lookup: value to find a match for
-            returns: either the matching template value (which may be None)
-            raises: KeyError if no rule exists for lookup """
+    def get_template_value(self, field):
+        """lookup value for template field (single-value template substitutions)
+
+        Args:
+            field: template field to find value for.
+        
+        Returns:
+            The matching template value (which may be None).
+
+        Raises:
+            ValueError if no rule exists for field.
+        """
 
         # must be a valid keyword
-        if lookup == "name":
+        if field =="name":
             return pathlib.Path(self.photo.filename).stem
 
-        if lookup == "original_name":
+        if field =="original_name":
             return pathlib.Path(self.photo.original_filename).stem
 
-        if lookup == "title":
+        if field =="title":
             return self.photo.title
 
-        if lookup == "descr":
+        if field =="descr":
             return self.photo.description
 
-        if lookup == "created.date":
+        if field =="created.date":
             return DateTimeFormatter(self.photo.date).date
 
-        if lookup == "created.year":
+        if field =="created.year":
             return DateTimeFormatter(self.photo.date).year
 
-        if lookup == "created.yy":
+        if field =="created.yy":
             return DateTimeFormatter(self.photo.date).yy
 
-        if lookup == "created.mm":
+        if field =="created.mm":
             return DateTimeFormatter(self.photo.date).mm
 
-        if lookup == "created.month":
+        if field =="created.month":
             return DateTimeFormatter(self.photo.date).month
 
-        if lookup == "created.mon":
+        if field =="created.mon":
             return DateTimeFormatter(self.photo.date).mon
 
-        if lookup == "created.dd":
+        if field =="created.dd":
             return DateTimeFormatter(self.photo.date).dd
 
-        if lookup == "created.dow":
+        if field =="created.dow":
             return DateTimeFormatter(self.photo.date).dow
 
-        if lookup == "created.doy":
+        if field =="created.doy":
             return DateTimeFormatter(self.photo.date).doy
 
-        if lookup == "modified.date":
+        if field =="modified.date":
             return (
                 DateTimeFormatter(self.photo.date_modified).date
                 if self.photo.date_modified
                 else None
             )
 
-        if lookup == "modified.year":
+        if field =="modified.year":
             return (
                 DateTimeFormatter(self.photo.date_modified).year
                 if self.photo.date_modified
                 else None
             )
 
-        if lookup == "modified.yy":
+        if field =="modified.yy":
             return (
                 DateTimeFormatter(self.photo.date_modified).yy if self.photo.date_modified else None
             )
 
-        if lookup == "modified.mm":
+        if field =="modified.mm":
             return (
                 DateTimeFormatter(self.photo.date_modified).mm if self.photo.date_modified else None
             )
 
-        if lookup == "modified.month":
+        if field =="modified.month":
             return (
                 DateTimeFormatter(self.photo.date_modified).month
                 if self.photo.date_modified
                 else None
             )
 
-        if lookup == "modified.mon":
+        if field =="modified.mon":
             return (
                 DateTimeFormatter(self.photo.date_modified).mon
                 if self.photo.date_modified
                 else None
             )
 
-        if lookup == "modified.dd":
+        if field =="modified.dd":
             return (
                 DateTimeFormatter(self.photo.date_modified).dd if self.photo.date_modified else None
             )
 
-        if lookup == "modified.doy":
+        if field =="modified.doy":
             return (
                 DateTimeFormatter(self.photo.date_modified).doy
                 if self.photo.date_modified
                 else None
             )
 
-        if lookup == "place.name":
+        if field =="place.name":
             return self.photo.place.name if self.photo.place else None
 
-        if lookup == "place.country_code":
+        if field =="place.country_code":
             return self.photo.place.country_code if self.photo.place else None
 
-        if lookup == "place.name.country":
+        if field =="place.name.country":
             return (
                 self.photo.place.names.country[0]
                 if self.photo.place and self.photo.place.names.country
                 else None
             )
 
-        if lookup == "place.name.state_province":
+        if field =="place.name.state_province":
             return (
                 self.photo.place.names.state_province[0]
                 if self.photo.place and self.photo.place.names.state_province
                 else None
             )
 
-        if lookup == "place.name.city":
+        if field =="place.name.city":
             return (
                 self.photo.place.names.city[0]
                 if self.photo.place and self.photo.place.names.city
                 else None
             )
 
-        if lookup == "place.name.area_of_interest":
+        if field =="place.name.area_of_interest":
             return (
                 self.photo.place.names.area_of_interest[0]
                 if self.photo.place and self.photo.place.names.area_of_interest
                 else None
             )
 
-        if lookup == "place.address":
+        if field =="place.address":
             return (
                 self.photo.place.address_str
                 if self.photo.place and self.photo.place.address_str
                 else None
             )
 
-        if lookup == "place.address.street":
+        if field =="place.address.street":
             return (
                 self.photo.place.address.street
                 if self.photo.place and self.photo.place.address.street
                 else None
             )
 
-        if lookup == "place.address.city":
+        if field =="place.address.city":
             return (
                 self.photo.place.address.city
                 if self.photo.place and self.photo.place.address.city
                 else None
             )
 
-        if lookup == "place.address.state_province":
+        if field =="place.address.state_province":
             return (
                 self.photo.place.address.state_province
                 if self.photo.place and self.photo.place.address.state_province
                 else None
             )
 
-        if lookup == "place.address.postal_code":
+        if field =="place.address.postal_code":
             return (
                 self.photo.place.address.postal_code
                 if self.photo.place and self.photo.place.address.postal_code
                 else None
             )
 
-        if lookup == "place.address.country":
+        if field =="place.address.country":
             return (
                 self.photo.place.address.country
                 if self.photo.place and self.photo.place.address.country
                 else None
             )
 
-        if lookup == "place.address.country_code":
+        if field =="place.address.country_code":
             return (
                 self.photo.place.address.iso_country_code
                 if self.photo.place and self.photo.place.address.iso_country_code
@@ -409,9 +407,22 @@ class PhotoTemplate:
             )
 
         # if here, didn't get a match
-        raise KeyError(f"No rule for processing {lookup}")
+        raise ValueError(f"Unhandled template value: {field}")
 
-    def _template_value_multi(self, field, path_sep):
+    def get_template_value_multi(self, field, path_sep):
+        """lookup value for template field (multi-value template substitutions)
+
+        Args:
+            field: template field to find value for.
+            path_sep: path separator to use for folder_album field
+        
+        Returns:
+            List of the matching template values or [None].
+
+        Raises:
+            ValueError if no rule exists for field.
+        """
+
         """ return list of values for a multi-valued template field """
         if field == "album":
             values = self.photo.albums

@@ -110,6 +110,23 @@ def test_lookup():
         assert lookup or lookup is None
 
 
+def test_lookup_multi():
+    """ Test that a lookup is returned for every possible value """
+    import os
+    import re
+    import osxphotos
+    from osxphotos.phototemplate import TEMPLATE_SUBSTITUTIONS_MULTI_VALUED, PhotoTemplate
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
+    photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
+    template = PhotoTemplate(photo)
+
+    for subst in TEMPLATE_SUBSTITUTIONS_MULTI_VALUED:
+        lookup_str = re.match(r"\{([^\\,}]+)\}", subst).group(1)
+        lookup = template.get_template_value_multi(lookup_str,path_sep=os.path.sep)
+        assert isinstance(lookup, list)
+        assert len(lookup) >= 1
+
 def test_subst():
     """ Test that substitutions are correct """
     import locale
