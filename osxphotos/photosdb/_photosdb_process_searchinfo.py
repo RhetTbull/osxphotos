@@ -3,6 +3,7 @@
     ref: https://github.com/dogsheep/photos-to-sqlite/issues/16
 """
 
+from functools import lru_cache
 import logging
 import pathlib
 import uuid as uuidlib
@@ -69,7 +70,7 @@ def _process_searchinfo(self):
 
     (conn, c) = _open_sql_file(search_db)
 
-    result = conn.execute(
+    result = c.execute(
         """
         select
         ga.rowid,
@@ -90,14 +91,31 @@ def _process_searchinfo(self):
         """
     )
 
-    cols = [c[0] for c in result.description]
-    for row in result.fetchall():
-        record = dict(zip(cols, row))
-        uuid = ints_to_uuid(record["uuid_0"], record["uuid_1"])
+    # 0: ga.rowid,
+    # 1: assets.uuid_0,
+    # 2: assets.uuid_1,
+    # 3: groups.rowid as groupid,
+    # 4: groups.category,
+    # 5: groups.owning_groupid,
+    # 6: groups.content_string,
+    # 7: groups.normalized_string,
+    # 8: groups.lookup_identifier
+
+    for row in c:
+        uuid = ints_to_uuid(row[1],row[2])
         # strings have null character appended, so strip it
-        for key in record:
-            if isinstance(record[key], str):
-                record[key] = record[key].replace("\x00", "")
+        record = {}
+        record["uuid"] = uuid
+        record["rowid"] = row[0]
+        record["uuid_0"] = row[1]
+        record["uuid_1"] = row[2]
+        record["groupid"] = row[3]
+        record["category"] = row[4]
+        record["owning_groupid"] = row[5]
+        record["content_string"] = row[6].replace("\x00", "")
+        record["normalized_string"] = row[7].replace("\x00", "")
+        record["lookup_identifier"] = row[8]
+
         try:
             _db_searchinfo_uuid[uuid].append(record)
         except KeyError:
@@ -105,15 +123,15 @@ def _process_searchinfo(self):
 
         category = record["category"]
         try:
-            _db_searchinfo_categories[record["category"]].append(
+            _db_searchinfo_categories[category].append(
                 record["normalized_string"]
             )
         except KeyError:
-            _db_searchinfo_categories[record["category"]] = [
+            _db_searchinfo_categories[category] = [
                 record["normalized_string"]
             ]
 
-        if record["category"] == SEARCH_CATEGORY_LABEL:
+        if category == SEARCH_CATEGORY_LABEL:
             label = record["content_string"]
             label_norm = record["normalized_string"]
             try:
@@ -122,11 +140,6 @@ def _process_searchinfo(self):
             except KeyError:
                 _db_searchinfo_labels[label] = [uuid]
                 _db_searchinfo_labels_normalized[label_norm] = [uuid]
-
-    # self._db_searchinfo_categories = _db_searchinfo_categories
-    # self._db_searchinfo_uuid = _db_searchinfo_uuid
-    # self._db_searchinfo_labels = _db_searchinfo_labels
-    # self._db_searchinfo_labels_normalized = _db_searchinfo_labels_normalized
 
     if _debug():
         logging.debug(
@@ -185,7 +198,7 @@ def labels_normalized_as_dict(self):
 
 # The following method is not imported into PhotosDB
 
-
+@lru_cache(maxsize=128)
 def ints_to_uuid(uuid_0, uuid_1):
     """ convert two signed ints into a UUID strings
         uuid_0, uuid_1: the two int components of an RFC 4122 UUID """
