@@ -27,7 +27,7 @@ from ._version import __version__
 from .exiftool import get_exiftool_path
 from .fileutil import FileUtil, FileUtilNoOp
 from .photoinfo import ExportResults
-from .photoinfo.template import (
+from .phototemplate import (
     TEMPLATE_SUBSTITUTIONS,
     TEMPLATE_SUBSTITUTIONS_MULTI_VALUED,
 )

@@ -98,14 +98,15 @@ def test_lookup():
     """ Test that a lookup is returned for every possible value """
     import re
     import osxphotos
-    from osxphotos.photoinfo.template import TEMPLATE_SUBSTITUTIONS
+    from osxphotos.phototemplate import TEMPLATE_SUBSTITUTIONS, PhotoTemplate
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
     photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
+    template = PhotoTemplate(photo)
 
     for subst in TEMPLATE_SUBSTITUTIONS:
         lookup_str = re.match(r"\{([^\\,}]+)\}", subst).group(1)
-        lookup = photo.get_template_value(lookup_str)
+        lookup = template.get_template_value(lookup_str)
         assert lookup or lookup is None
 
 

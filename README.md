@@ -1159,9 +1159,9 @@ If overwrite=False and increment=False, export will fail if destination file alr
 
 #### <a name="rendertemplate">`render_template()`</a>
 
-`render_template(template, none_str = "_", path_sep = None)`
+`render_template(template_str, none_str = "_", path_sep = None)`
 Render template string for photo.  none_str is used if template substitution results in None value and no default specified. 
-- `template`: str in form "{name,DEFAULT}" where name is one of the values in table below. The "," and default value that follows are optional. If specified, "DEFAULT" will be used if "name" is None.  This is useful for values which are not always present, for example reverse geolocation data.
+- `template_str`: str in form "{name,DEFAULT}" where name is one of the values in table below. The "," and default value that follows are optional. If specified, "DEFAULT" will be used if "name" is None.  This is useful for values which are not always present, for example reverse geolocation data.
 - `none_str`: optional str to use as substitution when template value is None and no default specified in the template string.  default is "_".
 - `path_sep`: optional character to use as path separator, default is os.path.sep
 
