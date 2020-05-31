@@ -15,23 +15,20 @@ import yaml
 from pathvalidate import (
     is_valid_filename,
     is_valid_filepath,
-    sanitize_filepath,
     sanitize_filename,
+    sanitize_filepath,
 )
 
 import osxphotos
 
 from ._constants import _EXIF_TOOL_URL, _PHOTOS_4_VERSION, _UNKNOWN_PLACE
-from .datetime_formatter import DateTimeFormatter
+from ._export_db import ExportDB, ExportDBInMemory
 from ._version import __version__
+from .datetime_formatter import DateTimeFormatter
 from .exiftool import get_exiftool_path
 from .fileutil import FileUtil, FileUtilNoOp
 from .photoinfo import ExportResults
-from .phototemplate import (
-    TEMPLATE_SUBSTITUTIONS,
-    TEMPLATE_SUBSTITUTIONS_MULTI_VALUED,
-)
-from ._export_db import ExportDB, ExportDBInMemory
+from .phototemplate import TEMPLATE_SUBSTITUTIONS, TEMPLATE_SUBSTITUTIONS_MULTI_VALUED
 
 # global variable to control verbose output
 # set via --verbose/-V
@@ -134,13 +131,18 @@ class ExportCommand(click.Command):
         formatter.write_text("** Templating System **")
         formatter.write("\n")
         formatter.write_text(
-            "With the --directory option you may specify a template for the "
-            + "export directory.  This directory will be appended to the export path specified "
+            "With the --directory and --filename options you may specify a template for the "
+            + "export directory or filename, respectively. "
+            + "The directory will be appended to the export path specified "
             + "in the export DEST argument to export.  For example, if template is "
             + "'{created.year}/{created.month}', and export desitnation DEST is "
             + "'/Users/maria/Pictures/export', "
             + "the actual export directory for a photo would be '/Users/maria/Pictures/export/2020/March' "
             + "if the photo was created in March 2020. "
+            + "Some template substitutions may result in more than one value, for example '{album}' if "
+            + "photo is in more than one album or '{keyword}' if photo has more than one keyword. "
+            + "In this case, more than one copy of the photo will be exported, each in a separate directory "
+            + "or with a different filename."
         )
         formatter.write("\n")
         formatter.write_text(
@@ -176,11 +178,7 @@ class ExportCommand(click.Command):
         formatter.write_text(
             "If you do not specify a default value and the template substitution "
             + "has no value, '_' (underscore) will be used as the default value. For example, in the "
-            + "above example, this would result in '2020/_/photoname.jpg' if address was null"
-        )
-        formatter.write_text(
-            "I plan to eventually extend the templating system "
-            + "to the exported filename so you can specify the filename using a template."
+            + "above example, this would result in '2020/_/photoname.jpg' if address was null."
         )
 
         formatter.write("\n")
@@ -1039,12 +1037,21 @@ def query(
     "See below for additional details on templating system.",
 )
 @click.option(
+    "--filename",
+    "filename_template",
+    metavar="FILENAME",
+    default=None,
+    help="Optional template for specifying name of output file in the form '{name,DEFAULT}'. "
+    "File extension will be added automatically--do not include an extension in the FILENAME template. "
+    "See below for additional details on templating system.",
+)
+@click.option(
     "--edited-suffix",
     metavar="SUFFIX",
     default="_edited",
     help="Optional suffix for naming edited photos.  Default name for edited photos is in form "
     "'photoname_edited.ext'. For example, with '--edited-suffix _bearbeiten', the edited photo "
-    "would be named 'photoname_bearbeiten.ext'.  The default suffix is '_edited'."
+    "would be named 'photoname_bearbeiten.ext'.  The default suffix is '_edited'.",
 )
 @click.option(
     "--no-extended-attributes",
@@ -1124,6 +1131,7 @@ def export(
     not_panorama,
     has_raw,
     directory,
+    filename_template,
     edited_suffix,
     place,
     no_place,
@@ -1288,6 +1296,7 @@ def export(
                 photos.extend(burst_set)
 
         num_photos = len(photos)
+        # TODO: photos or photo appears several times, pull into a separate function
         photo_str = "photos" if num_photos > 1 else "photo"
         click.echo(f"Exporting {num_photos} {photo_str} to {dest}...")
         start_time = time.perf_counter()
@@ -1310,6 +1319,7 @@ def export(
                         download_missing=download_missing,
                         exiftool=exiftool,
                         directory=directory,
+                        filename_template=filename_template,
                         no_extended_attributes=no_extended_attributes,
                         export_raw=export_raw,
                         album_keyword=album_keyword,
@@ -1317,7 +1327,7 @@ def export(
                         keyword_template=keyword_template,
                         export_db=export_db,
                         fileutil=fileutil,
-                        dry_run = dry_run,
+                        dry_run=dry_run,
                         edited_suffix=edited_suffix,
                     )
                     results_exported.extend(results.exported)
@@ -1342,6 +1352,7 @@ def export(
                     download_missing=download_missing,
                     exiftool=exiftool,
                     directory=directory,
+                    filename_template=filename_template,
                     no_extended_attributes=no_extended_attributes,
                     export_raw=export_raw,
                     album_keyword=album_keyword,
@@ -1350,7 +1361,7 @@ def export(
                     export_db=export_db,
                     fileutil=fileutil,
                     dry_run=dry_run,
-                    edited_suffix=edited_suffix
+                    edited_suffix=edited_suffix,
                 )
                 results_exported.extend(results.exported)
                 results_new.extend(results.new)
@@ -1762,6 +1773,7 @@ def export_photo(
     download_missing=None,
     exiftool=None,
     directory=None,
+    filename_template=None,
     no_extended_attributes=None,
     export_raw=None,
     album_keyword=None,
@@ -1770,9 +1782,11 @@ def export_photo(
     export_db=None,
     fileutil=FileUtil,
     dry_run=None,
-    edited_suffix="_edited"
+    edited_suffix="_edited",
 ):
     """ Helper function for export that does the actual export
+
+    Args:
         photo: PhotoInfo object
         dest: destination path as string
         verbose_: boolean; print verbose output
@@ -1786,6 +1800,7 @@ def export_photo(
         download_missing: attempt download of missing iCloud photos
         exiftool: use exiftool to write EXIF metadata directly to exported photo
         directory: template used to determine output directory
+        filename_template: template use to determine output file
         no_extended_attributes: boolean; if True, exports photo without preserving extended attributes
         export_raw: boolean; if True exports RAW image associate with the photo
         album_keyword: boolean; if True, exports album names as keywords in metadata
@@ -1794,14 +1809,15 @@ def export_photo(
         export_db: export database instance compatible with ExportDB_ABC
         fileutil: file util class compatible with FileUtilABC
         dry_run: boolean; if True, doesn't actually export or update any files
-        returns list of path(s) of exported photo or None if photo was missing 
+
+    Returns:
+        list of path(s) of exported photo or None if photo was missing
+    
+    Raises:
+        ValueError on invalid filename_template
     """
     global VERBOSE
     VERBOSE = True if verbose_ else False
-
-    # Can export to multiple paths
-    # Start with single path [dest] but direcotry and export_by_date will modify dest_paths
-    dest_paths = [dest]
 
     if not download_missing:
         if photo.ismissing:
@@ -1821,27 +1837,198 @@ def export_photo(
         )
         return ExportResults([], [], [], [], [])
 
-    filename = None
-    if original_name:
-        filename = photo.original_filename
-    else:
-        filename = photo.filename
+    filenames = get_filenames_from_template(photo, filename_template, original_name)
+    for filename in filenames:
+        verbose(f"Exporting {photo.filename} as {filename}")
 
-    verbose(f"Exporting {photo.filename} as {filename}")
+        dest_paths = get_dirnames_from_template(
+            photo, directory, export_by_date, dest, dry_run
+        )
+
+        sidecar = [s.lower() for s in sidecar]
+        sidecar_json = sidecar_xmp = False
+        if "json" in sidecar:
+            sidecar_json = True
+        if "xmp" in sidecar:
+            sidecar_xmp = True
+
+        # if download_missing and the photo is missing or path doesn't exist,
+        # try to download with Photos
+        use_photos_export = download_missing and (
+            photo.ismissing or not os.path.exists(photo.path)
+        )
+
+        # export the photo to each path in dest_paths
+        results_exported = []
+        results_new = []
+        results_updated = []
+        results_skipped = []
+        results_exif_updated = []
+        for dest_path in dest_paths:
+            export_results = photo.export2(
+                dest_path,
+                filename,
+                sidecar_json=sidecar_json,
+                sidecar_xmp=sidecar_xmp,
+                live_photo=export_live,
+                raw_photo=export_raw,
+                export_as_hardlink=export_as_hardlink,
+                overwrite=overwrite,
+                use_photos_export=use_photos_export,
+                exiftool=exiftool,
+                no_xattr=no_extended_attributes,
+                use_albums_as_keywords=album_keyword,
+                use_persons_as_keywords=person_keyword,
+                keyword_template=keyword_template,
+                update=update,
+                export_db=export_db,
+                fileutil=fileutil,
+                dry_run=dry_run,
+            )
+
+            results_exported.extend(export_results.exported)
+            results_new.extend(export_results.new)
+            results_updated.extend(export_results.updated)
+            results_skipped.extend(export_results.skipped)
+            results_exif_updated.extend(export_results.exif_updated)
+
+            if verbose_:
+                for exported in export_results.exported:
+                    verbose(f"Exported {exported}")
+                for new in export_results.new:
+                    verbose(f"Exported new file {new}")
+                for updated in export_results.updated:
+                    verbose(f"Exported updated file {updated}")
+                for skipped in export_results.skipped:
+                    verbose(f"Skipped up to date file {skipped}")
+
+            # if export-edited, also export the edited version
+            # verify the photo has adjustments and valid path to avoid raising an exception
+            if export_edited and photo.hasadjustments:
+                # if download_missing and the photo is missing or path doesn't exist,
+                # try to download with Photos
+                use_photos_export = download_missing and photo.path_edited is None
+                if not download_missing and photo.path_edited is None:
+                    verbose(f"Skipping missing edited photo for {filename}")
+                else:
+                    edited_name = pathlib.Path(filename)
+                    # check for correct edited suffix
+                    if photo.path_edited is not None:
+                        edited_ext = pathlib.Path(photo.path_edited).suffix
+                    else:
+                        # use filename suffix which might be wrong,
+                        # will be corrected by use_photos_export
+                        edited_ext = pathlib.Path(photo.filename).suffix
+                    edited_name = f"{edited_name.stem}{edited_suffix}{edited_ext}"
+                    verbose(f"Exporting edited version of {filename} as {edited_name}")
+                    export_results_edited = photo.export2(
+                        dest_path,
+                        edited_name,
+                        sidecar_json=sidecar_json,
+                        sidecar_xmp=sidecar_xmp,
+                        export_as_hardlink=export_as_hardlink,
+                        overwrite=overwrite,
+                        edited=True,
+                        use_photos_export=use_photos_export,
+                        exiftool=exiftool,
+                        no_xattr=no_extended_attributes,
+                        use_albums_as_keywords=album_keyword,
+                        use_persons_as_keywords=person_keyword,
+                        keyword_template=keyword_template,
+                        update=update,
+                        export_db=export_db,
+                        fileutil=fileutil,
+                        dry_run=dry_run,
+                    )
+
+                    results_exported.extend(export_results_edited.exported)
+                    results_new.extend(export_results_edited.new)
+                    results_updated.extend(export_results_edited.updated)
+                    results_skipped.extend(export_results_edited.skipped)
+                    results_exif_updated.extend(export_results_edited.exif_updated)
+
+                    if verbose_:
+                        for exported in export_results_edited.exported:
+                            verbose(f"Exported {exported}")
+                        for new in export_results_edited.new:
+                            verbose(f"Exported new file {new}")
+                        for updated in export_results_edited.updated:
+                            verbose(f"Exported updated file {updated}")
+                        for skipped in export_results_edited.skipped:
+                            verbose(f"Skipped up to date file {skipped}")
+
+    return ExportResults(
+        results_exported,
+        results_new,
+        results_updated,
+        results_skipped,
+        results_exif_updated,
+    )
+
+
+def get_filenames_from_template(photo, filename_template, original_name):
+    """ get list of export filenames for a photo
+
+    Args:
+        photo: a PhotoInfo instance
+        filename_template: a PhotoTemplate template string, may be None
+        original_name: boolean; if True, use photo's original filename instead of current filename
+    
+    Returns:
+        list of filenames
+    
+    Raises:
+        click.BadOptionUsage if template is invalid
+    """
+    if filename_template:
+        photo_ext = pathlib.Path(photo.original_filename).suffix
+        filenames, unmatched = photo.render_template(filename_template, path_sep="_")
+        if not filenames or unmatched:
+            raise click.BadOptionUsage(
+                "filename_template",
+                f"Invalid template '{filename_template}': results={filenames} unmatched={unmatched}",
+            )
+        filenames = [f"{file_}{photo_ext}" for file_ in filenames]
+    else:
+        if original_name:
+            filenames = [photo.original_filename]
+        else:
+            filenames = [photo.filename]
+    return filenames
+
+
+def get_dirnames_from_template(photo, directory, export_by_date, dest, dry_run):
+    """ get list of directories to export a photo into, creates directories if they don't exist
+
+    Args:
+        photo: a PhotoInstance object
+        directory: a PhotoTemplate template string, may be None
+        export_by_date: boolean; if True, creates output directories in form YYYY-MM-DD
+        dest: top-level destination directory
+        dry_run: boolean; if True, runs in dry-run mode and does not create output directories
+
+    Returns:
+        list of export directories
+
+    Raises:
+        click.BadOptionUsage if template is invalid
+    """
 
     if export_by_date:
         date_created = DateTimeFormatter(photo.date)
-        dest_path = os.path.join(dest, date_created.year, date_created.mm, date_created.dd)
+        dest_path = os.path.join(
+            dest, date_created.year, date_created.mm, date_created.dd
+        )
         if not dry_run and not os.path.isdir(dest_path):
             os.makedirs(dest_path)
         dest_paths = [dest_path]
     elif directory:
         # got a directory template, render it and check results are valid
         dirnames, unmatched = photo.render_template(directory)
-        if unmatched:
+        if not dirnames or unmatched:
             raise click.BadOptionUsage(
                 "directory",
-                f"Invalid substitution in template '{directory}': {unmatched}",
+                f"Invalid template '{directory}': results={dirnames} unmatched={unmatched}",
             )
         dest_paths = []
         for dirname in dirnames:
@@ -1852,126 +2039,9 @@ def export_photo(
             if not dry_run and not os.path.isdir(dest_path):
                 os.makedirs(dest_path)
             dest_paths.append(dest_path)
-
-    sidecar = [s.lower() for s in sidecar]
-    sidecar_json = sidecar_xmp = False
-    if "json" in sidecar:
-        sidecar_json = True
-    if "xmp" in sidecar:
-        sidecar_xmp = True
-
-    # if download_missing and the photo is missing or path doesn't exist,
-    # try to download with Photos
-    use_photos_export = download_missing and (
-        photo.ismissing or not os.path.exists(photo.path)
-    )
-
-    # export the photo to each path in dest_paths
-    results_exported = []
-    results_new = []
-    results_updated = []
-    results_skipped = []
-    results_exif_updated = []
-    for dest_path in dest_paths:
-        export_results = photo.export2(
-            dest_path,
-            filename,
-            sidecar_json=sidecar_json,
-            sidecar_xmp=sidecar_xmp,
-            live_photo=export_live,
-            raw_photo=export_raw,
-            export_as_hardlink=export_as_hardlink,
-            overwrite=overwrite,
-            use_photos_export=use_photos_export,
-            exiftool=exiftool,
-            no_xattr=no_extended_attributes,
-            use_albums_as_keywords=album_keyword,
-            use_persons_as_keywords=person_keyword,
-            keyword_template=keyword_template,
-            update=update,
-            export_db=export_db,
-            fileutil=fileutil,
-            dry_run = dry_run,
-        )
-
-        results_exported.extend(export_results.exported)
-        results_new.extend(export_results.new)
-        results_updated.extend(export_results.updated)
-        results_skipped.extend(export_results.skipped)
-        results_exif_updated.extend(export_results.exif_updated)
-
-        if verbose_:
-            for exported in export_results.exported:
-                verbose(f"Exported {exported}")
-            for new in export_results.new:
-                verbose(f"Exported new file {new}")
-            for updated in export_results.updated:
-                verbose(f"Exported updated file {updated}")
-            for skipped in export_results.skipped:
-                verbose(f"Skipped up to date file {skipped}")
-
-        # if export-edited, also export the edited version
-        # verify the photo has adjustments and valid path to avoid raising an exception
-        if export_edited and photo.hasadjustments:
-            # if download_missing and the photo is missing or path doesn't exist,
-            # try to download with Photos
-            use_photos_export = download_missing and photo.path_edited is None
-            if not download_missing and photo.path_edited is None:
-                verbose(f"Skipping missing edited photo for {filename}")
-            else:
-                edited_name = pathlib.Path(filename)
-                # check for correct edited suffix
-                if photo.path_edited is not None:
-                    edited_ext = pathlib.Path(photo.path_edited).suffix
-                else:
-                    # use filename suffix which might be wrong,
-                    # will be corrected by use_photos_export
-                    edited_ext = pathlib.Path(photo.filename).suffix
-                edited_name = f"{edited_name.stem}{edited_suffix}{edited_ext}"
-                verbose(f"Exporting edited version of {filename} as {edited_name}")
-                export_results_edited = photo.export2(
-                    dest_path,
-                    edited_name,
-                    sidecar_json=sidecar_json,
-                    sidecar_xmp=sidecar_xmp,
-                    export_as_hardlink=export_as_hardlink,
-                    overwrite=overwrite,
-                    edited=True,
-                    use_photos_export=use_photos_export,
-                    exiftool=exiftool,
-                    no_xattr=no_extended_attributes,
-                    use_albums_as_keywords=album_keyword,
-                    use_persons_as_keywords=person_keyword,
-                    keyword_template=keyword_template,
-                    update=update,
-                    export_db=export_db,
-                    fileutil=fileutil,
-                    dry_run = dry_run,
-                )
-
-                results_exported.extend(export_results_edited.exported)
-                results_new.extend(export_results_edited.new)
-                results_updated.extend(export_results_edited.updated)
-                results_skipped.extend(export_results_edited.skipped)
-                results_exif_updated.extend(export_results_edited.exif_updated)
-
-                if verbose_:
-                    for exported in export_results_edited.exported:
-                        verbose(f"Exported {exported}")
-                    for new in export_results_edited.new:
-                        verbose(f"Exported new file {new}")
-                    for updated in export_results_edited.updated:
-                        verbose(f"Exported updated file {updated}")
-                    for skipped in export_results_edited.skipped:
-                        verbose(f"Skipped up to date file {skipped}")
-
-    return ExportResults(
-        results_exported,
-        results_new,
-        results_updated,
-        results_skipped,
-        results_exif_updated,
-    )
+    else:
+        dest_paths = [dest]
+    return dest_paths
 
 
 if __name__ == "__main__":

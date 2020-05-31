@@ -1,4 +1,5 @@
 import os
+
 import pytest
 from click.testing import CliRunner
 
@@ -10,6 +11,7 @@ RAW_PHOTOS_DB = "tests/Test-RAW-10.15.1.photoslibrary"
 PLACES_PHOTOS_DB = "tests/Test-Places-Catalina-10_15_1.photoslibrary"
 PLACES_PHOTOS_DB_13 = "tests/Test-Places-High-Sierra-10.13.6.photoslibrary"
 PHOTOS_DB_15_4 = "tests/Test-10.15.4.photoslibrary"
+PHOTOS_DB_15_5 = "tests/Test-10.15.5.photoslibrary"
 PHOTOS_DB_14_6 = "tests/Test-10.14.6.photoslibrary"
 
 CLI_OUTPUT_NO_SUBCOMMAND = [
@@ -130,6 +132,38 @@ CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES3 = [
     "2018/{foo}/Pumpkins3.jpg",
     "2018/{foo}/Pumkins2.jpg",
     "2018/{foo}/Pumkins1.jpg",
+]
+
+
+CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES1 = [
+    "2019-wedding.jpg",
+    "2019-wedding_edited.jpeg",
+    "2019-Tulips.jpg",
+    "2018-St James Park.jpg",
+    "2018-St James Park_edited.jpeg",
+    "2018-Pumpkins3.jpg",
+    "2018-Pumkins2.jpg",
+    "2018-Pumkins1.jpg",
+]
+
+CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES2 = [
+    "Folder1_SubFolder2_AlbumInFolder-IMG_4547.jpg",
+    "Folder1_SubFolder2_AlbumInFolder-wedding.jpg",
+    "Folder1_SubFolder2_AlbumInFolder-wedding_edited.jpeg",
+    "Folder2_Raw-DSC03584.dng",
+    "Folder2_Raw-IMG_1994.cr2",
+    "Folder2_Raw-IMG_1994.JPG",
+    "Folder2_Raw-IMG_1997.cr2",
+    "Folder2_Raw-IMG_1997.JPG",
+    "None-St James Park.jpg",
+    "None-St James Park_edited.jpeg",
+    "None-Tulips.jpg",
+    "None-Tulips_edited.jpeg",
+    "Pumpkin Farm-Pumkins1.jpg",
+    "Pumpkin Farm-Pumkins2.jpg",
+    "Pumpkin Farm-Pumpkins3.jpg",
+    "Test Album-Pumkins1.jpg",
+    "Test Album-Pumkins2.jpg",
 ]
 
 CLI_EXPORT_UUID = "D79B8D77-BFFC-460B-9312-034F2877D35B"
@@ -706,7 +740,7 @@ def test_export_directory_template_2():
 
 
 def test_export_directory_template_3():
-    # test export using directory template with unmatched substituion value
+    # test export using directory template with unmatched substitution value
     import glob
     import os
     import os.path
@@ -728,7 +762,7 @@ def test_export_directory_template_3():
             ],
         )
         assert result.exit_code == 2
-        assert "Error: Invalid substitution in template" in result.output
+        assert "Error: Invalid template" in result.output
 
 
 def test_export_directory_template_album_1():
@@ -823,6 +857,93 @@ def test_export_directory_template_locale():
         workdir = os.getcwd()
         for filepath in CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES_LOCALE:
             assert os.path.isfile(os.path.join(workdir, filepath))
+
+
+def test_export_filename_template_1():
+    """ export photos using filename template """
+    import glob
+    import locale
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    locale.setlocale(locale.LC_ALL, "en_US")
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--filename",
+                "{created.year}-{original_name}",
+            ],
+        )
+        assert result.exit_code == 0
+        workdir = os.getcwd()
+        files = glob.glob("*.*")
+        assert sorted(files) == sorted(CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES1)
+
+
+def test_export_filename_template_2():
+    """ export photos using filename template with folder_album and path_sep """
+    import glob
+    import locale
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    locale.setlocale(locale.LC_ALL, "en_US")
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_5),
+                ".",
+                "-V",
+                "--filename",
+                "{folder_album,None}-{original_name}",
+            ],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*.*")
+        assert sorted(files) == sorted(CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES2)
+
+
+def test_export_filename_template_3():
+    """ test --filename with invalid template """
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--directory",
+                "{foo}-{original_filename}",
+            ],
+        )
+        assert result.exit_code == 2
+        assert "Error: Invalid template" in result.output
 
 
 def test_places():

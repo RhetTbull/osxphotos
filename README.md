@@ -282,6 +282,12 @@ Options:
                                   output directory in the form
                                   '{name,DEFAULT}'. See below for additional
                                   details on templating system.
+  --filename FILENAME             Optional template for specifying name of
+                                  output file in the form '{name,DEFAULT}'.
+                                  File extension will be added automatically--
+                                  do not include an extension in the FILENAME
+                                  template. See below for additional details
+                                  on templating system.
   --edited-suffix SUFFIX          Optional suffix for naming edited photos.
                                   Default name for edited photos is in form
                                   'photoname_edited.ext'. For example, with '
@@ -326,13 +332,16 @@ option to re-export the entire library thus rebuilding the
 
 ** Templating System **
 
-With the --directory option you may specify a template for the export
-directory.  This directory will be appended to the export path specified in
-the export DEST argument to export.  For example, if template is
-'{created.year}/{created.month}', and export desitnation DEST is
-'/Users/maria/Pictures/export', the actual export directory for a photo would
-be '/Users/maria/Pictures/export/2020/March' if the photo was created in March
-2020.
+With the --directory and --filename options you may specify a template for the
+export directory or filename, respectively. The directory will be appended to
+the export path specified in the export DEST argument to export.  For example,
+if template is '{created.year}/{created.month}', and export desitnation DEST
+is '/Users/maria/Pictures/export', the actual export directory for a photo
+would be '/Users/maria/Pictures/export/2020/March' if the photo was created in
+March 2020. Some template substitutions may result in more than one value, for
+example '{album}' if photo is in more than one album or '{keyword}' if photo
+has more than one keyword. In this case, more than one copy of the photo will
+be exported, each in a separate directory or with a different filename.
 
 The templating system may also be used with the --keyword-template option to
 set keywords on export (with --exiftool or --sidecar), for example, to set a
@@ -358,9 +367,7 @@ contain a brace symbol ('{' or '}').
 
 If you do not specify a default value and the template substitution has no
 value, '_' (underscore) will be used as the default value. For example, in the
-above example, this would result in '2020/_/photoname.jpg' if address was null
-I plan to eventually extend the templating system to the exported filename so
-you can specify the filename using a template.
+above example, this would result in '2020/_/photoname.jpg' if address was null.
 
 Substitution                    Description
 {name}                          Current filename of the photo

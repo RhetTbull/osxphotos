@@ -29,6 +29,7 @@ from ..placeinfo import PlaceInfo4, PlaceInfo5
 from ..phototemplate import PhotoTemplate
 from ..utils import _debug, _get_resource_loc, findfiles, get_preferred_uti_extension
 
+
 class PhotoInfo:
     """
     Info about a specific photo, contains all the details about the photo
