@@ -1039,6 +1039,14 @@ def query(
     "See below for additional details on templating system.",
 )
 @click.option(
+    "--edited-suffix",
+    metavar="SUFFIX",
+    default="_edited",
+    help="Optional suffix for naming edited photos.  Default name for edited photos is in form "
+    "'photoname_edited.ext'. For example, with '--edited-suffix _bearbeiten', the edited photo "
+    "would be named 'photoname_bearbeiten.ext'.  The default suffix is '_edited'."
+)
+@click.option(
     "--no-extended-attributes",
     is_flag=True,
     default=False,
@@ -1116,6 +1124,7 @@ def export(
     not_panorama,
     has_raw,
     directory,
+    edited_suffix,
     place,
     no_place,
     no_extended_attributes,
@@ -1309,6 +1318,7 @@ def export(
                         export_db=export_db,
                         fileutil=fileutil,
                         dry_run = dry_run,
+                        edited_suffix=edited_suffix,
                     )
                     results_exported.extend(results.exported)
                     results_new.extend(results.new)
@@ -1340,6 +1350,7 @@ def export(
                     export_db=export_db,
                     fileutil=fileutil,
                     dry_run=dry_run,
+                    edited_suffix=edited_suffix
                 )
                 results_exported.extend(results.exported)
                 results_new.extend(results.new)
@@ -1759,6 +1770,7 @@ def export_photo(
     export_db=None,
     fileutil=FileUtil,
     dry_run=None,
+    edited_suffix="_edited"
 ):
     """ Helper function for export that does the actual export
         photo: PhotoInfo object
@@ -1910,12 +1922,12 @@ def export_photo(
                 edited_name = pathlib.Path(filename)
                 # check for correct edited suffix
                 if photo.path_edited is not None:
-                    edited_suffix = pathlib.Path(photo.path_edited).suffix
+                    edited_ext = pathlib.Path(photo.path_edited).suffix
                 else:
                     # use filename suffix which might be wrong,
                     # will be corrected by use_photos_export
-                    edited_suffix = pathlib.Path(photo.filename).suffix
-                edited_name = f"{edited_name.stem}_edited{edited_suffix}"
+                    edited_ext = pathlib.Path(photo.filename).suffix
+                edited_name = f"{edited_name.stem}{edited_suffix}{edited_ext}"
                 verbose(f"Exporting edited version of {filename} as {edited_name}")
                 export_results_edited = photo.export2(
                     dest_path,

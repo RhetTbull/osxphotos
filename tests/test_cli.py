@@ -47,6 +47,20 @@ CLI_EXPORT_FILENAMES = [
     "wedding_edited.jpeg",
 ]
 
+CLI_EXPORT_EDITED_SUFFIX = "_bearbeiten"
+
+CLI_EXPORT_FILENAMES_EDITED_SUFFIX = [
+    "Pumkins1.jpg",
+    "Pumkins2.jpg",
+    "Pumpkins3.jpg",
+    "St James Park.jpg",
+    "St James Park_bearbeiten.jpeg",
+    "Tulips.jpg",
+    "wedding.jpg",
+    "wedding_bearbeiten.jpeg",
+]
+
+
 CLI_EXPORT_FILENAMES_CURRENT = [
     "1EB2B765-0765-43BA-A90C-0D0580E6172C.jpeg",
     "3DD2C897-F19E-4CA6-8C22-B027D5A71907.jpeg",
@@ -412,6 +426,33 @@ def test_export_exiftool():
             exif = ExifTool(CLI_EXIFTOOL[uuid]["File:FileName"]).as_dict()
             for key in CLI_EXIFTOOL[uuid]:
                 assert exif[key] == CLI_EXIFTOOL[uuid][key]
+
+
+def test_export_edited_suffix():
+    """ test export with --edited-suffix """
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "--edited-suffix",
+                CLI_EXPORT_EDITED_SUFFIX,
+                "-V",
+            ],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_EDITED_SUFFIX)
 
 
 def test_query_date():

@@ -282,6 +282,13 @@ Options:
                                   output directory in the form
                                   '{name,DEFAULT}'. See below for additional
                                   details on templating system.
+  --edited-suffix SUFFIX          Optional suffix for naming edited photos.
+                                  Default name for edited photos is in form
+                                  'photoname_edited.ext'. For example, with '
+                                  --edited-suffix _bearbeiten', the edited
+                                  photo would be named
+                                  'photoname_bearbeiten.ext'.  The default
+                                  suffix is '_edited'.
   --no-extended-attributes        Don't copy extended attributes when
                                   exporting.  You only need this if exporting
                                   to a filesystem that doesn't support Mac OS
@@ -373,6 +380,8 @@ Substitution                    Description
                                 the file creation time
 {created.dd}                    2-digit day of the month (zero padded) of
                                 file creation time
+{created.dow}                   Day of week in user's locale of the file
+                                creation time
 {created.doy}                   3-digit day of year (e.g Julian day) of file
                                 creation time, starting from 1 (zero padded)
 {modified.date}                 Photo's modification date in ISO format,
