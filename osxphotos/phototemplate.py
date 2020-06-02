@@ -1,5 +1,6 @@
 """ Custom template system for osxphotos (implemented in PhotoInfo.render_template) """
 
+
 # Rolled my own template system because:
 # 1. Needed to handle multiple values (e.g. album, keyword)
 # 2. Needed to handle default values if template not found
@@ -8,7 +9,6 @@
 # 4. Couldn't figure out how to do #1 and #2 with str.format()
 #
 # This code isn't elegant but it seems to work well.  PRs gladly accepted.
-
 import locale
 import os
 import re
@@ -71,7 +71,7 @@ TEMPLATE_SUBSTITUTIONS_MULTI_VALUED = {
 # Just the multi-valued substitution names without the braces
 MULTI_VALUE_SUBSTITUTIONS = [
     field.replace("{", "").replace("}", "")
-    for field in TEMPLATE_SUBSTITUTIONS_MULTI_VALUED.keys()
+    for field in TEMPLATE_SUBSTITUTIONS_MULTI_VALUED
 ]
 
 
@@ -234,172 +234,178 @@ class PhotoTemplate:
         """
 
         # must be a valid keyword
-        if field =="name":
+        if field == "name":
             return pathlib.Path(self.photo.filename).stem
 
-        if field =="original_name":
+        if field == "original_name":
             return pathlib.Path(self.photo.original_filename).stem
 
-        if field =="title":
+        if field == "title":
             return self.photo.title
 
-        if field =="descr":
+        if field == "descr":
             return self.photo.description
 
-        if field =="created.date":
+        if field == "created.date":
             return DateTimeFormatter(self.photo.date).date
 
-        if field =="created.year":
+        if field == "created.year":
             return DateTimeFormatter(self.photo.date).year
 
-        if field =="created.yy":
+        if field == "created.yy":
             return DateTimeFormatter(self.photo.date).yy
 
-        if field =="created.mm":
+        if field == "created.mm":
             return DateTimeFormatter(self.photo.date).mm
 
-        if field =="created.month":
+        if field == "created.month":
             return DateTimeFormatter(self.photo.date).month
 
-        if field =="created.mon":
+        if field == "created.mon":
             return DateTimeFormatter(self.photo.date).mon
 
-        if field =="created.dd":
+        if field == "created.dd":
             return DateTimeFormatter(self.photo.date).dd
 
-        if field =="created.dow":
+        if field == "created.dow":
             return DateTimeFormatter(self.photo.date).dow
 
-        if field =="created.doy":
+        if field == "created.doy":
             return DateTimeFormatter(self.photo.date).doy
 
-        if field =="modified.date":
+        if field == "modified.date":
             return (
                 DateTimeFormatter(self.photo.date_modified).date
                 if self.photo.date_modified
                 else None
             )
 
-        if field =="modified.year":
+        if field == "modified.year":
             return (
                 DateTimeFormatter(self.photo.date_modified).year
                 if self.photo.date_modified
                 else None
             )
 
-        if field =="modified.yy":
+        if field == "modified.yy":
             return (
-                DateTimeFormatter(self.photo.date_modified).yy if self.photo.date_modified else None
+                DateTimeFormatter(self.photo.date_modified).yy
+                if self.photo.date_modified
+                else None
             )
 
-        if field =="modified.mm":
+        if field == "modified.mm":
             return (
-                DateTimeFormatter(self.photo.date_modified).mm if self.photo.date_modified else None
+                DateTimeFormatter(self.photo.date_modified).mm
+                if self.photo.date_modified
+                else None
             )
 
-        if field =="modified.month":
+        if field == "modified.month":
             return (
                 DateTimeFormatter(self.photo.date_modified).month
                 if self.photo.date_modified
                 else None
             )
 
-        if field =="modified.mon":
+        if field == "modified.mon":
             return (
                 DateTimeFormatter(self.photo.date_modified).mon
                 if self.photo.date_modified
                 else None
             )
 
-        if field =="modified.dd":
+        if field == "modified.dd":
             return (
-                DateTimeFormatter(self.photo.date_modified).dd if self.photo.date_modified else None
+                DateTimeFormatter(self.photo.date_modified).dd
+                if self.photo.date_modified
+                else None
             )
 
-        if field =="modified.doy":
+        if field == "modified.doy":
             return (
                 DateTimeFormatter(self.photo.date_modified).doy
                 if self.photo.date_modified
                 else None
             )
 
-        if field =="place.name":
+        if field == "place.name":
             return self.photo.place.name if self.photo.place else None
 
-        if field =="place.country_code":
+        if field == "place.country_code":
             return self.photo.place.country_code if self.photo.place else None
 
-        if field =="place.name.country":
+        if field == "place.name.country":
             return (
                 self.photo.place.names.country[0]
                 if self.photo.place and self.photo.place.names.country
                 else None
             )
 
-        if field =="place.name.state_province":
+        if field == "place.name.state_province":
             return (
                 self.photo.place.names.state_province[0]
                 if self.photo.place and self.photo.place.names.state_province
                 else None
             )
 
-        if field =="place.name.city":
+        if field == "place.name.city":
             return (
                 self.photo.place.names.city[0]
                 if self.photo.place and self.photo.place.names.city
                 else None
             )
 
-        if field =="place.name.area_of_interest":
+        if field == "place.name.area_of_interest":
             return (
                 self.photo.place.names.area_of_interest[0]
                 if self.photo.place and self.photo.place.names.area_of_interest
                 else None
             )
 
-        if field =="place.address":
+        if field == "place.address":
             return (
                 self.photo.place.address_str
                 if self.photo.place and self.photo.place.address_str
                 else None
             )
 
-        if field =="place.address.street":
+        if field == "place.address.street":
             return (
                 self.photo.place.address.street
                 if self.photo.place and self.photo.place.address.street
                 else None
             )
 
-        if field =="place.address.city":
+        if field == "place.address.city":
             return (
                 self.photo.place.address.city
                 if self.photo.place and self.photo.place.address.city
                 else None
             )
 
-        if field =="place.address.state_province":
+        if field == "place.address.state_province":
             return (
                 self.photo.place.address.state_province
                 if self.photo.place and self.photo.place.address.state_province
                 else None
             )
 
-        if field =="place.address.postal_code":
+        if field == "place.address.postal_code":
             return (
                 self.photo.place.address.postal_code
                 if self.photo.place and self.photo.place.address.postal_code
                 else None
             )
 
-        if field =="place.address.country":
+        if field == "place.address.country":
             return (
                 self.photo.place.address.country
                 if self.photo.place and self.photo.place.address.country
                 else None
             )
 
-        if field =="place.address.country_code":
+        if field == "place.address.country_code":
             return (
                 self.photo.place.address.iso_country_code
                 if self.photo.place and self.photo.place.address.iso_country_code

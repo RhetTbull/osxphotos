@@ -12,53 +12,44 @@ class DateTimeFormatter:
     @property
     def date(self):
         """ ISO date in form 2020-03-22 """
-        date = self.dt.date().isoformat()
-        return date
+        return self.dt.date().isoformat()
 
     @property
     def year(self):
         """ 4 digit year """
-        year = f"{self.dt.year}"
-        return year
+        return f"{self.dt.year}"
 
     @property
     def yy(self):
         """ 2 digit year """
-        yy = f"{self.dt.strftime('%y')}"
-        return yy
+        return f"{self.dt.strftime('%y')}"
 
     @property
     def mm(self):
         """ 2 digit month """
-        mm = f"{self.dt.strftime('%m')}"
-        return mm
+        return f"{self.dt.strftime('%m')}"
 
     @property
     def month(self):
         """ Month as locale's full name """
-        month = f"{self.dt.strftime('%B')}"
-        return month
+        return f"{self.dt.strftime('%B')}"
 
     @property
     def mon(self):
         """ Month as locale's abbreviated name """
-        mon = f"{self.dt.strftime('%b')}"
-        return mon
+        return f"{self.dt.strftime('%b')}"
 
     @property
     def dd(self):
         """ 2-digit day of the month """
-        dd = f"{self.dt.strftime('%d')}"
-        return dd
+        return f"{self.dt.strftime('%d')}"
 
     @property
     def dow(self):
         """ Day of week as locale's name """
-        dow = f"{self.dt.strftime('%A')}"
-        return dow
+        return f"{self.dt.strftime('%A')}"
 
     @property
     def doy(self):
         """ Julian day of year starting from 001 """
-        doy = f"{self.dt.strftime('%j')}"
-        return doy
+        return f"{self.dt.strftime('%j')}"

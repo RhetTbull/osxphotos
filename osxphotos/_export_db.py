@@ -445,10 +445,7 @@ class ExportDB(ExportDB_ABC):
         dt = datetime.datetime.utcnow().isoformat()
         python_path = sys.executable
         cmd = sys.argv[0]
-        if len(sys.argv) > 1:
-            args = " ".join(sys.argv[1:])
-        else:
-            args = ""
+        args = " ".join(sys.argv[1:]) if len(sys.argv) > 1 else ""
         cwd = os.getcwd()
         conn = self._conn
         try:

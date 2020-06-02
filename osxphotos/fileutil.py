@@ -11,6 +11,7 @@ from abc import ABC, abstractmethod
 
 class FileUtilABC(ABC):
     """ Abstract base class for FileUtil """
+
     @classmethod
     @abstractmethod
     def hardlink(cls, src, dest):
@@ -39,6 +40,7 @@ class FileUtilABC(ABC):
 
 class FileUtilMacOS(FileUtilABC):
     """ Various file utilities """
+
     @classmethod
     def hardlink(cls, src, dest):
         """ Hardlinks a file from src path to dest path 
@@ -119,9 +121,7 @@ class FileUtilMacOS(FileUtilABC):
 
         if s1[0] != stat.S_IFREG or s2[0] != stat.S_IFREG:
             return False
-        if s1 == s2:
-            return True
-        return False
+        return s1 == s2
 
     @classmethod
     def file_sig(cls, f1):
@@ -135,7 +135,9 @@ class FileUtilMacOS(FileUtilABC):
 
 class FileUtil(FileUtilMacOS):
     """ Various file utilities """
+
     pass
+
 
 class FileUtilNoOp(FileUtil):
     """ No-Op implementation of FileUtil for testing / dry-run mode
@@ -143,6 +145,7 @@ class FileUtilNoOp(FileUtil):
         cmp_sig functions as FileUtil.cmp_sig does
         file_cmp returns mock data
     """
+
     @staticmethod
     def noop(*args):
         pass
@@ -155,7 +158,7 @@ class FileUtilNoOp(FileUtil):
                 cls.verbose = verbose
             else:
                 raise ValueError(f"verbose {verbose} not callable")
-        return super(FileUtilNoOp, cls).__new__(cls) 
+        return super(FileUtilNoOp, cls).__new__(cls)
 
     @classmethod
     def hardlink(cls, src, dest):
@@ -164,7 +167,7 @@ class FileUtilNoOp(FileUtil):
     @classmethod
     def copy(cls, src, dest, norsrc=False):
         cls.verbose(f"copy: {src} {dest}")
-        
+
     @classmethod
     def unlink(cls, dest):
         cls.verbose(f"unlink: {dest}")

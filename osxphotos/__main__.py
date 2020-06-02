@@ -534,10 +534,7 @@ def info(ctx, cli_obj, db, json_, photos_library):
         return
 
     pdb = osxphotos.PhotosDB(dbfile=db)
-    info = {}
-    info["database_path"] = pdb.db_path
-    info["database_version"] = pdb.db_version
-
+    info = {"database_path": pdb.db_path, "database_version": pdb.db_version}
     photos = pdb.photos()
     not_shared_photos = [p for p in photos if not p.shared]
     info["photo_count"] = len(not_shared_photos)
@@ -1175,7 +1172,7 @@ def export(
         (export_as_hardlink, exiftool),
         (any(place), no_place),
     ]
-    if any([all(bb) for bb in exclusive]):
+    if any(all(bb) for bb in exclusive):
         click.echo("Incompatible export options", err=True)
         click.echo(cli.commands["export"].get_help(ctx), err=True)
         return
@@ -1185,11 +1182,6 @@ def export(
     (export_edited, export_bursts, export_live, export_raw) = [
         not x for x in [skip_edited, skip_bursts, skip_live, skip_raw]
     ]
-
-    # though the command line option is current_name, internally all processing
-    # logic uses original_name which is the boolean inverse of current_name
-    # because the original code used --original-name as an option
-    original_name = not current_name
 
     # verify exiftool installed an in path
     if exiftool:
@@ -1283,10 +1275,6 @@ def export(
     )
 
     results_exported = []
-    results_new = []
-    results_updated = []
-    results_skipped = []
-    results_exif_updated = []
     if photos:
         if export_bursts:
             # add the burst_photos to the export set
@@ -1300,7 +1288,50 @@ def export(
         photo_str = "photos" if num_photos > 1 else "photo"
         click.echo(f"Exporting {num_photos} {photo_str} to {dest}...")
         start_time = time.perf_counter()
-        if not verbose_:
+        # though the command line option is current_name, internally all processing
+        # logic uses original_name which is the boolean inverse of current_name
+        # because the original code used --original-name as an option
+        original_name = not current_name
+
+        results_new = []
+        results_updated = []
+        results_skipped = []
+        results_exif_updated = []
+        if verbose_:
+            for p in photos:
+                results = export_photo(
+                    photo=p,
+                    dest=dest,
+                    verbose_=verbose_,
+                    export_by_date=export_by_date,
+                    sidecar=sidecar,
+                    update=update,
+                    export_as_hardlink=export_as_hardlink,
+                    overwrite=overwrite,
+                    export_edited=export_edited,
+                    original_name=original_name,
+                    export_live=export_live,
+                    download_missing=download_missing,
+                    exiftool=exiftool,
+                    directory=directory,
+                    filename_template=filename_template,
+                    no_extended_attributes=no_extended_attributes,
+                    export_raw=export_raw,
+                    album_keyword=album_keyword,
+                    person_keyword=person_keyword,
+                    keyword_template=keyword_template,
+                    export_db=export_db,
+                    fileutil=fileutil,
+                    dry_run=dry_run,
+                    edited_suffix=edited_suffix,
+                )
+                results_exported.extend(results.exported)
+                results_new.extend(results.new)
+                results_updated.extend(results.updated)
+                results_skipped.extend(results.skipped)
+                results_exif_updated.extend(results.exif_updated)
+
+        else:
             # show progress bar
             with click.progressbar(photos) as bar:
                 for p in bar:
@@ -1335,47 +1366,9 @@ def export(
                     results_updated.extend(results.updated)
                     results_skipped.extend(results.skipped)
                     results_exif_updated.extend(results.exif_updated)
-        else:
-            for p in photos:
-                results = export_photo(
-                    photo=p,
-                    dest=dest,
-                    verbose_=verbose_,
-                    export_by_date=export_by_date,
-                    sidecar=sidecar,
-                    update=update,
-                    export_as_hardlink=export_as_hardlink,
-                    overwrite=overwrite,
-                    export_edited=export_edited,
-                    original_name=original_name,
-                    export_live=export_live,
-                    download_missing=download_missing,
-                    exiftool=exiftool,
-                    directory=directory,
-                    filename_template=filename_template,
-                    no_extended_attributes=no_extended_attributes,
-                    export_raw=export_raw,
-                    album_keyword=album_keyword,
-                    person_keyword=person_keyword,
-                    keyword_template=keyword_template,
-                    export_db=export_db,
-                    fileutil=fileutil,
-                    dry_run=dry_run,
-                    edited_suffix=edited_suffix,
-                )
-                results_exported.extend(results.exported)
-                results_new.extend(results.new)
-                results_updated.extend(results.updated)
-                results_skipped.extend(results.skipped)
-                results_exif_updated.extend(results.exif_updated)
-
         stop_time = time.perf_counter()
         # print summary results
-        if not update:
-            photo_str = "photos" if len(results_exported) != 1 else "photo"
-            click.echo(f"Exported: {len(results_exported)} {photo_str}")
-            click.echo(f"Elapsed time: {stop_time-start_time} seconds")
-        else:
+        if update:
             photo_str_new = "photos" if len(results_new) != 1 else "photo"
             photo_str_updated = "photos" if len(results_new) != 1 else "photo"
             photo_str_skipped = "photos" if len(results_skipped) != 1 else "photo"
@@ -1388,8 +1381,10 @@ def export(
                 + f"skipped: {len(results_skipped)} {photo_str_skipped}, "
                 + f"updated EXIF data: {len(results_exif_updated)} {photo_str_exif_updated}"
             )
-            click.echo(f"Elapsed time: {stop_time-start_time} seconds")
-
+        else:
+            photo_str = "photos" if len(results_exported) != 1 else "photo"
+            click.echo(f"Exported: {len(results_exported)} {photo_str}")
+        click.echo(f"Elapsed time: {stop_time-start_time} seconds")
     else:
         click.echo("Did not find any photos to export")
 
@@ -1412,8 +1407,8 @@ def help(ctx, topic, **kw):
 
 
 def print_photo_info(photos, json=False):
+    dump = []
     if json:
-        dump = []
         for p in photos:
             dump.append(p.json())
         click.echo(f"[{', '.join(dump)}]")
@@ -1422,7 +1417,6 @@ def print_photo_info(photos, json=False):
         csv_writer = csv.writer(
             sys.stdout, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
         )
-        dump = []
         # add headers
         dump.append(
             [
@@ -1990,10 +1984,7 @@ def get_filenames_from_template(photo, filename_template, original_name):
             )
         filenames = [f"{file_}{photo_ext}" for file_ in filenames]
     else:
-        if original_name:
-            filenames = [photo.original_filename]
-        else:
-            filenames = [photo.filename]
+        filenames = [photo.original_filename] if original_name else [photo.filename]
     return filenames
 
 
@@ -2019,13 +2010,18 @@ def get_dirnames_from_template(photo, directory, export_by_date, dest, dry_run):
         dest_path = os.path.join(
             dest, date_created.year, date_created.mm, date_created.dd
         )
-        if not dry_run and not os.path.isdir(dest_path):
+        if not (dry_run or os.path.isdir(dest_path)):
             os.makedirs(dest_path)
         dest_paths = [dest_path]
     elif directory:
         # got a directory template, render it and check results are valid
         dirnames, unmatched = photo.render_template(directory)
-        if not dirnames or unmatched:
+        if not dirnames:
+            raise click.BadOptionUsage(
+                "directory",
+                f"Invalid template '{directory}': results={dirnames} unmatched={unmatched}",
+            )
+        elif unmatched:
             raise click.BadOptionUsage(
                 "directory",
                 f"Invalid template '{directory}': results={dirnames} unmatched={unmatched}",
@@ -2036,7 +2032,7 @@ def get_dirnames_from_template(photo, directory, export_by_date, dest, dry_run):
             dest_path = os.path.join(dest, dirname)
             if not is_valid_filepath(dest_path, platform="auto"):
                 raise ValueError(f"Invalid file path: '{dest_path}'")
-            if not dry_run and not os.path.isdir(dest_path):
+            if not (dry_run or os.path.isdir(dest_path)):
                 os.makedirs(dest_path)
             dest_paths.append(dest_path)
     else:

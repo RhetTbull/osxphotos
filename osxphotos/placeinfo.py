@@ -87,19 +87,19 @@ class PLRevGeoLocationInfo:
         self.postalAddress = postalAddress
 
     def __eq__(self, other):
-        for field in [
-            "addressString",
-            "countryCode",
-            "isHome",
-            "compoundNames",
-            "compoundSecondaryNames",
-            "version",
-            "geoServiceProvider",
-            "postalAddress",
-        ]:
-            if getattr(self, field) != getattr(other, field):
-                return False
-        return True
+        return all(
+            getattr(self, field) == getattr(other, field)
+            for field in [
+                "addressString",
+                "countryCode",
+                "isHome",
+                "compoundNames",
+                "compoundSecondaryNames",
+                "version",
+                "geoServiceProvider",
+                "postalAddress",
+            ]
+        )
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -151,21 +151,17 @@ class PLRevGeoMapItem:
         self.finalPlaceInfos = finalPlaceInfos
 
     def __eq__(self, other):
-        for field in ["sortedPlaceInfos", "finalPlaceInfos"]:
-            if getattr(self, field) != getattr(other, field):
-                return False
-        return True
+        return all(
+            getattr(self, field) == getattr(other, field)
+            for field in ["sortedPlaceInfos", "finalPlaceInfos"]
+        )
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
     def __str__(self):
-        sortedPlaceInfos = []
-        finalPlaceInfos = []
-        for place in self.sortedPlaceInfos:
-            sortedPlaceInfos.append(str(place))
-        for place in self.finalPlaceInfos:
-            finalPlaceInfos.append(str(place))
+        sortedPlaceInfos = [str(place) for place in self.sortedPlaceInfos]
+        finalPlaceInfos = [str(place) for place in self.finalPlaceInfos]
         return (
             f"finalPlaceInfos: {finalPlaceInfos}, sortedPlaceInfos: {sortedPlaceInfos}"
         )
@@ -192,10 +188,10 @@ class PLRevGeoMapItemAdditionalPlaceInfo:
         self.dominantOrderType = dominantOrderType
 
     def __eq__(self, other):
-        for field in ["area", "name", "placeType", "dominantOrderType"]:
-            if getattr(self, field) != getattr(other, field):
-                return False
-        return True
+        return all(
+            getattr(self, field) == getattr(other, field)
+            for field in ["area", "name", "placeType", "dominantOrderType"]
+        )
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -245,19 +241,19 @@ class CNPostalAddress:
         self._subLocality = _subLocality
 
     def __eq__(self, other):
-        for field in [
-            "_ISOCountryCode",
-            "_city",
-            "_country",
-            "_postalCode",
-            "_state",
-            "_street",
-            "_subAdministrativeArea",
-            "_subLocality",
-        ]:
-            if getattr(self, field) != getattr(other, field):
-                return False
-        return True
+        return all(
+            getattr(self, field) == getattr(other, field)
+            for field in [
+                "_ISOCountryCode",
+                "_city",
+                "_country",
+                "_postalCode",
+                "_state",
+                "_street",
+                "_subAdministrativeArea",
+                "_subLocality",
+            ]
+        )
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -490,16 +486,14 @@ class PlaceInfo4(PlaceInfo):
             "names": self.names,
             "country_code": self.country_code,
         }
-        strval = "PlaceInfo(" + ", ".join([f"{k}='{v}'" for k, v in info.items()]) + ")"
-        return strval
+        return "PlaceInfo(" + ", ".join([f"{k}='{v}'" for k, v in info.items()]) + ")"
 
     def as_dict(self):
-        info = {
+        return {
             "name": self.name,
             "names": self.names._asdict(),
             "country_code": self.country_code,
         }
-        return info
 
 
 class PlaceInfo5(PlaceInfo):
@@ -541,7 +535,7 @@ class PlaceInfo5(PlaceInfo):
     @property
     def address(self):
         addr = self._plrevgeoloc.postalAddress
-        address = PostalAddress(
+        return PostalAddress(
             street=addr._street,
             sub_locality=addr._subLocality,
             city=addr._city,
@@ -551,7 +545,6 @@ class PlaceInfo5(PlaceInfo):
             country=addr._country,
             iso_country_code=addr._ISOCountryCode,
         )
-        return address
 
     def _process_place_info(self):
         """ Process sortedPlaceInfos to set self._name and self._names """
@@ -630,11 +623,10 @@ class PlaceInfo5(PlaceInfo):
             "address_str": self.address_str,
             "address": str(self.address),
         }
-        strval = "PlaceInfo(" + ", ".join([f"{k}='{v}'" for k, v in info.items()]) + ")"
-        return strval
+        return "PlaceInfo(" + ", ".join([f"{k}='{v}'" for k, v in info.items()]) + ")"
 
     def as_dict(self):
-        info = {
+        return {
             "name": self.name,
             "names": self.names._asdict(),
             "country_code": self.country_code,
@@ -642,4 +634,3 @@ class PlaceInfo5(PlaceInfo):
             "address_str": self.address_str,
             "address": self.address._asdict(),
         }
-        return info

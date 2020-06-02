@@ -1153,7 +1153,7 @@ def _xmp_sidecar(
 def _write_sidecar(self, filename, sidecar_str):
     """ write sidecar_str to filename
         used for exporting sidecar info """
-    if not filename and not sidecar_str:
+    if not (filename or sidecar_str):
         raise (
             ValueError(
                 f"filename {filename} and sidecar_str {sidecar_str} must not be None"

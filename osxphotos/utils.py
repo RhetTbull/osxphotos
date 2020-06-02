@@ -261,10 +261,9 @@ def get_preferred_uti_extension(uti):
 
     # reference: https://developer.apple.com/documentation/coreservices/1442744-uttypecopypreferredtagwithclass?language=objc
 
-    ext = CoreServices.UTTypeCopyPreferredTagWithClass(
+    return CoreServices.UTTypeCopyPreferredTagWithClass(
         uti, CoreServices.kUTTagClassFilenameExtension
     )
-    return ext
 
 
 def findfiles(pattern, path_):

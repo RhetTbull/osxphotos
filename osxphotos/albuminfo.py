@@ -62,10 +62,7 @@ class AlbumInfo:
         try:
             return self._folder_names
         except AttributeError:
-            if self._db._db_version <= _PHOTOS_4_VERSION:
-                self._folder_names = self._db._album_folder_hierarchy_list(self._uuid)
-            else:
-                self._folder_names = self._db._album_folder_hierarchy_list(self._uuid)
+            self._folder_names = self._db._album_folder_hierarchy_list(self._uuid)
             return self._folder_names
 
     @property

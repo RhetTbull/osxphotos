@@ -294,18 +294,17 @@ class PhotosDB:
     @property
     def keywords_as_dict(self):
         """ return keywords as dict of keyword, count in reverse sorted order (descending) """
-        keywords = {}
-        for k in self._dbkeywords_keyword.keys():
-            keywords[k] = len(self._dbkeywords_keyword[k])
+        keywords = {
+            k: len(self._dbkeywords_keyword[k]) for k in self._dbkeywords_keyword.keys()
+        }
+
         keywords = dict(sorted(keywords.items(), key=lambda kv: kv[1], reverse=True))
         return keywords
 
     @property
     def persons_as_dict(self):
         """ return persons as dict of person, count in reverse sorted order (descending) """
-        persons = {}
-        for k in self._dbfaces_person.keys():
-            persons[k] = len(self._dbfaces_person[k])
+        persons = {k: len(self._dbfaces_person[k]) for k in self._dbfaces_person.keys()}
         persons = dict(sorted(persons.items(), key=lambda kv: kv[1], reverse=True))
         return persons
 
@@ -413,13 +412,12 @@ class PhotosDB:
     def album_info(self):
         """ return list of AlbumInfo objects for each album in the photos database """
 
-        albums = [
+        return [
             AlbumInfo(db=self, uuid=album)
             for album in self._dbalbums_album.keys()
             if self._dbalbum_details[album]["cloudownerhashedpersonid"] is None
             and not self._dbalbum_details[album]["intrash"]
         ]
-        return albums
 
     @property
     def album_info_shared(self):
@@ -433,13 +431,12 @@ class PhotosDB:
             )
             return []
 
-        albums_shared = [
+        return [
             AlbumInfo(db=self, uuid=album)
             for album in self._dbalbums_album.keys()
             if self._dbalbum_details[album]["cloudownerhashedpersonid"] is not None
             and not self._dbalbum_details[album]["intrash"]
         ]
-        return albums_shared
 
     @property
     def albums(self):

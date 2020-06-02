@@ -20,11 +20,7 @@ from osxphotos.__main__ import get_photos_db, _list_libraries
 def main():
     db = None
 
-    if len(sys.argv) > 1:
-        db = sys.argv[1]
-    else:
-        db = get_photos_db()
-
+    db = sys.argv[1] if len(sys.argv) > 1 else get_photos_db()
     if db:
         print("loading database")
         tic = time.perf_counter()

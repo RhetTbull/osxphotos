@@ -59,11 +59,7 @@ class _ExifToolProc:
                 )
             return
 
-        if exiftool:
-            self._exiftool = exiftool
-        else:
-            self._exiftool = get_exiftool_path()
-
+        self._exiftool = exiftool if exiftool else get_exiftool_path()
         self._process_running = False
         self._start_proc()
 
@@ -156,8 +152,7 @@ class ExifTool:
 
         if value is None:
             value = ""
-        command = []
-        command.append(f"-{tag}={value}")
+        command = [f"-{tag}={value}"]
         if self.overwrite:
             command.append("-overwrite_original")
         self.run_commands(*command)
@@ -193,7 +188,7 @@ class ExifTool:
             no_file: (bool) do not pass the filename to exiftool (default=False)
                      by default, all commands will be run against self.file
                      use no_file=True to run a command without passing the filename """
-        if not hasattr(self, "_process") or not self._process:
+        if not (hasattr(self, "_process") and self._process):
             raise ValueError("exiftool process is not running")
 
         if not commands:
@@ -245,8 +240,7 @@ class ExifTool:
 
     def json(self):
         """ returns JSON string containing all EXIF tags and values from exiftool """
-        json_str = self.run_commands("-json")
-        return json_str
+        return self.run_commands("-json")
 
     def _read_exif(self):
         """ read exif data from file """
@@ -254,5 +248,4 @@ class ExifTool:
         self.data = {k: v for k, v in data.items()}
 
     def __str__(self):
-        str_ = f"file: {self.file}\nexiftool: {self._exiftoolproc._exiftool}"
-        return str_
+        return f"file: {self.file}\nexiftool: {self._exiftoolproc._exiftool}"
