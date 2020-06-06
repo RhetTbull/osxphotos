@@ -156,6 +156,46 @@ def _export_photo_uuid_applescript(
         return None
 
 
+# _check_export_suffix is not a class method, don't import this into PhotoInfo
+def _check_export_suffix(src, dest, edited):
+    """Helper function for exporting photos to check file extensions of destination path.
+    
+    Checks that dst file extension is appropriate for the src.
+    If edited=True, will use src file extension of ".jpeg" if None provided for src.
+    
+    Args:
+        src: path to source file or None.
+        dest: path to destination file.
+        edited: set to True if exporting an edited photo.
+
+    Returns:
+        True if src and dest extensions are OK, else False.
+
+    Raises:
+        ValueError if edited is False and src is None
+    """
+
+    # check extension of destination
+    if src is not None:
+        # use suffix from edited file
+        actual_suffix = pathlib.Path(src).suffix
+    elif edited:
+        # use .jpeg as that's probably correct
+        actual_suffix = ".jpeg"
+    else:
+        raise ValueError("src must not be None if edited=False")
+
+    # Photo's often converts .JPG to .jpeg or .tif to .tiff on import
+    dest_ext = dest.suffix.lower()
+    actual_ext = actual_suffix.lower()
+    suffixes = sorted([dest_ext, actual_ext])
+    return (
+        dest_ext == actual_ext
+        or suffixes == [".jpeg", ".jpg"]
+        or suffixes == [".tif", ".tiff"]
+    )
+
+
 def export(
     self,
     dest,
@@ -182,8 +222,11 @@ def export(
                     **NOTE**: if provided, user must ensure file extension (suffix) is correct. 
                     For example, if photo is .CR2 file, edited image may be .jpeg.  
                     If you provide an extension different than what the actual file is, 
-                    export will print a warning but will happily export the photo using the 
-                    incorrect file extension.  e.g. to get the extension of the edited photo, 
+                    export will print a warning but will export the photo using the 
+                    incorrect file extension (unless use_photos_export is true, in which case export will
+                    use the extension provided by Photos upon export; in this case, an incorrect extension is
+                    silently ignored).
+                    e.g. to get the extension of the edited photo, 
                     reference PhotoInfo.path_edited
         edited: (boolean, default=False); if True will export the edited version of the photo 
                 (or raise exception if no edited version) 
@@ -260,13 +303,16 @@ def export2(
     dry_run=False,
 ):
     """ export photo, like export but with update and dry_run options
-        dest: must be valid destination path (or exception raised) 
+        dest: must be valid destination path or exception raised 
         filename: (optional): name of exported picture; if not provided, will use current filename 
                     **NOTE**: if provided, user must ensure file extension (suffix) is correct. 
                     For example, if photo is .CR2 file, edited image may be .jpeg.  
                     If you provide an extension different than what the actual file is, 
-                    export will print a warning but will happily export the photo using the 
-                    incorrect file extension.  e.g. to get the extension of the edited photo, 
+                    export will print a warning but will export the photo using the 
+                    incorrect file extension (unless use_photos_export is true, in which case export will
+                    use the extension provided by Photos upon export; in this case, an incorrect extension is
+                    silently ignored).
+                    e.g. to get the extension of the edited photo, 
                     reference PhotoInfo.path_edited
         edited: (boolean, default=False); if True will export the edited version of the photo 
                 (or raise exception if no edited version) 
@@ -370,27 +416,6 @@ def export2(
     fname = pathlib.Path(fname)
     dest = dest / fname
 
-    # check extension of destination
-    if edited and self.path_edited is not None:
-        # use suffix from edited file
-        actual_suffix = pathlib.Path(self.path_edited).suffix
-    elif edited:
-        # use .jpeg as that's probably correct
-        # if edited and path_edited is None, will raise FileNotFoundError below
-        # unless use_photos_export is True
-        actual_suffix = ".jpeg"
-    else:
-        # use suffix from the non-edited file
-        actual_suffix = pathlib.Path(self.filename).suffix
-
-    # warn if suffixes don't match but ignore .JPG / .jpeg as
-    # Photo's often converts .JPG to .jpeg
-    suffixes = sorted([x.lower() for x in [dest.suffix, actual_suffix]])
-    if dest.suffix.lower() != actual_suffix.lower() and suffixes != [".jpeg", ".jpg"]:
-        logging.warning(
-            f"Invalid destination suffix: {dest.suffix}, should be {actual_suffix}"
-        )
-
     # check to see if file exists and if so, add (1), (2), etc until we find one that works
     # Photos checks the stem and adds (1), (2), etc which avoids collision with sidecars
     # e.g. exporting sidecar for file1.png and file1.jpeg
@@ -437,6 +462,13 @@ def export2(
 
         if not os.path.isfile(src):
             raise FileNotFoundError(f"{src} does not appear to exist")
+
+        if not _check_export_suffix(src, dest, edited):
+            logging.warning(
+                f"Invalid destination suffix: {dest.suffix} for {self.path}, "
+                + f"edited={edited}, path_edited={self.path_edited}, "
+                + f"original_filename={self.original_filename}, filename={self.filename}"
+            )
 
         logging.debug(
             f"exporting {src} to {dest}, overwrite={overwrite}, increment={increment}, dest exists: {dest.exists()}"
@@ -757,6 +789,8 @@ def _export_photo(
         action depending on update, overwrite
         Assumes destination is the right destination (e.g. UUID matches)
         sets UUID and JSON info foo exported file using set_uuid_for_file, set_inf_for_uuido
+    
+    Args:
         src: src path (string)
         dest: dest path (pathlib.Path)
         update: bool
@@ -766,7 +800,9 @@ def _export_photo(
         export_as_hardlink: bool
         exiftool: bool
         fileutil: FileUtil class that conforms to fileutil.FileUtilABC
-        Returns: ExportResults
+
+    Returns:
+        ExportResults
     """
 
     exported_files = []

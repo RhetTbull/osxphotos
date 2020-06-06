@@ -164,6 +164,7 @@ CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES2 = [
     "Pumpkin Farm-Pumpkins3.jpg",
     "Test Album-Pumkins1.jpg",
     "Test Album-Pumkins2.jpg",
+    "None-IMG_1693.tif",
 ]
 
 CLI_EXPORT_UUID = "D79B8D77-BFFC-460B-9312-034F2877D35B"
