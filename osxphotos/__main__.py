@@ -7,6 +7,7 @@ import logging
 import os
 import os.path
 import pathlib
+import pprint
 import sys
 import time
 
@@ -442,6 +443,77 @@ def cli(ctx, db, json_, debug):
     ctx.obj = CLI_Obj(db=db, json=json_, debug=debug)
 
 
+@cli.command(hidden=True)
+@DB_OPTION
+@DB_ARGUMENT
+@click.option(
+    "--dump", metavar="ATTR", help="Name of PhotosDB attribute to print", multiple=True
+)
+@click.option(
+    "--uuid",
+    metavar="UUID",
+    help="Use with '--dump photos' to dump only certain UUIDs",
+    multiple=True,
+)
+@click.pass_obj
+@click.pass_context
+def debug_dump(ctx, cli_obj, db, photos_library, dump, uuid):
+    """ Print out debug info """
+    db = get_photos_db(*photos_library, db, cli_obj.db)
+    if db is None:
+        click.echo(cli.commands["debug-dump"].get_help(ctx), err=True)
+        click.echo("\n\nLocated the following Photos library databases: ", err=True)
+        _list_libraries()
+        return
+
+    start_t = time.perf_counter()
+    print(f"Opening database: {db}")
+    photosdb = osxphotos.PhotosDB(dbfile=db)
+    stop_t = time.perf_counter()
+    print(f"Done; took {(stop_t-start_t):.2f} seconds")
+
+    for attr in dump:
+        if attr == "albums":
+            print("_dbalbums_album:")
+            pprint.pprint(photosdb._dbalbums_album)
+            print("_dbalbums_uuid:")
+            pprint.pprint(photosdb._dbalbums_uuid)
+            print("_dbalbum_details:")
+            pprint.pprint(photosdb._dbalbum_details)
+            print("_dbalbum_folders:")
+            pprint.pprint(photosdb._dbalbum_folders)
+            print("_dbfolder_details:")
+            pprint.pprint(photosdb._dbfolder_details)
+        elif attr == "keywords":
+            print("_dbkeywords_keyword:")
+            pprint.pprint(photosdb._dbkeywords_keyword)
+            print("_dbkeywords_uuid:")
+            pprint.pprint(photosdb._dbkeywords_uuid)
+        elif attr == "persons":
+            print("_dbfaces_person:")
+            pprint.pprint(photosdb._dbfaces_person)
+            print("_dbfaces_uuid:")
+            pprint.pprint(photosdb._dbfaces_uuid)
+        elif attr == "photos":
+            if uuid:
+                for uuid_ in uuid:
+                    print(f"_dbphotos['{uuid_}']:")
+                    try:
+                        pprint.pprint(photosdb._dbphotos[uuid_])
+                    except KeyError:
+                        print(f"Did not find uuid {uuid_} in _dbphotos")
+            else:
+                print("_dbphotos:")
+                pprint.pprint(photosdb._dbphotos)
+        else:
+            try:
+                val = getattr(photosdb, attr)
+                print(f"{attr}:")
+                pprint.pprint(val)
+            except:
+                print(f"Did not find attribute {attr} in PhotosDB")
+
+
 @cli.command()
 @DB_OPTION
 @JSON_OPTION
@@ -533,40 +605,40 @@ def info(ctx, cli_obj, db, json_, photos_library):
         _list_libraries()
         return
 
-    pdb = osxphotos.PhotosDB(dbfile=db)
-    info = {"database_path": pdb.db_path, "database_version": pdb.db_version}
-    photos = pdb.photos()
+    photosdb = osxphotos.PhotosDB(dbfile=db)
+    info = {"database_path": photosdb.db_path, "database_version": photosdb.db_version}
+    photos = photosdb.photos()
     not_shared_photos = [p for p in photos if not p.shared]
     info["photo_count"] = len(not_shared_photos)
 
     hidden = [p for p in photos if p.hidden]
     info["hidden_photo_count"] = len(hidden)
 
-    movies = pdb.photos(images=False, movies=True)
+    movies = photosdb.photos(images=False, movies=True)
     not_shared_movies = [p for p in movies if not p.shared]
     info["movie_count"] = len(not_shared_movies)
 
-    if pdb.db_version > _PHOTOS_4_VERSION:
+    if photosdb.db_version > _PHOTOS_4_VERSION:
         shared_photos = [p for p in photos if p.shared]
         info["shared_photo_count"] = len(shared_photos)
 
         shared_movies = [p for p in movies if p.shared]
         info["shared_movie_count"] = len(shared_movies)
 
-    keywords = pdb.keywords_as_dict
+    keywords = photosdb.keywords_as_dict
     info["keywords_count"] = len(keywords)
     info["keywords"] = keywords
 
-    albums = pdb.albums_as_dict
+    albums = photosdb.albums_as_dict
     info["albums_count"] = len(albums)
     info["albums"] = albums
 
-    if pdb.db_version > _PHOTOS_4_VERSION:
-        albums_shared = pdb.albums_shared_as_dict
+    if photosdb.db_version > _PHOTOS_4_VERSION:
+        albums_shared = photosdb.albums_shared_as_dict
         info["shared_albums_count"] = len(albums_shared)
         info["shared_albums"] = albums_shared
 
-    persons = pdb.persons_as_dict
+    persons = photosdb.persons_as_dict
 
     info["persons_count"] = len(persons)
     info["persons"] = persons
@@ -643,8 +715,8 @@ def dump(ctx, cli_obj, db, json_, photos_library):
         _list_libraries()
         return
 
-    pdb = osxphotos.PhotosDB(dbfile=db)
-    photos = pdb.photos(movies=True)
+    photosdb = osxphotos.PhotosDB(dbfile=db)
+    photos = photosdb.photos(movies=True)
     print_photo_info(photos, json_ or cli_obj.json)
 
 
