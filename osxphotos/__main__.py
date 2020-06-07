@@ -447,7 +447,11 @@ def cli(ctx, db, json_, debug):
 @DB_OPTION
 @DB_ARGUMENT
 @click.option(
-    "--dump", metavar="ATTR", help="Name of PhotosDB attribute to print", multiple=True
+    "--dump",
+    metavar="ATTR",
+    help="Name of PhotosDB attribute to print; "
+    + "can also use albums, persons, keywords, photos to dump related attributes.",
+    multiple=True,
 )
 @click.option(
     "--uuid",
