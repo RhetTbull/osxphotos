@@ -2133,7 +2133,11 @@ class PhotosDB:
                     if album in self._dbalbum_titles:
                         title_set = set()
                         for album_id in self._dbalbum_titles[album]:
-                            title_set.update(self._dbalbums_album[album_id])
+                            try:
+                                title_set.update(self._dbalbums_album[album_id])
+                            except KeyError:
+                                # an empty album will be in _dbalbum_titles but not _dbalbums_album
+                                pass
                         album_set.update(title_set)
                     else:
                         logging.debug(f"Could not find album '{album}' in database")

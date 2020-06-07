@@ -24,10 +24,11 @@ KEYWORDS = [
 PERSONS = ["Katie", "Suzy", "Maria", _UNKNOWN_PERSON]
 ALBUMS = [
     "Pumpkin Farm",
-    "Test Album",
+    "Test Album",  # there are 2 albums named "Test Album" for testing duplicate album names
     "AlbumInFolder",
     "Raw",
-]  # Note: there are 2 albums named "Test Album" for testing duplicate album names
+    "I have a deleted twin",  # there's an empty album with same name that has been deleted
+]
 KEYWORDS_DICT = {
     "Kids": 4,
     "wedding": 2,
@@ -45,6 +46,7 @@ ALBUM_DICT = {
     "Test Album": 2,
     "AlbumInFolder": 2,
     "Raw": 4,
+    "I have a deleted twin": 1,
 }  # Note: there are 2 albums named "Test Album" for testing duplicate album names
 
 UUID_DICT = {
@@ -232,7 +234,7 @@ def test_missing():
     photos = photosdb.photos(uuid=[UUID_DICT["missing"]])
     assert len(photos) == 1
     p = photos[0]
-    assert p.path == None
+    assert p.path is None
     assert p.ismissing == True
 
 

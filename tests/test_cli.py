@@ -49,6 +49,10 @@ CLI_EXPORT_FILENAMES = [
     "wedding_edited.jpeg",
 ]
 
+CLI_EXPORT_FILENAMES_ALBUM = ["Pumkins1.jpg", "Pumkins2.jpg", "Pumpkins3.jpg"]
+
+CLI_EXPORT_FILENAMES_DELETED_TWIN = ["wedding.jpg", "wedding_edited.jpeg"]
+
 CLI_EXPORT_EDITED_SUFFIX = "_bearbeiten"
 
 CLI_EXPORT_FILENAMES_EDITED_SUFFIX = [
@@ -165,6 +169,8 @@ CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES2 = [
     "Test Album-Pumkins1.jpg",
     "Test Album-Pumkins2.jpg",
     "None-IMG_1693.tif",
+    "I have a deleted twin-wedding.jpg",
+    "I have a deleted twin-wedding_edited.jpeg",
 ]
 
 CLI_EXPORT_UUID = "D79B8D77-BFFC-460B-9312-034F2877D35B"
@@ -945,6 +951,54 @@ def test_export_filename_template_3():
         )
         assert result.exit_code == 2
         assert "Error: Invalid template" in result.output
+
+
+def test_export_album():
+    """Test export of an album """
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [os.path.join(cwd, PHOTOS_DB_15_5), ".", "--album", "Pumpkin Farm", "-V"],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_ALBUM)
+
+
+def test_export_album_deleted_twin():
+    """Test export of an album where album of same name has been deleted """
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_5),
+                ".",
+                "--album",
+                "I have a deleted twin",
+                "-V",
+            ],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_DELETED_TWIN)
 
 
 def test_places():
