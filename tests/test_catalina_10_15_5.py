@@ -65,6 +65,12 @@ UUID_DICT = {
     "export_tif": "8846E3E6-8AC8-4857-8448-E3D025784410",
 }
 
+UUID_PUMPKIN_FARM = [
+    "F12384F6-CD17-4151-ACBA-AE0E3688539E",
+    "D79B8D77-BFFC-460B-9312-034F2877D35B",
+    "1EB2B765-0765-43BA-A90C-0D0580E6172C",
+]
+
 
 def test_init1():
     # test named argument
@@ -405,6 +411,16 @@ def test_keyword_not_in_album():
     photos3 = [p for p in photos2 if p not in photos1]
     assert len(photos3) == 1
     assert photos3[0].uuid == "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C"
+
+
+def test_album_folder_name():
+    """Test query with album name same as a folder name """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+
+    photos = photosdb.photos(albums=["Pumpkin Farm"])
+    assert sorted(p.uuid for p in photos) == sorted(UUID_PUMPKIN_FARM)
 
 
 def test_get_db_path():
