@@ -1721,8 +1721,6 @@ class PhotosDB:
         # determine if a photo is missing in Photos 5
 
         # Get info on remote/local availability for photos in shared albums
-        # Shared photos have a null fingerprint (and some other photos do too)
-        # TODO: There may be a bug here, perhaps ZDATASTORESUBTYPE should be 1 --> it's the longest ZDATALENGTH (is this the original)
         c.execute(
             """ SELECT 
                 ZGENERICASSET.ZUUID, 
@@ -1731,10 +1729,7 @@ class PhotosDB:
                 FROM ZGENERICASSET
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK 
                 JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZASSET = ZADDITIONALASSETATTRIBUTES.ZASSET 
-                WHERE  ZDATASTORESUBTYPE = 0 OR ZDATASTORESUBTYPE = 3 """
-            # WHERE  ZDATASTORESUBTYPE = 1 OR ZDATASTORESUBTYPE = 3 """
-            # WHERE  ZDATASTORESUBTYPE = 0 OR ZDATASTORESUBTYPE = 3 """
-            # WHERE ZINTERNALRESOURCE.ZFINGERPRINT IS NULL AND ZINTERNALRESOURCE.ZDATASTORESUBTYPE = 3 """
+                WHERE  ZDATASTORESUBTYPE = 1 OR ZDATASTORESUBTYPE = 3 """
         )
 
         for row in c:
