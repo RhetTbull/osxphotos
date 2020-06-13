@@ -32,6 +32,9 @@ TEMPLATE_VALUES = {
     "{created.dd}": "04",
     "{created.dow}": "Tuesday",
     "{created.doy}": "035",
+    "{created.hour}": "19",
+    "{created.min}": "07",
+    "{created.sec}": "38",
     "{modified.date}": "2020-03-21",
     "{modified.year}": "2020",
     "{modified.yy}": "20",
@@ -40,6 +43,9 @@ TEMPLATE_VALUES = {
     "{modified.mon}": "Mar",
     "{modified.dd}": "21",
     "{modified.doy}": "081",
+    "{modified.hour}": "01",
+    "{modified.min}": "33",
+    "{modified.sec}": "08",
     "{place.name}": "Washington, District of Columbia, United States",
     "{place.country_code}": "US",
     "{place.name.country}": "United States",
@@ -115,7 +121,10 @@ def test_lookup_multi():
     import os
     import re
     import osxphotos
-    from osxphotos.phototemplate import TEMPLATE_SUBSTITUTIONS_MULTI_VALUED, PhotoTemplate
+    from osxphotos.phototemplate import (
+        TEMPLATE_SUBSTITUTIONS_MULTI_VALUED,
+        PhotoTemplate,
+    )
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
     photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
@@ -123,9 +132,10 @@ def test_lookup_multi():
 
     for subst in TEMPLATE_SUBSTITUTIONS_MULTI_VALUED:
         lookup_str = re.match(r"\{([^\\,}]+)\}", subst).group(1)
-        lookup = template.get_template_value_multi(lookup_str,path_sep=os.path.sep)
+        lookup = template.get_template_value_multi(lookup_str, path_sep=os.path.sep)
         assert isinstance(lookup, list)
         assert len(lookup) >= 1
+
 
 def test_subst():
     """ Test that substitutions are correct """

@@ -35,6 +35,9 @@ TEMPLATE_SUBSTITUTIONS = {
     "{created.dd}": "2-digit day of the month (zero padded) of file creation time",
     "{created.dow}": "Day of week in user's locale of the file creation time",
     "{created.doy}": "3-digit day of year (e.g Julian day) of file creation time, starting from 1 (zero padded)",
+    "{created.hour}": "2-digit hour of the file creation time",
+    "{created.min}": "2-digit minute of the file creation time",
+    "{created.sec}": "2-digit second of the file creation time",
     "{modified.date}": "Photo's modification date in ISO format, e.g. '2020-03-22'",
     "{modified.year}": "4-digit year of file modification time",
     "{modified.yy}": "2-digit year of file modification time",
@@ -43,6 +46,9 @@ TEMPLATE_SUBSTITUTIONS = {
     "{modified.mon}": "Month abbreviation in the user's locale of the file modification time",
     "{modified.dd}": "2-digit day of the month (zero padded) of the file modification time",
     "{modified.doy}": "3-digit day of year (e.g Julian day) of file modification time, starting from 1 (zero padded)",
+    "{modified.hour}": "2-digit hour of the file modification time",
+    "{modified.min}": "2-digit minute of the file modification time",
+    "{modified.sec}": "2-digit second of the file modification time",
     "{place.name}": "Place name from the photo's reverse geolocation data, as displayed in Photos",
     "{place.country_code}": "The ISO country code from the photo's reverse geolocation data",
     "{place.name.country}": "Country name from the photo's reverse geolocation data",
@@ -273,6 +279,15 @@ class PhotoTemplate:
         if field == "created.doy":
             return DateTimeFormatter(self.photo.date).doy
 
+        if field == "created.hour":
+            return DateTimeFormatter(self.photo.date).hour
+
+        if field == "created.min":
+            return DateTimeFormatter(self.photo.date).min
+
+        if field == "created.sec":
+            return DateTimeFormatter(self.photo.date).sec
+
         if field == "modified.date":
             return (
                 DateTimeFormatter(self.photo.date_modified).date
@@ -325,6 +340,27 @@ class PhotoTemplate:
         if field == "modified.doy":
             return (
                 DateTimeFormatter(self.photo.date_modified).doy
+                if self.photo.date_modified
+                else None
+            )
+
+        if field == "modified.hour":
+            return (
+                DateTimeFormatter(self.photo.date_modified).hour
+                if self.photo.date_modified
+                else None
+            )
+
+        if field == "modified.min":
+            return (
+                DateTimeFormatter(self.photo.date_modified).min
+                if self.photo.date_modified
+                else None
+            )
+
+        if field == "modified.sec":
+            return (
+                DateTimeFormatter(self.photo.date_modified).sec
                 if self.photo.date_modified
                 else None
             )
