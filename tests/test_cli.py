@@ -249,7 +249,6 @@ def test_osxphotos_help_2():
 
     runner = CliRunner()
     result = runner.invoke(cli, ["help", "persons"])
-    output = result.output
     assert result.exit_code == 0
     assert "Print out persons (faces) found in the Photos library." in result.output
 
@@ -261,7 +260,6 @@ def test_osxphotos_help_3():
 
     runner = CliRunner()
     result = runner.invoke(cli, ["help", "foo"])
-    output = result.output
     assert result.exit_code == 0
     assert "Invalid command: foo" in result.output
 
@@ -516,12 +514,294 @@ def test_query_date():
         ],
     )
     assert result.exit_code == 0
-    import logging
-
-    logging.warning(result.output)
 
     json_got = json.loads(result.output)
     assert len(json_got) == 4
+
+
+def test_query_keyword_1():
+    """Test query --keyword """
+    import json
+    import osxphotos
+    import os
+    import os.path
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_5), "--keyword", "Kids"],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+    assert len(json_got) == 4
+
+
+def test_query_keyword_2():
+    """Test query --keyword with lower case keyword"""
+    import json
+    import osxphotos
+    import os
+    import os.path
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_5), "--keyword", "kids"],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+    assert len(json_got) == 0
+
+
+def test_query_keyword_3():
+    """Test query --keyword with lower case keyword and --ignore-case"""
+    import json
+    import osxphotos
+    import os
+    import os.path
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_5),
+            "--keyword",
+            "kids",
+            "--ignore-case",
+        ],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+    assert len(json_got) == 4
+
+
+def test_query_keyword_4():
+    """Test query with more than one --keyword"""
+    import json
+    import osxphotos
+    import os
+    import os.path
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_5),
+            "--keyword",
+            "Kids",
+            "--keyword",
+            "wedding",
+        ],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+    assert len(json_got) == 6
+
+
+def test_query_person_1():
+    """Test query --person"""
+    import json
+    import osxphotos
+    import os
+    import os.path
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_5), "--person", "Katie"],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+    assert len(json_got) == 3
+
+
+def test_query_person_2():
+    """Test query --person with lower case person"""
+    import json
+    import osxphotos
+    import os
+    import os.path
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_5), "--person", "katie"],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+    assert len(json_got) == 0
+
+
+def test_query_person_3():
+    """Test query --person with lower case person and --ignore-case"""
+    import json
+    import osxphotos
+    import os
+    import os.path
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_5),
+            "--person",
+            "katie",
+            "--ignore-case",
+        ],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+    assert len(json_got) == 3
+
+
+def test_query_person_4():
+    """Test query with multiple --person"""
+    import json
+    import osxphotos
+    import os
+    import os.path
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_5),
+            "--person",
+            "Katie",
+            "--person",
+            "Maria",
+        ],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+    assert len(json_got) == 4
+
+
+def test_query_album_1():
+    """Test query --album"""
+    import json
+    import osxphotos
+    import os
+    import os.path
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_5),
+            "--album",
+            "Pumpkin Farm",
+        ],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+    assert len(json_got) == 3
+
+
+def test_query_album_2():
+    """Test query --album with lower case album"""
+    import json
+    import osxphotos
+    import os
+    import os.path
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_5),
+            "--album",
+            "pumpkin farm",
+        ],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+    assert len(json_got) == 0
+
+
+def test_query_album_3():
+    """Test query --album with lower case album and --ignore-case"""
+    import json
+    import osxphotos
+    import os
+    import os.path
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_5),
+            "--album",
+            "pumpkin farm",
+            "--ignore-case",
+        ],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+    assert len(json_got) == 3
+
+
+def test_query_album_4():
+    """Test query with multipl --album"""
+    import json
+    import osxphotos
+    import os
+    import os.path
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_5),
+            "--album",
+            "Pumpkin Farm",
+            "--album",
+            "Raw",
+        ],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+    assert len(json_got) == 7
 
 
 def test_export_sidecar():
@@ -1259,8 +1539,6 @@ def test_export_sidecar_keyword_template():
         "EXIF:OffsetTimeOriginal": "-04:00",
         "EXIF:ModifyDate": "2020:04:11 12:34:16"}]"""
         )[0]
-
-        import logging
 
         json_file = open("Pumkins2.json", "r")
         json_got = json.load(json_file)[0]

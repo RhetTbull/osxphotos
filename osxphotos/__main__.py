@@ -322,7 +322,7 @@ def query_options(f):
             "-i",
             "--ignore-case",
             is_flag=True,
-            help="Case insensitive search for title, description, or place. Does not apply to keyword, person, or album.",
+            help="Case insensitive search for title, description, place, keyword, person, or album.",
         ),
         o("--edited", is_flag=True, help="Search for photos that have been edited."),
         o(
@@ -1644,15 +1644,54 @@ def _query(
 
     photosdb = osxphotos.PhotosDB(dbfile=db)
     photos = photosdb.photos(
-        keywords=keyword,
-        persons=person,
-        albums=album,
-        uuid=uuid,
-        images=isphoto,
-        movies=ismovie,
-        from_date=from_date,
-        to_date=to_date,
+        uuid=uuid, images=isphoto, movies=ismovie, from_date=from_date, to_date=to_date
     )
+
+    if album:
+        photos_album = []
+        if ignore_case:
+            # case-insensitive
+            for a in album:
+                a = a.lower()
+                photos_album.extend(
+                    p for p in photos if a in [album.lower() for album in p.albums]
+                )
+        else:
+            for a in album:
+                photos_album.extend(p for p in photos if a in p.albums)
+        photos = photos_album
+
+    if keyword:
+        photos_keyword = []
+        if ignore_case:
+            # case-insensitive
+            for k in keyword:
+                k = k.lower()
+                photos_keyword.extend(
+                    p
+                    for p in photos
+                    if k in [keyword.lower() for keyword in p.keywords]
+                )
+        else:
+            for k in keyword:
+                photos_keyword.extend(p for p in photos if k in p.keywords)
+        photos = photos_keyword
+
+    if person:
+        photos_person = []
+        if ignore_case:
+            # case-insensitive
+            for prsn in person:
+                prsn = prsn.lower()
+                photos_person.extend(
+                    p
+                    for p in photos
+                    if prsn in [person_.lower() for person_ in p.persons]
+                )
+        else:
+            for prsn in person:
+                photos_person.extend(p for p in photos if prsn in p.persons)
+        photos = photos_person
 
     if folder:
         # search for photos in an album in folder
