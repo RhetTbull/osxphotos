@@ -112,7 +112,7 @@ def test_lookup():
 
     for subst in TEMPLATE_SUBSTITUTIONS:
         lookup_str = re.match(r"\{([^\\,}]+)\}", subst).group(1)
-        lookup = template.get_template_value(lookup_str)
+        lookup = template.get_template_value(lookup_str, None)
         assert lookup or lookup is None
 
 
@@ -442,3 +442,19 @@ def test_subst_multi_folder_albums_3():
     rendered, unknown = photo.render_template(template)
     assert sorted(rendered) == sorted(expected)
     assert unknown == []
+
+
+def test_subst_strftime():
+    """ Test that strftime substitutions are correct """
+    import locale
+    import osxphotos
+
+    locale.setlocale(locale.LC_ALL, "en_US")
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
+    photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
+
+    rendered, unmatched = photo.render_template("{created.strftime,%Y-%m-%d-%H%M%S}")
+    assert rendered[0] == "2020-02-04-190738"
+
+    rendered, unmatched = photo.render_template("{created.strftime}")
+    assert rendered[0] == "_"

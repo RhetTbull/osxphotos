@@ -367,7 +367,8 @@ contain a brace symbol ('{' or '}').
 
 If you do not specify a default value and the template substitution has no
 value, '_' (underscore) will be used as the default value. For example, in the
-above example, this would result in '2020/_/photoname.jpg' if address was null.
+above example, this would result in '2020/_/photoname.jpg' if address was
+null.
 
 Substitution                    Description
 {name}                          Current filename of the photo
@@ -391,6 +392,18 @@ Substitution                    Description
                                 creation time
 {created.doy}                   3-digit day of year (e.g Julian day) of file
                                 creation time, starting from 1 (zero padded)
+{created.hour}                  2-digit hour of the file creation time
+{created.min}                   2-digit minute of the file creation time
+{created.sec}                   2-digit second of the file creation time
+{created.strftime}              Apply strftime template to file creation
+                                date/time. Should be used in form
+                                {created.strftime,TEMPLATE} where TEMPLATE
+                                is a valid strftime template, e.g.
+                                {created.strftime,%Y-%U} would result in
+                                year-week number of year: '2020-23'. If used
+                                with no template will return null value. See
+                                https://strftime.org/ for help on strftime
+                                templates.
 {modified.date}                 Photo's modification date in ISO format,
                                 e.g. '2020-03-22'
 {modified.year}                 4-digit year of file modification time
@@ -406,6 +419,9 @@ Substitution                    Description
 {modified.doy}                  3-digit day of year (e.g Julian day) of file
                                 modification time, starting from 1 (zero
                                 padded)
+{modified.hour}                 2-digit hour of the file modification time
+{modified.min}                  2-digit minute of the file modification time
+{modified.sec}                  2-digit second of the file modification time
 {place.name}                    Place name from the photo's reverse
                                 geolocation data, as displayed in Photos
 {place.country_code}            The ISO country code from the photo's

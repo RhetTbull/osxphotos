@@ -38,6 +38,11 @@ TEMPLATE_SUBSTITUTIONS = {
     "{created.hour}": "2-digit hour of the file creation time",
     "{created.min}": "2-digit minute of the file creation time",
     "{created.sec}": "2-digit second of the file creation time",
+    "{created.strftime}": "Apply strftime template to file creation date/time. Should be used in form "
+    + "{created.strftime,TEMPLATE} where TEMPLATE is a valid strftime template, e.g. "
+    + "{created.strftime,%Y-%U} would result in year-week number of year: '2020-23'. "
+    + "If used with no template will return null value. "
+    + "See https://strftime.org/ for help on strftime templates.",
     "{modified.date}": "Photo's modification date in ISO format, e.g. '2020-03-22'",
     "{modified.year}": "4-digit year of file modification time",
     "{modified.yy}": "2-digit year of file modification time",
@@ -49,6 +54,11 @@ TEMPLATE_SUBSTITUTIONS = {
     "{modified.hour}": "2-digit hour of the file modification time",
     "{modified.min}": "2-digit minute of the file modification time",
     "{modified.sec}": "2-digit second of the file modification time",
+    # "{modified.strftime}": "Apply strftime template to file modification date/time. Should be used in form "
+    # + "{modified.strftime,TEMPLATE} where TEMPLATE is a valid strftime template, e.g. "
+    # + "{modified.strftime,%Y-%U} would result in year-week number of year: '2020-23'. "
+    # + "If used with no template will return null value. "
+    # + "See https://strftime.org/ for help on strftime templates.",
     "{place.name}": "Place name from the photo's reverse geolocation data, as displayed in Photos",
     "{place.country_code}": "The ISO country code from the photo's reverse geolocation data",
     "{place.name.country}": "Country name from the photo's reverse geolocation data",
@@ -93,10 +103,17 @@ class PhotoTemplate:
         self.photo = photo
 
     def render(self, template, none_str="_", path_sep=None):
-        """ render a filename or directory template 
+        """ Render a filename or directory template 
+
+        Args:
             template: str template 
             none_str: str to use default for None values, default is '_' 
-            path_sep: optional character to use as path separator, default is os.path.sep """
+            path_sep: optional character to use as path separator, default is os.path.sep
+
+        Returns:
+            ([rendered_strings], [unmatched]): tuple of list of rendered strings and list of unmatched template values
+        """
+
         if path_sep is None:
             path_sep = os.path.sep
         elif path_sep is not None and len(path_sep) != 1:
@@ -113,7 +130,7 @@ class PhotoTemplate:
         # regex to find {template_field,optional_default} in strings
         # for explanation of regex see https://regex101.com/r/4JJg42/1
         # pylint: disable=anomalous-backslash-in-string
-        regex = r"(?<!\{)\{([^\\,}]+)(,{0,1}(([\w\-. ]+))?)(?=\}(?!\}))\}"
+        regex = r"(?<!\{)\{([^\\,}]+)(,{0,1}(([\w\-\%. ]+))?)(?=\}(?!\}))\}"
         if type(template) is not str:
             raise TypeError(f"template must be type str, not {type(template)}")
 
@@ -128,7 +145,7 @@ class PhotoTemplate:
                 groups = len(matchobj.groups())
                 if groups == 4:
                     try:
-                        val = get_func(matchobj.group(1))
+                        val = get_func(matchobj.group(1), matchobj.group(3))
                     except ValueError:
                         return matchobj.group(0)
 
@@ -178,7 +195,7 @@ class PhotoTemplate:
         rendered_strings = set([rendered])
         for field in MULTI_VALUE_SUBSTITUTIONS:
             # Build a regex that matches only the field being processed
-            re_str = r"(?<!\\)\{(" + field + r")(,(([\w\-. ]{0,})))?\}"
+            re_str = r"(?<!\\)\{(" + field + r")(,(([\w\-\%. ]{0,})))?\}"
             regex_multi = re.compile(re_str)
 
             # holds each of the new rendered_strings, set() to avoid duplicates
@@ -189,10 +206,11 @@ class PhotoTemplate:
                     values = self.get_template_value_multi(field, path_sep)
                     for val in values:
 
-                        def lookup_template_value_multi(lookup_value):
+                        def lookup_template_value_multi(lookup_value, default):
                             """ Closure passed to make_subst_function get_func 
                                 Capture val and field in the closure 
-                                Allows make_subst_function to be re-used w/o modification """
+                                Allows make_subst_function to be re-used w/o modification
+                                default is not used but required so signature matches get_template_value """
                             if lookup_value == field:
                                 return val
                             else:
@@ -226,11 +244,12 @@ class PhotoTemplate:
 
         return rendered_strings, unmatched
 
-    def get_template_value(self, field):
+    def get_template_value(self, field, default):
         """lookup value for template field (single-value template substitutions)
 
         Args:
             field: template field to find value for.
+            default: the default value provided by the user
         
         Returns:
             The matching template value (which may be None).
@@ -287,6 +306,15 @@ class PhotoTemplate:
 
         if field == "created.sec":
             return DateTimeFormatter(self.photo.date).sec
+
+        if field == "created.strftime":
+            if default:
+                try:
+                    return self.photo.date.strftime(default)
+                except:
+                    raise ValueError(f"Invalid strftime template: '{default}'")
+            else:
+                return None
 
         if field == "modified.date":
             return (
@@ -364,6 +392,17 @@ class PhotoTemplate:
                 if self.photo.date_modified
                 else None
             )
+
+        # TODO: disabling modified.strftime for now because now clean way to pass
+        # a default value if modified time is None
+        # if field == "modified.strftime":
+        #     if default and self.photo.date_modified:
+        #         try:
+        #             return self.photo.date_modified.strftime(default)
+        #         except:
+        #             raise ValueError(f"Invalid strftime template: '{default}'")
+        #     else:
+        #         return None
 
         if field == "place.name":
             return self.photo.place.name if self.photo.place else None

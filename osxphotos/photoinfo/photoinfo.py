@@ -637,6 +637,9 @@ class PhotoInfo:
             none_str: a str to use if template field renders to None, default is "_".
             path_sep: a single character str to use as path separator when joining 
                 fields like folder_album; if not provided, defaults to os.path.sep
+        
+        Returns:
+            ([rendered_strings], [unmatched]): tuple of list of rendered strings and list of unmatched template values
         """
         template = PhotoTemplate(self)
         return template.render(template_str, none_str, path_sep)
