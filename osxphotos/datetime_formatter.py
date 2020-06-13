@@ -53,3 +53,18 @@ class DateTimeFormatter:
     def doy(self):
         """ Julian day of year starting from 001 """
         return f"{self.dt.strftime('%j')}"
+
+    @property
+    def hour(self):
+        """ 2-digit hour """
+        return f"{self.dt.strftime('%H')}"
+
+    @property
+    def min(self):
+        """ 2-digit minute """
+        return f"{self.dt.strftime('%M')}"
+
+    @property
+    def sec(self):
+        """ 2-digit second """
+        return f"{self.dt.strftime('%S')}"
