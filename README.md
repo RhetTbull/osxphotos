@@ -34,7 +34,7 @@ OSXPhotos provides the ability to interact with and query Apple's Photos.app lib
 
 ## Supported operating systems
 
-Only works on MacOS (aka Mac OS X). Tested on MacOS 10.12.6 / Photos 2.0, 10.13.6 / Photos 3.0, MacOS 10.14.5, 10.14.6 / Photos 4.0, MacOS 10.15.1 & 10.15.4 / Photos 5.0. 
+Only works on MacOS (aka Mac OS X). Tested on MacOS 10.12.6 / Photos 2.0, 10.13.6 / Photos 3.0, MacOS 10.14.5, 10.14.6 / Photos 4.0, MacOS 10.15.1 - 10.15.5 / Photos 5.0. 
 
 Requires python >= 3.8. You can probably get this to run with Python 3.6 or 3.7 (see notes [below](#Installation-instructions)) but only 3.8+ is officially supported. 
 
@@ -59,7 +59,7 @@ You can also install directly from [pypi](https://pypi.org/) but you must use py
 
 This package will install a command line utility called `osxphotos` that allows you to query the Photos database.  Alternatively, you can also run the command line utility like this: `python3 -m osxphotos`
 
-If you only care about the command line tool, I recommend installing with [pipx](https://github.com/pipxproject/pipx)
+If you only care about the command line tool, you can download an executable of the latest [release](https://github.com/RhetTbull/osxphotos/releases).  Alternatively, I recommend installing with [pipx](https://github.com/pipxproject/pipx)
 
 After installing pipx:
 `pipx install osxphotos`
@@ -90,6 +90,7 @@ Commands:
   help      Print help; for help on commands: help <command>.
   info      Print out descriptive info of the Photos library database.
   keywords  Print out keywords found in the Photos library.
+  labels    Print out image classification labels found in the Photos...
   list      Print list of Photos libraries found on the system.
   persons   Print out persons (faces) found in the Photos library.
   places    Print out places found in the Photos library.
@@ -125,13 +126,13 @@ Options:
   -V, --verbose                   Print verbose output.
   --keyword KEYWORD               Search for photos with keyword KEYWORD. If
                                   more than one keyword, treated as "OR", e.g.
-                                  find photos match any keyword
+                                  find photos matching any keyword
   --person PERSON                 Search for photos with person PERSON. If
                                   more than one person, treated as "OR", e.g.
-                                  find photos match any person
+                                  find photos matching any person
   --album ALBUM                   Search for photos in album ALBUM. If more
                                   than one album, treated as "OR", e.g. find
-                                  photos match any album
+                                  photos matching any album
   --folder FOLDER                 Search for photos in an album in folder
                                   FOLDER. If more than one folder, treated as
                                   "OR", e.g. find photos in any FOLDER.  Only
@@ -146,11 +147,15 @@ Options:
                                   geolocation info
   --no-place                      Search for photos with no associated place
                                   name info (no reverse geolocation info)
+  --label LABEL                   Search for photos with image classification
+                                  label LABEL (Photos 5 only). If more than
+                                  one label, treated as "OR", e.g. find photos
+                                  matching any label
   --uti UTI                       Search for photos whose uniform type
                                   identifier (UTI) matches UTI
   -i, --ignore-case               Case insensitive search for title,
-                                  description, or place. Does not apply to
-                                  keyword, person, or album.
+                                  description, place, keyword, person, or
+                                  album.
   --edited                        Search for photos that have been edited.
   --external-edit                 Search for photos edited in external editor.
   --favorite                      Search for photos marked favorite.

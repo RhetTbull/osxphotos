@@ -245,7 +245,7 @@ def query_options(f):
             default=None,
             multiple=True,
             help="Search for photos with keyword KEYWORD. "
-            'If more than one keyword, treated as "OR", e.g. find photos match any keyword',
+            'If more than one keyword, treated as "OR", e.g. find photos matching any keyword',
         ),
         o(
             "--person",
@@ -253,7 +253,7 @@ def query_options(f):
             default=None,
             multiple=True,
             help="Search for photos with person PERSON. "
-            'If more than one person, treated as "OR", e.g. find photos match any person',
+            'If more than one person, treated as "OR", e.g. find photos matching any person',
         ),
         o(
             "--album",
@@ -261,7 +261,7 @@ def query_options(f):
             default=None,
             multiple=True,
             help="Search for photos in album ALBUM. "
-            'If more than one album, treated as "OR", e.g. find photos match any album',
+            'If more than one album, treated as "OR", e.g. find photos matching any album',
         ),
         o(
             "--folder",
@@ -310,6 +310,13 @@ def query_options(f):
             "--no-place",
             is_flag=True,
             help="Search for photos with no associated place name info (no reverse geolocation info)",
+        ),
+        o(
+            "--label",
+            metavar="LABEL",
+            multiple=True,
+            help="Search for photos with image classification label LABEL (Photos 5 only). "
+            'If more than one label, treated as "OR", e.g. find photos matching any label',
         ),
         o(
             "--uti",
@@ -527,7 +534,9 @@ def debug_dump(ctx, cli_obj, db, photos_library, dump, uuid):
 def keywords(ctx, cli_obj, db, json_, photos_library):
     """ Print out keywords found in the Photos library. """
 
-    db = get_photos_db(*photos_library, db, cli_obj.db)
+    # below needed for to make CliRunner work for testing
+    cli_db = cli_obj.db if cli_obj is not None else None
+    db = get_photos_db(*photos_library, db, cli_db)
     if db is None:
         click.echo(cli.commands["keywords"].get_help(ctx), err=True)
         click.echo("\n\nLocated the following Photos library databases: ", err=True)
@@ -551,7 +560,9 @@ def keywords(ctx, cli_obj, db, json_, photos_library):
 def albums(ctx, cli_obj, db, json_, photos_library):
     """ Print out albums found in the Photos library. """
 
-    db = get_photos_db(*photos_library, db, cli_obj.db)
+    # below needed for to make CliRunner work for testing
+    cli_db = cli_obj.db if cli_obj is not None else None
+    db = get_photos_db(*photos_library, db, cli_db)
     if db is None:
         click.echo(cli.commands["albums"].get_help(ctx), err=True)
         click.echo("\n\nLocated the following Photos library databases: ", err=True)
@@ -578,7 +589,9 @@ def albums(ctx, cli_obj, db, json_, photos_library):
 def persons(ctx, cli_obj, db, json_, photos_library):
     """ Print out persons (faces) found in the Photos library. """
 
-    db = get_photos_db(*photos_library, db, cli_obj.db)
+    # below needed for to make CliRunner work for testing
+    cli_db = cli_obj.db if cli_obj is not None else None
+    db = get_photos_db(*photos_library, db, cli_db)
     if db is None:
         click.echo(cli.commands["persons"].get_help(ctx), err=True)
         click.echo("\n\nLocated the following Photos library databases: ", err=True)
@@ -591,6 +604,32 @@ def persons(ctx, cli_obj, db, json_, photos_library):
         click.echo(json.dumps(persons))
     else:
         click.echo(yaml.dump(persons, sort_keys=False))
+
+
+@cli.command()
+@DB_OPTION
+@JSON_OPTION
+@DB_ARGUMENT
+@click.pass_obj
+@click.pass_context
+def labels(ctx, cli_obj, db, json_, photos_library):
+    """ Print out image classification labels found in the Photos library. """
+
+    # below needed for to make CliRunner work for testing
+    cli_db = cli_obj.db if cli_obj is not None else None
+    db = get_photos_db(*photos_library, db, cli_db)
+    if db is None:
+        click.echo(cli.commands["labels"].get_help(ctx), err=True)
+        click.echo("\n\nLocated the following Photos library databases: ", err=True)
+        _list_libraries()
+        return
+
+    photosdb = osxphotos.PhotosDB(dbfile=db)
+    labels = {"labels": photosdb.labels_as_dict}
+    if json_ or cli_obj.json:
+        click.echo(json.dumps(labels))
+    else:
+        click.echo(yaml.dump(labels, sort_keys=False))
 
 
 @cli.command()
@@ -861,6 +900,7 @@ def query(
     has_raw,
     place,
     no_place,
+    label,
 ):
     """ Query the Photos database using 1 or more search options; 
         if more than one option is provided, they are treated as "AND" 
@@ -881,6 +921,7 @@ def query(
         has_raw,
         from_date,
         to_date,
+        label,
     ]
     exclusive = [
         (favorite, not_favorite),
@@ -976,6 +1017,7 @@ def query(
         has_raw=has_raw,
         place=place,
         no_place=no_place,
+        label=label,
     )
 
     # below needed for to make CliRunner work for testing
@@ -1209,6 +1251,7 @@ def export(
     place,
     no_place,
     no_extended_attributes,
+    label,
 ):
     """ Export photos from the Photos database.
         Export path DEST is required.
@@ -1348,6 +1391,7 @@ def export(
         has_raw=has_raw,
         place=place,
         no_place=no_place,
+        label=label,
     )
 
     results_exported = []
@@ -1636,6 +1680,7 @@ def _query(
     has_raw=None,
     place=None,
     no_place=None,
+    label=None,
 ):
     """ run a query against PhotosDB to extract the photos based on user supply criteria 
         used by query and export commands 
@@ -1648,50 +1693,16 @@ def _query(
     )
 
     if album:
-        photos_album = []
-        if ignore_case:
-            # case-insensitive
-            for a in album:
-                a = a.lower()
-                photos_album.extend(
-                    p for p in photos if a in [album.lower() for album in p.albums]
-                )
-        else:
-            for a in album:
-                photos_album.extend(p for p in photos if a in p.albums)
-        photos = photos_album
+        photos = get_photos_by_attribute(photos, "albums", album, ignore_case)
 
     if keyword:
-        photos_keyword = []
-        if ignore_case:
-            # case-insensitive
-            for k in keyword:
-                k = k.lower()
-                photos_keyword.extend(
-                    p
-                    for p in photos
-                    if k in [keyword.lower() for keyword in p.keywords]
-                )
-        else:
-            for k in keyword:
-                photos_keyword.extend(p for p in photos if k in p.keywords)
-        photos = photos_keyword
+        photos = get_photos_by_attribute(photos, "keywords", keyword, ignore_case)
 
     if person:
-        photos_person = []
-        if ignore_case:
-            # case-insensitive
-            for prsn in person:
-                prsn = prsn.lower()
-                photos_person.extend(
-                    p
-                    for p in photos
-                    if prsn in [person_.lower() for person_ in p.persons]
-                )
-        else:
-            for prsn in person:
-                photos_person.extend(p for p in photos if prsn in p.persons)
-        photos = photos_person
+        photos = get_photos_by_attribute(photos, "persons", person, ignore_case)
+
+    if label:
+        photos = get_photos_by_attribute(photos, "labels", label, ignore_case)
 
     if folder:
         # search for photos in an album in folder
@@ -1865,6 +1876,34 @@ def _query(
         photos = [p for p in photos if p.has_raw]
 
     return photos
+
+
+def get_photos_by_attribute(photos, attribute, values, ignore_case):
+    """Search for photos based on values being in PhotoInfo.attribute
+
+    Args:
+        photos: a list of PhotoInfo objects 
+        attribute: str, name of PhotoInfo attribute to search (e.g. keywords, persons, etc)
+        values: list of values to search in property
+        ignore_case: ignore case when searching
+
+    Returns:
+        list of PhotoInfo objects matching search criteria
+    """
+    photos_search = []
+    if ignore_case:
+        # case-insensitive
+        for x in values:
+            x = x.lower()
+            photos_search.extend(
+                p
+                for p in photos
+                if x in [attr.lower() for attr in getattr(p, attribute)]
+            )
+    else:
+        for x in values:
+            photos_search.extend(p for p in photos if x in getattr(p, attribute))
+    return photos_search
 
 
 def export_photo(

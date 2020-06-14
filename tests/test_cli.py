@@ -30,6 +30,7 @@ CLI_OUTPUT_NO_SUBCOMMAND = [
     "  help      Print help; for help on commands: help <command>.",
     "  info      Print out descriptive info of the Photos library database.",
     "  keywords  Print out keywords found in the Photos library.",
+    "  labels    Print out image classification labels found in the Photos",
     "  list      Print list of Photos libraries found on the system.",
     "  persons   Print out persons (faces) found in the Photos library.",
     "  places    Print out places found in the Photos library.",
@@ -210,6 +211,62 @@ CLI_EXIFTOOL = {
         "XMP:Subject": ["Kids", "Katie"],
     }
 }
+
+LABELS_JSON = {
+    "labels": {
+        "Plant": 5,
+        "Tree": 2,
+        "Sky": 2,
+        "Outdoor": 2,
+        "Art": 2,
+        "Foliage": 2,
+        "Waterways": 1,
+        "River": 1,
+        "Cloudy": 1,
+        "Land": 1,
+        "Water Body": 1,
+        "Water": 1,
+        "Statue": 1,
+        "Window": 1,
+        "Decorative Plant": 1,
+        "Blue Sky": 1,
+        "Palm Tree": 1,
+        "Flower": 1,
+        "Flower Arrangement": 1,
+        "Bouquet": 1,
+        "Vase": 1,
+        "Container": 1,
+        "Camera": 1,
+    }
+}
+
+KEYWORDS_JSON = {
+    "keywords": {
+        "Kids": 4,
+        "wedding": 2,
+        "London 2018": 1,
+        "St. James's Park": 1,
+        "England": 1,
+        "United Kingdom": 1,
+        "UK": 1,
+        "London": 1,
+        "flowers": 1,
+    }
+}
+
+ALBUMS_JSON = {
+    "albums": {
+        "Raw": 4,
+        "Pumpkin Farm": 3,
+        "AlbumInFolder": 2,
+        "Test Album": 2,
+        "I have a deleted twin": 1,
+    },
+    "shared albums": {},
+}
+
+PERSONS_JSON = {"persons": {"Katie": 3, "Suzy": 2, "_UNKNOWN_": 1, "Maria": 1}}
+
 # determine if exiftool installed so exiftool tests can be skipped
 try:
     exiftool = get_exiftool_path()
@@ -224,9 +281,10 @@ def test_osxphotos():
     runner = CliRunner()
     result = runner.invoke(cli, [])
     output = result.output
+
     assert result.exit_code == 0
     for line in CLI_OUTPUT_NO_SUBCOMMAND:
-        assert line in output
+        assert line.strip() in output
 
 
 def test_osxphotos_help_1():
@@ -239,7 +297,7 @@ def test_osxphotos_help_1():
     output = result.output
     assert result.exit_code == 0
     for line in CLI_OUTPUT_NO_SUBCOMMAND:
-        assert line in output
+        assert line.strip() in output
 
 
 def test_osxphotos_help_2():
@@ -802,6 +860,97 @@ def test_query_album_4():
     assert result.exit_code == 0
     json_got = json.loads(result.output)
     assert len(json_got) == 7
+
+
+def test_query_label_1():
+    """Test query --label"""
+    import json
+    import osxphotos
+    import os
+    import os.path
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_5), "--label", "Statue"],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+    assert len(json_got) == 1
+
+
+def test_query_label_2():
+    """Test query --label with lower case label """
+    import json
+    import osxphotos
+    import os
+    import os.path
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_5), "--label", "statue"],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+    assert len(json_got) == 0
+
+
+def test_query_label_3():
+    """Test query --label with lower case label and --ignore-case"""
+    import json
+    import osxphotos
+    import os
+    import os.path
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_5),
+            "--label",
+            "statue",
+            "--ignore-case",
+        ],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+    assert len(json_got) == 1
+
+
+def test_query_label_4():
+    """Test query with more than one --label"""
+    import json
+    import osxphotos
+    import os
+    import os.path
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_5),
+            "--label",
+            "Statue",
+            "--label",
+            "Plant",
+        ],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+    assert len(json_got) == 6
 
 
 def test_export_sidecar():
@@ -1904,3 +2053,79 @@ def test_export_directory_template_1_dry_run():
         for filepath in CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES1:
             assert f"Exported {filepath}" in result.output
             assert not os.path.isfile(os.path.join(workdir, filepath))
+
+
+def test_labels():
+    """Test osxphotos labels """
+    import json
+    import osxphotos
+    import os
+    import os.path
+    from osxphotos.__main__ import labels
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        labels, ["--db", os.path.join(cwd, PHOTOS_DB_15_5), "--json"]
+    )
+    assert result.exit_code == 0
+
+    json_got = json.loads(result.output)
+    assert json_got == LABELS_JSON
+
+
+def test_keywords():
+    """Test osxphotos keywords """
+    import json
+    import osxphotos
+    import os
+    import os.path
+    from osxphotos.__main__ import keywords
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        keywords, ["--db", os.path.join(cwd, PHOTOS_DB_15_5), "--json"]
+    )
+    assert result.exit_code == 0
+
+    json_got = json.loads(result.output)
+    assert json_got == KEYWORDS_JSON
+
+
+def test_albums():
+    """Test osxphotos albums """
+    import json
+    import osxphotos
+    import os
+    import os.path
+    from osxphotos.__main__ import albums
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        albums, ["--db", os.path.join(cwd, PHOTOS_DB_15_5), "--json"]
+    )
+    assert result.exit_code == 0
+
+    json_got = json.loads(result.output)
+    assert json_got == ALBUMS_JSON
+
+
+def test_persons():
+    """Test osxphotos albums """
+    import json
+    import osxphotos
+    import os
+    import os.path
+    from osxphotos.__main__ import persons
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        persons, ["--db", os.path.join(cwd, PHOTOS_DB_15_5), "--json"]
+    )
+    assert result.exit_code == 0
+
+    json_got = json.loads(result.output)
+    assert json_got == PERSONS_JSON
