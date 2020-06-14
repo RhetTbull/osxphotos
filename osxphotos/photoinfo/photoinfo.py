@@ -55,6 +55,7 @@ class PhotoInfo:
         _xmp_sidecar,
         ExportResults,
     )
+    from ._photoinfo_scoreinfo import score, ScoreInfo
 
     def __init__(self, db=None, uuid=None, info=None):
         self._uuid = uuid
@@ -664,6 +665,8 @@ class PhotoInfo:
         date_modified_iso = (
             self.date_modified.isoformat() if self.date_modified else None
         )
+        exif = str(self.exif_info) if self.exif_info else None
+        score = str(self.score) if self.score else None
 
         info = {
             "uuid": self.uuid,
@@ -704,6 +707,9 @@ class PhotoInfo:
             "has_raw": self.has_raw,
             "uti_raw": self.uti_raw,
             "path_raw": self.path_raw,
+            "place": self.place,
+            "exif": exif,
+            "score": score,
         }
         return yaml.dump(info, sort_keys=False)
 
@@ -716,6 +722,7 @@ class PhotoInfo:
         folders = {album.title: album.folder_names for album in self.album_info}
         exif = dataclasses.asdict(self.exif_info) if self.exif_info else {}
         place = self.place.as_dict() if self.place else {}
+        score = dataclasses.asdict(self.score) if self.score else {}
 
         pic = {
             "uuid": self.uuid,
@@ -761,6 +768,7 @@ class PhotoInfo:
             "path_raw": self.path_raw,
             "place": place,
             "exif": exif,
+            "score": score,
         }
         return json.dumps(pic)
 

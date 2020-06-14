@@ -6,4 +6,5 @@ PhotosDB.photos() returns a list of PhotoInfo objects
 
 from ._photoinfo_exifinfo import ExifInfo
 from ._photoinfo_export import ExportResults
+from ._photoinfo_scoreinfo import ScoreInfo
 from .photoinfo import PhotoInfo

@@ -64,6 +64,7 @@ class PhotosDB:
         labels_as_dict,
         labels_normalized_as_dict,
     )
+    from ._photosdb_process_scoreinfo import _process_scoreinfo
 
     def __init__(self, *dbfile_, dbfile=None):
         """ create a new PhotosDB object 
@@ -1861,6 +1862,9 @@ class PhotosDB:
 
         # process exif info
         self._process_exifinfo()
+
+        # process computed scores
+        self._process_scoreinfo()
 
         # done processing, dump debug data if requested
         if _debug():

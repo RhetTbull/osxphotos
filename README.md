@@ -17,6 +17,7 @@
     + [AlbumInfo](#albuminfo)
     + [FolderInfo](#folderinfo)
     + [PlaceInfo](#placeinfo)
+    + [ScoreInfo](#scoreinfo)
     + [Template Substitutions](#template-substitutions)
     + [Utility Functions](#utility-functions)
   * [Examples](#examples)
@@ -1149,7 +1150,12 @@ photo.exiftool.setvalue("XMP:Title", "Title of photo")
 photo.exiftool.addvalues("IPTC:Keywords", "vacation", "beach")
 ```
 
-**Caution**: I caution against  writing new EXIF data to photos in the Photos library because this will overwrite the original copy of the photo and could adversely affect how Photos behaves.  `exiftool.as_dict()` is useful for getting access to all the photos information but if you want to write new EXIF data, I recommend you export the photo first then write the data.  [PhotoInfo.export()](#export) does this if called with `exiftool=True`.
+**Caution**: I caution against writing new EXIF data to photos in the Photos library because this will overwrite the original copy of the photo and could adversely affect how Photos behaves.  `exiftool.as_dict()` is useful for getting access to all the photos information but if you want to write new EXIF data, I recommend you export the photo first then write the data.  [PhotoInfo.export()](#export) does this if called with `exiftool=True`.
+
+#### `score`
+Returns a [ScoreInfo](#scoreinfo) data class object which provides access to the computed aesthetic scores for each photo.
+
+**Note**: Valid only for Photos 5; returns None for earlier Photos versions.
 
 #### `json()`
 Returns a JSON representation of all photo info 
@@ -1394,6 +1400,45 @@ For example:
 PostalAddress(street='3700 Wailea Alanui Dr', sub_locality=None, city='Kihei', sub_administrative_area='Maui', state='HI', postal_code='96753', country='United States', iso_country_code='US')
 >>> photo.place.address.postal_code
 '96753'
+```
+### ScoreInfo
+[PhotoInfo.score](#score) returns a ScoreInfo object that exposes the computed aesthetic scores for each photo (**Photos 5 only**).  I have not yet reverse engineered the meaning of each score.  The `overall` score seems to the most useful and appears to be a composite of the other scores.  The following score properties are currently available:
+
+```python
+overall: float
+curation: float
+promotion: float
+highlight_visibility: float
+behavioral: float
+failure: float
+harmonious_color: float
+immersiveness: float
+interaction: float
+interesting_subject: float
+intrusive_object_presence: float
+lively_color: float
+low_light: float
+noise: float
+pleasant_camera_tilt: float
+pleasant_composition: float
+pleasant_lighting: float
+pleasant_pattern: float
+pleasant_perspective: float
+pleasant_post_processing: float
+pleasant_reflection: float
+pleasant_symmetry: float
+sharply_focused_subject: float
+tastefully_blurred: float
+well_chosen_subject: float
+well_framed_subject: float
+well_timed_shot: float
+```
+
+Example: find your "best" photo of food
+```python
+>>> import osxphotos
+>>> photos = osxphotos.PhotosDB().photos()
+>>> best_food_photo = sorted([p for p in photos if "food" in p.labels_normalized], key=lambda p: p.score.overall, reverse=True)[0]
 ```
 
 ### Template Substitutions

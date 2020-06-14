@@ -102,7 +102,7 @@ def _process_searchinfo(self):
     # 8: groups.lookup_identifier
 
     for row in c:
-        uuid = ints_to_uuid(row[1],row[2])
+        uuid = ints_to_uuid(row[1], row[2])
         # strings have null character appended, so strip it
         record = {}
         record["uuid"] = uuid
@@ -123,13 +123,9 @@ def _process_searchinfo(self):
 
         category = record["category"]
         try:
-            _db_searchinfo_categories[category].append(
-                record["normalized_string"]
-            )
+            _db_searchinfo_categories[category].append(record["normalized_string"])
         except KeyError:
-            _db_searchinfo_categories[category] = [
-                record["normalized_string"]
-            ]
+            _db_searchinfo_categories[category] = [record["normalized_string"]]
 
         if category == SEARCH_CATEGORY_LABEL:
             label = record["content_string"]
@@ -197,6 +193,7 @@ def labels_normalized_as_dict(self):
 
 
 # The following method is not imported into PhotosDB
+
 
 @lru_cache(maxsize=128)
 def ints_to_uuid(uuid_0, uuid_1):
