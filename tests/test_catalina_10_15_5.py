@@ -439,6 +439,26 @@ def test_get_library_path():
     assert lib_path.endswith(PHOTOS_LIBRARY_PATH)
 
 
+def test_get_db_connection():
+    """ Test PhotosDB.get_db_connection """
+    import osxphotos
+    import sqlite3
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    conn, cursor = photosdb.get_db_connection()
+
+    assert isinstance(conn, sqlite3.Connection)
+    assert isinstance(cursor, sqlite3.Cursor)
+
+    results = conn.execute(
+        "SELECT ZUUID FROM ZGENERICASSET WHERE ZFAVORITE = 1;"
+    ).fetchall()
+    assert len(results) == 1
+    assert results[0][0] == "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"  # uuid
+
+    conn.close()
+
+
 def test_export_1():
     # test basic export
     # get an unedited image and export it using default filename

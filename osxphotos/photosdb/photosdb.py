@@ -46,8 +46,6 @@ from ..utils import (
 
 
 # TODO: Add test for imageTimeZoneOffsetSeconds = None
-# TODO: Fix command line so multiple --keyword, etc. are AND (instead of OR as they are in .photos())
-#       Or fix the help text to match behavior
 # TODO: Add test for __str__
 # TODO: Add special albums and magic albums
 
@@ -255,7 +253,7 @@ class PhotosDB:
         if _db_is_locked(self._dbfile):
             self._tmp_db = self._copy_db_file(self._dbfile)
 
-        self._db_version = self._get_db_version()
+        self._db_version = self._get_db_version(self._tmp_db)
 
         # If Photos >= 5, actual data isn't in photos.db but in Photos.sqlite
         if int(self._db_version) > int(_PHOTOS_4_VERSION):
@@ -493,6 +491,14 @@ class PhotosDB:
         """ returns path to the Photos library PhotosDB was initialized with """
         return self._library_path
 
+    def get_db_connection(self):
+        """ Get connection to the working copy of the Photos database 
+
+        Returns:
+            tuple of (connection, cursor) to sqlite3 database
+        """
+        return _open_sql_file(self._tmp_db)
+
     def _copy_db_file(self, fname):
         """ copies the sqlite database file to a temp file """
         """ returns the name of the temp file """
@@ -517,12 +523,18 @@ class PhotosDB:
 
         return dest_path
 
-    def _get_db_version(self):
-        """ gets the Photos DB version from LiGlobals table """
-        """ returns the version as str"""
+    def _get_db_version(self, db_file):
+        """ Gets the Photos DB version from LiGlobals table
+
+        Args:
+            db_file: path to database file containing LiGlobals table
+
+        Returns: version as str
+        """
+
         version = None
 
-        (conn, c) = _open_sql_file(self._tmp_db)
+        (conn, c) = _open_sql_file(db_file)
 
         # get database version
         c.execute(

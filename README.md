@@ -829,6 +829,23 @@ photosdb.db_version
 
 Returns the version number for Photos library database.  You likely won't need this but it's provided in case needed for debugging. PhotosDB will print a warning to `sys.stderr` if you open a database version that has not been tested. 
 
+#### `get_db_connection()`
+Returns tuple of (connection, cursor) for the working copy of the Photos database.  This is useful for debugging or prototyping new features.
+
+```python
+photosdb = osxphotos.PhotosDB()
+conn, cursor = photosdb.get_db_connection()
+
+results = conn.execute(
+        "SELECT ZUUID FROM ZGENERICASSET WHERE ZFAVORITE = 1;"
+).fetchall()
+
+for row in results:
+    # do something
+    pass
+
+conn.close()
+```
 
 #### ` photos(keywords=None, uuid=None, persons=None, albums=None, images=True, movies=False, from_date=None, to_date=None)`
 
