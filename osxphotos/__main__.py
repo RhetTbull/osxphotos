@@ -1330,13 +1330,32 @@ def export(
         return
 
     # open export database and assign copy/link/unlink functions
+    export_db_path = os.path.join(dest, OSXPHOTOS_EXPORT_DB)
+
+    # check that export isn't in the parent or child of a previously exported library
+    other_db_files = find_files_in_branch(dest, OSXPHOTOS_EXPORT_DB)
+    if other_db_files:
+        click.echo(
+            "WARNING: found other export database files in this destination directory branch.  "
+            + "This likely means you are attempting to export files into a directory "
+            + "that is either the parent or a child directory of a previous export. "
+            + "Proceeding may cause your exported files to be overwritten.",
+            err=True,
+        )
+        click.echo(
+            f"You are exporting to {dest}, found {OSXPHOTOS_EXPORT_DB} files in:"
+        )
+        for other_db in other_db_files:
+            click.echo(f"{other_db}")
+        click.confirm("Do you want to continue?", abort=True)
+
     if dry_run:
-        export_db = ExportDBInMemory(os.path.join(dest, OSXPHOTOS_EXPORT_DB))
+        export_db = ExportDBInMemory(export_db_path)
         # echo = functools.partial(click.echo, err=True)
         # fileutil = FileUtilNoOp(verbose=echo)
         fileutil = FileUtilNoOp
     else:
-        export_db = ExportDB(os.path.join(dest, OSXPHOTOS_EXPORT_DB))
+        export_db = ExportDB(export_db_path)
         fileutil = FileUtil
 
     photos = _query(
@@ -1504,7 +1523,7 @@ def export(
         else:
             photo_str = "photos" if len(results_exported) != 1 else "photo"
             click.echo(f"Exported: {len(results_exported)} {photo_str}")
-        click.echo(f"Elapsed time: {stop_time-start_time} seconds")
+        click.echo(f"Elapsed time: {(stop_time-start_time):.3f} seconds")
     else:
         click.echo("Did not find any photos to export")
 
@@ -2186,12 +2205,49 @@ def get_dirnames_from_template(photo, directory, export_by_date, dest, dry_run):
             dest_path = os.path.join(dest, dirname)
             if not is_valid_filepath(dest_path, platform="auto"):
                 raise ValueError(f"Invalid file path: '{dest_path}'")
-            if not (dry_run or os.path.isdir(dest_path)):
+            if not dry_run and not os.path.isdir(dest_path):
                 os.makedirs(dest_path)
             dest_paths.append(dest_path)
     else:
         dest_paths = [dest]
     return dest_paths
+
+
+def find_files_in_branch(pathname, filename):
+    """ Search a directory branch to find file(s) named filename
+        The branch searched includes all folders below pathname and 
+        the parent tree of pathname but not pathname itself.
+
+        e.g. find filename in children folders and parent folders
+
+    Args:
+        pathname: str, full path of directory to search
+        filename: str, filename to search for
+    
+    Returns: list of full paths to any matching files
+    """
+
+    pathname = pathlib.Path(pathname).resolve()
+    files = []
+
+    # walk down the tree
+    for root, directories, filenames in os.walk(pathname):
+        # for directory in directories:
+        # print(os.path.join(root, directory))
+        for fname in filenames:
+            if fname == filename and pathlib.Path(root) != pathname:
+                files.append(os.path.join(root, fname))
+
+    # walk up the tree
+    path = pathlib.Path(pathname)
+    for root in path.parents:
+        filenames = os.listdir(root)
+        for fname in filenames:
+            filepath = os.path.join(root, fname)
+            if fname == filename and os.path.isfile(filepath):
+                files.append(os.path.join(root, fname))
+
+    return files
 
 
 if __name__ == "__main__":

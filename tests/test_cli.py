@@ -1738,6 +1738,59 @@ def test_export_update_basic():
         )
 
 
+def test_export_update_child_folder():
+    """ test export then update into a child folder of previous export """
+    import glob
+    import os
+    import os.path
+
+    import osxphotos
+    from osxphotos.__main__ import export, OSXPHOTOS_EXPORT_DB
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        # basic export
+        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        assert result.exit_code == 0
+
+        os.mkdir("foo")
+
+        # update into foo
+        result = runner.invoke(
+            export, [os.path.join(cwd, CLI_PHOTOS_DB), "foo", "--update"], input="N\n"
+        )
+        assert result.exit_code != 0
+        assert "WARNING: found other export database files" in result.output
+
+
+def test_export_update_parent_folder():
+    """ test export then update into a parent folder of previous export """
+    import glob
+    import os
+    import os.path
+
+    import osxphotos
+    from osxphotos.__main__ import export, OSXPHOTOS_EXPORT_DB
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        # basic export
+        os.mkdir("foo")
+        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), "foo", "-V"])
+        assert result.exit_code == 0
+
+        # update into "."
+        result = runner.invoke(
+            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--update"], input="N\n"
+        )
+        assert result.exit_code != 0
+        assert "WARNING: found other export database files" in result.output
+
+
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_update_exiftool():
     """ test export then update with exiftool """
