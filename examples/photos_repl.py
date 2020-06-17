@@ -7,6 +7,7 @@
 # If you run this using python from command line, do so with -i flag:
 # python3 -i examples/photos_repl.py
 
+import os
 import sys
 import time
 
@@ -15,6 +16,23 @@ import click
 
 import osxphotos
 from osxphotos.__main__ import get_photos_db, _list_libraries
+
+
+def show(photo):
+    """ open image with default image viewer
+    
+    Note: This is for debugging only -- it will actually open any filetype which could 
+    be very, very bad.  
+
+    Args:
+        photo: PhotoInfo object or a path to a photo on disk
+    """
+    photopath = photo.path if isinstance(photo, osxphotos.PhotoInfo) else photo
+
+    if not os.path.isfile(photopath):
+        return f"'{photopath}' does not appear to be a valid photo path"
+
+    os.system(f"open '{photopath}'")
 
 
 def main():
