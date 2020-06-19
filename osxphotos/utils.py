@@ -149,7 +149,7 @@ def dd_to_dms_str(lat, lon):
 
 def get_system_library_path():
     """ return the path to the system Photos library as string """
-    """ only works on MacOS 10.15+ """
+    """ only works on MacOS 10.15 """
     """ on earlier versions, returns None """
     _, major, _ = _get_os_version()
     if int(major) < 15:
@@ -166,16 +166,10 @@ def get_system_library_path():
         with open(plist_file, "rb") as fp:
             pl = plistload(fp)
     else:
-        logging.warning(f"could not find plist file: {str(plist_file)}")
+        logging.debug(f"could not find plist file: {str(plist_file)}")
         return None
 
-    photospath = pl.get("SystemLibraryPath")
-
-    if photospath is not None:
-        return photospath
-    else:
-        logging.warning("Could not get path to Photos database")
-        return None
+    return pl.get("SystemLibraryPath")
 
 
 def get_last_library_path():
@@ -194,7 +188,7 @@ def get_last_library_path():
 
     # get the IPXDefaultLibraryURLBookmark from com.apple.Photos.plist
     # this is a serialized CFData object
-    photosurlref = pl["IPXDefaultLibraryURLBookmark"]
+    photosurlref = pl.get("IPXDefaultLibraryURLBookmark")
 
     if photosurlref is not None:
         # use CFURLCreateByResolvingBookmarkData to de-serialize bookmark data into a CFURLRef
