@@ -169,7 +169,7 @@ def get_system_library_path():
         logging.warning(f"could not find plist file: {str(plist_file)}")
         return None
 
-    photospath = pl["SystemLibraryPath"]
+    photospath = pl.get("SystemLibraryPath")
 
     if photospath is not None:
         return photospath
