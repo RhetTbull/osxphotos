@@ -21,12 +21,15 @@ import yaml
 from .._constants import (
     _MOVIE_TYPE,
     _PHOTO_TYPE,
+    _PHOTOS_4_ALBUM_KIND,
     _PHOTOS_4_VERSION,
+    _PHOTOS_5_ALBUM_KIND,
+    _PHOTOS_5_SHARED_ALBUM_KIND,
     _PHOTOS_5_SHARED_PHOTO_PATH,
 )
 from ..albuminfo import AlbumInfo
-from ..placeinfo import PlaceInfo4, PlaceInfo5
 from ..phototemplate import PhotoTemplate
+from ..placeinfo import PlaceInfo4, PlaceInfo5
 from ..utils import _debug, _get_resource_loc, findfiles, get_preferred_uti_extension
 
 
@@ -341,21 +344,42 @@ class PhotoInfo:
     @property
     def albums(self):
         """ list of albums picture is contained in """
-        albums = []
-        for album in self._info["albums"]:
-            if not self._db._dbalbum_details[album]["intrash"]:
-                albums.append(self._db._dbalbum_details[album]["title"])
-        return albums
+        try:
+            return self._albums
+        except AttributeError:
+            self._albums = []
+            if self._db._db_version <= _PHOTOS_4_VERSION:
+                album_kinds = [_PHOTOS_4_ALBUM_KIND]
+                kind_field = "albumSubclass"
+            else:
+                album_kinds = [_PHOTOS_5_ALBUM_KIND, _PHOTOS_5_SHARED_ALBUM_KIND]
+                kind_field = "kind"
+
+            for album in self._info["albums"]:
+                detail = self._db._dbalbum_details[album]
+                if detail[kind_field] in album_kinds and not detail["intrash"]:
+                    self._albums.append(detail["title"])
+            return self._albums
 
     @property
     def album_info(self):
         """ list of AlbumInfo objects representing albums the photos is contained in """
-        albums = []
-        for album in self._info["albums"]:
-            if not self._db._dbalbum_details[album]["intrash"]:
-                albums.append(AlbumInfo(db=self._db, uuid=album))
+        try:
+            return self._album_info
+        except AttributeError:
+            self._album_info = []
+            if self._db._db_version <= _PHOTOS_4_VERSION:
+                album_kinds = [_PHOTOS_4_ALBUM_KIND]
+                kind_field = "albumSubclass"
+            else:
+                album_kinds = [_PHOTOS_5_ALBUM_KIND, _PHOTOS_5_SHARED_ALBUM_KIND]
+                kind_field = "kind"
 
-        return albums
+            for album in self._info["albums"]:
+                detail = self._db._dbalbum_details[album]
+                if detail[kind_field] in album_kinds and not detail["intrash"]:
+                    self._album_info.append(AlbumInfo(db=self._db, uuid=album))
+            return self._album_info
 
     @property
     def keywords(self):
@@ -772,12 +796,18 @@ class PhotoInfo:
         }
         return json.dumps(pic)
 
-    # compare two PhotoInfo objects for equality
     def __eq__(self, other):
+        """ Compare two PhotoInfo objects for equality """
+        # Can't just compare the two __dicts__ because some methods (like albums)
+        # memoize their value once called in an instance variable (e.g. self._albums)
         if isinstance(other, self.__class__):
-            return self.__dict__ == other.__dict__
-
+            return (
+                self._db.db_path == other._db.db_path
+                and self.uuid == other.uuid
+                and self._info == other._info
+            )
         return False
 
     def __ne__(self, other):
+        """ Compare two PhotoInfo objects for inequality """
         return not self.__eq__(other)

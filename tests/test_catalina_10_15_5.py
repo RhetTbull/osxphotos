@@ -63,6 +63,7 @@ UUID_DICT = {
     "no_external_edit": "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51",
     "export": "D79B8D77-BFFC-460B-9312-034F2877D35B",  # "Pumkins2.jpg"
     "export_tif": "8846E3E6-8AC8-4857-8448-E3D025784410",
+    "in_album": "D79B8D77-BFFC-460B-9312-034F2877D35B",  # "Pumkins2.jpg"
 }
 
 UUID_PUMPKIN_FARM = [
@@ -797,11 +798,29 @@ def test_export_14(caplog):
 
 
 def test_eq():
+    """ Test equality of two PhotoInfo objects """
     import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    photos1 = photosdb.photos(uuid=[UUID_DICT["export"]])
-    photos2 = photosdb.photos(uuid=[UUID_DICT["export"]])
+    photosdb1 = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photosdb2 = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos1 = photosdb1.photos(uuid=[UUID_DICT["export"]])
+    photos2 = photosdb2.photos(uuid=[UUID_DICT["export"]])
+    assert photos1[0] == photos2[0]
+
+
+def test_eq_2():
+    """ Test equality of two PhotoInfo objects when one has memoized property """
+    import osxphotos
+
+    photosdb1 = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photosdb2 = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos1 = photosdb1.photos(uuid=[UUID_DICT["in_album"]])
+    photos2 = photosdb2.photos(uuid=[UUID_DICT["in_album"]])
+
+    # memoize a value
+    albums = photos1[0].albums
+    assert albums
+
     assert photos1[0] == photos2[0]
 
 

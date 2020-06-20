@@ -229,6 +229,7 @@ def test_albums_photos():
 
 
 def test_photoinfo_albums():
+    """ Test PhotoInfo.albums """
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
@@ -238,7 +239,20 @@ def test_photoinfo_albums():
     assert "Pumpkin Farm" in albums
 
 
+def test_photoinfo_albums_2():
+    """ Test that PhotoInfo.albums returns only number albums expected """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=[UUID_DICT["two_albums"]])
+
+    albums = photos[0].albums
+    assert len(albums) == 2
+
+
 def test_photoinfo_album_info():
+    """ test PhotoInfo.album_info """
+
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
@@ -249,4 +263,4 @@ def test_photoinfo_album_info():
     assert album_info[0].title in ["Pumpkin Farm", "Test Album"]
     assert album_info[1].title in ["Pumpkin Farm", "Test Album"]
 
-    assert photos[0] in album_info[0].photos
+    assert photos[0].uuid in [photo.uuid for photo in album_info[0].photos]

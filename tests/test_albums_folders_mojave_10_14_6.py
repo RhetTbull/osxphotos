@@ -244,4 +244,4 @@ def test_photoinfo_album_info():
     assert album_info[0].title in ["Pumpkin Farm", "Test Album"]
     assert album_info[1].title in ["Pumpkin Farm", "Test Album"]
 
-    assert photos[0] in album_info[0].photos
+    assert photos[0].uuid in [photo.uuid for photo in album_info[0].photos]
