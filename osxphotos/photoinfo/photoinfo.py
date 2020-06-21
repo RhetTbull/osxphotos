@@ -69,6 +69,7 @@ class PhotoInfo:
     @property
     def filename(self):
         """ filename of the picture """
+        # sourcery off
         if self.has_raw and self.raw_original:
             # return name of the RAW file
             # TODO: not yet implemented
@@ -89,8 +90,7 @@ class PhotoInfo:
         seconds = self._info["imageTimeZoneOffsetSeconds"] or 0
         delta = timedelta(seconds=seconds)
         tz = timezone(delta)
-        imagedate_utc = imagedate.astimezone(tz=tz)
-        return imagedate_utc
+        return imagedate.astimezone(tz=tz)
 
     @property
     def date_modified(self):
@@ -101,8 +101,7 @@ class PhotoInfo:
             seconds = self._info["imageTimeZoneOffsetSeconds"] or 0
             delta = timedelta(seconds=seconds)
             tz = timezone(delta)
-            imagedate_utc = imagedate.astimezone(tz=tz)
-            return imagedate_utc
+            return imagedate.astimezone(tz=tz)
         else:
             return None
 
@@ -494,12 +493,11 @@ class PhotoInfo:
             self is not included in the returned list """
         if self._info["burst"]:
             burst_uuid = self._info["burstUUID"]
-            burst_photos = [
+            return [
                 PhotoInfo(db=self._db, uuid=u, info=self._db._dbphotos[u])
                 for u in self._db._dbphotos_burst[burst_uuid]
                 if u != self._uuid
             ]
-            return burst_photos
         else:
             return []
 
