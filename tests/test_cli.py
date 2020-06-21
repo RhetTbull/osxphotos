@@ -355,7 +355,10 @@ def test_query_uuid():
     for key_ in json_expected:
         assert key_ in json_got
         if key_ != "path":
-            assert json_expected[key_] == json_got[key_]
+            if isinstance(json_expected[key_], list):
+                assert sorted(json_expected[key_]) == sorted(json_got[key_])
+            else:
+                assert json_expected[key_] == json_got[key_]
         else:
             assert json_expected[key_] in json_got[key_]
 

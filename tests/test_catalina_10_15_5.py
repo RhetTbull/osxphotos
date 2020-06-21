@@ -228,7 +228,7 @@ def test_attributes():
     )
     assert p.description == "Girl holding pumpkin"
     assert p.title == "I found one!"
-    assert p.albums == ["Pumpkin Farm", "Test Album"]
+    assert sorted(p.albums) == ["Pumpkin Farm", "Test Album"]
     assert p.persons == ["Katie"]
     assert p.path.endswith(
         "tests/Test-10.15.5.photoslibrary/originals/D/D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg"

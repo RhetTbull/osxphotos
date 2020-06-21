@@ -22,6 +22,7 @@ from .._constants import (
     _MOVIE_TYPE,
     _PHOTO_TYPE,
     _PHOTOS_4_ALBUM_KIND,
+    _PHOTOS_4_ROOT_FOLDER,
     _PHOTOS_4_VERSION,
     _PHOTOS_5_ALBUM_KIND,
     _PHOTOS_5_SHARED_ALBUM_KIND,
@@ -347,17 +348,10 @@ class PhotoInfo:
         try:
             return self._albums
         except AttributeError:
-            self._albums = []
-            album_kinds = (
-                [_PHOTOS_4_ALBUM_KIND]
-                if self._db._db_version <= _PHOTOS_4_VERSION
-                else [_PHOTOS_5_ALBUM_KIND, _PHOTOS_5_SHARED_ALBUM_KIND]
+            album_uuids = self._get_album_uuids()
+            self._albums = list(
+                {self._db._dbalbum_details[album]["title"] for album in album_uuids}
             )
-
-            for album in self._info["albums"]:
-                detail = self._db._dbalbum_details[album]
-                if detail["kind"] in album_kinds and not detail["intrash"]:
-                    self._albums.append(detail["title"])
             return self._albums
 
     @property
@@ -366,17 +360,10 @@ class PhotoInfo:
         try:
             return self._album_info
         except AttributeError:
-            self._album_info = []
-            album_kinds = (
-                [_PHOTOS_4_ALBUM_KIND]
-                if self._db._db_version <= _PHOTOS_4_VERSION
-                else [_PHOTOS_5_ALBUM_KIND, _PHOTOS_5_SHARED_ALBUM_KIND]
-            )
-
-            for album in self._info["albums"]:
-                detail = self._db._dbalbum_details[album]
-                if detail["kind"] in album_kinds and not detail["intrash"]:
-                    self._album_info.append(AlbumInfo(db=self._db, uuid=album))
+            album_uuids = self._get_album_uuids()
+            self._album_info = [
+                AlbumInfo(db=self._db, uuid=album) for album in album_uuids
+            ]
             return self._album_info
 
     @property
@@ -676,6 +663,37 @@ class PhotoInfo:
     def _latitude(self):
         """ Returns latitude, in degrees """
         return self._info["latitude"]
+
+    def _get_album_uuids(self):
+        """ Return list of album UUIDs this photo is found in
+        
+            Filters out albums in the trash and any special album types
+        
+        Returns: list of album UUIDs 
+        """
+        if self._db._db_version <= _PHOTOS_4_VERSION:
+            version4 = True
+            album_kind = [_PHOTOS_4_ALBUM_KIND]
+        else:
+            version4 = False
+            album_kind = [_PHOTOS_5_SHARED_ALBUM_KIND, _PHOTOS_5_ALBUM_KIND]
+
+        album_list = []
+        for album in self._info["albums"]:
+            detail = self._db._dbalbum_details[album]
+            if (
+                detail["kind"] in album_kind
+                and not detail["intrash"]
+                and (
+                    not version4
+                    # in Photos <= 4, special albums like "printAlbum" have kind _PHOTOS_4_ALBUM_KIND
+                    # but should not be listed here; they can be distinguished by looking
+                    # for folderUuid of _PHOTOS_4_ROOT_FOLDER as opposed to _PHOTOS_4_TOP_LEVEL_ALBUM
+                    or (version4 and detail["folderUuid"] != _PHOTOS_4_ROOT_FOLDER)
+                )
+            ):
+                album_list.append(album)
+        return album_list
 
     def __repr__(self):
         return f"osxphotos.{self.__class__.__name__}(db={self._db}, uuid='{self._uuid}', info={self._info})"

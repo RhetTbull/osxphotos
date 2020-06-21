@@ -2084,7 +2084,7 @@ class PhotosDB:
         Args:
             shared: boolean; if True, returns shared albums, else normal albums
         
-        Returns: list of album names
+        Returns: list of album UUIDs 
         """
         if self._db_version <= _PHOTOS_4_VERSION:
             version4 = True
@@ -2110,11 +2110,11 @@ class PhotosDB:
                     or (not shared and detail["cloudownerhashedpersonid"] is None)
                 )
                 and (
+                    not version4
                     # in Photos 4, special albums like "printAlbum" have kind _PHOTOS_4_ALBUM_KIND
                     # but should not be listed here; they can be distinguished by looking
                     # for folderUuid of _PHOTOS_4_ROOT_FOLDER as opposed to _PHOTOS_4_TOP_LEVEL_ALBUM
-                    (version4 and detail["folderUuid"] != _PHOTOS_4_ROOT_FOLDER)
-                    or not version4
+                    or (version4 and detail["folderUuid"] != _PHOTOS_4_ROOT_FOLDER)
                 )
             ):
                 album_list.append(album)
