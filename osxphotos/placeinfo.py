@@ -503,7 +503,6 @@ class PlaceInfo5(PlaceInfo):
         """ revgeoloc_bplist: a binary plist blob containing 
                 a serialized PLRevGeoLocationInfo object """
         self._bplist = revgeoloc_bplist
-        # todo: check for None?
         self._plrevgeoloc = archiver.unarchive(revgeoloc_bplist)
         self._process_place_info()
 
@@ -535,16 +534,21 @@ class PlaceInfo5(PlaceInfo):
     @property
     def address(self):
         addr = self._plrevgeoloc.postalAddress
-        return PostalAddress(
-            street=addr._street,
-            sub_locality=addr._subLocality,
-            city=addr._city,
-            sub_administrative_area=addr._subAdministrativeArea,
-            state_province=addr._state,
-            postal_code=addr._postalCode,
-            country=addr._country,
-            iso_country_code=addr._ISOCountryCode,
-        )
+        if addr is not None:
+            postal_address = PostalAddress(
+                street=addr._street,
+                sub_locality=addr._subLocality,
+                city=addr._city,
+                sub_administrative_area=addr._subAdministrativeArea,
+                state_province=addr._state,
+                postal_code=addr._postalCode,
+                country=addr._country,
+                iso_country_code=addr._ISOCountryCode,
+            )
+        else:
+            postal_address = None
+
+        return postal_address
 
     def _process_place_info(self):
         """ Process sortedPlaceInfos to set self._name and self._names """
@@ -632,5 +636,5 @@ class PlaceInfo5(PlaceInfo):
             "country_code": self.country_code,
             "ishome": self.ishome,
             "address_str": self.address_str,
-            "address": self.address._asdict(),
+            "address": self.address._asdict() if self.address is not None else None,
         }
