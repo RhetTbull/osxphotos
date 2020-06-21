@@ -348,16 +348,15 @@ class PhotoInfo:
             return self._albums
         except AttributeError:
             self._albums = []
-            if self._db._db_version <= _PHOTOS_4_VERSION:
-                album_kinds = [_PHOTOS_4_ALBUM_KIND]
-                kind_field = "albumSubclass"
-            else:
-                album_kinds = [_PHOTOS_5_ALBUM_KIND, _PHOTOS_5_SHARED_ALBUM_KIND]
-                kind_field = "kind"
+            album_kinds = (
+                [_PHOTOS_4_ALBUM_KIND]
+                if self._db._db_version <= _PHOTOS_4_VERSION
+                else [_PHOTOS_5_ALBUM_KIND, _PHOTOS_5_SHARED_ALBUM_KIND]
+            )
 
             for album in self._info["albums"]:
                 detail = self._db._dbalbum_details[album]
-                if detail[kind_field] in album_kinds and not detail["intrash"]:
+                if detail["kind"] in album_kinds and not detail["intrash"]:
                     self._albums.append(detail["title"])
             return self._albums
 
@@ -368,16 +367,15 @@ class PhotoInfo:
             return self._album_info
         except AttributeError:
             self._album_info = []
-            if self._db._db_version <= _PHOTOS_4_VERSION:
-                album_kinds = [_PHOTOS_4_ALBUM_KIND]
-                kind_field = "albumSubclass"
-            else:
-                album_kinds = [_PHOTOS_5_ALBUM_KIND, _PHOTOS_5_SHARED_ALBUM_KIND]
-                kind_field = "kind"
+            album_kinds = (
+                [_PHOTOS_4_ALBUM_KIND]
+                if self._db._db_version <= _PHOTOS_4_VERSION
+                else [_PHOTOS_5_ALBUM_KIND, _PHOTOS_5_SHARED_ALBUM_KIND]
+            )
 
             for album in self._info["albums"]:
                 detail = self._db._dbalbum_details[album]
-                if detail[kind_field] in album_kinds and not detail["intrash"]:
+                if detail["kind"] in album_kinds and not detail["intrash"]:
                     self._album_info.append(AlbumInfo(db=self._db, uuid=album))
             return self._album_info
 

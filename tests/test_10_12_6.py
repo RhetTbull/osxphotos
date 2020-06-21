@@ -16,7 +16,7 @@ KEYWORDS = [
     "United Kingdom",
 ]
 PERSONS = ["Katie", "Suzy", "Maria"]
-ALBUMS = ["Pumpkin Farm", "Last Import", "AlbumInFolder"]
+ALBUMS = ["Pumpkin Farm", "AlbumInFolder"]
 KEYWORDS_DICT = {
     "Kids": 4,
     "wedding": 2,
@@ -29,7 +29,7 @@ KEYWORDS_DICT = {
     "United Kingdom": 1,
 }
 PERSONS_DICT = {"Katie": 3, "Suzy": 2, "Maria": 1}
-ALBUM_DICT = {"Pumpkin Farm": 3, "Last Import": 1, "AlbumInFolder": 1}
+ALBUM_DICT = {"Pumpkin Farm": 3, "AlbumInFolder": 1}
 
 
 def test_init():

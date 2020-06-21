@@ -261,6 +261,7 @@ ALBUMS_JSON = {
         "AlbumInFolder": 2,
         "Test Album": 2,
         "I have a deleted twin": 1,
+        "EmptyAlbum": 0,
     },
     "shared albums": {},
 }

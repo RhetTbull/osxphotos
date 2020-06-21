@@ -311,18 +311,16 @@ class PhotosDB:
     def albums_as_dict(self):
         """ return albums as dict of albums, count in reverse sorted order (descending) """
         albums = {}
-        album_keys = [
-            k
-            for k in self._dbalbums_album.keys()
-            if self._dbalbum_details[k]["cloudownerhashedpersonid"] is None
-            and not self._dbalbum_details[k]["intrash"]
-        ]
-        for k in album_keys:
-            title = self._dbalbum_details[k]["title"]
-            if title in albums:
-                albums[title] += len(self._dbalbums_album[k])
+        album_keys = self._get_album_uuids(shared=False)
+        for album in album_keys:
+            title = self._dbalbum_details[album]["title"]
+            if album in self._dbalbums_album:
+                try:
+                    albums[title] += len(self._dbalbums_album[album])
+                except KeyError:
+                    albums[title] = len(self._dbalbums_album[album])
             else:
-                albums[title] = len(self._dbalbums_album[k])
+                albums[title] = 0  # empty album
         albums = dict(sorted(albums.items(), key=lambda kv: kv[1], reverse=True))
         return albums
 
@@ -331,25 +329,17 @@ class PhotosDB:
         """ returns shared albums as dict of albums, count in reverse sorted order (descending)
             valid only on Photos 5; on Photos <= 4, prints warning and returns empty dict """
 
-        # if _dbalbum_details[key]["cloudownerhashedpersonid"] is not None, then it's a shared album
-        if self._db_version <= _PHOTOS_4_VERSION:
-            logging.warning(
-                f"albums_shared not implemented for Photos versions < {_PHOTOS_5_VERSION}"
-            )
-            return {}
-
         albums = {}
-        album_keys = [
-            k
-            for k in self._dbalbums_album.keys()
-            if self._dbalbum_details[k]["cloudownerhashedpersonid"] is not None
-        ]
-        for k in album_keys:
-            title = self._dbalbum_details[k]["title"]
-            if title in albums:
-                albums[title] += len(self._dbalbums_album[k])
+        album_keys = self._get_album_uuids(shared=True)
+        for album in album_keys:
+            title = self._dbalbum_details[album]["title"]
+            if album in self._dbalbums_album:
+                try:
+                    albums[title] += len(self._dbalbums_album[album])
+                except KeyError:
+                    albums[title] = len(self._dbalbums_album[album])
             else:
-                albums[title] = len(self._dbalbums_album[k])
+                albums[title] = 0  # empty album
         albums = dict(sorted(albums.items(), key=lambda kv: kv[1], reverse=True))
         return albums
 
@@ -410,32 +400,28 @@ class PhotosDB:
     @property
     def album_info(self):
         """ return list of AlbumInfo objects for each album in the photos database """
-
-        return [
-            AlbumInfo(db=self, uuid=album)
-            for album in self._dbalbums_album.keys()
-            if self._dbalbum_details[album]["cloudownerhashedpersonid"] is None
-            and not self._dbalbum_details[album]["intrash"]
-        ]
+        try:
+            return self._album_info
+        except AttributeError:
+            self._album_info = [
+                AlbumInfo(db=self, uuid=album)
+                for album in self._get_album_uuids(shared=False)
+            ]
+            return self._album_info
 
     @property
     def album_info_shared(self):
         """ return list of AlbumInfo objects for each shared album in the photos database
             only valid for Photos 5; on Photos <= 4, prints warning and returns empty list """
         # if _dbalbum_details[key]["cloudownerhashedpersonid"] is not None, then it's a shared album
-
-        if self._db_version <= _PHOTOS_4_VERSION:
-            logging.warning(
-                f"albums_shared not implemented for Photos versions < {_PHOTOS_5_VERSION}"
-            )
-            return []
-
-        return [
-            AlbumInfo(db=self, uuid=album)
-            for album in self._dbalbums_album.keys()
-            if self._dbalbum_details[album]["cloudownerhashedpersonid"] is not None
-            and not self._dbalbum_details[album]["intrash"]
-        ]
+        try:
+            return self._album_info_shared
+        except AttributeError:
+            self._album_info_shared = [
+                AlbumInfo(db=self, uuid=album)
+                for album in self._get_album_uuids(shared=True)
+            ]
+            return self._album_info_shared
 
     @property
     def albums(self):
@@ -444,13 +430,11 @@ class PhotosDB:
         # Could be more than one album with same name
         # Right now, they are treated as same album and photos are combined from albums with same name
 
-        albums = {
-            self._dbalbum_details[album]["title"]
-            for album in self._dbalbums_album.keys()
-            if self._dbalbum_details[album]["cloudownerhashedpersonid"] is None
-            and not self._dbalbum_details[album]["intrash"]
-        }
-        return list(albums)
+        try:
+            return self._albums
+        except AttributeError:
+            self._albums = self._get_albums(shared=False)
+            return self._albums
 
     @property
     def albums_shared(self):
@@ -462,19 +446,11 @@ class PhotosDB:
 
         # if _dbalbum_details[key]["cloudownerhashedpersonid"] is not None, then it's a shared album
 
-        if self._db_version <= _PHOTOS_4_VERSION:
-            logging.warning(
-                f"album_names_shared not implemented for Photos versions < {_PHOTOS_5_VERSION}"
-            )
-            return []
-
-        albums = {
-            self._dbalbum_details[album]["title"]
-            for album in self._dbalbums_album.keys()
-            if self._dbalbum_details[album]["cloudownerhashedpersonid"] is not None
-            and not self._dbalbum_details[album]["intrash"]
-        }
-        return list(albums)
+        try:
+            return self._albums_shared
+        except AttributeError:
+            self._albums_shared = self._get_albums(shared=True)
+            return self._albums_shared
 
     @property
     def db_version(self):
@@ -634,6 +610,8 @@ class PhotosDB:
                 "folderUuid": album[5],
                 "albumType": album[6],
                 "albumSubclass": album[7],
+                # for compatability with Photos 5 where album kind is ZKIND
+                "kind": album[7],
             }
 
         # get details about folders
@@ -2097,6 +2075,65 @@ class PhotosDB:
 
         hierarchy = _recurse_folder_hierarchy(folders)
         return hierarchy
+
+    def _get_album_uuids(self, shared=False):
+        """ Return list of album UUIDs found in photos database
+        
+            Filters out albums in the trash and any special album types
+        
+        Args:
+            shared: boolean; if True, returns shared albums, else normal albums
+        
+        Returns: list of album names
+        """
+        if self._db_version <= _PHOTOS_4_VERSION:
+            version4 = True
+            if shared:
+                logging.warning(
+                    f"Shared albums not implemented for Photos library version {self._db_version}"
+                )
+                return []  # not implemented for _PHOTOS_4_VERSION
+            else:
+                album_kind = _PHOTOS_4_ALBUM_KIND
+        else:
+            version4 = False
+            album_kind = _PHOTOS_5_SHARED_ALBUM_KIND if shared else _PHOTOS_5_ALBUM_KIND
+
+        album_list = []
+        # look through _dbalbum_details because _dbalbums_album won't have empty albums it
+        for album, detail in self._dbalbum_details.items():
+            if (
+                detail["kind"] == album_kind
+                and not detail["intrash"]
+                and (
+                    (shared and detail["cloudownerhashedpersonid"] is not None)
+                    or (not shared and detail["cloudownerhashedpersonid"] is None)
+                )
+                and (
+                    # in Photos 4, special albums like "printAlbum" have kind _PHOTOS_4_ALBUM_KIND
+                    # but should not be listed here; they can be distinguished by looking
+                    # for folderUuid of _PHOTOS_4_ROOT_FOLDER as opposed to _PHOTOS_4_TOP_LEVEL_ALBUM
+                    (version4 and detail["folderUuid"] != _PHOTOS_4_ROOT_FOLDER)
+                    or not version4
+                )
+            ):
+                album_list.append(album)
+        return album_list
+
+    def _get_albums(self, shared=False):
+        """ Return list of album titles found in photos database
+            Albums may have duplicate titles -- these will be treated as a single album.
+        
+            Filters out albums in the trash and any special album types
+
+        Args:
+            shared: boolean; if True, returns shared albums, else normal albums
+        
+        Returns: list of album names
+        """
+
+        album_uuids = self._get_album_uuids(shared=shared)
+        return list({self._dbalbum_details[album]["title"] for album in album_uuids})
 
     def photos(
         self,
