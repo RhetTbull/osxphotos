@@ -428,6 +428,34 @@ Substitution                    Description
 {modified.hour}                 2-digit hour of the file modification time
 {modified.min}                  2-digit minute of the file modification time
 {modified.sec}                  2-digit second of the file modification time
+{today.date}                    Current date in iso format, e.g.
+                                '2020-03-22'
+{today.year}                    4-digit year of current date
+{today.yy}                      2-digit year of current date
+{today.mm}                      2-digit month of the current date (zero
+                                padded)
+{today.month}                   Month name in user's locale of the current
+                                date
+{today.mon}                     Month abbreviation in the user's locale of
+                                the current date
+{today.dd}                      2-digit day of the month (zero padded) of
+                                current date
+{today.dow}                     Day of week in user's locale of the current
+                                date
+{today.doy}                     3-digit day of year (e.g Julian day) of
+                                current date, starting from 1 (zero padded)
+{today.hour}                    2-digit hour of the current date
+{today.min}                     2-digit minute of the current date
+{today.sec}                     2-digit second of the current date
+{today.strftime}                Apply strftime template to current
+                                date/time. Should be used in form
+                                {today.strftime,TEMPLATE} where TEMPLATE is
+                                a valid strftime template, e.g.
+                                {today.strftime,%Y-%U} would result in year-
+                                week number of year: '2020-23'. If used with
+                                no template will return null value. See
+                                https://strftime.org/ for help on strftime
+                                templates.
 {place.name}                    Place name from the photo's reverse
                                 geolocation data, as displayed in Photos
 {place.country_code}            The ISO country code from the photo's
@@ -1461,7 +1489,6 @@ Example: find your "best" photo of food
 ### Template Substitutions
 
 The following substitutions are availabe for use with `PhotoInfo.render_template()` 
-
 | Substitution | Description |
 |--------------|-------------|
 |{name}|Current filename of the photo|
@@ -1492,6 +1519,19 @@ The following substitutions are availabe for use with `PhotoInfo.render_template
 |{modified.hour}|2-digit hour of the file modification time|
 |{modified.min}|2-digit minute of the file modification time|
 |{modified.sec}|2-digit second of the file modification time|
+|{today.date}|Current date in iso format, e.g. '2020-03-22'|
+|{today.year}|4-digit year of current date|
+|{today.yy}|2-digit year of current date|
+|{today.mm}|2-digit month of the current date (zero padded)|
+|{today.month}|Month name in user's locale of the current date|
+|{today.mon}|Month abbreviation in the user's locale of the current date|
+|{today.dd}|2-digit day of the month (zero padded) of current date|
+|{today.dow}|Day of week in user's locale of the current date|
+|{today.doy}|3-digit day of year (e.g Julian day) of current date, starting from 1 (zero padded)|
+|{today.hour}|2-digit hour of the current date|
+|{today.min}|2-digit minute of the current date|
+|{today.sec}|2-digit second of the current date|
+|{today.strftime}|Apply strftime template to current date/time. Should be used in form {today.strftime,TEMPLATE} where TEMPLATE is a valid strftime template, e.g. {today.strftime,%Y-%U} would result in year-week number of year: '2020-23'. If used with no template will return null value. See https://strftime.org/ for help on strftime templates.|
 |{place.name}|Place name from the photo's reverse geolocation data, as displayed in Photos|
 |{place.country_code}|The ISO country code from the photo's reverse geolocation data|
 |{place.name.country}|Country name from the photo's reverse geolocation data|

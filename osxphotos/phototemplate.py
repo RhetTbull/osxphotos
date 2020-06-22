@@ -9,6 +9,7 @@
 # 4. Couldn't figure out how to do #1 and #2 with str.format()
 #
 # This code isn't elegant but it seems to work well.  PRs gladly accepted.
+import datetime
 import locale
 import os
 import re
@@ -59,6 +60,23 @@ TEMPLATE_SUBSTITUTIONS = {
     # + "{modified.strftime,%Y-%U} would result in year-week number of year: '2020-23'. "
     # + "If used with no template will return null value. "
     # + "See https://strftime.org/ for help on strftime templates.",
+    "{today.date}": "Current date in iso format, e.g. '2020-03-22'",
+    "{today.year}": "4-digit year of current date",
+    "{today.yy}": "2-digit year of current date",
+    "{today.mm}": "2-digit month of the current date (zero padded)",
+    "{today.month}": "Month name in user's locale of the current date",
+    "{today.mon}": "Month abbreviation in the user's locale of the current date",
+    "{today.dd}": "2-digit day of the month (zero padded) of current date",
+    "{today.dow}": "Day of week in user's locale of the current date",
+    "{today.doy}": "3-digit day of year (e.g Julian day) of current date, starting from 1 (zero padded)",
+    "{today.hour}": "2-digit hour of the current date",
+    "{today.min}": "2-digit minute of the current date",
+    "{today.sec}": "2-digit second of the current date",
+    "{today.strftime}": "Apply strftime template to current date/time. Should be used in form "
+    + "{today.strftime,TEMPLATE} where TEMPLATE is a valid strftime template, e.g. "
+    + "{today.strftime,%Y-%U} would result in year-week number of year: '2020-23'. "
+    + "If used with no template will return null value. "
+    + "See https://strftime.org/ for help on strftime templates.",
     "{place.name}": "Place name from the photo's reverse geolocation data, as displayed in Photos",
     "{place.country_code}": "The ISO country code from the photo's reverse geolocation data",
     "{place.name.country}": "Country name from the photo's reverse geolocation data",
@@ -101,6 +119,10 @@ class PhotoTemplate:
             photo: a PhotoInfo instance.
         """
         self.photo = photo
+
+        # holds value of current date/time for {today.x} fields
+        # gets initialized in get_template_value
+        self.today = None
 
     def render(self, template, none_str="_", path_sep=None):
         """ Render a filename or directory template 
@@ -258,6 +280,10 @@ class PhotoTemplate:
             ValueError if no rule exists for field.
         """
 
+        # initialize today with current date/time if needed
+        if self.today is None:
+            self.today = datetime.datetime.now()
+
         # must be a valid keyword
         if field == "name":
             return pathlib.Path(self.photo.filename).stem
@@ -403,6 +429,51 @@ class PhotoTemplate:
         #             raise ValueError(f"Invalid strftime template: '{default}'")
         #     else:
         #         return None
+
+        if field == "today.date":
+            return DateTimeFormatter(self.today).date
+
+        if field == "today.year":
+            return DateTimeFormatter(self.today).year
+
+        if field == "today.yy":
+            return DateTimeFormatter(self.today).yy
+
+        if field == "today.mm":
+            return DateTimeFormatter(self.today).mm
+
+        if field == "today.month":
+            return DateTimeFormatter(self.today).month
+
+        if field == "today.mon":
+            return DateTimeFormatter(self.today).mon
+
+        if field == "today.dd":
+            return DateTimeFormatter(self.today).dd
+
+        if field == "today.dow":
+            return DateTimeFormatter(self.today).dow
+
+        if field == "today.doy":
+            return DateTimeFormatter(self.today).doy
+
+        if field == "today.hour":
+            return DateTimeFormatter(self.today).hour
+
+        if field == "today.min":
+            return DateTimeFormatter(self.today).min
+
+        if field == "today.sec":
+            return DateTimeFormatter(self.today).sec
+
+        if field == "today.strftime":
+            if default:
+                try:
+                    return self.today.strftime(default)
+                except:
+                    raise ValueError(f"Invalid strftime template: '{default}'")
+            else:
+                return None
 
         if field == "place.name":
             return self.photo.place.name if self.photo.place else None
