@@ -546,7 +546,9 @@ class PlaceInfo5(PlaceInfo):
                 iso_country_code=addr._ISOCountryCode,
             )
         else:
-            postal_address = None
+            postal_address = PostalAddress(
+                None, None, None, None, None, None, None, None
+            )
 
         return postal_address
 
