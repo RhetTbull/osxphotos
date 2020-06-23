@@ -1516,7 +1516,7 @@ class PhotosDB:
             try:
                 info["imageDate"] = datetime.fromtimestamp(row[5] + td)
             except ValueError:
-                info["imageDate"] = datetime.date(1970, 1, 1)
+                info["imageDate"] = datetime(1970, 1, 1)
 
             info["imageTimeZoneOffsetSeconds"] = row[6]
             info["hidden"] = row[9]
