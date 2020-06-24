@@ -41,6 +41,7 @@ ALBUM_DICT = {
 UUID_DICT = {
     "favorite": "6bxcNnzRQKGnK4uPrCJ9UQ",
     "not_favorite": "8SOE9s0XQVGsuq4ONohTng",
+    "date_invalid": "YZFCPY24TUySvpu7owiqxA",
 }
 
 
@@ -57,6 +58,7 @@ def test_db_version():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     assert photosdb.db_version in osxphotos._constants._TESTED_DB_VERSIONS
     assert photosdb.db_version == "4025"
+
 
 def test_db_len():
     import osxphotos
@@ -407,3 +409,30 @@ def test_multi_person():
     photos = photosdb.photos(persons=["Katie", "Suzy"])
 
     assert len(photos) == 3
+
+
+def test_date_invalid():
+    """ Test date is invalid """
+    from datetime import datetime, timedelta, timezone
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=[UUID_DICT["date_invalid"]])
+    assert len(photos) == 1
+    p = photos[0]
+    delta = timedelta(seconds=p.tzoffset)
+    tz = timezone(delta)
+    assert p.date == datetime(1970, 1, 1).astimezone(tz=tz)
+
+
+def test_date_modified_invalid():
+    """ Test date modified is invalid """
+    from datetime import datetime, timedelta, timezone
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=[UUID_DICT["date_invalid"]])
+    assert len(photos) == 1
+    p = photos[0]
+    assert p.date_modified is None
+

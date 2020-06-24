@@ -66,6 +66,7 @@ UUID_DICT = {
     "export": "D79B8D77-BFFC-460B-9312-034F2877D35B",  # "Pumkins2.jpg"
     "export_tif": "8846E3E6-8AC8-4857-8448-E3D025784410",
     "in_album": "D79B8D77-BFFC-460B-9312-034F2877D35B",  # "Pumkins2.jpg"
+    "date_invalid": "8846E3E6-8AC8-4857-8448-E3D025784410",
 }
 
 UUID_PUMPKIN_FARM = [
@@ -868,12 +869,39 @@ def test_from_to_date():
     photosdb = osxphotos.PhotosDB(PHOTOS_DB)
 
     photos = photosdb.photos(from_date=dt.datetime(2018, 10, 28))
-    assert len(photos) == 7
+    assert len(photos) == 6
 
     photos = photosdb.photos(to_date=dt.datetime(2018, 10, 28))
-    assert len(photos) == 6
+    assert len(photos) == 7
 
     photos = photosdb.photos(
         from_date=dt.datetime(2018, 9, 28), to_date=dt.datetime(2018, 9, 29)
     )
     assert len(photos) == 4
+
+
+def test_date_invalid():
+    """ Test date is invalid """
+    from datetime import datetime, timedelta, timezone
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=[UUID_DICT["date_invalid"]])
+    assert len(photos) == 1
+    p = photos[0]
+    delta = timedelta(seconds=p.tzoffset)
+    tz = timezone(delta)
+    assert p.date == datetime(1970, 1, 1).astimezone(tz=tz)
+
+
+def test_date_modified_invalid():
+    """ Test date modified is invalid """
+    from datetime import datetime, timedelta, timezone
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=[UUID_DICT["date_invalid"]])
+    assert len(photos) == 1
+    p = photos[0]
+    assert p.date_modified is None
+
