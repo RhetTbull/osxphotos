@@ -717,7 +717,7 @@ class PhotosDB:
                     RKVersion.nonRawMasterUuid,
                     RKMaster.alternateMasterUuid
                     FROM RKVersion, RKMaster WHERE RKVersion.isInTrash = 0 AND 
-                    RKVersion.masterUuid = RKMaster.uuid AND RKVersion.filename NOT LIKE '%.pdf' """
+                    RKVersion.masterUuid = RKMaster.uuid"""
             )
         else:
             c.execute(
@@ -736,7 +736,7 @@ class PhotosDB:
                     RKVersion.nonRawMasterUuid,
                     RKMaster.alternateMasterUuid
                     FROM RKVersion, RKMaster WHERE RKVersion.isInTrash = 0 AND 
-                    RKVersion.masterUuid = RKMaster.uuid AND RKVersion.filename NOT LIKE '%.pdf' """
+                    RKVersion.masterUuid = RKMaster.uuid"""
             )
 
         # order of results
