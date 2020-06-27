@@ -875,7 +875,7 @@ for row in results:
 conn.close()
 ```
 
-#### ` photos(keywords=None, uuid=None, persons=None, albums=None, images=True, movies=False, from_date=None, to_date=None, intrash=False)`
+#### ` photos(keywords=None, uuid=None, persons=None, albums=None, images=True, movies=True, from_date=None, to_date=None, intrash=False)`
 
 ```python
 # assumes photosdb is a PhotosDB object (see above)
@@ -906,7 +906,7 @@ photos = photosdb.photos(
 - ```persons```: list of one or more persons. Returns only photos containing the person(s).  If more than one person provided, returns photos that match any of the persons (e.g. treated as "or")
 - ```albums```: list of one or more album names.  Returns only photos contained in the album(s). If more than one album name is provided, returns photos contained in any of the albums (.e.g. treated as "or")
 - ```images```: bool; if True, returns photos/images; default is True
-- ```movies```: bool; if True, returns movies/videos; default is False
+- ```movies```: bool; if True, returns movies/videos; default is True 
 - ```from_date```: datetime.datetime; if provided, finds photos where creation date >= from_date; default is None
 - ```to_date```: datetime.datetime; if provided, finds photos where creation date <= to_date; default is None
 - ```intrash```: if True, finds only photos in the "Recently Deleted" or trash folder, if False does not find any photos in the trash; default is False
@@ -952,15 +952,11 @@ photos2 = photosdb.photos(keywords=["Kids"])
 photos3 = [p for p in photos2 if p not in photos1]
 ```
 
-By default, photos() only returns images, not movies.  To also get movies, pass movies=True:
-```python
-photos_and_movies = photosdb.photos(movies=True)
-```
-
 To get only movies:
 ```python
 movies = photosdb.photos(images=False, movies=True)
 ```
+
 **Note** PhotosDB.photos() may return a different number of photos than Photos.app reports in the GUI. This is because photos() returns [hidden](#hidden) photos, [shared](#shared) photos, and for [burst](#burst) photos, all selected burst images even if non-selected burst images have not been deleted. Photos only reports 1 single photo for each set of burst images until you "finalize" the burst by selecting key photos and deleting the others using the "Make a selection" option. 
 
 For example, in my library, Photos says I have 19,386 photos and 474 movies.  However, PhotosDB.photos() reports 25,002 photos.  The difference is due to 5,609 shared photos and 7 hidden photos.  (*Note* Shared photos only valid for Photos 5).  Similarly, filtering for just movies returns 625 results.  The difference between 625 and 474 reported by Photos is due to 151 shared movies.

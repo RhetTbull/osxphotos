@@ -2145,7 +2145,7 @@ class PhotosDB:
         persons=None,
         albums=None,
         images=True,
-        movies=False,
+        movies=True,
         from_date=None,
         to_date=None,
         intrash=False,
@@ -2162,7 +2162,7 @@ class PhotosDB:
         persons: list of persons to search for
         albums: list of album names to search for
         images: if True, returns image files, if False, does not return images; default is True
-        movies: if True, returns movie files, if False, does not return movies; default is False
+        movies: if True, returns movie files, if False, does not return movies; default is True 
         from_date: return photos with creation date >= from_date (datetime.datetime object, default None)
         to_date: return photos with creation date <= to_date (datetime.datetime object, default None)
         intrash: if True, returns only images in "Recently deleted items" folder, 

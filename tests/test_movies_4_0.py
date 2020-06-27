@@ -13,6 +13,9 @@ ALBUM_DICT = {}
 
 UUID_DICT = {"movie": "CfnR005YQ1uvNdq8UcnFtw", "image": "XuKdBnARTB+fPyyY+uh4fQ"}
 
+PHOTOS_LEN = 6
+MOVIES_LEN = 1
+
 
 def test_init():
     import osxphotos
@@ -97,8 +100,8 @@ def test_count_photos():
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    photos = photosdb.photos()
-    assert len(photos) == 6
+    photos = photosdb.photos(movies=False)
+    assert len(photos) == PHOTOS_LEN
 
 
 def test_count_movies():
@@ -106,7 +109,7 @@ def test_count_movies():
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(movies=True, images=False)
-    assert len(photos) == 1
+    assert len(photos) == MOVIES_LEN
 
 
 def test_count_movies_2():
@@ -114,7 +117,7 @@ def test_count_movies_2():
 
     # if don't ask for movies=True, won't get any
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    photos = photosdb.photos(uuid=[UUID_DICT["movie"]])
+    photos = photosdb.photos(uuid=[UUID_DICT["movie"]], movies=False)
     assert len(photos) == 0
 
 
@@ -123,7 +126,7 @@ def test_count_all():
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(images=True, movies=True)
-    assert len(photos) == 7
+    assert len(photos) == PHOTOS_LEN + MOVIES_LEN
 
 
 def test_uti_movie():

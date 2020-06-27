@@ -650,7 +650,7 @@ def info(ctx, cli_obj, db, json_, photos_library):
 
     photosdb = osxphotos.PhotosDB(dbfile=db)
     info = {"database_path": photosdb.db_path, "database_version": photosdb.db_version}
-    photos = photosdb.photos()
+    photos = photosdb.photos(movies=False)
     not_shared_photos = [p for p in photos if not p.shared]
     info["photo_count"] = len(not_shared_photos)
 
