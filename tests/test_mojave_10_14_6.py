@@ -42,7 +42,13 @@ UUID_DICT = {
     "favorite": "6bxcNnzRQKGnK4uPrCJ9UQ",
     "not_favorite": "8SOE9s0XQVGsuq4ONohTng",
     "date_invalid": "YZFCPY24TUySvpu7owiqxA",
+    "intrash": "3tljdX43R8+k6peNHVrJNQ",
+    "not_intrash": "6bxcNnzRQKGnK4uPrCJ9UQ",
 }
+
+PHOTOS_DB_LEN = 8
+PHOTOS_NOT_IN_TRASH_LEN = 7
+PHOTOS_IN_TRASH_LEN = 1
 
 
 def test_init():
@@ -65,7 +71,7 @@ def test_db_len():
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     # assert photosdb.db_version in osxphotos._TESTED_DB_VERSIONS
-    assert len(photosdb) == 7
+    assert len(photosdb) == PHOTOS_DB_LEN
 
 
 def test_os_version():
@@ -309,7 +315,63 @@ def test_count():
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos()
-    assert len(photos) == 7
+    assert len(photos) == PHOTOS_NOT_IN_TRASH_LEN
+
+
+def test_photos_intrash_1():
+    """ test PhotosDB.photos(intrash=True) """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(intrash=True)
+    assert len(photos) == PHOTOS_IN_TRASH_LEN
+
+
+def test_photos_intrash_2():
+    """ test PhotosDB.photos(intrash=True) """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(intrash=True)
+    for p in photos:
+        assert p.intrash
+
+
+def test_photos_intrash_2():
+    """ test PhotosDB.photos(intrash=False) """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(intrash=False)
+    for p in photos:
+        assert not p.intrash
+
+
+def test_photoinfo_intrash_1():
+    """ Test PhotoInfo.intrash """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    p = photosdb.photos(uuid=[UUID_DICT["intrash"]], intrash=True)[0]
+    assert p.intrash
+
+
+def test_photoinfo_intrash_2():
+    """ Test PhotoInfo.intrash and intrash=default"""
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    p = photosdb.photos(uuid=[UUID_DICT["intrash"]])
+    assert not p
+
+
+def test_photoinfo_not_intrash():
+    """ Test PhotoInfo.intrash """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    p = photosdb.photos(uuid=[UUID_DICT["not_intrash"]])[0]
+    assert not p.intrash
 
 
 def test_keyword_2():

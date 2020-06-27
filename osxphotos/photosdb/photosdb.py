@@ -715,9 +715,10 @@ class PhotosDB:
                     RKVersion.specialType, RKMaster.modelID, null, RKVersion.momentUuid,
                     RKVersion.rawMasterUuid,
                     RKVersion.nonRawMasterUuid,
-                    RKMaster.alternateMasterUuid
-                    FROM RKVersion, RKMaster WHERE RKVersion.isInTrash = 0 AND 
-                    RKVersion.masterUuid = RKMaster.uuid"""
+                    RKMaster.alternateMasterUuid,
+                    RKVersion.isInTrash 
+                    FROM RKVersion, RKMaster
+                    WHERE RKVersion.masterUuid = RKMaster.uuid"""
             )
         else:
             c.execute(
@@ -734,9 +735,10 @@ class PhotosDB:
                     RKVersion.momentUuid,
                     RKVersion.rawMasterUuid,
                     RKVersion.nonRawMasterUuid,
-                    RKMaster.alternateMasterUuid
-                    FROM RKVersion, RKMaster WHERE RKVersion.isInTrash = 0 AND 
-                    RKVersion.masterUuid = RKMaster.uuid"""
+                    RKMaster.alternateMasterUuid,
+                    RKVersion.isInTrash
+                    FROM RKVersion, RKMaster 
+                    WHERE RKVersion.masterUuid = RKMaster.uuid"""
             )
 
         # order of results
@@ -772,6 +774,7 @@ class PhotosDB:
         # 29    RKVersion.rawMasterUuid, -- UUID of RAW master
         # 30    RKVersion.nonRawMasterUuid, -- UUID of non-RAW master
         # 31    RKMaster.alternateMasterUuid -- UUID of alternate master (will be RAW master for JPEG and JPEG master for RAW)
+        # 32    RKVersion.isInTrash
 
         for row in c:
             uuid = row[0]
@@ -914,6 +917,9 @@ class PhotosDB:
             self._dbphotos[uuid]["non_raw_master_uuid"] = row[30]
             self._dbphotos[uuid]["alt_master_uuid"] = row[31]
 
+            # recently deleted items
+            self._dbphotos[uuid]["intrash"] = True if row[32] == 1 else False
+
         # get additional details from RKMaster, needed for RAW processing
         c.execute(
             """ SELECT 
@@ -964,8 +970,7 @@ class PhotosDB:
                 RKModelResource.resourceTag, RKModelResource.UTI, RKVersion.specialType,
                 RKModelResource.attachedModelType, RKModelResource.resourceType
                 FROM RKVersion
-                JOIN RKModelResource on RKModelResource.attachedModelId = RKVersion.modelId
-                WHERE RKVersion.isInTrash = 0 """
+                JOIN RKModelResource on RKModelResource.attachedModelId = RKVersion.modelId """
         )
 
         # Order of results:
@@ -1008,8 +1013,7 @@ class PhotosDB:
                 RKAdjustmentData.originator, 
                 RKAdjustmentData.format 
                 FROM RKVersion, RKAdjustmentData 
-                WHERE RKVersion.adjustmentUuid = RKAdjustmentData.uuid 
-                AND RKVersion.isInTrash = 0 """
+                WHERE RKVersion.adjustmentUuid = RKAdjustmentData.uuid """
         )
 
         for row in c:
@@ -1031,8 +1035,6 @@ class PhotosDB:
                 INNER JOIN RKMaster on RKVersion.masterUuid = RKMaster.uuid 
                 INNER JOIN RKModelResource on RKMaster.modelId = RKModelResource.attachedModelId  
                 WHERE RKModelResource.UTI = 'com.apple.quicktime-movie'
-				AND RKMaster.isInTrash = 0
-                AND RKVersion.isInTrash = 0 
               """
         )
 
@@ -1277,7 +1279,6 @@ class PhotosDB:
             "SELECT ZPERSON.ZFULLNAME, ZGENERICASSET.ZUUID "
             "FROM ZPERSON, ZDETECTEDFACE, ZGENERICASSET "
             "WHERE ZDETECTEDFACE.ZPERSON = ZPERSON.Z_PK AND ZDETECTEDFACE.ZASSET = ZGENERICASSET.Z_PK "
-            "AND ZGENERICASSET.ZTRASHEDSTATE = 0"
         )
         for person in c:
             if person[0] is None:
@@ -1301,7 +1302,6 @@ class PhotosDB:
             "FROM ZGENERICASSET "
             "JOIN Z_26ASSETS ON Z_26ASSETS.Z_34ASSETS = ZGENERICASSET.Z_PK "
             "JOIN ZGENERICALBUM ON ZGENERICALBUM.Z_PK = Z_26ASSETS.Z_26ALBUMS "
-            "WHERE ZGENERICASSET.ZTRASHEDSTATE = 0 "
         )
         for album in c:
             # store by uuid in _dbalbums_uuid and by album in _dbalbums_album
@@ -1403,7 +1403,6 @@ class PhotosDB:
             "JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK "
             "JOIN Z_1KEYWORDS ON Z_1KEYWORDS.Z_1ASSETATTRIBUTES = ZADDITIONALASSETATTRIBUTES.Z_PK "
             "JOIN ZKEYWORD ON ZKEYWORD.Z_PK = Z_1KEYWORDS.Z_37KEYWORDS "
-            "WHERE ZGENERICASSET.ZTRASHEDSTATE = 0 "
         )
         for keyword in c:
             if not keyword[1] in self._dbkeywords_uuid:
@@ -1457,10 +1456,10 @@ class PhotosDB:
                 ZGENERICASSET.ZCLOUDASSETGUID,
                 ZADDITIONALASSETATTRIBUTES.ZREVERSELOCATIONDATA,
                 ZGENERICASSET.ZMOMENT,
-	            ZADDITIONALASSETATTRIBUTES.ZORIGINALRESOURCECHOICE
+	            ZADDITIONALASSETATTRIBUTES.ZORIGINALRESOURCECHOICE,
+                ZGENERICASSET.ZTRASHEDSTATE
                 FROM ZGENERICASSET 
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK 
-                WHERE ZGENERICASSET.ZTRASHEDSTATE = 0  
                 ORDER BY ZGENERICASSET.ZUUID  """
         )
         # Order of results
@@ -1493,6 +1492,7 @@ class PhotosDB:
         # 25   ZADDITIONALASSETATTRIBUTES.ZREVERSELOCATIONDATA -- reverse geolocation data
         # 26   ZGENERICASSET.ZMOMENT -- FK for ZMOMENT.Z_PK
         # 27   ZADDITIONALASSETATTRIBUTES.ZORIGINALRESOURCECHOICE -- 1 if associated RAW image is original else 0
+        # 28   ZGENERICASSET.ZTRASHEDSTATE -- 0 if not in trash, 1 if in trash
 
         for row in c:
             uuid = row[0]
@@ -1640,6 +1640,9 @@ class PhotosDB:
             # = 1 if RAW is selected as "original" in Photos
             info["original_resource_choice"] = row[27]
             info["raw_is_original"] = True if row[27] == 1 else False
+
+            # recently deleted items
+            info["intrash"] = True if row[28] == 1 else False
 
             # associated RAW image info
             # will be filled in later
@@ -2145,6 +2148,7 @@ class PhotosDB:
         movies=False,
         from_date=None,
         to_date=None,
+        intrash=False,
     ):
         """ 
         Return a list of PhotoInfo objects
@@ -2161,6 +2165,8 @@ class PhotosDB:
         movies: if True, returns movie files, if False, does not return movies; default is False
         from_date: return photos with creation date >= from_date (datetime.datetime object, default None)
         to_date: return photos with creation date <= to_date (datetime.datetime object, default None)
+        intrash: if True, returns only images in "Recently deleted items" folder, 
+                 if False returns only photos that aren't deleted; default is False
         """
 
         # implementation is a bit kludgy but it works
@@ -2168,6 +2174,15 @@ class PhotosDB:
         # use results to build a list of PhotoInfo objects
 
         photos_sets = []  # list of photo sets to perform intersection of
+        if intrash:
+            photos_sets.append(
+                {p for p in self._dbphotos if self._dbphotos[p]["intrash"]}
+            )
+        else:
+            photos_sets.append(
+                {p for p in self._dbphotos if not self._dbphotos[p]["intrash"]}
+            )
+
         if not any([keywords, uuid, persons, albums, from_date, to_date]):
             # return all the photos, filtering for images and movies
             # append keys of all photos as a single set to photos_sets
@@ -2176,8 +2191,7 @@ class PhotosDB:
             if albums:
                 album_set = set()
                 for album in albums:
-                    # TODO: can have >1 album with same name. This globs them together.
-                    # Need a way to select which album?
+                    # glob together albums with same name
                     if album in self._dbalbum_titles:
                         title_set = set()
                         for album_id in self._dbalbum_titles[album]:
@@ -2218,6 +2232,7 @@ class PhotosDB:
                         logging.debug(f"Could not find person '{person}' in database")
                 photos_sets.append(person_set)
 
+            # sourcery off
             if from_date or to_date:
                 dsel = self._dbphotos
                 if from_date:
@@ -2235,7 +2250,6 @@ class PhotosDB:
         photoinfo = []
         if photos_sets:  # found some photos
             # get the intersection of each argument/search criteria
-            logging.debug(f"Got photo_sets: {photos_sets}")
             for p in set.intersection(*photos_sets):
                 # filter for non-selected burst photos
                 if self._dbphotos[p]["burst"] and not self._dbphotos[p]["burst_key"]:
@@ -2264,5 +2278,7 @@ class PhotosDB:
         return False
 
     def __len__(self):
-        """ returns number of photos in the database """
+        """ Returns number of photos in the database
+            Includes recently deleted photos and non-selected burst images
+        """
         return len(self._dbphotos)

@@ -418,6 +418,11 @@ class PhotoInfo:
         return True if self._info["hidden"] == 1 else False
 
     @property
+    def intrash(self):
+        """ True if picture is in trash ('Recently Deleted' folder)"""
+        return self._info["intrash"]
+
+    @property
     def location(self):
         """ returns (latitude, longitude) as float in degrees or None """
         return (self._latitude, self._longitude)

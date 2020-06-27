@@ -875,7 +875,7 @@ for row in results:
 conn.close()
 ```
 
-#### ` photos(keywords=None, uuid=None, persons=None, albums=None, images=True, movies=False, from_date=None, to_date=None)`
+#### ` photos(keywords=None, uuid=None, persons=None, albums=None, images=True, movies=False, from_date=None, to_date=None, intrash=False)`
 
 ```python
 # assumes photosdb is a PhotosDB object (see above)
@@ -896,7 +896,8 @@ photos = photosdb.photos(
     images = bool,
     movies = bool,
     from_date = datetime.datetime,
-    to_date = datetime.datetime
+    to_date = datetime.datetime,
+    intrash = bool,
 )
 ```
 
@@ -908,6 +909,7 @@ photos = photosdb.photos(
 - ```movies```: bool; if True, returns movies/videos; default is False
 - ```from_date```: datetime.datetime; if provided, finds photos where creation date >= from_date; default is None
 - ```to_date```: datetime.datetime; if provided, finds photos where creation date <= to_date; default is None
+- ```intrash```: if True, finds only photos in the "Recently Deleted" or trash folder, if False does not find any photos in the trash; default is False
 
 If more than one of (keywords, uuid, persons, albums,from_date, to_date) is provided, they are treated as "and" criteria. E.g.
 
@@ -1046,6 +1048,9 @@ Returns `True` if the picture has been marked as a favorite, otherwise `False`
 
 #### `hidden`
 Returns `True` if the picture has been marked as hidden, otherwise `False`
+
+#### `intrash`
+Returns `True` if the picture is in the trash ('Recently Deleted' folder), otherwise `False`
 
 #### `location`
 Returns latitude and longitude as a tuple of floats (latitude, longitude).  If location is not set, latitude and longitude are returned as `None`
