@@ -197,6 +197,17 @@ CLI_EXPORT_RAW_EDITED = [
 ]
 CLI_EXPORT_RAW_EDITED_ORIGINAL = ["IMG_0476_2.CR2", "IMG_0476_2_edited.jpeg"]
 
+CLI_UUID_DICT_15_5 = {"intrash": "71E3E212-00EB-430D-8A63-5E294B268554"}
+CLI_UUID_DICT_14_6 = {"intrash": "3tljdX43R8+k6peNHVrJNQ"}
+
+PHOTOS_NOT_IN_TRASH_LEN_14_6 = 7
+PHOTOS_IN_TRASH_LEN_14_6 = 1
+PHOTOS_MISSING_14_6 = 1
+
+PHOTOS_NOT_IN_TRASH_LEN_15_5 = 13
+PHOTOS_IN_TRASH_LEN_15_5 = 1
+PHOTOS_MISSING_15_5 = 2
+
 CLI_PLACES_JSON = """{"places": {"_UNKNOWN_": 1, "Maui, Wailea, Hawai'i, United States": 1, "Washington, District of Columbia, United States": 1}}"""
 
 CLI_EXIFTOOL = {
@@ -957,6 +968,103 @@ def test_query_label_4():
     assert len(json_got) == 6
 
 
+def test_query_deleted_deleted_only():
+    """Test query with --deleted and --deleted-only"""
+    import json
+    import osxphotos
+    import os
+    import os.path
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_5),
+            "--deleted",
+            "--deleted-only",
+        ],
+    )
+    assert "Incompatible query options" in result.output
+
+
+def test_query_deleted_1():
+    """Test query with --deleted"""
+    import json
+    import osxphotos
+    import os
+    import os.path
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_5), "--deleted"]
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+    assert len(json_got) == PHOTOS_NOT_IN_TRASH_LEN_15_5 + PHOTOS_IN_TRASH_LEN_15_5
+
+
+def test_query_deleted_2():
+    """Test query with --deleted"""
+    import json
+    import osxphotos
+    import os
+    import os.path
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_14_6), "--deleted"]
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+    assert len(json_got) == PHOTOS_NOT_IN_TRASH_LEN_14_6 + PHOTOS_IN_TRASH_LEN_14_6
+
+
+def test_query_deleted_3():
+    """Test query with --deleted-only"""
+    import json
+    import osxphotos
+    import os
+    import os.path
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_5), "--deleted-only"]
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+    assert len(json_got) == PHOTOS_IN_TRASH_LEN_15_5
+    assert json_got[0]["intrash"]
+
+
+def test_query_deleted_4():
+    """Test query with --deleted-only"""
+    import json
+    import osxphotos
+    import os
+    import os.path
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_14_6), "--deleted-only"]
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+    assert len(json_got) == PHOTOS_IN_TRASH_LEN_14_6
+    assert json_got[0]["intrash"]
+
+
 def test_export_sidecar():
     import glob
     import os
@@ -1432,6 +1540,138 @@ def test_export_album_deleted_twin():
         assert result.exit_code == 0
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_DELETED_TWIN)
+
+
+def test_export_deleted_1():
+    """Test export with --deleted """
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        skip = ["--skip-edited", "--skip-bursts", "--skip-live", "--skip-raw"]
+        result = runner.invoke(
+            export, [os.path.join(cwd, PHOTOS_DB_15_5), ".", "--deleted", *skip]
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert (
+            len(files)
+            == PHOTOS_NOT_IN_TRASH_LEN_15_5
+            + PHOTOS_IN_TRASH_LEN_15_5
+            - PHOTOS_MISSING_15_5
+        )
+
+
+def test_export_deleted_2():
+    """Test export with --deleted """
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        skip = ["--skip-edited", "--skip-bursts", "--skip-live", "--skip-raw"]
+        result = runner.invoke(
+            export, [os.path.join(cwd, PHOTOS_DB_14_6), ".", "--deleted", *skip]
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert (
+            len(files)
+            == PHOTOS_NOT_IN_TRASH_LEN_14_6
+            + PHOTOS_IN_TRASH_LEN_14_6
+            - PHOTOS_MISSING_14_6
+        )
+
+
+def test_export_not_deleted_1():
+    """Test export does not find intrash files without --deleted flag """
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        skip = ["--skip-edited", "--skip-bursts", "--skip-live", "--skip-raw"]
+        result = runner.invoke(export, [os.path.join(cwd, PHOTOS_DB_15_5), ".", *skip])
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert len(files) == PHOTOS_NOT_IN_TRASH_LEN_15_5 - PHOTOS_MISSING_15_5
+
+
+def test_export_not_deleted_2():
+    """Test export does not find intrash files without --deleted flag """
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        skip = ["--skip-edited", "--skip-bursts", "--skip-live", "--skip-raw"]
+        result = runner.invoke(export, [os.path.join(cwd, PHOTOS_DB_14_6), ".", *skip])
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert len(files) == PHOTOS_NOT_IN_TRASH_LEN_14_6 - PHOTOS_MISSING_14_6
+
+
+def test_export_deleted_only_1():
+    """Test export with --deleted-only """
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        skip = ["--skip-edited", "--skip-bursts", "--skip-live", "--skip-raw"]
+        result = runner.invoke(
+            export, [os.path.join(cwd, PHOTOS_DB_15_5), ".", "--deleted-only", *skip]
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert len(files) == PHOTOS_IN_TRASH_LEN_15_5
+
+
+def test_export_deleted_only_2():
+    """Test export with --deleted-only """
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        skip = ["--skip-edited", "--skip-bursts", "--skip-live", "--skip-raw"]
+        result = runner.invoke(
+            export, [os.path.join(cwd, PHOTOS_DB_14_6), ".", "--deleted-only", *skip]
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert len(files) == PHOTOS_IN_TRASH_LEN_14_6
 
 
 def test_places():

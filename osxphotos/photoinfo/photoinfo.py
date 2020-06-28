@@ -753,6 +753,7 @@ class PhotoInfo:
             "place": self.place,
             "exif": exif,
             "score": score,
+            "intrash": self.intrash,
         }
         return yaml.dump(info, sort_keys=False)
 
@@ -812,6 +813,7 @@ class PhotoInfo:
             "place": place,
             "exif": exif,
             "score": score,
+            "intrash": self.intrash,
         }
         return json.dumps(pic)
 

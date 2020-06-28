@@ -236,6 +236,25 @@ JSON_OPTION = click.option(
 )
 
 
+def deleted_options(f):
+    o = click.option
+    options = [
+        o(
+            "--deleted",
+            is_flag=True,
+            help="Include photos from the 'Recently Deleted' folder.",
+        ),
+        o(
+            "--deleted-only",
+            is_flag=True,
+            help="Include only photos from the 'Recently Deleted' folder.",
+        ),
+    ]
+    for o in options[::-1]:
+        f = o(f)
+    return f
+
+
 def query_options(f):
     o = click.option
     options = [
@@ -745,10 +764,11 @@ def places(ctx, cli_obj, db, json_, photos_library):
 @cli.command()
 @DB_OPTION
 @JSON_OPTION
+@deleted_options
 @DB_ARGUMENT
 @click.pass_obj
 @click.pass_context
-def dump(ctx, cli_obj, db, json_, photos_library):
+def dump(ctx, cli_obj, db, json_, deleted, deleted_only, photos_library):
     """ Print list of all photos & associated info from the Photos library. """
 
     db = get_photos_db(*photos_library, db, cli_obj.db)
@@ -758,8 +778,20 @@ def dump(ctx, cli_obj, db, json_, photos_library):
         _list_libraries()
         return
 
+    # check exclusive options
+    if deleted and deleted_only:
+        click.echo("Incompatible dump options", err=True)
+        click.echo(cli.commands["dump"].get_help(ctx), err=True)
+        return
+
     photosdb = osxphotos.PhotosDB(dbfile=db)
-    photos = photosdb.photos(movies=True)
+    if deleted or deleted_only:
+        photos = photosdb.photos(movies=True, intrash=True)
+    else:
+        photos = []
+    if not deleted_only:
+        photos += photosdb.photos(movies=True)
+
     print_photo_info(photos, json_ or cli_obj.json)
 
 
@@ -815,6 +847,7 @@ def _list_libraries(json_=False, error=True):
 @DB_OPTION
 @JSON_OPTION
 @query_options
+@deleted_options
 @click.option("--missing", is_flag=True, help="Search for photos missing from disk.")
 @click.option(
     "--not-missing",
@@ -901,6 +934,8 @@ def query(
     place,
     no_place,
     label,
+    deleted,
+    deleted_only,
 ):
     """ Query the Photos database using 1 or more search options; 
         if more than one option is provided, they are treated as "AND" 
@@ -942,9 +977,12 @@ def query(
         (selfie, not_selfie),
         (panorama, not_panorama),
         (any(place), no_place),
+        (deleted, deleted_only),
     ]
     # print help if no non-exclusive term or a double exclusive term is given
-    if not any(nonexclusive + [b ^ n for b, n in exclusive]):
+    if any(all(bb) for bb in exclusive) or not any(
+        nonexclusive + [b ^ n for b, n in exclusive]
+    ):
         click.echo("Incompatible query options", err=True)
         click.echo(cli.commands["query"].get_help(ctx), err=True)
         return
@@ -1018,6 +1056,8 @@ def query(
         place=place,
         no_place=no_place,
         label=label,
+        deleted=deleted,
+        deleted_only=deleted_only,
     )
 
     # below needed for to make CliRunner work for testing
@@ -1029,6 +1069,7 @@ def query(
 @DB_OPTION
 @click.option("--verbose", "-V", "verbose_", is_flag=True, help="Print verbose output.")
 @query_options
+@deleted_options
 @click.option(
     "--update",
     is_flag=True,
@@ -1252,6 +1293,8 @@ def export(
     no_place,
     no_extended_attributes,
     label,
+    deleted,
+    deleted_only,
 ):
     """ Export photos from the Photos database.
         Export path DEST is required.
@@ -1290,6 +1333,7 @@ def export(
         (export_by_date, directory),
         (export_as_hardlink, exiftool),
         (any(place), no_place),
+        (deleted, deleted_only),
     ]
     if any(all(bb) for bb in exclusive):
         click.echo("Incompatible export options", err=True)
@@ -1411,6 +1455,8 @@ def export(
         place=place,
         no_place=no_place,
         label=label,
+        deleted=deleted,
+        deleted_only=deleted_only,
     )
 
     results_exported = []
@@ -1597,6 +1643,7 @@ def print_photo_info(photos, json=False):
                 "has_raw",
                 "uti_raw",
                 "path_raw",
+                "intrash",
             ]
         )
         for p in photos:
@@ -1641,6 +1688,7 @@ def print_photo_info(photos, json=False):
                     p.has_raw,
                     p.uti_raw,
                     p.path_raw,
+                    p.intrash,
                 ]
             )
         for row in dump:
@@ -1700,6 +1748,8 @@ def _query(
     place=None,
     no_place=None,
     label=None,
+    deleted=False,
+    deleted_only=False,
 ):
     """ run a query against PhotosDB to extract the photos based on user supply criteria 
         used by query and export commands 
@@ -1707,9 +1757,25 @@ def _query(
         if either is modified, need to ensure all three functions are updated """
 
     photosdb = osxphotos.PhotosDB(dbfile=db)
-    photos = photosdb.photos(
-        uuid=uuid, images=isphoto, movies=ismovie, from_date=from_date, to_date=to_date
-    )
+    if deleted or deleted_only:
+        photos = photosdb.photos(
+            uuid=uuid,
+            images=isphoto,
+            movies=ismovie,
+            from_date=from_date,
+            to_date=to_date,
+            intrash=True,
+        )
+    else:
+        photos = []
+    if not deleted_only:
+        photos += photosdb.photos(
+            uuid=uuid,
+            images=isphoto,
+            movies=ismovie,
+            from_date=from_date,
+            to_date=to_date,
+        )
 
     if album:
         photos = get_photos_by_attribute(photos, "albums", album, ignore_case)
