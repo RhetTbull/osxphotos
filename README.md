@@ -1256,11 +1256,13 @@ If overwrite=False and increment=False, export will fail if destination file alr
 
 #### <a name="rendertemplate">`render_template()`</a>
 
-`render_template(template_str, none_str = "_", path_sep = None)`
+`render_template(template_str, none_str = "_", path_sep = None, expand_inplace = False, inplace_sep = None)`
 Render template string for photo.  none_str is used if template substitution results in None value and no default specified. 
 - `template_str`: str in form "{name,DEFAULT}" where name is one of the values in table below. The "," and default value that follows are optional. If specified, "DEFAULT" will be used if "name" is None.  This is useful for values which are not always present, for example reverse geolocation data.
 - `none_str`: optional str to use as substitution when template value is None and no default specified in the template string.  default is "_".
 - `path_sep`: optional character to use as path separator, default is os.path.sep
+- `expand_inplace`: expand multi-valued substitutions in-place as a single string instead of returning individual strings
+- `inplace_sep`: optional string to use as separator between multi-valued keywords with expand_inplace; default is ','
 
 Returns a tuple of (rendered, unmatched) where rendered is a list of rendered strings with all substitutions made and unmatched is a list of any strings that resembled a template substitution but did not match a known substitution. E.g. if template contained "{foo}", unmatched would be ["foo"].
 
