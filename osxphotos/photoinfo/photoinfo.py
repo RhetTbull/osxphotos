@@ -642,7 +642,14 @@ class PhotoInfo:
             otherwise returns False """
         return self._info["raw_is_original"]
 
-    def render_template(self, template_str, none_str="_", path_sep=None):
+    def render_template(
+        self,
+        template_str,
+        none_str="_",
+        path_sep=None,
+        expand_inplace=False,
+        inplace_sep=None,
+    ):
         """Renders a template string for PhotoInfo instance using PhotoTemplate
 
         Args:
@@ -650,12 +657,22 @@ class PhotoInfo:
             none_str: a str to use if template field renders to None, default is "_".
             path_sep: a single character str to use as path separator when joining 
                 fields like folder_album; if not provided, defaults to os.path.sep
+            expand_inplace: expand multi-valued substitutions in-place as a single string 
+                instead of returning individual strings
+            inplace_sep: optional string to use as separator between multi-valued keywords
+                with expand_inplace; default is ','
         
         Returns:
             ([rendered_strings], [unmatched]): tuple of list of rendered strings and list of unmatched template values
         """
         template = PhotoTemplate(self)
-        return template.render(template_str, none_str, path_sep)
+        return template.render(
+            template_str,
+            none_str=none_str,
+            path_sep=path_sep,
+            expand_inplace=expand_inplace,
+            inplace_sep=inplace_sep,
+        )
 
     @property
     def _longitude(self):

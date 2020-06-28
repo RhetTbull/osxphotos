@@ -124,13 +124,24 @@ class PhotoTemplate:
         # gets initialized in get_template_value
         self.today = None
 
-    def render(self, template, none_str="_", path_sep=None):
+    def render(
+        self,
+        template,
+        none_str="_",
+        path_sep=None,
+        expand_inplace=False,
+        inplace_sep=None,
+    ):
         """ Render a filename or directory template 
 
         Args:
             template: str template 
             none_str: str to use default for None values, default is '_' 
             path_sep: optional character to use as path separator, default is os.path.sep
+            expand_inplace: expand multi-valued substitutions in-place as a single string 
+                instead of returning individual strings
+            inplace_sep: optional string to use as separator between multi-valued keywords
+            with expand_inplace; default is ','
 
         Returns:
             ([rendered_strings], [unmatched]): tuple of list of rendered strings and list of unmatched template values
@@ -140,6 +151,9 @@ class PhotoTemplate:
             path_sep = os.path.sep
         elif path_sep is not None and len(path_sep) != 1:
             raise ValueError(f"path_sep must be single character: {path_sep}")
+
+        if inplace_sep is None:
+            inplace_sep = ","
 
         # the rendering happens in two phases:
         # phase 1: handle all the single-value template substitutions
@@ -226,13 +240,19 @@ class PhotoTemplate:
             for str_template in rendered_strings:
                 if regex_multi.search(str_template):
                     values = self.get_template_value_multi(field, path_sep)
-                    for val in values:
+                    if expand_inplace:
+                        # instead of returning multiple strings, join values into a single string
+                        val = (
+                            inplace_sep.join(sorted(values))
+                            if values and values[0]
+                            else None
+                        )
 
                         def lookup_template_value_multi(lookup_value, default):
                             """ Closure passed to make_subst_function get_func 
-                                Capture val and field in the closure 
-                                Allows make_subst_function to be re-used w/o modification
-                                default is not used but required so signature matches get_template_value """
+                                    Capture val and field in the closure 
+                                    Allows make_subst_function to be re-used w/o modification
+                                    default is not used but required so signature matches get_template_value """
                             if lookup_value == field:
                                 return val
                             else:
@@ -242,10 +262,33 @@ class PhotoTemplate:
                             self, none_str, get_func=lookup_template_value_multi
                         )
                         new_string = regex_multi.sub(subst, str_template)
-                        new_strings.add(new_string)
 
-                    # update rendered_strings for the next field to process
-                    rendered_strings = new_strings
+                        # update rendered_strings for the next field to process
+                        rendered_strings = {new_string}
+                    else:
+                        # create a new template string for each value
+                        for val in values:
+
+                            def lookup_template_value_multi(lookup_value, default):
+                                """ Closure passed to make_subst_function get_func 
+                                    Capture val and field in the closure 
+                                    Allows make_subst_function to be re-used w/o modification
+                                    default is not used but required so signature matches get_template_value """
+                                if lookup_value == field:
+                                    return val
+                                else:
+                                    raise ValueError(
+                                        f"Unexpected value: {lookup_value}"
+                                    )
+
+                            subst = make_subst_function(
+                                self, none_str, get_func=lookup_template_value_multi
+                            )
+                            new_string = regex_multi.sub(subst, str_template)
+                            new_strings.add(new_string)
+
+                        # update rendered_strings for the next field to process
+                        rendered_strings = new_strings
 
         # find any {fields} that weren't replaced
         unmatched = []

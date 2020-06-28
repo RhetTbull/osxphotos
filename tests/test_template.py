@@ -458,3 +458,48 @@ def test_subst_strftime():
 
     rendered, unmatched = photo.render_template("{created.strftime}")
     assert rendered[0] == "_"
+
+
+def test_subst_expand_inplace_1():
+    """ Test that substitutions are correct when expand_inplace=True """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_1)
+    # one album, one keyword, two persons
+    photo = photosdb.photos(uuid=[UUID_DICT["1_1_2"]])[0]
+
+    template = "{person}"
+    expected = ["Katie,Suzy"]
+    rendered, unknown = photo.render_template(template, expand_inplace=True)
+    assert sorted(rendered) == sorted(expected)
+
+
+def test_subst_expand_inplace_2():
+    """ Test that substitutions are correct when expand_inplace=True """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_1)
+    # one album, one keyword, two persons
+    photo = photosdb.photos(uuid=[UUID_DICT["1_1_2"]])[0]
+
+    template = "{person}-{keyword}"
+    expected = ["Katie,Suzy-Kids"]
+    rendered, unknown = photo.render_template(template, expand_inplace=True)
+    assert sorted(rendered) == sorted(expected)
+
+
+def test_subst_expand_inplace_3():
+    """ Test that substitutions are correct when expand_inplace=True and inplace_sep specified"""
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_1)
+    # one album, one keyword, two persons
+    photo = photosdb.photos(uuid=[UUID_DICT["1_1_2"]])[0]
+
+    template = "{person}-{keyword}"
+    expected = ["Katie; Suzy-Kids"]
+    rendered, unknown = photo.render_template(
+        template, expand_inplace=True, inplace_sep="; "
+    )
+    assert sorted(rendered) == sorted(expected)
+

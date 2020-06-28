@@ -168,8 +168,8 @@ def test_missing():
     photos = photosdb.photos(uuid=["od0fmC7NQx+ayVr+%i06XA"])
     assert len(photos) == 1
     p = photos[0]
-    assert p.path == None
-    assert p.ismissing == True
+    assert p.path is None
+    assert p.ismissing
 
 
 def test_favorite():

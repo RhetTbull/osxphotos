@@ -2232,8 +2232,7 @@ class PhotosDB:
                         logging.debug(f"Could not find person '{person}' in database")
                 photos_sets.append(person_set)
 
-            # sourcery off
-            if from_date or to_date:
+            if from_date or to_date:  # sourcery off
                 dsel = self._dbphotos
                 if from_date:
                     dsel = {
