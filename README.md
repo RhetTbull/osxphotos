@@ -253,6 +253,16 @@ Options:
                                   --keyword-template "{folder_album}"
                                   --keyword-template "{created.year}" See
                                   Templating System below.
+  --description-template TEMPLATE
+                                  For use with --exiftool, --sidecar; specify
+                                  a template string to use as description in
+                                  the form '{name,DEFAULT}' This is the same
+                                  format as --directory.  For example, if you
+                                  wanted to append 'exported with osxphotos on
+                                  [today's date]' to the description, you
+                                  could specify --description-template
+                                  "{descr} exported with osxphotos on
+                                  {today.date}" See Templating System below.
   --current-name                  Use photo's current filename instead of
                                   original filename for export.  Note:
                                   Starting with Photos 5, all photos are
