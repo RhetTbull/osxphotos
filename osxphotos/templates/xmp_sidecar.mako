@@ -77,7 +77,7 @@
         <rdf:Description rdf:about="" 
             xmlns:dc="http://purl.org/dc/elements/1.1/" 
             xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/">
-            ${dc_description(photo.description)}
+            ${dc_description(description)}
             ${dc_title(photo.title)}
             ${dc_subject(subjects)}
             ${dc_datecreated(photo.date)}

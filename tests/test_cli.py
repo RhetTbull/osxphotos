@@ -197,7 +197,13 @@ CLI_EXPORT_RAW_EDITED = [
 ]
 CLI_EXPORT_RAW_EDITED_ORIGINAL = ["IMG_0476_2.CR2", "IMG_0476_2_edited.jpeg"]
 
-CLI_UUID_DICT_15_5 = {"intrash": "71E3E212-00EB-430D-8A63-5E294B268554"}
+CLI_UUID_DICT_15_5 = {
+    "intrash": "71E3E212-00EB-430D-8A63-5E294B268554",
+    "template": "F12384F6-CD17-4151-ACBA-AE0E3688539E",
+}
+
+CLI_TEMPLATE_SIDECAR_FILENAME = "Pumkins1.json"
+
 CLI_UUID_DICT_14_6 = {"intrash": "3tljdX43R8+k6peNHVrJNQ"}
 
 PHOTOS_NOT_IN_TRASH_LEN_14_6 = 7
@@ -1093,6 +1099,48 @@ def test_export_sidecar():
         assert result.exit_code == 0
         files = glob.glob("*.*")
         assert sorted(files) == sorted(CLI_EXPORT_SIDECAR_FILENAMES)
+
+
+def test_export_sidecar_templates():
+    import json
+    import os
+    import os.path
+    import osxphotos
+
+    from osxphotos.__main__ import cli
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "export",
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_5),
+                ".",
+                "--sidecar=json",
+                f"--uuid={CLI_UUID_DICT_15_5['template']}",
+                "-V",
+                "--keyword-template",
+                "{person}",
+                "--description-template",
+                "{descr} {person} {keyword} {album}",
+            ],
+        )
+        assert result.exit_code == 0
+        assert os.path.isfile(CLI_TEMPLATE_SIDECAR_FILENAME)
+        with open(CLI_TEMPLATE_SIDECAR_FILENAME, "r") as jsonfile:
+            exifdata = json.load(jsonfile)
+        assert (
+            exifdata[0]["XMP:Description"][0]
+            == "Girls with pumpkins Katie, Suzy Kids Pumpkin Farm, Test Album"
+        )
+        assert (
+            exifdata[0]["EXIF:ImageDescription"][0]
+            == "Girls with pumpkins Katie, Suzy Kids Pumpkin Farm, Test Album"
+        )
 
 
 def test_export_live():

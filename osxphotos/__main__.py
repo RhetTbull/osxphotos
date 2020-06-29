@@ -1147,6 +1147,18 @@ def query(
     "See Templating System below.",
 )
 @click.option(
+    "--description-template",
+    metavar="TEMPLATE",
+    multiple=False,
+    default=None,
+    help="For use with --exiftool, --sidecar; specify a template string to use as "
+    "description in the form '{name,DEFAULT}' "
+    "This is the same format as --directory.  For example, if you wanted to append "
+    "'exported with osxphotos on [today's date]' to the description, you could specify "
+    '--description-template "{descr} exported with osxphotos on {today.date}" '
+    "See Templating System below.",
+)
+@click.option(
     "--current-name",
     is_flag=True,
     help="Use photo's current filename instead of original filename for export.  "
@@ -1260,6 +1272,7 @@ def export(
     person_keyword,
     album_keyword,
     keyword_template,
+    description_template,
     current_name,
     sidecar,
     only_photos,
@@ -1505,6 +1518,7 @@ def export(
                     album_keyword=album_keyword,
                     person_keyword=person_keyword,
                     keyword_template=keyword_template,
+                    description_template=description_template,
                     export_db=export_db,
                     fileutil=fileutil,
                     dry_run=dry_run,
@@ -1541,6 +1555,7 @@ def export(
                         album_keyword=album_keyword,
                         person_keyword=person_keyword,
                         keyword_template=keyword_template,
+                        description_template=description_template,
                         export_db=export_db,
                         fileutil=fileutil,
                         dry_run=dry_run,
@@ -2012,6 +2027,7 @@ def export_photo(
     album_keyword=None,
     person_keyword=None,
     keyword_template=None,
+    description_template=None,
     export_db=None,
     fileutil=FileUtil,
     dry_run=None,
@@ -2039,6 +2055,7 @@ def export_photo(
         album_keyword: boolean; if True, exports album names as keywords in metadata
         person_keyword: boolean; if True, exports person names as keywords in metadata
         keyword_template: list of strings; if provided use rendered template strings as keywords
+        description_template: string; optional template string that will be rendered for use as photo description
         export_db: export database instance compatible with ExportDB_ABC
         fileutil: file util class compatible with FileUtilABC
         dry_run: boolean; if True, doesn't actually export or update any files
@@ -2113,6 +2130,7 @@ def export_photo(
                 use_albums_as_keywords=album_keyword,
                 use_persons_as_keywords=person_keyword,
                 keyword_template=keyword_template,
+                description_template=description_template,
                 update=update,
                 export_db=export_db,
                 fileutil=fileutil,
@@ -2168,6 +2186,7 @@ def export_photo(
                         use_albums_as_keywords=album_keyword,
                         use_persons_as_keywords=person_keyword,
                         keyword_template=keyword_template,
+                        description_template=description_template,
                         update=update,
                         export_db=export_db,
                         fileutil=fileutil,

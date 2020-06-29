@@ -215,6 +215,7 @@ def export(
     use_albums_as_keywords=False,
     use_persons_as_keywords=False,
     keyword_template=None,
+    description_template=None,
 ):
     """ export photo 
         dest: must be valid destination path (or exception raised) 
@@ -250,6 +251,7 @@ def export(
         use_persons_as_keywords: (boolean, default = False); if True, will include person names in keywords
         when exporting metadata with exiftool or sidecar
         keyword_template: (list of strings); list of template strings that will be rendered as used as keywords
+        description_template: string; optional template string that will be rendered for use as photo description
         returns: list of photos exported
         """
 
@@ -273,6 +275,7 @@ def export(
         use_albums_as_keywords=use_albums_as_keywords,
         use_persons_as_keywords=use_persons_as_keywords,
         keyword_template=keyword_template,
+        description_template=description_template,
     )
 
     return results.exported
@@ -297,6 +300,7 @@ def export2(
     use_albums_as_keywords=False,
     use_persons_as_keywords=False,
     keyword_template=None,
+    description_template=None,
     update=False,
     export_db=None,
     fileutil=FileUtil,
@@ -336,6 +340,7 @@ def export2(
         use_persons_as_keywords: (boolean, default = False); if True, will include person names in keywords
         when exporting metadata with exiftool or sidecar
         keyword_template: (list of strings); list of template strings that will be rendered as used as keywords
+        description_template: string; optional template string that will be rendered for use as photo description
         update: (boolean, default=False); if True export will run in update mode, that is, it will
                 not export the photo if the current version already exists in the destination
         export_db: (ExportDB_ABC); instance of a class that conforms to ExportDB_ABC with methods
@@ -670,6 +675,7 @@ def export2(
             use_albums_as_keywords=use_albums_as_keywords,
             use_persons_as_keywords=use_persons_as_keywords,
             keyword_template=keyword_template,
+            description_template=description_template,
         )
         if not dry_run:
             try:
@@ -685,6 +691,7 @@ def export2(
             use_albums_as_keywords=use_albums_as_keywords,
             use_persons_as_keywords=use_persons_as_keywords,
             keyword_template=keyword_template,
+            description_template=description_template,
         )
         if not dry_run:
             try:
@@ -712,6 +719,7 @@ def export2(
                         use_albums_as_keywords=use_albums_as_keywords,
                         use_persons_as_keywords=use_persons_as_keywords,
                         keyword_template=keyword_template,
+                        description_template=description_template,
                     )
                 )[0]
                 if old_data != current_data:
@@ -727,6 +735,7 @@ def export2(
                         use_albums_as_keywords=use_albums_as_keywords,
                         use_persons_as_keywords=use_persons_as_keywords,
                         keyword_template=keyword_template,
+                        description_template=description_template,
                     )
                 export_db.set_exifdata_for_file(
                     exported_file,
@@ -734,6 +743,7 @@ def export2(
                         use_albums_as_keywords=use_albums_as_keywords,
                         use_persons_as_keywords=use_persons_as_keywords,
                         keyword_template=keyword_template,
+                        description_template=description_template,
                     ),
                 )
                 export_db.set_stat_exif_for_file(
@@ -749,6 +759,7 @@ def export2(
                     use_albums_as_keywords=use_albums_as_keywords,
                     use_persons_as_keywords=use_persons_as_keywords,
                     keyword_template=keyword_template,
+                    description_template=description_template,
                 )
             export_db.set_exifdata_for_file(
                 exported_file,
@@ -756,6 +767,7 @@ def export2(
                     use_albums_as_keywords=use_albums_as_keywords,
                     use_persons_as_keywords=use_persons_as_keywords,
                     keyword_template=keyword_template,
+                    description_template=description_template,
                 ),
             )
             export_db.set_stat_exif_for_file(
@@ -955,6 +967,7 @@ def _write_exif_data(
     use_albums_as_keywords=False,
     use_persons_as_keywords=False,
     keyword_template=None,
+    description_template=None,
 ):
     """ write exif data to image file at filepath
     filepath: full path to the image file """
@@ -966,6 +979,7 @@ def _write_exif_data(
             use_albums_as_keywords=use_albums_as_keywords,
             use_persons_as_keywords=use_persons_as_keywords,
             keyword_template=keyword_template,
+            description_template=description_template,
         )
     )[0]
     for exiftag, val in exif_info.items():
@@ -984,6 +998,7 @@ def _exiftool_json_sidecar(
     use_albums_as_keywords=False,
     use_persons_as_keywords=False,
     keyword_template=None,
+    description_template=None,
 ):
     """ return json string of EXIF details in exiftool sidecar format
         Does not include all the EXIF fields as those are likely already in the image
@@ -1009,7 +1024,13 @@ def _exiftool_json_sidecar(
     exif = {}
     exif["_CreatedBy"] = "osxphotos, https://github.com/RhetTbull/osxphotos"
 
-    if self.description:
+    if description_template is not None:
+        description = self.render_template(
+            description_template, expand_inplace=True, inplace_sep=", "
+        )[0]
+        exif["EXIF:ImageDescription"] = description
+        exif["XMP:Description"] = description
+    elif self.description:
         exif["EXIF:ImageDescription"] = self.description
         exif["XMP:Description"] = self.description
 
@@ -1112,15 +1133,24 @@ def _xmp_sidecar(
     use_albums_as_keywords=False,
     use_persons_as_keywords=False,
     keyword_template=None,
+    description_template=None,
 ):
     """ returns string for XMP sidecar 
         use_albums_as_keywords: treat album names as keywords
         use_persons_as_keywords: treat person names as keywords
-        keyword_template: (list of strings); list of template strings to render as keywords """
+        keyword_template: (list of strings); list of template strings to render as keywords 
+        description_template: string; optional template string that will be rendered for use as photo description """
 
     # TODO: add additional fields to XMP file?
 
     xmp_template = Template(filename=os.path.join(_TEMPLATE_DIR, _XMP_TEMPLATE_NAME))
+
+    if description_template is not None:
+        description = self.render_template(
+            description_template, expand_inplace=True, inplace_sep=", "
+        )[0]
+    else:
+        description = self.description if self.description is not None else ""
 
     keyword_list = []
     if self.keywords:
@@ -1178,7 +1208,11 @@ def _xmp_sidecar(
         subject_list = list(self.keywords) + person_list
 
     xmp_str = xmp_template.render(
-        photo=self, keywords=keyword_list, persons=person_list, subjects=subject_list
+        photo=self,
+        description=description,
+        keywords=keyword_list,
+        persons=person_list,
+        subjects=subject_list,
     )
 
     # remove extra lines that mako inserts from template
