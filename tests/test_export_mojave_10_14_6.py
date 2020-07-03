@@ -380,7 +380,6 @@ def test_exiftool_json_sidecar():
     "XMP:Subject": ["London 2018", "St. James\'s Park", "England", "United Kingdom", "UK", "London"], 
     "EXIF:GPSLatitude": "51 deg 30\' 12.86\\" N", 
     "EXIF:GPSLongitude": "0 deg 7\' 54.50\\" W", 
-    "Composite:GPSPosition": "51 deg 30\' 12.86\\" N, 0 deg 7\' 54.50\\" W", 
     "EXIF:GPSLatitudeRef": "North", "EXIF:GPSLongitudeRef": "West", 
     "EXIF:DateTimeOriginal": "2018:10:13 09:18:12",
     "EXIF:OffsetTimeOriginal": "-04:00",
@@ -431,7 +430,7 @@ def test_xmp_sidecar():
         </dc:subject>
         <photoshop:DateCreated>2018-09-28T15:35:49.063000-04:00</photoshop:DateCreated>
         </rdf:Description>
-        <rdf:Description rdf:about='' 
+        <rdf:Description rdf:about="" 
             xmlns:Iptc4xmpExt='http://iptc.org/std/Iptc4xmpExt/2008-02-29/'>
         <Iptc4xmpExt:PersonInImage>
             <rdf:Bag>
@@ -440,7 +439,7 @@ def test_xmp_sidecar():
             </rdf:Bag>
         </Iptc4xmpExt:PersonInImage>
         </rdf:Description>
-        <rdf:Description rdf:about='' 
+        <rdf:Description rdf:about="" 
             xmlns:digiKam='http://www.digikam.org/ns/1.0/'>
         <digiKam:TagsList>
             <rdf:Seq>
@@ -448,10 +447,13 @@ def test_xmp_sidecar():
             </rdf:Seq>
         </digiKam:TagsList>
         </rdf:Description>
-        <rdf:Description rdf:about='' 
+        <rdf:Description rdf:about="" 
             xmlns:xmp='http://ns.adobe.com/xap/1.0/'>
         <xmp:CreateDate>2018-09-28T15:35:49</xmp:CreateDate>
         <xmp:ModifyDate>2018-09-28T15:35:49</xmp:ModifyDate>
+        </rdf:Description>
+        <rdf:Description rdf:about=""
+            xmlns:exif='http://ns.adobe.com/exif/1.0/'>
         </rdf:Description>
         </rdf:RDF>
         </x:xmpmeta>"""
@@ -490,7 +492,7 @@ def test_xmp_sidecar_keyword_template():
         </dc:subject>
         <photoshop:DateCreated>2018-09-28T15:35:49.063000-04:00</photoshop:DateCreated>
         </rdf:Description>
-        <rdf:Description rdf:about='' 
+        <rdf:Description rdf:about="" 
             xmlns:Iptc4xmpExt='http://iptc.org/std/Iptc4xmpExt/2008-02-29/'>
         <Iptc4xmpExt:PersonInImage>
             <rdf:Bag>
@@ -499,7 +501,7 @@ def test_xmp_sidecar_keyword_template():
             </rdf:Bag>
         </Iptc4xmpExt:PersonInImage>
         </rdf:Description>
-        <rdf:Description rdf:about='' 
+        <rdf:Description rdf:about="" 
             xmlns:digiKam='http://www.digikam.org/ns/1.0/'>
         <digiKam:TagsList>
             <rdf:Seq>
@@ -510,10 +512,13 @@ def test_xmp_sidecar_keyword_template():
             </rdf:Seq>
         </digiKam:TagsList>
         </rdf:Description>
-        <rdf:Description rdf:about='' 
+        <rdf:Description rdf:about="" 
             xmlns:xmp='http://ns.adobe.com/xap/1.0/'>
         <xmp:CreateDate>2018-09-28T15:35:49</xmp:CreateDate>
         <xmp:ModifyDate>2018-09-28T15:35:49</xmp:ModifyDate>
+        </rdf:Description>
+        <rdf:Description rdf:about=""
+            xmlns:exif='http://ns.adobe.com/exif/1.0/'>
         </rdf:Description>
     </rdf:RDF>
     </x:xmpmeta>"""

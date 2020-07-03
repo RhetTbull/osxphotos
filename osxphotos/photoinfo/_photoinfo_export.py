@@ -1103,7 +1103,6 @@ def _exiftool_json_sidecar(
         lat_str, lon_str = dd_to_dms_str(lat, lon)
         exif["EXIF:GPSLatitude"] = lat_str
         exif["EXIF:GPSLongitude"] = lon_str
-        exif["Composite:GPSPosition"] = f"{lat_str}, {lon_str}"
         lat_ref = "North" if lat >= 0 else "South"
         lon_ref = "East" if lon >= 0 else "West"
         exif["EXIF:GPSLatitudeRef"] = lat_ref

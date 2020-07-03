@@ -178,7 +178,7 @@ def test_xmp_sidecar_keyword_template():
         </dc:subject>
         <photoshop:DateCreated>2018-09-28T15:35:49.063000-04:00</photoshop:DateCreated>
         </rdf:Description>
-        <rdf:Description rdf:about='' 
+        <rdf:Description rdf:about="" 
             xmlns:Iptc4xmpExt='http://iptc.org/std/Iptc4xmpExt/2008-02-29/'>
         <Iptc4xmpExt:PersonInImage>
             <rdf:Bag>
@@ -187,7 +187,7 @@ def test_xmp_sidecar_keyword_template():
             </rdf:Bag>
         </Iptc4xmpExt:PersonInImage>
         </rdf:Description>
-        <rdf:Description rdf:about='' 
+        <rdf:Description rdf:about="" 
             xmlns:digiKam='http://www.digikam.org/ns/1.0/'>
         <digiKam:TagsList>
             <rdf:Seq>
@@ -198,10 +198,13 @@ def test_xmp_sidecar_keyword_template():
             </rdf:Seq>
         </digiKam:TagsList>
         </rdf:Description>
-        <rdf:Description rdf:about='' 
+        <rdf:Description rdf:about=""
             xmlns:xmp='http://ns.adobe.com/xap/1.0/'>
         <xmp:CreateDate>2018-09-28T15:35:49</xmp:CreateDate>
         <xmp:ModifyDate>2018-09-28T15:35:49</xmp:ModifyDate>
+        </rdf:Description>
+        <rdf:Description rdf:about=""
+            xmlns:exif='http://ns.adobe.com/exif/1.0/'>
         </rdf:Description>
     </rdf:RDF>
     </x:xmpmeta>"""

@@ -71,6 +71,15 @@
     % endif
 </%def>
 
+<%def name="gps_info(latitude, longitude)">
+    % if latitude is not None and longitude is not None:
+        <exif:GPSLongitudeRef>${"E" if longitude >= 0 else "W"}</exif:GPSLongitudeRef>
+        <exif:GPSLongitude>${abs(longitude)}</exif:GPSLongitude>
+        <exif:GPSLatitude>${abs(latitude)}</exif:GPSLatitude>
+        <exif:GPSLatitudeRef>${"N" if latitude >= 0 else "S"}</exif:GPSLatitudeRef>
+    % endif
+</%def>
+
 <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 5.4.0">
     <!-- mirrors Photos 5 "Export IPTC as XMP" option -->
     <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
@@ -82,18 +91,22 @@
             ${dc_subject(subjects)}
             ${dc_datecreated(photo.date)}
         </rdf:Description>
-        <rdf:Description rdf:about='' 
+        <rdf:Description rdf:about=""  
             xmlns:Iptc4xmpExt='http://iptc.org/std/Iptc4xmpExt/2008-02-29/'>
             ${iptc_personinimage(persons)}
         </rdf:Description>
-        <rdf:Description rdf:about='' 
+        <rdf:Description rdf:about="" 
             xmlns:digiKam='http://www.digikam.org/ns/1.0/'>
             ${dk_tagslist(keywords)}
         </rdf:Description>
-        <rdf:Description rdf:about='' 
+        <rdf:Description rdf:about="" 
             xmlns:xmp='http://ns.adobe.com/xap/1.0/'>
             ${adobe_createdate(photo.date)}
             ${adobe_modifydate(photo.date)}
+        </rdf:Description>
+        <rdf:Description rdf:about=""
+            xmlns:exif='http://ns.adobe.com/exif/1.0/'>
+            ${gps_info(*photo.location)}
         </rdf:Description>
    </rdf:RDF>
 </x:xmpmeta>
