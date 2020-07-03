@@ -806,6 +806,13 @@ class PhotoInfo:
             "exif": exif,
             "score": score,
             "intrash": self.intrash,
+            "height": self.height,
+            "width": self.width,
+            "orientation": self.orientation,
+            "original_height": self.original_height,
+            "original_width": self.original_width,
+            "original_orientation": self.original_orientation,
+            "original_filesize": self.original_filesize,
         }
         return yaml.dump(info, sort_keys=False)
 
@@ -866,6 +873,13 @@ class PhotoInfo:
             "exif": exif,
             "score": score,
             "intrash": self.intrash,
+            "height": self.height,
+            "width": self.width,
+            "orientation": self.orientation,
+            "original_height": self.original_height,
+            "original_width": self.original_width,
+            "original_orientation": self.original_orientation,
+            "original_filesize": self.original_filesize,
         }
         return json.dumps(pic)
 
