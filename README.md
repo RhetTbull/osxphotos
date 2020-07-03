@@ -1048,6 +1048,27 @@ Returns the absolute path to the edited photo on disk as a string.  If the photo
 
 **Note**: will also return None if the edited photo is missing on disk. 
 
+#### `height`
+Returns height of the photo in pixels.  If image has been edited, returns height of the edited image, otherwise returns height of the original image.  See also [original_height](#original_height).
+
+#### `width`
+Returns width of the photo in pixels.  If image has been edited, returns width of the edited image, otherwise returns width of the original image.  See also [original_width](#original_width).
+
+#### `orientation`
+Returns EXIF orientation value of the photo as integer.  If image has been edited, returns orientation of the edited image, otherwise returns orientation of the original image. See also [original_orientation](#original_orientation).
+
+#### `original_height`
+Returns height of the original photo in pixels. See also [height](#height).
+
+#### `original_width`
+Returns width of the original photo in pixels. See also [width](#width). 
+
+#### `original_orientation`
+Returns EXIF orientation value of the original photo as integer. See also [orientation](#orientation).
+
+#### `original_filesize`
+Returns size of the original photo in bytes as integer.
+
 #### `ismissing`
 Returns `True` if the original image file is missing on disk, otherwise `False`.  This can occur if the file has been uploaded to iCloud but not yet downloaded to the local library or if the file was deleted or imported from a disk that has been unmounted and user hasn't enabled "Copy items to the Photos library" in Photos preferences. **Note**: this status is computed based on data in the Photos library and `ismissing` does not verify if the photo is actually missing. See also [path](#path).
 

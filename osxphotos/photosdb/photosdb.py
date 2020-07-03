@@ -716,7 +716,14 @@ class PhotosDB:
                     RKVersion.rawMasterUuid,
                     RKVersion.nonRawMasterUuid,
                     RKMaster.alternateMasterUuid,
-                    RKVersion.isInTrash 
+                    RKVersion.isInTrash,
+                    RKVersion.processedHeight, 
+                    RKVersion.processedWidth, 
+                    RKVersion.orientation,
+                    RKMaster.height,
+                    RKMaster.width, 
+                    RKMaster.orientation,
+                    RKMaster.fileSize
                     FROM RKVersion, RKMaster
                     WHERE RKVersion.masterUuid = RKMaster.uuid"""
             )
@@ -736,7 +743,14 @@ class PhotosDB:
                     RKVersion.rawMasterUuid,
                     RKVersion.nonRawMasterUuid,
                     RKMaster.alternateMasterUuid,
-                    RKVersion.isInTrash
+                    RKVersion.isInTrash,
+                    RKVersion.processedHeight, 
+                    RKVersion.processedWidth, 
+                    RKVersion.orientation,
+                    RKMaster.height,
+                    RKMaster.width, 
+                    RKMaster.orientation,
+                    RKMaster.originalFileSize
                     FROM RKVersion, RKMaster 
                     WHERE RKVersion.masterUuid = RKMaster.uuid"""
             )
@@ -775,6 +789,13 @@ class PhotosDB:
         # 30    RKVersion.nonRawMasterUuid, -- UUID of non-RAW master
         # 31    RKMaster.alternateMasterUuid -- UUID of alternate master (will be RAW master for JPEG and JPEG master for RAW)
         # 32    RKVersion.isInTrash
+        # 33    RKVersion.processedHeight,
+        # 34    RKVersion.processedWidth,
+        # 35    RKVersion.orientation,
+        # 36    RKMaster.height,
+        # 37    RKMaster.width,
+        # 38    RKMaster.orientation,
+        # 39    RKMaster.originalFileSize
 
         for row in c:
             uuid = row[0]
@@ -919,6 +940,15 @@ class PhotosDB:
 
             # recently deleted items
             self._dbphotos[uuid]["intrash"] = True if row[32] == 1 else False
+
+            # height/width/orientation
+            self._dbphotos[uuid]["height"] = row[33]
+            self._dbphotos[uuid]["width"] = row[34]
+            self._dbphotos[uuid]["orientation"] = row[35]
+            self._dbphotos[uuid]["original_height"] = row[36]
+            self._dbphotos[uuid]["original_width"] = row[37]
+            self._dbphotos[uuid]["original_orientation"] = row[38]
+            self._dbphotos[uuid]["original_filesize"] = row[39]
 
         # get additional details from RKMaster, needed for RAW processing
         c.execute(
@@ -1457,7 +1487,14 @@ class PhotosDB:
                 ZADDITIONALASSETATTRIBUTES.ZREVERSELOCATIONDATA,
                 ZGENERICASSET.ZMOMENT,
 	            ZADDITIONALASSETATTRIBUTES.ZORIGINALRESOURCECHOICE,
-                ZGENERICASSET.ZTRASHEDSTATE
+                ZGENERICASSET.ZTRASHEDSTATE,
+                ZGENERICASSET.ZHEIGHT, 
+                ZGENERICASSET.ZWIDTH, 
+                ZGENERICASSET.ZORIENTATION, 
+                ZADDITIONALASSETATTRIBUTES.ZORIGINALHEIGHT, 
+                ZADDITIONALASSETATTRIBUTES.ZORIGINALWIDTH, 
+                ZADDITIONALASSETATTRIBUTES.ZORIGINALORIENTATION,
+                ZADDITIONALASSETATTRIBUTES.ZORIGINALFILESIZE
                 FROM ZGENERICASSET 
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK 
                 ORDER BY ZGENERICASSET.ZUUID  """
@@ -1493,6 +1530,13 @@ class PhotosDB:
         # 26   ZGENERICASSET.ZMOMENT -- FK for ZMOMENT.Z_PK
         # 27   ZADDITIONALASSETATTRIBUTES.ZORIGINALRESOURCECHOICE -- 1 if associated RAW image is original else 0
         # 28   ZGENERICASSET.ZTRASHEDSTATE -- 0 if not in trash, 1 if in trash
+        # 29   ZGENERICASSET.ZHEIGHT,
+        # 30   ZGENERICASSET.ZWIDTH,
+        # 31   ZGENERICASSET.ZORIENTATION,
+        # 32   ZADDITIONALASSETATTRIBUTES.ZORIGINALHEIGHT,
+        # 33   ZADDITIONALASSETATTRIBUTES.ZORIGINALWIDTH,
+        # 34   ZADDITIONALASSETATTRIBUTES.ZORIGINALORIENTATION,
+        # 35   ZADDITIONALASSETATTRIBUTES.ZORIGINALFILESIZE
 
         for row in c:
             uuid = row[0]
@@ -1643,6 +1687,15 @@ class PhotosDB:
 
             # recently deleted items
             info["intrash"] = True if row[28] == 1 else False
+
+            # height/width/orientation
+            info["height"] = row[29]
+            info["width"] = row[30]
+            info["orientation"] = row[31]
+            info["original_height"] = row[32]
+            info["original_width"] = row[33]
+            info["original_orientation"] = row[34]
+            info["original_filesize"] = row[35]
 
             # associated RAW image info
             # will be filled in later

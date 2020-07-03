@@ -241,6 +241,46 @@ def test_attributes():
     assert p.ismissing == False
 
 
+def test_attributes_2():
+    """ Test attributes including height, width, etc """
+    import datetime
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=[UUID_DICT["has_adjustments"]])
+    assert len(photos) == 1
+    p = photos[0]
+    assert p.keywords == ["wedding"]
+    assert p.original_filename == "wedding.jpg"
+    assert p.filename == "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51.jpeg"
+    assert p.date == datetime.datetime(
+        2019,
+        4,
+        15,
+        14,
+        40,
+        24,
+        86000,
+        datetime.timezone(datetime.timedelta(seconds=-14400)),
+    )
+    assert p.description == "Bride Wedding day"
+    assert p.title is None
+    assert sorted(p.albums) == ["AlbumInFolder", "I have a deleted twin"]
+    assert p.persons == ["Maria"]
+    assert p.path.endswith(
+        "tests/Test-10.15.5.photoslibrary/originals/E/E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51.jpeg"
+    )
+    assert not p.ismissing
+    assert p.hasadjustments
+    assert p.height == 1325
+    assert p.width == 1526
+    assert p.original_height == 1367
+    assert p.original_width == 2048
+    assert p.orientation == 1
+    assert p.original_orientation == 1
+    assert p.original_filesize == 460483
+
+
 def test_missing():
     import osxphotos
 

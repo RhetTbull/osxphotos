@@ -642,6 +642,41 @@ class PhotoInfo:
             otherwise returns False """
         return self._info["raw_is_original"]
 
+    @property
+    def height(self):
+        """ returns height of the current photo version in pixels """
+        return self._info["height"]
+
+    @property
+    def width(self):
+        """ returns width of the current photo version in pixels """
+        return self._info["width"]
+
+    @property
+    def orientation(self):
+        """ returns EXIF orientation of the current photo version as int """
+        return self._info["orientation"]
+
+    @property
+    def original_height(self):
+        """ returns height of the original photo version in pixels """
+        return self._info["original_height"]
+
+    @property
+    def original_width(self):
+        """ returns width of the original photo version in pixels """
+        return self._info["original_width"]
+
+    @property
+    def original_orientation(self):
+        """ returns EXIF orientation of the original photo version as int """
+        return self._info["original_orientation"]
+
+    @property
+    def original_filesize(self):
+        """ returns filesize of original photo in bytes as int """
+        return self._info["original_filesize"]
+
     def render_template(
         self,
         template_str,
