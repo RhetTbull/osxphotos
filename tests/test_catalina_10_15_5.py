@@ -7,9 +7,9 @@ PHOTOS_DB = "tests/Test-10.15.5.photoslibrary/database/photos.db"
 PHOTOS_DB_PATH = "/Test-10.15.5.photoslibrary/database/photos.db"
 PHOTOS_LIBRARY_PATH = "/Test-10.15.5.photoslibrary"
 
-PHOTOS_DB_LEN = 14
+PHOTOS_DB_LEN = 15
 PHOTOS_NOT_IN_TRASH_LEN = 13
-PHOTOS_IN_TRASH_LEN = 1
+PHOTOS_IN_TRASH_LEN = 2
 
 KEYWORDS = [
     "Kids",
@@ -34,7 +34,7 @@ ALBUMS = [
 ]
 KEYWORDS_DICT = {
     "Kids": 4,
-    "wedding": 2,
+    "wedding": 3,
     "flowers": 1,
     "England": 1,
     "London": 1,
@@ -43,7 +43,7 @@ KEYWORDS_DICT = {
     "UK": 1,
     "United Kingdom": 1,
 }
-PERSONS_DICT = {"Katie": 3, "Suzy": 2, "Maria": 1, _UNKNOWN_PERSON: 1}
+PERSONS_DICT = {"Katie": 3, "Suzy": 2, "Maria": 2, _UNKNOWN_PERSON: 1}
 ALBUM_DICT = {
     "Pumpkin Farm": 3,
     "Test Album": 2,
@@ -71,6 +71,7 @@ UUID_DICT = {
     "date_invalid": "8846E3E6-8AC8-4857-8448-E3D025784410",
     "intrash": "71E3E212-00EB-430D-8A63-5E294B268554",
     "not_intrash": "DC99FBDD-7A52-4100-A5BB-344131646C30",
+    "intrash_person_keywords": "6FD38366-3BF2-407D-81FE-7153EB6125B6",
 }
 
 UUID_PUMPKIN_FARM = [
@@ -195,7 +196,7 @@ def test_keywords_dict():
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     keywords = photosdb.keywords_as_dict
-    assert keywords["wedding"] == 2
+    assert keywords["wedding"] == 3
     assert keywords == KEYWORDS_DICT
 
 
@@ -204,7 +205,7 @@ def test_persons_as_dict():
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     persons = photosdb.persons_as_dict
-    assert persons["Maria"] == 1
+    assert persons["Maria"] == 2
     assert persons == PERSONS_DICT
 
 
@@ -459,7 +460,7 @@ def test_photos_intrash_2():
         assert p.intrash
 
 
-def test_photos_intrash_2():
+def test_photos_intrash_3():
     """ test PhotosDB.photos(intrash=False) """
     import osxphotos
 
@@ -487,6 +488,39 @@ def test_photoinfo_intrash_2():
     assert not p
 
 
+def test_photoinfo_intrash_3():
+    """ Test PhotoInfo.intrash and photo has keyword and person """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    p = photosdb.photos(uuid=[UUID_DICT["intrash_person_keywords"]], intrash=True)[0]
+    assert p.intrash
+    assert "Maria" in p.persons
+    assert "wedding" in p.keywords
+
+
+def test_photoinfo_intrash_4():
+    """ Test PhotoInfo.intrash and photo has keyword and person """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    p = photosdb.photos(persons=["Maria"], intrash=True)[0]
+    assert p.intrash
+    assert "Maria" in p.persons
+    assert "wedding" in p.keywords
+
+
+def test_photoinfo_intrash_5():
+    """ Test PhotoInfo.intrash and photo has keyword and person """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    p = photosdb.photos(keywords=["wedding"], intrash=True)[0]
+    assert p.intrash
+    assert "Maria" in p.persons
+    assert "wedding" in p.keywords
+
+
 def test_photoinfo_not_intrash():
     """ Test PhotoInfo.intrash """
     import osxphotos
@@ -501,7 +535,7 @@ def test_keyword_2():
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(keywords=["wedding"])
-    assert len(photos) == 2
+    assert len(photos) == 2  # won't show the one in the trash
 
 
 def test_keyword_not_in_album():

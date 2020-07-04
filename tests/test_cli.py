@@ -211,7 +211,7 @@ PHOTOS_IN_TRASH_LEN_14_6 = 1
 PHOTOS_MISSING_14_6 = 1
 
 PHOTOS_NOT_IN_TRASH_LEN_15_5 = 13
-PHOTOS_IN_TRASH_LEN_15_5 = 1
+PHOTOS_IN_TRASH_LEN_15_5 = 2
 PHOTOS_MISSING_15_5 = 2
 
 CLI_PLACES_JSON = """{"places": {"_UNKNOWN_": 1, "Maui, Wailea, Hawai'i, United States": 1, "Washington, District of Columbia, United States": 1}}"""
@@ -260,7 +260,7 @@ LABELS_JSON = {
 KEYWORDS_JSON = {
     "keywords": {
         "Kids": 4,
-        "wedding": 2,
+        "wedding": 3,
         "London 2018": 1,
         "St. James's Park": 1,
         "England": 1,
@@ -283,7 +283,7 @@ ALBUMS_JSON = {
     "shared albums": {},
 }
 
-PERSONS_JSON = {"persons": {"Katie": 3, "Suzy": 2, "_UNKNOWN_": 1, "Maria": 1}}
+PERSONS_JSON = {"persons": {"Katie": 3, "Suzy": 2, "_UNKNOWN_": 1, "Maria": 2}}
 
 # determine if exiftool installed so exiftool tests can be skipped
 try:

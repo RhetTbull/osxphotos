@@ -541,7 +541,7 @@ class PhotosDB:
             """ select RKPerson.name, RKVersion.uuid from RKFace, RKPerson, RKVersion, RKMaster 
                 where RKFace.personID = RKperson.modelID and RKVersion.modelId = RKFace.ImageModelId 
                 and RKVersion.masterUuid = RKMaster.uuid  
-                and RKVersion.isInTrash = 0 """
+            """
         )
         for person in c:
             if person[0] is None:
@@ -561,7 +561,7 @@ class PhotosDB:
                 from RKAlbum, RKVersion, RKAlbumVersion 
                 where RKAlbum.modelID = RKAlbumVersion.albumId and 
                 RKAlbumVersion.versionID = RKVersion.modelId  
-                and RKVersion.isInTrash = 0 """
+            """
         )
         for album in c:
             # store by uuid in _dbalbums_uuid and by album in _dbalbums_album
@@ -680,12 +680,17 @@ class PhotosDB:
 
         # Get info on keywords
         c.execute(
-            """ select RKKeyword.name, RKVersion.uuid, RKMaster.uuid from 
+            """ SELECT
+                RKKeyword.name, 
+                RKVersion.uuid, 
+                RKMaster.uuid 
+                FROM 
                 RKKeyword, RKKeywordForVersion, RKVersion, RKMaster 
-                where RKKeyword.modelId = RKKeyWordForVersion.keywordID and 
-                RKVersion.modelID = RKKeywordForVersion.versionID and 
-                RKMaster.uuid = RKVersion.masterUuid and 
-                RKVersion.isInTrash = 0 """
+                WHERE 
+                RKKeyword.modelId = RKKeyWordForVersion.keywordID AND 
+                RKVersion.modelID = RKKeywordForVersion.versionID AND 
+                RKMaster.uuid = RKVersion.masterUuid
+            """
         )
         for keyword in c:
             if not keyword[1] in self._dbkeywords_uuid:
@@ -1750,7 +1755,6 @@ class PhotosDB:
             "FROM ZGENERICASSET, ZUNMANAGEDADJUSTMENT "
             "JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK "
             "WHERE ZADDITIONALASSETATTRIBUTES.ZUNMANAGEDADJUSTMENT = ZUNMANAGEDADJUSTMENT.Z_PK "
-            "AND ZGENERICASSET.ZTRASHEDSTATE = 0 "
         )
         for row in c:
             uuid = row[0]
