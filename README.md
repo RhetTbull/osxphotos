@@ -1354,7 +1354,7 @@ Returns the universally unique identifier (uuid) of the album.  This is how Phot
 Returns the title or name of the album.
 
 #### `photos`
-Returns a list of [PhotoInfo](#PhotoInfo) objects representing each photo contained in the album.
+Returns a list of [PhotoInfo](#PhotoInfo) objects representing each photo contained in the album sorted in the same order as in Photos. (e.g. if photos were manually sorted in the Photos albums, photos returned by `photos` will be in same order as they appear in the Photos album)
 
 #### `folder_list`
 Returns a hierarchical list of [FolderInfo](#FolderInfo) objects representing the folders the album is contained in.  For example, if album "AlbumInFolder" is in SubFolder2 of Folder1 as illustrated below, would return a list of `FolderInfo` objects representing ["Folder1", "SubFolder2"] 

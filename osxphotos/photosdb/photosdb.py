@@ -167,8 +167,8 @@ class PhotosDB:
         self._dbalbums_pk = {}
 
         # Dict with information about all albums/photos by album
-        # key is album UUID, value is list of photo UUIDs contained in that album
-        # e.g. {'0C514A98-7B77-4E4F-801B-364B7B65EAFA': ['1EB2B765-0765-43BA-A90C-0D0580E6172C']}
+        # key is album UUID, value is list of tuples of (photo UUID, sort order) contained in that album
+        # e.g. {'0C514A98-7B77-4E4F-801B-364B7B65EAFA': [('1EB2B765-0765-43BA-A90C-0D0580E6172C', 1024)]}
         self._dbalbums_album = {}
 
         # Dict with information about album details
@@ -627,22 +627,34 @@ class PhotosDB:
 
         # Get info on albums
         c.execute(
-            """ select 
+            """ SELECT 
                 RKAlbum.uuid, 
-                RKVersion.uuid 
-                from RKAlbum, RKVersion, RKAlbumVersion 
-                where RKAlbum.modelID = RKAlbumVersion.albumId and 
-                RKAlbumVersion.versionID = RKVersion.modelId  
+                RKVersion.uuid,
+                RKCustomSortOrder.orderNumber
+                FROM RKVersion
+				JOIN RKCustomSortOrder on RKCustomSortOrder.objectUuid = RKVersion.uuid
+				JOIN RKAlbum on RKAlbum.uuid = RKCustomSortOrder.containerUuid
             """
         )
+
+        # 0     RKAlbum.uuid,
+        # 1     RKVersion.uuid,
+        # 2     RKCustomSortOrder.orderNumber
+
         for album in c:
             # store by uuid in _dbalbums_uuid and by album in _dbalbums_album
-            if not album[1] in self._dbalbums_uuid:
-                self._dbalbums_uuid[album[1]] = []
-            if not album[0] in self._dbalbums_album:
-                self._dbalbums_album[album[0]] = []
-            self._dbalbums_uuid[album[1]].append(album[0])
-            self._dbalbums_album[album[0]].append(album[1])
+            album_uuid = album[0]
+            photo_uuid = album[1]
+            sort_order = album[2]
+            try:
+                self._dbalbums_uuid[photo_uuid].append(album_uuid)
+            except KeyError:
+                self._dbalbums_uuid[photo_uuid] = [album_uuid]
+
+            try:
+                self._dbalbums_album[album_uuid].append((photo_uuid, sort_order))
+            except KeyError:
+                self._dbalbums_album[album_uuid] = [(photo_uuid, sort_order)]
 
         # now get additional details about albums
         c.execute(
@@ -1459,22 +1471,34 @@ class PhotosDB:
 
         # get details about albums
         c.execute(
-            "SELECT ZGENERICALBUM.ZUUID, ZGENERICASSET.ZUUID "
-            "FROM ZGENERICASSET "
-            "JOIN Z_26ASSETS ON Z_26ASSETS.Z_34ASSETS = ZGENERICASSET.Z_PK "
-            "JOIN ZGENERICALBUM ON ZGENERICALBUM.Z_PK = Z_26ASSETS.Z_26ALBUMS "
+            """ SELECT 
+                ZGENERICALBUM.ZUUID, 
+                ZGENERICASSET.ZUUID,
+				Z_26ASSETS.Z_FOK_34ASSETS
+                FROM ZGENERICASSET 
+                JOIN Z_26ASSETS ON Z_26ASSETS.Z_34ASSETS = ZGENERICASSET.Z_PK 
+                JOIN ZGENERICALBUM ON ZGENERICALBUM.Z_PK = Z_26ASSETS.Z_26ALBUMS
+            """
         )
+
+        # 0     ZGENERICALBUM.ZUUID,
+        # 1     ZGENERICASSET.ZUUID,
+        # 2	    Z_26ASSETS.Z_FOK_34ASSETS
+
         for album in c:
             # store by uuid in _dbalbums_uuid and by album in _dbalbums_album
+            album_uuid = album[0]
+            photo_uuid = album[1]
+            sort_order = album[2]
             try:
-                self._dbalbums_uuid[album[1]].append(album[0])
+                self._dbalbums_uuid[photo_uuid].append(album_uuid)
             except KeyError:
-                self._dbalbums_uuid[album[1]] = [album[0]]
+                self._dbalbums_uuid[photo_uuid] = [album_uuid]
 
             try:
-                self._dbalbums_album[album[0]].append(album[1])
+                self._dbalbums_album[album_uuid].append((photo_uuid, sort_order))
             except KeyError:
-                self._dbalbums_album[album[0]] = [album[1]]
+                self._dbalbums_album[album_uuid] = [(photo_uuid, sort_order)]
 
         # now get additional details about albums
         c.execute(
@@ -2379,7 +2403,9 @@ class PhotosDB:
                         title_set = set()
                         for album_id in self._dbalbum_titles[album]:
                             try:
-                                title_set.update(self._dbalbums_album[album_id])
+                                # _dbalbums_album value is list of tuples: [(uuid, sort order)]
+                                uuid_in_album, _ = zip(*self._dbalbums_album[album_id])
+                                title_set.update(uuid_in_album)
                             except KeyError:
                                 # an empty album will be in _dbalbum_titles but not _dbalbums_album
                                 pass

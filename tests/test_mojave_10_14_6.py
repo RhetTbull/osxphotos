@@ -47,6 +47,13 @@ UUID_DICT = {
     "has_adjustments": "6bxcNnzRQKGnK4uPrCJ9UQ",
 }
 
+ALBUM_SORT_ORDER = [
+    "HrK3ZQdlQ7qpDA0FgOYXLA",
+    "8SOE9s0XQVGsuq4ONohTng",
+    "15uNd7%8RguTEgNPKHfTWw",
+]
+ALBUM_KEY_PHOTO = "15uNd7%8RguTEgNPKHfTWw"
+
 PHOTOS_DB_LEN = 8
 PHOTOS_NOT_IN_TRASH_LEN = 7
 PHOTOS_IN_TRASH_LEN = 1
@@ -134,6 +141,17 @@ def test_albums_as_dict():
     albums = photosdb.albums_as_dict
     assert albums["Pumpkin Farm"] == 3
     assert albums == ALBUM_DICT
+
+
+def test_album_sort_order():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    album = [a for a in photosdb.album_info if a.title == "Pumpkin Farm"][0]
+    photos = album.photos
+
+    uuids = [p.uuid for p in photos]
+    assert uuids == ALBUM_SORT_ORDER
 
 
 def test_attributes():

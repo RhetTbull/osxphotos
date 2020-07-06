@@ -80,6 +80,12 @@ UUID_PUMPKIN_FARM = [
     "1EB2B765-0765-43BA-A90C-0D0580E6172C",
 ]
 
+ALBUM_SORT_ORDER = [
+"1EB2B765-0765-43BA-A90C-0D0580E6172C",
+"F12384F6-CD17-4151-ACBA-AE0E3688539E",
+"D79B8D77-BFFC-460B-9312-034F2877D35B",
+]
+ALBUM_KEY_PHOTO = "D79B8D77-BFFC-460B-9312-034F2877D35B"
 
 def test_init1():
     # test named argument
@@ -217,6 +223,15 @@ def test_albums_as_dict():
     assert albums["Pumpkin Farm"] == 3
     assert albums == ALBUM_DICT
 
+def test_album_sort_order():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    album = [a for a in photosdb.album_info if a.title == "Pumpkin Farm"][0]
+    photos = album.photos
+
+    uuids = [p.uuid for p in photos]
+    assert uuids == ALBUM_SORT_ORDER
 
 def test_attributes():
     import datetime
