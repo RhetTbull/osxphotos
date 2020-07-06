@@ -233,6 +233,14 @@ def test_album_sort_order():
     uuids = [p.uuid for p in photos]
     assert uuids == ALBUM_SORT_ORDER
 
+def test_album_empty_album():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    album = [a for a in photosdb.album_info if a.title == "EmptyAlbum"][0]
+    photos = album.photos
+    assert photos == []
+
 def test_attributes():
     import datetime
     import osxphotos

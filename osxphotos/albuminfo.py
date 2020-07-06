@@ -48,13 +48,16 @@ class AlbumInfo:
         try:
             return self._photos
         except AttributeError:
-            uuid, sort_order = zip(*self._db._dbalbums_album[self.uuid])
-            self._photos = self._db.photos(uuid=uuid)
-            # PhotosDB.photos does not preserve order when passing in list of uuids
-            # so need to build photo list one a time
-            # sort uuids by sort order
-            sorted_uuid = sorted(zip(sort_order, uuid))
-            self._photos = [self._db.photos(uuid=[uuid])[0] for _, uuid in sorted_uuid]
+            if self.uuid in self._db._dbalbums_album:
+                uuid, sort_order = zip(*self._db._dbalbums_album[self.uuid])
+                self._photos = self._db.photos(uuid=uuid)
+                # PhotosDB.photos does not preserve order when passing in list of uuids
+                # so need to build photo list one a time
+                # sort uuids by sort order
+                sorted_uuid = sorted(zip(sort_order, uuid))
+                self._photos = [self._db.photos(uuid=[uuid])[0] for _, uuid in sorted_uuid]
+            else:
+                self._photos = []
             return self._photos
 
     @property
