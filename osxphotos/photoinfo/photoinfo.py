@@ -339,7 +339,7 @@ class PhotoInfo:
     @property
     def persons(self):
         """ list of persons in picture """
-        return self._info["persons"]
+        return [self._db._dbpersons_pk[k]["fullname"] for k in self._info["persons"]]
 
     @property
     def albums(self):

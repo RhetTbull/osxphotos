@@ -122,17 +122,28 @@ class PhotosDB:
         # currently used to get information on RAW images
         self._dbphotos_master = {}
 
+        # Dict with information about all persons by person PK
+        # key is person PK, value is dict with info about each person
+        # e.g. {3: {"pk": 3, "fullname": "Maria Smith"...}}
+        self._dbpersons_pk = {}
+
+        # Dict with information about all persons by person fullname
+        # key is person PK, value is list of person PKs with fullname
+        # there may be more than one person PK with the same fullname
+        # e.g. {"Maria Smith": [1, 2]}
+        self._dbpersons_fullname = {}
+
         # Dict with information about all persons/photos by uuid
-        # key is photo UUID, value is list of face names in that photo
+        # key is photo UUID, value is list of person primary keys of persons in the photo
         # Note: Photos 5 identifies faces even if not given a name
         # and those are labeled by process_database as _UNKNOWN_
-        # e.g. {'1EB2B765-0765-43BA-A90C-0D0580E6172C': ['Katie', '_UNKNOWN_', 'Suzy']}
+        # e.g. {'1EB2B765-0765-43BA-A90C-0D0580E6172C': [1, 3, 5]}
         self._dbfaces_uuid = {}
 
-        # Dict with information about all persons/photos by person
-        # key is person name, value is list of photo UUIDs
-        # e.g. {'Maria': ['E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51']}
-        self._dbfaces_person = {}
+        # Dict with information about detected faces by person primary key
+        # key is person pk, value is list of photo UUIDs
+        # e.g. {3: ['E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51']}
+        self._dbfaces_pk = {}
 
         # Dict with information about all keywords/photos by uuid
         # key is photo uuid and value is list of keywords
@@ -303,7 +314,13 @@ class PhotosDB:
     @property
     def persons_as_dict(self):
         """ return persons as dict of person, count in reverse sorted order (descending) """
-        persons = {k: len(self._dbfaces_person[k]) for k in self._dbfaces_person.keys()}
+        persons = {}
+        for pk in self._dbfaces_pk:
+            fullname = self._dbpersons_pk[pk]["fullname"]
+            try:
+                persons[fullname] += len(self._dbfaces_pk[pk])
+            except KeyError:
+                persons[fullname] = len(self._dbfaces_pk[pk])
         persons = dict(sorted(persons.items(), key=lambda kv: kv[1], reverse=True))
         return persons
 
@@ -352,7 +369,7 @@ class PhotosDB:
     @property
     def persons(self):
         """ return list of persons found in photos database """
-        persons = self._dbfaces_person.keys()
+        persons = {self._dbpersons_pk[k]["fullname"] for k in self._dbfaces_pk}
         return list(persons)
 
     @property
@@ -536,22 +553,77 @@ class PhotosDB:
 
         (conn, c) = _open_sql_file(self._tmp_db)
 
-        # Look for all combinations of persons and pictures
+        # get info to associate persons with photos
+        # then get detected faces in each photo and link to persons
         c.execute(
-            """ select RKPerson.name, RKVersion.uuid from RKFace, RKPerson, RKVersion, RKMaster 
-                where RKFace.personID = RKperson.modelID and RKVersion.modelId = RKFace.ImageModelId 
-                and RKVersion.masterUuid = RKMaster.uuid  
+            """ SELECT
+                RKPerson.modelID,
+                RKPerson.uuid,
+                RKPerson.name,
+                RKPerson.faceCount,
+                RKPerson.displayName
+                FROM RKPerson
             """
         )
+
+        # 0     RKPerson.modelID,
+        # 1     RKPerson.uuid,
+        # 2     RKPerson.name,
+        # 3     RKPerson.faceCount,
+        # 4     RKPerson.displayName
+
         for person in c:
-            if person[0] is None:
-                continue
-            if not person[1] in self._dbfaces_uuid:
-                self._dbfaces_uuid[person[1]] = []
-            if not person[0] in self._dbfaces_person:
-                self._dbfaces_person[person[0]] = []
-            self._dbfaces_uuid[person[1]].append(person[0])
-            self._dbfaces_person[person[0]].append(person[1])
+            pk = person[0]
+            fullname = person[2] if person[2] is not None else _UNKNOWN_PERSON
+            self._dbpersons_pk[pk] = {
+                "pk": pk,
+                "uuid": person[1],
+                "fullname": fullname,
+                "facecount": person[3],
+                "keyface": None,
+                "displayname": person[4],
+            }
+            try:
+                self._dbpersons_fullname[fullname].append(pk)
+            except KeyError:
+                self._dbpersons_fullname[fullname] = [pk]
+
+        # get information on detected faces
+        c.execute(
+            """ SELECT 
+                RKPerson.modelID,
+                RKVersion.uuid 
+                FROM 
+                RKFace, RKPerson, RKVersion, RKMaster 
+                WHERE 
+                RKFace.personID = RKperson.modelID AND 
+                RKVersion.modelId = RKFace.ImageModelId AND
+                RKVersion.masterUuid = RKMaster.uuid  
+            """
+        )
+
+        # 0     RKPerson.modelID
+        # 1     RKVersion.uuid
+
+        for face in c:
+            pk = face[0]
+            uuid = face[1]
+            try:
+                self._dbfaces_uuid[uuid].append(pk)
+            except KeyError:
+                self._dbfaces_uuid[uuid] = [pk]
+
+            try:
+                self._dbfaces_pk[pk].append(uuid)
+            except KeyError:
+                self._dbfaces_pk[pk] = [uuid]
+
+        if _debug():
+            logging.debug(f"Finished walking through persons")
+            logging.debug(pformat(self._dbpersons_pk))
+            logging.debug(pformat(self._dbpersons_fullname))
+            logging.debug(pformat(self._dbfaces_pk))
+            logging.debug(pformat(self._dbfaces_uuid))
 
         # Get info on albums
         c.execute(
@@ -1233,8 +1305,8 @@ class PhotosDB:
             logging.debug("Faces (_dbfaces_uuid):")
             logging.debug(pformat(self._dbfaces_uuid))
 
-            logging.debug("Faces by person (_dbfaces_person):")
-            logging.debug(pformat(self._dbfaces_person))
+            logging.debug("Persons (_dbpersons_pk):")
+            logging.debug(pformat(self._dbpersons_pk))
 
             logging.debug("Keywords by uuid (_dbkeywords_uuid):")
             logging.debug(pformat(self._dbkeywords_uuid))
@@ -1295,8 +1367,12 @@ class PhotosDB:
         return folders
 
     def _process_database5(self):
-        """ process the Photos database to extract info """
-        """ works on Photos version >= 5.0 """
+        """ process the Photos database to extract info 
+            works on Photos version >= 5.0 
+
+            This is a big hairy 700 line function that should probably be refactored
+            but it works so don't touch it.
+        """
 
         if _debug():
             logging.debug(f"_process_database5")
@@ -1310,26 +1386,76 @@ class PhotosDB:
         if _debug():
             logging.debug(f"Getting information about persons")
 
+        # get info to associate persons with photos
+        # then get detected faces in each photo and link to persons
         c.execute(
-            "SELECT ZPERSON.ZFULLNAME, ZGENERICASSET.ZUUID "
-            "FROM ZPERSON, ZDETECTEDFACE, ZGENERICASSET "
-            "WHERE ZDETECTEDFACE.ZPERSON = ZPERSON.Z_PK AND ZDETECTEDFACE.ZASSET = ZGENERICASSET.Z_PK "
+            """ SELECT
+                ZPERSON.Z_PK,
+                ZPERSON.ZPERSONUUID,
+                ZPERSON.ZFULLNAME,
+                ZPERSON.ZFACECOUNT,
+                ZPERSON.ZKEYFACE,
+                ZPERSON.ZDISPLAYNAME
+                FROM ZPERSON
+            """
         )
+
+        # 0     ZPERSON.Z_PK,
+        # 1     ZPERSON.ZPERSONUUID,
+        # 2     ZPERSON.ZFULLNAME,
+        # 3     ZPERSON.ZFACECOUNT,
+        # 4     ZPERSON.ZKEYFACE,
+        # 5     ZPERSON.ZDISPLAYNAME,
+
         for person in c:
-            if person[0] is None:
-                continue
-            person_name = person[0] if person[0] != "" else _UNKNOWN_PERSON
-            if not person[1] in self._dbfaces_uuid:
-                self._dbfaces_uuid[person[1]] = []
-            if not person_name in self._dbfaces_person:
-                self._dbfaces_person[person_name] = []
-            self._dbfaces_uuid[person[1]].append(person_name)
-            self._dbfaces_person[person_name].append(person[1])
+            pk = person[0]
+            fullname = person[2] if person[2] != "" else _UNKNOWN_PERSON
+            self._dbpersons_pk[pk] = {
+                "pk": pk,
+                "uuid": person[1],
+                "fullname": fullname,
+                "facecount": person[3],
+                "keyface": person[4],
+                "displayname": person[5],
+            }
+            try:
+                self._dbpersons_fullname[fullname].append(pk)
+            except KeyError:
+                self._dbpersons_fullname[fullname] = [pk]
+
+        # get information on detected faces
+        c.execute(
+            """ SELECT
+                ZPERSON.Z_PK,
+                ZGENERICASSET.ZUUID
+                FROM ZPERSON, ZDETECTEDFACE, ZGENERICASSET
+                WHERE ZDETECTEDFACE.ZPERSON = ZPERSON.Z_PK AND
+                ZDETECTEDFACE.ZASSET = ZGENERICASSET.Z_PK;
+            """
+        )
+
+        # 0     ZPERSON.Z_PK,
+        # 1     ZGENERICASSET.ZUUID,
+
+        for face in c:
+            pk = face[0]
+            uuid = face[1]
+            try:
+                self._dbfaces_uuid[uuid].append(pk)
+            except KeyError:
+                self._dbfaces_uuid[uuid] = [pk]
+
+            try:
+                self._dbfaces_pk[pk].append(uuid)
+            except KeyError:
+                self._dbfaces_pk[pk] = [uuid]
 
         if _debug():
             logging.debug(f"Finished walking through persons")
-            logging.debug(pformat(self._dbfaces_person))
-            logging.debug(self._dbfaces_uuid)
+            logging.debug(pformat(self._dbpersons_pk))
+            logging.debug(pformat(self._dbpersons_fullname))
+            logging.debug(pformat(self._dbfaces_pk))
+            logging.debug(pformat(self._dbfaces_uuid))
 
         # get details about albums
         c.execute(
@@ -1921,8 +2047,8 @@ class PhotosDB:
             logging.debug("Faces (_dbfaces_uuid):")
             logging.debug(pformat(self._dbfaces_uuid))
 
-            logging.debug("Faces by person (_dbfaces_person):")
-            logging.debug(pformat(self._dbfaces_person))
+            logging.debug("Persons (_dbpersons_pk):")
+            logging.debug(pformat(self._dbpersons_pk))
 
             logging.debug("Keywords by uuid (_dbkeywords_uuid):")
             logging.debug(pformat(self._dbkeywords_uuid))
@@ -2283,8 +2409,9 @@ class PhotosDB:
             if persons:
                 person_set = set()
                 for person in persons:
-                    if person in self._dbfaces_person:
-                        person_set.update(self._dbfaces_person[person])
+                    if person in self._dbpersons_fullname:
+                        for pk in self._dbpersons_fullname[person]:
+                            person_set.update(self._dbfaces_pk[pk])
                     else:
                         logging.debug(f"Could not find person '{person}' in database")
                 photos_sets.append(person_set)

@@ -1,7 +1,6 @@
 import pytest
 
-# TODO: put some of this code into a pre-function
-# TODO: All the hardocded uuids, etc in test functions should be in some sort of config
+from osxphotos._constants import _UNKNOWN_PERSON
 
 PHOTOS_DB = "./tests/Test-10.12.6.photoslibrary/database/photos.db"
 KEYWORDS = [
@@ -15,7 +14,7 @@ KEYWORDS = [
     "UK",
     "United Kingdom",
 ]
-PERSONS = ["Katie", "Suzy", "Maria"]
+PERSONS = ["Katie", "Suzy", "Maria", _UNKNOWN_PERSON]
 ALBUMS = ["Pumpkin Farm", "AlbumInFolder"]
 KEYWORDS_DICT = {
     "Kids": 4,
@@ -28,7 +27,7 @@ KEYWORDS_DICT = {
     "UK": 1,
     "United Kingdom": 1,
 }
-PERSONS_DICT = {"Katie": 3, "Suzy": 2, "Maria": 1}
+PERSONS_DICT = {"Katie": 3, "Suzy": 2, "Maria": 1, _UNKNOWN_PERSON: 1}
 ALBUM_DICT = {"Pumpkin Farm": 3, "AlbumInFolder": 1}
 
 

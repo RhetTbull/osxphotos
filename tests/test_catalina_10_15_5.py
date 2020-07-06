@@ -560,7 +560,14 @@ def test_album_folder_name():
     photos = photosdb.photos(albums=["Pumpkin Farm"])
     assert sorted(p.uuid for p in photos) == sorted(UUID_PUMPKIN_FARM)
 
+def test_multi_person():
+    import osxphotos
 
+    photosdb = osxphotos.PhotosDB(PHOTOS_DB)
+    photos = photosdb.photos(persons=["Katie", "Suzy"])
+
+    assert len(photos) == 3
+    
 def test_get_db_path():
     import osxphotos
 

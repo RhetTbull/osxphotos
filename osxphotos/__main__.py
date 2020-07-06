@@ -520,10 +520,14 @@ def debug_dump(ctx, cli_obj, db, photos_library, dump, uuid):
             print("_dbkeywords_uuid:")
             pprint.pprint(photosdb._dbkeywords_uuid)
         elif attr == "persons":
-            print("_dbfaces_person:")
-            pprint.pprint(photosdb._dbfaces_person)
             print("_dbfaces_uuid:")
             pprint.pprint(photosdb._dbfaces_uuid)
+            print("_dbfaces_pk:")
+            pprint.pprint(photosdb._dbfaces_pk)
+            print("_dbpersons_pk:")
+            pprint.pprint(photosdb._dbpersons_pk)
+            print("_dbpersons_fullname:")
+            pprint.pprint(photosdb._dbpersons_fullname)
         elif attr == "photos":
             if uuid:
                 for uuid_ in uuid:
