@@ -554,4 +554,3 @@ def test_date_modified_invalid():
     assert len(photos) == 1
     p = photos[0]
     assert p.date_modified is None
-

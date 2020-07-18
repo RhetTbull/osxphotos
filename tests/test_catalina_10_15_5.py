@@ -81,11 +81,12 @@ UUID_PUMPKIN_FARM = [
 ]
 
 ALBUM_SORT_ORDER = [
-"1EB2B765-0765-43BA-A90C-0D0580E6172C",
-"F12384F6-CD17-4151-ACBA-AE0E3688539E",
-"D79B8D77-BFFC-460B-9312-034F2877D35B",
+    "1EB2B765-0765-43BA-A90C-0D0580E6172C",
+    "F12384F6-CD17-4151-ACBA-AE0E3688539E",
+    "D79B8D77-BFFC-460B-9312-034F2877D35B",
 ]
 ALBUM_KEY_PHOTO = "D79B8D77-BFFC-460B-9312-034F2877D35B"
+
 
 def test_init1():
     # test named argument
@@ -223,6 +224,7 @@ def test_albums_as_dict():
     assert albums["Pumpkin Farm"] == 3
     assert albums == ALBUM_DICT
 
+
 def test_album_sort_order():
     import osxphotos
 
@@ -233,6 +235,7 @@ def test_album_sort_order():
     uuids = [p.uuid for p in photos]
     assert uuids == ALBUM_SORT_ORDER
 
+
 def test_album_empty_album():
     import osxphotos
 
@@ -240,6 +243,7 @@ def test_album_empty_album():
     album = [a for a in photosdb.album_info if a.title == "EmptyAlbum"][0]
     photos = album.photos
     assert photos == []
+
 
 def test_attributes():
     import datetime
@@ -583,6 +587,7 @@ def test_album_folder_name():
     photos = photosdb.photos(albums=["Pumpkin Farm"])
     assert sorted(p.uuid for p in photos) == sorted(UUID_PUMPKIN_FARM)
 
+
 def test_multi_person():
     import osxphotos
 
@@ -590,7 +595,8 @@ def test_multi_person():
     photos = photosdb.photos(persons=["Katie", "Suzy"])
 
     assert len(photos) == 3
-    
+
+
 def test_get_db_path():
     import osxphotos
 
@@ -1068,4 +1074,3 @@ def test_date_modified_invalid():
     assert len(photos) == 1
     p = photos[0]
     assert p.date_modified is None
-

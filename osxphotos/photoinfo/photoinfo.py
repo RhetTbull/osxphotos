@@ -29,6 +29,7 @@ from .._constants import (
     _PHOTOS_5_SHARED_PHOTO_PATH,
 )
 from ..albuminfo import AlbumInfo
+from ..personinfo import PersonInfo
 from ..phototemplate import PhotoTemplate
 from ..placeinfo import PlaceInfo4, PlaceInfo5
 from ..utils import _debug, _get_resource_loc, findfiles, get_preferred_uti_extension
@@ -339,7 +340,18 @@ class PhotoInfo:
     @property
     def persons(self):
         """ list of persons in picture """
-        return [self._db._dbpersons_pk[k]["fullname"] for k in self._info["persons"]]
+        return [self._db._dbpersons_pk[pk]["fullname"] for pk in self._info["persons"]]
+
+    @property
+    def person_info(self):
+        """ list of PersonInfo objects for person in picture """
+        try:
+            return self._personinfo
+        except AttributeError:
+            self._personinfo = [
+                PersonInfo(db=self._db, pk=pk) for pk in self._info["persons"]
+            ]
+            return self._personinfo
 
     @property
     def albums(self):

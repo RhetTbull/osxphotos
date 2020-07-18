@@ -87,6 +87,7 @@ def test_place_str():
         "field16=[], street_address=[], body_of_water=[])', country_code='GB')"
     )
 
+
 def test_place_as_dict():
     # test PlaceInfo.as_dict()
     import osxphotos

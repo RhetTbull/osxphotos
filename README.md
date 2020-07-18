@@ -18,6 +18,7 @@
     + [FolderInfo](#folderinfo)
     + [PlaceInfo](#placeinfo)
     + [ScoreInfo](#scoreinfo)
+    + [PersonInfo](#personinfo)
     + [Template Substitutions](#template-substitutions)
     + [Utility Functions](#utility-functions)
   * [Examples](#examples)
@@ -790,7 +791,15 @@ Returns a list names of top level folder names in the database.
 persons = photosdb.persons
 ```
 
-Returns a list of the persons (faces) found in the Photos library
+Returns a list of the person names (faces) found in the Photos library.  **Note**: It is of course possible to have more than one person with the same name, e.g. "Maria Smith", in the database.  `persons` assumes these are the same person and will list only one person named "Maria Smith".  If you need more information about persons in the database, see [person_info](#dbpersoninfo).
+
+#### <a name="dbpersoninfo">`person_info`</a>
+```python
+# assumes photosdb is a PhotosDB object (see above)
+person_info = photosdb.person_info
+```
+
+Returns a list of [PersonInfo](#personinfo) objects representing persons who appear in photos in the database. 
 
 #### `keywords_as_dict`
 ```python
@@ -806,7 +815,8 @@ Returns a dictionary of keywords found in the Photos library where key is the ke
 persons_dict = photosdb.persons_as_dict
 ```
 
-Returns a dictionary of persons (faces) found in the Photos library where key is the person name and value is the count of how many times that person appears in the library (ie. how many photos are tagged with the person).  Resulting dictionary is in reverse sorted order (e.g. person who appears in the most photos is listed first).
+Returns a dictionary of persons (faces) found in the Photos library where key is the person name and value is the count of how many times that person appears in the library (ie. how many photos are tagged with the person).  Resulting dictionary is in reverse sorted order (e.g. person who appears in the most photos is listed first). **Note**: It is of course possible to have more than one person with the same name, e.g. "Maria Smith", in the database.  `persons_as_dict` assumes these are the same person and will list only one person named "Maria Smith".  If you need more information about persons in the database, see [person_info](#dbpersoninfo).
+
 
 #### `albums_as_dict`
 ```python
@@ -892,8 +902,7 @@ for row in results:
 
 conn.close()
 ```
-
-#### ` photos(keywords=None, uuid=None, persons=None, albums=None, images=True, movies=True, from_date=None, to_date=None, intrash=False)`
+#### <A name="photos">`photos(keywords=None, uuid=None, persons=None, albums=None, images=True, movies=True, from_date=None, to_date=None, intrash=False)`</a>
 
 ```python
 # assumes photosdb is a PhotosDB object (see above)
@@ -928,6 +937,8 @@ photos = photosdb.photos(
 - ```from_date```: datetime.datetime; if provided, finds photos where creation date >= from_date; default is None
 - ```to_date```: datetime.datetime; if provided, finds photos where creation date <= to_date; default is None
 - ```intrash```: if True, finds only photos in the "Recently Deleted" or trash folder, if False does not find any photos in the trash; default is False
+
+See also [get_photo()](#getphoto) which is much faster for retrieving a single photo.
 
 If more than one of (keywords, uuid, persons, albums,from_date, to_date) is provided, they are treated as "and" criteria. E.g.
 
@@ -1003,6 +1014,9 @@ For example, in my library, Photos says I have 19,386 photos and 474 movies.  Ho
 >>>
 ```
 
+#### <a name="getphoto">`get_photo(uuid)`</A>
+Returns a single PhotoInfo instance for photo with UUID matching `uuid` or None if no photo is found matching `uuid`.  If you know the UUID of a photo, `get_photo()` is much faster than `photos`.  See also [photos()](#photos).
+
 
 ### PhotoInfo 
 PhotosDB.photos() returns a list of PhotoInfo objects.  Each PhotoInfo object represents a single photo in the Photos library.
@@ -1039,6 +1053,9 @@ Returns a list of [AlbumInfo](#AlbumInfo) objects representing the albums the ph
 
 #### `persons`
 Returns a list of the names of the persons in the photo
+
+#### <a name="photopersoninfo">`person_info`</a>
+Returns a list of [PersonInfo](#personinfo) objects representing persons in the photo.
 
 #### `path`
 Returns the absolute path to the photo on disk as a string.  **Note**: this returns the path to the *original* unedited file (see [hasadjustments](#hasadjustments)).  If the file is missing on disk, path=`None` (see [ismissing](#ismissing)).
@@ -1353,7 +1370,7 @@ Returns the universally unique identifier (uuid) of the album.  This is how Phot
 #### `title`
 Returns the title or name of the album.
 
-#### `photos`
+#### <a name="albumphotos">`photos`</a>
 Returns a list of [PhotoInfo](#PhotoInfo) objects representing each photo contained in the album sorted in the same order as in Photos. (e.g. if photos were manually sorted in the Photos albums, photos returned by `photos` will be in same order as they appear in the Photos album)
 
 #### `folder_list`
@@ -1527,6 +1544,31 @@ Example: find your "best" photo of food
 >>> photos = osxphotos.PhotosDB().photos()
 >>> best_food_photo = sorted([p for p in photos if "food" in p.labels_normalized], key=lambda p: p.score.overall, reverse=True)[0]
 ```
+
+### PersonInfo
+[PhotosDB.person_info](#dbpersoninfo) and [PhotoInfo.person_info](#photopersoninfo) return a list of PersonInfo objects represents persons in the database and in a photo, respectively.  The PersonInfo class has the following properties and methods.
+
+#### `name`
+Returns the full name of the person represented in the photo. For example, "Maria Smith".
+
+#### `display_name`
+Returns the display name of the person represented in the photo. For example, "Maria".
+
+#### `uuid`
+Returns the UUID of the person as stored in the Photos library database.
+
+#### `keyphoto`
+Returns a PhotoInfo instance for the photo designated as the key photo for the person. This is the Photos uses to display the person's face thumbnail in Photos' "People" view. 
+
+#### `facecount`
+Returns a count of how many times this person appears in images in the database.
+
+#### <a name="personphotos">photos`</a>
+Returns a list of PhotoInfo objects representing all photos the person appears in.
+
+#### `json()`
+Returns a json string representation of the PersonInfo instance.
+
 
 ### Template Substitutions
 

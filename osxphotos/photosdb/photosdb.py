@@ -34,6 +34,7 @@ from .._constants import (
 )
 from .._version import __version__
 from ..albuminfo import AlbumInfo, FolderInfo
+from ..personinfo import PersonInfo
 from ..photoinfo import PhotoInfo
 from ..utils import (
     _check_file_exists,
@@ -43,7 +44,6 @@ from ..utils import (
     _open_sql_file,
     get_last_library_path,
 )
-
 
 # TODO: Add test for imageTimeZoneOffsetSeconds = None
 # TODO: Add test for __str__
@@ -87,6 +87,7 @@ class PhotosDB:
 
         # set up the data structures used to store all the Photo database info
 
+        # TODO: I don't think these keywords flags are actually used
         # if True, will treat persons as keywords when exporting metadata
         self.use_persons_as_keywords = False
 
@@ -373,6 +374,17 @@ class PhotosDB:
         return list(persons)
 
     @property
+    def person_info(self):
+        """ return list of PersonInfo objects for each person in the photos database """
+        try:
+            return self._person_info
+        except AttributeError:
+            self._person_info = [
+                PersonInfo(db=self, pk=pk) for pk in self._dbpersons_pk
+            ]
+            return self._person_info
+
+    @property
     def folder_info(self):
         """ return list FolderInfo objects representing top-level folders in the photos database """
         if self._db_version <= _PHOTOS_4_VERSION:
@@ -561,7 +573,8 @@ class PhotosDB:
                 RKPerson.uuid,
                 RKPerson.name,
                 RKPerson.faceCount,
-                RKPerson.displayName
+                RKPerson.displayName,
+                RKPerson.representativeFaceId
                 FROM RKPerson
             """
         )
@@ -571,6 +584,7 @@ class PhotosDB:
         # 2     RKPerson.name,
         # 3     RKPerson.faceCount,
         # 4     RKPerson.displayName
+        # 5     RKPerson.representativeFaceId
 
         for person in c:
             pk = person[0]
@@ -580,13 +594,42 @@ class PhotosDB:
                 "uuid": person[1],
                 "fullname": fullname,
                 "facecount": person[3],
-                "keyface": None,
+                "keyface": person[5],
                 "displayname": person[4],
+                "photo_uuid": None,
+                "keyface_uuid": None,
             }
             try:
                 self._dbpersons_fullname[fullname].append(pk)
             except KeyError:
                 self._dbpersons_fullname[fullname] = [pk]
+
+        # get info on key face
+        c.execute(
+            """ SELECT
+                RKPerson.modelID,
+                RKPerson.representativeFaceId,
+                RKVersion.uuid,
+                RKFace.uuid
+                FROM RKPerson, RKFace, RKVersion
+                WHERE 
+                RKFace.modelId = RKPerson.representativeFaceId AND
+                RKVersion.modelId = RKFace.ImageModelId
+            """
+        )
+
+        # 0     RKPerson.modelID,
+        # 1     RKPerson.representativeFaceId
+        # 2     RKVersion.uuid,
+        # 3     RKFace.uuid
+
+        for person in c:
+            pk = person[0]
+            try:
+                self._dbpersons_pk[pk]["photo_uuid"] = person[2]
+                self._dbpersons_pk[pk]["keyface_uuid"] = person[3]
+            except KeyError:
+                logging.debug(f"Unexpected KeyError _dbpersons_pk[{pk}]")
 
         # get information on detected faces
         c.execute(
@@ -632,8 +675,8 @@ class PhotosDB:
                 RKVersion.uuid,
                 RKCustomSortOrder.orderNumber
                 FROM RKVersion
-				JOIN RKCustomSortOrder on RKCustomSortOrder.objectUuid = RKVersion.uuid
-				JOIN RKAlbum on RKAlbum.uuid = RKCustomSortOrder.containerUuid
+                JOIN RKCustomSortOrder on RKCustomSortOrder.objectUuid = RKVersion.uuid
+                JOIN RKAlbum on RKAlbum.uuid = RKCustomSortOrder.containerUuid
             """
         )
 
@@ -1417,7 +1460,7 @@ class PhotosDB:
         # 2     ZPERSON.ZFULLNAME,
         # 3     ZPERSON.ZFACECOUNT,
         # 4     ZPERSON.ZKEYFACE,
-        # 5     ZPERSON.ZDISPLAYNAME,
+        # 5     ZPERSON.ZDISPLAYNAME
 
         for person in c:
             pk = person[0]
@@ -1429,11 +1472,40 @@ class PhotosDB:
                 "facecount": person[3],
                 "keyface": person[4],
                 "displayname": person[5],
+                "photo_uuid": None,
+                "keyface_uuid": None,
             }
             try:
                 self._dbpersons_fullname[fullname].append(pk)
             except KeyError:
                 self._dbpersons_fullname[fullname] = [pk]
+
+        # get info on keyface -- some photos have null keyface so can't do a single query
+        # (at least not with my SQL skills)
+        c.execute(
+            """ SELECT
+                ZPERSON.Z_PK,
+                ZPERSON.ZKEYFACE,
+                ZGENERICASSET.ZUUID,
+                ZDETECTEDFACE.ZUUID
+                FROM ZPERSON, ZDETECTEDFACE, ZGENERICASSET
+                WHERE ZDETECTEDFACE.Z_PK = ZPERSON.ZKEYFACE AND
+                ZDETECTEDFACE.ZASSET = ZGENERICASSET.Z_PK
+            """
+        )
+
+        # 0 ZPERSON.Z_PK,
+        # 1 ZPERSON.ZKEYFACE,
+        # 2 ZGENERICASSET.ZUUID,
+        # 3 ZDETECTEDFACE.ZUUID
+
+        for person in c:
+            pk = person[0]
+            try:
+                self._dbpersons_pk[pk]["photo_uuid"] = person[2]
+                self._dbpersons_pk[pk]["keyface_uuid"] = person[3]
+            except KeyError:
+                logging.debug(f"Unexpected KeyError _dbpersons_pk[{pk}]")
 
         # get information on detected faces
         c.execute(
@@ -1442,7 +1514,7 @@ class PhotosDB:
                 ZGENERICASSET.ZUUID
                 FROM ZPERSON, ZDETECTEDFACE, ZGENERICASSET
                 WHERE ZDETECTEDFACE.ZPERSON = ZPERSON.Z_PK AND
-                ZDETECTEDFACE.ZASSET = ZGENERICASSET.Z_PK;
+                ZDETECTEDFACE.ZASSET = ZGENERICASSET.Z_PK
             """
         )
 
@@ -1474,7 +1546,7 @@ class PhotosDB:
             """ SELECT 
                 ZGENERICALBUM.ZUUID, 
                 ZGENERICASSET.ZUUID,
-				Z_26ASSETS.Z_FOK_34ASSETS
+                Z_26ASSETS.Z_FOK_34ASSETS
                 FROM ZGENERICASSET 
                 JOIN Z_26ASSETS ON Z_26ASSETS.Z_34ASSETS = ZGENERICASSET.Z_PK 
                 JOIN ZGENERICALBUM ON ZGENERICALBUM.Z_PK = Z_26ASSETS.Z_26ALBUMS
@@ -1483,7 +1555,7 @@ class PhotosDB:
 
         # 0     ZGENERICALBUM.ZUUID,
         # 1     ZGENERICASSET.ZUUID,
-        # 2	    Z_26ASSETS.Z_FOK_34ASSETS
+        # 2     Z_26ASSETS.Z_FOK_34ASSETS
 
         for album in c:
             # store by uuid in _dbalbums_uuid and by album in _dbalbums_album
@@ -1633,15 +1705,15 @@ class PhotosDB:
                 ZGENERICASSET.ZCLOUDBATCHPUBLISHDATE, 
                 ZGENERICASSET.ZKIND, 
                 ZGENERICASSET.ZUNIFORMTYPEIDENTIFIER,
-				ZGENERICASSET.ZAVALANCHEUUID,
-				ZGENERICASSET.ZAVALANCHEPICKTYPE,
+                ZGENERICASSET.ZAVALANCHEUUID,
+                ZGENERICASSET.ZAVALANCHEPICKTYPE,
                 ZGENERICASSET.ZKINDSUBTYPE,
                 ZGENERICASSET.ZCUSTOMRENDEREDVALUE,
                 ZADDITIONALASSETATTRIBUTES.ZCAMERACAPTUREDEVICE,
                 ZGENERICASSET.ZCLOUDASSETGUID,
                 ZADDITIONALASSETATTRIBUTES.ZREVERSELOCATIONDATA,
                 ZGENERICASSET.ZMOMENT,
-	            ZADDITIONALASSETATTRIBUTES.ZORIGINALRESOURCECHOICE,
+                ZADDITIONALASSETATTRIBUTES.ZORIGINALRESOURCECHOICE,
                 ZGENERICASSET.ZTRASHEDSTATE,
                 ZGENERICASSET.ZHEIGHT, 
                 ZGENERICASSET.ZWIDTH, 
@@ -2437,7 +2509,11 @@ class PhotosDB:
                 for person in persons:
                     if person in self._dbpersons_fullname:
                         for pk in self._dbpersons_fullname[person]:
-                            person_set.update(self._dbfaces_pk[pk])
+                            try:
+                                person_set.update(self._dbfaces_pk[pk])
+                            except KeyError:
+                                # some persons have zero photos so they won't be in _dbfaces_pk
+                                pass
                     else:
                         logging.debug(f"Could not find person '{person}' in database")
                 photos_sets.append(person_set)
@@ -2475,6 +2551,42 @@ class PhotosDB:
             logging.debug(f"photoinfo: {pformat(photoinfo)}")
 
         return photoinfo
+
+    def get_photo(self, uuid):
+        """ Returns a single photo matching uuid
+
+        Arguments:
+            uuid: the UUID of photo to get
+
+        Returns:
+            PhotoInfo instance for photo with UUID matching uuid or None if no match
+        """
+        try:
+            return PhotoInfo(db=self, uuid=uuid, info=self._dbphotos[uuid])
+        except KeyError:
+            return None
+
+    # TODO: add to docs and test
+    def photos_by_uuid(self, uuids):
+        """ Returns a list of photos with UUID in uuids.
+            Does not generate error if invalid or missing UUID passed.
+            This is faster than using PhotosDB.photos if you have list of UUIDs.
+            Returns photos regardless of intrash state.
+
+        Arguments:
+            uuid: list of UUIDs of photos to get
+
+        Returns:
+            list of PhotoInfo instance for photo with UUID matching uuid or [] if no match
+        """
+        photos = []
+        for uuid in uuids:
+            try:
+                photos.append(PhotoInfo(db=self, uuid=uuid, info=self._dbphotos[uuid]))
+            except KeyError:
+                # ignore missing/invlaid UUID
+                pass
+        return photos
 
     def __repr__(self):
         return f"osxphotos.{self.__class__.__name__}(dbfile='{self.db_path}')"

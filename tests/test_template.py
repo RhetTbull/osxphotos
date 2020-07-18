@@ -502,4 +502,3 @@ def test_subst_expand_inplace_3():
         template, expand_inplace=True, inplace_sep="; "
     )
     assert sorted(rendered) == sorted(expected)
-

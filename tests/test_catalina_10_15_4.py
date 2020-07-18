@@ -25,7 +25,7 @@ ALBUMS = [
     "Pumpkin Farm",
     "Test Album",
     "AlbumInFolder",
-    "Raw"
+    "Raw",
 ]  # Note: there are 2 albums named "Test Album" for testing duplicate album names
 KEYWORDS_DICT = {
     "Kids": 4,
@@ -110,14 +110,14 @@ def test_init4():
 def test_init5(mocker):
     # test failed get_last_library_path
     import osxphotos
-    
+
     def bad_library():
         return None
 
     # get_last_library actually in utils but need to patch it in photosdb because it's imported into photosdb
     # because of the layout of photosdb/ need to patch it this way...don't really understand why, but it works
     mocker.patch("osxphotos.photosdb.photosdb.get_last_library_path", new=bad_library)
-    
+
     with pytest.raises(Exception):
         assert osxphotos.PhotosDB()
 
@@ -127,7 +127,7 @@ def test_db_len():
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     # assert photosdb.db_version in osxphotos._TESTED_DB_VERSIONS
-    assert len(photosdb) == 12 
+    assert len(photosdb) == 12
 
 
 def test_db_version():
@@ -379,7 +379,7 @@ def test_count():
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos()
-    assert len(photos) == 12 
+    assert len(photos) == 12
 
 
 def test_keyword_2():
@@ -782,7 +782,7 @@ def test_from_to_date():
     photosdb = osxphotos.PhotosDB(PHOTOS_DB)
 
     photos = photosdb.photos(from_date=dt.datetime(2018, 10, 28))
-    assert len(photos) ==6 
+    assert len(photos) == 6
 
     photos = photosdb.photos(to_date=dt.datetime(2018, 10, 28))
     assert len(photos) == 6

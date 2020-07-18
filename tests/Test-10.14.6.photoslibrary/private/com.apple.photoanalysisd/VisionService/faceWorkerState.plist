@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>IncrementalPersonProcessingStage</key>
-	<integer>0</integer>
+	<integer>4</integer>
 	<key>PersonBuilderLastMinimumFaceGroupSizeForCreatingMergeCandidates</key>
 	<integer>15</integer>
 	<key>PersonBuilderMergeCandidatesEnabled</key>

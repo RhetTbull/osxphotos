@@ -34,7 +34,7 @@ def _process_exifinfo_5(photosdb):
         photosdb: PhotosDB instance """
 
     db = photosdb._tmp_db
-    
+
     (conn, cursor) = _open_sql_file(db)
 
     result = conn.execute(

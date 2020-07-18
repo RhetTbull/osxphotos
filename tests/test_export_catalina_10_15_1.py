@@ -825,4 +825,3 @@ def test_xmp_sidecar_gps():
         sorted(xmp_expected_lines), sorted(xmp_got_lines)
     ):
         assert line_expected == line_got
-

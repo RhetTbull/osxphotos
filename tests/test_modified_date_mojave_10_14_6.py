@@ -27,4 +27,3 @@ def test_modified():
 #     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
 #     photos = photosdb.photos(uuid=[UUID_DICT["not_modified"]])
 #     assert photos[0].date_modified is None
-

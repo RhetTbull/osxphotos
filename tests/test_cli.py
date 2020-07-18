@@ -231,12 +231,18 @@ CLI_EXIFTOOL = {
 
 LABELS_JSON = {
     "labels": {
-        "Plant": 5,
+        "Plant": 7,
+        "Outdoor": 4,
+        "Sky": 3,
         "Tree": 2,
-        "Sky": 2,
-        "Outdoor": 2,
         "Art": 2,
         "Foliage": 2,
+        "People": 2,
+        "Agriculture": 2,
+        "Farm": 2,
+        "Food": 2,
+        "Vegetable": 2,
+        "Pumpkin": 2,
         "Waterways": 1,
         "River": 1,
         "Cloudy": 1,
@@ -254,6 +260,10 @@ LABELS_JSON = {
         "Vase": 1,
         "Container": 1,
         "Camera": 1,
+        "Child": 1,
+        "Clothing": 1,
+        "Jeans": 1,
+        "Straw Hay": 1,
     }
 }
 
@@ -971,7 +981,7 @@ def test_query_label_4():
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
-    assert len(json_got) == 6
+    assert len(json_got) == 8
 
 
 def test_query_deleted_deleted_only():

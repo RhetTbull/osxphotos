@@ -20,7 +20,17 @@ LABELS_DICT = {
         "Tree",
     ],
     # F12384F6-CD17-4151-ACBA-AE0E3688539E Pumkins1.jpg Can we carry this? Girls with pumpkins [] False
-    "F12384F6-CD17-4151-ACBA-AE0E3688539E": [],
+    "F12384F6-CD17-4151-ACBA-AE0E3688539E": [
+        "Vegetable",
+        "Pumpkin",
+        "Farm",
+        "Food",
+        "Outdoor",
+        "Agriculture",
+        "People",
+        "Plant",
+        "Straw Hay",
+    ],
     # D79B8D77-BFFC-460B-9312-034F2877D35B Pumkins2.jpg I found one! Girl holding pumpkin [] False
     "D79B8D77-BFFC-460B-9312-034F2877D35B": [],
     # D05A5FE3-15FB-49A1-A15D-AB3DA6F8B068 DSC03584.dng None RAW only [] False
@@ -49,7 +59,20 @@ LABELS_DICT = {
         "Plant",
     ],
     # 1EB2B765-0765-43BA-A90C-0D0580E6172C Pumpkins3.jpg None Kids in pumpkin field [] False
-    "1EB2B765-0765-43BA-A90C-0D0580E6172C": [],
+    "1EB2B765-0765-43BA-A90C-0D0580E6172C": [
+        "Child",
+        "Sky",
+        "Plant",
+        "People",
+        "Clothing",
+        "Jeans",
+        "Outdoor",
+        "Agriculture",
+        "Farm",
+        "Food",
+        "Vegetable",
+        "Pumpkin",
+    ],
     # DC99FBDD-7A52-4100-A5BB-344131646C30 St James Park.jpg St. James's Park None ['Tree', 'Plant', 'Waterways', 'River', 'Sky', 'Cloudy', 'Land', 'Water Body', 'Water', 'Outdoor'] False
     "DC99FBDD-7A52-4100-A5BB-344131646C30": [
         "Tree",
@@ -117,8 +140,33 @@ LABELS_NORMALIZED_DICT = {
     ],
     # D79B8D77-BFFC-460B-9312-034F2877D35B Pumkins2.jpg I found one! Girl holding pumpkin [] False
     "D79B8D77-BFFC-460B-9312-034F2877D35B": [],
+    # 1EB2B765-0765-43BA-A90C-0D0580E6172C Pumpkins3.jpg None Kids in pumpkin field [] False
+    "1EB2B765-0765-43BA-A90C-0D0580E6172C": [
+        "child",
+        "sky",
+        "plant",
+        "people",
+        "clothing",
+        "jeans",
+        "outdoor",
+        "agriculture",
+        "farm",
+        "food",
+        "vegetable",
+        "pumpkin",
+    ],
     # F12384F6-CD17-4151-ACBA-AE0E3688539E Pumkins1.jpg Can we carry this? Girls with pumpkins [] False
-    "F12384F6-CD17-4151-ACBA-AE0E3688539E": [],
+    "F12384F6-CD17-4151-ACBA-AE0E3688539E": [
+        "vegetable",
+        "pumpkin",
+        "farm",
+        "food",
+        "outdoor",
+        "agriculture",
+        "people",
+        "plant",
+        "straw hay",
+    ],
     # A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C Pumpkins4.jpg Pumpkin heads None [] True
     "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C": [],
 }
@@ -155,6 +203,16 @@ LABELS = [
     "Vase",
     "Container",
     "Camera",
+    "Child",
+    "People",
+    "Clothing",
+    "Jeans",
+    "Agriculture",
+    "Farm",
+    "Food",
+    "Vegetable",
+    "Pumpkin",
+    "Straw Hay",
 ]
 
 LABELS_NORMALIZED = [
@@ -181,15 +239,31 @@ LABELS_NORMALIZED = [
     "vase",
     "container",
     "camera",
+    "child",
+    "people",
+    "clothing",
+    "jeans",
+    "agriculture",
+    "farm",
+    "food",
+    "vegetable",
+    "pumpkin",
+    "straw hay",
 ]
 
 LABELS_AS_DICT = {
-    "Plant": 5,
+    "Plant": 7,
+    "Outdoor": 4,
+    "Sky": 3,
     "Tree": 2,
-    "Sky": 2,
-    "Outdoor": 2,
     "Art": 2,
     "Foliage": 2,
+    "People": 2,
+    "Agriculture": 2,
+    "Farm": 2,
+    "Food": 2,
+    "Vegetable": 2,
+    "Pumpkin": 2,
     "Waterways": 1,
     "River": 1,
     "Cloudy": 1,
@@ -207,15 +281,25 @@ LABELS_AS_DICT = {
     "Vase": 1,
     "Container": 1,
     "Camera": 1,
+    "Child": 1,
+    "Clothing": 1,
+    "Jeans": 1,
+    "Straw Hay": 1,
 }
 
 LABELS_NORMALIZED_AS_DICT = {
-    "plant": 5,
+    "plant": 7,
+    "outdoor": 4,
+    "sky": 3,
     "tree": 2,
-    "sky": 2,
-    "outdoor": 2,
     "art": 2,
     "foliage": 2,
+    "people": 2,
+    "agriculture": 2,
+    "farm": 2,
+    "food": 2,
+    "vegetable": 2,
+    "pumpkin": 2,
     "waterways": 1,
     "river": 1,
     "cloudy": 1,
@@ -233,6 +317,10 @@ LABELS_NORMALIZED_AS_DICT = {
     "vase": 1,
     "container": 1,
     "camera": 1,
+    "child": 1,
+    "clothing": 1,
+    "jeans": 1,
+    "straw hay": 1,
 }
 
 

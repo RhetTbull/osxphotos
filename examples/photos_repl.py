@@ -58,5 +58,6 @@ if __name__ == "__main__":
     print("getting photos")
     tic = time.perf_counter()
     photos = photosdb.photos(images=True, movies=True)
+    photos.extend(photosdb.photos(images=True, movies=True, intrash=True))
     toc = time.perf_counter()
     print(f"found {len(photos)} photos in {toc-tic} seconds")

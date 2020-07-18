@@ -57,4 +57,3 @@ def test_cloudasset_3():
     photos = photosdb.photos(uuid=[UUID_DICT["not_cloudasset"]])
 
     assert not photos[0].iscloudasset
-

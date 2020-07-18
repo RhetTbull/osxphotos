@@ -5,6 +5,7 @@ import os
 
 from ..exiftool import ExifTool, get_exiftool_path
 
+
 @property
 def exiftool(self):
     """ Returns an ExifTool object for the photo
@@ -26,8 +27,9 @@ def exiftool(self):
         except FileNotFoundError:
             # get_exiftool_path raises FileNotFoundError if exiftool not found
             exiftool = None
-            logging.warning(f"exiftool not in path; download and install from https://exiftool.org/")
+            logging.warning(
+                f"exiftool not in path; download and install from https://exiftool.org/"
+            )
 
         self._exiftool = exiftool
         return self._exiftool
-
