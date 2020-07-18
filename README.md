@@ -1563,7 +1563,7 @@ Returns a PhotoInfo instance for the photo designated as the key photo for the p
 #### `facecount`
 Returns a count of how many times this person appears in images in the database.
 
-#### <a name="personphotos">photos`</a>
+#### <a name="personphotos">`photos`</a>
 Returns a list of PhotoInfo objects representing all photos the person appears in.
 
 #### `json()`
