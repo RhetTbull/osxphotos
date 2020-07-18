@@ -36,9 +36,9 @@ OSXPhotos provides the ability to interact with and query Apple's Photos.app lib
 
 ## Supported operating systems
 
-Only works on MacOS (aka Mac OS X). Tested on MacOS 10.12.6 / Photos 2.0, 10.13.6 / Photos 3.0, MacOS 10.14.5, 10.14.6 / Photos 4.0, MacOS 10.15.1 - 10.15.5 / Photos 5.0. 
+Only works on MacOS (aka Mac OS X). Tested on MacOS 10.12.6 / Photos 2.0, 10.13.6 / Photos 3.0, MacOS 10.14.5, 10.14.6 / Photos 4.0, MacOS 10.15.1 - 10.15.6 / Photos 5.0. 
 
-Requires python >= 3.8. You can probably get this to run with Python 3.6 or 3.7 (see notes [below](#Installation-instructions)) but only 3.8+ is officially supported. 
+Requires python >= 3.6. 
 
 This package will read Photos databases for any supported version on any supported OS version.  E.g. you can read a database created with Photos 4.0 on MacOS 10.14 on a machine running MacOS 10.12.
 
@@ -49,11 +49,7 @@ OSXPhotos uses setuptools, thus simply run:
 
 	python3 setup.py install
 
-If you're using python 3.6 or 3.7, you'll need to do this first to get around an issue with bpylist2:
-
-	pip install -r requirements.txt
-
-You can also install directly from [pypi](https://pypi.org/) but you must use python >= 3.8 to avoid an error with bpylist2.  The package currently works fine with python 3.6 or 3.7 but I know of no way to get `pip` to install the right dependencies. 
+You can also install directly from [pypi](https://pypi.org/):
 
     pip install osxphotos
 	

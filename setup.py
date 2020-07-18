@@ -48,17 +48,6 @@ with open(
 with open(os.path.join(this_directory, "README.md"), encoding="utf-8") as f:
     about["long_description"] = f.read()
 
-# ugly hack to install custom version of bpylist2 needed for Python < 3.8
-# the stock version of bylist2==2.0.3 causes an error related to
-# "pkg_resources.ContextualVersionConflict: (pycodestyle 2.3.1..."
-# PEP 508 no help here as URL-based lookups not allowed in PyPI packages
-# if you know a better way, PRs welcome!
-# once I go to 3.8+ required, this won't be necessary as bpylist2 3.0+ solves this issue
-if py_ver < 3.8:
-    os.system(
-        "python3 -m pip install git+git://github.com/RhetTbull/bpylist2.git#egg=bpylist2"
-    )
-
 setup(
     name="osxphotos",
     version=about["__version__"],
@@ -78,7 +67,7 @@ setup(
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Operating System :: MacOS :: MacOS X",
-        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.6",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     install_requires=[
@@ -86,8 +75,7 @@ setup(
         "Click>=7",
         "PyYAML>=5.1.2",
         "Mako>=1.1.1",
-        "bpylist2==2.0.3;python_version<'3.8'",
-        "bpylist2==3.0.0;python_version>='3.8'",
+        "bpylist2==3.0.2",
         "pathvalidate==2.2.1",
         "dataclasses==0.7;python_version<'3.7'",
     ],
