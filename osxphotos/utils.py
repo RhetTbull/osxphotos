@@ -262,7 +262,10 @@ def get_preferred_uti_extension(uti):
 
 def findfiles(pattern, path_):
     """Returns list of filenames from path_ matched by pattern
-       shell pattern. Matching is case-insensitive."""
+       shell pattern. Matching is case-insensitive.
+       If 'path_' is invalid/doesn't exist, returns []."""
+    if not os.path.isdir(path_):
+        return []
     # See: https://gist.github.com/techtonik/5694830
 
     rule = re.compile(fnmatch.translate(pattern), re.IGNORECASE)
