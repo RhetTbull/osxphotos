@@ -34,7 +34,7 @@ from .._constants import (
 from .._export_db import ExportDBNoOp
 from ..exiftool import ExifTool
 from ..fileutil import FileUtil
-from ..utils import dd_to_dms_str
+from ..utils import dd_to_dms_str, findfiles
 
 ExportResults = namedtuple(
     "ExportResults", ["exported", "new", "updated", "skipped", "exif_updated"]
@@ -428,11 +428,10 @@ def export2(
     # dest will be file1 (1).jpeg even though file1.jpeg doesn't exist to prevent sidecar collision
     if not update and increment and not overwrite:
         count = 1
-        glob_str = str(dest.parent / f"{dest.stem}*")
-        dest_files = glob.glob(glob_str)
-        dest_files = [pathlib.Path(f).stem for f in dest_files]
+        dest_files = findfiles(f"{dest.stem}*", str(dest.parent))
+        dest_files = [pathlib.Path(f).stem.lower() for f in dest_files]
         dest_new = dest.stem
-        while dest_new in dest_files:
+        while dest_new.lower() in dest_files:
             dest_new = f"{dest.stem} ({count})"
             count += 1
         dest = dest.parent / f"{dest_new}{dest.suffix}"
