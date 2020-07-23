@@ -76,3 +76,13 @@ def test_findfiles():
     assert len(files) == 2
     assert "file1.jpg" in files
     assert "file2.JPG" in files
+
+
+def test_findfiles_invalid_dir():
+    import tempfile
+    import os.path
+    from osxphotos.utils import findfiles
+
+    temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    files = findfiles("*.jpg", f"{temp_dir.name}/no_such_dir" )
+    assert len(files) == 0
