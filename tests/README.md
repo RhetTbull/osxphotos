@@ -18,13 +18,25 @@ Some of the export tests rely on photos in my local library and will look for `O
 One test for locale does not run on GitHub's automated workflow and will look for `OSXPHOTOS_TEST_LOCALE=1` to determine if it should be run.  If you want to run this test, set the environment variable.  
 
 ## Attribution ##
-These tests utilize a test Photos library. The test library is populated with photos from [flickr](https://www.flickr.com).  All images used are licensed under Creative Commons 2.0 Attribution [license](https://creativecommons.org/licenses/by/2.0/).  
+These tests utilize a test Photos library. The test library is populated with photos from [flickr](https://www.flickr.com) and from my own photo library.  All images used are licensed under Creative Commons 2.0 Attribution [license](https://creativecommons.org/licenses/by/2.0/).  
 
-Images used from:
+Flickr images used from:
 - [Jeff Hitchcock](https://www.flickr.com/photos/arbron/48353451872/)
 - [Carlos Montesdeoca](https://www.flickr.com/photos/carlosmontesdeocastudio)
 - [Rydale Clothing](https://www.flickr.com/photos/rydaleclothing)
 - [Marco Verch](https://www.flickr.com/photos/30478819@N08/48228222317/)
 - [K M](https://www.flickr.com/photos/153387643@N08/49334338022/)
-
+- [Shelby Mash](https://www.flickr.com/photos/shelbzyleigh/3809603052)
+- [Rory MacLeod](https://www.flickr.com/photos/macrj/6969547134)
+- [Md. Al Amin](https://www.flickr.com/photos/alamin_bd/45207044465)
+- [Fatlum Haliti](https://www.flickr.com/photos/lumlumi/363449752)
+- [Benny Mazur](https://www.flickr.com/photos/benimoto/399012465)
+- [Sara Cooper PR](https://www.flickr.com/photos/saracooperpr/6422472677)
+- [herval](https://www.flickr.com/photos/herval/2403994289)
+- [Vox Efx](https://www.flickr.com/photos/vox_efx/141137669)
+- [Bill Strain](https://www.flickr.com/photos/billstrain/5117042252)
+- [Guilherme Yagui](https://www.flickr.com/photos/yagui7/15895161088/)
+- [Deborah Austin](https://www.flickr.com/photos/littledebbie11/8703591799/)
+- [We Are Social](https://www.flickr.com/photos/wearesocial/23309711462/)
+- [cloud.shepherd](https://www.flickr.com/photos/exnucboy1/31017877125)
 

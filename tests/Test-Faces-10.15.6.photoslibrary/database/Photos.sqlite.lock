@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>hostname</key>
+	<string>Rhets-MacBook-Pro.local</string>
+	<key>hostuuid</key>
+	<string>9575E48B-8D5F-5654-ABAC-4431B1167324</string>
+	<key>pid</key>
+	<integer>440</integer>
+	<key>processname</key>
+	<string>photolibraryd</string>
+	<key>uid</key>
+	<integer>501</integer>
+</dict>
+</plist>

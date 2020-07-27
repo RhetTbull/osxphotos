@@ -143,3 +143,5 @@ def _process_scoreinfo_5(photosdb):
         scores["well_framed_subject"] = row[26]
         scores["well_timed_shot"] = row[27]
         photosdb._db_scoreinfo_uuid[uuid] = scores
+
+    conn.close()

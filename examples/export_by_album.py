@@ -79,7 +79,7 @@ def export(export_path, default_album, library_path, edited):
                 exported = p.export(dest_dir, filename)
                 click.echo(f"Exported {filename} to {exported}")
         else:
-            click.echo(f"Skipping missing photo: {p.original_filename} in album {album}")
+            click.echo(f"Skipping missing photo: {p.original_filename}")
 
 
 if __name__ == "__main__":

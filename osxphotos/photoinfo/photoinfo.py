@@ -29,7 +29,7 @@ from .._constants import (
     _PHOTOS_5_SHARED_PHOTO_PATH,
 )
 from ..albuminfo import AlbumInfo
-from ..personinfo import PersonInfo
+from ..personinfo import FaceInfo, PersonInfo
 from ..phototemplate import PhotoTemplate
 from ..placeinfo import PlaceInfo4, PlaceInfo5
 from ..utils import _debug, _get_resource_loc, findfiles, get_preferred_uti_extension
@@ -352,6 +352,20 @@ class PhotoInfo:
                 PersonInfo(db=self._db, pk=pk) for pk in self._info["persons"]
             ]
             return self._personinfo
+
+    @property
+    def face_info(self):
+        """ list of FaceInfo objects for faces in picture """
+        try:
+            return self._faceinfo
+        except AttributeError:
+            try:
+                faces = self._db._db_faceinfo_uuid[self._uuid]
+                self._faceinfo =  [FaceInfo(db=self._db, pk=pk) for pk in faces]
+            except KeyError:
+                # no faces
+                self._faceinfo = []
+            return self._faceinfo
 
     @property
     def albums(self):

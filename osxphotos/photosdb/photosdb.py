@@ -55,6 +55,7 @@ class PhotosDB:
 
     # import additional methods
     from ._photosdb_process_exif import _process_exifinfo
+    from ._photosdb_process_faceinfo import _process_faceinfo
     from ._photosdb_process_searchinfo import (
         _process_searchinfo,
         labels,
@@ -1326,6 +1327,9 @@ class PhotosDB:
         # done with the database connection
         conn.close()
 
+        # process faces
+        self._process_faceinfo()
+        
         # add faces and keywords to photo data
         for uuid in self._dbphotos:
             # keywords
@@ -2129,6 +2133,9 @@ class PhotosDB:
         # close connection and remove temporary files
         conn.close()
 
+        # process face info
+        self._process_faceinfo()
+        
         # process search info
         self._process_searchinfo()
 

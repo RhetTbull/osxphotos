@@ -19,6 +19,7 @@
     + [PlaceInfo](#placeinfo)
     + [ScoreInfo](#scoreinfo)
     + [PersonInfo](#personinfo)
+    + [FaceInfo](#faceinfo)
     + [Template Substitutions](#template-substitutions)
     + [Utility Functions](#utility-functions)
   * [Examples](#examples)
@@ -1051,7 +1052,10 @@ Returns a list of [AlbumInfo](#AlbumInfo) objects representing the albums the ph
 Returns a list of the names of the persons in the photo
 
 #### <a name="photopersoninfo">`person_info`</a>
-Returns a list of [PersonInfo](#personinfo) objects representing persons in the photo.
+Returns a list of [PersonInfo](#personinfo) objects representing persons in the photo.  Each PersonInfo object is associated with one or more FaceInfo objects.
+
+#### <a name="photofaceinfo">`face_info`</a>
+Returns a list of [FaceInfo](#faceinfo) objects representing faces in the photo.  Each face is associated with the a PersonInfo object.
 
 #### `path`
 Returns the absolute path to the photo on disk as a string.  **Note**: this returns the path to the *original* unedited file (see [hasadjustments](#hasadjustments)).  If the file is missing on disk, path=`None` (see [ismissing](#ismissing)).
@@ -1565,6 +1569,90 @@ Returns a list of PhotoInfo objects representing all photos the person appears i
 #### `json()`
 Returns a json string representation of the PersonInfo instance.
 
+### FaceInfo 
+[PhotoInfo.face_info](#photofaceinfo) return a list of FaceInfo objects representing detected faces in a photo.  The FaceInfo class has the following properties and methods.
+
+#### `uuid`
+UUID of the face.
+
+#### `name`
+Full name of the person represented by the face or None if person hasn't been given a name in Photos.  This is a shortcut for `FaceInfo.person_info.name`.
+
+#### `asset_uuid`
+UUID of the photo this face is associated with.
+
+#### `person_info`
+[PersonInfo](#personinfo) object associated with this face.
+
+#### `photo`
+[PhotoInfo](#photoinfo) object representing the photo that contains this face.
+
+#### `face_rect()`
+Returns list of x, y coordinates as tuples `[(x0, y0), (x1, y1)]` representing the corners of rectangular region that contains the face.  Coordinates are in same format and [reference frame](https://pillow.readthedocs.io/en/stable/handbook/concepts.html#coordinate-system) as used by [Pillow](https://pypi.org/project/Pillow/) imaging library.  **Note**: face_rect() and all other properties/methods that return coordinates refer to the *current version* of the image. E.g. if the image has been edited ([`PhotoInfo.hasadjustments`](#hasadjustments)), these refer to [`PhotoInfo.path_edited`](#pathedited).  If the image has no adjustments, these coordinates refer to the original photo ([`PhotoInfo.path`](#path)).
+
+#### `center`
+Coordinates as (x, y) tuple for the center of the detected face.
+
+#### `mouth`
+Coordinates as (x, y) tuple for the mouth of the detected face.
+
+#### `left_eye`
+Coordinates as (x, y) tuple for the left eye of the detected face.
+
+#### `right_eye`
+Coordinates as (x, y) tuple for the right eye of the detected face.
+
+#### `size_pixels`
+Diameter of detected face region in pixels.
+
+#### `roll_pitch_yaw()`
+Roll, pitch, and yaw of face region in radians.  Returns a tuple of (roll, pitch, yaw)
+
+#### roll
+Roll of face region in radians. 
+
+#### pitch 
+Pitch of face region in radians. 
+
+#### yaw 
+Yaw of face region in radians. 
+
+#### `Additional properties`
+The following additional properties are also available but are not yet fully documented.
+
+- `center_x`: x coordinate of center of face in Photos' internal reference frame
+- `center_y`: y coordinate of center of face in Photos' internal reference frame
+- `mouth_x`: x coordinate of mouth in Photos' internal reference frame
+- `mouth_y`: y coordinate of mouth in Photos' internal reference frame
+- `left_eye_x`: x coordinate of left eye in Photos' internal reference frame
+- `left_eye_y`: y coordinate of left eye in Photos' internal reference frame
+- `right_eye_x`: x coordinate of right eye in Photos' internal reference frame
+- `right_eye_y`: y coordinate of right eye in Photos' internal reference frame
+- `size`: size of face region in Photos' internal reference frame
+- `quality`: quality measure of detected face
+- `source_width`: width in pixels of photo
+- `source_height`: height in pixels of photo
+- `has_smile`: 
+- `left_eye_closed`: 
+- `right_eye_closed`:
+- `manual`: 
+- `face_type`:
+- `age_type`:
+- `bald_type`:
+- `eye_makeup_type`:
+- `eye_state`:
+- `facial_hair_type`:
+- `gender_type`:
+- `glasses_type`:
+- `hair_color_type`:
+- `lip_makeup_type`:
+- `smile_type`:
+
+#### `asdict()`
+Returns a dictionary representation of the FaceInfo instance.
+
+#### `json()`
+Returns a JSON representation of the FaceInfo instance.
 
 ### Template Substitutions
 
@@ -1730,10 +1818,11 @@ Testing against "real world" Photos libraries would be especially helpful.  If y
 
 ## Known Bugs
 
-My goal is make osxphotos as reliable and comprehensive as possible.  The test suite currently has over 400 tests--but there are still some [bugs](https://github.com/RhetTbull/osxphotos/issues?q=is%3Aissue+is%3Aopen+label%3Abug) or incomplete features lurking.  If you find bugs please open an [issue](https://github.com/RhetTbull/osxphotos/issues).  Notable issues include:
+My goal is make osxphotos as reliable and comprehensive as possible.  The test suite currently has over 600 tests--but there are still some [bugs](https://github.com/RhetTbull/osxphotos/issues?q=is%3Aissue+is%3Aopen+label%3Abug) or incomplete features lurking.  If you find bugs please open an [issue](https://github.com/RhetTbull/osxphotos/issues).  Notable issues include:
 
-- RAW images imported to Photos with an associated jpeg preview are not handled correctly by osxphotos.  osxphotos query and export will operate on the jpeg preview instead of the RAW image as will `PhotoInfo.path`.  If the user selects "Use RAW as original" in Photos, the RAW image will be exported or operated on but the jpeg will be ignored.  See [Issue #101](https://github.com/RhetTbull/osxphotos/issues/101) Note: Beta version of fix for this bug is implemented in the current version of osxphotos.
-- The `--download-missing` option for `osxphotos export` does not work correctly with burst images.  It will download the primary image but not the other burst images.  See [Issue #75](https://github.com/RhetTbull/osxphotos/issues/75)
+- Face coordinates (mouth, left eye, right eye) may not be correct for images where the head is tilted.  See [Issue #196](https://github.com/RhetTbull/osxphotos/issues/196).
+- RAW images imported to Photos with an associated jpeg preview are not handled correctly by osxphotos.  osxphotos query and export will operate on the jpeg preview instead of the RAW image as will `PhotoInfo.path`.  If the user selects "Use RAW as original" in Photos, the RAW image will be exported or operated on but the jpeg will be ignored.  See [Issue #101](https://github.com/RhetTbull/osxphotos/issues/101). Note: Beta version of fix for this bug is implemented in the current version of osxphotos.
+- The `--download-missing` option for `osxphotos export` does not work correctly with burst images.  It will download the primary image but not the other burst images.  See [Issue #75](https://github.com/RhetTbull/osxphotos/issues/75).
 
 ## Implementation Notes
 

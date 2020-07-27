@@ -147,7 +147,8 @@ def _process_searchinfo(self):
             "_db_searchinfo_labels_normalized: \n"
             + pformat(self._db_searchinfo_labels_normalized)
         )
-
+    
+    conn.close()
 
 @property
 def labels(self):

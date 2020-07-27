@@ -54,3 +54,5 @@ def _process_exifinfo_5(photosdb):
         if uuid in photosdb._db_exifinfo_uuid:
             logging.warning(f"duplicate exifinfo record found for uuid {uuid}")
         photosdb._db_exifinfo_uuid[uuid] = record
+
+    conn.close()
