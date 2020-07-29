@@ -1566,6 +1566,9 @@ Returns a count of how many times this person appears in images in the database.
 #### <a name="personphotos">`photos`</a>
 Returns a list of PhotoInfo objects representing all photos the person appears in.
 
+#### <a name="personfaceinfo">`face_info`</a>
+Returns a list of [FaceInfo](#faceinfo) objects associated with this person sorted by quality score. Highest quality face is result[0] and lowest quality face is result[n].
+
 #### `json()`
 Returns a json string representation of the PersonInfo instance.
 
