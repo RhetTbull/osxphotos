@@ -138,6 +138,9 @@ Options:
                                   searches top level folders (e.g. does not
                                   look at subfolders)
   --uuid UUID                     Search for photos with UUID(s).
+  --uuid-from-file FILE           Search for photos with UUID(s) loaded from
+                                  FILE. Format is a single UUID per line.
+                                  Lines preceeded with # are ignored.
   --title TITLE                   Search for TITLE in title of photo.
   --no-title                      Search for photos with no title.
   --description DESC              Search for DESC in description of photo.

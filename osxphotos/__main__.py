@@ -299,6 +299,15 @@ def query_options(f):
             help="Search for photos with UUID(s).",
         ),
         o(
+            "--uuid-from-file",
+            metavar="FILE",
+            default=None,
+            multiple=False,
+            help="Search for photos with UUID(s) loaded from FILE. "
+            "Format is a single UUID per line.  Lines preceeded with # are ignored.",
+            type=click.Path(exists=True)
+        ),
+        o(
             "--title",
             metavar="TITLE",
             default=None,
@@ -891,6 +900,7 @@ def query(
     album,
     folder,
     uuid,
+    uuid_from_file,
     title,
     no_title,
     description,
@@ -954,6 +964,7 @@ def query(
         album,
         folder,
         uuid,
+        uuid_from_file,
         edited,
         external_edit,
         uti,
@@ -997,6 +1008,12 @@ def query(
         isphoto = False
     if only_photos:
         ismovie = False
+
+    # load UUIDs if necessary and append to any uuids passed with --uuid
+    if uuid_from_file:
+        uuid_list = list(uuid) # Click option is a tuple
+        uuid_list.extend(load_uuid_from_file(uuid_from_file))
+        uuid = tuple(uuid_list)
 
     # below needed for to make CliRunner work for testing
     cli_db = cli_obj.db if cli_obj is not None else None
@@ -1247,6 +1264,7 @@ def export(
     album,
     folder,
     uuid,
+    uuid_from_file,
     title,
     no_title,
     description,
@@ -1329,7 +1347,7 @@ def export(
     VERBOSE = True if verbose_ else False
 
     if not os.path.isdir(dest):
-        sys.exit("DEST must be valid path")
+        sys.exit(f"DEST {dest} must be valid path")
 
     # sanity check input args
     exclusive = [
@@ -1380,6 +1398,12 @@ def export(
         isphoto = False
     if only_photos:
         ismovie = False
+
+    # load UUIDs if necessary and append to any uuids passed with --uuid
+    if uuid_from_file:
+        uuid_list = list(uuid) # Click option is a tuple
+        uuid_list.extend(load_uuid_from_file(uuid_from_file))
+        uuid = tuple(uuid_list)
 
     # below needed for to make CliRunner work for testing
     cli_db = cli_obj.db if cli_obj is not None else None
@@ -2091,6 +2115,12 @@ def export_photo(
         )
         return ExportResults([], [], [], [], [])
 
+    results_exported = []
+    results_new = []
+    results_updated = []
+    results_skipped = []
+    results_exif_updated = []
+
     filenames = get_filenames_from_template(photo, filename_template, original_name)
     for filename in filenames:
         verbose(f"Exporting {photo.filename} as {filename}")
@@ -2113,11 +2143,6 @@ def export_photo(
         )
 
         # export the photo to each path in dest_paths
-        results_exported = []
-        results_new = []
-        results_updated = []
-        results_skipped = []
-        results_exif_updated = []
         for dest_path in dest_paths:
             export_results = photo.export2(
                 dest_path,
@@ -2338,6 +2363,31 @@ def find_files_in_branch(pathname, filename):
 
     return files
 
+def load_uuid_from_file(filename):
+    """ Load UUIDs from file.  Does not validate UUIDs.
+        Format is 1 UUID per line, any line beginning with # is ignored.
+        Whitespace is stripped.
+
+    Arguments:
+        filename: file name of the file containing UUIDs
+    
+    Returns:
+        list of UUIDs or empty list of no UUIDs in file
+    
+    Raises:
+        FileNotFoundError if file does not exist
+    """
+    
+    if not pathlib.Path(filename).is_file():
+        raise FileNotFoundError(f"Could not find file {filename}")
+
+    uuid = []
+    with open(filename, "r") as uuid_file:
+        for line in uuid_file:
+            line = line.strip()
+            if len(line) and line[0] != "#":
+                uuid.append(line)
+    return uuid
 
 if __name__ == "__main__":
     cli()  # pylint: disable=no-value-for-parameter

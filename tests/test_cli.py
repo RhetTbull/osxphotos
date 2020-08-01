@@ -1,3 +1,5 @@
+""" Test the command line interface (CLI) """
+
 import os
 
 import pytest
@@ -13,6 +15,8 @@ PLACES_PHOTOS_DB_13 = "tests/Test-Places-High-Sierra-10.13.6.photoslibrary"
 PHOTOS_DB_15_4 = "tests/Test-10.15.4.photoslibrary"
 PHOTOS_DB_15_5 = "tests/Test-10.15.5.photoslibrary"
 PHOTOS_DB_14_6 = "tests/Test-10.14.6.photoslibrary"
+
+UUID_FILE = "tests/uuid_from_file.txt"
 
 CLI_OUTPUT_NO_SUBCOMMAND = [
     "Options:",
@@ -295,6 +299,23 @@ ALBUMS_JSON = {
 
 PERSONS_JSON = {"persons": {"Katie": 3, "Suzy": 2, "_UNKNOWN_": 1, "Maria": 2}}
 
+UUID_EXPECTED_FROM_FILE = [
+    "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51",
+    "6191423D-8DB8-4D4C-92BE-9BBBA308AAC4",
+    "A92D9C26-3A50-4197-9388-CB5F7DB9FA91",
+]
+
+UUID_NOT_FROM_FILE = "D79B8D77-BFFC-460B-9312-034F2877D35B"
+
+CLI_EXPORT_UUID_FROM_FILE_FILENAMES = [
+    "IMG_1994.JPG",
+    "IMG_1994.cr2",
+    "Tulips.jpg",
+    "Tulips_edited.jpeg",
+    "wedding.jpg",
+    "wedding_edited.jpeg",
+]
+
 # determine if exiftool installed so exiftool tests can be skipped
 try:
     exiftool = get_exiftool_path()
@@ -390,6 +411,72 @@ def test_query_uuid():
             assert json_expected[key_] in json_got[key_]
 
 
+def test_query_uuid_from_file_1():
+    """ Test query with --uuid-from-file """
+    import json
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_5),
+            "--uuid-from-file",
+            UUID_FILE,
+        ],
+    )
+    assert result.exit_code == 0
+
+    # build list of uuids we got from the output JSON
+    json_got = json.loads(result.output)
+    uuid_got = []
+    for photo in json_got:
+        uuid_got.append(photo["uuid"])
+
+    assert sorted(UUID_EXPECTED_FROM_FILE) == sorted(uuid_got)
+
+
+def test_query_uuid_from_file_2():
+    """ Test query with --uuid-from-file and --uuid """
+    import json
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_5),
+            "--uuid-from-file",
+            UUID_FILE,
+            "--uuid",
+            UUID_NOT_FROM_FILE,
+        ],
+    )
+    assert result.exit_code == 0
+
+    # build list of uuids we got from the output JSON
+    json_got = json.loads(result.output)
+    uuid_got = []
+    for photo in json_got:
+        uuid_got.append(photo["uuid"])
+
+    uuid_expected = UUID_EXPECTED_FROM_FILE.copy()
+    uuid_expected.append(UUID_NOT_FROM_FILE)
+    assert sorted(uuid_expected) == sorted(uuid_got)
+
+
 def test_export():
     import glob
     import os
@@ -405,6 +492,33 @@ def test_export():
         assert result.exit_code == 0
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
+
+
+def test_export_uuid_from_file():
+    """ Test export with --uuid-from-file """
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_5),
+                ".",
+                "-V",
+                "--uuid-from-file",
+                os.path.join(cwd, UUID_FILE),
+            ],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_UUID_FROM_FILE_FILENAMES)
 
 
 def test_export_as_hardlink():
@@ -2468,7 +2582,7 @@ def test_albums():
 
 
 def test_persons():
-    """Test osxphotos albums """
+    """Test osxphotos persons """
     import json
     import osxphotos
     import os
