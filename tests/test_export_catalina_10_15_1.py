@@ -1,9 +1,14 @@
 import pytest
 
 from osxphotos._constants import _UNKNOWN_PERSON
+from osxphotos.exiftool import get_exiftool_path
 from osxphotos.utils import dd_to_dms_str
 
-# TODO: put some of this code into a pre-function
+# determine if exiftool installed so exiftool tests can be skipped
+try:
+    exiftool = get_exiftool_path()
+except:
+    exiftool = None
 
 PHOTOS_DB = "./tests/Test-10.15.1.photoslibrary/database/photos.db"
 
@@ -54,9 +59,12 @@ UUID_DICT = {
     "external_edit": "DC99FBDD-7A52-4100-A5BB-344131646C30",
     "no_external_edit": "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51",
     "export": "D79B8D77-BFFC-460B-9312-034F2877D35B",  # "Pumkins2.jpg"
-    "xmp": "F12384F6-CD17-4151-ACBA-AE0E3688539E",
+    "xmp": "F12384F6-CD17-4151-ACBA-AE0E3688539E", # Pumkins1.jpg
 }
 
+# used with UUID_DICT["xmp"]
+XMP_FILENAME = "Pumkins1.xmp" 
+XMP_JPG_FILENAME = "Pumkins1.jpg" 
 
 def test_export_1():
     # test basic export
@@ -559,6 +567,21 @@ def test_exiftool_json_sidecar_use_albums_keyword():
         else:
             assert json_got[k] == v
 
+
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+def test_xmp_sidecar_is_valid(tmp_path):
+    """ validate XMP sidecar file with exiftool """
+    import osxphotos
+    from osxphotos.exiftool import ExifTool
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=[UUID_DICT["xmp"]])
+    photos[0].export(str(tmp_path), XMP_JPG_FILENAME, sidecar_xmp = True)
+    xmp_file = tmp_path / XMP_FILENAME
+    assert xmp_file.is_file()
+    exiftool = ExifTool(str(xmp_file))
+    output = exiftool.run_commands("-validate", "-warning")
+    assert output == b'[ExifTool]      Validate                        : 0 0 0'
 
 def test_xmp_sidecar():
     import osxphotos
