@@ -39,7 +39,7 @@ OSXPhotos provides the ability to interact with and query Apple's Photos.app lib
 
 Only works on MacOS (aka Mac OS X). Tested on MacOS 10.12.6 / Photos 2.0, 10.13.6 / Photos 3.0, MacOS 10.14.5, 10.14.6 / Photos 4.0, MacOS 10.15.1 - 10.15.6 / Photos 5.0. 
 
-Requires python >= 3.6. 
+Requires python >= 3.7. 
 
 This package will read Photos databases for any supported version on any supported OS version.  E.g. you can read a database created with Photos 4.0 on MacOS 10.14 on a machine running MacOS 10.12.
 

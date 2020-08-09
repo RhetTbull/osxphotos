@@ -67,11 +67,11 @@ setup(
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Operating System :: MacOS :: MacOS X",
-        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     install_requires=[
-        "pyobjc>=6.0.1",
+        "pyobjc>=6.2.2",
         "Click>=7",
         "PyYAML>=5.1.2",
         "Mako>=1.1.1",
