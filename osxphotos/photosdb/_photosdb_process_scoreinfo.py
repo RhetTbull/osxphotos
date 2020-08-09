@@ -4,8 +4,9 @@
 
 import logging
 
-from .._constants import _PHOTOS_4_VERSION
+from .._constants import _DB_TABLE_NAMES, _PHOTOS_4_VERSION
 from ..utils import _open_sql_file
+from .photosdb_utils import get_db_version
 
 """
     This module should be imported in the class defintion of PhotosDB in photosdb.py
@@ -45,16 +46,18 @@ def _process_scoreinfo_5(photosdb):
 
     db = photosdb._tmp_db
 
+    asset_table = _DB_TABLE_NAMES[photosdb._photos_ver]["ASSET"]
+
     (conn, cursor) = _open_sql_file(db)
 
     result = cursor.execute(
-        """
+        f"""
         SELECT 
-        ZGENERICASSET.ZUUID,
-        ZGENERICASSET.ZOVERALLAESTHETICSCORE,
-        ZGENERICASSET.ZCURATIONSCORE,
-        ZGENERICASSET.ZPROMOTIONSCORE,
-        ZGENERICASSET.ZHIGHLIGHTVISIBILITYSCORE,
+        {asset_table}.ZUUID,
+        {asset_table}.ZOVERALLAESTHETICSCORE,
+        {asset_table}.ZCURATIONSCORE,
+        {asset_table}.ZPROMOTIONSCORE,
+        {asset_table}.ZHIGHLIGHTVISIBILITYSCORE,
         ZCOMPUTEDASSETATTRIBUTES.ZBEHAVIORALSCORE, 
         ZCOMPUTEDASSETATTRIBUTES.ZFAILURESCORE,
         ZCOMPUTEDASSETATTRIBUTES.ZHARMONIOUSCOLORSCORE,
@@ -78,8 +81,8 @@ def _process_scoreinfo_5(photosdb):
         ZCOMPUTEDASSETATTRIBUTES.ZWELLCHOSENSUBJECTSCORE,
         ZCOMPUTEDASSETATTRIBUTES.ZWELLFRAMEDSUBJECTSCORE,
         ZCOMPUTEDASSETATTRIBUTES.ZWELLTIMEDSHOTSCORE
-        FROM ZGENERICASSET
-        JOIN ZCOMPUTEDASSETATTRIBUTES ON ZCOMPUTEDASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK
+        FROM {asset_table}
+        JOIN ZCOMPUTEDASSETATTRIBUTES ON ZCOMPUTEDASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK
         """
     )
 

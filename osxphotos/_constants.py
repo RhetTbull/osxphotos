@@ -10,18 +10,42 @@ import os.path
 # Photos 4.0 (10.14.5) == 4016
 # Photos 4.0 (10.14.6) == 4025
 # Photos 5.0 (10.15.0) == 6000
-# TODO: Should this also use compatibleBackToVersion from LiGlobals?
 _TESTED_DB_VERSIONS = ["6000", "4025", "4016", "3301", "2622"]
+
+# database model versions (applies to Photos 5, Photos 6)
+# these come from PLModelVersion key in binary plist in Z_METADATA.Z_PLIST
+# Photos 5 (10.15.1) == 13537
+# Photos 5 (10.15.4, 10.15.5, 10.15.6) == 13703
+# Photos 6 (10.16.0 Beta) == 14104
+_TEST_MODEL_VERSIONS = ["13537", "13703", "14104"]
 
 # only version 3 - 4 have RKVersion.selfPortrait
 _PHOTOS_3_VERSION = "3301"
 
 # versions 5.0 and later have a different database structure
 _PHOTOS_4_VERSION = "4025"  # latest Mojove version on 10.14.6
-_PHOTOS_5_VERSION = "6000"  # seems to be current on 10.15.1 through 10.15.5
+_PHOTOS_5_VERSION = "6000"  # seems to be current on 10.15.1 through 10.15.6
+
+# Ranges for model version by Photos version
+_PHOTOS_5_MODEL_VERSION = [13000, 13999]
+_PHOTOS_6_MODEL_VERSION = [14000, 14999]
+
+# some table names differ between Photos 5 and Photos 6
+_DB_TABLE_NAMES = {
+    5: {
+        "ASSET": "ZGENERICASSET",
+        "KEYWORD_JOIN": "Z_1KEYWORDS.Z_37KEYWORDS",
+        "ALBUM_JOIN": "Z_26ASSETS.Z_34ASSETS",
+    },
+    6: {
+        "ASSET": "ZASSET",
+        "KEYWORD_JOIN": "Z_1KEYWORDS.Z_36KEYWORDS",
+        "ALBUM_JOIN": "Z_26ASSETS.Z_3ASSETS",
+    },
+}
 
 # which major version operating systems have been tested
-_TESTED_OS_VERSIONS = ["12", "13", "14", "15"]
+_TESTED_OS_VERSIONS = ["12", "13", "14", "15", "16"]
 
 # Photos 5 has persons who are empty string if unidentified face
 _UNKNOWN_PERSON = "_UNKNOWN_"

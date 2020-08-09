@@ -3,9 +3,9 @@
 
 import logging
 
-from .._constants import _PHOTOS_4_VERSION
+from .._constants import _DB_TABLE_NAMES, _PHOTOS_4_VERSION
 from ..utils import _db_is_locked, _debug, _open_sql_file
-
+from .photosdb_utils import get_db_version
 
 def _process_exifinfo(self):
     """ load the exif data from the database 
@@ -35,14 +35,16 @@ def _process_exifinfo_5(photosdb):
 
     db = photosdb._tmp_db
 
+    asset_table = _DB_TABLE_NAMES[photosdb._photos_ver]["ASSET"]
+        
     (conn, cursor) = _open_sql_file(db)
 
     result = conn.execute(
-        """
-        SELECT ZGENERICASSET.ZUUID, ZEXTENDEDATTRIBUTES.*
-        FROM ZGENERICASSET
+        f"""
+        SELECT {asset_table}.ZUUID, ZEXTENDEDATTRIBUTES.*
+        FROM {asset_table}
         JOIN ZEXTENDEDATTRIBUTES
-        ON ZEXTENDEDATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK
+        ON ZEXTENDEDATTRIBUTES.ZASSET = {asset_table}.Z_PK
         """
     )
 

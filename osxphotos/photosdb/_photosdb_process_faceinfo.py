@@ -3,8 +3,9 @@
 
 import logging
 
-from .._constants import _PHOTOS_4_VERSION
+from .._constants import _DB_TABLE_NAMES, _PHOTOS_4_VERSION
 from ..utils import _open_sql_file
+from .photosdb_utils import get_db_version
 
 
 """
@@ -180,13 +181,15 @@ def _process_faceinfo_5(photosdb):
 
     db = photosdb._tmp_db
 
+    asset_table = _DB_TABLE_NAMES[photosdb._photos_ver]["ASSET"]
+
     (conn, cursor) = _open_sql_file(db)
 
     result = cursor.execute(
-        """ 
+        f""" 
         SELECT
         ZDETECTEDFACE.Z_PK,
-        ZGENERICASSET.ZUUID,
+        {asset_table}.ZUUID,
         ZDETECTEDFACE.ZUUID,
         ZDETECTEDFACE.ZPERSON,
         ZPERSON.ZFULLNAME,
@@ -225,7 +228,7 @@ def _process_faceinfo_5(photosdb):
         ZDETECTEDFACE.ZYAW,
         ZDETECTEDFACE.ZMASTERIDENTIFIER
         FROM ZDETECTEDFACE
-        JOIN ZGENERICASSET ON ZGENERICASSET.Z_PK = ZDETECTEDFACE.ZASSET
+        JOIN {asset_table} ON {asset_table}.Z_PK = ZDETECTEDFACE.ZASSET
         JOIN ZPERSON ON ZPERSON.Z_PK = ZDETECTEDFACE.ZPERSON;
         """
     )

@@ -16,6 +16,7 @@ from pprint import pformat
 from shutil import copyfile
 
 from .._constants import (
+    _DB_TABLE_NAMES,
     _MOVIE_TYPE,
     _PHOTO_TYPE,
     _PHOTOS_3_VERSION,
@@ -45,6 +46,7 @@ from ..utils import (
     _open_sql_file,
     get_last_library_path,
 )
+from .photosdb_utils import get_db_version, get_db_model_version
 
 # TODO: Add test for imageTimeZoneOffsetSeconds = None
 # TODO: Add test for __str__
@@ -267,7 +269,7 @@ class PhotosDB:
         if _db_is_locked(self._dbfile):
             self._tmp_db = self._copy_db_file(self._dbfile)
 
-        self._db_version = self._get_db_version(self._tmp_db)
+        self._db_version = get_db_version(self._tmp_db)
 
         # If Photos >= 5, actual data isn't in photos.db but in Photos.sqlite
         if int(self._db_version) > int(_PHOTOS_4_VERSION):
@@ -529,34 +531,6 @@ class PhotosDB:
             logging.debug(dest_path)
 
         return dest_path
-
-    def _get_db_version(self, db_file):
-        """ Gets the Photos DB version from LiGlobals table
-
-        Args:
-            db_file: path to database file containing LiGlobals table
-
-        Returns: version as str
-        """
-
-        version = None
-
-        (conn, c) = _open_sql_file(db_file)
-
-        # get database version
-        c.execute(
-            "SELECT value from LiGlobals where LiGlobals.keyPath is 'libraryVersion'"
-        )
-        version = c.fetchone()[0]
-        conn.close()
-
-        if version not in _TESTED_DB_VERSIONS:
-            print(
-                f"WARNING: Only tested on database versions [{', '.join(_TESTED_DB_VERSIONS)}]"
-                + f" You have database version={version} which has not been tested"
-            )
-
-        return version
 
     def _process_database4(self):
         """ process the Photos database to extract info
@@ -1436,7 +1410,7 @@ class PhotosDB:
 
     def _process_database5(self):
         """ process the Photos database to extract info 
-            works on Photos version >= 5.0 
+            works on Photos version 5 and version 6
 
             This is a big hairy 700 line function that should probably be refactored
             but it works so don't touch it.
@@ -1447,6 +1421,12 @@ class PhotosDB:
 
         # Epoch is Jan 1, 2001
         td = (datetime(2001, 1, 1, 0, 0) - datetime(1970, 1, 1, 0, 0)).total_seconds()
+
+        photos_ver = get_db_model_version(self._tmp_db)
+        self._photos_ver = photos_ver
+        asset_table = _DB_TABLE_NAMES[photos_ver]["ASSET"]
+        keyword_join = _DB_TABLE_NAMES[photos_ver]["KEYWORD_JOIN"]
+        album_join = _DB_TABLE_NAMES[photos_ver]["ALBUM_JOIN"]
 
         (conn, c) = _open_sql_file(self._tmp_db)
 
@@ -1496,14 +1476,14 @@ class PhotosDB:
         # get info on keyface -- some photos have null keyface so can't do a single query
         # (at least not with my SQL skills)
         c.execute(
-            """ SELECT
+            f""" SELECT
                 ZPERSON.Z_PK,
                 ZPERSON.ZKEYFACE,
-                ZGENERICASSET.ZUUID,
+                {asset_table}.ZUUID,
                 ZDETECTEDFACE.ZUUID
-                FROM ZPERSON, ZDETECTEDFACE, ZGENERICASSET
+                FROM ZPERSON, ZDETECTEDFACE, {asset_table}
                 WHERE ZDETECTEDFACE.Z_PK = ZPERSON.ZKEYFACE AND
-                ZDETECTEDFACE.ZASSET = ZGENERICASSET.Z_PK
+                ZDETECTEDFACE.ZASSET = {asset_table}.Z_PK
             """
         )
 
@@ -1522,12 +1502,12 @@ class PhotosDB:
 
         # get information on detected faces
         c.execute(
-            """ SELECT
+            f""" SELECT
                 ZPERSON.Z_PK,
-                ZGENERICASSET.ZUUID
-                FROM ZPERSON, ZDETECTEDFACE, ZGENERICASSET
+                {asset_table}.ZUUID
+                FROM ZPERSON, ZDETECTEDFACE, {asset_table}
                 WHERE ZDETECTEDFACE.ZPERSON = ZPERSON.Z_PK AND
-                ZDETECTEDFACE.ZASSET = ZGENERICASSET.Z_PK
+                ZDETECTEDFACE.ZASSET = {asset_table}.Z_PK
             """
         )
 
@@ -1556,12 +1536,12 @@ class PhotosDB:
 
         # get details about albums
         c.execute(
-            """ SELECT 
+            f""" SELECT 
                 ZGENERICALBUM.ZUUID, 
-                ZGENERICASSET.ZUUID,
-                Z_26ASSETS.Z_FOK_34ASSETS
-                FROM ZGENERICASSET 
-                JOIN Z_26ASSETS ON Z_26ASSETS.Z_34ASSETS = ZGENERICASSET.Z_PK 
+                {asset_table}.ZUUID,
+                {album_join}
+                FROM {asset_table} 
+                JOIN Z_26ASSETS ON {album_join} = {asset_table}.Z_PK 
                 JOIN ZGENERICALBUM ON ZGENERICALBUM.Z_PK = Z_26ASSETS.Z_26ALBUMS
             """
         )
@@ -1668,11 +1648,11 @@ class PhotosDB:
 
         # get details on keywords
         c.execute(
-            "SELECT ZKEYWORD.ZTITLE, ZGENERICASSET.ZUUID "
-            "FROM ZGENERICASSET "
-            "JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK "
-            "JOIN Z_1KEYWORDS ON Z_1KEYWORDS.Z_1ASSETATTRIBUTES = ZADDITIONALASSETATTRIBUTES.Z_PK "
-            "JOIN ZKEYWORD ON ZKEYWORD.Z_PK = Z_1KEYWORDS.Z_37KEYWORDS "
+            f"""SELECT ZKEYWORD.ZTITLE, {asset_table}.ZUUID
+                FROM {asset_table} 
+                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
+                JOIN Z_1KEYWORDS ON Z_1KEYWORDS.Z_1ASSETATTRIBUTES = ZADDITIONALASSETATTRIBUTES.Z_PK 
+                JOIN ZKEYWORD ON ZKEYWORD.Z_PK = {keyword_join} """
         )
         for keyword in c:
             if not keyword[1] in self._dbkeywords_uuid:
@@ -1699,45 +1679,45 @@ class PhotosDB:
         # get details about photos
         logging.debug(f"Getting information about photos")
         c.execute(
-            """SELECT ZGENERICASSET.ZUUID, 
+            f"""SELECT {asset_table}.ZUUID, 
                 ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT, 
                 ZADDITIONALASSETATTRIBUTES.ZTITLE, 
                 ZADDITIONALASSETATTRIBUTES.ZORIGINALFILENAME, 
-                ZGENERICASSET.ZMODIFICATIONDATE, 
-                ZGENERICASSET.ZDATECREATED, 
+                {asset_table}.ZMODIFICATIONDATE, 
+                {asset_table}.ZDATECREATED, 
                 ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET, 
                 ZADDITIONALASSETATTRIBUTES.ZINFERREDTIMEZONEOFFSET, 
                 ZADDITIONALASSETATTRIBUTES.ZTIMEZONENAME, 
-                ZGENERICASSET.ZHIDDEN, 
-                ZGENERICASSET.ZFAVORITE, 
-                ZGENERICASSET.ZDIRECTORY, 
-                ZGENERICASSET.ZFILENAME, 
-                ZGENERICASSET.ZLATITUDE, 
-                ZGENERICASSET.ZLONGITUDE, 
-                ZGENERICASSET.ZHASADJUSTMENTS, 
-                ZGENERICASSET.ZCLOUDBATCHPUBLISHDATE, 
-                ZGENERICASSET.ZKIND, 
-                ZGENERICASSET.ZUNIFORMTYPEIDENTIFIER,
-                ZGENERICASSET.ZAVALANCHEUUID,
-                ZGENERICASSET.ZAVALANCHEPICKTYPE,
-                ZGENERICASSET.ZKINDSUBTYPE,
-                ZGENERICASSET.ZCUSTOMRENDEREDVALUE,
+                {asset_table}.ZHIDDEN, 
+                {asset_table}.ZFAVORITE, 
+                {asset_table}.ZDIRECTORY, 
+                {asset_table}.ZFILENAME, 
+                {asset_table}.ZLATITUDE, 
+                {asset_table}.ZLONGITUDE, 
+                {asset_table}.ZHASADJUSTMENTS, 
+                {asset_table}.ZCLOUDBATCHPUBLISHDATE, 
+                {asset_table}.ZKIND, 
+                {asset_table}.ZUNIFORMTYPEIDENTIFIER,
+                {asset_table}.ZAVALANCHEUUID,
+                {asset_table}.ZAVALANCHEPICKTYPE,
+                {asset_table}.ZKINDSUBTYPE,
+                {asset_table}.ZCUSTOMRENDEREDVALUE,
                 ZADDITIONALASSETATTRIBUTES.ZCAMERACAPTUREDEVICE,
-                ZGENERICASSET.ZCLOUDASSETGUID,
+                {asset_table}.ZCLOUDASSETGUID,
                 ZADDITIONALASSETATTRIBUTES.ZREVERSELOCATIONDATA,
-                ZGENERICASSET.ZMOMENT,
+                {asset_table}.ZMOMENT,
                 ZADDITIONALASSETATTRIBUTES.ZORIGINALRESOURCECHOICE,
-                ZGENERICASSET.ZTRASHEDSTATE,
-                ZGENERICASSET.ZHEIGHT, 
-                ZGENERICASSET.ZWIDTH, 
-                ZGENERICASSET.ZORIENTATION, 
+                {asset_table}.ZTRASHEDSTATE,
+                {asset_table}.ZHEIGHT, 
+                {asset_table}.ZWIDTH, 
+                {asset_table}.ZORIENTATION, 
                 ZADDITIONALASSETATTRIBUTES.ZORIGINALHEIGHT, 
                 ZADDITIONALASSETATTRIBUTES.ZORIGINALWIDTH, 
                 ZADDITIONALASSETATTRIBUTES.ZORIGINALORIENTATION,
                 ZADDITIONALASSETATTRIBUTES.ZORIGINALFILESIZE
-                FROM ZGENERICASSET 
-                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK 
-                ORDER BY ZGENERICASSET.ZUUID  """
+                FROM {asset_table} 
+                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
+                ORDER BY {asset_table}.ZUUID  """
         )
         # Order of results
         # 0    SELECT ZGENERICASSET.ZUUID,
@@ -1973,12 +1953,12 @@ class PhotosDB:
 
         # Get extended description
         c.execute(
-            "SELECT ZGENERICASSET.ZUUID, "
-            "ZASSETDESCRIPTION.ZLONGDESCRIPTION "
-            "FROM ZGENERICASSET "
-            "JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK "
-            "JOIN ZASSETDESCRIPTION ON ZASSETDESCRIPTION.Z_PK = ZADDITIONALASSETATTRIBUTES.ZASSETDESCRIPTION "
-            "ORDER BY ZGENERICASSET.ZUUID "
+            f"""SELECT {asset_table}.ZUUID, 
+                ZASSETDESCRIPTION.ZLONGDESCRIPTION 
+                FROM {asset_table} 
+                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
+                JOIN ZASSETDESCRIPTION ON ZASSETDESCRIPTION.Z_PK = ZADDITIONALASSETATTRIBUTES.ZASSETDESCRIPTION 
+                ORDER BY {asset_table}.ZUUID """
         )
         for row in c:
             uuid = row[0]
@@ -1992,12 +1972,12 @@ class PhotosDB:
 
         # get information about adjusted/edited photos
         c.execute(
-            "SELECT ZGENERICASSET.ZUUID, "
-            "ZGENERICASSET.ZHASADJUSTMENTS, "
-            "ZUNMANAGEDADJUSTMENT.ZADJUSTMENTFORMATIDENTIFIER "
-            "FROM ZGENERICASSET, ZUNMANAGEDADJUSTMENT "
-            "JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK "
-            "WHERE ZADDITIONALASSETATTRIBUTES.ZUNMANAGEDADJUSTMENT = ZUNMANAGEDADJUSTMENT.Z_PK "
+            f"""SELECT {asset_table}.ZUUID, 
+                {asset_table}.ZHASADJUSTMENTS, 
+                ZUNMANAGEDADJUSTMENT.ZADJUSTMENTFORMATIDENTIFIER 
+                FROM {asset_table}, ZUNMANAGEDADJUSTMENT 
+                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
+                WHERE ZADDITIONALASSETATTRIBUTES.ZUNMANAGEDADJUSTMENT = ZUNMANAGEDADJUSTMENT.Z_PK """
         )
         for row in c:
             uuid = row[0]
@@ -2016,12 +1996,12 @@ class PhotosDB:
 
         # Get info on remote/local availability for photos in shared albums
         c.execute(
-            """ SELECT 
-                ZGENERICASSET.ZUUID, 
+            f""" SELECT 
+                {asset_table}.ZUUID, 
                 ZINTERNALRESOURCE.ZLOCALAVAILABILITY, 
                 ZINTERNALRESOURCE.ZREMOTEAVAILABILITY
-                FROM ZGENERICASSET
-                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK 
+                FROM {asset_table}
+                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
                 JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZASSET = ZADDITIONALASSETATTRIBUTES.ZASSET 
                 WHERE  ZDATASTORESUBTYPE = 1 OR ZDATASTORESUBTYPE = 3 """
         )
@@ -2047,11 +2027,11 @@ class PhotosDB:
 
         # get information on local/remote availability
         c.execute(
-            """ SELECT ZGENERICASSET.ZUUID,
+            f""" SELECT {asset_table}.ZUUID,
                 ZINTERNALRESOURCE.ZLOCALAVAILABILITY,
                 ZINTERNALRESOURCE.ZREMOTEAVAILABILITY
-                FROM ZGENERICASSET
-                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK
+                FROM {asset_table}
+                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK
                 JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZFINGERPRINT = ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT """
         )
 
@@ -2075,11 +2055,11 @@ class PhotosDB:
 
         # get information about cloud sync state
         c.execute(
-            """ SELECT
-                ZGENERICASSET.ZUUID,
+            f""" SELECT
+                {asset_table}.ZUUID,
                 ZCLOUDMASTER.ZCLOUDLOCALSTATE
-                FROM ZCLOUDMASTER, ZGENERICASSET
-                WHERE ZGENERICASSET.ZMASTER = ZCLOUDMASTER.Z_PK """
+                FROM ZCLOUDMASTER, {asset_table}
+                WHERE {asset_table}.ZMASTER = ZCLOUDMASTER.Z_PK """
         )
         for row in c:
             uuid = row[0]
@@ -2090,15 +2070,15 @@ class PhotosDB:
         # get information about associted RAW images
         # RAW images have ZDATASTORESUBTYPE = 17
         c.execute(
-            """ SELECT
-                ZGENERICASSET.ZUUID,
+            f""" SELECT
+                {asset_table}.ZUUID,
                 ZINTERNALRESOURCE.ZDATALENGTH, 
                 ZUNIFORMTYPEIDENTIFIER.ZIDENTIFIER,
                 ZINTERNALRESOURCE.ZDATASTORESUBTYPE,
                 ZINTERNALRESOURCE.ZRESOURCETYPE
-                FROM ZGENERICASSET
+                FROM {asset_table}
                 JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZASSET = ZADDITIONALASSETATTRIBUTES.ZASSET
-                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = ZGENERICASSET.Z_PK 
+                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
                 JOIN ZUNIFORMTYPEIDENTIFIER ON ZUNIFORMTYPEIDENTIFIER.Z_PK =  ZINTERNALRESOURCE.ZUNIFORMTYPEIDENTIFIER
                 WHERE ZINTERNALRESOURCE.ZDATASTORESUBTYPE = 17
         """
