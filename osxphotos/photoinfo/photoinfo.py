@@ -87,12 +87,8 @@ class PhotoInfo:
     @property
     def date(self):
         """ image creation date as timezone aware datetime object """
-        imagedate = self._info["imageDate"]
-        seconds = self._info["imageTimeZoneOffsetSeconds"] or 0
-        delta = timedelta(seconds=seconds)
-        tz = timezone(delta)
-        return imagedate.astimezone(tz=tz)
-
+        return self._info["imageDate"]
+        
     @property
     def date_modified(self):
         """ image modification date as timezone aware datetime object

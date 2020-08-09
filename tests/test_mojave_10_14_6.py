@@ -1,4 +1,3 @@
-import pytest
 
 from osxphotos._constants import _UNKNOWN_PERSON
 
@@ -80,13 +79,6 @@ def test_db_len():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     # assert photosdb.db_version in osxphotos._TESTED_DB_VERSIONS
     assert len(photosdb) == PHOTOS_DB_LEN
-
-
-def test_os_version():
-    import osxphotos
-
-    (_, major, _) = osxphotos.utils._get_os_version()
-    assert major in osxphotos._constants._TESTED_OS_VERSIONS
 
 
 def test_persons():
@@ -272,6 +264,7 @@ def test_not_hidden():
 def test_location_1():
     # test photo with lat/lon info
     import osxphotos
+    import pytest
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=["3Jn73XpSQQCluzRBMWRsMA"])

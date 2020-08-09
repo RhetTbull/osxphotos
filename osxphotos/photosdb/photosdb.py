@@ -11,7 +11,7 @@ import platform
 import sqlite3
 import sys
 import tempfile
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from pprint import pformat
 from shutil import copyfile
 
@@ -34,6 +34,7 @@ from .._constants import (
 )
 from .._version import __version__
 from ..albuminfo import AlbumInfo, FolderInfo
+from ..datetime_utils import datetime_has_tz, datetime_naive_to_local
 from ..personinfo import PersonInfo
 from ..photoinfo import PhotoInfo
 from ..utils import (
@@ -952,15 +953,23 @@ class PhotosDB:
             except TypeError:
                 self._dbphotos[uuid]["lastmodifieddate"] = None
 
+            self._dbphotos[uuid]["imageTimeZoneOffsetSeconds"] = row[9]
+
             try:
-                self._dbphotos[uuid]["imageDate"] = datetime.fromtimestamp(row[5] + td)
+                imagedate = datetime.fromtimestamp(row[5] + td)
+                seconds = self._dbphotos[uuid]["imageTimeZoneOffsetSeconds"] or 0
+                delta = timedelta(seconds=seconds)
+                tz = timezone(delta)
+                self._dbphotos[uuid]["imageDate"] = imagedate.astimezone(tz=tz)
             except ValueError:
-                self._dbphotos[uuid]["imageDate"] = datetime(1970, 1, 1)
+                # sometimes imageDate is invalid so use 1 Jan 1970 in UTC as image date
+                imagedate = datetime(1970, 1, 1)
+                tz = timezone(timedelta(0))
+                self._dbphotos[uuid]["imageDate"] = imagedate.astimezone(tz=tz)
 
             self._dbphotos[uuid]["mainRating"] = row[6]
             self._dbphotos[uuid]["hasAdjustments"] = row[7]
             self._dbphotos[uuid]["hasKeywords"] = row[8]
-            self._dbphotos[uuid]["imageTimeZoneOffsetSeconds"] = row[9]
             self._dbphotos[uuid]["volumeId"] = row[10]
             self._dbphotos[uuid]["imagePath"] = row[11]
             self._dbphotos[uuid]["extendedDescription"] = row[12]
@@ -1329,7 +1338,7 @@ class PhotosDB:
 
         # process faces
         self._process_faceinfo()
-        
+
         # add faces and keywords to photo data
         for uuid in self._dbphotos:
             # keywords
@@ -1788,12 +1797,20 @@ class PhotosDB:
             except TypeError:
                 info["lastmodifieddate"] = None
 
-            try:
-                info["imageDate"] = datetime.fromtimestamp(row[5] + td)
-            except ValueError:
-                info["imageDate"] = datetime(1970, 1, 1)
-
             info["imageTimeZoneOffsetSeconds"] = row[6]
+
+            try:
+                imagedate = datetime.fromtimestamp(row[5] + td)
+                seconds = info["imageTimeZoneOffsetSeconds"] or 0
+                delta = timedelta(seconds=seconds)
+                tz = timezone(delta)
+                info["imageDate"] = imagedate.astimezone(tz=tz)
+            except ValueError:
+                # sometimes imageDate is invalid so use 1 Jan 1970 in UTC as image date
+                imagedate = datetime(1970, 1, 1)
+                tz = timezone(timedelta(0))
+                info["imageDate"] = imagedate.astimezone(tz=tz)
+
             info["hidden"] = row[9]
             info["favorite"] = row[10]
             info["originalFilename"] = row[3]
@@ -2135,7 +2152,7 @@ class PhotosDB:
 
         # process face info
         self._process_faceinfo()
-        
+
         # process search info
         self._process_searchinfo()
 
@@ -2436,23 +2453,29 @@ class PhotosDB:
         to_date=None,
         intrash=False,
     ):
-        """ 
-        Return a list of PhotoInfo objects
+        """ Return a list of PhotoInfo objects
         If called with no args, returns the entire database of photos
         If called with args, returns photos matching the args (e.g. keywords, persons, etc.)
         If more than one arg, returns photos matching all the criteria (e.g. keywords AND persons)
         If more than one keyword, uuid, persons, albums is passed, they are treated as "OR" criteria
         e.g. keywords=["wedding","vacation"] returns photos matching either keyword
-        keywords: list of keywords to search for
-        uuid: list of UUIDs to search for
-        persons: list of persons to search for
-        albums: list of album names to search for
-        images: if True, returns image files, if False, does not return images; default is True
-        movies: if True, returns movie files, if False, does not return movies; default is True 
-        from_date: return photos with creation date >= from_date (datetime.datetime object, default None)
-        to_date: return photos with creation date <= to_date (datetime.datetime object, default None)
-        intrash: if True, returns only images in "Recently deleted items" folder, 
-                 if False returns only photos that aren't deleted; default is False
+        from_date and to_date may be either naive or timezone-aware datetime.datetime objects.
+        If naive, timezone will be assumed to be local timezone.
+
+        Args:
+            keywords: list of keywords to search for
+            uuid: list of UUIDs to search for
+            persons: list of persons to search for
+            albums: list of album names to search for
+            images: if True, returns image files, if False, does not return images; default is True
+            movies: if True, returns movie files, if False, does not return movies; default is True 
+            from_date: return photos with creation date >= from_date (datetime.datetime object, default None)
+            to_date: return photos with creation date <= to_date (datetime.datetime object, default None)
+            intrash: if True, returns only images in "Recently deleted items" folder, 
+                     if False returns only photos that aren't deleted; default is False
+
+        Returns:
+            list of PhotoInfo objects
         """
 
         # implementation is a bit kludgy but it works
@@ -2528,6 +2551,8 @@ class PhotosDB:
             if from_date or to_date:  # sourcery off
                 dsel = self._dbphotos
                 if from_date:
+                    if not datetime_has_tz(from_date):
+                        from_date = datetime_naive_to_local(from_date)
                     dsel = {
                         k: v for k, v in dsel.items() if v["imageDate"] >= from_date
                     }
@@ -2535,6 +2560,8 @@ class PhotosDB:
                         f"Found %i items with from_date {from_date}" % len(dsel)
                     )
                 if to_date:
+                    if not datetime_has_tz(to_date):
+                        to_date = datetime_naive_to_local(to_date)
                     dsel = {k: v for k, v in dsel.items() if v["imageDate"] <= to_date}
                     logging.debug(f"Found %i items with to_date {to_date}" % len(dsel))
                 photos_sets.append(set(dsel.keys()))

@@ -697,12 +697,17 @@ def test_export_edited_suffix():
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_EDITED_SUFFIX)
 
 
-def test_query_date():
+def test_query_date_1():
+    """ Test --from-date and --to-date """
     import json
     import osxphotos
     import os
     import os.path
+    import time
     from osxphotos.__main__ import query
+
+    os.environ['TZ'] = "US/Pacific"
+    time.tzset()
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -714,6 +719,64 @@ def test_query_date():
             os.path.join(cwd, CLI_PHOTOS_DB),
             "--from-date=2018-09-28",
             "--to-date=2018-09-28T23:00:00",
+        ],
+    )
+    assert result.exit_code == 0
+
+    json_got = json.loads(result.output)
+    assert len(json_got) == 4
+
+def test_query_date_2():
+    """ Test --from-date and --to-date """
+    import json
+    import osxphotos
+    import os
+    import os.path
+    import time
+    from osxphotos.__main__ import query
+
+    os.environ['TZ'] = "Asia/Jerusalem"
+    time.tzset()
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, CLI_PHOTOS_DB),
+            "--from-date=2018-09-28",
+            "--to-date=2018-09-28T23:00:00",
+        ],
+    )
+    assert result.exit_code == 0
+
+    json_got = json.loads(result.output)
+    assert len(json_got) == 2
+
+def test_query_date_timezone():
+    """ Test --from-date, --to-date with ISO 8601 timezone """
+    import json
+    import osxphotos
+    import os
+    import os.path
+    import time
+    from osxphotos.__main__ import query
+
+    os.environ['TZ'] = "US/Pacific"
+    time.tzset()
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, CLI_PHOTOS_DB),
+            "--from-date=2018-09-28T00:00:00-07:00",
+            "--to-date=2018-09-28T23:00:00-07:00",
         ],
     )
     assert result.exit_code == 0

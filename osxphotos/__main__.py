@@ -77,6 +77,20 @@ def get_photos_db(*db_options):
         return None
 
 
+class DateTimeISO8601(click.ParamType):
+
+    name = "DATETIME"
+
+    def convert(self, value, param, ctx):
+        try:
+            return datetime.datetime.fromisoformat(value)
+        except:
+            self.fail(
+                f"Invalid value for --{param.name}: invalid datetime format {value}. "
+                "Valid format: YYYY-MM-DD[*HH[:MM[:SS[.fff[fff]]]][+HH:MM[:SS[.ffffff]]]]"
+            )
+
+
 # Click CLI object & context settings
 class CLI_Obj:
     def __init__(self, db=None, json=False, debug=False):
@@ -305,7 +319,7 @@ def query_options(f):
             multiple=False,
             help="Search for photos with UUID(s) loaded from FILE. "
             "Format is a single UUID per line.  Lines preceeded with # are ignored.",
-            type=click.Path(exists=True)
+            type=click.Path(exists=True),
         ),
         o(
             "--title",
@@ -454,13 +468,13 @@ def query_options(f):
         ),
         o(
             "--from-date",
-            help="Search by start item date, e.g. 2000-01-12T12:00:00 or 2000-12-31 (ISO 8601 w/o TZ).",
-            type=click.DateTime(),
+            help="Search by start item date, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601).",
+            type=DateTimeISO8601(),
         ),
         o(
             "--to-date",
-            help="Search by end item date, e.g. 2000-01-12T12:00:00 or 2000-12-31 (ISO 8601 w/o TZ).",
-            type=click.DateTime(),
+            help="Search by end item date, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601).",
+            type=DateTimeISO8601(),
         ),
     ]
     for o in options[::-1]:
@@ -1011,7 +1025,7 @@ def query(
 
     # load UUIDs if necessary and append to any uuids passed with --uuid
     if uuid_from_file:
-        uuid_list = list(uuid) # Click option is a tuple
+        uuid_list = list(uuid)  # Click option is a tuple
         uuid_list.extend(load_uuid_from_file(uuid_from_file))
         uuid = tuple(uuid_list)
 
@@ -1401,7 +1415,7 @@ def export(
 
     # load UUIDs if necessary and append to any uuids passed with --uuid
     if uuid_from_file:
-        uuid_list = list(uuid) # Click option is a tuple
+        uuid_list = list(uuid)  # Click option is a tuple
         uuid_list.extend(load_uuid_from_file(uuid_from_file))
         uuid = tuple(uuid_list)
 
@@ -2363,6 +2377,7 @@ def find_files_in_branch(pathname, filename):
 
     return files
 
+
 def load_uuid_from_file(filename):
     """ Load UUIDs from file.  Does not validate UUIDs.
         Format is 1 UUID per line, any line beginning with # is ignored.
@@ -2377,7 +2392,7 @@ def load_uuid_from_file(filename):
     Raises:
         FileNotFoundError if file does not exist
     """
-    
+
     if not pathlib.Path(filename).is_file():
         raise FileNotFoundError(f"Could not find file {filename}")
 
@@ -2388,6 +2403,7 @@ def load_uuid_from_file(filename):
             if len(line) and line[0] != "#":
                 uuid.append(line)
     return uuid
+
 
 if __name__ == "__main__":
     cli()  # pylint: disable=no-value-for-parameter

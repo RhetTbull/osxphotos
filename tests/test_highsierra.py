@@ -46,13 +46,6 @@ def test_db_version():
     # assert photosdb.db_version in osxphotos._TESTED_DB_VERSIONS
 
 
-def test_os_version():
-    import osxphotos
-
-    (_, major, _) = osxphotos.utils._get_os_version()
-    assert major in osxphotos._constants._TESTED_OS_VERSIONS
-
-
 def test_persons():
     import osxphotos
     import collections
