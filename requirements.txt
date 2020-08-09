@@ -42,8 +42,6 @@ mccabe==0.6.1
 modulegraph==0.18
 more-itertools==7.2.0
 multidict==4.7.6
--e git+https://github.com/RhetTbull/osxmetadata.git@609947c1651002f8f1d86e7756307b2c60d5a03d#egg=osxmetadata
--e git+git@github.com:RhetTbull/osxphotos.git@fc416ea0b746413d2ac2f1dd2f1bc200227013ed#egg=osxphotos
 packaging==19.0
 parso==0.6.2
 pathspec==0.7.0
