@@ -8,6 +8,7 @@
 import json
 import logging
 import os
+import shutil
 import subprocess
 import sys
 from functools import lru_cache  # pylint: disable=syntax-error
@@ -22,8 +23,7 @@ EXIFTOOL_STAYOPEN_EOF_LEN = len(EXIFTOOL_STAYOPEN_EOF)
 @lru_cache(maxsize=1)
 def get_exiftool_path():
     """ return path of exiftool, cache result """
-    result = subprocess.run(["which", "exiftool"], stdout=subprocess.PIPE)
-    exiftool_path = result.stdout.decode("utf-8")
+    exiftool_path = shutil.which('exiftool')
     if _debug():
         logging.debug("exiftool path = %s" % (exiftool_path))
     if exiftool_path:
