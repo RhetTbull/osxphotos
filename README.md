@@ -1824,6 +1824,19 @@ If you have an interesting example that shows usage of this package, submit an i
 
 Testing against "real world" Photos libraries would be especially helpful.  If you discover issues in testing against your Photos libraries, please open an issue.  I've done extensive testing against my own Photos library but that's a since data point and I'm certain there are issues lurking in various edge cases I haven't discovered yet.
 
+### Contributors
+
+Thank-you to the following people who have contributed to improving osxphotos!  If I've inadvertently left you off, please open an issue or send me a note.
+
+- [britiscurious](https://github.com/britiscurious)
+- [Michel Wortmann](https://github.com/mwort)
+- [hshore29](https://github.com/hshore29)
+- [Pablo 'merKur' Kohan](https://github.com/PabloKohan)
+- [Jean-Yves Stervinou](https://github.com/jystervinou)
+- [Thibault Deutsch](https://github.com/dethi)
+- [grundsch](https://github.com/grundsch)
+- [Ag Primatic](https://github.com/agprimatic)
+
 ## Known Bugs
 
 My goal is make osxphotos as reliable and comprehensive as possible.  The test suite currently has over 600 tests--but there are still some [bugs](https://github.com/RhetTbull/osxphotos/issues?q=is%3Aissue+is%3Aopen+label%3Abug) or incomplete features lurking.  If you find bugs please open an [issue](https://github.com/RhetTbull/osxphotos/issues).  Notable issues include:
