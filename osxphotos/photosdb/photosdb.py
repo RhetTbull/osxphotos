@@ -1898,13 +1898,14 @@ class PhotosDB:
 
             # Handle HDR photos and portraits
             # ZGENERICASSET.ZCUSTOMRENDEREDVALUE
+            # 2 = portrait (maybe, see issue #203)
             # 3 = HDR photo
             # 4 = non-HDR version of the photo
             # 6 = panorama
             # 8 = portrait
             info["customRenderedValue"] = row[22]
             info["hdr"] = True if row[22] == 3 else False
-            info["portrait"] = True if row[22] == 8 else False
+            info["portrait"] = True if row[22] == 8 or row[22] == 2 else False
 
             # Set panorama from either KindSubType or RenderedValue
             info["panorama"] = True if row[21] == 1 or row[22] == 6 else False
