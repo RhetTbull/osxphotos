@@ -305,6 +305,7 @@ def export2(
     export_db=None,
     fileutil=FileUtil,
     dry_run=False,
+    touch_file=False,
 ):
     """ export photo, like export but with update and dry_run options
         dest: must be valid destination path or exception raised 
@@ -347,6 +348,7 @@ def export2(
                 for getting/setting data related to exported files to compare update state
         fileutil: (FileUtilABC); class that conforms to FileUtilABC with various file utilities
         dry_run: (boolean, default=False); set to True to run in "dry run" mode
+        touch_file: (boolean, default=False); if True, sets file's modification time upon photo date
 
         Returns: ExportResults namedtuple with fields: exported, new, updated, skipped 
                     where each field is a list of file paths
@@ -558,6 +560,7 @@ def export2(
             no_xattr,
             export_as_hardlink,
             exiftool,
+            touch_file,
             fileutil,
         )
         exported_files = results.exported
@@ -583,6 +586,7 @@ def export2(
                     no_xattr,
                     export_as_hardlink,
                     exiftool,
+                    touch_file,
                     fileutil,
                 )
                 exported_files.extend(results.exported)
@@ -608,6 +612,7 @@ def export2(
                     no_xattr,
                     export_as_hardlink,
                     exiftool,
+                    touch_file,
                     fileutil,
                 )
                 exported_files.extend(results.exported)
@@ -793,6 +798,7 @@ def _export_photo(
     no_xattr,
     export_as_hardlink,
     exiftool,
+    touch_file,
     fileutil=FileUtil,
 ):
     """ Helper function for export()
@@ -810,6 +816,7 @@ def _export_photo(
         no_xattr: don't copy extended attributes
         export_as_hardlink: bool
         exiftool: bool
+        touch_file: bool
         fileutil: FileUtil class that conforms to fileutil.FileUtilABC
 
     Returns:
@@ -865,6 +872,9 @@ def _export_photo(
             fileutil.hardlink(src, dest)
         else:
             fileutil.copy(src, dest_str, norsrc=no_xattr)
+        if touch_file:
+            ts=self.date.timestamp()
+            fileutil.utime(dest, (ts, ts))
 
     export_db.set_data(
         dest_str,
