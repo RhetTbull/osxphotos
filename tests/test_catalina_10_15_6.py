@@ -74,6 +74,7 @@ UUID_DICT = {
     "intrash": "71E3E212-00EB-430D-8A63-5E294B268554",
     "not_intrash": "DC99FBDD-7A52-4100-A5BB-344131646C30",
     "intrash_person_keywords": "6FD38366-3BF2-407D-81FE-7153EB6125B6",
+    "import_session": "8846E3E6-8AC8-4857-8448-E3D025784410",
 }
 
 UUID_PUMPKIN_FARM = [
@@ -1069,3 +1070,55 @@ def test_date_modified_invalid():
     assert len(photos) == 1
     p = photos[0]
     assert p.date_modified is None
+
+
+def test_import_session_count():
+    """ Test PhotosDB.import_session """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+
+    import_sessions = photosdb.import_info
+    assert len(import_sessions) == 10
+
+
+def test_import_session_photo():
+    """ Test photo.import_session """
+    import datetime
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photo = photosdb.get_photo(UUID_DICT["import_session"])
+    import_session = photo.import_info
+    assert import_session.creation_date == datetime.datetime(
+        2020,
+        6,
+        6,
+        7,
+        15,
+        24,
+        729811,
+        tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=61200), "PDT"),
+    )
+    assert import_session.start_date == datetime.datetime(
+        2020,
+        6,
+        6,
+        7,
+        15,
+        24,
+        725564,
+        tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=61200), "PDT"),
+    )
+    assert import_session.end_date == datetime.datetime(
+        2020,
+        6,
+        6,
+        7,
+        15,
+        24,
+        725564,
+        tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=61200), "PDT"),
+    )
+    assert len(import_session.photos) == 1
+

@@ -20,8 +20,7 @@ def datetime_remove_tz(dt):
     if type(dt) != datetime.datetime:
         raise TypeError(f"dt must be type datetime.datetime, not {type(dt)}")
 
-    dt_new = dt.replace(tzinfo=None)
-    return dt_new
+    return dt.replace(tzinfo=None)
 
 
 def datetime_has_tz(dt):
@@ -32,9 +31,7 @@ def datetime_has_tz(dt):
     if type(dt) != datetime.datetime:
         raise TypeError(f"dt must be type datetime.datetime, not {type(dt)}")
 
-    if dt.tzinfo is not None and dt.tzinfo.utcoffset(dt) is not None:
-        return True
-    return False
+    return dt.tzinfo is not None and dt.tzinfo.utcoffset(dt) is not None
 
 
 def datetime_naive_to_local(dt):
@@ -53,5 +50,4 @@ def datetime_naive_to_local(dt):
             f"{dt} has tzinfo {dt.tzinfo} and offset {dt.tizinfo.utcoffset(dt)}"
         )
 
-    dt_local = dt.replace(tzinfo=get_local_tz())
-    return dt_local
+    return dt.replace(tzinfo=get_local_tz())

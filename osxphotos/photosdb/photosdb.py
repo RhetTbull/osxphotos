@@ -8,7 +8,6 @@ import os
 import os.path
 import pathlib
 import platform
-import sqlite3
 import sys
 import tempfile
 from datetime import datetime, timedelta, timezone
@@ -26,15 +25,15 @@ from .._constants import (
     _PHOTOS_4_VERSION,
     _PHOTOS_5_ALBUM_KIND,
     _PHOTOS_5_FOLDER_KIND,
+    _PHOTOS_5_IMPORT_SESSION_ALBUM_KIND,
     _PHOTOS_5_ROOT_FOLDER_KIND,
     _PHOTOS_5_SHARED_ALBUM_KIND,
-    _PHOTOS_5_VERSION,
-    _TESTED_DB_VERSIONS,
     _TESTED_OS_VERSIONS,
     _UNKNOWN_PERSON,
+    TIME_DELTA,
 )
 from .._version import __version__
-from ..albuminfo import AlbumInfo, FolderInfo
+from ..albuminfo import AlbumInfo, FolderInfo, ImportInfo
 from ..datetime_utils import datetime_has_tz, datetime_naive_to_local
 from ..personinfo import PersonInfo
 from ..photoinfo import PhotoInfo
@@ -46,7 +45,7 @@ from ..utils import (
     _open_sql_file,
     get_last_library_path,
 )
-from .photosdb_utils import get_db_version, get_db_model_version
+from .photosdb_utils import get_db_model_version, get_db_version
 
 # TODO: Add test for imageTimeZoneOffsetSeconds = None
 # TODO: Add test for __str__
@@ -486,6 +485,18 @@ class PhotosDB:
             return self._albums_shared
 
     @property
+    def import_info(self):
+        """ return list of ImportInfo objects for each import session in the database """
+        try:
+            return self._import_info
+        except AttributeError:
+            self._import_info = [
+                ImportInfo(db=self, uuid=album)
+                for album in self._get_album_uuids(import_session=True)
+            ]
+            return self._import_info
+
+    @property
     def db_version(self):
         """ return the database version as stored in LiGlobals table """
         return self._db_version
@@ -514,6 +525,7 @@ class PhotosDB:
         """ If sqlite shared memory and write-ahead log files exist, those are copied too """
         # required because python's sqlite3 implementation can't read a locked file
         # _, suffix = os.path.splitext(fname)
+        dest_name = dest_path = ""
         try:
             dest_name = pathlib.Path(fname).name
             dest_path = os.path.join(self._tempdir_name, dest_name)
@@ -535,9 +547,6 @@ class PhotosDB:
     def _process_database4(self):
         """ process the Photos database to extract info
             works on Photos version <= 4.0 """
-
-        # Epoch is Jan 1, 2001
-        td = (datetime(2001, 1, 1, 0, 0) - datetime(1970, 1, 1, 0, 0)).total_seconds()
 
         (conn, c) = _open_sql_file(self._tmp_db)
 
@@ -685,7 +694,8 @@ class PhotosDB:
                 isInTrash, 
                 folderUuid,
                 albumType, 
-                albumSubclass 
+                albumSubclass,
+                createDate 
                 FROM RKAlbum """
         )
 
@@ -698,6 +708,7 @@ class PhotosDB:
         # 5:    folderUuid
         # 6:    albumType
         # 7:    albumSubclass -- if 3, normal user album
+        # 8:    createDate
 
         for album in c:
             self._dbalbum_details[album[0]] = {
@@ -715,6 +726,9 @@ class PhotosDB:
                 "albumSubclass": album[7],
                 # for compatability with Photos 5 where album kind is ZKIND
                 "kind": album[7],
+                "creation_date": album[8],
+                "start_date": None,  # Photos 5 only
+                "end_date": None,  # Photos 5 only
             }
 
         # get details about folders
@@ -920,7 +934,7 @@ class PhotosDB:
             # not accounted for
             try:
                 self._dbphotos[uuid]["lastmodifieddate"] = datetime.fromtimestamp(
-                    row[4] + td
+                    row[4] + TIME_DELTA
                 )
             except ValueError:
                 self._dbphotos[uuid]["lastmodifieddate"] = None
@@ -930,7 +944,7 @@ class PhotosDB:
             self._dbphotos[uuid]["imageTimeZoneOffsetSeconds"] = row[9]
 
             try:
-                imagedate = datetime.fromtimestamp(row[5] + td)
+                imagedate = datetime.fromtimestamp(row[5] + TIME_DELTA)
                 seconds = self._dbphotos[uuid]["imageTimeZoneOffsetSeconds"] or 0
                 delta = timedelta(seconds=seconds)
                 tz = timezone(delta)
@@ -1065,6 +1079,11 @@ class PhotosDB:
             self._dbphotos[uuid]["original_width"] = row[37]
             self._dbphotos[uuid]["original_orientation"] = row[38]
             self._dbphotos[uuid]["original_filesize"] = row[39]
+
+            # import session not yet handled for Photos 4
+            self._dbphotos[uuid]["import_session"] = None
+            self._dbphotos[uuid]["import_uuid"] = None
+            self._dbphotos[uuid]["fok_import_session"] = None
 
         # get additional details from RKMaster, needed for RAW processing
         c.execute(
@@ -1419,16 +1438,16 @@ class PhotosDB:
         if _debug():
             logging.debug(f"_process_database5")
 
-        # Epoch is Jan 1, 2001
-        td = (datetime(2001, 1, 1, 0, 0) - datetime(1970, 1, 1, 0, 0)).total_seconds()
+        (conn, c) = _open_sql_file(self._tmp_db)
 
+        # some of the tables/columns have different names in different versions of Photos
         photos_ver = get_db_model_version(self._tmp_db)
         self._photos_ver = photos_ver
         asset_table = _DB_TABLE_NAMES[photos_ver]["ASSET"]
         keyword_join = _DB_TABLE_NAMES[photos_ver]["KEYWORD_JOIN"]
         album_join = _DB_TABLE_NAMES[photos_ver]["ALBUM_JOIN"]
-
-        (conn, c) = _open_sql_file(self._tmp_db)
+        album_sort = _DB_TABLE_NAMES[photos_ver]["ALBUM_SORT_ORDER"]
+        import_fok = _DB_TABLE_NAMES[photos_ver]["IMPORT_FOK"]
 
         # Look for all combinations of persons and pictures
         if _debug():
@@ -1539,7 +1558,7 @@ class PhotosDB:
             f""" SELECT 
                 ZGENERICALBUM.ZUUID, 
                 {asset_table}.ZUUID,
-                {album_join}
+                {album_sort}
                 FROM {asset_table} 
                 JOIN Z_26ASSETS ON {album_join} = {asset_table}.Z_PK 
                 JOIN ZGENERICALBUM ON ZGENERICALBUM.Z_PK = Z_26ASSETS.Z_26ALBUMS
@@ -1577,7 +1596,10 @@ class PhotosDB:
             "ZKIND, "  # 6
             "ZPARENTFOLDER, "  # 7
             "Z_PK, "  # 8
-            "ZTRASHEDSTATE "  # 9
+            "ZTRASHEDSTATE, "  # 9
+            "ZCREATIONDATE, "  # 10
+            "ZSTARTDATE, "  # 11
+            "ZENDDATE "  # 12
             "FROM ZGENERICALBUM "
         )
         for album in c:
@@ -1594,6 +1616,9 @@ class PhotosDB:
                 "parentfolder": album[7],
                 "pk": album[8],
                 "intrash": False if album[9] == 0 else True,
+                "creation_date": album[10],
+                "start_date": album[11],
+                "end_date": album[12],
             }
 
             # add cross-reference by pk to uuid
@@ -1771,7 +1796,7 @@ class PhotosDB:
             # I don't know what these mean but they will raise exception in datetime if
             # not accounted for
             try:
-                info["lastmodifieddate"] = datetime.fromtimestamp(row[4] + td)
+                info["lastmodifieddate"] = datetime.fromtimestamp(row[4] + TIME_DELTA)
             except ValueError:
                 info["lastmodifieddate"] = None
             except TypeError:
@@ -1780,7 +1805,7 @@ class PhotosDB:
             info["imageTimeZoneOffsetSeconds"] = row[6]
 
             try:
-                imagedate = datetime.fromtimestamp(row[5] + td)
+                imagedate = datetime.fromtimestamp(row[5] + TIME_DELTA)
                 seconds = info["imageTimeZoneOffsetSeconds"] or 0
                 delta = timedelta(seconds=seconds)
                 tz = timezone(delta)
@@ -1925,6 +1950,12 @@ class PhotosDB:
             info["original_orientation"] = row[34]
             info["original_filesize"] = row[35]
 
+            # initialize import session info which will be filled in later
+            # not every photo has an import session so initialize all records now
+            info["import_session"] = None
+            info["fok_import_session"] = None
+            info["import_uuid"] = None
+
             # associated RAW image info
             # will be filled in later
             info["has_raw"] = False
@@ -1950,6 +1981,32 @@ class PhotosDB:
             #     self._dbphotos_burst[burst_uuid][uuid] = info
             # else:
             #     info["burst"] = False
+
+        # get info on import sessions
+        # 0    ZGENERICASSET.ZUUID
+        # 1    ZGENERICASSET.ZIMPORTSESSION
+        # 2    ZGENERICASSET.Z_FOK_IMPORTSESSION
+        # 3    ZGENERICALBUM.ZUUID,
+        c.execute(
+            f"""SELECT
+                {asset_table}.ZUUID,
+                {asset_table}.ZIMPORTSESSION,
+                {import_fok},
+                ZGENERICALBUM.ZUUID
+                FROM
+                {asset_table}
+                JOIN ZGENERICALBUM ON ZGENERICALBUM.Z_PK = {asset_table}.ZIMPORTSESSION
+            """
+        )
+
+        for row in c:
+            uuid = row[0]
+            try:
+                self._dbphotos[uuid]["import_session"] = row[1]
+                self._dbphotos[uuid]["fok_import_session"] = row[2]
+                self._dbphotos[uuid]["import_uuid"] = row[3]
+            except KeyError:
+                logging.debug(f"No info record for uuid {uuid} for import session")
 
         # Get extended description
         c.execute(
@@ -2362,16 +2419,26 @@ class PhotosDB:
         hierarchy = _recurse_folder_hierarchy(folders)
         return hierarchy
 
-    def _get_album_uuids(self, shared=False):
+    def _get_album_uuids(self, shared=False, import_session=False):
         """ Return list of album UUIDs found in photos database
         
             Filters out albums in the trash and any special album types
         
         Args:
             shared: boolean; if True, returns shared albums, else normal albums
+            import_session: boolean, if True, returns import session albums, else normal or shared albums
+            Note: flags (shared, import_session) are mutually exclusive
         
+        Raises:
+            ValueError: raised if mutually exclusive flags passed
+
         Returns: list of album UUIDs 
         """
+        if shared and import_session:
+            raise ValueError(
+                "flags are mutually exclusive: pass zero or one of shared, import_session"
+            )
+
         if self._db_version <= _PHOTOS_4_VERSION:
             version4 = True
             if shared:
@@ -2379,11 +2446,21 @@ class PhotosDB:
                     f"Shared albums not implemented for Photos library version {self._db_version}"
                 )
                 return []  # not implemented for _PHOTOS_4_VERSION
+            elif import_session:
+                logging.warning(
+                    f"Import sessions not implemented for Photos library version {self._db_version}"
+                )
+                return []  # not implemented for _PHOTOS_4_VERSION
             else:
                 album_kind = _PHOTOS_4_ALBUM_KIND
         else:
             version4 = False
-            album_kind = _PHOTOS_5_SHARED_ALBUM_KIND if shared else _PHOTOS_5_ALBUM_KIND
+            if shared:
+                album_kind = _PHOTOS_5_SHARED_ALBUM_KIND
+            elif import_session:
+                album_kind = _PHOTOS_5_IMPORT_SESSION_ALBUM_KIND
+            else:
+                album_kind = _PHOTOS_5_ALBUM_KIND
 
         album_list = []
         # look through _dbalbum_details because _dbalbums_album won't have empty albums it

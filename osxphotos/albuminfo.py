@@ -10,7 +10,7 @@ Represents a single Folder in the Photos library and provides access to the fold
 PhotosDB.folders() returns a list of FolderInfo objects
 """
 
-import logging
+from datetime import datetime, timedelta, timezone
 
 from ._constants import (
     _PHOTOS_4_ALBUM_KIND,
@@ -18,11 +18,34 @@ from ._constants import (
     _PHOTOS_4_VERSION,
     _PHOTOS_5_ALBUM_KIND,
     _PHOTOS_5_FOLDER_KIND,
+    TIME_DELTA,
 )
+from .datetime_utils import get_local_tz
 
 
-class AlbumInfo:
+def sort_list_by_keys(values, sort_keys):
+    """ Sorts list values by a second list sort_keys
+        e.g. given ["a","c","b"], [1, 3, 2], returns ["a", "b", "c"]
+
+    Args:
+        values: a list of values to be sorted
+        sort_keys: a list of keys to sort values by
+    
+    Returns:
+        list of values, sorted by sort_keys
+    
+    Raises:
+        ValueError: raised if len(values) != len(sort_keys)
     """
+    if len(values) != len(sort_keys):
+        return ValueError("values and sort_keys must have same length")
+
+    return list(zip(*sorted(zip(sort_keys, values))))[1]
+
+
+class AlbumInfoBaseClass:
+    """
+    Base class for AlbumInfo, ImportInfo
     Info about a specific Album, contains all the details about the album
     including folders, photos, etc.
     """
@@ -31,11 +54,10 @@ class AlbumInfo:
         self._uuid = uuid
         self._db = db
         self._title = self._db._dbalbum_details[uuid]["title"]
-
-    @property
-    def title(self):
-        """ return title / name of album """
-        return self._title
+        self._creation_date_timestamp = self._db._dbalbum_details[uuid]["creation_date"]
+        self._start_date_timestamp = self._db._dbalbum_details[uuid]["start_date"]
+        self._end_date_timestamp = self._db._dbalbum_details[uuid]["end_date"]
+        self._local_tz = get_local_tz()
 
     @property
     def uuid(self):
@@ -43,21 +65,96 @@ class AlbumInfo:
         return self._uuid
 
     @property
+    def creation_date(self):
+        """ return creation date of album """
+        try:
+            return self._creation_date
+        except AttributeError:
+            try:
+                self._creation_date = (
+                    datetime.fromtimestamp(
+                        self._creation_date_timestamp + TIME_DELTA
+                    ).astimezone(tz=self._local_tz)
+                    if self._creation_date_timestamp
+                    else datetime(1970, 1, 1, 0, 0, 0).astimezone(
+                        tz=timezone(timedelta(0))
+                    )
+                )
+            except ValueError:
+                self._creation_date = datetime(1970, 1, 1, 0, 0, 0).astimezone(
+                    tz=timezone(timedelta(0))
+                )
+            return self._creation_date
+
+    @property
+    def start_date(self):
+        """ For Albums, return start date (earliest image) of album or None for albums with no images
+            For Import Sessions, return start date of import session (when import began) """
+        try:
+            return self._start_date
+        except AttributeError:
+            try:
+                self._start_date = (
+                    datetime.fromtimestamp(
+                        self._start_date_timestamp + TIME_DELTA
+                    ).astimezone(tz=self._local_tz)
+                    if self._start_date_timestamp
+                    else None
+                )
+            except ValueError:
+                self._start_date = None
+            return self._start_date
+
+    @property
+    def end_date(self):
+        """ For Albums, return end date (most recent image) of album or None for albums with no images
+            For Import Sessions, return end date of import sessions (when import was completed) """
+        try:
+            return self._end_date
+        except AttributeError:
+            try:
+                self._end_date = (
+                    datetime.fromtimestamp(
+                        self._end_date_timestamp + TIME_DELTA
+                    ).astimezone(tz=self._local_tz)
+                    if self._end_date_timestamp
+                    else None
+                )
+            except ValueError:
+                self._end_date = None
+            return self._end_date
+
+    @property
     def photos(self):
-        """ return list of photos contained in album """
+        return []
+
+    def __len__(self):
+        """ return number of photos contained in album """
+        return len(self.photos)
+
+
+class AlbumInfo(AlbumInfoBaseClass):
+    """
+    Base class for AlbumInfo, ImportInfo
+    Info about a specific Album, contains all the details about the album
+    including folders, photos, etc.
+    """
+
+    @property
+    def title(self):
+        """ return title / name of album """
+        return self._title
+
+    @property
+    def photos(self):
+        """ return list of photos contained in album sorted in same sort order as Photos """
         try:
             return self._photos
         except AttributeError:
             if self.uuid in self._db._dbalbums_album:
                 uuid, sort_order = zip(*self._db._dbalbums_album[self.uuid])
-                self._photos = self._db.photos(uuid=uuid)
-                # PhotosDB.photos does not preserve order when passing in list of uuids
-                # so need to build photo list one a time
-                # sort uuids by sort order
-                sorted_uuid = sorted(zip(sort_order, uuid))
-                self._photos = [
-                    self._db.photos(uuid=[uuid])[0] for _, uuid in sorted_uuid
-                ]
+                sorted_uuid = sort_list_by_keys(uuid, sort_order)
+                self._photos = self._db.photos_by_uuid(sorted_uuid)
             else:
                 self._photos = []
             return self._photos
@@ -110,9 +207,24 @@ class AlbumInfo:
                 )
             return self._parent
 
-    def __len__(self):
-        """ return number of photos contained in album """
-        return len(self.photos)
+
+class ImportInfo(AlbumInfoBaseClass):
+    @property
+    def photos(self):
+        """ return list of photos contained in import session """
+        try:
+            return self._photos
+        except AttributeError:
+            uuid_list, sort_order = zip(
+                *[
+                    (uuid, self._db._dbphotos[uuid]["fok_import_session"])
+                    for uuid in self._db._dbphotos
+                    if self._db._dbphotos[uuid]["import_uuid"] == self.uuid
+                ]
+            )
+            sorted_uuid = sort_list_by_keys(uuid_list, sort_order)
+            self._photos = self._db.photos_by_uuid(sorted_uuid)
+            return self._photos
 
 
 class FolderInfo:

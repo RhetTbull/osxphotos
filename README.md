@@ -15,6 +15,7 @@
     + [PhotoInfo](#photoinfo)
     + [ExifInfo](#exifinfo)
     + [AlbumInfo](#albuminfo)
+    + [ImportInfo](#importinfo)
     + [FolderInfo](#folderinfo)
     + [PlaceInfo](#placeinfo)
     + [ScoreInfo](#scoreinfo)
@@ -767,6 +768,10 @@ Returns list of shared album names found in photos database (e.g. albums shared 
 
 **Note**: *Only valid for Photos 5 / MacOS 10.15*; on Photos <= 4, prints warning and returns empty list.
 
+#### `import_info`
+
+Returns a list of [ImportInfo](#importinfo) objects representing the import sessions for the database.
+
 #### `folder_info`
 ```python
 # assumes photosdb is a PhotosDB object (see above)
@@ -1052,6 +1057,9 @@ Returns a list of albums the photo is contained in. See also [album_info](#album
 
 #### `album_info`
 Returns a list of [AlbumInfo](#AlbumInfo) objects representing the albums the photo is contained in.  See also [albums](#albums).
+
+#### `import_info`
+Returns an [ImportInfo](#importinfo) object representing the import session associated with the photo or `None` if there is no associated import session.
 
 #### `persons`
 Returns a list of the names of the persons in the photo
@@ -1378,6 +1386,15 @@ Returns the title or name of the album.
 #### <a name="albumphotos">`photos`</a>
 Returns a list of [PhotoInfo](#PhotoInfo) objects representing each photo contained in the album sorted in the same order as in Photos. (e.g. if photos were manually sorted in the Photos albums, photos returned by `photos` will be in same order as they appear in the Photos album)
 
+#### `creation_date`
+Returns the creation date as a timezone aware datetime.datetime object of the album.
+
+#### `start_date`
+Returns the date of earliest photo in the album as a timezone aware datetime.datetime object.
+
+#### `end_date`
+Returns the date of latest photo in the album as a timezone aware datetime.datetime object.
+
 #### `folder_list`
 Returns a hierarchical list of [FolderInfo](#FolderInfo) objects representing the folders the album is contained in.  For example, if album "AlbumInFolder" is in SubFolder2 of Folder1 as illustrated below, would return a list of `FolderInfo` objects representing ["Folder1", "SubFolder2"] 
 
@@ -1403,6 +1420,25 @@ Photos Library
 #### `parent`
 Returns a [FolderInfo](#FolderInfo) object representing the albums parent folder or `None` if album is not a in a folder.
 
+### ImportInfo 
+PhotosDB.import_info returns a list of ImportInfo objects.  Each ImportInfo object represents an import session in the library.  PhotoInfo.import_info returns a single ImportInfo object representing the import session for the photo (or `None` if no associated import session).
+
+**Note**: Photos 5+ only.  Not implemented for Photos version <= 4.
+
+#### `uuid`
+Returns the universally unique identifier (uuid) of the import session.  This is how Photos keeps track of individual objects within the database.
+
+#### <a name="albumphotos">`photos`</a>
+Returns a list of [PhotoInfo](#PhotoInfo) objects representing each photo contained in the album sorted in the same order as in Photos. (e.g. if photos were manually sorted in the Photos albums, photos returned by `photos` will be in same order as they appear in the Photos album)
+
+#### `creation_date`
+Returns the creation date as a timezone aware datetime.datetime object of the import session.
+
+#### `start_date`
+Returns the start date as a timezone aware datetime.datetime object for when the import session bega.
+
+#### `end_date`
+Returns the end date as a timezone aware datetime.datetime object for when the import session completed.
 
 ### FolderInfo 
 PhotosDB.folder_info returns a list of FolderInfo objects representing the top level folders in the library.  Each FolderInfo object represents a single folder in the Photos library.

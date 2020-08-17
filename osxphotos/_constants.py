@@ -3,6 +3,11 @@ Constants used by osxphotos
 """
 
 import os.path
+from datetime import datetime
+
+# Time delta: add this to Photos times to get unix time
+# Apple Epoch is Jan 1, 2001
+TIME_DELTA = (datetime(2001, 1, 1, 0, 0) - datetime(1970, 1, 1, 0, 0)).total_seconds()
 
 # which Photos library database versions have been tested
 # Photos 2.0 (10.12.6) == 2622
@@ -36,11 +41,15 @@ _DB_TABLE_NAMES = {
         "ASSET": "ZGENERICASSET",
         "KEYWORD_JOIN": "Z_1KEYWORDS.Z_37KEYWORDS",
         "ALBUM_JOIN": "Z_26ASSETS.Z_34ASSETS",
+        "ALBUM_SORT_ORDER": "Z_26ASSETS.Z_FOK_34ASSETS",
+        "IMPORT_FOK": "ZGENERICASSET.Z_FOK_IMPORTSESSION",
     },
     6: {
         "ASSET": "ZASSET",
         "KEYWORD_JOIN": "Z_1KEYWORDS.Z_36KEYWORDS",
         "ALBUM_JOIN": "Z_26ASSETS.Z_3ASSETS",
+        "ALBUM_SORT_ORDER": "Z_26ASSETS.Z_FOK_3ASSETS",
+        "IMPORT_FOK": "null",
     },
 }
 
@@ -71,6 +80,7 @@ _PHOTOS_5_ALBUM_KIND = 2  # normal user album
 _PHOTOS_5_SHARED_ALBUM_KIND = 1505  # shared album
 _PHOTOS_5_FOLDER_KIND = 4000  # user folder
 _PHOTOS_5_ROOT_FOLDER_KIND = 3999  # root folder
+_PHOTOS_5_IMPORT_SESSION_ALBUM_KIND = 1506  # import session
 
 _PHOTOS_4_ALBUM_KIND = 3  # RKAlbum.albumSubclass
 _PHOTOS_4_TOP_LEVEL_ALBUM = "TopLevelAlbums"

@@ -5,16 +5,12 @@ PhotosDB.photos() returns a list of PhotoInfo objects
 """
 
 import dataclasses
-import glob
 import json
 import logging
 import os
 import os.path
 import pathlib
-import subprocess
-import sys
 from datetime import timedelta, timezone
-from pprint import pformat
 
 import yaml
 
@@ -25,10 +21,11 @@ from .._constants import (
     _PHOTOS_4_ROOT_FOLDER,
     _PHOTOS_4_VERSION,
     _PHOTOS_5_ALBUM_KIND,
+    _PHOTOS_5_IMPORT_SESSION_ALBUM_KIND,
     _PHOTOS_5_SHARED_ALBUM_KIND,
     _PHOTOS_5_SHARED_PHOTO_PATH,
 )
-from ..albuminfo import AlbumInfo
+from ..albuminfo import AlbumInfo, ImportInfo
 from ..personinfo import FaceInfo, PersonInfo
 from ..phototemplate import PhotoTemplate
 from ..placeinfo import PlaceInfo4, PlaceInfo5
@@ -88,7 +85,7 @@ class PhotoInfo:
     def date(self):
         """ image creation date as timezone aware datetime object """
         return self._info["imageDate"]
-        
+
     @property
     def date_modified(self):
         """ image modification date as timezone aware datetime object
@@ -357,7 +354,7 @@ class PhotoInfo:
         except AttributeError:
             try:
                 faces = self._db._db_faceinfo_uuid[self._uuid]
-                self._faceinfo =  [FaceInfo(db=self._db, pk=pk) for pk in faces]
+                self._faceinfo = [FaceInfo(db=self._db, pk=pk) for pk in faces]
             except KeyError:
                 # no faces
                 self._faceinfo = []
@@ -386,6 +383,19 @@ class PhotoInfo:
                 AlbumInfo(db=self._db, uuid=album) for album in album_uuids
             ]
             return self._album_info
+
+    @property
+    def import_info(self):
+        """ ImportInfo object representing import session for the photo or None if no import session """
+        try:
+            return self._import_info
+        except AttributeError:
+            self._import_info = (
+                ImportInfo(db=self._db, uuid=self._info["import_uuid"])
+                if self._info["import_uuid"] is not None
+                else None
+            )
+            return self._import_info
 
     @property
     def keywords(self):
@@ -745,7 +755,7 @@ class PhotoInfo:
         """ Return list of album UUIDs this photo is found in
         
             Filters out albums in the trash and any special album types
-        
+
         Returns: list of album UUIDs 
         """
         if self._db._db_version <= _PHOTOS_4_VERSION:

@@ -55,7 +55,10 @@ ALBUM_PHOTO_UUID_DICT = {
     ],
 }
 
-UUID_DICT = {"two_albums": "F12384F6-CD17-4151-ACBA-AE0E3688539E"}
+UUID_DICT = {
+    "two_albums": "F12384F6-CD17-4151-ACBA-AE0E3688539E",
+    "album_dates": "0C514A98-7B77-4E4F-801B-364B7B65EAFA",
+}
 
 
 def test_folders_1():
@@ -226,6 +229,46 @@ def test_albums_photos():
         assert len(photos) == len(album)
         for photo in photos:
             assert photo.uuid in ALBUM_PHOTO_UUID_DICT[album.title]
+
+
+def test_album_dates():
+    """ Test album date methods """
+    import datetime
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+
+    album = [a for a in photosdb.album_info if a.uuid == UUID_DICT["album_dates"]][0]
+    assert album.creation_date == datetime.datetime(
+        2019,
+        7,
+        27,
+        6,
+        19,
+        13,
+        706262,
+        tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=61200), "PDT"),
+    )
+    assert album.start_date == datetime.datetime(
+        2018,
+        9,
+        28,
+        12,
+        35,
+        49,
+        63000,
+        tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=61200), "PDT"),
+    )
+    assert album.end_date == datetime.datetime(
+        2018,
+        9,
+        28,
+        13,
+        9,
+        33,
+        22000,
+        tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=61200), "PDT"),
+    )
 
 
 def test_photoinfo_albums():
