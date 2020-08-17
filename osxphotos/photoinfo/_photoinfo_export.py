@@ -797,7 +797,7 @@ def _export_photo(
 ):
     """ Helper function for export()
         Does the actual copy or hardlink taking the appropriate 
-        action depending on update, overwrite
+        action depending on update, overwrite, export_as_hardlink
         Assumes destination is the right destination (e.g. UUID matches)
         sets UUID and JSON info foo exported file using set_uuid_for_file, set_inf_for_uuido
     
@@ -824,139 +824,59 @@ def _export_photo(
     dest_str = str(dest)
     dest_exists = dest.exists()
     if export_as_hardlink:
-        # use hardlink instead of copy
-        if not update:
-            # not update, do the the hardlink
-            if overwrite and dest.exists():
-                # need to remove the destination first
-                # dest.unlink()
-                fileutil.unlink(dest)
-            logging.debug(f"Not update: export_as_hardlink linking file {src} {dest}")
-            fileutil.hardlink(src, dest)
-            export_db.set_data(
-                dest_str,
-                self.uuid,
-                fileutil.file_sig(dest_str),
-                (None, None, None),
-                self.json(),
-                None,
-            )
-            exported_files.append(dest_str)
-        elif dest_exists and dest.samefile(src):
-            # update, hardlink and it already points to the right file, do nothing
-            logging.debug(
-                f"Update: skipping samefile with export_as_hardlink {src} {dest}"
-            )
-            update_skipped_files.append(dest_str)
-        elif dest_exists:
-            # update, not the same file (e.g. user may not have used export_as_hardlink last time it was run
-            logging.debug(
-                f"Update: removing existing file prior to export_as_hardlink {src} {dest}"
-            )
-            # dest.unlink()
-            fileutil.unlink(dest)
-            fileutil.hardlink(src, dest)
-            export_db.set_data(
-                dest_str,
-                self.uuid,
-                fileutil.file_sig(dest_str),
-                (None, None, None),
-                self.json(),
-                None,
-            )
-            update_updated_files.append(dest_str)
-            exported_files.append(dest_str)
-        else:
-            # update, hardlink, destination doesn't exist (new file)
-            logging.debug(
-                f"Update: exporting new file with export_as_hardlink {src} {dest}"
-            )
-            fileutil.hardlink(src, dest)
-            export_db.set_data(
-                dest_str,
-                self.uuid,
-                fileutil.file_sig(dest_str),
-                (None, None, None),
-                self.json(),
-                None,
-            )
-            exported_files.append(dest_str)
-            update_new_files.append(dest_str)
+        op_desc = "export_as_hardlink"
     else:
-        if not update:
-            # not update, do the the copy
-            if overwrite and dest.exists():
-                # need to remove the destination first
-                # dest.unlink()
-                fileutil.unlink(dest)
-            logging.debug(f"Not update: copying file {src} {dest}")
-            fileutil.copy(src, dest_str, norsrc=no_xattr)
-            exported_files.append(dest_str)
-            export_db.set_data(
-                dest_str,
-                self.uuid,
-                fileutil.file_sig(dest_str),
-                (None, None, None),
-                self.json(),
-                None,
-            )
-        # elif dest_exists and not exiftool and cmp_file(dest_str, export_db.get_stat_orig_for_file(dest_str)):
-        elif (
-            dest_exists
-            and not exiftool
-            and filecmp.cmp(src, dest)
-            and not dest.samefile(src)
-        ):
-            # destination exists but is identical
-            logging.debug(f"Update: skipping identifical original files {src} {dest}")
-            # call set_stat because code can reach this spot if no export DB but exporting a RAW or live photo
-            # potentially re-writes the data in the database but ensures database is complete
-            export_db.set_stat_orig_for_file(dest_str, fileutil.file_sig(dest_str))
-            update_skipped_files.append(dest_str)
-        elif (
-            dest_exists
-            and exiftool
-            and fileutil.cmp_sig(dest_str, export_db.get_stat_exif_for_file(dest_str))
-            and not dest.samefile(src)
-        ):
-            # destination exists but is identical
-            logging.debug(f"Update: skipping identifical exiftool files {src} {dest}")
-            update_skipped_files.append(dest_str)
-        elif dest_exists:
-            # destination exists but is different or is a hardlink
-            logging.debug(f"Update: removing existing file prior to copy {src} {dest}")
-            stat_src = os.stat(src)
-            stat_dest = os.stat(dest)
+        op_desc = "export_by_copying"
+
+    if not update:
+        # not update, do the the hardlink
+        logging.debug(f"Not update: {op_desc} linking file {src} {dest}")
+        exported_files.append(dest_str)
+    else: #updating
+        if not dest_exists:
+            # update, destination doesn't exist (new file)
+            logging.debug(f"Update: exporting new file with {op_desc} {src} {dest}")
+            update_new_files.append(dest_str)
+        else:
+            # update, destination exists, but we might not need to replace it...
+            if ((    export_as_hardlink and     dest.samefile(src)) or
+                (not export_as_hardlink and not dest.samefile(src) and (
+                    (    exiftool and fileutil.cmp_sig(dest_str, export_db.get_stat_exif_for_file(dest_str))) or
+                    (not exiftool and filecmp.cmp(src, dest)))
+                )):
+                # destination exists but its signature is "identical"
+                logging.debug(f"Update: skipping identical original files {src} {dest}")
+                # call set_stat because code can reach this spot if no export DB but exporting a RAW or live photo
+                # potentially re-writes the data in the database but ensures database is complete
+                export_db.set_stat_orig_for_file(dest_str, fileutil.file_sig(dest_str))
+                update_skipped_files.append(dest_str)
+            else:
+                # destination exists but is different
+                logging.debug(f"Update: removing existing file prior to {op_desc} {src} {dest}")
+                update_updated_files.append(dest_str)
+
+    if not update_skipped_files:
+        if dest_exists and (update or overwrite):
+            # need to remove the destination first
+            logging.debug(f"Update: removing existing file prior to export_as_hardlink {src} {dest}")
             # dest.unlink()
             fileutil.unlink(dest)
-            fileutil.copy(src, dest_str, norsrc=no_xattr)
-            export_db.set_data(
-                dest_str,
-                self.uuid,
-                fileutil.file_sig(dest_str),
-                (None, None, None),
-                self.json(),
-                None,
-            )
-            exported_files.append(dest_str)
-            update_updated_files.append(dest_str)
+        if export_as_hardlink:
+            fileutil.hardlink(src, dest)
         else:
-            # destination doesn't exist, copy the file
-            logging.debug(f"Update: copying new file {src} {dest}")
             fileutil.copy(src, dest_str, norsrc=no_xattr)
-            export_db.set_data(
-                dest_str,
-                self.uuid,
-                fileutil.file_sig(dest_str),
-                (None, None, None),
-                self.json(),
-                None,
-            )
-            exported_files.append(dest_str)
-            update_new_files.append(dest_str)
+
+    export_db.set_data(
+        dest_str,
+        self.uuid,
+        fileutil.file_sig(dest_str),
+        (None, None, None),
+        self.json(),
+        None,
+    )
 
     return ExportResults(
-        exported_files, update_new_files, update_updated_files, update_skipped_files, []
+        exported_files + update_new_files + update_updated_files, update_new_files, update_updated_files, update_skipped_files, []
     )
 
 
