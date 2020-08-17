@@ -1428,8 +1428,8 @@ PhotosDB.import_info returns a list of ImportInfo objects.  Each ImportInfo obje
 #### `uuid`
 Returns the universally unique identifier (uuid) of the import session.  This is how Photos keeps track of individual objects within the database.
 
-#### <a name="albumphotos">`photos`</a>
-Returns a list of [PhotoInfo](#PhotoInfo) objects representing each photo contained in the album sorted in the same order as in Photos. (e.g. if photos were manually sorted in the Photos albums, photos returned by `photos` will be in same order as they appear in the Photos album)
+#### <a name="importphotos">`photos`</a>
+Returns a list of [PhotoInfo](#PhotoInfo) objects representing each photo contained in the import session.
 
 #### `creation_date`
 Returns the creation date as a timezone aware datetime.datetime object of the import session.
