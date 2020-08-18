@@ -1122,6 +1122,11 @@ def query(
     "Cannot be used with --exiftool which creates copies of the files with embedded EXIF data.",
 )
 @click.option(
+    "--touch-file",
+    is_flag=True,
+    help="Sets the file's modification time upon photo date.",
+)
+@click.option(
     "--overwrite",
     is_flag=True,
     help="Overwrite existing files. "
@@ -1299,6 +1304,7 @@ def export(
     update,
     dry_run,
     export_as_hardlink,
+    touch_file,
     overwrite,
     export_by_date,
     skip_edited,
@@ -1564,6 +1570,7 @@ def export(
                     export_db=export_db,
                     fileutil=fileutil,
                     dry_run=dry_run,
+                    touch_file=touch_file,
                     edited_suffix=edited_suffix,
                 )
                 results_exported.extend(results.exported)
@@ -1601,6 +1608,7 @@ def export(
                         export_db=export_db,
                         fileutil=fileutil,
                         dry_run=dry_run,
+                        touch_file=touch_file,
                         edited_suffix=edited_suffix,
                     )
                     results_exported.extend(results.exported)
@@ -2073,6 +2081,7 @@ def export_photo(
     export_db=None,
     fileutil=FileUtil,
     dry_run=None,
+    touch_file=None,
     edited_suffix="_edited",
 ):
     """ Helper function for export that does the actual export
@@ -2101,6 +2110,7 @@ def export_photo(
         export_db: export database instance compatible with ExportDB_ABC
         fileutil: file util class compatible with FileUtilABC
         dry_run: boolean; if True, doesn't actually export or update any files
+        touch_file: boolean; sets file's modification time upon photo date
 
     Returns:
         list of path(s) of exported photo or None if photo was missing
@@ -2178,6 +2188,7 @@ def export_photo(
                 export_db=export_db,
                 fileutil=fileutil,
                 dry_run=dry_run,
+                touch_file=touch_file,
             )
 
             results_exported.extend(export_results.exported)
@@ -2234,6 +2245,7 @@ def export_photo(
                         export_db=export_db,
                         fileutil=fileutil,
                         dry_run=dry_run,
+                        touch_file=touch_file,
                     )
 
                     results_exported.extend(export_results_edited.exported)

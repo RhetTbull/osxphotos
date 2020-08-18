@@ -29,6 +29,11 @@ class FileUtilABC(ABC):
 
     @classmethod
     @abstractmethod
+    def utime(cls, path, times):
+        pass
+
+    @classmethod
+    @abstractmethod
     def cmp_sig(cls, file1, file2):
         pass
 
@@ -104,6 +109,11 @@ class FileUtilMacOS(FileUtilABC):
             os.unlink(filepath)
 
     @classmethod
+    def utime(cls, path, times):
+        """ Set the access and modified time of path. """
+        os.utime(path, times)
+
+    @classmethod
     def cmp_sig(cls, f1, s2):
         """Compare file f1 to signature s2.
         Arguments:
@@ -171,6 +181,10 @@ class FileUtilNoOp(FileUtil):
     @classmethod
     def unlink(cls, dest):
         cls.verbose(f"unlink: {dest}")
+
+    @classmethod
+    def utime(cls, path, times):
+        cls.verbose(f"utime: {path}, {times}")
 
     @classmethod
     def file_sig(cls, file1):
