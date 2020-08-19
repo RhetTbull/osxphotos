@@ -17,6 +17,9 @@ Some of the export tests rely on photos in my local library and will look for `O
 
 One test for locale does not run on GitHub's automated workflow and will look for `OSXPHOTOS_TEST_LOCALE=1` to determine if it should be run.  If you want to run this test, set the environment variable.  
 
+## Test Photo Libraries
+**Important**: The test code uses several test photo libraries created on various version of MacOS.  If you need to inspect one of these or modify one for a test, make a copy of the library (for example, copy it to your ~/Pictures folder) then open the copy in Photos.  Once done, copy the revised library back to the tests/ folder.  If you do not do this, the Photos background process photoanalysisd will forever try to process the library resulting in updates to the database which will cause git to see changes to the file you didn't intend.  I'm not aware of any way to disassociate photoanalysisd from the library once you've opened it in Photos.
+
 ## Attribution ##
 These tests utilize a test Photos library. The test library is populated with photos from [flickr](https://www.flickr.com) and from my own photo library.  All images used are licensed under Creative Commons 2.0 Attribution [license](https://creativecommons.org/licenses/by/2.0/).  
 
