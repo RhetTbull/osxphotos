@@ -11,7 +11,6 @@
 
 # TODO: should this be its own PhotoExporter class?
 
-import filecmp
 import glob
 import json
 import logging
@@ -484,7 +483,7 @@ def export2(
         if update and dest.exists():
             # destination exists, check to see if destination is the right UUID
             dest_uuid = export_db.get_uuid_for_file(dest)
-            if dest_uuid is None and filecmp.cmp(src, dest):
+            if dest_uuid is None and fileutil.cmp(src, dest):
                 # might be exporting into a pre-ExportDB folder or the DB got deleted
                 logging.debug(
                     f"Found matching file with blank uuid: {self.uuid}, {dest}"
@@ -516,7 +515,7 @@ def export2(
                         dest = pathlib.Path(file_)
                         found_match = True
                         break
-                    elif dest_uuid is None and filecmp.cmp(src, file_):
+                    elif dest_uuid is None and fileutil.cmp(src, file_):
                         # files match, update the UUID
                         logging.debug(
                             f"Found matching file with blank uuid: {self.uuid}, {file_}"
@@ -836,21 +835,33 @@ def _export_photo(
         op_desc = "export_by_copying"
 
     if not update:
-        # not update, do the the hardlink
-        logging.debug(f"Not update: {op_desc} linking file {src} {dest}")
+        # not update, export the file
+        logging.debug(f"Exporting file with {op_desc} {src} {dest}")
         exported_files.append(dest_str)
-    else: #updating
+    else:  # updating
         if not dest_exists:
             # update, destination doesn't exist (new file)
             logging.debug(f"Update: exporting new file with {op_desc} {src} {dest}")
             update_new_files.append(dest_str)
         else:
             # update, destination exists, but we might not need to replace it...
-            if ((    export_as_hardlink and     dest.samefile(src)) or
-                (not export_as_hardlink and not dest.samefile(src) and (
-                    (    exiftool and fileutil.cmp_sig(dest_str, export_db.get_stat_exif_for_file(dest_str))) or
-                    (not exiftool and filecmp.cmp(src, dest)))
-                )):
+            if touch_file:
+                sig_cmp = fileutil.cmp(src, dest, mtime1=self.date.timestamp())
+            else:
+                sig_cmp = fileutil.cmp(src, dest)
+            if (export_as_hardlink and dest.samefile(src)) or (
+                not export_as_hardlink
+                and not dest.samefile(src)
+                and (
+                    (
+                        exiftool
+                        and fileutil.cmp_file_sig(
+                            dest_str, export_db.get_stat_exif_for_file(dest_str)
+                        )
+                    )
+                    or (not exiftool and sig_cmp)
+                )
+            ):
                 # destination exists but its signature is "identical"
                 logging.debug(f"Update: skipping identical original files {src} {dest}")
                 # call set_stat because code can reach this spot if no export DB but exporting a RAW or live photo
@@ -859,13 +870,17 @@ def _export_photo(
                 update_skipped_files.append(dest_str)
             else:
                 # destination exists but is different
-                logging.debug(f"Update: removing existing file prior to {op_desc} {src} {dest}")
+                logging.debug(
+                    f"Update: removing existing file prior to {op_desc} {src} {dest}"
+                )
                 update_updated_files.append(dest_str)
 
     if not update_skipped_files:
         if dest_exists and (update or overwrite):
             # need to remove the destination first
-            logging.debug(f"Update: removing existing file prior to export_as_hardlink {src} {dest}")
+            logging.debug(
+                f"Update: removing existing file prior to export_as_hardlink {src} {dest}"
+            )
             # dest.unlink()
             fileutil.unlink(dest)
         if export_as_hardlink:
@@ -873,7 +888,7 @@ def _export_photo(
         else:
             fileutil.copy(src, dest_str, norsrc=no_xattr)
         if touch_file:
-            ts=self.date.timestamp()
+            ts = self.date.timestamp()
             fileutil.utime(dest, (ts, ts))
 
     export_db.set_data(
@@ -886,7 +901,11 @@ def _export_photo(
     )
 
     return ExportResults(
-        exported_files + update_new_files + update_updated_files, update_new_files, update_updated_files, update_skipped_files, []
+        exported_files + update_new_files + update_updated_files,
+        update_new_files,
+        update_updated_files,
+        update_skipped_files,
+        [],
     )
 
 
