@@ -1543,6 +1543,7 @@ def export(
         results_updated = []
         results_skipped = []
         results_exif_updated = []
+        results_touched = []
         if verbose_:
             for p in photos:
                 results = export_photo(
@@ -1578,6 +1579,7 @@ def export(
                 results_updated.extend(results.updated)
                 results_skipped.extend(results.skipped)
                 results_exif_updated.extend(results.exif_updated)
+                results_touched.extend(results.touched)
 
         else:
             # show progress bar
@@ -1616,24 +1618,31 @@ def export(
                     results_updated.extend(results.updated)
                     results_skipped.extend(results.skipped)
                     results_exif_updated.extend(results.exif_updated)
+                    results_touched.extend(results.touched)
         stop_time = time.perf_counter()
         # print summary results
         if update:
             photo_str_new = "photos" if len(results_new) != 1 else "photo"
             photo_str_updated = "photos" if len(results_new) != 1 else "photo"
             photo_str_skipped = "photos" if len(results_skipped) != 1 else "photo"
+            photo_str_touched = "photos" if len(results_touched) != 1 else "photo"
             photo_str_exif_updated = (
                 "photos" if len(results_exif_updated) != 1 else "photo"
             )
-            click.echo(
-                f"Exported: {len(results_new)} {photo_str_new}, "
-                + f"updated: {len(results_updated)} {photo_str_updated}, "
-                + f"skipped: {len(results_skipped)} {photo_str_skipped}, "
-                + f"updated EXIF data: {len(results_exif_updated)} {photo_str_exif_updated}"
-            )
+            summary = f"Exported: {len(results_new)} {photo_str_new}, " \
+                      f"updated: {len(results_updated)} {photo_str_updated}, " \
+                      f"skipped: {len(results_skipped)} {photo_str_skipped}, " \
+                      f"updated EXIF data: {len(results_exif_updated)} {photo_str_exif_updated}"
+            if touch_file:
+                summary += f", touched date: {len(results_touched)} {photo_str_touched}"
+            click.echo(summary)
         else:
             photo_str = "photos" if len(results_exported) != 1 else "photo"
-            click.echo(f"Exported: {len(results_exported)} {photo_str}")
+            photo_str_touched = "photos" if len(results_touched) != 1 else "photo"
+            summary = f"Exported: {len(results_exported)} {photo_str}"
+            if touch_file:
+                summary += f", touched date: {len(results_touched)} {photo_str_touched}"
+            click.echo(summary)
         click.echo(f"Elapsed time: {(stop_time-start_time):.3f} seconds")
     else:
         click.echo("Did not find any photos to export")
@@ -2125,25 +2134,26 @@ def export_photo(
         if photo.ismissing:
             space = " " if not verbose_ else ""
             verbose(f"{space}Skipping missing photo {photo.filename}")
-            return ExportResults([], [], [], [], [])
+            return ExportResults([], [], [], [], [], [])
         elif not os.path.exists(photo.path):
             space = " " if not verbose_ else ""
             verbose(
                 f"{space}WARNING: file {photo.path} is missing but ismissing=False, "
                 f"skipping {photo.filename}"
             )
-            return ExportResults([], [], [], [], [])
+            return ExportResults([], [], [], [], [], [])
     elif photo.ismissing and not photo.iscloudasset or not photo.incloud:
         verbose(
             f"Skipping missing {photo.filename}: not iCloud asset or missing from cloud"
         )
-        return ExportResults([], [], [], [], [])
+        return ExportResults([], [], [], [], [], [])
 
     results_exported = []
     results_new = []
     results_updated = []
     results_skipped = []
     results_exif_updated = []
+    results_touched = []
 
     filenames = get_filenames_from_template(photo, filename_template, original_name)
     for filename in filenames:
@@ -2196,6 +2206,7 @@ def export_photo(
             results_updated.extend(export_results.updated)
             results_skipped.extend(export_results.skipped)
             results_exif_updated.extend(export_results.exif_updated)
+            results_touched.extend(export_results.touched)
 
             if verbose_:
                 for exported in export_results.exported:
@@ -2253,6 +2264,7 @@ def export_photo(
                     results_updated.extend(export_results_edited.updated)
                     results_skipped.extend(export_results_edited.skipped)
                     results_exif_updated.extend(export_results_edited.exif_updated)
+                    results_touched.extend(export_results.touched)
 
                     if verbose_:
                         for exported in export_results_edited.exported:
@@ -2270,6 +2282,7 @@ def export_photo(
         results_updated,
         results_skipped,
         results_exif_updated,
+        results_touched
     )
 
 

@@ -36,7 +36,8 @@ from ..fileutil import FileUtil
 from ..utils import dd_to_dms_str, findfiles
 
 ExportResults = namedtuple(
-    "ExportResults", ["exported", "new", "updated", "skipped", "exif_updated"]
+    "ExportResults",
+    ["exported", "new", "updated", "skipped", "exif_updated", "touched"],
 )
 
 
@@ -376,6 +377,9 @@ def export2(
     # list of all files skipped because they do not need to be updated (for use with update=True)
     update_skipped_files = []
 
+    # list of all files with utime touched (touch_file = True)
+    touched_files = []
+
     # check edited and raise exception trying to export edited version of
     # photo that hasn't been edited
     if edited and not self.hasadjustments:
@@ -566,6 +570,7 @@ def export2(
         update_new_files = results.new
         update_updated_files = results.updated
         update_skipped_files = results.skipped
+        touched_files = results.touched
 
         # copy live photo associated .mov if requested
         if live_photo and self.live_photo:
@@ -592,6 +597,7 @@ def export2(
                 update_new_files.extend(results.new)
                 update_updated_files.extend(results.updated)
                 update_skipped_files.extend(results.skipped)
+                touched_files.extend(results.touched)
             else:
                 logging.debug(f"Skipping missing live movie for {filename}")
 
@@ -618,6 +624,7 @@ def export2(
                 update_new_files.extend(results.new)
                 update_updated_files.extend(results.updated)
                 update_skipped_files.extend(results.skipped)
+                touched_files.extend(results.touched)
             else:
                 logging.debug(f"Skipping missing RAW photo for {filename}")
     else:
@@ -662,6 +669,7 @@ def export2(
             )
 
         if exported is not None:
+            # TODO: add touch_file code
             exported_files.extend(exported)
         else:
             logging.warning(
@@ -704,6 +712,7 @@ def export2(
                 raise e
 
     # if exiftool, write the metadata
+    # TODO: add touch_file code to update touch time
     if update:
         exif_files = update_new_files + update_updated_files + update_skipped_files
     else:
@@ -784,6 +793,7 @@ def export2(
         update_updated_files,
         update_skipped_files,
         exif_files_updated,
+        touched_files,
     )
 
 
@@ -826,6 +836,7 @@ def _export_photo(
     update_updated_files = []
     update_new_files = []
     update_skipped_files = []
+    touched_files = []
 
     dest_str = str(dest)
     dest_exists = dest.exists()
@@ -838,11 +849,15 @@ def _export_photo(
         # not update, export the file
         logging.debug(f"Exporting file with {op_desc} {src} {dest}")
         exported_files.append(dest_str)
+        if touch_file:
+            touched_files.append(dest_str)
     else:  # updating
         if not dest_exists:
             # update, destination doesn't exist (new file)
             logging.debug(f"Update: exporting new file with {op_desc} {src} {dest}")
             update_new_files.append(dest_str)
+            if touch_file:
+                touched_files.append(dest_str)
         else:
             # update, destination exists, but we might not need to replace it...
             if touch_file:
@@ -863,33 +878,38 @@ def _export_photo(
                 )
             ):
                 # destination exists but its signature is "identical"
-                logging.debug(f"Update: skipping identical original files {src} {dest}")
                 # call set_stat because code can reach this spot if no export DB but exporting a RAW or live photo
                 # potentially re-writes the data in the database but ensures database is complete
                 export_db.set_stat_orig_for_file(dest_str, fileutil.file_sig(dest_str))
                 update_skipped_files.append(dest_str)
             else:
-                # destination exists but is different
-                logging.debug(
-                    f"Update: removing existing file prior to {op_desc} {src} {dest}"
-                )
-                update_updated_files.append(dest_str)
+                # destination exists but signature is different
+                if touch_file and fileutil.cmp(src, dest) and not sig_cmp:
+                    # destination exists, signature matches original but does not match expected touch time
+                    # skip exporting but update touch time
+                    update_skipped_files.append(dest_str)
+                    touched_files.append(dest_str)
+                else:
+                    # destination exists but is different
+                    update_updated_files.append(dest_str)
+                    if touch_file:
+                        touched_files.append(dest_str)
 
     if not update_skipped_files:
         if dest_exists and (update or overwrite):
             # need to remove the destination first
             logging.debug(
-                f"Update: removing existing file prior to export_as_hardlink {src} {dest}"
+                f"Update: removing existing file prior to {op_desc} {src} {dest}"
             )
-            # dest.unlink()
             fileutil.unlink(dest)
         if export_as_hardlink:
             fileutil.hardlink(src, dest)
         else:
             fileutil.copy(src, dest_str, norsrc=no_xattr)
-        if touch_file:
-            ts = self.date.timestamp()
-            fileutil.utime(dest, (ts, ts))
+
+    if touched_files:
+        ts = self.date.timestamp()
+        fileutil.utime(dest, (ts, ts))
 
     export_db.set_data(
         dest_str,
@@ -906,6 +926,7 @@ def _export_photo(
         update_updated_files,
         update_skipped_files,
         [],
+        touched_files,
     )
 
 
