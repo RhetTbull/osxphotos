@@ -1623,7 +1623,7 @@ def export(
         # print summary results
         if update:
             photo_str_new = "photos" if len(results_new) != 1 else "photo"
-            photo_str_updated = "photos" if len(results_new) != 1 else "photo"
+            photo_str_updated = "photos" if len(results_updated) != 1 else "photo"
             photo_str_skipped = "photos" if len(results_skipped) != 1 else "photo"
             photo_str_touched = "photos" if len(results_touched) != 1 else "photo"
             photo_str_exif_updated = (
@@ -2217,6 +2217,8 @@ def export_photo(
                     verbose(f"Exported updated file {updated}")
                 for skipped in export_results.skipped:
                     verbose(f"Skipped up to date file {skipped}")
+                for touched in export_results.touched:
+                    verbose(f"Touched date on file {touched}")
 
             # if export-edited, also export the edited version
             # verify the photo has adjustments and valid path to avoid raising an exception

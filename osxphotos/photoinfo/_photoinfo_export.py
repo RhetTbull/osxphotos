@@ -850,7 +850,10 @@ def _export_photo(
         logging.debug(f"Exporting file with {op_desc} {src} {dest}")
         exported_files.append(dest_str)
         if touch_file:
-            touched_files.append(dest_str)
+            sig = fileutil.file_sig(src)
+            sig = (sig[0], sig[1], self.date.timestamp())
+            if not fileutil.cmp_file_sig(src, sig):
+                touched_files.append(dest_str)
     else:  # updating
         if not dest_exists:
             # update, destination doesn't exist (new file)
@@ -860,10 +863,9 @@ def _export_photo(
                 touched_files.append(dest_str)
         else:
             # update, destination exists, but we might not need to replace it...
-            if touch_file:
-                sig_cmp = fileutil.cmp(src, dest, mtime1=self.date.timestamp())
-            else:
-                sig_cmp = fileutil.cmp(src, dest)
+            cmp_orig = fileutil.cmp(src, dest)
+            cmp_touch = fileutil.cmp(src, dest, mtime1=self.date.timestamp())
+            sig_cmp = cmp_touch if touch_file else cmp_orig
             if (export_as_hardlink and dest.samefile(src)) or (
                 not export_as_hardlink
                 and not dest.samefile(src)
@@ -877,18 +879,19 @@ def _export_photo(
                     or (not exiftool and sig_cmp)
                 )
             ):
-                # destination exists but its signature is "identical"
-                # call set_stat because code can reach this spot if no export DB but exporting a RAW or live photo
-                # potentially re-writes the data in the database but ensures database is complete
-                export_db.set_stat_orig_for_file(dest_str, fileutil.file_sig(dest_str))
                 update_skipped_files.append(dest_str)
             else:
                 # destination exists but signature is different
-                if touch_file and fileutil.cmp(src, dest) and not sig_cmp:
+                if touch_file and cmp_orig and not cmp_touch:
                     # destination exists, signature matches original but does not match expected touch time
                     # skip exporting but update touch time
                     update_skipped_files.append(dest_str)
                     touched_files.append(dest_str)
+                elif not touch_file and cmp_touch and not cmp_orig:
+                    # destination exists, signature matches expected touch but not original
+                    # user likely exported with touch_file and is now exporting without touch_file
+                    # don't update the file because it's same but leave touch time
+                    update_skipped_files.append(dest_str)
                 else:
                     # destination exists but is different
                     update_updated_files.append(dest_str)
