@@ -2604,9 +2604,13 @@ def test_export_directory_template_1_dry_run():
 def test_export_touch_files():
     """ test export with --touch-files """
     import os
+    import time
 
     import osxphotos
     from osxphotos.__main__ import export
+
+    os.environ["TZ"] = "US/Pacific"
+    time.tzset()
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2639,6 +2643,9 @@ def test_export_touch_files_update():
 
     import osxphotos
     from osxphotos.__main__ import export
+
+    os.environ["TZ"] = "US/Pacific"
+    time.tzset()
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2767,6 +2774,9 @@ def test_export_touch_files_exiftool_update():
     import osxphotos
     from osxphotos.__main__ import export
 
+    os.environ["TZ"] = "US/Pacific"
+    time.tzset()
+    
     runner = CliRunner()
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
