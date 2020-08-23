@@ -867,7 +867,7 @@ def _export_photo(
         exported_files.append(dest_str)
         if touch_file:
             sig = fileutil.file_sig(src)
-            sig = (sig[0], sig[1], self.date.timestamp())
+            sig = (sig[0], sig[1], int(self.date.timestamp()))
             if not fileutil.cmp_file_sig(src, sig):
                 touched_files.append(dest_str)
     else:  # updating
@@ -886,7 +886,7 @@ def _export_photo(
                 cmp_touch = fileutil.cmp_file_sig(dest_str, sig_exif)
             else:
                 cmp_orig = fileutil.cmp(src, dest)
-                cmp_touch = fileutil.cmp(src, dest, mtime1=self.date.timestamp())
+                cmp_touch = fileutil.cmp(src, dest, mtime1=int(self.date.timestamp()))
 
             sig_cmp = cmp_touch if touch_file else cmp_orig
 

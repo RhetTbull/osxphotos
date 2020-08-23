@@ -14,7 +14,8 @@ PLACES_PHOTOS_DB = "tests/Test-Places-Catalina-10_15_1.photoslibrary"
 PLACES_PHOTOS_DB_13 = "tests/Test-Places-High-Sierra-10.13.6.photoslibrary"
 PHOTOS_DB_15_4 = "tests/Test-10.15.4.photoslibrary"
 PHOTOS_DB_15_5 = "tests/Test-10.15.5.photoslibrary"
-PHOTOS_DB_15_6 = "tests/Test-10.15.5.photoslibrary"
+PHOTOS_DB_15_6 = "tests/Test-10.15.6.photoslibrary"
+PHOTOS_DB_TOUCH = PHOTOS_DB_15_6
 PHOTOS_DB_14_6 = "tests/Test-10.14.6.photoslibrary"
 
 UUID_FILE = "tests/uuid_from_file.txt"
@@ -183,7 +184,20 @@ CLI_EXPORT_UUID = "D79B8D77-BFFC-460B-9312-034F2877D35B"
 
 CLI_EXPORT_UUID_FILENAME = "Pumkins2.jpg"
 
+CLI_EXPORT_BY_DATE_TOUCH_UUID = [
+    "1EB2B765-0765-43BA-A90C-0D0580E6172C",
+    "F12384F6-CD17-4151-ACBA-AE0E3688539E",
+]
 CLI_EXPORT_BY_DATE_TOUCH_TIMES = [1538165373, 1538163349]
+CLI_EXPORT_BY_DATE_NEED_TOUCH = [
+    "2018/09/28/Pumkins2.jpg",
+    "2018/10/13/St James Park.jpg",
+]
+CLI_EXPORT_BY_DATE_NEED_TOUCH_UUID = [
+    "D79B8D77-BFFC-460B-9312-034F2877D35B",
+    "DC99FBDD-7A52-4100-A5BB-344131646C30",
+]
+CLI_EXPORT_BY_DATE_NEED_TOUCH_TIMES = [1538165227, 1539436692]
 CLI_EXPORT_BY_DATE = ["2018/09/28/Pumpkins3.jpg", "2018/09/28/Pumkins1.jpg"]
 
 CLI_EXPORT_SIDECAR_FILENAMES = ["Pumkins2.jpg", "Pumkins2.json", "Pumkins2.xmp"]
@@ -323,6 +337,55 @@ try:
     exiftool = get_exiftool_path()
 except:
     exiftool = None
+
+
+def touch_all_photos_in_db(dbpath):
+    """ touch date on all photos in a library
+        helper function for --touch-file tests
+    
+    Args:
+        dbpath: path to photos library to touch
+    """
+    import os
+    import time
+
+    import osxphotos
+
+    ts = int(time.time())
+    for photo in osxphotos.PhotosDB(dbpath).photos():
+        if photo.path is not None:
+            os.utime(photo.path, (ts, ts))
+        if photo.path_edited is not None:
+            os.utime(photo.path_edited, (ts, ts))
+        if photo.path_raw is not None:
+            os.utime(photo.path_raw, (ts, ts))
+        if photo.path_live_photo is not None:
+            os.utime(photo.path_live_photo, (ts, ts))
+
+
+def setup_touch_tests():
+    """ perform setup needed for --touch-file tests """
+    import os
+    import time
+    import logging
+    import osxphotos
+
+    touch_all_photos_in_db(PHOTOS_DB_TOUCH)
+
+    photos = osxphotos.PhotosDB(PHOTOS_DB_TOUCH).photos_by_uuid(
+        CLI_EXPORT_BY_DATE_TOUCH_UUID
+    )
+    for photo in photos:
+        logging.warning(photo.path)
+        ts = int(photo.date.timestamp())
+        if photo.path is not None:
+            os.utime(photo.path, (ts, ts))
+        if photo.path_edited is not None:
+            os.utime(photo.path_edited, (ts, ts))
+        if photo.path_raw is not None:
+            os.utime(photo.path_raw, (ts, ts))
+        if photo.path_live_photo is not None:
+            os.utime(photo.path_live_photo, (ts, ts))
 
 
 def test_osxphotos():
@@ -2612,6 +2675,8 @@ def test_export_touch_files():
     os.environ["TZ"] = "US/Pacific"
     time.tzset()
 
+    setup_touch_tests()
+
     runner = CliRunner()
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
@@ -2619,7 +2684,7 @@ def test_export_touch_files():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, PHOTOS_DB_15_6),
+                os.path.join(cwd, PHOTOS_DB_TOUCH),
                 ".",
                 "-V",
                 "--touch-file",
@@ -2632,7 +2697,7 @@ def test_export_touch_files():
 
         for fname, mtime in zip(CLI_EXPORT_BY_DATE, CLI_EXPORT_BY_DATE_TOUCH_TIMES):
             st = os.stat(fname)
-            assert int(st.st_mtime) == mtime
+            assert int(st.st_mtime) == int(mtime)
 
 
 def test_export_touch_files_update():
@@ -2647,6 +2712,8 @@ def test_export_touch_files_update():
     os.environ["TZ"] = "US/Pacific"
     time.tzset()
 
+    setup_touch_tests()
+
     runner = CliRunner()
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
@@ -2654,7 +2721,7 @@ def test_export_touch_files_update():
         # basic export with dry-run
         result = runner.invoke(
             export,
-            [os.path.join(cwd, PHOTOS_DB_15_6), ".", "--export-by-date", "--dry-run"],
+            [os.path.join(cwd, PHOTOS_DB_TOUCH), ".", "--export-by-date", "--dry-run"],
         )
         assert result.exit_code == 0
 
@@ -2664,7 +2731,7 @@ def test_export_touch_files_update():
 
         # without dry-run
         result = runner.invoke(
-            export, [os.path.join(cwd, PHOTOS_DB_15_6), ".", "--export-by-date"]
+            export, [os.path.join(cwd, PHOTOS_DB_TOUCH), ".", "--export-by-date"]
         )
         assert result.exit_code == 0
 
@@ -2675,7 +2742,7 @@ def test_export_touch_files_update():
         # --update
         result = runner.invoke(
             export,
-            [os.path.join(cwd, PHOTOS_DB_15_6), ".", "--export-by-date", "--update"],
+            [os.path.join(cwd, PHOTOS_DB_TOUCH), ".", "--export-by-date", "--update"],
         )
         assert result.exit_code == 0
 
@@ -2688,7 +2755,7 @@ def test_export_touch_files_update():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, PHOTOS_DB_15_6),
+                os.path.join(cwd, PHOTOS_DB_TOUCH),
                 ".",
                 "--export-by-date",
                 "--update",
@@ -2702,15 +2769,15 @@ def test_export_touch_files_update():
             in result.output
         )
 
-        for fname, mtime in zip(CLI_EXPORT_BY_DATE, CLI_EXPORT_BY_DATE_TOUCH_TIMES):
+        for fname, mtime in zip(CLI_EXPORT_BY_DATE_NEED_TOUCH, CLI_EXPORT_BY_DATE_NEED_TOUCH_TIMES):
             st = os.stat(fname)
-            assert int(st.st_mtime) != mtime
+            assert int(st.st_mtime) != int(mtime)
 
         # --update --touch-file
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, PHOTOS_DB_15_6),
+                os.path.join(cwd, PHOTOS_DB_TOUCH),
                 ".",
                 "--export-by-date",
                 "--update",
@@ -2723,9 +2790,9 @@ def test_export_touch_files_update():
             in result.output
         )
 
-        for fname, mtime in zip(CLI_EXPORT_BY_DATE, CLI_EXPORT_BY_DATE_TOUCH_TIMES):
+        for fname, mtime in zip(CLI_EXPORT_BY_DATE_NEED_TOUCH, CLI_EXPORT_BY_DATE_NEED_TOUCH_TIMES):
             st = os.stat(fname)
-            assert int(st.st_mtime) == mtime
+            assert int(st.st_mtime) == int(mtime)
 
         # touch one file and run update again
         ts = time.time()
@@ -2734,7 +2801,7 @@ def test_export_touch_files_update():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, PHOTOS_DB_15_6),
+                os.path.join(cwd, PHOTOS_DB_TOUCH),
                 ".",
                 "--export-by-date",
                 "--update",
@@ -2749,12 +2816,12 @@ def test_export_touch_files_update():
 
         for fname, mtime in zip(CLI_EXPORT_BY_DATE, CLI_EXPORT_BY_DATE_TOUCH_TIMES):
             st = os.stat(fname)
-            assert int(st.st_mtime) == mtime
+            assert int(st.st_mtime) == int(mtime)
 
         # run update without --touch-file
         result = runner.invoke(
             export,
-            [os.path.join(cwd, PHOTOS_DB_15_6), ".", "--export-by-date", "--update"],
+            [os.path.join(cwd, PHOTOS_DB_TOUCH), ".", "--export-by-date", "--update"],
         )
         assert result.exit_code == 0
 
@@ -2776,7 +2843,9 @@ def test_export_touch_files_exiftool_update():
 
     os.environ["TZ"] = "US/Pacific"
     time.tzset()
-    
+
+    setup_touch_tests()
+
     runner = CliRunner()
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
@@ -2784,7 +2853,7 @@ def test_export_touch_files_exiftool_update():
         # basic export with dry-run
         result = runner.invoke(
             export,
-            [os.path.join(cwd, PHOTOS_DB_15_6), ".", "--export-by-date", "--dry-run"],
+            [os.path.join(cwd, PHOTOS_DB_TOUCH), ".", "--export-by-date", "--dry-run"],
         )
         assert result.exit_code == 0
 
@@ -2794,7 +2863,7 @@ def test_export_touch_files_exiftool_update():
 
         # without dry-run
         result = runner.invoke(
-            export, [os.path.join(cwd, PHOTOS_DB_15_6), ".", "--export-by-date"]
+            export, [os.path.join(cwd, PHOTOS_DB_TOUCH), ".", "--export-by-date"]
         )
         assert result.exit_code == 0
 
@@ -2805,7 +2874,7 @@ def test_export_touch_files_exiftool_update():
         # --update
         result = runner.invoke(
             export,
-            [os.path.join(cwd, PHOTOS_DB_15_6), ".", "--export-by-date", "--update"],
+            [os.path.join(cwd, PHOTOS_DB_TOUCH), ".", "--export-by-date", "--update"],
         )
         assert result.exit_code == 0
 
@@ -2818,7 +2887,7 @@ def test_export_touch_files_exiftool_update():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, PHOTOS_DB_15_6),
+                os.path.join(cwd, PHOTOS_DB_TOUCH),
                 ".",
                 "--export-by-date",
                 "--update",
@@ -2837,7 +2906,7 @@ def test_export_touch_files_exiftool_update():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, PHOTOS_DB_15_6),
+                os.path.join(cwd, PHOTOS_DB_TOUCH),
                 ".",
                 "--export-by-date",
                 "--update",
@@ -2855,7 +2924,7 @@ def test_export_touch_files_exiftool_update():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, PHOTOS_DB_15_6),
+                os.path.join(cwd, PHOTOS_DB_TOUCH),
                 ".",
                 "--export-by-date",
                 "--update",
@@ -2872,13 +2941,13 @@ def test_export_touch_files_exiftool_update():
 
         for fname, mtime in zip(CLI_EXPORT_BY_DATE, CLI_EXPORT_BY_DATE_TOUCH_TIMES):
             st = os.stat(fname)
-            assert int(st.st_mtime) != mtime
+            assert int(st.st_mtime) != int(mtime)
 
         # --update --touch-file --exiftool
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, PHOTOS_DB_15_6),
+                os.path.join(cwd, PHOTOS_DB_TOUCH),
                 ".",
                 "--export-by-date",
                 "--update",
@@ -2894,7 +2963,7 @@ def test_export_touch_files_exiftool_update():
 
         for fname, mtime in zip(CLI_EXPORT_BY_DATE, CLI_EXPORT_BY_DATE_TOUCH_TIMES):
             st = os.stat(fname)
-            assert int(st.st_mtime) == mtime
+            assert int(st.st_mtime) == int(mtime)
 
         # touch one file and run update again
         ts = time.time()
@@ -2903,7 +2972,7 @@ def test_export_touch_files_exiftool_update():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, PHOTOS_DB_15_6),
+                os.path.join(cwd, PHOTOS_DB_TOUCH),
                 ".",
                 "--export-by-date",
                 "--update",
@@ -2919,13 +2988,13 @@ def test_export_touch_files_exiftool_update():
 
         for fname, mtime in zip(CLI_EXPORT_BY_DATE, CLI_EXPORT_BY_DATE_TOUCH_TIMES):
             st = os.stat(fname)
-            assert int(st.st_mtime) == mtime
+            assert int(st.st_mtime) == int(mtime)
 
         # run --update --exiftool --touch-file again
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, PHOTOS_DB_15_6),
+                os.path.join(cwd, PHOTOS_DB_TOUCH),
                 ".",
                 "--export-by-date",
                 "--update",
@@ -2943,7 +3012,7 @@ def test_export_touch_files_exiftool_update():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, PHOTOS_DB_15_6),
+                os.path.join(cwd, PHOTOS_DB_TOUCH),
                 ".",
                 "--export-by-date",
                 "--exiftool",
