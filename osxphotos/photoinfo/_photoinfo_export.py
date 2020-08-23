@@ -629,7 +629,7 @@ def export2(
                 logging.debug(f"Skipping missing RAW photo for {filename}")
     else:
         # use_photo_export
-        exported = None
+        exported = [] 
         # export live_photo .mov file?
         live_photo = True if live_photo and self.live_photo else False
         if edited:
@@ -639,7 +639,7 @@ def export2(
                 filestem = dest.stem
             else:
                 # didn't get passed a filename, add _edited
-                filestem = f"{dest.stem}_edited"
+                filestem = f"{dest.stem}{edited_identifier}"
                 dest = dest.parent / f"{filestem}.jpeg"
 
             exported = _export_photo_uuid_applescript(
@@ -668,9 +668,16 @@ def export2(
                 dry_run=dry_run,
             )
 
-        if exported is not None:
-            # TODO: add touch_file code
+        if exported:
+            if touch_file:
+                for exported_file in exported:
+                    touched_files.append(exported_file)
+                    ts = int(self.date.timestamp())
+                    fileutil.utime(exported_file, (ts, ts))
             exported_files.extend(exported)
+            if update:
+                update_new_files.extend(exported)
+                    
         else:
             logging.warning(
                 f"Error exporting photo {self.uuid} to {dest} with use_photos_export"
@@ -712,7 +719,6 @@ def export2(
                 raise e
 
     # if exiftool, write the metadata
-    # TODO: add touch_file code to update touch time
     if update:
         exif_files = update_new_files + update_updated_files + update_skipped_files
     else:
@@ -773,6 +779,7 @@ def export2(
                     keyword_template=keyword_template,
                     description_template=description_template,
                 )
+
             export_db.set_exifdata_for_file(
                 exported_file,
                 self._exiftool_json_sidecar(
@@ -787,7 +794,15 @@ def export2(
             )
             exif_files_updated.append(exported_file)
 
-    return ExportResults(
+    if touch_file:
+        for exif_file in exif_files_updated:
+            touched_files.append(exported_file)
+            ts = int(self.date.timestamp())
+            fileutil.utime(exported_file, (ts, ts))
+
+    touched_files = list(set(touched_files))
+
+    results = ExportResults(
         exported_files,
         update_new_files,
         update_updated_files,
@@ -795,6 +810,7 @@ def export2(
         exif_files_updated,
         touched_files,
     )
+    return results
 
 
 def _export_photo(
@@ -863,22 +879,21 @@ def _export_photo(
                 touched_files.append(dest_str)
         else:
             # update, destination exists, but we might not need to replace it...
-            cmp_orig = fileutil.cmp(src, dest)
-            cmp_touch = fileutil.cmp(src, dest, mtime1=self.date.timestamp())
+            if exiftool:
+                sig_exif = export_db.get_stat_exif_for_file(dest_str)
+                cmp_orig = fileutil.cmp_file_sig(dest_str, sig_exif)
+                sig_exif = (sig_exif[0], sig_exif[1], int(self.date.timestamp()))
+                cmp_touch = fileutil.cmp_file_sig(dest_str, sig_exif)
+            else:
+                cmp_orig = fileutil.cmp(src, dest)
+                cmp_touch = fileutil.cmp(src, dest, mtime1=self.date.timestamp())
+
             sig_cmp = cmp_touch if touch_file else cmp_orig
+
             if (export_as_hardlink and dest.samefile(src)) or (
-                not export_as_hardlink
-                and not dest.samefile(src)
-                and (
-                    (
-                        exiftool
-                        and fileutil.cmp_file_sig(
-                            dest_str, export_db.get_stat_exif_for_file(dest_str)
-                        )
-                    )
-                    or (not exiftool and sig_cmp)
-                )
+                not export_as_hardlink and not dest.samefile(src) and sig_cmp
             ):
+                # destination exists and signatures match, skip it
                 update_skipped_files.append(dest_str)
             else:
                 # destination exists but signature is different
@@ -910,18 +925,18 @@ def _export_photo(
         else:
             fileutil.copy(src, dest_str, norsrc=no_xattr)
 
-    if touched_files:
-        ts = self.date.timestamp()
-        fileutil.utime(dest, (ts, ts))
+        export_db.set_data(
+            dest_str,
+            self.uuid,
+            fileutil.file_sig(dest_str),
+            (None, None, None),
+            self.json(),
+            None,
+        )
 
-    export_db.set_data(
-        dest_str,
-        self.uuid,
-        fileutil.file_sig(dest_str),
-        (None, None, None),
-        self.json(),
-        None,
-    )
+    if touched_files:
+        ts = int(self.date.timestamp())
+        fileutil.utime(dest, (ts, ts))
 
     return ExportResults(
         exported_files + update_new_files + update_updated_files,

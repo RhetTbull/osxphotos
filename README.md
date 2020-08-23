@@ -203,14 +203,14 @@ Options:
                                   both images and movies).
   --only-photos                   Search only for photos/images (default
                                   searches both images and movies).
-  --from-date [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]
-                                  Search by start item date, e.g.
-                                  2000-01-12T12:00:00 or 2000-12-31 (ISO 8601
-                                  w/o TZ).
-  --to-date [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]
-                                  Search by end item date, e.g.
-                                  2000-01-12T12:00:00 or 2000-12-31 (ISO 8601
-                                  w/o TZ).
+  --from-date DATETIME            Search by start item date, e.g.
+                                  2000-01-12T12:00:00,
+                                  2001-01-12T12:00:00-07:00, or 2000-12-31
+                                  (ISO 8601).
+  --to-date DATETIME              Search by end item date, e.g.
+                                  2000-01-12T12:00:00,
+                                  2001-01-12T12:00:00-07:00, or 2000-12-31
+                                  (ISO 8601).
   --deleted                       Include photos from the 'Recently Deleted'
                                   folder.
   --deleted-only                  Include only photos from the 'Recently
@@ -222,6 +222,8 @@ Options:
   --export-as-hardlink            Hardlink files instead of copying them.
                                   Cannot be used with --exiftool which creates
                                   copies of the files with embedded EXIF data.
+  --touch-file                    Sets the file's modification time to match
+                                  photo date.
   --overwrite                     Overwrite existing files. Default behavior
                                   is to add (1), (2), etc to filename if file
                                   already exists. Use this with caution as it

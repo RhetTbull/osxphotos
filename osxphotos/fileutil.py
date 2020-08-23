@@ -34,7 +34,7 @@ class FileUtilABC(ABC):
 
     @classmethod
     @abstractmethod
-    def cmp(cls, file1, file2, mtime1 = None):
+    def cmp(cls, file1, file2, mtime1=None):
         pass
 
     @classmethod
@@ -119,7 +119,7 @@ class FileUtilMacOS(FileUtilABC):
         os.utime(path, times)
 
     @classmethod
-    def cmp(cls, f1, f2, mtime1 = None):
+    def cmp(cls, f1, f2, mtime1=None):
         """Does shallow compare (file signatures) of f1 to file f2.
         Arguments:
         f1 --  File name
