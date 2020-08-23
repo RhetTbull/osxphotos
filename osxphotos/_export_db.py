@@ -189,7 +189,12 @@ class ExportDB(ExportDB_ABC):
                 (filename,),
             )
             results = c.fetchone()
-            stats = results[0:3] if results else None
+            if results:
+                stats = results[0:3]
+                mtime = int(stats[2]) if stats[2] is not None else None
+                stats = (stats[0], stats[1], mtime)
+            else:
+                stats = (None, None, None)
         except Error as e:
             logging.warning(e)
             stats = (None, None, None)
@@ -232,7 +237,12 @@ class ExportDB(ExportDB_ABC):
                 (filename,),
             )
             results = c.fetchone()
-            stats = results[0:3] if results else None
+            if results:
+                stats = results[0:3]
+                mtime = int(stats[2]) if stats[2] is not None else None
+                stats = (stats[0], stats[1], mtime)
+            else:
+                stats = (None, None, None)
         except Error as e:
             logging.warning(e)
             stats = (None, None, None)

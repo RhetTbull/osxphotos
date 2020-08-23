@@ -1124,7 +1124,7 @@ def query(
 @click.option(
     "--touch-file",
     is_flag=True,
-    help="Sets the file's modification time upon photo date.",
+    help="Sets the file's modification time to match photo date.",
 )
 @click.option(
     "--overwrite",
@@ -1269,6 +1269,13 @@ def query(
     "to a filesystem that doesn't support Mac OS extended attributes.  Only use this if you get "
     "an error while exporting.",
 )
+@click.option(
+    "--use-photos-export",
+    is_flag=True,
+    default=False,
+    hidden=True,
+    help="Force the use of AppleScript to export even if not missing (see also --download-missing).",
+)
 @DB_ARGUMENT
 @click.argument("dest", nargs=1, type=click.Path(exists=True))
 @click.pass_obj
@@ -1350,6 +1357,7 @@ def export(
     label,
     deleted,
     deleted_only,
+    use_photos_export,
 ):
     """ Export photos from the Photos database.
         Export path DEST is required.
@@ -1520,7 +1528,6 @@ def export(
         deleted_only=deleted_only,
     )
 
-    results_exported = []
     if photos:
         if export_bursts:
             # add the burst_photos to the export set
@@ -1539,10 +1546,12 @@ def export(
         # because the original code used --original-name as an option
         original_name = not current_name
 
+        results_exported = []
         results_new = []
         results_updated = []
         results_skipped = []
         results_exif_updated = []
+        results_touched = []
         if verbose_:
             for p in photos:
                 results = export_photo(
@@ -1572,12 +1581,14 @@ def export(
                     dry_run=dry_run,
                     touch_file=touch_file,
                     edited_suffix=edited_suffix,
+                    use_photos_export=use_photos_export,
                 )
                 results_exported.extend(results.exported)
                 results_new.extend(results.new)
                 results_updated.extend(results.updated)
                 results_skipped.extend(results.skipped)
                 results_exif_updated.extend(results.exif_updated)
+                results_touched.extend(results.touched)
 
         else:
             # show progress bar
@@ -1610,30 +1621,40 @@ def export(
                         dry_run=dry_run,
                         touch_file=touch_file,
                         edited_suffix=edited_suffix,
+                        use_photos_export=use_photos_export,
                     )
                     results_exported.extend(results.exported)
                     results_new.extend(results.new)
                     results_updated.extend(results.updated)
                     results_skipped.extend(results.skipped)
                     results_exif_updated.extend(results.exif_updated)
+                    results_touched.extend(results.touched)
         stop_time = time.perf_counter()
         # print summary results
         if update:
             photo_str_new = "photos" if len(results_new) != 1 else "photo"
-            photo_str_updated = "photos" if len(results_new) != 1 else "photo"
+            photo_str_updated = "photos" if len(results_updated) != 1 else "photo"
             photo_str_skipped = "photos" if len(results_skipped) != 1 else "photo"
+            photo_str_touched = "photos" if len(results_touched) != 1 else "photo"
             photo_str_exif_updated = (
                 "photos" if len(results_exif_updated) != 1 else "photo"
             )
-            click.echo(
+            summary = (
                 f"Exported: {len(results_new)} {photo_str_new}, "
-                + f"updated: {len(results_updated)} {photo_str_updated}, "
-                + f"skipped: {len(results_skipped)} {photo_str_skipped}, "
-                + f"updated EXIF data: {len(results_exif_updated)} {photo_str_exif_updated}"
+                f"updated: {len(results_updated)} {photo_str_updated}, "
+                f"skipped: {len(results_skipped)} {photo_str_skipped}, "
+                f"updated EXIF data: {len(results_exif_updated)} {photo_str_exif_updated}"
             )
+            if touch_file:
+                summary += f", touched date: {len(results_touched)} {photo_str_touched}"
+            click.echo(summary)
         else:
             photo_str = "photos" if len(results_exported) != 1 else "photo"
-            click.echo(f"Exported: {len(results_exported)} {photo_str}")
+            photo_str_touched = "photos" if len(results_touched) != 1 else "photo"
+            summary = f"Exported: {len(results_exported)} {photo_str}"
+            if touch_file:
+                summary += f", touched date: {len(results_touched)} {photo_str_touched}"
+            click.echo(summary)
         click.echo(f"Elapsed time: {(stop_time-start_time):.3f} seconds")
     else:
         click.echo("Did not find any photos to export")
@@ -2083,6 +2104,7 @@ def export_photo(
     dry_run=None,
     touch_file=None,
     edited_suffix="_edited",
+    use_photos_export=False,
 ):
     """ Helper function for export that does the actual export
 
@@ -2110,7 +2132,8 @@ def export_photo(
         export_db: export database instance compatible with ExportDB_ABC
         fileutil: file util class compatible with FileUtilABC
         dry_run: boolean; if True, doesn't actually export or update any files
-        touch_file: boolean; sets file's modification time upon photo date
+        touch_file: boolean; sets file's modification time to match photo date
+        use_photos_export: boolean; if True forces the use of AppleScript to export even if photo not missing
 
     Returns:
         list of path(s) of exported photo or None if photo was missing
@@ -2125,25 +2148,26 @@ def export_photo(
         if photo.ismissing:
             space = " " if not verbose_ else ""
             verbose(f"{space}Skipping missing photo {photo.filename}")
-            return ExportResults([], [], [], [], [])
+            return ExportResults([], [], [], [], [], [])
         elif not os.path.exists(photo.path):
             space = " " if not verbose_ else ""
             verbose(
                 f"{space}WARNING: file {photo.path} is missing but ismissing=False, "
                 f"skipping {photo.filename}"
             )
-            return ExportResults([], [], [], [], [])
+            return ExportResults([], [], [], [], [], [])
     elif photo.ismissing and not photo.iscloudasset or not photo.incloud:
         verbose(
             f"Skipping missing {photo.filename}: not iCloud asset or missing from cloud"
         )
-        return ExportResults([], [], [], [], [])
+        return ExportResults([], [], [], [], [], [])
 
     results_exported = []
     results_new = []
     results_updated = []
     results_skipped = []
     results_exif_updated = []
+    results_touched = []
 
     filenames = get_filenames_from_template(photo, filename_template, original_name)
     for filename in filenames:
@@ -2162,8 +2186,10 @@ def export_photo(
 
         # if download_missing and the photo is missing or path doesn't exist,
         # try to download with Photos
-        use_photos_export = download_missing and (
-            photo.ismissing or not os.path.exists(photo.path)
+        use_photos_export = (
+            download_missing and (photo.ismissing or not os.path.exists(photo.path))
+            if not use_photos_export
+            else True
         )
 
         # export the photo to each path in dest_paths
@@ -2196,6 +2222,7 @@ def export_photo(
             results_updated.extend(export_results.updated)
             results_skipped.extend(export_results.skipped)
             results_exif_updated.extend(export_results.exif_updated)
+            results_touched.extend(export_results.touched)
 
             if verbose_:
                 for exported in export_results.exported:
@@ -2206,13 +2233,14 @@ def export_photo(
                     verbose(f"Exported updated file {updated}")
                 for skipped in export_results.skipped:
                     verbose(f"Skipped up to date file {skipped}")
+                for touched in export_results.touched:
+                    verbose(f"Touched date on file {touched}")
 
             # if export-edited, also export the edited version
             # verify the photo has adjustments and valid path to avoid raising an exception
             if export_edited and photo.hasadjustments:
                 # if download_missing and the photo is missing or path doesn't exist,
                 # try to download with Photos
-                use_photos_export = download_missing and photo.path_edited is None
                 if not download_missing and photo.path_edited is None:
                     verbose(f"Skipping missing edited photo for {filename}")
                 else:
@@ -2253,6 +2281,7 @@ def export_photo(
                     results_updated.extend(export_results_edited.updated)
                     results_skipped.extend(export_results_edited.skipped)
                     results_exif_updated.extend(export_results_edited.exif_updated)
+                    results_touched.extend(export_results_edited.touched)
 
                     if verbose_:
                         for exported in export_results_edited.exported:
@@ -2263,6 +2292,8 @@ def export_photo(
                             verbose(f"Exported updated file {updated}")
                         for skipped in export_results_edited.skipped:
                             verbose(f"Skipped up to date file {skipped}")
+                        for touched in export_results_edited.touched:
+                            verbose(f"Touched date on file {touched}")
 
     return ExportResults(
         results_exported,
@@ -2270,6 +2301,7 @@ def export_photo(
         results_updated,
         results_skipped,
         results_exif_updated,
+        results_touched,
     )
 
 

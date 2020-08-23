@@ -34,7 +34,12 @@ class FileUtilABC(ABC):
 
     @classmethod
     @abstractmethod
-    def cmp_sig(cls, file1, file2):
+    def cmp(cls, file1, file2, mtime1=None):
+        pass
+
+    @classmethod
+    @abstractmethod
+    def cmp_file_sig(cls, file1, file2):
         pass
 
     @classmethod
@@ -114,11 +119,32 @@ class FileUtilMacOS(FileUtilABC):
         os.utime(path, times)
 
     @classmethod
-    def cmp_sig(cls, f1, s2):
+    def cmp(cls, f1, f2, mtime1=None):
+        """Does shallow compare (file signatures) of f1 to file f2.
+        Arguments:
+        f1 --  File name
+        f2 -- File name
+        mtime1 -- optional, pass alternate file modification timestamp for f1; will be converted to int
+
+        Return value:
+        True if the file signatures as returned by stat are the same, False otherwise. 
+        Does not do a byte-by-byte comparison.
+        """
+
+        s1 = cls._sig(os.stat(f1))
+        if mtime1 is not None:
+            s1 = (s1[0], s1[1], int(mtime1))
+        s2 = cls._sig(os.stat(f2))
+        if s1[0] != stat.S_IFREG or s2[0] != stat.S_IFREG:
+            return False
+        return s1 == s2
+
+    @classmethod
+    def cmp_file_sig(cls, f1, s2):
         """Compare file f1 to signature s2.
         Arguments:
         f1 --  File name
-        s2 -- stats as returned by sig
+        s2 -- stats as returned by _sig
 
         Return value:
         True if the files are the same, False otherwise.
@@ -140,7 +166,12 @@ class FileUtilMacOS(FileUtilABC):
 
     @staticmethod
     def _sig(st):
-        return (stat.S_IFMT(st.st_mode), st.st_size, st.st_mtime)
+        """ return tuple of (mode, size, mtime) of file based on os.stat
+            Args:
+                st: os.stat signature
+        """
+        # use int(st.st_mtime) because ditto does not copy fractional portion of mtime
+        return (stat.S_IFMT(st.st_mode), st.st_size, int(st.st_mtime))
 
 
 class FileUtil(FileUtilMacOS):
@@ -151,8 +182,8 @@ class FileUtil(FileUtilMacOS):
 
 class FileUtilNoOp(FileUtil):
     """ No-Op implementation of FileUtil for testing / dry-run mode
-        all methods with exception of cmp_sig and file_cmp are no-op
-        cmp_sig functions as FileUtil.cmp_sig does
+        all methods with exception of cmp, cmp_file_sig and file_cmp are no-op
+        cmp and cmp_file_sig functions as FileUtil methods do
         file_cmp returns mock data
     """
 
