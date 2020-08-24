@@ -932,6 +932,7 @@ class PhotosDB:
             # There are sometimes negative values for lastmodifieddate in the database
             # I don't know what these mean but they will raise exception in datetime if
             # not accounted for
+            self._dbphotos[uuid]["lastmodifieddate_timestamp"] = row[4]
             try:
                 self._dbphotos[uuid]["lastmodifieddate"] = datetime.fromtimestamp(
                     row[4] + TIME_DELTA
@@ -942,6 +943,7 @@ class PhotosDB:
                 self._dbphotos[uuid]["lastmodifieddate"] = None
 
             self._dbphotos[uuid]["imageTimeZoneOffsetSeconds"] = row[9]
+            self._dbphotos[uuid]["imageDate_timestamp"] = row[5]
 
             try:
                 imagedate = datetime.fromtimestamp(row[5] + TIME_DELTA)
@@ -1798,6 +1800,7 @@ class PhotosDB:
             # There are sometimes negative values for lastmodifieddate in the database
             # I don't know what these mean but they will raise exception in datetime if
             # not accounted for
+            info["lastmodifieddate_timestamp"] = row[4]
             try:
                 info["lastmodifieddate"] = datetime.fromtimestamp(row[4] + TIME_DELTA)
             except ValueError:
@@ -1806,6 +1809,7 @@ class PhotosDB:
                 info["lastmodifieddate"] = None
 
             info["imageTimeZoneOffsetSeconds"] = row[6]
+            info["imageDate_timestamp"] = row[5]
 
             try:
                 imagedate = datetime.fromtimestamp(row[5] + TIME_DELTA)
