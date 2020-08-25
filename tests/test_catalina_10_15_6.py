@@ -1029,8 +1029,15 @@ def test_photosinfo_repr():
 
 
 def test_from_to_date():
-    import osxphotos
+    """ test from_date / to_date """
     import datetime as dt
+    import os
+    import time
+
+    import osxphotos
+
+    os.environ["TZ"] = "US/Pacific"
+    time.tzset()
 
     photosdb = osxphotos.PhotosDB(PHOTOS_DB)
 
@@ -1044,6 +1051,50 @@ def test_from_to_date():
         from_date=dt.datetime(2018, 9, 28), to_date=dt.datetime(2018, 9, 29)
     )
     assert len(photos) == 4
+
+
+def test_from_to_date_tz():
+    """ Test from_date / to_date with and without timezone """
+    import datetime as dt
+    import os
+    import time
+
+    import osxphotos
+
+    os.environ["TZ"] = "US/Pacific"
+    time.tzset()
+
+    photosdb = osxphotos.PhotosDB(PHOTOS_DB)
+
+    photos = photosdb.photos(
+        from_date=dt.datetime(2018, 9, 28, 13, 7, 0),
+        to_date=dt.datetime(2018, 9, 28, 13, 9, 0),
+    )
+    assert len(photos) == 1
+    assert photos[0].uuid == "D79B8D77-BFFC-460B-9312-034F2877D35B"
+
+    photos = photosdb.photos(
+        from_date=dt.datetime(
+            2018,
+            9,
+            28,
+            16,
+            7,
+            0,
+            tzinfo=dt.timezone(dt.timedelta(days=-1, seconds=72000)),
+        ),
+        to_date=dt.datetime(
+            2018,
+            9,
+            28,
+            16,
+            9,
+            0,
+            tzinfo=dt.timezone(dt.timedelta(days=-1, seconds=72000)),
+        ),
+    )
+    assert len(photos) == 1
+    assert photos[0].uuid == "D79B8D77-BFFC-460B-9312-034F2877D35B"
 
 
 def test_date_invalid():

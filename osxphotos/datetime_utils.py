@@ -2,14 +2,23 @@
 
 import datetime
 
-def get_local_tz():
-    """ return local timezone as datetime.timezone tzinfo """
-    local_tz = (
-        datetime.datetime.now(datetime.timezone(datetime.timedelta(0)))
-        .astimezone()
-        .tzinfo
-    )
-    return local_tz
+
+def get_local_tz(dt):
+    """ return local timezone as datetime.timezone tzinfo for dt
+    
+    Args:
+        dt: datetime.datetime
+    
+    Returns:
+        local timezone for dt as datetime.timezone
+
+    Raises:
+        ValueError if dt is not timezone naive
+    """
+    if not datetime_has_tz(dt):
+        return dt.astimezone().tzinfo
+    else:
+        raise ValueError("dt must be naive datetime.datetime object")
 
 
 def datetime_remove_tz(dt):
@@ -50,4 +59,4 @@ def datetime_naive_to_local(dt):
             f"{dt} has tzinfo {dt.tzinfo} and offset {dt.tizinfo.utcoffset(dt)}"
         )
 
-    return dt.replace(tzinfo=get_local_tz())
+    return dt.replace(tzinfo=get_local_tz(dt))

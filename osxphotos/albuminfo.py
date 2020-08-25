@@ -57,7 +57,9 @@ class AlbumInfoBaseClass:
         self._creation_date_timestamp = self._db._dbalbum_details[uuid]["creation_date"]
         self._start_date_timestamp = self._db._dbalbum_details[uuid]["start_date"]
         self._end_date_timestamp = self._db._dbalbum_details[uuid]["end_date"]
-        self._local_tz = get_local_tz()
+        self._local_tz = get_local_tz(
+            datetime.fromtimestamp(self._creation_date_timestamp + TIME_DELTA)
+        )
 
     @property
     def uuid(self):
