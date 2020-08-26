@@ -629,7 +629,7 @@ def export2(
                 logging.debug(f"Skipping missing RAW photo for {filename}")
     else:
         # use_photo_export
-        exported = [] 
+        exported = []
         # export live_photo .mov file?
         live_photo = True if live_photo and self.live_photo else False
         if edited:
@@ -677,7 +677,7 @@ def export2(
             exported_files.extend(exported)
             if update:
                 update_new_files.extend(exported)
-                    
+
         else:
             logging.warning(
                 f"Error exporting photo {self.uuid} to {dest} with use_photos_export"
@@ -1127,9 +1127,12 @@ def _xmp_sidecar(
         keyword_template: (list of strings); list of template strings to render as keywords 
         description_template: string; optional template string that will be rendered for use as photo description """
 
-    # TODO: add additional fields to XMP file?
-
     xmp_template = Template(filename=os.path.join(_TEMPLATE_DIR, _XMP_TEMPLATE_NAME))
+
+    if self.path is not None:
+        extension = pathlib.Path(self.path).suffix[1:].upper()
+    else:
+        extension = None
 
     if description_template is not None:
         description = self.render_template(
@@ -1199,6 +1202,7 @@ def _xmp_sidecar(
         keywords=keyword_list,
         persons=person_list,
         subjects=subject_list,
+        extension=extension,
     )
 
     # remove extra lines that mako inserts from template

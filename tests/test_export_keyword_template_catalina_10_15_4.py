@@ -166,6 +166,7 @@ def test_xmp_sidecar_keyword_template():
         <rdf:Description rdf:about="" 
             xmlns:dc="http://purl.org/dc/elements/1.1/" 
             xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/">
+        <photoshop:SidecarForExtension>JPEG</photoshop:SidecarForExtension>
         <dc:description>Girls with pumpkins</dc:description>
         <dc:title>Can we carry this?</dc:title>
         <!-- keywords and persons listed in <dc:subject> as Photos does -->
