@@ -675,7 +675,7 @@ if __name__ == "__main__":
 #### Read a Photos library database
 
 ```python
-osxphotos.PhotosDB() # not recommended, see Note below
+osxphotos.PhotosDB()
 osxphotos.PhotosDB(path)
 osxphotos.PhotosDB(dbfile=path)
 ```
@@ -686,7 +686,7 @@ Pass the path to a Photos library or to a specific database file (e.g. "/Users/s
 
 If an invalid path is passed, PhotosDB will raise `FileNotFoundError` exception.
 
-**Note**: If neither path or dbfile is passed, PhotosDB will use get_last_library_path to open the last opened Photos library.  This usually works but is not 100% reliable.  It can also lead to loading a different library than expected if the user has held down *option* key when opening Photos to switch libraries.  It is therefore recommended you explicitely pass the path to `PhotosDB()`.  
+**Note**: If neither path or dbfile is passed, PhotosDB will use get_last_library_path to open the last opened Photos library.  This usually works but is not 100% reliable.  It can also lead to loading a different library than expected if the user has held down *option* key when opening Photos to switch libraries.  You may therefore want to explicitely pass the path to `PhotosDB()`. 
 
 #### Open the default (last opened) Photos library
 
@@ -1877,6 +1877,8 @@ Thank-you to the following people who have contributed to improving osxphotos!  
 - [Thibault Deutsch](https://github.com/dethi)
 - [grundsch](https://github.com/grundsch)
 - [Ag Primatic](https://github.com/agprimatic)
+- [Daniel M. Drucker](https://github.com/dmd)
+
 
 ## Known Bugs
 
