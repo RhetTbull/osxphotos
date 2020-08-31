@@ -58,6 +58,8 @@ CLI_EXPORT_FILENAMES = [
 
 CLI_EXPORT_FILENAMES_ALBUM = ["Pumkins1.jpg", "Pumkins2.jpg", "Pumpkins3.jpg"]
 
+CLI_EXPORT_FILENAMES_ALBUM_UNICODE = ["IMG_4547.jpg"]
+
 CLI_EXPORT_FILENAMES_DELETED_TWIN = ["wedding.jpg", "wedding_edited.jpeg"]
 
 CLI_EXPORT_EDITED_SUFFIX = "_bearbeiten"
@@ -451,7 +453,6 @@ def test_query_uuid():
             "--json",
             "--db",
             os.path.join(cwd, CLI_PHOTOS_DB),
-            # "./tests/Test-10.15.1.photoslibrary",
             "--uuid",
             "D79B8D77-BFFC-460B-9312-034F2877D35B",
         ],
@@ -1815,6 +1816,26 @@ def test_export_album():
         assert result.exit_code == 0
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_ALBUM)
+
+def test_export_album_unicode_name():
+    """Test export of an album with non-English characters in name """
+    import glob
+    import os
+    import os.path
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [os.path.join(cwd, PHOTOS_DB_15_6), ".", "--album", "2018-10 - Sponsion, Museum, Frühstück, Römermuseum", "-V"],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_ALBUM_UNICODE)
+
 
 
 def test_export_album_deleted_twin():

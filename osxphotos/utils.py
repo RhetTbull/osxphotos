@@ -10,6 +10,7 @@ import sqlite3
 import subprocess
 import sys
 import tempfile
+import unicodedata
 import urllib.parse
 from plistlib import load as plistload
 
@@ -18,6 +19,7 @@ import CoreServices
 import objc
 from Foundation import *
 
+from ._constants import UNICODE_FORMAT
 from .fileutil import FileUtil
 
 _DEBUG = False
@@ -352,3 +354,13 @@ def _db_is_locked(dbname):
 #     attr = xattr.xattr(filepath)
 #     uuid_bytes = bytes(uuid, 'utf-8')
 #     attr.set(OSXPHOTOS_XATTR_UUID, uuid_bytes)
+
+
+def normalize_unicode(value):
+    """ normalize unicode data """
+    if value is not None:
+        if not isinstance(value, str):
+            raise ValueError("value must be str")
+        return unicodedata.normalize(UNICODE_FORMAT, value)
+    else:
+        return None

@@ -10,6 +10,7 @@ import pathlib
 import pprint
 import sys
 import time
+import unicodedata
 
 import click
 import yaml
@@ -22,7 +23,7 @@ from pathvalidate import (
 
 import osxphotos
 
-from ._constants import _EXIF_TOOL_URL, _PHOTOS_4_VERSION, _UNKNOWN_PLACE
+from ._constants import _EXIF_TOOL_URL, _PHOTOS_4_VERSION, _UNKNOWN_PLACE, UNICODE_FORMAT
 from ._export_db import ExportDB, ExportDBInMemory
 from ._version import __version__
 from .datetime_formatter import DateTimeFormatter
@@ -40,9 +41,21 @@ OSXPHOTOS_EXPORT_DB = ".osxphotos_export.db"
 
 
 def verbose(*args, **kwargs):
+    """ print output if verbose flag set """
     if VERBOSE:
         click.echo(*args, **kwargs)
 
+def normalize_unicode(value):
+    """ normalize unicode data """
+    if value is not None:
+        if isinstance(value, tuple):
+            return tuple(unicodedata.normalize(UNICODE_FORMAT, v) for v in value)
+        elif isinstance(value, str):
+            return unicodedata.normalize(UNICODE_FORMAT, value)
+        else:
+            return value
+    else:
+        return None
 
 def get_photos_db(*db_options):
     """ Return path to photos db, select first non-None db_options
@@ -1863,6 +1876,15 @@ def _query(
             to_date=to_date,
         )
 
+    person = normalize_unicode(person)
+    keyword = normalize_unicode(keyword)
+    album = normalize_unicode(album)
+    folder = normalize_unicode(folder)
+    title = normalize_unicode(title)
+    description = normalize_unicode(description)
+    place = normalize_unicode(place)
+    label = normalize_unicode(label)
+    
     if album:
         photos = get_photos_by_attribute(photos, "albums", album, ignore_case)
 

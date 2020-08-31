@@ -33,6 +33,7 @@ ALBUMS = [
     "Raw",
     "I have a deleted twin",  # there's an empty album with same name that has been deleted
     "EmptyAlbum",
+    "2018-10 - Sponsion, Museum, Frühstück, Römermuseum",
 ]
 KEYWORDS_DICT = {
     "Kids": 4,
@@ -53,6 +54,7 @@ ALBUM_DICT = {
     "Raw": 4,
     "I have a deleted twin": 1,
     "EmptyAlbum": 0,
+    "2018-10 - Sponsion, Museum, Frühstück, Römermuseum": 1,
 }  # Note: there are 2 albums named "Test Album" for testing duplicate album names
 
 UUID_DICT = {

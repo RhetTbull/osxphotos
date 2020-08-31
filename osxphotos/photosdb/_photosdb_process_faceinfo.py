@@ -4,7 +4,7 @@
 import logging
 
 from .._constants import _DB_TABLE_NAMES, _PHOTOS_4_VERSION
-from ..utils import _open_sql_file
+from ..utils import _open_sql_file, normalize_unicode
 from .photosdb_utils import get_db_version
 
 
@@ -121,7 +121,7 @@ def _process_faceinfo_4(photosdb):
         face["asset_uuid"] = asset_uuid
         face["uuid"] = row[2]
         face["person"] = person_id
-        face["fullname"] = row[3]
+        face["fullname"] = normalize_unicode(row[3])
         face["sourcewidth"] = row[7]
         face["sourceheight"] = row[8]
         face["centerx"] = row[9]
@@ -282,7 +282,7 @@ def _process_faceinfo_5(photosdb):
         face["asset_uuid"] = asset_uuid
         face["uuid"] = row[2]
         face["person"] = person_pk
-        face["fullname"] = row[4]
+        face["fullname"] = normalize_unicode(row[4])
         face["agetype"] = row[5]
         face["baldtype"] = row[6]
         face["eyemakeuptype"] = row[7]

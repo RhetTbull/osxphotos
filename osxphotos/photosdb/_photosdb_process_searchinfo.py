@@ -10,7 +10,7 @@ import uuid as uuidlib
 from pprint import pformat
 
 from .._constants import _PHOTOS_4_VERSION, SEARCH_CATEGORY_LABEL
-from ..utils import _db_is_locked, _debug, _open_sql_file
+from ..utils import _db_is_locked, _debug, _open_sql_file, normalize_unicode
 
 """
     This module should be imported in the class defintion of PhotosDB in photosdb.py
@@ -112,8 +112,8 @@ def _process_searchinfo(self):
         record["groupid"] = row[3]
         record["category"] = row[4]
         record["owning_groupid"] = row[5]
-        record["content_string"] = row[6].replace("\x00", "")
-        record["normalized_string"] = row[7].replace("\x00", "")
+        record["content_string"] = normalize_unicode(row[6].replace("\x00", ""))
+        record["normalized_string"] = normalize_unicode(row[7].replace("\x00", ""))
         record["lookup_identifier"] = row[8]
 
         try:
@@ -147,8 +147,9 @@ def _process_searchinfo(self):
             "_db_searchinfo_labels_normalized: \n"
             + pformat(self._db_searchinfo_labels_normalized)
         )
-    
+
     conn.close()
+
 
 @property
 def labels(self):

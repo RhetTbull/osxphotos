@@ -11,6 +11,9 @@ from collections import namedtuple  # pylint: disable=syntax-error
 import yaml
 from bpylist import archiver
 
+from ._constants import UNICODE_FORMAT
+from .utils import normalize_unicode
+
 # postal address information, returned by PlaceInfo.address
 PostalAddress = namedtuple(
     "PostalAddress",
@@ -76,12 +79,12 @@ class PLRevGeoLocationInfo:
         geoServiceProvider,
         postalAddress,
     ):
-        self.addressString = addressString
+        self.addressString = normalize_unicode(addressString)
         self.countryCode = countryCode
         self.mapItem = mapItem
         self.isHome = isHome
-        self.compoundNames = compoundNames
-        self.compoundSecondaryNames = compoundSecondaryNames
+        self.compoundNames = normalize_unicode(compoundNames)
+        self.compoundSecondaryNames = normalize_unicode(compoundSecondaryNames)
         self.version = version
         self.geoServiceProvider = geoServiceProvider
         self.postalAddress = postalAddress
@@ -183,7 +186,7 @@ class PLRevGeoMapItemAdditionalPlaceInfo:
 
     def __init__(self, area, name, placeType, dominantOrderType):
         self.area = area
-        self.name = name
+        self.name = normalize_unicode(name)
         self.placeType = placeType
         self.dominantOrderType = dominantOrderType
 
@@ -232,13 +235,13 @@ class CNPostalAddress:
         _subLocality,
     ):
         self._ISOCountryCode = _ISOCountryCode
-        self._city = _city
-        self._country = _country
-        self._postalCode = _postalCode
-        self._state = _state
-        self._street = _street
-        self._subAdministrativeArea = _subAdministrativeArea
-        self._subLocality = _subLocality
+        self._city = normalize_unicode(_city)
+        self._country = normalize_unicode(_country)
+        self._postalCode = normalize_unicode(_postalCode)
+        self._state = normalize_unicode(_state)
+        self._street = normalize_unicode(_street)
+        self._subAdministrativeArea = normalize_unicode(_subAdministrativeArea)
+        self._subLocality = normalize_unicode(_subLocality)
 
     def __eq__(self, other):
         return all(
@@ -414,9 +417,9 @@ class PlaceInfo4(PlaceInfo):
             #   2: type
             #   3: area
             try:
-                places_dict[p[2]].append((p[1], p[3]))
+                places_dict[p[2]].append((normalize_unicode(p[1]), p[3]))
             except KeyError:
-                places_dict[p[2]] = [(p[1], p[3])]
+                places_dict[p[2]] = [(normalize_unicode(p[1]), p[3])]
 
         # build list to populate PlaceNames tuple
         # initialize with empty lists for each field in PlaceNames

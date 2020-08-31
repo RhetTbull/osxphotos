@@ -44,6 +44,7 @@ from ..utils import (
     _get_os_version,
     _open_sql_file,
     get_last_library_path,
+    normalize_unicode,
 )
 from .photosdb_utils import get_db_model_version, get_db_version
 
@@ -713,7 +714,7 @@ class PhotosDB:
         for album in c:
             self._dbalbum_details[album[0]] = {
                 "_uuid": album[0],
-                "title": album[1],
+                "title": normalize_unicode(album[1]),
                 "cloudlibrarystate": album[2],
                 "cloudidentifier": album[3],
                 "intrash": False if album[4] == 0 else True,
@@ -760,7 +761,7 @@ class PhotosDB:
             self._dbfolder_details[uuid] = {
                 "_uuid": row[0],
                 "modelId": row[1],
-                "name": row[2],
+                "name": normalize_unicode(row[2]),
                 "isMagic": row[3],
                 "intrash": row[4],
                 "folderType": row[5],
@@ -963,7 +964,7 @@ class PhotosDB:
             self._dbphotos[uuid]["volumeId"] = row[10]
             self._dbphotos[uuid]["imagePath"] = row[11]
             self._dbphotos[uuid]["extendedDescription"] = row[12]
-            self._dbphotos[uuid]["name"] = row[13]
+            self._dbphotos[uuid]["name"] = normalize_unicode(row[13])
             self._dbphotos[uuid]["isMissing"] = row[14]
             self._dbphotos[uuid]["originalFilename"] = row[15]
             self._dbphotos[uuid]["favorite"] = row[16]
@@ -1608,7 +1609,7 @@ class PhotosDB:
         for album in c:
             self._dbalbum_details[album[0]] = {
                 "_uuid": album[0],
-                "title": album[1],
+                "title": normalize_unicode(album[1]),
                 "cloudlocalstate": album[2],
                 "cloudownerfirstname": album[3],
                 "cloudownderlastname": album[4],
@@ -1683,12 +1684,13 @@ class PhotosDB:
                 JOIN ZKEYWORD ON ZKEYWORD.Z_PK = {keyword_join} """
         )
         for keyword in c:
+            keyword_title = normalize_unicode(keyword[0])
             if not keyword[1] in self._dbkeywords_uuid:
                 self._dbkeywords_uuid[keyword[1]] = []
-            if not keyword[0] in self._dbkeywords_keyword:
-                self._dbkeywords_keyword[keyword[0]] = []
+            if not keyword_title in self._dbkeywords_keyword:
+                self._dbkeywords_keyword[keyword_title] = []
             self._dbkeywords_uuid[keyword[1]].append(keyword[0])
-            self._dbkeywords_keyword[keyword[0]].append(keyword[1])
+            self._dbkeywords_keyword[keyword_title].append(keyword[1])
 
         if _debug():
             logging.debug(f"Finished walking through keywords")
@@ -1795,7 +1797,7 @@ class PhotosDB:
             info["modelID"] = None
             info["masterUuid"] = None
             info["masterFingerprint"] = row[1]
-            info["name"] = row[2]
+            info["name"] = normalize_unicode(row[2])
 
             # There are sometimes negative values for lastmodifieddate in the database
             # I don't know what these mean but they will raise exception in datetime if
@@ -2027,7 +2029,7 @@ class PhotosDB:
         for row in c:
             uuid = row[0]
             if uuid in self._dbphotos:
-                self._dbphotos[uuid]["extendedDescription"] = row[1]
+                self._dbphotos[uuid]["extendedDescription"] = normalize_unicode(row[1])
             else:
                 if _debug():
                     logging.debug(
