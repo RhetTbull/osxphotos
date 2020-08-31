@@ -202,7 +202,7 @@ CLI_EXPORT_BY_DATE_NEED_TOUCH_UUID = [
 CLI_EXPORT_BY_DATE_NEED_TOUCH_TIMES = [1538165227, 1539436692]
 CLI_EXPORT_BY_DATE = ["2018/09/28/Pumpkins3.jpg", "2018/09/28/Pumkins1.jpg"]
 
-CLI_EXPORT_SIDECAR_FILENAMES = ["Pumkins2.jpg", "Pumkins2.json", "Pumkins2.xmp"]
+CLI_EXPORT_SIDECAR_FILENAMES = ["Pumkins2.jpg", "Pumkins2.jpg.json", "Pumkins2.jpg.xmp"]
 
 CLI_EXPORT_LIVE = [
     "51F2BEF7-431A-4D31-8AC1-3284A57826AE.jpeg",
@@ -224,7 +224,7 @@ CLI_UUID_DICT_15_5 = {
     "template": "F12384F6-CD17-4151-ACBA-AE0E3688539E",
 }
 
-CLI_TEMPLATE_SIDECAR_FILENAME = "Pumkins1.json"
+CLI_TEMPLATE_SIDECAR_FILENAME = "Pumkins1.jpg.json"
 
 CLI_UUID_DICT_14_6 = {"intrash": "3tljdX43R8+k6peNHVrJNQ"}
 
@@ -2256,7 +2256,7 @@ def test_export_sidecar_keyword_template():
         "EXIF:ModifyDate": "2020:04:11 12:34:16"}]"""
         )[0]
 
-        json_file = open("Pumkins2.json", "r")
+        json_file = open("Pumkins2.jpg.json", "r")
         json_got = json.load(json_file)[0]
         json_file.close()
 

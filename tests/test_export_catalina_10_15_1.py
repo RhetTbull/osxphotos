@@ -59,12 +59,13 @@ UUID_DICT = {
     "external_edit": "DC99FBDD-7A52-4100-A5BB-344131646C30",
     "no_external_edit": "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51",
     "export": "D79B8D77-BFFC-460B-9312-034F2877D35B",  # "Pumkins2.jpg"
-    "xmp": "F12384F6-CD17-4151-ACBA-AE0E3688539E", # Pumkins1.jpg
+    "xmp": "F12384F6-CD17-4151-ACBA-AE0E3688539E",  # Pumkins1.jpg
 }
 
 # used with UUID_DICT["xmp"]
-XMP_FILENAME = "Pumkins1.xmp" 
-XMP_JPG_FILENAME = "Pumkins1.jpg" 
+XMP_FILENAME = "Pumkins1.jpg.xmp"
+XMP_JPG_FILENAME = "Pumkins1.jpg"
+
 
 def test_export_1():
     # test basic export
@@ -576,12 +577,13 @@ def test_xmp_sidecar_is_valid(tmp_path):
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["xmp"]])
-    photos[0].export(str(tmp_path), XMP_JPG_FILENAME, sidecar_xmp = True)
+    photos[0].export(str(tmp_path), XMP_JPG_FILENAME, sidecar_xmp=True)
     xmp_file = tmp_path / XMP_FILENAME
     assert xmp_file.is_file()
     exiftool = ExifTool(str(xmp_file))
     output = exiftool.run_commands("-validate", "-warning")
-    assert output == b'[ExifTool]      Validate                        : 0 0 0'
+    assert output == b"[ExifTool]      Validate                        : 0 0 0"
+
 
 def test_xmp_sidecar():
     import osxphotos
@@ -596,7 +598,73 @@ def test_xmp_sidecar():
         <rdf:Description rdf:about="" 
             xmlns:dc="http://purl.org/dc/elements/1.1/" 
             xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/">
-        <photoshop:SidecarForExtension>JPEG</photoshop:SidecarForExtension>
+        <photoshop:SidecarForExtension>jpg</photoshop:SidecarForExtension>
+        <dc:description>Girls with pumpkins</dc:description>
+        <dc:title>Can we carry this?</dc:title>
+        <!-- keywords and persons listed in <dc:subject> as Photos does -->
+        <dc:subject>
+            <rdf:Seq>
+                <rdf:li>Kids</rdf:li>
+                <rdf:li>Suzy</rdf:li>
+                <rdf:li>Katie</rdf:li>
+            </rdf:Seq>
+        </dc:subject>
+        <photoshop:DateCreated>2018-09-28T15:35:49.063000-04:00</photoshop:DateCreated>
+        </rdf:Description>
+        <rdf:Description rdf:about="" 
+            xmlns:Iptc4xmpExt='http://iptc.org/std/Iptc4xmpExt/2008-02-29/'>
+        <Iptc4xmpExt:PersonInImage>
+            <rdf:Bag>
+                    <rdf:li>Suzy</rdf:li>
+                    <rdf:li>Katie</rdf:li>
+            </rdf:Bag>
+        </Iptc4xmpExt:PersonInImage>
+        </rdf:Description>
+        <rdf:Description rdf:about="" 
+            xmlns:digiKam='http://www.digikam.org/ns/1.0/'>
+        <digiKam:TagsList>
+            <rdf:Seq>
+                <rdf:li>Kids</rdf:li>
+            </rdf:Seq>
+        </digiKam:TagsList>
+        </rdf:Description>
+        <rdf:Description rdf:about="" 
+            xmlns:xmp='http://ns.adobe.com/xap/1.0/'>
+        <xmp:CreateDate>2018-09-28T15:35:49</xmp:CreateDate>
+        <xmp:ModifyDate>2018-09-28T15:35:49</xmp:ModifyDate>
+        </rdf:Description>
+         <rdf:Description rdf:about=""
+            xmlns:exif='http://ns.adobe.com/exif/1.0/'>
+        </rdf:Description>
+        </rdf:RDF>
+    </x:xmpmeta>"""
+
+    xmp_expected_lines = [line.strip() for line in xmp_expected.split("\n")]
+
+    xmp_got = photos[0]._xmp_sidecar(extension="jpg")
+    xmp_got_lines = [line.strip() for line in xmp_got.split("\n")]
+
+    for line_expected, line_got in zip(
+        sorted(xmp_expected_lines), sorted(xmp_got_lines)
+    ):
+        assert line_expected == line_got
+
+
+def test_xmp_sidecar_extension():
+    """ test XMP sidecar when no extension is passed """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photos = photosdb.photos(uuid=[UUID_DICT["xmp"]])
+
+    xmp_expected = """<!-- Created with osxphotos https://github.com/RhetTbull/osxphotos -->
+        <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 5.4.0">
+        <!-- mirrors Photos 5 "Export IPTC as XMP" option -->
+        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+        <rdf:Description rdf:about="" 
+            xmlns:dc="http://purl.org/dc/elements/1.1/" 
+            xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/">
+        <photoshop:SidecarForExtension>jpg</photoshop:SidecarForExtension>
         <dc:description>Girls with pumpkins</dc:description>
         <dc:title>Can we carry this?</dc:title>
         <!-- keywords and persons listed in <dc:subject> as Photos does -->
@@ -661,7 +729,7 @@ def test_xmp_sidecar_use_persons_keyword():
         <rdf:Description rdf:about="" 
             xmlns:dc="http://purl.org/dc/elements/1.1/" 
             xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/">
-        <photoshop:SidecarForExtension>JPEG</photoshop:SidecarForExtension>
+        <photoshop:SidecarForExtension>jpg</photoshop:SidecarForExtension>
         <dc:description>Girls with pumpkins</dc:description>
         <dc:title>Can we carry this?</dc:title>
         <!-- keywords and persons listed in <dc:subject> as Photos does -->
@@ -706,7 +774,7 @@ def test_xmp_sidecar_use_persons_keyword():
 
     xmp_expected_lines = [line.strip() for line in xmp_expected.split("\n")]
 
-    xmp_got = photos[0]._xmp_sidecar(use_persons_as_keywords=True)
+    xmp_got = photos[0]._xmp_sidecar(use_persons_as_keywords=True, extension="jpg")
     xmp_got_lines = [line.strip() for line in xmp_got.split("\n")]
 
     for line_expected, line_got in zip(
@@ -728,7 +796,7 @@ def test_xmp_sidecar_use_albums_keyword():
         <rdf:Description rdf:about="" 
             xmlns:dc="http://purl.org/dc/elements/1.1/" 
             xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/">
-        <photoshop:SidecarForExtension>JPEG</photoshop:SidecarForExtension>
+        <photoshop:SidecarForExtension>jpg</photoshop:SidecarForExtension>
         <dc:description>Girls with pumpkins</dc:description>
         <dc:title>Can we carry this?</dc:title>
         <!-- keywords and persons listed in <dc:subject> as Photos does -->
@@ -773,7 +841,7 @@ def test_xmp_sidecar_use_albums_keyword():
 
     xmp_expected_lines = [line.strip() for line in xmp_expected.split("\n")]
 
-    xmp_got = photos[0]._xmp_sidecar(use_albums_as_keywords=True)
+    xmp_got = photos[0]._xmp_sidecar(use_albums_as_keywords=True, extension="jpg")
     xmp_got_lines = [line.strip() for line in xmp_got.split("\n")]
 
     for line_expected, line_got in zip(
@@ -796,7 +864,7 @@ def test_xmp_sidecar_gps():
         <rdf:Description rdf:about="" 
             xmlns:dc="http://purl.org/dc/elements/1.1/" 
             xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/">
-        <photoshop:SidecarForExtension>JPEG</photoshop:SidecarForExtension>
+        <photoshop:SidecarForExtension>jpg</photoshop:SidecarForExtension>
         <dc:description></dc:description>
         <dc:title>St. James's Park</dc:title>
         <!-- keywords and persons listed in <dc:subject> as Photos does -->
@@ -845,7 +913,7 @@ def test_xmp_sidecar_gps():
 
     xmp_expected_lines = [line.strip() for line in xmp_expected.split("\n")]
 
-    xmp_got = photos[0]._xmp_sidecar()
+    xmp_got = photos[0]._xmp_sidecar(extension="jpg")
     xmp_got_lines = [line.strip() for line in xmp_got.split("\n")]
 
     for line_expected, line_got in zip(

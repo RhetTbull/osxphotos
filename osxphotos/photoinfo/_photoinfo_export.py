@@ -688,7 +688,7 @@ def export2(
 
     if sidecar_json:
         logging.debug("writing exiftool_json_sidecar")
-        sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}.json")
+        sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}{dest.suffix}.json")
         sidecar_str = self._exiftool_json_sidecar(
             use_albums_as_keywords=use_albums_as_keywords,
             use_persons_as_keywords=use_persons_as_keywords,
@@ -704,12 +704,13 @@ def export2(
 
     if sidecar_xmp:
         logging.debug("writing xmp_sidecar")
-        sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}.xmp")
+        sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}{dest.suffix}.xmp")
         sidecar_str = self._xmp_sidecar(
             use_albums_as_keywords=use_albums_as_keywords,
             use_persons_as_keywords=use_persons_as_keywords,
             keyword_template=keyword_template,
             description_template=description_template,
+            extension=dest.suffix[1:] if dest.suffix else None,
         )
         if not dry_run:
             try:
@@ -1120,6 +1121,7 @@ def _xmp_sidecar(
     use_persons_as_keywords=False,
     keyword_template=None,
     description_template=None,
+    extension=None
 ):
     """ returns string for XMP sidecar 
         use_albums_as_keywords: treat album names as keywords
@@ -1129,11 +1131,10 @@ def _xmp_sidecar(
 
     xmp_template = Template(filename=os.path.join(_TEMPLATE_DIR, _XMP_TEMPLATE_NAME))
 
-    if self.path is not None:
-        extension = pathlib.Path(self.path).suffix[1:].upper()
-    else:
-        extension = None
-
+    if extension is None:
+        extension = pathlib.Path(self.original_filename)
+        extension = extension.suffix[1:] if extension.suffix else None
+        
     if description_template is not None:
         description = self.render_template(
             description_template, expand_inplace=True, inplace_sep=", "
