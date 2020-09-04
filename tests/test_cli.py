@@ -307,13 +307,25 @@ ALBUMS_JSON = {
     "albums": {
         "Raw": 4,
         "Pumpkin Farm": 3,
-        "AlbumInFolder": 2,
         "Test Album": 2,
+        "AlbumInFolder": 2,
         "I have a deleted twin": 1,
+        "2018-10 - Sponsion, Museum, Frühstück, Römermuseum": 1,
         "EmptyAlbum": 0,
     },
     "shared albums": {},
 }
+
+ALBUMS_STR = """albums:
+  Raw: 4
+  Pumpkin Farm: 3
+  Test Album: 2
+  AlbumInFolder: 2
+  I have a deleted twin: 1
+  2018-10 - Sponsion, Museum, Frühstück, Römermuseum: 1
+  EmptyAlbum: 0
+shared albums: {}
+"""
 
 PERSONS_JSON = {"persons": {"Katie": 3, "Suzy": 2, "_UNKNOWN_": 1, "Maria": 2}}
 
@@ -1817,6 +1829,7 @@ def test_export_album():
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_ALBUM)
 
+
 def test_export_album_unicode_name():
     """Test export of an album with non-English characters in name """
     import glob
@@ -1830,12 +1843,17 @@ def test_export_album_unicode_name():
     with runner.isolated_filesystem():
         result = runner.invoke(
             export,
-            [os.path.join(cwd, PHOTOS_DB_15_6), ".", "--album", "2018-10 - Sponsion, Museum, Frühstück, Römermuseum", "-V"],
+            [
+                os.path.join(cwd, PHOTOS_DB_15_6),
+                ".",
+                "--album",
+                "2018-10 - Sponsion, Museum, Frühstück, Römermuseum",
+                "-V",
+            ],
         )
         assert result.exit_code == 0
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_ALBUM_UNICODE)
-
 
 
 def test_export_album_deleted_twin():
@@ -2790,7 +2808,9 @@ def test_export_touch_files_update():
             in result.output
         )
 
-        for fname, mtime in zip(CLI_EXPORT_BY_DATE_NEED_TOUCH, CLI_EXPORT_BY_DATE_NEED_TOUCH_TIMES):
+        for fname, mtime in zip(
+            CLI_EXPORT_BY_DATE_NEED_TOUCH, CLI_EXPORT_BY_DATE_NEED_TOUCH_TIMES
+        ):
             st = os.stat(fname)
             assert int(st.st_mtime) != int(mtime)
 
@@ -2811,7 +2831,9 @@ def test_export_touch_files_update():
             in result.output
         )
 
-        for fname, mtime in zip(CLI_EXPORT_BY_DATE_NEED_TOUCH, CLI_EXPORT_BY_DATE_NEED_TOUCH_TIMES):
+        for fname, mtime in zip(
+            CLI_EXPORT_BY_DATE_NEED_TOUCH, CLI_EXPORT_BY_DATE_NEED_TOUCH_TIMES
+        ):
             st = os.stat(fname)
             assert int(st.st_mtime) == int(mtime)
 
@@ -3085,9 +3107,26 @@ def test_keywords():
     json_got = json.loads(result.output)
     assert json_got == KEYWORDS_JSON
 
+# TODO: this fails with result.exit_code == 1 but I think this has to
+# do with how pytest is invoking the command
+# def test_albums_str():
+#     """Test osxphotos albums string output """
+#     import json
+#     import osxphotos
+#     import os
+#     import os.path
+#     from osxphotos.__main__ import albums
 
-def test_albums():
-    """Test osxphotos albums """
+#     runner = CliRunner()
+#     cwd = os.getcwd()
+#     result = runner.invoke(albums, ["--db", os.path.join(cwd, PHOTOS_DB_15_6), ])
+#     assert result.exit_code == 0
+
+#     assert result.output == ALBUMS_STR
+
+
+def test_albums_json():
+    """Test osxphotos albums json output """
     import json
     import osxphotos
     import os
@@ -3097,7 +3136,7 @@ def test_albums():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        albums, ["--db", os.path.join(cwd, PHOTOS_DB_15_5), "--json"]
+        albums, ["--db", os.path.join(cwd, PHOTOS_DB_15_6), "--json"]
     )
     assert result.exit_code == 0
 

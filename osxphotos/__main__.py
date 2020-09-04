@@ -23,7 +23,12 @@ from pathvalidate import (
 
 import osxphotos
 
-from ._constants import _EXIF_TOOL_URL, _PHOTOS_4_VERSION, _UNKNOWN_PLACE, UNICODE_FORMAT
+from ._constants import (
+    _EXIF_TOOL_URL,
+    _PHOTOS_4_VERSION,
+    _UNKNOWN_PLACE,
+    UNICODE_FORMAT,
+)
 from ._export_db import ExportDB, ExportDBInMemory
 from ._version import __version__
 from .datetime_formatter import DateTimeFormatter
@@ -45,6 +50,7 @@ def verbose(*args, **kwargs):
     if VERBOSE:
         click.echo(*args, **kwargs)
 
+
 def normalize_unicode(value):
     """ normalize unicode data """
     if value is not None:
@@ -56,6 +62,7 @@ def normalize_unicode(value):
             return value
     else:
         return None
+
 
 def get_photos_db(*db_options):
     """ Return path to photos db, select first non-None db_options
@@ -605,9 +612,9 @@ def keywords(ctx, cli_obj, db, json_, photos_library):
     photosdb = osxphotos.PhotosDB(dbfile=db)
     keywords = {"keywords": photosdb.keywords_as_dict}
     if json_ or cli_obj.json:
-        click.echo(json.dumps(keywords))
+        click.echo(json.dumps(keywords, ensure_ascii=False))
     else:
-        click.echo(yaml.dump(keywords, sort_keys=False))
+        click.echo(yaml.dump(keywords, sort_keys=False, allow_unicode=True))
 
 
 @cli.command()
@@ -634,9 +641,9 @@ def albums(ctx, cli_obj, db, json_, photos_library):
         albums["shared albums"] = photosdb.albums_shared_as_dict
 
     if json_ or cli_obj.json:
-        click.echo(json.dumps(albums))
+        click.echo(json.dumps(albums, ensure_ascii=False))
     else:
-        click.echo(yaml.dump(albums, sort_keys=False))
+        click.echo(yaml.dump(albums, sort_keys=False, allow_unicode=True))
 
 
 @cli.command()
@@ -660,9 +667,9 @@ def persons(ctx, cli_obj, db, json_, photos_library):
     photosdb = osxphotos.PhotosDB(dbfile=db)
     persons = {"persons": photosdb.persons_as_dict}
     if json_ or cli_obj.json:
-        click.echo(json.dumps(persons))
+        click.echo(json.dumps(persons, ensure_ascii=False))
     else:
-        click.echo(yaml.dump(persons, sort_keys=False))
+        click.echo(yaml.dump(persons, sort_keys=False, allow_unicode=True))
 
 
 @cli.command()
@@ -686,9 +693,9 @@ def labels(ctx, cli_obj, db, json_, photos_library):
     photosdb = osxphotos.PhotosDB(dbfile=db)
     labels = {"labels": photosdb.labels_as_dict}
     if json_ or cli_obj.json:
-        click.echo(json.dumps(labels))
+        click.echo(json.dumps(labels, ensure_ascii=False))
     else:
-        click.echo(yaml.dump(labels, sort_keys=False))
+        click.echo(yaml.dump(labels, sort_keys=False, allow_unicode=True))
 
 
 @cli.command()
@@ -746,9 +753,9 @@ def info(ctx, cli_obj, db, json_, photos_library):
     info["persons"] = persons
 
     if cli_obj.json or json_:
-        click.echo(json.dumps(info))
+        click.echo(json.dumps(info, ensure_ascii=False))
     else:
-        click.echo(yaml.dump(info, sort_keys=False))
+        click.echo(yaml.dump(info, sort_keys=False, allow_unicode=True))
 
 
 @cli.command()
@@ -796,9 +803,9 @@ def places(ctx, cli_obj, db, json_, photos_library):
     # below needed for to make CliRunner work for testing
     cli_json = cli_obj.json if cli_obj is not None else None
     if json_ or cli_json:
-        click.echo(json.dumps(places))
+        click.echo(json.dumps(places, ensure_ascii=False))
     else:
-        click.echo(yaml.dump(places, sort_keys=False))
+        click.echo(yaml.dump(places, sort_keys=False, allow_unicode=True))
 
 
 @cli.command()
@@ -861,7 +868,7 @@ def _list_libraries(json_=False, error=True):
             "system_library": sys_lib,
             "last_library": last_lib,
         }
-        click.echo(json.dumps(libs))
+        click.echo(json.dumps(libs, ensure_ascii=False))
     else:
         last_lib_flag = sys_lib_flag = False
 
@@ -1884,7 +1891,7 @@ def _query(
     description = normalize_unicode(description)
     place = normalize_unicode(place)
     label = normalize_unicode(label)
-    
+
     if album:
         photos = get_photos_by_attribute(photos, "albums", album, ignore_case)
 
