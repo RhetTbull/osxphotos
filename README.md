@@ -236,6 +236,8 @@ Options:
                                   DEST/2019/12/20/photoname.jpg).
   --skip-edited                   Do not export edited version of photo if an
                                   edited version exists.
+  --skip-original-if-edited       Do not export original if there is an edited
+                                  version (exports only the edited version).
   --skip-bursts                   Do not export all associated burst images in
                                   the library if a photo is a burst photo.
   --skip-live                     Do not export the associated live video
