@@ -714,6 +714,42 @@ def test_export_skip_edited():
         assert "St James Park_edited.jpeg" not in files
 
 
+def test_export_skip_original_if_edited():
+    """ test export with --skip-original-if-edited """
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [os.path.join(cwd, PHOTOS_DB_15_6), ".", "--skip-original-if-edited", "-V"],
+        )
+        assert result.exit_code == 0
+        assert "Skipping original version of wedding.jpg" in result.output
+        assert "Skipping original version of Tulips.jpg" in result.output
+        assert "Skipping original version of St James Park.jpg" in result.output
+        files = glob.glob("*")
+
+        # make sure originals of edited version not exported
+        assert "wedding.jpg" not in files
+        assert "Tulips.jpg" not in files
+        assert "St James Park.jpg" not in files
+
+        # make sure edited versions did get exported
+        assert "wedding_edited.jpeg" in files
+        assert "Tulips_edited.jpeg" in files
+        assert "St James Park_edited.jpeg" in files
+
+        # make sure other originals did get exported
+        assert "Pumkins2.jpg" in files
+
+
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool():
     import glob
@@ -3106,6 +3142,7 @@ def test_keywords():
 
     json_got = json.loads(result.output)
     assert json_got == KEYWORDS_JSON
+
 
 # TODO: this fails with result.exit_code == 1 but I think this has to
 # do with how pytest is invoking the command

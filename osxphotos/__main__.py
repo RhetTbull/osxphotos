@@ -1166,6 +1166,11 @@ def query(
     help="Do not export edited version of photo if an edited version exists.",
 )
 @click.option(
+    "--skip-original-if-edited",
+    is_flag=True,
+    help="Do not export original if there is an edited version (exports only the edited version).",
+)
+@click.option(
     "--skip-bursts",
     is_flag=True,
     help="Do not export all associated burst images in the library if a photo is a burst photo.  ",
@@ -1335,6 +1340,7 @@ def export(
     overwrite,
     export_by_date,
     skip_edited,
+    skip_original_if_edited,
     skip_bursts,
     skip_live,
     skip_raw,
@@ -1417,6 +1423,7 @@ def export(
         (export_as_hardlink, exiftool),
         (any(place), no_place),
         (deleted, deleted_only),
+        (skip_edited, skip_original_if_edited)
     ]
     if any(all(bb) for bb in exclusive):
         click.echo("Incompatible export options", err=True)
@@ -1584,6 +1591,7 @@ def export(
                     export_as_hardlink=export_as_hardlink,
                     overwrite=overwrite,
                     export_edited=export_edited,
+                    skip_original_if_edited=skip_original_if_edited,
                     original_name=original_name,
                     export_live=export_live,
                     download_missing=download_missing,
@@ -1624,6 +1632,7 @@ def export(
                         export_as_hardlink=export_as_hardlink,
                         overwrite=overwrite,
                         export_edited=export_edited,
+                        skip_original_if_edited=skip_original_if_edited,
                         original_name=original_name,
                         export_live=export_live,
                         download_missing=download_missing,
@@ -1655,7 +1664,6 @@ def export(
             photo_str_new = "photos" if len(results_new) != 1 else "photo"
             photo_str_updated = "photos" if len(results_updated) != 1 else "photo"
             photo_str_skipped = "photos" if len(results_skipped) != 1 else "photo"
-            photo_str_touched = "photos" if len(results_touched) != 1 else "photo"
             photo_str_exif_updated = (
                 "photos" if len(results_exif_updated) != 1 else "photo"
             )
@@ -1665,16 +1673,13 @@ def export(
                 f"skipped: {len(results_skipped)} {photo_str_skipped}, "
                 f"updated EXIF data: {len(results_exif_updated)} {photo_str_exif_updated}"
             )
-            if touch_file:
-                summary += f", touched date: {len(results_touched)} {photo_str_touched}"
-            click.echo(summary)
         else:
             photo_str = "photos" if len(results_exported) != 1 else "photo"
-            photo_str_touched = "photos" if len(results_touched) != 1 else "photo"
             summary = f"Exported: {len(results_exported)} {photo_str}"
-            if touch_file:
-                summary += f", touched date: {len(results_touched)} {photo_str_touched}"
-            click.echo(summary)
+        photo_str_touched = "photos" if len(results_touched) != 1 else "photo"
+        if touch_file:
+            summary += f", touched date: {len(results_touched)} {photo_str_touched}"
+        click.echo(summary)
         click.echo(f"Elapsed time: {(stop_time-start_time):.3f} seconds")
     else:
         click.echo("Did not find any photos to export")
@@ -2116,6 +2121,7 @@ def export_photo(
     export_as_hardlink=None,
     overwrite=None,
     export_edited=None,
+    skip_original_if_edited=None,
     original_name=None,
     export_live=None,
     download_missing=None,
@@ -2154,6 +2160,8 @@ def export_photo(
         filename_template: template use to determine output file
         no_extended_attributes: boolean; if True, exports photo without preserving extended attributes
         export_raw: boolean; if True exports RAW image associate with the photo
+        export_edited: boolean; if True exports edited version of photo if there is one
+        skip_original_if_edited: boolean; if True does not export original if photo has been edited
         album_keyword: boolean; if True, exports album names as keywords in metadata
         person_keyword: boolean; if True, exports person names as keywords in metadata
         keyword_template: list of strings; if provided use rendered template strings as keywords
@@ -2176,18 +2184,18 @@ def export_photo(
     if not download_missing:
         if photo.ismissing:
             space = " " if not verbose_ else ""
-            verbose(f"{space}Skipping missing photo {photo.filename}")
+            verbose(f"{space}Skipping missing photo {photo.original_filename}")
             return ExportResults([], [], [], [], [], [])
         elif not os.path.exists(photo.path):
             space = " " if not verbose_ else ""
             verbose(
                 f"{space}WARNING: file {photo.path} is missing but ismissing=False, "
-                f"skipping {photo.filename}"
+                f"skipping {photo.original_filename}"
             )
             return ExportResults([], [], [], [], [], [])
     elif photo.ismissing and not photo.iscloudasset or not photo.incloud:
         verbose(
-            f"Skipping missing {photo.filename}: not iCloud asset or missing from cloud"
+            f"Skipping missing {photo.original_filename}: not iCloud asset or missing from cloud"
         )
         return ExportResults([], [], [], [], [], [])
 
@@ -2198,9 +2206,11 @@ def export_photo(
     results_exif_updated = []
     results_touched = []
 
+    export_original = not (skip_original_if_edited and photo.hasadjustments)
+
     filenames = get_filenames_from_template(photo, filename_template, original_name)
     for filename in filenames:
-        verbose(f"Exporting {photo.filename} as {filename}")
+        verbose(f"Exporting {photo.original_filename} ({photo.filename}) as {filename}")
 
         dest_paths = get_dirnames_from_template(
             photo, directory, export_by_date, dest, dry_run
@@ -2223,47 +2233,50 @@ def export_photo(
 
         # export the photo to each path in dest_paths
         for dest_path in dest_paths:
-            export_results = photo.export2(
-                dest_path,
-                filename,
-                sidecar_json=sidecar_json,
-                sidecar_xmp=sidecar_xmp,
-                live_photo=export_live,
-                raw_photo=export_raw,
-                export_as_hardlink=export_as_hardlink,
-                overwrite=overwrite,
-                use_photos_export=use_photos_export,
-                exiftool=exiftool,
-                no_xattr=no_extended_attributes,
-                use_albums_as_keywords=album_keyword,
-                use_persons_as_keywords=person_keyword,
-                keyword_template=keyword_template,
-                description_template=description_template,
-                update=update,
-                export_db=export_db,
-                fileutil=fileutil,
-                dry_run=dry_run,
-                touch_file=touch_file,
-            )
+            if not export_original:
+                verbose(f"Skipping original version of {photo.original_filename}")
+            else:
+                export_results = photo.export2(
+                    dest_path,
+                    filename,
+                    sidecar_json=sidecar_json,
+                    sidecar_xmp=sidecar_xmp,
+                    live_photo=export_live,
+                    raw_photo=export_raw,
+                    export_as_hardlink=export_as_hardlink,
+                    overwrite=overwrite,
+                    use_photos_export=use_photos_export,
+                    exiftool=exiftool,
+                    no_xattr=no_extended_attributes,
+                    use_albums_as_keywords=album_keyword,
+                    use_persons_as_keywords=person_keyword,
+                    keyword_template=keyword_template,
+                    description_template=description_template,
+                    update=update,
+                    export_db=export_db,
+                    fileutil=fileutil,
+                    dry_run=dry_run,
+                    touch_file=touch_file,
+                )
 
-            results_exported.extend(export_results.exported)
-            results_new.extend(export_results.new)
-            results_updated.extend(export_results.updated)
-            results_skipped.extend(export_results.skipped)
-            results_exif_updated.extend(export_results.exif_updated)
-            results_touched.extend(export_results.touched)
+                results_exported.extend(export_results.exported)
+                results_new.extend(export_results.new)
+                results_updated.extend(export_results.updated)
+                results_skipped.extend(export_results.skipped)
+                results_exif_updated.extend(export_results.exif_updated)
+                results_touched.extend(export_results.touched)
 
-            if verbose_:
-                for exported in export_results.exported:
-                    verbose(f"Exported {exported}")
-                for new in export_results.new:
-                    verbose(f"Exported new file {new}")
-                for updated in export_results.updated:
-                    verbose(f"Exported updated file {updated}")
-                for skipped in export_results.skipped:
-                    verbose(f"Skipped up to date file {skipped}")
-                for touched in export_results.touched:
-                    verbose(f"Touched date on file {touched}")
+                if verbose_:
+                    for exported in export_results.exported:
+                        verbose(f"Exported {exported}")
+                    for new in export_results.new:
+                        verbose(f"Exported new file {new}")
+                    for updated in export_results.updated:
+                        verbose(f"Exported updated file {updated}")
+                    for skipped in export_results.skipped:
+                        verbose(f"Skipped up to date file {skipped}")
+                    for touched in export_results.touched:
+                        verbose(f"Touched date on file {touched}")
 
             # if export-edited, also export the edited version
             # verify the photo has adjustments and valid path to avoid raising an exception
