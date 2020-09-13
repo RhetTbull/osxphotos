@@ -106,7 +106,7 @@ def _export_photo_uuid_applescript(
     )
 
     dest = pathlib.Path(dest)
-    if not dest.is_dir:
+    if not dest.is_dir():
         raise ValueError(f"dest {dest} must be a directory")
 
     if not original ^ edited:
