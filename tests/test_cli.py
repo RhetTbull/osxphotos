@@ -182,7 +182,14 @@ CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES2 = [
     "I have a deleted twin-wedding_edited.jpeg",
 ]
 
+CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES_PATHSEP = [
+"2018-10 - Sponsion, Museum, Frühstück, Römermuseum/IMG_4547.jpg",
+"Folder1/SubFolder2/AlbumInFolder/IMG_4547.jpg",
+"2019-10:11 Paris Clermont/IMG_4547.jpg",
+]
+
 CLI_EXPORT_UUID = "D79B8D77-BFFC-460B-9312-034F2877D35B"
+CLI_EXPORT_UUID_STATUE = "3DD2C897-F19E-4CA6-8C22-B027D5A71907"
 
 CLI_EXPORT_UUID_FILENAME = "Pumkins2.jpg"
 
@@ -311,6 +318,7 @@ ALBUMS_JSON = {
         "AlbumInFolder": 2,
         "I have a deleted twin": 1,
         "2018-10 - Sponsion, Museum, Frühstück, Römermuseum": 1,
+        "2019-10/11 Paris Clermont": 1,
         "EmptyAlbum": 0,
     },
     "shared albums": {},
@@ -1818,6 +1826,37 @@ def test_export_filename_template_2():
         files = glob.glob("*.*")
         assert sorted(files) == sorted(CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES2)
 
+def test_export_filename_template_pathsep_in_name():
+    """ export photos using filename template with folder_album and "/" in album name """
+    import locale
+    import os
+    import os.path
+    import pathlib
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    locale.setlocale(locale.LC_ALL, "en_US")
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_6),
+                ".",
+                "-V",
+                "--directory",
+                "{folder_album,None}",
+                "--uuid",
+                CLI_EXPORT_UUID_STATUE 
+            ],
+        )
+        assert result.exit_code == 0
+        for fname in CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES_PATHSEP:
+            # assert fname in result.output
+            assert pathlib.Path(fname).is_file()
 
 def test_export_filename_template_3():
     """ test --filename with invalid template """

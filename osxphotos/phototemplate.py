@@ -621,6 +621,9 @@ class PhotoTemplate:
         """ return list of values for a multi-valued template field """
         if field == "album":
             values = self.photo.albums
+            values = [
+                value.replace("/", ":") for value in values
+            ]  # TODO: temp fix for issue #213
         elif field == "keyword":
             values = self.photo.keywords
         elif field == "person":
@@ -638,11 +641,13 @@ class PhotoTemplate:
                 if album.folder_names:
                     # album in folder
                     folder = path_sep.join(album.folder_names)
-                    folder += path_sep + album.title
+                    folder += path_sep + album.title.replace(
+                        "/", ":"
+                    )  # TODO: temp fix for issue #213
                     values.append(folder)
                 else:
                     # album not in folder
-                    values.append(album.title)
+                    values.append(album.title.replace("/", ":"))
         else:
             raise ValueError(f"Unhandleded template value: {field}")
 

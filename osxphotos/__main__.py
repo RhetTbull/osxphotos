@@ -1423,7 +1423,7 @@ def export(
         (export_as_hardlink, exiftool),
         (any(place), no_place),
         (deleted, deleted_only),
-        (skip_edited, skip_original_if_edited)
+        (skip_edited, skip_original_if_edited),
     ]
     if any(all(bb) for bb in exclusive):
         click.echo("Incompatible export options", err=True)
