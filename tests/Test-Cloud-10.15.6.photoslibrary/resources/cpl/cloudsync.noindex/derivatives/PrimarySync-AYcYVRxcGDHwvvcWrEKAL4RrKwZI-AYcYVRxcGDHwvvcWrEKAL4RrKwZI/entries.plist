@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<array>
+	<dict>
+		<key>c</key>
+		<string>CPLResource</string>
+		<key>p</key>
+		<dict>
+			<key>Idy</key>
+			<dict>
+				<key>avai</key>
+				<integer>1</integer>
+				<key>dim</key>
+				<dict>
+					<key>h</key>
+					<real>339</real>
+					<key>w</key>
+					<real>509</real>
+				</dict>
+				<key>fURL</key>
+				<string>file:///Users/test/Pictures/Test%20Shared%2010.15.1.photoslibrary/resources/cpl/cloudsync.noindex/derivatives/PrimarySync-AYcYVRxcGDHwvvcWrEKAL4RrKwZI-AYcYVRxcGDHwvvcWrEKAL4RrKwZI/PrimarySync_AYcYVRxcGDHwvvcWrEKAL4RrKwZI_JPEGThumbnail.jpeg</string>
+				<key>fUTI</key>
+				<string>public.jpeg</string>
+				<key>fgp</key>
+				<string>AbZCcoKfOM4qdsXkGM2848JGlXi5</string>
+				<key>sz</key>
+				<integer>60383</integer>
+			</dict>
+			<key>rt</key>
+			<integer>5</integer>
+		</dict>
+	</dict>
+</array>
+</plist>

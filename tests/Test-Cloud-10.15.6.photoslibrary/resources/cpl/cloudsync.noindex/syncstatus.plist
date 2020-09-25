@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>accountFlags</key>
+	<data>
+	CAEQABgB
+	</data>
+	<key>cloudAssetCountPerType</key>
+	<dict>
+		<key>public.image</key>
+		<integer>16</integer>
+		<key>public.movie</key>
+		<integer>6</integer>
+	</dict>
+	<key>cloudAssetCountPerTypeLastCheckDate</key>
+	<date>2020-09-20T06:47:46Z</date>
+	<key>connectedToNetwork</key>
+	<false/>
+	<key>constrainedNetwork</key>
+	<false/>
+	<key>hasBatteryBudgetKey</key>
+	<true/>
+	<key>hasCellularBudgetKey</key>
+	<true/>
+	<key>hasChangesToProcess</key>
+	<false/>
+	<key>hasValidSystemBudgetKey</key>
+	<true/>
+	<key>iCloudLibraryExists</key>
+	<true/>
+	<key>initialSyncDate</key>
+	<date>2020-02-08T04:38:10Z</date>
+	<key>lastCompletePrefetchDate</key>
+	<date>2020-02-08T05:45:13Z</date>
+	<key>lastSyncDate</key>
+	<date>2020-09-20T06:47:51Z</date>
+</dict>
+</plist>

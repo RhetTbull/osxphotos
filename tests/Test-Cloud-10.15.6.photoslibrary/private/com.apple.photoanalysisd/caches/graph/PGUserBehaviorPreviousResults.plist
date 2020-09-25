@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>algorithm</key>
+	<integer>2</integer>
+	<key>algorithmData</key>
+	<dict>
+		<key>normalizer</key>
+		<real>0.0</real>
+		<key>peopleFeatures</key>
+		<dict/>
+		<key>sceneFeatures</key>
+		<dict/>
+	</dict>
+	<key>date</key>
+	<string>2020-02-08 05:39:48 +0000</string>
+	<key>goldAssetUUIDs</key>
+	<array>
+		<string>51F2BEF7-431A-4D31-8AC1-3284A57826AE</string>
+	</array>
+	<key>version</key>
+	<integer>10</integer>
+</dict>
+</plist>

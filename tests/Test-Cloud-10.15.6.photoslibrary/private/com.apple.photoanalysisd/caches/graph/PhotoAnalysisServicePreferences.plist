@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>BackgroundHighlightCollection</key>
+	<date>2020-09-20T05:50:40Z</date>
+	<key>BackgroundHighlightEnrichment</key>
+	<date>2020-09-20T05:50:40Z</date>
+	<key>BackgroundJobAssetRevGeocode</key>
+	<date>2020-09-20T05:50:41Z</date>
+	<key>BackgroundJobSearch</key>
+	<date>2020-09-20T05:50:41Z</date>
+	<key>BackgroundPeopleSuggestion</key>
+	<date>2020-09-20T05:50:38Z</date>
+	<key>BackgroundUserBehaviorProcessor</key>
+	<date>2020-09-20T05:50:41Z</date>
+	<key>PhotoAnalysisGraphLastBackgroundGraphConsistencyUpdateJobDateKey</key>
+	<date>2020-04-11T13:53:13Z</date>
+	<key>PhotoAnalysisGraphLastBackgroundGraphRebuildJobDate</key>
+	<date>2020-04-11T01:34:03Z</date>
+	<key>PhotoAnalysisGraphLastBackgroundMemoryGenerationJobDate</key>
+	<date>2020-09-20T05:50:42Z</date>
+	<key>SiriPortraitDonation</key>
+	<date>2020-09-20T05:50:41Z</date>
+</dict>
+</plist>
