@@ -2807,7 +2807,7 @@ def test_export_touch_files():
         )
         assert result.exit_code == 0
 
-        assert "Exported: 16 photos, touched date: 14 photos" in result.output
+        assert "Exported: 17 photos, touched date: 15 photos" in result.output
 
         for fname, mtime in zip(CLI_EXPORT_BY_DATE, CLI_EXPORT_BY_DATE_TOUCH_TIMES):
             st = os.stat(fname)
@@ -2839,7 +2839,7 @@ def test_export_touch_files_update():
         )
         assert result.exit_code == 0
 
-        assert "Exported: 16 photos" in result.output
+        assert "Exported: 17 photos" in result.output
 
         assert not pathlib.Path(CLI_EXPORT_BY_DATE[0]).is_file()
 
@@ -2849,7 +2849,7 @@ def test_export_touch_files_update():
         )
         assert result.exit_code == 0
 
-        assert "Exported: 16 photos" in result.output
+        assert "Exported: 17 photos" in result.output
 
         assert pathlib.Path(CLI_EXPORT_BY_DATE[0]).is_file()
 
@@ -2861,7 +2861,7 @@ def test_export_touch_files_update():
         assert result.exit_code == 0
 
         assert (
-            "Exported: 0 photos, updated: 0 photos, skipped: 16 photos, updated EXIF data: 0 photos"
+            "Exported: 0 photos, updated: 0 photos, skipped: 17 photos, updated EXIF data: 0 photos"
             in result.output
         )
 
@@ -2879,7 +2879,7 @@ def test_export_touch_files_update():
         )
         assert result.exit_code == 0
         assert (
-            "Exported: 0 photos, updated: 0 photos, skipped: 16 photos, updated EXIF data: 0 photos, touched date: 14 photos"
+            "Exported: 0 photos, updated: 0 photos, skipped: 17 photos, updated EXIF data: 0 photos, touched date: 15 photos"
             in result.output
         )
 
@@ -2902,7 +2902,7 @@ def test_export_touch_files_update():
         )
         assert result.exit_code == 0
         assert (
-            "Exported: 0 photos, updated: 0 photos, skipped: 16 photos, updated EXIF data: 0 photos, touched date: 14 photos"
+            "Exported: 0 photos, updated: 0 photos, skipped: 17 photos, updated EXIF data: 0 photos, touched date: 15 photos"
             in result.output
         )
 
@@ -2928,7 +2928,7 @@ def test_export_touch_files_update():
         )
         assert result.exit_code == 0
         assert (
-            "Exported: 0 photos, updated: 1 photo, skipped: 15 photos, updated EXIF data: 0 photos, touched date: 1 photo"
+            "Exported: 0 photos, updated: 1 photo, skipped: 16 photos, updated EXIF data: 0 photos, touched date: 1 photo"
             in result.output
         )
 
@@ -2944,7 +2944,7 @@ def test_export_touch_files_update():
         assert result.exit_code == 0
 
         assert (
-            "Exported: 0 photos, updated: 0 photos, skipped: 16 photos, updated EXIF data: 0 photos"
+            "Exported: 0 photos, updated: 0 photos, skipped: 17 photos, updated EXIF data: 0 photos"
             in result.output
         )
 
@@ -2975,7 +2975,7 @@ def test_export_touch_files_exiftool_update():
         )
         assert result.exit_code == 0
 
-        assert "Exported: 16 photos" in result.output
+        assert "Exported: 17 photos" in result.output
 
         assert not pathlib.Path(CLI_EXPORT_BY_DATE[0]).is_file()
 
@@ -2985,7 +2985,7 @@ def test_export_touch_files_exiftool_update():
         )
         assert result.exit_code == 0
 
-        assert "Exported: 16 photos" in result.output
+        assert "Exported: 17 photos" in result.output
 
         assert pathlib.Path(CLI_EXPORT_BY_DATE[0]).is_file()
 
@@ -2997,7 +2997,7 @@ def test_export_touch_files_exiftool_update():
         assert result.exit_code == 0
 
         assert (
-            "Exported: 0 photos, updated: 0 photos, skipped: 16 photos, updated EXIF data: 0 photos"
+            "Exported: 0 photos, updated: 0 photos, skipped: 17 photos, updated EXIF data: 0 photos"
             in result.output
         )
 
@@ -3016,7 +3016,7 @@ def test_export_touch_files_exiftool_update():
         assert result.exit_code == 0
 
         assert (
-            "Exported: 0 photos, updated: 16 photos, skipped: 0 photos, updated EXIF data: 16 photos"
+            "Exported: 0 photos, updated: 17 photos, skipped: 0 photos, updated EXIF data: 17 photos"
             in result.output
         )
 
@@ -3034,7 +3034,7 @@ def test_export_touch_files_exiftool_update():
         assert result.exit_code == 0
 
         assert (
-            "Exported: 0 photos, updated: 16 photos, skipped: 0 photos, updated EXIF data: 16 photos"
+            "Exported: 0 photos, updated: 17 photos, skipped: 0 photos, updated EXIF data: 17 photos"
             in result.output
         )
 
@@ -3053,7 +3053,7 @@ def test_export_touch_files_exiftool_update():
         )
         assert result.exit_code == 0
         assert (
-            "Exported: 0 photos, updated: 0 photos, skipped: 16 photos, updated EXIF data: 0 photos, touched date: 16 photos"
+            "Exported: 0 photos, updated: 0 photos, skipped: 17 photos, updated EXIF data: 0 photos, touched date: 17 photos"
             in result.output
         )
 
@@ -3075,7 +3075,7 @@ def test_export_touch_files_exiftool_update():
         )
         assert result.exit_code == 0
         assert (
-            "Exported: 0 photos, updated: 0 photos, skipped: 16 photos, updated EXIF data: 0 photos, touched date: 16 photos"
+            "Exported: 0 photos, updated: 0 photos, skipped: 17 photos, updated EXIF data: 0 photos, touched date: 17 photos"
             in result.output
         )
 
@@ -3100,7 +3100,7 @@ def test_export_touch_files_exiftool_update():
         )
         assert result.exit_code == 0
         assert (
-            "Exported: 0 photos, updated: 1 photo, skipped: 15 photos, updated EXIF data: 1 photo, touched date: 1 photo"
+            "Exported: 0 photos, updated: 1 photo, skipped: 16 photos, updated EXIF data: 1 photo, touched date: 1 photo"
             in result.output
         )
 
@@ -3122,7 +3122,7 @@ def test_export_touch_files_exiftool_update():
         )
         assert result.exit_code == 0
         assert (
-            "Exported: 0 photos, updated: 0 photos, skipped: 16 photos, updated EXIF data: 0 photos, touched date: 0 photos"
+            "Exported: 0 photos, updated: 0 photos, skipped: 17 photos, updated EXIF data: 0 photos, touched date: 0 photos"
             in result.output
         )
 
@@ -3140,7 +3140,7 @@ def test_export_touch_files_exiftool_update():
         assert result.exit_code == 0
 
         assert (
-            "Exported: 0 photos, updated: 0 photos, skipped: 16 photos, updated EXIF data: 0 photos"
+            "Exported: 0 photos, updated: 0 photos, skipped: 17 photos, updated EXIF data: 0 photos"
             in result.output
         )
 

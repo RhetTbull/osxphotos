@@ -9,9 +9,10 @@ PHOTOS_DB = "tests/Test-10.15.6.photoslibrary/database/photos.db"
 PHOTOS_DB_PATH = "/Test-10.15.6.photoslibrary/database/photos.db"
 PHOTOS_LIBRARY_PATH = "/Test-10.15.6.photoslibrary"
 
-PHOTOS_DB_LEN = 15
-PHOTOS_NOT_IN_TRASH_LEN = 13
+PHOTOS_DB_LEN = 16
+PHOTOS_NOT_IN_TRASH_LEN = 14
 PHOTOS_IN_TRASH_LEN = 2
+PHOTOS_DB_IMPORT_SESSIONS = 11
 
 KEYWORDS = [
     "Kids",
@@ -1046,7 +1047,7 @@ def test_from_to_date():
     photosdb = osxphotos.PhotosDB(PHOTOS_DB)
 
     photos = photosdb.photos(from_date=dt.datetime(2018, 10, 28))
-    assert len(photos) == 6
+    assert len(photos) == 7 
 
     photos = photosdb.photos(to_date=dt.datetime(2018, 10, 28))
     assert len(photos) == 7
@@ -1134,7 +1135,7 @@ def test_import_session_count():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
 
     import_sessions = photosdb.import_info
-    assert len(import_sessions) == 10
+    assert len(import_sessions) == PHOTOS_DB_IMPORT_SESSIONS
 
 
 def test_import_session_photo():
