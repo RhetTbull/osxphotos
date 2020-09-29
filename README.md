@@ -1880,6 +1880,7 @@ Thank-you to the following people who have contributed to improving osxphotos!  
 - [grundsch](https://github.com/grundsch)
 - [Ag Primatic](https://github.com/agprimatic)
 - [Daniel M. Drucker](https://github.com/dmd)
+- [Horst Höck](https://github.com/hhoeck)
 
 
 ## Known Bugs
