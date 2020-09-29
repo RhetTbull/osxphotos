@@ -183,9 +183,9 @@ CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES2 = [
 ]
 
 CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES_PATHSEP = [
-"2018-10 - Sponsion, Museum, Frühstück, Römermuseum/IMG_4547.jpg",
-"Folder1/SubFolder2/AlbumInFolder/IMG_4547.jpg",
-"2019-10:11 Paris Clermont/IMG_4547.jpg",
+    "2018-10 - Sponsion, Museum, Frühstück, Römermuseum/IMG_4547.jpg",
+    "Folder1/SubFolder2/AlbumInFolder/IMG_4547.jpg",
+    "2019-10:11 Paris Clermont/IMG_4547.jpg",
 ]
 
 CLI_EXPORT_UUID = "D79B8D77-BFFC-460B-9312-034F2877D35B"
@@ -354,6 +354,7 @@ CLI_EXPORT_UUID_FROM_FILE_FILENAMES = [
     "wedding_edited.jpeg",
 ]
 
+
 # determine if exiftool installed so exiftool tests can be skipped
 try:
     exiftool = get_exiftool_path()
@@ -398,7 +399,6 @@ def setup_touch_tests():
         CLI_EXPORT_BY_DATE_TOUCH_UUID
     )
     for photo in photos:
-        logging.warning(photo.path)
         ts = int(photo.date.timestamp())
         if photo.path is not None:
             os.utime(photo.path, (ts, ts))
@@ -1826,6 +1826,7 @@ def test_export_filename_template_2():
         files = glob.glob("*.*")
         assert sorted(files) == sorted(CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES2)
 
+
 def test_export_filename_template_pathsep_in_name():
     """ export photos using filename template with folder_album and "/" in album name """
     import locale
@@ -1850,13 +1851,14 @@ def test_export_filename_template_pathsep_in_name():
                 "--directory",
                 "{folder_album,None}",
                 "--uuid",
-                CLI_EXPORT_UUID_STATUE 
+                CLI_EXPORT_UUID_STATUE,
             ],
         )
         assert result.exit_code == 0
         for fname in CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES_PATHSEP:
             # assert fname in result.output
             assert pathlib.Path(fname).is_file()
+
 
 def test_export_filename_template_3():
     """ test --filename with invalid template """
@@ -2951,7 +2953,7 @@ def test_export_touch_files_update():
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_touch_files_exiftool_update():
-    """ test complex export scenario with --update, --exiftol, and --touch-files """
+    """ test complex export scenario with --update, --exiftool, and --touch-files """
     import os
     import pathlib
     import time

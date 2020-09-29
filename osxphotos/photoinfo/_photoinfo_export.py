@@ -683,9 +683,6 @@ def export2(
                 f"Error exporting photo {self.uuid} to {dest} with use_photos_export"
             )
 
-    # export metadata
-    info = export_db.get_info_for_uuid(self.uuid)
-
     if sidecar_json:
         logging.debug("writing exiftool_json_sidecar")
         sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}{dest.suffix}.json")
@@ -797,9 +794,9 @@ def export2(
 
     if touch_file:
         for exif_file in exif_files_updated:
-            touched_files.append(exported_file)
+            touched_files.append(exif_file)
             ts = int(self.date.timestamp())
-            fileutil.utime(exported_file, (ts, ts))
+            fileutil.utime(exif_file, (ts, ts))
 
     touched_files = list(set(touched_files))
 
@@ -1121,7 +1118,7 @@ def _xmp_sidecar(
     use_persons_as_keywords=False,
     keyword_template=None,
     description_template=None,
-    extension=None
+    extension=None,
 ):
     """ returns string for XMP sidecar 
         use_albums_as_keywords: treat album names as keywords
@@ -1134,7 +1131,7 @@ def _xmp_sidecar(
     if extension is None:
         extension = pathlib.Path(self.original_filename)
         extension = extension.suffix[1:] if extension.suffix else None
-        
+
     if description_template is not None:
         description = self.render_template(
             description_template, expand_inplace=True, inplace_sep=", "
