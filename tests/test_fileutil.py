@@ -2,6 +2,7 @@
 
 import pytest
 
+TEST_HEIC = "tests/test-images/IMG_3092.heic"
 
 def test_copy_file_valid():
     # copy file with valid src, dest
@@ -67,3 +68,15 @@ def test_unlink_file():
     assert os.path.isfile(dest)
     FileUtil.unlink(dest)
     assert not os.path.isfile(dest)
+
+def test_convert_to_jpeg():
+    import pathlib
+    import tempfile
+    from osxphotos.fileutil import FileUtil
+
+    temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_") 
+    with temp_dir:
+        imgfile = pathlib.Path(TEST_HEIC)
+        outfile = pathlib.Path(temp_dir.name) / f"{imgfile.stem}.jpeg"
+        assert FileUtil.convert_to_jpeg(imgfile, outfile)
+        assert outfile.is_file()

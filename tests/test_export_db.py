@@ -12,7 +12,7 @@ def test_export_db():
     """ test ExportDB """
     import os
     import tempfile
-    from osxphotos._export_db import ExportDB
+    from osxphotos.export_db import ExportDB
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dbname = os.path.join(tempdir.name, ".osxphotos_export.db")

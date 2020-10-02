@@ -1907,6 +1907,8 @@ For additional details about how osxphotos is implemented or if you would like t
 - [Mako](https://www.makotemplates.org/)
 - [bpylist2](https://pypi.org/project/bpylist2/)
 - [pathvalidate](https://pypi.org/project/pathvalidate/)
+- [wurlitzer](https://pypi.org/project/wurlitzer/)
+
 
 ## Acknowledgements
 This project was originally inspired by [photo-export](https://github.com/patrikhson/photo-export) by Patrick Fältström,  Copyright (c) 2015 Patrik Fältström paf@frobbit.se

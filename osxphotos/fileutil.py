@@ -8,6 +8,7 @@ import subprocess
 import sys
 from abc import ABC, abstractmethod
 
+from .imageconverter import ImageConverter
 
 class FileUtilABC(ABC):
     """ Abstract base class for FileUtil """
@@ -45,6 +46,11 @@ class FileUtilABC(ABC):
     @classmethod
     @abstractmethod
     def file_sig(cls, file1):
+        pass
+
+    @classmethod
+    @abstractmethod
+    def convert_to_jpeg(cls, src_file, dest_file, compression_quality=1.0):
         pass
 
 
@@ -163,6 +169,21 @@ class FileUtilMacOS(FileUtilABC):
     def file_sig(cls, f1):
         """ return os.stat signature for file f1 """
         return cls._sig(os.stat(f1))
+    
+    @classmethod
+    def convert_to_jpeg(cls, src_file, dest_file, compression_quality=1.0):
+        """ converts image file src_file to jpeg format as dest_file
+
+            Args:
+                src_file: image file to convert
+                dest_file: destination path to write converted file to
+                compression quality: JPEG compression quality in range 0.0 <= compression_quality <= 1.0; default 1.0
+                
+            Returns:
+                True if success, otherwise False 
+        """
+        converter = ImageConverter()
+        return converter.write_jpeg(src_file, dest_file, compression_quality=compression_quality)
 
     @staticmethod
     def _sig(st):
@@ -172,7 +193,6 @@ class FileUtilMacOS(FileUtilABC):
         """
         # use int(st.st_mtime) because ditto does not copy fractional portion of mtime
         return (stat.S_IFMT(st.st_mode), st.st_size, int(st.st_mtime))
-
 
 class FileUtil(FileUtilMacOS):
     """ Various file utilities """
@@ -221,3 +241,7 @@ class FileUtilNoOp(FileUtil):
     def file_sig(cls, file1):
         cls.verbose(f"file_sig: {file1}")
         return (42, 42, 42)
+
+    @classmethod
+    def convert_to_jpeg(cls, src_file, dest_file, compression_quality=1.0):
+        cls.verbose(f"convert_to_jpeg: {src_file}, {dest_file}, {compression_quality}")
