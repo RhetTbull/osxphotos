@@ -202,5 +202,6 @@ virtualenv==20.0.30
 wcwidth==0.1.9
 webencodings==0.5.1
 wrapt==1.11.1
+wurlitzer==2.0.1
 yarl==1.4.2
 zipp==0.5.2
