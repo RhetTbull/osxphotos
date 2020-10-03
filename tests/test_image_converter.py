@@ -55,8 +55,9 @@ def test_image_converter_compression_quality():
             outfile = pathlib.Path(tempdir.name) / f"{imgfile.stem}.jpeg"
 
             # call write_jpeg with both pathlib.Path and str arguments
-            assert converter.write_jpeg(imgfile, outfile, compression_quality=0.5)
+            assert converter.write_jpeg(imgfile, outfile, compression_quality=0.1)
             assert outfile.is_file()
+            assert outfile.stat().st_size < 1000000
 
 
 def test_image_converter_bad_compression_quality():

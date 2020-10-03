@@ -94,6 +94,11 @@ class ExportDB_ABC(ABC):
 class ExportDBNoOp(ExportDB_ABC):
     """ An ExportDB with NoOp methods """
 
+    def __init__(self):
+        self.was_created = True
+        self.was_upgraded = False
+        self.version = OSXPHOTOS_EXPORTDB_VERSION
+
     def get_uuid_for_file(self, filename):
         pass
 
@@ -441,36 +446,27 @@ class ExportDB(ExportDB_ABC):
             raise ValueError(f"expected 3 elements for stat, got {len(stats)}")
 
         conn = self._conn
-        try:
-            c = conn.cursor()
-            c.execute(
-                f"UPDATE {table} "
-                + "SET converted_mode = ?, converted_size = ?, converted_mtime = ? "
-                + "WHERE filepath_normalized = ?;",
-                (*stats, filename),
-            )
-            conn.commit()
-        except Error as e:
-            logging.warning(e)
+        c = conn.cursor()
+        c.execute(
+            f"INSERT OR REPLACE INTO {table}(filepath_normalized, mode, size, mtime) VALUES (?, ?, ?, ?);",
+            (filename, *stats),
+        )
+        conn.commit()
 
     def _get_stat_for_file(self, table, filename):
         filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
         conn = self._conn
-        try:
-            c = conn.cursor()
-            c.execute(
-                f"SELECT mode, size, mtime FROM {table} WHERE filepath_normalized = ?",
-                (filename,),
-            )
-            results = c.fetchone()
-            if results:
-                stats = results[0:3]
-                mtime = int(stats[2]) if stats[2] is not None else None
-                stats = (stats[0], stats[1], mtime)
-            else:
-                stats = (None, None, None)
-        except Error as e:
-            logging.warning(e)
+        c = conn.cursor()
+        c.execute(
+            f"SELECT mode, size, mtime FROM {table} WHERE filepath_normalized = ?",
+            (filename,),
+        )
+        results = c.fetchone()
+        if results:
+            stats = results[0:3]
+            mtime = int(stats[2]) if stats[2] is not None else None
+            stats = (stats[0], stats[1], mtime)
+        else:
             stats = (None, None, None)
 
         return stats
@@ -636,7 +632,6 @@ class ExportDBInMemory(ExportDB):
 
     def _open_export_db(self, dbfile):
         """ open export database and return a db connection
-            if dbfile does not exist, will create and initialize the database 
             returns: connection to the database 
         """
         if not os.path.isfile(dbfile):

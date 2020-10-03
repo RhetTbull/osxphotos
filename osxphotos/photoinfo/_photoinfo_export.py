@@ -307,6 +307,7 @@ def export2(
     dry_run=False,
     touch_file=False,
     convert_to_jpeg=False,
+    jpeg_quality=1.0,
 ):
     """ export photo, like export but with update and dry_run options
         dest: must be valid destination path or exception raised 
@@ -348,6 +349,7 @@ def export2(
         dry_run: (boolean, default=False); set to True to run in "dry run" mode
         touch_file: (boolean, default=False); if True, sets file's modification time upon photo date
         convert_to_jpeg: boolean; if True, converts non-jpeg images to jpeg
+        jpeg_quality: float in range 0.0 <= jpeg_quality <= 1.0.  A value of 1.0 specifies use best quality, a value of 0.0 specifies use maximum compression.
 
         Returns: ExportResults namedtuple with fields: exported, new, updated, skipped 
                     where each field is a list of file paths
@@ -562,6 +564,7 @@ def export2(
             convert_to_jpeg,
             fileutil=fileutil,
             edited=edited,
+            jpeg_quality=jpeg_quality,
         )
         exported_files = results.exported
         update_new_files = results.new
@@ -590,6 +593,7 @@ def export2(
                     touch_file,
                     convert_to_jpeg,
                     fileutil=fileutil,
+                    jpeg_quality=jpeg_quality,
                 )
                 exported_files.extend(results.exported)
                 update_new_files.extend(results.new)
@@ -618,6 +622,7 @@ def export2(
                     touch_file,
                     convert_to_jpeg,
                     fileutil=fileutil,
+                    jpeg_quality=jpeg_quality,
                 )
                 exported_files.extend(results.exported)
                 update_new_files.extend(results.new)
@@ -823,6 +828,7 @@ def _export_photo(
     convert_to_jpeg,
     fileutil=FileUtil,
     edited=False,
+    jpeg_quality=1.0,
 ):
     """ Helper function for export()
         Does the actual copy or hardlink taking the appropriate 
@@ -842,6 +848,9 @@ def _export_photo(
         touch_file: bool
         convert_to_jpeg: bool; if True, convert file to jpeg on export
         fileutil: FileUtil class that conforms to fileutil.FileUtilABC
+        edited: bool; set to True if exporting edited version of photo
+        jpeg_quality: float in range 0.0 <= jpeg_quality <= 1.0.  A value of 1.0 specifies use best quality, a value of 0.0 specifies use maximum compression.
+
     Returns:
         ExportResults
 
@@ -949,7 +958,7 @@ def _export_photo(
             fileutil.hardlink(src, dest)
         elif convert_to_jpeg:
             # use convert_to_jpeg to export the file
-            fileutil.convert_to_jpeg(src, dest_str)
+            fileutil.convert_to_jpeg(src, dest_str, compression_quality=jpeg_quality)
             converted_stat = fileutil.file_sig(dest_str)
         else:
             fileutil.copy(src, dest_str, norsrc=no_xattr)

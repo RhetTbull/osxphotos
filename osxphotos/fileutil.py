@@ -177,7 +177,7 @@ class FileUtilMacOS(FileUtilABC):
             Args:
                 src_file: image file to convert
                 dest_file: destination path to write converted file to
-                compression quality: JPEG compression quality in range 0.0 <= compression_quality <= 1.0; default 1.0
+                compression quality: JPEG compression quality in range 0.0 <= compression_quality <= 1.0; default 1.0 (best quality)
                 
             Returns:
                 True if success, otherwise False 

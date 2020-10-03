@@ -1237,6 +1237,15 @@ def query(
     "to JPEG upon export.",
 )
 @click.option(
+    "--jpeg-quality",
+    type=click.FloatRange(0.0, 1.0),
+    default=1.0,
+    help="Value in range 0.0 to 1.0 to use with --convert-to-jpeg. " 
+    "A value of 1.0 specifies best quality, "
+    "a value of 0.0 specifies maximum compression. "
+    "Defaults to 1.0." 
+)
+@click.option(
     "--sidecar",
     default=None,
     multiple=True,
@@ -1356,6 +1365,7 @@ def export(
     description_template,
     current_name,
     convert_to_jpeg,
+    jpeg_quality,
     sidecar,
     only_photos,
     only_movies,
@@ -1628,6 +1638,7 @@ def export(
                     edited_suffix=edited_suffix,
                     use_photos_export=use_photos_export,
                     convert_to_jpeg=convert_to_jpeg,
+                    jpeg_quality=jpeg_quality,
                 )
                 results_exported.extend(results.exported)
                 results_new.extend(results.new)
@@ -1676,6 +1687,7 @@ def export(
                         edited_suffix=edited_suffix,
                         use_photos_export=use_photos_export,
                         convert_to_jpeg=convert_to_jpeg,
+                        jpeg_quality=jpeg_quality,
                     )
                     results_exported.extend(results.exported)
                     results_new.extend(results.new)
@@ -2167,6 +2179,7 @@ def export_photo(
     edited_suffix="_edited",
     use_photos_export=False,
     convert_to_jpeg=False,
+    jpeg_quality=1.0,
 ):
     """ Helper function for export that does the actual export
 
@@ -2199,6 +2212,7 @@ def export_photo(
         touch_file: boolean; sets file's modification time to match photo date
         use_photos_export: boolean; if True forces the use of AppleScript to export even if photo not missing
         convert_to_jpeg: boolean; if True, converts non-jpeg images to jpeg
+        jpeg_quality: float in range 0.0 <= jpeg_quality <= 1.0.  A value of 1.0 specifies use best quality, a value of 0.0 specifies use maximum compression.
 
     Returns:
         list of path(s) of exported photo or None if photo was missing
@@ -2286,6 +2300,7 @@ def export_photo(
                     dry_run=dry_run,
                     touch_file=touch_file,
                     convert_to_jpeg=convert_to_jpeg,
+                    jpeg_quality=jpeg_quality,
                 )
 
                 results_exported.extend(export_results.exported)
@@ -2346,6 +2361,7 @@ def export_photo(
                         dry_run=dry_run,
                         touch_file=touch_file,
                         convert_to_jpeg=convert_to_jpeg,
+                        jpeg_quality=jpeg_quality,
                     )
 
                     results_exported.extend(export_results_edited.exported)

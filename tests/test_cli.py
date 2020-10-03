@@ -93,6 +93,27 @@ CLI_EXPORT_FILENAMES_CURRENT = [
     "F12384F6-CD17-4151-ACBA-AE0E3688539E.jpeg",
 ]
 
+CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG = [
+    "DSC03584.jpeg",
+    "IMG_1693.jpeg",
+    "IMG_1994.JPG",
+    "IMG_1994.cr2",
+    "IMG_1997.JPG",
+    "IMG_1997.cr2",
+    "IMG_3092.jpeg",
+    "IMG_4547.jpg",
+    "Pumkins1.jpg",
+    "Pumkins2.jpg",
+    "Pumpkins3.jpg",
+    "St James Park.jpg",
+    "St James Park_edited.jpeg",
+    "Tulips.jpg",
+    "Tulips_edited.jpeg",
+    "wedding.jpg",
+    "wedding_edited.jpeg",
+]
+
+CLI_EXPORT_CONVERT_TO_JPEG_LARGE_FILE = "DSC03584.jpeg"
 
 CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES1 = [
     "2019/April/wedding.jpg",
@@ -183,9 +204,9 @@ CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES2 = [
 ]
 
 CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES_PATHSEP = [
-"2018-10 - Sponsion, Museum, Frühstück, Römermuseum/IMG_4547.jpg",
-"Folder1/SubFolder2/AlbumInFolder/IMG_4547.jpg",
-"2019-10:11 Paris Clermont/IMG_4547.jpg",
+    "2018-10 - Sponsion, Museum, Frühstück, Römermuseum/IMG_4547.jpg",
+    "Folder1/SubFolder2/AlbumInFolder/IMG_4547.jpg",
+    "2019-10:11 Paris Clermont/IMG_4547.jpg",
 ]
 
 CLI_EXPORT_UUID = "D79B8D77-BFFC-460B-9312-034F2877D35B"
@@ -817,6 +838,58 @@ def test_export_edited_suffix():
         assert result.exit_code == 0
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_EDITED_SUFFIX)
+
+
+def test_export_convert_to_jpeg():
+    """ test --convert-to-jpeg """
+    import glob
+    import os
+    import os.path
+    import pathlib
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export, [os.path.join(cwd, PHOTOS_DB_15_6), ".", "-V", "--convert-to-jpeg"]
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG)
+        large_file = pathlib.Path(CLI_EXPORT_CONVERT_TO_JPEG_LARGE_FILE)
+        assert large_file.stat().st_size > 10000000
+
+
+def test_export_convert_to_jpeg_quality():
+    """ test --convert-to-jpeg --jpeg-quality """
+    import glob
+    import os
+    import os.path
+    import pathlib
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_6),
+                ".",
+                "-V",
+                "--convert-to-jpeg",
+                "--jpeg-quality",
+                "0.2",
+            ],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG)
+        large_file = pathlib.Path(CLI_EXPORT_CONVERT_TO_JPEG_LARGE_FILE)
+        assert large_file.stat().st_size < 1000000
 
 
 def test_query_date_1():
@@ -1826,6 +1899,7 @@ def test_export_filename_template_2():
         files = glob.glob("*.*")
         assert sorted(files) == sorted(CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES2)
 
+
 def test_export_filename_template_pathsep_in_name():
     """ export photos using filename template with folder_album and "/" in album name """
     import locale
@@ -1850,13 +1924,14 @@ def test_export_filename_template_pathsep_in_name():
                 "--directory",
                 "{folder_album,None}",
                 "--uuid",
-                CLI_EXPORT_UUID_STATUE 
+                CLI_EXPORT_UUID_STATUE,
             ],
         )
         assert result.exit_code == 0
         for fname in CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES_PATHSEP:
             # assert fname in result.output
             assert pathlib.Path(fname).is_file()
+
 
 def test_export_filename_template_3():
     """ test --filename with invalid template """
@@ -2632,8 +2707,12 @@ def test_export_update_no_db():
             export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--update"]
         )
         assert result.exit_code == 0
+
+        # unedited files will be skipped because their signatures will compare but
+        # edited files will be re-exported because there won't be an edited signature
+        # in the database
         assert (
-            "Exported: 0 photos, updated: 0 photos, skipped: 8 photos, updated EXIF data: 0 photos"
+            "Exported: 0 photos, updated: 2 photos, skipped: 6 photos, updated EXIF data: 0 photos"
             in result.output
         )
         assert os.path.isfile(OSXPHOTOS_EXPORT_DB)

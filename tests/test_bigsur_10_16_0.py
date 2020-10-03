@@ -7,8 +7,8 @@ PHOTOS_DB = "tests/Test-10.16.0.photoslibrary/database/photos.db"
 PHOTOS_DB_PATH = "/Test-10.16.0.photoslibrary/database/photos.db"
 PHOTOS_LIBRARY_PATH = "/Test-10.16.0.photoslibrary"
 
-PHOTOS_DB_LEN = 15
-PHOTOS_NOT_IN_TRASH_LEN = 13
+PHOTOS_DB_LEN = 16
+PHOTOS_NOT_IN_TRASH_LEN = 14
 PHOTOS_IN_TRASH_LEN = 2
 
 KEYWORDS = [
@@ -31,6 +31,8 @@ ALBUMS = [
     "Raw",
     "I have a deleted twin",  # there's an empty album with same name that has been deleted
     "EmptyAlbum",
+    "2018-10 - Sponsion, Museum, Frühstück, Römermuseum",
+    "2019-10/11 Paris Clermont",
 ]
 KEYWORDS_DICT = {
     "Kids": 4,
@@ -51,6 +53,8 @@ ALBUM_DICT = {
     "Raw": 4,
     "I have a deleted twin": 1,
     "EmptyAlbum": 0,
+    "2018-10 - Sponsion, Museum, Frühstück, Römermuseum": 1,
+    "2019-10/11 Paris Clermont": 1,
 }  # Note: there are 2 albums named "Test Album" for testing duplicate album names
 
 UUID_DICT = {
@@ -617,9 +621,7 @@ def test_get_db_connection():
     assert isinstance(conn, sqlite3.Connection)
     assert isinstance(cursor, sqlite3.Cursor)
 
-    results = conn.execute(
-        "SELECT ZUUID FROM ZASSET WHERE ZFAVORITE = 1;"
-    ).fetchall()
+    results = conn.execute("SELECT ZUUID FROM ZASSET WHERE ZFAVORITE = 1;").fetchall()
     assert len(results) == 1
     assert results[0][0] == "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"  # uuid
 
@@ -1032,7 +1034,7 @@ def test_from_to_date():
     photosdb = osxphotos.PhotosDB(PHOTOS_DB)
 
     photos = photosdb.photos(from_date=dt.datetime(2018, 10, 28))
-    assert len(photos) == 6
+    assert len(photos) == 7
 
     photos = photosdb.photos(to_date=dt.datetime(2018, 10, 28))
     assert len(photos) == 7
