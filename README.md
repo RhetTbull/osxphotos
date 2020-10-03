@@ -279,6 +279,13 @@ Options:
                                   renamed upon import.  By default, photos are
                                   exported with the the original name they had
                                   before import.
+  --convert-to-jpeg               Convert all non-jpeg images (e.g. RAW, HEIC,
+                                  PNG, etc) to JPEG upon export.  Only works
+                                  if your Mac has a GPU.
+  --jpeg-quality FLOAT RANGE      Value in range 0.0 to 1.0 to use with
+                                  --convert-to-jpeg. A value of 1.0 specifies
+                                  best quality, a value of 0.0 specifies
+                                  maximum compression. Defaults to 1.0.
   --sidecar FORMAT                Create sidecar for each photo exported;
                                   valid FORMAT values: xmp, json; --sidecar
                                   json: create JSON sidecar useable by

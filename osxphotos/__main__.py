@@ -1234,7 +1234,7 @@ def query(
     "--convert-to-jpeg",
     is_flag=True,
     help="Convert all non-jpeg images (e.g. RAW, HEIC, PNG, etc) "
-    "to JPEG upon export.",
+    "to JPEG upon export.  Only works if your Mac has a GPU.",
 )
 @click.option(
     "--jpeg-quality",
