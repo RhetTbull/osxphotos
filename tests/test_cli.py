@@ -840,6 +840,10 @@ def test_export_edited_suffix():
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_EDITED_SUFFIX)
 
 
+@pytest.mark.skipif(
+    "OSXPHOTOS_TEST_CONVERT" not in os.environ,
+    reason="Skip if running in Github actions, no GPU.",
+)
 def test_export_convert_to_jpeg():
     """ test --convert-to-jpeg """
     import glob
@@ -862,6 +866,10 @@ def test_export_convert_to_jpeg():
         assert large_file.stat().st_size > 10000000
 
 
+@pytest.mark.skipif(
+    "OSXPHOTOS_TEST_CONVERT" not in os.environ,
+    reason="Skip if running in Github actions, no GPU.",
+)
 def test_export_convert_to_jpeg_quality():
     """ test --convert-to-jpeg --jpeg-quality """
     import glob

@@ -1,6 +1,6 @@
 """ ImageConverter class
     Convert an image to JPEG using CoreImage -- 
-    for example, RAW to JPEG """
+    for example, RAW to JPEG.  Only works if Mac equipped with GPU. """
 
 # reference: https://stackoverflow.com/questions/59330149/coreimage-ciimage-write-jpg-is-shifting-colors-macos/59334308#59334308
 

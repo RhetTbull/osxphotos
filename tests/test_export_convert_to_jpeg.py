@@ -1,6 +1,12 @@
+import os
 import pytest
 
 from osxphotos._constants import _UNKNOWN_PERSON
+
+skip_test = "OSXPHOTOS_TEST_CONVERT" not in os.environ
+pytestmark = pytest.mark.skipif(
+    skip_test, reason="Skip if running on GitHub actions, no GPU."
+)
 
 PHOTOS_DB = "tests/Test-10.15.6.photoslibrary"
 

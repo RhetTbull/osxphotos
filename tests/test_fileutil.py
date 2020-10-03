@@ -1,5 +1,6 @@
 """ test FileUtil """
 
+import os
 import pytest
 
 TEST_HEIC = "tests/test-images/IMG_3092.heic"
@@ -72,6 +73,10 @@ def test_unlink_file():
     assert not os.path.isfile(dest)
 
 
+@pytest.mark.skipif(
+    "OSXPHOTOS_TEST_CONVERT" not in os.environ,
+    reason="Skip if running in Github actions, no GPU.",
+)
 def test_convert_to_jpeg():
     """ test convert_to_jpeg """
     import pathlib
@@ -85,7 +90,10 @@ def test_convert_to_jpeg():
         assert FileUtil.convert_to_jpeg(imgfile, outfile)
         assert outfile.is_file()
 
-
+@pytest.mark.skipif(
+    "OSXPHOTOS_TEST_CONVERT" not in os.environ,
+    reason="Skip if running in Github actions, no GPU.",
+)
 def test_convert_to_jpeg_quality():
     """ test convert_to_jpeg with compression_quality """
     import pathlib
