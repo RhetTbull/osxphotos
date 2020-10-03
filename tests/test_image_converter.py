@@ -1,6 +1,14 @@
 """ test ImageConverter """
 
+import os
+
 import pytest
+
+skip_test = "OSXPHOTOS_TEST_CONVERT" not in os.environ
+pytestmark = pytest.mark.skipif(
+    skip_test, reason="Skip if running on GitHub actions, no GPU."
+)
+
 
 TEST_HEIC = "tests/test-images/IMG_3092.heic"
 TEST_RAW = "tests/test-images/IMG_0476_2.CR2"
