@@ -104,6 +104,12 @@ UTI_ORIGINAL_DICT = {
     "1EB2B765-0765-43BA-A90C-0D0580E6172C": "public.jpeg",
 }
 
+# HEIC image that's been edited in Big Sur, resulting edit is .HEIC
+UUID_HEIC_EDITED = "7783E8E6-9CAC-40F3-BE22-81FB7051C266"
+PATH_HEIC_EDITED = (
+    "resources/renders/7/7783E8E6-9CAC-40F3-BE22-81FB7051C266_1_201_a.heic"
+)
+
 
 def test_init1():
     # test named argument
@@ -442,7 +448,7 @@ def test_external_edit2():
     assert p.external_edit == False
 
 
-def test_path_edited1():
+def test_path_edited_jpeg():
     # test a valid edited path
     import os.path
     import osxphotos
@@ -456,6 +462,17 @@ def test_path_edited1():
         "resources/renders/E/E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51_1_201_a.jpeg"
     )
     assert os.path.exists(path)
+
+
+def test_path_edited_heic():
+    # test a valid edited path for .heic image
+    import pathlib
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photo = photosdb.get_photo(UUID_HEIC_EDITED)
+    assert photo.path_edited.endswith(PATH_HEIC_EDITED)
+    assert pathlib.Path(photo.path_edited).is_file()
 
 
 def test_path_edited2():
