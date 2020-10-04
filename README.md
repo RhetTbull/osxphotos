@@ -1156,7 +1156,13 @@ Returns True if photo is a [cloud asset](#iscloudasset) and is synched to iCloud
 **Note**: Applies to master (original) photo only.  It's possible for the master to be in iCloud but a local edited version is not yet synched to iCloud. `incloud` provides status of only the master photo.  osxphotos does not yet provide a means to determine if the edited version is in iCloud.  If you need this feature, please open an [issue](https://github.com/RhetTbull/osxphotos/issues).
 
 #### `uti`
-Returns Uniform Type Identifier (UTI) for the image, for example: 'public.jpeg' or 'com.apple.quicktime-movie'
+Returns Uniform Type Identifier (UTI) for the current version of the image, for example: 'public.jpeg' or 'com.apple. quicktime-movie'.  If the image has been edited, `uti` will return the UTI for the edited image, otherwise it will return the UTI for the original image.
+
+#### `uti_original`
+Returns Uniform Type Identifier (UTI) for the original image, for example: 'public.jpeg' or 'com.apple.quicktime-movie'.
+
+#### `uti_raw`
+Returns Uniform Type Identifier (UTI) for the associated RAW image, if there is one; for example, 'com.canon.cr2-raw-image'.
 
 #### `burst`
 Returns True if photos is a burst image (e.g. part of a set of burst images), otherwise False.

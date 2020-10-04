@@ -95,6 +95,19 @@ ALBUM_SORT_ORDER = [
 ]
 ALBUM_KEY_PHOTO = "D79B8D77-BFFC-460B-9312-034F2877D35B"
 
+UTI_DICT = {
+    "8846E3E6-8AC8-4857-8448-E3D025784410": "public.tiff",
+    "7783E8E6-9CAC-40F3-BE22-81FB7051C266": "public.jpeg",
+    "1EB2B765-0765-43BA-A90C-0D0580E6172C": "public.jpeg",
+}
+
+
+UTI_ORIGINAL_DICT = {
+    "8846E3E6-8AC8-4857-8448-E3D025784410": "public.tiff",
+    "7783E8E6-9CAC-40F3-BE22-81FB7051C266": "public.heic",
+    "1EB2B765-0765-43BA-A90C-0D0580E6172C": "public.jpeg",
+}
+
 
 def test_init1():
     # test named argument
@@ -1047,7 +1060,7 @@ def test_from_to_date():
     photosdb = osxphotos.PhotosDB(PHOTOS_DB)
 
     photos = photosdb.photos(from_date=dt.datetime(2018, 10, 28))
-    assert len(photos) == 7 
+    assert len(photos) == 7
 
     photos = photosdb.photos(to_date=dt.datetime(2018, 10, 28))
     assert len(photos) == 7
@@ -1177,4 +1190,16 @@ def test_import_session_photo():
         tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=61200), "PDT"),
     )
     assert len(import_session.photos) == 1
+
+
+def test_uti():
+    """ test uti """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+
+    for uuid, uti in UTI_DICT.items():
+        photo = photosdb.get_photo(uuid)
+        assert photo.uti == uti
+        assert photo.uti_original == UTI_ORIGINAL_DICT[uuid]
 

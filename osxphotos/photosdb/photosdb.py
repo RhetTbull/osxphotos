@@ -989,6 +989,9 @@ class PhotosDB:
 
             self._dbphotos[uuid]["UTI"] = row[22]
 
+            # TODO: need to update this for Photos 4
+            self._dbphotos[uuid]["UTI_original"] = row[22]
+
             # handle burst photos
             # if burst photo, determine whether or not it's a selected burst photo
             self._dbphotos[uuid]["burstUUID"] = row[23]
@@ -1126,6 +1129,7 @@ class PhotosDB:
             info["isMissing"] = row[3]
             info["originalFilename"] = row[4]
             info["UTI"] = row[5]
+            info["UTI_original"] = None # filled in later
             info["modelID"] = row[6]
             info["fileSize"] = row[7]
             info["isTrulyRAW"] = row[8]
@@ -2061,14 +2065,19 @@ class PhotosDB:
         # determine if a photo is missing in Photos 5
 
         # Get info on remote/local availability for photos in shared albums
+        # Also get UTI of original image (zdatastoresubtype = 1)
         c.execute(
             f""" SELECT 
                 {asset_table}.ZUUID, 
                 ZINTERNALRESOURCE.ZLOCALAVAILABILITY, 
-                ZINTERNALRESOURCE.ZREMOTEAVAILABILITY
+                ZINTERNALRESOURCE.ZREMOTEAVAILABILITY,
+                ZINTERNALRESOURCE.ZDATASTORESUBTYPE,
+                ZINTERNALRESOURCE.ZUNIFORMTYPEIDENTIFIER,
+                ZUNIFORMTYPEIDENTIFIER.ZIDENTIFIER
                 FROM {asset_table}
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
                 JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZASSET = ZADDITIONALASSETATTRIBUTES.ZASSET 
+                JOIN ZUNIFORMTYPEIDENTIFIER ON ZUNIFORMTYPEIDENTIFIER.Z_PK = ZINTERNALRESOURCE.ZUNIFORMTYPEIDENTIFIER 
                 WHERE  ZDATASTORESUBTYPE = 1 OR ZDATASTORESUBTYPE = 3 """
         )
 
@@ -2076,8 +2085,11 @@ class PhotosDB:
             uuid = row[0]
             if uuid in self._dbphotos:
                 #  and self._dbphotos[uuid]["isMissing"] is None:
+                # logging.warning(f"uuid={uuid}, {row[1]}, {row[2]} {row[3]}")
                 self._dbphotos[uuid]["localAvailability"] = row[1]
                 self._dbphotos[uuid]["remoteAvailability"] = row[2]
+                if row[3] == 1:
+                    self._dbphotos[uuid]["UTI_original"] = row[5]
 
                 # old = self._dbphotos[uuid]["isMissing"]
 
@@ -2104,6 +2116,7 @@ class PhotosDB:
         for row in c:
             uuid = row[0]
             if uuid in self._dbphotos:
+                # logging.warning(f"uuid={uuid}, {row[1]}, {row[2]}")
                 self._dbphotos[uuid]["localAvailability"] = row[1]
                 self._dbphotos[uuid]["remoteAvailability"] = row[2]
 

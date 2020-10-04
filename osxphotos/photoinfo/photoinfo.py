@@ -476,6 +476,13 @@ class PhotoInfo:
         return self._info["UTI"]
 
     @property
+    def uti_original(self):
+        """ Returns Uniform Type Identifier (UTI) for the original image
+            for example: public.jpeg or com.apple.quicktime-movie
+        """
+        return self._info["UTI_original"]
+
+    @property
     def uti_raw(self):
         """ Returns Uniform Type Identifier (UTI) for the RAW image if there is one
             for example: com.canon.cr2-raw-image
