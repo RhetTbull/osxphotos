@@ -424,7 +424,8 @@ def export2(
         else:
             fname = self.filename
 
-    if convert_to_jpeg and self.isphoto and self.uti != "public.jpeg":
+    uti = self.uti if edited else self.uti_original
+    if convert_to_jpeg and self.isphoto and uti != "public.jpeg":
         # not a jpeg but will convert to jpeg upon export so fix file extension
         fname_new = pathlib.Path(fname)
         fname = str(fname_new.parent / f"{fname_new.stem}.jpeg")

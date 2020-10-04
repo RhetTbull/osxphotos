@@ -20,6 +20,7 @@ from .._constants import (
     _PHOTOS_4_ALBUM_KIND,
     _PHOTOS_4_ROOT_FOLDER,
     _PHOTOS_4_VERSION,
+    _PHOTOS_5_VERSION,
     _PHOTOS_5_ALBUM_KIND,
     _PHOTOS_5_IMPORT_SESSION_ALBUM_KIND,
     _PHOTOS_5_SHARED_ALBUM_KIND,
@@ -107,39 +108,48 @@ class PhotoInfo:
     @property
     def path(self):
         """ absolute path on disk of the original picture """
+        try:
+            return self._path
+        except AttributeError:
+            self._path = None
+            photopath = None
+            if self._info["isMissing"] == 1:
+                return photopath  # path would be meaningless until downloaded
 
-        photopath = None
-        if self._info["isMissing"] == 1:
-            return photopath  # path would be meaningless until downloaded
+            if self._db._db_version <= _PHOTOS_4_VERSION:
+                vol = self._info["volume"]
+                if vol is not None:
+                    photopath = os.path.join("/Volumes", vol, self._info["imagePath"])
+                else:
+                    photopath = os.path.join(
+                        self._db._masters_path, self._info["imagePath"]
+                    )
+                self._path = photopath
+                return photopath
 
-        if self._db._db_version <= _PHOTOS_4_VERSION:
-            vol = self._info["volume"]
-            if vol is not None:
-                photopath = os.path.join("/Volumes", vol, self._info["imagePath"])
+            if self._info["shared"]:
+                # shared photo
+                photopath = os.path.join(
+                    self._db._library_path,
+                    _PHOTOS_5_SHARED_PHOTO_PATH,
+                    self._info["directory"],
+                    self._info["filename"],
+                )
+                self._path = photopath
+                return photopath
+
+            if self._info["directory"].startswith("/"):
+                photopath = os.path.join(
+                    self._info["directory"], self._info["filename"]
+                )
             else:
                 photopath = os.path.join(
-                    self._db._masters_path, self._info["imagePath"]
+                    self._db._masters_path,
+                    self._info["directory"],
+                    self._info["filename"],
                 )
+            self._path = photopath
             return photopath
-            # TODO: Is there a way to use applescript or PhotoKit to force the download in this
-
-        if self._info["shared"]:
-            # shared photo
-            photopath = os.path.join(
-                self._db._library_path,
-                _PHOTOS_5_SHARED_PHOTO_PATH,
-                self._info["directory"],
-                self._info["filename"],
-            )
-            return photopath
-
-        if self._info["directory"].startswith("/"):
-            photopath = os.path.join(self._info["directory"], self._info["filename"])
-        else:
-            photopath = os.path.join(
-                self._db._masters_path, self._info["directory"], self._info["filename"]
-            )
-        return photopath
 
     @property
     def path_edited(self):
@@ -149,109 +159,132 @@ class PhotoInfo:
         # TODO: break this code into a _path_edited_4 and _path_edited_5
         # version to simplify the big if/then; same for path_live_photo
 
-        photopath = None
-
-        if self._db._db_version <= _PHOTOS_4_VERSION:
-            if self._info["hasAdjustments"]:
-                edit_id = self._info["edit_resource_id"]
-                if edit_id is not None:
-                    library = self._db._library_path
-                    folder_id, file_id = _get_resource_loc(edit_id)
-                    # todo: is this always true or do we need to search file file_id under folder_id
-                    # figure out what kind it is and build filename
-                    filename = None
-                    if self._info["type"] == _PHOTO_TYPE:
-                        # it's a photo
-                        filename = f"fullsizeoutput_{file_id}.jpeg"
-                    elif self._info["type"] == _MOVIE_TYPE:
-                        # it's a movie
-                        filename = f"fullsizeoutput_{file_id}.mov"
-                    else:
-                        # don't know what it is!
-                        logging.debug(f"WARNING: unknown type {self._info['type']}")
-                        return None
-
-                    # photopath appears to usually be in "00" subfolder but
-                    # could be elsewhere--I haven't figured out this logic yet
-                    # first see if it's in 00
-                    photopath = os.path.join(
-                        library,
-                        "resources",
-                        "media",
-                        "version",
-                        folder_id,
-                        "00",
-                        filename,
-                    )
-
-                    if not os.path.isfile(photopath):
-                        rootdir = os.path.join(
-                            library, "resources", "media", "version", folder_id
-                        )
-
-                        for dirname, _, filelist in os.walk(rootdir):
-                            if filename in filelist:
-                                photopath = os.path.join(dirname, filename)
-                                break
-
-                    # check again to see if we found a valid file
-                    if not os.path.isfile(photopath):
-                        logging.debug(
-                            f"MISSING PATH: edited file for UUID {self._uuid} should be at {photopath} but does not appear to exist"
-                        )
-                        photopath = None
-                else:
-                    logging.debug(
-                        f"{self.uuid} hasAdjustments but edit_resource_id is None"
-                    )
-                    photopath = None
+        try:
+            return self._path_edited
+        except AttributeError:
+            if self._db._db_version <= _PHOTOS_4_VERSION:
+                self._path_edited = self._path_edited_4()
+                return self._path_edited
             else:
+                self._path_edited = self._path_edited_5()
+                return self._path_edited
+
+    def _path_edited_5(self):
+        """ return path_edited for Photos >= 5 """
+        # In Photos 5.0 / Catalina / MacOS 10.15:
+        # edited photos appear to always be converted to .jpeg and stored in
+        # library_name/resources/renders/X/UUID_1_201_a.jpeg
+        # where X = first letter of UUID
+        # and UUID = UUID of image
+        # this seems to be true even for photos not copied to Photos library and
+        # where original format was not jpg/jpeg
+        # if more than one edit, previous edit is stored as UUID_p.jpeg
+        #
+        # In Photos 6.0 / Big Sur, the edited image is a .heic if the photo isn't a jpeg,
+        # otherwise it's a jpeg.  It could also be a jpeg if photo library upgraded from earlier
+        # version.
+
+        if self._db._db_version < _PHOTOS_5_VERSION:
+            raise RuntimeError("Wrong database format!")
+
+        if self._info["hasAdjustments"]:
+            library = self._db._library_path
+            directory = self._uuid[0]  # first char of uuid
+            filename = None
+            if self._info["type"] == _PHOTO_TYPE:
+                # it's a photo
+                if self._db._photos_ver == 5:
+                    filename = f"{self._uuid}_1_201_a.jpeg"
+                else:
+                    # could be a heic or a jpeg
+                    if self.uti == 'public.heic':
+                        filename = f"{self._uuid}_1_201_a.heic"
+                    else:
+                        filename = f"{self._uuid}_1_201_a.jpeg"
+            elif self._info["type"] == _MOVIE_TYPE:
+                # it's a movie
+                filename = f"{self._uuid}_2_0_a.mov"
+            else:
+                # don't know what it is!
+                logging.debug(f"WARNING: unknown type {self._info['type']}")
+                return None
+
+            photopath = os.path.join(
+                library, "resources", "renders", directory, filename
+            )
+
+            if not os.path.isfile(photopath):
+                logging.debug(
+                    f"edited file for UUID {self._uuid} should be at {photopath} but does not appear to exist"
+                )
                 photopath = None
-
-            # if self._info["isMissing"] == 1:
-            #     photopath = None  # path would be meaningless until downloaded
         else:
-            # in Photos 5.0 / Catalina / MacOS 10.15:
-            # edited photos appear to always be converted to .jpeg and stored in
-            # library_name/resources/renders/X/UUID_1_201_a.jpeg
-            # where X = first letter of UUID
-            # and UUID = UUID of image
-            # this seems to be true even for photos not copied to Photos library and
-            # where original format was not jpg/jpeg
-            # if more than one edit, previous edit is stored as UUID_p.jpeg
+            photopath = None
 
-            if self._info["hasAdjustments"]:
+        # TODO: might be possible for original/master to be missing but edit to still be there
+        # if self._info["isMissing"] == 1:
+        #     photopath = None  # path would be meaningless until downloaded
+
+        # logging.debug(photopath)
+
+        return photopath
+
+    def _path_edited_4(self):
+        """ return path_edited for Photos <= 4 """
+
+        if self._db._db_version > _PHOTOS_4_VERSION:
+            raise RuntimeError("Wrong database format!")
+        
+        photopath = None
+        if self._info["hasAdjustments"]:
+            edit_id = self._info["edit_resource_id"]
+            if edit_id is not None:
                 library = self._db._library_path
-                directory = self._uuid[0]  # first char of uuid
+                folder_id, file_id = _get_resource_loc(edit_id)
+                # todo: is this always true or do we need to search file file_id under folder_id
+                # figure out what kind it is and build filename
                 filename = None
                 if self._info["type"] == _PHOTO_TYPE:
                     # it's a photo
-                    filename = f"{self._uuid}_1_201_a.jpeg"
+                    filename = f"fullsizeoutput_{file_id}.jpeg"
                 elif self._info["type"] == _MOVIE_TYPE:
                     # it's a movie
-                    filename = f"{self._uuid}_2_0_a.mov"
+                    filename = f"fullsizeoutput_{file_id}.mov"
                 else:
                     # don't know what it is!
                     logging.debug(f"WARNING: unknown type {self._info['type']}")
                     return None
 
+                # photopath appears to usually be in "00" subfolder but
+                # could be elsewhere--I haven't figured out this logic yet
+                # first see if it's in 00
                 photopath = os.path.join(
-                    library, "resources", "renders", directory, filename
+                    library, "resources", "media", "version", folder_id, "00", filename,
                 )
 
                 if not os.path.isfile(photopath):
+                    rootdir = os.path.join(
+                        library, "resources", "media", "version", folder_id
+                    )
+
+                    for dirname, _, filelist in os.walk(rootdir):
+                        if filename in filelist:
+                            photopath = os.path.join(dirname, filename)
+                            break
+
+                # check again to see if we found a valid file
+                if not os.path.isfile(photopath):
                     logging.debug(
-                        f"edited file for UUID {self._uuid} should be at {photopath} but does not appear to exist"
+                        f"MISSING PATH: edited file for UUID {self._uuid} should be at {photopath} but does not appear to exist"
                     )
                     photopath = None
             else:
+                logging.debug(
+                    f"{self.uuid} hasAdjustments but edit_resource_id is None"
+                )
                 photopath = None
-
-            # TODO: might be possible for original/master to be missing but edit to still be there
-            # if self._info["isMissing"] == 1:
-            #     photopath = None  # path would be meaningless until downloaded
-
-            # logging.debug(photopath)
+        else:
+            photopath = None
 
         return photopath
 
