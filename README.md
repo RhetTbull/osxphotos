@@ -1161,6 +1161,9 @@ Returns Uniform Type Identifier (UTI) for the current version of the image, for 
 #### `uti_original`
 Returns Uniform Type Identifier (UTI) for the original image, for example: 'public.jpeg' or 'com.apple.quicktime-movie'.
 
+#### `uti_edited`
+Returns Uniform Type Identifier (UTI) for the edited image, for example: 'public.jpeg'.  Returns None if the photo does not have adjustments.
+
 #### `uti_raw`
 Returns Uniform Type Identifier (UTI) for the associated RAW image, if there is one; for example, 'com.canon.cr2-raw-image'.
 

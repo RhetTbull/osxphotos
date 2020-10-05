@@ -989,8 +989,12 @@ class PhotosDB:
 
             self._dbphotos[uuid]["UTI"] = row[22]
 
-            # TODO: need to update this for Photos 4
+            # The UTI in RKMaster will always be UTI of the original
+            # Unlike Photos 5 which changes the UTI to match latest edit
             self._dbphotos[uuid]["UTI_original"] = row[22]
+
+            # UTI edited will be read from RKModelResource
+            self._dbphotos[uuid]["UTI_edited"] = None
 
             # handle burst photos
             # if burst photo, determine whether or not it's a selected burst photo
@@ -1129,7 +1133,6 @@ class PhotosDB:
             info["isMissing"] = row[3]
             info["originalFilename"] = row[4]
             info["UTI"] = row[5]
-            info["UTI_original"] = None # filled in later
             info["modelID"] = row[6]
             info["fileSize"] = row[7]
             info["isTrulyRAW"] = row[8]
@@ -1163,7 +1166,6 @@ class PhotosDB:
                     if (
                         row[1] != "UNADJUSTEDNONRAW"
                         and row[1] != "UNADJUSTED"
-                        # and row[4] == "public.jpeg"
                         and row[6] == 2
                     ):
                         if "edit_resource_id" in self._dbphotos[uuid]:
@@ -1177,6 +1179,7 @@ class PhotosDB:
                         # should we return all edits or just most recent one?
                         # For now, return most recent edit
                         self._dbphotos[uuid]["edit_resource_id"] = row[2]
+                        self._dbphotos[uuid]["UTI_edited"] = row[4]
 
         # get details on external edits
         c.execute(
@@ -1249,7 +1252,7 @@ class PhotosDB:
         )
 
         # Order of results
-        # 0  RKMaster.uuid,
+        # 0  RKVersion.uuid,
         # 1  RKMaster.cloudLibraryState,
         # 2  RKCloudResource.available,
         # 3  RKCloudResource.status
@@ -1332,6 +1335,7 @@ class PhotosDB:
             if info["has_raw"]:
                 raw_uuid = info["raw_master_uuid"]
                 info["raw_info"] = self._dbphotos_master[raw_uuid]
+                info["UTI_raw"] = self._dbphotos_master[raw_uuid]["UTI"]
 
         # done with the database connection
         conn.close()

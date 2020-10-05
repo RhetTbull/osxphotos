@@ -41,7 +41,7 @@ UUID_DICT = {
     "favorite": "6bxcNnzRQKGnK4uPrCJ9UQ",
     "not_favorite": "8SOE9s0XQVGsuq4ONohTng",
     "date_invalid": "YZFCPY24TUySvpu7owiqxA",
-    "intrash": "3tljdX43R8+k6peNHVrJNQ",
+    "intrash": "td4yIljYS8aRAgzlsRRDtQ",
     "not_intrash": "6bxcNnzRQKGnK4uPrCJ9UQ",
     "has_adjustments": "6bxcNnzRQKGnK4uPrCJ9UQ",
 }
@@ -53,8 +53,8 @@ ALBUM_SORT_ORDER = [
 ]
 ALBUM_KEY_PHOTO = "15uNd7%8RguTEgNPKHfTWw"
 
-PHOTOS_DB_LEN = 8
-PHOTOS_NOT_IN_TRASH_LEN = 7
+PHOTOS_DB_LEN = 13
+PHOTOS_NOT_IN_TRASH_LEN = 12
 PHOTOS_IN_TRASH_LEN = 1
 
 

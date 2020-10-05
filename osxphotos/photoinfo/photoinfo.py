@@ -197,7 +197,7 @@ class PhotoInfo:
                     filename = f"{self._uuid}_1_201_a.jpeg"
                 else:
                     # could be a heic or a jpeg
-                    if self.uti == 'public.heic':
+                    if self.uti == "public.heic":
                         filename = f"{self._uuid}_1_201_a.heic"
                     else:
                         filename = f"{self._uuid}_1_201_a.jpeg"
@@ -234,7 +234,7 @@ class PhotoInfo:
 
         if self._db._db_version > _PHOTOS_4_VERSION:
             raise RuntimeError("Wrong database format!")
-        
+
         photopath = None
         if self._info["hasAdjustments"]:
             edit_id = self._info["edit_resource_id"]
@@ -506,7 +506,12 @@ class PhotoInfo:
         """ Returns Uniform Type Identifier (UTI) for the image
             for example: public.jpeg or com.apple.quicktime-movie
         """
-        return self._info["UTI"]
+        if self._db._db_version <= _PHOTOS_4_VERSION:
+            return (
+                self._info["UTI_edited"] if self.hasadjustments else self._info["UTI"]
+            )
+        else:
+            return self._info["UTI"]
 
     @property
     def uti_original(self):
@@ -514,6 +519,17 @@ class PhotoInfo:
             for example: public.jpeg or com.apple.quicktime-movie
         """
         return self._info["UTI_original"]
+
+    @property
+    def uti_edited(self):
+        """ Returns Uniform Type Identifier (UTI) for the edited image 
+            if the photo has been edited, otherwise None; 
+            for example: public.jpeg 
+        """
+        if self._db._db_version >= _PHOTOS_5_VERSION:
+            return self.uti if self.hasadjustments else None
+        else:
+            return self._info["UTI_edited"]
 
     @property
     def uti_raw(self):
