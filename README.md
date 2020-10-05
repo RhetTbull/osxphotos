@@ -1091,6 +1091,15 @@ Returns the absolute path to the edited photo on disk as a string.  If the photo
 
 **Note**: will also return None if the edited photo is missing on disk. 
 
+#### `path_raw`
+Returns the absolute path to the associated RAW photo on disk as a string, if photo is part of a RAW+JPEG pair, otherwise returns None.
+
+#### `has_raw`
+Returns True if photo has an associated RAW image, otherwise False. (e.g. Photo is a RAW+JPEG pair.)
+
+#### `raw_original`
+Returns True if associated RAW image and the RAW image is selected in Photos via "Use RAW as Original", otherwise returns False.  Not implemented on Photos version < 5; returns None on Photos 4 and below.
+
 #### `height`
 Returns height of the photo in pixels.  If image has been edited, returns height of the edited image, otherwise returns height of the original image.  See also [original_height](#original_height).
 
@@ -1165,7 +1174,7 @@ Returns Uniform Type Identifier (UTI) for the original image, for example: 'publ
 Returns Uniform Type Identifier (UTI) for the edited image, for example: 'public.jpeg'.  Returns None if the photo does not have adjustments.
 
 #### `uti_raw`
-Returns Uniform Type Identifier (UTI) for the associated RAW image, if there is one; for example, 'com.canon.cr2-raw-image'.
+Returns Uniform Type Identifier (UTI) for the associated RAW image, if there is one; for example, 'com.canon.cr2-raw-image'.  If the image is RAW but not part of a RAW+JPEG pair, `uti_raw` returns None.  In this case, use `uti`, or `uti_original`.
 
 #### `burst`
 Returns True if photos is a burst image (e.g. part of a set of burst images), otherwise False.
