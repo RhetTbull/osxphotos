@@ -257,13 +257,17 @@ CLI_TEMPLATE_SIDECAR_FILENAME = "Pumkins1.jpg.json"
 
 CLI_UUID_DICT_14_6 = {"intrash": "3tljdX43R8+k6peNHVrJNQ"}
 
-PHOTOS_NOT_IN_TRASH_LEN_14_6 = 7
+PHOTOS_NOT_IN_TRASH_LEN_14_6 = 12
 PHOTOS_IN_TRASH_LEN_14_6 = 1
 PHOTOS_MISSING_14_6 = 1
 
 PHOTOS_NOT_IN_TRASH_LEN_15_5 = 13
 PHOTOS_IN_TRASH_LEN_15_5 = 2
 PHOTOS_MISSING_15_5 = 2
+
+PHOTOS_NOT_IN_TRASH_LEN_15_6 = 14
+PHOTOS_IN_TRASH_LEN_15_6 = 2
+PHOTOS_MISSING_15_6 = 1
 
 CLI_PLACES_JSON = """{"places": {"_UNKNOWN_": 1, "Maui, Wailea, Hawai'i, United States": 1, "Washington, District of Columbia, United States": 1}}"""
 
@@ -1419,11 +1423,11 @@ def test_query_deleted_2():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_14_6), "--deleted"]
+        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_6), "--deleted"]
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
-    assert len(json_got) == PHOTOS_NOT_IN_TRASH_LEN_14_6 + PHOTOS_IN_TRASH_LEN_14_6
+    assert len(json_got) == PHOTOS_NOT_IN_TRASH_LEN_15_6 + PHOTOS_IN_TRASH_LEN_15_6
 
 
 def test_query_deleted_3():
@@ -1456,11 +1460,11 @@ def test_query_deleted_4():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_14_6), "--deleted-only"]
+        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_6), "--deleted-only"]
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
-    assert len(json_got) == PHOTOS_IN_TRASH_LEN_14_6
+    assert len(json_got) == PHOTOS_IN_TRASH_LEN_15_6
     assert json_got[0]["intrash"]
 
 
