@@ -1296,11 +1296,12 @@ class PhotosDB:
 
             # get the place info that matches the RKPlace modelIDs for this photo
             # (place_ids), sort by area (element 3 of the place_data tuple in places)
+            # area could be None so assume 0 if it is (issue #230)
             place_names = [
                 pname
                 for pname in sorted(
                     [places[p] for p in places if p in place_ids],
-                    key=lambda place: place[3],
+                    key=lambda place: place[3] if place[3] is not None else 0,
                 )
             ]
 
