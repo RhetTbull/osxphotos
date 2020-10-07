@@ -194,8 +194,8 @@ CLI_EXPORT_UUID_STATUE = "3DD2C897-F19E-4CA6-8C22-B027D5A71907"
 CLI_EXPORT_UUID_FILENAME = "Pumkins2.jpg"
 
 CLI_EXPORT_BY_DATE_TOUCH_UUID = [
-    "1EB2B765-0765-43BA-A90C-0D0580E6172C",
-    "F12384F6-CD17-4151-ACBA-AE0E3688539E",
+    "1EB2B765-0765-43BA-A90C-0D0580E6172C",  # Pumpkins3.jpg
+    "F12384F6-CD17-4151-ACBA-AE0E3688539E",  # Pumkins1.jpg
 ]
 CLI_EXPORT_BY_DATE_TOUCH_TIMES = [1538165373, 1538163349]
 CLI_EXPORT_BY_DATE_NEED_TOUCH = [
@@ -363,9 +363,9 @@ except:
 
 
 def touch_all_photos_in_db(dbpath):
-    """ touch date on all photos in a library
+    """touch date on all photos in a library
         helper function for --touch-file tests
-    
+
     Args:
         dbpath: path to photos library to touch
     """
@@ -393,8 +393,10 @@ def setup_touch_tests():
     import logging
     import osxphotos
 
+    # touch all photos so they do not match PhotoInfo.date
     touch_all_photos_in_db(PHOTOS_DB_TOUCH)
 
+    # adjust a couple of the photos so they're file times *are* correct
     photos = osxphotos.PhotosDB(PHOTOS_DB_TOUCH).photos_by_uuid(
         CLI_EXPORT_BY_DATE_TOUCH_UUID
     )
@@ -2951,8 +2953,8 @@ def test_export_touch_files_update():
         )
 
 
-@pytest.mark.skip("TODO: This fails on some machines but not all")
-# @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+# @pytest.mark.skip("TODO: This fails on some machines but not all")
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_touch_files_exiftool_update():
     """ test complex export scenario with --update, --exiftool, and --touch-files """
     import os
@@ -3056,13 +3058,9 @@ def test_export_touch_files_exiftool_update():
         )
         assert result.exit_code == 0
         assert (
-            "Exported: 0 photos, updated: 0 photos, skipped: 16 photos, updated EXIF data: 0 photos, touched date: 16 photos"
+            "Exported: 0 photos, updated: 0 photos, skipped: 16 photos, updated EXIF data: 0 photos, touched date: 14 photos"
             in result.output
         )
-
-        for fname, mtime in zip(CLI_EXPORT_BY_DATE, CLI_EXPORT_BY_DATE_TOUCH_TIMES):
-            st = os.stat(fname)
-            assert int(st.st_mtime) != int(mtime)
 
         # --update --touch-file --exiftool
         result = runner.invoke(
@@ -3078,7 +3076,7 @@ def test_export_touch_files_exiftool_update():
         )
         assert result.exit_code == 0
         assert (
-            "Exported: 0 photos, updated: 0 photos, skipped: 16 photos, updated EXIF data: 0 photos, touched date: 16 photos"
+            "Exported: 0 photos, updated: 0 photos, skipped: 16 photos, updated EXIF data: 0 photos, touched date: 14 photos"
             in result.output
         )
 
