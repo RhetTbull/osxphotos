@@ -68,11 +68,9 @@ class PhotoInfo:
     @property
     def filename(self):
         """ filename of the picture """
-        # sourcery off
-        if self.has_raw and self.raw_original:
-            # return name of the RAW file
-            # TODO: not yet implemented
-            return self._info["filename"]
+        if self._db._db_version <= _PHOTOS_4_VERSION and self.has_raw and self.raw_original:
+            # return the JPEG version as that's what Photos 5+ does
+            return self._info["raw_pair_info"]["filename"]
         else:
             return self._info["filename"]
 
@@ -80,7 +78,11 @@ class PhotoInfo:
     def original_filename(self):
         """ original filename of the picture 
             Photos 5 mangles filenames upon import """
-        return self._info["originalFilename"]
+        if self._db._db_version <= _PHOTOS_4_VERSION and self.has_raw and self.raw_original:
+            # return the JPEG version as that's what Photos 5+ does
+            return self._info["raw_pair_info"]["originalFilename"]
+        else:
+            return self._info["originalFilename"]
 
     @property
     def date(self):
@@ -117,13 +119,32 @@ class PhotoInfo:
                 return photopath  # path would be meaningless until downloaded
 
             if self._db._db_version <= _PHOTOS_4_VERSION:
-                vol = self._info["volume"]
-                if vol is not None:
-                    photopath = os.path.join("/Volumes", vol, self._info["imagePath"])
-                else:
-                    photopath = os.path.join(
-                        self._db._masters_path, self._info["imagePath"]
+                if self._info["has_raw"]:
+                    # return the path to JPEG even if RAW is original
+                    vol = (
+                        self._db._dbvolumes[self._info["raw_pair_info"]["volumeId"]]
+                        if self._info["raw_pair_info"]["volumeId"] is not None
+                        else None
                     )
+                    if vol is not None:
+                        photopath = os.path.join(
+                            "/Volumes", vol, self._info["raw_pair_info"]["imagePath"]
+                        )
+                    else:
+                        photopath = os.path.join(
+                            self._db._masters_path,
+                            self._info["raw_pair_info"]["imagePath"],
+                        )
+                else:
+                    vol = self._info["volume"]
+                    if vol is not None:
+                        photopath = os.path.join(
+                            "/Volumes", vol, self._info["imagePath"]
+                        )
+                    else:
+                        photopath = os.path.join(
+                            self._db._masters_path, self._info["imagePath"]
+                        )
                 self._path = photopath
                 return photopath
 
@@ -507,9 +528,13 @@ class PhotoInfo:
             for example: public.jpeg or com.apple.quicktime-movie
         """
         if self._db._db_version <= _PHOTOS_4_VERSION:
-            return (
-                self._info["UTI_edited"] if self.hasadjustments else self._info["UTI"]
-            )
+            if self.hasadjustments:
+                return self._info["UTI_edited"]
+            elif self.has_raw and self.raw_original:
+                # return UTI of the non-raw image to match Photos 5+ behavior
+                return self._info["raw_pair_info"]["UTI"]
+            else:
+                return self._info["UTI"]
         else:
             return self._info["UTI"]
 

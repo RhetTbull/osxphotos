@@ -846,7 +846,8 @@ class PhotosDB:
                     RKMaster.height,
                     RKMaster.width, 
                     RKMaster.orientation,
-                    RKMaster.fileSize
+                    RKMaster.fileSize,
+                    RKVersion.subType
                     FROM RKVersion, RKMaster
                     WHERE RKVersion.masterUuid = RKMaster.uuid"""
             )
@@ -873,7 +874,8 @@ class PhotosDB:
                     RKMaster.height,
                     RKMaster.width, 
                     RKMaster.orientation,
-                    RKMaster.originalFileSize
+                    RKMaster.originalFileSize,
+                    RKVersion.subType
                     FROM RKVersion, RKMaster 
                     WHERE RKVersion.masterUuid = RKMaster.uuid"""
             )
@@ -919,6 +921,7 @@ class PhotosDB:
         # 37    RKMaster.width,
         # 38    RKMaster.orientation,
         # 39    RKMaster.originalFileSize
+        # 40    RKVersion.subType
 
         for row in c:
             uuid = row[0]
@@ -1062,10 +1065,20 @@ class PhotosDB:
             self._dbphotos[uuid]["cloudAvailable"] = None
             self._dbphotos[uuid]["incloud"] = None
 
-            # TODO: NOT YET USED -- PLACEHOLDER for RAW processing (currently only in _process_database5)
             # original resource choice (e.g. RAW or jpeg)
-            self._dbphotos[uuid]["original_resource_choice"] = None
-            self._dbphotos[uuid]["raw_is_original"] = None
+            # In Photos 5+, original_resource_choice set from:
+            # ZADDITIONALASSETATTRIBUTES.ZORIGINALRESOURCECHOICE
+            # = 0 if jpeg is selected as "original" in Photos (the default)
+            # = 1 if RAW is selected as "original" in Photos
+            # RKVersion.subType, RAW always appears to be 16
+            #   4 = mov
+            #   16 = RAW
+            #   32 = JPEG
+            #   64 = TIFF
+            #   2048 = PNG
+            #   32768 = HIEC
+            self._dbphotos[uuid]["original_resource_choice"] = 1 if row[40] == 16 else 0
+            self._dbphotos[uuid]["raw_is_original"] = True if row[40] == 16 else False
 
             # associated RAW image info
             self._dbphotos[uuid]["has_raw"] = True if row[25] == 7 else False
@@ -1107,7 +1120,8 @@ class PhotosDB:
                 RKMaster.modelID, 
                 RKMaster.fileSize, 
                 RKMaster.isTrulyRaw,
-                RKMaster.alternateMasterUuid
+                RKMaster.alternateMasterUuid,
+                RKMaster.filename
                 FROM RKMaster
             """
         )
@@ -1123,6 +1137,7 @@ class PhotosDB:
         # 7     RKMaster.fileSize,
         # 8     RKMaster.isTrulyRaw,
         # 9     RKMaster.alternateMasterUuid
+        # 10    RKMaster.filename
 
         for row in c:
             uuid = row[0]
@@ -1137,6 +1152,7 @@ class PhotosDB:
             info["fileSize"] = row[7]
             info["isTrulyRAW"] = row[8]
             info["alternateMasterUuid"] = row[9]
+            info["filename"] = row[10]
             self._dbphotos_master[uuid] = info
 
         # get details needed to find path of the edited photos
@@ -1336,6 +1352,12 @@ class PhotosDB:
                 raw_uuid = info["raw_master_uuid"]
                 info["raw_info"] = self._dbphotos_master[raw_uuid]
                 info["UTI_raw"] = self._dbphotos_master[raw_uuid]["UTI"]
+                non_raw_uuid = info["non_raw_master_uuid"]
+                info["raw_pair_info"] = self._dbphotos_master[non_raw_uuid]
+            else:
+                info["raw_info"] = None
+                info["UTI_raw"] = None
+                info["raw_pair_info"] = None
 
         # done with the database connection
         conn.close()
