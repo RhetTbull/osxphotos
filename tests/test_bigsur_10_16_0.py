@@ -1,5 +1,7 @@
 import pytest
 
+from collections import namedtuple
+
 from osxphotos._constants import _UNKNOWN_PERSON
 
 
@@ -95,13 +97,70 @@ UTI_DICT = {
     "8846E3E6-8AC8-4857-8448-E3D025784410": "public.tiff",
     "7783E8E6-9CAC-40F3-BE22-81FB7051C266": "public.heic",
     "1EB2B765-0765-43BA-A90C-0D0580E6172C": "public.jpeg",
+    "4D521201-92AC-43E5-8F7C-59BC41C37A96": "public.jpeg",
 }
-
 
 UTI_ORIGINAL_DICT = {
     "8846E3E6-8AC8-4857-8448-E3D025784410": "public.tiff",
     "7783E8E6-9CAC-40F3-BE22-81FB7051C266": "public.heic",
     "1EB2B765-0765-43BA-A90C-0D0580E6172C": "public.jpeg",
+    "4D521201-92AC-43E5-8F7C-59BC41C37A96": "public.jpeg",
+}
+
+RawInfo = namedtuple(
+    "RawInfo",
+    [
+        "comment",
+        "original_filename",
+        "has_raw",
+        "israw",
+        "raw_original",
+        "uti",
+        "uti_original",
+        "uti_raw",
+    ],
+)
+RAW_DICT = {
+    "D05A5FE3-15FB-49A1-A15D-AB3DA6F8B068": RawInfo(
+        "raw image, no jpeg pair",
+        "DSC03584.dng",
+        False,
+        True,
+        False,
+        "com.adobe.raw-image",
+        "com.adobe.raw-image",
+        None,
+    ),
+    "A92D9C26-3A50-4197-9388-CB5F7DB9FA91": RawInfo(
+        "raw+jpeg, jpeg original",
+        "IMG_1994.JPG",
+        True,
+        False,
+        False,
+        "public.jpeg",
+        "public.jpeg",
+        "com.canon.cr2-raw-image",
+    ),
+    "4D521201-92AC-43E5-8F7C-59BC41C37A96": RawInfo(
+        "raw+jpeg, raw original",
+        "IMG_1997.JPG",
+        True,
+        False,
+        True,
+        "public.jpeg",
+        "public.jpeg",
+        "com.canon.cr2-raw-image",
+    ),
+    "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51": RawInfo(
+        "jpeg, no raw",
+        "wedding.jpg",
+        False,
+        False,
+        False,
+        "public.jpeg",
+        "public.jpeg",
+        None,
+    ),
 }
 
 # HEIC image that's been edited in Big Sur, resulting edit is .HEIC
@@ -1115,3 +1174,19 @@ def test_uti():
         photo = photosdb.get_photo(uuid)
         assert photo.uti == uti
         assert photo.uti_original == UTI_ORIGINAL_DICT[uuid]
+
+
+def test_raw():
+    """ Test various raw properties """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+
+    for uuid, rawinfo in RAW_DICT.items():
+        photo = photosdb.get_photo(uuid)
+        assert photo.original_filename == rawinfo.original_filename
+        assert photo.has_raw == rawinfo.has_raw
+        assert photo.israw == rawinfo.israw
+        assert photo.uti == rawinfo.uti
+        assert photo.uti_original == rawinfo.uti_original
+        assert photo.uti_raw == rawinfo.uti_raw

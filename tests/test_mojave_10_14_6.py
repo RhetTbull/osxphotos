@@ -78,7 +78,7 @@ UUID_UTI_DICT = {
     "oTiMG6OfSP6d%nUTEOfvMg": [
         "public.jpeg",
         "com.canon.cr2-raw-image",
-        "com.canon.cr2-raw-image",
+        "public.jpeg",
         None,
     ],
     "GdJJPQX0RP63mcdKFj%sfQ": ["public.jpeg", None, "public.heic", "public.jpeg"],

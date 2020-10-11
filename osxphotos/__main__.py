@@ -148,7 +148,7 @@ class ExportCommand(click.Command):
         formatter.write("\n")
         formatter.write_text(
             "Note: The number of files reported for export and the number actually exported "
-            + "may differ due to live photos, associated RAW images, and edited photos which are reported "
+            + "may differ due to live photos, associated raw images, and edited photos which are reported "
             + "in the total photos exported."
         )
         formatter.write("\n")
@@ -474,7 +474,7 @@ def query_options(f):
         o(
             "--has-raw",
             is_flag=True,
-            help="Search for photos with both a jpeg and RAW version",
+            help="Search for photos with both a jpeg and raw version",
         ),
         o(
             "--only-movies",
@@ -1183,9 +1183,9 @@ def query(
 @click.option(
     "--skip-raw",
     is_flag=True,
-    help="Do not export associated RAW images of a RAW/jpeg pair.  "
-    "Note: this does not skip RAW photos if the RAW photo does not have an associated jpeg image "
-    "(e.g. the RAW file was imported to Photos without a jpeg preview).",
+    help="Do not export associated raw images of a RAW+JPEG pair.  "
+    "Note: this does not skip raw photos if the raw photo does not have an associated jpeg image "
+    "(e.g. the raw file was imported to Photos without a jpeg preview).",
 )
 @click.option(
     "--person-keyword",
@@ -1233,7 +1233,7 @@ def query(
 @click.option(
     "--convert-to-jpeg",
     is_flag=True,
-    help="Convert all non-jpeg images (e.g. RAW, HEIC, PNG, etc) "
+    help="Convert all non-jpeg images (e.g. raw, HEIC, PNG, etc) "
     "to JPEG upon export.  Only works if your Mac has a GPU.",
 )
 @click.option(
@@ -1409,7 +1409,7 @@ def export(
         (e.g. search for photos matching all options).
         If no query options are provided, all photos will be exported.
         By default, all versions of all photos will be exported including edited
-        versions, live photo movies, burst photos, and associated RAW images. 
+        versions, live photo movies, burst photos, and associated raw images. 
         See --skip-edited, --skip-live, --skip-bursts, and --skip-raw options
         to modify this behavior. 
     """
@@ -2058,7 +2058,7 @@ def _query(
         photos = [p for p in photos if not p.shared]
 
     if uti:
-        photos = [p for p in photos if uti in p.uti]
+        photos = [p for p in photos if uti in p.uti_original]
 
     if burst:
         photos = [p for p in photos if p.burst]
@@ -2199,7 +2199,7 @@ def export_photo(
         directory: template used to determine output directory
         filename_template: template use to determine output file
         no_extended_attributes: boolean; if True, exports photo without preserving extended attributes
-        export_raw: boolean; if True exports RAW image associate with the photo
+        export_raw: boolean; if True exports raw image associate with the photo
         export_edited: boolean; if True exports edited version of photo if there is one
         skip_original_if_edited: boolean; if True does not export original if photo has been edited
         album_keyword: boolean; if True, exports album names as keywords in metadata

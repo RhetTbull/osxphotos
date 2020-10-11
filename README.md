@@ -1092,13 +1092,16 @@ Returns the absolute path to the edited photo on disk as a string.  If the photo
 **Note**: will also return None if the edited photo is missing on disk. 
 
 #### `path_raw`
-Returns the absolute path to the associated RAW photo on disk as a string, if photo is part of a RAW+JPEG pair, otherwise returns None.
+Returns the absolute path to the associated raw photo on disk as a string, if photo is part of a RAW+JPEG pair, otherwise returns None.
 
 #### `has_raw`
-Returns True if photo has an associated RAW image, otherwise False. (e.g. Photo is a RAW+JPEG pair.)
+Returns True if photo has an associated raw image, otherwise False. (e.g. Photo is a RAW+JPEG pair). See also [is_raw](#israw).
+
+#### `israw`
+Returns True if photo is a raw image. E.g. it was imported as a single raw image, not part of a RAW+JPEG pair.  See also [has_raw](#has_raw).
 
 #### `raw_original`
-Returns True if associated RAW image and the RAW image is selected in Photos via "Use RAW as Original", otherwise returns False.  Not implemented on Photos version < 5; returns None on Photos 4 and below.
+Returns True if associated raw image and the raw image is selected in Photos via "Use RAW as Original", otherwise returns False. 
 
 #### `height`
 Returns height of the photo in pixels.  If image has been edited, returns height of the edited image, otherwise returns height of the original image.  See also [original_height](#original_height).
@@ -1174,7 +1177,7 @@ Returns Uniform Type Identifier (UTI) for the original image, for example: 'publ
 Returns Uniform Type Identifier (UTI) for the edited image, for example: 'public.jpeg'.  Returns None if the photo does not have adjustments.
 
 #### `uti_raw`
-Returns Uniform Type Identifier (UTI) for the associated RAW image, if there is one; for example, 'com.canon.cr2-raw-image'.  If the image is RAW but not part of a RAW+JPEG pair, `uti_raw` returns None.  In this case, use `uti`, or `uti_original`.
+Returns Uniform Type Identifier (UTI) for the associated raw image, if there is one; for example, 'com.canon.cr2-raw-image'.  If the image is raw but not part of a RAW+JPEG pair, `uti_raw` returns None.  In this case, use `uti`, or `uti_original`.  See also [has_raw](#has_raw).
 
 #### `burst`
 Returns True if photos is a burst image (e.g. part of a set of burst images), otherwise False.
@@ -1909,10 +1912,10 @@ Thank-you to the following people who have contributed to improving osxphotos!  
 
 ## Known Bugs
 
-My goal is make osxphotos as reliable and comprehensive as possible.  The test suite currently has over 600 tests--but there are still some [bugs](https://github.com/RhetTbull/osxphotos/issues?q=is%3Aissue+is%3Aopen+label%3Abug) or incomplete features lurking.  If you find bugs please open an [issue](https://github.com/RhetTbull/osxphotos/issues).  Notable issues include:
+My goal is make osxphotos as reliable and comprehensive as possible.  The test suite currently has over 800 tests--but there are still some [bugs](https://github.com/RhetTbull/osxphotos/issues?q=is%3Aissue+is%3Aopen+label%3Abug) or incomplete features lurking.  If you find bugs please open an [issue](https://github.com/RhetTbull/osxphotos/issues).  Please consult the list of open bugs before deciding that you want to use this code on your Photos library.  Notable issues include:
 
 - Face coordinates (mouth, left eye, right eye) may not be correct for images where the head is tilted.  See [Issue #196](https://github.com/RhetTbull/osxphotos/issues/196).
-- RAW images imported to Photos with an associated jpeg preview are not handled correctly by osxphotos.  osxphotos query and export will operate on the jpeg preview instead of the RAW image as will `PhotoInfo.path`.  If the user selects "Use RAW as original" in Photos, the RAW image will be exported or operated on but the jpeg will be ignored.  See [Issue #101](https://github.com/RhetTbull/osxphotos/issues/101). Note: Beta version of fix for this bug is implemented in the current version of osxphotos.
+- Raw images imported to Photos with an associated jpeg preview are not handled correctly by osxphotos.  osxphotos query and export will operate on the jpeg preview instead of the raw image as will `PhotoInfo.path`.  If the user selects "Use RAW as original" in Photos, the raw image will be exported or operated on but the jpeg will be ignored.  See [Issue #101](https://github.com/RhetTbull/osxphotos/issues/101). Note: Beta version of fix for this bug is implemented in the current version of osxphotos.
 - The `--download-missing` option for `osxphotos export` does not work correctly with burst images.  It will download the primary image but not the other burst images.  See [Issue #75](https://github.com/RhetTbull/osxphotos/issues/75).
 
 ## Implementation Notes

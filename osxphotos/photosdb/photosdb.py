@@ -1065,6 +1065,17 @@ class PhotosDB:
             self._dbphotos[uuid]["cloudAvailable"] = None
             self._dbphotos[uuid]["incloud"] = None
 
+            # associated RAW image info
+            self._dbphotos[uuid]["has_raw"] = True if row[25] == 7 else False
+            self._dbphotos[uuid]["UTI_raw"] = None
+            self._dbphotos[uuid]["raw_data_length"] = None
+            self._dbphotos[uuid]["raw_info"] = None
+            self._dbphotos[uuid]["resource_type"] = None  # Photos 5
+            self._dbphotos[uuid]["datastore_subtype"] = None  # Photos 5
+            self._dbphotos[uuid]["raw_master_uuid"] = row[29]
+            self._dbphotos[uuid]["non_raw_master_uuid"] = row[30]
+            self._dbphotos[uuid]["alt_master_uuid"] = row[31]
+
             # original resource choice (e.g. RAW or jpeg)
             # In Photos 5+, original_resource_choice set from:
             # ZADDITIONALASSETATTRIBUTES.ZORIGINALRESOURCECHOICE
@@ -1077,19 +1088,12 @@ class PhotosDB:
             #   64 = TIFF
             #   2048 = PNG
             #   32768 = HIEC
-            self._dbphotos[uuid]["original_resource_choice"] = 1 if row[40] == 16 else 0
-            self._dbphotos[uuid]["raw_is_original"] = True if row[40] == 16 else False
-
-            # associated RAW image info
-            self._dbphotos[uuid]["has_raw"] = True if row[25] == 7 else False
-            self._dbphotos[uuid]["UTI_raw"] = None
-            self._dbphotos[uuid]["raw_data_length"] = None
-            self._dbphotos[uuid]["raw_info"] = None
-            self._dbphotos[uuid]["resource_type"] = None  # Photos 5
-            self._dbphotos[uuid]["datastore_subtype"] = None  # Photos 5
-            self._dbphotos[uuid]["raw_master_uuid"] = row[29]
-            self._dbphotos[uuid]["non_raw_master_uuid"] = row[30]
-            self._dbphotos[uuid]["alt_master_uuid"] = row[31]
+            self._dbphotos[uuid]["original_resource_choice"] = (
+                1 if row[40] == 16 and self._dbphotos[uuid]["has_raw"] else 0
+            )
+            self._dbphotos[uuid]["raw_is_original"] = bool(
+                self._dbphotos[uuid]["original_resource_choice"]
+            )
 
             # recently deleted items
             self._dbphotos[uuid]["intrash"] = True if row[32] == 1 else False
@@ -2107,27 +2111,26 @@ class PhotosDB:
                 WHERE  ZDATASTORESUBTYPE = 1 OR ZDATASTORESUBTYPE = 3 """
         )
 
+        # Order of results:
+        # 0 {asset_table}.ZUUID,
+        # 1 ZINTERNALRESOURCE.ZLOCALAVAILABILITY,
+        # 2 ZINTERNALRESOURCE.ZREMOTEAVAILABILITY,
+        # 3 ZINTERNALRESOURCE.ZDATASTORESUBTYPE,
+        # 4 ZINTERNALRESOURCE.ZUNIFORMTYPEIDENTIFIER,
+        # 5 ZUNIFORMTYPEIDENTIFIER.ZIDENTIFIER
+
         for row in c:
             uuid = row[0]
             if uuid in self._dbphotos:
-                #  and self._dbphotos[uuid]["isMissing"] is None:
-                # logging.warning(f"uuid={uuid}, {row[1]}, {row[2]} {row[3]}")
                 self._dbphotos[uuid]["localAvailability"] = row[1]
                 self._dbphotos[uuid]["remoteAvailability"] = row[2]
                 if row[3] == 1:
                     self._dbphotos[uuid]["UTI_original"] = row[5]
 
-                # old = self._dbphotos[uuid]["isMissing"]
-
                 if row[1] != 1:
                     self._dbphotos[uuid]["isMissing"] = 1
                 else:
                     self._dbphotos[uuid]["isMissing"] = 0
-
-                # if old is not None and old != self._dbphotos[uuid]["isMissing"]:
-                #     logging.warning(
-                #         f"{uuid} isMissing changed: {old} {self._dbphotos[uuid]['isMissing']}"
-                #     )
 
         # get information on local/remote availability
         c.execute(
@@ -2142,21 +2145,13 @@ class PhotosDB:
         for row in c:
             uuid = row[0]
             if uuid in self._dbphotos:
-                # logging.warning(f"uuid={uuid}, {row[1]}, {row[2]}")
                 self._dbphotos[uuid]["localAvailability"] = row[1]
                 self._dbphotos[uuid]["remoteAvailability"] = row[2]
-
-                # old = self._dbphotos[uuid]["isMissing"]
 
                 if row[1] != 1:
                     self._dbphotos[uuid]["isMissing"] = 1
                 else:
                     self._dbphotos[uuid]["isMissing"] = 0
-
-                # if old is not None and old != self._dbphotos[uuid]["isMissing"]:
-                #     logging.warning(
-                #         f"{uuid} isMissing changed: {old} {self._dbphotos[uuid]['isMissing']}"
-                #     )
 
         # get information about cloud sync state
         c.execute(

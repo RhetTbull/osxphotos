@@ -543,7 +543,10 @@ class PhotoInfo:
         """ Returns Uniform Type Identifier (UTI) for the original image
             for example: public.jpeg or com.apple.quicktime-movie
         """
-        return self._info["UTI_original"]
+        if self._db._db_version <= _PHOTOS_4_VERSION and self._info["has_raw"]:
+            return self._info["raw_pair_info"]["UTI"]
+        else:
+            return self._info["UTI_original"]
 
     @property
     def uti_edited(self):
@@ -745,12 +748,17 @@ class PhotoInfo:
 
     @property
     def has_raw(self):
-        """ returns True if photo has an associated RAW image, otherwise False """
+        """ returns True if photo has an associated raw image (that is, it's a RAW+JPEG pair), otherwise False """
         return self._info["has_raw"]
 
     @property
+    def israw(self):
+        """ returns True if photo is a raw image. For images with an associated RAW+JPEG pair, see has_raw """
+        return "raw-image" in self.uti_original
+
+    @property
     def raw_original(self):
-        """ returns True if associated RAW image and the RAW image is selected in Photos
+        """ returns True if associated raw image and the raw image is selected in Photos
             via "Use RAW as Original "
             otherwise returns False """
         return self._info["raw_is_original"]
