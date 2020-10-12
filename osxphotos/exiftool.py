@@ -98,6 +98,7 @@ class _ExifToolProc:
                 "-",  # read from stdin
                 "-common_args",  # specifies args common to all commands subsequently run
                 "-n",  # no print conversion (e.g. print tag values in machine readable format)
+                "-P",  # Preserve file modification date/time (possible interfere w/ --touch-file)
                 "-G",  # print group name for each tag
             ],
             stdin=subprocess.PIPE,
