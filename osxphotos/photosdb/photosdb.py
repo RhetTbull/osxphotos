@@ -1345,11 +1345,15 @@ class PhotosDB:
 
         # add volume name to _dbphotos_master
         for info in self._dbphotos_master.values():
-            info["volume"] = (
-                self._dbvolumes[info["volumeId"]]
-                if info["volumeId"] is not None
-                else None
-            )
+            # issue 230: have seen bad volumeID values
+            try:
+                info["volume"] = (
+                    self._dbvolumes[info["volumeId"]]
+                    if info["volumeId"] is not None
+                    else None
+                )
+            except KeyError:
+                info["volume"] = None
 
         # add data on RAW images
         for info in self._dbphotos.values():
@@ -1393,9 +1397,13 @@ class PhotosDB:
                 self._dbphotos[uuid]["hasAlbums"] = 0
 
             if self._dbphotos[uuid]["volumeId"] is not None:
-                self._dbphotos[uuid]["volume"] = self._dbvolumes[
-                    self._dbphotos[uuid]["volumeId"]
-                ]
+                # issue 230: have seen bad volumeID values
+                try:
+                    self._dbphotos[uuid]["volume"] = self._dbvolumes[
+                        self._dbphotos[uuid]["volumeId"]
+                    ]
+                except KeyError:
+                    self._dbphotos[uuid]["volume"] = None
             else:
                 self._dbphotos[uuid]["volume"] = None
 
