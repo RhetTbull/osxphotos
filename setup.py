@@ -78,6 +78,7 @@ setup(
         "bpylist2==3.0.2",
         "pathvalidate==2.2.1",
         "dataclasses==0.7;python_version<'3.7'",
+        "wurlitzer>=2.0.1",
     ],
     entry_points={"console_scripts": ["osxphotos=osxphotos.__main__:cli"]},
     include_package_data=True,

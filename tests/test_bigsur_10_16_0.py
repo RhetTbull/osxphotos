@@ -1,5 +1,7 @@
 import pytest
 
+from collections import namedtuple
+
 from osxphotos._constants import _UNKNOWN_PERSON
 
 
@@ -7,8 +9,8 @@ PHOTOS_DB = "tests/Test-10.16.0.photoslibrary/database/photos.db"
 PHOTOS_DB_PATH = "/Test-10.16.0.photoslibrary/database/photos.db"
 PHOTOS_LIBRARY_PATH = "/Test-10.16.0.photoslibrary"
 
-PHOTOS_DB_LEN = 15
-PHOTOS_NOT_IN_TRASH_LEN = 13
+PHOTOS_DB_LEN = 16
+PHOTOS_NOT_IN_TRASH_LEN = 14
 PHOTOS_IN_TRASH_LEN = 2
 
 KEYWORDS = [
@@ -31,6 +33,8 @@ ALBUMS = [
     "Raw",
     "I have a deleted twin",  # there's an empty album with same name that has been deleted
     "EmptyAlbum",
+    "2018-10 - Sponsion, Museum, Frühstück, Römermuseum",
+    "2019-10/11 Paris Clermont",
 ]
 KEYWORDS_DICT = {
     "Kids": 4,
@@ -51,6 +55,8 @@ ALBUM_DICT = {
     "Raw": 4,
     "I have a deleted twin": 1,
     "EmptyAlbum": 0,
+    "2018-10 - Sponsion, Museum, Frühstück, Römermuseum": 1,
+    "2019-10/11 Paris Clermont": 1,
 }  # Note: there are 2 albums named "Test Album" for testing duplicate album names
 
 UUID_DICT = {
@@ -86,6 +92,82 @@ ALBUM_SORT_ORDER = [
     "D79B8D77-BFFC-460B-9312-034F2877D35B",
 ]
 ALBUM_KEY_PHOTO = "D79B8D77-BFFC-460B-9312-034F2877D35B"
+
+UTI_DICT = {
+    "8846E3E6-8AC8-4857-8448-E3D025784410": "public.tiff",
+    "7783E8E6-9CAC-40F3-BE22-81FB7051C266": "public.heic",
+    "1EB2B765-0765-43BA-A90C-0D0580E6172C": "public.jpeg",
+    "4D521201-92AC-43E5-8F7C-59BC41C37A96": "public.jpeg",
+}
+
+UTI_ORIGINAL_DICT = {
+    "8846E3E6-8AC8-4857-8448-E3D025784410": "public.tiff",
+    "7783E8E6-9CAC-40F3-BE22-81FB7051C266": "public.heic",
+    "1EB2B765-0765-43BA-A90C-0D0580E6172C": "public.jpeg",
+    "4D521201-92AC-43E5-8F7C-59BC41C37A96": "public.jpeg",
+}
+
+RawInfo = namedtuple(
+    "RawInfo",
+    [
+        "comment",
+        "original_filename",
+        "has_raw",
+        "israw",
+        "raw_original",
+        "uti",
+        "uti_original",
+        "uti_raw",
+    ],
+)
+RAW_DICT = {
+    "D05A5FE3-15FB-49A1-A15D-AB3DA6F8B068": RawInfo(
+        "raw image, no jpeg pair",
+        "DSC03584.dng",
+        False,
+        True,
+        False,
+        "com.adobe.raw-image",
+        "com.adobe.raw-image",
+        None,
+    ),
+    "A92D9C26-3A50-4197-9388-CB5F7DB9FA91": RawInfo(
+        "raw+jpeg, jpeg original",
+        "IMG_1994.JPG",
+        True,
+        False,
+        False,
+        "public.jpeg",
+        "public.jpeg",
+        "com.canon.cr2-raw-image",
+    ),
+    "4D521201-92AC-43E5-8F7C-59BC41C37A96": RawInfo(
+        "raw+jpeg, raw original",
+        "IMG_1997.JPG",
+        True,
+        False,
+        True,
+        "public.jpeg",
+        "public.jpeg",
+        "com.canon.cr2-raw-image",
+    ),
+    "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51": RawInfo(
+        "jpeg, no raw",
+        "wedding.jpg",
+        False,
+        False,
+        False,
+        "public.jpeg",
+        "public.jpeg",
+        None,
+    ),
+}
+
+# HEIC image that's been edited in Big Sur, resulting edit is .HEIC
+UUID_HEIC_EDITED = "7783E8E6-9CAC-40F3-BE22-81FB7051C266"
+PATH_HEIC_EDITED = (
+    "resources/renders/7/7783E8E6-9CAC-40F3-BE22-81FB7051C266_1_201_a.heic"
+)
 
 
 def test_init1():
@@ -425,7 +507,7 @@ def test_external_edit2():
     assert p.external_edit == False
 
 
-def test_path_edited1():
+def test_path_edited_jpeg():
     # test a valid edited path
     import os.path
     import osxphotos
@@ -439,6 +521,17 @@ def test_path_edited1():
         "resources/renders/E/E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51_1_201_a.jpeg"
     )
     assert os.path.exists(path)
+
+
+def test_path_edited_heic():
+    # test a valid edited path for .heic image
+    import pathlib
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    photo = photosdb.get_photo(UUID_HEIC_EDITED)
+    assert photo.path_edited.endswith(PATH_HEIC_EDITED)
+    assert pathlib.Path(photo.path_edited).is_file()
 
 
 def test_path_edited2():
@@ -617,9 +710,7 @@ def test_get_db_connection():
     assert isinstance(conn, sqlite3.Connection)
     assert isinstance(cursor, sqlite3.Cursor)
 
-    results = conn.execute(
-        "SELECT ZUUID FROM ZASSET WHERE ZFAVORITE = 1;"
-    ).fetchall()
+    results = conn.execute("SELECT ZUUID FROM ZASSET WHERE ZFAVORITE = 1;").fetchall()
     assert len(results) == 1
     assert results[0][0] == "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"  # uuid
 
@@ -1032,7 +1123,7 @@ def test_from_to_date():
     photosdb = osxphotos.PhotosDB(PHOTOS_DB)
 
     photos = photosdb.photos(from_date=dt.datetime(2018, 10, 28))
-    assert len(photos) == 6
+    assert len(photos) == 7
 
     photos = photosdb.photos(to_date=dt.datetime(2018, 10, 28))
     assert len(photos) == 7
@@ -1044,11 +1135,13 @@ def test_from_to_date():
 
 
 def test_date_invalid():
-    """ Test date is invalid """
+    """ Test date is invalid  """
     from datetime import datetime, timedelta, timezone
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    # UUID_DICT["date_invalid"] has an invalid date that's
+    # been manually adjusted in the database
     photos = photosdb.photos(uuid=[UUID_DICT["date_invalid"]])
     assert len(photos) == 1
     p = photos[0]
@@ -1063,7 +1156,37 @@ def test_date_modified_invalid():
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    # UUID_DICT["date_invalid"] has an invalid modified date that's
+    # been manually adjusted in the database
     photos = photosdb.photos(uuid=[UUID_DICT["date_invalid"]])
     assert len(photos) == 1
     p = photos[0]
     assert p.date_modified is None
+
+
+def test_uti():
+    """ test uti """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+
+    for uuid, uti in UTI_DICT.items():
+        photo = photosdb.get_photo(uuid)
+        assert photo.uti == uti
+        assert photo.uti_original == UTI_ORIGINAL_DICT[uuid]
+
+
+def test_raw():
+    """ Test various raw properties """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+
+    for uuid, rawinfo in RAW_DICT.items():
+        photo = photosdb.get_photo(uuid)
+        assert photo.original_filename == rawinfo.original_filename
+        assert photo.has_raw == rawinfo.has_raw
+        assert photo.israw == rawinfo.israw
+        assert photo.uti == rawinfo.uti
+        assert photo.uti_original == rawinfo.uti_original
+        assert photo.uti_raw == rawinfo.uti_raw

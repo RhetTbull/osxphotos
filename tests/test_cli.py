@@ -93,6 +93,47 @@ CLI_EXPORT_FILENAMES_CURRENT = [
     "F12384F6-CD17-4151-ACBA-AE0E3688539E.jpeg",
 ]
 
+CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG = [
+    "DSC03584.jpeg",
+    "IMG_1693.jpeg",
+    "IMG_1994.JPG",
+    "IMG_1994.cr2",
+    "IMG_1997.JPG",
+    "IMG_1997.cr2",
+    "IMG_3092.jpeg",
+    "IMG_3092_edited.jpeg",
+    "IMG_4547.jpg",
+    "Pumkins1.jpg",
+    "Pumkins2.jpg",
+    "Pumpkins3.jpg",
+    "St James Park.jpg",
+    "St James Park_edited.jpeg",
+    "Tulips.jpg",
+    "Tulips_edited.jpeg",
+    "wedding.jpg",
+    "wedding_edited.jpeg",
+]
+
+CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG_SKIP_RAW = [
+    "DSC03584.jpeg",
+    "IMG_1693.jpeg",
+    "IMG_1994.JPG",
+    "IMG_1997.JPG",
+    "IMG_3092.jpeg",
+    "IMG_3092_edited.jpeg",
+    "IMG_4547.jpg",
+    "Pumkins1.jpg",
+    "Pumkins2.jpg",
+    "Pumpkins3.jpg",
+    "St James Park.jpg",
+    "St James Park_edited.jpeg",
+    "Tulips.jpg",
+    "Tulips_edited.jpeg",
+    "wedding.jpg",
+    "wedding_edited.jpeg",
+]
+
+CLI_EXPORT_CONVERT_TO_JPEG_LARGE_FILE = "DSC03584.jpeg"
 
 CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES1 = [
     "2019/April/wedding.jpg",
@@ -235,13 +276,17 @@ CLI_TEMPLATE_SIDECAR_FILENAME = "Pumkins1.jpg.json"
 
 CLI_UUID_DICT_14_6 = {"intrash": "3tljdX43R8+k6peNHVrJNQ"}
 
-PHOTOS_NOT_IN_TRASH_LEN_14_6 = 7
+PHOTOS_NOT_IN_TRASH_LEN_14_6 = 12
 PHOTOS_IN_TRASH_LEN_14_6 = 1
 PHOTOS_MISSING_14_6 = 1
 
 PHOTOS_NOT_IN_TRASH_LEN_15_5 = 13
 PHOTOS_IN_TRASH_LEN_15_5 = 2
 PHOTOS_MISSING_15_5 = 2
+
+PHOTOS_NOT_IN_TRASH_LEN_15_6 = 14
+PHOTOS_IN_TRASH_LEN_15_6 = 2
+PHOTOS_MISSING_15_6 = 1
 
 CLI_PLACES_JSON = """{"places": {"_UNKNOWN_": 1, "Maui, Wailea, Hawai'i, United States": 1, "Washington, District of Columbia, United States": 1}}"""
 
@@ -821,6 +866,97 @@ def test_export_edited_suffix():
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_EDITED_SUFFIX)
 
 
+@pytest.mark.skipif(
+    "OSXPHOTOS_TEST_CONVERT" not in os.environ,
+    reason="Skip if running in Github actions, no GPU.",
+)
+def test_export_convert_to_jpeg():
+    """ test --convert-to-jpeg """
+    import glob
+    import os
+    import os.path
+    import pathlib
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export, [os.path.join(cwd, PHOTOS_DB_15_6), ".", "-V", "--convert-to-jpeg"]
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG)
+        large_file = pathlib.Path(CLI_EXPORT_CONVERT_TO_JPEG_LARGE_FILE)
+        assert large_file.stat().st_size > 10000000
+
+
+@pytest.mark.skipif(
+    "OSXPHOTOS_TEST_CONVERT" not in os.environ,
+    reason="Skip if running in Github actions, no GPU.",
+)
+def test_export_convert_to_jpeg_quality():
+    """ test --convert-to-jpeg --jpeg-quality """
+    import glob
+    import os
+    import os.path
+    import pathlib
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_6),
+                ".",
+                "-V",
+                "--convert-to-jpeg",
+                "--jpeg-quality",
+                "0.2",
+            ],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG)
+        large_file = pathlib.Path(CLI_EXPORT_CONVERT_TO_JPEG_LARGE_FILE)
+        assert large_file.stat().st_size < 1000000
+
+
+@pytest.mark.skipif(
+    "OSXPHOTOS_TEST_CONVERT" not in os.environ,
+    reason="Skip if running in Github actions, no GPU.",
+)
+def test_export_convert_to_jpeg_skip_raw():
+    """ test --convert-to-jpeg """
+    import glob
+    import os
+    import os.path
+    import pathlib
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_6),
+                ".",
+                "-V",
+                "--convert-to-jpeg",
+                "--skip-raw",
+            ],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG_SKIP_RAW)
+
+
 def test_query_date_1():
     """ Test --from-date and --to-date """
     import json
@@ -1339,11 +1475,11 @@ def test_query_deleted_2():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_14_6), "--deleted"]
+        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_6), "--deleted"]
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
-    assert len(json_got) == PHOTOS_NOT_IN_TRASH_LEN_14_6 + PHOTOS_IN_TRASH_LEN_14_6
+    assert len(json_got) == PHOTOS_NOT_IN_TRASH_LEN_15_6 + PHOTOS_IN_TRASH_LEN_15_6
 
 
 def test_query_deleted_3():
@@ -1376,11 +1512,11 @@ def test_query_deleted_4():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_14_6), "--deleted-only"]
+        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_6), "--deleted-only"]
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
-    assert len(json_got) == PHOTOS_IN_TRASH_LEN_14_6
+    assert len(json_got) == PHOTOS_IN_TRASH_LEN_15_6
     assert json_got[0]["intrash"]
 
 
@@ -2636,8 +2772,12 @@ def test_export_update_no_db():
             export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--update"]
         )
         assert result.exit_code == 0
+
+        # unedited files will be skipped because their signatures will compare but
+        # edited files will be re-exported because there won't be an edited signature
+        # in the database
         assert (
-            "Exported: 0 photos, updated: 0 photos, skipped: 8 photos, updated EXIF data: 0 photos"
+            "Exported: 0 photos, updated: 2 photos, skipped: 6 photos, updated EXIF data: 0 photos"
             in result.output
         )
         assert os.path.isfile(OSXPHOTOS_EXPORT_DB)
@@ -2811,7 +2951,7 @@ def test_export_touch_files():
         )
         assert result.exit_code == 0
 
-        assert "Exported: 16 photos, touched date: 14 photos" in result.output
+        assert "Exported: 18 photos, touched date: 16 photos" in result.output
 
         for fname, mtime in zip(CLI_EXPORT_BY_DATE, CLI_EXPORT_BY_DATE_TOUCH_TIMES):
             st = os.stat(fname)
@@ -2843,7 +2983,7 @@ def test_export_touch_files_update():
         )
         assert result.exit_code == 0
 
-        assert "Exported: 16 photos" in result.output
+        assert "Exported: 18 photos" in result.output
 
         assert not pathlib.Path(CLI_EXPORT_BY_DATE[0]).is_file()
 
@@ -2853,7 +2993,7 @@ def test_export_touch_files_update():
         )
         assert result.exit_code == 0
 
-        assert "Exported: 16 photos" in result.output
+        assert "Exported: 18 photos" in result.output
 
         assert pathlib.Path(CLI_EXPORT_BY_DATE[0]).is_file()
 
@@ -2865,7 +3005,7 @@ def test_export_touch_files_update():
         assert result.exit_code == 0
 
         assert (
-            "Exported: 0 photos, updated: 0 photos, skipped: 16 photos, updated EXIF data: 0 photos"
+            "Exported: 0 photos, updated: 0 photos, skipped: 18 photos, updated EXIF data: 0 photos"
             in result.output
         )
 
@@ -2883,7 +3023,7 @@ def test_export_touch_files_update():
         )
         assert result.exit_code == 0
         assert (
-            "Exported: 0 photos, updated: 0 photos, skipped: 16 photos, updated EXIF data: 0 photos, touched date: 14 photos"
+            "Exported: 0 photos, updated: 0 photos, skipped: 18 photos, updated EXIF data: 0 photos, touched date: 16 photos"
             in result.output
         )
 
@@ -2906,7 +3046,7 @@ def test_export_touch_files_update():
         )
         assert result.exit_code == 0
         assert (
-            "Exported: 0 photos, updated: 0 photos, skipped: 16 photos, updated EXIF data: 0 photos, touched date: 14 photos"
+            "Exported: 0 photos, updated: 0 photos, skipped: 18 photos, updated EXIF data: 0 photos, touched date: 16 photos"
             in result.output
         )
 
@@ -2932,7 +3072,7 @@ def test_export_touch_files_update():
         )
         assert result.exit_code == 0
         assert (
-            "Exported: 0 photos, updated: 1 photo, skipped: 15 photos, updated EXIF data: 0 photos, touched date: 1 photo"
+            "Exported: 0 photos, updated: 1 photo, skipped: 17 photos, updated EXIF data: 0 photos, touched date: 1 photo"
             in result.output
         )
 
@@ -2948,7 +3088,7 @@ def test_export_touch_files_update():
         assert result.exit_code == 0
 
         assert (
-            "Exported: 0 photos, updated: 0 photos, skipped: 16 photos, updated EXIF data: 0 photos"
+            "Exported: 0 photos, updated: 0 photos, skipped: 18 photos, updated EXIF data: 0 photos"
             in result.output
         )
 
@@ -2980,7 +3120,7 @@ def test_export_touch_files_exiftool_update():
         )
         assert result.exit_code == 0
 
-        assert "Exported: 16 photos" in result.output
+        assert "Exported: 18 photos" in result.output
 
         assert not pathlib.Path(CLI_EXPORT_BY_DATE[0]).is_file()
 
@@ -2990,7 +3130,7 @@ def test_export_touch_files_exiftool_update():
         )
         assert result.exit_code == 0
 
-        assert "Exported: 16 photos" in result.output
+        assert "Exported: 18 photos" in result.output
 
         assert pathlib.Path(CLI_EXPORT_BY_DATE[0]).is_file()
 
@@ -3002,7 +3142,7 @@ def test_export_touch_files_exiftool_update():
         assert result.exit_code == 0
 
         assert (
-            "Exported: 0 photos, updated: 0 photos, skipped: 16 photos, updated EXIF data: 0 photos"
+            "Exported: 0 photos, updated: 0 photos, skipped: 18 photos, updated EXIF data: 0 photos"
             in result.output
         )
 
@@ -3021,7 +3161,7 @@ def test_export_touch_files_exiftool_update():
         assert result.exit_code == 0
 
         assert (
-            "Exported: 0 photos, updated: 16 photos, skipped: 0 photos, updated EXIF data: 16 photos"
+            "Exported: 0 photos, updated: 18 photos, skipped: 0 photos, updated EXIF data: 18 photos"
             in result.output
         )
 
@@ -3039,7 +3179,7 @@ def test_export_touch_files_exiftool_update():
         assert result.exit_code == 0
 
         assert (
-            "Exported: 0 photos, updated: 16 photos, skipped: 0 photos, updated EXIF data: 16 photos"
+            "Exported: 0 photos, updated: 18 photos, skipped: 0 photos, updated EXIF data: 18 photos"
             in result.output
         )
 
@@ -3058,7 +3198,7 @@ def test_export_touch_files_exiftool_update():
         )
         assert result.exit_code == 0
         assert (
-            "Exported: 0 photos, updated: 0 photos, skipped: 16 photos, updated EXIF data: 0 photos, touched date: 14 photos"
+            "Exported: 0 photos, updated: 0 photos, skipped: 18 photos, updated EXIF data: 0 photos, touched date: 18 photos"
             in result.output
         )
 
@@ -3076,7 +3216,7 @@ def test_export_touch_files_exiftool_update():
         )
         assert result.exit_code == 0
         assert (
-            "Exported: 0 photos, updated: 0 photos, skipped: 16 photos, updated EXIF data: 0 photos, touched date: 14 photos"
+            "Exported: 0 photos, updated: 0 photos, skipped: 18 photos, updated EXIF data: 0 photos, touched date: 18 photos"
             in result.output
         )
 
@@ -3101,7 +3241,7 @@ def test_export_touch_files_exiftool_update():
         )
         assert result.exit_code == 0
         assert (
-            "Exported: 0 photos, updated: 1 photo, skipped: 15 photos, updated EXIF data: 1 photo, touched date: 1 photo"
+            "Exported: 0 photos, updated: 1 photo, skipped: 17 photos, updated EXIF data: 1 photo, touched date: 1 photo"
             in result.output
         )
 
@@ -3123,7 +3263,7 @@ def test_export_touch_files_exiftool_update():
         )
         assert result.exit_code == 0
         assert (
-            "Exported: 0 photos, updated: 0 photos, skipped: 16 photos, updated EXIF data: 0 photos, touched date: 0 photos"
+            "Exported: 0 photos, updated: 0 photos, skipped: 18 photos, updated EXIF data: 0 photos, touched date: 0 photos"
             in result.output
         )
 
@@ -3141,7 +3281,7 @@ def test_export_touch_files_exiftool_update():
         assert result.exit_code == 0
 
         assert (
-            "Exported: 0 photos, updated: 0 photos, skipped: 16 photos, updated EXIF data: 0 photos"
+            "Exported: 0 photos, updated: 0 photos, skipped: 18 photos, updated EXIF data: 0 photos"
             in result.output
         )
 

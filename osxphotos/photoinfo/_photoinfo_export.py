@@ -30,7 +30,7 @@ from .._constants import (
     _UNKNOWN_PERSON,
     _XMP_TEMPLATE_NAME,
 )
-from .._export_db import ExportDBNoOp
+from ..export_db import ExportDBNoOp
 from ..exiftool import ExifTool
 from ..fileutil import FileUtil
 from ..utils import dd_to_dms_str, findfiles
@@ -306,6 +306,8 @@ def export2(
     fileutil=FileUtil,
     dry_run=False,
     touch_file=False,
+    convert_to_jpeg=False,
+    jpeg_quality=1.0,
 ):
     """ export photo, like export but with update and dry_run options
         dest: must be valid destination path or exception raised 
@@ -313,10 +315,8 @@ def export2(
                     **NOTE**: if provided, user must ensure file extension (suffix) is correct. 
                     For example, if photo is .CR2 file, edited image may be .jpeg.  
                     If you provide an extension different than what the actual file is, 
-                    export will print a warning but will export the photo using the 
-                    incorrect file extension (unless use_photos_export is true, in which case export will
-                    use the extension provided by Photos upon export; in this case, an incorrect extension is
-                    silently ignored).
+                    will export the photo using the incorrect file extension (unless use_photos_export is true, 
+                    in which case export will use the extension provided by Photos upon export.
                     e.g. to get the extension of the edited photo, 
                     reference PhotoInfo.path_edited
         edited: (boolean, default=False); if True will export the edited version of the photo 
@@ -335,7 +335,6 @@ def export2(
         timeout: (int, default=120) timeout in seconds used with use_photos_export
         exiftool: (boolean, default = False); if True, will use exiftool to write metadata to export file
         no_xattr: (boolean, default = False); if True, exports file without preserving extended attributes
-        returns list of full paths to the exported files
         use_albums_as_keywords: (boolean, default = False); if True, will include album names in keywords
         when exporting metadata with exiftool or sidecar
         use_persons_as_keywords: (boolean, default = False); if True, will include person names in keywords
@@ -349,6 +348,8 @@ def export2(
         fileutil: (FileUtilABC); class that conforms to FileUtilABC with various file utilities
         dry_run: (boolean, default=False); set to True to run in "dry run" mode
         touch_file: (boolean, default=False); if True, sets file's modification time upon photo date
+        convert_to_jpeg: boolean; if True, converts non-jpeg images to jpeg
+        jpeg_quality: float in range 0.0 <= jpeg_quality <= 1.0.  A value of 1.0 specifies use best quality, a value of 0.0 specifies use maximum compression.
 
         Returns: ExportResults namedtuple with fields: exported, new, updated, skipped 
                     where each field is a list of file paths
@@ -356,6 +357,10 @@ def export2(
         Note: to use dry run mode, you must set dry_run=True and also pass in memory version of export_db,
               and no-op fileutil (e.g. ExportDBInMemory and FileUtilNoOp)
             """
+
+    # NOTE: This function is very complex and does a lot of things.
+    # Don't modify this code if you don't fully understand everything it does.
+    # TODO: This is a good candidate for refactoring.
 
     # when called from export(), won't get an export_db, so use no-op version
     if export_db is None:
@@ -392,34 +397,41 @@ def export2(
         raise TypeError(
             "Too many positional arguments.  Should be at most two: destination, filename."
         )
-    else:
-        # verify destination is a valid path
-        if dest is None:
-            raise ValueError("Destination must not be None")
-        elif not dry_run and not os.path.isdir(dest):
-            raise FileNotFoundError("Invalid path passed to export")
 
-        if filename and len(filename) == 1:
-            # if filename passed, use it
-            fname = filename[0]
-        else:
-            # no filename provided so use the default
-            # if edited file requested, use filename but add _edited
-            # need to use file extension from edited file as Photos saves a jpeg once edited
-            if edited and not use_photos_export:
-                # verify we have a valid path_edited and use that to get filename
-                if not self.path_edited:
-                    raise FileNotFoundError(
-                        "edited=True but path_edited is none; hasadjustments: "
-                        f" {self.hasadjustments}"
-                    )
-                edited_name = pathlib.Path(self.path_edited).name
-                edited_suffix = pathlib.Path(edited_name).suffix
-                fname = (
-                    pathlib.Path(self.filename).stem + edited_identifier + edited_suffix
+    # verify destination is a valid path
+    if dest is None:
+        raise ValueError("Destination must not be None")
+    elif not dry_run and not os.path.isdir(dest):
+        raise FileNotFoundError("Invalid path passed to export")
+
+    if filename and len(filename) == 1:
+        # if filename passed, use it
+        fname = filename[0]
+    else:
+        # no filename provided so use the default
+        # if edited file requested, use filename but add _edited
+        # need to use file extension from edited file as Photos saves a jpeg once edited
+        if edited and not use_photos_export:
+            # verify we have a valid path_edited and use that to get filename
+            if not self.path_edited:
+                raise FileNotFoundError(
+                    "edited=True but path_edited is none; hasadjustments: "
+                    f" {self.hasadjustments}"
                 )
-            else:
-                fname = self.filename
+            edited_name = pathlib.Path(self.path_edited).name
+            edited_suffix = pathlib.Path(edited_name).suffix
+            fname = pathlib.Path(self.filename).stem + edited_identifier + edited_suffix
+        else:
+            fname = self.filename
+
+    uti = self.uti if edited else self.uti_original
+    if convert_to_jpeg and self.isphoto and uti != "public.jpeg":
+        # not a jpeg but will convert to jpeg upon export so fix file extension
+        fname_new = pathlib.Path(fname)
+        fname = str(fname_new.parent / f"{fname_new.stem}.jpeg")
+    else:
+        # nothing to convert
+        convert_to_jpeg = False
 
     # check destination path
     dest = pathlib.Path(dest)
@@ -473,15 +485,11 @@ def export2(
             raise FileNotFoundError(f"{src} does not appear to exist")
 
         if not _check_export_suffix(src, dest, edited):
-            logging.warning(
+            logging.debug(
                 f"Invalid destination suffix: {dest.suffix} for {self.path}, "
                 + f"edited={edited}, path_edited={self.path_edited}, "
                 + f"original_filename={self.original_filename}, filename={self.filename}"
             )
-
-        logging.debug(
-            f"exporting {src} to {dest}, overwrite={overwrite}, increment={increment}, dest exists: {dest.exists()}"
-        )
 
         # found source now try to find right destination
         if update and dest.exists():
@@ -498,14 +506,13 @@ def export2(
                     self.uuid,
                     fileutil.file_sig(dest),
                     (None, None, None),
+                    (None, None, None),
+                    (None, None, None),
                     self.json(),
                     None,
                 )
             if dest_uuid != self.uuid:
                 # not the right file, find the right one
-                logging.debug(
-                    f"Need to find right photo: uuid={self.uuid}, dest={dest_uuid}, dest={dest}, path={self.path}"
-                )
                 count = 1
                 glob_str = str(dest.parent / f"{dest.stem} (*{dest.suffix}")
                 dest_files = glob.glob(glob_str)
@@ -513,17 +520,11 @@ def export2(
                 for file_ in dest_files:
                     dest_uuid = export_db.get_uuid_for_file(file_)
                     if dest_uuid == self.uuid:
-                        logging.debug(
-                            f"Found matching file for uuid: {dest_uuid}, {file_}"
-                        )
                         dest = pathlib.Path(file_)
                         found_match = True
                         break
                     elif dest_uuid is None and fileutil.cmp(src, file_):
                         # files match, update the UUID
-                        logging.debug(
-                            f"Found matching file with blank uuid: {self.uuid}, {file_}"
-                        )
                         dest = pathlib.Path(file_)
                         found_match = True
                         export_db.set_data(
@@ -531,16 +532,14 @@ def export2(
                             self.uuid,
                             fileutil.file_sig(dest),
                             (None, None, None),
+                            (None, None, None),
+                            (None, None, None),
                             self.json(),
                             None,
                         )
                         break
 
                 if not found_match:
-                    logging.debug(
-                        f"Didn't find destination match for uuid {self.uuid} {dest}"
-                    )
-
                     # increment the destination file
                     count = 1
                     glob_str = str(dest.parent / f"{dest.stem}*")
@@ -551,7 +550,6 @@ def export2(
                         dest_new = f"{dest.stem} ({count})"
                         count += 1
                     dest = dest.parent / f"{dest_new}{dest.suffix}"
-                    logging.debug(f"New destination = {dest}, uuid = {self.uuid}")
 
         # export the dest file
         results = self._export_photo(
@@ -564,7 +562,10 @@ def export2(
             export_as_hardlink,
             exiftool,
             touch_file,
-            fileutil,
+            convert_to_jpeg,
+            fileutil=fileutil,
+            edited=edited,
+            jpeg_quality=jpeg_quality,
         )
         exported_files = results.exported
         update_new_files = results.new
@@ -591,7 +592,9 @@ def export2(
                     export_as_hardlink,
                     exiftool,
                     touch_file,
-                    fileutil,
+                    convert_to_jpeg,
+                    fileutil=fileutil,
+                    jpeg_quality=jpeg_quality,
                 )
                 exported_files.extend(results.exported)
                 update_new_files.extend(results.new)
@@ -618,7 +621,9 @@ def export2(
                     export_as_hardlink,
                     exiftool,
                     touch_file,
-                    fileutil,
+                    convert_to_jpeg,
+                    fileutil=fileutil,
+                    jpeg_quality=jpeg_quality,
                 )
                 exported_files.extend(results.exported)
                 update_new_files.extend(results.new)
@@ -683,6 +688,7 @@ def export2(
                 f"Error exporting photo {self.uuid} to {dest} with use_photos_export"
             )
 
+    # export metadata
     if sidecar_json:
         logging.debug("writing exiftool_json_sidecar")
         sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}{dest.suffix}.json")
@@ -744,7 +750,6 @@ def export2(
             if old_data is None or files_are_different:
                 # didn't have old data, assume we need to write it
                 # or files were different
-                logging.debug(f"No exifdata for {exported_file}, writing it")
                 if not dry_run:
                     self._write_exif_data(
                         exported_file,
@@ -768,7 +773,6 @@ def export2(
                 exif_files_updated.append(exported_file)
     elif exiftool and exif_files:
         for exported_file in exif_files:
-            logging.debug(f"Writing exif data to {exported_file}")
             if not dry_run:
                 self._write_exif_data(
                     exported_file,
@@ -822,7 +826,10 @@ def _export_photo(
     export_as_hardlink,
     exiftool,
     touch_file,
+    convert_to_jpeg,
     fileutil=FileUtil,
+    edited=False,
+    jpeg_quality=1.0,
 ):
     """ Helper function for export()
         Does the actual copy or hardlink taking the appropriate 
@@ -840,11 +847,20 @@ def _export_photo(
         export_as_hardlink: bool
         exiftool: bool
         touch_file: bool
+        convert_to_jpeg: bool; if True, convert file to jpeg on export
         fileutil: FileUtil class that conforms to fileutil.FileUtilABC
+        edited: bool; set to True if exporting edited version of photo
+        jpeg_quality: float in range 0.0 <= jpeg_quality <= 1.0.  A value of 1.0 specifies use best quality, a value of 0.0 specifies use maximum compression.
 
     Returns:
         ExportResults
+
+    Raises:
+        ValueError if export_as_hardlink and convert_to_jpeg both True
     """
+
+    if export_as_hardlink and convert_to_jpeg:
+        raise ValueError("export_as_hardlink and convert_to_jpeg cannot both be True")
 
     exported_files = []
     update_updated_files = []
@@ -854,39 +870,43 @@ def _export_photo(
 
     dest_str = str(dest)
     dest_exists = dest.exists()
-    if export_as_hardlink:
-        op_desc = "export_as_hardlink"
-    else:
-        op_desc = "export_by_copying"
+    op_desc = "export_as_hardlink" if export_as_hardlink else "export_by_copying"
 
-    if not update:
-        # not update, export the file
-        logging.debug(f"Exporting file with {op_desc} {src} {dest}")
-        exported_files.append(dest_str)
-        if touch_file:
-            sig = fileutil.file_sig(src)
-            sig = (sig[0], sig[1], int(self.date.timestamp()))
-            if not fileutil.cmp_file_sig(src, sig):
-                touched_files.append(dest_str)
-    else:  # updating
-        if not dest_exists:
-            # update, destination doesn't exist (new file)
-            logging.debug(f"Update: exporting new file with {op_desc} {src} {dest}")
-            update_new_files.append(dest_str)
-            if touch_file:
-                touched_files.append(dest_str)
-        else:
+    if update:  # updating
+        cmp_touch, cmp_orig = False, False
+        if dest_exists:
             # update, destination exists, but we might not need to replace it...
             if exiftool:
                 sig_exif = export_db.get_stat_exif_for_file(dest_str)
                 cmp_orig = fileutil.cmp_file_sig(dest_str, sig_exif)
                 sig_exif = (sig_exif[0], sig_exif[1], int(self.date.timestamp()))
                 cmp_touch = fileutil.cmp_file_sig(dest_str, sig_exif)
+            elif convert_to_jpeg:
+                sig_converted = export_db.get_stat_converted_for_file(dest_str)
+                cmp_orig = fileutil.cmp_file_sig(dest_str, sig_converted)
+                sig_converted = (
+                    sig_converted[0],
+                    sig_converted[1],
+                    int(self.date.timestamp()),
+                )
+                cmp_touch = fileutil.cmp_file_sig(dest_str, sig_converted)
             else:
                 cmp_orig = fileutil.cmp(src, dest)
                 cmp_touch = fileutil.cmp(src, dest, mtime1=int(self.date.timestamp()))
 
             sig_cmp = cmp_touch if touch_file else cmp_orig
+
+            if edited:
+                # requested edited version of photo
+                # need to see if edited version in Photos library has changed
+                # (e.g. it's been edited again)
+                sig_edited = export_db.get_stat_edited_for_file(dest_str)
+                cmp_edited = (
+                    fileutil.cmp_file_sig(src, sig_edited)
+                    if sig_edited != (None, None, None)
+                    else False
+                )
+                sig_cmp = sig_cmp and cmp_edited
 
             if (export_as_hardlink and dest.samefile(src)) or (
                 not export_as_hardlink and not dest.samefile(src) and sig_cmp
@@ -911,7 +931,24 @@ def _export_photo(
                     if touch_file:
                         touched_files.append(dest_str)
 
+        else:
+            # update, destination doesn't exist (new file)
+            logging.debug(f"Update: exporting new file with {op_desc} {src} {dest}")
+            update_new_files.append(dest_str)
+            if touch_file:
+                touched_files.append(dest_str)
+    else:
+        # not update, export the file
+        logging.debug(f"Exporting file with {op_desc} {src} {dest}")
+        exported_files.append(dest_str)
+        if touch_file:
+            sig = fileutil.file_sig(src)
+            sig = (sig[0], sig[1], int(self.date.timestamp()))
+            if not fileutil.cmp_file_sig(src, sig):
+                touched_files.append(dest_str)
     if not update_skipped_files:
+        converted_stat = (None, None, None)
+        edited_stat = fileutil.file_sig(src) if edited else (None, None, None)
         if dest_exists and (update or overwrite):
             # need to remove the destination first
             logging.debug(
@@ -920,6 +957,10 @@ def _export_photo(
             fileutil.unlink(dest)
         if export_as_hardlink:
             fileutil.hardlink(src, dest)
+        elif convert_to_jpeg:
+            # use convert_to_jpeg to export the file
+            fileutil.convert_to_jpeg(src, dest_str, compression_quality=jpeg_quality)
+            converted_stat = fileutil.file_sig(dest_str)
         else:
             fileutil.copy(src, dest_str, norsrc=no_xattr)
 
@@ -928,6 +969,8 @@ def _export_photo(
             self.uuid,
             fileutil.file_sig(dest_str),
             (None, None, None),
+            converted_stat,
+            edited_stat,
             self.json(),
             None,
         )

@@ -29,7 +29,7 @@ from ._constants import (
     _UNKNOWN_PLACE,
     UNICODE_FORMAT,
 )
-from ._export_db import ExportDB, ExportDBInMemory
+from .export_db import ExportDB, ExportDBInMemory
 from ._version import __version__
 from .datetime_formatter import DateTimeFormatter
 from .exiftool import get_exiftool_path
@@ -148,7 +148,7 @@ class ExportCommand(click.Command):
         formatter.write("\n")
         formatter.write_text(
             "Note: The number of files reported for export and the number actually exported "
-            + "may differ due to live photos, associated RAW images, and edited photos which are reported "
+            + "may differ due to live photos, associated raw images, and edited photos which are reported "
             + "in the total photos exported."
         )
         formatter.write("\n")
@@ -474,7 +474,7 @@ def query_options(f):
         o(
             "--has-raw",
             is_flag=True,
-            help="Search for photos with both a jpeg and RAW version",
+            help="Search for photos with both a jpeg and raw version",
         ),
         o(
             "--only-movies",
@@ -1183,9 +1183,9 @@ def query(
 @click.option(
     "--skip-raw",
     is_flag=True,
-    help="Do not export associated RAW images of a RAW/jpeg pair.  "
-    "Note: this does not skip RAW photos if the RAW photo does not have an associated jpeg image "
-    "(e.g. the RAW file was imported to Photos without a jpeg preview).",
+    help="Do not export associated raw images of a RAW+JPEG pair.  "
+    "Note: this does not skip raw photos if the raw photo does not have an associated jpeg image "
+    "(e.g. the raw file was imported to Photos without a jpeg preview).",
 )
 @click.option(
     "--person-keyword",
@@ -1229,6 +1229,21 @@ def query(
     help="Use photo's current filename instead of original filename for export.  "
     "Note: Starting with Photos 5, all photos are renamed upon import.  By default, "
     "photos are exported with the the original name they had before import.",
+)
+@click.option(
+    "--convert-to-jpeg",
+    is_flag=True,
+    help="Convert all non-jpeg images (e.g. raw, HEIC, PNG, etc) "
+    "to JPEG upon export.  Only works if your Mac has a GPU.",
+)
+@click.option(
+    "--jpeg-quality",
+    type=click.FloatRange(0.0, 1.0),
+    default=1.0,
+    help="Value in range 0.0 to 1.0 to use with --convert-to-jpeg. " 
+    "A value of 1.0 specifies best quality, "
+    "a value of 0.0 specifies maximum compression. "
+    "Defaults to 1.0." 
 )
 @click.option(
     "--sidecar",
@@ -1349,6 +1364,8 @@ def export(
     keyword_template,
     description_template,
     current_name,
+    convert_to_jpeg,
+    jpeg_quality,
     sidecar,
     only_photos,
     only_movies,
@@ -1392,13 +1409,13 @@ def export(
         (e.g. search for photos matching all options).
         If no query options are provided, all photos will be exported.
         By default, all versions of all photos will be exported including edited
-        versions, live photo movies, burst photos, and associated RAW images. 
+        versions, live photo movies, burst photos, and associated raw images. 
         See --skip-edited, --skip-live, --skip-bursts, and --skip-raw options
         to modify this behavior. 
     """
 
     global VERBOSE
-    VERBOSE = True if verbose_ else False
+    VERBOSE = bool(verbose_)
 
     if not os.path.isdir(dest):
         sys.exit(f"DEST {dest} must be valid path")
@@ -1424,6 +1441,7 @@ def export(
         (any(place), no_place),
         (deleted, deleted_only),
         (skip_edited, skip_original_if_edited),
+        (export_as_hardlink, convert_to_jpeg),
     ]
     if any(all(bb) for bb in exclusive):
         click.echo("Incompatible export options", err=True)
@@ -1491,12 +1509,21 @@ def export(
 
     if dry_run:
         export_db = ExportDBInMemory(export_db_path)
-        # echo = functools.partial(click.echo, err=True)
-        # fileutil = FileUtilNoOp(verbose=echo)
         fileutil = FileUtilNoOp
     else:
         export_db = ExportDB(export_db_path)
         fileutil = FileUtil
+
+    if verbose_:
+        if export_db.was_created:
+            verbose(f"Created export database {export_db_path}")
+        else:
+            verbose(f"Using export database {export_db_path}")
+        upgraded = export_db.was_upgraded
+        if upgraded:
+            verbose(
+                f"Upgraded export database {export_db_path} from version {upgraded[0]} to {upgraded[1]}"
+            )
 
     photos = _query(
         db=db,
@@ -1610,6 +1637,8 @@ def export(
                     touch_file=touch_file,
                     edited_suffix=edited_suffix,
                     use_photos_export=use_photos_export,
+                    convert_to_jpeg=convert_to_jpeg,
+                    jpeg_quality=jpeg_quality,
                 )
                 results_exported.extend(results.exported)
                 results_new.extend(results.new)
@@ -1617,6 +1646,12 @@ def export(
                 results_skipped.extend(results.skipped)
                 results_exif_updated.extend(results.exif_updated)
                 results_touched.extend(results.touched)
+
+                # if convert_to_jpeg and p.isphoto and p.uti != "public.jpeg":
+                #     for photo_file in set(
+                #         results.exported + results.updated + results.exif_updated
+                #     ):
+                #         verbose(f"Converting {photo_file} to jpeg")
 
         else:
             # show progress bar
@@ -1651,6 +1686,8 @@ def export(
                         touch_file=touch_file,
                         edited_suffix=edited_suffix,
                         use_photos_export=use_photos_export,
+                        convert_to_jpeg=convert_to_jpeg,
+                        jpeg_quality=jpeg_quality,
                     )
                     results_exported.extend(results.exported)
                     results_new.extend(results.new)
@@ -1658,6 +1695,7 @@ def export(
                     results_skipped.extend(results.skipped)
                     results_exif_updated.extend(results.exif_updated)
                     results_touched.extend(results.touched)
+
         stop_time = time.perf_counter()
         # print summary results
         if update:
@@ -2020,7 +2058,7 @@ def _query(
         photos = [p for p in photos if not p.shared]
 
     if uti:
-        photos = [p for p in photos if uti in p.uti]
+        photos = [p for p in photos if uti in p.uti_original]
 
     if burst:
         photos = [p for p in photos if p.burst]
@@ -2140,6 +2178,8 @@ def export_photo(
     touch_file=None,
     edited_suffix="_edited",
     use_photos_export=False,
+    convert_to_jpeg=False,
+    jpeg_quality=1.0,
 ):
     """ Helper function for export that does the actual export
 
@@ -2159,7 +2199,7 @@ def export_photo(
         directory: template used to determine output directory
         filename_template: template use to determine output file
         no_extended_attributes: boolean; if True, exports photo without preserving extended attributes
-        export_raw: boolean; if True exports RAW image associate with the photo
+        export_raw: boolean; if True exports raw image associate with the photo
         export_edited: boolean; if True exports edited version of photo if there is one
         skip_original_if_edited: boolean; if True does not export original if photo has been edited
         album_keyword: boolean; if True, exports album names as keywords in metadata
@@ -2171,6 +2211,8 @@ def export_photo(
         dry_run: boolean; if True, doesn't actually export or update any files
         touch_file: boolean; sets file's modification time to match photo date
         use_photos_export: boolean; if True forces the use of AppleScript to export even if photo not missing
+        convert_to_jpeg: boolean; if True, converts non-jpeg images to jpeg
+        jpeg_quality: float in range 0.0 <= jpeg_quality <= 1.0.  A value of 1.0 specifies use best quality, a value of 0.0 specifies use maximum compression.
 
     Returns:
         list of path(s) of exported photo or None if photo was missing
@@ -2179,7 +2221,7 @@ def export_photo(
         ValueError on invalid filename_template
     """
     global VERBOSE
-    VERBOSE = True if verbose_ else False
+    VERBOSE = bool(verbose_)
 
     if not download_missing:
         if photo.ismissing:
@@ -2257,6 +2299,8 @@ def export_photo(
                     fileutil=fileutil,
                     dry_run=dry_run,
                     touch_file=touch_file,
+                    convert_to_jpeg=convert_to_jpeg,
+                    jpeg_quality=jpeg_quality,
                 )
 
                 results_exported.extend(export_results.exported)
@@ -2316,6 +2360,8 @@ def export_photo(
                         fileutil=fileutil,
                         dry_run=dry_run,
                         touch_file=touch_file,
+                        convert_to_jpeg=convert_to_jpeg,
+                        jpeg_quality=jpeg_quality,
                     )
 
                     results_exported.extend(export_results_edited.exported)

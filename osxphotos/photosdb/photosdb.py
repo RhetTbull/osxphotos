@@ -846,7 +846,8 @@ class PhotosDB:
                     RKMaster.height,
                     RKMaster.width, 
                     RKMaster.orientation,
-                    RKMaster.fileSize
+                    RKMaster.fileSize,
+                    RKVersion.subType
                     FROM RKVersion, RKMaster
                     WHERE RKVersion.masterUuid = RKMaster.uuid"""
             )
@@ -873,7 +874,8 @@ class PhotosDB:
                     RKMaster.height,
                     RKMaster.width, 
                     RKMaster.orientation,
-                    RKMaster.originalFileSize
+                    RKMaster.originalFileSize,
+                    RKVersion.subType
                     FROM RKVersion, RKMaster 
                     WHERE RKVersion.masterUuid = RKMaster.uuid"""
             )
@@ -919,6 +921,7 @@ class PhotosDB:
         # 37    RKMaster.width,
         # 38    RKMaster.orientation,
         # 39    RKMaster.originalFileSize
+        # 40    RKVersion.subType
 
         for row in c:
             uuid = row[0]
@@ -989,6 +992,13 @@ class PhotosDB:
 
             self._dbphotos[uuid]["UTI"] = row[22]
 
+            # The UTI in RKMaster will always be UTI of the original
+            # Unlike Photos 5 which changes the UTI to match latest edit
+            self._dbphotos[uuid]["UTI_original"] = row[22]
+
+            # UTI edited will be read from RKModelResource
+            self._dbphotos[uuid]["UTI_edited"] = None
+
             # handle burst photos
             # if burst photo, determine whether or not it's a selected burst photo
             self._dbphotos[uuid]["burstUUID"] = row[23]
@@ -1055,11 +1065,6 @@ class PhotosDB:
             self._dbphotos[uuid]["cloudAvailable"] = None
             self._dbphotos[uuid]["incloud"] = None
 
-            # TODO: NOT YET USED -- PLACEHOLDER for RAW processing (currently only in _process_database5)
-            # original resource choice (e.g. RAW or jpeg)
-            self._dbphotos[uuid]["original_resource_choice"] = None
-            self._dbphotos[uuid]["raw_is_original"] = None
-
             # associated RAW image info
             self._dbphotos[uuid]["has_raw"] = True if row[25] == 7 else False
             self._dbphotos[uuid]["UTI_raw"] = None
@@ -1070,6 +1075,25 @@ class PhotosDB:
             self._dbphotos[uuid]["raw_master_uuid"] = row[29]
             self._dbphotos[uuid]["non_raw_master_uuid"] = row[30]
             self._dbphotos[uuid]["alt_master_uuid"] = row[31]
+
+            # original resource choice (e.g. RAW or jpeg)
+            # In Photos 5+, original_resource_choice set from:
+            # ZADDITIONALASSETATTRIBUTES.ZORIGINALRESOURCECHOICE
+            # = 0 if jpeg is selected as "original" in Photos (the default)
+            # = 1 if RAW is selected as "original" in Photos
+            # RKVersion.subType, RAW always appears to be 16
+            #   4 = mov
+            #   16 = RAW
+            #   32 = JPEG
+            #   64 = TIFF
+            #   2048 = PNG
+            #   32768 = HIEC
+            self._dbphotos[uuid]["original_resource_choice"] = (
+                1 if row[40] == 16 and self._dbphotos[uuid]["has_raw"] else 0
+            )
+            self._dbphotos[uuid]["raw_is_original"] = bool(
+                self._dbphotos[uuid]["original_resource_choice"]
+            )
 
             # recently deleted items
             self._dbphotos[uuid]["intrash"] = True if row[32] == 1 else False
@@ -1100,7 +1124,8 @@ class PhotosDB:
                 RKMaster.modelID, 
                 RKMaster.fileSize, 
                 RKMaster.isTrulyRaw,
-                RKMaster.alternateMasterUuid
+                RKMaster.alternateMasterUuid,
+                RKMaster.filename
                 FROM RKMaster
             """
         )
@@ -1116,6 +1141,7 @@ class PhotosDB:
         # 7     RKMaster.fileSize,
         # 8     RKMaster.isTrulyRaw,
         # 9     RKMaster.alternateMasterUuid
+        # 10    RKMaster.filename
 
         for row in c:
             uuid = row[0]
@@ -1130,6 +1156,7 @@ class PhotosDB:
             info["fileSize"] = row[7]
             info["isTrulyRAW"] = row[8]
             info["alternateMasterUuid"] = row[9]
+            info["filename"] = row[10]
             self._dbphotos_master[uuid] = info
 
         # get details needed to find path of the edited photos
@@ -1159,7 +1186,6 @@ class PhotosDB:
                     if (
                         row[1] != "UNADJUSTEDNONRAW"
                         and row[1] != "UNADJUSTED"
-                        # and row[4] == "public.jpeg"
                         and row[6] == 2
                     ):
                         if "edit_resource_id" in self._dbphotos[uuid]:
@@ -1173,6 +1199,7 @@ class PhotosDB:
                         # should we return all edits or just most recent one?
                         # For now, return most recent edit
                         self._dbphotos[uuid]["edit_resource_id"] = row[2]
+                        self._dbphotos[uuid]["UTI_edited"] = row[4]
 
         # get details on external edits
         c.execute(
@@ -1245,7 +1272,7 @@ class PhotosDB:
         )
 
         # Order of results
-        # 0  RKMaster.uuid,
+        # 0  RKVersion.uuid,
         # 1  RKMaster.cloudLibraryState,
         # 2  RKCloudResource.available,
         # 3  RKCloudResource.status
@@ -1329,6 +1356,13 @@ class PhotosDB:
             if info["has_raw"]:
                 raw_uuid = info["raw_master_uuid"]
                 info["raw_info"] = self._dbphotos_master[raw_uuid]
+                info["UTI_raw"] = self._dbphotos_master[raw_uuid]["UTI"]
+                non_raw_uuid = info["non_raw_master_uuid"]
+                info["raw_pair_info"] = self._dbphotos_master[non_raw_uuid]
+            else:
+                info["raw_info"] = None
+                info["UTI_raw"] = None
+                info["raw_pair_info"] = None
 
         # done with the database connection
         conn.close()
@@ -2062,35 +2096,42 @@ class PhotosDB:
         # determine if a photo is missing in Photos 5
 
         # Get info on remote/local availability for photos in shared albums
+        # Also get UTI of original image (zdatastoresubtype = 1)
         c.execute(
             f""" SELECT 
                 {asset_table}.ZUUID, 
                 ZINTERNALRESOURCE.ZLOCALAVAILABILITY, 
-                ZINTERNALRESOURCE.ZREMOTEAVAILABILITY
+                ZINTERNALRESOURCE.ZREMOTEAVAILABILITY,
+                ZINTERNALRESOURCE.ZDATASTORESUBTYPE,
+                ZINTERNALRESOURCE.ZUNIFORMTYPEIDENTIFIER,
+                ZUNIFORMTYPEIDENTIFIER.ZIDENTIFIER
                 FROM {asset_table}
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
                 JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZASSET = ZADDITIONALASSETATTRIBUTES.ZASSET 
+                JOIN ZUNIFORMTYPEIDENTIFIER ON ZUNIFORMTYPEIDENTIFIER.Z_PK = ZINTERNALRESOURCE.ZUNIFORMTYPEIDENTIFIER 
                 WHERE  ZDATASTORESUBTYPE = 1 OR ZDATASTORESUBTYPE = 3 """
         )
+
+        # Order of results:
+        # 0 {asset_table}.ZUUID,
+        # 1 ZINTERNALRESOURCE.ZLOCALAVAILABILITY,
+        # 2 ZINTERNALRESOURCE.ZREMOTEAVAILABILITY,
+        # 3 ZINTERNALRESOURCE.ZDATASTORESUBTYPE,
+        # 4 ZINTERNALRESOURCE.ZUNIFORMTYPEIDENTIFIER,
+        # 5 ZUNIFORMTYPEIDENTIFIER.ZIDENTIFIER
 
         for row in c:
             uuid = row[0]
             if uuid in self._dbphotos:
-                #  and self._dbphotos[uuid]["isMissing"] is None:
                 self._dbphotos[uuid]["localAvailability"] = row[1]
                 self._dbphotos[uuid]["remoteAvailability"] = row[2]
-
-                # old = self._dbphotos[uuid]["isMissing"]
+                if row[3] == 1:
+                    self._dbphotos[uuid]["UTI_original"] = row[5]
 
                 if row[1] != 1:
                     self._dbphotos[uuid]["isMissing"] = 1
                 else:
                     self._dbphotos[uuid]["isMissing"] = 0
-
-                # if old is not None and old != self._dbphotos[uuid]["isMissing"]:
-                #     logging.warning(
-                #         f"{uuid} isMissing changed: {old} {self._dbphotos[uuid]['isMissing']}"
-                #     )
 
         # get information on local/remote availability
         c.execute(
@@ -2108,17 +2149,10 @@ class PhotosDB:
                 self._dbphotos[uuid]["localAvailability"] = row[1]
                 self._dbphotos[uuid]["remoteAvailability"] = row[2]
 
-                # old = self._dbphotos[uuid]["isMissing"]
-
                 if row[1] != 1:
                     self._dbphotos[uuid]["isMissing"] = 1
                 else:
                     self._dbphotos[uuid]["isMissing"] = 0
-
-                # if old is not None and old != self._dbphotos[uuid]["isMissing"]:
-                #     logging.warning(
-                #         f"{uuid} isMissing changed: {old} {self._dbphotos[uuid]['isMissing']}"
-                #     )
 
         # get information about cloud sync state
         c.execute(
