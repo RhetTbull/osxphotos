@@ -1,5 +1,6 @@
 import pytest
 
+from collections import namedtuple
 from osxphotos._constants import _UNKNOWN_PERSON
 
 PHOTOS_DB = "./tests/Test-10.14.6.photoslibrary/database/photos.db"
@@ -94,6 +95,63 @@ ALBUM_KEY_PHOTO = "15uNd7%8RguTEgNPKHfTWw"
 PHOTOS_DB_LEN = 13
 PHOTOS_NOT_IN_TRASH_LEN = 12
 PHOTOS_IN_TRASH_LEN = 1
+
+
+RawInfo = namedtuple(
+    "RawInfo",
+    [
+        "comment",
+        "original_filename",
+        "has_raw",
+        "israw",
+        "raw_original",
+        "uti",
+        "uti_original",
+        "uti_raw",
+    ],
+)
+RAW_DICT = {
+    "DZAgPwQNTWiM+T5cX3WMqA": RawInfo(
+        "raw image, no jpeg pair",
+        "DSC03584.dng",
+        False,
+        True,
+        False,
+        "com.adobe.raw-image",
+        "com.adobe.raw-image",
+        None,
+    ),
+    "oTiMG6OfSP6d%nUTEOfvMg": RawInfo(
+        "raw+jpeg, jpeg original",
+        "IMG_1994.JPG",
+        True,
+        False,
+        False,
+        "public.jpeg",
+        "public.jpeg",
+        "com.canon.cr2-raw-image",
+    ),
+    "AcxIpfolT3KU2Ge84VG3yQ": RawInfo(
+        "raw+jpeg, raw original",
+        "IMG_1997.JPG",
+        True,
+        False,
+        True,
+        "public.jpeg",
+        "public.jpeg",
+        "com.canon.cr2-raw-image",
+    ),
+    "6bxcNnzRQKGnK4uPrCJ9UQ": RawInfo(
+        "jpeg, no raw",
+        "wedding.jpg",
+        False,
+        False,
+        False,
+        "public.jpeg",
+        "public.jpeg",
+        None,
+    ),
+}
 
 
 @pytest.fixture(scope="module")
@@ -505,3 +563,19 @@ def test_raw(photosdb):
     photo = photosdb.get_photo(UUID_DICT["heic"])
     assert not photo.has_raw
     assert photo.path_raw is None
+
+
+def test_raw():
+    """ Test various raw properties """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+
+    for uuid, rawinfo in RAW_DICT.items():
+        photo = photosdb.get_photo(uuid)
+        assert photo.original_filename == rawinfo.original_filename
+        assert photo.has_raw == rawinfo.has_raw
+        assert photo.israw == rawinfo.israw
+        assert photo.uti == rawinfo.uti
+        assert photo.uti_original == rawinfo.uti_original
+        assert photo.uti_raw == rawinfo.uti_raw
