@@ -115,7 +115,7 @@ Usage: osxphotos export [OPTIONS] [PHOTOS_LIBRARY]... DEST
   for photos matching all options). If no query options are provided, all
   photos will be exported. By default, all versions of all photos will be
   exported including edited versions, live photo movies, burst photos, and
-  associated RAW images.  See --skip-edited, --skip-live, --skip-bursts, and
+  associated raw images.  See --skip-edited, --skip-live, --skip-bursts, and
   --skip-raw options to modify this behavior.
 
 Options:
@@ -200,7 +200,7 @@ Options:
   --not-selfie                    Search for photos that are not selfies.
   --panorama                      Search for panorama photos.
   --not-panorama                  Search for photos that are not panoramas.
-  --has-raw                       Search for photos with both a jpeg and RAW
+  --has-raw                       Search for photos with both a jpeg and raw
                                   version
   --only-movies                   Search only for movies (default searches
                                   both images and movies).
@@ -243,10 +243,10 @@ Options:
                                   the library if a photo is a burst photo.
   --skip-live                     Do not export the associated live video
                                   component of a live photo.
-  --skip-raw                      Do not export associated RAW images of a
-                                  RAW/jpeg pair.  Note: this does not skip RAW
-                                  photos if the RAW photo does not have an
-                                  associated jpeg image (e.g. the RAW file was
+  --skip-raw                      Do not export associated raw images of a
+                                  RAW+JPEG pair.  Note: this does not skip raw
+                                  photos if the raw photo does not have an
+                                  associated jpeg image (e.g. the raw file was
                                   imported to Photos without a jpeg preview).
   --person-keyword                Use person in image as keyword/tag when
                                   exporting metadata.
@@ -280,7 +280,7 @@ Options:
                                   renamed upon import.  By default, photos are
                                   exported with the the original name they had
                                   before import.
-  --convert-to-jpeg               Convert all non-jpeg images (e.g. RAW, HEIC,
+  --convert-to-jpeg               Convert all non-jpeg images (e.g. raw, HEIC,
                                   PNG, etc) to JPEG upon export.  Only works
                                   if your Mac has a GPU.
   --jpeg-quality FLOAT RANGE      Value in range 0.0 to 1.0 to use with
@@ -355,7 +355,7 @@ If using --update, the exported library should be treated as a backup, not a
 working copy where you intend to make changes.
 
 Note: The number of files reported for export and the number actually exported
-may differ due to live photos, associated RAW images, and edited photos which
+may differ due to live photos, associated raw images, and edited photos which
 are reported in the total photos exported.
 
 Implementation note: To determine which files need to be updated, osxphotos
@@ -1093,16 +1093,16 @@ Returns the absolute path to the edited photo on disk as a string.  If the photo
 **Note**: will also return None if the edited photo is missing on disk. 
 
 #### `path_raw`
-Returns the absolute path to the associated raw photo on disk as a string, if photo is part of a RAW+JPEG pair, otherwise returns None.
+Returns the absolute path to the associated raw photo on disk as a string, if photo is part of a RAW+JPEG pair, otherwise returns None.  See [notes on Raw Photos](#raw-photos).
 
 #### `has_raw`
-Returns True if photo has an associated raw image, otherwise False. (e.g. Photo is a RAW+JPEG pair). See also [is_raw](#israw).
+Returns True if photo has an associated raw image, otherwise False. (e.g. Photo is a RAW+JPEG pair). See also [is_raw](#israw) and [notes on Raw Photos](#raw-photos).
 
 #### `israw`
-Returns True if photo is a raw image. E.g. it was imported as a single raw image, not part of a RAW+JPEG pair.  See also [has_raw](#has_raw).
+Returns True if photo is a raw image. E.g. it was imported as a single raw image, not part of a RAW+JPEG pair.  See also [has_raw](#has_raw) and .
 
 #### `raw_original`
-Returns True if associated raw image and the raw image is selected in Photos via "Use RAW as Original", otherwise returns False. 
+Returns True if associated raw image and the raw image is selected in Photos via "Use RAW as Original", otherwise returns False.  See [notes on Raw Photos](#raw-photos).
 
 #### `height`
 Returns height of the photo in pixels.  If image has been edited, returns height of the edited image, otherwise returns height of the original image.  See also [original_height](#original_height).
@@ -1172,13 +1172,13 @@ Returns True if photo is a [cloud asset](#iscloudasset) and is synched to iCloud
 Returns Uniform Type Identifier (UTI) for the current version of the image, for example: 'public.jpeg' or 'com.apple. quicktime-movie'.  If the image has been edited, `uti` will return the UTI for the edited image, otherwise it will return the UTI for the original image.
 
 #### `uti_original`
-Returns Uniform Type Identifier (UTI) for the original image, for example: 'public.jpeg' or 'com.apple.quicktime-movie'.
+Returns Uniform Type Identifier (UTI) for the original unedited image, for example: 'public.jpeg' or 'com.apple.quicktime-movie'.
 
 #### `uti_edited`
 Returns Uniform Type Identifier (UTI) for the edited image, for example: 'public.jpeg'.  Returns None if the photo does not have adjustments.
 
 #### `uti_raw`
-Returns Uniform Type Identifier (UTI) for the associated raw image, if there is one; for example, 'com.canon.cr2-raw-image'.  If the image is raw but not part of a RAW+JPEG pair, `uti_raw` returns None.  In this case, use `uti`, or `uti_original`.  See also [has_raw](#has_raw).
+Returns Uniform Type Identifier (UTI) for the associated raw image, if there is one; for example, 'com.canon.cr2-raw-image'.  If the image is raw but not part of a RAW+JPEG pair, `uti_raw` returns None.  In this case, use `uti`, or `uti_original`.  See also [has_raw](#has_raw) and [notes on Raw Photos](#raw-photos).
 
 #### `burst`
 Returns True if photos is a burst image (e.g. part of a set of burst images), otherwise False.
@@ -1738,7 +1738,9 @@ Handling raw photos in `osxphotos` requires a bit of extra work.  Raw photos in 
 
 The latter are treated by Photos as a single image.  By default, Photos will treat these as a JPEG image.  They are denoted in the Photos interface with a "J" icon superimposed on the image.  In Photos, the user can select "Use RAW as original" in which case the "J" icon changes to an "R" icon and all subsequent edits will use the raw image as the original. To further complicate this, different versions of Photos handle these differently in their internal logic.  
 
-`osxphotos` attempts to simplify the handling of these raw+JPEG pairs by providing a set of attributes for accessing both the JPEG and the raw version.  For example, [PhotoInfo.has_raw](#has_raw) will be True if the photo has an associated raw image but False otherwise and [PhotoInfo.path_raw](#path_raw) provides the path to the associated raw image.  Reference following table for the various attributes useful for dealing with raw images.  Given the different ways Photos deals with raw images I've struggled with how to represent these in a logical and consistent manner.  If you have suggestions for a better interface, please open an [issue](https://github.com/RhetTbull/osxphotos/issues)!
+`osxphotos` attempts to simplify the handling of these raw+JPEG pairs by providing a set of attributes for accessing both the JPEG and the raw version.  For example, [PhotoInfo.has_raw](#has_raw) will be True if the photo has an associated raw image but False otherwise and [PhotoInfo.path_raw](#path_raw) provides the path to the associated raw image.  Reference the following table for the various attributes useful for dealing with raw images.  Given the different ways Photos deals with raw images I've struggled with how to represent these in a logical and consistent manner.  If you have suggestions for a better interface, please open an [issue](https://github.com/RhetTbull/osxphotos/issues)!
+
+#### Raw-Related Attributes 
 
 |`PhotoInfo` attribute|`IMG_0001.CR2` imported without raw+JPEG pair|`IMG_0001.CR2` + `IMG_0001.JPG` raw+JPEG pair, JPEG is original|`IMG_0001.CR2` + `IMG_0001.JPG` raw+jpeg pair, raw is original|
 |----------|----------|----------|----------|
@@ -1750,9 +1752,18 @@ The latter are treated by Photos as a single image.  By default, Photos will tre
 |[path](#path) | `/path/to/IMG_0001.CR2` | `/path/to/IMG_0001.JPG` | `/path/to/IMG_0001.JPG` |
 |[path_raw](#path_raw) | None | `/path/to/IMG_0001.CR2` | `/path/to/IMG_0001.CR2` | 
 
+#### Example
+To get the path of every raw photo, whether it's a single raw photo or a raw+JPEG pair, one could do something like this:
 
-
-
+```python
+>>> import osxphotos
+>>> photosdb = osxphotos.PhotosDB()
+>>> photos = photosdb.photos()
+>>> all_raw = [p for p in photos if p.israw or p.has_raw]
+>>> for raw in all_raw:
+...     path = raw.path if raw.israw else raw.path_raw
+...     print(path)
+```
 
 ### Template Substitutions
 

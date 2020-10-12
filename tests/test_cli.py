@@ -114,6 +114,25 @@ CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG = [
     "wedding_edited.jpeg",
 ]
 
+CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG_SKIP_RAW = [
+    "DSC03584.jpeg",
+    "IMG_1693.jpeg",
+    "IMG_1994.JPG",
+    "IMG_1997.JPG",
+    "IMG_3092.jpeg",
+    "IMG_3092_edited.jpeg",
+    "IMG_4547.jpg",
+    "Pumkins1.jpg",
+    "Pumkins2.jpg",
+    "Pumpkins3.jpg",
+    "St James Park.jpg",
+    "St James Park_edited.jpeg",
+    "Tulips.jpg",
+    "Tulips_edited.jpeg",
+    "wedding.jpg",
+    "wedding_edited.jpeg",
+]
+
 CLI_EXPORT_CONVERT_TO_JPEG_LARGE_FILE = "DSC03584.jpeg"
 
 CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES1 = [
@@ -903,6 +922,37 @@ def test_export_convert_to_jpeg_quality():
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG)
         large_file = pathlib.Path(CLI_EXPORT_CONVERT_TO_JPEG_LARGE_FILE)
         assert large_file.stat().st_size < 1000000
+
+
+@pytest.mark.skipif(
+    "OSXPHOTOS_TEST_CONVERT" not in os.environ,
+    reason="Skip if running in Github actions, no GPU.",
+)
+def test_export_convert_to_jpeg_skip_raw():
+    """ test --convert-to-jpeg """
+    import glob
+    import os
+    import os.path
+    import pathlib
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_6),
+                ".",
+                "-V",
+                "--convert-to-jpeg",
+                "--skip-raw",
+            ],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG_SKIP_RAW)
 
 
 def test_query_date_1():
