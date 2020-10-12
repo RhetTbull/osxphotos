@@ -11,7 +11,6 @@ import Metal
 import Quartz
 from Cocoa import NSURL
 from Foundation import NSDictionary
-from py import path
 
 # needed to capture system-level stderr
 from wurlitzer import pipes
@@ -93,13 +92,10 @@ class ImageConverter:
             logging.debug(f"Could not create CIImage for {input_path}")
             return False
 
-        output_colorspace = (
-            input_image.colorSpace()
-            if input_image.colorSpace()
-            else Quartz.CGColorSpaceCreateWithName(
-                Quartz.CoreGraphics.kCGColorSpaceSRGB
-            )
+        output_colorspace = input_image.colorSpace() or Quartz.CGColorSpaceCreateWithName(
+            Quartz.CoreGraphics.kCGColorSpaceSRGB
         )
+
         output_options = NSDictionary.dictionaryWithDictionary_(
             {"kCGImageDestinationLossyCompressionQuality": compression_quality}
         )
