@@ -592,9 +592,8 @@ def export2(
                     export_as_hardlink,
                     exiftool,
                     touch_file,
-                    convert_to_jpeg,
+                    False,
                     fileutil=fileutil,
-                    jpeg_quality=jpeg_quality,
                 )
                 exported_files.extend(results.exported)
                 update_new_files.extend(results.new)

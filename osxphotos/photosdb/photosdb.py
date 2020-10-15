@@ -1908,6 +1908,7 @@ class PhotosDB:
                 info["type"] = None
 
             info["UTI"] = row[18]
+            info["UTI_original"] = None # filled in later
 
             # handle burst photos
             # if burst photo, determine whether or not it's a selected burst photo

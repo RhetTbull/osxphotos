@@ -545,6 +545,9 @@ class PhotoInfo:
         """
         if self._db._db_version <= _PHOTOS_4_VERSION and self._info["has_raw"]:
             return self._info["raw_pair_info"]["UTI"]
+        elif self.shared:
+            # TODO: need reliable way to get original UTI for shared
+            return self.uti
         else:
             return self._info["UTI_original"]
 
