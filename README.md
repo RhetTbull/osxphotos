@@ -1352,21 +1352,24 @@ If overwrite=False and increment=False, export will fail if destination file alr
 
 #### <a name="rendertemplate">`render_template()`</a>
 
-`render_template(template_str, none_str = "_", path_sep = None, expand_inplace = False, inplace_sep = None)`
+`render_template(template_str, none_str = "_", path_sep = None, expand_inplace = False, inplace_sep = None,         filename=False, dirname=False, replacement=":",)`
 Render template string for photo.  none_str is used if template substitution results in None value and no default specified. 
 - `template_str`: str in form "{name,DEFAULT}" where name is one of the values in table below. The "," and default value that follows are optional. If specified, "DEFAULT" will be used if "name" is None.  This is useful for values which are not always present, for example reverse geolocation data.
 - `none_str`: optional str to use as substitution when template value is None and no default specified in the template string.  default is "_".
 - `path_sep`: optional character to use as path separator, default is os.path.sep
 - `expand_inplace`: expand multi-valued substitutions in-place as a single string instead of returning individual strings
 - `inplace_sep`: optional string to use as separator between multi-valued keywords with expand_inplace; default is ','
+- `filename`: if True, template output will be sanitized to produce valid file name
+- `dirname`: if True, template output will be sanitized to produce valid directory name
+- `replacement`: str, value to replace any illegal file path characters with; default = ":"
 
 Returns a tuple of (rendered, unmatched) where rendered is a list of rendered strings with all substitutions made and unmatched is a list of any strings that resembled a template substitution but did not match a known substitution. E.g. if template contained "{foo}", unmatched would be ["foo"].
 
-e.g. `render_filepath_template("{created.year}/{foo}", photo)` would return `(["2020/{foo}"],["foo"])`
+e.g. `render_template("{created.year}/{foo}", photo)` would return `(["2020/{foo}"],["foo"])`
 
 If you want to include "{" or "}" in the output, use "{{" or "}}"
 
-e.g. `render_filepath_template("{created.year}/{{foo}}", photo)` would return `(["2020/{foo}"],[])`
+e.g. `render_template("{created.year}/{{foo}}", photo)` would return `(["2020/{foo}"],[])`
 
 Some substitutions, notably `album`, `keyword`, and `person` could return multiple values, hence a new string will be return for each possible substitution (hence why a list of rendered strings is returned).  For example, a photo in 2 albums: 'Vacation' and 'Family' would result in the following rendered values if template was "{created.year}/{album}" and created.year == 2020: `["2020/Vacation","2020/Family"]` 
 
