@@ -38,6 +38,7 @@ def get_shared_person_info(photosdb, hashed_person_id):
         
     Args:
         photosdb: a osxphotos.PhotosDB object
+        hashed_person_id: str, value of ZINVITEEHASHEDPERSONID to lookup
     """
 
     conn, _ = photosdb.get_db_connection()
