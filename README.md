@@ -1490,6 +1490,11 @@ Returns the title or name of the folder.
 #### `album_info`
 Returns a list of [AlbumInfo](#AlbumInfo) objects representing each album contained in the folder.
 
+#### `album_info_shared`
+Returns a list of [AlbumInfo](#AlbumInfo) objects for each shared album in the photos database.
+
+**Note**: Only valid for Photos 5+; on Photos <= 4, prints warning and returns empty list.
+
 #### `subfolders`
 Returns a list of [FolderInfo](#FolderInfo) objects representing the sub-folders of the folder.  
 
