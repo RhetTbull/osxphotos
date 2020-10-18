@@ -229,8 +229,23 @@ CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES_PATHSEP = [
     "2019-10:11 Paris Clermont/IMG_4547.jpg",
 ]
 
+
+CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES_KEYWORD_PATHSEP = [
+    "foo:bar/foo:bar_IMG_3092.heic"
+]
+
+CLI_EXPORTED_FILENAME_TEMPLATE_LONG_DESCRIPTION = [
+    "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. "
+    "Aenean commodo ligula eget dolor. Aenean massa. "
+    "Cum sociis natoque penatibus et magnis dis parturient montes, "
+    "nascetur ridiculus mus. Donec quam felis, ultricies nec, "
+    "pellentesque eu, pretium q.tif"
+]
+
 CLI_EXPORT_UUID = "D79B8D77-BFFC-460B-9312-034F2877D35B"
 CLI_EXPORT_UUID_STATUE = "3DD2C897-F19E-4CA6-8C22-B027D5A71907"
+CLI_EXPORT_UUID_KEYWORD_PATHSEP = "7783E8E6-9CAC-40F3-BE22-81FB7051C266"
+CLI_EXPORT_UUID_LONG_DESCRIPTION = "8846E3E6-8AC8-4857-8448-E3D025784410"
 
 CLI_EXPORT_UUID_FILENAME = "Pumkins2.jpg"
 
@@ -568,10 +583,7 @@ def test_query_uuid_from_file_1():
 
     # build list of uuids we got from the output JSON
     json_got = json.loads(result.output)
-    uuid_got = []
-    for photo in json_got:
-        uuid_got.append(photo["uuid"])
-
+    uuid_got = [photo["uuid"] for photo in json_got]
     assert sorted(UUID_EXPECTED_FROM_FILE) == sorted(uuid_got)
 
 
@@ -601,10 +613,7 @@ def test_query_uuid_from_file_2():
 
     # build list of uuids we got from the output JSON
     json_got = json.loads(result.output)
-    uuid_got = []
-    for photo in json_got:
-        uuid_got.append(photo["uuid"])
-
+    uuid_got = [photo["uuid"] for photo in json_got]
     uuid_expected = UUID_EXPECTED_FROM_FILE.copy()
     uuid_expected.append(UUID_NOT_FROM_FILE)
     assert sorted(uuid_expected) == sorted(uuid_got)
@@ -1965,13 +1974,12 @@ def test_export_filename_template_2():
         assert sorted(files) == sorted(CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES2)
 
 
-def test_export_filename_template_pathsep_in_name():
+def test_export_filename_template_pathsep_in_name_1():
     """ export photos using filename template with folder_album and "/" in album name """
     import locale
     import os
     import os.path
     import pathlib
-    import osxphotos
     from osxphotos.__main__ import export
 
     locale.setlocale(locale.LC_ALL, "en_US")
@@ -1995,6 +2003,71 @@ def test_export_filename_template_pathsep_in_name():
         assert result.exit_code == 0
         for fname in CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES_PATHSEP:
             # assert fname in result.output
+            assert pathlib.Path(fname).is_file()
+
+
+def test_export_filename_template_pathsep_in_name_2():
+    """ export photos using filename template with keyword and "/" in keyword """
+    import locale
+    import os
+    import os.path
+    import pathlib
+    from osxphotos.__main__ import export
+
+    locale.setlocale(locale.LC_ALL, "en_US")
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_6),
+                ".",
+                "-V",
+                "--directory",
+                "{keyword}",
+                "--filename",
+                "{keyword}_{original_name}",
+                "--uuid",
+                CLI_EXPORT_UUID_KEYWORD_PATHSEP,
+            ],
+        )
+        assert result.exit_code == 0
+        for fname in CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES_KEYWORD_PATHSEP:
+            assert pathlib.Path(fname).is_file()
+
+
+def test_export_filename_template_long_description():
+    """ export photos using filename template with description that exceeds max length """
+    import locale
+    import os
+    import os.path
+    import pathlib
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    locale.setlocale(locale.LC_ALL, "en_US")
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_6),
+                ".",
+                "-V",
+                "--filename",
+                "{descr}",
+                "--uuid",
+                CLI_EXPORT_UUID_LONG_DESCRIPTION,
+            ],
+        )
+        assert result.exit_code == 0
+        for fname in CLI_EXPORTED_FILENAME_TEMPLATE_LONG_DESCRIPTION:
             assert pathlib.Path(fname).is_file()
 
 
@@ -2489,9 +2562,8 @@ def test_export_sidecar_keyword_template():
         "EXIF:ModifyDate": "2020:04:11 12:34:16"}]"""
         )[0]
 
-        json_file = open("Pumkins2.jpg.json", "r")
-        json_got = json.load(json_file)[0]
-        json_file.close()
+        with open("Pumkins2.jpg.json", "r") as json_file:
+            json_got = json.load(json_file)[0]
 
         # some gymnastics to account for different sort order in different pythons
         for k, v in json_got.items():

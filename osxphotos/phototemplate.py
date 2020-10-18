@@ -12,11 +12,13 @@
 import datetime
 import locale
 import os
-import re
 import pathlib
+import re
+from functools import partial
 
 from ._constants import _UNKNOWN_PERSON
 from .datetime_formatter import DateTimeFormatter
+from .path_utils import sanitize_dirname, sanitize_filename, sanitize_pathpart
 
 # ensure locale set to user's locale
 locale.setlocale(locale.LC_ALL, "")
@@ -131,6 +133,9 @@ class PhotoTemplate:
         path_sep=None,
         expand_inplace=False,
         inplace_sep=None,
+        filename=False,
+        dirname=False,
+        replacement=":",
     ):
         """ Render a filename or directory template 
 
@@ -142,6 +147,9 @@ class PhotoTemplate:
                 instead of returning individual strings
             inplace_sep: optional string to use as separator between multi-valued keywords
             with expand_inplace; default is ','
+            filename: if True, template output will be sanitized to produce valid file name
+            dirname: if True, template output will be sanitized to produce valid directory name 
+            replacement: str, value to replace any illegal file path characters with; default = ":"
 
         Returns:
             ([rendered_strings], [unmatched]): tuple of list of rendered strings and list of unmatched template values
@@ -170,13 +178,21 @@ class PhotoTemplate:
         if type(template) is not str:
             raise TypeError(f"template must be type str, not {type(template)}")
 
-        def make_subst_function(self, none_str, get_func=self.get_template_value):
+        # used by make_subst_function to get the value for a template substitution
+        get_func = partial(
+            self.get_template_value,
+            filename=filename,
+            dirname=dirname,
+            replacement=replacement,
+        )
+
+        def make_subst_function(self, none_str, get_func=get_func):
             """ returns: substitution function for use in re.sub 
                 none_str: value to use if substitution lookup is None and no default provided
                 get_func: function that gets the substitution value for a given template field
                         default is get_template_value which handles the single-value fields """
 
-            # closure to capture photo, none_str in subst
+            # closure to capture photo, none_str, filename, dirname in subst
             def subst(matchobj):
                 groups = len(matchobj.groups())
                 if groups == 4:
@@ -186,13 +202,13 @@ class PhotoTemplate:
                         return matchobj.group(0)
 
                     if val is None:
-                        return (
+                        val = (
                             matchobj.group(3)
                             if matchobj.group(3) is not None
                             else none_str
                         )
-                    else:
-                        return val
+
+                    return val
                 else:
                     raise ValueError(
                         f"Unexpected number of groups: expected 4, got {groups}"
@@ -239,7 +255,13 @@ class PhotoTemplate:
 
             for str_template in rendered_strings:
                 if regex_multi.search(str_template):
-                    values = self.get_template_value_multi(field, path_sep)
+                    values = self.get_template_value_multi(
+                        field,
+                        path_sep,
+                        filename=filename,
+                        dirname=dirname,
+                        replacement=replacement,
+                    )
                     if expand_inplace:
                         # instead of returning multiple strings, join values into a single string
                         val = (
@@ -248,11 +270,11 @@ class PhotoTemplate:
                             else None
                         )
 
-                        def lookup_template_value_multi(lookup_value, default):
+                        def lookup_template_value_multi(lookup_value, _):
                             """ Closure passed to make_subst_function get_func 
                                     Capture val and field in the closure 
                                     Allows make_subst_function to be re-used w/o modification
-                                    default is not used but required so signature matches get_template_value """
+                                    _ is not used but required so signature matches get_template_value """
                             if lookup_value == field:
                                 return val
                             else:
@@ -269,11 +291,11 @@ class PhotoTemplate:
                         # create a new template string for each value
                         for val in values:
 
-                            def lookup_template_value_multi(lookup_value, default):
+                            def lookup_template_value_multi(lookup_value, _):
                                 """ Closure passed to make_subst_function get_func 
                                     Capture val and field in the closure 
                                     Allows make_subst_function to be re-used w/o modification
-                                    default is not used but required so signature matches get_template_value """
+                                    _ is not used but required so signature matches get_template_value """
                                 if lookup_value == field:
                                     return val
                                 else:
@@ -307,14 +329,24 @@ class PhotoTemplate:
             for rendered_str in rendered_strings
         ]
 
+        if filename:
+            rendered_strings = [
+                sanitize_filename(rendered_str) for rendered_str in rendered_strings
+            ]
+
         return rendered_strings, unmatched
 
-    def get_template_value(self, field, default):
+    def get_template_value(
+        self, field, default, filename=False, dirname=False, replacement=":"
+    ):
         """lookup value for template field (single-value template substitutions)
 
         Args:
             field: template field to find value for.
             default: the default value provided by the user
+            filename: if True, template output will be sanitized to produce valid file name
+            dirname: if True, template output will be sanitized to produce valid directory name 
+            replacement: str, value to replace any illegal file path characters with; default = ":"
         
         Returns:
             The matching template value (which may be None).
@@ -327,289 +359,236 @@ class PhotoTemplate:
         if self.today is None:
             self.today = datetime.datetime.now()
 
-        # must be a valid keyword
+        value = None
+
+        # wouldn't a switch/case statement be nice...
         if field == "name":
-            return pathlib.Path(self.photo.filename).stem
-
-        if field == "original_name":
-            return pathlib.Path(self.photo.original_filename).stem
-
-        if field == "title":
-            return self.photo.title
-
-        if field == "descr":
-            return self.photo.description
-
-        if field == "created.date":
-            return DateTimeFormatter(self.photo.date).date
-
-        if field == "created.year":
-            return DateTimeFormatter(self.photo.date).year
-
-        if field == "created.yy":
-            return DateTimeFormatter(self.photo.date).yy
-
-        if field == "created.mm":
-            return DateTimeFormatter(self.photo.date).mm
-
-        if field == "created.month":
-            return DateTimeFormatter(self.photo.date).month
-
-        if field == "created.mon":
-            return DateTimeFormatter(self.photo.date).mon
-
-        if field == "created.dd":
-            return DateTimeFormatter(self.photo.date).dd
-
-        if field == "created.dow":
-            return DateTimeFormatter(self.photo.date).dow
-
-        if field == "created.doy":
-            return DateTimeFormatter(self.photo.date).doy
-
-        if field == "created.hour":
-            return DateTimeFormatter(self.photo.date).hour
-
-        if field == "created.min":
-            return DateTimeFormatter(self.photo.date).min
-
-        if field == "created.sec":
-            return DateTimeFormatter(self.photo.date).sec
-
-        if field == "created.strftime":
+            value = pathlib.Path(self.photo.filename).stem
+        elif field == "original_name":
+            value = pathlib.Path(self.photo.original_filename).stem
+        elif field == "title":
+            value = self.photo.title
+        elif field == "descr":
+            value = self.photo.description
+        elif field == "created.date":
+            value = DateTimeFormatter(self.photo.date).date
+        elif field == "created.year":
+            value = DateTimeFormatter(self.photo.date).year
+        elif field == "created.yy":
+            value = DateTimeFormatter(self.photo.date).yy
+        elif field == "created.mm":
+            value = DateTimeFormatter(self.photo.date).mm
+        elif field == "created.month":
+            value = DateTimeFormatter(self.photo.date).month
+        elif field == "created.mon":
+            value = DateTimeFormatter(self.photo.date).mon
+        elif field == "created.dd":
+            value = DateTimeFormatter(self.photo.date).dd
+        elif field == "created.dow":
+            value = DateTimeFormatter(self.photo.date).dow
+        elif field == "created.doy":
+            value = DateTimeFormatter(self.photo.date).doy
+        elif field == "created.hour":
+            value = DateTimeFormatter(self.photo.date).hour
+        elif field == "created.min":
+            value = DateTimeFormatter(self.photo.date).min
+        elif field == "created.sec":
+            value = DateTimeFormatter(self.photo.date).sec
+        elif field == "created.strftime":
             if default:
                 try:
-                    return self.photo.date.strftime(default)
+                    value = self.photo.date.strftime(default)
                 except:
                     raise ValueError(f"Invalid strftime template: '{default}'")
             else:
-                return None
-
-        if field == "modified.date":
-            return (
+                value = None
+        elif field == "modified.date":
+            value = (
                 DateTimeFormatter(self.photo.date_modified).date
                 if self.photo.date_modified
                 else None
             )
-
-        if field == "modified.year":
-            return (
+        elif field == "modified.year":
+            value = (
                 DateTimeFormatter(self.photo.date_modified).year
                 if self.photo.date_modified
                 else None
             )
-
-        if field == "modified.yy":
-            return (
+        elif field == "modified.yy":
+            value = (
                 DateTimeFormatter(self.photo.date_modified).yy
                 if self.photo.date_modified
                 else None
             )
-
-        if field == "modified.mm":
-            return (
+        elif field == "modified.mm":
+            value = (
                 DateTimeFormatter(self.photo.date_modified).mm
                 if self.photo.date_modified
                 else None
             )
-
-        if field == "modified.month":
-            return (
+        elif field == "modified.month":
+            value = (
                 DateTimeFormatter(self.photo.date_modified).month
                 if self.photo.date_modified
                 else None
             )
-
-        if field == "modified.mon":
-            return (
+        elif field == "modified.mon":
+            value = (
                 DateTimeFormatter(self.photo.date_modified).mon
                 if self.photo.date_modified
                 else None
             )
-
-        if field == "modified.dd":
-            return (
+        elif field == "modified.dd":
+            value = (
                 DateTimeFormatter(self.photo.date_modified).dd
                 if self.photo.date_modified
                 else None
             )
-
-        if field == "modified.doy":
-            return (
+        elif field == "modified.doy":
+            value = (
                 DateTimeFormatter(self.photo.date_modified).doy
                 if self.photo.date_modified
                 else None
             )
-
-        if field == "modified.hour":
-            return (
+        elif field == "modified.hour":
+            value = (
                 DateTimeFormatter(self.photo.date_modified).hour
                 if self.photo.date_modified
                 else None
             )
-
-        if field == "modified.min":
-            return (
+        elif field == "modified.min":
+            value = (
                 DateTimeFormatter(self.photo.date_modified).min
                 if self.photo.date_modified
                 else None
             )
-
-        if field == "modified.sec":
-            return (
+        elif field == "modified.sec":
+            value = (
                 DateTimeFormatter(self.photo.date_modified).sec
                 if self.photo.date_modified
                 else None
             )
-
-        # TODO: disabling modified.strftime for now because now clean way to pass
-        # a default value if modified time is None
-        # if field == "modified.strftime":
-        #     if default and self.photo.date_modified:
-        #         try:
-        #             return self.photo.date_modified.strftime(default)
-        #         except:
-        #             raise ValueError(f"Invalid strftime template: '{default}'")
-        #     else:
-        #         return None
-
-        if field == "today.date":
-            return DateTimeFormatter(self.today).date
-
-        if field == "today.year":
-            return DateTimeFormatter(self.today).year
-
-        if field == "today.yy":
-            return DateTimeFormatter(self.today).yy
-
-        if field == "today.mm":
-            return DateTimeFormatter(self.today).mm
-
-        if field == "today.month":
-            return DateTimeFormatter(self.today).month
-
-        if field == "today.mon":
-            return DateTimeFormatter(self.today).mon
-
-        if field == "today.dd":
-            return DateTimeFormatter(self.today).dd
-
-        if field == "today.dow":
-            return DateTimeFormatter(self.today).dow
-
-        if field == "today.doy":
-            return DateTimeFormatter(self.today).doy
-
-        if field == "today.hour":
-            return DateTimeFormatter(self.today).hour
-
-        if field == "today.min":
-            return DateTimeFormatter(self.today).min
-
-        if field == "today.sec":
-            return DateTimeFormatter(self.today).sec
-
-        if field == "today.strftime":
+        elif field == "today.date":
+            value = DateTimeFormatter(self.today).date
+        elif field == "today.year":
+            value = DateTimeFormatter(self.today).year
+        elif field == "today.yy":
+            value = DateTimeFormatter(self.today).yy
+        elif field == "today.mm":
+            value = DateTimeFormatter(self.today).mm
+        elif field == "today.month":
+            value = DateTimeFormatter(self.today).month
+        elif field == "today.mon":
+            value = DateTimeFormatter(self.today).mon
+        elif field == "today.dd":
+            value = DateTimeFormatter(self.today).dd
+        elif field == "today.dow":
+            value = DateTimeFormatter(self.today).dow
+        elif field == "today.doy":
+            value = DateTimeFormatter(self.today).doy
+        elif field == "today.hour":
+            value = DateTimeFormatter(self.today).hour
+        elif field == "today.min":
+            value = DateTimeFormatter(self.today).min
+        elif field == "today.sec":
+            value = DateTimeFormatter(self.today).sec
+        elif field == "today.strftime":
             if default:
                 try:
-                    return self.today.strftime(default)
+                    value = self.today.strftime(default)
                 except:
                     raise ValueError(f"Invalid strftime template: '{default}'")
             else:
-                return None
-
-        if field == "place.name":
-            return self.photo.place.name if self.photo.place else None
-
-        if field == "place.country_code":
-            return self.photo.place.country_code if self.photo.place else None
-
-        if field == "place.name.country":
-            return (
+                value = None
+        elif field == "place.name":
+            value = self.photo.place.name if self.photo.place else None
+        elif field == "place.country_code":
+            value = self.photo.place.country_code if self.photo.place else None
+        elif field == "place.name.country":
+            value = (
                 self.photo.place.names.country[0]
                 if self.photo.place and self.photo.place.names.country
                 else None
             )
-
-        if field == "place.name.state_province":
-            return (
+        elif field == "place.name.state_province":
+            value = (
                 self.photo.place.names.state_province[0]
                 if self.photo.place and self.photo.place.names.state_province
                 else None
             )
-
-        if field == "place.name.city":
-            return (
+        elif field == "place.name.city":
+            value = (
                 self.photo.place.names.city[0]
                 if self.photo.place and self.photo.place.names.city
                 else None
             )
-
-        if field == "place.name.area_of_interest":
-            return (
+        elif field == "place.name.area_of_interest":
+            value = (
                 self.photo.place.names.area_of_interest[0]
                 if self.photo.place and self.photo.place.names.area_of_interest
                 else None
             )
-
-        if field == "place.address":
-            return (
+        elif field == "place.address":
+            value = (
                 self.photo.place.address_str
                 if self.photo.place and self.photo.place.address_str
                 else None
             )
-
-        if field == "place.address.street":
-            return (
+        elif field == "place.address.street":
+            value = (
                 self.photo.place.address.street
                 if self.photo.place and self.photo.place.address.street
                 else None
             )
-
-        if field == "place.address.city":
-            return (
+        elif field == "place.address.city":
+            value = (
                 self.photo.place.address.city
                 if self.photo.place and self.photo.place.address.city
                 else None
             )
-
-        if field == "place.address.state_province":
-            return (
+        elif field == "place.address.state_province":
+            value = (
                 self.photo.place.address.state_province
                 if self.photo.place and self.photo.place.address.state_province
                 else None
             )
-
-        if field == "place.address.postal_code":
-            return (
+        elif field == "place.address.postal_code":
+            value = (
                 self.photo.place.address.postal_code
                 if self.photo.place and self.photo.place.address.postal_code
                 else None
             )
-
-        if field == "place.address.country":
-            return (
+        elif field == "place.address.country":
+            value = (
                 self.photo.place.address.country
                 if self.photo.place and self.photo.place.address.country
                 else None
             )
-
-        if field == "place.address.country_code":
-            return (
+        elif field == "place.address.country_code":
+            value = (
                 self.photo.place.address.iso_country_code
                 if self.photo.place and self.photo.place.address.iso_country_code
                 else None
             )
+        else:
+            # if here, didn't get a match
+            raise ValueError(f"Unhandled template value: {field}")
 
-        # if here, didn't get a match
-        raise ValueError(f"Unhandled template value: {field}")
+        if filename:
+            value = sanitize_pathpart(value, replacement=replacement)
+        elif dirname:
+            value = sanitize_dirname(value, replacement=replacement)
+        return value
 
-    def get_template_value_multi(self, field, path_sep):
+    def get_template_value_multi(
+        self, field, path_sep, filename=False, dirname=False, replacement=":"
+    ):
         """lookup value for template field (multi-value template substitutions)
 
         Args:
             field: template field to find value for.
             path_sep: path separator to use for folder_album field
+            dirname: if True, values will be sanitized to be valid directory names; default = False
         
         Returns:
             List of the matching template values or [None].
@@ -621,9 +600,6 @@ class PhotoTemplate:
         """ return list of values for a multi-valued template field """
         if field == "album":
             values = self.photo.albums
-            values = [
-                value.replace("/", ":") for value in values
-            ]  # TODO: temp fix for issue #213
         elif field == "keyword":
             values = self.photo.keywords
         elif field == "person":
@@ -640,17 +616,42 @@ class PhotoTemplate:
             for album in self.photo.album_info:
                 if album.folder_names:
                     # album in folder
-                    folder = path_sep.join(album.folder_names)
-                    folder += path_sep + album.title.replace(
-                        "/", ":"
-                    )  # TODO: temp fix for issue #213
+                    if dirname:
+                        # being used as a filepath so sanitize each part
+                        folder = path_sep.join(
+                            sanitize_dirname(f, replacement=replacement)
+                            for f in album.folder_names
+                        )
+                        folder += path_sep + sanitize_dirname(
+                            album.title, replacement=replacement
+                        )
+                    else:
+                        folder = path_sep.join(album.folder_names)
+                        folder += path_sep + album.title
                     values.append(folder)
                 else:
                     # album not in folder
-                    values.append(album.title.replace("/", ":"))
+                    if dirname:
+                        values.append(
+                            sanitize_dirname(album.title, replacement=replacement)
+                        )
+                    else:
+                        values.append(album.title)
         else:
-            raise ValueError(f"Unhandleded template value: {field}")
+            raise ValueError(f"Unhandled template value: {field}")
+
+        # sanitize directory names if needed, folder_album handled differently above
+        if filename:
+            values = [
+                sanitize_pathpart(value, replacement=replacement) for value in values
+            ]
+        elif dirname and field != "folder_album":
+            # skip folder_album because it would have been handled above
+            values = [
+                sanitize_dirname(value, replacement=replacement) for value in values
+            ]
 
         # If no values, insert None so code below will substite none_str for None
         values = values or [None]
         return values
+

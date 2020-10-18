@@ -1,9 +1,7 @@
 """ command line interface for osxphotos """
 import csv
 import datetime
-import functools
 import json
-import logging
 import os
 import os.path
 import pathlib
@@ -14,12 +12,6 @@ import unicodedata
 
 import click
 import yaml
-from pathvalidate import (
-    is_valid_filename,
-    is_valid_filepath,
-    sanitize_filename,
-    sanitize_filepath,
-)
 
 import osxphotos
 
@@ -29,11 +21,12 @@ from ._constants import (
     _UNKNOWN_PLACE,
     UNICODE_FORMAT,
 )
-from .export_db import ExportDB, ExportDBInMemory
 from ._version import __version__
 from .datetime_formatter import DateTimeFormatter
 from .exiftool import get_exiftool_path
+from .export_db import ExportDB, ExportDBInMemory
 from .fileutil import FileUtil, FileUtilNoOp
+from .path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
 from .photoinfo import ExportResults
 from .phototemplate import TEMPLATE_SUBSTITUTIONS, TEMPLATE_SUBSTITUTIONS_MULTI_VALUED
 
@@ -1240,10 +1233,10 @@ def query(
     "--jpeg-quality",
     type=click.FloatRange(0.0, 1.0),
     default=1.0,
-    help="Value in range 0.0 to 1.0 to use with --convert-to-jpeg. " 
+    help="Value in range 0.0 to 1.0 to use with --convert-to-jpeg. "
     "A value of 1.0 specifies best quality, "
     "a value of 0.0 specifies maximum compression. "
-    "Defaults to 1.0." 
+    "Defaults to 1.0.",
 )
 @click.option(
     "--sidecar",
@@ -2409,7 +2402,9 @@ def get_filenames_from_template(photo, filename_template, original_name):
     """
     if filename_template:
         photo_ext = pathlib.Path(photo.original_filename).suffix
-        filenames, unmatched = photo.render_template(filename_template, path_sep="_")
+        filenames, unmatched = photo.render_template(
+            filename_template, path_sep="_", filename=True
+        )
         if not filenames or unmatched:
             raise click.BadOptionUsage(
                 "filename_template",
@@ -2418,6 +2413,8 @@ def get_filenames_from_template(photo, filename_template, original_name):
         filenames = [f"{file_}{photo_ext}" for file_ in filenames]
     else:
         filenames = [photo.original_filename] if original_name else [photo.filename]
+
+    filenames = [sanitize_filename(filename) for filename in filenames]
     return filenames
 
 
@@ -2448,22 +2445,18 @@ def get_dirnames_from_template(photo, directory, export_by_date, dest, dry_run):
         dest_paths = [dest_path]
     elif directory:
         # got a directory template, render it and check results are valid
-        dirnames, unmatched = photo.render_template(directory)
-        if not dirnames:
+        dirnames, unmatched = photo.render_template(directory, dirname=True)
+        if not dirnames or unmatched:
             raise click.BadOptionUsage(
                 "directory",
                 f"Invalid template '{directory}': results={dirnames} unmatched={unmatched}",
             )
-        elif unmatched:
-            raise click.BadOptionUsage(
-                "directory",
-                f"Invalid template '{directory}': results={dirnames} unmatched={unmatched}",
-            )
+
         dest_paths = []
         for dirname in dirnames:
-            dirname = sanitize_filepath(dirname, platform="auto")
+            dirname = sanitize_filepath(dirname)
             dest_path = os.path.join(dest, dirname)
-            if not is_valid_filepath(dest_path, platform="auto"):
+            if not is_valid_filepath(dest_path):
                 raise ValueError(f"Invalid file path: '{dest_path}'")
             if not dry_run and not os.path.isdir(dest_path):
                 os.makedirs(dest_path)
@@ -2491,7 +2484,7 @@ def find_files_in_branch(pathname, filename):
     files = []
 
     # walk down the tree
-    for root, directories, filenames in os.walk(pathname):
+    for root, _, filenames in os.walk(pathname):
         # for directory in directories:
         # print(os.path.join(root, directory))
         for fname in filenames:

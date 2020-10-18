@@ -102,3 +102,10 @@ _OSXPHOTOS_NONE_SENTINEL = "OSXPhotosXYZZY42_Sentinel$"
 
 # SearchInfo categories for Photos 5, corresponds to categories in database/search/psi.sqlite
 SEARCH_CATEGORY_LABEL = 2024
+
+# Max filename length on MacOS
+MAX_FILENAME_LEN = 255
+
+# Max directory name length on MacOS
+MAX_DIRNAME_LEN = 255
+

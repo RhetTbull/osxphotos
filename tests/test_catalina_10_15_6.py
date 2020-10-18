@@ -24,6 +24,7 @@ KEYWORDS = [
     "St. James's Park",
     "UK",
     "United Kingdom",
+    "foo/bar",
 ]
 # Photos 5 includes blank person for detected face
 PERSONS = ["Katie", "Suzy", "Maria", _UNKNOWN_PERSON]
@@ -47,6 +48,7 @@ KEYWORDS_DICT = {
     "St. James's Park": 1,
     "UK": 1,
     "United Kingdom": 1,
+    "foo/bar": 1,
 }
 PERSONS_DICT = {"Katie": 3, "Suzy": 2, "Maria": 2, _UNKNOWN_PERSON: 1}
 ALBUM_DICT = {
