@@ -73,7 +73,7 @@ def get_comments(photosdb, uuid):
         uuid: uuid of the photo
     
     Returns:
-        tuple of (list of comments or [] if no comments, int number of likes)
+        tuple of (list of comments as Comment objects or [] if no comments, list of likes as Like objects or [] if no likes)
     """
     conn, _ = photosdb.get_db_connection()
 
