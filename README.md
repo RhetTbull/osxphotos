@@ -57,19 +57,24 @@ OSXPhotos uses setuptools, thus simply run:
 You can also install directly from [pypi](https://pypi.org/project/osxphotos/):
 
     pip install osxphotos
-	
-**WARNING** The git repo for this project is very large (> 1GB) because it contains multiple Photos libraries used for testing on different versions of MacOS.  If you just want to use the osxphotos package in your own code, I recommend you install the latest version from [PyPI](https://pypi.org/project/osxphotos/). If you just want to use the command line utility, you can download a pre-built executable of the latest [release](https://github.com/RhetTbull/osxphotos/releases) or you can install via `pip` which also installs the command line app.  If you aren't comfortable with running python on your Mac, start with the pre-built executable.
+
+I recommend you create a [virtual environment](https://docs.python.org/3/tutorial/venv.html) before installing osxphotos.
+
+If you aren't familiar with installing python applications, I recommend you install `osxphotos` with [pipx](https://github.com/pipxproject/pipx). If you use `pipx`, you will not need to create a virtual environment as `pipx` takes care of this. The easiest way to do this on a Mac is to use [homebrew](https://brew.sh/):
+
+- Open `Terminal` (search for `Terminal` in Spotlight or look in `Applications/Utilities`)
+- Install `homebrew` according to instructions at [https://brew.sh/](https://brew.sh/)
+- Type the following into Terminal: `brew install pipx`
+- Then type this: `pipx install osxphotos`
+- Now you should be able to run `osxphotos` by typing: `osxphotos`
+
+**WARNING** The git repo for this project is very large (> 1GB) because it contains multiple Photos libraries used for testing on different versions of MacOS.  If you just want to use the osxphotos package in your own code, I recommend you install the latest version from [PyPI](https://pypi.org/project/osxphotos/) which does not include all the test libraries. If you just want to use the command line utility, you can download a pre-built executable of the latest [release](https://github.com/RhetTbull/osxphotos/releases) or you can install via `pip` which also installs the command line app.  If you aren't comfortable with running python on your Mac, start with the pre-built executable or `pipx` as described above.
 
 ## Command Line Usage
 
 This package will install a command line utility called `osxphotos` that allows you to query the Photos database.  Alternatively, you can also run the command line utility like this: `python3 -m osxphotos`
 
-If you only care about the command line tool, you can download an executable of the latest [release](https://github.com/RhetTbull/osxphotos/releases).  Alternatively, I recommend installing with [pipx](https://github.com/pipxproject/pipx)
-
-After installing pipx:
-`pipx install osxphotos`
-
-Then you should be able to run `osxphotos` on the command line:
+After installing per instructions above, you should be able to run `osxphotos` on the command line:
 
 ```
 > osxphotos
