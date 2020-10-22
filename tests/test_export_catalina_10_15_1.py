@@ -66,6 +66,18 @@ UUID_DICT = {
 XMP_FILENAME = "Pumkins1.jpg.xmp"
 XMP_JPG_FILENAME = "Pumkins1.jpg"
 
+EXIF_JSON_EXPECTED = (
+    '[{"_CreatedBy": "osxphotos, https://github.com/RhetTbull/osxphotos", '
+    '"XMP:Title": "St. James\'s Park", "XMP:TagsList": ["UK", "England", '
+    '"London", "United Kingdom", "London 2018", "St. James\'s Park"], '
+    '"IPTC:Keywords": ["UK", "England", "London", "United Kingdom", "London 2018", '
+    '"St. James\'s Park"], "XMP:Subject": ["UK", "England", "London", "United Kingdom", '
+    '"London 2018", "St. James\'s Park"], "EXIF:GPSLatitude": 51.50357167, '
+    '"EXIF:GPSLongitude": -0.1318055, "EXIF:GPSLatitudeRef": "N", '
+    '"EXIF:GPSLongitudeRef": "W", "EXIF:DateTimeOriginal": "2018:10:13 09:18:12", '
+    '"EXIF:OffsetTimeOriginal": "-04:00", "EXIF:ModifyDate": "2019:12:08 14:06:44"}]'
+)
+
 
 def test_export_1():
     # test basic export
@@ -456,21 +468,7 @@ def test_exiftool_json_sidecar():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["location"]])
 
-    json_expected = json.loads(
-        """
-    [{"XMP:Title": "St. James\'s Park", 
-    "XMP:TagsList": ["London 2018", "St. James\'s Park", "England", "United Kingdom", "UK", "London"], 
-    "IPTC:Keywords": ["London 2018", "St. James\'s Park", "England", "United Kingdom", "UK", "London"], 
-    "XMP:Subject": ["London 2018", "St. James\'s Park", "England", "United Kingdom", "UK", "London"], 
-    "EXIF:GPSLatitude": "51 deg 30\' 12.86\\" N", 
-    "EXIF:GPSLongitude": "0 deg 7\' 54.50\\" W", 
-    "EXIF:GPSLatitudeRef": "North", "EXIF:GPSLongitudeRef": "West", 
-    "EXIF:DateTimeOriginal": "2018:10:13 09:18:12",
-    "EXIF:OffsetTimeOriginal": "-04:00",
-    "EXIF:ModifyDate": "2019:12:08 14:06:44",
-    "_CreatedBy": "osxphotos, https://github.com/RhetTbull/osxphotos"
-    }] """
-    )[0]
+    json_expected = json.loads(EXIF_JSON_EXPECTED)[0]
 
     json_got = photos[0]._exiftool_json_sidecar()
     json_got = json.loads(json_got)[0]

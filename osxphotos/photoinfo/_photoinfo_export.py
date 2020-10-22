@@ -1127,11 +1127,10 @@ def _exiftool_json_sidecar(
 
     (lat, lon) = self.location
     if lat is not None and lon is not None:
-        lat_str, lon_str = dd_to_dms_str(lat, lon)
-        exif["EXIF:GPSLatitude"] = lat_str
-        exif["EXIF:GPSLongitude"] = lon_str
-        lat_ref = "North" if lat >= 0 else "South"
-        lon_ref = "East" if lon >= 0 else "West"
+        exif["EXIF:GPSLatitude"] = lat
+        exif["EXIF:GPSLongitude"] = lon
+        lat_ref = "N" if lat >= 0 else "S"
+        lon_ref = "E" if lon >= 0 else "W"
         exif["EXIF:GPSLatitudeRef"] = lat_ref
         exif["EXIF:GPSLongitudeRef"] = lon_ref
 

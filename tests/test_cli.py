@@ -315,6 +315,10 @@ CLI_EXIFTOOL = {
         "XMP:Description": "Girl holding pumpkin",
         "XMP:PersonInImage": "Katie",
         "XMP:Subject": ["Kids", "Katie"],
+        "EXIF:GPSLatitudeRef": "N",
+        "EXIF:GPSLongitudeRef": "W",
+        "EXIF:GPSLatitude": 41.256566,
+        "EXIF:GPSLongitude": 95.940257,
     }
 }
 
@@ -819,7 +823,6 @@ def test_export_exiftool():
     import glob
     import os
     import os.path
-    import osxphotos
     from osxphotos.__main__ import export
     from osxphotos.exiftool import ExifTool
 
@@ -831,7 +834,7 @@ def test_export_exiftool():
             result = runner.invoke(
                 export,
                 [
-                    os.path.join(cwd, PHOTOS_DB_15_4),
+                    os.path.join(cwd, PHOTOS_DB_15_6),
                     ".",
                     "-V",
                     "--exiftool",
