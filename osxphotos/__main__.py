@@ -1020,6 +1020,7 @@ def query(
         (panorama, not_panorama),
         (any(place), no_place),
         (deleted, deleted_only),
+        (shared, not_shared),
     ]
     # print help if no non-exclusive term or a double exclusive term is given
     if any(all(bb) for bb in exclusive) or not any(
@@ -1435,6 +1436,7 @@ def export(
         (deleted, deleted_only),
         (skip_edited, skip_original_if_edited),
         (export_as_hardlink, convert_to_jpeg),
+        (shared, not_shared),
     ]
     if any(all(bb) for bb in exclusive):
         click.echo("Incompatible export options", err=True)
