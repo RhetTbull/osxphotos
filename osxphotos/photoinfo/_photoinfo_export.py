@@ -636,8 +636,11 @@ def export2(
         exported = []
         # export live_photo .mov file?
         live_photo = True if live_photo and self.live_photo else False
-        if edited:
+        if edited or self.shared:
             # exported edited version and not original
+            # shared photos (in shared albums) show up as not having adjustments (not edited)
+            # but Photos is unable to export the "original" as only a jpeg copy is shared in iCloud
+            # so tell Photos to export the current version in this case
             if filename:
                 # use filename stem provided
                 filestem = dest.stem
@@ -671,7 +674,6 @@ def export2(
                 burst=self.burst,
                 dry_run=dry_run,
             )
-
         if exported:
             if touch_file:
                 for exported_file in exported:

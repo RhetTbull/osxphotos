@@ -2230,7 +2230,7 @@ def export_photo(
                 f"skipping {photo.original_filename}"
             )
             return ExportResults([], [], [], [], [], [])
-    elif photo.ismissing and not photo.iscloudasset or not photo.incloud:
+    elif photo.ismissing and not photo.iscloudasset and not photo.incloud:
         verbose(
             f"Skipping missing {photo.original_filename}: not iCloud asset or missing from cloud"
         )
