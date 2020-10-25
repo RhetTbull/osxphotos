@@ -44,6 +44,7 @@ from ..utils import (
     _get_os_version,
     _open_sql_file,
     get_last_library_path,
+    noop,
     normalize_unicode,
 )
 from .photosdb_utils import get_db_model_version, get_db_version
@@ -68,11 +69,16 @@ class PhotosDB:
     )
     from ._photosdb_process_scoreinfo import _process_scoreinfo
 
-    def __init__(self, dbfile=None):
+    def __init__(self, dbfile=None, verbose=None):
         """ Create a new PhotosDB object.
 
         Args:
             dbfile: specify full path to photos library or photos.db; if None, will attempt to locate last library opened by Photos.
+            verbose: optional callable function to use for printing verbose text during processing; if None (default), does not print output.
+        
+        Raises:
+            FileNotFoundError if dbfile is not a valid Photos library.
+            TypeError if verbose is not None and not callable.
         """
 
         # Check OS version
@@ -84,6 +90,12 @@ class PhotosDB:
                 f"[{', '.join(_TESTED_OS_VERSIONS)}]: "
                 f"you have {system}, OS version: {major}"
             )
+
+        if verbose is None:
+            verbose = noop
+        elif not callable(verbose):
+            raise TypeError("verbose must be callable")
+        self._verbose = verbose
 
         # create a temporary directory
         # tempfile.TemporaryDirectory gets cleaned up when the object does
@@ -245,11 +257,14 @@ class PhotosDB:
         # or photosanalysisd
         self._dbfile = self._dbfile_actual = self._tmp_db = os.path.abspath(dbfile)
 
+        verbose(f"Processing database {self._dbfile}")
+
         # if database is exclusively locked, make a copy of it and use the copy
         # Photos maintains an exclusive lock on the database file while Photos is open
         # photoanalysisd sometimes maintains this lock even after Photos is closed
         # In those cases, make a temp copy of the file for sqlite3 to read
         if _db_is_locked(self._dbfile):
+            verbose(f"Database locked, creating temporary copy.")
             self._tmp_db = self._copy_db_file(self._dbfile)
 
         self._db_version = get_db_version(self._tmp_db)
@@ -262,8 +277,10 @@ class PhotosDB:
                 raise FileNotFoundError(f"dbfile {dbfile} does not exist", dbfile)
             else:
                 self._dbfile_actual = self._tmp_db = dbfile
+                verbose(f"Processing database {self._dbfile_actual}")
                 # if database is exclusively locked, make a copy of it and use the copy
                 if _db_is_locked(self._dbfile_actual):
+                    verbose(f"Database locked, creating temporary copy.")
                     self._tmp_db = self._copy_db_file(self._dbfile_actual)
 
             if _debug():
@@ -532,10 +549,15 @@ class PhotosDB:
         """ process the Photos database to extract info
             works on Photos version <= 4.0 """
 
+        verbose = self._verbose
+        verbose("Processing database.")
+        verbose(f"Database version: {self._db_version}.")
+
         (conn, c) = _open_sql_file(self._tmp_db)
 
         # get info to associate persons with photos
         # then get detected faces in each photo and link to persons
+        verbose("Processing persons in photos.")
         c.execute(
             """ SELECT
                 RKPerson.modelID,
@@ -601,6 +623,7 @@ class PhotosDB:
                 logging.debug(f"Unexpected KeyError _dbpersons_pk[{pk}]")
 
         # get information on detected faces
+        verbose("Processing detected faces in photos.")
         c.execute(
             """ SELECT 
                 RKPerson.modelID,
@@ -638,6 +661,7 @@ class PhotosDB:
             logging.debug(pformat(self._dbfaces_uuid))
 
         # Get info on albums
+        verbose("Processing albums.")
         c.execute(
             """ SELECT 
                 RKAlbum.uuid, 
@@ -780,6 +804,7 @@ class PhotosDB:
             logging.debug(pformat(self._dbfolder_details))
 
         # Get info on keywords
+        verbose("Processing keywords.")
         c.execute(
             """ SELECT
                 RKKeyword.name, 
@@ -807,6 +832,7 @@ class PhotosDB:
             self._dbvolumes[vol[0]] = vol[1]
 
         # Get photo details
+        verbose("Processing photo details.")
         if self._db_version < _PHOTOS_3_VERSION:
             # Photos < 3.0 doesn't have RKVersion.selfPortrait (selfie)
             c.execute(
@@ -1096,6 +1122,7 @@ class PhotosDB:
             self._dbphotos[uuid]["fok_import_session"] = None
 
         # get additional details from RKMaster, needed for RAW processing
+        verbose("Processing additional photo details.")
         c.execute(
             """ SELECT 
                 RKMaster.uuid,
@@ -1269,6 +1296,7 @@ class PhotosDB:
                 self._dbphotos[uuid]["incloud"] = True if row[2] == 1 else False
 
         # get location data
+        verbose("Processing location data.")
         # get the country codes
         country_codes = c.execute(
             "SELECT modelID, countryCode "
@@ -1355,6 +1383,7 @@ class PhotosDB:
         conn.close()
 
         # process faces
+        verbose("Processing face details.")
         self._process_faceinfo()
 
         # add faces and keywords to photo data
@@ -1391,6 +1420,7 @@ class PhotosDB:
                 self._dbphotos[uuid]["volume"] = None
 
         # done processing, dump debug data if requested
+        verbose("Done processing details from Photos library.")
         if _debug():
             logging.debug("Faces (_dbfaces_uuid):")
             logging.debug(pformat(self._dbfaces_uuid))
@@ -1466,12 +1496,14 @@ class PhotosDB:
 
         if _debug():
             logging.debug(f"_process_database5")
-
+        verbose = self._verbose
+        verbose(f"Processing database.")
         (conn, c) = _open_sql_file(self._tmp_db)
 
         # some of the tables/columns have different names in different versions of Photos
         photos_ver = get_db_model_version(self._tmp_db)
         self._photos_ver = photos_ver
+        verbose(f"Database version: {self._db_version}, {photos_ver}.")
         asset_table = _DB_TABLE_NAMES[photos_ver]["ASSET"]
         keyword_join = _DB_TABLE_NAMES[photos_ver]["KEYWORD_JOIN"]
         album_join = _DB_TABLE_NAMES[photos_ver]["ALBUM_JOIN"]
@@ -1485,6 +1517,7 @@ class PhotosDB:
 
         # get info to associate persons with photos
         # then get detected faces in each photo and link to persons
+        verbose("Processing persons in photos.")
         c.execute(
             """ SELECT
                 ZPERSON.Z_PK,
@@ -1550,6 +1583,7 @@ class PhotosDB:
                 logging.debug(f"Unexpected KeyError _dbpersons_pk[{pk}]")
 
         # get information on detected faces
+        verbose("Processing detected faces in photos.")
         c.execute(
             f""" SELECT
                 ZPERSON.Z_PK,
@@ -1584,6 +1618,7 @@ class PhotosDB:
             logging.debug(pformat(self._dbfaces_uuid))
 
         # get details about albums
+        verbose("Processing albums.")
         c.execute(
             f""" SELECT 
                 ZGENERICALBUM.ZUUID, 
@@ -1702,6 +1737,7 @@ class PhotosDB:
             logging.debug(pformat(self._dbalbum_folders))
 
         # get details on keywords
+        verbose("Processing keywords.")
         c.execute(
             f"""SELECT ZKEYWORD.ZTITLE, {asset_table}.ZUUID
                 FROM {asset_table} 
@@ -1733,6 +1769,7 @@ class PhotosDB:
             logging.debug(self._dbvolumes)
 
         # get details about photos
+        verbose("Processing photo details.")
         logging.debug(f"Getting information about photos")
         c.execute(
             f"""SELECT {asset_table}.ZUUID, 
@@ -1891,7 +1928,7 @@ class PhotosDB:
                 info["type"] = None
 
             info["UTI"] = row[18]
-            info["UTI_original"] = None # filled in later
+            info["UTI_original"] = None  # filled in later
 
             # handle burst photos
             # if burst photo, determine whether or not it's a selected burst photo
@@ -2023,6 +2060,7 @@ class PhotosDB:
         # 1    ZGENERICASSET.ZIMPORTSESSION
         # 2    ZGENERICASSET.Z_FOK_IMPORTSESSION
         # 3    ZGENERICALBUM.ZUUID,
+        verbose("Processing import sessions.")
         c.execute(
             f"""SELECT
                 {asset_table}.ZUUID,
@@ -2045,6 +2083,7 @@ class PhotosDB:
                 logging.debug(f"No info record for uuid {uuid} for import session")
 
         # Get extended description
+        verbose("Processing additional photo details.")
         c.execute(
             f"""SELECT {asset_table}.ZUUID, 
                 ZASSETDESCRIPTION.ZLONGDESCRIPTION 
@@ -2224,18 +2263,23 @@ class PhotosDB:
         conn.close()
 
         # process face info
+        verbose("Processing face details.")
         self._process_faceinfo()
 
         # process search info
+        verbose("Processing photo labels.")
         self._process_searchinfo()
 
         # process exif info
+        verbose("Processing EXIF details.")
         self._process_exifinfo()
 
         # process computed scores
+        verbose("Processing computed aesthetic scores.")
         self._process_scoreinfo()
 
         # done processing, dump debug data if requested
+        verbose("Done processing details from Photos library.")
         if _debug():
             logging.debug("Faces (_dbfaces_uuid):")
             logging.debug(pformat(self._dbfaces_uuid))

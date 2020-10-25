@@ -5,6 +5,7 @@ import os
 import pytest
 from click.testing import CliRunner
 
+import osxphotos
 from osxphotos.exiftool import get_exiftool_path
 
 CLI_PHOTOS_DB = "tests/Test-10.15.1.photoslibrary"
@@ -417,6 +418,13 @@ CLI_EXPORT_UUID_FROM_FILE_FILENAMES = [
     "wedding.jpg",
     "wedding_edited.jpeg",
 ]
+
+
+@pytest.fixture(autouse=True)
+def reset_globals():
+    """ reset globals in __main__ that tests may have changed """
+    yield
+    osxphotos.__main__.VERBOSE = False
 
 
 # determine if exiftool installed so exiftool tests can be skipped

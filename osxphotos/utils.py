@@ -57,6 +57,9 @@ def _debug():
     """ returns True if debugging turned on (via _set_debug), otherwise, false """
     return _DEBUG
 
+def noop(*args, **kwargs):
+    """ do nothing (no operation) """
+    pass
 
 def _get_os_version():
     # returns tuple containing OS version

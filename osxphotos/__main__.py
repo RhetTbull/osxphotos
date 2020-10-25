@@ -521,10 +521,15 @@ def cli(ctx, db, json_, debug):
     help="Use with '--dump photos' to dump only certain UUIDs",
     multiple=True,
 )
+@click.option("--verbose", "-V", "verbose_", is_flag=True, help="Print verbose output.")
 @click.pass_obj
 @click.pass_context
-def debug_dump(ctx, cli_obj, db, photos_library, dump, uuid):
+def debug_dump(ctx, cli_obj, db, photos_library, dump, uuid, verbose_):
     """ Print out debug info """
+
+    global VERBOSE
+    VERBOSE = bool(verbose_)
+    
     db = get_photos_db(*photos_library, db, cli_obj.db)
     if db is None:
         click.echo(cli.commands["debug-dump"].get_help(ctx), err=True)
@@ -534,7 +539,7 @@ def debug_dump(ctx, cli_obj, db, photos_library, dump, uuid):
 
     start_t = time.perf_counter()
     print(f"Opening database: {db}")
-    photosdb = osxphotos.PhotosDB(dbfile=db)
+    photosdb = osxphotos.PhotosDB(dbfile=db, verbose=verbose)
     stop_t = time.perf_counter()
     print(f"Done; took {(stop_t-start_t):.2f} seconds")
 
@@ -1900,7 +1905,7 @@ def _query(
         arguments must be passed in same order as query and export 
         if either is modified, need to ensure all three functions are updated """
 
-    photosdb = osxphotos.PhotosDB(dbfile=db)
+    photosdb = osxphotos.PhotosDB(dbfile=db, verbose=verbose)
     if deleted or deleted_only:
         photos = photosdb.photos(
             uuid=uuid,
