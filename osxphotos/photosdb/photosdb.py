@@ -68,11 +68,12 @@ class PhotosDB:
     )
     from ._photosdb_process_scoreinfo import _process_scoreinfo
 
-    def __init__(self, *dbfile_, dbfile=None):
-        """ create a new PhotosDB object 
-            path to photos library or database may be specified EITHER as first argument or as named argument dbfile=path 
-            specify full path to photos library or photos.db as first argument 
-            specify path to photos library or photos.db using named argument dbfile=path """
+    def __init__(self, dbfile=None):
+        """ Create a new PhotosDB object.
+
+        Args:
+            dbfile: specify full path to photos library or photos.db; if None, will attempt to locate last library opened by Photos.
+        """
 
         # Check OS version
         system = platform.system()
@@ -216,25 +217,7 @@ class PhotosDB:
         if _debug():
             logging.debug(f"dbfile = {dbfile}")
 
-        # get the path to photos library database
-        if dbfile_:
-            # got a library path as argument
-            if dbfile:
-                # shouldn't pass via both *args and dbfile=
-                raise TypeError(
-                    f"photos database path must be specified as argument or "
-                    f"named parameter dbfile but not both: args: {dbfile_}, dbfile: {dbfile}",
-                    dbfile_,
-                    dbfile,
-                )
-            elif len(dbfile_) == 1:
-                dbfile = dbfile_[0]
-            else:
-                raise TypeError(
-                    f"__init__ takes only a single argument (photos database path): {dbfile_}",
-                    dbfile_,
-                )
-        elif dbfile is None:
+        if dbfile is None:
             dbfile = get_last_library_path()
             if dbfile is None:
                 # get_last_library_path must have failed to find library
