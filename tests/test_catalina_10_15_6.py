@@ -973,15 +973,20 @@ def test_from_to_date_tz(photosdb):
     assert photos[0].uuid == "D79B8D77-BFFC-460B-9312-034F2877D35B"
 
 
-def test_date_invalid(photosdb):
+def test_date_invalid():
     """ Test date is invalid """
-
+    # doesn't run correctly with the module-level fixture
+    from datetime import datetime, timedelta, timezone
+    import osxphotos
+    
+    
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["date_invalid"]])
     assert len(photos) == 1
     p = photos[0]
-    delta = datetime.timedelta(seconds=p.tzoffset)
-    tz = datetime.timezone(delta)
-    assert p.date == datetime.datetime(1970, 1, 1).astimezone(tz=tz)
+    delta = timedelta(seconds=p.tzoffset)
+    tz = timezone(delta)
+    assert p.date == datetime(1970, 1, 1).astimezone(tz=tz)
 
 
 def test_date_modified_invalid(photosdb):
