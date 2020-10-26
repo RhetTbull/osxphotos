@@ -68,6 +68,7 @@ class PhotosDB:
         labels_normalized_as_dict,
     )
     from ._photosdb_process_scoreinfo import _process_scoreinfo
+    from ._photosdb_process_comments import _process_comments
 
     def __init__(self, dbfile=None, verbose=None):
         """ Create a new PhotosDB object.
@@ -2278,6 +2279,10 @@ class PhotosDB:
         verbose("Processing computed aesthetic scores.")
         self._process_scoreinfo()
 
+        # process shared comments/likes
+        verbose("Processing comments and likes for shared photos.")
+        self._process_comments()
+        
         # done processing, dump debug data if requested
         verbose("Done processing details from Photos library.")
         if _debug():

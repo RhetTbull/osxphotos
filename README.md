@@ -21,6 +21,8 @@
     + [ScoreInfo](#scoreinfo)
     + [PersonInfo](#personinfo)
     + [FaceInfo](#faceinfo)
+    + [CommentInfo](#commentinfo)
+    + [LikeInfo](#likeinfo)
     + [Raw Photos](#raw-photos)
     + [Template Substitutions](#template-substitutions)
     + [Utility Functions](#utility-functions)
@@ -539,6 +541,7 @@ Substitution        Description
 {label}             Image categorization label associated with a photo
                     (Photos 5 only)
 {label_normalized}  All lower case version of 'label' (Photos 5 only)
+{comment}           Comment(s) on shared Photos; format is 'Person name:
 ```
 
 Example: export all photos to ~/Desktop/export group in folders by date created
@@ -1157,7 +1160,17 @@ Returns a [PlaceInfo](#PlaceInfo) object with reverse geolocation data or None i
 #### `shared`
 Returns True if photo is in a shared album, otherwise False.
 
-**Note**: *Only valid on Photos 5 / MacOS 10.15*; on Photos <= 4, returns None instead of True/False. 
+**Note**: *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns None instead of True/False.
+
+#### `comments`
+Returns list of [CommentInfo](#commentinfo) objects for comments on shared photos or empty list if no comments.
+
+**Note**: *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns empty list.
+
+#### `likes`
+Returns list of [LikeInfo](#likeinfo) objects for likes on shared photos or empty list if no likes.
+
+**Note**: *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns empty list.
 
 #### `isphoto`
 Returns True if type is photo/still image, otherwise False
@@ -1745,6 +1758,21 @@ Returns a dictionary representation of the FaceInfo instance.
 
 #### `json()`
 Returns a JSON representation of the FaceInfo instance.
+
+### CommentInfo
+[PhotoInfo.comments](#comments) returns a list of CommentInfo objects for comments on shared photos. (Photos 5/MacOS 10.15+ only).  The list of CommentInfo objects will be sorted in ascending order by date comment was made.  CommentInfo contains the following fields:
+
+- `datetime`: `datetime.datetime`, date/time comment was made
+- `user`: `str`, name of user who made the comment
+- `ismine`: `bool`, True if comment was made by person who owns the Photos library being operated on
+- `text`: `str`, text of the actual comment
+
+### LikeInfo
+[PhotoInfo.likes](#likes) returns a list of LikeInfo objects for "likes" on shared photos. (Photos 5/MacOS 10.15+ only).  The list of LikeInfo objects will be sorted in ascending order by date like was made.  LikeInfo contains the following fields:
+
+- `datetime`: `datetime.datetime`, date/time like was made
+- `user`: `str`, name of user who made the like 
+- `ismine`: `bool`, True if like was made by person who owns the Photos library being operated on
 
 ### Raw Photos
 Handling raw photos in `osxphotos` requires a bit of extra work.  Raw photos in Photos can be imported in two different ways: 1) a single raw photo with no associated JPEG image is imported 2) a raw+JPEG pair is imported -- two separate images with same file stem (e.g. `IMG_0001.CR2` and `IMG_001.JPG`) are imported.  

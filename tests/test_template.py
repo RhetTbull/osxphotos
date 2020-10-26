@@ -8,6 +8,8 @@ PHOTOS_DB_15_1 = "./tests/Test-10.15.1.photoslibrary/database/photos.db"
 PHOTOS_DB_15_4 = "./tests/Test-10.15.4.photoslibrary/database/photos.db"
 PHOTOS_DB_14_6 = "./tests/Test-10.14.6.photoslibrary/database/photos.db"
 
+PHOTOS_DB_COMMENTS = "tests/Test-Cloud-10.15.6.photoslibrary"
+
 UUID_DICT = {
     "place_dc": "128FB4C6-0B16-4E7D-9108-FB2E90DA1546",
     "1_1_2": "1EB2B765-0765-43BA-A90C-0D0580E6172C",
@@ -97,6 +99,15 @@ TEMPLATE_VALUES_DEU = {
     "{place.address.postal_code}": "20009",
     "{place.address.country}": "United States",
     "{place.address.country_code}": "US",
+}
+
+COMMENT_UUID_DICT = {
+    "4AD7C8EF-2991-4519-9D3A-7F44A6F031BE": [
+        "None: Nice photo!",
+        "None: Wish I was back here!",
+    ],
+    "CCBE0EB9-AE9F-4479-BFFD-107042C75227": ["_"],
+    "4E4944A0-3E5C-4028-9600-A8709F2FA1DB": ["None: Nice trophy"],
 }
 
 
@@ -502,3 +513,13 @@ def test_subst_expand_inplace_3():
         template, expand_inplace=True, inplace_sep="; "
     )
     assert sorted(rendered) == sorted(expected)
+
+
+def test_comment():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_COMMENTS)
+    for uuid in COMMENT_UUID_DICT:
+        photo = photosdb.get_photo(uuid)
+        comments = photo.render_template("{comment}")
+        assert comments[0] == COMMENT_UUID_DICT[uuid]

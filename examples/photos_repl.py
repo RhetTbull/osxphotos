@@ -42,7 +42,7 @@ def main():
     if db:
         print("loading database")
         tic = time.perf_counter()
-        photosdb = osxphotos.PhotosDB(dbfile=db)
+        photosdb = osxphotos.PhotosDB(dbfile=db, verbose=print)
         toc = time.perf_counter()
         print(f"done: took {toc-tic} seconds")
         return photosdb

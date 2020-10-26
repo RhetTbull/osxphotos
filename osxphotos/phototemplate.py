@@ -102,6 +102,7 @@ TEMPLATE_SUBSTITUTIONS_MULTI_VALUED = {
     "{person}": "Person(s) / face(s) in a photo",
     "{label}": "Image categorization label associated with a photo (Photos 5 only)",
     "{label_normalized}": "All lower case version of 'label' (Photos 5 only)",
+    "{comment}": "Comment(s) on shared Photos; format is 'Person name: comment text' (Photos 5 only)"
 }
 
 # Just the multi-valued substitution names without the braces
@@ -244,14 +245,14 @@ class PhotoTemplate:
         #    '2011/Album2/keyword1/person1',
         #    '2011/Album2/keyword2/person1',]
 
-        rendered_strings = set([rendered])
+        rendered_strings = [rendered]
         for field in MULTI_VALUE_SUBSTITUTIONS:
             # Build a regex that matches only the field being processed
             re_str = r"(?<!\\)\{(" + field + r")(,(([\w\-\%. ]{0,})))?\}"
             regex_multi = re.compile(re_str)
 
-            # holds each of the new rendered_strings, set() to avoid duplicates
-            new_strings = set()
+            # holds each of the new rendered_strings, dict to avoid repeats (dict.keys())
+            new_strings = {}
 
             for str_template in rendered_strings:
                 if regex_multi.search(str_template):
@@ -307,10 +308,10 @@ class PhotoTemplate:
                                 self, none_str, get_func=lookup_template_value_multi
                             )
                             new_string = regex_multi.sub(subst, str_template)
-                            new_strings.add(new_string)
+                            new_strings[new_string] = 1
 
                         # update rendered_strings for the next field to process
-                        rendered_strings = new_strings
+                        rendered_strings = list(new_strings.keys())
 
         # find any {fields} that weren't replaced
         unmatched = []
@@ -637,6 +638,8 @@ class PhotoTemplate:
                         )
                     else:
                         values.append(album.title)
+        elif field == "comment":
+            values = [f"{comment.user}: {comment.text}" for comment in self.photo.comments]
         else:
             raise ValueError(f"Unhandled template value: {field}")
 

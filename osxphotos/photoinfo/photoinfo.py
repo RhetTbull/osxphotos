@@ -59,6 +59,7 @@ class PhotoInfo:
         ExportResults,
     )
     from ._photoinfo_scoreinfo import score, ScoreInfo
+    from ._photoinfo_comments import comments, likes 
 
     def __init__(self, db=None, uuid=None, info=None):
         self._uuid = uuid
