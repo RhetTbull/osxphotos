@@ -1871,6 +1871,7 @@ The following substitutions are availabe for use with `PhotoInfo.render_template
 |{person}|Person(s) / face(s) in a photo|
 |{label}|Image categorization label associated with a photo (Photos 5 only)|
 |{label_normalized}|All lower case version of 'label' (Photos 5 only)|
+|{comment}|Comment(s) on shared Photos; format is 'Person name: comment text' (Photos 5 only)|
 
 ### Utility Functions
 
