@@ -491,7 +491,7 @@ class PlaceInfo4(PlaceInfo):
         }
         return "PlaceInfo(" + ", ".join([f"{k}='{v}'" for k, v in info.items()]) + ")"
 
-    def as_dict(self):
+    def asdict(self):
         return {
             "name": self.name,
             "names": self.names._asdict(),
@@ -634,7 +634,7 @@ class PlaceInfo5(PlaceInfo):
         }
         return "PlaceInfo(" + ", ".join([f"{k}='{v}'" for k, v in info.items()]) + ")"
 
-    def as_dict(self):
+    def asdict(self):
         return {
             "name": self.name,
             "names": self.names._asdict(),

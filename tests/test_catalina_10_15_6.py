@@ -133,6 +133,7 @@ RawInfo = namedtuple(
         "uti_raw",
     ],
 )
+
 RAW_DICT = {
     "D05A5FE3-15FB-49A1-A15D-AB3DA6F8B068": RawInfo(
         "raw image, no jpeg pair",
@@ -180,6 +181,7 @@ RAW_DICT = {
 @pytest.fixture(scope="module")
 def photosdb():
     return osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+
 
 def test_init1():
     # test named argument
@@ -922,7 +924,6 @@ def test_from_to_date(photosdb):
     os.environ["TZ"] = "US/Pacific"
     time.tzset()
 
-
     photos = photosdb.photos(from_date=datetime.datetime(2018, 10, 28))
     assert len(photos) == 7
 
@@ -940,7 +941,6 @@ def test_from_to_date_tz(photosdb):
 
     os.environ["TZ"] = "US/Pacific"
     time.tzset()
-
 
     photos = photosdb.photos(
         from_date=datetime.datetime(2018, 9, 28, 13, 7, 0),
@@ -978,8 +978,7 @@ def test_date_invalid():
     # doesn't run correctly with the module-level fixture
     from datetime import datetime, timedelta, timezone
     import osxphotos
-    
-    
+
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["date_invalid"]])
     assert len(photos) == 1

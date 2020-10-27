@@ -198,7 +198,7 @@ def test_as_dict():
     import osxphotos.exiftool
 
     exif1 = osxphotos.exiftool.ExifTool(TEST_FILE_ONE_KEYWORD)
-    exifdata = exif1.as_dict()
+    exifdata = exif1.asdict()
     assert exifdata["XMP:TagsList"] == "wedding"
 
 
@@ -227,7 +227,7 @@ def test_photoinfo_exiftool():
     for uuid in EXIF_UUID:
         photo = photosdb.photos(uuid=[uuid])[0]
         exiftool = photo.exiftool
-        exif_dict = exiftool.as_dict()
+        exif_dict = exiftool.asdict()
         for key, val in EXIF_UUID[uuid].items():
             assert exif_dict[key] == val
 

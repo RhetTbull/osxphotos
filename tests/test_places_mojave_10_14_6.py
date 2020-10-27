@@ -89,11 +89,11 @@ def test_place_str():
 
 
 def test_place_as_dict():
-    # test PlaceInfo.as_dict()
+    # test PlaceInfo.asdict()
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photo = photosdb.photos(uuid=[UUID_DICT["place_uk"]])[0]
     assert photo.place is not None
     assert isinstance(photo.place, osxphotos.placeinfo.PlaceInfo)
-    assert photo.place.as_dict() == UK_DICT
+    assert photo.place.asdict() == UK_DICT

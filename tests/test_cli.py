@@ -854,7 +854,7 @@ def test_export_exiftool():
             files = glob.glob("*")
             assert sorted(files) == sorted([CLI_EXIFTOOL[uuid]["File:FileName"]])
 
-            exif = ExifTool(CLI_EXIFTOOL[uuid]["File:FileName"]).as_dict()
+            exif = ExifTool(CLI_EXIFTOOL[uuid]["File:FileName"]).asdict()
             for key in CLI_EXIFTOOL[uuid]:
                 assert exif[key] == CLI_EXIFTOOL[uuid][key]
 

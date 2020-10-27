@@ -1,6 +1,7 @@
 """ PhotosDB method for processing comments and likes on shared photos.
     Do not import this module directly """
 
+import dataclasses
 import datetime
 from dataclasses import dataclass
 
@@ -30,6 +31,9 @@ class CommentInfo:
     ismine: bool
     text: str
 
+    def asdict(self):
+        return dataclasses.asdict(self)
+
 
 @dataclass
 class LikeInfo:
@@ -38,6 +42,9 @@ class LikeInfo:
     datetime: datetime.datetime
     user: str
     ismine: bool
+
+    def asdict(self):
+        return dataclasses.asdict(self)
 
 
 # The following methods do not get imported into PhotosDB

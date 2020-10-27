@@ -228,7 +228,7 @@ class ExifTool:
         ver = self.run_commands("-ver", no_file=True)
         return ver.decode("utf-8")
 
-    def as_dict(self):
+    def asdict(self):
         """ return dictionary of all EXIF tags and values from exiftool 
             returns empty dict if no tags
         """
@@ -245,7 +245,7 @@ class ExifTool:
 
     def _read_exif(self):
         """ read exif data from file """
-        data = self.as_dict()
+        data = self.asdict()
         self.data = {k: v for k, v in data.items()}
 
     def __str__(self):

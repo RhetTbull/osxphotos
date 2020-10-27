@@ -5,6 +5,7 @@ PhotosDB.photos() returns a list of PhotoInfo objects
 """
 
 import dataclasses
+import datetime
 import json
 import logging
 import os
@@ -950,22 +951,23 @@ class PhotoInfo:
         }
         return yaml.dump(info, sort_keys=False)
 
-    def json(self):
-        """ return JSON representation """
+    def asdict(self):
+        """ return dict representation """
 
-        date_modified_iso = (
-            self.date_modified.isoformat() if self.date_modified else None
-        )
         folders = {album.title: album.folder_names for album in self.album_info}
         exif = dataclasses.asdict(self.exif_info) if self.exif_info else {}
-        place = self.place.as_dict() if self.place else {}
+        place = self.place.asdict() if self.place else {}
         score = dataclasses.asdict(self.score) if self.score else {}
+        comments = [comment.asdict() for comment in self.comments]
+        likes = [like.asdict() for like in self.likes]
+        faces = [face.asdict() for face in self.face_info]
 
-        pic = {
+        return {
+            "library": self._db._library_path,
             "uuid": self.uuid,
             "filename": self.filename,
             "original_filename": self.original_filename,
-            "date": self.date.isoformat(),
+            "date": self.date,
             "description": self.description,
             "title": self.title,
             "keywords": self.keywords,
@@ -974,6 +976,7 @@ class PhotoInfo:
             "albums": self.albums,
             "folders": folders,
             "persons": self.persons,
+            "faces": faces,
             "path": self.path,
             "ismissing": self.ismissing,
             "hasadjustments": self.hasadjustments,
@@ -987,12 +990,13 @@ class PhotoInfo:
             "isphoto": self.isphoto,
             "ismovie": self.ismovie,
             "uti": self.uti,
+            "uti_original": self.uti_original,
             "burst": self.burst,
             "live_photo": self.live_photo,
             "path_live_photo": self.path_live_photo,
             "iscloudasset": self.iscloudasset,
             "incloud": self.incloud,
-            "date_modified": date_modified_iso,
+            "date_modified": self.date_modified,
             "portrait": self.portrait,
             "screenshot": self.screenshot,
             "slow_mo": self.slow_mo,
@@ -1001,6 +1005,8 @@ class PhotoInfo:
             "selfie": self.selfie,
             "panorama": self.panorama,
             "has_raw": self.has_raw,
+            "israw": self.israw,
+            "raw_original": self.raw_original,
             "uti_raw": self.uti_raw,
             "path_raw": self.path_raw,
             "place": place,
@@ -1014,8 +1020,17 @@ class PhotoInfo:
             "original_width": self.original_width,
             "original_orientation": self.original_orientation,
             "original_filesize": self.original_filesize,
+            "comments": comments,
+            "likes": likes,
         }
-        return json.dumps(pic)
+
+    def json(self):
+        """ Return JSON representation """
+        def default(o):
+            if isinstance(o, (datetime.date, datetime.datetime)):
+                return o.isoformat()
+
+        return json.dumps(self.asdict(), sort_keys=True, default=default)
 
     def __eq__(self, other):
         """ Compare two PhotoInfo objects for equality """

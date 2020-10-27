@@ -1294,7 +1294,8 @@ exiftool must be installed in the path for this to work.  If exiftool cannot be 
 
 `ExifTool` provides the following methods:
 
-- `as_dict()`: returns all EXIF metadata found in the file as a dictionary in following form (Note: this shows just a subset of available metadata).  See [exiftool](https://exiftool.org/) documentation to understand which metadata keys are available.
+- `asdict()`: returns all EXIF metadata found in the file as a dictionary in following form (Note: this shows just a subset of available metadata).  See [exiftool](https://exiftool.org/) documentation to understand which metadata keys are available.
+
 ```python
 {'Composite:Aperture': 2.2,
  'Composite:GPSPosition': '-34.9188916666667 138.596861111111',
@@ -1307,7 +1308,7 @@ exiftool must be installed in the path for this to work.  If exiftool cannot be 
 }
 ```
 
-- `json()`: returns same information as `as_dict()` but as a serialized JSON string.
+- `json()`: returns same information as `asdict()` but as a serialized JSON string.
 
 - `setvalue(tag, value)`: write to the EXIF data in the photo file. To delete a tag, use setvalue with value = `None`. For example:
 ```python
@@ -1318,7 +1319,7 @@ photo.exiftool.setvalue("XMP:Title", "Title of photo")
 photo.exiftool.addvalues("IPTC:Keywords", "vacation", "beach")
 ```
 
-**Caution**: I caution against writing new EXIF data to photos in the Photos library because this will overwrite the original copy of the photo and could adversely affect how Photos behaves.  `exiftool.as_dict()` is useful for getting access to all the photos information but if you want to write new EXIF data, I recommend you export the photo first then write the data.  [PhotoInfo.export()](#export) does this if called with `exiftool=True`.
+**Caution**: I caution against writing new EXIF data to photos in the Photos library because this will overwrite the original copy of the photo and could adversely affect how Photos behaves.  `exiftool.asdict()` is useful for getting access to all the photos information but if you want to write new EXIF data, I recommend you export the photo first then write the data.  [PhotoInfo.export()](#export) does this if called with `exiftool=True`.
 
 #### `score`
 Returns a [ScoreInfo](#scoreinfo) data class object which provides access to the computed aesthetic scores for each photo.
@@ -1326,7 +1327,10 @@ Returns a [ScoreInfo](#scoreinfo) data class object which provides access to the
 **Note**: Valid only for Photos 5; returns None for earlier Photos versions.
 
 #### `json()`
-Returns a JSON representation of all photo info 
+Returns a JSON representation of all photo info.
+
+#### `asdict()`
+Returns a dictionary representation of all photo info.
 
 #### `export()`
 `export(dest, *filename, edited=False, live_photo=False, export_as_hardlink=False, overwrite=False, increment=True, sidecar_json=False, sidecar_xmp=False, use_photos_export=False, timeout=120, exiftool=False, no_xattr=False, use_albums_as_keywords=False, use_persons_as_keywords=False)`
@@ -1673,6 +1677,9 @@ Returns a list of [FaceInfo](#faceinfo) objects associated with this person sort
 
 #### `json()`
 Returns a json string representation of the PersonInfo instance.
+
+#### `asdict()`
+Returns a dictionary representation of the PersonInfo instance.
 
 ### FaceInfo 
 [PhotoInfo.face_info](#photofaceinfo) return a list of FaceInfo objects representing detected faces in a photo.  The FaceInfo class has the following properties and methods.

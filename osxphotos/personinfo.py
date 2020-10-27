@@ -66,10 +66,10 @@ class PersonInfo:
             # no faces
             return []
 
-    def json(self):
-        """ Returns JSON representation of class instance """
+    def asdict(self):
+        """ Returns dictionary representation of class instance """
         keyphoto = self.keyphoto.uuid if self.keyphoto is not None else None
-        person = {
+        return {
             "uuid": self.uuid,
             "name": self.name,
             "displayname": self.display_name,
@@ -77,7 +77,10 @@ class PersonInfo:
             "facecount": self.facecount,
             "keyphoto": keyphoto,
         }
-        return json.dumps(person)
+
+    def json(self):
+        """ Returns JSON representation of class instance """
+        return json.dumps(self.asdict())
 
     def __str__(self):
         return f"PersonInfo(name={self.name}, display_name={self.display_name}, uuid={self.uuid}, facecount={self.facecount})"

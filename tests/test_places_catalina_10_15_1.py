@@ -130,15 +130,15 @@ def test_place_no_place_info():
     assert photo.place is None
 
 
-def test_place_place_info_as_dict():
-    # test PlaceInfo.as_dict()
+def test_place_place_info_asdict():
+    # test PlaceInfo.asdict()
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photo = photosdb.photos(uuid=[UUID_DICT["place_maui"]])[0]
 
     assert isinstance(photo.place, osxphotos.placeinfo.PlaceInfo)
-    assert photo.place.as_dict() == MAUI_DICT
+    assert photo.place.asdict() == MAUI_DICT
 
 
 # def test_place_str():
