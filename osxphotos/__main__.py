@@ -489,6 +489,10 @@ def query_options(f):
             help="Search by end item date, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601).",
             type=DateTimeISO8601(),
         ),
+        o("--has-comment", is_flag=True, help="Search for photos that have comments."),
+        o("--no-comment", is_flag=True, help="Search for photos with no comments."),
+        o("--has-likes", is_flag=True, help="Search for photos that have likes."),
+        o("--no-likes", is_flag=True, help="Search for photos with no likes."),
     ]
     for o in options[::-1]:
         f = o(f)
@@ -529,7 +533,7 @@ def debug_dump(ctx, cli_obj, db, photos_library, dump, uuid, verbose_):
 
     global VERBOSE
     VERBOSE = bool(verbose_)
-    
+
     db = get_photos_db(*photos_library, db, cli_obj.db)
     if db is None:
         click.echo(cli.commands["debug-dump"].get_help(ctx), err=True)
@@ -982,6 +986,10 @@ def query(
     label,
     deleted,
     deleted_only,
+    has_comment,
+    no_comment,
+    has_likes,
+    no_likes,
 ):
     """ Query the Photos database using 1 or more search options; 
         if more than one option is provided, they are treated as "AND" 
@@ -1026,6 +1034,8 @@ def query(
         (any(place), no_place),
         (deleted, deleted_only),
         (shared, not_shared),
+        (has_comment, no_comment),
+        (has_likes, no_likes),
     ]
     # print help if no non-exclusive term or a double exclusive term is given
     if any(all(bb) for bb in exclusive) or not any(
@@ -1112,6 +1122,10 @@ def query(
         label=label,
         deleted=deleted,
         deleted_only=deleted_only,
+        has_comment=has_comment,
+        no_comment=no_comment,
+        has_likes=has_likes,
+        no_likes=no_likes,
     )
 
     # below needed for to make CliRunner work for testing
@@ -1395,6 +1409,10 @@ def export(
     edited_suffix,
     place,
     no_place,
+    has_comment, 
+    no_comment,
+    has_likes,
+    no_likes,
     no_extended_attributes,
     label,
     deleted,
@@ -1442,6 +1460,8 @@ def export(
         (skip_edited, skip_original_if_edited),
         (export_as_hardlink, convert_to_jpeg),
         (shared, not_shared),
+        (has_comment, no_comment),
+        (has_likes, no_likes),
     ]
     if any(all(bb) for bb in exclusive):
         click.echo("Incompatible export options", err=True)
@@ -1580,6 +1600,10 @@ def export(
         label=label,
         deleted=deleted,
         deleted_only=deleted_only,
+        has_comment=has_comment,
+        no_comment=no_comment,
+        has_likes=has_likes,
+        no_likes=no_likes,
     )
 
     if photos:
@@ -1899,6 +1923,10 @@ def _query(
     label=None,
     deleted=False,
     deleted_only=False,
+    has_comment=False,
+    no_comment=False,
+    has_likes=False,
+    no_likes=False,
 ):
     """ run a query against PhotosDB to extract the photos based on user supply criteria 
         used by query and export commands 
@@ -2117,6 +2145,17 @@ def _query(
 
     if has_raw:
         photos = [p for p in photos if p.has_raw]
+
+    if has_comment:
+        photos = [p for p in photos if p.comments]
+    elif no_comment:
+        photos = [p for p in photos if not p.comments]
+
+    if has_likes:
+        photos = [p for p in photos if p.likes]
+    elif no_likes:
+        photos = [p for p in photos if not p.likes]
+        
 
     return photos
 

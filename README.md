@@ -221,6 +221,10 @@ Options:
                                   2000-01-12T12:00:00,
                                   2001-01-12T12:00:00-07:00, or 2000-12-31
                                   (ISO 8601).
+  --has-comment                   Search for photos that have comments.
+  --no-comment                    Search for photos with no comments.
+  --has-likes                     Search for photos that have likes.
+  --no-likes                      Search for photos with no likes.
   --deleted                       Include photos from the 'Recently Deleted'
                                   folder.
   --deleted-only                  Include only photos from the 'Recently
@@ -542,6 +546,7 @@ Substitution        Description
                     (Photos 5 only)
 {label_normalized}  All lower case version of 'label' (Photos 5 only)
 {comment}           Comment(s) on shared Photos; format is 'Person name:
+                    comment text' (Photos 5 only)
 ```
 
 Example: export all photos to ~/Desktop/export group in folders by date created

@@ -11,6 +11,7 @@ from osxphotos.exiftool import get_exiftool_path
 CLI_PHOTOS_DB = "tests/Test-10.15.1.photoslibrary"
 LIVE_PHOTOS_DB = "tests/Test-Cloud-10.15.1.photoslibrary"
 RAW_PHOTOS_DB = "tests/Test-RAW-10.15.1.photoslibrary"
+COMMENTS_PHOTOS_DB = "tests/Test-Cloud-10.15.6.photoslibrary"
 PLACES_PHOTOS_DB = "tests/Test-Places-Catalina-10_15_1.photoslibrary"
 PLACES_PHOTOS_DB_13 = "tests/Test-Places-High-Sierra-10.13.6.photoslibrary"
 PHOTOS_DB_15_4 = "tests/Test-10.15.4.photoslibrary"
@@ -419,6 +420,22 @@ CLI_EXPORT_UUID_FROM_FILE_FILENAMES = [
     "wedding_edited.jpeg",
 ]
 
+UUID_HAS_COMMENTS = [
+    "4E4944A0-3E5C-4028-9600-A8709F2FA1DB",
+    "4AD7C8EF-2991-4519-9D3A-7F44A6F031BE",
+    "7572C53E-1D6A-410C-A2B1-18CCA3B5AD9F",
+]
+UUID_NO_COMMENTS = ["4F835581-5AB9-4DEC-9971-3E64A0894B04"]
+UUID_HAS_LIKES = [
+    "C008048F-8767-4992-85B8-13E798F6DC3C",
+    "65BADBD7-A50C-4956-96BA-1BB61155DA17",
+    "4AD7C8EF-2991-4519-9D3A-7F44A6F031BE",
+]
+UUID_NO_LIKES = [
+    "45099D34-A414-464F-94A2-60D6823679C8",
+    "1C1C8F1F-826B-4A24-B1CB-56628946A834",
+]
+
 
 @pytest.fixture(autouse=True)
 def reset_globals():
@@ -599,36 +616,92 @@ def test_query_uuid_from_file_1():
     assert sorted(UUID_EXPECTED_FROM_FILE) == sorted(uuid_got)
 
 
-def test_query_uuid_from_file_2():
-    """ Test query with --uuid-from-file and --uuid """
+def test_query_has_comment():
+    """ Test query with --has-comment """
     import json
     import os
     import os.path
-    import osxphotos
     from osxphotos.__main__ import query
 
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
         query,
-        [
-            "--json",
-            "--db",
-            os.path.join(cwd, PHOTOS_DB_15_5),
-            "--uuid-from-file",
-            UUID_FILE,
-            "--uuid",
-            UUID_NOT_FROM_FILE,
-        ],
+        ["--json", "--db", os.path.join(cwd, COMMENTS_PHOTOS_DB), "--has-comment"],
     )
     assert result.exit_code == 0
 
     # build list of uuids we got from the output JSON
     json_got = json.loads(result.output)
     uuid_got = [photo["uuid"] for photo in json_got]
-    uuid_expected = UUID_EXPECTED_FROM_FILE.copy()
-    uuid_expected.append(UUID_NOT_FROM_FILE)
-    assert sorted(uuid_expected) == sorted(uuid_got)
+    assert sorted(uuid_got) == sorted(UUID_HAS_COMMENTS)
+
+
+def test_query_no_comment():
+    """ Test query with --no-comment """
+    import json
+    import os
+    import os.path
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query, ["--json", "--db", os.path.join(cwd, COMMENTS_PHOTOS_DB), "--no-comment"]
+    )
+    assert result.exit_code == 0
+
+    # build list of uuids we got from the output JSON
+    json_got = json.loads(result.output)
+    uuid_got = [photo["uuid"] for photo in json_got]
+    for uuid in UUID_NO_COMMENTS:
+        assert uuid in uuid_got
+    for uuid in uuid_got:
+        assert uuid not in UUID_HAS_COMMENTS
+
+
+def test_query_has_likes():
+    """ Test query with --has-likes"""
+    import json
+    import os
+    import os.path
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        ["--json", "--db", os.path.join(cwd, COMMENTS_PHOTOS_DB), "--has-likes"],
+    )
+    assert result.exit_code == 0
+
+    # build list of uuids we got from the output JSON
+    json_got = json.loads(result.output)
+    uuid_got = [photo["uuid"] for photo in json_got]
+    assert sorted(uuid_got) == sorted(UUID_HAS_LIKES)
+
+
+def test_query_no_likes():
+    """ Test query with --no-likes"""
+    import json
+    import os
+    import os.path
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query, ["--json", "--db", os.path.join(cwd, COMMENTS_PHOTOS_DB), "--no-likes"]
+    )
+    assert result.exit_code == 0
+
+    # build list of uuids we got from the output JSON
+    json_got = json.loads(result.output)
+    uuid_got = [photo["uuid"] for photo in json_got]
+    for uuid in UUID_NO_LIKES:
+        assert uuid in uuid_got
+    for uuid in uuid_got:
+        assert uuid not in UUID_HAS_LIKES
 
 
 def test_export():
