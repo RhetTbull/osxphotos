@@ -1,0 +1,25 @@
+{
+  "projectName": "osxphotos",
+  "projectOwner": "RhetTbull",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": true,
+  "commitConvention": "none",
+  "contributors": [
+    {
+      "login": "britiscurious",
+      "name": "britiscurious",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/25646439?v=4",
+      "profile": "https://github.com/britiscurious",
+      "contributions": [
+        "doc",
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7
+}
