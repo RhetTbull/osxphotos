@@ -2,7 +2,7 @@
 import pytest
 
 PHOTOS_DB_PLACES = (
-    "./tests/Test-Places-Catalina-10_15_1.photoslibrary/database/photos.db"
+    "./tests/Test-Places-Catalina-10_15_7.photoslibrary/database/photos.db"
 )
 PHOTOS_DB_15_1 = "./tests/Test-10.15.1.photoslibrary/database/photos.db"
 PHOTOS_DB_15_4 = "./tests/Test-10.15.4.photoslibrary/database/photos.db"
@@ -18,6 +18,8 @@ UUID_DICT = {
     "folder_album_1": "3DD2C897-F19E-4CA6-8C22-B027D5A71907",
     "folder_album_no_folder": "D79B8D77-BFFC-460B-9312-034F2877D35B",
     "mojave_album_1": "15uNd7%8RguTEgNPKHfTWw",
+    "date_modified": "A9B73E13-A6F2-4915-8D67-7213B39BAE9F",
+    "date_not_modified": "128FB4C6-0B16-4E7D-9108-FB2E90DA1546",
 }
 
 TEMPLATE_VALUES = {
@@ -37,17 +39,6 @@ TEMPLATE_VALUES = {
     "{created.hour}": "19",
     "{created.min}": "07",
     "{created.sec}": "38",
-    "{modified.date}": "2020-03-21",
-    "{modified.year}": "2020",
-    "{modified.yy}": "20",
-    "{modified.mm}": "03",
-    "{modified.month}": "March",
-    "{modified.mon}": "Mar",
-    "{modified.dd}": "21",
-    "{modified.doy}": "081",
-    "{modified.hour}": "01",
-    "{modified.min}": "33",
-    "{modified.sec}": "08",
     "{place.name}": "Washington, District of Columbia, United States",
     "{place.country_code}": "US",
     "{place.name.country}": "United States",
@@ -78,14 +69,6 @@ TEMPLATE_VALUES_DEU = {
     "{created.dd}": "04",
     "{created.doy}": "035",
     "{created.dow}": "Dienstag",
-    "{modified.date}": "2020-03-21",
-    "{modified.year}": "2020",
-    "{modified.yy}": "20",
-    "{modified.mm}": "03",
-    "{modified.month}": "März",
-    "{modified.mon}": "Mär",
-    "{modified.dd}": "21",
-    "{modified.doy}": "081",
     "{place.name}": "Washington, District of Columbia, United States",
     "{place.country_code}": "US",
     "{place.name.country}": "United States",
@@ -100,6 +83,35 @@ TEMPLATE_VALUES_DEU = {
     "{place.address.country}": "United States",
     "{place.address.country_code}": "US",
 }
+
+TEMPLATE_VALUES_DATE_MODIFIED = {
+    "{name}": "A9B73E13-A6F2-4915-8D67-7213B39BAE9F",
+    "{original_name}": "IMG_3984",
+    "{modified.date}": "2020-10-31",
+    "{modified.year}": "2020",
+    "{modified.yy}": "20",
+    "{modified.mm}": "10",
+    "{modified.month}": "October",
+    "{modified.mon}": "Oct",
+    "{modified.dd}": "31",
+    "{modified.doy}": "305",
+    "{modified.dow}": "Saturday",
+}
+
+TEMPLATE_VALUES_DATE_NOT_MODIFIED = {
+    "{name}": "128FB4C6-0B16-4E7D-9108-FB2E90DA1546",
+    "{original_name}": "IMG_1064",
+    "{modified.date}": "_",
+    "{modified.year}": "_",
+    "{modified.yy}": "_",
+    "{modified.mm}": "_",
+    "{modified.month}": "_",
+    "{modified.mon}": "_",
+    "{modified.dd}": "_",
+    "{modified.doy}": "_",
+    "{modified.dow}": "_",
+}
+
 
 COMMENT_UUID_DICT = {
     "4AD7C8EF-2991-4519-9D3A-7F44A6F031BE": [
@@ -160,6 +172,34 @@ def test_subst():
     for template in TEMPLATE_VALUES:
         rendered, _ = photo.render_template(template)
         assert rendered[0] == TEMPLATE_VALUES[template]
+
+
+def test_subst_date_modified():
+    """ Test that substitutions are correct for date modified """
+    import locale
+    import osxphotos
+
+    locale.setlocale(locale.LC_ALL, "en_US")
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
+    photo = photosdb.photos(uuid=[UUID_DICT["date_modified"]])[0]
+
+    for template in TEMPLATE_VALUES_DATE_MODIFIED:
+        rendered, _ = photo.render_template(template)
+        assert rendered[0] == TEMPLATE_VALUES_DATE_MODIFIED[template]
+
+
+def test_subst_date_not_modified():
+    """ Test that substitutions are correct for date modified when photo isn't modified """
+    import locale
+    import osxphotos
+
+    locale.setlocale(locale.LC_ALL, "en_US")
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
+    photo = photosdb.photos(uuid=[UUID_DICT["date_not_modified"]])[0]
+
+    for template in TEMPLATE_VALUES_DATE_NOT_MODIFIED:
+        rendered, _ = photo.render_template(template)
+        assert rendered[0] == TEMPLATE_VALUES_DATE_NOT_MODIFIED[template]
 
 
 def test_subst_locale_1():

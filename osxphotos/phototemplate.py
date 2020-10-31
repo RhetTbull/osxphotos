@@ -30,33 +30,34 @@ TEMPLATE_SUBSTITUTIONS = {
     "{title}": "Title of the photo",
     "{descr}": "Description of the photo",
     "{created.date}": "Photo's creation date in ISO format, e.g. '2020-03-22'",
-    "{created.year}": "4-digit year of file creation time",
-    "{created.yy}": "2-digit year of file creation time",
-    "{created.mm}": "2-digit month of the file creation time (zero padded)",
-    "{created.month}": "Month name in user's locale of the file creation time",
-    "{created.mon}": "Month abbreviation in the user's locale of the file creation time",
-    "{created.dd}": "2-digit day of the month (zero padded) of file creation time",
-    "{created.dow}": "Day of week in user's locale of the file creation time",
-    "{created.doy}": "3-digit day of year (e.g Julian day) of file creation time, starting from 1 (zero padded)",
-    "{created.hour}": "2-digit hour of the file creation time",
-    "{created.min}": "2-digit minute of the file creation time",
-    "{created.sec}": "2-digit second of the file creation time",
+    "{created.year}": "4-digit year of photo creation time",
+    "{created.yy}": "2-digit year of photo creation time",
+    "{created.mm}": "2-digit month of the photo creation time (zero padded)",
+    "{created.month}": "Month name in user's locale of the photo creation time",
+    "{created.mon}": "Month abbreviation in the user's locale of the photo creation time",
+    "{created.dd}": "2-digit day of the month (zero padded) of photo creation time",
+    "{created.dow}": "Day of week in user's locale of the photo creation time",
+    "{created.doy}": "3-digit day of year (e.g Julian day) of photo creation time, starting from 1 (zero padded)",
+    "{created.hour}": "2-digit hour of the photo creation time",
+    "{created.min}": "2-digit minute of the photo creation time",
+    "{created.sec}": "2-digit second of the photo creation time",
     "{created.strftime}": "Apply strftime template to file creation date/time. Should be used in form "
     + "{created.strftime,TEMPLATE} where TEMPLATE is a valid strftime template, e.g. "
     + "{created.strftime,%Y-%U} would result in year-week number of year: '2020-23'. "
     + "If used with no template will return null value. "
     + "See https://strftime.org/ for help on strftime templates.",
     "{modified.date}": "Photo's modification date in ISO format, e.g. '2020-03-22'",
-    "{modified.year}": "4-digit year of file modification time",
-    "{modified.yy}": "2-digit year of file modification time",
-    "{modified.mm}": "2-digit month of the file modification time (zero padded)",
-    "{modified.month}": "Month name in user's locale of the file modification time",
-    "{modified.mon}": "Month abbreviation in the user's locale of the file modification time",
-    "{modified.dd}": "2-digit day of the month (zero padded) of the file modification time",
-    "{modified.doy}": "3-digit day of year (e.g Julian day) of file modification time, starting from 1 (zero padded)",
-    "{modified.hour}": "2-digit hour of the file modification time",
-    "{modified.min}": "2-digit minute of the file modification time",
-    "{modified.sec}": "2-digit second of the file modification time",
+    "{modified.year}": "4-digit year of photo modification time",
+    "{modified.yy}": "2-digit year of photo modification time",
+    "{modified.mm}": "2-digit month of the photo modification time (zero padded)",
+    "{modified.month}": "Month name in user's locale of the photo modification time",
+    "{modified.mon}": "Month abbreviation in the user's locale of the photo modification time",
+    "{modified.dd}": "2-digit day of the month (zero padded) of the photo modification time",
+    "{modified.dow}": "Day of week in user's locale of the photo modification time",
+    "{modified.doy}": "3-digit day of year (e.g Julian day) of photo modification time, starting from 1 (zero padded)",
+    "{modified.hour}": "2-digit hour of the photo modification time",
+    "{modified.min}": "2-digit minute of the photo modification time",
+    "{modified.sec}": "2-digit second of the photo modification time",
     # "{modified.strftime}": "Apply strftime template to file modification date/time. Should be used in form "
     # + "{modified.strftime,TEMPLATE} where TEMPLATE is a valid strftime template, e.g. "
     # + "{modified.strftime,%Y-%U} would result in year-week number of year: '2020-23'. "
@@ -102,7 +103,7 @@ TEMPLATE_SUBSTITUTIONS_MULTI_VALUED = {
     "{person}": "Person(s) / face(s) in a photo",
     "{label}": "Image categorization label associated with a photo (Photos 5 only)",
     "{label_normalized}": "All lower case version of 'label' (Photos 5 only)",
-    "{comment}": "Comment(s) on shared Photos; format is 'Person name: comment text' (Photos 5 only)"
+    "{comment}": "Comment(s) on shared Photos; format is 'Person name: comment text' (Photos 5 only)",
 }
 
 # Just the multi-valued substitution names without the braces
@@ -445,6 +446,12 @@ class PhotoTemplate:
                 if self.photo.date_modified
                 else None
             )
+        elif field == "modified.dow":
+            value = (
+                DateTimeFormatter(self.photo.date_modified).dow
+                if self.photo.date_modified
+                else None
+            )
         elif field == "modified.doy":
             value = (
                 DateTimeFormatter(self.photo.date_modified).doy
@@ -639,7 +646,9 @@ class PhotoTemplate:
                     else:
                         values.append(album.title)
         elif field == "comment":
-            values = [f"{comment.user}: {comment.text}" for comment in self.photo.comments]
+            values = [
+                f"{comment.user}: {comment.text}" for comment in self.photo.comments
+            ]
         else:
             raise ValueError(f"Unhandled template value: {field}")
 

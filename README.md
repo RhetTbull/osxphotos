@@ -427,23 +427,24 @@ Substitution                    Description
 {descr}                         Description of the photo
 {created.date}                  Photo's creation date in ISO format, e.g.
                                 '2020-03-22'
-{created.year}                  4-digit year of file creation time
-{created.yy}                    2-digit year of file creation time
-{created.mm}                    2-digit month of the file creation time
+{created.year}                  4-digit year of photo creation time
+{created.yy}                    2-digit year of photo creation time
+{created.mm}                    2-digit month of the photo creation time
                                 (zero padded)
-{created.month}                 Month name in user's locale of the file
+{created.month}                 Month name in user's locale of the photo
                                 creation time
 {created.mon}                   Month abbreviation in the user's locale of
-                                the file creation time
+                                the photo creation time
 {created.dd}                    2-digit day of the month (zero padded) of
-                                file creation time
-{created.dow}                   Day of week in user's locale of the file
+                                photo creation time
+{created.dow}                   Day of week in user's locale of the photo
                                 creation time
-{created.doy}                   3-digit day of year (e.g Julian day) of file
-                                creation time, starting from 1 (zero padded)
-{created.hour}                  2-digit hour of the file creation time
-{created.min}                   2-digit minute of the file creation time
-{created.sec}                   2-digit second of the file creation time
+{created.doy}                   3-digit day of year (e.g Julian day) of
+                                photo creation time, starting from 1 (zero
+                                padded)
+{created.hour}                  2-digit hour of the photo creation time
+{created.min}                   2-digit minute of the photo creation time
+{created.sec}                   2-digit second of the photo creation time
 {created.strftime}              Apply strftime template to file creation
                                 date/time. Should be used in form
                                 {created.strftime,TEMPLATE} where TEMPLATE
@@ -455,22 +456,26 @@ Substitution                    Description
                                 templates.
 {modified.date}                 Photo's modification date in ISO format,
                                 e.g. '2020-03-22'
-{modified.year}                 4-digit year of file modification time
-{modified.yy}                   2-digit year of file modification time
-{modified.mm}                   2-digit month of the file modification time
+{modified.year}                 4-digit year of photo modification time
+{modified.yy}                   2-digit year of photo modification time
+{modified.mm}                   2-digit month of the photo modification time
                                 (zero padded)
-{modified.month}                Month name in user's locale of the file
+{modified.month}                Month name in user's locale of the photo
                                 modification time
 {modified.mon}                  Month abbreviation in the user's locale of
-                                the file modification time
+                                the photo modification time
 {modified.dd}                   2-digit day of the month (zero padded) of
-                                the file modification time
-{modified.doy}                  3-digit day of year (e.g Julian day) of file
-                                modification time, starting from 1 (zero
-                                padded)
-{modified.hour}                 2-digit hour of the file modification time
-{modified.min}                  2-digit minute of the file modification time
-{modified.sec}                  2-digit second of the file modification time
+                                the photo modification time
+{modified.dow}                  Day of week in user's locale of the photo
+                                modification time
+{modified.doy}                  3-digit day of year (e.g Julian day) of
+                                photo modification time, starting from 1
+                                (zero padded)
+{modified.hour}                 2-digit hour of the photo modification time
+{modified.min}                  2-digit minute of the photo modification
+                                time
+{modified.sec}                  2-digit second of the photo modification
+                                time
 {today.date}                    Current date in iso format, e.g.
                                 '2020-03-22'
 {today.year}                    4-digit year of current date

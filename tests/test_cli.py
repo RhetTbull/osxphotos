@@ -670,8 +670,7 @@ def test_query_has_likes():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        query,
-        ["--json", "--db", os.path.join(cwd, COMMENTS_PHOTOS_DB), "--has-likes"],
+        query, ["--json", "--db", os.path.join(cwd, COMMENTS_PHOTOS_DB), "--has-likes"]
     )
     assert result.exit_code == 0
 
@@ -2642,8 +2641,7 @@ def test_export_sidecar_keyword_template():
         "XMP:PersonInImage": ["Katie"],
         "XMP:Subject": ["Kids", "Katie"],
         "EXIF:DateTimeOriginal": "2018:09:28 16:07:07",
-        "EXIF:OffsetTimeOriginal": "-04:00",
-        "EXIF:ModifyDate": "2020:04:11 12:34:16"}]"""
+        "EXIF:OffsetTimeOriginal": "-04:00"}]"""
         )[0]
 
         with open("Pumkins2.jpg.json", "r") as json_file:

@@ -1809,7 +1809,8 @@ class PhotosDB:
                 ZADDITIONALASSETATTRIBUTES.ZORIGINALWIDTH, 
                 ZADDITIONALASSETATTRIBUTES.ZORIGINALORIENTATION,
                 ZADDITIONALASSETATTRIBUTES.ZORIGINALFILESIZE,
-                {depth_state}
+                {depth_state},
+                {asset_table}.ZADJUSTMENTTIMESTAMP
                 FROM {asset_table} 
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
                 ORDER BY {asset_table}.ZUUID  """
@@ -1853,6 +1854,7 @@ class PhotosDB:
         # 34   ZADDITIONALASSETATTRIBUTES.ZORIGINALORIENTATION,
         # 35   ZADDITIONALASSETATTRIBUTES.ZORIGINALFILESIZE
         # 36   ZGENERICASSET.ZDEPTHSTATES / ZASSET.ZDEPTHTYPE
+        # 37   ZGENERICASSET.ZADJUSTMENTTIMESTAMP -- when was photo edited?
 
         for row in c:
             uuid = row[0]
@@ -1866,9 +1868,9 @@ class PhotosDB:
             # There are sometimes negative values for lastmodifieddate in the database
             # I don't know what these mean but they will raise exception in datetime if
             # not accounted for
-            info["lastmodifieddate_timestamp"] = row[4]
+            info["lastmodifieddate_timestamp"] = row[37]
             try:
-                info["lastmodifieddate"] = datetime.fromtimestamp(row[4] + TIME_DELTA)
+                info["lastmodifieddate"] = datetime.fromtimestamp(row[37] + TIME_DELTA)
             except ValueError:
                 info["lastmodifieddate"] = None
             except TypeError:
@@ -2282,7 +2284,7 @@ class PhotosDB:
         # process shared comments/likes
         verbose("Processing comments and likes for shared photos.")
         self._process_comments()
-        
+
         # done processing, dump debug data if requested
         verbose("Done processing details from Photos library.")
         if _debug():

@@ -1409,7 +1409,7 @@ def export(
     edited_suffix,
     place,
     no_place,
-    has_comment, 
+    has_comment,
     no_comment,
     has_likes,
     no_likes,
@@ -2155,7 +2155,6 @@ def _query(
         photos = [p for p in photos if p.likes]
     elif no_likes:
         photos = [p for p in photos if not p.likes]
-        
 
     return photos
 
