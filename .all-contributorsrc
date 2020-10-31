@@ -91,6 +91,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "hhoeck",
+      "name": "Horst Höck",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/6313998?v=4",
+      "profile": "https://github.com/hhoeck",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7
