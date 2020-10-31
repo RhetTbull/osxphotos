@@ -46,6 +46,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "dmd",
+      "name": "Daniel M. Drucker",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/41439?v=4",
+      "profile": "http://3e.org/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7
