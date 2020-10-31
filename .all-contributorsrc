@@ -64,6 +64,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "dethi",
+      "name": "Thibault Deutsch",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/1011520?v=4",
+      "profile": "https://dethi.me/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7
