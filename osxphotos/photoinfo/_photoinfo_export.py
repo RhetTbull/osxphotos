@@ -1137,19 +1137,38 @@ def _exiftool_json_sidecar(
         exif["EXIF:GPSLongitudeRef"] = lon_ref
 
     # process date/time and timezone offset
+    # Photos exports the following fields and sets modify date to creation date
+    # [EXIF]    Modify Date             : 2020:10:30 00:00:00
+    # [EXIF]    Date/Time Original      : 2020:10:30 00:00:00
+    # [EXIF]    Create Date             : 2020:10:30 00:00:00
+    # [IPTC]    Digital Creation Date   : 2020:10:30
+    # [IPTC]    Date Created            : 2020:10:30
+    #
+    # This code deviates from Photos in one regard: 
+    # if photo has modification date, use it otherwise use creation date
     date = self.date
+    
     # exiftool expects format to "2015:01:18 12:00:00"
     datetimeoriginal = date.strftime("%Y:%m:%d %H:%M:%S")
+    exif["EXIF:DateTimeOriginal"] = datetimeoriginal
+    exif["EXIF:CreateDate"] = datetimeoriginal
+
     offsettime = date.strftime("%z")
     # find timezone offset in format "-04:00"
     offset = re.findall(r"([+-]?)([\d]{2})([\d]{2})", offsettime)
     offset = offset[0]  # findall returns list of tuples
     offsettime = f"{offset[0]}{offset[1]}:{offset[2]}"
-    exif["EXIF:DateTimeOriginal"] = datetimeoriginal
     exif["EXIF:OffsetTimeOriginal"] = offsettime
+
+    dateoriginal = date.strftime("%Y:%m:%d") 
+    exif["IPTC:DigitalCreationDate"] = dateoriginal
+    exif["IPTC:DateCreated"] = dateoriginal
 
     if self.date_modified is not None:
         exif["EXIF:ModifyDate"] = self.date_modified.strftime("%Y:%m:%d %H:%M:%S")
+    else:
+        exif["EXIF:ModifyDate"] = self.date.strftime("%Y:%m:%d %H:%M:%S")
+
 
     json_str = json.dumps([exif])
     return json_str

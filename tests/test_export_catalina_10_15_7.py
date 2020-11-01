@@ -67,18 +67,21 @@ XMP_FILENAME = "Pumkins1.jpg.xmp"
 XMP_JPG_FILENAME = "Pumkins1.jpg"
 
 EXIF_JSON_UUID = UUID_DICT["has_adjustments"]
-EXIF_JSON_EXPECTED = (
-    '[{"_CreatedBy": "osxphotos, https://github.com/RhetTbull/osxphotos", '
-    '"EXIF:ImageDescription": "Bride Wedding day", '
-    '"XMP:Description": "Bride Wedding day", '
-    '"XMP:TagsList": ["wedding"], '
-    '"IPTC:Keywords": ["wedding"], '
-    '"XMP:PersonInImage": ["Maria"], '
-    '"XMP:Subject": ["wedding", "Maria"], '
-    '"EXIF:DateTimeOriginal": "2019:04:15 14:40:24", '
-    '"EXIF:OffsetTimeOriginal": "-04:00", '
-    '"EXIF:ModifyDate": "2019:07:27 17:33:28"}]'
-)
+EXIF_JSON_EXPECTED = """ 
+    [{"_CreatedBy": "osxphotos, https://github.com/RhetTbull/osxphotos", 
+    "EXIF:ImageDescription": "Bride Wedding day", 
+    "XMP:Description": "Bride Wedding day", 
+    "XMP:TagsList": ["wedding"], 
+    "IPTC:Keywords": ["wedding"], 
+    "XMP:PersonInImage": ["Maria"], 
+    "XMP:Subject": ["wedding", "Maria"], 
+    "EXIF:DateTimeOriginal": "2019:04:15 14:40:24", 
+    "EXIF:CreateDate": "2019:04:15 14:40:24", 
+    "EXIF:OffsetTimeOriginal": "-04:00", 
+    "IPTC:DigitalCreationDate": "2019:04:15", 
+    "IPTC:DateCreated": "2019:04:15", 
+    "EXIF:ModifyDate": "2019:07:27 17:33:28"}]
+    """
 
 
 def test_export_1():
@@ -507,7 +510,10 @@ def test_exiftool_json_sidecar_keyword_template_long(caplog):
         "XMP:PersonInImage": ["Maria"], 
         "XMP:Subject": ["wedding", "Maria"], 
         "EXIF:DateTimeOriginal": "2019:04:15 14:40:24", 
+        "EXIF:CreateDate": "2019:04:15 14:40:24", 
         "EXIF:OffsetTimeOriginal": "-04:00", 
+        "IPTC:DigitalCreationDate": "2019:04:15", 
+        "IPTC:DateCreated": "2019:04:15", 
         "EXIF:ModifyDate": "2019:07:27 17:33:28"}]
         """
     )[0]
@@ -552,9 +558,12 @@ def test_exiftool_json_sidecar_keyword_template():
         "XMP:TagsList": ["wedding", "Folder1/SubFolder2/AlbumInFolder", "I have a deleted twin"], 
         "IPTC:Keywords": ["wedding", "Folder1/SubFolder2/AlbumInFolder", "I have a deleted twin"], 
         "XMP:PersonInImage": ["Maria"], 
-        "XMP:Subject": ["wedding", "Maria"], 
+        "XMP:Subject": ["wedding", "Maria"],
         "EXIF:DateTimeOriginal": "2019:04:15 14:40:24", 
+        "EXIF:CreateDate": "2019:04:15 14:40:24", 
         "EXIF:OffsetTimeOriginal": "-04:00", 
+        "IPTC:DigitalCreationDate": "2019:04:15", 
+        "IPTC:DateCreated": "2019:04:15", 
         "EXIF:ModifyDate": "2019:07:27 17:33:28"}]
         """
     )[0]
@@ -609,11 +618,15 @@ def test_exiftool_json_sidecar_use_persons_keyword():
         "XMP:Description": "Girls with pumpkins", 
         "XMP:Title": "Can we carry this?", 
         "XMP:TagsList": ["Kids", "Suzy", "Katie"], 
-        "IPTC:Keywords": ["Kids", "Suzy", "Katie"], 
-        "XMP:PersonInImage": ["Suzy", "Katie"], 
-        "XMP:Subject": ["Kids", "Suzy", "Katie"], 
+        "IPTC:Keywords": ["Kids", "Suzy", "Katie"],
+        "XMP:PersonInImage": ["Suzy", "Katie"],
+        "XMP:Subject": ["Kids", "Suzy", "Katie"],
         "EXIF:DateTimeOriginal": "2018:09:28 15:35:49", 
-        "EXIF:OffsetTimeOriginal": "-04:00"}] 
+        "EXIF:CreateDate": "2018:09:28 15:35:49", 
+        "EXIF:OffsetTimeOriginal": "-04:00", 
+        "IPTC:DigitalCreationDate": "2018:09:28", 
+        "IPTC:DateCreated": "2018:09:28", 
+        "EXIF:ModifyDate": "2018:09:28 15:35:49"}]
         """
     )[0]
 
@@ -652,7 +665,11 @@ def test_exiftool_json_sidecar_use_albums_keyword():
         "XMP:PersonInImage": ["Suzy", "Katie"], 
         "XMP:Subject": ["Kids", "Suzy", "Katie"], 
         "EXIF:DateTimeOriginal": "2018:09:28 15:35:49", 
-        "EXIF:OffsetTimeOriginal": "-04:00"}]
+        "EXIF:CreateDate": "2018:09:28 15:35:49", 
+        "EXIF:OffsetTimeOriginal": "-04:00", 
+        "IPTC:DigitalCreationDate": "2018:09:28", 
+        "IPTC:DateCreated": "2018:09:28", 
+        "EXIF:ModifyDate": "2018:09:28 15:35:49"}]
         """
     )[0]
 

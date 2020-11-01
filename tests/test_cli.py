@@ -2632,16 +2632,21 @@ def test_export_sidecar_keyword_template():
 
         json_expected = json.loads(
             """
-        [{"_CreatedBy": "osxphotos, https://github.com/RhetTbull/osxphotos",
-        "EXIF:ImageDescription": "Girl holding pumpkin",
-        "XMP:Description": "Girl holding pumpkin",
-        "XMP:Title": "I found one!",
-        "XMP:TagsList": ["Kids", "Multi Keyword", "Test Album", "Pumpkin Farm"],
-        "IPTC:Keywords": ["Kids", "Multi Keyword", "Test Album", "Pumpkin Farm"],
-        "XMP:PersonInImage": ["Katie"],
-        "XMP:Subject": ["Kids", "Katie"],
-        "EXIF:DateTimeOriginal": "2018:09:28 16:07:07",
-        "EXIF:OffsetTimeOriginal": "-04:00"}]"""
+            [{"_CreatedBy": "osxphotos, https://github.com/RhetTbull/osxphotos", 
+            "EXIF:ImageDescription": "Girl holding pumpkin", 
+            "XMP:Description": "Girl holding pumpkin", 
+            "XMP:Title": "I found one!", 
+            "XMP:TagsList": ["Kids", "Multi Keyword", "Pumpkin Farm", "Test Album"], 
+            "IPTC:Keywords": ["Kids", "Multi Keyword", "Pumpkin Farm", "Test Album"], 
+            "XMP:PersonInImage": ["Katie"], 
+            "XMP:Subject": ["Kids", "Katie"], 
+            "EXIF:DateTimeOriginal": "2018:09:28 16:07:07", 
+            "EXIF:CreateDate": "2018:09:28 16:07:07", 
+            "EXIF:OffsetTimeOriginal": "-04:00", 
+            "IPTC:DigitalCreationDate": "2018:09:28", 
+            "IPTC:DateCreated": "2018:09:28", 
+            "EXIF:ModifyDate": "2018:09:28 16:07:07"}]
+            """
         )[0]
 
         with open("Pumkins2.jpg.json", "r") as json_file:
