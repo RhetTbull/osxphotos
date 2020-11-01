@@ -60,7 +60,7 @@ class PhotoInfo:
         ExportResults,
     )
     from ._photoinfo_scoreinfo import score, ScoreInfo
-    from ._photoinfo_comments import comments, likes 
+    from ._photoinfo_comments import comments, likes
 
     def __init__(self, db=None, uuid=None, info=None):
         self._uuid = uuid
@@ -70,7 +70,11 @@ class PhotoInfo:
     @property
     def filename(self):
         """ filename of the picture """
-        if self._db._db_version <= _PHOTOS_4_VERSION and self.has_raw and self.raw_original:
+        if (
+            self._db._db_version <= _PHOTOS_4_VERSION
+            and self.has_raw
+            and self.raw_original
+        ):
             # return the JPEG version as that's what Photos 5+ does
             return self._info["raw_pair_info"]["filename"]
         else:
@@ -80,7 +84,11 @@ class PhotoInfo:
     def original_filename(self):
         """ original filename of the picture 
             Photos 5 mangles filenames upon import """
-        if self._db._db_version <= _PHOTOS_4_VERSION and self.has_raw and self.raw_original:
+        if (
+            self._db._db_version <= _PHOTOS_4_VERSION
+            and self.has_raw
+            and self.raw_original
+        ):
             # return the JPEG version as that's what Photos 5+ does
             return self._info["raw_pair_info"]["originalFilename"]
         else:
@@ -95,12 +103,20 @@ class PhotoInfo:
     def date_modified(self):
         """ image modification date as timezone aware datetime object
             or None if no modification date set """
-        imagedate = self._info["lastmodifieddate"]
-        if imagedate:
-            seconds = self._info["imageTimeZoneOffsetSeconds"] or 0
-            delta = timedelta(seconds=seconds)
-            tz = timezone(delta)
-            return imagedate.astimezone(tz=tz)
+
+        # Photos <= 4 provides no way to get date of adjustment and will update
+        # lastmodifieddate anytime photo database record is updated (e.g. adding tags)
+        # only report lastmodified date for Photos <=4 if photo is edited;
+        # even in this case, the date could be incorrect
+        if self.hasadjustments or self._db._db_version > _PHOTOS_4_VERSION:
+            imagedate = self._info["lastmodifieddate"]
+            if imagedate:
+                seconds = self._info["imageTimeZoneOffsetSeconds"] or 0
+                delta = timedelta(seconds=seconds)
+                tz = timezone(delta)
+                return imagedate.astimezone(tz=tz)
+            else:
+                return None
         else:
             return None
 
@@ -282,7 +298,7 @@ class PhotoInfo:
                 # could be elsewhere--I haven't figured out this logic yet
                 # first see if it's in 00
                 photopath = os.path.join(
-                    library, "resources", "media", "version", folder_id, "00", filename,
+                    library, "resources", "media", "version", folder_id, "00", filename
                 )
 
                 if not os.path.isfile(photopath):
@@ -841,7 +857,7 @@ class PhotoInfo:
             inplace_sep=inplace_sep,
             filename=filename,
             dirname=dirname,
-            replacement=replacement
+            replacement=replacement,
         )
 
     @property
@@ -1026,6 +1042,7 @@ class PhotoInfo:
 
     def json(self):
         """ Return JSON representation """
+
         def default(o):
             if isinstance(o, (datetime.date, datetime.datetime)):
                 return o.isoformat()

@@ -1,6 +1,10 @@
+""" Test basic methods for Mojave 10.14.6 """
+
+import datetime
+from collections import namedtuple
+
 import pytest
 
-from collections import namedtuple
 from osxphotos._constants import _UNKNOWN_PERSON
 
 PHOTOS_DB = "./tests/Test-10.14.6.photoslibrary/database/photos.db"
@@ -531,6 +535,31 @@ def test_date_modified_invalid(photosdb):
 
     photos = photosdb.photos(uuid=[UUID_DICT["date_invalid"]])
     assert len(photos) == 1
+    p = photos[0]
+    assert p.date_modified is None
+
+
+def test_date_modified(photosdb):
+    """ Test date modified for photo that has been edited """
+
+    photos = photosdb.photos(uuid=[UUID_DICT["has_adjustments"]])
+    p = photos[0]
+    assert p.date_modified == datetime.datetime(
+        2019,
+        11,
+        27,
+        1,
+        30,
+        16,
+        681150,
+        tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=72000)),
+    )
+
+
+def test_date_modified_none(photosdb):
+    """ Test date modified for a photo that hasn't been edited """
+
+    photos = photosdb.photos(uuid=[UUID_DICT["no_adjustments"]])
     p = photos[0]
     assert p.date_modified is None
 
