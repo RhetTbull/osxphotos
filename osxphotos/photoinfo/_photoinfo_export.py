@@ -5,6 +5,7 @@
     _export_photo
     _write_exif_data
     _exiftool_json_sidecar
+    _exiftool_dict
     _xmp_sidecar
     _write_sidecar
     """
@@ -308,6 +309,7 @@ def export2(
     touch_file=False,
     convert_to_jpeg=False,
     jpeg_quality=1.0,
+    ignore_date_modified=False,
 ):
     """ export photo, like export but with update and dry_run options
         dest: must be valid destination path or exception raised 
@@ -350,6 +352,7 @@ def export2(
         touch_file: (boolean, default=False); if True, sets file's modification time upon photo date
         convert_to_jpeg: boolean; if True, converts non-jpeg images to jpeg
         jpeg_quality: float in range 0.0 <= jpeg_quality <= 1.0.  A value of 1.0 specifies use best quality, a value of 0.0 specifies use maximum compression.
+        ignore_date_modified: for use with sidecar and exiftool; if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
 
         Returns: ExportResults namedtuple with fields: exported, new, updated, skipped 
                     where each field is a list of file paths
@@ -698,6 +701,7 @@ def export2(
             use_persons_as_keywords=use_persons_as_keywords,
             keyword_template=keyword_template,
             description_template=description_template,
+            ignore_date_modified=ignore_date_modified,
         )
         if not dry_run:
             try:
@@ -743,6 +747,7 @@ def export2(
                         use_persons_as_keywords=use_persons_as_keywords,
                         keyword_template=keyword_template,
                         description_template=description_template,
+                        ignore_date_modified=ignore_date_modified,
                     )
                 )[0]
                 if old_data != current_data:
@@ -758,6 +763,7 @@ def export2(
                         use_persons_as_keywords=use_persons_as_keywords,
                         keyword_template=keyword_template,
                         description_template=description_template,
+                        ignore_date_modified=ignore_date_modified,
                     )
                 export_db.set_exifdata_for_file(
                     exported_file,
@@ -766,6 +772,7 @@ def export2(
                         use_persons_as_keywords=use_persons_as_keywords,
                         keyword_template=keyword_template,
                         description_template=description_template,
+                        ignore_date_modified=ignore_date_modified,
                     ),
                 )
                 export_db.set_stat_exif_for_file(
@@ -781,6 +788,7 @@ def export2(
                     use_persons_as_keywords=use_persons_as_keywords,
                     keyword_template=keyword_template,
                     description_template=description_template,
+                    ignore_date_modified=ignore_date_modified,
                 )
 
             export_db.set_exifdata_for_file(
@@ -790,6 +798,7 @@ def export2(
                     use_persons_as_keywords=use_persons_as_keywords,
                     keyword_template=keyword_template,
                     description_template=description_template,
+                    ignore_date_modified=ignore_date_modified,
                 ),
             )
             export_db.set_stat_exif_for_file(
@@ -997,21 +1006,30 @@ def _write_exif_data(
     use_persons_as_keywords=False,
     keyword_template=None,
     description_template=None,
+    ignore_date_modified=False,
 ):
     """ write exif data to image file at filepath
-    filepath: full path to the image file """
+
+    Args:
+        filepath: full path to the image file 
+        use_albums_as_keywords: treat album names as keywords
+        use_persons_as_keywords: treat person names as keywords
+        keyword_template: (list of strings); list of template strings to render as keywords
+        ignore_date_modified: if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
+    """
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"Could not find file {filepath}")
     exiftool = ExifTool(filepath)
-    exif_info = json.loads(
-        self._exiftool_json_sidecar(
-            use_albums_as_keywords=use_albums_as_keywords,
-            use_persons_as_keywords=use_persons_as_keywords,
-            keyword_template=keyword_template,
-            description_template=description_template,
-        )
-    )[0]
+    exif_info = self._exiftool_dict(
+        use_albums_as_keywords=use_albums_as_keywords,
+        use_persons_as_keywords=use_persons_as_keywords,
+        keyword_template=keyword_template,
+        description_template=description_template,
+        ignore_date_modified=ignore_date_modified,
+    )
     for exiftag, val in exif_info.items():
+        if exiftag == "_CreatedBy":
+            continue
         if type(val) == list:
             # more than one, set first value the add additional values
             exiftool.setvalue(exiftag, val.pop(0))
@@ -1022,37 +1040,46 @@ def _write_exif_data(
             exiftool.setvalue(exiftag, val)
 
 
-def _exiftool_json_sidecar(
+def _exiftool_dict(
     self,
     use_albums_as_keywords=False,
     use_persons_as_keywords=False,
     keyword_template=None,
     description_template=None,
+    ignore_date_modified=False,
 ):
-    """ return json string of EXIF details in exiftool sidecar format
-        Does not include all the EXIF fields as those are likely already in the image
+    """ Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
+        Does not include all the EXIF fields as those are likely already in the image.
+
+    Args:
         use_albums_as_keywords: treat album names as keywords
         use_persons_as_keywords: treat person names as keywords
         keyword_template: (list of strings); list of template strings to render as keywords
-        Exports the following:
-            FileName
-            ImageDescription
-            Description
-            Title
-            TagsList
-            Keywords (may include album name, person name, or template)
-            Subject
-            PersonInImage
-            GPSLatitude, GPSLongitude
-            GPSPosition
-            GPSLatitudeRef, GPSLongitudeRef
-            DateTimeOriginal
-            OffsetTimeOriginal
-            ModifyDate """
+        description_template: (list of strings); list of template strings to render for the description
+        ignore_date_modified: if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
+
+    Returns: dict with exiftool tags / values
+
+    Exports the following:
+        EXIF:ImageDescription
+        XMP:Description (may include template)
+        XMP:Title
+        XMP:TagsList
+        IPTC:Keywords (may include album name, person name, or template)
+        XMP:Subject
+        XMP:PersonInImage
+        EXIF:GPSLatitude, EXIF:GPSLongitude
+        EXIF:GPSPosition
+        EXIF:GPSLatitudeRef, EXIF:GPSLongitudeRef
+        EXIF:DateTimeOriginal
+        EXIF:OffsetTimeOriginal
+        EXIF:ModifyDate
+        IPTC:DigitalCreationDate
+        IPTC:DateCreated
+    """
 
     exif = {}
     exif["_CreatedBy"] = "osxphotos, https://github.com/RhetTbull/osxphotos"
-
     if description_template is not None:
         description = self.render_template(
             description_template, expand_inplace=True, inplace_sep=", "
@@ -1114,15 +1141,16 @@ def _exiftool_json_sidecar(
         keyword_list.extend(rendered_keywords)
 
     if keyword_list:
-        exif["XMP:TagsList"] = exif["IPTC:Keywords"] = keyword_list
+        exif["XMP:TagsList"] = keyword_list.copy()
+        exif["IPTC:Keywords"] = keyword_list.copy()
 
     if person_list:
-        exif["XMP:PersonInImage"] = person_list
+        exif["XMP:PersonInImage"] = person_list.copy()
 
     if self.keywords or person_list:
         # Photos puts both keywords and persons in Subject when using "Export IPTC as XMP"
-        # only use Photos' keywords for subject
-        exif["XMP:Subject"] = list(self.keywords) + person_list
+        # only use Photos' keywords for subject (e.g. don't include template values)
+        exif["XMP:Subject"] = self.keywords.copy() + person_list.copy()
 
     # if self.favorite():
     #     exif["Rating"] = 5
@@ -1144,10 +1172,10 @@ def _exiftool_json_sidecar(
     # [IPTC]    Digital Creation Date   : 2020:10:30
     # [IPTC]    Date Created            : 2020:10:30
     #
-    # This code deviates from Photos in one regard: 
+    # This code deviates from Photos in one regard:
     # if photo has modification date, use it otherwise use creation date
     date = self.date
-    
+
     # exiftool expects format to "2015:01:18 12:00:00"
     datetimeoriginal = date.strftime("%Y:%m:%d %H:%M:%S")
     exif["EXIF:DateTimeOriginal"] = datetimeoriginal
@@ -1160,18 +1188,63 @@ def _exiftool_json_sidecar(
     offsettime = f"{offset[0]}{offset[1]}:{offset[2]}"
     exif["EXIF:OffsetTimeOriginal"] = offsettime
 
-    dateoriginal = date.strftime("%Y:%m:%d") 
+    dateoriginal = date.strftime("%Y:%m:%d")
     exif["IPTC:DigitalCreationDate"] = dateoriginal
     exif["IPTC:DateCreated"] = dateoriginal
 
-    if self.date_modified is not None:
+    if self.date_modified is not None and not ignore_date_modified:
         exif["EXIF:ModifyDate"] = self.date_modified.strftime("%Y:%m:%d %H:%M:%S")
     else:
         exif["EXIF:ModifyDate"] = self.date.strftime("%Y:%m:%d %H:%M:%S")
 
+    return exif
 
-    json_str = json.dumps([exif])
-    return json_str
+
+def _exiftool_json_sidecar(
+    self,
+    use_albums_as_keywords=False,
+    use_persons_as_keywords=False,
+    keyword_template=None,
+    description_template=None,
+    ignore_date_modified=False,
+):
+    """ Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
+        Does not include all the EXIF fields as those are likely already in the image.
+
+    Args:
+        use_albums_as_keywords: treat album names as keywords
+        use_persons_as_keywords: treat person names as keywords
+        keyword_template: (list of strings); list of template strings to render as keywords
+        description_template: (list of strings); list of template strings to render for the description
+        ignore_date_modified: if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
+
+    Returns: dict with exiftool tags / values
+
+    Exports the following:
+        EXIF:ImageDescription
+        XMP:Description (may include template)
+        XMP:Title
+        XMP:TagsList
+        IPTC:Keywords (may include album name, person name, or template)
+        XMP:Subject
+        XMP:PersonInImage
+        EXIF:GPSLatitude, EXIF:GPSLongitude
+        EXIF:GPSPosition
+        EXIF:GPSLatitudeRef, EXIF:GPSLongitudeRef
+        EXIF:DateTimeOriginal
+        EXIF:OffsetTimeOriginal
+        EXIF:ModifyDate
+        IPTC:DigitalCreationDate
+        IPTC:DateCreated
+    """
+    exif = self._exiftool_dict(
+        use_albums_as_keywords=use_albums_as_keywords,
+        use_persons_as_keywords=use_persons_as_keywords,
+        keyword_template=keyword_template,
+        description_template=description_template,
+        ignore_date_modified=ignore_date_modified,
+    )
+    return json.dumps([exif])
 
 
 def _xmp_sidecar(

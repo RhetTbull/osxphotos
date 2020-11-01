@@ -53,6 +53,7 @@ class PhotoInfo:
         export,
         export2,
         _export_photo,
+        _exiftool_dict,
         _exiftool_json_sidecar,
         _write_exif_data,
         _write_sidecar,

@@ -324,6 +324,24 @@ CLI_EXIFTOOL = {
     }
 }
 
+CLI_EXIFTOOL_IGNORE_DATE_MODIFIED = {
+    "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51": {
+        "File:FileName": "wedding.jpg",
+        "EXIF:ImageDescription": "Bride Wedding day",
+        "XMP:Description": "Bride Wedding day",
+        "XMP:TagsList": "wedding",
+        "IPTC:Keywords": "wedding",
+        "XMP:PersonInImage": "Maria",
+        "XMP:Subject": ["wedding", "Maria"],
+        "EXIF:DateTimeOriginal": "2019:04:15 14:40:24",
+        "EXIF:CreateDate": "2019:04:15 14:40:24",
+        "EXIF:OffsetTimeOriginal": "-04:00",
+        "IPTC:DigitalCreationDate": "2019:04:15",
+        "IPTC:DateCreated": "2019:04:15",
+        "EXIF:ModifyDate": "2019:04:15 14:40:24",
+    }
+}
+
 LABELS_JSON = {
     "labels": {
         "Plant": 7,
@@ -929,6 +947,38 @@ def test_export_exiftool():
             exif = ExifTool(CLI_EXIFTOOL[uuid]["File:FileName"]).asdict()
             for key in CLI_EXIFTOOL[uuid]:
                 assert exif[key] == CLI_EXIFTOOL[uuid][key]
+
+
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+def test_export_exiftool_ignore_date_modified():
+    import glob
+    import os
+    import os.path
+    from osxphotos.__main__ import export
+    from osxphotos.exiftool import ExifTool
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        for uuid in CLI_EXIFTOOL_IGNORE_DATE_MODIFIED:
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_6),
+                    ".",
+                    "-V",
+                    "--exiftool",
+                    "--ignore-date-modified",
+                    "--uuid",
+                    f"{uuid}",
+                ],
+            )
+            assert result.exit_code == 0
+
+            exif = ExifTool(CLI_EXIFTOOL_IGNORE_DATE_MODIFIED[uuid]["File:FileName"]).asdict()
+            for key in CLI_EXIFTOOL_IGNORE_DATE_MODIFIED[uuid]:
+                assert exif[key] == CLI_EXIFTOOL_IGNORE_DATE_MODIFIED[uuid][key]
 
 
 def test_export_edited_suffix():

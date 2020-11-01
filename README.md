@@ -329,6 +329,11 @@ Options:
                                   exiftool may be installed from
                                   https://exiftool.org/.  Cannot be used with
                                   --export-as-hardlink.
+  --ignore-date-modified          If used with --exiftool or --sidecar, will
+                                  ignore the photo modification date and set
+                                  EXIF:ModifyDate to EXIF:DateTimeOriginal;
+                                  this is consistent with how Photos handles
+                                  the EXIF:ModifyDate tag.
   --directory DIRECTORY           Optional template for specifying name of
                                   output directory in the form
                                   '{name,DEFAULT}'. See below for additional

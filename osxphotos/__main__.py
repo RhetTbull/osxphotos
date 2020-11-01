@@ -1291,6 +1291,13 @@ def query(
     "Cannot be used with --export-as-hardlink.",
 )
 @click.option(
+    "--ignore-date-modified",
+    is_flag=True,
+    help="If used with --exiftool or --sidecar, will ignore the photo "
+    "modification date and set EXIF:ModifyDate to EXIF:DateTimeOriginal; "
+    "this is consistent with how Photos handles the EXIF:ModifyDate tag.",
+)
+@click.option(
     "--directory",
     metavar="DIRECTORY",
     default=None,
@@ -1389,6 +1396,7 @@ def export(
     download_missing,
     dest,
     exiftool,
+    ignore_date_modified,
     portrait,
     not_portrait,
     screenshot,
@@ -1663,6 +1671,7 @@ def export(
                     use_photos_export=use_photos_export,
                     convert_to_jpeg=convert_to_jpeg,
                     jpeg_quality=jpeg_quality,
+                    ignore_date_modified=ignore_date_modified,
                 )
                 results_exported.extend(results.exported)
                 results_new.extend(results.new)
@@ -1712,6 +1721,7 @@ def export(
                         use_photos_export=use_photos_export,
                         convert_to_jpeg=convert_to_jpeg,
                         jpeg_quality=jpeg_quality,
+                        ignore_date_modified=ignore_date_modified,
                     )
                     results_exported.extend(results.exported)
                     results_new.extend(results.new)
@@ -2218,6 +2228,7 @@ def export_photo(
     use_photos_export=False,
     convert_to_jpeg=False,
     jpeg_quality=1.0,
+    ignore_date_modified=False,
 ):
     """ Helper function for export that does the actual export
 
@@ -2251,6 +2262,7 @@ def export_photo(
         use_photos_export: boolean; if True forces the use of AppleScript to export even if photo not missing
         convert_to_jpeg: boolean; if True, converts non-jpeg images to jpeg
         jpeg_quality: float in range 0.0 <= jpeg_quality <= 1.0.  A value of 1.0 specifies use best quality, a value of 0.0 specifies use maximum compression.
+        ignore_date_modified: if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
 
     Returns:
         list of path(s) of exported photo or None if photo was missing
@@ -2339,6 +2351,7 @@ def export_photo(
                     touch_file=touch_file,
                     convert_to_jpeg=convert_to_jpeg,
                     jpeg_quality=jpeg_quality,
+                    ignore_date_modified=ignore_date_modified,
                 )
 
                 results_exported.extend(export_results.exported)
@@ -2400,6 +2413,7 @@ def export_photo(
                         touch_file=touch_file,
                         convert_to_jpeg=convert_to_jpeg,
                         jpeg_quality=jpeg_quality,
+                        ignore_date_modified=ignore_date_modified,
                     )
 
                     results_exported.extend(export_results_edited.exported)
