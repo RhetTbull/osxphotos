@@ -196,18 +196,15 @@ class PhotoInfo:
         """ absolute path on disk of the edited picture """
         """ None if photo has not been edited """
 
-        # TODO: break this code into a _path_edited_4 and _path_edited_5
-        # version to simplify the big if/then; same for path_live_photo
-
         try:
             return self._path_edited
         except AttributeError:
             if self._db._db_version <= _PHOTOS_4_VERSION:
                 self._path_edited = self._path_edited_4()
-                return self._path_edited
             else:
                 self._path_edited = self._path_edited_5()
-                return self._path_edited
+
+            return self._path_edited
 
     def _path_edited_5(self):
         """ return path_edited for Photos >= 5 """
@@ -264,8 +261,6 @@ class PhotoInfo:
         # TODO: might be possible for original/master to be missing but edit to still be there
         # if self._info["isMissing"] == 1:
         #     photopath = None  # path would be meaningless until downloaded
-
-        # logging.debug(photopath)
 
         return photopath
 

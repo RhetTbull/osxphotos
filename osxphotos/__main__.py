@@ -2317,10 +2317,13 @@ def export_photo(
 
         # if download_missing and the photo is missing or path doesn't exist,
         # try to download with Photos
-        use_photos_export = (
-            download_missing and (photo.ismissing or not os.path.exists(photo.path))
-            if not use_photos_export
-            else True
+        use_photos_export = use_photos_export or (
+            download_missing
+            and (
+                photo.ismissing
+                or not os.path.exists(photo.path)
+                or (export_edited and photo.path_edited is None)
+            )
         )
 
         # export the photo to each path in dest_paths
