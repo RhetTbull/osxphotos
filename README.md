@@ -1859,6 +1859,7 @@ The following substitutions are availabe for use with `PhotoInfo.render_template
 |{modified.month}|Month name in user's locale of the file modification time|
 |{modified.mon}|Month abbreviation in the user's locale of the file modification time|
 |{modified.dd}|2-digit day of the month (zero padded) of the file modification time|
+|{modified.dow}|Day of week in user's locale of the photo modification time|
 |{modified.doy}|3-digit day of year (e.g Julian day) of file modification time, starting from 1 (zero padded)|
 |{modified.hour}|2-digit hour of the file modification time|
 |{modified.min}|2-digit minute of the file modification time|
