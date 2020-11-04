@@ -107,6 +107,30 @@ def test_setvalue_1():
     assert exif.data["IPTC:Keywords"] == "test"
 
 
+def test_setvalue_context_manager():
+    # test setting a tag value as context manager
+    import os.path
+    import tempfile
+    import osxphotos.exiftool
+    from osxphotos.fileutil import FileUtil
+
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    tempfile = os.path.join(tempdir.name, os.path.basename(TEST_FILE_ONE_KEYWORD))
+    FileUtil.copy(TEST_FILE_ONE_KEYWORD, tempfile)
+
+    with osxphotos.exiftool.ExifTool(tempfile) as exif:
+        exif.setvalue("IPTC:Keywords", "test1")
+        exif.setvalue("IPTC:Keywords", "test2")
+        exif.setvalue("XMP:Title", "title")
+        exif.setvalue("XMP:Subject", "subject")
+
+    exif2 = osxphotos.exiftool.ExifTool(tempfile)
+    exif2._read_exif()
+    assert sorted(exif2.data["IPTC:Keywords"]) == ["test1", "test2"]
+    assert exif2.data["XMP:Title"] == "title"
+    assert exif2.data["XMP:Subject"] == "subject"
+
+
 def test_clear_value():
     # test clearing a tag value
     import os.path

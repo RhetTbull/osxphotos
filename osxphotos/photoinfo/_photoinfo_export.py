@@ -1019,7 +1019,6 @@ def _write_exif_data(
     """
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"Could not find file {filepath}")
-    exiftool = ExifTool(filepath)
     exif_info = self._exiftool_dict(
         use_albums_as_keywords=use_albums_as_keywords,
         use_persons_as_keywords=use_persons_as_keywords,
@@ -1027,17 +1026,16 @@ def _write_exif_data(
         description_template=description_template,
         ignore_date_modified=ignore_date_modified,
     )
-    for exiftag, val in exif_info.items():
-        if exiftag == "_CreatedBy":
-            continue
-        if type(val) == list:
-            # more than one, set first value the add additional values
-            exiftool.setvalue(exiftag, val.pop(0))
-            if val:
-                # add any remaining items
-                exiftool.addvalues(exiftag, *val)
-        else:
-            exiftool.setvalue(exiftag, val)
+
+    with ExifTool(filepath) as exiftool:
+        for exiftag, val in exif_info.items():
+            if exiftag == "_CreatedBy":
+                continue
+            elif type(val) == list:
+                for v in val:
+                    exiftool.setvalue(exiftag, v)
+            else:
+                exiftool.setvalue(exiftag, val)
 
 
 def _exiftool_dict(

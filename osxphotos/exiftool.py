@@ -2,6 +2,7 @@
     I rolled my own for following reasons: 
     1. I wanted something under MIT license (best alternative was licensed under GPL/BSD)
     2. I wanted singleton behavior so only a single exiftool process was ever running
+    3. When used as a context manager, I wanted the operations to batch until exiting the context (improved performance)
     If these aren't important to you, I highly recommend you use Sven Marnach's excellent 
     pyexiftool: https://github.com/smarnach/pyexiftool which provides more functionality """
 
@@ -10,10 +11,8 @@ import logging
 import os
 import shutil
 import subprocess
-import sys
 from functools import lru_cache  # pylint: disable=syntax-error
 
-from .utils import _debug
 
 # exiftool -stay_open commands outputs this EOF marker after command is run
 EXIFTOOL_STAYOPEN_EOF = "{ready}"
@@ -23,9 +22,7 @@ EXIFTOOL_STAYOPEN_EOF_LEN = len(EXIFTOOL_STAYOPEN_EOF)
 @lru_cache(maxsize=1)
 def get_exiftool_path():
     """ return path of exiftool, cache result """
-    exiftool_path = shutil.which('exiftool')
-    if _debug():
-        logging.debug("exiftool path = %s" % (exiftool_path))
+    exiftool_path = shutil.which("exiftool")
     if exiftool_path:
         return exiftool_path.rstrip()
     else:
@@ -59,7 +56,7 @@ class _ExifToolProc:
                 )
             return
 
-        self._exiftool = exiftool if exiftool else get_exiftool_path()
+        self._exiftool = exiftool or get_exiftool_path()
         self._process_running = False
         self._start_proc()
 
@@ -98,7 +95,7 @@ class _ExifToolProc:
                 "-",  # read from stdin
                 "-common_args",  # specifies args common to all commands subsequently run
                 "-n",  # no print conversion (e.g. print tag values in machine readable format)
-                "-P",  # Preserve file modification date/time (possible interfere w/ --touch-file)
+                "-P",  # Preserve file modification date/time
                 "-G",  # print group name for each tag
             ],
             stdin=subprocess.PIPE,
@@ -143,6 +140,8 @@ class ExifTool:
         self.file = filepath
         self.overwrite = overwrite
         self.data = {}
+        # if running as a context manager, self._context_mgr will be True
+        self._context_mgr = False
         self._exiftoolproc = _ExifToolProc(exiftool=exiftool)
         self._process = self._exiftoolproc.process
         self._read_exif()
@@ -154,9 +153,12 @@ class ExifTool:
         if value is None:
             value = ""
         command = [f"-{tag}={value}"]
-        if self.overwrite:
+        if self.overwrite and not self._context_mgr:
             command.append("-overwrite_original")
-        self.run_commands(*command)
+        if self._context_mgr:
+            self._commands.extend(command)
+        else:
+            self.run_commands(*command)
 
     def addvalues(self, tag, *values):
         """ Add one or more value(s) to tag
@@ -178,10 +180,12 @@ class ExifTool:
                 raise ValueError("Can't add None value to tag")
             command.append(f"-{tag}+={value}")
 
-        if self.overwrite:
+        if self.overwrite and not self._context_mgr:
             command.append("-overwrite_original")
 
-        if command:
+        if self._context_mgr:
+            self._commands.extend(command)
+        else:
             self.run_commands(*command)
 
     def run_commands(self, *commands, no_file=False):
@@ -195,6 +199,10 @@ class ExifTool:
         if not commands:
             raise TypeError("must provide one or more command to run")
 
+        if self._context_mgr and self.overwrite:
+            commands = list(commands)
+            commands.append("-overwrite_original")
+
         filename = os.fsencode(self.file) if not no_file else b""
         command_str = (
             b"\n".join([c.encode("utf-8") for c in commands])
@@ -203,9 +211,6 @@ class ExifTool:
             + b"\n"
             + b"-execute\n"
         )
-
-        if _debug():
-            logging.debug(command_str)
 
         # send the command
         self._process.stdin.write(command_str)
@@ -250,3 +255,14 @@ class ExifTool:
 
     def __str__(self):
         return f"file: {self.file}\nexiftool: {self._exiftoolproc._exiftool}"
+
+    def __enter__(self):
+        self._context_mgr = True
+        self._commands = []
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type:
+            return False
+        elif self._commands:
+            self.run_commands(*self._commands)
