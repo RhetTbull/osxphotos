@@ -103,8 +103,26 @@ def test_setvalue_1():
 
     exif = osxphotos.exiftool.ExifTool(tempfile)
     exif.setvalue("IPTC:Keywords", "test")
+    assert not exif.error
+
     exif._read_exif()
     assert exif.data["IPTC:Keywords"] == "test"
+
+
+def test_setvalue_error():
+    # test setting illegal tag value generates error
+    import os.path
+    import tempfile
+    import osxphotos.exiftool
+    from osxphotos.fileutil import FileUtil
+
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    tempfile = os.path.join(tempdir.name, os.path.basename(TEST_FILE_ONE_KEYWORD))
+    FileUtil.copy(TEST_FILE_ONE_KEYWORD, tempfile)
+
+    exif = osxphotos.exiftool.ExifTool(tempfile)
+    exif.setvalue("IPTC:Foo", "test")
+    assert exif.error
 
 
 def test_setvalue_context_manager():
@@ -124,11 +142,29 @@ def test_setvalue_context_manager():
         exif.setvalue("XMP:Title", "title")
         exif.setvalue("XMP:Subject", "subject")
 
+    assert exif.error is None
+
     exif2 = osxphotos.exiftool.ExifTool(tempfile)
     exif2._read_exif()
     assert sorted(exif2.data["IPTC:Keywords"]) == ["test1", "test2"]
     assert exif2.data["XMP:Title"] == "title"
     assert exif2.data["XMP:Subject"] == "subject"
+
+
+def test_setvalue_context_manager_error():
+    # test setting a tag value as context manager when error generated
+    import os.path
+    import tempfile
+    import osxphotos.exiftool
+    from osxphotos.fileutil import FileUtil
+
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    tempfile = os.path.join(tempdir.name, os.path.basename(TEST_FILE_ONE_KEYWORD))
+    FileUtil.copy(TEST_FILE_ONE_KEYWORD, tempfile)
+
+    with osxphotos.exiftool.ExifTool(tempfile) as exif:
+        exif.setvalue("Foo:Bar", "test1")
+    assert exif.error
 
 
 def test_clear_value():

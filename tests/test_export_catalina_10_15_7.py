@@ -744,7 +744,7 @@ def test_xmp_sidecar_is_valid(tmp_path):
     xmp_file = tmp_path / XMP_FILENAME
     assert xmp_file.is_file()
     exiftool = ExifTool(str(xmp_file))
-    output = exiftool.run_commands("-validate", "-warning")
+    output, _ = exiftool.run_commands("-validate", "-warning")
     assert output == b"[ExifTool]      Validate                        : 0 0 0"
 
 
