@@ -174,9 +174,9 @@ class PhotoTemplate:
         #          there would be 6 possible renderings (2 albums x 3 persons)
 
         # regex to find {template_field,optional_default} in strings
-        # for explanation of regex see https://regex101.com/r/4JJg42/1
+        # for explanation of regex see https://regex101.com/r/MbOlJV/4
         # pylint: disable=anomalous-backslash-in-string
-        regex = r"(?<!\{)\{([^\\,}]+)(,{0,1}(([\w\-\%. ]+))?)(?=\}(?!\}))\}"
+        regex = r"(?<!\{)\{([^}]*\+)?([^\\,}+]+)(,{0,1}([\w\-\%. ]+)?)(?=\}(?!\}))\}"
         if type(template) is not str:
             raise TypeError(f"template must be type str, not {type(template)}")
 
@@ -198,17 +198,25 @@ class PhotoTemplate:
             def subst(matchobj):
                 groups = len(matchobj.groups())
                 if groups == 4:
+                    delim = matchobj.group(1)
+                    field = matchobj.group(2)
+                    default = matchobj.group(3)
+                    default_val = matchobj.group(4)
                     try:
-                        val = get_func(matchobj.group(1), matchobj.group(3))
+                        val = get_func(field, default_val)
                     except ValueError:
                         return matchobj.group(0)
 
                     if val is None:
-                        val = (
-                            matchobj.group(3)
-                            if matchobj.group(3) is not None
-                            else none_str
-                        )
+                        # field valid but didn't match a value
+                        if default == ",":
+                            val = ""
+                        else:
+                            val = (
+                                default_val
+                                if default_val is not None
+                                else none_str
+                            )
 
                     return val
                 else:
@@ -249,7 +257,7 @@ class PhotoTemplate:
         rendered_strings = [rendered]
         for field in MULTI_VALUE_SUBSTITUTIONS:
             # Build a regex that matches only the field being processed
-            re_str = r"(?<!\\)\{(" + field + r")(,(([\w\-\%. ]{0,})))?\}"
+            re_str = r"(?<!\{)\{([^}]*\+)?(" + field + r")(,{0,1}([\w\-\%. ]+)?)(?=\}(?!\}))\}"
             regex_multi = re.compile(re_str)
 
             # holds each of the new rendered_strings, dict to avoid repeats (dict.keys())
@@ -319,9 +327,9 @@ class PhotoTemplate:
         for rendered_str in rendered_strings:
             unmatched.extend(
                 [
-                    no_match[0]
+                    no_match[1]
                     for no_match in re.findall(regex, rendered_str)
-                    if no_match[0] not in unmatched
+                    if no_match[1] not in unmatched
                 ]
             )
 

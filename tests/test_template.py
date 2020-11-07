@@ -267,7 +267,7 @@ def test_subst_default_val_2():
 
     template = "{place.name.area_of_interest,}"
     rendered, _ = photo.render_template(template)
-    assert rendered[0] == "_"
+    assert rendered[0] == ""
 
 
 def test_subst_unknown_val():
@@ -283,10 +283,6 @@ def test_subst_unknown_val():
     rendered, unknown = photo.render_template(template)
     assert rendered[0] == "2020/{foo}"
     assert unknown == ["foo"]
-
-    template = "{place.name.area_of_interest,}"
-    rendered, _ = photo.render_template(template)
-    assert rendered[0] == "_"
 
 
 def test_subst_double_brace():

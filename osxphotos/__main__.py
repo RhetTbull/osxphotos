@@ -208,7 +208,11 @@ class ExportCommand(click.Command):
             + "has no value, '_' (underscore) will be used as the default value. For example, in the "
             + "above example, this would result in '2020/_/photoname.jpg' if address was null."
         )
-
+        formatter.write("\n")
+        formatter.write_text(
+            'You may specify a null default (e.g. "" or empty string) by omitting the value after '
+            + 'the comma, e.g. {title,} which would render to "" if title had no value.'
+        )
         formatter.write("\n")
         templ_tuples = [("Substitution", "Description")]
         templ_tuples.extend((k, v) for k, v in TEMPLATE_SUBSTITUTIONS.items())
