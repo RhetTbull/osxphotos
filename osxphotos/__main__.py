@@ -2277,6 +2277,8 @@ def export_photo(
     global VERBOSE
     VERBOSE = bool(verbose_)
 
+    # TODO: if --skip-original-if-edited, it's possible edited version is on disk but
+    # original is missing, in which case we should download the edited version
     if not download_missing:
         if photo.ismissing:
             space = " " if not verbose_ else ""
@@ -2303,6 +2305,16 @@ def export_photo(
     results_touched = []
 
     export_original = not (skip_original_if_edited and photo.hasadjustments)
+    # slow_mo photos will always have hasadjustments=True even if not edited
+    if photo.path_edited is None:
+        if photo.slow_mo:
+            export_original = True
+            export_edited = False
+        elif not download_missing:
+            # requested edited version but it's missing, download original
+            export_original = True
+            export_edited = False
+            verbose(f"Edited file for {photo.original_filename} is missing, downloading original")
 
     filenames = get_filenames_from_template(photo, filename_template, original_name)
     for filename in filenames:

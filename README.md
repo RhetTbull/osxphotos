@@ -1269,6 +1269,9 @@ Returns True if photo is a panorama, otherwise False.
 
 **Note**: The result of `PhotoInfo.panorama` will differ from the "Panoramas" Media Types smart album in that it will also identify panorama photos from older phones that Photos does not recognize as panoramas. 
 
+#### `slow_mo`
+Returns True if photo is a slow motion video, otherwise False
+
 #### `labels`
 Returns image categorization labels associated with the photo as list of str.
 
