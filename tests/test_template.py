@@ -7,8 +7,8 @@ PHOTOS_DB_PLACES = (
 PHOTOS_DB_15_1 = "./tests/Test-10.15.1.photoslibrary/database/photos.db"
 PHOTOS_DB_15_4 = "./tests/Test-10.15.4.photoslibrary/database/photos.db"
 PHOTOS_DB_14_6 = "./tests/Test-10.14.6.photoslibrary/database/photos.db"
-
 PHOTOS_DB_COMMENTS = "tests/Test-Cloud-10.15.6.photoslibrary"
+PHOTOS_DB_CLOUD = "./tests/Test-Cloud-10.15.6.photoslibrary/database/photos.db"
 
 UUID_DICT = {
     "place_dc": "128FB4C6-0B16-4E7D-9108-FB2E90DA1546",
@@ -20,6 +20,19 @@ UUID_DICT = {
     "mojave_album_1": "15uNd7%8RguTEgNPKHfTWw",
     "date_modified": "A9B73E13-A6F2-4915-8D67-7213B39BAE9F",
     "date_not_modified": "128FB4C6-0B16-4E7D-9108-FB2E90DA1546",
+}
+
+UUID_MEDIA_TYPE = {
+    "photo": "C2BBC7A4-5333-46EE-BAF0-093E72111B39",
+    "video": "45099D34-A414-464F-94A2-60D6823679C8",
+    "selfie": "080525C4-1F05-48E5-A3F4-0C53127BB39C",
+    "time_lapse": "4614086E-C797-4876-B3B9-3057E8D757C9",
+    "panorama": "1C1C8F1F-826B-4A24-B1CB-56628946A834",
+    "slow_mo": None,
+    "screenshot": None,
+    "portrait": "7CDA5F84-AA16-4D28-9AA6-A49E1DF8A332",
+    "live_photo": "51F2BEF7-431A-4D31-8AC1-3284A57826AE",
+    "burst": None,
 }
 
 TEMPLATE_VALUES = {
@@ -559,3 +572,29 @@ def test_comment():
         photo = photosdb.get_photo(uuid)
         comments = photo.render_template("{comment}")
         assert comments[0] == COMMENT_UUID_DICT[uuid]
+
+
+def test_media_type():
+    """ test {media_type} template """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(PHOTOS_DB_CLOUD)
+
+    for field, uuid in UUID_MEDIA_TYPE.items():
+        if uuid is not None:
+            photo = photosdb.get_photo(uuid)
+            rendered, _ = photo.render_template("{media_type}")
+            assert rendered[0] == osxphotos.phototemplate.MEDIA_TYPE_DEFAULTS[field]
+
+
+def test_media_type_default():
+    """ test {media_type,photo=foo} template style """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(PHOTOS_DB_CLOUD)
+
+    for field, uuid in UUID_MEDIA_TYPE.items():
+        if uuid is not None:
+            photo = photosdb.get_photo(uuid)
+            rendered, _ = photo.render_template("{media_type," + f"{field}" + "=foo}")
+            assert rendered[0] == "foo"

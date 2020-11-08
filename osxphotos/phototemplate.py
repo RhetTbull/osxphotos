@@ -23,12 +23,33 @@ from .path_utils import sanitize_dirname, sanitize_filename, sanitize_pathpart
 # ensure locale set to user's locale
 locale.setlocale(locale.LC_ALL, "")
 
+PHOTO_VIDEO_TYPE_DEFAULTS = {"photo": "photo", "video": "video"}
+
+MEDIA_TYPE_DEFAULTS = {
+    "selfie": "selfie",
+    "time_lapse": "time_lapse",
+    "panorama": "panorama",
+    "slow_mo": "slow_mo",
+    "screenshot": "screenshot",
+    "portrait": "portrait",
+    "live_photo": "live_photo",
+    "burst": "burst",
+    "photo": "photo",
+    "video": "video",
+}
+
 # Permitted substitutions (each of these returns a single value or None)
 TEMPLATE_SUBSTITUTIONS = {
     "{name}": "Current filename of the photo",
     "{original_name}": "Photo's original filename when imported to Photos",
     "{title}": "Title of the photo",
     "{descr}": "Description of the photo",
+    "{media_type}": (
+        f"Special media type resolved in this precedence: {', '.join(t for t in MEDIA_TYPE_DEFAULTS)}. "
+        "Defaults to 'photo' or 'video' if no special type. "
+        "Customize one or more media types using format: '{media_type,video=vidéo;time_lapse=vidéo_accélérée}'"
+    ),
+    "{photo_or_video}": "'photo' or 'video' depending on what type the image is. To customize, use default value as in '{photo_or_video,photo=fotos;video=videos}'",
     "{created.date}": "Photo's creation date in ISO format, e.g. '2020-03-22'",
     "{created.year}": "4-digit year of photo creation time",
     "{created.yy}": "2-digit year of photo creation time",
@@ -174,9 +195,9 @@ class PhotoTemplate:
         #          there would be 6 possible renderings (2 albums x 3 persons)
 
         # regex to find {template_field,optional_default} in strings
-        # for explanation of regex see https://regex101.com/r/MbOlJV/4
+        # for explanation of regex see https://regex101.com/r/YFpWsn/1
         # pylint: disable=anomalous-backslash-in-string
-        regex = r"(?<!\{)\{([^}]*\+)?([^\\,}+]+)(,{0,1}([\w\-\%. ]+)?)(?=\}(?!\}))\}"
+        regex = r"(?<!\{)\{([^}]*\+)?([^\\,}+\?]+)(\?[^\\,}]*)?(,{0,1}([\w\=\;\-\%. ]+)?)(?=\}(?!\}))\}"
         if type(template) is not str:
             raise TypeError(f"template must be type str, not {type(template)}")
 
@@ -197,11 +218,12 @@ class PhotoTemplate:
             # closure to capture photo, none_str, filename, dirname in subst
             def subst(matchobj):
                 groups = len(matchobj.groups())
-                if groups == 4:
+                if groups == 5:
                     delim = matchobj.group(1)
                     field = matchobj.group(2)
-                    default = matchobj.group(3)
-                    default_val = matchobj.group(4)
+                    boolval = matchobj.group(3)
+                    default = matchobj.group(4)
+                    default_val = matchobj.group(5)
                     try:
                         val = get_func(field, default_val)
                     except ValueError:
@@ -212,11 +234,7 @@ class PhotoTemplate:
                         if default == ",":
                             val = ""
                         else:
-                            val = (
-                                default_val
-                                if default_val is not None
-                                else none_str
-                            )
+                            val = default_val if default_val is not None else none_str
 
                     return val
                 else:
@@ -257,7 +275,11 @@ class PhotoTemplate:
         rendered_strings = [rendered]
         for field in MULTI_VALUE_SUBSTITUTIONS:
             # Build a regex that matches only the field being processed
-            re_str = r"(?<!\{)\{([^}]*\+)?(" + field + r")(,{0,1}([\w\-\%. ]+)?)(?=\}(?!\}))\}"
+            re_str = (
+                r"(?<!\{)\{([^}]*\+)?("
+                + field
+                + r")(\?[^\\,}]*)?(,{0,1}([\w\=\;\-\%. ]+)?)(?=\}(?!\}))\}"
+            )
             regex_multi = re.compile(re_str)
 
             # holds each of the new rendered_strings, dict to avoid repeats (dict.keys())
@@ -380,6 +402,10 @@ class PhotoTemplate:
             value = self.photo.title
         elif field == "descr":
             value = self.photo.description
+        elif field == "media_type":
+            value = self.get_media_type(default)
+        elif field == "photo_or_video":
+            value = self.get_photo_video_type(default)
         elif field == "created.date":
             value = DateTimeFormatter(self.photo.date).date
         elif field == "created.year":
@@ -675,3 +701,60 @@ class PhotoTemplate:
         values = values or [None]
         return values
 
+    def get_photo_video_type(self, default):
+        """ return media type, e.g. photo or video """
+        default_dict = parse_default_kv(default, PHOTO_VIDEO_TYPE_DEFAULTS)
+        if self.photo.isphoto:
+            return default_dict["photo"]
+        else:
+            return default_dict["video"]
+
+    def get_media_type(self, default):
+        """ return special media type, e.g. slow_mo, panorama, etc., defaults to photo or video if no special type """
+        default_dict = parse_default_kv(default, MEDIA_TYPE_DEFAULTS)
+        p = self.photo
+        if p.selfie:
+            return default_dict["selfie"]
+        elif p.time_lapse:
+            return default_dict["time_lapse"]
+        elif p.panorama:
+            return default_dict["panorama"]
+        elif p.slow_mo:
+            return default_dict["slow_mo"]
+        elif p.screenshot:
+            return default_dict["screenshot"]
+        elif p.portrait:
+            return default_dict["portrait"]
+        elif p.live_photo:
+            return default_dict["live_photo"]
+        elif p.burst:
+            return default_dict["burst"]
+        elif p.ismovie:
+            return default_dict["video"]
+        else:
+            return default_dict["photo"]
+
+
+def parse_default_kv(default, default_dict):
+    """ parse a string in form key1=value1;key2=value2,... as used for some template fields
+
+    Args:
+        default: str, in form 'photo=foto;video=vidéo'
+        default_dict: dict, in form {"photo": "fotos", "video": "vidéos"} with default values
+
+    Returns:
+        dict in form {"photo": "fotos", "video": "vidéos"}
+    """
+
+    default_dict_ = default_dict.copy()
+    if default:
+        defaults = default.split(";")
+        for kv in defaults:
+            try:
+                k, v = kv.split("=")
+                k = k.strip()
+                v = v.strip()
+                default_dict_[k] = v
+            except ValueError:
+                pass
+    return default_dict_

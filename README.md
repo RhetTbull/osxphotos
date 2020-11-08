@@ -388,6 +388,18 @@ option to re-export the entire library thus rebuilding the
 
 ** Templating System **
 
+Several options, such as --directory, allow you to specify a template which
+will be rendered to substitute template fields with values from the photo. For
+example, '{created.month}' would be replaced with the month name of the photo
+creation date. e.g. 'November'. The general format for a template is
+'{TEMPLATE_FIELD[,[DEFAULT]]}'. The ',' and DEFAULT value are optional. If
+TEMPLATE_FIELD results in a null (empty) value, the default is '_'.  You may
+specify an alternate default value by appending ',DEFAULT' after
+template_field. e.g. '{title,no_title}' would result in 'no_title' if the
+photo had no title. You may include other text in the template string outside
+the {} and use more than one template field, e.g. '{created.year} -
+{created.month}' (e.g. '2020 - November').
+
 With the --directory and --filename options you may specify a template for the
 export directory or filename, respectively. The directory will be appended to
 the export path specified in the export DEST argument to export.  For example,
@@ -426,12 +438,26 @@ value, '_' (underscore) will be used as the default value. For example, in the
 above example, this would result in '2020/_/photoname.jpg' if address was
 null.
 
+You may specify a null default (e.g. "" or empty string) by omitting the value
+after the comma, e.g. {title,} which would render to "" if title had no value.
+
 Substitution                    Description
 {name}                          Current filename of the photo
 {original_name}                 Photo's original filename when imported to
                                 Photos
 {title}                         Title of the photo
 {descr}                         Description of the photo
+{media_type}                    Special media type resolved in this
+                                precedence: selfie, time_lapse, panorama,
+                                slow_mo, screenshot, portrait, live_photo,
+                                burst, photo, video. Defaults to 'photo' or
+                                'video' if no special type. Customize one or
+                                more media types using format: '{media_type,
+                                video=vidéo;time_lapse=vidéo_accélérée}'
+{photo_or_video}                'photo' or 'video' depending on what type
+                                the image is. To customize, use default
+                                value as in
+                                '{photo_or_video,photo=fotos;video=videos}'
 {created.date}                  Photo's creation date in ISO format, e.g.
                                 '2020-03-22'
 {created.year}                  4-digit year of photo creation time
@@ -1835,38 +1861,40 @@ To get the path of every raw photo, whether it's a single raw photo or a raw+JPE
 
 ### Template Substitutions
 
-The following substitutions are availabe for use with `PhotoInfo.render_template()` 
+The following template field substitutions are availabe for use with `PhotoInfo.render_template()`
 | Substitution | Description |
 |--------------|-------------|
 |{name}|Current filename of the photo|
 |{original_name}|Photo's original filename when imported to Photos|
 |{title}|Title of the photo|
 |{descr}|Description of the photo|
+|{media_type}|Special media type resolved in this precedence: selfie, time_lapse, panorama, slow_mo, screenshot, portrait, live_photo, burst, photo, video. Defaults to 'photo' or 'video' if no special type. Customize one or more media types using format: '{media_type,video=vidéo;time_lapse=vidéo_accélérée}'|
+|{photo_or_video}|'photo' or 'video' depending on what type the image is. To customize, use default value as in '{photo_or_video,photo=fotos;video=videos}'|
 |{created.date}|Photo's creation date in ISO format, e.g. '2020-03-22'|
-|{created.year}|4-digit year of file creation time|
-|{created.yy}|2-digit year of file creation time|
-|{created.mm}|2-digit month of the file creation time (zero padded)|
-|{created.month}|Month name in user's locale of the file creation time|
-|{created.mon}|Month abbreviation in the user's locale of the file creation time|
-|{created.dd}|2-digit day of the month (zero padded) of file creation time|
-|{created.dow}|Day of week in user's locale of the file creation time|
-|{created.doy}|3-digit day of year (e.g Julian day) of file creation time, starting from 1 (zero padded)|
-|{created.hour}|2-digit hour of the file creation time|
-|{created.min}|2-digit minute of the file creation time|
-|{created.sec}|2-digit second of the file creation time|
+|{created.year}|4-digit year of photo creation time|
+|{created.yy}|2-digit year of photo creation time|
+|{created.mm}|2-digit month of the photo creation time (zero padded)|
+|{created.month}|Month name in user's locale of the photo creation time|
+|{created.mon}|Month abbreviation in the user's locale of the photo creation time|
+|{created.dd}|2-digit day of the month (zero padded) of photo creation time|
+|{created.dow}|Day of week in user's locale of the photo creation time|
+|{created.doy}|3-digit day of year (e.g Julian day) of photo creation time, starting from 1 (zero padded)|
+|{created.hour}|2-digit hour of the photo creation time|
+|{created.min}|2-digit minute of the photo creation time|
+|{created.sec}|2-digit second of the photo creation time|
 |{created.strftime}|Apply strftime template to file creation date/time. Should be used in form {created.strftime,TEMPLATE} where TEMPLATE is a valid strftime template, e.g. {created.strftime,%Y-%U} would result in year-week number of year: '2020-23'. If used with no template will return null value. See https://strftime.org/ for help on strftime templates.|
 |{modified.date}|Photo's modification date in ISO format, e.g. '2020-03-22'|
-|{modified.year}|4-digit year of file modification time|
-|{modified.yy}|2-digit year of file modification time|
-|{modified.mm}|2-digit month of the file modification time (zero padded)|
-|{modified.month}|Month name in user's locale of the file modification time|
-|{modified.mon}|Month abbreviation in the user's locale of the file modification time|
-|{modified.dd}|2-digit day of the month (zero padded) of the file modification time|
+|{modified.year}|4-digit year of photo modification time|
+|{modified.yy}|2-digit year of photo modification time|
+|{modified.mm}|2-digit month of the photo modification time (zero padded)|
+|{modified.month}|Month name in user's locale of the photo modification time|
+|{modified.mon}|Month abbreviation in the user's locale of the photo modification time|
+|{modified.dd}|2-digit day of the month (zero padded) of the photo modification time|
 |{modified.dow}|Day of week in user's locale of the photo modification time|
-|{modified.doy}|3-digit day of year (e.g Julian day) of file modification time, starting from 1 (zero padded)|
-|{modified.hour}|2-digit hour of the file modification time|
-|{modified.min}|2-digit minute of the file modification time|
-|{modified.sec}|2-digit second of the file modification time|
+|{modified.doy}|3-digit day of year (e.g Julian day) of photo modification time, starting from 1 (zero padded)|
+|{modified.hour}|2-digit hour of the photo modification time|
+|{modified.min}|2-digit minute of the photo modification time|
+|{modified.sec}|2-digit second of the photo modification time|
 |{today.date}|Current date in iso format, e.g. '2020-03-22'|
 |{today.year}|4-digit year of current date|
 |{today.yy}|2-digit year of current date|
