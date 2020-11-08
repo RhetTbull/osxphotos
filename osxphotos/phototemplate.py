@@ -198,7 +198,7 @@ class PhotoTemplate:
         # regex to find {template_field,optional_default} in strings
         # for explanation of regex see https://regex101.com/r/YFpWsn/1
         # pylint: disable=anomalous-backslash-in-string
-        regex = r"(?<!\{)\{([^}]*\+)?([^\\,}+\?]+)(\?[^\\,}]*)?(,{0,1}([\w\=\;\-\%. ]+)?)(?=\}(?!\}))\}"
+        regex = r"(?<!\{)\{([^}]*\+)?([^\\,}+\?]+)(\?[^\\,}]*)?(,[\w\=\;\-\%. ]*)?(?=\}(?!\}))\}"
         if type(template) is not str:
             raise TypeError(f"template must be type str, not {type(template)}")
 
@@ -219,18 +219,21 @@ class PhotoTemplate:
             # closure to capture photo, none_str, filename, dirname in subst
             def subst(matchobj):
                 groups = len(matchobj.groups())
-                if groups == 5:
+                if groups == 4:
                     delim = matchobj.group(1)
                     field = matchobj.group(2)
                     bool_val = matchobj.group(3)
                     default = matchobj.group(4)
-                    default_val = matchobj.group(5)
-                    if bool_val is not None:
-                        # drop the ?
-                        bool_val = bool_val[1:]
-                        
+
+                    # drop the comma on default
+                    default_val = default[1:] if default is not None else None
+                    # drop the '+' on delim
+                    delim = delim[:-1] if delim is not None else None
+                    # drop the ? on bool_val
+                    bool_val = bool_val[1:] if bool_val is not None else None
+
                     try:
-                        val = get_func(field, default_val, bool_val)
+                        val = get_func(field, default_val, bool_val, delim)
                     except ValueError:
                         return matchobj.group(0)
 
@@ -281,9 +284,12 @@ class PhotoTemplate:
         for field in MULTI_VALUE_SUBSTITUTIONS:
             # Build a regex that matches only the field being processed
             re_str = (
-                r"(?<!\{)\{([^}]*\+)?("
-                + field
-                + r")(\?[^\\,}]*)?(,{0,1}([\w\=\;\-\%. ]+)?)(?=\}(?!\}))\}"
+                r"(?<!\{)\{"
+                + r"([^}]*\+)?"  # group 1, optional delim/expand in place
+                + r"("
+                + field  # group 2 (field name)
+                + r")"
+                + r"(\?[^\\,}]*)?(,[\w\=\;\-\%. ]*)?(?=\}(?!\}))\}"
             )
             regex_multi = re.compile(re_str)
 
@@ -291,7 +297,8 @@ class PhotoTemplate:
             new_strings = {}
 
             for str_template in rendered_strings:
-                if regex_multi.search(str_template):
+                matches = regex_multi.search(str_template)
+                if matches:
                     values = self.get_template_value_multi(
                         field,
                         path_sep,
@@ -299,12 +306,15 @@ class PhotoTemplate:
                         dirname=dirname,
                         replacement=replacement,
                     )
-                    if expand_inplace:
+                    if expand_inplace or matches.group(1) is not None:
+                        delim = (
+                            matches.group(1)[:-1]
+                            if matches.group(1) is not None
+                            else inplace_sep
+                        )
                         # instead of returning multiple strings, join values into a single string
                         val = (
-                            inplace_sep.join(sorted(values))
-                            if values and values[0]
-                            else None
+                            delim.join(sorted(values)) if values and values[0] else None
                         )
 
                         def lookup_template_value_multi(lookup_value, *_):
@@ -374,7 +384,14 @@ class PhotoTemplate:
         return rendered_strings, unmatched
 
     def get_template_value(
-        self, field, default, bool_val=None, filename=False, dirname=False, replacement=":"
+        self,
+        field,
+        default,
+        bool_val=None,
+        delim=None,
+        filename=False,
+        dirname=False,
+        replacement=":",
     ):
         """lookup value for template field (single-value template substitutions)
 
@@ -741,12 +758,12 @@ class PhotoTemplate:
         else:
             return default_dict["photo"]
 
-
     def get_photo_hdr(self, default, bool_val):
         if self.photo.hdr:
             return bool_val
         else:
             return default
+
 
 def parse_default_kv(default, default_dict):
     """ parse a string in form key1=value1;key2=value2,... as used for some template fields

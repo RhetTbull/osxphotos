@@ -158,20 +158,21 @@ class ExportCommand(click.Command):
         formatter.write("\n\n")
         formatter.write_text("** Templating System **")
         formatter.write("\n")
-        formatter.write_text("Several options, such as --directory, allow you to specify a template "
-        + "which will be rendered to substitute template fields with values from the photo. "
-        + "For example, '{created.month}' would be replaced with the month name of the photo creation date. "
-        + "e.g. 'November'. "
-        + "The general format for a template is '{TEMPLATE_FIELD[,[DEFAULT]]}'. "
-        + "The ',' and DEFAULT value are optional. "
-        + "If TEMPLATE_FIELD results in a null (empty) value, the default is '_'.  "
-        + "You may specify an alternate default value by appending ',DEFAULT' after template_field. "
-        + "e.g. '{title,no_title}' would result in 'no_title' if the photo had no title. "
-        + "You may include other text in the template string outside the {} and use more than "
-        + "one template field, e.g. '{created.year} - {created.month}' (e.g. '2020 - November'). "
-        + "Some template fields such as 'hdr' are boolean and resolve to True or False. "
-        + "These take the form: '{TEMPLATE_FIELD?VALUE_IF_TRUE,VALUE_IF_FALSE}', e.g. "
-        + "'{hdr?is_hdr,not_hdr}'."
+        formatter.write_text(
+            "Several options, such as --directory, allow you to specify a template "
+            + "which will be rendered to substitute template fields with values from the photo. "
+            + "For example, '{created.month}' would be replaced with the month name of the photo creation date. "
+            + "e.g. 'November'. "
+            + "The general format for a template is '{TEMPLATE_FIELD[,[DEFAULT]]}'. "
+            + "The ',' and DEFAULT value are optional. "
+            + "If TEMPLATE_FIELD results in a null (empty) value, the default is '_'.  "
+            + "You may specify an alternate default value by appending ',DEFAULT' after template_field. "
+            + "e.g. '{title,no_title}' would result in 'no_title' if the photo had no title. "
+            + "You may include other text in the template string outside the {} and use more than "
+            + "one template field, e.g. '{created.year} - {created.month}' (e.g. '2020 - November'). "
+            + "Some template fields such as 'hdr' are boolean and resolve to True or False. "
+            + "These take the form: '{TEMPLATE_FIELD?VALUE_IF_TRUE,VALUE_IF_FALSE}', e.g. "
+            + "'{hdr?is_hdr,not_hdr}'."
         )
         formatter.write("\n")
         formatter.write_text(
@@ -2330,7 +2331,9 @@ def export_photo(
             # requested edited version but it's missing, download original
             export_original = True
             export_edited = False
-            verbose(f"Edited file for {photo.original_filename} is missing, exporting original")
+            verbose(
+                f"Edited file for {photo.original_filename} is missing, exporting original"
+            )
 
     filenames = get_filenames_from_template(photo, filename_template, original_name)
     for filename in filenames:

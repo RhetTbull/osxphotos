@@ -4,8 +4,7 @@ import pytest
 PHOTOS_DB_PLACES = (
     "./tests/Test-Places-Catalina-10_15_7.photoslibrary/database/photos.db"
 )
-PHOTOS_DB_15_1 = "./tests/Test-10.15.1.photoslibrary/database/photos.db"
-PHOTOS_DB_15_4 = "./tests/Test-10.15.4.photoslibrary/database/photos.db"
+PHOTOS_DB_15_7 = "./tests/Test-10.15.7.photoslibrary/database/photos.db"
 PHOTOS_DB_14_6 = "./tests/Test-10.14.6.photoslibrary/database/photos.db"
 PHOTOS_DB_COMMENTS = "tests/Test-Cloud-10.15.6.photoslibrary"
 PHOTOS_DB_CLOUD = "./tests/Test-Cloud-10.15.6.photoslibrary/database/photos.db"
@@ -33,6 +32,23 @@ UUID_MEDIA_TYPE = {
     "portrait": "7CDA5F84-AA16-4D28-9AA6-A49E1DF8A332",
     "live_photo": "51F2BEF7-431A-4D31-8AC1-3284A57826AE",
     "burst": None,
+}
+
+# multi keywords
+UUID_MULTI_KEYWORDS = "6191423D-8DB8-4D4C-92BE-9BBBA308AAC4"
+TEMPLATE_VALUES_MULTI_KEYWORDS = {
+    "{keyword}": ["flowers", "wedding"],
+    "{+keyword}": ["flowerswedding"],
+    "{;+keyword}": ["flowers;wedding"],
+    "{; +keyword}": ["flowers; wedding"],
+}
+
+UUID_TITLE = "6191423D-8DB8-4D4C-92BE-9BBBA308AAC4"
+TEMPLATE_VALUES_TITLE = {
+    "{title}": ["Tulips tied together at a flower shop"],
+    "{+title}": ["Tulips tied together at a flower shop"],
+    "{,+title}": ["Tulips tied together at a flower shop"],
+    "{, +title}": ["Tulips tied together at a flower shop"],
 }
 
 # Boolean type values that render to True
@@ -337,7 +353,7 @@ def test_subst_multi_1_1_2():
     # one album, one keyword, two persons
     import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_1)
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
     photo = photosdb.photos(uuid=[UUID_DICT["1_1_2"]])[0]
 
     template = "{created.year}/{album}/{keyword}/{person}"
@@ -351,16 +367,12 @@ def test_subst_multi_2_1_1():
     # 2 albums, 1 keyword, 1 person
     import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_1)
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
     # one album, one keyword, two persons
     photo = photosdb.photos(uuid=[UUID_DICT["2_1_1"]])[0]
 
     template = "{created.year}/{album}/{keyword}/{person}"
-    expected = [
-        "2018/Pumpkin Farm/Kids/Katie",
-        "2018/Test Album/Kids/Katie",
-        "2018/Multi Keyword/Kids/Katie",
-    ]
+    expected = ["2018/Pumpkin Farm/Kids/Katie", "2018/Test Album/Kids/Katie"]
     rendered, _ = photo.render_template(template)
     assert sorted(rendered) == sorted(expected)
 
@@ -370,7 +382,7 @@ def test_subst_multi_2_1_1_single():
     # 2 albums, 1 keyword, 1 person but only do keywords
     import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_1)
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
     # one album, one keyword, two persons
     photo = photosdb.photos(uuid=[UUID_DICT["2_1_1"]])[0]
 
@@ -385,7 +397,7 @@ def test_subst_multi_0_2_0():
     # 0 albums, 2 keywords, 0 persons
     import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_1)
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
     # one album, one keyword, two persons
     photo = photosdb.photos(uuid=[UUID_DICT["0_2_0"]])[0]
 
@@ -400,7 +412,7 @@ def test_subst_multi_0_2_0_single():
     # 0 albums, 2 keywords, 0 persons, but only do albums
     import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_1)
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
     # one album, one keyword, two persons
     photo = photosdb.photos(uuid=[UUID_DICT["0_2_0"]])[0]
 
@@ -415,7 +427,7 @@ def test_subst_multi_0_2_0_default_val():
     # 0 albums, 2 keywords, 0 persons, default vals provided
     import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_1)
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
     # one album, one keyword, two persons
     photo = photosdb.photos(uuid=[UUID_DICT["0_2_0"]])[0]
 
@@ -430,7 +442,7 @@ def test_subst_multi_0_2_0_default_val_unknown_val():
     # 0 albums, 2 keywords, 0 persons, default vals provided, unknown val in template
     import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_1)
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
     # one album, one keyword, two persons
     photo = photosdb.photos(uuid=[UUID_DICT["0_2_0"]])[0]
 
@@ -451,7 +463,7 @@ def test_subst_multi_0_2_0_default_val_unknown_val_2():
     # 0 albums, 2 keywords, 0 persons, default vals provided, unknown val in template
     import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_1)
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
     # one album, one keyword, two persons
     photo = photosdb.photos(uuid=[UUID_DICT["0_2_0"]])[0]
 
@@ -469,12 +481,16 @@ def test_subst_multi_folder_albums_1():
     """ Test substitutions for folder_album are correct """
     import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_4)
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
 
     # photo in an album in a folder
     photo = photosdb.photos(uuid=[UUID_DICT["folder_album_1"]])[0]
     template = "{folder_album}"
-    expected = ["Folder1/SubFolder2/AlbumInFolder"]
+    expected = [
+        "2018-10 - Sponsion, Museum, Frühstück, Römermuseum",
+        "2019-10/11 Paris Clermont",
+        "Folder1/SubFolder2/AlbumInFolder",
+    ]
     rendered, unknown = photo.render_template(template)
     assert sorted(rendered) == sorted(expected)
     assert unknown == []
@@ -484,7 +500,7 @@ def test_subst_multi_folder_albums_2():
     """ Test substitutions for folder_album are correct """
     import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_4)
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
 
     # photo in an album in a folder
     photo = photosdb.photos(uuid=[UUID_DICT["folder_album_no_folder"]])[0]
@@ -530,7 +546,7 @@ def test_subst_expand_inplace_1():
     """ Test that substitutions are correct when expand_inplace=True """
     import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_1)
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
     # one album, one keyword, two persons
     photo = photosdb.photos(uuid=[UUID_DICT["1_1_2"]])[0]
 
@@ -544,7 +560,7 @@ def test_subst_expand_inplace_2():
     """ Test that substitutions are correct when expand_inplace=True """
     import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_1)
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
     # one album, one keyword, two persons
     photo = photosdb.photos(uuid=[UUID_DICT["1_1_2"]])[0]
 
@@ -558,7 +574,7 @@ def test_subst_expand_inplace_3():
     """ Test that substitutions are correct when expand_inplace=True and inplace_sep specified"""
     import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_1)
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
     # one album, one keyword, two persons
     photo = photosdb.photos(uuid=[UUID_DICT["1_1_2"]])[0]
 
@@ -630,3 +646,45 @@ def test_bool_values_not():
             photo = photosdb.get_photo(uuid)
             rendered, _ = photo.render_template("{" + f"{field}" + "?True,False}")
             assert rendered[0] == "False"
+
+
+def test_partial_match():
+    """ test that template successfully rejects a field that is superset of valid field """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(PHOTOS_DB_CLOUD)
+
+    for uuid in COMMENT_UUID_DICT:
+        photo = photosdb.get_photo(uuid)
+        rendered, notmatched = photo.render_template("{keywords}")
+        assert [rendered, notmatched] == [["{keywords}"], ["keywords"]]
+        rendered, notmatched = photo.render_template("{keywords,}")
+        assert [rendered, notmatched] == [["{keywords,}"], ["keywords"]]
+        rendered, notmatched = photo.render_template("{keywords,foo}")
+        assert [rendered, notmatched] == [["{keywords,foo}"], ["keywords"]]
+        rendered, notmatched = photo.render_template("{,+keywords,foo}")
+        assert [rendered, notmatched] == [["{,+keywords,foo}"], ["keywords"]]
+
+
+def test_expand_in_place_with_delim():
+    """ Test that substitutions are correct when {DELIM+FIELD} format used """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
+    photo = photosdb.get_photo(UUID_MULTI_KEYWORDS)
+
+    for template in TEMPLATE_VALUES_MULTI_KEYWORDS:
+        rendered, _ = photo.render_template(template)
+        assert sorted(rendered) == sorted(TEMPLATE_VALUES_MULTI_KEYWORDS[template])
+
+
+def test_expand_in_place_with_delim_single_value():
+    """ Test that single-value substitutions are correct when {DELIM+FIELD} format used """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
+    photo = photosdb.get_photo(UUID_TITLE)
+
+    for template in TEMPLATE_VALUES_TITLE:
+        rendered, _ = photo.render_template(template)
+        assert sorted(rendered) == sorted(TEMPLATE_VALUES_TITLE[template])
