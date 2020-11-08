@@ -2327,7 +2327,7 @@ def export_photo(
             # requested edited version but it's missing, download original
             export_original = True
             export_edited = False
-            verbose(f"Edited file for {photo.original_filename} is missing, downloading original")
+            verbose(f"Edited file for {photo.original_filename} is missing, exporting original")
 
     filenames = get_filenames_from_template(photo, filename_template, original_name)
     for filename in filenames:
