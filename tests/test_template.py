@@ -35,6 +35,12 @@ UUID_MEDIA_TYPE = {
     "burst": None,
 }
 
+# Boolean type values that render to True
+UUID_BOOL_VALUES = {"hdr": "D11D25FF-5F31-47D2-ABA9-58418878DC15"}
+
+# Boolean type values that render to False
+UUID_BOOL_VALUES_NOT = {"hdr": "51F2BEF7-431A-4D31-8AC1-3284A57826AE"}
+
 TEMPLATE_VALUES = {
     "{name}": "128FB4C6-0B16-4E7D-9108-FB2E90DA1546",
     "{original_name}": "IMG_1064",
@@ -598,3 +604,29 @@ def test_media_type_default():
             photo = photosdb.get_photo(uuid)
             rendered, _ = photo.render_template("{media_type," + f"{field}" + "=foo}")
             assert rendered[0] == "foo"
+
+
+def test_bool_values():
+    """ test {bool?TRUE,FALSE} template values """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(PHOTOS_DB_CLOUD)
+
+    for field, uuid in UUID_BOOL_VALUES.items():
+        if uuid is not None:
+            photo = photosdb.get_photo(uuid)
+            rendered, _ = photo.render_template("{" + f"{field}" + "?True,False}")
+            assert rendered[0] == "True"
+
+
+def test_bool_values_not():
+    """ test {bool?TRUE,FALSE} template values for FALSE values """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(PHOTOS_DB_CLOUD)
+
+    for field, uuid in UUID_BOOL_VALUES_NOT.items():
+        if uuid is not None:
+            photo = photosdb.get_photo(uuid)
+            rendered, _ = photo.render_template("{" + f"{field}" + "?True,False}")
+            assert rendered[0] == "False"

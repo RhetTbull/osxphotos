@@ -50,6 +50,7 @@ TEMPLATE_SUBSTITUTIONS = {
         "Customize one or more media types using format: '{media_type,video=vidéo;time_lapse=vidéo_accélérée}'"
     ),
     "{photo_or_video}": "'photo' or 'video' depending on what type the image is. To customize, use default value as in '{photo_or_video,photo=fotos;video=videos}'",
+    "{hdr}": "Photo is HDR?; True/False value, use in format '{hdr?VALUE_IF_TRUE,VALUE_IF_FALSE}'",
     "{created.date}": "Photo's creation date in ISO format, e.g. '2020-03-22'",
     "{created.year}": "4-digit year of photo creation time",
     "{created.yy}": "2-digit year of photo creation time",
@@ -221,11 +222,15 @@ class PhotoTemplate:
                 if groups == 5:
                     delim = matchobj.group(1)
                     field = matchobj.group(2)
-                    boolval = matchobj.group(3)
+                    bool_val = matchobj.group(3)
                     default = matchobj.group(4)
                     default_val = matchobj.group(5)
+                    if bool_val is not None:
+                        # drop the ?
+                        bool_val = bool_val[1:]
+                        
                     try:
-                        val = get_func(field, default_val)
+                        val = get_func(field, default_val, bool_val)
                     except ValueError:
                         return matchobj.group(0)
 
@@ -302,7 +307,7 @@ class PhotoTemplate:
                             else None
                         )
 
-                        def lookup_template_value_multi(lookup_value, _):
+                        def lookup_template_value_multi(lookup_value, *_):
                             """ Closure passed to make_subst_function get_func 
                                     Capture val and field in the closure 
                                     Allows make_subst_function to be re-used w/o modification
@@ -323,7 +328,7 @@ class PhotoTemplate:
                         # create a new template string for each value
                         for val in values:
 
-                            def lookup_template_value_multi(lookup_value, _):
+                            def lookup_template_value_multi(lookup_value, *_):
                                 """ Closure passed to make_subst_function get_func 
                                     Capture val and field in the closure 
                                     Allows make_subst_function to be re-used w/o modification
@@ -369,7 +374,7 @@ class PhotoTemplate:
         return rendered_strings, unmatched
 
     def get_template_value(
-        self, field, default, filename=False, dirname=False, replacement=":"
+        self, field, default, bool_val=None, filename=False, dirname=False, replacement=":"
     ):
         """lookup value for template field (single-value template substitutions)
 
@@ -406,6 +411,8 @@ class PhotoTemplate:
             value = self.get_media_type(default)
         elif field == "photo_or_video":
             value = self.get_photo_video_type(default)
+        elif field == "hdr":
+            value = self.get_photo_hdr(default, bool_val)
         elif field == "created.date":
             value = DateTimeFormatter(self.photo.date).date
         elif field == "created.year":
@@ -734,6 +741,12 @@ class PhotoTemplate:
         else:
             return default_dict["photo"]
 
+
+    def get_photo_hdr(self, default, bool_val):
+        if self.photo.hdr:
+            return bool_val
+        else:
+            return default
 
 def parse_default_kv(default, default_dict):
     """ parse a string in form key1=value1;key2=value2,... as used for some template fields

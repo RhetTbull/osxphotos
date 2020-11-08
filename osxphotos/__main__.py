@@ -168,7 +168,10 @@ class ExportCommand(click.Command):
         + "You may specify an alternate default value by appending ',DEFAULT' after template_field. "
         + "e.g. '{title,no_title}' would result in 'no_title' if the photo had no title. "
         + "You may include other text in the template string outside the {} and use more than "
-        + "one template field, e.g. '{created.year} - {created.month}' (e.g. '2020 - November')."
+        + "one template field, e.g. '{created.year} - {created.month}' (e.g. '2020 - November'). "
+        + "Some template fields such as 'hdr' are boolean and resolve to True or False. "
+        + "These take the form: '{TEMPLATE_FIELD?VALUE_IF_TRUE,VALUE_IF_FALSE}', e.g. "
+        + "'{hdr?is_hdr,not_hdr}'."
         )
         formatter.write("\n")
         formatter.write_text(

@@ -398,7 +398,9 @@ specify an alternate default value by appending ',DEFAULT' after
 template_field. e.g. '{title,no_title}' would result in 'no_title' if the
 photo had no title. You may include other text in the template string outside
 the {} and use more than one template field, e.g. '{created.year} -
-{created.month}' (e.g. '2020 - November').
+{created.month}' (e.g. '2020 - November'). Some template fields such as 'hdr'
+are boolean and resolve to True or False. These take the form:
+'{TEMPLATE_FIELD?VALUE_IF_TRUE,VALUE_IF_FALSE}', e.g. '{hdr?is_hdr,not_hdr}'.
 
 With the --directory and --filename options you may specify a template for the
 export directory or filename, respectively. The directory will be appended to
@@ -458,6 +460,8 @@ Substitution                    Description
                                 the image is. To customize, use default
                                 value as in
                                 '{photo_or_video,photo=fotos;video=videos}'
+{hdr}                           Photo is HDR?; True/False value, use in
+                                format '{hdr?VALUE_IF_TRUE,VALUE_IF_FALSE}'
 {created.date}                  Photo's creation date in ISO format, e.g.
                                 '2020-03-22'
 {created.year}                  4-digit year of photo creation time
@@ -1862,6 +1866,7 @@ To get the path of every raw photo, whether it's a single raw photo or a raw+JPE
 ### Template Substitutions
 
 The following template field substitutions are availabe for use with `PhotoInfo.render_template()`
+
 | Substitution | Description |
 |--------------|-------------|
 |{name}|Current filename of the photo|
@@ -1870,6 +1875,7 @@ The following template field substitutions are availabe for use with `PhotoInfo.
 |{descr}|Description of the photo|
 |{media_type}|Special media type resolved in this precedence: selfie, time_lapse, panorama, slow_mo, screenshot, portrait, live_photo, burst, photo, video. Defaults to 'photo' or 'video' if no special type. Customize one or more media types using format: '{media_type,video=vidéo;time_lapse=vidéo_accélérée}'|
 |{photo_or_video}|'photo' or 'video' depending on what type the image is. To customize, use default value as in '{photo_or_video,photo=fotos;video=videos}'|
+|{hdr}|Photo is HDR?; True/False value, use in format '{hdr?VALUE_IF_TRUE,VALUE_IF_FALSE}'|
 |{created.date}|Photo's creation date in ISO format, e.g. '2020-03-22'|
 |{created.year}|4-digit year of photo creation time|
 |{created.yy}|2-digit year of photo creation time|
