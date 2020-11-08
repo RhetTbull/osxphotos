@@ -2319,7 +2319,7 @@ def export_photo(
 
     export_original = not (skip_original_if_edited and photo.hasadjustments)
     # slow_mo photos will always have hasadjustments=True even if not edited
-    if photo.path_edited is None:
+    if photo.hasadjustments and photo.path_edited is None:
         if photo.slow_mo:
             export_original = True
             export_edited = False
