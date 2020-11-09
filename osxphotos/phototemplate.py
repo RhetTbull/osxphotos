@@ -166,7 +166,7 @@ class PhotoTemplate:
         Args:
             template: str template 
             none_str: str to use default for None values, default is '_' 
-            path_sep: optional character to use as path separator, default is os.path.sep
+            path_sep: optional string to use as path separator, default is os.path.sep
             expand_inplace: expand multi-valued substitutions in-place as a single string 
                 instead of returning individual strings
             inplace_sep: optional string to use as separator between multi-valued keywords
@@ -181,8 +181,6 @@ class PhotoTemplate:
 
         if path_sep is None:
             path_sep = os.path.sep
-        elif path_sep is not None and len(path_sep) != 1:
-            raise ValueError(f"path_sep must be single character: {path_sep}")
 
         if inplace_sep is None:
             inplace_sep = ","
@@ -196,9 +194,17 @@ class PhotoTemplate:
         #          there would be 6 possible renderings (2 albums x 3 persons)
 
         # regex to find {template_field,optional_default} in strings
-        # for explanation of regex see https://regex101.com/r/YFpWsn/1
         # pylint: disable=anomalous-backslash-in-string
-        regex = r"(?<!\{)\{([^}]*\+)?([^\\,}+\?]+)(\?[^\\,}]*)?(,[\w\=\;\-\%. ]*)?(?=\}(?!\}))\}"
+        regex = (
+            r"(?<!\{)\{"  # match { but not {{
+            + r"([^}]*\+)?"  # group 1: optional DELIM+
+            + r"([^\\,}+\?]+)"  # group 2: field name
+            + r"(\([^{}\)]*\))?"  # group 3: optional (PATH_SEP)
+            + r"(\?[^\\,}]*)?"  # group 4: optional ?TRUE_VALUE for boolean fields
+            + r"(,[\w\=\;\-\%. ]*)?"  # group 5: optional ,DEFAULT
+            + r"(?=\}(?!\}))\}"  # match } but not }}
+        )
+
         if type(template) is not str:
             raise TypeError(f"template must be type str, not {type(template)}")
 
@@ -219,21 +225,24 @@ class PhotoTemplate:
             # closure to capture photo, none_str, filename, dirname in subst
             def subst(matchobj):
                 groups = len(matchobj.groups())
-                if groups == 4:
+                if groups == 5:
                     delim = matchobj.group(1)
                     field = matchobj.group(2)
-                    bool_val = matchobj.group(3)
-                    default = matchobj.group(4)
+                    path_sep = matchobj.group(3)
+                    bool_val = matchobj.group(4)
+                    default = matchobj.group(5)
 
-                    # drop the comma on default
-                    default_val = default[1:] if default is not None else None
                     # drop the '+' on delim
                     delim = delim[:-1] if delim is not None else None
+                    # drop () from path_sep
+                    path_sep = path_sep.strip("()") if path_sep is not None else None
                     # drop the ? on bool_val
                     bool_val = bool_val[1:] if bool_val is not None else None
+                    # drop the comma on default
+                    default_val = default[1:] if default is not None else None
 
                     try:
-                        val = get_func(field, default_val, bool_val, delim)
+                        val = get_func(field, default_val, bool_val, delim, path_sep)
                     except ValueError:
                         return matchobj.group(0)
 
@@ -284,12 +293,15 @@ class PhotoTemplate:
         for field in MULTI_VALUE_SUBSTITUTIONS:
             # Build a regex that matches only the field being processed
             re_str = (
-                r"(?<!\{)\{"
-                + r"([^}]*\+)?"  # group 1, optional delim/expand in place
+                r"(?<!\{)\{"  # match { but not {{
+                + r"([^}]*\+)?"  # group 1: optional DELIM+
                 + r"("
-                + field  # group 2 (field name)
+                + field  # group 2: field name
                 + r")"
-                + r"(\?[^\\,}]*)?(,[\w\=\;\-\%. ]*)?(?=\}(?!\}))\}"
+                + r"(\([^{}\)]*\))?"  # group 3: optional (PATH_SEP)
+                + r"(\?[^\\,}]*)?"  # group 4: optional ?TRUE_VALUE for boolean fields
+                + r"(,[\w\=\;\-\%. ]*)?"  # group 5: optional ,DEFAULT
+                + r"(?=\}(?!\}))\}"  # match } but not }}
             )
             regex_multi = re.compile(re_str)
 
@@ -299,6 +311,11 @@ class PhotoTemplate:
             for str_template in rendered_strings:
                 matches = regex_multi.search(str_template)
                 if matches:
+                    path_sep = (
+                        matches.group(3).strip("()")
+                        if matches.group(3) is not None
+                        else path_sep
+                    )
                     values = self.get_template_value_multi(
                         field,
                         path_sep,
@@ -308,14 +325,10 @@ class PhotoTemplate:
                     )
                     if expand_inplace or matches.group(1) is not None:
                         delim = (
-                            matches.group(1)[:-1]
-                            if matches.group(1) is not None
-                            else inplace_sep
+                            matches.group(1)[:-1] if matches.group(1) is not None else inplace_sep 
                         )
                         # instead of returning multiple strings, join values into a single string
-                        val = (
-                            delim.join(sorted(values)) if values and values[0] else None
-                        )
+                        val = delim.join(sorted(values)) if values and values[0] else None
 
                         def lookup_template_value_multi(lookup_value, *_):
                             """ Closure passed to make_subst_function get_func 
@@ -389,6 +402,7 @@ class PhotoTemplate:
         default,
         bool_val=None,
         delim=None,
+        path_sep=None,
         filename=False,
         dirname=False,
         replacement=":",
@@ -398,6 +412,9 @@ class PhotoTemplate:
         Args:
             field: template field to find value for.
             default: the default value provided by the user
+            bool_val: True value if expression is boolean 
+            delim: delimiter for expand in place
+            path_sep: path separator for fields that are path-like
             filename: if True, template output will be sanitized to produce valid file name
             dirname: if True, template output will be sanitized to produce valid directory name 
             replacement: str, value to replace any illegal file path characters with; default = ":"

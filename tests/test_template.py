@@ -496,6 +496,25 @@ def test_subst_multi_folder_albums_1():
     assert unknown == []
 
 
+def test_subst_multi_folder_albums_1_path_sep():
+    """ Test substitutions for folder_album are correct with custom PATH_SEP """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
+
+    # photo in an album in a folder
+    photo = photosdb.photos(uuid=[UUID_DICT["folder_album_1"]])[0]
+    template = "{folder_album(:)}"
+    expected = [
+        "2018-10 - Sponsion, Museum, Frühstück, Römermuseum",
+        "2019-10/11 Paris Clermont",
+        "Folder1:SubFolder2:AlbumInFolder",
+    ]
+    rendered, unknown = photo.render_template(template)
+    assert sorted(rendered) == sorted(expected)
+    assert unknown == []
+
+
 def test_subst_multi_folder_albums_2():
     """ Test substitutions for folder_album are correct """
     import osxphotos
@@ -505,6 +524,21 @@ def test_subst_multi_folder_albums_2():
     # photo in an album in a folder
     photo = photosdb.photos(uuid=[UUID_DICT["folder_album_no_folder"]])[0]
     template = "{folder_album}"
+    expected = ["Pumpkin Farm", "Test Album"]
+    rendered, unknown = photo.render_template(template)
+    assert sorted(rendered) == sorted(expected)
+    assert unknown == []
+
+
+def test_subst_multi_folder_albums_2_path_sep():
+    """ Test substitutions for folder_album are correct with custom PATH_SEP """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
+
+    # photo in an album in a folder
+    photo = photosdb.photos(uuid=[UUID_DICT["folder_album_no_folder"]])[0]
+    template = "{folder_album(:)}"
     expected = ["Pumpkin Farm", "Test Album"]
     rendered, unknown = photo.render_template(template)
     assert sorted(rendered) == sorted(expected)
@@ -521,6 +555,21 @@ def test_subst_multi_folder_albums_3():
     photo = photosdb.photos(uuid=[UUID_DICT["mojave_album_1"]])[0]
     template = "{folder_album}"
     expected = ["Folder1/SubFolder2/AlbumInFolder", "Pumpkin Farm", "Test Album (1)"]
+    rendered, unknown = photo.render_template(template)
+    assert sorted(rendered) == sorted(expected)
+    assert unknown == []
+
+
+def test_subst_multi_folder_albums_3_path_sep():
+    """ Test substitutions for folder_album on < Photos 5 with custom PATH_SEP """
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_14_6)
+
+    # photo in an album in a folder
+    photo = photosdb.photos(uuid=[UUID_DICT["mojave_album_1"]])[0]
+    template = "{folder_album(:)}"
+    expected = ["Folder1:SubFolder2:AlbumInFolder", "Pumpkin Farm", "Test Album (1)"]
     rendered, unknown = photo.render_template(template)
     assert sorted(rendered) == sorted(expected)
     assert unknown == []

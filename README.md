@@ -388,30 +388,72 @@ option to re-export the entire library thus rebuilding the
 
 ** Templating System **
 
-Several options, such as --directory, allow you to specify a template which
-will be rendered to substitute template fields with values from the photo. For
-example, '{created.month}' would be replaced with the month name of the photo
-creation date. e.g. 'November'. The general format for a template is
-'{TEMPLATE_FIELD[,[DEFAULT]]}'. The ',' and DEFAULT value are optional. If
-TEMPLATE_FIELD results in a null (empty) value, the default is '_'.  You may
-specify an alternate default value by appending ',DEFAULT' after
-template_field. e.g. '{title,no_title}' would result in 'no_title' if the
-photo had no title. You may include other text in the template string outside
-the {} and use more than one template field, e.g. '{created.year} -
-{created.month}' (e.g. '2020 - November'). Some template fields such as 'hdr'
-are boolean and resolve to True or False. These take the form:
-'{TEMPLATE_FIELD?VALUE_IF_TRUE,VALUE_IF_FALSE}', e.g. '{hdr?is_hdr,not_hdr}'.
+Several options, such as --directory, allow you to specify a template  which
+will be rendered to substitute template fields with values from the photo.
+For example, '{created.month}' would be replaced with the month name of the
+photo creation date.  e.g. 'November'.
+
+The general format for a template is '{TEMPLATE_FIELD[,[DEFAULT]]}'.  Some
+templates have optional modifiers in form
+'{[[DELIM]+]TEMPLATE_FIELD[(PATH_SEP)][?VALUE_IF_TRUE][,[DEFAULT]]}'
+
+The ',' and DEFAULT value are optional.  If TEMPLATE_FIELD results in a null
+(empty) value, the default is '_'.   You may specify an alternate default
+value by appending ',DEFAULT' after template_field.  e.g. '{title,no_title}'
+would result in 'no_title' if the photo had no title.  You may include other
+text in the template string outside the {} and use more than  one template
+field, e.g. '{created.year} - {created.month}' (e.g. '2020 - November').
+
+Some template fields such as 'hdr' are boolean and resolve to True or False.
+These take the form: '{TEMPLATE_FIELD?VALUE_IF_TRUE,VALUE_IF_FALSE}', e.g.
+{hdr?is_hdr,not_hdr} which would result in 'is_hdr' if photo is an HDR  image
+and 'not_hdr' otherwise.
+
+Some template fields such as 'folder_template' are "path-like" in that they
+join  multiple elements into a single path-like string.  For example, if photo
+is in  album Album1 in folder Folder1, '{folder_album}` results in
+'Folder1/Album1'.  This is so these template fields may be used as paths in
+--directory.  If you intend to use such a field as a string, e.g. in the
+filename, you may specify  a different path separator using the form:
+'{TEMPLATE_FIELD(PATH_SEP)}'.  For example, using the example above,
+'{folder_album(-)}' would result in  'Folder1-Album1' and '{folder_album()}'
+would result in  'Folder1Album1'.
+
+Some templates may resolve to more than one value.  For example, a photo can
+have  multiple keywords so '{keyword}' can result in multiple values.  If used
+in a filename  or directory, these templates may result in more than one copy
+of the photo being exported.  For example, if photo has keywords "foo" and
+"bar", --directory '{keyword}' will result in  copies of the photo being
+exported to 'foo/image_name.jpeg' and 'bar/image_name.jpeg'.
+
+Multi-value template fields such as '{keyword}' may be expanded 'in place'
+with an optional delimiter using the template form '{DELIM+TEMPLATE_FIELD}'.
+For example, a photo with  keywords 'foo' and 'bar':
+
+'{keyword}' renders to 'foo' and 'bar'
+
+'{,+keyword}' renders to: 'foo,bar'
+
+'{; +keyword}' renders to: 'foo; bar'
+
+'{+keyword}' renders to 'foobar'
+
+Some template fields such as '{media_type}' use the 'DEFAULT' value to allow
+customization  of the output. For example, '{media_type}' resolves to the
+special media type of the  photo such as 'panorama' or 'selfie'.  You may use
+the 'DEFAULT' value to override  these in form:
+'{media_type,video=vidéo;time_lapse=vidéo_accélérée}'.  In this example, if
+photo is a time_lapse photo, 'media_type' would resolve to  'vidéo_accélérée'
+instead of 'time_lapse' and video would resolve to 'vidéo' if photo is an
+ordinary video.
 
 With the --directory and --filename options you may specify a template for the
 export directory or filename, respectively. The directory will be appended to
 the export path specified in the export DEST argument to export.  For example,
-if template is '{created.year}/{created.month}', and export desitnation DEST
+if template is '{created.year}/{created.month}', and export destination DEST
 is '/Users/maria/Pictures/export', the actual export directory for a photo
 would be '/Users/maria/Pictures/export/2020/March' if the photo was created in
-March 2020. Some template substitutions may result in more than one value, for
-example '{album}' if photo is in more than one album or '{keyword}' if photo
-has more than one keyword. In this case, more than one copy of the photo will
-be exported, each in a separate directory or with a different filename.
+March 2020.
 
 The templating system may also be used with the --keyword-template option to
 set keywords on export (with --exiftool or --sidecar), for example, to set a
@@ -1424,11 +1466,13 @@ If overwrite=False and increment=False, export will fail if destination file alr
 
 #### <a name="rendertemplate">`render_template()`</a>
 
-`render_template(template_str, none_str = "_", path_sep = None, expand_inplace = False, inplace_sep = None,         filename=False, dirname=False, replacement=":",)`
-Render template string for photo.  none_str is used if template substitution results in None value and no default specified. 
-- `template_str`: str in form "{name,DEFAULT}" where name is one of the values in table below. The "," and default value that follows are optional. If specified, "DEFAULT" will be used if "name" is None.  This is useful for values which are not always present, for example reverse geolocation data.
+`render_template(template_str, none_str = "_", path_sep = None, expand_inplace = False, inplace_sep = None, filename=False, dirname=False, replacement=":",)`
+
+Render template string for photo.  none_str is used if template substitution results in None value and no default specified.
+
+- `template_str`: str in format "{[[DELIM]+]name[(PATH_SEP)][?TRUE_VALUE][,[DEFAULT]]}" where name is one of the values in the [Template Substitutions](#template-substitutions) table. See notes below regarding specific details of the syntax.
 - `none_str`: optional str to use as substitution when template value is None and no default specified in the template string.  default is "_".
-- `path_sep`: optional character to use as path separator, default is os.path.sep
+- `path_sep`: optional character to use as path separator, default is `os.path.sep`
 - `expand_inplace`: expand multi-valued substitutions in-place as a single string instead of returning individual strings
 - `inplace_sep`: optional string to use as separator between multi-valued keywords with expand_inplace; default is ','
 - `filename`: if True, template output will be sanitized to produce valid file name
@@ -1444,6 +1488,56 @@ If you want to include "{" or "}" in the output, use "{{" or "}}"
 e.g. `render_template("{created.year}/{{foo}}", photo)` would return `(["2020/{foo}"],[])`
 
 Some substitutions, notably `album`, `keyword`, and `person` could return multiple values, hence a new string will be return for each possible substitution (hence why a list of rendered strings is returned).  For example, a photo in 2 albums: 'Vacation' and 'Family' would result in the following rendered values if template was "{created.year}/{album}" and created.year == 2020: `["2020/Vacation","2020/Family"]` 
+
+The template field format contains optional modifiers:
+
+`"{[[DELIM]+]name[(PATH_SEP)][?TRUE_VALUE][,[DEFAULT]]}"`
+
+`DELIM`: optional delimiter string to use when expanding multi-valued template values in-place
+
+`+`: If present before template `name`, expands the template in place.  If `DELIM` not provided, values are joined with no delimiter.
+
+e.g. if Photo keywords are `["foo","bar"]`:
+
+- `"{keyword}"` renders to `["foo", "bar"]`
+- `"{,+keyword}"` renders to: `["foo,bar"]`
+- `"{; +keyword}"` renders to: `["foo; bar"]`
+- `"{+keyword}"` renders to `["foobar"]`
+
+`PATH_SEP`: optional path separator to use when joining path like fields, for example `{folder_album}`.  May also be provided as `path_sep` argument in `render_template()`.  If provided both in the call to `render_template()` and in the template itself, the value in the template string takes precedence.  If not provided in either the template string or in `path_sep` argument, defaults to `os.path.sep`.
+
+e.g. If Photo is in `Album1` in `Folder1`:
+
+- `"{folder_album}"` renders to `["Folder1/Album1"]`
+- `"{folder_album(:)}"` renders to `["Folder1:Album1"]`
+- `"{folder_album()}"` renders to `["Folder1Album1"]`
+
+`?TRUE_VALUE`: optional value to use if name is boolean-type field which evaluates to true.  For example `"{hdr}"` evaluates to True if photo is an high dynamic range (HDR) image and False otherwise. In these types of fields, use `?TRUE_VALUE` to provide the value if True and `,DEFAULT` to provide the value of False.  
+
+e.g. if photo is an HDR image,
+
+- `"{hdr?ISHDR,NOTHDR}"` renders to `["ISHDR"]`
+
+and if it is not an HDR image,
+
+- `"{hdr?ISHDR,NOTHDR}"` renders to `["NOTHDR"]`
+
+Either or both `TRUE_VALUE` or `DEFAULT` (False value) may be empty which would result in empty string `[""]` when rendered.
+
+`,DEFAULT`: optional default value to use if the template name has no value.  This modifier is also used for the value if False for boolean-type fields (see above) as well as to hold a sub-template for values like `{created.strftime}`.  If no default value provided, "_" is used. May also be provided in the `none_str` argument to `render_template()`.  If provided both in the template string and in `none_str`, the value in the template string takes precedence.
+
+e.g., if photo has no title set,
+
+- `"{title}"` renders to ["_"]
+- `"{title,I have no title}"` renders to `["I have no title"]`
+
+Template fields such as `created.strftime` use the DEFAULT value to pass the template to use for `strftime`.  
+
+e.g., if photo date is 4 February 2020, 19:07:38,
+
+- `"{created.strftime,%Y-%m-%d-%H%M%S}"` renders to `["2020-02-04-190738"]`
+
+Some template fields such as `"{media_type}"` use the `DEFAULT` value to allow customization of the output. For example, `"{media_type}"` resolves to the special media type of the photo such as `panorama` or `selfie`.  You may use the `DEFAULT` value to override these in form: `"{media_type,video=vidéo;time_lapse=vidéo_accélérée}"`. In this example, if photo was a time_lapse photo, `media_type` would resolve to `vidéo_accélérée` instead of `time_lapse`. 
 
 See [Template Substitutions](#template-substitutions) for additional details.
 

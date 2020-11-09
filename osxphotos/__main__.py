@@ -159,20 +159,64 @@ class ExportCommand(click.Command):
         formatter.write_text("** Templating System **")
         formatter.write("\n")
         formatter.write_text(
-            "Several options, such as --directory, allow you to specify a template "
-            + "which will be rendered to substitute template fields with values from the photo. "
-            + "For example, '{created.month}' would be replaced with the month name of the photo creation date. "
-            + "e.g. 'November'. "
-            + "The general format for a template is '{TEMPLATE_FIELD[,[DEFAULT]]}'. "
-            + "The ',' and DEFAULT value are optional. "
-            + "If TEMPLATE_FIELD results in a null (empty) value, the default is '_'.  "
-            + "You may specify an alternate default value by appending ',DEFAULT' after template_field. "
-            + "e.g. '{title,no_title}' would result in 'no_title' if the photo had no title. "
-            + "You may include other text in the template string outside the {} and use more than "
-            + "one template field, e.g. '{created.year} - {created.month}' (e.g. '2020 - November'). "
-            + "Some template fields such as 'hdr' are boolean and resolve to True or False. "
-            + "These take the form: '{TEMPLATE_FIELD?VALUE_IF_TRUE,VALUE_IF_FALSE}', e.g. "
-            + "'{hdr?is_hdr,not_hdr}'."
+            """
+Several options, such as --directory, allow you to specify a template 
+which will be rendered to substitute template fields with values from the photo. 
+For example, '{created.month}' would be replaced with the month name of the photo creation date. 
+e.g. 'November'. 
+\n
+The general format for a template is '{TEMPLATE_FIELD[,[DEFAULT]]}'. 
+Some templates have optional modifiers in form 
+'{[[DELIM]+]TEMPLATE_FIELD[(PATH_SEP)][?VALUE_IF_TRUE][,[DEFAULT]]}'
+\n
+The ',' and DEFAULT value are optional. 
+If TEMPLATE_FIELD results in a null (empty) value, the default is '_'.  
+You may specify an alternate default value by appending ',DEFAULT' after template_field. 
+e.g. '{title,no_title}' would result in 'no_title' if the photo had no title. 
+You may include other text in the template string outside the {} and use more than 
+one template field, e.g. '{created.year} - {created.month}' (e.g. '2020 - November'). 
+\n
+Some template fields such as 'hdr' are boolean and resolve to True or False. 
+These take the form: '{TEMPLATE_FIELD?VALUE_IF_TRUE,VALUE_IF_FALSE}', e.g. 
+{hdr?is_hdr,not_hdr} which would result in 'is_hdr' if photo is an HDR 
+image and 'not_hdr' otherwise.
+\n
+Some template fields such as 'folder_template' are "path-like" in that they join 
+multiple elements into a single path-like string.  For example, if photo is in 
+album Album1 in folder Folder1, '{folder_album}` results in 'Folder1/Album1'. 
+This is so these template fields may be used as paths in --directory. 
+If you intend to use such a field as a string, e.g. in the filename, you may specify 
+a different path separator using the form: '{TEMPLATE_FIELD(PATH_SEP)}'. 
+For example, using the example above, '{folder_album(-)}' would result in 
+'Folder1-Album1' and '{folder_album()}' would result in 
+'Folder1Album1'.
+\n
+Some templates may resolve to more than one value.  For example, a photo can have 
+multiple keywords so '{keyword}' can result in multiple values.  If used in a filename 
+or directory, these templates may result in more than one copy of the photo being exported. 
+For example, if photo has keywords "foo" and "bar", --directory '{keyword}' will result in 
+copies of the photo being exported to 'foo/image_name.jpeg' and 'bar/image_name.jpeg'.  
+\n
+Multi-value template fields such as '{keyword}' may be expanded 'in place' with an optional
+delimiter using the template form '{DELIM+TEMPLATE_FIELD}'.  For example, a photo with 
+keywords 'foo' and 'bar':
+\n
+'{keyword}' renders to 'foo' and 'bar'
+\n
+'{,+keyword}' renders to: 'foo,bar'
+\n
+'{; +keyword}' renders to: 'foo; bar'
+\n
+'{+keyword}' renders to 'foobar'
+\n
+Some template fields such as '{media_type}' use the 'DEFAULT' value to allow customization 
+of the output. For example, '{media_type}' resolves to the special media type of the 
+photo such as 'panorama' or 'selfie'.  You may use the 'DEFAULT' value to override 
+these in form: '{media_type,video=vidéo;time_lapse=vidéo_accélérée}'. 
+In this example, if photo is a time_lapse photo, 'media_type' would resolve to 
+'vidéo_accélérée' instead of 'time_lapse' and video would resolve to 'vidéo' if photo
+is an ordinary video. 
+"""
         )
         formatter.write("\n")
         formatter.write_text(
@@ -180,14 +224,10 @@ class ExportCommand(click.Command):
             + "export directory or filename, respectively. "
             + "The directory will be appended to the export path specified "
             + "in the export DEST argument to export.  For example, if template is "
-            + "'{created.year}/{created.month}', and export desitnation DEST is "
+            + "'{created.year}/{created.month}', and export destination DEST is "
             + "'/Users/maria/Pictures/export', "
             + "the actual export directory for a photo would be '/Users/maria/Pictures/export/2020/March' "
             + "if the photo was created in March 2020. "
-            + "Some template substitutions may result in more than one value, for example '{album}' if "
-            + "photo is in more than one album or '{keyword}' if photo has more than one keyword. "
-            + "In this case, more than one copy of the photo will be exported, each in a separate directory "
-            + "or with a different filename."
         )
         formatter.write("\n")
         formatter.write_text(
