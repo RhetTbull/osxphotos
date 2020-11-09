@@ -58,8 +58,8 @@ EXIF_JSON_EXPECTED = """
     "EXIF:DateTimeOriginal": "2018:10:13 09:18:12", 
     "EXIF:CreateDate": "2018:10:13 09:18:12", 
     "EXIF:OffsetTimeOriginal": "-04:00", 
-    "IPTC:DigitalCreationDate": "2018:10:13", 
     "IPTC:DateCreated": "2018:10:13", 
+    "IPTC:TimeCreated": "09:18:12-04:00", 
     "EXIF:ModifyDate": "2019:12:01 11:43:45"}]
     """
 

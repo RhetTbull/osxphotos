@@ -78,8 +78,8 @@ EXIF_JSON_EXPECTED = """
     "EXIF:DateTimeOriginal": "2019:04:15 14:40:24", 
     "EXIF:CreateDate": "2019:04:15 14:40:24", 
     "EXIF:OffsetTimeOriginal": "-04:00", 
-    "IPTC:DigitalCreationDate": "2019:04:15", 
     "IPTC:DateCreated": "2019:04:15", 
+    "IPTC:TimeCreated": "14:40:24-04:00", 
     "EXIF:ModifyDate": "2019:07:27 17:33:28"}]
     """
 
@@ -94,8 +94,8 @@ EXIF_JSON_EXPECTED_IGNORE_DATE_MODIFIED = """
     "EXIF:DateTimeOriginal": "2019:04:15 14:40:24", 
     "EXIF:CreateDate": "2019:04:15 14:40:24", 
     "EXIF:OffsetTimeOriginal": "-04:00", 
-    "IPTC:DigitalCreationDate": "2019:04:15", 
     "IPTC:DateCreated": "2019:04:15", 
+    "IPTC:TimeCreated": "14:40:24-04:00", 
     "EXIF:ModifyDate": "2019:04:15 14:40:24"}]
     """
 
@@ -554,8 +554,8 @@ def test_exiftool_json_sidecar_keyword_template_long(caplog):
         "EXIF:DateTimeOriginal": "2019:04:15 14:40:24", 
         "EXIF:CreateDate": "2019:04:15 14:40:24", 
         "EXIF:OffsetTimeOriginal": "-04:00", 
-        "IPTC:DigitalCreationDate": "2019:04:15", 
         "IPTC:DateCreated": "2019:04:15", 
+        "IPTC:TimeCreated": "14:40:24-04:00", 
         "EXIF:ModifyDate": "2019:07:27 17:33:28"}]
         """
     )[0]
@@ -604,8 +604,8 @@ def test_exiftool_json_sidecar_keyword_template():
         "EXIF:DateTimeOriginal": "2019:04:15 14:40:24", 
         "EXIF:CreateDate": "2019:04:15 14:40:24", 
         "EXIF:OffsetTimeOriginal": "-04:00", 
-        "IPTC:DigitalCreationDate": "2019:04:15", 
         "IPTC:DateCreated": "2019:04:15", 
+        "IPTC:TimeCreated": "14:40:24-04:00", 
         "EXIF:ModifyDate": "2019:07:27 17:33:28"}]
         """
     )[0]
@@ -666,8 +666,8 @@ def test_exiftool_json_sidecar_use_persons_keyword():
         "EXIF:DateTimeOriginal": "2018:09:28 15:35:49", 
         "EXIF:CreateDate": "2018:09:28 15:35:49", 
         "EXIF:OffsetTimeOriginal": "-04:00", 
-        "IPTC:DigitalCreationDate": "2018:09:28", 
         "IPTC:DateCreated": "2018:09:28", 
+        "IPTC:TimeCreated": "15:35:49-04:00", 
         "EXIF:ModifyDate": "2018:09:28 15:35:49"}]
         """
     )[0]
@@ -709,8 +709,8 @@ def test_exiftool_json_sidecar_use_albums_keyword():
         "EXIF:DateTimeOriginal": "2018:09:28 15:35:49", 
         "EXIF:CreateDate": "2018:09:28 15:35:49", 
         "EXIF:OffsetTimeOriginal": "-04:00", 
-        "IPTC:DigitalCreationDate": "2018:09:28", 
         "IPTC:DateCreated": "2018:09:28", 
+        "IPTC:TimeCreated": "15:35:49-04:00", 
         "EXIF:ModifyDate": "2018:09:28 15:35:49"}]
         """
     )[0]

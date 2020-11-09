@@ -2693,8 +2693,8 @@ def test_export_sidecar_keyword_template():
             "EXIF:DateTimeOriginal": "2018:09:28 16:07:07", 
             "EXIF:CreateDate": "2018:09:28 16:07:07", 
             "EXIF:OffsetTimeOriginal": "-04:00", 
-            "IPTC:DigitalCreationDate": "2018:09:28", 
-            "IPTC:DateCreated": "2018:09:28", 
+            "IPTC:DateCreated": "2018:09:28",
+            "IPTC:TimeCreated": "16:07:07-04:00",
             "EXIF:ModifyDate": "2018:09:28 16:07:07"}]
             """
         )[0]
