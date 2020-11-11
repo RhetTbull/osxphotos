@@ -1,6 +1,5 @@
 """ FileUtil class with methods for copy, hardlink, unlink, etc. """
 
-import logging
 import os
 import pathlib
 import stat
@@ -74,7 +73,6 @@ class FileUtilMacOS(FileUtilABC):
         try:
             os.link(src, dest)
         except Exception as e:
-            logging.critical(f"os.link returned error: {e}")
             raise e
 
     @classmethod
@@ -92,7 +90,7 @@ class FileUtilMacOS(FileUtilABC):
         if src is None or dest is None:
             raise ValueError("src and dest must not be None", src, dest)
 
-        if not os.path.isfile(src):
+        if not os.path.exists(src):
             raise FileNotFoundError("src file does not appear to exist", src)
 
         if norsrc:
@@ -104,9 +102,6 @@ class FileUtilMacOS(FileUtilABC):
         try:
             result = subprocess.run(command, check=True, stderr=subprocess.PIPE)
         except subprocess.CalledProcessError as e:
-            logging.critical(
-                f"ditto returned error: {e.returncode} {e.stderr.decode(sys.getfilesystemencoding()).rstrip()}"
-            )
             raise e
 
         return result.returncode

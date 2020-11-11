@@ -35,6 +35,7 @@ from .._constants import (
 from .._version import __version__
 from ..albuminfo import AlbumInfo, FolderInfo, ImportInfo
 from ..datetime_utils import datetime_has_tz, datetime_naive_to_local
+from ..fileutil import FileUtil
 from ..personinfo import PersonInfo
 from ..photoinfo import PhotoInfo
 from ..utils import (
@@ -102,7 +103,7 @@ class PhotosDB:
         # tempfile.TemporaryDirectory gets cleaned up when the object does
         self._tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
         self._tempdir_name = self._tempdir.name
-
+        
         # set up the data structures used to store all the Photo database info
 
         # TODO: I don't think these keywords flags are actually used
@@ -265,8 +266,11 @@ class PhotosDB:
         # photoanalysisd sometimes maintains this lock even after Photos is closed
         # In those cases, make a temp copy of the file for sqlite3 to read
         if _db_is_locked(self._dbfile):
-            verbose(f"Database locked, creating temporary copy.")
-            self._tmp_db = self._copy_db_file(self._dbfile)
+            try:
+                self._tmp_db = self._link_db_file(self._dbfile)
+            except:
+                verbose(f"Database locked, creating temporary copy.")
+                self._tmp_db = self._copy_db_file(self._dbfile)
 
         self._db_version = get_db_version(self._tmp_db)
 
@@ -281,8 +285,11 @@ class PhotosDB:
                 verbose(f"Processing database {self._dbfile_actual}")
                 # if database is exclusively locked, make a copy of it and use the copy
                 if _db_is_locked(self._dbfile_actual):
-                    verbose(f"Database locked, creating temporary copy.")
-                    self._tmp_db = self._copy_db_file(self._dbfile_actual)
+                    try:
+                        self._tmp_db = self._link_db_file(self._dbfile_actual)
+                    except:
+                        verbose(f"Database locked, creating temporary copy.")
+                        self._tmp_db = self._copy_db_file(self._dbfile_actual)
 
             if _debug():
                 logging.debug(
@@ -545,6 +552,32 @@ class PhotosDB:
             logging.debug(dest_path)
 
         return dest_path
+
+    def _link_db_file(self, fname):
+        """ links the sqlite database file to a temp file """
+        """ returns the name of the temp file """
+        """ If sqlite shared memory and write-ahead log files exist, those are copied too """
+        # required because python's sqlite3 implementation can't read a locked file
+        # _, suffix = os.path.splitext(fname)
+        dest_name = dest_path = ""
+        try:
+            dest_name = pathlib.Path(fname).name
+            dest_path = os.path.join(self._tempdir_name, dest_name)
+            FileUtil.hardlink(fname, dest_path)
+            # link write-ahead log and shared memory files (-wal and -shm) files if they exist
+            if os.path.exists(f"{fname}-wal"):
+                FileUtil.hardlink(f"{fname}-wal", f"{dest_path}-wal")
+            if os.path.exists(f"{fname}-shm"):
+                FileUtil.hardlink(f"{fname}-shm", f"{dest_path}-shm")
+        except:
+            print("Error linking " + fname + " to " + dest_path, file=sys.stderr)
+            raise Exception
+
+        if _debug():
+            logging.debug(dest_path)
+
+        return dest_path
+
 
     def _process_database4(self):
         """ process the Photos database to extract info
