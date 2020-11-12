@@ -2341,10 +2341,10 @@ def export_photo(
             space = " " if not verbose_ else ""
             verbose(f"{space}Skipping missing photo {photo.original_filename}")
             return ExportResults([], [], [], [], [], [])
-        elif not os.path.exists(photo.path):
+        elif photo.path is None:
             space = " " if not verbose_ else ""
             verbose(
-                f"{space}WARNING: file {photo.path} is missing but ismissing=False, "
+                f"{space}WARNING: photo {photo.original_filename} ({photo.uuid}) is missing but ismissing=False, "
                 f"skipping {photo.original_filename}"
             )
             return ExportResults([], [], [], [], [], [])
@@ -2396,7 +2396,7 @@ def export_photo(
             download_missing
             and (
                 photo.ismissing
-                or not os.path.exists(photo.path)
+                or photo.path is None
                 or (export_edited and photo.path_edited is None)
             )
         )

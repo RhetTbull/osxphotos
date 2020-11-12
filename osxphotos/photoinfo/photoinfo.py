@@ -164,6 +164,8 @@ class PhotoInfo:
                         photopath = os.path.join(
                             self._db._masters_path, self._info["imagePath"]
                         )
+                if not os.path.isfile(photopath):
+                    photopath = None
                 self._path = photopath
                 return photopath
 
@@ -175,6 +177,8 @@ class PhotoInfo:
                     self._info["directory"],
                     self._info["filename"],
                 )
+                if not os.path.isfile(photopath):
+                    photopath = None
                 self._path = photopath
                 return photopath
 
@@ -188,6 +192,8 @@ class PhotoInfo:
                     self._info["directory"],
                     self._info["filename"],
                 )
+            if not os.path.isfile(photopath):
+                photopath = None
             self._path = photopath
             return photopath
 
