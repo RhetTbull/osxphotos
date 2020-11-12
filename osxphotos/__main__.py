@@ -2362,6 +2362,10 @@ def export_photo(
     results_touched = []
 
     export_original = not (skip_original_if_edited and photo.hasadjustments)
+
+    # can't export edited if photo doesn't have edited versions
+    export_edited = export_edited if photo.hasadjustments else False
+
     # slow_mo photos will always have hasadjustments=True even if not edited
     if photo.hasadjustments and photo.path_edited is None:
         if photo.slow_mo:
