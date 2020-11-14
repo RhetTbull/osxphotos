@@ -11,9 +11,9 @@ pytestmark = pytest.mark.skipif(
 PHOTOS_DB = "/Users/rhet/Pictures/Photos Library.photoslibrary"
 
 UUID_DICT = {
-    "has_adjustments": "A8111956-E900-4DEC-9191-A04A87C07BC5",
-    "no_adjustments": "EA7BB55F-92F1-4818-94E3-E8DEDC6B2E31",
-    "live": "9032C168-9319-40C0-8210-5ADC42F4C603",
+    "has_adjustments": "2B2D5434-6D31-49E2-BF47-B973D34A317B",
+    "no_adjustments": "A8D646C3-89A9-4D74-8001-4EB46BA55B94",
+    "live": "BFF29EBD-22DF-4FCF-9817-317E7104EA50",
 }
 
 

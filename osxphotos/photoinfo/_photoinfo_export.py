@@ -21,9 +21,10 @@ import re
 import tempfile
 from collections import namedtuple  # pylint: disable=syntax-error
 
+import photoscript
 from mako.template import Template
 
-from .._applescript import AppleScript
+# from .._applescript import AppleScript
 from .._constants import (
     _MAX_IPTC_KEYWORD_LEN,
     _OSXPHOTOS_NONE_SENTINEL,
@@ -31,8 +32,8 @@ from .._constants import (
     _UNKNOWN_PERSON,
     _XMP_TEMPLATE_NAME,
 )
-from ..export_db import ExportDBNoOp
 from ..exiftool import ExifTool
+from ..export_db import ExportDBNoOp
 from ..fileutil import FileUtil
 from ..utils import dd_to_dms_str, findfiles
 
@@ -78,33 +79,33 @@ def _export_photo_uuid_applescript(
     """
 
     # setup the applescript to do the export
-    export_scpt = AppleScript(
-        """ 
-		on export_by_uuid(theUUID, thePath, original, edited, theTimeOut)
-			tell application "Photos"
-				set thePath to thePath
-				set theItem to media item id theUUID
-				set theFilename to filename of theItem
-				set itemList to {theItem}
+    # export_scpt = AppleScript(
+    #     """ 
+	# 	on export_by_uuid(theUUID, thePath, original, edited, theTimeOut)
+	# 		tell application "Photos"
+	# 			set thePath to thePath
+	# 			set theItem to media item id theUUID
+	# 			set theFilename to filename of theItem
+	# 			set itemList to {theItem}
 				
-				if original then
-					with timeout of theTimeOut seconds
-						export itemList to POSIX file thePath with using originals
-					end timeout
-				end if
+	# 			if original then
+	# 				with timeout of theTimeOut seconds
+	# 					export itemList to POSIX file thePath with using originals
+	# 				end timeout
+	# 			end if
 				
-				if edited then
-					with timeout of theTimeOut seconds
-						export itemList to POSIX file thePath
-					end timeout
-				end if
+	# 			if edited then
+	# 				with timeout of theTimeOut seconds
+	# 					export itemList to POSIX file thePath
+	# 				end timeout
+	# 			end if
 				
-				return theFilename
-			end tell
+	# 			return theFilename
+	# 		end tell
 
-		end export_by_uuid
-		"""
-    )
+	# 	end export_by_uuid
+	# 	"""
+    # )
 
     dest = pathlib.Path(dest)
     if not dest.is_dir():
@@ -115,30 +116,32 @@ def _export_photo_uuid_applescript(
 
     tmpdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
 
-    # export original
+    exported_files = []
     filename = None
     try:
-        filename = export_scpt.call(
-            "export_by_uuid", uuid, tmpdir.name, original, edited, timeout
-        )
+        photo = photoscript.Photo(uuid)
+        filename = photo.filename
+        exported_files = photo.export(tmpdir.name, original=original, timeout=timeout)
+        # filename = export_scpt.call(
+        #     "export_by_uuid", uuid, tmpdir.name, original, edited, timeout
+        # )
     except Exception as e:
         logging.warning(f"Error exporting uuid {uuid}: {e}")
         return None
 
-    if filename is not None:
+    if exported_files and filename:
         # need to find actual filename as sometimes Photos renames JPG to jpeg on export
         # may be more than one file exported (e.g. if Live Photo, Photos exports both .jpeg and .mov)
         # TemporaryDirectory will cleanup on return
         filename_stem = pathlib.Path(filename).stem
-        files = glob.glob(os.path.join(tmpdir.name, "*"))
         exported_paths = []
-        for fname in files:
-            path = pathlib.Path(fname)
-            if len(files) > 1 and not live_photo and path.suffix.lower() == ".mov":
+        for fname in exported_files:
+            path = pathlib.Path(tmpdir.name) / fname
+            if len(exported_files) > 1 and not live_photo and path.suffix.lower() == ".mov":
                 # it's the .mov part of live photo but not requested, so don't export
                 logging.debug(f"Skipping live photo file {path}")
                 continue
-            if len(files) > 1 and burst and path.stem != filename_stem:
+            if len(exported_files) > 1 and burst and path.stem != filename_stem:
                 # skip any burst photo that's not the one we asked for
                 logging.debug(f"Skipping burst photo file {path}")
                 continue
