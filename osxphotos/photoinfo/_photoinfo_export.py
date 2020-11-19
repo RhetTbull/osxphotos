@@ -1194,7 +1194,6 @@ def _exiftool_dict(
 
     timeoriginal = date.strftime(f"%H:%M:%S{offsettime}")
     exif["IPTC:TimeCreated"] = timeoriginal
-    print(f"time = {timeoriginal}")
 
     if self.date_modified is not None and not ignore_date_modified:
         exif["EXIF:ModifyDate"] = self.date_modified.strftime("%Y:%m:%d %H:%M:%S")

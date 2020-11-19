@@ -1,7 +1,8 @@
 """ utility functions for validating/sanitizing path components """
 
-from ._constants import MAX_DIRNAME_LEN, MAX_FILENAME_LEN
 import pathvalidate
+
+from ._constants import MAX_DIRNAME_LEN, MAX_FILENAME_LEN
 
 
 def sanitize_filepath(filepath):

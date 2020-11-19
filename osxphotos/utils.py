@@ -57,9 +57,11 @@ def _debug():
     """ returns True if debugging turned on (via _set_debug), otherwise, false """
     return _DEBUG
 
+
 def noop(*args, **kwargs):
     """ do nothing (no operation) """
     pass
+
 
 def _get_os_version():
     # returns tuple containing OS version
@@ -361,9 +363,35 @@ def _db_is_locked(dbname):
 
 def normalize_unicode(value):
     """ normalize unicode data """
-    if value is not None:
-        if not isinstance(value, str):
-            raise ValueError("value must be str")
-        return unicodedata.normalize(UNICODE_FORMAT, value)
-    else:
+    if value is None:
         return None
+
+    if not isinstance(value, str):
+        raise ValueError("value must be str")
+    return unicodedata.normalize(UNICODE_FORMAT, value)
+
+
+def increment_filename(filepath):
+    """ Return filename (1).ext, etc if filename.ext exists
+
+        If file exists in filename's parent folder with same stem as filename, 
+        add (1), (2), etc. until a non-existing filename is found.
+
+    Args:
+        filepath: str; full path, including file name
+
+    Returns:
+        new filepath (or same if not incremented)
+
+    Note: This obviously is subject to race condition so using with caution.
+    """
+    dest = pathlib.Path(str(filepath))
+    count = 1
+    dest_files = findfiles(f"{dest.stem}*", str(dest.parent))
+    dest_files = [pathlib.Path(f).stem.lower() for f in dest_files]
+    dest_new = dest.stem
+    while dest_new.lower() in dest_files:
+        dest_new = f"{dest.stem} ({count})"
+        count += 1
+    dest = dest.parent / f"{dest_new}{dest.suffix}"
+    return str(dest)
