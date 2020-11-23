@@ -17,7 +17,6 @@ from plistlib import load as plistload
 import CoreFoundation
 import CoreServices
 import objc
-from Foundation import *
 
 from ._constants import UNICODE_FORMAT
 from .fileutil import FileUtil
@@ -202,7 +201,7 @@ def get_last_library_path():
         # pylint: disable=no-member
         # pylint: disable=undefined-variable
         photosurl = CoreFoundation.CFURLCreateByResolvingBookmarkData(
-            kCFAllocatorDefault, photosurlref, 0, None, None, None, None
+            CoreFoundation.kCFAllocatorDefault, photosurlref, 0, None, None, None, None
         )
 
         # the CFURLRef we got is a sruct that python treats as an array

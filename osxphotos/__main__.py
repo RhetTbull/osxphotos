@@ -1397,6 +1397,13 @@ def query(
     hidden=True,
     help="Force the use of AppleScript to export even if not missing (see also --download-missing).",
 )
+@click.option(
+    "--use-photokit",
+    is_flag=True,
+    default=False,
+    hidden=True,
+    help="Use PhotoKit interface instead of AppleScript to export.  Highly experimental alpha feature.",
+)
 @DB_ARGUMENT
 @click.argument("dest", nargs=1, type=click.Path(exists=True))
 @click.pass_obj
@@ -1487,6 +1494,7 @@ def export(
     deleted,
     deleted_only,
     use_photos_export,
+    use_photokit,
 ):
     """ Export photos from the Photos database.
         Export path DEST is required.
@@ -1733,6 +1741,7 @@ def export(
                     convert_to_jpeg=convert_to_jpeg,
                     jpeg_quality=jpeg_quality,
                     ignore_date_modified=ignore_date_modified,
+                    use_photokit=use_photokit,
                 )
                 results_exported.extend(results.exported)
                 results_new.extend(results.new)
@@ -1783,6 +1792,7 @@ def export(
                         convert_to_jpeg=convert_to_jpeg,
                         jpeg_quality=jpeg_quality,
                         ignore_date_modified=ignore_date_modified,
+                        use_photokit=use_photokit,
                     )
                     results_exported.extend(results.exported)
                     results_new.extend(results.new)
@@ -2290,6 +2300,7 @@ def export_photo(
     convert_to_jpeg=False,
     jpeg_quality=1.0,
     ignore_date_modified=False,
+    use_photokit=False,
 ):
     """ Helper function for export that does the actual export
 
@@ -2434,6 +2445,7 @@ def export_photo(
                     convert_to_jpeg=convert_to_jpeg,
                     jpeg_quality=jpeg_quality,
                     ignore_date_modified=ignore_date_modified,
+                    use_photokit=use_photokit,
                 )
 
                 results_exported.extend(export_results.exported)
@@ -2496,6 +2508,7 @@ def export_photo(
                         convert_to_jpeg=convert_to_jpeg,
                         jpeg_quality=jpeg_quality,
                         ignore_date_modified=ignore_date_modified,
+                        use_photokit=use_photokit,
                     )
 
                     results_exported.extend(export_results_edited.exported)

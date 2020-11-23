@@ -35,6 +35,12 @@ from .._constants import (
 from ..exiftool import ExifTool
 from ..export_db import ExportDBNoOp
 from ..fileutil import FileUtil
+from ..photokit import (
+    PHOTOS_VERSION_CURRENT,
+    PHOTOS_VERSION_ORIGINAL,
+    PhotoLibrary,
+    PhotoKitFetchFailed,
+)
 from ..utils import dd_to_dms_str, findfiles
 
 ExportResults = namedtuple(
@@ -80,31 +86,31 @@ def _export_photo_uuid_applescript(
 
     # setup the applescript to do the export
     # export_scpt = AppleScript(
-    #     """ 
-	# 	on export_by_uuid(theUUID, thePath, original, edited, theTimeOut)
-	# 		tell application "Photos"
-	# 			set thePath to thePath
-	# 			set theItem to media item id theUUID
-	# 			set theFilename to filename of theItem
-	# 			set itemList to {theItem}
-				
-	# 			if original then
-	# 				with timeout of theTimeOut seconds
-	# 					export itemList to POSIX file thePath with using originals
-	# 				end timeout
-	# 			end if
-				
-	# 			if edited then
-	# 				with timeout of theTimeOut seconds
-	# 					export itemList to POSIX file thePath
-	# 				end timeout
-	# 			end if
-				
-	# 			return theFilename
-	# 		end tell
+    #     """
+    # 	on export_by_uuid(theUUID, thePath, original, edited, theTimeOut)
+    # 		tell application "Photos"
+    # 			set thePath to thePath
+    # 			set theItem to media item id theUUID
+    # 			set theFilename to filename of theItem
+    # 			set itemList to {theItem}
 
-	# 	end export_by_uuid
-	# 	"""
+    # 			if original then
+    # 				with timeout of theTimeOut seconds
+    # 					export itemList to POSIX file thePath with using originals
+    # 				end timeout
+    # 			end if
+
+    # 			if edited then
+    # 				with timeout of theTimeOut seconds
+    # 					export itemList to POSIX file thePath
+    # 				end timeout
+    # 			end if
+
+    # 			return theFilename
+    # 		end tell
+
+    # 	end export_by_uuid
+    # 	"""
     # )
 
     dest = pathlib.Path(dest)
@@ -137,7 +143,11 @@ def _export_photo_uuid_applescript(
         exported_paths = []
         for fname in exported_files:
             path = pathlib.Path(tmpdir.name) / fname
-            if len(exported_files) > 1 and not live_photo and path.suffix.lower() == ".mov":
+            if (
+                len(exported_files) > 1
+                and not live_photo
+                and path.suffix.lower() == ".mov"
+            ):
                 # it's the .mov part of live photo but not requested, so don't export
                 logging.debug(f"Skipping live photo file {path}")
                 continue
@@ -313,6 +323,7 @@ def export2(
     convert_to_jpeg=False,
     jpeg_quality=1.0,
     ignore_date_modified=False,
+    use_photokit=False,
 ):
     """ export photo, like export but with update and dry_run options
         dest: must be valid destination path or exception raised 
@@ -654,32 +665,73 @@ def export2(
                 # didn't get passed a filename, add _edited
                 filestem = f"{dest.stem}{edited_identifier}"
                 dest = dest.parent / f"{filestem}.jpeg"
-
-            exported = _export_photo_uuid_applescript(
-                self.uuid,
-                dest.parent,
-                filestem=filestem,
-                original=False,
-                edited=True,
-                live_photo=live_photo,
-                timeout=timeout,
-                burst=self.burst,
-                dry_run=dry_run,
-            )
+            if use_photokit:
+                photolib = PhotoLibrary()
+                photo = None
+                try:
+                    photo = photolib.fetch_uuid(self.uuid)
+                except PhotoKitFetchFailed:
+                    # if failed to find UUID, might be a burst photo
+                    if self.burst and self._info["burstUUID"]:
+                        bursts = photolib.fetch_burst_uuid(
+                            self._info["burstUUID"], all=True
+                        )
+                        # PhotoKit UUIDs may contain "/L0/001" so only look at beginning
+                        photo = [p for p in bursts if p.uuid.startswith(self.uuid)]
+                        photo = photo[0] if photo else None
+                if photo:
+                    exported = photo.export(
+                        dest.parent, dest.name, version=PHOTOS_VERSION_CURRENT
+                    )
+                else:
+                    exported = []
+            else:
+                exported = _export_photo_uuid_applescript(
+                    self.uuid,
+                    dest.parent,
+                    filestem=filestem,
+                    original=False,
+                    edited=True,
+                    live_photo=live_photo,
+                    timeout=timeout,
+                    burst=self.burst,
+                    dry_run=dry_run,
+                )
         else:
             # export original version and not edited
             filestem = dest.stem
-            exported = _export_photo_uuid_applescript(
-                self.uuid,
-                dest.parent,
-                filestem=filestem,
-                original=True,
-                edited=False,
-                live_photo=live_photo,
-                timeout=timeout,
-                burst=self.burst,
-                dry_run=dry_run,
-            )
+            if use_photokit:
+                photolib = PhotoLibrary()
+                photo = None
+                try:
+                    photo = photolib.fetch_uuid(self.uuid)
+                except PhotoKitFetchFailed:
+                    # if failed to find UUID, might be a burst photo
+                    if self.burst and self._info["burstUUID"]:
+                        bursts = photolib.fetch_burst_uuid(
+                            self._info["burstUUID"], all=True
+                        )
+                        # PhotoKit UUIDs may contain "/L0/001" so only look at beginning
+                        photo = [p for p in bursts if p.uuid.startswith(self.uuid)]
+                        photo = photo[0] if photo else None
+                if photo:
+                    exported = photo.export(
+                        dest.parent, dest.name, version=PHOTOS_VERSION_ORIGINAL
+                    )
+                else:
+                    exported = []
+            else:
+                exported = _export_photo_uuid_applescript(
+                    self.uuid,
+                    dest.parent,
+                    filestem=filestem,
+                    original=True,
+                    edited=False,
+                    live_photo=live_photo,
+                    timeout=timeout,
+                    burst=self.burst,
+                    dry_run=dry_run,
+                )
         if exported:
             if touch_file:
                 for exported_file in exported:
