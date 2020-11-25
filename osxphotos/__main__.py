@@ -28,6 +28,7 @@ from .export_db import ExportDB, ExportDBInMemory
 from .fileutil import FileUtil, FileUtilNoOp
 from .path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
 from .photoinfo import ExportResults
+from .photokit import check_photokit_authorization, request_photokit_authorization
 from .phototemplate import TEMPLATE_SUBSTITUTIONS, TEMPLATE_SUBSTITUTIONS_MULTI_VALUED
 
 # global variable to control verbose output
@@ -1394,15 +1395,15 @@ def query(
     "--use-photos-export",
     is_flag=True,
     default=False,
-    hidden=True,
-    help="Force the use of AppleScript to export even if not missing (see also --download-missing).",
+    help="Force the use of AppleScript or PhotoKit to export even if not missing (see also '--download-missing' and '--use-photokit').",
 )
 @click.option(
     "--use-photokit",
     is_flag=True,
     default=False,
-    hidden=True,
-    help="Use PhotoKit interface instead of AppleScript to export.  Highly experimental alpha feature.",
+    help="Use with '--download-missing' or '--use-photos-export' to use direct Photos interface instead of AppleScript to export. "
+    "Highly experimental alpha feature; does not work with iTerm2 (use with Terminal.app). "
+    "This is faster and more reliable than the default AppleScript interface.",
 )
 @DB_ARGUMENT
 @click.argument("dest", nargs=1, type=click.Path(exists=True))
@@ -1544,6 +1545,18 @@ def export(
         click.echo("Incompatible export options", err=True)
         click.echo(cli.commands["export"].get_help(ctx), err=True)
         return
+
+    if use_photokit and not check_photokit_authorization():
+        click.echo(
+            "Requesting access to use your Photos library. Click 'OK' on the dialog box to grant access."
+        )
+        request_photokit_authorization()
+        click.confirm("Have you granted access?")
+        if not check_photokit_authorization():
+            click.echo(
+                "Failed to get access to the Photos library which is needed with `--use-photokit`."
+            )
+            return
 
     # initialize export flags
     # by default, will export all versions of photos unless skip flag is set

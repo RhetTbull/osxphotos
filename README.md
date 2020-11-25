@@ -356,6 +356,16 @@ Options:
                                   to a filesystem that doesn't support Mac OS
                                   extended attributes.  Only use this if you
                                   get an error while exporting.
+  --use-photos-export             Force the use of AppleScript or PhotoKit to
+                                  export even if not missing (see also '--
+                                  download-missing' and '--use-photokit').
+  --use-photokit                  Use with '--download-missing' or '--use-
+                                  photos-export' to use direct Photos
+                                  interface instead of AppleScript to export.
+                                  Highly experimental alpha feature; does not
+                                  work with iTerm2 (use with Terminal.app).
+                                  This is faster and more reliable than the
+                                  default AppleScript interface.
   -h, --help                      Show this message and exit.
 
 ** Export **

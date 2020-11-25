@@ -80,6 +80,58 @@ def path_to_NSURL(path):
     return url
 
 
+def check_photokit_authorization():
+    """ Check authorization to use user's Photos Library
+
+    Returns:
+       True if user has authorized access to the Photos library, otherwise False 
+    """
+
+    auth_status = Photos.PHPhotoLibrary.authorizationStatus()
+    return auth_status == Photos.PHAuthorizationStatusAuthorized
+
+
+def request_photokit_authorization():
+    """ Request authorization to user's Photos Library
+
+    Returns:
+        authorization status
+
+    Note: In actual practice, the terminal process running the python code
+          will do the actual request.
+    """
+
+    (_, major, _) = _get_os_version()
+
+    def handler(status):
+        pass
+
+    auth_status = 0
+    if int(major) < 16:
+        auth_status = Photos.PHPhotoLibrary.authorizationStatus()
+        if auth_status != Photos.PHAuthorizationStatusAuthorized:
+            # it seems the first try fails after Terminal prompts user for access so try again
+            for _ in range(2):
+                Photos.PHPhotoLibrary.requestAuthorization_(handler)
+                auth_status = Photos.PHPhotoLibrary.authorizationStatus()
+                if auth_status == Photos.PHAuthorizationStatusAuthorized:
+                    break
+    else:
+        # requestAuthorization deprecated in 10.16/11.0
+        # but requestAuthorizationForAccessLevel not yet implemented in pyobjc (will be in ver 7.0)
+        # https://developer.apple.com/documentation/photokit/phphotolibrary/3616053-requestauthorizationforaccesslev?language=objc
+        auth_status = Photos.PHPhotoLibrary.authorizationStatus()
+        if auth_status != Photos.PHAuthorizationStatusAuthorized:
+            # it seems the first try fails after Terminal prompts user for access so try again
+            for _ in range(2):
+                Photos.PHPhotoLibrary.requestAuthorization_(handler)
+                auth_status = Photos.PHPhotoLibrary.authorizationStatus()
+                if auth_status == Photos.PHAuthorizationStatusAuthorized:
+                    break
+
+    return auth_status
+
+
 ### exceptions
 class PhotoKitError(Exception):
     """Base class for exceptions in this module. """
@@ -1051,12 +1103,6 @@ class PhotoLibrary:
         # get image manager and request options
         self._phimagemanager = Photos.PHCachingImageManager.defaultManager()
 
-    def _auth_status(self, status):
-        """ Handler for requestAuthorization_ """
-        # This doesn't actually get called but requestAuthorization needs a callable handler
-        # The Terminal will handle the actual authorization when called
-        pass
-
     def request_authorization(self):
         """ Request authorization to user's Photos Library
 
@@ -1064,33 +1110,8 @@ class PhotoLibrary:
             authorization status
         """
 
-        (_, major, _) = _get_os_version()
-
-        auth_status = 0
-        if int(major) < 16:
-            auth_status = Photos.PHPhotoLibrary.authorizationStatus()
-            if auth_status != Photos.PHAuthorizationStatusAuthorized:
-                # it seems the first try fails after Terminal prompts user for access so try again
-                for _ in range(2):
-                    Photos.PHPhotoLibrary.requestAuthorization_(self._auth_status)
-                    auth_status = Photos.PHPhotoLibrary.authorizationStatus()
-                    if auth_status == Photos.PHAuthorizationStatusAuthorized:
-                        break
-        else:
-            # requestAuthorization deprecated in 10.16/11.0
-            # but requestAuthorizationForAccessLevel not yet implemented in pyobjc (will be in ver 7.0)
-            # https://developer.apple.com/documentation/photokit/phphotolibrary/3616053-requestauthorizationforaccesslev?language=objc
-            auth_status = Photos.PHPhotoLibrary.authorizationStatus()
-            if auth_status != Photos.PHAuthorizationStatusAuthorized:
-                # it seems the first try fails after Terminal prompts user for access so try again
-                for _ in range(2):
-                    Photos.PHPhotoLibrary.requestAuthorization_(self._auth_status)
-                    auth_status = Photos.PHPhotoLibrary.authorizationStatus()
-                    if auth_status == Photos.PHAuthorizationStatusAuthorized:
-                        break
-
-        self.auth_status = auth_status
-        return auth_status
+        self.auth_status = request_photokit_authorization()
+        return self.auth_status
 
     def fetch_uuid_list(self, uuid_list):
         """ fetch PHAssets with uuids in uuid_list
