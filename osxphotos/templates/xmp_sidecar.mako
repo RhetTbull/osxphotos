@@ -81,10 +81,8 @@
 
 <%def name="gps_info(latitude, longitude)">
     % if latitude is not None and longitude is not None:
-        <exif:GPSLongitudeRef>${"E" if longitude >= 0 else "W"}</exif:GPSLongitudeRef>
-        <exif:GPSLongitude>${abs(longitude)}</exif:GPSLongitude>
-        <exif:GPSLatitude>${abs(latitude)}</exif:GPSLatitude>
-        <exif:GPSLatitudeRef>${"N" if latitude >= 0 else "S"}</exif:GPSLatitudeRef>
+        <exif:GPSLongitude>${int(abs(longitude))},${(abs(longitude) % 1) * 60}${"E" if longitude >= 0 else "W"}</exif:GPSLongitude>
+        <exif:GPSLatitude>${int(abs(latitude))},${(abs(latitude) % 1) * 60}${"N" if latitude >= 0 else "S"}</exif:GPSLatitude>
     % endif
 </%def>
 
