@@ -2579,7 +2579,7 @@ def get_filenames_from_template(photo, filename_template, original_name):
             )
         filenames = [f"{file_}{photo_ext}" for file_ in filenames]
     else:
-        filenames = [photo.original_filename] if original_name else [photo.filename]
+                filenames = [photo.original_filename] if (original_name and (photo.original_filename is not None)) else [photo.filename]
 
     filenames = [sanitize_filename(filename) for filename in filenames]
     return filenames
