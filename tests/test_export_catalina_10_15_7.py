@@ -1055,7 +1055,7 @@ def test_xmp_sidecar_gps():
                 <rdf:li>London</rdf:li>
                 <rdf:li>United Kingdom</rdf:li>
                 <rdf:li>London 2018</rdf:li>
-                <rdf:li>St. James's Park</rdf:li>
+                <dc:title>St. James&#39;s Park</dc:title>
             </rdf:Seq>
         </digiKam:TagsList>
         </rdf:Description>
