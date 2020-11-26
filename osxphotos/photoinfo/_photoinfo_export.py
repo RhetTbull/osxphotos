@@ -760,7 +760,7 @@ def export2(
             ignore_date_modified=ignore_date_modified,
         )
         sidecar_digest = hexdigest(sidecar_str)
-        old_sidecar_digest, sidecar_sig = export_db.get_exiftool_json_sidecar_for_file(
+        old_sidecar_digest, sidecar_sig = export_db.get_sidecar_for_file(
             sidecar_filename
         )
         write_sidecar = (
@@ -776,7 +776,7 @@ def export2(
             verbose(f"Writing exiftool JSON sidecar {sidecar_filename}")
             if not dry_run:
                 self._write_sidecar(sidecar_filename, sidecar_str)
-                export_db.set_exiftool_json_sidecar_for_file(
+                export_db.set_sidecar_for_file(
                     sidecar_filename,
                     sidecar_digest,
                     fileutil.file_sig(sidecar_filename),
@@ -796,7 +796,7 @@ def export2(
             extension=dest.suffix[1:] if dest.suffix else None,
         )
         sidecar_digest = hexdigest(sidecar_str)
-        old_sidecar_digest, sidecar_sig = export_db.get_xmp_sidecar_for_file(
+        old_sidecar_digest, sidecar_sig = export_db.get_sidecar_for_file(
             sidecar_filename
         )
         write_sidecar = (
@@ -812,7 +812,7 @@ def export2(
             verbose(f"Writing XMP sidecar {sidecar_filename}")
             if not dry_run:
                 self._write_sidecar(sidecar_filename, sidecar_str)
-                export_db.set_xmp_sidecar_for_file(
+                export_db.set_sidecar_for_file(
                     sidecar_filename,
                     sidecar_digest,
                     fileutil.file_sig(sidecar_filename),

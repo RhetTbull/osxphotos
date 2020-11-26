@@ -14,7 +14,7 @@ from sqlite3 import Error
 
 from ._version import __version__
 
-OSXPHOTOS_EXPORTDB_VERSION = "3.1"
+OSXPHOTOS_EXPORTDB_VERSION = "3.2"
 
 
 class ExportDB_ABC(ABC):
@@ -77,19 +77,11 @@ class ExportDB_ABC(ABC):
         pass
 
     @abstractmethod
-    def set_exiftool_json_sidecar_for_file(self, filename, sidecar_data, sidecar_sig):
+    def set_sidecar_for_file(self, filename, sidecar_data, sidecar_sig):
         pass
 
     @abstractmethod
-    def get_exiftool_json_sidecar_for_file(self, filename):
-        pass
-
-    @abstractmethod
-    def set_xmp_sidecar_for_file(self, filename, sidecar_data, sidecar_sig):
-        pass
-
-    @abstractmethod
-    def get_xmp_sidecar_for_file(self, filename):
+    def get_sidecar_for_file(self, filename):
         pass
 
     @abstractmethod
@@ -157,16 +149,10 @@ class ExportDBNoOp(ExportDB_ABC):
     def set_exifdata_for_file(self, uuid, exifdata):
         pass
 
-    def set_exiftool_json_sidecar_for_file(self, filename, sidecar_data, sidecar_sig):
+    def set_sidecar_for_file(self, filename, sidecar_data, sidecar_sig):
         pass
 
-    def get_exiftool_json_sidecar_for_file(self, filename):
-        return None, (None, None, None)
-
-    def set_xmp_sidecar_for_file(self, filename, sidecar_data, sidecar_sig):
-        pass
-
-    def get_xmp_sidecar_for_file(self, filename):
+    def get_sidecar_for_file(self, filename):
         return None, (None, None, None)
 
     def set_data(
@@ -407,14 +393,14 @@ class ExportDB(ExportDB_ABC):
         except Error as e:
             logging.warning(e)
 
-    def get_exiftool_json_sidecar_for_file(self, filename):
-        """ returns the exiftool JSON sidecar data and signature for a file """
+    def get_sidecar_for_file(self, filename):
+        """ returns the sidecar data and signature for a file """
         filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
         conn = self._conn
         try:
             c = conn.cursor()
             c.execute(
-                "SELECT sidecar_data, mode, size, mtime FROM exiftool_json_sidecar WHERE filepath_normalized = ?",
+                "SELECT sidecar_data, mode, size, mtime FROM sidecar WHERE filepath_normalized = ?",
                 (filename,),
             )
             results = c.fetchone()
@@ -435,56 +421,14 @@ class ExportDB(ExportDB_ABC):
 
         return sidecar_data, sidecar_sig
 
-    def set_exiftool_json_sidecar_for_file(self, filename, sidecar_data, sidecar_sig):
-        """ sets the exiftool JSON sidecar data and signature for a file """
+    def set_sidecar_for_file(self, filename, sidecar_data, sidecar_sig):
+        """ sets the sidecar data and signature for a file """
         filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
         conn = self._conn
         try:
             c = conn.cursor()
             c.execute(
-                "INSERT OR REPLACE INTO exiftool_json_sidecar(filepath_normalized, sidecar_data, mode, size, mtime) VALUES (?, ?, ?, ?, ?);",
-                (filename, sidecar_data, *sidecar_sig),
-            )
-            conn.commit()
-        except Error as e:
-            logging.warning(e)
-
-    def get_xmp_sidecar_for_file(self, filename):
-        """ returns the XMP sidecar data and signature for a file """
-        filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
-        conn = self._conn
-        try:
-            c = conn.cursor()
-            c.execute(
-                "SELECT sidecar_data, mode, size, mtime FROM xmp_sidecar WHERE filepath_normalized = ?",
-                (filename,),
-            )
-            results = c.fetchone()
-            if results:
-                sidecar_data = results[0]
-                sidecar_sig = (
-                    results[1],
-                    results[2],
-                    int(results[3]) if results[3] is not None else None,
-                )
-            else:
-                sidecar_data = None
-                sidecar_sig = (None, None, None)
-        except Error as e:
-            logging.warning(e)
-            sidecar_data = None
-            sidecar_sig = (None, None, None)
-
-        return sidecar_data, sidecar_sig
-
-    def set_xmp_sidecar_for_file(self, filename, sidecar_data, sidecar_sig):
-        """ sets the XMP sidecar data for a file """
-        filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
-        conn = self._conn
-        try:
-            c = conn.cursor()
-            c.execute(
-                "INSERT OR REPLACE INTO xmp_sidecar(filepath_normalized, sidecar_data, mode, size, mtime) VALUES (?, ?, ?, ?, ?);",
+                "INSERT OR REPLACE INTO sidecar(filepath_normalized, sidecar_data, mode, size, mtime) VALUES (?, ?, ?, ?, ?);",
                 (filename, sidecar_data, *sidecar_sig),
             )
             conn.commit()
@@ -679,18 +623,10 @@ class ExportDB(ExportDB_ABC):
                               size INTEGER,
                               mtime REAL
                               ); """,
-            "sql_xmp_table": """ CREATE TABLE IF NOT EXISTS xmp_sidecar (
+            "sql_sidecar_table": """ CREATE TABLE IF NOT EXISTS sidecar (
                               id INTEGER PRIMARY KEY,
                               filepath_normalized TEXT NOT NULL,
                               sidecar_data TEXT,
-                              mode INTEGER,
-                              size INTEGER,
-                              mtime REAL
-                              ); """,
-            "sql_exiftool_json_table": """ CREATE TABLE IF NOT EXISTS exiftool_json_sidecar (
-                              id INTEGER PRIMARY KEY,
-                              filepath_normalized TEXT NOT NULL,
-                              sidecar_data JSON,
                               mode INTEGER,
                               size INTEGER,
                               mtime REAL
@@ -700,8 +636,7 @@ class ExportDB(ExportDB_ABC):
             "sql_exifdata_idx": """ CREATE UNIQUE INDEX IF NOT EXISTS idx_exifdata_filename on exifdata (filepath_normalized); """,
             "sql_edited_idx": """ CREATE UNIQUE INDEX IF NOT EXISTS idx_edited_filename on edited (filepath_normalized);""",
             "sql_converted_idx": """ CREATE UNIQUE INDEX IF NOT EXISTS idx_converted_filename on converted (filepath_normalized);""",
-            "sql_xmp_idx": """ CREATE UNIQUE INDEX IF NOT EXISTS idx_xmp_filename on xmp_sidecar (filepath_normalized);""",
-            "sql_exiftool_json_idx": """ CREATE UNIQUE INDEX IF NOT EXISTS idx_exiftool_json_filename on exiftool_json_sidecar (filepath_normalized);""",
+            "sql_sidecar_idx": """ CREATE UNIQUE INDEX IF NOT EXISTS idx_sidecar_filename on sidecar (filepath_normalized);""",
         }
         try:
             c = conn.cursor()
