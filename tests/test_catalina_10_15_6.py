@@ -863,6 +863,7 @@ def test_export_14(photosdb, caplog):
 
     assert "Invalid destination suffix" not in caplog.text
 
+
 def test_export_no_original_filename(photosdb):
     # test export OK if original filename is null
     # issue #267
