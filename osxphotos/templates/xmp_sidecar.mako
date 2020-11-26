@@ -12,7 +12,7 @@
     % if desc is None:
         <dc:description></dc:description>
     % else:
-        <dc:description>${desc}</dc:description>
+        <dc:description>${desc | x}</dc:description>
     % endif
 </%def>
 
@@ -20,7 +20,7 @@
     % if title is None:
         <dc:title></dc:title>
     % else:
-        <dc:title>${title}</dc:title>
+        <dc:title>${title | x}</dc:title>
     % endif
 </%def>
 
@@ -30,7 +30,7 @@
         <dc:subject>
             <rdf:Seq>
             % for subj in subject:
-                <rdf:li>${subj}</rdf:li>
+                <rdf:li>${subj | x}</rdf:li>
             % endfor
             </rdf:Seq>
         </dc:subject>
@@ -48,7 +48,7 @@
         <Iptc4xmpExt:PersonInImage>
             <rdf:Bag>
                 % for person in persons:
-                    <rdf:li>${person}</rdf:li>
+                    <rdf:li>${person | x}</rdf:li>
                 % endfor
             </rdf:Bag>
         </Iptc4xmpExt:PersonInImage>
@@ -60,7 +60,7 @@
         <digiKam:TagsList>
             <rdf:Seq>
             % for keyword in keywords:
-                <rdf:li>${keyword}</rdf:li>
+                <rdf:li>${keyword | x}</rdf:li>
             % endfor
             </rdf:Seq>
         </digiKam:TagsList>
