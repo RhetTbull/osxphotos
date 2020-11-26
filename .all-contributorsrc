@@ -100,6 +100,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "jstrine",
+      "name": "Jonathan Strine",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/33943447?v=4",
+      "profile": "https://github.com/jstrine",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7
