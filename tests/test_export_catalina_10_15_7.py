@@ -1029,7 +1029,7 @@ def test_xmp_sidecar_gps():
             xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/">
         <photoshop:SidecarForExtension>jpg</photoshop:SidecarForExtension>
         <dc:description></dc:description>
-        <dc:title>St. James's Park</dc:title>
+        <dc:title>St. James&#39;s Park</dc:title>
         <!-- keywords and persons listed in <dc:subject> as Photos does -->
         <dc:subject>
             <rdf:Seq>
@@ -1038,7 +1038,7 @@ def test_xmp_sidecar_gps():
                 <rdf:li>London</rdf:li>
                 <rdf:li>United Kingdom</rdf:li>
                 <rdf:li>London 2018</rdf:li>
-                <rdf:li>St. James's Park</rdf:li>
+                <rdf:li>St. James&#39;s Park</rdf:li>
             </rdf:Seq>
         </dc:subject>
         <photoshop:DateCreated>2018-10-13T09:18:12.501000-04:00</photoshop:DateCreated>
@@ -1055,7 +1055,7 @@ def test_xmp_sidecar_gps():
                 <rdf:li>London</rdf:li>
                 <rdf:li>United Kingdom</rdf:li>
                 <rdf:li>London 2018</rdf:li>
-                <dc:title>St. James&#39;s Park</dc:title>
+                <rdf:li>St. James&#39&#39;s Park</rdf:li>
             </rdf:Seq>
         </digiKam:TagsList>
         </rdf:Description>
