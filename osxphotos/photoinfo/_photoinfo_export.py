@@ -149,11 +149,9 @@ def _export_photo_uuid_applescript(
                 and path.suffix.lower() == ".mov"
             ):
                 # it's the .mov part of live photo but not requested, so don't export
-                logging.debug(f"Skipping live photo file {path}")
                 continue
             if len(exported_files) > 1 and burst and path.stem != filename_stem:
                 # skip any burst photo that's not the one we asked for
-                logging.debug(f"Skipping burst photo file {path}")
                 continue
             if filestem:
                 # rename the file based on filestem, keeping original extension
@@ -161,7 +159,6 @@ def _export_photo_uuid_applescript(
             else:
                 # use the name Photos provided
                 dest_new = dest / path.name
-            logging.debug(f"exporting {path} to dest_new: {dest_new}")
             if not dry_run:
                 FileUtil.copy(str(path), str(dest_new))
             exported_paths.append(str(dest_new))
@@ -488,11 +485,6 @@ def export2(
                     f"Cannot export edited photo if path_edited is None"
                 )
         else:
-            if self.ismissing:
-                logging.debug(
-                    f"Attempting to export photo with ismissing=True: path = {self.path}"
-                )
-
             if self.path is not None:
                 src = self.path
             else:
@@ -501,22 +493,12 @@ def export2(
         if not os.path.isfile(src):
             raise FileNotFoundError(f"{src} does not appear to exist")
 
-        if not _check_export_suffix(src, dest, edited):
-            logging.debug(
-                f"Invalid destination suffix: {dest.suffix} for {self.path}, "
-                + f"edited={edited}, path_edited={self.path_edited}, "
-                + f"original_filename={self.original_filename}, filename={self.filename}"
-            )
-
         # found source now try to find right destination
         if update and dest.exists():
             # destination exists, check to see if destination is the right UUID
             dest_uuid = export_db.get_uuid_for_file(dest)
             if dest_uuid is None and fileutil.cmp(src, dest):
                 # might be exporting into a pre-ExportDB folder or the DB got deleted
-                logging.debug(
-                    f"Found matching file with blank uuid: {self.uuid}, {dest}"
-                )
                 dest_uuid = self.uuid
                 export_db.set_data(
                     dest,
@@ -596,9 +578,6 @@ def export2(
             src_live = self.path_live_photo
 
             if src_live is not None:
-                logging.debug(
-                    f"Exporting live photo video of {filename} as {live_name.name}"
-                )
                 results = self._export_photo(
                     src_live,
                     live_name,
@@ -617,8 +596,6 @@ def export2(
                 update_updated_files.extend(results.updated)
                 update_skipped_files.extend(results.skipped)
                 touched_files.extend(results.touched)
-            else:
-                logging.debug(f"Skipping missing live movie for {filename}")
 
         # copy associated RAW image if requested
         if raw_photo and self.has_raw:
@@ -626,7 +603,6 @@ def export2(
             raw_ext = raw_path.suffix
             raw_name = dest.parent / f"{dest.stem}{raw_ext}"
             if raw_path is not None:
-                logging.debug(f"Exporting RAW photo of {filename} as {raw_name.name}")
                 results = self._export_photo(
                     raw_path,
                     raw_name,
@@ -646,8 +622,6 @@ def export2(
                 update_updated_files.extend(results.updated)
                 update_skipped_files.extend(results.skipped)
                 touched_files.extend(results.touched)
-            else:
-                logging.debug(f"Skipping missing RAW photo for {filename}")
     else:
         # use_photo_export
         exported = []
@@ -749,7 +723,6 @@ def export2(
 
     # export metadata
     if sidecar_json:
-        logging.debug("writing exiftool_json_sidecar")
         sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}{dest.suffix}.json")
         sidecar_str = self._exiftool_json_sidecar(
             use_albums_as_keywords=use_albums_as_keywords,
@@ -766,7 +739,6 @@ def export2(
                 raise e
 
     if sidecar_xmp:
-        logging.debug("writing xmp_sidecar")
         sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}{dest.suffix}.xmp")
         sidecar_str = self._xmp_sidecar(
             use_albums_as_keywords=use_albums_as_keywords,
@@ -791,7 +763,6 @@ def export2(
     exif_files_updated = []
     if exiftool and update and exif_files:
         for exported_file in exif_files:
-            logging.debug(f"checking exif for {exported_file}")
             files_are_different = False
             old_data = export_db.get_exifdata_for_file(exported_file)
             if old_data is not None:
@@ -998,13 +969,11 @@ def _export_photo(
 
         else:
             # update, destination doesn't exist (new file)
-            logging.debug(f"Update: exporting new file with {op_desc} {src} {dest}")
             update_new_files.append(dest_str)
             if touch_file:
                 touched_files.append(dest_str)
     else:
         # not update, export the file
-        logging.debug(f"Exporting file with {op_desc} {src} {dest}")
         exported_files.append(dest_str)
         if touch_file:
             sig = fileutil.file_sig(src)
@@ -1016,9 +985,6 @@ def _export_photo(
         edited_stat = fileutil.file_sig(src) if edited else (None, None, None)
         if dest_exists and (update or overwrite):
             # need to remove the destination first
-            logging.debug(
-                f"Update: removing existing file prior to {op_desc} {src} {dest}"
-            )
             fileutil.unlink(dest)
         if export_as_hardlink:
             fileutil.hardlink(src, dest)
