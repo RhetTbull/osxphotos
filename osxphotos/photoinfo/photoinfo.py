@@ -91,9 +91,10 @@ class PhotoInfo:
             and self.raw_original
         ):
             # return the JPEG version as that's what Photos 5+ does
-            return self._info["raw_pair_info"]["originalFilename"]
+            original_name = self._info["raw_pair_info"]["originalFilename"]
         else:
-            return self._info["originalFilename"]
+            original_name = self._info["originalFilename"]
+        return original_name or self.filename
 
     @property
     def date(self):

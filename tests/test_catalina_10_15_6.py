@@ -177,6 +177,12 @@ RAW_DICT = {
     ),
 }
 
+ORIGINAL_FILENAME_DICT = {
+    "uuid": "D79B8D77-BFFC-460B-9312-034F2877D35B",
+    "filename": "D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg",
+    "original_filename": "Pumkins2.jpg",
+}
+
 
 @pytest.fixture(scope="module")
 def photosdb():
@@ -871,13 +877,18 @@ def test_export_no_original_filename(photosdb):
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
-    photos[0]._info["original_filename"] = None
+
+    # monkey patch original_filename for testing
+    original_filename = photos[0]._info["originalFilename"]
+    photos[0]._info["originalFilename"] = None
     filename = f"{photos[0].uuid}.jpeg"
     expected_dest = os.path.join(dest, filename)
     got_dest = photos[0].export(dest)[0]
 
     assert got_dest == expected_dest
     assert os.path.isfile(got_dest)
+
+    photos[0]._info["originalFilename"] = original_filename
 
 
 def test_eq():
@@ -1086,3 +1097,18 @@ def test_verbose(capsys):
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB, verbose=print)
     captured = capsys.readouterr()
     assert "Processing database" in captured.out
+
+
+def test_original_filename(photosdb):
+    """ test original filename """
+    uuid = ORIGINAL_FILENAME_DICT["uuid"]
+    photo = photosdb.get_photo(uuid)
+    assert photo.original_filename == ORIGINAL_FILENAME_DICT["original_filename"]
+    assert photo.filename == ORIGINAL_FILENAME_DICT["filename"]
+
+    # monkey patch
+    original_filename = photo._info["originalFilename"]
+    photo._info["originalFilename"] = None
+    assert photo.original_filename == ORIGINAL_FILENAME_DICT["filename"]
+    photo._info["originalFilename"] = original_filename
+
