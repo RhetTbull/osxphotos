@@ -1066,10 +1066,8 @@ def test_xmp_sidecar_gps():
         </rdf:Description>
         <rdf:Description rdf:about=""
             xmlns:exif='http://ns.adobe.com/exif/1.0/'>
-        <exif:GPSLongitudeRef>W</exif:GPSLongitudeRef>
-        <exif:GPSLongitude>0.1318055</exif:GPSLongitude>
-        <exif:GPSLatitude>51.50357167</exif:GPSLatitude>
-        <exif:GPSLatitudeRef>N</exif:GPSLatitudeRef>
+        <exif:GPSLongitude>0,7.908329999999999W</exif:GPSLongitude>
+        <exif:GPSLatitude>51,30.21430019999997N</exif:GPSLatitude>
         </rdf:Description>
    </rdf:RDF>
 </x:xmpmeta>"""
