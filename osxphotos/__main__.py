@@ -1720,6 +1720,8 @@ def export(
         results_skipped = []
         results_exif_updated = []
         results_touched = []
+        results_sidecar_json = []
+        results_sidecar_xmp = []
         if verbose_:
             for p in photos:
                 results = export_photo(
@@ -1762,6 +1764,8 @@ def export(
                 results_skipped.extend(results.skipped)
                 results_exif_updated.extend(results.exif_updated)
                 results_touched.extend(results.touched)
+                results_sidecar_json.extend(results.sidecar_json)
+                results_sidecar_xmp.extend(results.sidecar_xmp)
 
                 # if convert_to_jpeg and p.isphoto and p.uti != "public.jpeg":
                 #     for photo_file in set(
@@ -1813,9 +1817,20 @@ def export(
                     results_skipped.extend(results.skipped)
                     results_exif_updated.extend(results.exif_updated)
                     results_touched.extend(results.touched)
+                    results_sidecar_json.extend(results.sidecar_json)
+                    results_sidecar_xmp.extend(results.sidecar_xmp)
 
         stop_time = time.perf_counter()
         # print summary results
+        # print(f"results_exported: {results_exported}")
+        # print(f"results_new: {results_new}")
+        # print(f"results_updated: {results_updated}")
+        # print(f"results_skipped: {results_skipped}")
+        # print(f"results_exif_updated: {results_exif_updated}")
+        # print(f"results_touched: {results_touched}")
+        # print(f"results_sidecar_json: {results_sidecar_json}")
+        # print(f"results_sidecar_xmp: {results_sidecar_xmp}")
+
         if update:
             photo_str_new = "photos" if len(results_new) != 1 else "photo"
             photo_str_updated = "photos" if len(results_updated) != 1 else "photo"
@@ -2364,19 +2379,19 @@ def export_photo(
         if photo.ismissing:
             space = " " if not verbose_ else ""
             verbose(f"{space}Skipping missing photo {photo.original_filename}")
-            return ExportResults([], [], [], [], [], [])
+            return ExportResults([], [], [], [], [], [], [], [])
         elif photo.path is None:
             space = " " if not verbose_ else ""
             verbose(
                 f"{space}WARNING: photo {photo.original_filename} ({photo.uuid}) is missing but ismissing=False, "
                 f"skipping {photo.original_filename}"
             )
-            return ExportResults([], [], [], [], [], [])
+            return ExportResults([], [], [], [], [], [], [], [])
     elif photo.ismissing and not photo.iscloudasset and not photo.incloud:
         verbose(
             f"Skipping missing {photo.original_filename}: not iCloud asset or missing from cloud"
         )
-        return ExportResults([], [], [], [], [], [])
+        return ExportResults([], [], [], [], [], [], [], [])
 
     results_exported = []
     results_new = []
@@ -2384,6 +2399,8 @@ def export_photo(
     results_skipped = []
     results_exif_updated = []
     results_touched = []
+    results_sidecar_json = []
+    results_sidecar_xmp = []
 
     export_original = not (skip_original_if_edited and photo.hasadjustments)
 
@@ -2459,6 +2476,7 @@ def export_photo(
                     jpeg_quality=jpeg_quality,
                     ignore_date_modified=ignore_date_modified,
                     use_photokit=use_photokit,
+                    verbose=verbose,
                 )
 
                 results_exported.extend(export_results.exported)
@@ -2467,6 +2485,8 @@ def export_photo(
                 results_skipped.extend(export_results.skipped)
                 results_exif_updated.extend(export_results.exif_updated)
                 results_touched.extend(export_results.touched)
+                results_sidecar_json.extend(export_results.sidecar_json)
+                results_sidecar_xmp.extend(export_results.sidecar_xmp)
 
                 if verbose_:
                     for exported in export_results.exported:
@@ -2522,6 +2542,7 @@ def export_photo(
                         jpeg_quality=jpeg_quality,
                         ignore_date_modified=ignore_date_modified,
                         use_photokit=use_photokit,
+                        verbose=verbose,
                     )
 
                     results_exported.extend(export_results_edited.exported)
@@ -2530,6 +2551,8 @@ def export_photo(
                     results_skipped.extend(export_results_edited.skipped)
                     results_exif_updated.extend(export_results_edited.exif_updated)
                     results_touched.extend(export_results_edited.touched)
+                    results_sidecar_json.extend(export_results_edited.sidecar_json)
+                    results_sidecar_xmp.extend(export_results_edited.sidecar_xmp)
 
                     if verbose_:
                         for exported in export_results_edited.exported:
@@ -2550,6 +2573,8 @@ def export_photo(
         results_skipped,
         results_exif_updated,
         results_touched,
+        results_sidecar_json,
+        results_sidecar_xmp,
     )
 
 
@@ -2579,7 +2604,11 @@ def get_filenames_from_template(photo, filename_template, original_name):
             )
         filenames = [f"{file_}{photo_ext}" for file_ in filenames]
     else:
-                filenames = [photo.original_filename] if (original_name and (photo.original_filename is not None)) else [photo.filename]
+        filenames = (
+            [photo.original_filename]
+            if (original_name and (photo.original_filename is not None))
+            else [photo.filename]
+        )
 
     filenames = [sanitize_filename(filename) for filename in filenames]
     return filenames

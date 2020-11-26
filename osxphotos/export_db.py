@@ -14,7 +14,7 @@ from sqlite3 import Error
 
 from ._version import __version__
 
-OSXPHOTOS_EXPORTDB_VERSION = "2.0"
+OSXPHOTOS_EXPORTDB_VERSION = "3.0"
 
 
 class ExportDB_ABC(ABC):
@@ -77,6 +77,22 @@ class ExportDB_ABC(ABC):
         pass
 
     @abstractmethod
+    def set_exiftool_json_sidecar_for_file(self, filename, stats):
+        pass
+
+    @abstractmethod
+    def get_exiftool_json_sidecar_for_file(self, filename):
+        pass
+
+    @abstractmethod
+    def set_xmp_sidecar_for_file(self, filename, stats):
+        pass
+
+    @abstractmethod
+    def get_xmp_sidecar_for_file(self, filename):
+        pass
+
+    @abstractmethod
     def set_data(
         self,
         filename,
@@ -87,6 +103,8 @@ class ExportDB_ABC(ABC):
         edited_stat,
         info_json,
         exif_json,
+        exiftool_json_sidecar,
+        xmp_sidecar,
     ):
         pass
 
@@ -141,6 +159,18 @@ class ExportDBNoOp(ExportDB_ABC):
     def set_exifdata_for_file(self, uuid, exifdata):
         pass
 
+    def set_exiftool_json_sidecar_for_file(self, filename, stats):
+        pass
+
+    def get_exiftool_json_sidecar_for_file(self, filename):
+        pass
+
+    def set_xmp_sidecar_for_file(self, filename, stats):
+        pass
+
+    def get_xmp_sidecar_for_file(self, filename):
+        pass
+
     def set_data(
         self,
         filename,
@@ -151,6 +181,8 @@ class ExportDBNoOp(ExportDB_ABC):
         edited_stat,
         info_json,
         exif_json,
+        exiftool_json_sidecar,
+        xmp_sidecar,
     ):
         pass
 
@@ -379,6 +411,70 @@ class ExportDB(ExportDB_ABC):
         except Error as e:
             logging.warning(e)
 
+    def get_exiftool_json_sidecar_for_file(self, filename):
+        """ returns the exiftool JSON sidecar data for a file """
+        filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
+        conn = self._conn
+        try:
+            c = conn.cursor()
+            c.execute(
+                "SELECT sidecar_data FROM exiftool_json_sidecar WHERE filepath_normalized = ?",
+                (filename,),
+            )
+            results = c.fetchone()
+            sidecar_data = results[0] if results else None
+        except Error as e:
+            logging.warning(e)
+            sidecar_data = None
+
+        return sidecar_data
+
+    def set_exiftool_json_sidecar_for_file(self, filename, sidecar_data):
+        """ sets the exiftool JSON sidecar data for a file """
+        filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
+        conn = self._conn
+        try:
+            c = conn.cursor()
+            c.execute(
+                "INSERT OR REPLACE INTO exiftool_json_sidecar(filepath_normalized, sidecar_data) VALUES (?, ?);",
+                (filename, sidecar_data),
+            )
+            conn.commit()
+        except Error as e:
+            logging.warning(e)
+
+    def get_xmp_sidecar_for_file(self, filename):
+        """ returns the XMP sidecar data for a file """
+        filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
+        conn = self._conn
+        try:
+            c = conn.cursor()
+            c.execute(
+                "SELECT sidecar_data FROM xmp_sidecar WHERE filepath_normalized = ?",
+                (filename,),
+            )
+            results = c.fetchone()
+            sidecar_data = results[0] if results else None
+        except Error as e:
+            logging.warning(e)
+            sidecar_data = None
+
+        return sidecar_data
+
+    def set_xmp_sidecar_for_file(self, filename, sidecar_data):
+        """ sets the XMP sidecar data for a file """
+        filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
+        conn = self._conn
+        try:
+            c = conn.cursor()
+            c.execute(
+                "INSERT OR REPLACE INTO xmp_sidecar(filepath_normalized, sidecar_data) VALUES (?, ?);",
+                (filename, sidecar_data),
+            )
+            conn.commit()
+        except Error as e:
+            logging.warning(e)
+
     def set_data(
         self,
         filename,
@@ -389,6 +485,8 @@ class ExportDB(ExportDB_ABC):
         edited_stat,
         info_json,
         exif_json,
+        exiftool_json_sidecar,
+        xmp_sidecar,
     ):
         """ sets all the data for file and uuid at once 
         """
@@ -428,6 +526,14 @@ class ExportDB(ExportDB_ABC):
             c.execute(
                 "INSERT OR REPLACE INTO exifdata(filepath_normalized, json_exifdata) VALUES (?, ?);",
                 (filename_normalized, exif_json),
+            )
+            c.execute(
+                "INSERT OR REPLACE INTO exiftool_json_sidecar(filepath_normalized, sidecar_data) VALUES (?, ?);",
+                (filename_normalized, exiftool_json_sidecar),
+            )
+            c.execute(
+                "INSERT OR REPLACE INTO xmp_sidecar(filepath_normalized, sidecar_data) VALUES (?, ?);",
+                (filename_normalized, xmp_sidecar),
             )
             conn.commit()
         except Error as e:
@@ -479,13 +585,11 @@ class ExportDB(ExportDB_ABC):
 
         if not os.path.isfile(dbfile):
             conn = self._get_db_connection(dbfile)
-            if conn:
-                self._create_db_tables(conn)
-                self.was_created = True
-                self.was_upgraded = ()
-                self.version = OSXPHOTOS_EXPORTDB_VERSION
-            else:
+            if not conn:
                 raise Exception("Error getting connection to database {dbfile}")
+            self._create_db_tables(conn)
+            self.was_created = True
+            self.was_upgraded = ()
         else:
             conn = self._get_db_connection(dbfile)
             self.was_created = False
@@ -495,8 +599,7 @@ class ExportDB(ExportDB_ABC):
                 self.was_upgraded = (version_info[1], OSXPHOTOS_EXPORTDB_VERSION)
             else:
                 self.was_upgraded = ()
-            self.version = OSXPHOTOS_EXPORTDB_VERSION
-
+        self.version = OSXPHOTOS_EXPORTDB_VERSION
         return conn
 
     def _get_db_connection(self, dbfile):
@@ -570,11 +673,23 @@ class ExportDB(ExportDB_ABC):
                               size INTEGER,
                               mtime REAL
                               ); """,
+            "sql_xmp_table": """ CREATE TABLE IF NOT EXISTS xmp_sidecar (
+                              id INTEGER PRIMARY KEY,
+                              filepath_normalized TEXT NOT NULL,
+                              sidecar_data TEXT
+                              ); """,
+            "sql_exiftool_json_table": """ CREATE TABLE IF NOT EXISTS exiftool_json_sidecar (
+                              id INTEGER PRIMARY KEY,
+                              filepath_normalized TEXT NOT NULL,
+                              sidecar_data JSON
+                              ); """,
             "sql_files_idx": """ CREATE UNIQUE INDEX IF NOT EXISTS idx_files_filepath_normalized on files (filepath_normalized); """,
             "sql_info_idx": """ CREATE UNIQUE INDEX IF NOT EXISTS idx_info_uuid on info (uuid); """,
             "sql_exifdata_idx": """ CREATE UNIQUE INDEX IF NOT EXISTS idx_exifdata_filename on exifdata (filepath_normalized); """,
             "sql_edited_idx": """ CREATE UNIQUE INDEX IF NOT EXISTS idx_edited_filename on edited (filepath_normalized);""",
             "sql_converted_idx": """ CREATE UNIQUE INDEX IF NOT EXISTS idx_converted_filename on converted (filepath_normalized);""",
+            "sql_xmp_idx": """ CREATE UNIQUE INDEX IF NOT EXISTS idx_xmp_filename on xmp_sidecar (filepath_normalized);""",
+            "sql_exiftool_json_idx": """ CREATE UNIQUE INDEX IF NOT EXISTS idx_exiftool_json_filename on exiftool_json_sidecar (filepath_normalized);""",
         }
         try:
             c = conn.cursor()

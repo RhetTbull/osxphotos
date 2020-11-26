@@ -13,6 +13,7 @@
 # TODO: should this be its own PhotoExporter class?
 
 import glob
+import hashlib
 import json
 import logging
 import os
@@ -41,12 +42,20 @@ from ..photokit import (
     PhotoLibrary,
     PhotoKitFetchFailed,
 )
-from ..utils import dd_to_dms_str, findfiles
+from ..utils import dd_to_dms_str, findfiles, noop
 
 ExportResults = namedtuple(
     "ExportResults",
-    ["exported", "new", "updated", "skipped", "exif_updated", "touched"],
+    ["exported", "new", "updated", "skipped", "exif_updated", "touched", "sidecar_json", "sidecar_xmp"],
 )
+
+
+# hexdigest is not a class method, don't import this into PhotoInfo
+def hexdigest(strval):
+    """ hexdigest of a string, using blake2b """
+    h = hashlib.blake2b(digest_size=20)
+    h.update(bytes(strval, "utf-8"))
+    return h.hexdigest()
 
 
 # _export_photo_uuid_applescript is not a class method, don't import this into PhotoInfo
@@ -321,6 +330,7 @@ def export2(
     jpeg_quality=1.0,
     ignore_date_modified=False,
     use_photokit=False,
+    verbose=None,
 ):
     """ export photo, like export but with update and dry_run options
         dest: must be valid destination path or exception raised 
@@ -364,6 +374,7 @@ def export2(
         convert_to_jpeg: boolean; if True, converts non-jpeg images to jpeg
         jpeg_quality: float in range 0.0 <= jpeg_quality <= 1.0.  A value of 1.0 specifies use best quality, a value of 0.0 specifies use maximum compression.
         ignore_date_modified: for use with sidecar and exiftool; if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
+        verbose: optional callable function to use for printing verbose text during processing; if None (default), does not print output.
 
         Returns: ExportResults namedtuple with fields: exported, new, updated, skipped 
                     where each field is a list of file paths
@@ -379,6 +390,12 @@ def export2(
     # when called from export(), won't get an export_db, so use no-op version
     if export_db is None:
         export_db = ExportDBNoOp()
+
+    if verbose is None:
+        verbose = noop
+    elif not callable(verbose):
+        raise TypeError("verbose must be callable")
+    self._verbose = verbose
 
     # suffix to add to edited files
     # e.g. name will be filename_edited.jpg
@@ -501,14 +518,16 @@ def export2(
                 # might be exporting into a pre-ExportDB folder or the DB got deleted
                 dest_uuid = self.uuid
                 export_db.set_data(
-                    dest,
-                    self.uuid,
-                    fileutil.file_sig(dest),
-                    (None, None, None),
-                    (None, None, None),
-                    (None, None, None),
-                    self.json(),
-                    None,
+                    filename=dest,
+                    uuid=self.uuid,
+                    orig_stat=fileutil.file_sig(dest),
+                    exif_stat=(None, None, None),
+                    converted_stat=(None, None, None),
+                    edited_stat=(None, None, None),
+                    info_json=self.json(),
+                    exif_json=None,
+                    exiftool_json_sidecar=None,
+                    xmp_sidecar=None,
                 )
             if dest_uuid != self.uuid:
                 # not the right file, find the right one
@@ -527,14 +546,16 @@ def export2(
                         dest = pathlib.Path(file_)
                         found_match = True
                         export_db.set_data(
-                            dest,
-                            self.uuid,
-                            fileutil.file_sig(dest),
-                            (None, None, None),
-                            (None, None, None),
-                            (None, None, None),
-                            self.json(),
-                            None,
+                            filename=dest,
+                            uuid=self.uuid,
+                            orig_stat=fileutil.file_sig(dest),
+                            exif_stat=(None, None, None),
+                            converted_stat=(None, None, None),
+                            edited_stat=(None, None, None),
+                            info_json=self.json(),
+                            exif_json=None,
+                            exiftool_json_sidecar=None,
+                            xmp_sidecar=None,
                         )
                         break
 
@@ -722,8 +743,10 @@ def export2(
             )
 
     # export metadata
+    sidecar_json_files = []
     if sidecar_json:
         sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}{dest.suffix}.json")
+        sidecar_json_files.append(str(sidecar_filename))
         sidecar_str = self._exiftool_json_sidecar(
             use_albums_as_keywords=use_albums_as_keywords,
             use_persons_as_keywords=use_persons_as_keywords,
@@ -731,15 +754,29 @@ def export2(
             description_template=description_template,
             ignore_date_modified=ignore_date_modified,
         )
-        if not dry_run:
-            try:
+        sidecar_digest = hexdigest(sidecar_str)
+        old_sidecar_digest = export_db.get_exiftool_json_sidecar_for_file(
+            sidecar_filename
+        )
+        write_sidecar = (
+            not update
+            or (update and not sidecar_filename.exists())
+            or (update and sidecar_digest != old_sidecar_digest)
+        )
+        if write_sidecar:
+            verbose(f"Writing exiftool JSON sidecar {sidecar_filename}")
+            if not dry_run:
                 self._write_sidecar(sidecar_filename, sidecar_str)
-            except Exception as e:
-                logging.warning(f"Error writing json sidecar to {sidecar_filename}")
-                raise e
+                export_db.set_exiftool_json_sidecar_for_file(
+                    sidecar_filename, sidecar_digest
+                )
+        else:
+            verbose(f"Skipped up to date exiftool JSON sidecar {sidecar_filename}")
 
+    sidecar_xmp_files = []
     if sidecar_xmp:
         sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}{dest.suffix}.xmp")
+        sidecar_xmp_files.append(str(sidecar_filename))
         sidecar_str = self._xmp_sidecar(
             use_albums_as_keywords=use_albums_as_keywords,
             use_persons_as_keywords=use_persons_as_keywords,
@@ -747,12 +784,20 @@ def export2(
             description_template=description_template,
             extension=dest.suffix[1:] if dest.suffix else None,
         )
-        if not dry_run:
-            try:
+        sidecar_digest = hexdigest(sidecar_str)
+        old_sidecar_digest = export_db.get_xmp_sidecar_for_file(sidecar_filename)
+        write_sidecar = (
+            not update
+            or (update and not sidecar_filename.exists())
+            or (update and sidecar_digest != old_sidecar_digest)
+        )
+        if write_sidecar:
+            verbose(f"Writing XMP sidecar {sidecar_filename}")
+            if not dry_run:
                 self._write_sidecar(sidecar_filename, sidecar_str)
-            except Exception as e:
-                logging.warning(f"Error writing xmp sidecar to {sidecar_filename}")
-                raise e
+                export_db.set_xmp_sidecar_for_file(sidecar_filename, sidecar_digest)
+        else:
+            verbose(f"Skipped up to date XMP sidecar {sidecar_filename}")
 
     # if exiftool, write the metadata
     if update:
@@ -782,6 +827,7 @@ def export2(
             if old_data is None or files_are_different:
                 # didn't have old data, assume we need to write it
                 # or files were different
+                verbose(f"Writing metadata with exiftool for {exported_file}")
                 if not dry_run:
                     self._write_exif_data(
                         exported_file,
@@ -805,8 +851,11 @@ def export2(
                     exported_file, fileutil.file_sig(exported_file)
                 )
                 exif_files_updated.append(exported_file)
+            else:
+                verbose(f"Skipped up to date exiftool metadata for {exported_file}")
     elif exiftool and exif_files:
         for exported_file in exif_files:
+            verbose(f"Writing metadata with exiftool for {exported_file}")
             if not dry_run:
                 self._write_exif_data(
                     exported_file,
@@ -834,6 +883,7 @@ def export2(
 
     if touch_file:
         for exif_file in exif_files_updated:
+            verbose(f"Updating file modification time for {exif_file}")
             touched_files.append(exif_file)
             ts = int(self.date.timestamp())
             fileutil.utime(exif_file, (ts, ts))
@@ -847,6 +897,8 @@ def export2(
         update_skipped_files,
         exif_files_updated,
         touched_files,
+        sidecar_json_files,
+        sidecar_xmp_files,
     )
     return results
 
@@ -996,14 +1048,16 @@ def _export_photo(
             fileutil.copy(src, dest_str, norsrc=no_xattr)
 
         export_db.set_data(
-            dest_str,
-            self.uuid,
-            fileutil.file_sig(dest_str),
-            (None, None, None),
-            converted_stat,
-            edited_stat,
-            self.json(),
-            None,
+            filename=dest_str,
+            uuid=self.uuid,
+            orig_stat=fileutil.file_sig(dest_str),
+            exif_stat=(None, None, None),
+            converted_stat=converted_stat,
+            edited_stat=edited_stat,
+            info_json=self.json(),
+            exif_json=None,
+            exiftool_json_sidecar=None,
+            xmp_sidecar=None,
         )
 
     if touched_files:
@@ -1017,6 +1071,8 @@ def _export_photo(
         update_skipped_files,
         [],
         touched_files,
+        [],
+        [],
     )
 
 
@@ -1087,9 +1143,9 @@ def _exiftool_dict(
         IPTC:Keywords (may include album name, person name, or template)
         XMP:Subject
         XMP:PersonInImage
+        EXIF:GPSLatitudeRef, EXIF:GPSLongitudeRef
         EXIF:GPSLatitude, EXIF:GPSLongitude
         EXIF:GPSPosition
-        EXIF:GPSLatitudeRef, EXIF:GPSLongitudeRef
         EXIF:DateTimeOriginal
         EXIF:OffsetTimeOriginal
         EXIF:ModifyDate
@@ -1249,9 +1305,9 @@ def _exiftool_json_sidecar(
         IPTC:Keywords (may include album name, person name, or template)
         XMP:Subject
         XMP:PersonInImage
+        EXIF:GPSLatitudeRef, EXIF:GPSLongitudeRef
         EXIF:GPSLatitude, EXIF:GPSLongitude
         EXIF:GPSPosition
-        EXIF:GPSLatitudeRef, EXIF:GPSLongitudeRef
         EXIF:DateTimeOriginal
         EXIF:OffsetTimeOriginal
         EXIF:ModifyDate
