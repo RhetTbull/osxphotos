@@ -46,7 +46,16 @@ from ..utils import dd_to_dms_str, findfiles, noop
 
 ExportResults = namedtuple(
     "ExportResults",
-    ["exported", "new", "updated", "skipped", "exif_updated", "touched", "sidecar_json", "sidecar_xmp"],
+    [
+        "exported",
+        "new",
+        "updated",
+        "skipped",
+        "exif_updated",
+        "touched",
+        "sidecar_json",
+        "sidecar_xmp",
+    ],
 )
 
 
@@ -526,8 +535,6 @@ def export2(
                     edited_stat=(None, None, None),
                     info_json=self.json(),
                     exif_json=None,
-                    exiftool_json_sidecar=None,
-                    xmp_sidecar=None,
                 )
             if dest_uuid != self.uuid:
                 # not the right file, find the right one
@@ -554,8 +561,6 @@ def export2(
                             edited_stat=(None, None, None),
                             info_json=self.json(),
                             exif_json=None,
-                            exiftool_json_sidecar=None,
-                            xmp_sidecar=None,
                         )
                         break
 
@@ -755,20 +760,26 @@ def export2(
             ignore_date_modified=ignore_date_modified,
         )
         sidecar_digest = hexdigest(sidecar_str)
-        old_sidecar_digest = export_db.get_exiftool_json_sidecar_for_file(
+        old_sidecar_digest, sidecar_sig = export_db.get_exiftool_json_sidecar_for_file(
             sidecar_filename
         )
         write_sidecar = (
             not update
             or (update and not sidecar_filename.exists())
-            or (update and sidecar_digest != old_sidecar_digest)
+            or (
+                update
+                and (sidecar_digest != old_sidecar_digest)
+                or not fileutil.cmp_file_sig(sidecar_filename, sidecar_sig)
+            )
         )
         if write_sidecar:
             verbose(f"Writing exiftool JSON sidecar {sidecar_filename}")
             if not dry_run:
                 self._write_sidecar(sidecar_filename, sidecar_str)
                 export_db.set_exiftool_json_sidecar_for_file(
-                    sidecar_filename, sidecar_digest
+                    sidecar_filename,
+                    sidecar_digest,
+                    fileutil.file_sig(sidecar_filename),
                 )
         else:
             verbose(f"Skipped up to date exiftool JSON sidecar {sidecar_filename}")
@@ -785,17 +796,27 @@ def export2(
             extension=dest.suffix[1:] if dest.suffix else None,
         )
         sidecar_digest = hexdigest(sidecar_str)
-        old_sidecar_digest = export_db.get_xmp_sidecar_for_file(sidecar_filename)
+        old_sidecar_digest, sidecar_sig = export_db.get_xmp_sidecar_for_file(
+            sidecar_filename
+        )
         write_sidecar = (
             not update
             or (update and not sidecar_filename.exists())
-            or (update and sidecar_digest != old_sidecar_digest)
+            or (
+                update
+                and (sidecar_digest != old_sidecar_digest)
+                or not fileutil.cmp_file_sig(sidecar_filename, sidecar_sig)
+            )
         )
         if write_sidecar:
             verbose(f"Writing XMP sidecar {sidecar_filename}")
             if not dry_run:
                 self._write_sidecar(sidecar_filename, sidecar_str)
-                export_db.set_xmp_sidecar_for_file(sidecar_filename, sidecar_digest)
+                export_db.set_xmp_sidecar_for_file(
+                    sidecar_filename,
+                    sidecar_digest,
+                    fileutil.file_sig(sidecar_filename),
+                )
         else:
             verbose(f"Skipped up to date XMP sidecar {sidecar_filename}")
 
@@ -1056,8 +1077,6 @@ def _export_photo(
             edited_stat=edited_stat,
             info_json=self.json(),
             exif_json=None,
-            exiftool_json_sidecar=None,
-            xmp_sidecar=None,
         )
 
     if touched_files:
