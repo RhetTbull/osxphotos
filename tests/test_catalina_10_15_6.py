@@ -863,6 +863,21 @@ def test_export_14(photosdb, caplog):
 
     assert "Invalid destination suffix" not in caplog.text
 
+def test_export_no_original_filename(photosdb):
+    # test export OK if original filename is null
+    # issue #267
+
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    dest = tempdir.name
+    photos = photosdb.photos(uuid=[UUID_DICT["export"]])
+    photos[0]._info["original_filename"] = None
+    filename = f"{photos[0].uuid}.jpeg"
+    expected_dest = os.path.join(dest, filename)
+    got_dest = photos[0].export(dest)[0]
+
+    assert got_dest == expected_dest
+    assert os.path.isfile(got_dest)
+
 
 def test_eq():
     """ Test equality of two PhotoInfo objects """
