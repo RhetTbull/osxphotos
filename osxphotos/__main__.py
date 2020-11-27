@@ -1384,6 +1384,14 @@ def query(
     "would be named 'photoname_bearbeiten.ext'.  The default suffix is '_edited'.",
 )
 @click.option(
+    "--original-suffix",
+    metavar="SUFFIX",
+    default="",
+    help="Optional suffix for naming original photos.  Default name for original photos is in form "
+    "'filename.ext'. For example, with '--original-suffix _original', the original photo "
+    "would be named 'filename_original.ext'.  The default suffix is '' (no suffix).",
+)
+@click.option(
     "--no-extended-attributes",
     is_flag=True,
     default=False,
@@ -1484,6 +1492,7 @@ def export(
     directory,
     filename_template,
     edited_suffix,
+    original_suffix,
     place,
     no_place,
     has_comment,
@@ -1752,6 +1761,7 @@ def export(
                     dry_run=dry_run,
                     touch_file=touch_file,
                     edited_suffix=edited_suffix,
+                    original_suffix=original_suffix,
                     use_photos_export=use_photos_export,
                     convert_to_jpeg=convert_to_jpeg,
                     jpeg_quality=jpeg_quality,
@@ -1805,6 +1815,7 @@ def export(
                         dry_run=dry_run,
                         touch_file=touch_file,
                         edited_suffix=edited_suffix,
+                        original_suffix=original_suffix,
                         use_photos_export=use_photos_export,
                         convert_to_jpeg=convert_to_jpeg,
                         jpeg_quality=jpeg_quality,
@@ -2324,6 +2335,7 @@ def export_photo(
     dry_run=None,
     touch_file=None,
     edited_suffix="_edited",
+    original_suffix="",
     use_photos_export=False,
     convert_to_jpeg=False,
     jpeg_quality=1.0,
@@ -2422,7 +2434,19 @@ def export_photo(
 
     filenames = get_filenames_from_template(photo, filename_template, original_name)
     for filename in filenames:
-        verbose(f"Exporting {photo.original_filename} ({photo.filename}) as {filename}")
+        if original_suffix:
+            original_filename = pathlib.Path(filename)
+            original_filename = (
+                original_filename.parent
+                / f"{original_filename.stem}{original_suffix}{original_filename.suffix}"
+            )
+            original_filename = str(original_filename)
+        else:
+            original_filename = filename
+
+        verbose(
+            f"Exporting {photo.original_filename} ({photo.filename}) as {original_filename}"
+        )
 
         dest_paths = get_dirnames_from_template(
             photo, directory, export_by_date, dest, dry_run
@@ -2448,12 +2472,10 @@ def export_photo(
 
         # export the photo to each path in dest_paths
         for dest_path in dest_paths:
-            if not export_original:
-                verbose(f"Skipping original version of {photo.original_filename}")
-            else:
+            if export_original:
                 export_results = photo.export2(
                     dest_path,
-                    filename,
+                    original_filename,
                     sidecar_json=sidecar_json,
                     sidecar_xmp=sidecar_xmp,
                     live_photo=export_live,
@@ -2500,6 +2522,9 @@ def export_photo(
                     for touched in export_results.touched:
                         verbose(f"Touched date on file {touched}")
 
+            else:
+                verbose(f"Skipping original version of {photo.original_filename}")
+
             # if export-edited, also export the edited version
             # verify the photo has adjustments and valid path to avoid raising an exception
             if export_edited and photo.hasadjustments:
@@ -2508,7 +2533,7 @@ def export_photo(
                 if not download_missing and photo.path_edited is None:
                     verbose(f"Skipping missing edited photo for {filename}")
                 else:
-                    edited_name = pathlib.Path(filename)
+                    edited_filename = pathlib.Path(filename)
                     # check for correct edited suffix
                     if photo.path_edited is not None:
                         edited_ext = pathlib.Path(photo.path_edited).suffix
@@ -2516,11 +2541,15 @@ def export_photo(
                         # use filename suffix which might be wrong,
                         # will be corrected by use_photos_export
                         edited_ext = pathlib.Path(photo.filename).suffix
-                    edited_name = f"{edited_name.stem}{edited_suffix}{edited_ext}"
-                    verbose(f"Exporting edited version of {filename} as {edited_name}")
+                    edited_filename = (
+                        f"{edited_filename.stem}{edited_suffix}{edited_ext}"
+                    )
+                    verbose(
+                        f"Exporting edited version of {filename} as {edited_filename}"
+                    )
                     export_results_edited = photo.export2(
                         dest_path,
-                        edited_name,
+                        edited_filename,
                         sidecar_json=sidecar_json,
                         sidecar_xmp=sidecar_xmp,
                         export_as_hardlink=export_as_hardlink,

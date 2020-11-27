@@ -65,6 +65,7 @@ CLI_EXPORT_FILENAMES_ALBUM_UNICODE = ["IMG_4547.jpg"]
 CLI_EXPORT_FILENAMES_DELETED_TWIN = ["wedding.jpg", "wedding_edited.jpeg"]
 
 CLI_EXPORT_EDITED_SUFFIX = "_bearbeiten"
+CLI_EXPORT_ORIGINAL_SUFFIX = "_original"
 
 CLI_EXPORT_FILENAMES_EDITED_SUFFIX = [
     "Pumkins1.jpg",
@@ -77,6 +78,16 @@ CLI_EXPORT_FILENAMES_EDITED_SUFFIX = [
     "wedding_bearbeiten.jpeg",
 ]
 
+CLI_EXPORT_FILENAMES_ORIGINAL_SUFFIX = [
+    "Pumkins1_original.jpg",
+    "Pumkins2_original.jpg",
+    "Pumpkins3_original.jpg",
+    "St James Park_original.jpg",
+    "St James Park_edited.jpeg",
+    "Tulips_original.jpg",
+    "wedding_original.jpg",
+    "wedding_edited.jpeg",
+]
 
 CLI_EXPORT_FILENAMES_CURRENT = [
     "1EB2B765-0765-43BA-A90C-0D0580E6172C.jpeg",
@@ -1008,6 +1019,33 @@ def test_export_edited_suffix():
         assert result.exit_code == 0
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_EDITED_SUFFIX)
+
+
+def test_export_original_suffix():
+    """ test export with --original-suffix """
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "--original-suffix",
+                CLI_EXPORT_ORIGINAL_SUFFIX,
+                "-V",
+            ],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_ORIGINAL_SUFFIX)
 
 
 @pytest.mark.skipif(

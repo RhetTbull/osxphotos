@@ -351,6 +351,13 @@ Options:
                                   photo would be named
                                   'photoname_bearbeiten.ext'.  The default
                                   suffix is '_edited'.
+  --original-suffix SUFFIX        Optional suffix for naming original photos.
+                                  Default name for original photos is in form
+                                  'filename.ext'. For example, with '--
+                                  original-suffix _original', the original
+                                  photo would be named
+                                  'filename_original.ext'.  The default suffix
+                                  is '' (no suffix).
   --no-extended-attributes        Don't copy extended attributes when
                                   exporting.  You only need this if exporting
                                   to a filesystem that doesn't support Mac OS
