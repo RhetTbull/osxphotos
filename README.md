@@ -2053,6 +2053,7 @@ The following template field substitutions are availabe for use with `PhotoInfo.
 |{label}|Image categorization label associated with a photo (Photos 5 only)|
 |{label_normalized}|All lower case version of 'label' (Photos 5 only)|
 |{comment}|Comment(s) on shared Photos; format is 'Person name: comment text' (Photos 5 only)|
+|{exiftool:GROUP:TAGNAME}|Use exiftool (https://exiftool.org) to extract metadata, in form GROUP:TAGNAME, from image.  E.g. '{exiftool:EXIF:Make}' to get camera make, or {exiftool:IPTC:Keywords} to extract keywords. See https://exiftool.org/TagNames/ for list of valid tag names.  You must specify group (e.g. EXIF, IPTC, etc) as used in `exiftool -G`. exiftool must be installed in the path to use this template.|
 
 ### Utility Functions
 
