@@ -373,6 +373,8 @@ Options:
                                   work with iTerm2 (use with Terminal.app).
                                   This is faster and more reliable than the
                                   default AppleScript interface.
+  --report REPORTNAME.CSV         Write a CSV formatted report of all files
+                                  that were exported.
   -h, --help                      Show this message and exit.
 
 ** Export **

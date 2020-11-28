@@ -53,8 +53,11 @@ ExportResults = namedtuple(
         "skipped",
         "exif_updated",
         "touched",
-        "sidecar_json",
-        "sidecar_xmp",
+        "converted_to_jpeg",
+        "sidecar_json_written",
+        "sidecar_json_skipped",
+        "sidecar_xmp_written",
+        "sidecar_xmp_skipped",
     ],
 )
 
@@ -425,6 +428,9 @@ def export2(
     # list of all files with utime touched (touch_file = True)
     touched_files = []
 
+    # list of all files convereted to jpeg
+    converted_to_jpeg_files = []
+
     # check edited and raise exception trying to export edited version of
     # photo that hasn't been edited
     if edited and not self.hasadjustments:
@@ -597,6 +603,7 @@ def export2(
         update_updated_files = results.updated
         update_skipped_files = results.skipped
         touched_files = results.touched
+        converted_to_jpeg_files = results.converted_to_jpeg
 
         # copy live photo associated .mov if requested
         if live_photo and self.live_photo:
@@ -622,6 +629,7 @@ def export2(
                 update_updated_files.extend(results.updated)
                 update_skipped_files.extend(results.skipped)
                 touched_files.extend(results.touched)
+                converted_to_jpeg_files.extend(results.converted_to_jpeg)
 
         # copy associated RAW image if requested
         if raw_photo and self.has_raw:
@@ -648,6 +656,7 @@ def export2(
                 update_updated_files.extend(results.updated)
                 update_skipped_files.extend(results.skipped)
                 touched_files.extend(results.touched)
+                converted_to_jpeg_files.extend(results.converted_to_jpeg)
     else:
         # use_photo_export
         exported = []
@@ -748,10 +757,10 @@ def export2(
             )
 
     # export metadata
-    sidecar_json_files = []
+    sidecar_json_files_skipped = []
+    sidecar_json_files_written = []
     if sidecar_json:
         sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}{dest.suffix}.json")
-        sidecar_json_files.append(str(sidecar_filename))
         sidecar_str = self._exiftool_json_sidecar(
             use_albums_as_keywords=use_albums_as_keywords,
             use_persons_as_keywords=use_persons_as_keywords,
@@ -774,6 +783,7 @@ def export2(
         )
         if write_sidecar:
             verbose(f"Writing exiftool JSON sidecar {sidecar_filename}")
+            sidecar_json_files_written.append(str(sidecar_filename))
             if not dry_run:
                 self._write_sidecar(sidecar_filename, sidecar_str)
                 export_db.set_sidecar_for_file(
@@ -783,11 +793,12 @@ def export2(
                 )
         else:
             verbose(f"Skipped up to date exiftool JSON sidecar {sidecar_filename}")
+            sidecar_json_files_skipped.append(str(sidecar_filename))
 
-    sidecar_xmp_files = []
+    sidecar_xmp_files_skipped = []
+    sidecar_xmp_files_written = []
     if sidecar_xmp:
         sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}{dest.suffix}.xmp")
-        sidecar_xmp_files.append(str(sidecar_filename))
         sidecar_str = self._xmp_sidecar(
             use_albums_as_keywords=use_albums_as_keywords,
             use_persons_as_keywords=use_persons_as_keywords,
@@ -810,6 +821,7 @@ def export2(
         )
         if write_sidecar:
             verbose(f"Writing XMP sidecar {sidecar_filename}")
+            sidecar_xmp_files_written.append(str(sidecar_filename))
             if not dry_run:
                 self._write_sidecar(sidecar_filename, sidecar_str)
                 export_db.set_sidecar_for_file(
@@ -819,6 +831,7 @@ def export2(
                 )
         else:
             verbose(f"Skipped up to date XMP sidecar {sidecar_filename}")
+            sidecar_xmp_files_skipped.append(str(sidecar_filename))
 
     # if exiftool, write the metadata
     if update:
@@ -918,8 +931,11 @@ def export2(
         update_skipped_files,
         exif_files_updated,
         touched_files,
-        sidecar_json_files,
-        sidecar_xmp_files,
+        converted_to_jpeg_files,
+        sidecar_json_files_written,
+        sidecar_json_files_skipped,
+        sidecar_xmp_files_written,
+        sidecar_xmp_files_skipped,
     )
     return results
 
@@ -976,6 +992,7 @@ def _export_photo(
     update_new_files = []
     update_skipped_files = []
     touched_files = []
+    converted_to_jpeg_files = []
 
     dest_str = str(dest)
     dest_exists = dest.exists()
@@ -1065,6 +1082,7 @@ def _export_photo(
             # use convert_to_jpeg to export the file
             fileutil.convert_to_jpeg(src, dest_str, compression_quality=jpeg_quality)
             converted_stat = fileutil.file_sig(dest_str)
+            converted_to_jpeg_files.append(dest_str)
         else:
             fileutil.copy(src, dest_str, norsrc=no_xattr)
 
@@ -1090,6 +1108,9 @@ def _export_photo(
         update_skipped_files,
         [],
         touched_files,
+        converted_to_jpeg_files,
+        [],
+        [],
         [],
         [],
     )

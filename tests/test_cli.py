@@ -3763,3 +3763,44 @@ def test_persons():
 
     json_got = json.loads(result.output)
     assert json_got == PERSONS_JSON
+
+
+def test_export_report():
+    """ test export with --report option """
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--report", "report.csv"],
+        )
+        assert result.exit_code == 0
+        assert "Writing export report" in result.output
+        assert os.path.exists("report.csv")
+
+
+def test_export_report_not_a_file():
+    """ test export with --report option and bad report value """
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--report", "."]
+        )
+        assert result.exit_code != 0
+        assert "Aborted!" in result.output
+
