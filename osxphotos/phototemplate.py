@@ -18,6 +18,7 @@ from functools import partial
 
 from ._constants import _UNKNOWN_PERSON
 from .datetime_formatter import DateTimeFormatter
+from .exiftool import ExifTool
 from .path_utils import sanitize_dirname, sanitize_filename, sanitize_pathpart
 
 # ensure locale set to user's locale
@@ -126,6 +127,10 @@ TEMPLATE_SUBSTITUTIONS_MULTI_VALUED = {
     "{label}": "Image categorization label associated with a photo (Photos 5 only)",
     "{label_normalized}": "All lower case version of 'label' (Photos 5 only)",
     "{comment}": "Comment(s) on shared Photos; format is 'Person name: comment text' (Photos 5 only)",
+    "{exiftool:GROUP:TAGNAME}": "Use exiftool (https://exiftool.org) to extract metadata, in form GROUP:TAGNAME, from image.  "
+    "E.g. '{exiftool:EXIF:Make}' to get camera make, or {exiftool:IPTC:Keywords} to extract keywords. "
+    "See https://exiftool.org/TagNames/ for list of valid tag names.  You must specify group (e.g. EXIF, IPTC, etc) "
+    "as used in `exiftool -G`. exiftool must be installed in the path to use this template.",
 }
 
 # Just the multi-valued substitution names without the braces
@@ -149,6 +154,62 @@ class PhotoTemplate:
         # holds value of current date/time for {today.x} fields
         # gets initialized in get_template_value
         self.today = None
+
+    def make_subst_function(
+        self, none_str, filename, dirname, replacement, get_func=None
+    ):
+        """ returns: substitution function for use in re.sub 
+            none_str: value to use if substitution lookup is None and no default provided
+            get_func: function that gets the substitution value for a given template field
+                    default is get_template_value which handles the single-value fields """
+
+        if get_func is None:
+            # used by make_subst_function to get the value for a template substitution
+            get_func = partial(
+                self.get_template_value,
+                filename=filename,
+                dirname=dirname,
+                replacement=replacement,
+            )
+
+        # closure to capture photo, none_str, filename, dirname in subst
+        def subst(matchobj):
+            groups = len(matchobj.groups())
+            if groups != 5:
+                raise ValueError(
+                    f"Unexpected number of groups: expected 4, got {groups}"
+                )
+
+            delim = matchobj.group(1)
+            field = matchobj.group(2)
+            path_sep = matchobj.group(3)
+            bool_val = matchobj.group(4)
+            default = matchobj.group(5)
+
+            # drop the '+' on delim
+            delim = delim[:-1] if delim is not None else None
+            # drop () from path_sep
+            path_sep = path_sep.strip("()") if path_sep is not None else None
+            # drop the ? on bool_val
+            bool_val = bool_val[1:] if bool_val is not None else None
+            # drop the comma on default
+            default_val = default[1:] if default is not None else None
+
+            try:
+                val = get_func(field, default_val, bool_val, delim, path_sep)
+            except ValueError:
+                return matchobj.group(0)
+
+            if val is None:
+                # field valid but didn't match a value
+                if default == ",":
+                    val = ""
+                else:
+                    val = default_val if default_val is not None else none_str
+
+            return val
+
+        return subst
 
     def render(
         self,
@@ -208,60 +269,7 @@ class PhotoTemplate:
         if type(template) is not str:
             raise TypeError(f"template must be type str, not {type(template)}")
 
-        # used by make_subst_function to get the value for a template substitution
-        get_func = partial(
-            self.get_template_value,
-            filename=filename,
-            dirname=dirname,
-            replacement=replacement,
-        )
-
-        def make_subst_function(self, none_str, get_func=get_func):
-            """ returns: substitution function for use in re.sub 
-                none_str: value to use if substitution lookup is None and no default provided
-                get_func: function that gets the substitution value for a given template field
-                        default is get_template_value which handles the single-value fields """
-
-            # closure to capture photo, none_str, filename, dirname in subst
-            def subst(matchobj):
-                groups = len(matchobj.groups())
-                if groups == 5:
-                    delim = matchobj.group(1)
-                    field = matchobj.group(2)
-                    path_sep = matchobj.group(3)
-                    bool_val = matchobj.group(4)
-                    default = matchobj.group(5)
-
-                    # drop the '+' on delim
-                    delim = delim[:-1] if delim is not None else None
-                    # drop () from path_sep
-                    path_sep = path_sep.strip("()") if path_sep is not None else None
-                    # drop the ? on bool_val
-                    bool_val = bool_val[1:] if bool_val is not None else None
-                    # drop the comma on default
-                    default_val = default[1:] if default is not None else None
-
-                    try:
-                        val = get_func(field, default_val, bool_val, delim, path_sep)
-                    except ValueError:
-                        return matchobj.group(0)
-
-                    if val is None:
-                        # field valid but didn't match a value
-                        if default == ",":
-                            val = ""
-                        else:
-                            val = default_val if default_val is not None else none_str
-
-                    return val
-                else:
-                    raise ValueError(
-                        f"Unexpected number of groups: expected 4, got {groups}"
-                    )
-
-            return subst
-
-        subst_func = make_subst_function(self, none_str)
+        subst_func = self.make_subst_function(none_str, filename, dirname, replacement)
 
         # do the replacements
         rendered = re.sub(regex, subst_func, template)
@@ -289,88 +297,28 @@ class PhotoTemplate:
         #    '2011/Album2/keyword1/person1',
         #    '2011/Album2/keyword2/person1',]
 
-        rendered_strings = [rendered]
-        for field in MULTI_VALUE_SUBSTITUTIONS:
-            # Build a regex that matches only the field being processed
-            re_str = (
-                r"(?<!\{)\{"  # match { but not {{
-                + r"([^}]*\+)?"  # group 1: optional DELIM+
-                + r"("
-                + field  # group 2: field name
-                + r")"
-                + r"(\([^{}\)]*\))?"  # group 3: optional (PATH_SEP)
-                + r"(\?[^\\,}]*)?"  # group 4: optional ?TRUE_VALUE for boolean fields
-                + r"(,[\w\=\;\-\%. ]*)?"  # group 5: optional ,DEFAULT
-                + r"(?=\}(?!\}))\}"  # match } but not }}
-            )
-            regex_multi = re.compile(re_str)
+        rendered_strings = self._render_multi_valued_templates(
+            rendered,
+            none_str,
+            path_sep,
+            expand_inplace,
+            inplace_sep,
+            filename,
+            dirname,
+            replacement,
+        )
 
-            # holds each of the new rendered_strings, dict to avoid repeats (dict.keys())
-            new_strings = {}
-
-            for str_template in rendered_strings:
-                matches = regex_multi.search(str_template)
-                if matches:
-                    path_sep = (
-                        matches.group(3).strip("()")
-                        if matches.group(3) is not None
-                        else path_sep
-                    )
-                    values = self.get_template_value_multi(
-                        field,
-                        path_sep,
-                        filename=filename,
-                        dirname=dirname,
-                        replacement=replacement,
-                    )
-                    if expand_inplace or matches.group(1) is not None:
-                        delim = (
-                            matches.group(1)[:-1] if matches.group(1) is not None else inplace_sep 
-                        )
-                        # instead of returning multiple strings, join values into a single string
-                        val = delim.join(sorted(values)) if values and values[0] else None
-
-                        def lookup_template_value_multi(lookup_value, *_):
-                            """ Closure passed to make_subst_function get_func 
-                                    Capture val and field in the closure 
-                                    Allows make_subst_function to be re-used w/o modification
-                                    _ is not used but required so signature matches get_template_value """
-                            if lookup_value == field:
-                                return val
-                            else:
-                                raise ValueError(f"Unexpected value: {lookup_value}")
-
-                        subst = make_subst_function(
-                            self, none_str, get_func=lookup_template_value_multi
-                        )
-                        new_string = regex_multi.sub(subst, str_template)
-
-                        # update rendered_strings for the next field to process
-                        rendered_strings = {new_string}
-                    else:
-                        # create a new template string for each value
-                        for val in values:
-
-                            def lookup_template_value_multi(lookup_value, *_):
-                                """ Closure passed to make_subst_function get_func 
-                                    Capture val and field in the closure 
-                                    Allows make_subst_function to be re-used w/o modification
-                                    _ is not used but required so signature matches get_template_value """
-                                if lookup_value == field:
-                                    return val
-                                else:
-                                    raise ValueError(
-                                        f"Unexpected value: {lookup_value}"
-                                    )
-
-                            subst = make_subst_function(
-                                self, none_str, get_func=lookup_template_value_multi
-                            )
-                            new_string = regex_multi.sub(subst, str_template)
-                            new_strings[new_string] = 1
-
-                        # update rendered_strings for the next field to process
-                        rendered_strings = list(new_strings.keys())
+        # process exiftool: templates
+        rendered_strings = self._render_exiftool_template(
+            rendered_strings,
+            none_str,
+            path_sep,
+            expand_inplace,
+            inplace_sep,
+            filename,
+            dirname,
+            replacement,
+        )
 
         # find any {fields} that weren't replaced
         unmatched = []
@@ -395,6 +343,244 @@ class PhotoTemplate:
             ]
 
         return rendered_strings, unmatched
+
+    def _render_multi_valued_templates(
+        self,
+        rendered,
+        none_str,
+        path_sep,
+        expand_inplace,
+        inplace_sep,
+        filename,
+        dirname,
+        replacement,
+    ):
+        rendered_strings = [rendered]
+        new_rendered_strings = []
+        while new_rendered_strings != rendered_strings:
+            new_rendered_strings = rendered_strings
+            for field in MULTI_VALUE_SUBSTITUTIONS:
+                # Build a regex that matches only the field being processed
+                re_str = (
+                    r"(?<!\{)\{"  # match { but not {{
+                    + r"([^}]*\+)?"  # group 1: optional DELIM+
+                    + r"("
+                    + field  # group 2: field name
+                    + r")"
+                    + r"(\([^{}\)]*\))?"  # group 3: optional (PATH_SEP)
+                    + r"(\?[^\\,}]*)?"  # group 4: optional ?TRUE_VALUE for boolean fields
+                    + r"(,[\w\=\;\-\%. ]*)?"  # group 5: optional ,DEFAULT
+                    + r"(?=\}(?!\}))\}"  # match } but not }}
+                )
+                regex_multi = re.compile(re_str)
+
+                # holds each of the new rendered_strings, dict to avoid repeats (dict.keys())
+                new_strings = {}
+
+                for str_template in rendered_strings:
+                    matches = regex_multi.search(str_template)
+                    if matches:
+                        path_sep = (
+                            matches.group(3).strip("()")
+                            if matches.group(3) is not None
+                            else path_sep
+                        )
+                        values = self.get_template_value_multi(
+                            field,
+                            path_sep,
+                            filename=filename,
+                            dirname=dirname,
+                            replacement=replacement,
+                        )
+                        if expand_inplace or matches.group(1) is not None:
+                            delim = (
+                                matches.group(1)[:-1]
+                                if matches.group(1) is not None
+                                else inplace_sep
+                            )
+                            # instead of returning multiple strings, join values into a single string
+                            val = (
+                                delim.join(sorted(values))
+                                if values and values[0]
+                                else None
+                            )
+
+                            def lookup_template_value_multi(lookup_value, *_):
+                                """ Closure passed to make_subst_function get_func 
+                                        Capture val and field in the closure 
+                                        Allows make_subst_function to be re-used w/o modification
+                                        _ is not used but required so signature matches get_template_value """
+                                if lookup_value == field:
+                                    return val
+                                else:
+                                    raise ValueError(
+                                        f"Unexpected value: {lookup_value}"
+                                    )
+
+                            subst = self.make_subst_function(
+                                none_str,
+                                filename,
+                                dirname,
+                                replacement,
+                                get_func=lookup_template_value_multi,
+                            )
+                            new_string = regex_multi.sub(subst, str_template)
+
+                            # update rendered_strings for the next field to process
+                            rendered_strings = list({new_string})
+                        else:
+                            # create a new template string for each value
+                            for val in values:
+
+                                def lookup_template_value_multi(lookup_value, *_):
+                                    """ Closure passed to make_subst_function get_func 
+                                        Capture val and field in the closure 
+                                        Allows make_subst_function to be re-used w/o modification
+                                        _ is not used but required so signature matches get_template_value """
+                                    if lookup_value == field:
+                                        return val
+                                    else:
+                                        raise ValueError(
+                                            f"Unexpected value: {lookup_value}"
+                                        )
+
+                                subst = self.make_subst_function(
+                                    none_str,
+                                    filename,
+                                    dirname,
+                                    replacement,
+                                    get_func=lookup_template_value_multi,
+                                )
+                                new_string = regex_multi.sub(subst, str_template)
+                                new_strings[new_string] = 1
+
+                            # update rendered_strings for the next field to process
+                            rendered_strings = sorted(list(new_strings.keys()))
+        return rendered_strings
+
+    def _render_exiftool_template(
+        self,
+        rendered_strings,
+        none_str,
+        path_sep,
+        expand_inplace,
+        inplace_sep,
+        filename,
+        dirname,
+        replacement,
+    ):
+        # TODO: lots of code commonality with render_multi_valued_templates -- combine or pull out
+        # TODO: put these in globals
+        if path_sep is None:
+            path_sep = os.path.sep
+
+        if inplace_sep is None:
+            inplace_sep = ","
+
+        # Build a regex that matches only the field being processed
+        # todo: pull out regexes into globals?
+        re_str = (
+            r"(?<!\{)\{"  # match { but not {{
+            + r"([^}]*\+)?"  # group 1: optional DELIM+
+            + r"(exiftool:[^\\,}+\?]+)"  # group 3 field name
+            + r"(\([^{}\)]*\))?"  # group 3: optional (PATH_SEP)
+            + r"(\?[^\\,}]*)?"  # group 4: optional ?TRUE_VALUE for boolean fields
+            + r"(,[\w\=\;\-\%. ]*)?"  # group 5: optional ,DEFAULT
+            + r"(?=\}(?!\}))\}"  # match } but not }}
+        )
+        regex_multi = re.compile(re_str)
+
+        # holds each of the new rendered_strings, dict to avoid repeats (dict.keys())
+        new_rendered_strings = []
+        while new_rendered_strings != rendered_strings:
+            new_rendered_strings = rendered_strings
+            new_strings = {}
+            for str_template in rendered_strings:
+                matches = regex_multi.search(str_template)
+                if matches:
+                    # allmatches = regex_multi.finditer(str_template)
+                    # for matches in allmatches:
+                    path_sep = (
+                        matches.group(3).strip("()")
+                        if matches.group(3) is not None
+                        else path_sep
+                    )
+                    field = matches.group(2)
+                    subfield = field[9:]
+
+                    if not self.photo.path:
+                        values = []
+                    else:
+                        exif = ExifTool(self.photo.path)
+                        exifdict = exif.asdict()
+                        exifdict = {k.lower(): v for (k, v) in exifdict.items()}
+                        subfield = subfield.lower()
+                        if subfield in exifdict:
+                            values = exifdict[subfield]
+                            values = (
+                                [values] if not isinstance(values, list) else values
+                            )
+                        else:
+                            values = [None]
+                    if expand_inplace or matches.group(1) is not None:
+                        delim = (
+                            matches.group(1)[:-1]
+                            if matches.group(1) is not None
+                            else inplace_sep
+                        )
+                        # instead of returning multiple strings, join values into a single string
+                        val = (
+                            delim.join(sorted(values)) if values and values[0] else None
+                        )
+
+                        def lookup_template_value_exif(lookup_value, *_):
+                            """ Closure passed to make_subst_function get_func 
+                                    Capture val and field in the closure 
+                                    Allows make_subst_function to be re-used w/o modification
+                                    _ is not used but required so signature matches get_template_value """
+                            if lookup_value == field:
+                                return val
+                            else:
+                                raise ValueError(f"Unexpected value: {lookup_value}")
+
+                        subst = self.make_subst_function(
+                            none_str,
+                            filename,
+                            dirname,
+                            replacement,
+                            get_func=lookup_template_value_exif,
+                        )
+                        new_string = regex_multi.sub(subst, str_template)
+                        # update rendered_strings for the next field to process
+                        rendered_strings = list({new_string})
+                    else:
+                        # create a new template string for each value
+                        for val in values:
+
+                            def lookup_template_value_exif(lookup_value, *_):
+                                """ Closure passed to make_subst_function get_func 
+                                    Capture val and field in the closure 
+                                    Allows make_subst_function to be re-used w/o modification
+                                    _ is not used but required so signature matches get_template_value """
+                                if lookup_value == field:
+                                    return val
+                                else:
+                                    raise ValueError(
+                                        f"Unexpected value: {lookup_value}"
+                                    )
+
+                            subst = self.make_subst_function(
+                                none_str,
+                                filename,
+                                dirname,
+                                replacement,
+                                get_func=lookup_template_value_exif,
+                            )
+                            new_string = regex_multi.sub(subst, str_template)
+                            new_strings[new_string] = 1
+                        # update rendered_strings for the next field to process
+                        rendered_strings = sorted(list(new_strings.keys()))
+        return rendered_strings
 
     def get_template_value(
         self,
@@ -681,6 +867,7 @@ class PhotoTemplate:
         """
 
         """ return list of values for a multi-valued template field """
+        values = [] 
         if field == "album":
             values = self.photo.albums
         elif field == "keyword":
@@ -724,7 +911,7 @@ class PhotoTemplate:
             values = [
                 f"{comment.user}: {comment.text}" for comment in self.photo.comments
             ]
-        else:
+        elif not field.startswith("exiftool:"):
             raise ValueError(f"Unhandled template value: {field}")
 
         # sanitize directory names if needed, folder_album handled differently above

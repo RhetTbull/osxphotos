@@ -636,18 +636,26 @@ exported, one to each directory.  For example: --directory
 of the following directories if the photos were created in 2019 and were in
 albums 'Vacation' and 'Family': 2019/Vacation, 2019/Family
 
-Substitution        Description
-{album}             Album(s) photo is contained in
-{folder_album}      Folder path + album photo is contained in. e.g.
-                    'Folder/Subfolder/Album' or just 'Album' if no enclosing
-                    folder
-{keyword}           Keyword(s) assigned to photo
-{person}            Person(s) / face(s) in a photo
-{label}             Image categorization label associated with a photo
-                    (Photos 5 only)
-{label_normalized}  All lower case version of 'label' (Photos 5 only)
-{comment}           Comment(s) on shared Photos; format is 'Person name:
-                    comment text' (Photos 5 only)
+Substitution              Description
+{album}                   Album(s) photo is contained in
+{folder_album}            Folder path + album photo is contained in. e.g.
+                          'Folder/Subfolder/Album' or just 'Album' if no
+                          enclosing folder
+{keyword}                 Keyword(s) assigned to photo
+{person}                  Person(s) / face(s) in a photo
+{label}                   Image categorization label associated with a photo
+                          (Photos 5 only)
+{label_normalized}        All lower case version of 'label' (Photos 5 only)
+{comment}                 Comment(s) on shared Photos; format is 'Person
+                          name: comment text' (Photos 5 only)
+{exiftool:GROUP:TAGNAME}  Use exiftool (https://exiftool.org) to extract
+                          metadata, in form GROUP:TAGNAME, from image.  E.g.
+                          '{exiftool:EXIF:Make}' to get camera make, or
+                          {exiftool:IPTC:Keywords} to extract keywords. See
+                          https://exiftool.org/TagNames/ for list of valid
+                          tag names.  You must specify group (e.g. EXIF,
+                          IPTC, etc) as used in `exiftool -G`. exiftool must
+                          be installed in the path to use this template.
 ```
 
 Example: export all photos to ~/Desktop/export group in folders by date created

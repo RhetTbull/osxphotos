@@ -1,6 +1,13 @@
 """ Test template.py """
 import pytest
 
+from osxphotos.exiftool import get_exiftool_path
+
+try:
+    exiftool = get_exiftool_path()
+except:
+    exiftool = None
+
 PHOTOS_DB_PLACES = (
     "./tests/Test-Places-Catalina-10_15_7.photoslibrary/database/photos.db"
 )
@@ -56,6 +63,29 @@ UUID_BOOL_VALUES = {"hdr": "D11D25FF-5F31-47D2-ABA9-58418878DC15"}
 
 # Boolean type values that render to False
 UUID_BOOL_VALUES_NOT = {"hdr": "51F2BEF7-431A-4D31-8AC1-3284A57826AE"}
+
+# for exiftool template
+UUID_EXIFTOOL = {
+    "A92D9C26-3A50-4197-9388-CB5F7DB9FA91": {
+        "{exiftool:EXIF:Make}": ["Canon"],
+        "{exiftool:EXIF:Model}": ["Canon PowerShot G10"],
+        "{exiftool:EXIF:Make}/{exiftool:EXIF:Model}": ["Canon/Canon PowerShot G10"],
+        "{exiftool:IPTC:Keywords,foo}": ["foo"],
+    },
+    "DC99FBDD-7A52-4100-A5BB-344131646C30": {
+        "{exiftool:IPTC:Keywords}": [
+            "England",
+            "London",
+            "London 2018",
+            "St. James's Park",
+            "UK",
+            "United Kingdom",
+        ],
+        "{,+exiftool:IPTC:Keywords}": [
+            "England,London,London 2018,St. James's Park,UK,United Kingdom"
+        ],
+    },
+}
 
 TEMPLATE_VALUES = {
     "{name}": "128FB4C6-0B16-4E7D-9108-FB2E90DA1546",
@@ -737,3 +767,15 @@ def test_expand_in_place_with_delim_single_value():
     for template in TEMPLATE_VALUES_TITLE:
         rendered, _ = photo.render_template(template)
         assert sorted(rendered) == sorted(TEMPLATE_VALUES_TITLE[template])
+
+
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+def test_exiftool_template():
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
+    for uuid in UUID_EXIFTOOL:
+        photo = photosdb.get_photo(uuid)
+        for template in UUID_EXIFTOOL[uuid]:
+            rendered, _ = photo.render_template(template)
+            assert sorted(rendered) == sorted(UUID_EXIFTOOL[uuid][template])
