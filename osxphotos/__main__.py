@@ -2515,58 +2515,71 @@ def export_photo(
         # export the photo to each path in dest_paths
         for dest_path in dest_paths:
             if export_original:
-                export_results = photo.export2(
-                    dest_path,
-                    original_filename,
-                    sidecar_json=sidecar_json,
-                    sidecar_xmp=sidecar_xmp,
-                    live_photo=export_live,
-                    raw_photo=export_raw,
-                    export_as_hardlink=export_as_hardlink,
-                    overwrite=overwrite,
-                    use_photos_export=use_photos_export,
-                    exiftool=exiftool,
-                    no_xattr=no_extended_attributes,
-                    use_albums_as_keywords=album_keyword,
-                    use_persons_as_keywords=person_keyword,
-                    keyword_template=keyword_template,
-                    description_template=description_template,
-                    update=update,
-                    export_db=export_db,
-                    fileutil=fileutil,
-                    dry_run=dry_run,
-                    touch_file=touch_file,
-                    convert_to_jpeg=convert_to_jpeg,
-                    jpeg_quality=jpeg_quality,
-                    ignore_date_modified=ignore_date_modified,
-                    use_photokit=use_photokit,
-                    verbose=verbose,
-                )
+                try:
+                    export_results = photo.export2(
+                        dest_path,
+                        original_filename,
+                        sidecar_json=sidecar_json,
+                        sidecar_xmp=sidecar_xmp,
+                        live_photo=export_live,
+                        raw_photo=export_raw,
+                        export_as_hardlink=export_as_hardlink,
+                        overwrite=overwrite,
+                        use_photos_export=use_photos_export,
+                        exiftool=exiftool,
+                        no_xattr=no_extended_attributes,
+                        use_albums_as_keywords=album_keyword,
+                        use_persons_as_keywords=person_keyword,
+                        keyword_template=keyword_template,
+                        description_template=description_template,
+                        update=update,
+                        export_db=export_db,
+                        fileutil=fileutil,
+                        dry_run=dry_run,
+                        touch_file=touch_file,
+                        convert_to_jpeg=convert_to_jpeg,
+                        jpeg_quality=jpeg_quality,
+                        ignore_date_modified=ignore_date_modified,
+                        use_photokit=use_photokit,
+                        verbose=verbose,
+                    )
 
-                results_exported.extend(export_results.exported)
-                results_new.extend(export_results.new)
-                results_updated.extend(export_results.updated)
-                results_skipped.extend(export_results.skipped)
-                results_exif_updated.extend(export_results.exif_updated)
-                results_touched.extend(export_results.touched)
-                results_converted.extend(export_results.converted_to_jpeg)
-                results_sidecar_json_written.extend(export_results.sidecar_json_written)
-                results_sidecar_json_skipped.extend(export_results.sidecar_json_skipped)
-                results_sidecar_xmp_written.extend(export_results.sidecar_xmp_written)
-                results_sidecar_xmp_skipped.extend(export_results.sidecar_xmp_skipped)
+                    results_exported.extend(export_results.exported)
+                    results_new.extend(export_results.new)
+                    results_updated.extend(export_results.updated)
+                    results_skipped.extend(export_results.skipped)
+                    results_exif_updated.extend(export_results.exif_updated)
+                    results_touched.extend(export_results.touched)
+                    results_converted.extend(export_results.converted_to_jpeg)
+                    results_sidecar_json_written.extend(
+                        export_results.sidecar_json_written
+                    )
+                    results_sidecar_json_skipped.extend(
+                        export_results.sidecar_json_skipped
+                    )
+                    results_sidecar_xmp_written.extend(
+                        export_results.sidecar_xmp_written
+                    )
+                    results_sidecar_xmp_skipped.extend(
+                        export_results.sidecar_xmp_skipped
+                    )
 
-                if verbose_:
-                    for exported in export_results.exported:
-                        verbose(f"Exported {exported}")
-                    for new in export_results.new:
-                        verbose(f"Exported new file {new}")
-                    for updated in export_results.updated:
-                        verbose(f"Exported updated file {updated}")
-                    for skipped in export_results.skipped:
-                        verbose(f"Skipped up to date file {skipped}")
-                    for touched in export_results.touched:
-                        verbose(f"Touched date on file {touched}")
-
+                    if verbose_:
+                        for exported in export_results.exported:
+                            verbose(f"Exported {exported}")
+                        for new in export_results.new:
+                            verbose(f"Exported new file {new}")
+                        for updated in export_results.updated:
+                            verbose(f"Exported updated file {updated}")
+                        for skipped in export_results.skipped:
+                            verbose(f"Skipped up to date file {skipped}")
+                        for touched in export_results.touched:
+                            verbose(f"Touched date on file {touched}")
+                except:
+                    click.echo(
+                        f"Error exporting photo {photo.original_filename} ({photo.filename}) as {original_filename}",
+                        err=True,
+                    )
             else:
                 verbose(f"Skipping original version of {photo.original_filename}")
 
@@ -2592,64 +2605,72 @@ def export_photo(
                     verbose(
                         f"Exporting edited version of {filename} as {edited_filename}"
                     )
-                    export_results_edited = photo.export2(
-                        dest_path,
-                        edited_filename,
-                        sidecar_json=sidecar_json,
-                        sidecar_xmp=sidecar_xmp,
-                        export_as_hardlink=export_as_hardlink,
-                        overwrite=overwrite,
-                        edited=True,
-                        use_photos_export=use_photos_export,
-                        exiftool=exiftool,
-                        no_xattr=no_extended_attributes,
-                        use_albums_as_keywords=album_keyword,
-                        use_persons_as_keywords=person_keyword,
-                        keyword_template=keyword_template,
-                        description_template=description_template,
-                        update=update,
-                        export_db=export_db,
-                        fileutil=fileutil,
-                        dry_run=dry_run,
-                        touch_file=touch_file,
-                        convert_to_jpeg=convert_to_jpeg,
-                        jpeg_quality=jpeg_quality,
-                        ignore_date_modified=ignore_date_modified,
-                        use_photokit=use_photokit,
-                        verbose=verbose,
-                    )
+                    try:
+                        export_results_edited = photo.export2(
+                            dest_path,
+                            edited_filename,
+                            sidecar_json=sidecar_json,
+                            sidecar_xmp=sidecar_xmp,
+                            export_as_hardlink=export_as_hardlink,
+                            overwrite=overwrite,
+                            edited=True,
+                            use_photos_export=use_photos_export,
+                            exiftool=exiftool,
+                            no_xattr=no_extended_attributes,
+                            use_albums_as_keywords=album_keyword,
+                            use_persons_as_keywords=person_keyword,
+                            keyword_template=keyword_template,
+                            description_template=description_template,
+                            update=update,
+                            export_db=export_db,
+                            fileutil=fileutil,
+                            dry_run=dry_run,
+                            touch_file=touch_file,
+                            convert_to_jpeg=convert_to_jpeg,
+                            jpeg_quality=jpeg_quality,
+                            ignore_date_modified=ignore_date_modified,
+                            use_photokit=use_photokit,
+                            verbose=verbose,
+                        )
 
-                    results_exported.extend(export_results_edited.exported)
-                    results_new.extend(export_results_edited.new)
-                    results_updated.extend(export_results_edited.updated)
-                    results_skipped.extend(export_results_edited.skipped)
-                    results_exif_updated.extend(export_results_edited.exif_updated)
-                    results_touched.extend(export_results_edited.touched)
-                    results_converted.extend(export_results_edited.converted_to_jpeg)
-                    results_sidecar_json_written.extend(
-                        export_results_edited.sidecar_json_written
-                    )
-                    results_sidecar_json_skipped.extend(
-                        export_results_edited.sidecar_json_skipped
-                    )
-                    results_sidecar_xmp_written.extend(
-                        export_results_edited.sidecar_xmp_written
-                    )
-                    results_sidecar_xmp_skipped.extend(
-                        export_results_edited.sidecar_xmp_skipped
-                    )
+                        results_exported.extend(export_results_edited.exported)
+                        results_new.extend(export_results_edited.new)
+                        results_updated.extend(export_results_edited.updated)
+                        results_skipped.extend(export_results_edited.skipped)
+                        results_exif_updated.extend(export_results_edited.exif_updated)
+                        results_touched.extend(export_results_edited.touched)
+                        results_converted.extend(
+                            export_results_edited.converted_to_jpeg
+                        )
+                        results_sidecar_json_written.extend(
+                            export_results_edited.sidecar_json_written
+                        )
+                        results_sidecar_json_skipped.extend(
+                            export_results_edited.sidecar_json_skipped
+                        )
+                        results_sidecar_xmp_written.extend(
+                            export_results_edited.sidecar_xmp_written
+                        )
+                        results_sidecar_xmp_skipped.extend(
+                            export_results_edited.sidecar_xmp_skipped
+                        )
 
-                    if verbose_:
-                        for exported in export_results_edited.exported:
-                            verbose(f"Exported {exported}")
-                        for new in export_results_edited.new:
-                            verbose(f"Exported new file {new}")
-                        for updated in export_results_edited.updated:
-                            verbose(f"Exported updated file {updated}")
-                        for skipped in export_results_edited.skipped:
-                            verbose(f"Skipped up to date file {skipped}")
-                        for touched in export_results_edited.touched:
-                            verbose(f"Touched date on file {touched}")
+                        if verbose_:
+                            for exported in export_results_edited.exported:
+                                verbose(f"Exported {exported}")
+                            for new in export_results_edited.new:
+                                verbose(f"Exported new file {new}")
+                            for updated in export_results_edited.updated:
+                                verbose(f"Exported updated file {updated}")
+                            for skipped in export_results_edited.skipped:
+                                verbose(f"Skipped up to date file {skipped}")
+                            for touched in export_results_edited.touched:
+                                verbose(f"Touched date on file {touched}")
+                    except:
+                        click.echo(
+                            f"Error exporting photo {filename} as {edited_filename}",
+                            err=True,
+                        )
 
     return ExportResults(
         results_exported,
