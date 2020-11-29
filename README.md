@@ -227,6 +227,9 @@ Options:
   --no-comment                    Search for photos with no comments.
   --has-likes                     Search for photos that have likes.
   --no-likes                      Search for photos with no likes.
+  --missing                       Export only photos missing from the Photos
+                                  library; must be used with --download-
+                                  missing.
   --deleted                       Include photos from the 'Recently Deleted'
                                   folder.
   --deleted-only                  Include only photos from the 'Recently
@@ -234,7 +237,8 @@ Options:
   --update                        Only export new or updated files. See notes
                                   below on export and --update.
   --dry-run                       Dry run (test) the export but don't actually
-                                  export any files; most useful with --verbose
+                                  export any files; most useful with
+                                  --verbose.
   --export-as-hardlink            Hardlink files instead of copying them.
                                   Cannot be used with --exiftool which creates
                                   copies of the files with embedded EXIF data.

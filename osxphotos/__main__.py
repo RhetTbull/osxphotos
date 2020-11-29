@@ -98,7 +98,7 @@ class DateTimeISO8601(click.ParamType):
     def convert(self, value, param, ctx):
         try:
             return datetime.datetime.fromisoformat(value)
-        except:
+        except Exception:
             self.fail(
                 f"Invalid value for --{param.name}: invalid datetime format {value}. "
                 "Valid format: YYYY-MM-DD[*HH[:MM[:SS[.fff[fff]]]][+HH:MM[:SS[.ffffff]]]]"
@@ -651,7 +651,7 @@ def debug_dump(ctx, cli_obj, db, photos_library, dump, uuid, verbose_):
                 val = getattr(photosdb, attr)
                 print(f"{attr}:")
                 pprint.pprint(val)
-            except:
+            except Exception:
                 print(f"Did not find attribute {attr} in PhotosDB")
 
 
@@ -846,12 +846,12 @@ def places(ctx, cli_obj, db, json_, photos_library):
         if photo.place:
             try:
                 place_names[photo.place.name] += 1
-            except:
+            except Exception:
                 place_names[photo.place.name] = 1
         else:
             try:
                 place_names[_UNKNOWN_PLACE] += 1
-            except:
+            except Exception:
                 place_names[_UNKNOWN_PLACE] = 1
 
     # sort by place count
@@ -1199,6 +1199,11 @@ def query(
 @DB_OPTION
 @click.option("--verbose", "-V", "verbose_", is_flag=True, help="Print verbose output.")
 @query_options
+@click.option(
+    "--missing",
+    is_flag=True,
+    help="Export only photos missing from the Photos library; must be used with --download-missing.",
+)
 @deleted_options
 @click.option(
     "--update",
@@ -1208,7 +1213,7 @@ def query(
 @click.option(
     "--dry-run",
     is_flag=True,
-    help="Dry run (test) the export but don't actually export any files; most useful with --verbose",
+    help="Dry run (test) the export but don't actually export any files; most useful with --verbose.",
 )
 @click.option(
     "--export-as-hardlink",
@@ -1451,6 +1456,7 @@ def export(
     from_date,
     to_date,
     verbose_,
+    missing,
     update,
     dry_run,
     export_as_hardlink,
@@ -1567,6 +1573,20 @@ def export(
         click.echo(cli.commands["export"].get_help(ctx), err=True)
         return
 
+    if export_as_hardlink and download_missing:
+        click.echo(
+            "Incompatible export options: --export-as-hardlink is not compatible with --download-missing",
+            err=True,
+        )
+        raise click.Abort()
+
+    if missing and not download_missing:
+        click.echo(
+            "Incompatible export options: --missing must be used with --download-missing",
+            err=True,
+        )
+        raise click.Abort()
+
     if use_photokit and not check_photokit_authorization():
         click.echo(
             "Requesting access to use your Photos library. Click 'OK' on the dialog box to grant access."
@@ -1674,7 +1694,7 @@ def export(
         not_favorite=not_favorite,
         hidden=hidden,
         not_hidden=not_hidden,
-        missing=None,  # missing -- won't export these but will warn user
+        missing=missing,
         not_missing=None,
         shared=shared,
         not_shared=not_shared,
@@ -2575,7 +2595,7 @@ def export_photo(
                             verbose(f"Skipped up to date file {skipped}")
                         for touched in export_results.touched:
                             verbose(f"Touched date on file {touched}")
-                except:
+                except Exception:
                     click.echo(
                         f"Error exporting photo {photo.original_filename} ({photo.filename}) as {original_filename}",
                         err=True,
@@ -2603,7 +2623,7 @@ def export_photo(
                         f"{edited_filename.stem}{edited_suffix}{edited_ext}"
                     )
                     verbose(
-                        f"Exporting edited version of {filename} as {edited_filename}"
+                        f"Exporting edited version of {photo.original_filename} ({photo.filename}) as {edited_filename}"
                     )
                     try:
                         export_results_edited = photo.export2(
@@ -2666,7 +2686,7 @@ def export_photo(
                                 verbose(f"Skipped up to date file {skipped}")
                             for touched in export_results_edited.touched:
                                 verbose(f"Touched date on file {touched}")
-                    except:
+                    except Exception:
                         click.echo(
                             f"Error exporting photo {filename} as {edited_filename}",
                             err=True,

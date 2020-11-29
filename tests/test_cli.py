@@ -17,6 +17,7 @@ PLACES_PHOTOS_DB_13 = "tests/Test-Places-High-Sierra-10.13.6.photoslibrary"
 PHOTOS_DB_15_4 = "tests/Test-10.15.4.photoslibrary"
 PHOTOS_DB_15_5 = "tests/Test-10.15.5.photoslibrary"
 PHOTOS_DB_15_6 = "tests/Test-10.15.6.photoslibrary"
+PHOTOS_DB_15_7 = "tests/Test-10.15.7.photoslibrary"
 PHOTOS_DB_TOUCH = PHOTOS_DB_15_6
 PHOTOS_DB_14_6 = "tests/Test-10.14.6.photoslibrary"
 
@@ -3804,3 +3805,75 @@ def test_export_report_not_a_file():
         assert result.exit_code != 0
         assert "Aborted!" in result.output
 
+
+def test_export_as_hardlink_download_missing():
+    """ test export with incompatible export options """
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--download-missing",
+                "--export-as-hardlink",
+                ".",
+            ],
+        )
+        assert result.exit_code != 0
+        assert "Aborted!" in result.output
+
+
+def test_export_missing():
+    """ test export with --missing """
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--missing",
+                "--download-missing",
+                ".",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Exporting 2 photos" in result.output
+
+
+def test_export_missing_not_download_missing():
+    """ test export with incompatible export options """
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--missing", "."]
+        )
+        assert result.exit_code != 0
+        assert "Aborted!" in result.output
