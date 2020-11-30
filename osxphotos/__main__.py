@@ -1587,17 +1587,17 @@ def export(
         )
         raise click.Abort()
 
-    if use_photokit and not check_photokit_authorization():
-        click.echo(
-            "Requesting access to use your Photos library. Click 'OK' on the dialog box to grant access."
-        )
-        request_photokit_authorization()
-        click.confirm("Have you granted access?")
-        if not check_photokit_authorization():
-            click.echo(
-                "Failed to get access to the Photos library which is needed with `--use-photokit`."
-            )
-            return
+    # if use_photokit and not check_photokit_authorization():
+    #     click.echo(
+    #         "Requesting access to use your Photos library. Click 'OK' on the dialog box to grant access."
+    #     )
+    #     request_photokit_authorization()
+    #     click.confirm("Have you granted access?")
+    #     if not check_photokit_authorization():
+    #         click.echo(
+    #             "Failed to get access to the Photos library which is needed with `--use-photokit`."
+    #         )
+    #         return
 
     # initialize export flags
     # by default, will export all versions of photos unless skip flag is set
