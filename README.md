@@ -2206,8 +2206,6 @@ This package works by creating a copy of the sqlite3 database that photos uses t
 
 If apple changes the database format this will likely break.
 
-Apple does provide a framework ([PhotoKit](https://developer.apple.com/documentation/photokit?language=objc)) for querying the user's Photos library and I attempted to create the functionality in this package using this framework but unfortunately PhotoKit does not provide access to much of the needed metadata (such as Faces/Persons) and Apple's System Integrity Protection (SIP) made the interface unreliable.  If you'd like to experiment with the PhotoKit interface, here's some sample [code](https://gist.github.com/RhetTbull/41cc85e5bdeb30f761147ce32fba5c94).  While copying the sqlite file is a bit kludgy, it allows osxphotos to provide access to all available metadata.
-
 For additional details about how osxphotos is implemented or if you would like to extend the code, see the [wiki](https://github.com/RhetTbull/osxphotos/wiki).
 
 ## Dependencies
