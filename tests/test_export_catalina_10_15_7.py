@@ -68,8 +68,7 @@ XMP_JPG_FILENAME = "Pumkins1.jpg"
 
 EXIF_JSON_UUID = UUID_DICT["has_adjustments"]
 EXIF_JSON_EXPECTED = """ 
-    [{"_CreatedBy": "osxphotos, https://github.com/RhetTbull/osxphotos", 
-    "EXIF:ImageDescription": "Bride Wedding day", 
+    [{"EXIF:ImageDescription": "Bride Wedding day", 
     "XMP:Description": "Bride Wedding day", 
     "XMP:TagsList": ["wedding"], 
     "IPTC:Keywords": ["wedding"], 
@@ -84,8 +83,7 @@ EXIF_JSON_EXPECTED = """
     """
 
 EXIF_JSON_EXPECTED_IGNORE_DATE_MODIFIED = """ 
-    [{"_CreatedBy": "osxphotos, https://github.com/RhetTbull/osxphotos", 
-    "EXIF:ImageDescription": "Bride Wedding day", 
+    [{"EXIF:ImageDescription": "Bride Wedding day", 
     "XMP:Description": "Bride Wedding day", 
     "XMP:TagsList": ["wedding"], 
     "IPTC:Keywords": ["wedding"], 
@@ -544,8 +542,7 @@ def test_exiftool_json_sidecar_keyword_template_long(caplog):
 
     json_expected = json.loads(
         """
-        [{"_CreatedBy": "osxphotos, https://github.com/RhetTbull/osxphotos", 
-        "EXIF:ImageDescription": "Bride Wedding day", 
+        [{"EXIF:ImageDescription": "Bride Wedding day", 
         "XMP:Description": "Bride Wedding day", 
         "XMP:TagsList": ["wedding", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"], 
         "IPTC:Keywords": ["wedding", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"], 
@@ -594,8 +591,7 @@ def test_exiftool_json_sidecar_keyword_template():
 
     json_expected = json.loads(
         """
-        [{"_CreatedBy": "osxphotos, https://github.com/RhetTbull/osxphotos", 
-        "EXIF:ImageDescription": "Bride Wedding day", 
+        [{"EXIF:ImageDescription": "Bride Wedding day", 
         "XMP:Description": "Bride Wedding day", 
         "XMP:TagsList": ["wedding", "Folder1/SubFolder2/AlbumInFolder", "I have a deleted twin"], 
         "IPTC:Keywords": ["wedding", "Folder1/SubFolder2/AlbumInFolder", "I have a deleted twin"], 
@@ -655,8 +651,7 @@ def test_exiftool_json_sidecar_use_persons_keyword():
 
     json_expected = json.loads(
         """
-        [{"_CreatedBy": "osxphotos, https://github.com/RhetTbull/osxphotos", 
-        "EXIF:ImageDescription": "Girls with pumpkins", 
+        [{"EXIF:ImageDescription": "Girls with pumpkins", 
         "XMP:Description": "Girls with pumpkins", 
         "XMP:Title": "Can we carry this?", 
         "XMP:TagsList": ["Kids", "Suzy", "Katie"], 
@@ -698,8 +693,7 @@ def test_exiftool_json_sidecar_use_albums_keyword():
 
     json_expected = json.loads(
         """
-        [{"_CreatedBy": "osxphotos, https://github.com/RhetTbull/osxphotos", 
-        "EXIF:ImageDescription": "Girls with pumpkins", 
+        [{"EXIF:ImageDescription": "Girls with pumpkins", 
         "XMP:Description": "Girls with pumpkins", 
         "XMP:Title": "Can we carry this?", 
         "XMP:TagsList": ["Kids", "Pumpkin Farm", "Test Album"], 

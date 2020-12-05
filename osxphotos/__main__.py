@@ -59,13 +59,13 @@ def normalize_unicode(value):
 
 
 def get_photos_db(*db_options):
-    """ Return path to photos db, select first non-None db_options
-        If no db_options are non-None, try to find library to use in
-        the following order:
-        - last library opened
-        - system library
-        - ~/Pictures/Photos Library.photoslibrary
-        - failing above, returns None
+    """Return path to photos db, select first non-None db_options
+    If no db_options are non-None, try to find library to use in
+    the following order:
+    - last library opened
+    - system library
+    - ~/Pictures/Photos Library.photoslibrary
+    - failing above, returns None
     """
     if db_options:
         for db in db_options:
@@ -919,8 +919,8 @@ def list_libraries(ctx, cli_obj, json_):
 
 
 def _list_libraries(json_=False, error=True):
-    """ Print list of Photos libraries found on the system. 
-        If json_ == True, print output as JSON (default = False) """
+    """Print list of Photos libraries found on the system.
+    If json_ == True, print output as JSON (default = False)"""
 
     photo_libs = osxphotos.utils.list_photo_libraries()
     sys_lib = osxphotos.utils.get_system_library_path()
@@ -1053,9 +1053,9 @@ def query(
     has_likes,
     no_likes,
 ):
-    """ Query the Photos database using 1 or more search options; 
-        if more than one option is provided, they are treated as "AND" 
-        (e.g. search for photos matching all options).
+    """Query the Photos database using 1 or more search options;
+    if more than one option is provided, they are treated as "AND"
+    (e.g. search for photos matching all options).
     """
 
     # if no query terms, show help and return
@@ -1268,6 +1268,79 @@ def query(
     "(e.g. the raw file was imported to Photos without a jpeg preview).",
 )
 @click.option(
+    "--current-name",
+    is_flag=True,
+    help="Use photo's current filename instead of original filename for export.  "
+    "Note: Starting with Photos 5, all photos are renamed upon import.  By default, "
+    "photos are exported with the the original name they had before import.",
+)
+@click.option(
+    "--convert-to-jpeg",
+    is_flag=True,
+    help="Convert all non-jpeg images (e.g. raw, HEIC, PNG, etc) "
+    "to JPEG upon export.  Only works if your Mac has a GPU.",
+)
+@click.option(
+    "--jpeg-quality",
+    type=click.FloatRange(0.0, 1.0),
+    default=1.0,
+    help="Value in range 0.0 to 1.0 to use with --convert-to-jpeg. "
+    "A value of 1.0 specifies best quality, "
+    "a value of 0.0 specifies maximum compression. "
+    "Defaults to 1.0.",
+)
+@click.option(
+    "--download-missing",
+    is_flag=True,
+    help="Attempt to download missing photos from iCloud. The current implementation uses Applescript "
+    "to interact with Photos to export the photo which will force Photos to download from iCloud if "
+    "the photo does not exist on disk.  This will be slow and will require internet connection. "
+    "This obviously only works if the Photos library is synched to iCloud.  "
+    "Note: --download-missing does not currently export all burst images; "
+    "only the primary photo will be exported--associated burst images will be skipped.",
+)
+@click.option(
+    "--sidecar",
+    default=None,
+    multiple=True,
+    metavar="FORMAT",
+    type=click.Choice(["xmp", "json"], case_sensitive=False),
+    help="Create sidecar for each photo exported; valid FORMAT values: xmp, json; "
+    f"--sidecar json: create JSON sidecar useable by exiftool ({_EXIF_TOOL_URL}) "
+    "The sidecar file can be used to apply metadata to the file with exiftool, for example: "
+    '"exiftool -j=photoname.jpg.json photoname.jpg" '
+    "The sidecar file is named in format photoname.ext.json  "
+    "--sidecar xmp: create XMP sidecar used by Adobe Lightroom, etc."
+    "The sidecar file is named in format photoname.ext.xmp"
+    "The XMP sidecar exports the following tags: Description, Title, Keywords/Tags, "
+    "Subject (set to Keywords + PersonInImage), PersonInImage, CreateDate, ModifyDate, "
+    "GPSLongitude. "
+    "For a list of tags exported in the JSON sidecar, see --exiftool.",
+)
+@click.option(
+    "--exiftool",
+    is_flag=True,
+    help="Use exiftool to write metadata directly to exported photos. "
+    "To use this option, exiftool must be installed and in the path.  "
+    "exiftool may be installed from https://exiftool.org/.  "
+    "Cannot be used with --export-as-hardlink.  Writes the following metadata: "
+    "EXIF:ImageDescription, XMP:Description (see also --description-template); "
+    "XMP:Title; XMP:TagsList, IPTC:Keywords (see also --keyword-template, --person-keyword, --album-keyword); "
+    "XMP:Subject (set to keywords + person in image to mirror Photos' behavior); "
+    "XMP:PersonInImage; EXIF:GPSLatitudeRef; EXIF:GPSLongitudeRef; EXIF:GPSLatitude; EXIF:GPSLongitude; "
+    "EXIF:GPSPosition; EXIF:DateTimeOriginal; EXIF:OffsetTimeOriginal; "
+    "EXIF:ModifyDate (see --ignore-date-modified); IPTC:DateCreated; IPTC:TimeCreated; "
+    "(video files only): QuickTime:CreationDate (UTC); QuickTime:ModifyDate (UTC) (see also --ignore-date-modified); "
+    "QuickTime:GPSCoordinates; UserData:GPSCoordinates.",
+)
+@click.option(
+    "--ignore-date-modified",
+    is_flag=True,
+    help="If used with --exiftool or --sidecar, will ignore the photo "
+    "modification date and set EXIF:ModifyDate to EXIF:DateTimeOriginal; "
+    "this is consistent with how Photos handles the EXIF:ModifyDate tag.",
+)
+@click.option(
     "--person-keyword",
     is_flag=True,
     help="Use person in image as keyword/tag when exporting metadata.",
@@ -1302,67 +1375,6 @@ def query(
     "'exported with osxphotos on [today's date]' to the description, you could specify "
     '--description-template "{descr} exported with osxphotos on {today.date}" '
     "See Templating System below.",
-)
-@click.option(
-    "--current-name",
-    is_flag=True,
-    help="Use photo's current filename instead of original filename for export.  "
-    "Note: Starting with Photos 5, all photos are renamed upon import.  By default, "
-    "photos are exported with the the original name they had before import.",
-)
-@click.option(
-    "--convert-to-jpeg",
-    is_flag=True,
-    help="Convert all non-jpeg images (e.g. raw, HEIC, PNG, etc) "
-    "to JPEG upon export.  Only works if your Mac has a GPU.",
-)
-@click.option(
-    "--jpeg-quality",
-    type=click.FloatRange(0.0, 1.0),
-    default=1.0,
-    help="Value in range 0.0 to 1.0 to use with --convert-to-jpeg. "
-    "A value of 1.0 specifies best quality, "
-    "a value of 0.0 specifies maximum compression. "
-    "Defaults to 1.0.",
-)
-@click.option(
-    "--sidecar",
-    default=None,
-    multiple=True,
-    metavar="FORMAT",
-    type=click.Choice(["xmp", "json"], case_sensitive=False),
-    help="Create sidecar for each photo exported; valid FORMAT values: xmp, json; "
-    f"--sidecar json: create JSON sidecar useable by exiftool ({_EXIF_TOOL_URL}) "
-    "The sidecar file can be used to apply metadata to the file with exiftool, for example: "
-    '"exiftool -j=photoname.json photoname.jpg" '
-    "The sidecar file is named in format photoname.json  "
-    "--sidecar xmp: create XMP sidecar used by Adobe Lightroom, etc."
-    "The sidecar file is named in format photoname.xmp",
-)
-@click.option(
-    "--download-missing",
-    is_flag=True,
-    help="Attempt to download missing photos from iCloud. The current implementation uses Applescript "
-    "to interact with Photos to export the photo which will force Photos to download from iCloud if "
-    "the photo does not exist on disk.  This will be slow and will require internet connection. "
-    "This obviously only works if the Photos library is synched to iCloud.  "
-    "Note: --download-missing does not currently export all burst images; "
-    "only the primary photo will be exported--associated burst images will be skipped.",
-)
-@click.option(
-    "--exiftool",
-    is_flag=True,
-    help="Use exiftool to write metadata directly to exported photos. "
-    "To use this option, exiftool must be installed and in the path.  "
-    "exiftool may be installed from https://exiftool.org/.  "
-    "Cannot be used with --export-as-hardlink.",
-)
-@click.option(
-    "--ignore-date-modified",
-    is_flag=True,
-    help="If used with --exiftool or --sidecar, will ignore the photo "
-    "modification date and set EXIF:ModifyDate to EXIF:DateTimeOriginal; "
-    "this is consistent with how Photos handles the EXIF:ModifyDate tag.",
 )
 @click.option(
     "--directory",
@@ -1519,16 +1531,16 @@ def export(
     use_photokit,
     report,
 ):
-    """ Export photos from the Photos database.
-        Export path DEST is required.
-        Optionally, query the Photos database using 1 or more search options; 
-        if more than one option is provided, they are treated as "AND" 
-        (e.g. search for photos matching all options).
-        If no query options are provided, all photos will be exported.
-        By default, all versions of all photos will be exported including edited
-        versions, live photo movies, burst photos, and associated raw images. 
-        See --skip-edited, --skip-live, --skip-bursts, and --skip-raw options
-        to modify this behavior. 
+    """Export photos from the Photos database.
+    Export path DEST is required.
+    Optionally, query the Photos database using 1 or more search options;
+    if more than one option is provided, they are treated as "AND"
+    (e.g. search for photos matching all options).
+    If no query options are provided, all photos will be exported.
+    By default, all versions of all photos will be exported including edited
+    versions, live photo movies, burst photos, and associated raw images.
+    See --skip-edited, --skip-live, --skip-bursts, and --skip-raw options
+    to modify this behavior.
     """
 
     global VERBOSE
@@ -2107,10 +2119,10 @@ def _query(
     has_likes=False,
     no_likes=False,
 ):
-    """ run a query against PhotosDB to extract the photos based on user supply criteria 
-        used by query and export commands 
-        arguments must be passed in same order as query and export 
-        if either is modified, need to ensure all three functions are updated """
+    """run a query against PhotosDB to extract the photos based on user supply criteria
+    used by query and export commands
+    arguments must be passed in same order as query and export
+    if either is modified, need to ensure all three functions are updated"""
 
     photosdb = osxphotos.PhotosDB(dbfile=db, verbose=verbose)
     if deleted or deleted_only:
@@ -2342,7 +2354,7 @@ def get_photos_by_attribute(photos, attribute, values, ignore_case):
     """Search for photos based on values being in PhotoInfo.attribute
 
     Args:
-        photos: a list of PhotoInfo objects 
+        photos: a list of PhotoInfo objects
         attribute: str, name of PhotoInfo attribute to search (e.g. keywords, persons, etc)
         values: list of values to search in property
         ignore_case: ignore case when searching
@@ -2401,7 +2413,7 @@ def export_photo(
     ignore_date_modified=False,
     use_photokit=False,
 ):
-    """ Helper function for export that does the actual export
+    """Helper function for export that does the actual export
 
     Args:
         photo: PhotoInfo object
@@ -2437,7 +2449,7 @@ def export_photo(
 
     Returns:
         list of path(s) of exported photo or None if photo was missing
-    
+
     Raises:
         ValueError on invalid filename_template
     """
@@ -2708,16 +2720,16 @@ def export_photo(
 
 
 def get_filenames_from_template(photo, filename_template, original_name):
-    """ get list of export filenames for a photo
+    """get list of export filenames for a photo
 
     Args:
         photo: a PhotoInfo instance
         filename_template: a PhotoTemplate template string, may be None
         original_name: boolean; if True, use photo's original filename instead of current filename
-    
+
     Returns:
         list of filenames
-    
+
     Raises:
         click.BadOptionUsage if template is invalid
     """
@@ -2744,7 +2756,7 @@ def get_filenames_from_template(photo, filename_template, original_name):
 
 
 def get_dirnames_from_template(photo, directory, export_by_date, dest, dry_run):
-    """ get list of directories to export a photo into, creates directories if they don't exist
+    """get list of directories to export a photo into, creates directories if they don't exist
 
     Args:
         photo: a PhotoInstance object
@@ -2792,8 +2804,8 @@ def get_dirnames_from_template(photo, directory, export_by_date, dest, dry_run):
 
 
 def find_files_in_branch(pathname, filename):
-    """ Search a directory branch to find file(s) named filename
-        The branch searched includes all folders below pathname and 
+    """Search a directory branch to find file(s) named filename
+        The branch searched includes all folders below pathname and
         the parent tree of pathname but not pathname itself.
 
         e.g. find filename in children folders and parent folders
@@ -2801,7 +2813,7 @@ def find_files_in_branch(pathname, filename):
     Args:
         pathname: str, full path of directory to search
         filename: str, filename to search for
-    
+
     Returns: list of full paths to any matching files
     """
 
@@ -2829,16 +2841,16 @@ def find_files_in_branch(pathname, filename):
 
 
 def load_uuid_from_file(filename):
-    """ Load UUIDs from file.  Does not validate UUIDs.
+    """Load UUIDs from file.  Does not validate UUIDs.
         Format is 1 UUID per line, any line beginning with # is ignored.
         Whitespace is stripped.
 
     Arguments:
         filename: file name of the file containing UUIDs
-    
+
     Returns:
         list of UUIDs or empty list of no UUIDs in file
-    
+
     Raises:
         FileNotFoundError if file does not exist
     """

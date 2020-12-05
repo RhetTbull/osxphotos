@@ -46,8 +46,7 @@ UUID_DICT = {
 }
 
 EXIF_JSON_EXPECTED = """
-    [{"_CreatedBy": "osxphotos, https://github.com/RhetTbull/osxphotos", 
-    "XMP:Title": "St. James\'s Park", 
+    [{"XMP:Title": "St. James\'s Park", 
     "XMP:TagsList": ["UK", "England", "London", "United Kingdom", "London 2018", "St. James\'s Park"], 
     "IPTC:Keywords": ["UK", "England", "London", "United Kingdom", "London 2018", "St. James\'s Park"], 
     "XMP:Subject": ["UK", "England", "London", "United Kingdom", "London 2018", "St. James\'s Park"], 
