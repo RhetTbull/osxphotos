@@ -59,6 +59,8 @@ ExportResults = namedtuple(
         "sidecar_json_skipped",
         "sidecar_xmp_written",
         "sidecar_xmp_skipped",
+        "missing",
+        "error",
     ],
 )
 
@@ -389,9 +391,21 @@ def export2(
     ignore_date_modified: for use with sidecar and exiftool; if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
     verbose: optional callable function to use for printing verbose text during processing; if None (default), does not print output.
 
-    Returns: ExportResults namedtuple with fields: exported, new, updated, skipped
-                where each field is a list of file paths
-
+    Returns: ExportResults namedtuple with fields: 
+        "exported",
+        "new",
+        "updated",
+        "skipped",
+        "exif_updated",
+        "touched",
+        "converted_to_jpeg",
+        "sidecar_json_written",
+        "sidecar_json_skipped",
+        "sidecar_xmp_written",
+        "sidecar_xmp_skipped",
+        "missing",
+        "error"
+ 
     Note: to use dry run mode, you must set dry_run=True and also pass in memory version of export_db,
           and no-op fileutil (e.g. ExportDBInMemory and FileUtilNoOp)
     """
@@ -926,17 +940,19 @@ def export2(
     touched_files = list(set(touched_files))
 
     results = ExportResults(
-        exported_files,
-        update_new_files,
-        update_updated_files,
-        update_skipped_files,
-        exif_files_updated,
-        touched_files,
-        converted_to_jpeg_files,
-        sidecar_json_files_written,
-        sidecar_json_files_skipped,
-        sidecar_xmp_files_written,
-        sidecar_xmp_files_skipped,
+        exported=exported_files,
+        new=update_new_files,
+        updated=update_updated_files,
+        skipped=update_skipped_files,
+        exif_updated=exif_files_updated,
+        touched=touched_files,
+        converted_to_jpeg=converted_to_jpeg_files,
+        sidecar_json_written=sidecar_json_files_written,
+        sidecar_json_skipped=sidecar_json_files_skipped,
+        sidecar_xmp_written=sidecar_xmp_files_written,
+        sidecar_xmp_skipped=sidecar_xmp_files_skipped,
+        missing=[],
+        error=[],
     )
     return results
 
@@ -997,7 +1013,6 @@ def _export_photo(
 
     dest_str = str(dest)
     dest_exists = dest.exists()
-    op_desc = "export_as_hardlink" if export_as_hardlink else "export_by_copying"
 
     if update:  # updating
         cmp_touch, cmp_orig = False, False
@@ -1103,17 +1118,19 @@ def _export_photo(
         fileutil.utime(dest, (ts, ts))
 
     return ExportResults(
-        exported_files + update_new_files + update_updated_files,
-        update_new_files,
-        update_updated_files,
-        update_skipped_files,
-        [],
-        touched_files,
-        converted_to_jpeg_files,
-        [],
-        [],
-        [],
-        [],
+        exported=exported_files + update_new_files + update_updated_files,
+        new=update_new_files,
+        updated=update_updated_files,
+        skipped=update_skipped_files,
+        exif_updated=[],
+        touched=touched_files,
+        converted_to_jpeg=converted_to_jpeg_files,
+        sidecar_json_written=[],
+        sidecar_json_skipped=[],
+        sidecar_xmp_written=[],
+        sidecar_xmp_skipped=[],
+        missing=[],
+        error=[],
     )
 
 

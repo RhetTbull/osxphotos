@@ -1778,6 +1778,8 @@ def export(
         results_sidecar_json_skipped = []
         results_sidecar_xmp_written = []
         results_sidecar_xmp_skipped = []
+        results_missing = []
+        results_error = []
         if verbose_:
             for p in photos:
                 results = export_photo(
@@ -1826,6 +1828,8 @@ def export(
                 results_sidecar_json_skipped.extend(results.sidecar_json_skipped)
                 results_sidecar_xmp_written.extend(results.sidecar_xmp_written)
                 results_sidecar_xmp_skipped.extend(results.sidecar_xmp_skipped)
+                results_missing.extend(results.missing)
+                results_error.extend(results.error)
 
                 # if convert_to_jpeg and p.isphoto and p.uti != "public.jpeg":
                 #     for photo_file in set(
@@ -1883,6 +1887,8 @@ def export(
                     results_sidecar_json_skipped.extend(results.sidecar_json_skipped)
                     results_sidecar_xmp_written.extend(results.sidecar_xmp_written)
                     results_sidecar_xmp_skipped.extend(results.sidecar_xmp_skipped)
+                    results_missing.extend(results.missing)
+                    results_error.extend(results.error)
 
         stop_time = time.perf_counter()
         # print summary results
@@ -1895,6 +1901,8 @@ def export(
         # print(f"results_converted: {results_converted}")
         # print(f"results_sidecar_json: {results_sidecar_json}")
         # print(f"results_sidecar_xmp: {results_sidecar_xmp}")
+        # print(f"results_missing: {results_missing}")
+        # print(f"results_error: {results_error}")
 
         if report:
             verbose(f"Writing export report to {report}")
@@ -1911,27 +1919,28 @@ def export(
                 results_sidecar_json_skipped=results_sidecar_json_skipped,
                 results_sidecar_xmp_written=results_sidecar_xmp_written,
                 results_sidecar_xmp_skipped=results_sidecar_xmp_skipped,
+                results_missing=results_missing,
+                results_error=results_error,
             )
 
+        photo_str_total = "photos" if len(photos) != 1 else "photo"
         if update:
-            photo_str_new = "photos" if len(results_new) != 1 else "photo"
-            photo_str_updated = "photos" if len(results_updated) != 1 else "photo"
-            photo_str_skipped = "photos" if len(results_skipped) != 1 else "photo"
-            photo_str_exif_updated = (
-                "photos" if len(results_exif_updated) != 1 else "photo"
-            )
             summary = (
-                f"Exported: {len(results_new)} {photo_str_new}, "
-                f"updated: {len(results_updated)} {photo_str_updated}, "
-                f"skipped: {len(results_skipped)} {photo_str_skipped}, "
-                f"updated EXIF data: {len(results_exif_updated)} {photo_str_exif_updated}"
+                f"Processed: {len(photos)} {photo_str_total}, "
+                f"exported: {len(results_new)}, "
+                f"updated: {len(results_updated)}, "
+                f"skipped: {len(results_skipped)}, "
+                f"updated EXIF data: {len(results_exif_updated)}, "
             )
         else:
-            photo_str = "photos" if len(results_exported) != 1 else "photo"
-            summary = f"Exported: {len(results_exported)} {photo_str}"
-        photo_str_touched = "photos" if len(results_touched) != 1 else "photo"
+            summary = (
+                f"Processed: {len(photos)} {photo_str_total}, "
+                f"exported: {len(results_exported)}, "
+            )
+        summary += f"missing: {len(results_missing)}, "
+        summary += f"error: {len(results_error)}"
         if touch_file:
-            summary += f", touched date: {len(results_touched)} {photo_str_touched}"
+            summary += f", touched date: {len(results_touched)}"
         click.echo(summary)
         click.echo(f"Elapsed time: {(stop_time-start_time):.3f} seconds")
     else:
@@ -2462,19 +2471,61 @@ def export_photo(
         if photo.ismissing:
             space = " " if not verbose_ else ""
             verbose(f"{space}Skipping missing photo {photo.original_filename}")
-            return ExportResults([], [], [], [], [], [], [], [], [], [], [])
+            return ExportResults(
+                exported=[],
+                new=[],
+                updated=[],
+                skipped=[],
+                exif_updated=[],
+                touched=[],
+                converted_to_jpeg=[],
+                sidecar_json_written=[],
+                sidecar_json_skipped=[],
+                sidecar_xmp_written=[],
+                sidecar_xmp_skipped=[],
+                missing=[f"{photo.original_filename} ({photo.uuid})"],
+                error=[],
+            )
         elif photo.path is None:
             space = " " if not verbose_ else ""
             verbose(
                 f"{space}WARNING: photo {photo.original_filename} ({photo.uuid}) is missing but ismissing=False, "
                 f"skipping {photo.original_filename}"
             )
-            return ExportResults([], [], [], [], [], [], [], [], [], [], [])
+            return ExportResults(
+                exported=[],
+                new=[],
+                updated=[],
+                skipped=[],
+                exif_updated=[],
+                touched=[],
+                converted_to_jpeg=[],
+                sidecar_json_written=[],
+                sidecar_json_skipped=[],
+                sidecar_xmp_written=[],
+                sidecar_xmp_skipped=[],
+                missing=[f"{photo.original_filename} ({photo.uuid})"],
+                error=[],
+            )
     elif photo.ismissing and not photo.iscloudasset and not photo.incloud:
         verbose(
             f"Skipping missing {photo.original_filename}: not iCloud asset or missing from cloud"
         )
-        return ExportResults([], [], [], [], [], [], [], [], [], [], [])
+        return ExportResults(
+            exported=[],
+            new=[],
+            updated=[],
+            skipped=[],
+            exif_updated=[],
+            touched=[],
+            converted_to_jpeg=[],
+            sidecar_json_written=[],
+            sidecar_json_skipped=[],
+            sidecar_xmp_written=[],
+            sidecar_xmp_skipped=[],
+            missing=[f"{photo.original_filename} ({photo.uuid})"],
+            error=[],
+        )
 
     results_exported = []
     results_new = []
@@ -2487,6 +2538,7 @@ def export_photo(
     results_sidecar_json_skipped = []
     results_sidecar_xmp_written = []
     results_sidecar_xmp_skipped = []
+    results_error = []
 
     export_original = not (skip_original_if_edited and photo.hasadjustments)
 
@@ -2612,6 +2664,7 @@ def export_photo(
                         f"Error exporting photo {photo.original_filename} ({photo.filename}) as {original_filename}",
                         err=True,
                     )
+                    results_error.extend(dest)
             else:
                 verbose(f"Skipping original version of {photo.original_filename}")
 
@@ -2703,19 +2756,22 @@ def export_photo(
                             f"Error exporting photo {filename} as {edited_filename}",
                             err=True,
                         )
+                        results_error.extend(dest)
 
     return ExportResults(
-        results_exported,
-        results_new,
-        results_updated,
-        results_skipped,
-        results_exif_updated,
-        results_touched,
-        results_converted,
-        results_sidecar_json_written,
-        results_sidecar_json_skipped,
-        results_sidecar_xmp_written,
-        results_sidecar_xmp_skipped,
+        exported=results_exported,
+        new=results_new,
+        updated=results_updated,
+        skipped=results_skipped,
+        exif_updated=results_exif_updated,
+        touched=results_touched,
+        converted_to_jpeg=results_converted,
+        sidecar_json_written=results_sidecar_json_written,
+        sidecar_json_skipped=results_sidecar_json_skipped,
+        sidecar_xmp_written=results_sidecar_xmp_written,
+        sidecar_xmp_skipped=results_sidecar_xmp_skipped,
+        missing=[],
+        error=results_error,
     )
 
 
@@ -2880,6 +2936,8 @@ def write_export_report(
     results_sidecar_json_skipped,
     results_sidecar_xmp_written,
     results_sidecar_xmp_skipped,
+    results_missing,
+    results_error,
 ):
 
     """ write CSV report with results from export """
@@ -2898,6 +2956,8 @@ def write_export_report(
             "converted_to_jpeg": 0,
             "sidecar_xmp": 0,
             "sidecar_json": 0,
+            "missing": 0,
+            "error": 0,
         }
         for result in results_exported
         + results_new
@@ -2910,6 +2970,8 @@ def write_export_report(
         + results_sidecar_json_skipped
         + results_sidecar_xmp_written
         + results_sidecar_xmp_skipped
+        + results_missing
+        + results_error
     }
 
     for result in results_exported:
@@ -2949,6 +3011,12 @@ def write_export_report(
         all_results[result]["sidecar_json"] = 1
         all_results[result]["skipped"] = 1
 
+    for result in results_missing:
+        all_results[result]["missing"] = 1
+
+    for result in results_error:
+        all_results[result]["error"] = 1
+
     report_columns = [
         "filename",
         "exported",
@@ -2960,6 +3028,8 @@ def write_export_report(
         "converted_to_jpeg",
         "sidecar_xmp",
         "sidecar_json",
+        "missing",
+        "error",
     ]
 
     try:
