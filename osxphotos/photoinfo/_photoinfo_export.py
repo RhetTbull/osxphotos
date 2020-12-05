@@ -33,6 +33,7 @@ from .._constants import (
     _UNKNOWN_PERSON,
     _XMP_TEMPLATE_NAME,
 )
+from ..datetime_utils import datetime_tz_to_utc
 from ..exiftool import ExifTool
 from ..export_db import ExportDBNoOp
 from ..fileutil import FileUtil
@@ -82,27 +83,27 @@ def _export_photo_uuid_applescript(
     burst=False,
     dry_run=False,
 ):
-    """ Export photo to dest path using applescript to control Photos
-        If photo is a live photo, exports both the photo and associated .mov file
-        uuid: UUID of photo to export
-        dest: destination path to export to
-        filestem: (string) if provided, exported filename will be named stem.ext 
-                  where ext is extension of the file exported by photos (e.g. .jpeg, .mov, etc)
-                  If not provided, file will be named with whatever name Photos uses
-                  If filestem.ext exists, it wil be overwritten
-        original: (boolean) if True, export original image; default = True
-        edited: (boolean) if True, export edited photo; default = False
-                If photo not edited and edited=True, will still export the original image
-                caller must verify image has been edited
-        *Note*: must be called with either edited or original but not both, 
-                will raise error if called with both edited and original = True
-        live_photo: (boolean) if True, export associated .mov live photo; default = False
-        timeout: timeout value in seconds; export will fail if applescript run time exceeds timeout
-        burst: (boolean) set to True if file is a burst image to avoid Photos export error
-        dry_run: (boolean) set to True to run in "dry run" mode which will download file but not actually copy to destination
-        Returns: list of paths to exported file(s) or None if export failed
-        Note: For Live Photos, if edited=True, will export a jpeg but not the movie, even if photo
-              has not been edited. This is due to how Photos Applescript interface works.
+    """Export photo to dest path using applescript to control Photos
+    If photo is a live photo, exports both the photo and associated .mov file
+    uuid: UUID of photo to export
+    dest: destination path to export to
+    filestem: (string) if provided, exported filename will be named stem.ext
+              where ext is extension of the file exported by photos (e.g. .jpeg, .mov, etc)
+              If not provided, file will be named with whatever name Photos uses
+              If filestem.ext exists, it wil be overwritten
+    original: (boolean) if True, export original image; default = True
+    edited: (boolean) if True, export edited photo; default = False
+            If photo not edited and edited=True, will still export the original image
+            caller must verify image has been edited
+    *Note*: must be called with either edited or original but not both,
+            will raise error if called with both edited and original = True
+    live_photo: (boolean) if True, export associated .mov live photo; default = False
+    timeout: timeout value in seconds; export will fail if applescript run time exceeds timeout
+    burst: (boolean) set to True if file is a burst image to avoid Photos export error
+    dry_run: (boolean) set to True to run in "dry run" mode which will download file but not actually copy to destination
+    Returns: list of paths to exported file(s) or None if export failed
+    Note: For Live Photos, if edited=True, will export a jpeg but not the movie, even if photo
+          has not been edited. This is due to how Photos Applescript interface works.
     """
 
     # setup the applescript to do the export
@@ -191,10 +192,10 @@ def _export_photo_uuid_applescript(
 # _check_export_suffix is not a class method, don't import this into PhotoInfo
 def _check_export_suffix(src, dest, edited):
     """Helper function for exporting photos to check file extensions of destination path.
-    
+
     Checks that dst file extension is appropriate for the src.
     If edited=True, will use src file extension of ".jpeg" if None provided for src.
-    
+
     Args:
         src: path to source file or None.
         dest: path to destination file.
@@ -249,43 +250,43 @@ def export(
     keyword_template=None,
     description_template=None,
 ):
-    """ export photo 
-        dest: must be valid destination path (or exception raised) 
-        filename: (optional): name of exported picture; if not provided, will use current filename 
-                    **NOTE**: if provided, user must ensure file extension (suffix) is correct. 
-                    For example, if photo is .CR2 file, edited image may be .jpeg.  
-                    If you provide an extension different than what the actual file is, 
-                    export will print a warning but will export the photo using the 
-                    incorrect file extension (unless use_photos_export is true, in which case export will
-                    use the extension provided by Photos upon export; in this case, an incorrect extension is
-                    silently ignored).
-                    e.g. to get the extension of the edited photo, 
-                    reference PhotoInfo.path_edited
-        edited: (boolean, default=False); if True will export the edited version of the photo 
-                (or raise exception if no edited version) 
-        live_photo: (boolean, default=False); if True, will also export the associted .mov for live photos
-        raw_photo: (boolean, default=False); if True, will also export the associted RAW photo
-        export_as_hardlink: (boolean, default=False); if True, will hardlink files instead of copying them
-        overwrite: (boolean, default=False); if True will overwrite files if they alreay exist 
-        increment: (boolean, default=True); if True, will increment file name until a non-existant name is found 
-                    if overwrite=False and increment=False, export will fail if destination file already exists 
-        sidecar_json: (boolean, default = False); if True will also write a json sidecar with IPTC data in format readable by exiftool
-                    sidecar filename will be dest/filename.json 
-        sidecar_xmp: (boolean, default = False); if True will also write a XMP sidecar with IPTC data 
-                    sidecar filename will be dest/filename.xmp 
-        use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos
-        timeout: (int, default=120) timeout in seconds used with use_photos_export
-        exiftool: (boolean, default = False); if True, will use exiftool to write metadata to export file
-        no_xattr: (boolean, default = False); if True, exports file without preserving extended attributes
-        returns list of full paths to the exported files
-        use_albums_as_keywords: (boolean, default = False); if True, will include album names in keywords
-        when exporting metadata with exiftool or sidecar
-        use_persons_as_keywords: (boolean, default = False); if True, will include person names in keywords
-        when exporting metadata with exiftool or sidecar
-        keyword_template: (list of strings); list of template strings that will be rendered as used as keywords
-        description_template: string; optional template string that will be rendered for use as photo description
-        returns: list of photos exported
-        """
+    """export photo
+    dest: must be valid destination path (or exception raised)
+    filename: (optional): name of exported picture; if not provided, will use current filename
+                **NOTE**: if provided, user must ensure file extension (suffix) is correct.
+                For example, if photo is .CR2 file, edited image may be .jpeg.
+                If you provide an extension different than what the actual file is,
+                export will print a warning but will export the photo using the
+                incorrect file extension (unless use_photos_export is true, in which case export will
+                use the extension provided by Photos upon export; in this case, an incorrect extension is
+                silently ignored).
+                e.g. to get the extension of the edited photo,
+                reference PhotoInfo.path_edited
+    edited: (boolean, default=False); if True will export the edited version of the photo
+            (or raise exception if no edited version)
+    live_photo: (boolean, default=False); if True, will also export the associted .mov for live photos
+    raw_photo: (boolean, default=False); if True, will also export the associted RAW photo
+    export_as_hardlink: (boolean, default=False); if True, will hardlink files instead of copying them
+    overwrite: (boolean, default=False); if True will overwrite files if they alreay exist
+    increment: (boolean, default=True); if True, will increment file name until a non-existant name is found
+                if overwrite=False and increment=False, export will fail if destination file already exists
+    sidecar_json: (boolean, default = False); if True will also write a json sidecar with IPTC data in format readable by exiftool
+                sidecar filename will be dest/filename.json
+    sidecar_xmp: (boolean, default = False); if True will also write a XMP sidecar with IPTC data
+                sidecar filename will be dest/filename.xmp
+    use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos
+    timeout: (int, default=120) timeout in seconds used with use_photos_export
+    exiftool: (boolean, default = False); if True, will use exiftool to write metadata to export file
+    no_xattr: (boolean, default = False); if True, exports file without preserving extended attributes
+    returns list of full paths to the exported files
+    use_albums_as_keywords: (boolean, default = False); if True, will include album names in keywords
+    when exporting metadata with exiftool or sidecar
+    use_persons_as_keywords: (boolean, default = False); if True, will include person names in keywords
+    when exporting metadata with exiftool or sidecar
+    keyword_template: (list of strings); list of template strings that will be rendered as used as keywords
+    description_template: string; optional template string that will be rendered for use as photo description
+    returns: list of photos exported
+    """
 
     # Implementation note: calls export2 to actually do the work
 
@@ -344,56 +345,56 @@ def export2(
     use_photokit=False,
     verbose=None,
 ):
-    """ export photo, like export but with update and dry_run options
-        dest: must be valid destination path or exception raised 
-        filename: (optional): name of exported picture; if not provided, will use current filename 
-                    **NOTE**: if provided, user must ensure file extension (suffix) is correct. 
-                    For example, if photo is .CR2 file, edited image may be .jpeg.  
-                    If you provide an extension different than what the actual file is, 
-                    will export the photo using the incorrect file extension (unless use_photos_export is true, 
-                    in which case export will use the extension provided by Photos upon export.
-                    e.g. to get the extension of the edited photo, 
-                    reference PhotoInfo.path_edited
-        edited: (boolean, default=False); if True will export the edited version of the photo 
-                (or raise exception if no edited version) 
-        live_photo: (boolean, default=False); if True, will also export the associted .mov for live photos
-        raw_photo: (boolean, default=False); if True, will also export the associted RAW photo
-        export_as_hardlink: (boolean, default=False); if True, will hardlink files instead of copying them
-        overwrite: (boolean, default=False); if True will overwrite files if they alreay exist 
-        increment: (boolean, default=True); if True, will increment file name until a non-existant name is found 
-                    if overwrite=False and increment=False, export will fail if destination file already exists 
-        sidecar_json: (boolean, default = False); if True will also write a json sidecar with IPTC data in format readable by exiftool
-                    sidecar filename will be dest/filename.json 
-        sidecar_xmp: (boolean, default = False); if True will also write a XMP sidecar with IPTC data 
-                    sidecar filename will be dest/filename.xmp 
-        use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos
-        timeout: (int, default=120) timeout in seconds used with use_photos_export
-        exiftool: (boolean, default = False); if True, will use exiftool to write metadata to export file
-        no_xattr: (boolean, default = False); if True, exports file without preserving extended attributes
-        use_albums_as_keywords: (boolean, default = False); if True, will include album names in keywords
-        when exporting metadata with exiftool or sidecar
-        use_persons_as_keywords: (boolean, default = False); if True, will include person names in keywords
-        when exporting metadata with exiftool or sidecar
-        keyword_template: (list of strings); list of template strings that will be rendered as used as keywords
-        description_template: string; optional template string that will be rendered for use as photo description
-        update: (boolean, default=False); if True export will run in update mode, that is, it will
-                not export the photo if the current version already exists in the destination
-        export_db: (ExportDB_ABC); instance of a class that conforms to ExportDB_ABC with methods
-                for getting/setting data related to exported files to compare update state
-        fileutil: (FileUtilABC); class that conforms to FileUtilABC with various file utilities
-        dry_run: (boolean, default=False); set to True to run in "dry run" mode
-        touch_file: (boolean, default=False); if True, sets file's modification time upon photo date
-        convert_to_jpeg: boolean; if True, converts non-jpeg images to jpeg
-        jpeg_quality: float in range 0.0 <= jpeg_quality <= 1.0.  A value of 1.0 specifies use best quality, a value of 0.0 specifies use maximum compression.
-        ignore_date_modified: for use with sidecar and exiftool; if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
-        verbose: optional callable function to use for printing verbose text during processing; if None (default), does not print output.
+    """export photo, like export but with update and dry_run options
+    dest: must be valid destination path or exception raised
+    filename: (optional): name of exported picture; if not provided, will use current filename
+                **NOTE**: if provided, user must ensure file extension (suffix) is correct.
+                For example, if photo is .CR2 file, edited image may be .jpeg.
+                If you provide an extension different than what the actual file is,
+                will export the photo using the incorrect file extension (unless use_photos_export is true,
+                in which case export will use the extension provided by Photos upon export.
+                e.g. to get the extension of the edited photo,
+                reference PhotoInfo.path_edited
+    edited: (boolean, default=False); if True will export the edited version of the photo
+            (or raise exception if no edited version)
+    live_photo: (boolean, default=False); if True, will also export the associted .mov for live photos
+    raw_photo: (boolean, default=False); if True, will also export the associted RAW photo
+    export_as_hardlink: (boolean, default=False); if True, will hardlink files instead of copying them
+    overwrite: (boolean, default=False); if True will overwrite files if they alreay exist
+    increment: (boolean, default=True); if True, will increment file name until a non-existant name is found
+                if overwrite=False and increment=False, export will fail if destination file already exists
+    sidecar_json: (boolean, default = False); if True will also write a json sidecar with IPTC data in format readable by exiftool
+                sidecar filename will be dest/filename.json
+    sidecar_xmp: (boolean, default = False); if True will also write a XMP sidecar with IPTC data
+                sidecar filename will be dest/filename.xmp
+    use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos
+    timeout: (int, default=120) timeout in seconds used with use_photos_export
+    exiftool: (boolean, default = False); if True, will use exiftool to write metadata to export file
+    no_xattr: (boolean, default = False); if True, exports file without preserving extended attributes
+    use_albums_as_keywords: (boolean, default = False); if True, will include album names in keywords
+    when exporting metadata with exiftool or sidecar
+    use_persons_as_keywords: (boolean, default = False); if True, will include person names in keywords
+    when exporting metadata with exiftool or sidecar
+    keyword_template: (list of strings); list of template strings that will be rendered as used as keywords
+    description_template: string; optional template string that will be rendered for use as photo description
+    update: (boolean, default=False); if True export will run in update mode, that is, it will
+            not export the photo if the current version already exists in the destination
+    export_db: (ExportDB_ABC); instance of a class that conforms to ExportDB_ABC with methods
+            for getting/setting data related to exported files to compare update state
+    fileutil: (FileUtilABC); class that conforms to FileUtilABC with various file utilities
+    dry_run: (boolean, default=False); set to True to run in "dry run" mode
+    touch_file: (boolean, default=False); if True, sets file's modification time upon photo date
+    convert_to_jpeg: boolean; if True, converts non-jpeg images to jpeg
+    jpeg_quality: float in range 0.0 <= jpeg_quality <= 1.0.  A value of 1.0 specifies use best quality, a value of 0.0 specifies use maximum compression.
+    ignore_date_modified: for use with sidecar and exiftool; if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
+    verbose: optional callable function to use for printing verbose text during processing; if None (default), does not print output.
 
-        Returns: ExportResults namedtuple with fields: exported, new, updated, skipped 
-                    where each field is a list of file paths
-        
-        Note: to use dry run mode, you must set dry_run=True and also pass in memory version of export_db,
-              and no-op fileutil (e.g. ExportDBInMemory and FileUtilNoOp)
-            """
+    Returns: ExportResults namedtuple with fields: exported, new, updated, skipped
+                where each field is a list of file paths
+
+    Note: to use dry run mode, you must set dry_run=True and also pass in memory version of export_db,
+          and no-op fileutil (e.g. ExportDBInMemory and FileUtilNoOp)
+    """
 
     # NOTE: This function is very complex and does a lot of things.
     # Don't modify this code if you don't fully understand everything it does.
@@ -956,12 +957,12 @@ def _export_photo(
     edited=False,
     jpeg_quality=1.0,
 ):
-    """ Helper function for export()
-        Does the actual copy or hardlink taking the appropriate 
+    """Helper function for export()
+        Does the actual copy or hardlink taking the appropriate
         action depending on update, overwrite, export_as_hardlink
         Assumes destination is the right destination (e.g. UUID matches)
         sets UUID and JSON info foo exported file using set_uuid_for_file, set_inf_for_uuido
-    
+
     Args:
         src: src path (string)
         dest: dest path (pathlib.Path)
@@ -1125,10 +1126,10 @@ def _write_exif_data(
     description_template=None,
     ignore_date_modified=False,
 ):
-    """ write exif data to image file at filepath
+    """write exif data to image file at filepath
 
     Args:
-        filepath: full path to the image file 
+        filepath: full path to the image file
         use_albums_as_keywords: treat album names as keywords
         use_persons_as_keywords: treat person names as keywords
         keyword_template: (list of strings); list of template strings to render as keywords
@@ -1146,9 +1147,7 @@ def _write_exif_data(
 
     with ExifTool(filepath) as exiftool:
         for exiftag, val in exif_info.items():
-            if exiftag == "_CreatedBy":
-                continue
-            elif type(val) == list:
+            if type(val) == list:
                 for v in val:
                     exiftool.setvalue(exiftag, v)
             else:
@@ -1163,7 +1162,7 @@ def _exiftool_dict(
     description_template=None,
     ignore_date_modified=False,
 ):
-    """ Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
+    """Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
         Does not include all the EXIF fields as those are likely already in the image.
 
     Args:
@@ -1176,12 +1175,12 @@ def _exiftool_dict(
     Returns: dict with exiftool tags / values
 
     Exports the following:
-        EXIF:ImageDescription
+        EXIF:ImageDescription (may include template)
         XMP:Description (may include template)
         XMP:Title
-        XMP:TagsList
+        XMP:TagsList (may include album name, person name, or template)
         IPTC:Keywords (may include album name, person name, or template)
-        XMP:Subject
+        XMP:Subject (set to keywords + persons)
         XMP:PersonInImage
         EXIF:GPSLatitudeRef, EXIF:GPSLongitudeRef
         EXIF:GPSLatitude, EXIF:GPSLongitude
@@ -1191,10 +1190,13 @@ def _exiftool_dict(
         EXIF:ModifyDate
         IPTC:DateCreated
         IPTC:TimeCreated
+        QuickTime:CreationDate (UTC)
+        QuickTime:ModifyDate (UTC)
+        QuickTime:GPSCoordinates
+        UserData:GPSCoordinates
     """
 
     exif = {}
-    exif["_CreatedBy"] = "osxphotos, https://github.com/RhetTbull/osxphotos"
     if description_template is not None:
         description = self.render_template(
             description_template, expand_inplace=True, inplace_sep=", "
@@ -1272,12 +1274,16 @@ def _exiftool_dict(
 
     (lat, lon) = self.location
     if lat is not None and lon is not None:
-        exif["EXIF:GPSLatitude"] = lat
-        exif["EXIF:GPSLongitude"] = lon
-        lat_ref = "N" if lat >= 0 else "S"
-        lon_ref = "E" if lon >= 0 else "W"
-        exif["EXIF:GPSLatitudeRef"] = lat_ref
-        exif["EXIF:GPSLongitudeRef"] = lon_ref
+        if self.isphoto:
+            exif["EXIF:GPSLatitude"] = lat
+            exif["EXIF:GPSLongitude"] = lon
+            lat_ref = "N" if lat >= 0 else "S"
+            lon_ref = "E" if lon >= 0 else "W"
+            exif["EXIF:GPSLatitudeRef"] = lat_ref
+            exif["EXIF:GPSLongitudeRef"] = lon_ref
+        elif self.ismovie:
+            exif["Keys:GPSCoordinates"] = f"{lat} {lon}"
+            exif["UserData:GPSCoordinates"] = f"{lat} {lon}"
 
     # process date/time and timezone offset
     # Photos exports the following fields and sets modify date to creation date
@@ -1289,30 +1295,45 @@ def _exiftool_dict(
     #
     # This code deviates from Photos in one regard:
     # if photo has modification date, use it otherwise use creation date
-    date = self.date
 
-    # exiftool expects format to "2015:01:18 12:00:00"
-    datetimeoriginal = date.strftime("%Y:%m:%d %H:%M:%S")
-    exif["EXIF:DateTimeOriginal"] = datetimeoriginal
-    exif["EXIF:CreateDate"] = datetimeoriginal
+    if self.isphoto:
+        date = self.date
+        # exiftool expects format to "2015:01:18 12:00:00"
+        datetimeoriginal = date.strftime("%Y:%m:%d %H:%M:%S")
 
-    offsettime = date.strftime("%z")
-    # find timezone offset in format "-04:00"
-    offset = re.findall(r"([+-]?)([\d]{2})([\d]{2})", offsettime)
-    offset = offset[0]  # findall returns list of tuples
-    offsettime = f"{offset[0]}{offset[1]}:{offset[2]}"
-    exif["EXIF:OffsetTimeOriginal"] = offsettime
+        exif["EXIF:DateTimeOriginal"] = datetimeoriginal
+        exif["EXIF:CreateDate"] = datetimeoriginal
 
-    dateoriginal = date.strftime("%Y:%m:%d")
-    exif["IPTC:DateCreated"] = dateoriginal
+        offsettime = date.strftime("%z")
+        # find timezone offset in format "-04:00"
+        offset = re.findall(r"([+-]?)([\d]{2})([\d]{2})", offsettime)
+        offset = offset[0]  # findall returns list of tuples
+        offsettime = f"{offset[0]}{offset[1]}:{offset[2]}"
+        exif["EXIF:OffsetTimeOriginal"] = offsettime
 
-    timeoriginal = date.strftime(f"%H:%M:%S{offsettime}")
-    exif["IPTC:TimeCreated"] = timeoriginal
+        dateoriginal = date.strftime("%Y:%m:%d")
+        exif["IPTC:DateCreated"] = dateoriginal
 
-    if self.date_modified is not None and not ignore_date_modified:
-        exif["EXIF:ModifyDate"] = self.date_modified.strftime("%Y:%m:%d %H:%M:%S")
-    else:
-        exif["EXIF:ModifyDate"] = self.date.strftime("%Y:%m:%d %H:%M:%S")
+        timeoriginal = date.strftime(f"%H:%M:%S{offsettime}")
+        exif["IPTC:TimeCreated"] = timeoriginal
+
+        if self.date_modified is not None and not ignore_date_modified:
+            exif["EXIF:ModifyDate"] = self.date_modified.strftime("%Y:%m:%d %H:%M:%S")
+        else:
+            exif["EXIF:ModifyDate"] = self.date.strftime("%Y:%m:%d %H:%M:%S")
+    elif self.ismovie:
+        # QuickTime spec specifies times in UTC
+        # reference: https://exiftool.org/TagNames/QuickTime.html#Keys
+        date_utc = datetime_tz_to_utc(self.date)
+        creationdate = date_utc.strftime("%Y:%m:%d %H:%M:%S")
+        exif["QuickTime:CreationDate"] = creationdate
+        exif["QuickTime:CreateDate"] = creationdate
+        if self.date_modified is not None and not ignore_date_modified:
+            exif["QuickTime:ModifyDate"] = datetime_tz_to_utc(
+                self.date_modified
+            ).strftime("%Y:%m:%d %H:%M:%S")
+        else:
+            exif["QuickTime:ModifyDate"] = creationdate
 
     return exif
 
@@ -1325,7 +1346,7 @@ def _exiftool_json_sidecar(
     description_template=None,
     ignore_date_modified=False,
 ):
-    """ Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
+    """Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
         Does not include all the EXIF fields as those are likely already in the image.
 
     Args:
@@ -1343,7 +1364,7 @@ def _exiftool_json_sidecar(
         XMP:Title
         XMP:TagsList
         IPTC:Keywords (may include album name, person name, or template)
-        XMP:Subject
+        XMP:Subject (set to keywords + person)
         XMP:PersonInImage
         EXIF:GPSLatitudeRef, EXIF:GPSLongitudeRef
         EXIF:GPSLatitude, EXIF:GPSLongitude
@@ -1353,6 +1374,10 @@ def _exiftool_json_sidecar(
         EXIF:ModifyDate
         IPTC:DigitalCreationDate
         IPTC:DateCreated
+        QuickTime:CreationDate (UTC)
+        QuickTime:ModifyDate (UTC)
+        QuickTime:GPSCoordinates
+        UserData:GPSCoordinates
     """
     exif = self._exiftool_dict(
         use_albums_as_keywords=use_albums_as_keywords,
@@ -1372,11 +1397,11 @@ def _xmp_sidecar(
     description_template=None,
     extension=None,
 ):
-    """ returns string for XMP sidecar 
-        use_albums_as_keywords: treat album names as keywords
-        use_persons_as_keywords: treat person names as keywords
-        keyword_template: (list of strings); list of template strings to render as keywords 
-        description_template: string; optional template string that will be rendered for use as photo description """
+    """returns string for XMP sidecar
+    use_albums_as_keywords: treat album names as keywords
+    use_persons_as_keywords: treat person names as keywords
+    keyword_template: (list of strings); list of template strings to render as keywords
+    description_template: string; optional template string that will be rendered for use as photo description"""
 
     xmp_template = Template(filename=os.path.join(_TEMPLATE_DIR, _XMP_TEMPLATE_NAME))
 
@@ -1461,8 +1486,8 @@ def _xmp_sidecar(
 
 
 def _write_sidecar(self, filename, sidecar_str):
-    """ write sidecar_str to filename
-        used for exporting sidecar info """
+    """write sidecar_str to filename
+    used for exporting sidecar info"""
     if not (filename or sidecar_str):
         raise (
             ValueError(

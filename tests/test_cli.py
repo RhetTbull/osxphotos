@@ -336,6 +336,31 @@ CLI_EXIFTOOL = {
     }
 }
 
+CLI_EXIFTOOL_QUICKTIME = {
+    "35329C57-B963-48D6-BB75-6AFF9370CBBC": {
+        "File:FileName": "Jellyfish.MOV",
+        "XMP:Description": "Jellyfish Video",
+        "XMP:Title": "Jellyfish",
+        "XMP:TagsList": "Travel",
+        "XMP:Subject": "Travel",
+        "QuickTime:GPSCoordinates": "34.053345 -118.242349",
+        "QuickTime:CreationDate": "2020:01:05 22:13:13",
+        "QuickTime:CreateDate": "2020:01:05 22:13:13",
+        "QuickTime:ModifyDate": "2020:01:05 22:13:13",
+    },
+    "2CE332F2-D578-4769-AEFA-7631BB77AA41": {
+        "File:FileName": "Jellyfish.mp4",
+        "XMP:Description": "Jellyfish Video",
+        "XMP:Title": "Jellyfish",
+        "XMP:TagsList": "Travel",
+        "XMP:Subject": "Travel",
+        "QuickTime:GPSCoordinates": "34.053345 -118.242349",
+        "QuickTime:CreationDate": "2020:12:05 05:21:52",
+        "QuickTime:CreateDate": "2020:12:05 05:21:52",
+        "QuickTime:ModifyDate": "2020:12:05 05:21:52",
+    },
+}
+
 CLI_EXIFTOOL_IGNORE_DATE_MODIFIED = {
     "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51": {
         "File:FileName": "wedding.jpg",
@@ -993,6 +1018,46 @@ def test_export_exiftool_ignore_date_modified():
             ).asdict()
             for key in CLI_EXIFTOOL_IGNORE_DATE_MODIFIED[uuid]:
                 assert exif[key] == CLI_EXIFTOOL_IGNORE_DATE_MODIFIED[uuid][key]
+
+
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+def test_export_exiftool_quicktime():
+    """ test --exiftol correctly writes QuickTime tags """
+    import glob
+    import os
+    import os.path
+    from osxphotos.__main__ import export
+    from osxphotos.exiftool import ExifTool
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        for uuid in CLI_EXIFTOOL_QUICKTIME:
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--exiftool",
+                    "--uuid",
+                    f"{uuid}",
+                ],
+            )
+            assert result.exit_code == 0
+            files = glob.glob("*")
+            assert sorted(files) == sorted(
+                [CLI_EXIFTOOL_QUICKTIME[uuid]["File:FileName"]]
+            )
+
+            exif = ExifTool(CLI_EXIFTOOL_QUICKTIME[uuid]["File:FileName"]).asdict()
+            for key in CLI_EXIFTOOL_QUICKTIME[uuid]:
+                assert exif[key] == CLI_EXIFTOOL_QUICKTIME[uuid][key]
+            
+            # clean up exported files to avoid name conflicts
+            for filename in files:
+                os.unlink(filename)
 
 
 def test_export_edited_suffix():
@@ -2859,8 +2924,7 @@ def test_export_sidecar_keyword_template():
 
         json_expected = json.loads(
             """
-            [{"_CreatedBy": "osxphotos, https://github.com/RhetTbull/osxphotos", 
-            "EXIF:ImageDescription": "Girl holding pumpkin", 
+            [{"EXIF:ImageDescription": "Girl holding pumpkin", 
             "XMP:Description": "Girl holding pumpkin", 
             "XMP:Title": "I found one!", 
             "XMP:TagsList": ["Kids", "Multi Keyword", "Pumpkin Farm", "Test Album"], 
