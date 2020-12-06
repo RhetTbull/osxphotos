@@ -73,6 +73,18 @@ def test_unlink_file():
     assert not os.path.isfile(dest)
 
 
+def test_rmdir():
+    import os.path
+    import tempfile
+    from osxphotos.fileutil import FileUtil
+
+    temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    dir_name = temp_dir.name
+    assert os.path.isdir(dir_name)
+    FileUtil.rmdir(dir_name)
+    assert not os.path.isdir(dir_name)
+
+
 @pytest.mark.skipif(
     "OSXPHOTOS_TEST_CONVERT" not in os.environ,
     reason="Skip if running in Github actions, no GPU.",
@@ -89,6 +101,7 @@ def test_convert_to_jpeg():
         outfile = pathlib.Path(temp_dir.name) / f"{imgfile.stem}.jpeg"
         assert FileUtil.convert_to_jpeg(imgfile, outfile)
         assert outfile.is_file()
+
 
 @pytest.mark.skipif(
     "OSXPHOTOS_TEST_CONVERT" not in os.environ,

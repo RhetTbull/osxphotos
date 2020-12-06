@@ -1436,6 +1436,12 @@ def query(
     help="Write a CSV formatted report of all files that were exported.",
     type=click.Path(),
 )
+@click.option(
+    "--cleanup",
+    is_flag=True,
+    help="Cleanup export directory by deleting any files which were not included in this export set. "
+    "For example, photos which had previously been exported and were subsequently deleted in Photos.",
+)
 @DB_ARGUMENT
 @click.argument("dest", nargs=1, type=click.Path(exists=True))
 @click.pass_obj
@@ -1530,6 +1536,7 @@ def export(
     use_photos_export,
     use_photokit,
     report,
+    cleanup,
 ):
     """Export photos from the Photos database.
     Export path DEST is required.
@@ -1549,6 +1556,8 @@ def export(
     if not os.path.isdir(dest):
         click.echo(f"DEST {dest} must be valid path", err=True)
         raise click.Abort()
+
+    dest = str(pathlib.Path(dest).resolve())
 
     if report and os.path.isdir(report):
         click.echo(f"report is a directory, must be file name", err=True)
@@ -1579,6 +1588,7 @@ def export(
         (shared, not_shared),
         (has_comment, no_comment),
         (has_likes, no_likes),
+        (export_as_hardlink, cleanup),
     ]
     if any(all(bb) for bb in exclusive):
         click.echo("Incompatible export options", err=True)
@@ -1890,7 +1900,6 @@ def export(
                     results_missing.extend(results.missing)
                     results_error.extend(results.error)
 
-        stop_time = time.perf_counter()
         # print summary results
         # print(f"results_exported: {results_exported}")
         # print(f"results_new: {results_new}")
@@ -1899,10 +1908,35 @@ def export(
         # print(f"results_exif_updated: {results_exif_updated}")
         # print(f"results_touched: {results_touched}")
         # print(f"results_converted: {results_converted}")
-        # print(f"results_sidecar_json: {results_sidecar_json}")
-        # print(f"results_sidecar_xmp: {results_sidecar_xmp}")
+        # print(f"results_sidecar_json_written: {results_sidecar_json_written}")
+        # print(f"results_sidecar_json_skipped: {results_sidecar_json_skipped}")
+        # print(f"results_sidecar_xmp_written: {results_sidecar_xmp_written}")
+        # print(f"results_sidecar_xmp_skipped: {results_sidecar_xmp_skipped}")
         # print(f"results_missing: {results_missing}")
         # print(f"results_error: {results_error}")
+
+        if cleanup:
+            all_files = (
+                results_exported
+                + results_skipped
+                + results_exif_updated
+                + results_touched
+                + results_converted
+                + results_sidecar_json_written
+                + results_sidecar_json_skipped
+                + results_sidecar_xmp_written
+                + results_sidecar_xmp_skipped
+                # include missing so a file that was already in export directory
+                # but was missing on --update doesn't get deleted
+                # (better to have old version than none)
+                + results_missing
+                + [str(pathlib.Path(export_db_path).resolve())]
+            )
+            click.echo(f"Cleaning up {dest}")
+            (cleaned_files, cleaned_dirs) = cleanup_files(dest, all_files, fileutil)
+            file_str = "files" if cleaned_files != 1 else "file"
+            dir_str = "directories" if cleaned_dirs != 1 else "directory"
+            click.echo(f"Deleted: {cleaned_files} {file_str}, {cleaned_dirs} {dir_str}")
 
         if report:
             verbose(f"Writing export report to {report}")
@@ -1942,6 +1976,7 @@ def export(
         if touch_file:
             summary += f", touched date: {len(results_touched)}"
         click.echo(summary)
+        stop_time = time.perf_counter()
         click.echo(f"Elapsed time: {(stop_time-start_time):.3f} seconds")
     else:
         click.echo("Did not find any photos to export")
@@ -2465,68 +2500,6 @@ def export_photo(
     global VERBOSE
     VERBOSE = bool(verbose_)
 
-    # TODO: if --skip-original-if-edited, it's possible edited version is on disk but
-    # original is missing, in which case we should download the edited version
-    if not download_missing:
-        if photo.ismissing:
-            space = " " if not verbose_ else ""
-            verbose(f"{space}Skipping missing photo {photo.original_filename}")
-            return ExportResults(
-                exported=[],
-                new=[],
-                updated=[],
-                skipped=[],
-                exif_updated=[],
-                touched=[],
-                converted_to_jpeg=[],
-                sidecar_json_written=[],
-                sidecar_json_skipped=[],
-                sidecar_xmp_written=[],
-                sidecar_xmp_skipped=[],
-                missing=[f"{photo.original_filename} ({photo.uuid})"],
-                error=[],
-            )
-        elif photo.path is None:
-            space = " " if not verbose_ else ""
-            verbose(
-                f"{space}WARNING: photo {photo.original_filename} ({photo.uuid}) is missing but ismissing=False, "
-                f"skipping {photo.original_filename}"
-            )
-            return ExportResults(
-                exported=[],
-                new=[],
-                updated=[],
-                skipped=[],
-                exif_updated=[],
-                touched=[],
-                converted_to_jpeg=[],
-                sidecar_json_written=[],
-                sidecar_json_skipped=[],
-                sidecar_xmp_written=[],
-                sidecar_xmp_skipped=[],
-                missing=[f"{photo.original_filename} ({photo.uuid})"],
-                error=[],
-            )
-    elif photo.ismissing and not photo.iscloudasset and not photo.incloud:
-        verbose(
-            f"Skipping missing {photo.original_filename}: not iCloud asset or missing from cloud"
-        )
-        return ExportResults(
-            exported=[],
-            new=[],
-            updated=[],
-            skipped=[],
-            exif_updated=[],
-            touched=[],
-            converted_to_jpeg=[],
-            sidecar_json_written=[],
-            sidecar_json_skipped=[],
-            sidecar_xmp_written=[],
-            sidecar_xmp_skipped=[],
-            missing=[f"{photo.original_filename} ({photo.uuid})"],
-            error=[],
-        )
-
     results_exported = []
     results_new = []
     results_updated = []
@@ -2539,6 +2512,7 @@ def export_photo(
     results_sidecar_xmp_written = []
     results_sidecar_xmp_skipped = []
     results_error = []
+    results_missing = []
 
     export_original = not (skip_original_if_edited and photo.hasadjustments)
 
@@ -2557,6 +2531,29 @@ def export_photo(
             verbose(
                 f"Edited file for {photo.original_filename} is missing, exporting original"
             )
+
+    # check for missing photos before downloading
+    missing_original = False
+    missing_edited = False
+    if download_missing:
+        if (
+            (photo.ismissing or photo.path is None)
+            and not photo.iscloudasset
+            and not photo.incloud
+        ):
+            missing_original = True
+        if (
+            photo.hasadjustments
+            and photo.path_edited is None
+            and not photo.iscloudasset
+            and not photo.incloud
+        ):
+            missing_edited = True
+    else:
+        if photo.ismissing or photo.path is None:
+            missing_original = True
+        if photo.hasadjustments and photo.path_edited is None:
+            missing_edited = True
 
     filenames = get_filenames_from_template(photo, filename_template, original_name)
     for filename in filenames:
@@ -2598,73 +2595,73 @@ def export_photo(
 
         # export the photo to each path in dest_paths
         for dest_path in dest_paths:
+            # TODO: if --skip-original-if-edited, it's possible edited version is on disk but
+            # original is missing, in which case we should download the edited version
             if export_original:
-                try:
-                    export_results = photo.export2(
-                        dest_path,
-                        original_filename,
-                        sidecar_json=sidecar_json,
-                        sidecar_xmp=sidecar_xmp,
-                        live_photo=export_live,
-                        raw_photo=export_raw,
-                        export_as_hardlink=export_as_hardlink,
-                        overwrite=overwrite,
-                        use_photos_export=use_photos_export,
-                        exiftool=exiftool,
-                        no_xattr=no_extended_attributes,
-                        use_albums_as_keywords=album_keyword,
-                        use_persons_as_keywords=person_keyword,
-                        keyword_template=keyword_template,
-                        description_template=description_template,
-                        update=update,
-                        export_db=export_db,
-                        fileutil=fileutil,
-                        dry_run=dry_run,
-                        touch_file=touch_file,
-                        convert_to_jpeg=convert_to_jpeg,
-                        jpeg_quality=jpeg_quality,
-                        ignore_date_modified=ignore_date_modified,
-                        use_photokit=use_photokit,
-                        verbose=verbose,
+                if missing_original:
+                    space = " " if not verbose_ else ""
+                    verbose(f"{space}Skipping missing photo {photo.original_filename}")
+                    results_missing.append(
+                        str(pathlib.Path(dest_path) / original_filename)
                     )
+                else:
+                    try:
+                        export_results = photo.export2(
+                            dest_path,
+                            original_filename,
+                            sidecar_json=sidecar_json,
+                            sidecar_xmp=sidecar_xmp,
+                            live_photo=export_live,
+                            raw_photo=export_raw,
+                            export_as_hardlink=export_as_hardlink,
+                            overwrite=overwrite,
+                            use_photos_export=use_photos_export,
+                            exiftool=exiftool,
+                            no_xattr=no_extended_attributes,
+                            use_albums_as_keywords=album_keyword,
+                            use_persons_as_keywords=person_keyword,
+                            keyword_template=keyword_template,
+                            description_template=description_template,
+                            update=update,
+                            export_db=export_db,
+                            fileutil=fileutil,
+                            dry_run=dry_run,
+                            touch_file=touch_file,
+                            convert_to_jpeg=convert_to_jpeg,
+                            jpeg_quality=jpeg_quality,
+                            ignore_date_modified=ignore_date_modified,
+                            use_photokit=use_photokit,
+                            verbose=verbose,
+                        )
 
-                    results_exported.extend(export_results.exported)
-                    results_new.extend(export_results.new)
-                    results_updated.extend(export_results.updated)
-                    results_skipped.extend(export_results.skipped)
-                    results_exif_updated.extend(export_results.exif_updated)
-                    results_touched.extend(export_results.touched)
-                    results_converted.extend(export_results.converted_to_jpeg)
-                    results_sidecar_json_written.extend(
-                        export_results.sidecar_json_written
-                    )
-                    results_sidecar_json_skipped.extend(
-                        export_results.sidecar_json_skipped
-                    )
-                    results_sidecar_xmp_written.extend(
-                        export_results.sidecar_xmp_written
-                    )
-                    results_sidecar_xmp_skipped.extend(
-                        export_results.sidecar_xmp_skipped
-                    )
+                        results_exported.extend(export_results.exported)
+                        results_new.extend(export_results.new)
+                        results_updated.extend(export_results.updated)
+                        results_skipped.extend(export_results.skipped)
+                        results_exif_updated.extend(export_results.exif_updated)
+                        results_touched.extend(export_results.touched)
+                        results_converted.extend(export_results.converted_to_jpeg)
+                        results_sidecar_json_written.extend(
+                            export_results.sidecar_json_written
+                        )
+                        results_sidecar_json_skipped.extend(
+                            export_results.sidecar_json_skipped
+                        )
+                        results_sidecar_xmp_written.extend(
+                            export_results.sidecar_xmp_written
+                        )
+                        results_sidecar_xmp_skipped.extend(
+                            export_results.sidecar_xmp_skipped
+                        )
 
-                    if verbose_:
-                        for exported in export_results.exported:
-                            verbose(f"Exported {exported}")
-                        for new in export_results.new:
-                            verbose(f"Exported new file {new}")
-                        for updated in export_results.updated:
-                            verbose(f"Exported updated file {updated}")
-                        for skipped in export_results.skipped:
-                            verbose(f"Skipped up to date file {skipped}")
-                        for touched in export_results.touched:
-                            verbose(f"Touched date on file {touched}")
-                except Exception:
-                    click.echo(
-                        f"Error exporting photo {photo.original_filename} ({photo.filename}) as {original_filename}",
-                        err=True,
-                    )
-                    results_error.extend(dest)
+                    except Exception:
+                        click.echo(
+                            f"Error exporting photo {photo.original_filename} ({photo.filename}) as {original_filename}",
+                            err=True,
+                        )
+                        results_error.extend(
+                            str(pathlib.Path(dest) / original_filename)
+                        )
             else:
                 verbose(f"Skipping original version of {photo.original_filename}")
 
@@ -2673,23 +2670,26 @@ def export_photo(
             if export_edited and photo.hasadjustments:
                 # if download_missing and the photo is missing or path doesn't exist,
                 # try to download with Photos
-                if not download_missing and photo.path_edited is None:
-                    verbose(f"Skipping missing edited photo for {filename}")
+
+                edited_filename = pathlib.Path(filename)
+                # check for correct edited suffix
+                if photo.path_edited is not None:
+                    edited_ext = pathlib.Path(photo.path_edited).suffix
                 else:
-                    edited_filename = pathlib.Path(filename)
-                    # check for correct edited suffix
-                    if photo.path_edited is not None:
-                        edited_ext = pathlib.Path(photo.path_edited).suffix
-                    else:
-                        # use filename suffix which might be wrong,
-                        # will be corrected by use_photos_export
-                        edited_ext = pathlib.Path(photo.filename).suffix
-                    edited_filename = (
-                        f"{edited_filename.stem}{edited_suffix}{edited_ext}"
+                    # use filename suffix which might be wrong,
+                    # will be corrected by use_photos_export
+                    edited_ext = pathlib.Path(photo.filename).suffix
+                edited_filename = f"{edited_filename.stem}{edited_suffix}{edited_ext}"
+                verbose(
+                    f"Exporting edited version of {photo.original_filename} ({photo.filename}) as {edited_filename}"
+                )
+                if missing_edited:
+                    space = " " if not verbose_ else ""
+                    verbose(f"{space}Skipping missing edited photo for {filename}")
+                    results_missing.append(
+                        str(pathlib.Path(dest_path) / edited_filename)
                     )
-                    verbose(
-                        f"Exporting edited version of {photo.original_filename} ({photo.filename}) as {edited_filename}"
-                    )
+                else:
                     try:
                         export_results_edited = photo.export2(
                             dest_path,
@@ -2740,23 +2740,26 @@ def export_photo(
                             export_results_edited.sidecar_xmp_skipped
                         )
 
-                        if verbose_:
-                            for exported in export_results_edited.exported:
-                                verbose(f"Exported {exported}")
-                            for new in export_results_edited.new:
-                                verbose(f"Exported new file {new}")
-                            for updated in export_results_edited.updated:
-                                verbose(f"Exported updated file {updated}")
-                            for skipped in export_results_edited.skipped:
-                                verbose(f"Skipped up to date file {skipped}")
-                            for touched in export_results_edited.touched:
-                                verbose(f"Touched date on file {touched}")
                     except Exception:
                         click.echo(
                             f"Error exporting photo {filename} as {edited_filename}",
                             err=True,
                         )
-                        results_error.extend(dest)
+                        results_error.extend(str(pathlib.Path(dest) / edited_filename))
+
+            if verbose_:
+                if update:
+                    for new in results_new:
+                        verbose(f"Exported new file {new}")
+                    for updated in results_updated:
+                        verbose(f"Exported updated file {updated}")
+                    for skipped in results_skipped:
+                        verbose(f"Skipped up to date file {skipped}")
+                else:
+                    for exported in results_exported:
+                        verbose(f"Exported {exported}")
+                for touched in results_touched:
+                    verbose(f"Touched date on file {touched}")
 
     return ExportResults(
         exported=results_exported,
@@ -2770,7 +2773,7 @@ def export_photo(
         sidecar_json_skipped=results_sidecar_json_skipped,
         sidecar_xmp_written=results_sidecar_xmp_written,
         sidecar_xmp_skipped=results_sidecar_xmp_skipped,
-        missing=[],
+        missing=results_missing,
         error=results_error,
     )
 
@@ -3041,6 +3044,41 @@ def write_export_report(
     except IOError:
         click.echo("Could not open output file for writing", err=True)
         raise click.Abort()
+
+
+def cleanup_files(dest_path, files_to_keep, fileutil):
+    """ cleanup dest_path by deleting and files and empty directories 
+        not in files_to_keep
+
+    Args:
+        dest_path: path to directory to clean
+        files_to_keep: list of full file paths to keep (not delete)
+        fileutile: FileUtil object
+
+    Returns:
+        tuple of (number of files deleted, number of directories deleted)
+    """
+    keepers = {filename.lower(): 1 for filename in files_to_keep}
+
+    deleted_files = 0
+    for p in pathlib.Path(dest_path).rglob("*"):
+        path = str(p).lower()
+        if p.is_file() and path not in keepers:
+            verbose(f"Deleting {p}")
+            fileutil.unlink(p)
+            deleted_files += 1
+
+    # delete empty directories
+    deleted_dirs = 0
+    for p in pathlib.Path(dest_path).rglob("*"):
+        path = str(p).lower()
+        # if directory and directory is empty
+        if p.is_dir() and not next(p.iterdir(), False):
+            verbose(f"Deleting empty directory {p}")
+            fileutil.rmdir(p)
+            deleted_dirs += 1
+
+    return (deleted_files, deleted_dirs)
 
 
 if __name__ == "__main__":

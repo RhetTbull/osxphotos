@@ -119,12 +119,12 @@ Example: `osxphotos help export`
 Usage: osxphotos export [OPTIONS] [PHOTOS_LIBRARY]... DEST
 
   Export photos from the Photos database. Export path DEST is required.
-  Optionally, query the Photos database using 1 or more search options;  if
-  more than one option is provided, they are treated as "AND"  (e.g. search
+  Optionally, query the Photos database using 1 or more search options; if
+  more than one option is provided, they are treated as "AND" (e.g. search
   for photos matching all options). If no query options are provided, all
   photos will be exported. By default, all versions of all photos will be
   exported including edited versions, live photo movies, burst photos, and
-  associated raw images.  See --skip-edited, --skip-live, --skip-bursts, and
+  associated raw images. See --skip-edited, --skip-live, --skip-bursts, and
   --skip-raw options to modify this behavior.
 
 Options:
@@ -265,6 +265,79 @@ Options:
                                   photos if the raw photo does not have an
                                   associated jpeg image (e.g. the raw file was
                                   imported to Photos without a jpeg preview).
+  --current-name                  Use photo's current filename instead of
+                                  original filename for export.  Note:
+                                  Starting with Photos 5, all photos are
+                                  renamed upon import.  By default, photos are
+                                  exported with the the original name they had
+                                  before import.
+  --convert-to-jpeg               Convert all non-jpeg images (e.g. raw, HEIC,
+                                  PNG, etc) to JPEG upon export.  Only works
+                                  if your Mac has a GPU.
+  --jpeg-quality FLOAT RANGE      Value in range 0.0 to 1.0 to use with
+                                  --convert-to-jpeg. A value of 1.0 specifies
+                                  best quality, a value of 0.0 specifies
+                                  maximum compression. Defaults to 1.0.
+  --download-missing              Attempt to download missing photos from
+                                  iCloud. The current implementation uses
+                                  Applescript to interact with Photos to
+                                  export the photo which will force Photos to
+                                  download from iCloud if the photo does not
+                                  exist on disk.  This will be slow and will
+                                  require internet connection. This obviously
+                                  only works if the Photos library is synched
+                                  to iCloud.  Note: --download-missing does
+                                  not currently export all burst images; only
+                                  the primary photo will be exported--
+                                  associated burst images will be skipped.
+  --sidecar FORMAT                Create sidecar for each photo exported;
+                                  valid FORMAT values: xmp, json; --sidecar
+                                  json: create JSON sidecar useable by
+                                  exiftool (https://exiftool.org/) The sidecar
+                                  file can be used to apply metadata to the
+                                  file with exiftool, for example: "exiftool
+                                  -j=photoname.jpg.json photoname.jpg" The
+                                  sidecar file is named in format
+                                  photoname.ext.json  --sidecar xmp: create
+                                  XMP sidecar used by Adobe Lightroom, etc.The
+                                  sidecar file is named in format
+                                  photoname.ext.xmpThe XMP sidecar exports the
+                                  following tags: Description, Title,
+                                  Keywords/Tags, Subject (set to Keywords +
+                                  PersonInImage), PersonInImage, CreateDate,
+                                  ModifyDate, GPSLongitude. For a list of tags
+                                  exported in the JSON sidecar, see
+                                  --exiftool.
+  --exiftool                      Use exiftool to write metadata directly to
+                                  exported photos. To use this option,
+                                  exiftool must be installed and in the path.
+                                  exiftool may be installed from
+                                  https://exiftool.org/.  Cannot be used with
+                                  --export-as-hardlink.  Writes the following
+                                  metadata: EXIF:ImageDescription,
+                                  XMP:Description (see also --description-
+                                  template); XMP:Title; XMP:TagsList,
+                                  IPTC:Keywords (see also --keyword-template,
+                                  --person-keyword, --album-keyword);
+                                  XMP:Subject (set to keywords + person in
+                                  image to mirror Photos' behavior);
+                                  XMP:PersonInImage; EXIF:GPSLatitudeRef;
+                                  EXIF:GPSLongitudeRef; EXIF:GPSLatitude;
+                                  EXIF:GPSLongitude; EXIF:GPSPosition;
+                                  EXIF:DateTimeOriginal;
+                                  EXIF:OffsetTimeOriginal; EXIF:ModifyDate
+                                  (see --ignore-date-modified);
+                                  IPTC:DateCreated; IPTC:TimeCreated; (video
+                                  files only): QuickTime:CreationDate (UTC);
+                                  QuickTime:ModifyDate (UTC) (see also
+                                  --ignore-date-modified);
+                                  QuickTime:GPSCoordinates;
+                                  UserData:GPSCoordinates.
+  --ignore-date-modified          If used with --exiftool or --sidecar, will
+                                  ignore the photo modification date and set
+                                  EXIF:ModifyDate to EXIF:DateTimeOriginal;
+                                  this is consistent with how Photos handles
+                                  the EXIF:ModifyDate tag.
   --person-keyword                Use person in image as keyword/tag when
                                   exporting metadata.
   --album-keyword                 Use album name as keyword/tag when exporting
@@ -291,53 +364,6 @@ Options:
                                   could specify --description-template
                                   "{descr} exported with osxphotos on
                                   {today.date}" See Templating System below.
-  --current-name                  Use photo's current filename instead of
-                                  original filename for export.  Note:
-                                  Starting with Photos 5, all photos are
-                                  renamed upon import.  By default, photos are
-                                  exported with the the original name they had
-                                  before import.
-  --convert-to-jpeg               Convert all non-jpeg images (e.g. raw, HEIC,
-                                  PNG, etc) to JPEG upon export.  Only works
-                                  if your Mac has a GPU.
-  --jpeg-quality FLOAT RANGE      Value in range 0.0 to 1.0 to use with
-                                  --convert-to-jpeg. A value of 1.0 specifies
-                                  best quality, a value of 0.0 specifies
-                                  maximum compression. Defaults to 1.0.
-  --sidecar FORMAT                Create sidecar for each photo exported;
-                                  valid FORMAT values: xmp, json; --sidecar
-                                  json: create JSON sidecar useable by
-                                  exiftool (https://exiftool.org/) The sidecar
-                                  file can be used to apply metadata to the
-                                  file with exiftool, for example: "exiftool
-                                  -j=photoname.json photoname.jpg" The sidecar
-                                  file is named in format photoname.json
-                                  --sidecar xmp: create XMP sidecar used by
-                                  Adobe Lightroom, etc.The sidecar file is
-                                  named in format photoname.xmp
-  --download-missing              Attempt to download missing photos from
-                                  iCloud. The current implementation uses
-                                  Applescript to interact with Photos to
-                                  export the photo which will force Photos to
-                                  download from iCloud if the photo does not
-                                  exist on disk.  This will be slow and will
-                                  require internet connection. This obviously
-                                  only works if the Photos library is synched
-                                  to iCloud.  Note: --download-missing does
-                                  not currently export all burst images; only
-                                  the primary photo will be exported--
-                                  associated burst images will be skipped.
-  --exiftool                      Use exiftool to write metadata directly to
-                                  exported photos. To use this option,
-                                  exiftool must be installed and in the path.
-                                  exiftool may be installed from
-                                  https://exiftool.org/.  Cannot be used with
-                                  --export-as-hardlink.
-  --ignore-date-modified          If used with --exiftool or --sidecar, will
-                                  ignore the photo modification date and set
-                                  EXIF:ModifyDate to EXIF:DateTimeOriginal;
-                                  this is consistent with how Photos handles
-                                  the EXIF:ModifyDate tag.
   --directory DIRECTORY           Optional template for specifying name of
                                   output directory in the form
                                   '{name,DEFAULT}'. See below for additional
@@ -379,6 +405,11 @@ Options:
                                   default AppleScript interface.
   --report REPORTNAME.CSV         Write a CSV formatted report of all files
                                   that were exported.
+  --cleanup                       Cleanup export directory by deleting any
+                                  files which were not included in this export
+                                  set. For example, photos which had
+                                  previously been exported and were
+                                  subsequently deleted in Photos.
   -h, --help                      Show this message and exit.
 
 ** Export **

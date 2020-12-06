@@ -3272,9 +3272,9 @@ def test_export_then_hardlink():
 
 def test_export_dry_run():
     """ test export with dry-run flag """
-    import glob
     import os
     import os.path
+    import re
     import osxphotos
     from osxphotos.__main__ import export
 
@@ -3288,7 +3288,7 @@ def test_export_dry_run():
         assert result.exit_code == 0
         assert "Processed: 7 photos, exported: 8, missing: 1, error: 0" in result.output
         for filepath in CLI_EXPORT_FILENAMES:
-            assert f"Exported {filepath}" in result.output
+            assert re.search(r"Exported.*" + f"{filepath}", result.output)
             assert not os.path.isfile(filepath)
 
 
@@ -3340,10 +3340,10 @@ def test_export_update_edits_dry_run():
 
 def test_export_directory_template_1_dry_run():
     """ test export using directory template with dry-run flag """
-    import glob
     import locale
     import os
     import os.path
+    import re
     import osxphotos
     from osxphotos.__main__ import export
 
@@ -3368,7 +3368,7 @@ def test_export_directory_template_1_dry_run():
         assert "exported: 8" in result.output
         workdir = os.getcwd()
         for filepath in CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES1:
-            assert f"Exported {filepath}" in result.output
+            assert re.search(r"Exported.*" + f"{filepath}", result.output)
             assert not os.path.isfile(os.path.join(workdir, filepath))
 
 
@@ -3914,3 +3914,73 @@ def test_export_missing_not_download_missing():
         )
         assert result.exit_code != 0
         assert "Aborted!" in result.output
+
+
+def test_export_cleanup():
+    """ test export with --cleanup flag """
+    import pathlib
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        assert result.exit_code == 0
+
+        # create 2 files and a directory
+        with open("delete_me.txt", "w") as fd:
+            fd.write("delete me!")
+        os.mkdir("./foo")
+        with open("foo/delete_me_too.txt", "w") as fd:
+            fd.write("delete me too!")
+
+        assert pathlib.Path("./delete_me.txt").is_file()
+        # run cleanup with dry-run
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--update",
+                "--cleanup",
+                "--dry-run",
+            ],
+        )
+        assert "Deleted: 2 files, 0 directories" in result.output
+        assert pathlib.Path("./delete_me.txt").is_file()
+        assert pathlib.Path("./foo/delete_me_too.txt").is_file()
+
+        # run cleanup without dry-run
+        result = runner.invoke(
+            export,
+            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--update", "--cleanup"],
+        )
+        assert "Deleted: 2 files, 1 directory" in result.output
+        assert not pathlib.Path("./delete_me.txt").is_file()
+        assert not pathlib.Path("./foo/delete_me_too.txt").is_file()
+
+
+def test_export_cleanup_export_as_hardling():
+    """ test export with incompatible option """
+    import os
+    import os.path
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--export-as-hardlink",
+                "--cleanup",
+            ],
+        )
+        assert "Incompatible export options" in result.output
+

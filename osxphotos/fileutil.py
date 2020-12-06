@@ -9,6 +9,7 @@ from abc import ABC, abstractmethod
 
 from .imageconverter import ImageConverter
 
+
 class FileUtilABC(ABC):
     """ Abstract base class for FileUtil """
 
@@ -25,6 +26,11 @@ class FileUtilABC(ABC):
     @classmethod
     @abstractmethod
     def unlink(cls, dest):
+        pass
+
+    @classmethod
+    @abstractmethod
+    def rmdir(cls, dest):
         pass
 
     @classmethod
@@ -115,6 +121,14 @@ class FileUtilMacOS(FileUtilABC):
             os.unlink(filepath)
 
     @classmethod
+    def rmdir(cls, dirpath):
+        """ remove directory filepath; dirpath must be empty """
+        if isinstance(dirpath, pathlib.Path):
+            dirpath.rmdir()
+        else:
+            os.rmdir(dirpath)
+
+    @classmethod
     def utime(cls, path, times):
         """ Set the access and modified time of path. """
         os.utime(path, times)
@@ -164,7 +178,7 @@ class FileUtilMacOS(FileUtilABC):
     def file_sig(cls, f1):
         """ return os.stat signature for file f1 """
         return cls._sig(os.stat(f1))
-    
+
     @classmethod
     def convert_to_jpeg(cls, src_file, dest_file, compression_quality=1.0):
         """ converts image file src_file to jpeg format as dest_file
@@ -178,7 +192,9 @@ class FileUtilMacOS(FileUtilABC):
                 True if success, otherwise False 
         """
         converter = ImageConverter()
-        return converter.write_jpeg(src_file, dest_file, compression_quality=compression_quality)
+        return converter.write_jpeg(
+            src_file, dest_file, compression_quality=compression_quality
+        )
 
     @staticmethod
     def _sig(st):
@@ -188,6 +204,7 @@ class FileUtilMacOS(FileUtilABC):
         """
         # use int(st.st_mtime) because ditto does not copy fractional portion of mtime
         return (stat.S_IFMT(st.st_mode), st.st_size, int(st.st_mtime))
+
 
 class FileUtil(FileUtilMacOS):
     """ Various file utilities """
@@ -227,6 +244,10 @@ class FileUtilNoOp(FileUtil):
     @classmethod
     def unlink(cls, dest):
         cls.verbose(f"unlink: {dest}")
+
+    @classmethod
+    def rmdir(cls, dest):
+        cls.verbose(f"rmdir: {dest}")
 
     @classmethod
     def utime(cls, path, times):
