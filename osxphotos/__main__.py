@@ -1588,7 +1588,6 @@ def export(
         (shared, not_shared),
         (has_comment, no_comment),
         (has_likes, no_likes),
-        (export_as_hardlink, cleanup),
     ]
     if any(all(bb) for bb in exclusive):
         click.echo("Incompatible export options", err=True)
