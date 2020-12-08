@@ -25,7 +25,11 @@ from ._constants import (
     UNICODE_FORMAT,
 )
 from ._version import __version__
-from .configoptions import ExportOptions, InvalidOptions
+from .configoptions import (
+    ConfigOptions,
+    ConfigOptionsInvalidError,
+    ConfigOptionsLoadError,
+)
 from .datetime_formatter import DateTimeFormatter
 from .exiftool import get_exiftool_path
 from .export_db import ExportDB, ExportDBInMemory
@@ -1572,12 +1576,15 @@ def export(
     See --skip-edited, --skip-live, --skip-bursts, and --skip-raw options
     to modify this behavior.
     """
- 
-    # NOTE: because of the way ExportOptions works, Click options must not 
+
+    # NOTE: because of the way ConfigOptions works, Click options must not
     # set defaults which are not None or False. If defaults need to be set
     # do so below after load_config and save_config are handled.
- 
-    cfg = ExportOptions(**locals())
+    cfg = ConfigOptions(
+        "export",
+        locals(),
+        ignore=["ctx", "cli_obj", "dest", "load_config", "save_config"],
+    )
 
     # print(jpeg_quality, edited_suffix, original_suffix)
 
@@ -1585,11 +1592,14 @@ def export(
     VERBOSE = bool(verbose)
 
     if load_config:
-        cfg, error = ExportOptions().load_from_file(load_config, cfg)
-        # print(cfg.asdict())
-        if error:
-            click.echo(f"Error parsing {load_config} config file: {error}", err=True)
+        try:
+            cfg.load_from_file(load_config)
+        except ConfigOptionsLoadError as e:
+            click.echo(
+                f"Error parsing {load_config} config file: {e.message}", err=True
+            )
             raise click.Abort()
+
         # re-set the local function vars to the corresponding config value
         # this isn't elegant but avoids having to rewrite this function to use cfg.varname for every parameter
         db = cfg.db
@@ -1679,15 +1689,48 @@ def export(
         use_photokit = cfg.use_photokit
         report = cfg.report
         cleanup = cfg.cleanup
-        
+
         # config file might have changed verbose
         VERBOSE = bool(verbose)
         verbose_(f"Loaded options from file {load_config}")
 
+    exclusive_options = [
+        ("favorite", "not_favorite"),
+        ("hidden", "not_hidden"),
+        ("title", "no_title"),
+        ("description", "no_description"),
+        ("only_photos", "only_movies"),
+        ("burst", "not_burst"),
+        ("live", "not_live"),
+        ("portrait", "not_portrait"),
+        ("screenshot", "not_screenshot"),
+        ("slow_mo", "not_slow_mo"),
+        ("time_lapse", "not_time_lapse"),
+        ("hdr", "not_hdr"),
+        ("selfie", "not_selfie"),
+        ("panorama", "not_panorama"),
+        ("export_by_date", "directory"),
+        ("export_as_hardlink", "exiftool"),
+        ("place", "no_place"),
+        ("deleted", "deleted_only"),
+        ("skip_edited", "skip_original_if_edited"),
+        ("export_as_hardlink", "convert_to_jpeg"),
+        ("export_as_hardlink", "download_missing"),
+        ("shared", "not_shared"),
+        ("has_comment", "no_comment"),
+        ("has_likes", "no_likes"),
+    ]
     try:
-        cfg.validate(cli=True)
-    except InvalidOptions as e:
-        click.echo(f"{e.message}")
+        cfg.validate(exclusive_options, cli=True)
+    except ConfigOptionsInvalidError as e:
+        click.echo(f"Incompatible export options: {e.message}", err=True)
+        raise click.Abort()
+
+    if missing and not download_missing:
+        click.echo(
+            "Incompatible export options: --missing must be used with --download-missing",
+            err=True,
+        )
         raise click.Abort()
 
     if save_config:
@@ -1697,7 +1740,9 @@ def export(
     # set defaults for options that need them
     jpeg_quality = DEFAULT_JPEG_QUALITY if jpeg_quality is None else jpeg_quality
     edited_suffix = DEFAULT_EDITED_SUFFIX if edited_suffix is None else edited_suffix
-    original_suffix = DEFAULT_ORIGINAL_SUFFIX if original_suffix is None else original_suffix
+    original_suffix = (
+        DEFAULT_ORIGINAL_SUFFIX if original_suffix is None else original_suffix
+    )
 
     # print(jpeg_quality, edited_suffix, original_suffix)
 
@@ -1709,52 +1754,6 @@ def export(
 
     if report and os.path.isdir(report):
         click.echo(f"report is a directory, must be file name", err=True)
-        raise click.Abort()
-
-    # sanity check input args
-    exclusive = [
-        (favorite, not_favorite),
-        (hidden, not_hidden),
-        (any(title), no_title),
-        (any(description), no_description),
-        (only_photos, only_movies),
-        (burst, not_burst),
-        (live, not_live),
-        (portrait, not_portrait),
-        (screenshot, not_screenshot),
-        (slow_mo, not_slow_mo),
-        (time_lapse, not_time_lapse),
-        (hdr, not_hdr),
-        (selfie, not_selfie),
-        (panorama, not_panorama),
-        (export_by_date, directory),
-        (export_as_hardlink, exiftool),
-        (any(place), no_place),
-        (deleted, deleted_only),
-        (skip_edited, skip_original_if_edited),
-        (export_as_hardlink, convert_to_jpeg),
-        (shared, not_shared),
-        (has_comment, no_comment),
-        (has_likes, no_likes),
-        (export_as_hardlink, cleanup),
-    ]
-    if any(all(bb) for bb in exclusive):
-        click.echo("Incompatible export options", err=True)
-        click.echo(cli.commands["export"].get_help(ctx), err=True)
-        return
-
-    if export_as_hardlink and download_missing:
-        click.echo(
-            "Incompatible export options: --export-as-hardlink is not compatible with --download-missing",
-            err=True,
-        )
-        raise click.Abort()
-
-    if missing and not download_missing:
-        click.echo(
-            "Incompatible export options: --missing must be used with --download-missing",
-            err=True,
-        )
         raise click.Abort()
 
     # if use_photokit and not check_photokit_authorization():

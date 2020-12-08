@@ -875,7 +875,7 @@ def test_export_using_hardlinks_incompat_options():
                 "-V",
             ],
         )
-        assert result.exit_code == 0
+        assert result.exit_code == 1
         assert "Incompatible export options" in result.output
 
 
@@ -3960,27 +3960,4 @@ def test_export_cleanup():
         assert "Deleted: 2 files, 1 directory" in result.output
         assert not pathlib.Path("./delete_me.txt").is_file()
         assert not pathlib.Path("./foo/delete_me_too.txt").is_file()
-
-
-def test_export_cleanup_export_as_hardling():
-    """ test export with incompatible option """
-    import os
-    import os.path
-    from osxphotos.__main__ import export
-
-    runner = CliRunner()
-    cwd = os.getcwd()
-    # pylint: disable=not-context-manager
-    with runner.isolated_filesystem():
-        result = runner.invoke(
-            export,
-            [
-                os.path.join(cwd, CLI_PHOTOS_DB),
-                ".",
-                "-V",
-                "--export-as-hardlink",
-                "--cleanup",
-            ],
-        )
-        assert "Incompatible export options" in result.output
 
