@@ -109,3 +109,13 @@ MAX_FILENAME_LEN = 255
 # Max directory name length on MacOS
 MAX_DIRNAME_LEN = 255
 
+# Default JPEG quality when converting to JPEG
+DEFAULT_JPEG_QUALITY = 1.0
+
+# Default suffix to add to edited images
+DEFAULT_EDITED_SUFFIX = "_edited"
+
+# Default suffix to add to original images
+DEFAULT_ORIGINAL_SUFFIX = ""
+
+
