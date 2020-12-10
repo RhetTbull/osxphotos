@@ -51,11 +51,18 @@ class ConfigOptions:
             except KeyError:
                 raise KeyError(f"Missing argument: {attr}")
 
-    def validate(self, exclusive, cli=False):
+    def validate(self, exclusive=None, inclusive=None, dependent=None, cli=False):
         """ validate combinations of otions
         
         Args:
-            cli: bool, set to True if called to validate CLI options; will prepend '--' to option names in InvalidOptions.message
+            exclusive: list of tuples in form [("option_1", "option_2")...] which are exclusive; 
+                       ie. either option_1 can be set or option_2 but not both; 
+            inclusive: list of tuples in form [("option_1", "option_2")...] which are inclusive; 
+                       ie. if either option_1 or option_2 is set, the other must be set
+            dependent: list of tuples in form [("option_1", ("option_2", "option_3"))...] 
+                       where if option_1 is set, then at least one of the options in the second tuple must also be set
+            cli: bool, set to True if called to validate CLI options; 
+                       will prepend '--' to option names in InvalidOptions.message and change _ to - in option names
         
         Returns:
             True if all options valid
@@ -64,19 +71,52 @@ class ConfigOptions:
             InvalidOption if any combination of options is invalid
             InvalidOption.message will be descriptive message of invalid options
         """
-        if not exclusive:
+        if not any([exclusive, inclusive, dependent]):
             return True
 
         prefix = "--" if cli else ""
-        for opt_pair in exclusive:
-            val0 = getattr(self, opt_pair[0])
-            val1 = getattr(self, opt_pair[1])
-            val0 = any(val0) if self._attrs[opt_pair[0]] == () else val0
-            val1 = any(val1) if self._attrs[opt_pair[1]] == () else val1
-            if val0 and val1:
-                raise ConfigOptionsInvalidError(
-                    f"{prefix}{opt_pair[0]} and {prefix}{opt_pair[1]} options cannot be used together"
-                )
+        if exclusive:
+            for a, b in exclusive:
+                vala = getattr(self, a)
+                valb = getattr(self, b)
+                vala = any(vala) if isinstance(vala, tuple) else vala
+                valb = any(valb) if isinstance(valb, tuple) else valb
+                if vala and valb:
+                    stra = a.replace("_", "-") if cli else a
+                    strb = b.replace("_", "-") if cli else b
+                    raise ConfigOptionsInvalidError(
+                        f"{prefix}{stra} and {prefix}{strb} options cannot be used together."
+                    )
+        if inclusive:
+            for a, b in inclusive:
+                vala = getattr(self, a)
+                valb = getattr(self, b)
+                vala = any(vala) if isinstance(vala, tuple) else vala
+                valb = any(valb) if isinstance(valb, tuple) else valb
+                if any([vala, valb]) and not all([vala, valb]):
+                    stra = a.replace("_", "-") if cli else a
+                    strb = b.replace("_", "-") if cli else b
+                    raise ConfigOptionsInvalidError(
+                        f"{prefix}{stra} and {prefix}{strb} options must be used together."
+                    )
+        if dependent:
+            for a, b in dependent:
+                vala = getattr(self, a)
+                if not isinstance(b, tuple):
+                    # python unrolls the tuple if there's a single element
+                    b = (b,)
+                valb = [getattr(self, x) for x in b]
+                valb = [any(x) if isinstance(x, tuple) else x for x in valb]
+                if vala and not any(valb):
+                    if cli:
+                        stra = prefix + a.replace("_", "-")
+                        strb = ", ".join(prefix + x.replace("_", "-") for x in b)
+                    else:
+                        stra = a
+                        strb = ", ".join(x for x in b)
+                    raise ConfigOptionsInvalidError(
+                        f"{stra} must be used with at least one of: {strb}."
+                    )
         return True
 
     def write_to_file(self, filename):
@@ -85,6 +125,7 @@ class ConfigOptions:
         Args:
             filename: full path to TOML file to write; filename will be overwritten if it exists
         """
+        # todo: add overwrite and option to merge contents already in TOML file (under different [section] with new content)
         data = {}
         for attr in sorted(self._attrs.keys()):
             val = getattr(self, attr)

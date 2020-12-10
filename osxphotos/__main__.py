@@ -1720,17 +1720,18 @@ def export(
         ("has_comment", "no_comment"),
         ("has_likes", "no_likes"),
     ]
+    dependent_options = [
+        ("missing", ("download_missing", "use_photos_export")),
+        ("jpeg_quality", ("convert_to_jpeg")),
+    ]
     try:
-        cfg.validate(exclusive_options, cli=True)
+        cfg.validate(
+            exclusive=exclusive_options,
+            dependent=dependent_options,
+            cli=True,
+        )
     except ConfigOptionsInvalidError as e:
         click.echo(f"Incompatible export options: {e.message}", err=True)
-        raise click.Abort()
-
-    if missing and not download_missing:
-        click.echo(
-            "Incompatible export options: --missing must be used with --download-missing",
-            err=True,
-        )
         raise click.Abort()
 
     if save_config:
