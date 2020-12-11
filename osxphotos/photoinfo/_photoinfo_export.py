@@ -246,7 +246,6 @@ def export(
     use_photos_export=False,
     timeout=120,
     exiftool=False,
-    no_xattr=False,
     use_albums_as_keywords=False,
     use_persons_as_keywords=False,
     keyword_template=None,
@@ -279,7 +278,6 @@ def export(
     use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos
     timeout: (int, default=120) timeout in seconds used with use_photos_export
     exiftool: (boolean, default = False); if True, will use exiftool to write metadata to export file
-    no_xattr: (boolean, default = False); if True, exports file without preserving extended attributes
     returns list of full paths to the exported files
     use_albums_as_keywords: (boolean, default = False); if True, will include album names in keywords
     when exporting metadata with exiftool or sidecar
@@ -306,7 +304,6 @@ def export(
         use_photos_export=use_photos_export,
         timeout=timeout,
         exiftool=exiftool,
-        no_xattr=no_xattr,
         use_albums_as_keywords=use_albums_as_keywords,
         use_persons_as_keywords=use_persons_as_keywords,
         keyword_template=keyword_template,
@@ -331,7 +328,6 @@ def export2(
     use_photos_export=False,
     timeout=120,
     exiftool=False,
-    no_xattr=False,
     use_albums_as_keywords=False,
     use_persons_as_keywords=False,
     keyword_template=None,
@@ -372,7 +368,6 @@ def export2(
     use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos
     timeout: (int, default=120) timeout in seconds used with use_photos_export
     exiftool: (boolean, default = False); if True, will use exiftool to write metadata to export file
-    no_xattr: (boolean, default = False); if True, exports file without preserving extended attributes
     use_albums_as_keywords: (boolean, default = False); if True, will include album names in keywords
     when exporting metadata with exiftool or sidecar
     use_persons_as_keywords: (boolean, default = False); if True, will include person names in keywords
@@ -604,7 +599,6 @@ def export2(
             update,
             export_db,
             overwrite,
-            no_xattr,
             export_as_hardlink,
             exiftool,
             touch_file,
@@ -632,7 +626,6 @@ def export2(
                     update,
                     export_db,
                     overwrite,
-                    no_xattr,
                     export_as_hardlink,
                     exiftool,
                     touch_file,
@@ -658,7 +651,6 @@ def export2(
                     update,
                     export_db,
                     overwrite,
-                    no_xattr,
                     export_as_hardlink,
                     exiftool,
                     touch_file,
@@ -964,7 +956,6 @@ def _export_photo(
     update,
     export_db,
     overwrite,
-    no_xattr,
     export_as_hardlink,
     exiftool,
     touch_file,
@@ -985,7 +976,6 @@ def _export_photo(
         update: bool
         export_db: instance of ExportDB that conforms to ExportDB_ABC interface
         overwrite: bool
-        no_xattr: don't copy extended attributes
         export_as_hardlink: bool
         exiftool: bool
         touch_file: bool
@@ -1100,7 +1090,7 @@ def _export_photo(
             converted_stat = fileutil.file_sig(dest_str)
             converted_to_jpeg_files.append(dest_str)
         else:
-            fileutil.copy(src, dest_str, norsrc=no_xattr)
+            fileutil.copy(src, dest_str)
 
         export_db.set_data(
             filename=dest_str,

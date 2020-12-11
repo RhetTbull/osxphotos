@@ -12,7 +12,6 @@ import sys
 import tempfile
 from datetime import datetime, timedelta, timezone
 from pprint import pformat
-from shutil import copyfile
 
 from .._constants import (
     _DB_TABLE_NAMES,
@@ -532,14 +531,14 @@ class PhotosDB:
         try:
             dest_name = pathlib.Path(fname).name
             dest_path = os.path.join(self._tempdir_name, dest_name)
-            copyfile(fname, dest_path)
+            FileUtil.copy(fname, dest_path)
             # copy write-ahead log and shared memory files (-wal and -shm) files if they exist
             if os.path.exists(f"{fname}-wal"):
-                copyfile(f"{fname}-wal", f"{dest_path}-wal")
+                FileUtil.copy(f"{fname}-wal", f"{dest_path}-wal")
             if os.path.exists(f"{fname}-shm"):
-                copyfile(f"{fname}-shm", f"{dest_path}-shm")
+                FileUtil.copy(f"{fname}-shm", f"{dest_path}-shm")
         except:
-            print("Error copying " + fname + " to " + dest_path, file=sys.stderr)
+            print(f"Error copying{fname} to {dest_path}", file=sys.stderr)
             raise Exception
 
         if _debug():

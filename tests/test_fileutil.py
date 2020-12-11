@@ -16,7 +16,7 @@ def test_copy_file_valid():
     temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     src = "tests/test-images/wedding.jpg"
     result = FileUtil.copy(src, temp_dir.name)
-    assert result == 0
+    assert result
     assert os.path.isfile(os.path.join(temp_dir.name, "wedding.jpg"))
 
 
@@ -29,20 +29,7 @@ def test_copy_file_invalid():
     with pytest.raises(Exception) as e:
         src = "tests/test-images/wedding_DOES_NOT_EXIST.jpg"
         assert FileUtil.copy(src, temp_dir.name)
-    assert e.type == FileNotFoundError
-
-
-def test_copy_file_norsrc():
-    # copy file with --norsrc
-    import os.path
-    import tempfile
-    from osxphotos.fileutil import FileUtil
-
-    temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
-    src = "tests/test-images/wedding.jpg"
-    result = FileUtil.copy(src, temp_dir.name, norsrc=True)
-    assert result == 0
-    assert os.path.isfile(os.path.join(temp_dir.name, "wedding.jpg"))
+    assert e.type == OSError
 
 
 def test_hardlink_file_valid():

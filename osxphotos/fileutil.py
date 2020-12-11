@@ -7,6 +7,8 @@ import subprocess
 import sys
 from abc import ABC, abstractmethod
 
+import CoreFoundation
+
 from .imageconverter import ImageConverter
 
 
@@ -82,35 +84,38 @@ class FileUtilMacOS(FileUtilABC):
             raise e
 
     @classmethod
-    def copy(cls, src, dest, norsrc=False):
+    def copy(cls, src, dest):
         """ Copies a file from src path to dest path 
-            src: source path as string 
+        
+        Args:
+            src: source path as string; must be a valid file path
             dest: destination path as string
-            norsrc: (bool) if True, uses --norsrc flag with ditto so it will not copy
-                    resource fork or extended attributes.  May be useful on volumes that
-                    don't work with extended attributes (likely only certain SMB mounts)
-                    default is False
-            Uses ditto to perform copy; will silently overwrite dest if it exists
-            Raises exception if copy fails or either path is None """
+                  dest may be either directory or file; in either case, src file must not exist in dest
+            Note: src and dest may be either a string or a pathlib.Path object
+        
+        Returns:
+            True if copy succeeded
+        
+        Raises:
+            OSError if copy fails
+            TypeError if either path is None
+        """
+        if not isinstance(src, pathlib.Path):
+            src = pathlib.Path(src)
 
-        if src is None or dest is None:
-            raise ValueError("src and dest must not be None", src, dest)
+        if not isinstance(dest, pathlib.Path):
+            dest = pathlib.Path(dest)
 
-        if not os.path.exists(src):
-            raise FileNotFoundError("src file does not appear to exist", src)
+        if dest.is_dir():
+            dest /= src.name
 
-        if norsrc:
-            command = ["/usr/bin/ditto", "--norsrc", src, dest]
-        else:
-            command = ["/usr/bin/ditto", src, dest]
-
-        # if error on copy, subprocess will raise CalledProcessError
-        try:
-            result = subprocess.run(command, check=True, stderr=subprocess.PIPE)
-        except subprocess.CalledProcessError as e:
-            raise e
-
-        return result.returncode
+        filemgr = CoreFoundation.NSFileManager.defaultManager()
+        error = filemgr.copyItemAtPath_toPath_error_(str(src), str(dest), None)
+        # error is a tuple of (bool, error_string)
+        # error[0] is True if copy succeeded
+        if not error[0]:
+            raise OSError(error[1])
+        return True
 
     @classmethod
     def unlink(cls, filepath):
