@@ -45,7 +45,7 @@ OSXPhotos provides the ability to interact with and query Apple's Photos.app lib
 
 Only works on MacOS (aka Mac OS X). Tested on MacOS 10.12.6 / Photos 2.0, 10.13.6 / Photos 3.0, MacOS 10.14.5, 10.14.6 / Photos 4.0, MacOS 10.15.1 - 10.15.6 / Photos 5.0.
 
-Alpha support for MacOS 10.16/MacOS 11 Big Sur Beta / Photos 6.0.
+Beta support for MacOS 10.16/MacOS 11 Big Sur Beta / Photos 6.0.
 
 Requires python >= 3.7. 
 
@@ -2175,7 +2175,7 @@ if __name__ == "__main__":
 
 ## Contributing
 
-Contributing is easy!  if you find bugs or want to suggest additional features/changes, please open an [issue](https://github.com/rhettbull/osxphotos/issues/).
+Contributing is easy!  if you find bugs or want to suggest additional features/changes, please open an [issue](https://github.com/rhettbull/osxphotos/issues/) or join the [discussion](https://github.com/RhetTbull/osxphotos/discussions).
 
 I'll gladly consider pull requests for bug fixes or feature implementations.  
 
