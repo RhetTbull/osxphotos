@@ -19,9 +19,17 @@ from ._constants import (
     _EXIF_TOOL_URL,
     _PHOTOS_4_VERSION,
     _UNKNOWN_PLACE,
+    DEFAULT_JPEG_QUALITY,
+    DEFAULT_EDITED_SUFFIX,
+    DEFAULT_ORIGINAL_SUFFIX,
     UNICODE_FORMAT,
 )
 from ._version import __version__
+from .configoptions import (
+    ConfigOptions,
+    ConfigOptionsInvalidError,
+    ConfigOptionsLoadError,
+)
 from .datetime_formatter import DateTimeFormatter
 from .exiftool import get_exiftool_path
 from .export_db import ExportDB, ExportDBInMemory
@@ -39,7 +47,7 @@ VERBOSE = False
 OSXPHOTOS_EXPORT_DB = ".osxphotos_export.db"
 
 
-def verbose(*args, **kwargs):
+def verbose_(*args, **kwargs):
     """ print output if verbose flag set """
     if VERBOSE:
         click.echo(*args, **kwargs)
@@ -587,14 +595,14 @@ def cli(ctx, db, json_, debug):
     help="Use with '--dump photos' to dump only certain UUIDs",
     multiple=True,
 )
-@click.option("--verbose", "-V", "verbose_", is_flag=True, help="Print verbose output.")
+@click.option("--verbose", "-V", "verbose", is_flag=True, help="Print verbose output.")
 @click.pass_obj
 @click.pass_context
-def debug_dump(ctx, cli_obj, db, photos_library, dump, uuid, verbose_):
+def debug_dump(ctx, cli_obj, db, photos_library, dump, uuid, verbose):
     """ Print out debug info """
 
     global VERBOSE
-    VERBOSE = bool(verbose_)
+    VERBOSE = bool(verbose)
 
     db = get_photos_db(*photos_library, db, cli_obj.db)
     if db is None:
@@ -605,7 +613,7 @@ def debug_dump(ctx, cli_obj, db, photos_library, dump, uuid, verbose_):
 
     start_t = time.perf_counter()
     print(f"Opening database: {db}")
-    photosdb = osxphotos.PhotosDB(dbfile=db, verbose=verbose)
+    photosdb = osxphotos.PhotosDB(dbfile=db, verbose=verbose_)
     stop_t = time.perf_counter()
     print(f"Done; took {(stop_t-start_t):.2f} seconds")
 
@@ -1197,7 +1205,7 @@ def query(
 
 @cli.command(cls=ExportCommand)
 @DB_OPTION
-@click.option("--verbose", "-V", "verbose_", is_flag=True, help="Print verbose output.")
+@click.option("--verbose", "-V", "verbose", is_flag=True, help="Print verbose output.")
 @query_options
 @click.option(
     "--missing",
@@ -1283,11 +1291,10 @@ def query(
 @click.option(
     "--jpeg-quality",
     type=click.FloatRange(0.0, 1.0),
-    default=1.0,
     help="Value in range 0.0 to 1.0 to use with --convert-to-jpeg. "
     "A value of 1.0 specifies best quality, "
     "a value of 0.0 specifies maximum compression. "
-    "Defaults to 1.0.",
+    f"Defaults to {DEFAULT_JPEG_QUALITY}",
 )
 @click.option(
     "--download-missing",
@@ -1395,15 +1402,13 @@ def query(
 @click.option(
     "--edited-suffix",
     metavar="SUFFIX",
-    default="_edited",
     help="Optional suffix for naming edited photos.  Default name for edited photos is in form "
     "'photoname_edited.ext'. For example, with '--edited-suffix _bearbeiten', the edited photo "
-    "would be named 'photoname_bearbeiten.ext'.  The default suffix is '_edited'.",
+    f"would be named 'photoname_bearbeiten.ext'.  The default suffix is '{DEFAULT_EDITED_SUFFIX}'.",
 )
 @click.option(
     "--original-suffix",
     metavar="SUFFIX",
-    default="",
     help="Optional suffix for naming original photos.  Default name for original photos is in form "
     "'filename.ext'. For example, with '--original-suffix _original', the original photo "
     "would be named 'filename_original.ext'.  The default suffix is '' (no suffix).",
@@ -1411,20 +1416,18 @@ def query(
 @click.option(
     "--use-photos-export",
     is_flag=True,
-    default=False,
     help="Force the use of AppleScript or PhotoKit to export even if not missing (see also '--download-missing' and '--use-photokit').",
 )
 @click.option(
     "--use-photokit",
     is_flag=True,
-    default=False,
     help="Use with '--download-missing' or '--use-photos-export' to use direct Photos interface instead of AppleScript to export. "
     "Highly experimental alpha feature; does not work with iTerm2 (use with Terminal.app). "
     "This is faster and more reliable than the default AppleScript interface.",
 )
 @click.option(
     "--report",
-    metavar="REPORTNAME.CSV",
+    metavar="<path to export report>",
     help="Write a CSV formatted report of all files that were exported.",
     type=click.Path(),
 )
@@ -1433,6 +1436,29 @@ def query(
     is_flag=True,
     help="Cleanup export directory by deleting any files which were not included in this export set. "
     "For example, photos which had previously been exported and were subsequently deleted in Photos.",
+)
+@click.option(
+    "--load-config",
+    required=False,
+    metavar="<config file path>",
+    default=None,
+    help=(
+        "Load options from file as written with --save-config. "
+        "This allows you to save a complex export command to file for later reuse. "
+        "For example: 'osxphotos export <lots of options here> --save-config osxphotos.toml' then "
+        " 'osxphotos export /path/to/export --load-config osxphotos.toml'. "
+        "If any other command line options are used in conjunction with --load-config, "
+        "they will override the corresponding values in the config file."
+    ),
+    type=click.Path(exists=True),
+)
+@click.option(
+    "--save-config",
+    required=False,
+    metavar="<config file path>",
+    default=None,
+    help=("Save options to file for use with --load-config. File format is TOML."),
+    type=click.Path(),
 )
 @DB_ARGUMENT
 @click.argument("dest", nargs=1, type=click.Path(exists=True))
@@ -1465,7 +1491,7 @@ def export(
     not_shared,
     from_date,
     to_date,
-    verbose_,
+    verbose,
     missing,
     update,
     dry_run,
@@ -1528,6 +1554,8 @@ def export(
     use_photokit,
     report,
     cleanup,
+    load_config,
+    save_config,
 ):
     """Export photos from the Photos database.
     Export path DEST is required.
@@ -1541,8 +1569,174 @@ def export(
     to modify this behavior.
     """
 
+    # NOTE: because of the way ConfigOptions works, Click options must not
+    # set defaults which are not None or False. If defaults need to be set
+    # do so below after load_config and save_config are handled.
+    cfg = ConfigOptions(
+        "export",
+        locals(),
+        ignore=["ctx", "cli_obj", "dest", "load_config", "save_config"],
+    )
+
+    # print(jpeg_quality, edited_suffix, original_suffix)
+
     global VERBOSE
-    VERBOSE = bool(verbose_)
+    VERBOSE = bool(verbose)
+
+    if load_config:
+        try:
+            cfg.load_from_file(load_config)
+        except ConfigOptionsLoadError as e:
+            click.echo(
+                f"Error parsing {load_config} config file: {e.message}", err=True
+            )
+            raise click.Abort()
+
+        # re-set the local function vars to the corresponding config value
+        # this isn't elegant but avoids having to rewrite this function to use cfg.varname for every parameter
+        db = cfg.db
+        photos_library = cfg.photos_library
+        keyword = cfg.keyword
+        person = cfg.person
+        album = cfg.album
+        folder = cfg.folder
+        uuid = cfg.uuid
+        uuid_from_file = cfg.uuid_from_file
+        title = cfg.title
+        no_title = cfg.no_title
+        description = cfg.description
+        no_description = cfg.no_description
+        uti = cfg.uti
+        ignore_case = cfg.ignore_case
+        edited = cfg.edited
+        external_edit = cfg.external_edit
+        favorite = cfg.favorite
+        not_favorite = cfg.not_favorite
+        hidden = cfg.hidden
+        not_hidden = cfg.not_hidden
+        shared = cfg.shared
+        not_shared = cfg.not_shared
+        from_date = cfg.from_date
+        to_date = cfg.to_date
+        verbose = cfg.verbose
+        missing = cfg.missing
+        update = cfg.update
+        dry_run = cfg.dry_run
+        export_as_hardlink = cfg.export_as_hardlink
+        touch_file = cfg.touch_file
+        overwrite = cfg.overwrite
+        export_by_date = cfg.export_by_date
+        skip_edited = cfg.skip_edited
+        skip_original_if_edited = cfg.skip_original_if_edited
+        skip_bursts = cfg.skip_bursts
+        skip_live = cfg.skip_live
+        skip_raw = cfg.skip_raw
+        person_keyword = cfg.person_keyword
+        album_keyword = cfg.album_keyword
+        keyword_template = cfg.keyword_template
+        description_template = cfg.description_template
+        current_name = cfg.current_name
+        convert_to_jpeg = cfg.convert_to_jpeg
+        jpeg_quality = cfg.jpeg_quality
+        sidecar = cfg.sidecar
+        only_photos = cfg.only_photos
+        only_movies = cfg.only_movies
+        burst = cfg.burst
+        not_burst = cfg.not_burst
+        live = cfg.live
+        not_live = cfg.not_live
+        download_missing = cfg.download_missing
+        exiftool = cfg.exiftool
+        ignore_date_modified = cfg.ignore_date_modified
+        portrait = cfg.portrait
+        not_portrait = cfg.not_portrait
+        screenshot = cfg.screenshot
+        not_screenshot = cfg.not_screenshot
+        slow_mo = cfg.slow_mo
+        not_slow_mo = cfg.not_slow_mo
+        time_lapse = cfg.time_lapse
+        not_time_lapse = cfg.not_time_lapse
+        hdr = cfg.hdr
+        not_hdr = cfg.not_hdr
+        selfie = cfg.selfie
+        not_selfie = cfg.not_selfie
+        panorama = cfg.panorama
+        not_panorama = cfg.not_panorama
+        has_raw = cfg.has_raw
+        directory = cfg.directory
+        filename_template = cfg.filename_template
+        edited_suffix = cfg.edited_suffix
+        original_suffix = cfg.original_suffix
+        place = cfg.place
+        no_place = cfg.no_place
+        has_comment = cfg.has_comment
+        no_comment = cfg.no_comment
+        has_likes = cfg.has_likes
+        no_likes = cfg.no_likes
+        label = cfg.label
+        deleted = cfg.deleted
+        deleted_only = cfg.deleted_only
+        use_photos_export = cfg.use_photos_export
+        use_photokit = cfg.use_photokit
+        report = cfg.report
+        cleanup = cfg.cleanup
+
+        # config file might have changed verbose
+        VERBOSE = bool(verbose)
+        verbose_(f"Loaded options from file {load_config}")
+
+    exclusive_options = [
+        ("favorite", "not_favorite"),
+        ("hidden", "not_hidden"),
+        ("title", "no_title"),
+        ("description", "no_description"),
+        ("only_photos", "only_movies"),
+        ("burst", "not_burst"),
+        ("live", "not_live"),
+        ("portrait", "not_portrait"),
+        ("screenshot", "not_screenshot"),
+        ("slow_mo", "not_slow_mo"),
+        ("time_lapse", "not_time_lapse"),
+        ("hdr", "not_hdr"),
+        ("selfie", "not_selfie"),
+        ("panorama", "not_panorama"),
+        ("export_by_date", "directory"),
+        ("export_as_hardlink", "exiftool"),
+        ("place", "no_place"),
+        ("deleted", "deleted_only"),
+        ("skip_edited", "skip_original_if_edited"),
+        ("export_as_hardlink", "convert_to_jpeg"),
+        ("export_as_hardlink", "download_missing"),
+        ("shared", "not_shared"),
+        ("has_comment", "no_comment"),
+        ("has_likes", "no_likes"),
+    ]
+    dependent_options = [
+        ("missing", ("download_missing", "use_photos_export")),
+        ("jpeg_quality", ("convert_to_jpeg")),
+    ]
+    try:
+        cfg.validate(
+            exclusive=exclusive_options,
+            dependent=dependent_options,
+            cli=True,
+        )
+    except ConfigOptionsInvalidError as e:
+        click.echo(f"Incompatible export options: {e.message}", err=True)
+        raise click.Abort()
+
+    if save_config:
+        verbose_(f"Saving options to file {save_config}")
+        cfg.write_to_file(save_config)
+
+    # set defaults for options that need them
+    jpeg_quality = DEFAULT_JPEG_QUALITY if jpeg_quality is None else jpeg_quality
+    edited_suffix = DEFAULT_EDITED_SUFFIX if edited_suffix is None else edited_suffix
+    original_suffix = (
+        DEFAULT_ORIGINAL_SUFFIX if original_suffix is None else original_suffix
+    )
+
+    # print(jpeg_quality, edited_suffix, original_suffix)
 
     if not os.path.isdir(dest):
         click.echo(f"DEST {dest} must be valid path", err=True)
@@ -1552,51 +1746,6 @@ def export(
 
     if report and os.path.isdir(report):
         click.echo(f"report is a directory, must be file name", err=True)
-        raise click.Abort()
-
-    # sanity check input args
-    exclusive = [
-        (favorite, not_favorite),
-        (hidden, not_hidden),
-        (any(title), no_title),
-        (any(description), no_description),
-        (only_photos, only_movies),
-        (burst, not_burst),
-        (live, not_live),
-        (portrait, not_portrait),
-        (screenshot, not_screenshot),
-        (slow_mo, not_slow_mo),
-        (time_lapse, not_time_lapse),
-        (hdr, not_hdr),
-        (selfie, not_selfie),
-        (panorama, not_panorama),
-        (export_by_date, directory),
-        (export_as_hardlink, exiftool),
-        (any(place), no_place),
-        (deleted, deleted_only),
-        (skip_edited, skip_original_if_edited),
-        (export_as_hardlink, convert_to_jpeg),
-        (shared, not_shared),
-        (has_comment, no_comment),
-        (has_likes, no_likes),
-    ]
-    if any(all(bb) for bb in exclusive):
-        click.echo("Incompatible export options", err=True)
-        click.echo(cli.commands["export"].get_help(ctx), err=True)
-        return
-
-    if export_as_hardlink and download_missing:
-        click.echo(
-            "Incompatible export options: --export-as-hardlink is not compatible with --download-missing",
-            err=True,
-        )
-        raise click.Abort()
-
-    if missing and not download_missing:
-        click.echo(
-            "Incompatible export options: --missing must be used with --download-missing",
-            err=True,
-        )
         raise click.Abort()
 
     # if use_photokit and not check_photokit_authorization():
@@ -1679,12 +1828,12 @@ def export(
 
     if verbose_:
         if export_db.was_created:
-            verbose(f"Created export database {export_db_path}")
+            verbose_(f"Created export database {export_db_path}")
         else:
-            verbose(f"Using export database {export_db_path}")
+            verbose_(f"Using export database {export_db_path}")
         upgraded = export_db.was_upgraded
         if upgraded:
-            verbose(
+            verbose_(
                 f"Upgraded export database {export_db_path} from version {upgraded[0]} to {upgraded[1]}"
             )
 
@@ -1780,12 +1929,12 @@ def export(
         results_sidecar_xmp_skipped = []
         results_missing = []
         results_error = []
-        if verbose_:
+        if verbose:
             for p in photos:
                 results = export_photo(
                     photo=p,
                     dest=dest,
-                    verbose_=verbose_,
+                    verbose=verbose,
                     export_by_date=export_by_date,
                     sidecar=sidecar,
                     update=update,
@@ -1834,7 +1983,7 @@ def export(
                 #     for photo_file in set(
                 #         results.exported + results.updated + results.exif_updated
                 #     ):
-                #         verbose(f"Converting {photo_file} to jpeg")
+                #         verbose_(f"Converting {photo_file} to jpeg")
 
         else:
             # show progress bar
@@ -1843,7 +1992,7 @@ def export(
                     results = export_photo(
                         photo=p,
                         dest=dest,
-                        verbose_=verbose_,
+                        verbose=verbose,
                         export_by_date=export_by_date,
                         sidecar=sidecar,
                         update=update,
@@ -1927,7 +2076,7 @@ def export(
             click.echo(f"Deleted: {cleaned_files} {file_str}, {cleaned_dirs} {dir_str}")
 
         if report:
-            verbose(f"Writing export report to {report}")
+            verbose_(f"Writing export report to {report}")
             write_export_report(
                 report,
                 results_exported=results_exported,
@@ -2156,7 +2305,7 @@ def _query(
     arguments must be passed in same order as query and export
     if either is modified, need to ensure all three functions are updated"""
 
-    photosdb = osxphotos.PhotosDB(dbfile=db, verbose=verbose)
+    photosdb = osxphotos.PhotosDB(dbfile=db, verbose=verbose_)
     if deleted or deleted_only:
         photos = photosdb.photos(
             uuid=uuid,
@@ -2413,7 +2562,7 @@ def get_photos_by_attribute(photos, attribute, values, ignore_case):
 def export_photo(
     photo=None,
     dest=None,
-    verbose_=None,
+    verbose=None,
     export_by_date=None,
     sidecar=None,
     update=None,
@@ -2449,7 +2598,7 @@ def export_photo(
     Args:
         photo: PhotoInfo object
         dest: destination path as string
-        verbose_: boolean; print verbose output
+        verbose: boolean; print verbose output
         export_by_date: boolean; create export folder in form dest/YYYY/MM/DD
         sidecar: list zero, 1 or 2 of ["json","xmp"] of sidecar variety to export
         export_as_hardlink: boolean; hardlink files instead of copying them
@@ -2484,7 +2633,7 @@ def export_photo(
         ValueError on invalid filename_template
     """
     global VERBOSE
-    VERBOSE = bool(verbose_)
+    VERBOSE = bool(verbose)
 
     results_exported = []
     results_new = []
@@ -2514,7 +2663,7 @@ def export_photo(
             # requested edited version but it's missing, download original
             export_original = True
             export_edited = False
-            verbose(
+            verbose_(
                 f"Edited file for {photo.original_filename} is missing, exporting original"
             )
 
@@ -2553,7 +2702,7 @@ def export_photo(
         else:
             original_filename = filename
 
-        verbose(
+        verbose_(
             f"Exporting {photo.original_filename} ({photo.filename}) as {original_filename}"
         )
 
@@ -2585,8 +2734,8 @@ def export_photo(
             # original is missing, in which case we should download the edited version
             if export_original:
                 if missing_original:
-                    space = " " if not verbose_ else ""
-                    verbose(f"{space}Skipping missing photo {photo.original_filename}")
+                    space = " " if not verbose else ""
+                    verbose_(f"{space}Skipping missing photo {photo.original_filename}")
                     results_missing.append(
                         str(pathlib.Path(dest_path) / original_filename)
                     )
@@ -2616,7 +2765,7 @@ def export_photo(
                             jpeg_quality=jpeg_quality,
                             ignore_date_modified=ignore_date_modified,
                             use_photokit=use_photokit,
-                            verbose=verbose,
+                            verbose=verbose_,
                         )
 
                         results_exported.extend(export_results.exported)
@@ -2648,7 +2797,7 @@ def export_photo(
                             str(pathlib.Path(dest) / original_filename)
                         )
             else:
-                verbose(f"Skipping original version of {photo.original_filename}")
+                verbose_(f"Skipping original version of {photo.original_filename}")
 
             # if export-edited, also export the edited version
             # verify the photo has adjustments and valid path to avoid raising an exception
@@ -2665,12 +2814,12 @@ def export_photo(
                     # will be corrected by use_photos_export
                     edited_ext = pathlib.Path(photo.filename).suffix
                 edited_filename = f"{edited_filename.stem}{edited_suffix}{edited_ext}"
-                verbose(
+                verbose_(
                     f"Exporting edited version of {photo.original_filename} ({photo.filename}) as {edited_filename}"
                 )
                 if missing_edited:
-                    space = " " if not verbose_ else ""
-                    verbose(f"{space}Skipping missing edited photo for {filename}")
+                    space = " " if not verbose else ""
+                    verbose_(f"{space}Skipping missing edited photo for {filename}")
                     results_missing.append(
                         str(pathlib.Path(dest_path) / edited_filename)
                     )
@@ -2699,7 +2848,7 @@ def export_photo(
                             jpeg_quality=jpeg_quality,
                             ignore_date_modified=ignore_date_modified,
                             use_photokit=use_photokit,
-                            verbose=verbose,
+                            verbose=verbose_,
                         )
 
                         results_exported.extend(export_results_edited.exported)
@@ -2731,19 +2880,19 @@ def export_photo(
                         )
                         results_error.extend(str(pathlib.Path(dest) / edited_filename))
 
-            if verbose_:
+            if verbose:
                 if update:
                     for new in results_new:
-                        verbose(f"Exported new file {new}")
+                        verbose_(f"Exported new file {new}")
                     for updated in results_updated:
-                        verbose(f"Exported updated file {updated}")
+                        verbose_(f"Exported updated file {updated}")
                     for skipped in results_skipped:
-                        verbose(f"Skipped up to date file {skipped}")
+                        verbose_(f"Skipped up to date file {skipped}")
                 else:
                     for exported in results_exported:
-                        verbose(f"Exported {exported}")
+                        verbose_(f"Exported {exported}")
                 for touched in results_touched:
-                    verbose(f"Touched date on file {touched}")
+                    verbose_(f"Touched date on file {touched}")
 
     return ExportResults(
         exported=results_exported,
@@ -3048,7 +3197,7 @@ def cleanup_files(dest_path, files_to_keep, fileutil):
     for p in pathlib.Path(dest_path).rglob("*"):
         path = str(p).lower()
         if p.is_file() and path not in keepers:
-            verbose(f"Deleting {p}")
+            verbose_(f"Deleting {p}")
             fileutil.unlink(p)
             deleted_files += 1
 
@@ -3058,7 +3207,7 @@ def cleanup_files(dest_path, files_to_keep, fileutil):
         path = str(p).lower()
         # if directory and directory is empty
         if p.is_dir() and not next(p.iterdir(), False):
-            verbose(f"Deleting empty directory {p}")
+            verbose_(f"Deleting empty directory {p}")
             fileutil.rmdir(p)
             deleted_dirs += 1
 

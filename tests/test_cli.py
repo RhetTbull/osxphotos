@@ -875,7 +875,7 @@ def test_export_using_hardlinks_incompat_options():
                 "-V",
             ],
         )
-        assert result.exit_code == 0
+        assert result.exit_code == 1
         assert "Incompatible export options" in result.output
 
 
@@ -3961,3 +3961,103 @@ def test_export_cleanup():
         assert not pathlib.Path("./delete_me.txt").is_file()
         assert not pathlib.Path("./foo/delete_me_too.txt").is_file()
 
+
+def test_save_load_config():
+    """ test --save-config, --load-config """
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        # test save config file
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--sidecar",
+                "XMP",
+                "--touch-file",
+                "--update",
+                "--save-config",
+                "config.toml",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Saving options to file" in result.output
+        files = glob.glob("*")
+        assert "config.toml" in files
+
+        # test load config file
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--load-config",
+                "config.toml",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Loaded options from file" in result.output
+        assert "Skipped up to date XMP sidecar" in result.output
+
+        # test overwrite existing config file
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--sidecar",
+                "XMP",
+                "--touch-file",
+                "--not-live",
+                "--update",
+                "--save-config",
+                "config.toml",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Saving options to file" in result.output
+        files = glob.glob("*")
+        assert "config.toml" in files
+
+        # test load config file with incompat command line option
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--load-config",
+                "config.toml",
+                "--live",
+            ],
+        )
+        assert result.exit_code != 0
+        assert "Incompatible export options" in result.output
+
+        # test load config file with command line override
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--load-config",
+                "config.toml",
+                "--sidecar",
+                "json",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Writing exiftool JSON sidecar" in result.output
+        assert "Writing XMP sidecar" not in result.output
