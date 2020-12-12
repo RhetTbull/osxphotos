@@ -410,6 +410,21 @@ Options:
                                   set. For example, photos which had
                                   previously been exported and were
                                   subsequently deleted in Photos.
+  --load-config <config file path>
+                                  Load options from file as written with
+                                  --save-config. This allows you to save a
+                                  complex export command to file for later
+                                  reuse. For example: 'osxphotos export <lots
+                                  of options here> --save-config
+                                  osxphotos.toml' then  'osxphotos export
+                                  /path/to/export --load-config
+                                  osxphotos.toml'. If any other command line
+                                  options are used in conjunction with --load-
+                                  config, they will override the corresponding
+                                  values in the config file.
+  --save-config <config file path>
+                                  Save options to file for use with --load-
+                                  config. File format is TOML.
   -h, --help                      Show this message and exit.
 
 ** Export **
