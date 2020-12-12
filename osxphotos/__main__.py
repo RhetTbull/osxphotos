@@ -1414,13 +1414,6 @@ def query(
     "would be named 'filename_original.ext'.  The default suffix is '' (no suffix).",
 )
 @click.option(
-    "--no-extended-attributes",
-    is_flag=True,
-    help="Don't copy extended attributes when exporting.  You only need this if exporting "
-    "to a filesystem that doesn't support Mac OS extended attributes.  Only use this if you get "
-    "an error while exporting.",
-)
-@click.option(
     "--use-photos-export",
     is_flag=True,
     help="Force the use of AppleScript or PhotoKit to export even if not missing (see also '--download-missing' and '--use-photokit').",
@@ -1554,7 +1547,6 @@ def export(
     no_comment,
     has_likes,
     no_likes,
-    no_extended_attributes,
     label,
     deleted,
     deleted_only,
@@ -1957,7 +1949,6 @@ def export(
                     exiftool=exiftool,
                     directory=directory,
                     filename_template=filename_template,
-                    no_extended_attributes=no_extended_attributes,
                     export_raw=export_raw,
                     album_keyword=album_keyword,
                     person_keyword=person_keyword,
@@ -2016,7 +2007,6 @@ def export(
                         exiftool=exiftool,
                         directory=directory,
                         filename_template=filename_template,
-                        no_extended_attributes=no_extended_attributes,
                         export_raw=export_raw,
                         album_keyword=album_keyword,
                         person_keyword=person_keyword,
@@ -2587,7 +2577,6 @@ def export_photo(
     exiftool=None,
     directory=None,
     filename_template=None,
-    no_extended_attributes=None,
     export_raw=None,
     album_keyword=None,
     person_keyword=None,
@@ -2622,7 +2611,6 @@ def export_photo(
         exiftool: use exiftool to write EXIF metadata directly to exported photo
         directory: template used to determine output directory
         filename_template: template use to determine output file
-        no_extended_attributes: boolean; if True, exports photo without preserving extended attributes
         export_raw: boolean; if True exports raw image associate with the photo
         export_edited: boolean; if True exports edited version of photo if there is one
         skip_original_if_edited: boolean; if True does not export original if photo has been edited
@@ -2765,7 +2753,6 @@ def export_photo(
                             overwrite=overwrite,
                             use_photos_export=use_photos_export,
                             exiftool=exiftool,
-                            no_xattr=no_extended_attributes,
                             use_albums_as_keywords=album_keyword,
                             use_persons_as_keywords=person_keyword,
                             keyword_template=keyword_template,
@@ -2849,7 +2836,6 @@ def export_photo(
                             edited=True,
                             use_photos_export=use_photos_export,
                             exiftool=exiftool,
-                            no_xattr=no_extended_attributes,
                             use_albums_as_keywords=album_keyword,
                             use_persons_as_keywords=person_keyword,
                             keyword_template=keyword_template,

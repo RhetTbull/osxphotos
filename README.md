@@ -45,7 +45,7 @@ OSXPhotos provides the ability to interact with and query Apple's Photos.app lib
 
 Only works on MacOS (aka Mac OS X). Tested on MacOS 10.12.6 / Photos 2.0, 10.13.6 / Photos 3.0, MacOS 10.14.5, 10.14.6 / Photos 4.0, MacOS 10.15.1 - 10.15.6 / Photos 5.0.
 
-Alpha support for MacOS 10.16/MacOS 11 Big Sur Beta / Photos 6.0.
+Beta support for MacOS 10.16/MacOS 11 Big Sur Beta / Photos 6.0.
 
 Requires python >= 3.7. 
 
@@ -388,11 +388,6 @@ Options:
                                   photo would be named
                                   'filename_original.ext'.  The default suffix
                                   is '' (no suffix).
-  --no-extended-attributes        Don't copy extended attributes when
-                                  exporting.  You only need this if exporting
-                                  to a filesystem that doesn't support Mac OS
-                                  extended attributes.  Only use this if you
-                                  get an error while exporting.
   --use-photos-export             Force the use of AppleScript or PhotoKit to
                                   export even if not missing (see also '--
                                   download-missing' and '--use-photokit').
@@ -1502,7 +1497,7 @@ Returns a JSON representation of all photo info.
 Returns a dictionary representation of all photo info.
 
 #### `export()`
-`export(dest, *filename, edited=False, live_photo=False, export_as_hardlink=False, overwrite=False, increment=True, sidecar_json=False, sidecar_xmp=False, use_photos_export=False, timeout=120, exiftool=False, no_xattr=False, use_albums_as_keywords=False, use_persons_as_keywords=False)`
+`export(dest, *filename, edited=False, live_photo=False, export_as_hardlink=False, overwrite=False, increment=True, sidecar_json=False, sidecar_xmp=False, use_photos_export=False, timeout=120, exiftool=False, use_albums_as_keywords=False, use_persons_as_keywords=False)`
 
 Export photo from the Photos library to another destination on disk.  
 - dest: must be valid destination path as str (or exception raised).
@@ -1517,7 +1512,6 @@ Export photo from the Photos library to another destination on disk.
 - use_photos_export: boolean; (default=False), if True will attempt to export photo via applescript interaction with Photos; useful for forcing download of missing photos.  This only works if the Photos library being used is the default library (last opened by Photos) as applescript will directly interact with whichever library Photos is currently using.
 - timeout: (int, default=120) timeout in seconds used with use_photos_export
 - exiftool: (boolean, default = False) if True, will use [exiftool](https://exiftool.org/) to write metadata directly to the exported photo; exiftool must be installed and in the system path
-- no_xattr: (boolean, default = False); if True, exports file without preserving extended attributes
 - use_albums_as_keywords: (boolean, default = False); if True, will use album names as keywords when exporting metadata with exiftool or sidecar
 - use_persons_as_keywords: (boolean, default = False); if True, will use person names as keywords when exporting metadata with exiftool or sidecar
 
@@ -1539,7 +1533,6 @@ Then
 
 If overwrite=False and increment=False, export will fail if destination file already exists
 
-**Implementation Note**: Because the usual python file copy methods don't preserve all the metadata available on MacOS, export uses `/usr/bin/ditto` to do the copy for export. ditto preserves most metadata such as extended attributes, permissions, ACLs, etc.
 
 #### <a name="rendertemplate">`render_template()`</a>
 
@@ -2197,7 +2190,7 @@ if __name__ == "__main__":
 
 ## Contributing
 
-Contributing is easy!  if you find bugs or want to suggest additional features/changes, please open an [issue](https://github.com/rhettbull/osxphotos/issues/).
+Contributing is easy!  if you find bugs or want to suggest additional features/changes, please open an [issue](https://github.com/rhettbull/osxphotos/issues/) or join the [discussion](https://github.com/RhetTbull/osxphotos/discussions).
 
 I'll gladly consider pull requests for bug fixes or feature implementations.  
 
