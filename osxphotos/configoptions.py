@@ -27,6 +27,7 @@ class ConfigOptions:
         Args:
             name: name for these options, will be used for section heading in TOML file when saving/loading from file
             attrs: dict with name and default value for all allowed attributes
+            ignore: optional list of strings of keys to ignore from attrs dict
         """
         self._name = name
         self._attrs = attrs.copy()
@@ -113,7 +114,7 @@ class ConfigOptions:
                         strb = ", ".join(prefix + x.replace("_", "-") for x in b)
                     else:
                         stra = a
-                        strb = ", ".join(x for x in b)
+                        strb = ", ".join(b)
                     raise ConfigOptionsInvalidError(
                         f"{stra} must be used with at least one of: {strb}."
                     )
@@ -166,7 +167,7 @@ class ConfigOptions:
             if type(self._attrs[attr]) == tuple:
                 val = tuple(val)
             setattr(self, attr, val)
-        return self, None
+        return self
 
     def asdict(self):
         return {attr: getattr(self, attr) for attr in sorted(self._attrs.keys())}

@@ -2247,6 +2247,7 @@ For additional details about how osxphotos is implemented or if you would like t
 - [bpylist2](https://pypi.org/project/bpylist2/)
 - [pathvalidate](https://pypi.org/project/pathvalidate/)
 - [wurlitzer](https://pypi.org/project/wurlitzer/)
+- [toml](https://github.com/uiri/toml)
 
 
 ## Acknowledgements
