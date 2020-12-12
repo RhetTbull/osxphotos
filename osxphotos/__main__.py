@@ -1673,7 +1673,6 @@ def export(
         no_comment = cfg.no_comment
         has_likes = cfg.has_likes
         no_likes = cfg.no_likes
-        no_extended_attributes = cfg.no_extended_attributes
         label = cfg.label
         deleted = cfg.deleted
         deleted_only = cfg.deleted_only
