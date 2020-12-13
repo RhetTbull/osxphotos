@@ -1337,7 +1337,7 @@ def query(
     "XMP:PersonInImage; EXIF:GPSLatitudeRef; EXIF:GPSLongitudeRef; EXIF:GPSLatitude; EXIF:GPSLongitude; "
     "EXIF:GPSPosition; EXIF:DateTimeOriginal; EXIF:OffsetTimeOriginal; "
     "EXIF:ModifyDate (see --ignore-date-modified); IPTC:DateCreated; IPTC:TimeCreated; "
-    "(video files only): QuickTime:CreationDate (UTC); QuickTime:ModifyDate (UTC) (see also --ignore-date-modified); "
+    "(video files only): QuickTime:CreationDate; QuickTime:CreateDate; QuickTime:ModifyDate (see also --ignore-date-modified); "
     "QuickTime:GPSCoordinates; UserData:GPSCoordinates.",
 )
 @click.option(

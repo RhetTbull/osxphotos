@@ -1197,7 +1197,8 @@ def _exiftool_dict(
         EXIF:ModifyDate
         IPTC:DateCreated
         IPTC:TimeCreated
-        QuickTime:CreationDate (UTC)
+        QuickTime:CreationDate
+        QuickTime:CreateDate (UTC)
         QuickTime:ModifyDate (UTC)
         QuickTime:GPSCoordinates
         UserData:GPSCoordinates
@@ -1300,22 +1301,26 @@ def _exiftool_dict(
     # [IPTC]    Digital Creation Date   : 2020:10:30
     # [IPTC]    Date Created            : 2020:10:30
     #
+    # for videos:
+    # [QuickTime]     CreateDate                      : 2020:12:11 06:10:10
+    # [QuickTime]     ModifyDate                      : 2020:12:11 06:10:10
+    # [Keys]          CreationDate                    : 2020:12:10 22:10:10-08:00
     # This code deviates from Photos in one regard:
     # if photo has modification date, use it otherwise use creation date
 
-    if self.isphoto:
-        date = self.date
-        # exiftool expects format to "2015:01:18 12:00:00"
-        datetimeoriginal = date.strftime("%Y:%m:%d %H:%M:%S")
+    date = self.date
+    offsettime = date.strftime("%z")
+    # find timezone offset in format "-04:00"
+    offset = re.findall(r"([+-]?)([\d]{2})([\d]{2})", offsettime)
+    offset = offset[0]  # findall returns list of tuples
+    offsettime = f"{offset[0]}{offset[1]}:{offset[2]}"
 
+    # exiftool expects format to "2015:01:18 12:00:00"
+    datetimeoriginal = date.strftime("%Y:%m:%d %H:%M:%S")
+
+    if self.isphoto:
         exif["EXIF:DateTimeOriginal"] = datetimeoriginal
         exif["EXIF:CreateDate"] = datetimeoriginal
-
-        offsettime = date.strftime("%z")
-        # find timezone offset in format "-04:00"
-        offset = re.findall(r"([+-]?)([\d]{2})([\d]{2})", offsettime)
-        offset = offset[0]  # findall returns list of tuples
-        offsettime = f"{offset[0]}{offset[1]}:{offset[2]}"
         exif["EXIF:OffsetTimeOriginal"] = offsettime
 
         dateoriginal = date.strftime("%Y:%m:%d")
@@ -1330,10 +1335,14 @@ def _exiftool_dict(
             exif["EXIF:ModifyDate"] = self.date.strftime("%Y:%m:%d %H:%M:%S")
     elif self.ismovie:
         # QuickTime spec specifies times in UTC
+        # QuickTime:CreateDate and ModifyDate are in UTC w/ no timezone
+        # QuickTime:CreationDate must include time offset or Photos shows invalid values
         # reference: https://exiftool.org/TagNames/QuickTime.html#Keys
-        date_utc = datetime_tz_to_utc(self.date)
+        #            https://exiftool.org/forum/index.php?topic=11927.msg64369#msg64369
+        exif["QuickTime:CreationDate"] = f"{datetimeoriginal}{offsettime}"
+
+        date_utc = datetime_tz_to_utc(date)
         creationdate = date_utc.strftime("%Y:%m:%d %H:%M:%S")
-        exif["QuickTime:CreationDate"] = creationdate
         exif["QuickTime:CreateDate"] = creationdate
         if self.date_modified is not None and not ignore_date_modified:
             exif["QuickTime:ModifyDate"] = datetime_tz_to_utc(
@@ -1381,7 +1390,8 @@ def _exiftool_json_sidecar(
         EXIF:ModifyDate
         IPTC:DigitalCreationDate
         IPTC:DateCreated
-        QuickTime:CreationDate (UTC)
+        QuickTime:CreationDate
+        QuickTime:CreateDate (UTC)
         QuickTime:ModifyDate (UTC)
         QuickTime:GPSCoordinates
         UserData:GPSCoordinates

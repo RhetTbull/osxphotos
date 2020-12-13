@@ -277,7 +277,7 @@ Options:
   --jpeg-quality FLOAT RANGE      Value in range 0.0 to 1.0 to use with
                                   --convert-to-jpeg. A value of 1.0 specifies
                                   best quality, a value of 0.0 specifies
-                                  maximum compression. Defaults to 1.0.
+                                  maximum compression. Defaults to 1.0
   --download-missing              Attempt to download missing photos from
                                   iCloud. The current implementation uses
                                   Applescript to interact with Photos to
@@ -328,9 +328,9 @@ Options:
                                   EXIF:OffsetTimeOriginal; EXIF:ModifyDate
                                   (see --ignore-date-modified);
                                   IPTC:DateCreated; IPTC:TimeCreated; (video
-                                  files only): QuickTime:CreationDate (UTC);
-                                  QuickTime:ModifyDate (UTC) (see also
-                                  --ignore-date-modified);
+                                  files only): QuickTime:CreationDate;
+                                  QuickTime:CreateDate; QuickTime:ModifyDate
+                                  (see also --ignore-date-modified);
                                   QuickTime:GPSCoordinates;
                                   UserData:GPSCoordinates.
   --ignore-date-modified          If used with --exiftool or --sidecar, will
@@ -398,7 +398,8 @@ Options:
                                   work with iTerm2 (use with Terminal.app).
                                   This is faster and more reliable than the
                                   default AppleScript interface.
-  --report REPORTNAME.CSV         Write a CSV formatted report of all files
+  --report <path to export report>
+                                  Write a CSV formatted report of all files
                                   that were exported.
   --cleanup                       Cleanup export directory by deleting any
                                   files which were not included in this export
