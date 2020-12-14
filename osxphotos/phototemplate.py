@@ -52,6 +52,7 @@ TEMPLATE_SUBSTITUTIONS = {
     ),
     "{photo_or_video}": "'photo' or 'video' depending on what type the image is. To customize, use default value as in '{photo_or_video,photo=fotos;video=videos}'",
     "{hdr}": "Photo is HDR?; True/False value, use in format '{hdr?VALUE_IF_TRUE,VALUE_IF_FALSE}'",
+    "{edited}": "Photo has been edited (has adjustments)?; True/False value, use in format '{edited?VALUE_IF_TRUE,VALUE_IF_FALSE}'",
     "{created.date}": "Photo's creation date in ISO format, e.g. '2020-03-22'",
     "{created.year}": "4-digit year of photo creation time",
     "{created.yy}": "2-digit year of photo creation time",
@@ -632,7 +633,9 @@ class PhotoTemplate:
         elif field == "photo_or_video":
             value = self.get_photo_video_type(default)
         elif field == "hdr":
-            value = self.get_photo_hdr(default, bool_val)
+            value = self.get_photo_bool_attribute("hdr", default, bool_val)
+        elif field == "edited":
+            value = self.get_photo_bool_attribute("hasadjustments", default, bool_val)
         elif field == "created.date":
             value = DateTimeFormatter(self.photo.date).date
         elif field == "created.year":
@@ -962,8 +965,10 @@ class PhotoTemplate:
         else:
             return default_dict["photo"]
 
-    def get_photo_hdr(self, default, bool_val):
-        if self.photo.hdr:
+    def get_photo_bool_attribute(self, attr, default, bool_val):
+        # get value for a PhotoInfo bool attribute
+        val = getattr(self.photo, attr)
+        if val:
             return bool_val
         else:
             return default

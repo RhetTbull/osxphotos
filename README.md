@@ -374,20 +374,24 @@ Options:
                                   do not include an extension in the FILENAME
                                   template. See below for additional details
                                   on templating system.
-  --edited-suffix SUFFIX          Optional suffix for naming edited photos.
-                                  Default name for edited photos is in form
-                                  'photoname_edited.ext'. For example, with '
-                                  --edited-suffix _bearbeiten', the edited
-                                  photo would be named
+  --edited-suffix SUFFIX          Optional suffix template for naming edited
+                                  photos.  Default name for edited photos is
+                                  in form 'photoname_edited.ext'. For example,
+                                  with '--edited-suffix _bearbeiten', the
+                                  edited photo would be named
                                   'photoname_bearbeiten.ext'.  The default
-                                  suffix is '_edited'.
-  --original-suffix SUFFIX        Optional suffix for naming original photos.
-                                  Default name for original photos is in form
-                                  'filename.ext'. For example, with '--
-                                  original-suffix _original', the original
+                                  suffix is '_edited'. Multi-value templates
+                                  (see Templating System) are not permitted
+                                  with --edited-suffix.
+  --original-suffix SUFFIX        Optional suffix template for naming original
+                                  photos.  Default name for original photos is
+                                  in form 'filename.ext'. For example, with '
+                                  --original-suffix _original', the original
                                   photo would be named
                                   'filename_original.ext'.  The default suffix
-                                  is '' (no suffix).
+                                  is '' (no suffix). Multi-value templates
+                                  (see Templating System) are not permitted
+                                  with --original-suffix.
   --use-photos-export             Force the use of AppleScript or PhotoKit to
                                   export even if not missing (see also '--
                                   download-missing' and '--use-photokit').
@@ -569,6 +573,9 @@ Substitution                    Description
                                 '{photo_or_video,photo=fotos;video=videos}'
 {hdr}                           Photo is HDR?; True/False value, use in
                                 format '{hdr?VALUE_IF_TRUE,VALUE_IF_FALSE}'
+{edited}                        Photo has been edited (has adjustments)?;
+                                True/False value, use in format
+                                '{edited?VALUE_IF_TRUE,VALUE_IF_FALSE}'
 {created.date}                  Photo's creation date in ISO format, e.g.
                                 '2020-03-22'
 {created.year}                  4-digit year of photo creation time
@@ -2041,6 +2048,7 @@ The following template field substitutions are availabe for use with `PhotoInfo.
 |{media_type}|Special media type resolved in this precedence: selfie, time_lapse, panorama, slow_mo, screenshot, portrait, live_photo, burst, photo, video. Defaults to 'photo' or 'video' if no special type. Customize one or more media types using format: '{media_type,video=vidéo;time_lapse=vidéo_accélérée}'|
 |{photo_or_video}|'photo' or 'video' depending on what type the image is. To customize, use default value as in '{photo_or_video,photo=fotos;video=videos}'|
 |{hdr}|Photo is HDR?; True/False value, use in format '{hdr?VALUE_IF_TRUE,VALUE_IF_FALSE}'|
+|{edited}|Photo has been edited (has adjustments)?; True/False value, use in format '{edited?VALUE_IF_TRUE,VALUE_IF_FALSE}'|
 |{created.date}|Photo's creation date in ISO format, e.g. '2020-03-22'|
 |{created.year}|4-digit year of photo creation time|
 |{created.yy}|2-digit year of photo creation time|

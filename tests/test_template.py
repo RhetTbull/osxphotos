@@ -59,10 +59,16 @@ TEMPLATE_VALUES_TITLE = {
 }
 
 # Boolean type values that render to True
-UUID_BOOL_VALUES = {"hdr": "D11D25FF-5F31-47D2-ABA9-58418878DC15"}
+UUID_BOOL_VALUES = {
+    "hdr": "D11D25FF-5F31-47D2-ABA9-58418878DC15",
+    "edited": "51F2BEF7-431A-4D31-8AC1-3284A57826AE",
+}
 
 # Boolean type values that render to False
-UUID_BOOL_VALUES_NOT = {"hdr": "51F2BEF7-431A-4D31-8AC1-3284A57826AE"}
+UUID_BOOL_VALUES_NOT = {
+    "hdr": "51F2BEF7-431A-4D31-8AC1-3284A57826AE",
+    "edited": "CCBE0EB9-AE9F-4479-BFFD-107042C75227",
+}
 
 # for exiftool template
 UUID_EXIFTOOL = {

@@ -1402,16 +1402,18 @@ def query(
 @click.option(
     "--edited-suffix",
     metavar="SUFFIX",
-    help="Optional suffix for naming edited photos.  Default name for edited photos is in form "
+    help="Optional suffix template for naming edited photos.  Default name for edited photos is in form "
     "'photoname_edited.ext'. For example, with '--edited-suffix _bearbeiten', the edited photo "
-    f"would be named 'photoname_bearbeiten.ext'.  The default suffix is '{DEFAULT_EDITED_SUFFIX}'.",
+    f"would be named 'photoname_bearbeiten.ext'.  The default suffix is '{DEFAULT_EDITED_SUFFIX}'. "
+    "Multi-value templates (see Templating System) are not permitted with --edited-suffix.",
 )
 @click.option(
     "--original-suffix",
     metavar="SUFFIX",
-    help="Optional suffix for naming original photos.  Default name for original photos is in form "
+    help="Optional suffix template for naming original photos.  Default name for original photos is in form "
     "'filename.ext'. For example, with '--original-suffix _original', the original photo "
-    "would be named 'filename_original.ext'.  The default suffix is '' (no suffix).",
+    "would be named 'filename_original.ext'.  The default suffix is '' (no suffix). "
+    "Multi-value templates (see Templating System) are not permitted with --original-suffix.",
 )
 @click.option(
     "--use-photos-export",
@@ -1578,8 +1580,6 @@ def export(
         ignore=["ctx", "cli_obj", "dest", "load_config", "save_config"],
     )
 
-    # print(jpeg_quality, edited_suffix, original_suffix)
-
     global VERBOSE
     VERBOSE = bool(verbose)
 
@@ -1716,11 +1716,7 @@ def export(
         ("jpeg_quality", ("convert_to_jpeg")),
     ]
     try:
-        cfg.validate(
-            exclusive=exclusive_options,
-            dependent=dependent_options,
-            cli=True,
-        )
+        cfg.validate(exclusive=exclusive_options, dependent=dependent_options, cli=True)
     except ConfigOptionsInvalidError as e:
         click.echo(f"Incompatible export options: {e.message}", err=True)
         raise click.Abort()
@@ -1735,8 +1731,6 @@ def export(
     original_suffix = (
         DEFAULT_ORIGINAL_SUFFIX if original_suffix is None else original_suffix
     )
-
-    # print(jpeg_quality, edited_suffix, original_suffix)
 
     if not os.path.isdir(dest):
         click.echo(f"DEST {dest} must be valid path", err=True)
@@ -2693,10 +2687,25 @@ def export_photo(
     filenames = get_filenames_from_template(photo, filename_template, original_name)
     for filename in filenames:
         if original_suffix:
+            rendered_suffix, unmatched = photo.render_template(
+                original_suffix, filename=True
+            )
+            if not rendered_suffix or unmatched:
+                raise click.BadOptionUsage(
+                    "original_suffix",
+                    f"Invalid template for --original-suffix '{original_suffix}': results={rendered_suffix} unmatched={unmatched}",
+                )
+            if len(rendered_suffix) > 1:
+                raise click.BadOptionUsage(
+                    "original_suffix",
+                    f"Invalid template for --original-suffix: may not use multi-valued templates: '{original_suffix}': results={rendered_suffix}",
+                )
+            rendered_suffix = rendered_suffix[0]
+
             original_filename = pathlib.Path(filename)
             original_filename = (
                 original_filename.parent
-                / f"{original_filename.stem}{original_suffix}{original_filename.suffix}"
+                / f"{original_filename.stem}{rendered_suffix}{original_filename.suffix}"
             )
             original_filename = str(original_filename)
         else:
@@ -2813,7 +2822,30 @@ def export_photo(
                     # use filename suffix which might be wrong,
                     # will be corrected by use_photos_export
                     edited_ext = pathlib.Path(photo.filename).suffix
-                edited_filename = f"{edited_filename.stem}{edited_suffix}{edited_ext}"
+
+                if edited_suffix:
+                    rendered_suffix, unmatched = photo.render_template(
+                        edited_suffix, filename=True
+                    )
+
+                    if not rendered_suffix or unmatched:
+                        raise click.BadOptionUsage(
+                            "edited_suffix",
+                            f"Invalid template for --edited-suffix '{edited_suffix}': results={rendered_suffix} unmatched={unmatched}",
+                        )
+                    if len(rendered_suffix) > 1:
+                        raise click.BadOptionUsage(
+                            "edited_suffix",
+                            f"Invalid template for --edited-suffix: may not use multi-valued templates: '{edited_suffix}': results={rendered_suffix}",
+                        )
+                    rendered_suffix = rendered_suffix[0]
+
+                    edited_filename = (
+                        f"{edited_filename.stem}{rendered_suffix}{edited_ext}"
+                    )
+                else:
+                    edited_filename = f"{edited_filename.stem}{edited_ext}"
+
                 verbose_(
                     f"Exporting edited version of {photo.original_filename} ({photo.filename}) as {edited_filename}"
                 )
