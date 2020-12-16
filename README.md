@@ -729,7 +729,7 @@ Example: export photos to file structure based on 4-digit year and full name of 
 
 `osxphotos export ~/Desktop/export --directory "{created.year}/{created.month}"`
 
-Example: export photos to file structure based on 4-digit year of photo's creation date and add keywords for media type and labels (please note labels are only awailable on Photos 5 and higer):
+Example: export photos to file structure based on 4-digit year of photo's creation date and add keywords for media type and labels (labels are only awailable on Photos 5 and higher):
 
 `osxphotos export ~/Desktop/export --directory "{created.year}" --keyword-template "{label}" --keyword-template "{media_type}"` 
 
