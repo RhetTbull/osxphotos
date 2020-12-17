@@ -285,7 +285,8 @@ def export(
     when exporting metadata with exiftool or sidecar
     keyword_template: (list of strings); list of template strings that will be rendered as used as keywords
     description_template: string; optional template string that will be rendered for use as photo description
-    returns: list of photos exported
+    
+    Returns: list of photos exported
     """
 
     # Implementation note: calls export2 to actually do the work
@@ -333,6 +334,7 @@ def export2(
     keyword_template=None,
     description_template=None,
     update=False,
+    ignore_signature=False,
     export_db=None,
     fileutil=FileUtil,
     dry_run=False,
@@ -376,6 +378,7 @@ def export2(
     description_template: string; optional template string that will be rendered for use as photo description
     update: (boolean, default=False); if True export will run in update mode, that is, it will
             not export the photo if the current version already exists in the destination
+    ignore_signature: (bool, default=False), ignore file signature when used with update (look only at filename)
     export_db: (ExportDB_ABC); instance of a class that conforms to ExportDB_ABC with methods
             for getting/setting data related to exported files to compare update state
     fileutil: (FileUtilABC); class that conforms to FileUtilABC with various file utilities
@@ -606,6 +609,7 @@ def export2(
             fileutil=fileutil,
             edited=edited,
             jpeg_quality=jpeg_quality,
+            ignore_signature=ignore_signature,
         )
         exported_files = results.exported
         update_new_files = results.new
@@ -631,6 +635,7 @@ def export2(
                     touch_file,
                     False,
                     fileutil=fileutil,
+                    ignore_signature=ignore_signature,
                 )
                 exported_files.extend(results.exported)
                 update_new_files.extend(results.new)
@@ -657,6 +662,7 @@ def export2(
                     convert_to_jpeg,
                     fileutil=fileutil,
                     jpeg_quality=jpeg_quality,
+                    ignore_signature=ignore_signature,
                 )
                 exported_files.extend(results.exported)
                 update_new_files.extend(results.new)
@@ -963,6 +969,7 @@ def _export_photo(
     fileutil=FileUtil,
     edited=False,
     jpeg_quality=1.0,
+    ignore_signature=None,
 ):
     """Helper function for export()
         Does the actual copy or hardlink taking the appropriate
@@ -983,6 +990,7 @@ def _export_photo(
         fileutil: FileUtil class that conforms to fileutil.FileUtilABC
         edited: bool; set to True if exporting edited version of photo
         jpeg_quality: float in range 0.0 <= jpeg_quality <= 1.0.  A value of 1.0 specifies use best quality, a value of 0.0 specifies use maximum compression.
+        ignore_signature: bool, ignore file signature when used with update (look only at filename)
 
     Returns:
         ExportResults
@@ -1008,7 +1016,10 @@ def _export_photo(
         cmp_touch, cmp_orig = False, False
         if dest_exists:
             # update, destination exists, but we might not need to replace it...
-            if exiftool:
+            if ignore_signature:
+                cmp_orig = True
+                cmp_touch = fileutil.cmp(src, dest, mtime1=int(self.date.timestamp()))
+            elif exiftool:
                 sig_exif = export_db.get_stat_exif_for_file(dest_str)
                 cmp_orig = fileutil.cmp_file_sig(dest_str, sig_exif)
                 sig_exif = (sig_exif[0], sig_exif[1], int(self.date.timestamp()))

@@ -146,6 +146,9 @@ class ExportCommand(click.Command):
             + "exported image), osxphotos will detect this as a difference and re-export the original image "
             + "from the library thus overwriting the changes.  If using --update, the exported library "
             + "should be treated as a backup, not a working copy where you intend to make changes. "
+            + "If you do edit or process the exported files and do not want them to be overwritten with"
+            + "subsequent --update, use --ignore-signature which will match filename but not file signature when "
+            + "exporting."
         )
         formatter.write("\n")
         formatter.write_text(
@@ -1219,6 +1222,15 @@ def query(
     help="Only export new or updated files. See notes below on export and --update.",
 )
 @click.option(
+    "--ignore-signature",
+    is_flag=True,
+    help="When used with --update, ignores file signature when updating files. "
+    "This is useful if you have processed or edited exported photos changing the "
+    "file signature (size & modification date). In this case, --update would normally "
+    "re-export the processed files but with --ignore-signature, files which exist "
+    "in the export directory will not be re-exported.",
+)
+@click.option(
     "--dry-run",
     is_flag=True,
     help="Dry run (test) the export but don't actually export any files; most useful with --verbose.",
@@ -1496,6 +1508,7 @@ def export(
     verbose,
     missing,
     update,
+    ignore_signature,
     dry_run,
     export_as_hardlink,
     touch_file,
@@ -1621,6 +1634,7 @@ def export(
         verbose = cfg.verbose
         missing = cfg.missing
         update = cfg.update
+        ignore_signature = cfg.ignore_signature
         dry_run = cfg.dry_run
         export_as_hardlink = cfg.export_as_hardlink
         touch_file = cfg.touch_file
@@ -1714,6 +1728,7 @@ def export(
     dependent_options = [
         ("missing", ("download_missing", "use_photos_export")),
         ("jpeg_quality", ("convert_to_jpeg")),
+        ("ignore_signature", ("update")),
     ]
     try:
         cfg.validate(exclusive=exclusive_options, dependent=dependent_options, cli=True)
@@ -1932,6 +1947,7 @@ def export(
                     export_by_date=export_by_date,
                     sidecar=sidecar,
                     update=update,
+                    ignore_signature=ignore_signature,
                     export_as_hardlink=export_as_hardlink,
                     overwrite=overwrite,
                     export_edited=export_edited,
@@ -1990,6 +2006,7 @@ def export(
                         export_by_date=export_by_date,
                         sidecar=sidecar,
                         update=update,
+                        ignore_signature=ignore_signature,
                         export_as_hardlink=export_as_hardlink,
                         overwrite=overwrite,
                         export_edited=export_edited,
@@ -2560,6 +2577,7 @@ def export_photo(
     export_by_date=None,
     sidecar=None,
     update=None,
+    ignore_signature=None,
     export_as_hardlink=None,
     overwrite=None,
     export_edited=None,
@@ -2766,6 +2784,7 @@ def export_photo(
                             keyword_template=keyword_template,
                             description_template=description_template,
                             update=update,
+                            ignore_signature=ignore_signature,
                             export_db=export_db,
                             fileutil=fileutil,
                             dry_run=dry_run,
@@ -2872,6 +2891,7 @@ def export_photo(
                             keyword_template=keyword_template,
                             description_template=description_template,
                             update=update,
+                            ignore_signature=ignore_signature,
                             export_db=export_db,
                             fileutil=fileutil,
                             dry_run=dry_run,

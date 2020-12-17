@@ -59,6 +59,8 @@ CLI_EXPORT_FILENAMES = [
     "wedding_edited.jpeg",
 ]
 
+CLI_EXPORT_IGNORE_SIGNATURE_FILENAMES = ["Tulips.jpg", "wedding.jpg"]
+
 CLI_EXPORT_FILENAMES_ALBUM = ["Pumkins1.jpg", "Pumkins2.jpg", "Pumpkins3.jpg"]
 
 CLI_EXPORT_FILENAMES_ALBUM_UNICODE = ["IMG_4547.jpg"]
@@ -372,10 +374,10 @@ CLI_EXIFTOOL_QUICKTIME = {
         "QuickTime:CreateDate": "2020:01:05 22:13:13",
         "QuickTime:ModifyDate": "2020:01:05 22:13:13",
     },
-    "2CE332F2-D578-4769-AEFA-7631BB77AA41": {
-        "File:FileName": "Jellyfish.mp4",
+    "D1359D09-1373-4F3B-B0E3-1A4DE573E4A3": {
+        "File:FileName": "Jellyfish1.mp4",
         "XMP:Description": "Jellyfish Video",
-        "XMP:Title": "Jellyfish",
+        "XMP:Title": "Jellyfish1",
         "XMP:TagsList": "Travel",
         "XMP:Subject": "Travel",
         "QuickTime:GPSCoordinates": "34.053345 -118.242349",
@@ -514,6 +516,12 @@ UUID_NO_LIKES = [
     "45099D34-A414-464F-94A2-60D6823679C8",
     "1C1C8F1F-826B-4A24-B1CB-56628946A834",
 ]
+
+
+def modify_file(filename):
+    """ appends data to a file to modify it """
+    with open(filename, "ab") as fd:
+        fd.write(b"foo")
 
 
 @pytest.fixture(autouse=True)
@@ -3785,6 +3793,54 @@ def test_export_touch_files_exiftool_update():
 
         assert "exported: 0" in result.output
         assert "skipped: 18" in result.output
+
+
+def test_export_ignore_signature():
+    """ test export with --ignore-signature """
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        # first, export some files
+        result = runner.invoke(export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V"])
+        assert result.exit_code == 0
+
+        # modify a couple of files
+        for filename in CLI_EXPORT_IGNORE_SIGNATURE_FILENAMES:
+            modify_file(f"./{filename}")
+
+        # export with --update and --ignore-signature
+        # which should ignore the two modified files
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--update",
+                "--ignore-signature",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "exported: 0, updated: 0" in result.output
+
+        # export with --update and not --ignore-signature
+        # which should updated the two modified files
+        result = runner.invoke(
+            export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--update"]
+        )
+        assert result.exit_code == 0
+        assert "updated: 2" in result.output
+
+        # run --update again, should be 0 files exported
+        result = runner.invoke(
+            export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--update"]
+        )
+        assert result.exit_code == 0
+        assert "exported: 0, updated: 0" in result.output
 
 
 def test_labels():

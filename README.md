@@ -236,6 +236,15 @@ Options:
                                   Deleted' folder.
   --update                        Only export new or updated files. See notes
                                   below on export and --update.
+  --ignore-signature              When used with --update, ignores file
+                                  signature when updating files. This is
+                                  useful if you have processed or edited
+                                  exported photos changing the file signature
+                                  (size & modification date). In this case,
+                                  --update would normally re-export the
+                                  processed files but with --ignore-signature,
+                                  files which exist in the export directory
+                                  will not be re-exported.
   --dry-run                       Dry run (test) the export but don't actually
                                   export any files; most useful with
                                   --verbose.
@@ -439,7 +448,10 @@ the export folder.  If a file is changed in the export folder (for example,
 you edited the exported image), osxphotos will detect this as a difference and
 re-export the original image from the library thus overwriting the changes.
 If using --update, the exported library should be treated as a backup, not a
-working copy where you intend to make changes.
+working copy where you intend to make changes. If you do edit or process the
+exported files and do not want them to be overwritten withsubsequent --update,
+use --ignore-signature which will match filename but not file signature when
+exporting.
 
 Note: The number of files reported for export and the number actually exported
 may differ due to live photos, associated raw images, and edited photos which
