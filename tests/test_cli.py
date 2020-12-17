@@ -3797,6 +3797,7 @@ def test_export_touch_files_exiftool_update():
 
 def test_export_ignore_signature():
     """ test export with --ignore-signature """
+    import os
     from osxphotos.__main__ import export
 
     runner = CliRunner()
@@ -3841,6 +3842,135 @@ def test_export_ignore_signature():
         )
         assert result.exit_code == 0
         assert "exported: 0, updated: 0" in result.output
+
+
+def test_export_ignore_signature_sidecar():
+    """ test export with --ignore-signature and --sidecar """
+    """
+    Test the following use cases: 
+    If the metadata (in Photos) that went into the sidecar did not change, the sidecar will not be updated
+    If the metadata (in Photos) that went into the sidecar did change, a new sidecar is written but a new image file is not
+    If a sidecar does not exist for the photo, a sidecar will be written whether or not the photo file was written
+    """
+
+    import osxphotos
+    import os
+
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        # first, export some files
+        result = runner.invoke(
+            export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--sidecar", "XMP"]
+        )
+        assert result.exit_code == 0
+
+        # export with --update and --ignore-signature
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--update",
+                "--sidecar",
+                "XMP",
+                "--ignore-signature",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "exported: 0, updated: 0" in result.output
+        assert "Writing XMP sidecar" not in result.output
+
+        # modify a couple of files
+        for filename in CLI_EXPORT_IGNORE_SIGNATURE_FILENAMES:
+            modify_file(f"./{filename}")
+
+        # export with --update and --ignore-signature
+        # which should ignore the two modified files
+        # sidecar files should not be re-written
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--update",
+                "--sidecar",
+                "XMP",
+                "--ignore-signature",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "exported: 0" in result.output
+        assert "Writing XMP sidecar" not in result.output
+
+        # change the sidecar data in export DB
+        # should result in a new sidecar being exported but not the image itself
+        exportdb = osxphotos.export_db.ExportDB("./.osxphotos_export.db")
+        for filename in CLI_EXPORT_IGNORE_SIGNATURE_FILENAMES:
+            exportdb.set_sidecar_for_file(f"{filename}.xmp", "FOO", (0, 1, 2))
+
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--update",
+                "--ignore-signature",
+                "--sidecar",
+                "XMP",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "exported: 0, updated: 0" in result.output
+        assert result.output.count("Writing XMP sidecar") == len(
+            CLI_EXPORT_IGNORE_SIGNATURE_FILENAMES
+        )
+
+        # run --update again, should be 0 files exported
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--update",
+                "--ignore-signature",
+                "--sidecar",
+                "XMP",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "exported: 0, updated: 0" in result.output
+        assert "Writing XMP sidecar" not in result.output
+
+        # remove XMP files and run again to verify the files get written
+        for filename in CLI_EXPORT_IGNORE_SIGNATURE_FILENAMES:
+            os.unlink(f"./{filename}.xmp")
+
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--update",
+                "--ignore-signature",
+                "--sidecar",
+                "XMP",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "exported: 0, updated: 0" in result.output
+        assert result.output.count("Writing XMP sidecar") == len(
+            CLI_EXPORT_IGNORE_SIGNATURE_FILENAMES
+        )
 
 
 def test_labels():
