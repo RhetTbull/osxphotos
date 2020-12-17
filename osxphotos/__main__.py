@@ -177,7 +177,7 @@ which will be rendered to substitute template fields with values from the photo.
 For example, '{created.month}' would be replaced with the month name of the photo creation date. 
 e.g. 'November'. 
 \n
-Options supporting templates may be repeated e.g., --keyword-template '{label}' 
+Some options supporting templates may be repeated e.g., --keyword-template '{label}' 
 --keyword-template '{media_type}' to add both labels and media types to the 
 keywords.
 \n
