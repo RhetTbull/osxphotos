@@ -474,6 +474,10 @@ will be rendered to substitute template fields with values from the photo.
 For example, '{created.month}' would be replaced with the month name of the
 photo creation date.  e.g. 'November'.
 
+Some options supporting templates may be repeated e.g., --keyword-template
+'{label}'  --keyword-template '{media_type}' to add both labels and media
+types to the  keywords.
+
 The general format for a template is '{TEMPLATE_FIELD[,[DEFAULT]]}'.  Some
 templates have optional modifiers in form
 '{[[DELIM]+]TEMPLATE_FIELD[(PATH_SEP)][?VALUE_IF_TRUE][,[DEFAULT]]}'
