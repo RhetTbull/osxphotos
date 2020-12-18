@@ -510,7 +510,7 @@ class PhotoTemplate:
                     subfield = field[9:]
 
                     if not self.photo.path:
-                        values = []
+                        values = [None]
                     else:
                         exif = ExifTool(self.photo.path)
                         exifdict = exif.asdict()
@@ -870,7 +870,7 @@ class PhotoTemplate:
         """
 
         """ return list of values for a multi-valued template field """
-        values = [] 
+        values = []
         if field == "album":
             values = self.photo.albums
         elif field == "keyword":
