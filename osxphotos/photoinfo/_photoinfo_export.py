@@ -45,24 +45,105 @@ from ..photokit import (
 )
 from ..utils import dd_to_dms_str, findfiles, noop
 
-ExportResults = namedtuple(
-    "ExportResults",
-    [
-        "exported",
-        "new",
-        "updated",
-        "skipped",
-        "exif_updated",
-        "touched",
-        "converted_to_jpeg",
-        "sidecar_json_written",
-        "sidecar_json_skipped",
-        "sidecar_xmp_written",
-        "sidecar_xmp_skipped",
-        "missing",
-        "error",
-    ],
-)
+
+class ExportResults:
+    """ holds export results for export2 """
+
+    def __init__(
+        self,
+        exported=None,
+        new=None,
+        updated=None,
+        skipped=None,
+        exif_updated=None,
+        touched=None,
+        converted_to_jpeg=None,
+        sidecar_json_written=None,
+        sidecar_json_skipped=None,
+        sidecar_xmp_written=None,
+        sidecar_xmp_skipped=None,
+        missing=None,
+        error=None,
+        exiftool_warning=None,
+        exiftool_error=None,
+    ):
+        self.exported = exported or []
+        self.new = new or []
+        self.updated = updated or []
+        self.skipped = skipped or []
+        self.exif_updated = exif_updated or []
+        self.touched = touched or []
+        self.converted_to_jpeg = converted_to_jpeg or []
+        self.sidecar_json_written = sidecar_json_written or []
+        self.sidecar_json_skipped = sidecar_json_skipped or []
+        self.sidecar_xmp_written = sidecar_xmp_written or []
+        self.sidecar_xmp_skipped = sidecar_xmp_skipped or []
+        self.missing = missing or []
+        self.error = error or []
+        self.exiftool_warning = exiftool_warning or []
+        self.exiftool_error = exiftool_error or []
+
+    def all_files(self):
+        """ return all filenames contained in results """
+        files = (
+            self.exported
+            + self.new
+            + self.updated
+            + self.skipped
+            + self.exif_updated
+            + self.touched
+            + self.converted_to_jpeg
+            + self.sidecar_json_written
+            + self.sidecar_json_skipped
+            + self.sidecar_xmp_written
+            + self.sidecar_xmp_skipped
+            + self.missing
+            + self.error
+        )
+        files += [x[0] for x in self.exiftool_warning]
+        files += [x[0] for x in self.exiftool_error]
+        
+        files = list(set(files))
+        return files
+
+    def __iadd__(self, other):
+        self.exported += other.exported
+        self.new += other.new
+        self.updated += other.updated
+        self.skipped += other.skipped
+        self.exif_updated += other.exif_updated
+        self.touched += other.touched
+        self.converted_to_jpeg += other.converted_to_jpeg
+        self.sidecar_json_written += other.sidecar_json_written
+        self.sidecar_json_skipped += other.sidecar_json_skipped
+        self.sidecar_xmp_written += other.sidecar_xmp_written
+        self.sidecar_xmp_skipped += other.sidecar_xmp_skipped
+        self.missing += other.missing
+        self.error += other.error
+        self.exiftool_warning += other.exiftool_warning
+        self.exiftool_error += other.exiftool_error
+        return self
+
+    def __str__(self):
+        return (
+            "ExportResults("
+            + f"exported={self.exported}"
+            + f",new={self.new}"
+            + f",updated={self.updated}"
+            + f",skipped={self.skipped}"
+            + f",exif_updated={self.exif_updated}"
+            + f",touched={self.touched}"
+            + f",converted_to_jpeg={self.converted_to_jpeg}"
+            + f",sidecar_json_written={self.sidecar_json_written}"
+            + f",sidecar_json_skipped={self.sidecar_json_skipped}"
+            + f",sidecar_xmp_written={self.sidecar_xmp_written}"
+            + f",sidecar_xmp_skipped={self.sidecar_xmp_skipped}"
+            + f",missing={self.missing}"
+            + f",error={self.error}"
+            + f",exiftool_warning={self.exiftool_warning}"
+            + f",exiftool_error={self.exiftool_error}"
+            + ")"
+        )
 
 
 # hexdigest is not a class method, don't import this into PhotoInfo
@@ -389,7 +470,8 @@ def export2(
     ignore_date_modified: for use with sidecar and exiftool; if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
     verbose: optional callable function to use for printing verbose text during processing; if None (default), does not print output.
 
-    Returns: ExportResults namedtuple with fields: 
+    Returns: ExportResults class 
+        ExportResults has attributes: 
         "exported",
         "new",
         "updated",
@@ -402,7 +484,10 @@ def export2(
         "sidecar_xmp_written",
         "sidecar_xmp_skipped",
         "missing",
-        "error"
+        "error",
+        "exiftool_warning",
+        "exiftool_error",
+
  
     Note: to use dry run mode, you must set dry_run=True and also pass in memory version of export_db,
           and no-op fileutil (e.g. ExportDBInMemory and FileUtilNoOp)
@@ -853,6 +938,10 @@ def export2(
         exif_files = exported_files
 
     exif_files_updated = []
+    exiftool_warning = []
+    exiftool_error = []
+    errors = []
+    # TODO: remove duplicative code from below
     if exiftool and update and exif_files:
         for exported_file in exif_files:
             files_are_different = False
@@ -876,7 +965,7 @@ def export2(
                 # or files were different
                 verbose(f"Writing metadata with exiftool for {exported_file}")
                 if not dry_run:
-                    self._write_exif_data(
+                    warning_, error_ = self._write_exif_data(
                         exported_file,
                         use_albums_as_keywords=use_albums_as_keywords,
                         use_persons_as_keywords=use_persons_as_keywords,
@@ -884,6 +973,12 @@ def export2(
                         description_template=description_template,
                         ignore_date_modified=ignore_date_modified,
                     )
+                    if warning_:
+                        exiftool_warning.append((exported_file, warning_))
+                    if error_:
+                        exiftool_error.append((exported_file, error_))
+                        errors.append(exported_file)
+
                 export_db.set_exifdata_for_file(
                     exported_file,
                     self._exiftool_json_sidecar(
@@ -904,7 +999,7 @@ def export2(
         for exported_file in exif_files:
             verbose(f"Writing metadata with exiftool for {exported_file}")
             if not dry_run:
-                self._write_exif_data(
+                warning_, error_ = self._write_exif_data(
                     exported_file,
                     use_albums_as_keywords=use_albums_as_keywords,
                     use_persons_as_keywords=use_persons_as_keywords,
@@ -912,6 +1007,11 @@ def export2(
                     description_template=description_template,
                     ignore_date_modified=ignore_date_modified,
                 )
+                if warning_:
+                    exiftool_warning.append((exported_file, warning_))
+                if error_:
+                    exiftool_error.append((exported_file, error_))
+                    errors.append(exported_file)
 
             export_db.set_exifdata_for_file(
                 exported_file,
@@ -949,8 +1049,9 @@ def export2(
         sidecar_json_skipped=sidecar_json_files_skipped,
         sidecar_xmp_written=sidecar_xmp_files_written,
         sidecar_xmp_skipped=sidecar_xmp_files_skipped,
-        missing=[],
-        error=[],
+        error=errors,
+        exiftool_error=exiftool_error,
+        exiftool_warning=exiftool_warning,
     )
     return results
 
@@ -1152,6 +1253,9 @@ def _write_exif_data(
         use_persons_as_keywords: treat person names as keywords
         keyword_template: (list of strings); list of template strings to render as keywords
         ignore_date_modified: if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
+
+    Returns:
+        (warning, error) of warning and error strings if exiftool produces warnings or errors
     """
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"Could not find file {filepath}")
@@ -1170,6 +1274,7 @@ def _write_exif_data(
                     exiftool.setvalue(exiftag, v)
             else:
                 exiftool.setvalue(exiftag, val)
+    return exiftool.warning, exiftool.error
 
 
 def _exiftool_dict(

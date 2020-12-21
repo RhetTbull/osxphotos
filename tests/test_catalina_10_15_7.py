@@ -18,10 +18,10 @@ PHOTOS_DB = "tests/Test-10.15.7.photoslibrary/database/photos.db"
 PHOTOS_DB_PATH = "/Test-10.15.7.photoslibrary/database/photos.db"
 PHOTOS_LIBRARY_PATH = "/Test-10.15.7.photoslibrary"
 
-PHOTOS_DB_LEN = 18
-PHOTOS_NOT_IN_TRASH_LEN = 16
+PHOTOS_DB_LEN = 19
+PHOTOS_NOT_IN_TRASH_LEN = 17
 PHOTOS_IN_TRASH_LEN = 2
-PHOTOS_DB_IMPORT_SESSIONS = 13
+PHOTOS_DB_IMPORT_SESSIONS = 14
 
 KEYWORDS = [
     "Kids",
@@ -971,7 +971,7 @@ def test_from_to_date(photosdb):
     time.tzset()
 
     photos = photosdb.photos(from_date=datetime.datetime(2018, 10, 28))
-    assert len(photos) == 9
+    assert len(photos) == 10 
 
     photos = photosdb.photos(to_date=datetime.datetime(2018, 10, 28))
     assert len(photos) == 7

@@ -118,4 +118,6 @@ DEFAULT_EDITED_SUFFIX = "_edited"
 # Default suffix to add to original images
 DEFAULT_ORIGINAL_SUFFIX = ""
 
-
+# Colors for print CLI messages
+CLI_COLOR_ERROR = 'red'
+CLI_COLOR_WARNING = 'yellow'

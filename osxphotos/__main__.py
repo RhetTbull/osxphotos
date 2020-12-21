@@ -19,6 +19,8 @@ from ._constants import (
     _EXIF_TOOL_URL,
     _PHOTOS_4_VERSION,
     _UNKNOWN_PLACE,
+    CLI_COLOR_ERROR,
+    CLI_COLOR_WARNING,
     DEFAULT_JPEG_QUALITY,
     DEFAULT_EDITED_SUFFIX,
     DEFAULT_ORIGINAL_SUFFIX,
@@ -50,7 +52,15 @@ OSXPHOTOS_EXPORT_DB = ".osxphotos_export.db"
 def verbose_(*args, **kwargs):
     """ print output if verbose flag set """
     if VERBOSE:
-        click.echo(*args, **kwargs)
+        styled_args = []
+        for arg in args:
+            if type(arg) == str:
+                if "error" in arg.lower():
+                    arg = click.style(arg, fg=CLI_COLOR_ERROR)
+                elif "warning" in arg.lower():
+                    arg = click.style(arg, fg=CLI_COLOR_WARNING)
+            styled_args.append(arg)
+        click.echo(*styled_args, **kwargs)
 
 
 def normalize_unicode(value):
@@ -1605,7 +1615,11 @@ def export(
             cfg.load_from_file(load_config)
         except ConfigOptionsLoadError as e:
             click.echo(
-                f"Error parsing {load_config} config file: {e.message}", err=True
+                click.style(
+                    f"Error parsing {load_config} config file: {e.message}",
+                    fg=CLI_COLOR_ERROR,
+                ),
+                err=True,
             )
             raise click.Abort()
 
@@ -1737,7 +1751,12 @@ def export(
     try:
         cfg.validate(exclusive=exclusive_options, dependent=dependent_options, cli=True)
     except ConfigOptionsInvalidError as e:
-        click.echo(f"Incompatible export options: {e.message}", err=True)
+        click.echo(
+            click.style(
+                f"Incompatible export options: {e.message}", fg=CLI_COLOR_ERROR
+            ),
+            err=True,
+        )
         raise click.Abort()
 
     if save_config:
@@ -1752,13 +1771,20 @@ def export(
     )
 
     if not os.path.isdir(dest):
-        click.echo(f"DEST {dest} must be valid path", err=True)
+        click.echo(
+            click.style(f"DEST {dest} must be valid path", fg=CLI_COLOR_ERROR), err=True
+        )
         raise click.Abort()
 
     dest = str(pathlib.Path(dest).resolve())
 
     if report and os.path.isdir(report):
-        click.echo(f"report is a directory, must be file name", err=True)
+        click.echo(
+            click.style(
+                f"report is a directory, must be file name", fg=CLI_COLOR_ERROR
+            ),
+            err=True,
+        )
         raise click.Abort()
 
     # if use_photokit and not check_photokit_authorization():
@@ -1785,8 +1811,11 @@ def export(
             _ = get_exiftool_path()
         except FileNotFoundError:
             click.echo(
-                "Could not find exiftool. Please download and install"
-                " from https://exiftool.org/",
+                click.style(
+                    "Could not find exiftool. Please download and install"
+                    " from https://exiftool.org/",
+                    fg=CLI_COLOR_ERROR,
+                ),
                 err=True,
             )
             ctx.exit(2)
@@ -1819,10 +1848,13 @@ def export(
     other_db_files = find_files_in_branch(dest, OSXPHOTOS_EXPORT_DB)
     if other_db_files:
         click.echo(
-            "WARNING: found other export database files in this destination directory branch.  "
-            + "This likely means you are attempting to export files into a directory "
-            + "that is either the parent or a child directory of a previous export. "
-            + "Proceeding may cause your exported files to be overwritten.",
+            click.style(
+                "WARNING: found other export database files in this destination directory branch.  "
+                + "This likely means you are attempting to export files into a directory "
+                + "that is either the parent or a child directory of a previous export. "
+                + "Proceeding may cause your exported files to be overwritten.",
+                fg=CLI_COLOR_WARNING,
+            ),
             err=True,
         )
         click.echo(
@@ -1929,22 +1961,10 @@ def export(
         # because the original code used --original-name as an option
         original_name = not current_name
 
-        results_exported = []
-        results_new = []
-        results_updated = []
-        results_skipped = []
-        results_exif_updated = []
-        results_touched = []
-        results_converted = []
-        results_sidecar_json_written = []
-        results_sidecar_json_skipped = []
-        results_sidecar_xmp_written = []
-        results_sidecar_xmp_skipped = []
-        results_missing = []
-        results_error = []
+        results = ExportResults()
         if verbose:
             for p in photos:
-                results = export_photo(
+                export_results = export_photo(
                     photo=p,
                     dest=dest,
                     verbose=verbose,
@@ -1979,19 +1999,7 @@ def export(
                     ignore_date_modified=ignore_date_modified,
                     use_photokit=use_photokit,
                 )
-                results_exported.extend(results.exported)
-                results_new.extend(results.new)
-                results_updated.extend(results.updated)
-                results_skipped.extend(results.skipped)
-                results_exif_updated.extend(results.exif_updated)
-                results_touched.extend(results.touched)
-                results_converted.extend(results.converted_to_jpeg)
-                results_sidecar_json_written.extend(results.sidecar_json_written)
-                results_sidecar_json_skipped.extend(results.sidecar_json_skipped)
-                results_sidecar_xmp_written.extend(results.sidecar_xmp_written)
-                results_sidecar_xmp_skipped.extend(results.sidecar_xmp_skipped)
-                results_missing.extend(results.missing)
-                results_error.extend(results.error)
+                results += export_results
 
                 # if convert_to_jpeg and p.isphoto and p.uti != "public.jpeg":
                 #     for photo_file in set(
@@ -2003,7 +2011,7 @@ def export(
             # show progress bar
             with click.progressbar(photos) as bar:
                 for p in bar:
-                    results = export_photo(
+                    export_results = export_photo(
                         photo=p,
                         dest=dest,
                         verbose=verbose,
@@ -2038,19 +2046,7 @@ def export(
                         ignore_date_modified=ignore_date_modified,
                         use_photokit=use_photokit,
                     )
-                    results_exported.extend(results.exported)
-                    results_new.extend(results.new)
-                    results_updated.extend(results.updated)
-                    results_skipped.extend(results.skipped)
-                    results_exif_updated.extend(results.exif_updated)
-                    results_touched.extend(results.touched)
-                    results_converted.extend(results.converted_to_jpeg)
-                    results_sidecar_json_written.extend(results.sidecar_json_written)
-                    results_sidecar_json_skipped.extend(results.sidecar_json_skipped)
-                    results_sidecar_xmp_written.extend(results.sidecar_xmp_written)
-                    results_sidecar_xmp_skipped.extend(results.sidecar_xmp_skipped)
-                    results_missing.extend(results.missing)
-                    results_error.extend(results.error)
+                    results += export_results
 
         # print summary results
         # print(f"results_exported: {results_exported}")
@@ -2069,19 +2065,19 @@ def export(
 
         if cleanup:
             all_files = (
-                results_exported
-                + results_skipped
-                + results_exif_updated
-                + results_touched
-                + results_converted
-                + results_sidecar_json_written
-                + results_sidecar_json_skipped
-                + results_sidecar_xmp_written
-                + results_sidecar_xmp_skipped
+                results.exported
+                + results.skipped
+                + results.exif_updated
+                + results.touched
+                + results.converted_to_jpeg
+                + results.sidecar_json_written
+                + results.sidecar_json_skipped
+                + results.sidecar_xmp_written
+                + results.sidecar_xmp_skipped
                 # include missing so a file that was already in export directory
                 # but was missing on --update doesn't get deleted
                 # (better to have old version than none)
-                + results_missing
+                + results.missing
                 + [str(pathlib.Path(export_db_path).resolve())]
             )
             click.echo(f"Cleaning up {dest}")
@@ -2092,41 +2088,26 @@ def export(
 
         if report:
             verbose_(f"Writing export report to {report}")
-            write_export_report(
-                report,
-                results_exported=results_exported,
-                results_new=results_new,
-                results_updated=results_updated,
-                results_skipped=results_skipped,
-                results_exif_updated=results_exif_updated,
-                results_touched=results_touched,
-                results_converted=results_converted,
-                results_sidecar_json_written=results_sidecar_json_written,
-                results_sidecar_json_skipped=results_sidecar_json_skipped,
-                results_sidecar_xmp_written=results_sidecar_xmp_written,
-                results_sidecar_xmp_skipped=results_sidecar_xmp_skipped,
-                results_missing=results_missing,
-                results_error=results_error,
-            )
+            write_export_report(report, results)
 
         photo_str_total = "photos" if len(photos) != 1 else "photo"
         if update:
             summary = (
                 f"Processed: {len(photos)} {photo_str_total}, "
-                f"exported: {len(results_new)}, "
-                f"updated: {len(results_updated)}, "
-                f"skipped: {len(results_skipped)}, "
-                f"updated EXIF data: {len(results_exif_updated)}, "
+                f"exported: {len(results.new)}, "
+                f"updated: {len(results.updated)}, "
+                f"skipped: {len(results.skipped)}, "
+                f"updated EXIF data: {len(results.exif_updated)}, "
             )
         else:
             summary = (
                 f"Processed: {len(photos)} {photo_str_total}, "
-                f"exported: {len(results_exported)}, "
+                f"exported: {len(results.exported)}, "
             )
-        summary += f"missing: {len(results_missing)}, "
-        summary += f"error: {len(results_error)}"
+        summary += f"missing: {len(results.missing)}, "
+        summary += f"error: {len(results.error)}"
         if touch_file:
-            summary += f", touched date: {len(results_touched)}"
+            summary += f", touched date: {len(results.touched)}"
         click.echo(summary)
         stop_time = time.perf_counter()
         click.echo(f"Elapsed time: {(stop_time-start_time):.3f} seconds")
@@ -2651,19 +2632,7 @@ def export_photo(
     global VERBOSE
     VERBOSE = bool(verbose)
 
-    results_exported = []
-    results_new = []
-    results_updated = []
-    results_skipped = []
-    results_exif_updated = []
-    results_touched = []
-    results_converted = []
-    results_sidecar_json_written = []
-    results_sidecar_json_skipped = []
-    results_sidecar_xmp_written = []
-    results_sidecar_xmp_skipped = []
-    results_error = []
-    results_missing = []
+    results = ExportResults()
 
     export_original = not (skip_original_if_edited and photo.hasadjustments)
 
@@ -2767,7 +2736,7 @@ def export_photo(
                 if missing_original:
                     space = " " if not verbose else ""
                     verbose_(f"{space}Skipping missing photo {photo.original_filename}")
-                    results_missing.append(
+                    results.missing.append(
                         str(pathlib.Path(dest_path) / original_filename)
                     )
                 else:
@@ -2799,33 +2768,21 @@ def export_photo(
                             use_photokit=use_photokit,
                             verbose=verbose_,
                         )
+                        results += export_results
+                        for warning_ in export_results.exiftool_warning:
+                            verbose_(f"exiftool warning for file {warning_[0]}: {warning_[1]}")
+                        for error_ in export_results.exiftool_error:
+                            click.echo(click.style(f"exiftool error for file {error_[0]}: {error_[1]}", fg=CLI_COLOR_ERROR),err=True)
 
-                        results_exported.extend(export_results.exported)
-                        results_new.extend(export_results.new)
-                        results_updated.extend(export_results.updated)
-                        results_skipped.extend(export_results.skipped)
-                        results_exif_updated.extend(export_results.exif_updated)
-                        results_touched.extend(export_results.touched)
-                        results_converted.extend(export_results.converted_to_jpeg)
-                        results_sidecar_json_written.extend(
-                            export_results.sidecar_json_written
-                        )
-                        results_sidecar_json_skipped.extend(
-                            export_results.sidecar_json_skipped
-                        )
-                        results_sidecar_xmp_written.extend(
-                            export_results.sidecar_xmp_written
-                        )
-                        results_sidecar_xmp_skipped.extend(
-                            export_results.sidecar_xmp_skipped
-                        )
-
-                    except Exception:
+                    except Exception as e:
                         click.echo(
-                            f"Error exporting photo {photo.original_filename} ({photo.filename}) as {original_filename}",
+                            click.style(
+                                f"Error exporting photo {photo.original_filename} ({photo.filename}) as {original_filename}: {e}",
+                                fg=CLI_COLOR_ERROR,
+                            ),
                             err=True,
                         )
-                        results_error.extend(
+                        results.error.append(
                             str(pathlib.Path(dest) / original_filename)
                         )
             else:
@@ -2875,7 +2832,7 @@ def export_photo(
                 if missing_edited:
                     space = " " if not verbose else ""
                     verbose_(f"{space}Skipping missing edited photo for {filename}")
-                    results_missing.append(
+                    results.missing.append(
                         str(pathlib.Path(dest_path) / edited_filename)
                     )
                 else:
@@ -2906,65 +2863,36 @@ def export_photo(
                             use_photokit=use_photokit,
                             verbose=verbose_,
                         )
-
-                        results_exported.extend(export_results_edited.exported)
-                        results_new.extend(export_results_edited.new)
-                        results_updated.extend(export_results_edited.updated)
-                        results_skipped.extend(export_results_edited.skipped)
-                        results_exif_updated.extend(export_results_edited.exif_updated)
-                        results_touched.extend(export_results_edited.touched)
-                        results_converted.extend(
-                            export_results_edited.converted_to_jpeg
-                        )
-                        results_sidecar_json_written.extend(
-                            export_results_edited.sidecar_json_written
-                        )
-                        results_sidecar_json_skipped.extend(
-                            export_results_edited.sidecar_json_skipped
-                        )
-                        results_sidecar_xmp_written.extend(
-                            export_results_edited.sidecar_xmp_written
-                        )
-                        results_sidecar_xmp_skipped.extend(
-                            export_results_edited.sidecar_xmp_skipped
-                        )
-
-                    except Exception:
+                        results += export_results_edited
+                        for warning_ in export_results_edited.exiftool_warning:
+                            verbose_(f"exiftool warning for file {warning_[0]}: {warning_[1]}")
+                        for error_ in export_results_edited.exiftool_error:
+                            click.echo(click.style(f"exiftool error for file {error_[0]}: {error_[1]}", fg=CLI_COLOR_ERROR),err=True)
+                    except Exception as e:
                         click.echo(
-                            f"Error exporting photo {filename} as {edited_filename}",
+                            click.style(
+                                f"Error exporting photo {filename} as {edited_filename}",
+                                fg=CLI_COLOR_ERROR,
+                            ),
                             err=True,
                         )
-                        results_error.extend(str(pathlib.Path(dest) / edited_filename))
+                        results.error.append(str(pathlib.Path(dest) / edited_filename))
 
             if verbose:
                 if update:
-                    for new in results_new:
+                    for new in results.new:
                         verbose_(f"Exported new file {new}")
-                    for updated in results_updated:
+                    for updated in results.updated:
                         verbose_(f"Exported updated file {updated}")
-                    for skipped in results_skipped:
+                    for skipped in results.skipped:
                         verbose_(f"Skipped up to date file {skipped}")
                 else:
-                    for exported in results_exported:
+                    for exported in results.exported:
                         verbose_(f"Exported {exported}")
-                for touched in results_touched:
+                for touched in results.touched:
                     verbose_(f"Touched date on file {touched}")
 
-    return ExportResults(
-        exported=results_exported,
-        new=results_new,
-        updated=results_updated,
-        skipped=results_skipped,
-        exif_updated=results_exif_updated,
-        touched=results_touched,
-        converted_to_jpeg=results_converted,
-        sidecar_json_written=results_sidecar_json_written,
-        sidecar_json_skipped=results_sidecar_json_skipped,
-        sidecar_xmp_written=results_sidecar_xmp_written,
-        sidecar_xmp_skipped=results_sidecar_xmp_skipped,
-        missing=results_missing,
-        error=results_error,
-    )
+    return results
 
 
 def get_filenames_from_template(photo, filename_template, original_name):
@@ -3115,24 +3043,14 @@ def load_uuid_from_file(filename):
     return uuid
 
 
-def write_export_report(
-    report_file,
-    results_exported,
-    results_new,
-    results_updated,
-    results_skipped,
-    results_exif_updated,
-    results_touched,
-    results_converted,
-    results_sidecar_json_written,
-    results_sidecar_json_skipped,
-    results_sidecar_xmp_written,
-    results_sidecar_xmp_skipped,
-    results_missing,
-    results_error,
-):
+def write_export_report(report_file, results):
 
-    """ write CSV report with results from export """
+    """ write CSV report with results from export
+    
+    Args:
+        report_file: path to report file
+        results: ExportResults object
+    """
 
     # Collect results for reporting
     # TODO: pull this in a separate write_report function
@@ -3150,64 +3068,60 @@ def write_export_report(
             "sidecar_json": 0,
             "missing": 0,
             "error": 0,
+            "exiftool_warning": "",
+            "exiftool_error": "",
         }
-        for result in results_exported
-        + results_new
-        + results_updated
-        + results_skipped
-        + results_exif_updated
-        + results_touched
-        + results_converted
-        + results_sidecar_json_written
-        + results_sidecar_json_skipped
-        + results_sidecar_xmp_written
-        + results_sidecar_xmp_skipped
-        + results_missing
-        + results_error
+        for result in results.all_files()
     }
 
-    for result in results_exported:
+    for result in results.exported:
         all_results[result]["exported"] = 1
 
-    for result in results_new:
+    for result in results.new:
         all_results[result]["new"] = 1
 
-    for result in results_updated:
+    for result in results.updated:
         all_results[result]["updated"] = 1
 
-    for result in results_skipped:
+    for result in results.skipped:
         all_results[result]["skipped"] = 1
 
-    for result in results_exif_updated:
+    for result in results.exif_updated:
         all_results[result]["exif_updated"] = 1
 
-    for result in results_touched:
+    for result in results.touched:
         all_results[result]["touched"] = 1
 
-    for result in results_converted:
+    for result in results.converted_to_jpeg:
         all_results[result]["converted_to_jpeg"] = 1
 
-    for result in results_sidecar_xmp_written:
+    for result in results.sidecar_xmp_written:
         all_results[result]["sidecar_xmp"] = 1
         all_results[result]["exported"] = 1
 
-    for result in results_sidecar_xmp_skipped:
+    for result in results.sidecar_xmp_skipped:
         all_results[result]["sidecar_xmp"] = 1
         all_results[result]["skipped"] = 1
 
-    for result in results_sidecar_json_written:
+    for result in results.sidecar_json_written:
         all_results[result]["sidecar_json"] = 1
         all_results[result]["exported"] = 1
 
-    for result in results_sidecar_json_skipped:
+    for result in results.sidecar_json_skipped:
         all_results[result]["sidecar_json"] = 1
         all_results[result]["skipped"] = 1
 
-    for result in results_missing:
+    for result in results.missing:
         all_results[result]["missing"] = 1
 
-    for result in results_error:
+    for result in results.error:
         all_results[result]["error"] = 1
+
+    for result in results.exiftool_warning:
+        all_results[result[0]]["exiftool_warning"] = result[1]
+
+    for result in results.exiftool_error:
+        all_results[result[0]]["exiftool_error"] = result[1]
 
     report_columns = [
         "filename",
@@ -3222,6 +3136,8 @@ def write_export_report(
         "sidecar_json",
         "missing",
         "error",
+        "exiftool_warning",
+        "exiftool_error",
     ]
 
     try:
@@ -3231,7 +3147,10 @@ def write_export_report(
             for data in [result for result in all_results.values()]:
                 writer.writerow(data)
     except IOError:
-        click.echo("Could not open output file for writing", err=True)
+        click.echo(
+            click.style("Could not open output file for writing", fg=CLI_COLOR_ERROR),
+            err=True,
+        )
         raise click.Abort()
 
 

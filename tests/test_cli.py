@@ -405,6 +405,8 @@ CLI_EXIFTOOL_IGNORE_DATE_MODIFIED = {
     }
 }
 
+CLI_EXIFTOOL_ERROR = ["E2078879-A29C-4D6F-BACB-E3BBE6C3EB91"]
+
 LABELS_JSON = {
     "labels": {
         "Plant": 7,
@@ -1090,6 +1092,34 @@ def test_export_exiftool_quicktime():
             # clean up exported files to avoid name conflicts
             for filename in files:
                 os.unlink(filename)
+
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+def test_export_exiftool_error():
+    """" test --exiftool catching error """
+    import glob
+    import os
+    import os.path
+    from osxphotos.__main__ import export
+    from osxphotos.exiftool import ExifTool
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        for uuid in CLI_EXIFTOOL_ERROR:
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--exiftool",
+                    "--uuid",
+                    f"{uuid}",
+                ],
+            )
+            assert result.exit_code == 0
+            assert "exiftool error" in result.output
 
 
 def test_export_edited_suffix():
