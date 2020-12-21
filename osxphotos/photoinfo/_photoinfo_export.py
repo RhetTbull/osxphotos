@@ -102,7 +102,7 @@ class ExportResults:
         )
         files += [x[0] for x in self.exiftool_warning]
         files += [x[0] for x in self.exiftool_error]
-        
+
         files = list(set(files))
         return files
 
@@ -1341,13 +1341,13 @@ def _exiftool_dict(
     person_list = []
     if self.persons:
         # filter out _UNKNOWN_PERSON
-        person_list = sorted([p for p in self.persons if p != _UNKNOWN_PERSON])
+        person_list = [p for p in self.persons if p != _UNKNOWN_PERSON]
 
     if use_persons_as_keywords and person_list:
-        keyword_list.extend(sorted(person_list))
+        keyword_list.extend(person_list)
 
     if use_albums_as_keywords and self.albums:
-        keyword_list.extend(sorted(self.albums))
+        keyword_list.extend(self.albums)
 
     if keyword_template:
         rendered_keywords = []
@@ -1382,16 +1382,19 @@ def _exiftool_dict(
         keyword_list.extend(rendered_keywords)
 
     if keyword_list:
+        # remove duplicates
+        keyword_list = sorted(list(set(keyword_list)))
         exif["XMP:TagsList"] = keyword_list.copy()
         exif["IPTC:Keywords"] = keyword_list.copy()
 
     if person_list:
+        person_list = sorted(list(set(person_list)))
         exif["XMP:PersonInImage"] = person_list.copy()
 
     if self.keywords or person_list:
         # Photos puts both keywords and persons in Subject when using "Export IPTC as XMP"
         # only use Photos' keywords for subject (e.g. don't include template values)
-        exif["XMP:Subject"] = self.keywords.copy() + person_list.copy()
+        exif["XMP:Subject"] = sorted(list(set(self.keywords + person_list)))
 
     # if self.favorite():
     #     exif["Rating"] = 5
@@ -1460,13 +1463,12 @@ def _exiftool_dict(
         date_utc = datetime_tz_to_utc(date)
         creationdate = date_utc.strftime("%Y:%m:%d %H:%M:%S")
         exif["QuickTime:CreateDate"] = creationdate
-        if self.date_modified is not None and not ignore_date_modified:
+        if self.date_modified is None or ignore_date_modified:
+            exif["QuickTime:ModifyDate"] = creationdate
+        else:
             exif["QuickTime:ModifyDate"] = datetime_tz_to_utc(
                 self.date_modified
             ).strftime("%Y:%m:%d %H:%M:%S")
-        else:
-            exif["QuickTime:ModifyDate"] = creationdate
-
     return exif
 
 
@@ -1603,6 +1605,15 @@ def _xmp_sidecar(
     if self.keywords or person_list:
         # Photos puts both keywords and persons in Subject when using "Export IPTC as XMP"
         subject_list = list(self.keywords) + person_list
+
+    # remove duplicates
+    # sorted mainly to make testing the XMP file easier
+    if keyword_list:
+        keyword_list = sorted(list(set(keyword_list)))
+    if subject_list:
+        subject_list = sorted(list(set(subject_list)))
+    if person_list:
+        person_list = sorted(list(set(person_list)))
 
     xmp_str = xmp_template.render(
         photo=self,

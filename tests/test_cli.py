@@ -407,6 +407,10 @@ CLI_EXIFTOOL_IGNORE_DATE_MODIFIED = {
 
 CLI_EXIFTOOL_ERROR = ["E2078879-A29C-4D6F-BACB-E3BBE6C3EB91"]
 
+CLI_EXIFTOOL_DUPLICATE_KEYWORDS = {
+    "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51": "wedding.jpg"
+}
+
 LABELS_JSON = {
     "labels": {
         "Plant": 7,
@@ -1017,7 +1021,10 @@ def test_export_exiftool():
 
             exif = ExifTool(CLI_EXIFTOOL[uuid]["File:FileName"]).asdict()
             for key in CLI_EXIFTOOL[uuid]:
-                assert exif[key] == CLI_EXIFTOOL[uuid][key]
+                if type(exif[key]) == list:
+                    assert sorted(exif[key]) == sorted(CLI_EXIFTOOL[uuid][key])
+                else:
+                    assert exif[key] == CLI_EXIFTOOL[uuid][key]
 
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
@@ -1051,7 +1058,10 @@ def test_export_exiftool_ignore_date_modified():
                 CLI_EXIFTOOL_IGNORE_DATE_MODIFIED[uuid]["File:FileName"]
             ).asdict()
             for key in CLI_EXIFTOOL_IGNORE_DATE_MODIFIED[uuid]:
-                assert exif[key] == CLI_EXIFTOOL_IGNORE_DATE_MODIFIED[uuid][key]
+                if type(exif[key]) == list:
+                    assert sorted(exif[key]) == sorted(CLI_EXIFTOOL_IGNORE_DATE_MODIFIED[uuid][key])
+                else:
+                    assert exif[key] == CLI_EXIFTOOL_IGNORE_DATE_MODIFIED[uuid][key]
 
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
@@ -1093,6 +1103,38 @@ def test_export_exiftool_quicktime():
             for filename in files:
                 os.unlink(filename)
 
+
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+def test_export_exiftool_duplicate_keywords():
+    """ ensure duplicate keywords are removed """
+    import glob
+    import os
+    import os.path
+    from osxphotos.__main__ import export
+    from osxphotos.exiftool import ExifTool
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        for uuid in CLI_EXIFTOOL_DUPLICATE_KEYWORDS:
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--exiftool",
+                    "--uuid",
+                    f"{uuid}",
+                ],
+            )
+            exif = ExifTool(CLI_EXIFTOOL_DUPLICATE_KEYWORDS[uuid])
+            exifdict = exif.asdict()
+            assert sorted(exifdict["IPTC:Keywords"]) == ["Maria", "wedding"]
+            assert sorted(exifdict["XMP:Subject"]) == ["Maria", "wedding"]
+
+
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool_error():
     """" test --exiftool catching error """
@@ -1106,7 +1148,7 @@ def test_export_exiftool_error():
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
-        for uuid in CLI_EXIFTOOL_ERROR:
+        for uuid in CLI_EXIFTOOL:
             result = runner.invoke(
                 export,
                 [
@@ -1119,7 +1161,15 @@ def test_export_exiftool_error():
                 ],
             )
             assert result.exit_code == 0
-            assert "exiftool error" in result.output
+            files = glob.glob("*")
+            assert sorted(files) == sorted([CLI_EXIFTOOL[uuid]["File:FileName"]])
+
+            exif = ExifTool(CLI_EXIFTOOL[uuid]["File:FileName"]).asdict()
+            for key in CLI_EXIFTOOL[uuid]:
+                if type(exif[key]) == list:
+                    assert sorted(exif[key]) == sorted(CLI_EXIFTOOL[uuid][key])
+                else:
+                    assert exif[key] == CLI_EXIFTOOL[uuid][key]
 
 
 def test_export_edited_suffix():

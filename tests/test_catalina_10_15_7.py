@@ -35,6 +35,7 @@ KEYWORDS = [
     "United Kingdom",
     "foo/bar",
     "Travel",
+    "Maria",
 ]
 # Photos 5 includes blank person for detected face
 PERSONS = ["Katie", "Suzy", "Maria", _UNKNOWN_PERSON]
@@ -60,6 +61,7 @@ KEYWORDS_DICT = {
     "United Kingdom": 1,
     "foo/bar": 1,
     "Travel": 2,
+    "Maria": 1,
 }
 PERSONS_DICT = {"Katie": 3, "Suzy": 2, "Maria": 2, _UNKNOWN_PERSON: 1}
 ALBUM_DICT = {
@@ -339,7 +341,7 @@ def test_attributes_2(photosdb):
     photos = photosdb.photos(uuid=[UUID_DICT["has_adjustments"]])
     assert len(photos) == 1
     p = photos[0]
-    assert p.keywords == ["wedding"]
+    assert sorted(p.keywords) == ["Maria", "wedding"]
     assert p.original_filename == "wedding.jpg"
     assert p.filename == "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51.jpeg"
     assert p.date == datetime.datetime(

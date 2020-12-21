@@ -427,9 +427,9 @@ def test_xmp_sidecar():
         <!-- keywords and persons listed in <dc:subject> as Photos does -->
         <dc:subject>
             <rdf:Seq>
+                <rdf:li>Katie</rdf:li>
                 <rdf:li>Kids</rdf:li>
                 <rdf:li>Suzy</rdf:li>
-                <rdf:li>Katie</rdf:li>
             </rdf:Seq>
         </dc:subject>
         <photoshop:DateCreated>2018-09-28T15:35:49.063000-04:00</photoshop:DateCreated>
@@ -438,8 +438,8 @@ def test_xmp_sidecar():
             xmlns:Iptc4xmpExt='http://iptc.org/std/Iptc4xmpExt/2008-02-29/'>
         <Iptc4xmpExt:PersonInImage>
             <rdf:Bag>
-                    <rdf:li>Suzy</rdf:li>
                     <rdf:li>Katie</rdf:li>
+                    <rdf:li>Suzy</rdf:li>
             </rdf:Bag>
         </Iptc4xmpExt:PersonInImage>
         </rdf:Description>

@@ -22,6 +22,7 @@ KEYWORDS = [
     "St. James's Park",
     "UK",
     "United Kingdom",
+    "Maria"
 ]
 # Photos 5 includes blank person for detected face
 PERSONS = ["Katie", "Suzy", "Maria", _UNKNOWN_PERSON]
@@ -39,6 +40,7 @@ KEYWORDS_DICT = {
     "St. James's Park": 1,
     "UK": 1,
     "United Kingdom": 1,
+    "Maria": 1,
 }
 PERSONS_DICT = {"Katie": 3, "Suzy": 2, "Maria": 1, _UNKNOWN_PERSON: 1}
 ALBUM_DICT = {
@@ -70,8 +72,8 @@ EXIF_JSON_UUID = UUID_DICT["has_adjustments"]
 EXIF_JSON_EXPECTED = """ 
     [{"EXIF:ImageDescription": "Bride Wedding day", 
     "XMP:Description": "Bride Wedding day", 
-    "XMP:TagsList": ["wedding"], 
-    "IPTC:Keywords": ["wedding"], 
+    "XMP:TagsList": ["Maria", "wedding"], 
+    "IPTC:Keywords": ["Maria", "wedding"], 
     "XMP:PersonInImage": ["Maria"], 
     "XMP:Subject": ["wedding", "Maria"], 
     "EXIF:DateTimeOriginal": "2019:04:15 14:40:24", 
@@ -85,8 +87,8 @@ EXIF_JSON_EXPECTED = """
 EXIF_JSON_EXPECTED_IGNORE_DATE_MODIFIED = """ 
     [{"EXIF:ImageDescription": "Bride Wedding day", 
     "XMP:Description": "Bride Wedding day", 
-    "XMP:TagsList": ["wedding"], 
-    "IPTC:Keywords": ["wedding"], 
+    "XMP:TagsList": ["Maria", "wedding"], 
+    "IPTC:Keywords": ["Maria", "wedding"], 
     "XMP:PersonInImage": ["Maria"], 
     "XMP:Subject": ["wedding", "Maria"], 
     "EXIF:DateTimeOriginal": "2019:04:15 14:40:24", 
@@ -522,8 +524,8 @@ def test_exiftool_json_sidecar_keyword_template_long(caplog):
         """
         [{"EXIF:ImageDescription": "Bride Wedding day", 
         "XMP:Description": "Bride Wedding day", 
-        "XMP:TagsList": ["wedding", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"], 
-        "IPTC:Keywords": ["wedding", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"], 
+        "XMP:TagsList": ["Maria", "wedding", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"], 
+        "IPTC:Keywords": ["Maria", "wedding", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"], 
         "XMP:PersonInImage": ["Maria"], 
         "XMP:Subject": ["wedding", "Maria"], 
         "EXIF:DateTimeOriginal": "2019:04:15 14:40:24", 
@@ -571,8 +573,8 @@ def test_exiftool_json_sidecar_keyword_template():
         """
         [{"EXIF:ImageDescription": "Bride Wedding day", 
         "XMP:Description": "Bride Wedding day", 
-        "XMP:TagsList": ["wedding", "Folder1/SubFolder2/AlbumInFolder", "I have a deleted twin"], 
-        "IPTC:Keywords": ["wedding", "Folder1/SubFolder2/AlbumInFolder", "I have a deleted twin"], 
+        "XMP:TagsList": ["Maria", "wedding", "Folder1/SubFolder2/AlbumInFolder", "I have a deleted twin"], 
+        "IPTC:Keywords": ["Maria", "wedding", "Folder1/SubFolder2/AlbumInFolder", "I have a deleted twin"], 
         "XMP:PersonInImage": ["Maria"], 
         "XMP:Subject": ["wedding", "Maria"],
         "EXIF:DateTimeOriginal": "2019:04:15 14:40:24", 
