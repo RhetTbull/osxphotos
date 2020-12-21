@@ -132,18 +132,21 @@ class _ExifToolProc:
 class ExifTool:
     """ Basic exiftool interface for reading and writing EXIF tags """
 
-    def __init__(self, filepath, exiftool=None, overwrite=True):
+    def __init__(self, filepath, exiftool=None, overwrite=True, flags=None):
         """ Create ExifTool object
 
         Args:
-                file: path to image file
-                exiftool: path to exiftool, if not specified will look in path
-                overwrite: if True, will overwrite image file without creating backup, default=False
+            file: path to image file
+            exiftool: path to exiftool, if not specified will look in path
+            overwrite: if True, will overwrite image file without creating backup, default=False
+            flags: optional list of exiftool flags to prepend to exiftool command when writing metadata (e.g. -m or -F)
+
         Returns:
             ExifTool instance
         """
         self.file = filepath
         self.overwrite = overwrite
+        self.flags = flags or []
         self.data = {}
         self.warning = None
         self.error = None
@@ -249,14 +252,21 @@ class ExifTool:
             commands.append("-overwrite_original")
 
         filename = os.fsencode(self.file) if not no_file else b""
-        command_str = (
+
+        if self.flags:
+            command_str = b"\n".join([f.encode("utf-8") for f in self.flags])
+            command_str += b"\n"
+        else:
+            command_str = b""
+
+        command_str += (
             b"\n".join([c.encode("utf-8") for c in commands])
             + b"\n"
             + filename
             + b"\n"
             + b"-execute\n"
         )
-
+        
         # send the command
         self._process.stdin.write(command_str)
         self._process.stdin.flush()

@@ -3,6 +3,7 @@ from osxphotos.exiftool import get_exiftool_path
 
 TEST_FILE_ONE_KEYWORD = "tests/test-images/wedding.jpg"
 TEST_FILE_BAD_IMAGE = "tests/test-images/badimage.jpeg"
+TEST_FILE_WARNING = "tests/test-images/exiftool_warning.heic"
 TEST_FILE_MULTI_KEYWORD = "tests/test-images/Tulips.jpg"
 TEST_MULTI_KEYWORDS = [
     "Top Shot",
@@ -198,6 +199,29 @@ def test_setvalue_context_manager_error():
     with osxphotos.exiftool.ExifTool(tempfile) as exif:
         exif.setvalue("IPTC:Keywords", "test1")
     assert exif.error
+
+
+def test_flags():
+    # test that flags work
+    import os.path
+    import tempfile
+    import osxphotos.exiftool
+    from osxphotos.fileutil import FileUtil
+
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    tempfile = os.path.join(tempdir.name, os.path.basename(TEST_FILE_WARNING))
+    FileUtil.copy(TEST_FILE_WARNING, tempfile)
+
+    with osxphotos.exiftool.ExifTool(tempfile) as exif:
+        exif.setvalue("XMP:Subject", "foo/bar")
+    assert exif.warning
+
+    # test again with -m: ignore minor warnings
+    FileUtil.unlink(tempfile)
+    FileUtil.copy(TEST_FILE_WARNING, tempfile)
+    with osxphotos.exiftool.ExifTool(tempfile, flags=["-m"]) as exif:
+        exif.setvalue("XMP:Subject", "foo/bar")
+    assert not exif.warning
 
 
 def test_clear_value():

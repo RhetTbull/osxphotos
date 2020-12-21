@@ -425,6 +425,7 @@ def export2(
     ignore_date_modified=False,
     use_photokit=False,
     verbose=None,
+    exiftool_flags=None,
 ):
     """export photo, like export but with update and dry_run options
     dest: must be valid destination path or exception raised
@@ -469,6 +470,7 @@ def export2(
     jpeg_quality: float in range 0.0 <= jpeg_quality <= 1.0.  A value of 1.0 specifies use best quality, a value of 0.0 specifies use maximum compression.
     ignore_date_modified: for use with sidecar and exiftool; if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
     verbose: optional callable function to use for printing verbose text during processing; if None (default), does not print output.
+    exiftool_flags: optional list of flags to pass to exiftool when using exiftool option, e.g ["-m", "-F"]
 
     Returns: ExportResults class 
         ExportResults has attributes: 
@@ -972,6 +974,7 @@ def export2(
                         keyword_template=keyword_template,
                         description_template=description_template,
                         ignore_date_modified=ignore_date_modified,
+                        flags=exiftool_flags,
                     )
                     if warning_:
                         exiftool_warning.append((exported_file, warning_))
@@ -1006,6 +1009,7 @@ def export2(
                     keyword_template=keyword_template,
                     description_template=description_template,
                     ignore_date_modified=ignore_date_modified,
+                    flags=exiftool_flags,
                 )
                 if warning_:
                     exiftool_warning.append((exported_file, warning_))
@@ -1244,6 +1248,7 @@ def _write_exif_data(
     keyword_template=None,
     description_template=None,
     ignore_date_modified=False,
+    flags=None,
 ):
     """write exif data to image file at filepath
 
@@ -1253,6 +1258,7 @@ def _write_exif_data(
         use_persons_as_keywords: treat person names as keywords
         keyword_template: (list of strings); list of template strings to render as keywords
         ignore_date_modified: if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
+        flags: optional list of exiftool flags to prepend to exiftool command when writing metadata (e.g. -m or -F)
 
     Returns:
         (warning, error) of warning and error strings if exiftool produces warnings or errors
@@ -1267,7 +1273,7 @@ def _write_exif_data(
         ignore_date_modified=ignore_date_modified,
     )
 
-    with ExifTool(filepath) as exiftool:
+    with ExifTool(filepath, flags=flags) as exiftool:
         for exiftag, val in exif_info.items():
             if type(val) == list:
                 for v in val:

@@ -1059,7 +1059,9 @@ def test_export_exiftool_ignore_date_modified():
             ).asdict()
             for key in CLI_EXIFTOOL_IGNORE_DATE_MODIFIED[uuid]:
                 if type(exif[key]) == list:
-                    assert sorted(exif[key]) == sorted(CLI_EXIFTOOL_IGNORE_DATE_MODIFIED[uuid][key])
+                    assert sorted(exif[key]) == sorted(
+                        CLI_EXIFTOOL_IGNORE_DATE_MODIFIED[uuid][key]
+                    )
                 else:
                     assert exif[key] == CLI_EXIFTOOL_IGNORE_DATE_MODIFIED[uuid][key]
 
@@ -1170,6 +1172,43 @@ def test_export_exiftool_error():
                     assert sorted(exif[key]) == sorted(CLI_EXIFTOOL[uuid][key])
                 else:
                     assert exif[key] == CLI_EXIFTOOL[uuid][key]
+
+
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+def test_export_exiftool_option():
+    """ test --exiftool-option """
+    import glob
+    import os
+    import os.path
+    from osxphotos.__main__ import export
+    from osxphotos.exiftool import ExifTool
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        # first export with --exiftool, one file produces a warning
+        result = runner.invoke(
+            export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--exiftool"]
+        )
+        assert result.exit_code == 0
+        assert "exiftool warning" in result.output
+
+        # run again with exiftool-option = "-m" (ignore minor warnings)
+        # shouldn't see the warning this time
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--exiftool",
+                "--exiftool-option",
+                "-m",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "exiftool warning" not in result.output
 
 
 def test_export_edited_suffix():

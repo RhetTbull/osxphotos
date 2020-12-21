@@ -1367,6 +1367,17 @@ def query(
     "QuickTime:GPSCoordinates; UserData:GPSCoordinates.",
 )
 @click.option(
+    "--exiftool-option",
+    multiple=True,
+    metavar="OPTION",
+    help="Optional flag/option to pass to exiftool when using --exiftool. "
+    "For example, --exiftool-option '-m' to ignore minor warnings. "
+    "Specify these as you would on the exiftool command line. "
+    "See exiftool docs at https://exiftool.org/exiftool_pod.html for full list of options. "
+    "More than one option may be specified with by repeating the option, e.g. "
+    "--exiftool-option '-m' --exiftool-option '-F'. ",
+)
+@click.option(
     "--ignore-date-modified",
     is_flag=True,
     help="If used with --exiftool or --sidecar, will ignore the photo "
@@ -1550,6 +1561,7 @@ def export(
     download_missing,
     dest,
     exiftool,
+    exiftool_option,
     ignore_date_modified,
     portrait,
     not_portrait,
@@ -1747,6 +1759,7 @@ def export(
         ("missing", ("download_missing", "use_photos_export")),
         ("jpeg_quality", ("convert_to_jpeg")),
         ("ignore_signature", ("update")),
+        ("exiftool_option", ("exiftool")),
     ]
     try:
         cfg.validate(exclusive=exclusive_options, dependent=dependent_options, cli=True)
@@ -1998,6 +2011,7 @@ def export(
                     jpeg_quality=jpeg_quality,
                     ignore_date_modified=ignore_date_modified,
                     use_photokit=use_photokit,
+                    exiftool_option=exiftool_option,
                 )
                 results += export_results
 
@@ -2045,6 +2059,7 @@ def export(
                         jpeg_quality=jpeg_quality,
                         ignore_date_modified=ignore_date_modified,
                         use_photokit=use_photokit,
+                        exiftool_option=exiftool_option,
                     )
                     results += export_results
 
@@ -2589,6 +2604,7 @@ def export_photo(
     jpeg_quality=1.0,
     ignore_date_modified=False,
     use_photokit=False,
+    exiftool_option=None,
 ):
     """Helper function for export that does the actual export
 
@@ -2622,6 +2638,7 @@ def export_photo(
         convert_to_jpeg: boolean; if True, converts non-jpeg images to jpeg
         jpeg_quality: float in range 0.0 <= jpeg_quality <= 1.0.  A value of 1.0 specifies use best quality, a value of 0.0 specifies use maximum compression.
         ignore_date_modified: if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
+        exiftool_option: optional list flags (e.g. ["-m", "-F"]) to pass to exiftool
 
     Returns:
         list of path(s) of exported photo or None if photo was missing
@@ -2767,12 +2784,21 @@ def export_photo(
                             ignore_date_modified=ignore_date_modified,
                             use_photokit=use_photokit,
                             verbose=verbose_,
+                            exiftool_flags=exiftool_option,
                         )
                         results += export_results
                         for warning_ in export_results.exiftool_warning:
-                            verbose_(f"exiftool warning for file {warning_[0]}: {warning_[1]}")
+                            verbose_(
+                                f"exiftool warning for file {warning_[0]}: {warning_[1]}"
+                            )
                         for error_ in export_results.exiftool_error:
-                            click.echo(click.style(f"exiftool error for file {error_[0]}: {error_[1]}", fg=CLI_COLOR_ERROR),err=True)
+                            click.echo(
+                                click.style(
+                                    f"exiftool error for file {error_[0]}: {error_[1]}",
+                                    fg=CLI_COLOR_ERROR,
+                                ),
+                                err=True,
+                            )
 
                     except Exception as e:
                         click.echo(
@@ -2862,12 +2888,21 @@ def export_photo(
                             ignore_date_modified=ignore_date_modified,
                             use_photokit=use_photokit,
                             verbose=verbose_,
+                            exiftool_flags=exiftool_option,
                         )
                         results += export_results_edited
                         for warning_ in export_results_edited.exiftool_warning:
-                            verbose_(f"exiftool warning for file {warning_[0]}: {warning_[1]}")
+                            verbose_(
+                                f"exiftool warning for file {warning_[0]}: {warning_[1]}"
+                            )
                         for error_ in export_results_edited.exiftool_error:
-                            click.echo(click.style(f"exiftool error for file {error_[0]}: {error_[1]}", fg=CLI_COLOR_ERROR),err=True)
+                            click.echo(
+                                click.style(
+                                    f"exiftool error for file {error_[0]}: {error_[1]}",
+                                    fg=CLI_COLOR_ERROR,
+                                ),
+                                err=True,
+                            )
                     except Exception as e:
                         click.echo(
                             click.style(

@@ -342,6 +342,16 @@ Options:
                                   (see also --ignore-date-modified);
                                   QuickTime:GPSCoordinates;
                                   UserData:GPSCoordinates.
+  --exiftool-option OPTION        Optional flag/option to pass to exiftool
+                                  when using --exiftool. For example,
+                                  --exiftool-option '-m' to ignore minor
+                                  warnings. Specify these as you would on the
+                                  exiftool command line. See exiftool docs at
+                                  https://exiftool.org/exiftool_pod.html for
+                                  full list of options. More than one option
+                                  may be specified with by repeating the
+                                  option, e.g. --exiftool-option '-m'
+                                  --exiftool-option '-F'.
   --ignore-date-modified          If used with --exiftool or --sidecar, will
                                   ignore the photo modification date and set
                                   EXIF:ModifyDate to EXIF:DateTimeOriginal;
