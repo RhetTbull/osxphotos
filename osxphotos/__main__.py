@@ -1374,7 +1374,7 @@ def query(
     "For example, --exiftool-option '-m' to ignore minor warnings. "
     "Specify these as you would on the exiftool command line. "
     "See exiftool docs at https://exiftool.org/exiftool_pod.html for full list of options. "
-    "More than one option may be specified with by repeating the option, e.g. "
+    "More than one option may be specified by repeating the option, e.g. "
     "--exiftool-option '-m' --exiftool-option '-F'. ",
 )
 @click.option(
