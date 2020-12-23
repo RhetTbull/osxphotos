@@ -4444,3 +4444,71 @@ def test_save_load_config():
         assert result.exit_code == 0
         assert "Writing exiftool JSON sidecar" in result.output
         assert "Writing XMP sidecar" not in result.output
+
+
+def test_export_exportdb():
+    """ test --exportdb """
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.__main__ import export
+    import re
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--exportdb", "export.db"],
+        )
+        assert result.exit_code == 0
+        assert re.search(r"Created export database.*export\.db", result.output)
+        files = glob.glob("*")
+        assert "export.db" in files
+
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--exportdb",
+                "export.db",
+                "--update",
+            ],
+        )
+        assert result.exit_code == 0
+        assert re.search(r"Using export database.*export\.db", result.output)
+
+        # export again w/o --exportdb
+        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        assert result.exit_code == 0
+        assert re.search(
+            r"Created export database.*\.osxphotos_export\.db", result.output
+        )
+        files = glob.glob(".*")
+        assert ".osxphotos_export.db" in files
+
+        # now try again with --exportdb, should generate warning
+        result = runner.invoke(
+            export,
+            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--exportdb", "export.db"],
+        )
+        assert result.exit_code == 0
+        assert (
+            "Warning: export database is 'export.db' but found '.osxphotos_export.db'"
+            in result.output
+        )
+
+        # specify a path for exportdb, should generate error
+        result = runner.invoke(
+            export,
+            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--exportdb", "./export.db"],
+        )
+        assert result.exit_code != 0
+        assert (
+            "Error: --exportdb must be specified as filename not path" in result.output
+        )
+

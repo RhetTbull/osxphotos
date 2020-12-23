@@ -349,9 +349,9 @@ Options:
                                   exiftool command line. See exiftool docs at
                                   https://exiftool.org/exiftool_pod.html for
                                   full list of options. More than one option
-                                  may be specified with by repeating the
-                                  option, e.g. --exiftool-option '-m'
-                                  --exiftool-option '-F'.
+                                  may be specified by repeating the option,
+                                  e.g. --exiftool-option '-m' --exiftool-
+                                  option '-F'.
   --ignore-date-modified          If used with --exiftool or --sidecar, will
                                   ignore the photo modification date and set
                                   EXIF:ModifyDate to EXIF:DateTimeOriginal;
@@ -429,6 +429,14 @@ Options:
                                   set. For example, photos which had
                                   previously been exported and were
                                   subsequently deleted in Photos.
+  --exportdb EXPORTDB_FILE        Specify alternate name for database file
+                                  which stores state information for export
+                                  and --update. If --exportdb is not
+                                  specified, export database will be saved to
+                                  '.osxphotos_export.db' in the export
+                                  directory.  Must be specified as filename
+                                  only, not a path, as export database will be
+                                  saved in export directory.
   --load-config <config file path>
                                   Load options from file as written with
                                   --save-config. This allows you to save a

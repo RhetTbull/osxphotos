@@ -1477,6 +1477,18 @@ def query(
     "For example, photos which had previously been exported and were subsequently deleted in Photos.",
 )
 @click.option(
+    "--exportdb",
+    metavar="EXPORTDB_FILE",
+    default=None,
+    help=(
+        "Specify alternate name for database file which stores state information for export and --update. "
+        f"If --exportdb is not specified, export database will be saved to '{OSXPHOTOS_EXPORT_DB}' "
+        "in the export directory.  Must be specified as filename only, not a path, as export database "
+        "will be saved in export directory."
+    ),
+    type=click.Path(),
+)
+@click.option(
     "--load-config",
     required=False,
     metavar="<config file path>",
@@ -1595,6 +1607,7 @@ def export(
     use_photokit,
     report,
     cleanup,
+    exportdb,
     load_config,
     save_config,
 ):
@@ -1724,6 +1737,7 @@ def export(
         use_photokit = cfg.use_photokit
         report = cfg.report
         cleanup = cfg.cleanup
+        exportdb = cfg.exportdb
 
         # config file might have changed verbose
         VERBOSE = bool(verbose)
@@ -1854,8 +1868,27 @@ def export(
         _list_libraries()
         return
 
+    # sanity check exportdb
+    if exportdb and exportdb != OSXPHOTOS_EXPORT_DB:
+        if "/" in exportdb:
+            click.echo(
+                click.style(
+                    f"Error: --exportdb must be specified as filename not path; "
+                    + f"export database will saved in export directory '{dest}'.",
+                    fg=CLI_COLOR_ERROR,
+                )
+            )
+            raise click.Abort()
+        elif pathlib.Path(pathlib.Path(dest) / OSXPHOTOS_EXPORT_DB).exists():
+            click.echo(
+                click.style(
+                    f"Warning: export database is '{exportdb}' but found '{OSXPHOTOS_EXPORT_DB}' in {dest}; using '{exportdb}'",
+                    fg=CLI_COLOR_WARNING,
+                )
+            )
+
     # open export database and assign copy/link/unlink functions
-    export_db_path = os.path.join(dest, OSXPHOTOS_EXPORT_DB)
+    export_db_path = os.path.join(dest, exportdb or OSXPHOTOS_EXPORT_DB)
 
     # check that export isn't in the parent or child of a previously exported library
     other_db_files = find_files_in_branch(dest, OSXPHOTOS_EXPORT_DB)
