@@ -1743,6 +1743,8 @@ def export(
         VERBOSE = bool(verbose)
         verbose_(f"Loaded options from file {load_config}")
 
+    verbose_(f"osxphotos version {__version__}")
+
     exclusive_options = [
         ("favorite", "not_favorite"),
         ("hidden", "not_hidden"),
