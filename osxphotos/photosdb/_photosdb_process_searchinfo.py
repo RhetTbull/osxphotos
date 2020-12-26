@@ -104,17 +104,19 @@ def _process_searchinfo(self):
     for row in c:
         uuid = ints_to_uuid(row[1], row[2])
         # strings have null character appended, so strip it
-        record = {}
-        record["uuid"] = uuid
-        record["rowid"] = row[0]
-        record["uuid_0"] = row[1]
-        record["uuid_1"] = row[2]
-        record["groupid"] = row[3]
-        record["category"] = row[4]
-        record["owning_groupid"] = row[5]
-        record["content_string"] = normalize_unicode(row[6].replace("\x00", ""))
+        record = {
+            "uuid": uuid,
+            "rowid": row[0],
+            "uuid_0": row[1],
+            "uuid_1": row[2],
+            "groupid": row[3],
+            "category": row[4],
+            "owning_groupid": row[5],
+            "content_string": normalize_unicode(row[6].replace("\x00", "")),
+        }
+
         record["normalized_string"] = normalize_unicode(row[7].replace("\x00", ""))
-        record["lookup_identifier"] = row[8]
+        record["lookup_identifier"] = normalize_unicode(row[8].replace("\x00", ""))
 
         try:
             _db_searchinfo_uuid[uuid].append(record)

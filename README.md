@@ -21,6 +21,7 @@
     + [FolderInfo](#folderinfo)
     + [PlaceInfo](#placeinfo)
     + [ScoreInfo](#scoreinfo)
+    + [SearchInfo](#searchinfo)
     + [PersonInfo](#personinfo)
     + [FaceInfo](#faceinfo)
     + [CommentInfo](#commentinfo)
@@ -1470,6 +1471,13 @@ Returns image categorization labels associated with the photo as list of str.
 #### `labels_normalized`
 Returns image categorization labels associated with the photo as list of str. Labels are normalized (e.g. converted to lower case).  Use of normalized strings makes it easier to search if you don't how Apple capitalizes a label. For example:
 
+#### <a name="photosearchinfo">`search_info`</a>
+Returns [SearchInfo](#searchinfo) object that represents search metadata for the photo.
+
+#### <a name="photosearchinfo-normalized">`search_info_normalized`</a>
+Returns [SearchInfo](#searchinfo) object that represents normalized search metadata for the photo.  This returns a SearchInfo object just as `search_info` but all the properties of the object return normalized text (converted to lowercase).
+
+
 ```python
 import osxphotos
 
@@ -1872,7 +1880,7 @@ PostalAddress(street='3700 Wailea Alanui Dr', sub_locality=None, city='Kihei', s
 '96753'
 ```
 ### ScoreInfo
-[PhotoInfo.score](#score) returns a ScoreInfo object that exposes the computed aesthetic scores for each photo (**Photos 5 only**).  I have not yet reverse engineered the meaning of each score.  The `overall` score seems to the most useful and appears to be a composite of the other scores.  The following score properties are currently available:
+[PhotoInfo.score](#score) returns a ScoreInfo object that exposes the computed aesthetic scores for each photo (**Photos 5+ only**).  I have not yet reverse engineered the meaning of each score.  The `overall` score seems to the most useful and appears to be a composite of the other scores.  The following score properties are currently available:
 
 ```python
 overall: float
@@ -1910,6 +1918,71 @@ Example: find your "best" photo of food
 >>> photos = osxphotos.PhotosDB().photos()
 >>> best_food_photo = sorted([p for p in photos if "food" in p.labels_normalized], key=lambda p: p.score.overall, reverse=True)[0]
 ```
+
+### SearchInfo
+[PhotoInfo.search_info](#photosearchinfo) and [PhotoInfo.search_info_normalized](#photosearchinfo-normalized) return a SearchInfo object that exposes various metadata that Photos uses when searching for photos such as labels, associated holiday, etc. (**Photos 5+ only**).
+
+The following properties are available:
+
+#### `labels`
+Returns list of labels applied to photo by Photos image categorization algorithms.
+
+#### `place_names`
+Returns list of place names associated with the photo.
+
+#### `streets`
+Returns list of street names associated with the photo. (e.g. reverse geolocation of where the photo was taken)
+
+#### `neighborhoods`
+Returns list of neighborhood names associated with the photo.
+
+#### `locality_names`
+Returns list of locality names associated with the photo.
+
+#### `city`
+Returns str of city/town/municipality associated with the photo.
+
+#### `state`
+Returns str of state name associated with the photo.
+
+#### `state_abbreviation`
+Returns str of state abbreviation associated with the photo.
+
+#### `country`
+Returns str of country name associated with the photo.
+
+#### `month`
+Returns str of month name associated witht the photo (e.g. month in which the photo was taken)
+
+#### `year`
+Returns year associated with the photo.
+
+#### `bodies_of_water`
+Returns list of bodies of water associated with the photo.
+
+#### `holidays`
+Returns list of holiday names associated with the photo.
+
+#### `activities`
+Returns list of activities associated with the photo.
+
+#### `season`
+Returns str of season name associated with the photo.
+
+#### `venues`
+Returns list of venue names associated with the photo.
+
+#### `venue_types`
+Returns list of venue types associated with the photoo.
+
+#### `media_types`
+Returns list of media types associated with the photo.
+
+#### `all`
+Returns all search_info properties as a single list of strings.
+
+#### `asdict()`
+Returns all associated search_info metadata as a dict.
 
 ### PersonInfo
 [PhotosDB.person_info](#dbpersoninfo) and [PhotoInfo.person_info](#photopersoninfo) return a list of PersonInfo objects represents persons in the database and in a photo, respectively.  The PersonInfo class has the following properties and methods.

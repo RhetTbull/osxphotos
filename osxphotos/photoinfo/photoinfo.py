@@ -43,6 +43,7 @@ class PhotoInfo:
     # import additional methods
     from ._photoinfo_searchinfo import (
         search_info,
+        search_info_normalized,
         labels,
         labels_normalized,
         SearchInfo,
@@ -980,6 +981,7 @@ class PhotoInfo:
         comments = [comment.asdict() for comment in self.comments]
         likes = [like.asdict() for like in self.likes]
         faces = [face.asdict() for face in self.face_info]
+        search_info = self.search_info.asdict() if self.search_info else {}
 
         return {
             "library": self._db._library_path,
@@ -1041,6 +1043,7 @@ class PhotoInfo:
             "original_filesize": self.original_filesize,
             "comments": comments,
             "likes": likes,
+            "search_info": search_info,
         }
 
     def json(self):

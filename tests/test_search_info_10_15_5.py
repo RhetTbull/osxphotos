@@ -349,7 +349,7 @@ def test_labels_normalized(photosdb):
     for uuid in LABELS_NORMALIZED_DICT:
         photo = photosdb.photos(uuid=[uuid])[0]
         logging.warning(f"uuid = {uuid}")
-        assert sorted(photo.search_info.labels_normalized) == sorted(
+        assert sorted(photo.search_info_normalized.labels) == sorted(
             LABELS_NORMALIZED_DICT[uuid]
         )
         assert sorted(photo.labels_normalized) == sorted(LABELS_NORMALIZED_DICT[uuid])
