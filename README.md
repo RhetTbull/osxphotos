@@ -1471,12 +1471,6 @@ Returns image categorization labels associated with the photo as list of str.
 #### `labels_normalized`
 Returns image categorization labels associated with the photo as list of str. Labels are normalized (e.g. converted to lower case).  Use of normalized strings makes it easier to search if you don't how Apple capitalizes a label. For example:
 
-#### <a name="photosearchinfo">`search_info`</a>
-Returns [SearchInfo](#searchinfo) object that represents search metadata for the photo.
-
-#### <a name="photosearchinfo-normalized">`search_info_normalized`</a>
-Returns [SearchInfo](#searchinfo) object that represents normalized search metadata for the photo.  This returns a SearchInfo object just as `search_info` but all the properties of the object return normalized text (converted to lowercase).
-
 
 ```python
 import osxphotos
@@ -1487,12 +1481,23 @@ for photo in photosdb.photos():
         print(f"I found a statue! {photo.original_filename}")
 ```
 
-**Note**: Only valid on Photos 5; on earlier versions, returns empty list. In Photos 5, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also [labels](#labels).  
+**Note**: Only valid on Photos 5+; on earlier versions, returns empty list. In Photos 5+, Photos runs machine learning image categorization against photos in the library and automatically assigns labels to photos such as "People", "Dog", "Water", etc.  A photo may have zero or more labels associated with it.  See also [labels](#labels).  
+
+
+#### <a name="photosearchinfo">`search_info`</a>
+Returns [SearchInfo](#searchinfo) object that represents search metadata for the photo.  
+
+**Note**: Only valid on Photos 5+; on ealier versions, returns None.
+
+#### <a name="photosearchinfo-normalized">`search_info_normalized`</a>
+Returns [SearchInfo](#searchinfo) object that represents normalized search metadata for the photo.  This returns a SearchInfo object just as `search_info` but all the properties of the object return normalized text (converted to lowercase).
+
+**Note**: Only valid on Photos 5+; on ealier versions, returns None.
 
 #### `exif_info`
 Returns an [ExifInfo](#exifinfo) object with EXIF details from the Photos database.  See [ExifInfo](#exifinfo) for additional details.
 
-**Note**: Only valid on Photos 5; on earlier versions, returns `None`.  The EXIF details returned are a subset of the actual EXIF data in a typical image.  At import Photos stores this subset in the database and it's this stored data that `exif_info` returns.
+**Note**: Only valid on Photos 5+; on earlier versions, returns `None`.  The EXIF details returned are a subset of the actual EXIF data in a typical image.  At import Photos stores this subset in the database and it's this stored data that `exif_info` returns.
 
 See also `exiftool`.
 
