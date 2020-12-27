@@ -1,8 +1,7 @@
 import pytest
 
+import osxphotos
 from osxphotos._constants import _UNKNOWN_PERSON
-
-# TODO: put some of this code into a pre-function
 
 
 PHOTOS_DB = "./tests/Test-10.14.6.photoslibrary/database/photos.db"
@@ -63,18 +62,20 @@ EXIF_JSON_EXPECTED = """
     """
 
 
-def test_export_1():
+@pytest.fixture(scope="module")
+def photosdb():
+    return osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+
+
+def test_export_1(photosdb):
     # test basic export
     # get an unedited image and export it using default filename
     import os
     import os.path
     import tempfile
 
-    import osxphotos
-
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
     filename = photos[0].filename
@@ -85,18 +86,15 @@ def test_export_1():
     assert os.path.isfile(got_dest)
 
 
-def test_export_2():
+def test_export_2(photosdb):
     # test export with user provided filename
     import os
     import os.path
     import tempfile
     import time
 
-    import osxphotos
-
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
     timestamp = time.time()
@@ -108,18 +106,15 @@ def test_export_2():
     assert os.path.isfile(got_dest)
 
 
-def test_export_3():
+def test_export_3(photosdb):
     # test file already exists and test increment=True (default)
     import os
     import os.path
     import pathlib
     import tempfile
 
-    import osxphotos
-
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
     filename = photos[0].filename
@@ -135,7 +130,7 @@ def test_export_3():
     assert os.path.isfile(got_dest_2)
 
 
-def test_export_4():
+def test_export_4(photosdb):
     # test user supplied file already exists and test increment=True (default)
     import os
     import os.path
@@ -143,11 +138,8 @@ def test_export_4():
     import tempfile
     import time
 
-    import osxphotos
-
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
     timestamp = time.time()
@@ -163,18 +155,15 @@ def test_export_4():
     assert os.path.isfile(got_dest_2)
 
 
-def test_export_5():
+def test_export_5(photosdb):
     # test file already exists and test increment=True (default)
     # and overwrite = True
     import os
     import os.path
     import tempfile
 
-    import osxphotos
-
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
     filename = photos[0].filename
@@ -188,7 +177,7 @@ def test_export_5():
     assert os.path.isfile(got_dest_2)
 
 
-def test_export_6():
+def test_export_6(photosdb):
     # test user supplied file already exists and test increment=True (default)
     # and overwrite = True
     import os
@@ -197,11 +186,8 @@ def test_export_6():
     import tempfile
     import time
 
-    import osxphotos
-
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
     timestamp = time.time()
@@ -216,18 +202,15 @@ def test_export_6():
     assert os.path.isfile(got_dest_2)
 
 
-def test_export_7():
+def test_export_7(photosdb):
     # test file already exists and test increment=False (not default), overwrite=False (default)
     # should raise exception
     import os
     import os.path
     import tempfile
 
-    import osxphotos
-
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
     filename = photos[0].filename
@@ -240,18 +223,15 @@ def test_export_7():
     assert e.type == type(FileExistsError())
 
 
-def test_export_8():
+def test_export_8(photosdb):
     # try to export missing file
     # should raise exception
     import os
     import os.path
     import tempfile
 
-    import osxphotos
-
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["missing"]])
 
     filename = photos[0].filename
@@ -262,18 +242,15 @@ def test_export_8():
     assert e.type == type(FileNotFoundError())
 
 
-def test_export_9():
+def test_export_9(photosdb):
     # try to export edited file that's not edited
     # should raise exception
     import os
     import os.path
     import tempfile
 
-    import osxphotos
-
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["no_adjustments"]])
 
     filename = photos[0].filename
@@ -284,7 +261,7 @@ def test_export_9():
     assert e.type == ValueError
 
 
-def test_export_10():
+def test_export_10(photosdb):
     # try to export edited file that's not edited and name provided
     # should raise exception
     import os
@@ -292,11 +269,8 @@ def test_export_10():
     import tempfile
     import time
 
-    import osxphotos
-
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["no_adjustments"]])
 
     timestamp = time.time()
@@ -308,18 +282,15 @@ def test_export_10():
     assert e.type == ValueError
 
 
-def test_export_11():
+def test_export_11(photosdb):
     # export edited file with name provided
     import os
     import os.path
     import tempfile
     import time
 
-    import osxphotos
-
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["has_adjustments"]])
 
     timestamp = time.time()
@@ -330,18 +301,15 @@ def test_export_11():
     assert got_dest == expected_dest
 
 
-def test_export_12():
+def test_export_12(photosdb):
     # export edited file with default name
     import os
     import os.path
     import pathlib
     import tempfile
 
-    import osxphotos
-
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["has_adjustments"]])
 
     edited_name = pathlib.Path(photos[0].path_edited).name
@@ -353,14 +321,12 @@ def test_export_12():
     assert got_dest == expected_dest
 
 
-def test_export_13():
+def test_export_13(photosdb):
     # export to invalid destination
     # should raise exception
     import os
     import os.path
     import tempfile
-
-    import osxphotos
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -371,7 +337,6 @@ def test_export_13():
         dest = os.path.join(dest, str(i))
         i += 1
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
     filename = photos[0].filename
@@ -382,11 +347,9 @@ def test_export_13():
     assert e.type == type(FileNotFoundError())
 
 
-def test_exiftool_json_sidecar():
-    import osxphotos
+def test_exiftool_json_sidecar(photosdb):
     import json
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["location"]])
 
     json_expected = json.loads(EXIF_JSON_EXPECTED)[0]
@@ -408,10 +371,8 @@ def test_exiftool_json_sidecar():
             assert json_got[k] == v
 
 
-def test_xmp_sidecar():
-    import osxphotos
+def test_xmp_sidecar(photosdb):
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["xmp"]])
 
     xmp_expected = """<!-- Created with osxphotos https://github.com/RhetTbull/osxphotos -->
@@ -424,12 +385,9 @@ def test_xmp_sidecar():
         <photoshop:SidecarForExtension>jpg</photoshop:SidecarForExtension>
         <dc:description>Girls with pumpkins</dc:description>
         <dc:title>Can we carry this?</dc:title>
-        <!-- keywords and persons listed in <dc:subject> as Photos does -->
         <dc:subject>
             <rdf:Seq>
-                <rdf:li>Katie</rdf:li>
                 <rdf:li>Kids</rdf:li>
-                <rdf:li>Suzy</rdf:li>
             </rdf:Seq>
         </dc:subject>
         <photoshop:DateCreated>2018-09-28T15:35:49.063000-04:00</photoshop:DateCreated>
@@ -471,10 +429,8 @@ def test_xmp_sidecar():
         assert line_expected == line_got
 
 
-def test_xmp_sidecar_keyword_template():
-    import osxphotos
+def test_xmp_sidecar_keyword_template(photosdb):
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["xmp"]])
 
     xmp_expected = """<!-- Created with osxphotos https://github.com/RhetTbull/osxphotos -->
@@ -487,12 +443,12 @@ def test_xmp_sidecar_keyword_template():
         <photoshop:SidecarForExtension>jpg</photoshop:SidecarForExtension>
         <dc:description>Girls with pumpkins</dc:description>
         <dc:title>Can we carry this?</dc:title>
-        <!-- keywords and persons listed in <dc:subject> as Photos does -->
         <dc:subject>
             <rdf:Seq>
                 <rdf:li>Kids</rdf:li>
-                <rdf:li>Suzy</rdf:li>
-                <rdf:li>Katie</rdf:li>
+                <rdf:li>Test Album</rdf:li>
+                <rdf:li>Pumpkin Farm</rdf:li>
+                <rdf:li>2018</rdf:li>
             </rdf:Seq>
         </dc:subject>
         <photoshop:DateCreated>2018-09-28T15:35:49.063000-04:00</photoshop:DateCreated>

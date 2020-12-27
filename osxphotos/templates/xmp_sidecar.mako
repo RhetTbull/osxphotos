@@ -26,7 +26,6 @@
 
 <%def name="dc_subject(subject)">
     % if subject:
-        <!-- keywords and persons listed in <dc:subject> as Photos does -->
         <dc:subject>
             <rdf:Seq>
             % for subj in subject:

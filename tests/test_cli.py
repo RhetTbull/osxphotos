@@ -1,4 +1,4 @@
-""" Test the command line interface (CLI) """
+r""" Test the command line interface (CLI) """
 
 import os
 
@@ -354,7 +354,7 @@ CLI_EXIFTOOL = {
         "EXIF:ImageDescription": "Girl holding pumpkin",
         "XMP:Description": "Girl holding pumpkin",
         "XMP:PersonInImage": "Katie",
-        "XMP:Subject": ["Kids", "Katie"],
+        "XMP:Subject": "Kids",
         "EXIF:GPSLatitudeRef": "N",
         "EXIF:GPSLongitudeRef": "W",
         "EXIF:GPSLatitude": 41.256566,
@@ -395,7 +395,7 @@ CLI_EXIFTOOL_IGNORE_DATE_MODIFIED = {
         "XMP:TagsList": "wedding",
         "IPTC:Keywords": "wedding",
         "XMP:PersonInImage": "Maria",
-        "XMP:Subject": ["wedding", "Maria"],
+        "XMP:Subject": "wedding",
         "EXIF:DateTimeOriginal": "2019:04:15 14:40:24",
         "EXIF:CreateDate": "2019:04:15 14:40:24",
         "EXIF:OffsetTimeOriginal": "-04:00",
@@ -3135,7 +3135,7 @@ def test_export_sidecar_keyword_template():
             "XMP:TagsList": ["Kids", "Multi Keyword", "Pumpkin Farm", "Test Album"], 
             "IPTC:Keywords": ["Kids", "Multi Keyword", "Pumpkin Farm", "Test Album"], 
             "XMP:PersonInImage": ["Katie"], 
-            "XMP:Subject": ["Kids", "Katie"], 
+            "XMP:Subject": ["Kids", "Multi Keyword", "Pumpkin Farm", "Test Album"], 
             "EXIF:DateTimeOriginal": "2018:09:28 16:07:07", 
             "EXIF:CreateDate": "2018:09:28 16:07:07", 
             "EXIF:OffsetTimeOriginal": "-04:00", 

@@ -1390,17 +1390,13 @@ def _exiftool_dict(
     if keyword_list:
         # remove duplicates
         keyword_list = sorted(list(set(keyword_list)))
-        exif["XMP:TagsList"] = keyword_list.copy()
         exif["IPTC:Keywords"] = keyword_list.copy()
+        exif["XMP:Subject"] = keyword_list.copy()
+        exif["XMP:TagsList"] = keyword_list.copy()
 
     if person_list:
         person_list = sorted(list(set(person_list)))
         exif["XMP:PersonInImage"] = person_list.copy()
-
-    if self.keywords or person_list:
-        # Photos puts both keywords and persons in Subject when using "Export IPTC as XMP"
-        # only use Photos' keywords for subject (e.g. don't include template values)
-        exif["XMP:Subject"] = sorted(list(set(self.keywords + person_list)))
 
     # if self.favorite():
     #     exif["Rating"] = 5
@@ -1607,19 +1603,14 @@ def _xmp_sidecar(
 
         keyword_list.extend(rendered_keywords)
 
-    subject_list = []
-    if self.keywords or person_list:
-        # Photos puts both keywords and persons in Subject when using "Export IPTC as XMP"
-        subject_list = list(self.keywords) + person_list
-
     # remove duplicates
     # sorted mainly to make testing the XMP file easier
     if keyword_list:
         keyword_list = sorted(list(set(keyword_list)))
-    if subject_list:
-        subject_list = sorted(list(set(subject_list)))
     if person_list:
         person_list = sorted(list(set(person_list)))
+
+    subject_list = keyword_list
 
     xmp_str = xmp_template.render(
         photo=self,

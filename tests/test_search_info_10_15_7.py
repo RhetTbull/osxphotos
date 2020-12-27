@@ -32,15 +32,23 @@ def photosdb():
 def test_search_info(photosdb):
     for uuid in UUID_SEARCH_INFO:
         photo = photosdb.get_photo(uuid)
-        assert photo.search_info.asdict() == UUID_SEARCH_INFO[uuid]
+        search_dict = photo.search_info.asdict()
+        for k, v in search_dict.items():
+            if type(v) == list:
+                assert sorted(v) == sorted(UUID_SEARCH_INFO[uuid][k])
+            else:
+                assert v == UUID_SEARCH_INFO[uuid][k]
 
 
 def test_search_info_normalized(photosdb):
     for uuid in UUID_SEARCH_INFO_NORMALIZED:
         photo = photosdb.get_photo(uuid)
-        assert (
-            photo.search_info_normalized.asdict() == UUID_SEARCH_INFO_NORMALIZED[uuid]
-        )
+        search_dict = photo.search_info_normalized.asdict()
+        for k, v in search_dict.items():
+            if type(v) == list:
+                assert sorted(v) == sorted(UUID_SEARCH_INFO_NORMALIZED[uuid][k])
+            else:
+                assert v == UUID_SEARCH_INFO_NORMALIZED[uuid][k]
 
 
 def test_search_info_all(photosdb):
