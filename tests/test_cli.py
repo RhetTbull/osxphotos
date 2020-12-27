@@ -2036,11 +2036,11 @@ def test_export_sidecar_templates():
         with open(CLI_TEMPLATE_SIDECAR_FILENAME, "r") as jsonfile:
             exifdata = json.load(jsonfile)
         assert (
-            exifdata[0]["XMP:Description"][0]
+            exifdata[0]["XMP:Description"]
             == "Girls with pumpkins Katie, Suzy Kids Pumpkin Farm, Test Album"
         )
         assert (
-            exifdata[0]["EXIF:ImageDescription"][0]
+            exifdata[0]["EXIF:ImageDescription"]
             == "Girls with pumpkins Katie, Suzy Kids Pumpkin Farm, Test Album"
         )
 

@@ -1328,9 +1328,10 @@ def _exiftool_dict(
 
     exif = {}
     if description_template is not None:
-        description = self.render_template(
+        rendered = self.render_template(
             description_template, expand_inplace=True, inplace_sep=", "
         )[0]
+        description = " ".join(rendered) if rendered else ""
         exif["EXIF:ImageDescription"] = description
         exif["XMP:Description"] = description
     elif self.description:
@@ -1547,9 +1548,10 @@ def _xmp_sidecar(
         extension = extension.suffix[1:] if extension.suffix else None
 
     if description_template is not None:
-        description = self.render_template(
+        rendered = self.render_template(
             description_template, expand_inplace=True, inplace_sep=", "
         )[0]
+        description = " ".join(rendered) if rendered else ""
     else:
         description = self.description if self.description is not None else ""
 
@@ -1622,7 +1624,7 @@ def _xmp_sidecar(
     )
 
     # remove extra lines that mako inserts from template
-    xmp_str = "\n".join([line for line in xmp_str.split("\n") if line.strip() != ""])
+    xmp_str = "\n".join(line for line in xmp_str.split("\n") if line.strip() != "")
     return xmp_str
 
 
