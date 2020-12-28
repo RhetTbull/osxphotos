@@ -1337,17 +1337,21 @@ def query(
     default=None,
     multiple=True,
     metavar="FORMAT",
-    type=click.Choice(["xmp", "json"], case_sensitive=False),
-    help="Create sidecar for each photo exported; valid FORMAT values: xmp, json; "
-    f"--sidecar json: create JSON sidecar useable by exiftool ({_EXIF_TOOL_URL}) "
-    "The sidecar file can be used to apply metadata to the file with exiftool, for example: "
-    '"exiftool -j=photoname.jpg.json photoname.jpg" '
-    "The sidecar file is named in format photoname.ext.json  "
+    type=click.Choice(["xmp", "json", "exiftool"], case_sensitive=False),
+    help="Create sidecar for each photo exported; valid FORMAT values: xmp, json, exiftool; "
     "--sidecar xmp: create XMP sidecar used by Adobe Lightroom, etc."
     "The sidecar file is named in format photoname.ext.xmp"
     "The XMP sidecar exports the following tags: Description, Title, Keywords/Tags, "
     "Subject (set to Keywords + PersonInImage), PersonInImage, CreateDate, ModifyDate, "
     "GPSLongitude. "
+    f"\n--sidecar json: create JSON sidecar useable by exiftool ({_EXIF_TOOL_URL}) "
+    "The sidecar file can be used to apply metadata to the file with exiftool, for example: "
+    '"exiftool -j=photoname.jpg.json photoname.jpg" '
+    "The sidecar file is named in format photoname.ext.json; "
+    "format includes tag groups (equivalent to running 'exiftool -G -j'). "
+    "\n--sidecar exiftool: create JSON sidecar compatible with output of 'exiftool -j'. "
+    "Unlike --sidecar json, --sidecar exiftool does not export tag groups. "
+    "Sidecar filename is in format photoname.ext.json;"
     "For a list of tags exported in the JSON sidecar, see --exiftool.",
 )
 @click.option(
@@ -2098,21 +2102,6 @@ def export(
                     )
                     results += export_results
 
-        # print summary results
-        # print(f"results_exported: {results_exported}")
-        # print(f"results_new: {results_new}")
-        # print(f"results_updated: {results_updated}")
-        # print(f"results_skipped: {results_skipped}")
-        # print(f"results_exif_updated: {results_exif_updated}")
-        # print(f"results_touched: {results_touched}")
-        # print(f"results_converted: {results_converted}")
-        # print(f"results_sidecar_json_written: {results_sidecar_json_written}")
-        # print(f"results_sidecar_json_skipped: {results_sidecar_json_skipped}")
-        # print(f"results_sidecar_xmp_written: {results_sidecar_xmp_written}")
-        # print(f"results_sidecar_xmp_skipped: {results_sidecar_xmp_skipped}")
-        # print(f"results_missing: {results_missing}")
-        # print(f"results_error: {results_error}")
-
         if cleanup:
             all_files = (
                 results.exported
@@ -2122,6 +2111,8 @@ def export(
                 + results.converted_to_jpeg
                 + results.sidecar_json_written
                 + results.sidecar_json_skipped
+                + results.sidecar_exiftool_written
+                + results.sidecar_exiftool_skipped
                 + results.sidecar_xmp_written
                 + results.sidecar_xmp_skipped
                 # include missing so a file that was already in export directory
@@ -2763,11 +2754,13 @@ def export_photo(
         )
 
         sidecar = [s.lower() for s in sidecar]
-        sidecar_json = sidecar_xmp = False
+        sidecar_json, sidecar_xmp, sidecar_exiftool = False, False, False
         if "json" in sidecar:
             sidecar_json = True
         if "xmp" in sidecar:
             sidecar_xmp = True
+        if "exiftool" in sidecar:
+            sidecar_exiftool = True
 
         # if download_missing and the photo is missing or path doesn't exist,
         # try to download with Photos
@@ -2797,6 +2790,7 @@ def export_photo(
                             dest_path,
                             original_filename,
                             sidecar_json=sidecar_json,
+                            sidecar_exiftool=sidecar_exiftool,
                             sidecar_xmp=sidecar_xmp,
                             live_photo=export_live,
                             raw_photo=export_raw,
@@ -2902,6 +2896,7 @@ def export_photo(
                             dest_path,
                             edited_filename,
                             sidecar_json=sidecar_json,
+                            sidecar_exiftool=sidecar_exiftool,
                             sidecar_xmp=sidecar_xmp,
                             export_as_hardlink=export_as_hardlink,
                             overwrite=overwrite,

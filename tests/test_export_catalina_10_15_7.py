@@ -91,6 +91,21 @@ EXIF_JSON_EXPECTED = """
     "EXIF:ModifyDate": "2019:07:27 17:33:28"}]
     """
 
+EXIFTOOL_SIDECAR_EXPECTED = """ 
+    [{"ImageDescription": "Bride Wedding day", 
+    "Description": "Bride Wedding day", 
+    "TagsList": ["Maria", "wedding"], 
+    "Keywords": ["Maria", "wedding"], 
+    "PersonInImage": ["Maria"], 
+    "Subject": ["wedding", "Maria"], 
+    "DateTimeOriginal": "2019:04:15 14:40:24", 
+    "CreateDate": "2019:04:15 14:40:24", 
+    "OffsetTimeOriginal": "-04:00", 
+    "DateCreated": "2019:04:15", 
+    "TimeCreated": "14:40:24-04:00", 
+    "ModifyDate": "2019:07:27 17:33:28"}]
+    """
+
 EXIF_JSON_EXPECTED_IGNORE_DATE_MODIFIED = """ 
     [{"EXIF:ImageDescription": "Bride Wedding day", 
     "XMP:Description": "Bride Wedding day", 
@@ -642,6 +657,30 @@ def test_exiftool_json_sidecar_use_albums_keyword(photosdb):
     )[0]
 
     json_got = photos[0]._exiftool_json_sidecar(use_albums_as_keywords=True)
+    json_got = json.loads(json_got)[0]
+
+    # some gymnastics to account for different sort order in different pythons
+    for k, v in json_got.items():
+        if type(v) in (list, tuple):
+            assert sorted(json_expected[k]) == sorted(v)
+        else:
+            assert json_expected[k] == v
+
+    for k, v in json_expected.items():
+        if type(v) in (list, tuple):
+            assert sorted(json_got[k]) == sorted(v)
+        else:
+            assert json_got[k] == v
+
+
+def test_exiftool_sidecar(photosdb):
+    import json
+
+    photos = photosdb.photos(uuid=[EXIF_JSON_UUID])
+
+    json_expected = json.loads(EXIFTOOL_SIDECAR_EXPECTED)[0]
+
+    json_got = photos[0]._exiftool_json_sidecar(tag_groups=False)
     json_got = json.loads(json_got)[0]
 
     # some gymnastics to account for different sort order in different pythons

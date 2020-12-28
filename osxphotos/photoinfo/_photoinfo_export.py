@@ -11,6 +11,7 @@
     """
 
 # TODO: should this be its own PhotoExporter class?
+# TODO: the various sidecar_json, sidecar_xmp, etc args should all be collapsed to a sidecar param using a bit mask
 
 import glob
 import hashlib
@@ -60,6 +61,8 @@ class ExportResults:
         converted_to_jpeg=None,
         sidecar_json_written=None,
         sidecar_json_skipped=None,
+        sidecar_exiftool_written=None,
+        sidecar_exiftool_skipped=None,
         sidecar_xmp_written=None,
         sidecar_xmp_skipped=None,
         missing=None,
@@ -76,6 +79,8 @@ class ExportResults:
         self.converted_to_jpeg = converted_to_jpeg or []
         self.sidecar_json_written = sidecar_json_written or []
         self.sidecar_json_skipped = sidecar_json_skipped or []
+        self.sidecar_exiftool_written = sidecar_exiftool_written or []
+        self.sidecar_exiftool_skipped = sidecar_exiftool_skipped or []
         self.sidecar_xmp_written = sidecar_xmp_written or []
         self.sidecar_xmp_skipped = sidecar_xmp_skipped or []
         self.missing = missing or []
@@ -95,6 +100,8 @@ class ExportResults:
             + self.converted_to_jpeg
             + self.sidecar_json_written
             + self.sidecar_json_skipped
+            + self.sidecar_exiftool_written
+            + self.sidecar_exiftool_skipped
             + self.sidecar_xmp_written
             + self.sidecar_xmp_skipped
             + self.missing
@@ -116,6 +123,8 @@ class ExportResults:
         self.converted_to_jpeg += other.converted_to_jpeg
         self.sidecar_json_written += other.sidecar_json_written
         self.sidecar_json_skipped += other.sidecar_json_skipped
+        self.sidecar_exiftool_written += other.sidecar_exiftool_written
+        self.sidecar_exiftool_skipped += other.sidecar_exiftool_skipped
         self.sidecar_xmp_written += other.sidecar_xmp_written
         self.sidecar_xmp_skipped += other.sidecar_xmp_skipped
         self.missing += other.missing
@@ -136,6 +145,8 @@ class ExportResults:
             + f",converted_to_jpeg={self.converted_to_jpeg}"
             + f",sidecar_json_written={self.sidecar_json_written}"
             + f",sidecar_json_skipped={self.sidecar_json_skipped}"
+            + f",sidecar_exiftool_written={self.sidecar_exiftool_written}"
+            + f",sidecar_exiftool_skipped={self.sidecar_exiftool_skipped}"
             + f",sidecar_xmp_written={self.sidecar_xmp_written}"
             + f",sidecar_xmp_skipped={self.sidecar_xmp_skipped}"
             + f",missing={self.missing}"
@@ -323,6 +334,7 @@ def export(
     overwrite=False,
     increment=True,
     sidecar_json=False,
+    sidecar_exiftool=False,
     sidecar_xmp=False,
     use_photos_export=False,
     timeout=120,
@@ -352,8 +364,10 @@ def export(
     overwrite: (boolean, default=False); if True will overwrite files if they alreay exist
     increment: (boolean, default=True); if True, will increment file name until a non-existant name is found
                 if overwrite=False and increment=False, export will fail if destination file already exists
-    sidecar_json: (boolean, default = False); if True will also write a json sidecar with IPTC data in format readable by exiftool
-                sidecar filename will be dest/filename.json
+    sidecar_json: (boolean, default = False); if True will also write a json sidecar with data in format readable by exiftool
+                sidecar filename will be dest/filename.json, includes exiftool tag group names (e.g. `exiftool -G -j`)
+    sidecar_exiftool: (boolean, default = False); if True will also write a json sidecar with data in format readable by exiftool
+                sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. `exiftool -j`)
     sidecar_xmp: (boolean, default = False); if True will also write a XMP sidecar with IPTC data
                 sidecar filename will be dest/filename.xmp
     use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos
@@ -382,6 +396,7 @@ def export(
         overwrite=overwrite,
         increment=increment,
         sidecar_json=sidecar_json,
+        sidecar_exiftool=sidecar_exiftool,
         sidecar_xmp=sidecar_xmp,
         use_photos_export=use_photos_export,
         timeout=timeout,
@@ -406,6 +421,7 @@ def export2(
     overwrite=False,
     increment=True,
     sidecar_json=False,
+    sidecar_exiftool=False,
     sidecar_xmp=False,
     use_photos_export=False,
     timeout=120,
@@ -445,8 +461,10 @@ def export2(
     overwrite: (boolean, default=False); if True will overwrite files if they alreay exist
     increment: (boolean, default=True); if True, will increment file name until a non-existant name is found
                 if overwrite=False and increment=False, export will fail if destination file already exists
-    sidecar_json: (boolean, default = False); if True will also write a json sidecar with IPTC data in format readable by exiftool
-                sidecar filename will be dest/filename.json
+    sidecar_json: (boolean, default = False); if True will also write a json sidecar with data in format readable by exiftool
+                sidecar filename will be dest/filename.json; includes exiftool tag group names (e.g. `exiftool -G -j`)
+    sidecar_exiftool: (boolean, default = False); if True will also write a json sidecar with data in format readable by exiftool
+                sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. `exiftool -j`)
     sidecar_xmp: (boolean, default = False); if True will also write a XMP sidecar with IPTC data
                 sidecar filename will be dest/filename.xmp
     use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos
@@ -483,6 +501,8 @@ def export2(
         "converted_to_jpeg",
         "sidecar_json_written",
         "sidecar_json_skipped",
+        "sidecar_exiftool_written",
+        "sidecar_exiftool_skipped",
         "sidecar_xmp_written",
         "sidecar_xmp_skipped",
         "missing",
@@ -857,6 +877,7 @@ def export2(
             )
 
     # export metadata
+    # TODO: repetitive code here is prime for refactoring
     sidecar_json_files_skipped = []
     sidecar_json_files_written = []
     if sidecar_json:
@@ -882,7 +903,7 @@ def export2(
             )
         )
         if write_sidecar:
-            verbose(f"Writing exiftool JSON sidecar {sidecar_filename}")
+            verbose(f"Writing JSON sidecar {sidecar_filename}")
             sidecar_json_files_written.append(str(sidecar_filename))
             if not dry_run:
                 self._write_sidecar(sidecar_filename, sidecar_str)
@@ -892,8 +913,47 @@ def export2(
                     fileutil.file_sig(sidecar_filename),
                 )
         else:
-            verbose(f"Skipped up to date exiftool JSON sidecar {sidecar_filename}")
+            verbose(f"Skipped up to date JSON sidecar {sidecar_filename}")
             sidecar_json_files_skipped.append(str(sidecar_filename))
+
+    sidecar_exiftool_files_skipped = []
+    sidecar_exiftool_files_written = []
+    if sidecar_exiftool:
+        sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}{dest.suffix}.json")
+        sidecar_str = self._exiftool_json_sidecar(
+            use_albums_as_keywords=use_albums_as_keywords,
+            use_persons_as_keywords=use_persons_as_keywords,
+            keyword_template=keyword_template,
+            description_template=description_template,
+            ignore_date_modified=ignore_date_modified,
+            tag_groups=False,
+        )
+        sidecar_digest = hexdigest(sidecar_str)
+        old_sidecar_digest, sidecar_sig = export_db.get_sidecar_for_file(
+            sidecar_filename
+        )
+        write_sidecar = (
+            not update
+            or (update and not sidecar_filename.exists())
+            or (
+                update
+                and (sidecar_digest != old_sidecar_digest)
+                or not fileutil.cmp_file_sig(sidecar_filename, sidecar_sig)
+            )
+        )
+        if write_sidecar:
+            verbose(f"Writing exiftool sidecar {sidecar_filename}")
+            sidecar_exiftool_files_written.append(str(sidecar_filename))
+            if not dry_run:
+                self._write_sidecar(sidecar_filename, sidecar_str)
+                export_db.set_sidecar_for_file(
+                    sidecar_filename,
+                    sidecar_digest,
+                    fileutil.file_sig(sidecar_filename),
+                )
+        else:
+            verbose(f"Skipped up to date exiftool sidecar {sidecar_filename}")
+            sidecar_exiftool_files_skipped.append(str(sidecar_filename))
 
     sidecar_xmp_files_skipped = []
     sidecar_xmp_files_written = []
@@ -1051,6 +1111,8 @@ def export2(
         converted_to_jpeg=converted_to_jpeg_files,
         sidecar_json_written=sidecar_json_files_written,
         sidecar_json_skipped=sidecar_json_files_skipped,
+        sidecar_exiftool_written=sidecar_exiftool_files_written,
+        sidecar_exiftool_skipped=sidecar_exiftool_files_skipped,
         sidecar_xmp_written=sidecar_xmp_files_written,
         sidecar_xmp_skipped=sidecar_xmp_files_skipped,
         error=errors,
@@ -1233,6 +1295,8 @@ def _export_photo(
         converted_to_jpeg=converted_to_jpeg_files,
         sidecar_json_written=[],
         sidecar_json_skipped=[],
+        sidecar_exiftool_written=[],
+        sidecar_exiftool_skipped=[],
         sidecar_xmp_written=[],
         sidecar_xmp_skipped=[],
         missing=[],
@@ -1482,6 +1546,7 @@ def _exiftool_json_sidecar(
     keyword_template=None,
     description_template=None,
     ignore_date_modified=False,
+    tag_groups=True,
 ):
     """Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
         Does not include all the EXIF fields as those are likely already in the image.
@@ -1492,6 +1557,7 @@ def _exiftool_json_sidecar(
         keyword_template: (list of strings); list of template strings to render as keywords
         description_template: (list of strings); list of template strings to render for the description
         ignore_date_modified: if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
+        tag_groups: if True, tags are in form Group:TagName, e.g. IPTC:Keywords, otherwise group name is omitted, e.g. Keywords
 
     Returns: dict with exiftool tags / values
 
@@ -1524,6 +1590,15 @@ def _exiftool_json_sidecar(
         description_template=description_template,
         ignore_date_modified=ignore_date_modified,
     )
+
+    if not tag_groups:
+        # strip tag groups
+        exif_new = {}
+        for k, v in exif.items():
+            k = re.sub(r".*:", "", k)
+            exif_new[k] = v
+        exif = exif_new
+
     return json.dumps([exif])
 
 

@@ -2003,6 +2003,38 @@ def test_export_sidecar():
         assert sorted(files) == sorted(CLI_EXPORT_SIDECAR_FILENAMES)
 
 
+def test_export_sidecar_exiftool():
+    """ test --sidecar exiftool """
+    import glob
+    import os
+    import os.path
+    import osxphotos
+
+    from osxphotos.__main__ import cli
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "export",
+                "--db",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "--sidecar=exiftool",
+                "--sidecar=xmp",
+                f"--uuid={CLI_EXPORT_UUID}",
+                "-V",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Writing exiftool sidecar" in result.output
+        files = glob.glob("*.*")
+        assert sorted(files) == sorted(CLI_EXPORT_SIDECAR_FILENAMES)
+
+
 def test_export_sidecar_templates():
     import json
     import os
@@ -2045,6 +2077,49 @@ def test_export_sidecar_templates():
         )
 
 
+def test_export_sidecar_templates_exiftool():
+    """ test --sidecar exiftool with templates """
+    import json
+    import os
+    import os.path
+    import osxphotos
+
+    from osxphotos.__main__ import cli
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "export",
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_5),
+                ".",
+                "--sidecar=exiftool",
+                f"--uuid={CLI_UUID_DICT_15_5['template']}",
+                "-V",
+                "--keyword-template",
+                "{person}",
+                "--description-template",
+                "{descr} {person} {keyword} {album}",
+            ],
+        )
+        assert result.exit_code == 0
+        assert os.path.isfile(CLI_TEMPLATE_SIDECAR_FILENAME)
+        with open(CLI_TEMPLATE_SIDECAR_FILENAME, "r") as jsonfile:
+            exifdata = json.load(jsonfile)
+        assert (
+            exifdata[0]["Description"]
+            == "Girls with pumpkins Katie, Suzy Kids Pumpkin Farm, Test Album"
+        )
+        assert (
+            exifdata[0]["ImageDescription"]
+            == "Girls with pumpkins Katie, Suzy Kids Pumpkin Farm, Test Album"
+        )
+
+
 def test_export_sidecar_update():
     """ test sidecar don't update if not changed and do update if changed """
     import datetime
@@ -2075,7 +2150,7 @@ def test_export_sidecar_update():
         )
         assert result.exit_code == 0
         assert "Writing XMP sidecar" in result.output
-        assert "Writing exiftool JSON sidecar" in result.output
+        assert "Writing JSON sidecar" in result.output
 
         # delete a sidecar file and run update
         fileutil = FileUtil()
@@ -2097,7 +2172,7 @@ def test_export_sidecar_update():
         )
         assert result.exit_code == 0
         assert "Skipped up to date XMP sidecar" in result.output
-        assert "Writing exiftool JSON sidecar" in result.output
+        assert "Writing JSON sidecar" in result.output
 
         # run update again, no sidecar files should update
         result = runner.invoke(
@@ -2116,7 +2191,7 @@ def test_export_sidecar_update():
         )
         assert result.exit_code == 0
         assert "Skipped up to date XMP sidecar" in result.output
-        assert "Skipped up to date exiftool JSON sidecar" in result.output
+        assert "Skipped up to date JSON sidecar" in result.output
 
         # touch a file and export again
         ts = datetime.datetime.now().timestamp() + 1000
@@ -2138,7 +2213,7 @@ def test_export_sidecar_update():
         )
         assert result.exit_code == 0
         assert "Writing XMP sidecar" in result.output
-        assert "Skipped up to date exiftool JSON sidecar" in result.output
+        assert "Skipped up to date JSON sidecar" in result.output
 
         # run update again, no sidecar files should update
         result = runner.invoke(
@@ -2157,7 +2232,7 @@ def test_export_sidecar_update():
         )
         assert result.exit_code == 0
         assert "Skipped up to date XMP sidecar" in result.output
-        assert "Skipped up to date exiftool JSON sidecar" in result.output
+        assert "Skipped up to date JSON sidecar" in result.output
 
         # run update again with updated metadata, forcing update
         result = runner.invoke(
@@ -2178,7 +2253,7 @@ def test_export_sidecar_update():
         )
         assert result.exit_code == 0
         assert "Writing XMP sidecar" in result.output
-        assert "Writing exiftool JSON sidecar" in result.output
+        assert "Writing JSON sidecar" in result.output
 
 
 def test_export_live():
@@ -4442,7 +4517,7 @@ def test_save_load_config():
             ],
         )
         assert result.exit_code == 0
-        assert "Writing exiftool JSON sidecar" in result.output
+        assert "Writing JSON sidecar" in result.output
         assert "Writing XMP sidecar" not in result.output
 
 

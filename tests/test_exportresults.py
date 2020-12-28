@@ -13,6 +13,8 @@ EXPORT_RESULT_ATTRIBUTES = [
     "converted_to_jpeg",
     "sidecar_json_written",
     "sidecar_json_skipped",
+    "sidecar_exiftool_written",
+    "sidecar_exiftool_skipped",
     "sidecar_xmp_written",
     "sidecar_xmp_skipped",
     "missing",
@@ -33,6 +35,8 @@ def test_exportresults_init():
     assert results.converted_to_jpeg == []
     assert results.sidecar_json_written == []
     assert results.sidecar_json_skipped == []
+    assert results.sidecar_exiftool_written == []
+    assert results.sidecar_exiftool_skipped == []
     assert results.sidecar_xmp_written == []
     assert results.sidecar_xmp_skipped == []
     assert results.missing == []
@@ -90,6 +94,6 @@ def test_str():
     results = ExportResults()
     assert (
         str(results)
-        == "ExportResults(exported=[],new=[],updated=[],skipped=[],exif_updated=[],touched=[],converted_to_jpeg=[],sidecar_json_written=[],sidecar_json_skipped=[],sidecar_xmp_written=[],sidecar_xmp_skipped=[],missing=[],error=[],exiftool_warning=[],exiftool_error=[])"
+        == "ExportResults(exported=[],new=[],updated=[],skipped=[],exif_updated=[],touched=[],converted_to_jpeg=[],sidecar_json_written=[],sidecar_json_skipped=[],sidecar_exiftool_written=[],sidecar_exiftool_skipped=[],sidecar_xmp_written=[],sidecar_xmp_skipped=[],missing=[],error=[],exiftool_warning=[],exiftool_error=[])"
     )
 
