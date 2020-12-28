@@ -117,6 +117,7 @@ TEMPLATE_SUBSTITUTIONS = {
     "{place.address.postal_code}": "Postal code part of the postal address, e.g. '20009'",
     "{place.address.country}": "Country name of the postal address, e.g. 'United States'",
     "{place.address.country_code}": "ISO country code of the postal address, e.g. 'US'",
+    "{searchinfo.season}": "Season of the year associated with a photo, e.g. 'Summer'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).",
 }
 
 # Permitted multi-value substitutions (each of these returns None or 1 or more values)
@@ -125,13 +126,17 @@ TEMPLATE_SUBSTITUTIONS_MULTI_VALUED = {
     "{folder_album}": "Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder",
     "{keyword}": "Keyword(s) assigned to photo",
     "{person}": "Person(s) / face(s) in a photo",
-    "{label}": "Image categorization label associated with a photo (Photos 5 only)",
-    "{label_normalized}": "All lower case version of 'label' (Photos 5 only)",
-    "{comment}": "Comment(s) on shared Photos; format is 'Person name: comment text' (Photos 5 only)",
+    "{label}": "Image categorization label associated with a photo (Photos 5+ only)",
+    "{label_normalized}": "All lower case version of 'label' (Photos 5+ only)",
+    "{comment}": "Comment(s) on shared Photos; format is 'Person name: comment text' (Photos 5+ only)",
     "{exiftool:GROUP:TAGNAME}": "Use exiftool (https://exiftool.org) to extract metadata, in form GROUP:TAGNAME, from image.  "
     "E.g. '{exiftool:EXIF:Make}' to get camera make, or {exiftool:IPTC:Keywords} to extract keywords. "
     "See https://exiftool.org/TagNames/ for list of valid tag names.  You must specify group (e.g. EXIF, IPTC, etc) "
     "as used in `exiftool -G`. exiftool must be installed in the path to use this template.",
+    "{searchinfo.holiday}": "Holiday names associated with a photo, e.g. 'Christmas Day'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).",
+    "{searchinfo.activity}": "Activities associated with a photo, e.g. 'Sporting Event'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).",
+    "{searchinfo.venue}": "Venues associated with a photo, e.g. name of restaurant; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).",
+    "{searchinfo.venue_type}": "Venue types associated with a photo, e.g. 'Restaurant'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).",
 }
 
 # Just the multi-valued substitution names without the braces
@@ -842,6 +847,8 @@ class PhotoTemplate:
                 if self.photo.place and self.photo.place.address.iso_country_code
                 else None
             )
+        elif field == "searchinfo.season":
+            value = self.photo.search_info.season if self.photo.search_info else None
         else:
             # if here, didn't get a match
             raise ValueError(f"Unhandled template value: {field}")
@@ -914,6 +921,16 @@ class PhotoTemplate:
             values = [
                 f"{comment.user}: {comment.text}" for comment in self.photo.comments
             ]
+        elif field == "searchinfo.holiday":
+            values = self.photo.search_info.holidays if self.photo.search_info else []
+        elif field == "searchinfo.activity":
+            values = self.photo.search_info.activities if self.photo.search_info else []
+        elif field == "searchinfo.venue":
+            values = self.photo.search_info.venues if self.photo.search_info else []
+        elif field == "searchinfo.venue_type":
+            values = (
+                self.photo.search_info.venue_types if self.photo.search_info else []
+            )
         elif not field.startswith("exiftool:"):
             raise ValueError(f"Unhandled template value: {field}")
 
