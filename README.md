@@ -2244,14 +2244,19 @@ The following template field substitutions are availabe for use with `PhotoInfo.
 |{place.address.postal_code}|Postal code part of the postal address, e.g. '20009'|
 |{place.address.country}|Country name of the postal address, e.g. 'United States'|
 |{place.address.country_code}|ISO country code of the postal address, e.g. 'US'|
+|{searchinfo.season}|Season of the year associated with a photo, e.g. 'Summer'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
 |{keyword}|Keyword(s) assigned to photo|
 |{person}|Person(s) / face(s) in a photo|
-|{label}|Image categorization label associated with a photo (Photos 5 only)|
-|{label_normalized}|All lower case version of 'label' (Photos 5 only)|
-|{comment}|Comment(s) on shared Photos; format is 'Person name: comment text' (Photos 5 only)|
+|{label}|Image categorization label associated with a photo (Photos 5+ only)|
+|{label_normalized}|All lower case version of 'label' (Photos 5+ only)|
+|{comment}|Comment(s) on shared Photos; format is 'Person name: comment text' (Photos 5+ only)|
 |{exiftool:GROUP:TAGNAME}|Use exiftool (https://exiftool.org) to extract metadata, in form GROUP:TAGNAME, from image.  E.g. '{exiftool:EXIF:Make}' to get camera make, or {exiftool:IPTC:Keywords} to extract keywords. See https://exiftool.org/TagNames/ for list of valid tag names.  You must specify group (e.g. EXIF, IPTC, etc) as used in `exiftool -G`. exiftool must be installed in the path to use this template.|
+|{searchinfo.holiday}|Holiday names associated with a photo, e.g. 'Christmas Day'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
+|{searchinfo.activity}|Activities associated with a photo, e.g. 'Sporting Event'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
+|{searchinfo.venue}|Venues associated with a photo, e.g. name of restaurant; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
+|{searchinfo.venue_type}|Venue types associated with a photo, e.g. 'Restaurant'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
 
 ### Utility Functions
 
