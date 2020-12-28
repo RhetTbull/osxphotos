@@ -1358,6 +1358,16 @@ def query(
     "For a list of tags exported in the JSON and exiftool sidecar, see '--exiftool'.",
 )
 @click.option(
+    "--sidecar-drop-ext",
+    is_flag=True,
+    help="Drop the photo's extension when naming sidecar files. "
+    "By default, sidecar files are named in format 'photo_filename.photo_ext.sidecar_ext', "
+    "e.g. 'IMG_1234.JPG.json'. Use '--sidecar-drop-ext' to ignore the photo extension. "
+    "Resulting sidecar files will have name in format 'IMG_1234.json'. "
+    "Warning: this may result in sidecar filename collisions if there are files of different "
+    "types but the same name in the output directory, e.g. 'IMG_1234.JPG' and 'IMG_1234.MOV'.",
+)
+@click.option(
     "--exiftool",
     is_flag=True,
     help="Use exiftool to write metadata directly to exported photos. "
@@ -1366,7 +1376,7 @@ def query(
     "Cannot be used with --export-as-hardlink.  Writes the following metadata: "
     "EXIF:ImageDescription, XMP:Description (see also --description-template); "
     "XMP:Title; XMP:TagsList, IPTC:Keywords, XMP:Subject "
-    "(see also --keyword-template, --person-keyword, --album-keyword); " 
+    "(see also --keyword-template, --person-keyword, --album-keyword); "
     "XMP:PersonInImage; EXIF:GPSLatitudeRef; EXIF:GPSLongitudeRef; EXIF:GPSLatitude; EXIF:GPSLongitude; "
     "EXIF:GPSPosition; EXIF:DateTimeOriginal; EXIF:OffsetTimeOriginal; "
     "EXIF:ModifyDate (see --ignore-date-modified); IPTC:DateCreated; IPTC:TimeCreated; "
@@ -1571,6 +1581,7 @@ def export(
     convert_to_jpeg,
     jpeg_quality,
     sidecar,
+    sidecar_drop_ext,
     only_photos,
     only_movies,
     burst,
@@ -2036,6 +2047,7 @@ def export(
                     verbose=verbose,
                     export_by_date=export_by_date,
                     sidecar=sidecar,
+                    sidecar_drop_ext=sidecar_drop_ext,
                     update=update,
                     ignore_signature=ignore_signature,
                     export_as_hardlink=export_as_hardlink,
@@ -2084,6 +2096,7 @@ def export(
                         verbose=verbose,
                         export_by_date=export_by_date,
                         sidecar=sidecar,
+                        sidecar_drop_ext=sidecar_drop_ext,
                         update=update,
                         ignore_signature=ignore_signature,
                         export_as_hardlink=export_as_hardlink,
@@ -2616,6 +2629,7 @@ def export_photo(
     verbose=None,
     export_by_date=None,
     sidecar=None,
+    sidecar_drop_ext=False,
     update=None,
     ignore_signature=None,
     export_as_hardlink=None,
@@ -2654,6 +2668,7 @@ def export_photo(
         verbose: boolean; print verbose output
         export_by_date: boolean; create export folder in form dest/YYYY/MM/DD
         sidecar: list zero, 1 or 2 of ["json","xmp"] of sidecar variety to export
+        sidecar_drop_ext: boolean; if True, drops photo extension from sidecar name
         export_as_hardlink: boolean; hardlink files instead of copying them
         overwrite: boolean; overwrite dest file if it already exists
         original_name: boolean; use original filename instead of current filename
@@ -2804,6 +2819,7 @@ def export_photo(
                             dest_path,
                             original_filename,
                             sidecar=sidecar_flags,
+                            sidecar_drop_ext=sidecar_drop_ext,
                             live_photo=export_live,
                             raw_photo=export_raw,
                             export_as_hardlink=export_as_hardlink,
@@ -2908,6 +2924,7 @@ def export_photo(
                             dest_path,
                             edited_filename,
                             sidecar=sidecar_flags,
+                            sidecar_drop_ext=sidecar_drop_ext,
                             export_as_hardlink=export_as_hardlink,
                             overwrite=overwrite,
                             edited=True,

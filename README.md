@@ -328,6 +328,18 @@ Options:
                                   photoname.ext.json; For a list of tags
                                   exported in the JSON and exiftool sidecar,
                                   see '--exiftool'.
+  --sidecar-drop-ext              Drop the photo's extension when naming
+                                  sidecar files. By default, sidecar files are
+                                  named in format
+                                  'photo_filename.photo_ext.sidecar_ext', e.g.
+                                  'IMG_1234.JPG.json'. Use '--sidecar-drop-
+                                  ext' to ignore the photo extension.
+                                  Resulting sidecar files will have name in
+                                  format 'IMG_1234.json'. Warning: this may
+                                  result in sidecar filename collisions if
+                                  there are files of different types but the
+                                  same name in the output directory, e.g.
+                                  'IMG_1234.JPG' and 'IMG_1234.MOV'.
   --exiftool                      Use exiftool to write metadata directly to
                                   exported photos. To use this option,
                                   exiftool must be installed and in the path.

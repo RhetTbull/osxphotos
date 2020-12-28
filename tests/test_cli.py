@@ -306,6 +306,11 @@ CLI_EXPORT_BY_DATE_NEED_TOUCH_TIMES = [1538165227, 1539436692]
 CLI_EXPORT_BY_DATE = ["2018/09/28/Pumpkins3.jpg", "2018/09/28/Pumkins1.jpg"]
 
 CLI_EXPORT_SIDECAR_FILENAMES = ["Pumkins2.jpg", "Pumkins2.jpg.json", "Pumkins2.jpg.xmp"]
+CLI_EXPORT_SIDECAR_DROP_EXT_FILENAMES = [
+    "Pumkins2.jpg",
+    "Pumkins2.json",
+    "Pumkins2.xmp",
+]
 
 CLI_EXPORT_LIVE = [
     "51F2BEF7-431A-4D31-8AC1-3284A57826AE.jpeg",
@@ -1974,6 +1979,7 @@ def test_query_deleted_4():
 
 
 def test_export_sidecar():
+    """ test --sidecar """
     import glob
     import os
     import os.path
@@ -2001,6 +2007,38 @@ def test_export_sidecar():
         assert result.exit_code == 0
         files = glob.glob("*.*")
         assert sorted(files) == sorted(CLI_EXPORT_SIDECAR_FILENAMES)
+
+
+def test_export_sidecar_drop_ext():
+    """ test --sidecar with --sidecar-drop-ext option """
+    import glob
+    import os
+    import os.path
+    import osxphotos
+
+    from osxphotos.__main__ import cli
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "export",
+                "--db",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "--sidecar=json",
+                "--sidecar=xmp",
+                "--sidecar-drop-ext",
+                f"--uuid={CLI_EXPORT_UUID}",
+                "-V",
+            ],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*.*")
+        assert sorted(files) == sorted(CLI_EXPORT_SIDECAR_DROP_EXT_FILENAMES)
 
 
 def test_export_sidecar_exiftool():

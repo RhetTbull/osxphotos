@@ -430,6 +430,7 @@ def export2(
     overwrite=False,
     increment=True,
     sidecar=0,
+    sidecar_drop_ext=False,
     use_photos_export=False,
     timeout=120,
     exiftool=False,
@@ -475,6 +476,7 @@ def export2(
                 sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. `exiftool -j`)
              SIDECAR_XMP: if set will write an XMP sidecar with IPTC data
                 sidecar filename will be dest/filename.xmp
+    sidecar_drop_ext: (boolean, default=False); if True, drops the photo's extension from sidecar filename (e.g. 'IMG_1234.json' instead of 'IMG_1234.JPG.json')
     use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos
     timeout: (int, default=120) timeout in seconds used with use_photos_export
     exiftool: (boolean, default = False); if True, will use exiftool to write metadata to export file
@@ -893,8 +895,9 @@ def export2(
     sidecar_xmp_files_skipped = []
     sidecar_xmp_files_written = []
 
+    dest_suffix = "" if sidecar_drop_ext else dest.suffix
     if sidecar & SIDECAR_JSON:
-        sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}{dest.suffix}.json")
+        sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}{dest_suffix}.json")
         sidecar_str = self._exiftool_json_sidecar(
             use_albums_as_keywords=use_albums_as_keywords,
             use_persons_as_keywords=use_persons_as_keywords,
@@ -913,7 +916,7 @@ def export2(
         )
 
     if sidecar & SIDECAR_EXIFTOOL:
-        sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}{dest.suffix}.json")
+        sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}{dest_suffix}.json")
         sidecar_str = self._exiftool_json_sidecar(
             use_albums_as_keywords=use_albums_as_keywords,
             use_persons_as_keywords=use_persons_as_keywords,
@@ -933,7 +936,7 @@ def export2(
         )
 
     if sidecar & SIDECAR_XMP:
-        sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}{dest.suffix}.xmp")
+        sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}{dest_suffix}.xmp")
         sidecar_str = self._xmp_sidecar(
             use_albums_as_keywords=use_albums_as_keywords,
             use_persons_as_keywords=use_persons_as_keywords,
