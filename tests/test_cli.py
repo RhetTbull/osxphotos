@@ -2256,6 +2256,33 @@ def test_export_sidecar_update():
         assert "Writing JSON sidecar" in result.output
 
 
+def test_export_sidecar_invalid():
+    """ test invalid combination of sidecars """
+    import os
+
+    from osxphotos.__main__ import cli
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "export",
+                "--db",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "--sidecar=json",
+                "--sidecar=exiftool",
+                f"--uuid={CLI_EXPORT_UUID}",
+                "-V",
+            ],
+        )
+        assert result.exit_code != 0
+        assert "Cannot use --sidecar json with --sidecar exiftool" in result.output
+
+
 def test_export_live():
     import glob
     import os

@@ -301,23 +301,33 @@ Options:
                                   the primary photo will be exported--
                                   associated burst images will be skipped.
   --sidecar FORMAT                Create sidecar for each photo exported;
-                                  valid FORMAT values: xmp, json; --sidecar
-                                  json: create JSON sidecar useable by
-                                  exiftool (https://exiftool.org/) The sidecar
-                                  file can be used to apply metadata to the
-                                  file with exiftool, for example: "exiftool
+                                  valid FORMAT values: xmp, json, exiftool;
+                                  --sidecar xmp: create XMP sidecar used by
+                                  Adobe Lightroom, etc. The sidecar file is
+                                  named in format photoname.ext.xmp The XMP
+                                  sidecar exports the following tags:
+                                  Description, Title, Keywords/Tags, Subject
+                                  (set to Keywords + PersonInImage),
+                                  PersonInImage, CreateDate, ModifyDate,
+                                  GPSLongitude. 
+                                  --sidecar json: create JSON
+                                  sidecar useable by exiftool
+                                  (https://exiftool.org/) The sidecar file can
+                                  be used to apply metadata to the file with
+                                  exiftool, for example: "exiftool
                                   -j=photoname.jpg.json photoname.jpg" The
                                   sidecar file is named in format
-                                  photoname.ext.json  --sidecar xmp: create
-                                  XMP sidecar used by Adobe Lightroom, etc.The
-                                  sidecar file is named in format
-                                  photoname.ext.xmpThe XMP sidecar exports the
-                                  following tags: Description, Title,
-                                  Keywords/Tags, Subject (set to Keywords +
-                                  PersonInImage), PersonInImage, CreateDate,
-                                  ModifyDate, GPSLongitude. For a list of tags
-                                  exported in the JSON sidecar, see
-                                  --exiftool.
+                                  photoname.ext.json; format includes tag
+                                  groups (equivalent to running 'exiftool -G
+                                  -j'). 
+                                  --sidecar exiftool: create JSON
+                                  sidecar compatible with output of 'exiftool
+                                  -j'. Unlike '--sidecar json', '--sidecar
+                                  exiftool' does not export tag groups.
+                                  Sidecar filename is in format
+                                  photoname.ext.json; For a list of tags
+                                  exported in the JSON and exiftool sidecar,
+                                  see '--exiftool'.
   --exiftool                      Use exiftool to write metadata directly to
                                   exported photos. To use this option,
                                   exiftool must be installed and in the path.
@@ -327,14 +337,12 @@ Options:
                                   metadata: EXIF:ImageDescription,
                                   XMP:Description (see also --description-
                                   template); XMP:Title; XMP:TagsList,
-                                  IPTC:Keywords (see also --keyword-template,
-                                  --person-keyword, --album-keyword);
-                                  XMP:Subject (set to keywords + person in
-                                  image to mirror Photos' behavior);
-                                  XMP:PersonInImage; EXIF:GPSLatitudeRef;
-                                  EXIF:GPSLongitudeRef; EXIF:GPSLatitude;
-                                  EXIF:GPSLongitude; EXIF:GPSPosition;
-                                  EXIF:DateTimeOriginal;
+                                  IPTC:Keywords, XMP:Subject (see also
+                                  --keyword-template, --person-keyword,
+                                  --album-keyword); XMP:PersonInImage;
+                                  EXIF:GPSLatitudeRef; EXIF:GPSLongitudeRef;
+                                  EXIF:GPSLatitude; EXIF:GPSLongitude;
+                                  EXIF:GPSPosition; EXIF:DateTimeOriginal;
                                   EXIF:OffsetTimeOriginal; EXIF:ModifyDate
                                   (see --ignore-date-modified);
                                   IPTC:DateCreated; IPTC:TimeCreated; (video

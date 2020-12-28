@@ -1342,8 +1342,8 @@ def query(
     metavar="FORMAT",
     type=click.Choice(["xmp", "json", "exiftool"], case_sensitive=False),
     help="Create sidecar for each photo exported; valid FORMAT values: xmp, json, exiftool; "
-    "--sidecar xmp: create XMP sidecar used by Adobe Lightroom, etc."
-    "The sidecar file is named in format photoname.ext.xmp"
+    "--sidecar xmp: create XMP sidecar used by Adobe Lightroom, etc. "
+    "The sidecar file is named in format photoname.ext.xmp "
     "The XMP sidecar exports the following tags: Description, Title, Keywords/Tags, "
     "Subject (set to Keywords + PersonInImage), PersonInImage, CreateDate, ModifyDate, "
     "GPSLongitude. "
@@ -1353,9 +1353,9 @@ def query(
     "The sidecar file is named in format photoname.ext.json; "
     "format includes tag groups (equivalent to running 'exiftool -G -j'). "
     "\n--sidecar exiftool: create JSON sidecar compatible with output of 'exiftool -j'. "
-    "Unlike --sidecar json, --sidecar exiftool does not export tag groups. "
-    "Sidecar filename is in format photoname.ext.json;"
-    "For a list of tags exported in the JSON sidecar, see --exiftool.",
+    "Unlike '--sidecar json', '--sidecar exiftool' does not export tag groups. "
+    "Sidecar filename is in format photoname.ext.json; "
+    "For a list of tags exported in the JSON and exiftool sidecar, see '--exiftool'.",
 )
 @click.option(
     "--exiftool",
@@ -1365,8 +1365,8 @@ def query(
     "exiftool may be installed from https://exiftool.org/.  "
     "Cannot be used with --export-as-hardlink.  Writes the following metadata: "
     "EXIF:ImageDescription, XMP:Description (see also --description-template); "
-    "XMP:Title; XMP:TagsList, IPTC:Keywords (see also --keyword-template, --person-keyword, --album-keyword); "
-    "XMP:Subject (set to keywords + person in image to mirror Photos' behavior); "
+    "XMP:Title; XMP:TagsList, IPTC:Keywords, XMP:Subject "
+    "(see also --keyword-template, --person-keyword, --album-keyword); " 
     "XMP:PersonInImage; EXIF:GPSLatitudeRef; EXIF:GPSLongitudeRef; EXIF:GPSLatitude; EXIF:GPSLongitude; "
     "EXIF:GPSPosition; EXIF:DateTimeOriginal; EXIF:OffsetTimeOriginal; "
     "EXIF:ModifyDate (see --ignore-date-modified); IPTC:DateCreated; IPTC:TimeCreated; "
@@ -1752,6 +1752,7 @@ def export(
 
     verbose_(f"osxphotos version {__version__}")
 
+    # validate options
     exclusive_options = [
         ("favorite", "not_favorite"),
         ("hidden", "not_hidden"),
@@ -1790,6 +1791,16 @@ def export(
         click.echo(
             click.style(
                 f"Incompatible export options: {e.message}", fg=CLI_COLOR_ERROR
+            ),
+            err=True,
+        )
+        raise click.Abort()
+
+    if all(x in [s.lower() for s in sidecar] for x in ["json", "exiftool"]):
+        click.echo(
+            click.style(
+                "Cannot use --sidecar json with --sidecar exiftool due to name collisions",
+                fg=CLI_COLOR_ERROR,
             ),
             err=True,
         )
@@ -3130,6 +3141,7 @@ def write_export_report(report_file, results):
             "converted_to_jpeg": 0,
             "sidecar_xmp": 0,
             "sidecar_json": 0,
+            "sidecar_exiftool": 0,
             "missing": 0,
             "error": 0,
             "exiftool_warning": "",
@@ -3175,6 +3187,14 @@ def write_export_report(report_file, results):
         all_results[result]["sidecar_json"] = 1
         all_results[result]["skipped"] = 1
 
+    for result in results.sidecar_exiftool_written:
+        all_results[result]["sidecar_exiftool"] = 1
+        all_results[result]["exported"] = 1
+
+    for result in results.sidecar_exiftool_skipped:
+        all_results[result]["sidecar_exiftool"] = 1
+        all_results[result]["skipped"] = 1
+
     for result in results.missing:
         all_results[result]["missing"] = 1
 
@@ -3198,6 +3218,7 @@ def write_export_report(report_file, results):
         "converted_to_jpeg",
         "sidecar_xmp",
         "sidecar_json",
+        "sidecar_exiftool",
         "missing",
         "error",
         "exiftool_warning",
