@@ -367,6 +367,29 @@ CLI_EXIFTOOL = {
     }
 }
 
+CLI_EXIFTOOL_MERGE = {
+    "1EB2B765-0765-43BA-A90C-0D0580E6172C": {
+        "File:FileName": "Pumpkins3.jpg",
+        "IPTC:Keywords": "Kids",
+        "XMP:TagsList": "Kids",
+        "EXIF:ImageDescription": "Kids in pumpkin field",
+        "XMP:Description": "Kids in pumpkin field",
+        "XMP:PersonInImage": ["Katie", "Suzy", "Tim"],
+        "XMP:Subject": "Kids",
+    },
+    "D79B8D77-BFFC-460B-9312-034F2877D35B": {
+        "File:FileName": "Pumkins2.jpg",
+        "XMP:Title": "I found one!",
+        "EXIF:ImageDescription": "Girl holding pumpkin",
+        "XMP:Description": "Girl holding pumpkin",
+        "XMP:PersonInImage": "Katie",
+        "IPTC:Keywords": ["Kids", "keyword1", "keyword2", "subject1", "tagslist1"],
+        "XMP:TagsList": ["Kids", "keyword1", "keyword2", "subject1", "tagslist1"],
+        "XMP:Subject": ["Kids", "keyword1", "keyword2", "subject1", "tagslist1"],
+    },
+}
+
+
 CLI_EXIFTOOL_QUICKTIME = {
     "35329C57-B963-48D6-BB75-6AFF9370CBBC": {
         "File:FileName": "Jellyfish.MOV",
@@ -1214,6 +1237,96 @@ def test_export_exiftool_option():
         )
         assert result.exit_code == 0
         assert "exiftool warning" not in result.output
+
+
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+def test_export_exiftool_merge():
+    """ test --exiftool-merge-keywords and --exiftool-merge-persons """
+    import glob
+    import os
+    import os.path
+    from osxphotos.__main__ import export
+    from osxphotos.exiftool import ExifTool
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        for uuid in CLI_EXIFTOOL_MERGE:
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--exiftool",
+                    "--uuid",
+                    f"{uuid}",
+                    "--exiftool-merge-keywords",
+                    "--exiftool-merge-persons",
+                ],
+            )
+            assert result.exit_code == 0
+            files = glob.glob("*")
+            assert CLI_EXIFTOOL_MERGE[uuid]["File:FileName"] in files
+
+            exif = ExifTool(CLI_EXIFTOOL_MERGE[uuid]["File:FileName"]).asdict()
+            for key in CLI_EXIFTOOL_MERGE[uuid]:
+                if type(exif[key]) == list:
+                    assert sorted(exif[key]) == sorted(CLI_EXIFTOOL_MERGE[uuid][key])
+                else:
+                    assert exif[key] == CLI_EXIFTOOL_MERGE[uuid][key]
+
+
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+def test_export_exiftool_merge_sidecar():
+    """ test --exiftool-merge-keywords and --exiftool-merge-persons with --sidecar """
+    import glob
+    import json
+    import os
+    import os.path
+    from osxphotos.__main__ import export
+    from osxphotos.exiftool import ExifTool
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        for uuid in CLI_EXIFTOOL_MERGE:
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--sidecar",
+                    "json",
+                    "--uuid",
+                    f"{uuid}",
+                    "--exiftool-merge-keywords",
+                    "--exiftool-merge-persons",
+                ],
+            )
+            assert result.exit_code == 0
+            files = glob.glob("*")
+            json_file = f"{CLI_EXIFTOOL_MERGE[uuid]['File:FileName']}.json"
+            assert json_file in files
+
+            with open(json_file, "r") as fp:
+                exif = json.load(fp)[0]
+
+            for key in CLI_EXIFTOOL_MERGE[uuid]:
+                if key == "File:FileName":
+                    continue
+                if type(exif[key]) == list:
+                    expected = (
+                        CLI_EXIFTOOL_MERGE[uuid][key]
+                        if type(CLI_EXIFTOOL_MERGE[uuid][key]) == list
+                        else [CLI_EXIFTOOL_MERGE[uuid][key]]
+                    )
+                    assert sorted(exif[key]) == sorted(expected)
+                else:
+                    assert exif[key] == CLI_EXIFTOOL_MERGE[uuid][key]
 
 
 def test_export_edited_suffix():

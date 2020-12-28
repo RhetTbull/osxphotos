@@ -21,11 +21,11 @@ from .._constants import (
     _PHOTOS_4_ALBUM_KIND,
     _PHOTOS_4_ROOT_FOLDER,
     _PHOTOS_4_VERSION,
-    _PHOTOS_5_VERSION,
     _PHOTOS_5_ALBUM_KIND,
     _PHOTOS_5_IMPORT_SESSION_ALBUM_KIND,
     _PHOTOS_5_SHARED_ALBUM_KIND,
     _PHOTOS_5_SHARED_PHOTO_PATH,
+    _PHOTOS_5_VERSION,
 )
 from ..albuminfo import AlbumInfo, ImportInfo
 from ..personinfo import FaceInfo, PersonInfo
@@ -56,6 +56,8 @@ class PhotoInfo:
         _export_photo,
         _exiftool_dict,
         _exiftool_json_sidecar,
+        _get_exif_keywords,
+        _get_exif_persons,
         _write_exif_data,
         _write_sidecar,
         _xmp_sidecar,

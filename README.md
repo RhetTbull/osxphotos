@@ -373,6 +373,12 @@ Options:
                                   may be specified by repeating the option,
                                   e.g. --exiftool-option '-m' --exiftool-
                                   option '-F'.
+  --exiftool-merge-keywords       Merge any keywords found in the original
+                                  file with keywords used for '--exiftool' and
+                                  '--sidecar'.
+  --exiftool-merge-persons        Merge any persons found in the original file
+                                  with persons used for '--exiftool' and '--
+                                  sidecar'.
   --ignore-date-modified          If used with --exiftool or --sidecar, will
                                   ignore the photo modification date and set
                                   EXIF:ModifyDate to EXIF:DateTimeOriginal;

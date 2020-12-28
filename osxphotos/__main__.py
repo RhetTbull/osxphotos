@@ -1395,6 +1395,16 @@ def query(
     "--exiftool-option '-m' --exiftool-option '-F'. ",
 )
 @click.option(
+    "--exiftool-merge-keywords",
+    is_flag=True,
+    help="Merge any keywords found in the original file with keywords used for '--exiftool' and '--sidecar'.",
+)
+@click.option(
+    "--exiftool-merge-persons",
+    is_flag=True,
+    help="Merge any persons found in the original file with persons used for '--exiftool' and '--sidecar'.",
+)
+@click.option(
     "--ignore-date-modified",
     is_flag=True,
     help="If used with --exiftool or --sidecar, will ignore the photo "
@@ -1592,6 +1602,8 @@ def export(
     dest,
     exiftool,
     exiftool_option,
+    exiftool_merge_keywords,
+    exiftool_merge_persons,
     ignore_date_modified,
     portrait,
     not_portrait,
@@ -1714,6 +1726,7 @@ def export(
         convert_to_jpeg = cfg.convert_to_jpeg
         jpeg_quality = cfg.jpeg_quality
         sidecar = cfg.sidecar
+        sidecar_drop_ext = cfg.sidecar_drop_ext
         only_photos = cfg.only_photos
         only_movies = cfg.only_movies
         burst = cfg.burst
@@ -1722,6 +1735,9 @@ def export(
         not_live = cfg.not_live
         download_missing = cfg.download_missing
         exiftool = cfg.exiftool
+        exiftool_option = cfg.exiftool_option
+        exiftool_merge_keywords = cfg.exiftool_merge_keywords
+        exiftool_merge_persons = cfg.exiftool_merge_persons
         ignore_date_modified = cfg.ignore_date_modified
         portrait = cfg.portrait
         not_portrait = cfg.not_portrait
@@ -1795,6 +1811,8 @@ def export(
         ("jpeg_quality", ("convert_to_jpeg")),
         ("ignore_signature", ("update")),
         ("exiftool_option", ("exiftool")),
+        ("exiftool_merge_keywords", ("exiftool", "sidecar")),
+        ("exiftool_merge_persons", ("exiftool", "sidecar")),
     ]
     try:
         cfg.validate(exclusive=exclusive_options, dependent=dependent_options, cli=True)
@@ -2058,6 +2076,8 @@ def export(
                     export_live=export_live,
                     download_missing=download_missing,
                     exiftool=exiftool,
+                    exiftool_merge_keywords=exiftool_merge_keywords,
+                    exiftool_merge_persons=exiftool_merge_persons,
                     directory=directory,
                     filename_template=filename_template,
                     export_raw=export_raw,
@@ -2107,6 +2127,8 @@ def export(
                         export_live=export_live,
                         download_missing=download_missing,
                         exiftool=exiftool,
+                        exiftool_merge_keywords=exiftool_merge_keywords,
+                        exiftool_merge_persons=exiftool_merge_persons,
                         directory=directory,
                         filename_template=filename_template,
                         export_raw=export_raw,
@@ -2640,6 +2662,8 @@ def export_photo(
     export_live=None,
     download_missing=None,
     exiftool=None,
+    exiftool_merge_keywords=False,
+    exiftool_merge_persons=False,
     directory=None,
     filename_template=None,
     export_raw=None,
@@ -2694,6 +2718,8 @@ def export_photo(
         jpeg_quality: float in range 0.0 <= jpeg_quality <= 1.0.  A value of 1.0 specifies use best quality, a value of 0.0 specifies use maximum compression.
         ignore_date_modified: if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
         exiftool_option: optional list flags (e.g. ["-m", "-F"]) to pass to exiftool
+        exiftool_merge_keywords: boolean; if True, merged keywords found in file's exif data (requires exiftool)
+        exiftool_merge_persons: boolean; if True, merged persons found in file's exif data (requires exiftool)
 
     Returns:
         list of path(s) of exported photo or None if photo was missing
@@ -2826,6 +2852,8 @@ def export_photo(
                             overwrite=overwrite,
                             use_photos_export=use_photos_export,
                             exiftool=exiftool,
+                            merge_exif_keywords=exiftool_merge_keywords,
+                            merge_exif_persons=exiftool_merge_persons,
                             use_albums_as_keywords=album_keyword,
                             use_persons_as_keywords=person_keyword,
                             keyword_template=keyword_template,
@@ -2930,6 +2958,8 @@ def export_photo(
                             edited=True,
                             use_photos_export=use_photos_export,
                             exiftool=exiftool,
+                            merge_exif_keywords=exiftool_merge_keywords,
+                            merge_exif_persons=exiftool_merge_persons,
                             use_albums_as_keywords=album_keyword,
                             use_persons_as_keywords=person_keyword,
                             keyword_template=keyword_template,
