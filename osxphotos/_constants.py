@@ -178,3 +178,8 @@ DEFAULT_ORIGINAL_SUFFIX = ""
 # Colors for print CLI messages
 CLI_COLOR_ERROR = "red"
 CLI_COLOR_WARNING = "yellow"
+
+# Bit masks for --sidecar
+SIDECAR_JSON = 0x1
+SIDECAR_EXIFTOOL = 0x2
+SIDECAR_XMP = 0x4

@@ -33,6 +33,9 @@ from .._constants import (
     _TEMPLATE_DIR,
     _UNKNOWN_PERSON,
     _XMP_TEMPLATE_NAME,
+    SIDECAR_JSON,
+    SIDECAR_EXIFTOOL,
+    SIDECAR_XMP,
 )
 from ..datetime_utils import datetime_tz_to_utc
 from ..exiftool import ExifTool
@@ -364,12 +367,12 @@ def export(
     overwrite: (boolean, default=False); if True will overwrite files if they alreay exist
     increment: (boolean, default=True); if True, will increment file name until a non-existant name is found
                 if overwrite=False and increment=False, export will fail if destination file already exists
-    sidecar_json: (boolean, default = False); if True will also write a json sidecar with data in format readable by exiftool
-                sidecar filename will be dest/filename.json, includes exiftool tag group names (e.g. `exiftool -G -j`)
-    sidecar_exiftool: (boolean, default = False); if True will also write a json sidecar with data in format readable by exiftool
+    sidecar_json: if set will write a json sidecar with data in format readable by exiftool
+                sidecar filename will be dest/filename.json; includes exiftool tag group names (e.g. `exiftool -G -j`)
+    sidecar_exiftool: if set will write a json sidecar with data in format readable by exiftool
                 sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. `exiftool -j`)
-    sidecar_xmp: (boolean, default = False); if True will also write a XMP sidecar with IPTC data
-                sidecar filename will be dest/filename.xmp
+    sidecar_xmp: if set will write an XMP sidecar with IPTC data
+                sidecar filename will be dest/filename.xmp           
     use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos
     timeout: (int, default=120) timeout in seconds used with use_photos_export
     exiftool: (boolean, default = False); if True, will use exiftool to write metadata to export file
@@ -386,6 +389,14 @@ def export(
 
     # Implementation note: calls export2 to actually do the work
 
+    sidecar = 0
+    if sidecar_json:
+        sidecar |= SIDECAR_JSON
+    if sidecar_exiftool:
+        sidecar |= SIDECAR_EXIFTOOL
+    if sidecar_xmp:
+        sidecar |= SIDECAR_XMP
+        
     results = self.export2(
         dest,
         *filename,
@@ -395,9 +406,7 @@ def export(
         export_as_hardlink=export_as_hardlink,
         overwrite=overwrite,
         increment=increment,
-        sidecar_json=sidecar_json,
-        sidecar_exiftool=sidecar_exiftool,
-        sidecar_xmp=sidecar_xmp,
+        sidecar=sidecar,
         use_photos_export=use_photos_export,
         timeout=timeout,
         exiftool=exiftool,
@@ -420,9 +429,7 @@ def export2(
     export_as_hardlink=False,
     overwrite=False,
     increment=True,
-    sidecar_json=False,
-    sidecar_exiftool=False,
-    sidecar_xmp=False,
+    sidecar=0,
     use_photos_export=False,
     timeout=120,
     exiftool=False,
@@ -461,11 +468,12 @@ def export2(
     overwrite: (boolean, default=False); if True will overwrite files if they alreay exist
     increment: (boolean, default=True); if True, will increment file name until a non-existant name is found
                 if overwrite=False and increment=False, export will fail if destination file already exists
-    sidecar_json: (boolean, default = False); if True will also write a json sidecar with data in format readable by exiftool
+    sidecar: bit field: set to one or more of SIDECAR_XMP, SIDECAR_JSON, SIDECAR_EXIFTOOL
+             SIDECAR_JSON: if set will write a json sidecar with data in format readable by exiftool
                 sidecar filename will be dest/filename.json; includes exiftool tag group names (e.g. `exiftool -G -j`)
-    sidecar_exiftool: (boolean, default = False); if True will also write a json sidecar with data in format readable by exiftool
+             SIDECAR_EXIFTOOL: if set will write a json sidecar with data in format readable by exiftool
                 sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. `exiftool -j`)
-    sidecar_xmp: (boolean, default = False); if True will also write a XMP sidecar with IPTC data
+             SIDECAR_XMP: if set will write an XMP sidecar with IPTC data
                 sidecar filename will be dest/filename.xmp
     use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos
     timeout: (int, default=120) timeout in seconds used with use_photos_export
@@ -880,7 +888,7 @@ def export2(
     # TODO: repetitive code here is prime for refactoring
     sidecar_json_files_skipped = []
     sidecar_json_files_written = []
-    if sidecar_json:
+    if sidecar & SIDECAR_JSON:
         sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}{dest.suffix}.json")
         sidecar_str = self._exiftool_json_sidecar(
             use_albums_as_keywords=use_albums_as_keywords,
@@ -918,7 +926,7 @@ def export2(
 
     sidecar_exiftool_files_skipped = []
     sidecar_exiftool_files_written = []
-    if sidecar_exiftool:
+    if sidecar & SIDECAR_EXIFTOOL:
         sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}{dest.suffix}.json")
         sidecar_str = self._exiftool_json_sidecar(
             use_albums_as_keywords=use_albums_as_keywords,
@@ -957,7 +965,7 @@ def export2(
 
     sidecar_xmp_files_skipped = []
     sidecar_xmp_files_written = []
-    if sidecar_xmp:
+    if sidecar & SIDECAR_XMP:
         sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}{dest.suffix}.xmp")
         sidecar_str = self._xmp_sidecar(
             use_albums_as_keywords=use_albums_as_keywords,

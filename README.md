@@ -1556,7 +1556,7 @@ Returns a JSON representation of all photo info.
 Returns a dictionary representation of all photo info.
 
 #### `export()`
-`export(dest, *filename, edited=False, live_photo=False, export_as_hardlink=False, overwrite=False, increment=True, sidecar_json=False, sidecar_xmp=False, use_photos_export=False, timeout=120, exiftool=False, use_albums_as_keywords=False, use_persons_as_keywords=False)`
+`export(dest, *filename, edited=False, live_photo=False, export_as_hardlink=False, overwrite=False, increment=True, sidecar_json=False, sidecar_exiftool=False, sidecar_xmp=False, use_photos_export=False, timeout=120, exiftool=False, use_albums_as_keywords=False, use_persons_as_keywords=False)`
 
 Export photo from the Photos library to another destination on disk.  
 - dest: must be valid destination path as str (or exception raised).
@@ -1567,6 +1567,8 @@ Export photo from the Photos library to another destination on disk.
 - live_photo: boolean; if True (default=False), will also export the associted .mov for live photos; exported live photo will be named filename.mov
 - increment: boolean; if True (default=True), will increment file name until a non-existent name is found
 - sidecar_json: (boolean, default = False); if True will also write a json sidecar with metadata in format readable by exiftool; sidecar filename will be dest/filename.json where filename is the stem of the photo name
+- sidecar_json: (boolean, default = False); if True will also write a json sidecar with metadata in format readable by exiftool; sidecar filename will be dest/filename.json where filename is the stem of the photo name; resulting json file will include tag group names (e.g. `exiftool -G -j`)
+- sidecar_exiftool: (boolean, default = False); if True will also write a json sidecar with metadata in format readable by exiftool; sidecar filename will be dest/filename.json where filename is the stem of the photo name; resulting json file will not include tag group names (e.g. `exiftool -j`)
 - sidecar_xmp: (boolean, default = False); if True will also write a XMP sidecar with metadata; sidecar filename will be dest/filename.xmp where filename is the stem of the photo name
 - use_photos_export: boolean; (default=False), if True will attempt to export photo via applescript interaction with Photos; useful for forcing download of missing photos.  This only works if the Photos library being used is the default library (last opened by Photos) as applescript will directly interact with whichever library Photos is currently using.
 - timeout: (int, default=120) timeout in seconds used with use_photos_export

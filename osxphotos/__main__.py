@@ -21,9 +21,12 @@ from ._constants import (
     _UNKNOWN_PLACE,
     CLI_COLOR_ERROR,
     CLI_COLOR_WARNING,
-    DEFAULT_JPEG_QUALITY,
     DEFAULT_EDITED_SUFFIX,
+    DEFAULT_JPEG_QUALITY,
     DEFAULT_ORIGINAL_SUFFIX,
+    SIDECAR_EXIFTOOL,
+    SIDECAR_JSON,
+    SIDECAR_XMP,
     UNICODE_FORMAT,
 )
 from ._version import __version__
@@ -2754,13 +2757,13 @@ def export_photo(
         )
 
         sidecar = [s.lower() for s in sidecar]
-        sidecar_json, sidecar_xmp, sidecar_exiftool = False, False, False
+        sidecar_flags = 0
         if "json" in sidecar:
-            sidecar_json = True
+            sidecar_flags |= SIDECAR_JSON
         if "xmp" in sidecar:
-            sidecar_xmp = True
+            sidecar_flags |= SIDECAR_XMP
         if "exiftool" in sidecar:
-            sidecar_exiftool = True
+            sidecar_flags |= SIDECAR_EXIFTOOL
 
         # if download_missing and the photo is missing or path doesn't exist,
         # try to download with Photos
@@ -2789,9 +2792,7 @@ def export_photo(
                         export_results = photo.export2(
                             dest_path,
                             original_filename,
-                            sidecar_json=sidecar_json,
-                            sidecar_exiftool=sidecar_exiftool,
-                            sidecar_xmp=sidecar_xmp,
+                            sidecar=sidecar_flags,
                             live_photo=export_live,
                             raw_photo=export_raw,
                             export_as_hardlink=export_as_hardlink,
@@ -2895,9 +2896,7 @@ def export_photo(
                         export_results_edited = photo.export2(
                             dest_path,
                             edited_filename,
-                            sidecar_json=sidecar_json,
-                            sidecar_exiftool=sidecar_exiftool,
-                            sidecar_xmp=sidecar_xmp,
+                            sidecar=sidecar_flags,
                             export_as_hardlink=export_as_hardlink,
                             overwrite=overwrite,
                             edited=True,
