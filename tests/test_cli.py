@@ -3382,9 +3382,12 @@ def test_export_sidecar_keyword_template():
 
         json_expected = json.loads(
             """
-            [{"EXIF:ImageDescription": "Girl holding pumpkin", 
+            [{"SourceFile": "Pumkins2.jpg",
+            "ExifTool:ExifToolVersion": "12.00",
+            "File:FileName": "Pumkins2.jpg",
+            "EXIF:ImageDescription": "Girl holding pumpkin", 
             "XMP:Description": "Girl holding pumpkin", 
-            "XMP:Title": "I found one!", 
+            "XMP:Title": "I found one!",
             "XMP:TagsList": ["Kids", "Multi Keyword", "Pumpkin Farm", "Test Album"], 
             "IPTC:Keywords": ["Kids", "Multi Keyword", "Pumpkin Farm", "Test Album"], 
             "XMP:PersonInImage": ["Katie"], 

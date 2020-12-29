@@ -912,6 +912,7 @@ def export2(
             ignore_date_modified=ignore_date_modified,
             merge_exif_keywords=merge_exif_keywords,
             merge_exif_persons=merge_exif_persons,
+            filename=dest.name,
         )
         sidecars.append(
             (
@@ -934,6 +935,7 @@ def export2(
             tag_groups=False,
             merge_exif_keywords=merge_exif_keywords,
             merge_exif_persons=merge_exif_persons,
+            filename=dest.name,
         )
         sidecars.append(
             (
@@ -1375,11 +1377,13 @@ def _exiftool_dict(
     ignore_date_modified=False,
     merge_exif_keywords=False,
     merge_exif_persons=False,
+    filename=None,
 ):
     """Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
         Does not include all the EXIF fields as those are likely already in the image.
 
     Args:
+        filename: name of source image file (without path); if not None, exiftool JSON signature will be included; if None, signature will not be included
         use_albums_as_keywords: treat album names as keywords
         use_persons_as_keywords: treat person names as keywords
         keyword_template: (list of strings); list of template strings to render as keywords
@@ -1413,7 +1417,16 @@ def _exiftool_dict(
         UserData:GPSCoordinates
     """
 
-    exif = {}
+    exif = (
+        {
+            "SourceFile": filename,
+            "ExifTool:ExifToolVersion": "12.00",
+            "File:FileName": filename,
+        }
+        if filename is not None
+        else {}
+    )
+
     if description_template is not None:
         rendered = self.render_template(
             description_template, expand_inplace=True, inplace_sep=", "
@@ -1611,6 +1624,7 @@ def _exiftool_json_sidecar(
     tag_groups=True,
     merge_exif_keywords=False,
     merge_exif_persons=False,
+    filename=None,
 ):
     """Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
         Does not include all the EXIF fields as those are likely already in the image.
@@ -1624,6 +1638,7 @@ def _exiftool_json_sidecar(
         tag_groups: if True, tags are in form Group:TagName, e.g. IPTC:Keywords, otherwise group name is omitted, e.g. Keywords
         merge_exif_keywords: boolean; if True, merged keywords found in file's exif data (requires exiftool)
         merge_exif_persons: boolean; if True, merged persons found in file's exif data (requires exiftool)
+        filename: filename of the destination image file for including in exiftool signature in JSON sidecar
 
     Returns: dict with exiftool tags / values
 
@@ -1657,6 +1672,7 @@ def _exiftool_json_sidecar(
         ignore_date_modified=ignore_date_modified,
         merge_exif_keywords=merge_exif_keywords,
         merge_exif_persons=merge_exif_persons,
+        filename=filename,
     )
 
     if not tag_groups:
