@@ -363,6 +363,8 @@ Options:
                                   (see also --ignore-date-modified);
                                   QuickTime:GPSCoordinates;
                                   UserData:GPSCoordinates.
+  --exiftool-path EXIFTOOL_PATH   Optionally specify path to exiftool; if not
+                                  provided, will look for exiftool in $PATH.
   --exiftool-option OPTION        Optional flag/option to pass to exiftool
                                   when using --exiftool. For example,
                                   --exiftool-option '-m' to ignore minor

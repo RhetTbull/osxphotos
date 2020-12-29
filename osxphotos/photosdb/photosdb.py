@@ -70,12 +70,13 @@ class PhotosDB:
     from ._photosdb_process_scoreinfo import _process_scoreinfo
     from ._photosdb_process_comments import _process_comments
 
-    def __init__(self, dbfile=None, verbose=None):
+    def __init__(self, dbfile=None, verbose=None, exiftool=None):
         """ Create a new PhotosDB object.
 
         Args:
             dbfile: specify full path to photos library or photos.db; if None, will attempt to locate last library opened by Photos.
             verbose: optional callable function to use for printing verbose text during processing; if None (default), does not print output.
+            exiftool: optional path to exiftool for methods that require this (e.g. PhotoInfo.exiftool); if not provided, will search PATH
         
         Raises:
             FileNotFoundError if dbfile is not a valid Photos library.
@@ -97,6 +98,8 @@ class PhotosDB:
         elif not callable(verbose):
             raise TypeError("verbose must be callable")
         self._verbose = verbose
+
+        self._exiftool_path = exiftool
 
         # create a temporary directory
         # tempfile.TemporaryDirectory gets cleaned up when the object does

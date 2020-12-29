@@ -18,12 +18,11 @@ def exiftool(self):
         return self._exiftool
     except AttributeError:
         try:
-            exiftool_path = get_exiftool_path()
+            exiftool_path = self._db._exiftool_path or get_exiftool_path()
             if self.path is not None and os.path.isfile(self.path):
-                exiftool = ExifTool(self.path)
+                exiftool = ExifTool(self.path, exiftool=exiftool_path)
             else:
                 exiftool = None
-                logging.debug(f"exiftool: missing path {self.uuid}")
         except FileNotFoundError:
             # get_exiftool_path raises FileNotFoundError if exiftool not found
             exiftool = None

@@ -1056,6 +1056,52 @@ def test_export_exiftool():
 
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+def test_export_exiftool_path():
+    """ test --exiftool with --exiftool-path """
+    import glob
+    import os
+    import os.path
+    import shutil
+    import tempfile
+    from osxphotos.__main__ import export
+    from osxphotos.exiftool import ExifTool, get_exiftool_path
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        tempdir = tempfile.TemporaryDirectory()
+        exiftool_source = get_exiftool_path()
+        exiftool_path = os.path.join(tempdir.name, "myexiftool")
+        shutil.copy2(exiftool_source, exiftool_path)
+        for uuid in CLI_EXIFTOOL:
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_6),
+                    ".",
+                    "-V",
+                    "--exiftool",
+                    "--uuid",
+                    f"{uuid}",
+                    "--exiftool-path",
+                    exiftool_path,
+                ],
+            )
+            assert result.exit_code == 0
+            assert f"exiftool path: {exiftool_path}" in result.output
+            files = glob.glob("*")
+            assert sorted(files) == sorted([CLI_EXIFTOOL[uuid]["File:FileName"]])
+
+            exif = ExifTool(CLI_EXIFTOOL[uuid]["File:FileName"]).asdict()
+            for key in CLI_EXIFTOOL[uuid]:
+                if type(exif[key]) == list:
+                    assert sorted(exif[key]) == sorted(CLI_EXIFTOOL[uuid][key])
+                else:
+                    assert exif[key] == CLI_EXIFTOOL[uuid][key]
+
+
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool_ignore_date_modified():
     import glob
     import os

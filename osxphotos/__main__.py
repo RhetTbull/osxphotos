@@ -1157,8 +1157,9 @@ def query(
         _list_libraries()
         return
 
+    photosdb = osxphotos.PhotosDB(dbfile=db, verbose=verbose_)
     photos = _query(
-        db=db,
+        photosdb=photosdb,
         keyword=keyword,
         person=person,
         album=album,
@@ -1384,6 +1385,12 @@ def query(
     "QuickTime:GPSCoordinates; UserData:GPSCoordinates.",
 )
 @click.option(
+    "--exiftool-path",
+    metavar="EXIFTOOL_PATH",
+    type=click.Path(exists=True),
+    help="Optionally specify path to exiftool; if not provided, will look for exiftool in $PATH.",
+)
+@click.option(
     "--exiftool-option",
     multiple=True,
     metavar="OPTION",
@@ -1601,6 +1608,7 @@ def export(
     download_missing,
     dest,
     exiftool,
+    exiftool_path,
     exiftool_option,
     exiftool_merge_keywords,
     exiftool_merge_persons,
@@ -1735,6 +1743,7 @@ def export(
         not_live = cfg.not_live
         download_missing = cfg.download_missing
         exiftool = cfg.exiftool
+        exiftool_path = cfg.exiftool_path
         exiftool_option = cfg.exiftool_option
         exiftool_merge_keywords = cfg.exiftool_merge_keywords
         exiftool_merge_persons = cfg.exiftool_merge_persons
@@ -1813,6 +1822,7 @@ def export(
         ("exiftool_option", ("exiftool")),
         ("exiftool_merge_keywords", ("exiftool", "sidecar")),
         ("exiftool_merge_persons", ("exiftool", "sidecar")),
+        ("exiftool_path", ("exiftool")),
     ]
     try:
         cfg.validate(exclusive=exclusive_options, dependent=dependent_options, cli=True)
@@ -1881,10 +1891,10 @@ def export(
         not x for x in [skip_edited, skip_bursts, skip_live, skip_raw]
     ]
 
-    # verify exiftool installed an in path
-    if exiftool:
+    # verify exiftool installed and in path if path not provided
+    if exiftool and not exiftool_path:
         try:
-            _ = get_exiftool_path()
+            exiftool_path = get_exiftool_path()
         except FileNotFoundError:
             click.echo(
                 click.style(
@@ -1895,6 +1905,9 @@ def export(
                 err=True,
             )
             ctx.exit(2)
+
+    if exiftool:
+        verbose_(f"exiftool path: {exiftool_path}")
 
     isphoto = ismovie = True  # default searches for everything
     if only_movies:
@@ -1977,8 +1990,9 @@ def export(
                 f"Upgraded export database {export_db_path} from version {upgraded[0]} to {upgraded[1]}"
             )
 
+    photosdb = osxphotos.PhotosDB(dbfile=db, verbose=verbose_, exiftool=exiftool_path)
     photos = _query(
-        db=db,
+        photosdb=photosdb,
         keyword=keyword,
         person=person,
         album=album,
@@ -2327,7 +2341,7 @@ def print_photo_info(photos, json=False):
 
 
 def _query(
-    db=None,
+    photosdb,
     keyword=None,
     person=None,
     album=None,
@@ -2386,12 +2400,12 @@ def _query(
     has_likes=False,
     no_likes=False,
 ):
-    """run a query against PhotosDB to extract the photos based on user supply criteria
-    used by query and export commands
-    arguments must be passed in same order as query and export
-    if either is modified, need to ensure all three functions are updated"""
+    """ Run a query against PhotosDB to extract the photos based on user supply criteria used by query and export commands
 
-    photosdb = osxphotos.PhotosDB(dbfile=db, verbose=verbose_)
+    Args:   
+        photosdb: PhotosDB object
+    """
+
     if deleted or deleted_only:
         photos = photosdb.photos(
             uuid=uuid,

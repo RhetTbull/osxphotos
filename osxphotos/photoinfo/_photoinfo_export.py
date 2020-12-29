@@ -1358,7 +1358,7 @@ def _write_exif_data(
         merge_exif_persons=merge_exif_persons,
     )
 
-    with ExifTool(filepath, flags=flags) as exiftool:
+    with ExifTool(filepath, flags=flags, exiftool=self._db._exiftool_path) as exiftool:
         for exiftag, val in exif_info.items():
             if type(val) == list:
                 for v in val:
