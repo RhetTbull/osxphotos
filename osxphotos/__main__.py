@@ -1822,7 +1822,7 @@ def export(
         ("exiftool_option", ("exiftool")),
         ("exiftool_merge_keywords", ("exiftool", "sidecar")),
         ("exiftool_merge_persons", ("exiftool", "sidecar")),
-        ("exiftool_path", ("exiftool")),
+        ("exiftool_path", ("exiftool", "exiftool_merge_keywords", "exiftool_merge_persons")),
     ]
     try:
         cfg.validate(exclusive=exclusive_options, dependent=dependent_options, cli=True)
@@ -1892,7 +1892,7 @@ def export(
     ]
 
     # verify exiftool installed and in path if path not provided
-    if exiftool and not exiftool_path:
+    if (exiftool or exiftool_merge_keywords or exiftool_merge_persons) and not exiftool_path:
         try:
             exiftool_path = get_exiftool_path()
         except FileNotFoundError:
@@ -1906,7 +1906,7 @@ def export(
             )
             ctx.exit(2)
 
-    if exiftool:
+    if exiftool or exiftool_merge_keywords or exiftool_merge_persons:
         verbose_(f"exiftool path: {exiftool_path}")
 
     isphoto = ismovie = True  # default searches for everything
