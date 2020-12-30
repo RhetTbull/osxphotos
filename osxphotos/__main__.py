@@ -13,12 +13,14 @@ import unicodedata
 import click
 import yaml
 
+import osxmetadata
 import osxphotos
 
 from ._constants import (
     _EXIF_TOOL_URL,
     _PHOTOS_4_VERSION,
     _UNKNOWN_PLACE,
+    _OSXPHOTOS_NONE_SENTINEL,
     CLI_COLOR_ERROR,
     CLI_COLOR_WARNING,
     DEFAULT_EDITED_SUFFIX,
@@ -178,6 +180,24 @@ class ExportCommand(click.Command):
             + "hashes of the files.  In normal usage, this is sufficient for updating the library. "
             + "You can always run export without the --update option to re-export the entire library thus "
             + f"rebuilding the '{OSXPHOTOS_EXPORT_DB}' database."
+        )
+        formatter.write("\n\n")
+        formatter.write_text("** Extended Attributes **")
+        formatter.write("\n")
+        formatter.write_text(
+            """
+Some options (currently '--finder-tag-template' and '--finder-tag-keywords') write
+additional metadata to extended attributes in the file. These options will only work
+if the destination filesystem supports extended attributes (most do).
+For example, --finder-tag-keyword writes all keywords (including any specified by '--keyword-template'
+or other options) to Finder tags that are searchable in Spotlight using the syntax: 'tag:tagname'.
+For example, if you have images with keyword "Travel" then using '--finder-tag-keywords' you could quickly
+find those images in the Finder by typing 'tag:Travel' in the Spotlight search bar.
+Finder tags are written to the 'com.apple.metadata:_kMDItemUserTags' extended attribute.
+Unlike EXIF metadata, extended attributes do not modify the actual file. Most cloud storage services
+do not synch extended attributes. Dropbox does sync them and any changes to a file's extended attributes
+will cause Dropbox to re-sync the files.
+            """
         )
 
         formatter.write("\n\n")
@@ -1455,6 +1475,22 @@ def query(
     "See Templating System below.",
 )
 @click.option(
+    "--finder-tag-template",
+    metavar="TEMPLATE",
+    multiple=True,
+    default=None,
+    help="Set MacOS Finder tags to TEMPLATE. These tags can be searched in the Finder or Spotlight with "
+    "'tag:tagname' format. For example, '--finder-tag-template \"{label}\"' to set Finder tags to photo labels. "
+    "You may specify multiple TEMPLATE values by using '--finder-tag-template' multiple times. "
+    "See also '--finder-tag-keywords and Extended Attributes below.'.",
+)
+@click.option(
+    "--finder-tag-keywords",
+    is_flag=True,
+    help="Set MacOS Finder tags to keywords; any keywords specified via '--keyword-template', '--person-keyword', etc. "
+    "will also be used as Finder tags. See also '--finder-tag-template and Extended Attributes below.'.",
+)
+@click.option(
     "--directory",
     metavar="DIRECTORY",
     default=None,
@@ -1594,6 +1630,8 @@ def export(
     album_keyword,
     keyword_template,
     description_template,
+    finder_tag_template,
+    finder_tag_keywords,
     current_name,
     convert_to_jpeg,
     jpeg_quality,
@@ -1686,7 +1724,7 @@ def export(
             )
             raise click.Abort()
 
-        # re-set the local function vars to the corresponding config value
+        # re-set the local vars to the corresponding config value
         # this isn't elegant but avoids having to rewrite this function to use cfg.varname for every parameter
         db = cfg.db
         photos_library = cfg.photos_library
@@ -1730,6 +1768,8 @@ def export(
         album_keyword = cfg.album_keyword
         keyword_template = cfg.keyword_template
         description_template = cfg.description_template
+        finder_tag_template = cfg.finder_tag_template
+        finder_tag_keywords = cfg.finder_tag_keywords
         current_name = cfg.current_name
         convert_to_jpeg = cfg.convert_to_jpeg
         jpeg_quality = cfg.jpeg_quality
@@ -1890,8 +1930,13 @@ def export(
         not x for x in [skip_edited, skip_bursts, skip_live, skip_raw]
     ]
 
-    # verify exiftool installed and in path if path not provided
-    if (exiftool or exiftool_merge_keywords or exiftool_merge_persons) and not exiftool_path:
+    # verify exiftool installed and in path if path not provided and exiftool will be used
+    # NOTE: this won't catch use of {exiftool:} in a template
+    # but those will raise error during template eval if exiftool path not set
+    if (
+        any([exiftool, exiftool_merge_keywords, exiftool_merge_persons])
+        and not exiftool_path
+    ):
         try:
             exiftool_path = get_exiftool_path()
         except FileNotFoundError:
@@ -1905,7 +1950,7 @@ def export(
             )
             ctx.exit(2)
 
-    if any([exiftool, exiftool_path, exiftool_merge_keywords, exiftool_merge_persons]):
+    if any([exiftool, exiftool_merge_keywords, exiftool_merge_persons]):
         verbose_(f"exiftool path: {exiftool_path}")
 
     isphoto = ismovie = True  # default searches for everything
@@ -2070,8 +2115,10 @@ def export(
         original_name = not current_name
 
         results = ExportResults()
-        if verbose:
-            for p in photos:
+        # send progress bar output to /dev/null if verbose to hide the progress bar
+        fp = open(os.devnull, "w") if verbose else None
+        with click.progressbar(photos, file=fp) as bar:
+            for p in bar:
                 export_results = export_photo(
                     photo=p,
                     dest=dest,
@@ -2113,56 +2160,30 @@ def export(
                 )
                 results += export_results
 
-                # if convert_to_jpeg and p.isphoto and p.uti != "public.jpeg":
-                #     for photo_file in set(
-                #         results.exported + results.updated + results.exif_updated
-                #     ):
-                #         verbose_(f"Converting {photo_file} to jpeg")
-
-        else:
-            # show progress bar
-            with click.progressbar(photos) as bar:
-                for p in bar:
-                    export_results = export_photo(
-                        photo=p,
-                        dest=dest,
-                        verbose=verbose,
-                        export_by_date=export_by_date,
-                        sidecar=sidecar,
-                        sidecar_drop_ext=sidecar_drop_ext,
-                        update=update,
-                        ignore_signature=ignore_signature,
-                        export_as_hardlink=export_as_hardlink,
-                        overwrite=overwrite,
-                        export_edited=export_edited,
-                        skip_original_if_edited=skip_original_if_edited,
-                        original_name=original_name,
-                        export_live=export_live,
-                        download_missing=download_missing,
-                        exiftool=exiftool,
-                        exiftool_merge_keywords=exiftool_merge_keywords,
-                        exiftool_merge_persons=exiftool_merge_persons,
-                        directory=directory,
-                        filename_template=filename_template,
-                        export_raw=export_raw,
+                if finder_tag_keywords or finder_tag_template:
+                    files = set(
+                        export_results.exported
+                        + export_results.new
+                        + export_results.updated
+                        + export_results.exif_updated
+                        + export_results.converted_to_jpeg
+                        + export_results.skipped
+                    )
+                    tags_written, tags_skipped = write_finder_tags(
+                        p,
+                        files,
+                        keywords=finder_tag_keywords,
+                        keyword_template=keyword_template,
                         album_keyword=album_keyword,
                         person_keyword=person_keyword,
-                        keyword_template=keyword_template,
-                        description_template=description_template,
-                        export_db=export_db,
-                        fileutil=fileutil,
-                        dry_run=dry_run,
-                        touch_file=touch_file,
-                        edited_suffix=edited_suffix,
-                        original_suffix=original_suffix,
-                        use_photos_export=use_photos_export,
-                        convert_to_jpeg=convert_to_jpeg,
-                        jpeg_quality=jpeg_quality,
-                        ignore_date_modified=ignore_date_modified,
-                        use_photokit=use_photokit,
-                        exiftool_option=exiftool_option,
+                        exiftool_merge_keywords=exiftool_merge_keywords,
+                        finder_tag_template=finder_tag_template,
                     )
-                    results += export_results
+                    results.xattr_written.extend(tags_written)
+                    results.xattr_skipped.extend(tags_skipped)
+
+        if fp is not None:
+            fp.close()
 
         if cleanup:
             all_files = (
@@ -3206,6 +3227,8 @@ def write_export_report(report_file, results):
             "error": 0,
             "exiftool_warning": "",
             "exiftool_error": "",
+            "extended_attributes_written": 0,
+            "extended_attributes_skipped": 0,
         }
         for result in results.all_files()
     }
@@ -3267,6 +3290,12 @@ def write_export_report(report_file, results):
     for result in results.exiftool_error:
         all_results[result[0]]["exiftool_error"] = result[1]
 
+    for result in results.xattr_written:
+        all_results[result]["extended_attributes_written"] = 1
+
+    for result in results.xattr_skipped:
+        all_results[result]["extended_attributes_skipped"] = 1
+
     report_columns = [
         "filename",
         "exported",
@@ -3283,6 +3312,8 @@ def write_export_report(report_file, results):
         "error",
         "exiftool_warning",
         "exiftool_error",
+        "extended_attributes_written",
+        "extended_attributes_skipped",
     ]
 
     try:
@@ -3332,6 +3363,85 @@ def cleanup_files(dest_path, files_to_keep, fileutil):
             deleted_dirs += 1
 
     return (deleted_files, deleted_dirs)
+
+
+def write_finder_tags(
+    photo,
+    files,
+    keywords=False,
+    keyword_template=None,
+    album_keyword=None,
+    person_keyword=None,
+    exiftool_merge_keywords=None,
+    finder_tag_template=None,
+):
+    """ Write Finder tags (extended attributes) to files; only writes attributes if attributes on file differ from what would be written
+    
+    Args:
+        photo: a PhotoInfo object
+        files: list of file paths to write Finder tags to
+        keywords: if True, sets Finder tags to all keywords including any evaluated from keyword_template, album_keyword, person_keyword, exiftool_merge_keywords
+        keyword_template: list of keyword templates to evaluate for determining keywords
+        album_keyword: if True, use album names as keywords
+        person_keyword: if True, use person in image as keywords
+        exiftool_merge_keywords: if True, include any keywords in the exif data of the source image as keywords 
+        finder_tag_template: list of templates to evaluate for determining Finder tags
+
+    Returns:
+        (list of file paths that were updated with new Finder tags, list of file paths skipped because Finder tags didn't need updating)
+    """
+
+    tags = []
+    written = []
+    skipped = []
+    if keywords:
+        # match whatever keywords would've been used in --exiftool or --sidecar
+        exif = photo._exiftool_dict(
+            use_albums_as_keywords=album_keyword,
+            use_persons_as_keywords=person_keyword,
+            keyword_template=keyword_template,
+            merge_exif_keywords=exiftool_merge_keywords,
+        )
+        try:
+            if exif["IPTC:Keywords"]:
+                tags.extend(exif["IPTC:Keywords"])
+        except KeyError:
+            pass
+
+    if finder_tag_template:
+        rendered_tags = []
+        for template_str in finder_tag_template:
+            rendered, unmatched = photo.render_template(
+                template_str, none_str=_OSXPHOTOS_NONE_SENTINEL, path_sep="/"
+            )
+            if unmatched:
+                click.echo(
+                    click.style(
+                        f"Warning: unmatched template substitution for template: {template_str} {unmatched}",
+                        fg=CLI_COLOR_WARNING,
+                    ),
+                    err=True,
+                )
+            rendered_tags.extend(rendered)
+
+        # filter out any template values that didn't match by looking for sentinel
+        rendered_tags = [
+            tag for tag in rendered_tags if _OSXPHOTOS_NONE_SENTINEL not in tag
+        ]
+        tags.extend(rendered_tags)
+
+    tags = [osxmetadata.Tag(tag) for tag in set(tags)]
+    for f in files:
+        md = osxmetadata.OSXMetaData(f)
+        if sorted(md.tags) != sorted(tags):
+            verbose_(f"Writing Finder tags to {f}")
+            md.tags = tags
+            written.append(f)
+        else:
+            verbose_(f"Skipping Finder tags for {f}: nothing to do")
+            skipped.append(f)
+
+    return (written, skipped)
 
 
 if __name__ == "__main__":
