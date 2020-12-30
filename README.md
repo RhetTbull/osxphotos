@@ -412,6 +412,20 @@ Options:
                                   could specify --description-template
                                   "{descr} exported with osxphotos on
                                   {today.date}" See Templating System below.
+  --finder-tag-template TEMPLATE  Set Finder tags to TEMPLATE. These tags can
+                                  be searched in the Finder or Spotlight with
+                                  'tag:tagname' format. For example, '--
+                                  finder-tag-template "{label}"' to set Finder
+                                  tags to photo labels. You may specify
+                                  multiple TEMPLATE values by using '--finder-
+                                  tag-template' multiple times. See also '--
+                                  finder-tag-keywords and Extended Attributes
+                                  below.'.
+  --finder-tag-keywords           Set Finder tags to keywords; any keywords
+                                  specified via '--keyword-template', '--
+                                  person-keyword', etc. will also be used as
+                                  Finder tags. See also '--finder-tag-template
+                                  and Extended Attributes below.'.
   --directory DIRECTORY           Optional template for specifying name of
                                   output directory in the form
                                   '{name,DEFAULT}'. See below for additional
@@ -512,6 +526,24 @@ nor does it compare hashes of the files.  In normal usage, this is sufficient
 for updating the library. You can always run export without the --update
 option to re-export the entire library thus rebuilding the
 '.osxphotos_export.db' database.
+
+
+** Extended Attributes **
+
+Some options (currently '--finder-tag-template' and '--finder-tag-keywords')
+write additional metadata to extended attributes in the file. These options
+will only work if the destination filesystem supports extended attributes
+(most do). For example, --finder-tag-keyword writes all keywords (including
+any specified by '--keyword-template' or other options) to Finder tags that
+are searchable in Spotlight using the syntax: 'tag:tagname'. For example, if
+you have images with keyword "Travel" then using '--finder-tag-keywords' you
+could quickly find those images in the Finder by typing 'tag:Travel' in the
+Spotlight search bar. Finder tags are written to the
+'com.apple.metadata:_kMDItemUserTags' extended attribute. Unlike EXIF
+metadata, extended attributes do not modify the actual file. Most cloud
+storage services do not synch extended attributes. Dropbox does sync them and
+any changes to a file's extended attributes will cause Dropbox to re-sync the
+files.
 
 
 ** Templating System **

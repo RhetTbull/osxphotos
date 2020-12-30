@@ -181,6 +181,24 @@ class ExportCommand(click.Command):
             + "You can always run export without the --update option to re-export the entire library thus "
             + f"rebuilding the '{OSXPHOTOS_EXPORT_DB}' database."
         )
+        formatter.write("\n\n")
+        formatter.write_text("** Extended Attributes **")
+        formatter.write("\n")
+        formatter.write_text(
+            """
+Some options (currently '--finder-tag-template' and '--finder-tag-keywords') write
+additional metadata to extended attributes in the file. These options will only work
+if the destination filesystem supports extended attributes (most do).
+For example, --finder-tag-keyword writes all keywords (including any specified by '--keyword-template'
+or other options) to Finder tags that are searchable in Spotlight using the syntax: 'tag:tagname'.
+For example, if you have images with keyword "Travel" then using '--finder-tag-keywords' you could quickly
+find those images in the Finder by typing 'tag:Travel' in the Spotlight search bar.
+Finder tags are written to the 'com.apple.metadata:_kMDItemUserTags' extended attribute.
+Unlike EXIF metadata, extended attributes do not modify the actual file. Most cloud storage services
+do not synch extended attributes. Dropbox does sync them and any changes to a file's extended attributes
+will cause Dropbox to re-sync the files.
+            """
+        )
 
         formatter.write("\n\n")
         formatter.write_text("** Templating System **")
@@ -1464,13 +1482,13 @@ def query(
     help="Set Finder tags to TEMPLATE. These tags can be searched in the Finder or Spotlight with "
     "'tag:tagname' format. For example, '--finder-tag-template \"{label}\"' to set Finder tags to photo labels. "
     "You may specify multiple TEMPLATE values by using '--finder-tag-template' multiple times. "
-    "See also '--finder-tag-keywords'.",
+    "See also '--finder-tag-keywords and Extended Attributes below.'.",
 )
 @click.option(
     "--finder-tag-keywords",
     is_flag=True,
     help="Set Finder tags to keywords; any keywords specified via '--keyword-template', '--person-keyword', etc. "
-    "will also be used as Finder tags. See also '--finder-tag-template'.",
+    "will also be used as Finder tags. See also '--finder-tag-template and Extended Attributes below.'.",
 )
 @click.option(
     "--directory",
