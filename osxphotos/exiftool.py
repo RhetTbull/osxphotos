@@ -49,7 +49,7 @@ class _ExifToolProc:
 
         if hasattr(self, "_process_running") and self._process_running:
             # already running
-            if exiftool != self._exiftool:
+            if exiftool is not None and exiftool != self._exiftool:
                 logging.warning(
                     f"exiftool subprocess already running, "
                     f"ignoring exiftool={exiftool}"

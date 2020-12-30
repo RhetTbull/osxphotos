@@ -1822,7 +1822,6 @@ def export(
         ("exiftool_option", ("exiftool")),
         ("exiftool_merge_keywords", ("exiftool", "sidecar")),
         ("exiftool_merge_persons", ("exiftool", "sidecar")),
-        ("exiftool_path", ("exiftool", "exiftool_merge_keywords", "exiftool_merge_persons")),
     ]
     try:
         cfg.validate(exclusive=exclusive_options, dependent=dependent_options, cli=True)
@@ -1906,7 +1905,7 @@ def export(
             )
             ctx.exit(2)
 
-    if exiftool or exiftool_merge_keywords or exiftool_merge_persons:
+    if any([exiftool, exiftool_path, exiftool_merge_keywords, exiftool_merge_persons]):
         verbose_(f"exiftool path: {exiftool_path}")
 
     isphoto = ismovie = True  # default searches for everything
