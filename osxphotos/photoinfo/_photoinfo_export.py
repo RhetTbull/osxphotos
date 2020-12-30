@@ -74,6 +74,8 @@ class ExportResults:
         error=None,
         exiftool_warning=None,
         exiftool_error=None,
+        xattr_written=None,
+        xattr_skipped=None,
     ):
         self.exported = exported or []
         self.new = new or []
@@ -92,6 +94,8 @@ class ExportResults:
         self.error = error or []
         self.exiftool_warning = exiftool_warning or []
         self.exiftool_error = exiftool_error or []
+        self.xattr_written = xattr_written or []
+        self.xattr_skipped = xattr_skipped or []
 
     def all_files(self):
         """ return all filenames contained in results """
