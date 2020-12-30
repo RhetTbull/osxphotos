@@ -1479,7 +1479,7 @@ def query(
     metavar="TEMPLATE",
     multiple=True,
     default=None,
-    help="Set Finder tags to TEMPLATE. These tags can be searched in the Finder or Spotlight with "
+    help="Set MacOS Finder tags to TEMPLATE. These tags can be searched in the Finder or Spotlight with "
     "'tag:tagname' format. For example, '--finder-tag-template \"{label}\"' to set Finder tags to photo labels. "
     "You may specify multiple TEMPLATE values by using '--finder-tag-template' multiple times. "
     "See also '--finder-tag-keywords and Extended Attributes below.'.",
@@ -1487,7 +1487,7 @@ def query(
 @click.option(
     "--finder-tag-keywords",
     is_flag=True,
-    help="Set Finder tags to keywords; any keywords specified via '--keyword-template', '--person-keyword', etc. "
+    help="Set MacOS Finder tags to keywords; any keywords specified via '--keyword-template', '--person-keyword', etc. "
     "will also be used as Finder tags. See also '--finder-tag-template and Extended Attributes below.'.",
 )
 @click.option(
@@ -1724,7 +1724,7 @@ def export(
             )
             raise click.Abort()
 
-        # re-set the local function vars to the corresponding config value
+        # re-set the local vars to the corresponding config value
         # this isn't elegant but avoids having to rewrite this function to use cfg.varname for every parameter
         db = cfg.db
         photos_library = cfg.photos_library

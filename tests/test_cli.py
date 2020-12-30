@@ -439,6 +439,19 @@ CLI_EXIFTOOL_DUPLICATE_KEYWORDS = {
     "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51": "wedding.jpg"
 }
 
+CLI_FINDER_TAGS = {
+    "D79B8D77-BFFC-460B-9312-034F2877D35B": {
+        "File:FileName": "Pumkins2.jpg",
+        "IPTC:Keywords": "Kids",
+        "XMP:TagsList": "Kids",
+        "XMP:Title": "I found one!",
+        "EXIF:ImageDescription": "Girl holding pumpkin",
+        "XMP:Description": "Girl holding pumpkin",
+        "XMP:PersonInImage": "Katie",
+        "XMP:Subject": "Kids",
+    }
+}
+
 LABELS_JSON = {
     "labels": {
         "Plant": 7,
@@ -4813,4 +4826,244 @@ def test_export_exportdb():
         assert (
             "Error: --exportdb must be specified as filename not path" in result.output
         )
+
+
+def test_export_finder_tag_keywords():
+    """ test --finder-tag-keywords """
+    import glob
+    import os
+    import os.path
+
+    from osxmetadata import OSXMetaData, Tag
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        for uuid in CLI_FINDER_TAGS:
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--finder-tag-keywords",
+                    "--uuid",
+                    f"{uuid}",
+                ],
+            )
+            assert result.exit_code == 0
+
+            md = OSXMetaData(CLI_FINDER_TAGS[uuid]["File:FileName"])
+            keywords = CLI_FINDER_TAGS[uuid]["IPTC:Keywords"]
+            keywords = [keywords] if type(keywords) != list else keywords
+            expected = [Tag(x) for x in keywords]
+            assert sorted(md.tags) == sorted(expected)
+
+            # run again with --update, should skip writing extended attributes
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--finder-tag-keywords",
+                    "--uuid",
+                    f"{uuid}",
+                    "--update",
+                ],
+            )
+            assert result.exit_code == 0
+            assert "Skipping Finder tags" in result.output
+
+            md = OSXMetaData(CLI_FINDER_TAGS[uuid]["File:FileName"])
+            keywords = CLI_FINDER_TAGS[uuid]["IPTC:Keywords"]
+            keywords = [keywords] if type(keywords) != list else keywords
+            expected = [Tag(x) for x in keywords]
+            assert sorted(md.tags) == sorted(expected)
+
+            # clear tags and run again, should update extended attributes
+            md.tags = None
+
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--finder-tag-keywords",
+                    "--uuid",
+                    f"{uuid}",
+                    "--update",
+                ],
+            )
+            assert result.exit_code == 0
+            assert "Writing Finder tags" in result.output
+
+            md = OSXMetaData(CLI_FINDER_TAGS[uuid]["File:FileName"])
+            keywords = CLI_FINDER_TAGS[uuid]["IPTC:Keywords"]
+            keywords = [keywords] if type(keywords) != list else keywords
+            expected = [Tag(x) for x in keywords]
+            assert sorted(md.tags) == sorted(expected)
+
+
+def test_export_finder_tag_template():
+    """ test --finder-tag-template """
+    import glob
+    import os
+    import os.path
+
+    from osxmetadata import OSXMetaData, Tag
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        for uuid in CLI_FINDER_TAGS:
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--finder-tag-template",
+                    "{person}",
+                    "--uuid",
+                    f"{uuid}",
+                ],
+            )
+            assert result.exit_code == 0
+
+            md = OSXMetaData(CLI_FINDER_TAGS[uuid]["File:FileName"])
+            keywords = CLI_FINDER_TAGS[uuid]["XMP:PersonInImage"]
+            keywords = [keywords] if type(keywords) != list else keywords
+            expected = [Tag(x) for x in keywords]
+            assert sorted(md.tags) == sorted(expected)
+
+            # run again with --update, should skip writing extended attributes
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--finder-tag-template",
+                    "{person}",
+                    "--uuid",
+                    f"{uuid}",
+                    "--update",
+                ],
+            )
+            assert result.exit_code == 0
+            assert "Skipping Finder tags" in result.output
+
+            md = OSXMetaData(CLI_FINDER_TAGS[uuid]["File:FileName"])
+            keywords = CLI_FINDER_TAGS[uuid]["XMP:PersonInImage"]
+            keywords = [keywords] if type(keywords) != list else keywords
+            expected = [Tag(x) for x in keywords]
+            assert sorted(md.tags) == sorted(expected)
+
+            # clear tags and run again, should update extended attributes
+            md.tags = None
+
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--finder-tag-template",
+                    "{person}",
+                    "--uuid",
+                    f"{uuid}",
+                    "--update",
+                ],
+            )
+            assert result.exit_code == 0
+            assert "Writing Finder tags" in result.output
+
+            md = OSXMetaData(CLI_FINDER_TAGS[uuid]["File:FileName"])
+            keywords = CLI_FINDER_TAGS[uuid]["XMP:PersonInImage"]
+            keywords = [keywords] if type(keywords) != list else keywords
+            expected = [Tag(x) for x in keywords]
+            assert sorted(md.tags) == sorted(expected)
+
+
+def test_export_finder_tag_template_multiple():
+    """ test --finder-tag-template used more than once """
+    import glob
+    import os
+    import os.path
+
+    from osxmetadata import OSXMetaData, Tag
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        for uuid in CLI_FINDER_TAGS:
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--finder-tag-template",
+                    "{keyword}",
+                    "--finder-tag-template",
+                    "{person}",
+                    "--uuid",
+                    f"{uuid}",
+                ],
+            )
+            assert result.exit_code == 0
+
+            md = OSXMetaData(CLI_FINDER_TAGS[uuid]["File:FileName"])
+            keywords = CLI_FINDER_TAGS[uuid]["IPTC:Keywords"]
+            keywords = [keywords] if type(keywords) != list else keywords
+            persons = CLI_FINDER_TAGS[uuid]["XMP:PersonInImage"]
+            persons = [persons] if type(persons) != list else persons
+            expected = [Tag(x) for x in keywords + persons]
+            assert sorted(md.tags) == sorted(expected)
+
+
+def test_export_finder_tag_template_keywords():
+    """ test --finder-tag-template with --finder-tag-keywords """
+    import glob
+    import os
+    import os.path
+
+    from osxmetadata import OSXMetaData, Tag
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        for uuid in CLI_FINDER_TAGS:
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--finder-tag-keywords",
+                    "--finder-tag-template",
+                    "{person}",
+                    "--uuid",
+                    f"{uuid}",
+                ],
+            )
+            assert result.exit_code == 0
+
+            md = OSXMetaData(CLI_FINDER_TAGS[uuid]["File:FileName"])
+            keywords = CLI_FINDER_TAGS[uuid]["IPTC:Keywords"]
+            keywords = [keywords] if type(keywords) != list else keywords
+            persons = CLI_FINDER_TAGS[uuid]["XMP:PersonInImage"]
+            persons = [persons] if type(persons) != list else persons
+            expected = [Tag(x) for x in keywords + persons]
+            assert sorted(md.tags) == sorted(expected)
 
