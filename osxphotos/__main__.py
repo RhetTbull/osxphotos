@@ -11,21 +11,23 @@ import time
 import unicodedata
 
 import click
+import osxmetadata
 import yaml
 
-import osxmetadata
 import osxphotos
 
 from ._constants import (
     _EXIF_TOOL_URL,
+    _OSXPHOTOS_NONE_SENTINEL,
     _PHOTOS_4_VERSION,
     _UNKNOWN_PLACE,
-    _OSXPHOTOS_NONE_SENTINEL,
     CLI_COLOR_ERROR,
     CLI_COLOR_WARNING,
     DEFAULT_EDITED_SUFFIX,
     DEFAULT_JPEG_QUALITY,
     DEFAULT_ORIGINAL_SUFFIX,
+    EXTENDED_ATTRIBUTE_NAMES,
+    EXTENDED_ATTRIBUTE_NAMES_QUOTED,
     SIDECAR_EXIFTOOL,
     SIDECAR_JSON,
     SIDECAR_XMP,
@@ -186,7 +188,7 @@ class ExportCommand(click.Command):
         formatter.write("\n")
         formatter.write_text(
             """
-Some options (currently '--finder-tag-template' and '--finder-tag-keywords') write
+Some options (currently '--finder-tag-template', '--finder-tag-keywords', '-xattr-template') write
 additional metadata to extended attributes in the file. These options will only work
 if the destination filesystem supports extended attributes (most do).
 For example, --finder-tag-keyword writes all keywords (including any specified by '--keyword-template'
@@ -197,9 +199,24 @@ Finder tags are written to the 'com.apple.metadata:_kMDItemUserTags' extended at
 Unlike EXIF metadata, extended attributes do not modify the actual file. Most cloud storage services
 do not synch extended attributes. Dropbox does sync them and any changes to a file's extended attributes
 will cause Dropbox to re-sync the files.
+
+The following attributes may be used with '--xattr-template':
+
             """
         )
-
+        formatter.write_dl(
+            [
+                (
+                    attr,
+                    f"{osxmetadata.ATTRIBUTES[attr].help} ({osxmetadata.ATTRIBUTES[attr].constant})",
+                )
+                for attr in EXTENDED_ATTRIBUTE_NAMES
+            ]
+        )
+        formatter.write("\n")
+        formatter.write_text(
+            "For additional information on extended attributes see: https://developer.apple.com/documentation/coreservices/file_metadata/mditem/common_metadata_attribute_keys"
+        )
         formatter.write("\n\n")
         formatter.write_text("** Templating System **")
         formatter.write("\n")
@@ -1491,6 +1508,17 @@ def query(
     "will also be used as Finder tags. See also '--finder-tag-template and Extended Attributes below.'.",
 )
 @click.option(
+    "--xattr-template",
+    nargs=2,
+    metavar="ATTRIBUTE TEMPLATE",
+    multiple=True,
+    help="Set extended attribute ATTRIBUTE to TEMPLATE value. Valid attributes are: "
+    f"{', '.join(EXTENDED_ATTRIBUTE_NAMES_QUOTED)}. "
+    "For example, to set Finder comment to the photo's title and description: "
+    "'--xattr-template findercomment \"{title}; {descr}\" "
+    "See Extended Attributes below for additional details on this option.",
+)
+@click.option(
     "--directory",
     metavar="DIRECTORY",
     default=None,
@@ -1632,6 +1660,7 @@ def export(
     description_template,
     finder_tag_template,
     finder_tag_keywords,
+    xattr_template,
     current_name,
     convert_to_jpeg,
     jpeg_quality,
@@ -1770,6 +1799,7 @@ def export(
         description_template = cfg.description_template
         finder_tag_template = cfg.finder_tag_template
         finder_tag_keywords = cfg.finder_tag_keywords
+        xattr_template = cfg.xattr_template
         current_name = cfg.current_name
         convert_to_jpeg = cfg.convert_to_jpeg
         jpeg_quality = cfg.jpeg_quality
@@ -1883,6 +1913,19 @@ def export(
             err=True,
         )
         raise click.Abort()
+
+    if xattr_template:
+        for attr, _ in xattr_template:
+            if attr not in EXTENDED_ATTRIBUTE_NAMES:
+                click.echo(
+                    click.style(
+                        f"Invalid attribute '{attr}' for --xattr-template; "
+                        f"valid values are {', '.join(EXTENDED_ATTRIBUTE_NAMES_QUOTED)}",
+                        fg=CLI_COLOR_ERROR,
+                    ),
+                    err=True,
+                )
+                raise click.Abort()
 
     if save_config:
         verbose_(f"Saving options to file {save_config}")
@@ -2160,18 +2203,21 @@ def export(
                 )
                 results += export_results
 
+                # all photo files (not including sidecars) that are part of this export set
+                # used below for applying Finder tags, etc.
+                photo_files = set(
+                    export_results.exported
+                    + export_results.new
+                    + export_results.updated
+                    + export_results.exif_updated
+                    + export_results.converted_to_jpeg
+                    + export_results.skipped
+                )
+
                 if finder_tag_keywords or finder_tag_template:
-                    files = set(
-                        export_results.exported
-                        + export_results.new
-                        + export_results.updated
-                        + export_results.exif_updated
-                        + export_results.converted_to_jpeg
-                        + export_results.skipped
-                    )
                     tags_written, tags_skipped = write_finder_tags(
                         p,
-                        files,
+                        photo_files,
                         keywords=finder_tag_keywords,
                         keyword_template=keyword_template,
                         album_keyword=album_keyword,
@@ -2181,6 +2227,13 @@ def export(
                     )
                     results.xattr_written.extend(tags_written)
                     results.xattr_skipped.extend(tags_skipped)
+
+                if xattr_template:
+                    xattr_written, xattr_skipped = write_extended_attributes(
+                        p, photo_files, xattr_template
+                    )
+                    results.xattr_written.extend(xattr_written)
+                    results.xattr_skipped.extend(xattr_skipped)
 
         if fp is not None:
             fp.close()
@@ -3442,6 +3495,65 @@ def write_finder_tags(
             skipped.append(f)
 
     return (written, skipped)
+
+
+def write_extended_attributes(photo, files, xattr_template):
+    """ Writes extended attributes to exported files
+
+    Args:
+        photo: a PhotoInfo object
+        xattr_template: list of tuples: (attribute name, attribute template)
+    
+    Returns:
+        tuple(list of file paths that were updated with new attributes, list of file paths skipped because attributes didn't need updating)
+    """
+
+    attributes = {}
+    for xattr, template_str in xattr_template:
+        rendered, unmatched = photo.render_template(
+            template_str, none_str=_OSXPHOTOS_NONE_SENTINEL, path_sep="/"
+        )
+        if unmatched:
+            click.echo(
+                click.style(
+                    f"Warning: unmatched template substitution for template: {template_str} {unmatched}",
+                    fg=CLI_COLOR_WARNING,
+                ),
+                err=True,
+            )
+        # filter out any template values that didn't match by looking for sentinel
+        rendered = [
+            value for value in rendered if _OSXPHOTOS_NONE_SENTINEL not in value
+        ]
+        try:
+            attributes[xattr].extend(rendered)
+        except KeyError:
+            attributes[xattr] = rendered
+
+    written = set()
+    skipped = set()
+    for f in files:
+        md = osxmetadata.OSXMetaData(f)
+        for attr, value in attributes.items():
+            islist = osxmetadata.ATTRIBUTES[attr].list
+            if value:
+                value = ", ".join(value) if not islist else sorted(value)
+            file_value = md.get_attribute(attr)
+
+            if file_value and islist:
+                file_value = sorted(file_value)
+
+            if (not file_value and not value) or file_value == value:
+                # if both not set or both equal, nothing to do
+                # get_attribute returns None if not set and value will be [] if not set so can't directly compare
+                verbose_(f"Skipping extended attribute {attr} for {f}: nothing to do")
+                skipped.add(f)
+            else:
+                verbose_(f"Writing extended attribute {attr} to {f}")
+                md.set_attribute(attr, value)
+                written.add(f)
+
+    return list(written), [f for f in skipped if f not in written]
 
 
 if __name__ == "__main__":

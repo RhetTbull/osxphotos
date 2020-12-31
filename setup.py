@@ -81,7 +81,7 @@ setup(
         "wurlitzer>=2.0.1",
         "photoscript>=0.1.0",
         "toml>=0.10.0",
-        "osxmetadata>=0.99.11",
+        "osxmetadata>=0.99.13",
     ],
     entry_points={"console_scripts": ["osxphotos=osxphotos.__main__:cli"]},
     include_package_data=True,

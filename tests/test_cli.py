@@ -5115,3 +5115,96 @@ def test_export_finder_tag_template_keywords():
             persons = [persons] if type(persons) != list else persons
             expected = [Tag(x) for x in keywords + persons]
             assert sorted(md.tags) == sorted(expected)
+
+
+def test_export_xattr_template():
+    """ test --xattr template """
+    import glob
+    import os
+    import os.path
+
+    from osxmetadata import OSXMetaData
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        for uuid in CLI_FINDER_TAGS:
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--xattr-template",
+                    "keywords",
+                    "{person}",
+                    "--xattr-template",
+                    "comment",
+                    "{title}",
+                    "--uuid",
+                    f"{uuid}",
+                ],
+            )
+            assert result.exit_code == 0
+
+            md = OSXMetaData(CLI_FINDER_TAGS[uuid]["File:FileName"])
+            expected = CLI_FINDER_TAGS[uuid]["XMP:PersonInImage"]
+            expected = [expected] if type(expected) != list else expected
+            assert sorted(md.keywords) == sorted(expected)
+            assert md.comment == CLI_FINDER_TAGS[uuid]["XMP:Title"]
+
+            # run again with --update, should skip writing extended attributes
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--xattr-template",
+                    "keywords",
+                    "{person}",
+                    "--xattr-template",
+                    "comment",
+                    "{title}",
+                    "--uuid",
+                    f"{uuid}",
+                    "--update",
+                ],
+            )
+            assert result.exit_code == 0
+            assert "Skipping extended attribute keywords" in result.output
+            assert "Skipping extended attribute comment" in result.output
+
+            # clear tags and run again, should update extended attributes
+            md.keywords = None
+            md.comment = None
+
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--xattr-template",
+                    "keywords",
+                    "{person}",
+                    "--xattr-template",
+                    "comment",
+                    "{title}",
+                    "--uuid",
+                    f"{uuid}",
+                    "--update",
+                ],
+            )
+            assert result.exit_code == 0
+            assert "Writing extended attribute keyword" in result.output
+            assert "Writing extended attribute comment" in result.output
+
+            md = OSXMetaData(CLI_FINDER_TAGS[uuid]["File:FileName"])
+            expected = CLI_FINDER_TAGS[uuid]["XMP:PersonInImage"]
+            expected = [expected] if type(expected) != list else expected
+            assert sorted(md.keywords) == sorted(expected)
+            assert md.comment == CLI_FINDER_TAGS[uuid]["XMP:Title"]
+
