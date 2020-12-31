@@ -170,17 +170,21 @@ TEMPLATE_VALUES_DATE_MODIFIED = {
 }
 
 TEMPLATE_VALUES_DATE_NOT_MODIFIED = {
+    # uses creation date instead of modified date
     "{name}": "128FB4C6-0B16-4E7D-9108-FB2E90DA1546",
     "{original_name}": "IMG_1064",
-    "{modified.date}": "_",
-    "{modified.year}": "_",
-    "{modified.yy}": "_",
-    "{modified.mm}": "_",
-    "{modified.month}": "_",
-    "{modified.mon}": "_",
-    "{modified.dd}": "_",
-    "{modified.doy}": "_",
-    "{modified.dow}": "_",
+    "{modified.date}": "2020-02-04",
+    "{modified.year}": "2020",
+    "{modified.yy}": "20",
+    "{modified.mm}": "02",
+    "{modified.month}": "February",
+    "{modified.mon}": "Feb",
+    "{modified.dd}": "04",
+    "{modified.dow}": "Tuesday",
+    "{modified.doy}": "035",
+    "{modified.hour}": "19",
+    "{modified.min}": "07",
+    "{modified.sec}": "38",
 }
 
 

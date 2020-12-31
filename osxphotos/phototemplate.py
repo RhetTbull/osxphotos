@@ -70,18 +70,18 @@ TEMPLATE_SUBSTITUTIONS = {
     + "{created.strftime,%Y-%U} would result in year-week number of year: '2020-23'. "
     + "If used with no template will return null value. "
     + "See https://strftime.org/ for help on strftime templates.",
-    "{modified.date}": "Photo's modification date in ISO format, e.g. '2020-03-22'",
-    "{modified.year}": "4-digit year of photo modification time",
-    "{modified.yy}": "2-digit year of photo modification time",
-    "{modified.mm}": "2-digit month of the photo modification time (zero padded)",
-    "{modified.month}": "Month name in user's locale of the photo modification time",
-    "{modified.mon}": "Month abbreviation in the user's locale of the photo modification time",
-    "{modified.dd}": "2-digit day of the month (zero padded) of the photo modification time",
-    "{modified.dow}": "Day of week in user's locale of the photo modification time",
-    "{modified.doy}": "3-digit day of year (e.g Julian day) of photo modification time, starting from 1 (zero padded)",
-    "{modified.hour}": "2-digit hour of the photo modification time",
-    "{modified.min}": "2-digit minute of the photo modification time",
-    "{modified.sec}": "2-digit second of the photo modification time",
+    "{modified.date}": "Photo's modification date in ISO format, e.g. '2020-03-22'; uses creation date if photo is not modified",
+    "{modified.year}": "4-digit year of photo modification time; uses creation date if photo is not modified",
+    "{modified.yy}": "2-digit year of photo modification time; uses creation date if photo is not modified",
+    "{modified.mm}": "2-digit month of the photo modification time (zero padded); uses creation date if photo is not modified",
+    "{modified.month}": "Month name in user's locale of the photo modification time; uses creation date if photo is not modified",
+    "{modified.mon}": "Month abbreviation in the user's locale of the photo modification time; uses creation date if photo is not modified",
+    "{modified.dd}": "2-digit day of the month (zero padded) of the photo modification time; uses creation date if photo is not modified",
+    "{modified.dow}": "Day of week in user's locale of the photo modification time; uses creation date if photo is not modified",
+    "{modified.doy}": "3-digit day of year (e.g Julian day) of photo modification time, starting from 1 (zero padded); uses creation date if photo is not modified",
+    "{modified.hour}": "2-digit hour of the photo modification time; uses creation date if photo is not modified",
+    "{modified.min}": "2-digit minute of the photo modification time; uses creation date if photo is not modified",
+    "{modified.sec}": "2-digit second of the photo modification time; uses creation date if photo is not modified",
     # "{modified.strftime}": "Apply strftime template to file modification date/time. Should be used in form "
     # + "{modified.strftime,TEMPLATE} where TEMPLATE is a valid strftime template, e.g. "
     # + "{modified.strftime,%Y-%U} would result in year-week number of year: '2020-23'. "
@@ -679,73 +679,73 @@ class PhotoTemplate:
             value = (
                 DateTimeFormatter(self.photo.date_modified).date
                 if self.photo.date_modified
-                else None
+                else DateTimeFormatter(self.photo.date).date
             )
         elif field == "modified.year":
             value = (
                 DateTimeFormatter(self.photo.date_modified).year
                 if self.photo.date_modified
-                else None
+                else DateTimeFormatter(self.photo.date).year
             )
         elif field == "modified.yy":
             value = (
                 DateTimeFormatter(self.photo.date_modified).yy
                 if self.photo.date_modified
-                else None
+                else DateTimeFormatter(self.photo.date).yy
             )
         elif field == "modified.mm":
             value = (
                 DateTimeFormatter(self.photo.date_modified).mm
                 if self.photo.date_modified
-                else None
+                else DateTimeFormatter(self.photo.date).mm
             )
         elif field == "modified.month":
             value = (
                 DateTimeFormatter(self.photo.date_modified).month
                 if self.photo.date_modified
-                else None
+                else DateTimeFormatter(self.photo.date).month
             )
         elif field == "modified.mon":
             value = (
                 DateTimeFormatter(self.photo.date_modified).mon
                 if self.photo.date_modified
-                else None
+                else DateTimeFormatter(self.photo.date).mon
             )
         elif field == "modified.dd":
             value = (
                 DateTimeFormatter(self.photo.date_modified).dd
                 if self.photo.date_modified
-                else None
+                else DateTimeFormatter(self.photo.date).dd
             )
         elif field == "modified.dow":
             value = (
                 DateTimeFormatter(self.photo.date_modified).dow
                 if self.photo.date_modified
-                else None
+                else DateTimeFormatter(self.photo.date).dow
             )
         elif field == "modified.doy":
             value = (
                 DateTimeFormatter(self.photo.date_modified).doy
                 if self.photo.date_modified
-                else None
+                else DateTimeFormatter(self.photo.date).doy
             )
         elif field == "modified.hour":
             value = (
                 DateTimeFormatter(self.photo.date_modified).hour
                 if self.photo.date_modified
-                else None
+                else DateTimeFormatter(self.photo.date).hour
             )
         elif field == "modified.min":
             value = (
                 DateTimeFormatter(self.photo.date_modified).min
                 if self.photo.date_modified
-                else None
+                else DateTimeFormatter(self.photo.date).min
             )
         elif field == "modified.sec":
             value = (
                 DateTimeFormatter(self.photo.date_modified).sec
                 if self.photo.date_modified
-                else None
+                else DateTimeFormatter(self.photo.date).sec
             )
         elif field == "today.date":
             value = DateTimeFormatter(self.today).date

@@ -740,27 +740,39 @@ Substitution                    Description
                                 https://strftime.org/ for help on strftime
                                 templates.
 {modified.date}                 Photo's modification date in ISO format,
-                                e.g. '2020-03-22'
-{modified.year}                 4-digit year of photo modification time
-{modified.yy}                   2-digit year of photo modification time
+                                e.g. '2020-03-22'; uses creation date if
+                                photo is not modified
+{modified.year}                 4-digit year of photo modification time;
+                                uses creation date if photo is not modified
+{modified.yy}                   2-digit year of photo modification time;
+                                uses creation date if photo is not modified
 {modified.mm}                   2-digit month of the photo modification time
-                                (zero padded)
+                                (zero padded); uses creation date if photo
+                                is not modified
 {modified.month}                Month name in user's locale of the photo
-                                modification time
+                                modification time; uses creation date if
+                                photo is not modified
 {modified.mon}                  Month abbreviation in the user's locale of
-                                the photo modification time
+                                the photo modification time; uses creation
+                                date if photo is not modified
 {modified.dd}                   2-digit day of the month (zero padded) of
-                                the photo modification time
+                                the photo modification time; uses creation
+                                date if photo is not modified
 {modified.dow}                  Day of week in user's locale of the photo
-                                modification time
+                                modification time; uses creation date if
+                                photo is not modified
 {modified.doy}                  3-digit day of year (e.g Julian day) of
                                 photo modification time, starting from 1
-                                (zero padded)
-{modified.hour}                 2-digit hour of the photo modification time
+                                (zero padded); uses creation date if photo
+                                is not modified
+{modified.hour}                 2-digit hour of the photo modification time;
+                                uses creation date if photo is not modified
 {modified.min}                  2-digit minute of the photo modification
-                                time
+                                time; uses creation date if photo is not
+                                modified
 {modified.sec}                  2-digit second of the photo modification
-                                time
+                                time; uses creation date if photo is not
+                                modified
 {today.date}                    Current date in iso format, e.g.
                                 '2020-03-22'
 {today.year}                    4-digit year of current date
@@ -2297,18 +2309,18 @@ The following template field substitutions are availabe for use with `PhotoInfo.
 |{created.min}|2-digit minute of the photo creation time|
 |{created.sec}|2-digit second of the photo creation time|
 |{created.strftime}|Apply strftime template to file creation date/time. Should be used in form {created.strftime,TEMPLATE} where TEMPLATE is a valid strftime template, e.g. {created.strftime,%Y-%U} would result in year-week number of year: '2020-23'. If used with no template will return null value. See https://strftime.org/ for help on strftime templates.|
-|{modified.date}|Photo's modification date in ISO format, e.g. '2020-03-22'|
-|{modified.year}|4-digit year of photo modification time|
-|{modified.yy}|2-digit year of photo modification time|
-|{modified.mm}|2-digit month of the photo modification time (zero padded)|
-|{modified.month}|Month name in user's locale of the photo modification time|
-|{modified.mon}|Month abbreviation in the user's locale of the photo modification time|
-|{modified.dd}|2-digit day of the month (zero padded) of the photo modification time|
-|{modified.dow}|Day of week in user's locale of the photo modification time|
-|{modified.doy}|3-digit day of year (e.g Julian day) of photo modification time, starting from 1 (zero padded)|
-|{modified.hour}|2-digit hour of the photo modification time|
-|{modified.min}|2-digit minute of the photo modification time|
-|{modified.sec}|2-digit second of the photo modification time|
+|{modified.date}|Photo's modification date in ISO format, e.g. '2020-03-22'; uses creation date if photo is not modified|
+|{modified.year}|4-digit year of photo modification time; uses creation date if photo is not modified|
+|{modified.yy}|2-digit year of photo modification time; uses creation date if photo is not modified|
+|{modified.mm}|2-digit month of the photo modification time (zero padded); uses creation date if photo is not modified|
+|{modified.month}|Month name in user's locale of the photo modification time; uses creation date if photo is not modified|
+|{modified.mon}|Month abbreviation in the user's locale of the photo modification time; uses creation date if photo is not modified|
+|{modified.dd}|2-digit day of the month (zero padded) of the photo modification time; uses creation date if photo is not modified|
+|{modified.dow}|Day of week in user's locale of the photo modification time; uses creation date if photo is not modified|
+|{modified.doy}|3-digit day of year (e.g Julian day) of photo modification time, starting from 1 (zero padded); uses creation date if photo is not modified|
+|{modified.hour}|2-digit hour of the photo modification time; uses creation date if photo is not modified|
+|{modified.min}|2-digit minute of the photo modification time; uses creation date if photo is not modified|
+|{modified.sec}|2-digit second of the photo modification time; uses creation date if photo is not modified|
 |{today.date}|Current date in iso format, e.g. '2020-03-22'|
 |{today.year}|4-digit year of current date|
 |{today.yy}|2-digit year of current date|
