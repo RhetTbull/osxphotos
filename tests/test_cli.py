@@ -357,6 +357,7 @@ CLI_EXIFTOOL = {
         "XMP:TagsList": "Kids",
         "XMP:Title": "I found one!",
         "EXIF:ImageDescription": "Girl holding pumpkin",
+        "EXIF:Make": "Canon",
         "XMP:Description": "Girl holding pumpkin",
         "XMP:PersonInImage": "Katie",
         "XMP:Subject": "Kids",
@@ -1112,6 +1113,54 @@ def test_export_exiftool_path():
                     assert sorted(exif[key]) == sorted(CLI_EXIFTOOL[uuid][key])
                 else:
                     assert exif[key] == CLI_EXIFTOOL[uuid][key]
+
+
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+def test_export_exiftool_path_render_template():
+    """ test --exiftool-path with {exiftool:} template rendering """
+    import glob
+    import os
+    import os.path
+    import re
+    import shutil
+    import sys
+    import tempfile
+    from osxphotos.__main__ import export
+    from osxphotos.exiftool import ExifTool
+    from osxphotos.utils import noop
+
+    exiftool_source = osxphotos.exiftool.get_exiftool_path()
+
+    # monkey patch get_exiftool_path so it returns None
+    get_exiftool_path = osxphotos.exiftool.get_exiftool_path
+    osxphotos.exiftool.get_exiftool_path = noop
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        tempdir = tempfile.TemporaryDirectory()
+        exiftool_path = os.path.join(tempdir.name, "myexiftool")
+        shutil.copy2(exiftool_source, exiftool_path)
+        for uuid in CLI_EXIFTOOL:
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_6),
+                    ".",
+                    "-V",
+                    "--filename",
+                    "{original_name}_{exiftool:EXIF:Make}",
+                    "--uuid",
+                    f"{uuid}",
+                    "--exiftool-path",
+                    exiftool_path,
+                ],
+            )
+            assert result.exit_code == 0
+            assert re.search(r"Exporting.*Canon", result.output)
+
+    osxphotos.exiftool.get_exiftool_path = get_exiftool_path
 
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
@@ -5066,4 +5115,3 @@ def test_export_finder_tag_template_keywords():
             persons = [persons] if type(persons) != list else persons
             expected = [Tag(x) for x in keywords + persons]
             assert sorted(md.tags) == sorted(expected)
-

@@ -149,13 +149,15 @@ MULTI_VALUE_SUBSTITUTIONS = [
 class PhotoTemplate:
     """ PhotoTemplate class to render a template string from a PhotoInfo object """
 
-    def __init__(self, photo):
-        """ Inits PhotoTemplate class with photo, non_str, and path_sep
+    def __init__(self, photo, exiftool_path=None):
+        """ Inits PhotoTemplate class with photo
 
         Args:
             photo: a PhotoInfo instance.
+            exiftool_path: optional path to exiftool for use with {exiftool:} template; if not provided, will look for exiftool in $PATH
         """
         self.photo = photo
+        self.exiftool_path = exiftool_path
 
         # holds value of current date/time for {today.x} fields
         # gets initialized in get_template_value
@@ -517,7 +519,7 @@ class PhotoTemplate:
                     if not self.photo.path:
                         values = [None]
                     else:
-                        exif = ExifTool(self.photo.path)
+                        exif = ExifTool(self.photo.path, exiftool=self.exiftool_path)
                         exifdict = exif.asdict()
                         exifdict = {k.lower(): v for (k, v) in exifdict.items()}
                         subfield = subfield.lower()

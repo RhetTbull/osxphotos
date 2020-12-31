@@ -2420,9 +2420,9 @@ def _query(
     has_likes=False,
     no_likes=False,
 ):
-    """ Run a query against PhotosDB to extract the photos based on user supply criteria used by query and export commands
+    """Run a query against PhotosDB to extract the photos based on user supply criteria used by query and export commands
 
-    Args:   
+    Args:
         photosdb: PhotosDB object
     """
 
@@ -3201,8 +3201,8 @@ def load_uuid_from_file(filename):
 
 def write_export_report(report_file, results):
 
-    """ write CSV report with results from export
-    
+    """write CSV report with results from export
+
     Args:
         report_file: path to report file
         results: ExportResults object
@@ -3331,7 +3331,7 @@ def write_export_report(report_file, results):
 
 
 def cleanup_files(dest_path, files_to_keep, fileutil):
-    """ cleanup dest_path by deleting and files and empty directories 
+    """cleanup dest_path by deleting and files and empty directories
         not in files_to_keep
 
     Args:
@@ -3375,8 +3375,8 @@ def write_finder_tags(
     exiftool_merge_keywords=None,
     finder_tag_template=None,
 ):
-    """ Write Finder tags (extended attributes) to files; only writes attributes if attributes on file differ from what would be written
-    
+    """Write Finder tags (extended attributes) to files; only writes attributes if attributes on file differ from what would be written
+
     Args:
         photo: a PhotoInfo object
         files: list of file paths to write Finder tags to
@@ -3384,7 +3384,7 @@ def write_finder_tags(
         keyword_template: list of keyword templates to evaluate for determining keywords
         album_keyword: if True, use album names as keywords
         person_keyword: if True, use person in image as keywords
-        exiftool_merge_keywords: if True, include any keywords in the exif data of the source image as keywords 
+        exiftool_merge_keywords: if True, include any keywords in the exif data of the source image as keywords
         finder_tag_template: list of templates to evaluate for determining Finder tags
 
     Returns:

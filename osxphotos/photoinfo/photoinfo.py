@@ -86,8 +86,8 @@ class PhotoInfo:
 
     @property
     def original_filename(self):
-        """ original filename of the picture 
-            Photos 5 mangles filenames upon import """
+        """original filename of the picture
+        Photos 5 mangles filenames upon import"""
         if (
             self._db._db_version <= _PHOTOS_4_VERSION
             and self.has_raw
@@ -106,8 +106,8 @@ class PhotoInfo:
 
     @property
     def date_modified(self):
-        """ image modification date as timezone aware datetime object
-            or None if no modification date set """
+        """image modification date as timezone aware datetime object
+        or None if no modification date set"""
 
         # Photos <= 4 provides no way to get date of adjustment and will update
         # lastmodifieddate anytime photo database record is updated (e.g. adding tags)
@@ -492,9 +492,9 @@ class PhotoInfo:
 
     @property
     def ismissing(self):
-        """ returns true if photo is missing from disk (which means it's not been downloaded from iCloud) 
+        """returns true if photo is missing from disk (which means it's not been downloaded from iCloud)
         NOTE:   the photos.db database uses an asynchrounous write-ahead log so changes in Photos
-                do not immediately get written to disk. In particular, I've noticed that downloading 
+                do not immediately get written to disk. In particular, I've noticed that downloading
                 an image from the cloud does not force the database to be updated until something else
                 e.g. an edit, keyword, etc. occurs forcing a database synch
                 The exact process / timing is a mystery to be but be aware that if some photos were recently
@@ -539,8 +539,8 @@ class PhotoInfo:
 
     @property
     def shared(self):
-        """ returns True if photos is in a shared iCloud album otherwise false
-            Only valid on Photos 5; returns None on older versions """
+        """returns True if photos is in a shared iCloud album otherwise false
+        Only valid on Photos 5; returns None on older versions"""
         if self._db._db_version > _PHOTOS_4_VERSION:
             return self._info["shared"]
         else:
@@ -548,8 +548,8 @@ class PhotoInfo:
 
     @property
     def uti(self):
-        """ Returns Uniform Type Identifier (UTI) for the image
-            for example: public.jpeg or com.apple.quicktime-movie
+        """Returns Uniform Type Identifier (UTI) for the image
+        for example: public.jpeg or com.apple.quicktime-movie
         """
         if self._db._db_version <= _PHOTOS_4_VERSION:
             if self.hasadjustments:
@@ -564,8 +564,8 @@ class PhotoInfo:
 
     @property
     def uti_original(self):
-        """ Returns Uniform Type Identifier (UTI) for the original image
-            for example: public.jpeg or com.apple.quicktime-movie
+        """Returns Uniform Type Identifier (UTI) for the original image
+        for example: public.jpeg or com.apple.quicktime-movie
         """
         if self._db._db_version <= _PHOTOS_4_VERSION and self._info["has_raw"]:
             return self._info["raw_pair_info"]["UTI"]
@@ -577,9 +577,9 @@ class PhotoInfo:
 
     @property
     def uti_edited(self):
-        """ Returns Uniform Type Identifier (UTI) for the edited image 
-            if the photo has been edited, otherwise None; 
-            for example: public.jpeg 
+        """Returns Uniform Type Identifier (UTI) for the edited image
+        if the photo has been edited, otherwise None;
+        for example: public.jpeg
         """
         if self._db._db_version >= _PHOTOS_5_VERSION:
             return self.uti if self.hasadjustments else None
@@ -588,36 +588,34 @@ class PhotoInfo:
 
     @property
     def uti_raw(self):
-        """ Returns Uniform Type Identifier (UTI) for the RAW image if there is one
-            for example: com.canon.cr2-raw-image
-            Returns None if no associated RAW image
+        """Returns Uniform Type Identifier (UTI) for the RAW image if there is one
+        for example: com.canon.cr2-raw-image
+        Returns None if no associated RAW image
         """
         return self._info["UTI_raw"]
 
     @property
     def ismovie(self):
-        """ Returns True if file is a movie, otherwise False
-        """
+        """Returns True if file is a movie, otherwise False"""
         return True if self._info["type"] == _MOVIE_TYPE else False
 
     @property
     def isphoto(self):
-        """ Returns True if file is an image, otherwise False
-        """
+        """Returns True if file is an image, otherwise False"""
         return True if self._info["type"] == _PHOTO_TYPE else False
 
     @property
     def incloud(self):
-        """ Returns True if photo is cloud asset and is synched to cloud
-                    False if photo is cloud asset and not yet synched to cloud
-                    None if photo is not cloud asset
+        """Returns True if photo is cloud asset and is synched to cloud
+        False if photo is cloud asset and not yet synched to cloud
+        None if photo is not cloud asset
         """
         return self._info["incloud"]
 
     @property
     def iscloudasset(self):
-        """ Returns True if photo is a cloud asset (in an iCloud library),
-            otherwise False 
+        """Returns True if photo is a cloud asset (in an iCloud library),
+        otherwise False
         """
         if self._db._db_version <= _PHOTOS_4_VERSION:
             return (
@@ -636,9 +634,9 @@ class PhotoInfo:
 
     @property
     def burst_photos(self):
-        """ If photo is a burst photo, returns list of PhotoInfo objects 
-            that are part of the same burst photo set; otherwise returns empty list.
-            self is not included in the returned list """
+        """If photo is a burst photo, returns list of PhotoInfo objects
+        that are part of the same burst photo set; otherwise returns empty list.
+        self is not included in the returned list"""
         if self._info["burst"]:
             burst_uuid = self._info["burstUUID"]
             return [
@@ -656,9 +654,9 @@ class PhotoInfo:
 
     @property
     def path_live_photo(self):
-        """ Returns path to the associated video file for a live photo
-            If photo is not a live photo, returns None
-            If photo is missing, returns None """
+        """Returns path to the associated video file for a live photo
+        If photo is not a live photo, returns None
+        If photo is missing, returns None"""
 
         photopath = None
         if self._db._db_version <= _PHOTOS_4_VERSION:
@@ -785,9 +783,9 @@ class PhotoInfo:
 
     @property
     def raw_original(self):
-        """ returns True if associated raw image and the raw image is selected in Photos
-            via "Use RAW as Original "
-            otherwise returns False """
+        """returns True if associated raw image and the raw image is selected in Photos
+        via "Use RAW as Original "
+        otherwise returns False"""
         return self._info["raw_is_original"]
 
     @property
@@ -841,20 +839,20 @@ class PhotoInfo:
         Args:
             template_str: a template string with fields to render
             none_str: a str to use if template field renders to None, default is "_".
-            path_sep: a single character str to use as path separator when joining 
+            path_sep: a single character str to use as path separator when joining
                 fields like folder_album; if not provided, defaults to os.path.sep
-            expand_inplace: expand multi-valued substitutions in-place as a single string 
+            expand_inplace: expand multi-valued substitutions in-place as a single string
                 instead of returning individual strings
             inplace_sep: optional string to use as separator between multi-valued keywords
                 with expand_inplace; default is ','
             filename: if True, template output will be sanitized to produce valid file name
-            dirname: if True, template output will be sanitized to produce valid directory name 
+            dirname: if True, template output will be sanitized to produce valid directory name
             replacement: str, value to replace any illegal file path characters with; default = ":"
-        
+
         Returns:
             ([rendered_strings], [unmatched]): tuple of list of rendered strings and list of unmatched template values
         """
-        template = PhotoTemplate(self)
+        template = PhotoTemplate(self, exiftool_path=self._db._exiftool_path)
         return template.render(
             template_str,
             none_str=none_str,
@@ -877,11 +875,11 @@ class PhotoInfo:
         return self._info["latitude"]
 
     def _get_album_uuids(self):
-        """ Return list of album UUIDs this photo is found in
-        
+        """Return list of album UUIDs this photo is found in
+
             Filters out albums in the trash and any special album types
 
-        Returns: list of album UUIDs 
+        Returns: list of album UUIDs
         """
         if self._db._db_version <= _PHOTOS_4_VERSION:
             version4 = True
