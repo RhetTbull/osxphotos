@@ -89,14 +89,15 @@ def test_image_converter_bad_file():
     """ Try to convert a file that's not an image """
     import pathlib
     import tempfile
-    from osxphotos.imageconverter import ImageConverter
+    from osxphotos.imageconverter import ImageConverter, ImageConversionError
 
     converter = ImageConverter()
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     with tempdir:
         imgfile = pathlib.Path(TEST_NOT_AN_IMAGE)
         outfile = pathlib.Path(tempdir.name) / f"{imgfile.stem}.jpeg"
-        assert not converter.write_jpeg(imgfile, outfile)
+        with pytest.raises(ImageConversionError):
+            converter.write_jpeg(imgfile, outfile)
 
 
 def test_image_converter_missing_file():

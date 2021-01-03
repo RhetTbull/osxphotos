@@ -4,7 +4,6 @@
 
 # reference: https://stackoverflow.com/questions/59330149/coreimage-ciimage-write-jpg-is-shifting-colors-macos/59334308#59334308
 
-import logging
 import pathlib
 
 import Metal
@@ -15,6 +14,11 @@ from Foundation import NSDictionary
 # needed to capture system-level stderr
 from wurlitzer import pipes
 
+
+class ImageConversionError(Exception):
+    """Base class for exceptions in this module. """
+
+    pass
 
 class ImageConverter:
     """ Convert images to jpeg.  This class is a singleton
@@ -60,6 +64,7 @@ class ImageConverter:
         Raises:
             ValueError if compression quality not in range 0.0 to 1.0
             FileNotFoundError if input_path doesn't exist
+            ImageConversionError if error during conversion
         """
 
         # accept input_path or output_path as pathlib.Path
@@ -89,8 +94,7 @@ class ImageConverter:
             input_image = Quartz.CIImage.imageWithContentsOfURL_(input_url)
 
         if input_image is None:
-            logging.debug(f"Could not create CIImage for {input_path}")
-            return False
+            raise ImageConversionError(f"Could not create CIImage for {input_path}")
 
         output_colorspace = input_image.colorSpace() or Quartz.CGColorSpaceCreateWithName(
             Quartz.CoreGraphics.kCGColorSpaceSRGB
@@ -105,8 +109,7 @@ class ImageConverter:
         if not error:
             return True
         else:
-            logging.debug(
+            raise ImageConversionError(
                 "Error converting file {input_path} to jpeg at {output_path}: {error}"
             )
-            return False
 

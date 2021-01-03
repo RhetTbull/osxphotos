@@ -51,7 +51,7 @@ with open(os.path.join(this_directory, "README.md"), encoding="utf-8") as f:
 setup(
     name="osxphotos",
     version=about["__version__"],
-    description="Manipulate (read-only) Apple's Photos app library on Mac OS X",
+    description="Export photos from Apple's macOS Photos app and query the Photos library database to access metadata about images.",
     long_description=about["long_description"],
     long_description_content_type="text/markdown",
     author="Rhet Turnbull",
