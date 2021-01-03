@@ -832,6 +832,7 @@ class PhotoInfo:
         inplace_sep=None,
         filename=False,
         dirname=False,
+        strip=False,
     ):
         """Renders a template string for PhotoInfo instance using PhotoTemplate
 
@@ -846,6 +847,7 @@ class PhotoInfo:
                 with expand_inplace; default is ','
             filename: if True, template output will be sanitized to produce valid file name
             dirname: if True, template output will be sanitized to produce valid directory name
+            strip: if True, strips leading/trailing white space from resulting template
 
         Returns:
             ([rendered_strings], [unmatched]): tuple of list of rendered strings and list of unmatched template values
@@ -859,6 +861,7 @@ class PhotoInfo:
             inplace_sep=inplace_sep,
             filename=filename,
             dirname=dirname,
+            strip=strip,
         )
 
     @property

@@ -136,6 +136,10 @@ TEMPLATE_VALUES = {
     "{place.address.postal_code}": "20009",
     "{place.address.country}": "United States",
     "{place.address.country_code}": "US",
+    "{uuid}": "128FB4C6-0B16-4E7D-9108-FB2E90DA1546",
+    "{exif.camera_make}": "Apple",
+    "{exif.camera_model}": "iPhone 6s",
+    "{exif.lens_model}": "iPhone 6s back camera 4.15mm f/2.2",
 }
 
 

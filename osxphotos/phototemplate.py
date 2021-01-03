@@ -118,6 +118,10 @@ TEMPLATE_SUBSTITUTIONS = {
     "{place.address.country}": "Country name of the postal address, e.g. 'United States'",
     "{place.address.country_code}": "ISO country code of the postal address, e.g. 'US'",
     "{searchinfo.season}": "Season of the year associated with a photo, e.g. 'Summer'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).",
+    "{exif.camera_make}": "Camera make from original photo's EXIF inormation as imported by Photos, e.g. 'Apple'",
+    "{exif.camera_model}": "Camera model from original photo's EXIF inormation as imported by Photos, e.g. 'iPhone 6s'",
+    "{exif.lens_model}": "Lens model from original photo's EXIF inormation as imported by Photos, e.g. 'iPhone 6s back camera 4.15mm f/2.2'",
+    "{uuid}": "Photo's internal universally unique identifier (UUID) for the photo, a 36-character string unique to the photo, e.g. '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'",
 }
 
 # Permitted multi-value substitutions (each of these returns None or 1 or more values)
@@ -251,6 +255,7 @@ class PhotoTemplate:
         inplace_sep=None,
         filename=False,
         dirname=False,
+        strip=False,
     ):
         """ Render a filename or directory template 
 
@@ -264,6 +269,7 @@ class PhotoTemplate:
             with expand_inplace; default is ','
             filename: if True, template output will be sanitized to produce valid file name
             dirname: if True, template output will be sanitized to produce valid directory name 
+            strip: if True, strips leading/trailing whitespace from rendered templates
 
         Returns:
             ([rendered_strings], [unmatched]): tuple of list of rendered strings and list of unmatched template values
@@ -362,6 +368,11 @@ class PhotoTemplate:
         if filename:
             rendered_strings = [
                 sanitize_filename(rendered_str) for rendered_str in rendered_strings
+            ]
+
+        if strip:
+            rendered_strings = [
+                rendered_str.strip() for rendered_str in rendered_strings
             ]
 
         return rendered_strings, unmatched
@@ -890,6 +901,14 @@ class PhotoTemplate:
             )
         elif field == "searchinfo.season":
             value = self.photo.search_info.season if self.photo.search_info else None
+        elif field == "exif.camera_make":
+            value = self.photo.exif_info.camera_make if self.photo.exif_info else None
+        elif field == "exif.camera_model":
+            value = self.photo.exif_info.camera_model if self.photo.exif_info else None
+        elif field == "exif.lens_model":
+            value = self.photo.exif_info.lens_model if self.photo.exif_info else None
+        elif field == "uuid":
+            value = self.photo.uuid
         else:
             # if here, didn't get a match
             raise ValueError(f"Unhandled template value: {field}")

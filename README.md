@@ -446,6 +446,13 @@ Options:
                                   do not include an extension in the FILENAME
                                   template. See below for additional details
                                   on templating system.
+  --strip                         Optionally strip leading and trailing
+                                  whitespace from any rendered templates. For
+                                  example, if --filename template is "{title,}
+                                  {original_name}" and image has no title,
+                                  resulting file would have a leading space
+                                  but if used with --strip, this will be
+                                  removed.
   --edited-suffix SUFFIX          Optional suffix template for naming edited
                                   photos.  Default name for edited photos is
                                   in form 'photoname_edited.ext'. For example,
@@ -885,6 +892,19 @@ Substitution                    Description
                                 e.g. 'Summer'; (Photos 5+ only, applied
                                 automatically by Photos' image
                                 categorization algorithms).
+{exif.camera_make}              Camera make from original photo's EXIF
+                                inormation as imported by Photos, e.g.
+                                'Apple'
+{exif.camera_model}             Camera model from original photo's EXIF
+                                inormation as imported by Photos, e.g.
+                                'iPhone 6s'
+{exif.lens_model}               Lens model from original photo's EXIF
+                                inormation as imported by Photos, e.g.
+                                'iPhone 6s back camera 4.15mm f/2.2'
+{uuid}                          Photo's internal universally unique
+                                identifier (UUID) for the photo, a
+                                36-character string unique to the photo,
+                                e.g. '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'
 
 The following substitutions may result in multiple values. Thus if specified
 for --directory these could result in multiple copies of a photo being being
@@ -1778,7 +1798,7 @@ If overwrite=False and increment=False, export will fail if destination file alr
 
 #### <a name="rendertemplate">`render_template()`</a>
 
-`render_template(template_str, none_str = "_", path_sep = None, expand_inplace = False, inplace_sep = None, filename=False, dirname=False)`
+`render_template(template_str, none_str = "_", path_sep = None, expand_inplace = False, inplace_sep = None, filename=False, dirname=False, strip=False)`
 
 Render template string for photo.  none_str is used if template substitution results in None value and no default specified.
 
@@ -1789,6 +1809,7 @@ Render template string for photo.  none_str is used if template substitution res
 - `inplace_sep`: optional string to use as separator between multi-valued keywords with expand_inplace; default is ','
 - `filename`: if True, template output will be sanitized to produce valid file name
 - `dirname`: if True, template output will be sanitized to produce valid directory name
+- `strip`: if True, leading/trailign whitespace will be stripped from rendered template strings
 
 Returns a tuple of (rendered, unmatched) where rendered is a list of rendered strings with all substitutions made and unmatched is a list of any strings that resembled a template substitution but did not match a known substitution. E.g. if template contained "{foo}", unmatched would be ["foo"].
 
@@ -2401,6 +2422,10 @@ The following template field substitutions are availabe for use with `PhotoInfo.
 |{place.address.country}|Country name of the postal address, e.g. 'United States'|
 |{place.address.country_code}|ISO country code of the postal address, e.g. 'US'|
 |{searchinfo.season}|Season of the year associated with a photo, e.g. 'Summer'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
+|{exif.camera_make}|Camera make from original photo's EXIF inormation as imported by Photos, e.g. 'Apple'|
+|{exif.camera_model}|Camera model from original photo's EXIF inormation as imported by Photos, e.g. 'iPhone 6s'|
+|{exif.lens_model}|Lens model from original photo's EXIF inormation as imported by Photos, e.g. 'iPhone 6s back camera 4.15mm f/2.2'|
+|{uuid}|Photo's internal universally unique identifier (UUID) for the photo, a 36-character string unique to the photo, e.g. '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
 |{keyword}|Keyword(s) assigned to photo|

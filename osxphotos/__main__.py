@@ -1587,6 +1587,14 @@ def query(
     "See below for additional details on templating system.",
 )
 @click.option(
+    "--strip",
+    is_flag=True,
+    help="Optionally strip leading and trailing whitespace from any rendered templates. "
+    'For example, if --filename template is "{title,} {original_name}" and image has no '
+    "title, resulting file would have a leading space but if used with --strip, this will "
+    "be removed.",
+)
+@click.option(
     "--edited-suffix",
     metavar="SUFFIX",
     help="Optional suffix template for naming edited photos.  Default name for edited photos is in form "
@@ -1749,6 +1757,7 @@ def export(
     has_raw,
     directory,
     filename_template,
+    strip,
     edited_suffix,
     original_suffix,
     place,
@@ -1887,6 +1896,7 @@ def export(
         has_raw = cfg.has_raw
         directory = cfg.directory
         filename_template = cfg.filename_template
+        strip = cfg.strip
         edited_suffix = cfg.edited_suffix
         original_suffix = cfg.original_suffix
         place = cfg.place
@@ -2252,6 +2262,7 @@ def export(
                     ignore_date_modified=ignore_date_modified,
                     use_photokit=use_photokit,
                     exiftool_option=exiftool_option,
+                    strip=strip,
                 )
                 results += export_results
 
@@ -2276,13 +2287,14 @@ def export(
                         person_keyword=person_keyword,
                         exiftool_merge_keywords=exiftool_merge_keywords,
                         finder_tag_template=finder_tag_template,
+                        strip=strip,
                     )
                     results.xattr_written.extend(tags_written)
                     results.xattr_skipped.extend(tags_skipped)
 
                 if xattr_template:
                     xattr_written, xattr_skipped = write_extended_attributes(
-                        p, photo_files, xattr_template
+                        p, photo_files, xattr_template, strip=strip
                     )
                     results.xattr_written.extend(xattr_written)
                     results.xattr_skipped.extend(xattr_skipped)
@@ -2822,6 +2834,7 @@ def export_photo(
     ignore_date_modified=False,
     use_photokit=False,
     exiftool_option=None,
+    strip=False,
 ):
     """Helper function for export that does the actual export
 
@@ -2912,12 +2925,14 @@ def export_photo(
         if photo.hasadjustments and photo.path_edited is None:
             missing_edited = True
 
-    filenames = get_filenames_from_template(photo, filename_template, original_name)
+    filenames = get_filenames_from_template(
+        photo, filename_template, original_name, strip=strip
+    )
     for filename in filenames:
         if original_suffix:
             try:
                 rendered_suffix, unmatched = photo.render_template(
-                    original_suffix, filename=True
+                    original_suffix, filename=True, strip=strip
                 )
             except ValueError:
                 raise click.BadOptionUsage(
@@ -2950,7 +2965,7 @@ def export_photo(
         )
 
         dest_paths = get_dirnames_from_template(
-            photo, directory, export_by_date, dest, dry_run
+            photo, directory, export_by_date, dest, dry_run, strip=strip
         )
 
         sidecar = [s.lower() for s in sidecar]
@@ -3062,7 +3077,7 @@ def export_photo(
                 if edited_suffix:
                     try:
                         rendered_suffix, unmatched = photo.render_template(
-                            edited_suffix, filename=True
+                            edited_suffix, filename=True, strip=strip
                         )
                     except ValueError:
                         raise click.BadOptionUsage(
@@ -3167,7 +3182,7 @@ def export_photo(
     return results
 
 
-def get_filenames_from_template(photo, filename_template, original_name):
+def get_filenames_from_template(photo, filename_template, original_name, strip=False):
     """get list of export filenames for a photo
 
     Args:
@@ -3185,7 +3200,7 @@ def get_filenames_from_template(photo, filename_template, original_name):
         photo_ext = pathlib.Path(photo.original_filename).suffix
         try:
             filenames, unmatched = photo.render_template(
-                filename_template, path_sep="_", filename=True
+                filename_template, path_sep="_", filename=True, strip=strip
             )
         except ValueError:
             raise click.BadOptionUsage(
@@ -3208,7 +3223,9 @@ def get_filenames_from_template(photo, filename_template, original_name):
     return filenames
 
 
-def get_dirnames_from_template(photo, directory, export_by_date, dest, dry_run):
+def get_dirnames_from_template(
+    photo, directory, export_by_date, dest, dry_run, strip=False
+):
     """get list of directories to export a photo into, creates directories if they don't exist
 
     Args:
@@ -3236,7 +3253,9 @@ def get_dirnames_from_template(photo, directory, export_by_date, dest, dry_run):
     elif directory:
         # got a directory template, render it and check results are valid
         try:
-            dirnames, unmatched = photo.render_template(directory, dirname=True)
+            dirnames, unmatched = photo.render_template(
+                directory, dirname=True, strip=strip
+            )
         except ValueError:
             raise click.BadOptionUsage("directory", f"Invalid template '{directory}'")
         if not dirnames or unmatched:
@@ -3498,6 +3517,7 @@ def write_finder_tags(
     person_keyword=None,
     exiftool_merge_keywords=None,
     finder_tag_template=None,
+    strip=False,
 ):
     """Write Finder tags (extended attributes) to files; only writes attributes if attributes on file differ from what would be written
 
@@ -3537,7 +3557,10 @@ def write_finder_tags(
         for template_str in finder_tag_template:
             try:
                 rendered, unmatched = photo.render_template(
-                    template_str, none_str=_OSXPHOTOS_NONE_SENTINEL, path_sep="/"
+                    template_str,
+                    none_str=_OSXPHOTOS_NONE_SENTINEL,
+                    path_sep="/",
+                    strip=strip,
                 )
             except ValueError:
                 raise click.BadOptionUsage(
@@ -3575,7 +3598,7 @@ def write_finder_tags(
     return (written, skipped)
 
 
-def write_extended_attributes(photo, files, xattr_template):
+def write_extended_attributes(photo, files, xattr_template, strip=False):
     """ Writes extended attributes to exported files
 
     Args:
@@ -3590,7 +3613,10 @@ def write_extended_attributes(photo, files, xattr_template):
     for xattr, template_str in xattr_template:
         try:
             rendered, unmatched = photo.render_template(
-                template_str, none_str=_OSXPHOTOS_NONE_SENTINEL, path_sep="/"
+                template_str,
+                none_str=_OSXPHOTOS_NONE_SENTINEL,
+                path_sep="/",
+                strip=strip,
             )
         except ValueError:
             raise click.BadOptionUsage(
