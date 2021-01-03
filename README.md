@@ -11,7 +11,8 @@
   * [Supported operating systems](#supported-operating-systems)
   * [Installation instructions](#installation-instructions)
   * [Command Line Usage](#command-line-usage)
-  * [Example uses of the package](#example-uses-of-the-package)
+    + [Command line examples](#command-line-examples)
+    + [Command line reference: export](#command-line-reference-export)
   * [Package Interface](#package-interface)
     + [PhotosDB](#photosdb)
     + [PhotoInfo](#photoinfo)
@@ -91,7 +92,6 @@ I recommend you create a [virtual environment](https://docs.python.org/3/tutoria
 
 This package will install a command line utility called `osxphotos` that allows you to query the Photos database.  Alternatively, you can also run the command line utility like this: `python3 -m osxphotos`
 
-After installing per instructions above, you should be able to run `osxphotos` on the command line:
 
 ```
 > osxphotos
@@ -126,7 +126,37 @@ Commands:
 
 To get help on a specific command, use `osxphotos help <command_name>`
 
-Example: `osxphotos help export`
+### Command line examples
+
+#### export all photos to ~/Desktop/export group in folders by date created
+
+`osxphotos export --export-by-date ~/Pictures/Photos\ Library.photoslibrary ~/Desktop/export`
+
+**Note**: Photos library/database path can also be specified using `--db` option:
+
+`osxphotos export --export-by-date --db ~/Pictures/Photos\ Library.photoslibrary ~/Desktop/export`
+
+#### find all photos with keyword "Kids" and output results to json file named results.json:
+
+`osxphotos query --keyword Kids --json ~/Pictures/Photos\ Library.photoslibrary >results.json`
+
+#### export photos to file structure based on 4-digit year and full name of month of photo's creation date:
+
+`osxphotos export ~/Desktop/export --directory "{created.year}/{created.month}"`
+
+(by default, it will attempt to use the system library)
+
+#### export photos to file structure based on 4-digit year of photo's creation date and add keywords for media type and labels (labels are only awailable on Photos 5 and higher):
+
+`osxphotos export ~/Desktop/export --directory "{created.year}" --keyword-template "{label}" --keyword-template "{media_type}"` 
+
+#### export default library using 'country name/year' as output directory (but use "NoCountry/year" if country not specified), add persons, album names, and year as keywords, write exif metadata to files when exporting, update only changed files, print verbose ouput
+
+`osxphotos export ~/Desktop/export --directory "{place.name.country,NoCountry}/{created.year}"  --person-keyword --album-keyword --keyword-template "{created.year}" --exiftool --update --verbose`
+
+### Command line reference: export
+
+`osxphotos help export`
 
 ```
 Usage: osxphotos export [OPTIONS] [PHOTOS_LIBRARY]... DEST
@@ -961,29 +991,7 @@ Substitution              Description
                           algorithms).
 ```
 
-Example: export all photos to ~/Desktop/export group in folders by date created
 
-`osxphotos export --export-by-date ~/Pictures/Photos\ Library.photoslibrary ~/Desktop/export`
-
-**Note**: Photos library/database path can also be specified using --db option:
-
-`osxphotos export --export-by-date --db ~/Pictures/Photos\ Library.photoslibrary ~/Desktop/export`
-
-Example: find all photos with keyword "Kids" and output results to json file named results.json:
-
-`osxphotos query --keyword Kids --json ~/Pictures/Photos\ Library.photoslibrary >results.json`
-
-Example: export photos to file structure based on 4-digit year and full name of month of photo's creation date:
-
-`osxphotos export ~/Desktop/export --directory "{created.year}/{created.month}"`
-
-Example: export photos to file structure based on 4-digit year of photo's creation date and add keywords for media type and labels (labels are only awailable on Photos 5 and higher):
-
-`osxphotos export ~/Desktop/export --directory "{created.year}" --keyword-template "{label}" --keyword-template "{media_type}"` 
-
-Example: export default library using 'country name/year' as output directory (but use "NoCountry/year" if country not specified), add persons, album names, and year as keywords, write exif metadata to files when exporting, update only changed files, print verbose ouput
-
-`osxphotos export ~/Desktop/export --directory "{place.name.country,NoCountry}/{created.year}"  --person-keyword --album-keyword --keyword-template "{created.year}" --exiftool --update --verbose`
 
 
 ## Example uses of the package 
@@ -2609,7 +2617,6 @@ For additional details about how osxphotos is implemented or if you would like t
 - [pathvalidate](https://pypi.org/project/pathvalidate/)
 - [wurlitzer](https://pypi.org/project/wurlitzer/)
 - [toml](https://github.com/uiri/toml)
-- [PhotoScript](https://github.com/RhetTbull/PhotoScript)
 
 
 ## Acknowledgements
