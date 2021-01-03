@@ -2609,6 +2609,7 @@ For additional details about how osxphotos is implemented or if you would like t
 - [pathvalidate](https://pypi.org/project/pathvalidate/)
 - [wurlitzer](https://pypi.org/project/wurlitzer/)
 - [toml](https://github.com/uiri/toml)
+- [PhotoScript](https://github.com/RhetTbull/PhotoScript)
 
 
 ## Acknowledgements
