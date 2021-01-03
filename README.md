@@ -1730,7 +1730,7 @@ exiftool must be installed in the path for this to work.  If exiftool cannot be 
 
 `ExifTool` provides the following methods:
 
-- `asdict()`: returns all EXIF metadata found in the file as a dictionary in following form (Note: this shows just a subset of available metadata).  See [exiftool](https://exiftool.org/) documentation to understand which metadata keys are available.
+- `asdict(tag_groups=True)`: returns all EXIF metadata found in the file as a dictionary in following form (Note: this shows just a subset of available metadata).  See [exiftool](https://exiftool.org/) documentation to understand which metadata keys are available. If `tag_groups` is True (default) dict keys are in form "GROUP:TAG", e.g. "IPTC:Keywords". If `tag_groups` is False, dict keys do not have group names, e.g. "Keywords".
 
 ```python
 {'Composite:Aperture': 2.2,

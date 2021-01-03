@@ -57,6 +57,36 @@ EXIF_UUID = {
         "IPTC:DateCreated": "2019:04:15",
     },
 }
+EXIF_UUID_NO_GROUPS = {
+    "6191423D-8DB8-4D4C-92BE-9BBBA308AAC4": {
+        "DateTimeOriginal": "2019:07:04 16:24:01",
+        "LensModel": "XF18-55mmF2.8-4 R LM OIS",
+        "Keywords": [
+            "Digital Nomad",
+            "Indoor",
+            "Reiseblogger",
+            "Stock Photography",
+            "Top Shot",
+            "close up",
+            "colorful",
+            "design",
+            "display",
+            "fake",
+            "flower",
+            "outdoor",
+            "photography",
+            "plastic",
+            "stock photo",
+            "vibrant",
+        ],
+        "DocumentNotes": "https://flickr.com/e/l7FkSm4f2lQkSV3CG6xlv8Sde5uF3gVu4Hf0Qk11AnU%3D",
+    },
+    "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51": {
+        "Make": "NIKON CORPORATION",
+        "Model": "NIKON D810",
+        "DateCreated": "2019:04:15",
+    },
+}
 EXIF_UUID_NONE = ["A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C"]
 
 try:
@@ -319,6 +349,14 @@ def test_as_dict():
     assert exifdata["XMP:TagsList"] == "wedding"
 
 
+def test_as_dict_no_tag_groups():
+    import osxphotos.exiftool
+
+    exif1 = osxphotos.exiftool.ExifTool(TEST_FILE_ONE_KEYWORD)
+    exifdata = exif1.asdict(tag_groups=False)
+    assert exifdata["TagsList"] == "wedding"
+
+
 def test_json():
     import osxphotos.exiftool
     import json
@@ -346,6 +384,19 @@ def test_photoinfo_exiftool():
         exiftool = photo.exiftool
         exif_dict = exiftool.asdict()
         for key, val in EXIF_UUID[uuid].items():
+            assert exif_dict[key] == val
+
+
+def test_photoinfo_exiftool_no_groups():
+    """ test PhotoInfo.exiftool which returns ExifTool object for photo without tag group names"""
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    for uuid in EXIF_UUID_NO_GROUPS:
+        photo = photosdb.photos(uuid=[uuid])[0]
+        exiftool = photo.exiftool
+        exif_dict = exiftool.asdict(tag_groups=False)
+        for key, val in EXIF_UUID_NO_GROUPS[uuid].items():
             assert exif_dict[key] == val
 
 

@@ -9,10 +9,10 @@
 import json
 import logging
 import os
+import re
 import shutil
 import subprocess
 from functools import lru_cache  # pylint: disable=syntax-error
-
 
 # exiftool -stay_open commands outputs this EOF marker after command is run
 EXIFTOOL_STAYOPEN_EOF = "{ready}"
@@ -300,16 +300,27 @@ class ExifTool:
         ver, _, _ = self.run_commands("-ver", no_file=True)
         return ver.decode("utf-8")
 
-    def asdict(self):
+    def asdict(self, tag_groups=True):
         """return dictionary of all EXIF tags and values from exiftool
         returns empty dict if no tags
+
+        Args:
+            tag_groups: if True (default), dict keys have tag groups, e.g. "IPTC:Keywords"; if False, drops groups from keys, e.g. "Keywords"
         """
         json_str, _, _ = self.run_commands("-json")
-        if json_str:
-            exifdict = json.loads(json_str)
-            return exifdict[0]
-        else:
+        if not json_str:
             return dict()
+
+        exifdict = json.loads(json_str)
+        exifdict = exifdict[0]
+        if not tag_groups:
+            # strip tag groups
+            exif_new = {}
+            for k, v in exifdict.items():
+                k = re.sub(r".*:", "", k)
+                exif_new[k] = v
+            exifdict = exif_new
+        return exifdict
 
     def json(self):
         """ returns JSON string containing all EXIF tags and values from exiftool """
