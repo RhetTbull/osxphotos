@@ -6,9 +6,9 @@
 # 2. Needed to handle default values if template not found
 # 3. Didn't want user to need to know python (e.g. by using Mako which is
 #    already used elsewhere in this project)
-# 4. Couldn't figure out how to do #1 and #2 with str.format()
 #
-# This code isn't elegant but it seems to work well.  PRs gladly accepted.
+# This code isn't elegant and is prime for refactoring but it seems to work well.  PRs gladly accepted.
+
 import datetime
 import locale
 import os
@@ -145,6 +145,29 @@ MULTI_VALUE_SUBSTITUTIONS = [
     for field in TEMPLATE_SUBSTITUTIONS_MULTI_VALUED
 ]
 
+# regular expressions for matching template syntax
+RE_OPENING_BRACE = r"(?<!\{)\{"  # match { but not {{
+RE_DELIM = r"([^}]*\+)?"  # group 1: optional DELIM+
+RE_FIELD_NAME = r"([^\\,}+\?]+)"  # group 2: field name
+RE_PATH_SEP = r"(\([^{}\)]*\))?"  # group 3: optional (PATH_SEP)
+# + r"(\[[^{}\)]*\])?"  # group 4: optional [REPLACE]
+RE_REPLACE = r"(\[[^{}]*\])?"  # group 4: optional [REPLACE]
+RE_BOOL_VAL = r"(\?[^\\,}]*)?"  # group 5: optional ?TRUE_VALUE for boolean fields
+RE_DEFAULT_VAL = r"(,[\w\=\;\-\%. ]*)?"  # group 6: optional ,DEFAULT
+RE_CLOSING_BRACE = r"(?=\}(?!\}))\}"  # match } but not }}
+
+MATCH_GROUPS_TOTAL = 6
+MATCH_GROUPS_DELIM = 1
+MATCH_GROUPS_FIELD = 2
+MATCH_GROUPS_PATH_SEP = 3
+MATCH_GROUPS_REPLACE = 4
+MATCH_GROUPS_BOOL_VAL = 5
+MATCH_GROUPS_DEFAULT = 6
+
+# default values for string manipulation template options
+INPLACE_DEFAULT = ","
+PATH_SEP_DEFAULT = os.path.sep
+
 
 class PhotoTemplate:
     """ PhotoTemplate class to render a template string from a PhotoInfo object """
@@ -163,9 +186,7 @@ class PhotoTemplate:
         # gets initialized in get_template_value
         self.today = None
 
-    def make_subst_function(
-        self, none_str, filename, dirname, replacement, get_func=None
-    ):
+    def make_subst_function(self, none_str, filename, dirname, get_func=None):
         """ returns: substitution function for use in re.sub 
             none_str: value to use if substitution lookup is None and no default provided
             get_func: function that gets the substitution value for a given template field
@@ -174,37 +195,39 @@ class PhotoTemplate:
         if get_func is None:
             # used by make_subst_function to get the value for a template substitution
             get_func = partial(
-                self.get_template_value,
-                filename=filename,
-                dirname=dirname,
-                replacement=replacement,
+                self.get_template_value, filename=filename, dirname=dirname
             )
 
         # closure to capture photo, none_str, filename, dirname in subst
         def subst(matchobj):
             groups = len(matchobj.groups())
-            if groups != 5:
+            if groups != MATCH_GROUPS_TOTAL:
                 raise ValueError(
-                    f"Unexpected number of groups: expected 4, got {groups}"
+                    f"Unexpected number of groups: expected {MATCH_GROUPS_TOTAL}, got {groups}"
                 )
 
-            delim = matchobj.group(1)
-            field = matchobj.group(2)
-            path_sep = matchobj.group(3)
-            bool_val = matchobj.group(4)
-            default = matchobj.group(5)
+            delim = matchobj.group(MATCH_GROUPS_DELIM)
+            field = matchobj.group(MATCH_GROUPS_FIELD)
+            path_sep = matchobj.group(MATCH_GROUPS_PATH_SEP)
+            replace = matchobj.group(MATCH_GROUPS_REPLACE)
+            bool_val = matchobj.group(MATCH_GROUPS_BOOL_VAL)
+            default = matchobj.group(MATCH_GROUPS_DEFAULT)
 
             # drop the '+' on delim
             delim = delim[:-1] if delim is not None else None
             # drop () from path_sep
             path_sep = path_sep.strip("()") if path_sep is not None else None
+            # drop [] from replace
+            replace = replace[1:-1] if replace is not None else None
             # drop the ? on bool_val
             bool_val = bool_val[1:] if bool_val is not None else None
             # drop the comma on default
             default_val = default[1:] if default is not None else None
 
             try:
-                val = get_func(field, default_val, bool_val, delim, path_sep)
+                val = get_func(
+                    field, default_val, bool_val, delim, path_sep, replacement=replace
+                )
             except ValueError:
                 return matchobj.group(0)
 
@@ -228,7 +251,6 @@ class PhotoTemplate:
         inplace_sep=None,
         filename=False,
         dirname=False,
-        replacement=":",
     ):
         """ Render a filename or directory template 
 
@@ -242,17 +264,16 @@ class PhotoTemplate:
             with expand_inplace; default is ','
             filename: if True, template output will be sanitized to produce valid file name
             dirname: if True, template output will be sanitized to produce valid directory name 
-            replacement: str, value to replace any illegal file path characters with; default = ":"
 
         Returns:
             ([rendered_strings], [unmatched]): tuple of list of rendered strings and list of unmatched template values
         """
 
         if path_sep is None:
-            path_sep = os.path.sep
+            path_sep = PATH_SEP_DEFAULT
 
         if inplace_sep is None:
-            inplace_sep = ","
+            inplace_sep = INPLACE_DEFAULT
 
         # the rendering happens in two phases:
         # phase 1: handle all the single-value template substitutions
@@ -265,19 +286,20 @@ class PhotoTemplate:
         # regex to find {template_field,optional_default} in strings
         # pylint: disable=anomalous-backslash-in-string
         regex = (
-            r"(?<!\{)\{"  # match { but not {{
-            + r"([^}]*\+)?"  # group 1: optional DELIM+
-            + r"([^\\,}+\?]+)"  # group 2: field name
-            + r"(\([^{}\)]*\))?"  # group 3: optional (PATH_SEP)
-            + r"(\?[^\\,}]*)?"  # group 4: optional ?TRUE_VALUE for boolean fields
-            + r"(,[\w\=\;\-\%. ]*)?"  # group 5: optional ,DEFAULT
-            + r"(?=\}(?!\}))\}"  # match } but not }}
+            RE_OPENING_BRACE
+            + RE_DELIM
+            + RE_FIELD_NAME
+            + RE_PATH_SEP
+            + RE_REPLACE
+            + RE_BOOL_VAL
+            + RE_DEFAULT_VAL
+            + RE_CLOSING_BRACE
         )
 
         if type(template) is not str:
             raise TypeError(f"template must be type str, not {type(template)}")
 
-        subst_func = self.make_subst_function(none_str, filename, dirname, replacement)
+        subst_func = self.make_subst_function(none_str, filename, dirname)
 
         # do the replacements
         rendered = re.sub(regex, subst_func, template)
@@ -306,14 +328,7 @@ class PhotoTemplate:
         #    '2011/Album2/keyword2/person1',]
 
         rendered_strings = self._render_multi_valued_templates(
-            rendered,
-            none_str,
-            path_sep,
-            expand_inplace,
-            inplace_sep,
-            filename,
-            dirname,
-            replacement,
+            rendered, none_str, path_sep, expand_inplace, inplace_sep, filename, dirname
         )
 
         # process exiftool: templates
@@ -325,7 +340,6 @@ class PhotoTemplate:
             inplace_sep,
             filename,
             dirname,
-            replacement,
         )
 
         # find any {fields} that weren't replaced
@@ -361,7 +375,6 @@ class PhotoTemplate:
         inplace_sep,
         filename,
         dirname,
-        replacement,
     ):
         rendered_strings = [rendered]
         new_rendered_strings = []
@@ -370,15 +383,16 @@ class PhotoTemplate:
             for field in MULTI_VALUE_SUBSTITUTIONS:
                 # Build a regex that matches only the field being processed
                 re_str = (
-                    r"(?<!\{)\{"  # match { but not {{
-                    + r"([^}]*\+)?"  # group 1: optional DELIM+
+                    RE_OPENING_BRACE
+                    + RE_DELIM
                     + r"("
                     + field  # group 2: field name
                     + r")"
-                    + r"(\([^{}\)]*\))?"  # group 3: optional (PATH_SEP)
-                    + r"(\?[^\\,}]*)?"  # group 4: optional ?TRUE_VALUE for boolean fields
-                    + r"(,[\w\=\;\-\%. ]*)?"  # group 5: optional ,DEFAULT
-                    + r"(?=\}(?!\}))\}"  # match } but not }}
+                    + RE_PATH_SEP
+                    + RE_REPLACE
+                    + RE_BOOL_VAL
+                    + RE_DEFAULT_VAL
+                    + RE_CLOSING_BRACE
                 )
                 regex_multi = re.compile(re_str)
 
@@ -389,21 +403,29 @@ class PhotoTemplate:
                     matches = regex_multi.search(str_template)
                     if matches:
                         path_sep = (
-                            matches.group(3).strip("()")
-                            if matches.group(3) is not None
+                            matches.group(MATCH_GROUPS_PATH_SEP).strip("()")
+                            if matches.group(MATCH_GROUPS_PATH_SEP) is not None
                             else path_sep
+                        )
+                        replace = (
+                            matches.group(MATCH_GROUPS_REPLACE)[1:-1]
+                            if matches.group(MATCH_GROUPS_REPLACE) is not None
+                            else None
                         )
                         values = self.get_template_value_multi(
                             field,
                             path_sep,
                             filename=filename,
                             dirname=dirname,
-                            replacement=replacement,
+                            replacement=replace,
                         )
-                        if expand_inplace or matches.group(1) is not None:
+                        if (
+                            expand_inplace
+                            or matches.group(MATCH_GROUPS_DELIM) is not None
+                        ):
                             delim = (
-                                matches.group(1)[:-1]
-                                if matches.group(1) is not None
+                                matches.group(MATCH_GROUPS_DELIM)[:-1]
+                                if matches.group(MATCH_GROUPS_DELIM) is not None
                                 else inplace_sep
                             )
                             # instead of returning multiple strings, join values into a single string
@@ -413,7 +435,9 @@ class PhotoTemplate:
                                 else None
                             )
 
-                            def lookup_template_value_multi(lookup_value, *_):
+                            def lookup_template_value_multi(
+                                lookup_value, *args, **kwargs
+                            ):
                                 """ Closure passed to make_subst_function get_func 
                                         Capture val and field in the closure 
                                         Allows make_subst_function to be re-used w/o modification
@@ -429,7 +453,6 @@ class PhotoTemplate:
                                 none_str,
                                 filename,
                                 dirname,
-                                replacement,
                                 get_func=lookup_template_value_multi,
                             )
                             new_string = regex_multi.sub(subst, str_template)
@@ -440,7 +463,9 @@ class PhotoTemplate:
                             # create a new template string for each value
                             for val in values:
 
-                                def lookup_template_value_multi(lookup_value, *_):
+                                def lookup_template_value_multi(
+                                    lookup_value, *args, **kwargs
+                                ):
                                     """ Closure passed to make_subst_function get_func 
                                         Capture val and field in the closure 
                                         Allows make_subst_function to be re-used w/o modification
@@ -456,7 +481,6 @@ class PhotoTemplate:
                                     none_str,
                                     filename,
                                     dirname,
-                                    replacement,
                                     get_func=lookup_template_value_multi,
                                 )
                                 new_string = regex_multi.sub(subst, str_template)
@@ -475,7 +499,6 @@ class PhotoTemplate:
         inplace_sep,
         filename,
         dirname,
-        replacement,
     ):
         # TODO: lots of code commonality with render_multi_valued_templates -- combine or pull out
         # TODO: put these in globals
@@ -486,15 +509,15 @@ class PhotoTemplate:
             inplace_sep = ","
 
         # Build a regex that matches only the field being processed
-        # todo: pull out regexes into globals?
         re_str = (
-            r"(?<!\{)\{"  # match { but not {{
-            + r"([^}]*\+)?"  # group 1: optional DELIM+
-            + r"(exiftool:[^\\,}+\?]+)"  # group 3 field name
-            + r"(\([^{}\)]*\))?"  # group 3: optional (PATH_SEP)
-            + r"(\?[^\\,}]*)?"  # group 4: optional ?TRUE_VALUE for boolean fields
-            + r"(,[\w\=\;\-\%. ]*)?"  # group 5: optional ,DEFAULT
-            + r"(?=\}(?!\}))\}"  # match } but not }}
+            RE_OPENING_BRACE
+            + RE_DELIM
+            + r"(exiftool:[^\\,}+\?\[\]]+)"  # group 3 field name
+            + RE_PATH_SEP
+            + RE_REPLACE
+            + RE_BOOL_VAL
+            + RE_DEFAULT_VAL
+            + RE_CLOSING_BRACE
         )
         regex_multi = re.compile(re_str)
 
@@ -509,13 +532,17 @@ class PhotoTemplate:
                     # allmatches = regex_multi.finditer(str_template)
                     # for matches in allmatches:
                     path_sep = (
-                        matches.group(3).strip("()")
-                        if matches.group(3) is not None
+                        matches.group(MATCH_GROUPS_PATH_SEP).strip("()")
+                        if matches.group(MATCH_GROUPS_PATH_SEP) is not None
                         else path_sep
                     )
-                    field = matches.group(2)
+                    replace = (
+                        matches.group(MATCH_GROUPS_REPLACE)[1:-1]
+                        if matches.group(MATCH_GROUPS_REPLACE) is not None
+                        else None
+                    )
+                    field = matches.group(MATCH_GROUPS_FIELD)
                     subfield = field[9:]
-
                     if not self.photo.path:
                         values = [None]
                     else:
@@ -528,12 +555,24 @@ class PhotoTemplate:
                             values = (
                                 [values] if not isinstance(values, list) else values
                             )
+                            if replace and values:
+                                new_values = []
+                                for value in values:
+                                    new_values.append(self.replace(value, replace))
+                                values = new_values
+
+                            # sanitize directory names if needed
+                            if filename:
+                                values = [sanitize_pathpart(value) for value in values]
+                            elif dirname:
+                                values = [sanitize_dirname(value) for value in values]
+
                         else:
                             values = [None]
-                    if expand_inplace or matches.group(1) is not None:
+                    if expand_inplace or matches.group(MATCH_GROUPS_DELIM) is not None:
                         delim = (
-                            matches.group(1)[:-1]
-                            if matches.group(1) is not None
+                            matches.group(MATCH_GROUPS_DELIM)[:-1]
+                            if matches.group(MATCH_GROUPS_DELIM) is not None
                             else inplace_sep
                         )
                         # instead of returning multiple strings, join values into a single string
@@ -541,7 +580,7 @@ class PhotoTemplate:
                             delim.join(sorted(values)) if values and values[0] else None
                         )
 
-                        def lookup_template_value_exif(lookup_value, *_):
+                        def lookup_template_value_exif(lookup_value, *args, **kwargs):
                             """ Closure passed to make_subst_function get_func 
                                     Capture val and field in the closure 
                                     Allows make_subst_function to be re-used w/o modification
@@ -555,7 +594,6 @@ class PhotoTemplate:
                             none_str,
                             filename,
                             dirname,
-                            replacement,
                             get_func=lookup_template_value_exif,
                         )
                         new_string = regex_multi.sub(subst, str_template)
@@ -565,7 +603,9 @@ class PhotoTemplate:
                         # create a new template string for each value
                         for val in values:
 
-                            def lookup_template_value_exif(lookup_value, *_):
+                            def lookup_template_value_exif(
+                                lookup_value, *args, **kwargs
+                            ):
                                 """ Closure passed to make_subst_function get_func 
                                     Capture val and field in the closure 
                                     Allows make_subst_function to be re-used w/o modification
@@ -581,7 +621,6 @@ class PhotoTemplate:
                                 none_str,
                                 filename,
                                 dirname,
-                                replacement,
                                 get_func=lookup_template_value_exif,
                             )
                             new_string = regex_multi.sub(subst, str_template)
@@ -599,7 +638,7 @@ class PhotoTemplate:
         path_sep=None,
         filename=False,
         dirname=False,
-        replacement=":",
+        replacement=None,
     ):
         """lookup value for template field (single-value template substitutions)
 
@@ -855,14 +894,44 @@ class PhotoTemplate:
             # if here, didn't get a match
             raise ValueError(f"Unhandled template value: {field}")
 
+        if value and replacement:
+            value = self.replace(value, replacement)
+            # process character replacements
+
         if filename:
-            value = sanitize_pathpart(value, replacement=replacement)
+            value = sanitize_pathpart(value)
         elif dirname:
-            value = sanitize_dirname(value, replacement=replacement)
+            value = sanitize_dirname(value)
+
+        return value
+
+    def replace(self, value, replacement):
+        """ process REPLACE template option
+
+        Args:
+            value: str value to process
+            replacement: str in form OLD,NEW|OLD,NEW... with old and new values for replacement
+        
+        Returns:
+            value with all replacements done
+        
+        Raises:
+            ValueError if replacement string is in wrong format
+        """
+        if not value:
+            return value
+
+        replacements = replacement.split("|")
+        for r in replacements:
+            try:
+                old, new = r.split(",")
+            except ValueError:
+                raise ValueError(f"Invalid template REPLACE value: {replacement}")
+            value = value.replace(old, new)
         return value
 
     def get_template_value_multi(
-        self, field, path_sep, filename=False, dirname=False, replacement=":"
+        self, field, path_sep, filename=False, dirname=False, replacement=None
     ):
         """lookup value for template field (multi-value template substitutions)
 
@@ -901,12 +970,9 @@ class PhotoTemplate:
                     if dirname:
                         # being used as a filepath so sanitize each part
                         folder = path_sep.join(
-                            sanitize_dirname(f, replacement=replacement)
-                            for f in album.folder_names
+                            sanitize_dirname(f) for f in album.folder_names
                         )
-                        folder += path_sep + sanitize_dirname(
-                            album.title, replacement=replacement
-                        )
+                        folder += path_sep + sanitize_dirname(album.title)
                     else:
                         folder = path_sep.join(album.folder_names)
                         folder += path_sep + album.title
@@ -914,9 +980,7 @@ class PhotoTemplate:
                 else:
                     # album not in folder
                     if dirname:
-                        values.append(
-                            sanitize_dirname(album.title, replacement=replacement)
-                        )
+                        values.append(sanitize_dirname(album.title))
                     else:
                         values.append(album.title)
         elif field == "comment":
@@ -934,18 +998,23 @@ class PhotoTemplate:
                 self.photo.search_info.venue_types if self.photo.search_info else []
             )
         elif not field.startswith("exiftool:"):
+            # exiftool: templates handled by _render_exiftool_template
             raise ValueError(f"Unhandled template value: {field}")
+
+        # do any replacements needs
+        if replacement:
+            new_values = []
+            for value in values:
+                # process replacements
+                new_values.append(self.replace(value, replacement))
+            values = new_values
 
         # sanitize directory names if needed, folder_album handled differently above
         if filename:
-            values = [
-                sanitize_pathpart(value, replacement=replacement) for value in values
-            ]
+            values = [sanitize_pathpart(value) for value in values]
         elif dirname and field != "folder_album":
             # skip folder_album because it would have been handled above
-            values = [
-                sanitize_dirname(value, replacement=replacement) for value in values
-            ]
+            values = [sanitize_dirname(value) for value in values]
 
         # If no values, insert None so code below will substite none_str for None
         values = values or [None]

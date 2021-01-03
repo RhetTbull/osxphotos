@@ -53,6 +53,7 @@ TEMPLATE_VALUES_MULTI_KEYWORDS = {
 UUID_TITLE = "6191423D-8DB8-4D4C-92BE-9BBBA308AAC4"
 TEMPLATE_VALUES_TITLE = {
     "{title}": ["Tulips tied together at a flower shop"],
+    "{title[ ,_]}": ["Tulips_tied_together_at_a_flower_shop"],
     "{+title}": ["Tulips tied together at a flower shop"],
     "{,+title}": ["Tulips tied together at a flower shop"],
     "{, +title}": ["Tulips tied together at a flower shop"],
@@ -74,7 +75,9 @@ UUID_BOOL_VALUES_NOT = {
 UUID_EXIFTOOL = {
     "A92D9C26-3A50-4197-9388-CB5F7DB9FA91": {
         "{exiftool:EXIF:Make}": ["Canon"],
+        "{exiftool:EXIF:Make[Canon,CANON]}": ["CANON"],
         "{exiftool:EXIF:Model}": ["Canon PowerShot G10"],
+        "{exiftool:EXIF:Model[ G10,]}": ["Canon PowerShot"],
         "{exiftool:EXIF:Make}/{exiftool:EXIF:Model}": ["Canon/Canon PowerShot G10"],
         "{exiftool:IPTC:Keywords,foo}": ["foo"],
     },
@@ -87,6 +90,14 @@ UUID_EXIFTOOL = {
             "UK",
             "United Kingdom",
         ],
+        "{exiftool:IPTC:Keywords[ ,_|.,]}": [
+            "England",
+            "London",
+            "London_2018",
+            "St_James's_Park",
+            "UK",
+            "United_Kingdom",
+        ],
         "{,+exiftool:IPTC:Keywords}": [
             "England,London,London 2018,St. James's Park,UK,United Kingdom"
         ],
@@ -96,7 +107,9 @@ UUID_EXIFTOOL = {
 TEMPLATE_VALUES = {
     "{name}": "128FB4C6-0B16-4E7D-9108-FB2E90DA1546",
     "{original_name}": "IMG_1064",
+    "{original_name[_,-]}": "IMG-1064",
     "{title}": "Glen Ord",
+    "{title[ ,]}": "GlenOrd",
     "{descr}": "Jack Rose Dining Saloon",
     "{created.date}": "2020-02-04",
     "{created.year}": "2020",
@@ -789,3 +802,4 @@ def test_exiftool_template():
         for template in UUID_EXIFTOOL[uuid]:
             rendered, _ = photo.render_template(template)
             assert sorted(rendered) == sorted(UUID_EXIFTOOL[uuid][template])
+

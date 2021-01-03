@@ -832,7 +832,6 @@ class PhotoInfo:
         inplace_sep=None,
         filename=False,
         dirname=False,
-        replacement=":",
     ):
         """Renders a template string for PhotoInfo instance using PhotoTemplate
 
@@ -847,7 +846,6 @@ class PhotoInfo:
                 with expand_inplace; default is ','
             filename: if True, template output will be sanitized to produce valid file name
             dirname: if True, template output will be sanitized to produce valid directory name
-            replacement: str, value to replace any illegal file path characters with; default = ":"
 
         Returns:
             ([rendered_strings], [unmatched]): tuple of list of rendered strings and list of unmatched template values
@@ -861,7 +859,6 @@ class PhotoInfo:
             inplace_sep=inplace_sep,
             filename=filename,
             dirname=dirname,
-            replacement=replacement,
         )
 
     @property
