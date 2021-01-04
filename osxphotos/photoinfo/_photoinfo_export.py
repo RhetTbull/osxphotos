@@ -819,7 +819,7 @@ def export2(
                 photo = None
                 try:
                     photo = photolib.fetch_uuid(self.uuid)
-                except PhotoKitFetchFailed:
+                except PhotoKitFetchFailed as e:
                     # if failed to find UUID, might be a burst photo
                     if self.burst and self._info["burstUUID"]:
                         bursts = photolib.fetch_burst_uuid(
@@ -828,6 +828,8 @@ def export2(
                         # PhotoKit UUIDs may contain "/L0/001" so only look at beginning
                         photo = [p for p in bursts if p.uuid.startswith(self.uuid)]
                         photo = photo[0] if photo else None
+                    if not photo:
+                        logging.warning(f"PhotoKitFetchFailed exception exporting photo {self.uuid}: {e}")
                 if photo:
                     exported = photo.export(
                         dest.parent, dest.name, version=PHOTOS_VERSION_CURRENT
