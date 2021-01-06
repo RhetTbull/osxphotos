@@ -19,6 +19,7 @@ EXPORT_RESULT_ATTRIBUTES = [
     "sidecar_xmp_skipped",
     "missing",
     "error",
+    "error_str",
     "exiftool_warning",
     "exiftool_error",
 ]
@@ -41,6 +42,7 @@ def test_exportresults_init():
     assert results.sidecar_xmp_skipped == []
     assert results.missing == []
     assert results.error == []
+    assert results.error_str == []
     assert results.exiftool_warning == []
     assert results.exiftool_error == []
 
@@ -80,12 +82,14 @@ def test_all_files():
     """ test ExportResults.all_files() """
     results = ExportResults()
     for x in EXPORT_RESULT_ATTRIBUTES:
+        if x == "error_str":
+            continue
         setattr(results, x, [f"{x}1"])
     results.exiftool_warning = [("exiftool_warning1", "foo")]
     results.exiftool_error = [("exiftool_error1", "foo")]
 
     assert sorted(results.all_files()) == sorted(
-        [f"{x}1" for x in EXPORT_RESULT_ATTRIBUTES]
+        [f"{x}1" for x in EXPORT_RESULT_ATTRIBUTES if x != "error_str"]
     )
 
 
@@ -94,6 +98,6 @@ def test_str():
     results = ExportResults()
     assert (
         str(results)
-        == "ExportResults(exported=[],new=[],updated=[],skipped=[],exif_updated=[],touched=[],converted_to_jpeg=[],sidecar_json_written=[],sidecar_json_skipped=[],sidecar_exiftool_written=[],sidecar_exiftool_skipped=[],sidecar_xmp_written=[],sidecar_xmp_skipped=[],missing=[],error=[],exiftool_warning=[],exiftool_error=[])"
+        == "ExportResults(exported=[],new=[],updated=[],skipped=[],exif_updated=[],touched=[],converted_to_jpeg=[],sidecar_json_written=[],sidecar_json_skipped=[],sidecar_exiftool_written=[],sidecar_exiftool_skipped=[],sidecar_xmp_written=[],sidecar_xmp_skipped=[],missing=[],error=[],error_str=[],exiftool_warning=[],exiftool_error=[])"
     )
 

@@ -72,6 +72,7 @@ class ExportResults:
         sidecar_xmp_skipped=None,
         missing=None,
         error=None,
+        error_str=None,
         exiftool_warning=None,
         exiftool_error=None,
         xattr_written=None,
@@ -92,6 +93,7 @@ class ExportResults:
         self.sidecar_xmp_skipped = sidecar_xmp_skipped or []
         self.missing = missing or []
         self.error = error or []
+        self.error_str = error_str or []
         self.exiftool_warning = exiftool_warning or []
         self.exiftool_error = exiftool_error or []
         self.xattr_written = xattr_written or []
@@ -138,6 +140,7 @@ class ExportResults:
         self.sidecar_xmp_skipped += other.sidecar_xmp_skipped
         self.missing += other.missing
         self.error += other.error
+        self.error_str += other.error_str
         self.exiftool_warning += other.exiftool_warning
         self.exiftool_error += other.exiftool_error
         return self
@@ -160,6 +163,7 @@ class ExportResults:
             + f",sidecar_xmp_skipped={self.sidecar_xmp_skipped}"
             + f",missing={self.missing}"
             + f",error={self.error}"
+            + f",error_str={self.error_str}"
             + f",exiftool_warning={self.exiftool_warning}"
             + f",exiftool_error={self.exiftool_error}"
             + ")"
@@ -829,6 +833,7 @@ def export2(
                         photo = [p for p in bursts if p.uuid.startswith(self.uuid)]
                         photo = photo[0] if photo else None
                     if not photo:
+                        errors.append(dest)
                         logging.warning(f"PhotoKitFetchFailed exception exporting photo {self.uuid}: {e}")
                 if photo:
                     exported = photo.export(
@@ -1016,6 +1021,7 @@ def export2(
     exiftool_warning = []
     exiftool_error = []
     errors = []
+    error_strs = []
     # TODO: remove duplicative code from below
     if exiftool and update and exif_files:
         for exported_file in exif_files:
@@ -1139,6 +1145,7 @@ def export2(
         sidecar_xmp_written=sidecar_xmp_files_written,
         sidecar_xmp_skipped=sidecar_xmp_files_skipped,
         error=errors,
+        error_str=error_strs,
         exiftool_error=exiftool_error,
         exiftool_warning=exiftool_warning,
     )
