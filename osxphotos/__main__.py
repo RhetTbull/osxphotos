@@ -1345,8 +1345,10 @@ def query(
 @click.option(
     "--export-as-hardlink",
     is_flag=True,
-    help="Hardlink files instead of copying them.  "
-    "Cannot be used with --exiftool which creates copies of the files with embedded EXIF data.",
+    help="Hardlink files instead of copying them. "
+    "Cannot be used with --exiftool which creates copies of the files with embedded EXIF data. "
+    "Note: on APFS volumes, files are cloned when exporting giving many of the same "
+    "advantages as hardlinks without having to use --export-as-hardlink."
 )
 @click.option(
     "--touch-file",
