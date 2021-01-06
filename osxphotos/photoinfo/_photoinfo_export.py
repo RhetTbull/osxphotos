@@ -52,6 +52,12 @@ from ..photokit import (
 from ..utils import dd_to_dms_str, findfiles, noop
 
 
+class ExportError(Exception):
+    """ error during export """
+
+    pass
+
+
 class ExportResults:
     """ holds export results for export2 """
 
@@ -72,7 +78,6 @@ class ExportResults:
         sidecar_xmp_skipped=None,
         missing=None,
         error=None,
-        error_str=None,
         exiftool_warning=None,
         exiftool_error=None,
         xattr_written=None,
@@ -93,7 +98,6 @@ class ExportResults:
         self.sidecar_xmp_skipped = sidecar_xmp_skipped or []
         self.missing = missing or []
         self.error = error or []
-        self.error_str = error_str or []
         self.exiftool_warning = exiftool_warning or []
         self.exiftool_error = exiftool_error or []
         self.xattr_written = xattr_written or []
@@ -116,10 +120,10 @@ class ExportResults:
             + self.sidecar_xmp_written
             + self.sidecar_xmp_skipped
             + self.missing
-            + self.error
         )
         files += [x[0] for x in self.exiftool_warning]
         files += [x[0] for x in self.exiftool_error]
+        files += [x[0] for x in self.error]
 
         files = list(set(files))
         return files
@@ -140,7 +144,6 @@ class ExportResults:
         self.sidecar_xmp_skipped += other.sidecar_xmp_skipped
         self.missing += other.missing
         self.error += other.error
-        self.error_str += other.error_str
         self.exiftool_warning += other.exiftool_warning
         self.exiftool_error += other.exiftool_error
         return self
@@ -163,7 +166,6 @@ class ExportResults:
             + f",sidecar_xmp_skipped={self.sidecar_xmp_skipped}"
             + f",missing={self.missing}"
             + f",error={self.error}"
-            + f",error_str={self.error_str}"
             + f",exiftool_warning={self.exiftool_warning}"
             + f",exiftool_error={self.exiftool_error}"
             + ")"
@@ -192,55 +194,32 @@ def _export_photo_uuid_applescript(
 ):
     """Export photo to dest path using applescript to control Photos
     If photo is a live photo, exports both the photo and associated .mov file
-    uuid: UUID of photo to export
-    dest: destination path to export to
-    filestem: (string) if provided, exported filename will be named stem.ext
-              where ext is extension of the file exported by photos (e.g. .jpeg, .mov, etc)
-              If not provided, file will be named with whatever name Photos uses
-              If filestem.ext exists, it wil be overwritten
-    original: (boolean) if True, export original image; default = True
-    edited: (boolean) if True, export edited photo; default = False
-            If photo not edited and edited=True, will still export the original image
-            caller must verify image has been edited
-    *Note*: must be called with either edited or original but not both,
-            will raise error if called with both edited and original = True
-    live_photo: (boolean) if True, export associated .mov live photo; default = False
-    timeout: timeout value in seconds; export will fail if applescript run time exceeds timeout
-    burst: (boolean) set to True if file is a burst image to avoid Photos export error
-    dry_run: (boolean) set to True to run in "dry run" mode which will download file but not actually copy to destination
+
+    Args:
+        uuid: UUID of photo to export
+        dest: destination path to export to
+        filestem: (string) if provided, exported filename will be named stem.ext
+                where ext is extension of the file exported by photos (e.g. .jpeg, .mov, etc)
+                If not provided, file will be named with whatever name Photos uses
+                If filestem.ext exists, it wil be overwritten
+        original: (boolean) if True, export original image; default = True
+        edited: (boolean) if True, export edited photo; default = False
+                If photo not edited and edited=True, will still export the original image
+                caller must verify image has been edited
+        *Note*: must be called with either edited or original but not both,
+                will raise error if called with both edited and original = True
+        live_photo: (boolean) if True, export associated .mov live photo; default = False
+        timeout: timeout value in seconds; export will fail if applescript run time exceeds timeout
+        burst: (boolean) set to True if file is a burst image to avoid Photos export error
+        dry_run: (boolean) set to True to run in "dry run" mode which will download file but not actually copy to destination
+
     Returns: list of paths to exported file(s) or None if export failed
+
+    Raises: ExportError if error during export
+
     Note: For Live Photos, if edited=True, will export a jpeg but not the movie, even if photo
           has not been edited. This is due to how Photos Applescript interface works.
     """
-
-    # setup the applescript to do the export
-    # export_scpt = AppleScript(
-    #     """
-    # 	on export_by_uuid(theUUID, thePath, original, edited, theTimeOut)
-    # 		tell application "Photos"
-    # 			set thePath to thePath
-    # 			set theItem to media item id theUUID
-    # 			set theFilename to filename of theItem
-    # 			set itemList to {theItem}
-
-    # 			if original then
-    # 				with timeout of theTimeOut seconds
-    # 					export itemList to POSIX file thePath with using originals
-    # 				end timeout
-    # 			end if
-
-    # 			if edited then
-    # 				with timeout of theTimeOut seconds
-    # 					export itemList to POSIX file thePath
-    # 				end timeout
-    # 			end if
-
-    # 			return theFilename
-    # 		end tell
-
-    # 	end export_by_uuid
-    # 	"""
-    # )
 
     dest = pathlib.Path(dest)
     if not dest.is_dir():
@@ -257,12 +236,8 @@ def _export_photo_uuid_applescript(
         photo = photoscript.Photo(uuid)
         filename = photo.filename
         exported_files = photo.export(tmpdir.name, original=original, timeout=timeout)
-        # filename = export_scpt.call(
-        #     "export_by_uuid", uuid, tmpdir.name, original, edited, timeout
-        # )
     except Exception as e:
-        logging.warning(f"Error exporting uuid {uuid}: {e}")
-        return None
+        raise ExportError(e)
 
     if exported_files and filename:
         # need to find actual filename as sometimes Photos renames JPG to jpeg on export
@@ -531,6 +506,7 @@ def export2(
         "sidecar_xmp_skipped",
         "missing",
         "error",
+        "error_str",
         "exiftool_warning",
         "exiftool_error",
 
@@ -556,24 +532,6 @@ def export2(
     # suffix to add to edited files
     # e.g. name will be filename_edited.jpg
     edited_identifier = "_edited"
-
-    # list of all files exported during this call to export
-    exported_files = []
-
-    # list of new files during update
-    update_new_files = []
-
-    # list of files that were updated
-    update_updated_files = []
-
-    # list of all files skipped because they do not need to be updated (for use with update=True)
-    update_skipped_files = []
-
-    # list of all files with utime touched (touch_file = True)
-    touched_files = []
-
-    # list of all files convereted to jpeg
-    converted_to_jpeg_files = []
 
     # check edited and raise exception trying to export edited version of
     # photo that hasn't been edited
@@ -649,6 +607,7 @@ def export2(
             f"destination exists ({dest}); overwrite={overwrite}, increment={increment}"
         )
 
+    all_results = ExportResults()
     if not use_photos_export:
         # find the source file on disk and export
         # get path to source file and verify it's not None and is valid file
@@ -742,12 +701,7 @@ def export2(
             jpeg_quality=jpeg_quality,
             ignore_signature=ignore_signature,
         )
-        exported_files = results.exported
-        update_new_files = results.new
-        update_updated_files = results.updated
-        update_skipped_files = results.skipped
-        touched_files = results.touched
-        converted_to_jpeg_files = results.converted_to_jpeg
+        all_results += results
 
         # copy live photo associated .mov if requested
         if live_photo and self.live_photo:
@@ -768,12 +722,7 @@ def export2(
                     fileutil=fileutil,
                     ignore_signature=ignore_signature,
                 )
-                exported_files.extend(results.exported)
-                update_new_files.extend(results.new)
-                update_updated_files.extend(results.updated)
-                update_skipped_files.extend(results.skipped)
-                touched_files.extend(results.touched)
-                converted_to_jpeg_files.extend(results.converted_to_jpeg)
+                all_results += results
 
         # copy associated RAW image if requested
         if raw_photo and self.has_raw:
@@ -795,15 +744,9 @@ def export2(
                     jpeg_quality=jpeg_quality,
                     ignore_signature=ignore_signature,
                 )
-                exported_files.extend(results.exported)
-                update_new_files.extend(results.new)
-                update_updated_files.extend(results.updated)
-                update_skipped_files.extend(results.skipped)
-                touched_files.extend(results.touched)
-                converted_to_jpeg_files.extend(results.converted_to_jpeg)
+                all_results += results
     else:
         # use_photo_export
-        exported = []
         # export live_photo .mov file?
         live_photo = True if live_photo and self.live_photo else False
         if edited or self.shared:
@@ -833,26 +776,31 @@ def export2(
                         photo = [p for p in bursts if p.uuid.startswith(self.uuid)]
                         photo = photo[0] if photo else None
                     if not photo:
-                        errors.append(dest)
-                        logging.warning(f"PhotoKitFetchFailed exception exporting photo {self.uuid}: {e}")
+                        all_results.error.append((str(dest), f"PhotoKitFetchFailed exception exporting photo {self.uuid}: {e}"))
                 if photo:
-                    exported = photo.export(
-                        dest.parent, dest.name, version=PHOTOS_VERSION_CURRENT
-                    )
-                else:
-                    exported = []
+                    try:
+                        exported = photo.export(
+                            dest.parent, dest.name, version=PHOTOS_VERSION_CURRENT
+                        )
+                        all_results.exported.extend(exported)
+                    except Exception as e:
+                        all_results.error.append((str(dest), e))
             else:
-                exported = _export_photo_uuid_applescript(
-                    self.uuid,
-                    dest.parent,
-                    filestem=filestem,
-                    original=False,
-                    edited=True,
-                    live_photo=live_photo,
-                    timeout=timeout,
-                    burst=self.burst,
-                    dry_run=dry_run,
-                )
+                try:
+                    exported = _export_photo_uuid_applescript(
+                        self.uuid,
+                        dest.parent,
+                        filestem=filestem,
+                        original=False,
+                        edited=True,
+                        live_photo=live_photo,
+                        timeout=timeout,
+                        burst=self.burst,
+                        dry_run=dry_run,
+                    )
+                    all_results.exported.extend(exported)
+                except ExportError as e:
+                    all_results.error.append((str(dest), e))
         else:
             # export original version and not edited
             filestem = dest.stem
@@ -871,13 +819,16 @@ def export2(
                         photo = [p for p in bursts if p.uuid.startswith(self.uuid)]
                         photo = photo[0] if photo else None
                 if photo:
-                    exported = photo.export(
+                    try:
+                        exported = photo.export(
                         dest.parent, dest.name, version=PHOTOS_VERSION_ORIGINAL
-                    )
-                else:
-                    exported = []
+                        )
+                        all_results.exported.extend(exported)
+                    except Exception as e:
+                        all_results.error.append((str(dest), e))
             else:
-                exported = _export_photo_uuid_applescript(
+                try:
+                    exported = _export_photo_uuid_applescript(
                     self.uuid,
                     dest.parent,
                     filestem=filestem,
@@ -887,21 +838,21 @@ def export2(
                     timeout=timeout,
                     burst=self.burst,
                     dry_run=dry_run,
-                )
-        if exported:
+                    )
+                    all_results.exported.extend(exported)
+                except ExportError as e:
+                    all_results.error.append((str(dest), e))
+        if all_results.exported:
             if touch_file:
-                for exported_file in exported:
-                    touched_files.append(exported_file)
+                for exported_file in all_results.exported:
+                    all_results.touched.append(exported_file)
                     ts = int(self.date.timestamp())
                     fileutil.utime(exported_file, (ts, ts))
-            exported_files.extend(exported)
             if update:
-                update_new_files.extend(exported)
+                all_results.new.extend(all_results.exported)
 
-        else:
-            logging.warning(
-                f"Error exporting photo {self.uuid} to {dest} with use_photos_export"
-            )
+        # else:
+            # all_results.error.append((str(dest), f"Error exporting photo {self.uuid} to {dest} with use_photos_export"))
 
     # export metadata
     sidecars = []
@@ -1013,15 +964,10 @@ def export2(
 
     # if exiftool, write the metadata
     if update:
-        exif_files = update_new_files + update_updated_files + update_skipped_files
+        exif_files = all_results.new + all_results.updated + all_results.skipped
     else:
-        exif_files = exported_files
+        exif_files = all_results.exported
 
-    exif_files_updated = []
-    exiftool_warning = []
-    exiftool_error = []
-    errors = []
-    error_strs = []
     # TODO: remove duplicative code from below
     if exiftool and update and exif_files:
         for exported_file in exif_files:
@@ -1060,10 +1006,10 @@ def export2(
                         merge_exif_persons=merge_exif_persons,
                     )
                     if warning_:
-                        exiftool_warning.append((exported_file, warning_))
+                        all_results.exiftool_warning.append((exported_file, warning_))
                     if error_:
-                        exiftool_error.append((exported_file, error_))
-                        errors.append(exported_file)
+                        all_results.exiftool_error.append((exported_file, error_))
+                        all_results.error.append((exported_file, error_))
 
                 export_db.set_exifdata_for_file(
                     exported_file,
@@ -1080,7 +1026,7 @@ def export2(
                 export_db.set_stat_exif_for_file(
                     exported_file, fileutil.file_sig(exported_file)
                 )
-                exif_files_updated.append(exported_file)
+                all_results.exif_updated.append(exported_file)
             else:
                 verbose(f"Skipped up to date exiftool metadata for {exported_file}")
     elif exiftool and exif_files:
@@ -1099,10 +1045,10 @@ def export2(
                     merge_exif_persons=merge_exif_persons,
                 )
                 if warning_:
-                    exiftool_warning.append((exported_file, warning_))
+                    all_results.exiftool_warning.append((exported_file, warning_))
                 if error_:
-                    exiftool_error.append((exported_file, error_))
-                    errors.append(exported_file)
+                    all_results.exiftool_error.append((exported_file, error_))
+                    all_results.error.append((exported_file, error_))
 
             export_db.set_exifdata_for_file(
                 exported_file,
@@ -1119,37 +1065,25 @@ def export2(
             export_db.set_stat_exif_for_file(
                 exported_file, fileutil.file_sig(exported_file)
             )
-            exif_files_updated.append(exported_file)
+            all_results.exif_updated.append(exported_file)
 
     if touch_file:
-        for exif_file in exif_files_updated:
+        for exif_file in all_results.exif_updated:
             verbose(f"Updating file modification time for {exif_file}")
-            touched_files.append(exif_file)
+            all_results.touched.append(exif_file)
             ts = int(self.date.timestamp())
             fileutil.utime(exif_file, (ts, ts))
 
-    touched_files = list(set(touched_files))
+    all_results.touched = list(set(all_results.touched))
 
-    results = ExportResults(
-        exported=exported_files,
-        new=update_new_files,
-        updated=update_updated_files,
-        skipped=update_skipped_files,
-        exif_updated=exif_files_updated,
-        touched=touched_files,
-        converted_to_jpeg=converted_to_jpeg_files,
-        sidecar_json_written=sidecar_json_files_written,
-        sidecar_json_skipped=sidecar_json_files_skipped,
-        sidecar_exiftool_written=sidecar_exiftool_files_written,
-        sidecar_exiftool_skipped=sidecar_exiftool_files_skipped,
-        sidecar_xmp_written=sidecar_xmp_files_written,
-        sidecar_xmp_skipped=sidecar_xmp_files_skipped,
-        error=errors,
-        error_str=error_strs,
-        exiftool_error=exiftool_error,
-        exiftool_warning=exiftool_warning,
-    )
-    return results
+    all_results.sidecar_json_written = sidecar_json_files_written
+    all_results.sidecar_json_skipped = sidecar_json_files_skipped
+    all_results.sidecar_exiftool_written = sidecar_exiftool_files_written
+    all_results.sidecar_exiftool_skipped = sidecar_exiftool_files_skipped
+    all_results.sidecar_xmp_written = sidecar_xmp_files_written
+    all_results.sidecar_xmp_skipped = sidecar_xmp_files_skipped
+
+    return all_results
 
 
 def _export_photo(

@@ -2321,6 +2321,8 @@ def export(
                 # but was missing on --update doesn't get deleted
                 # (better to have old version than none)
                 + results.missing
+                # include files that have error in case they exist from previous export
+                + [r[0] for r in results.error]
                 + [str(pathlib.Path(export_db_path).resolve())]
             )
             click.echo(f"Cleaning up {dest}")
@@ -3046,6 +3048,14 @@ def export_photo(
                                 ),
                                 err=True,
                             )
+                        for error_ in export_results.error:
+                            click.echo(
+                                click.style(
+                                    f"Error exporting photo, file {error_[0]}: {error_[1]}",
+                                    fg=CLI_COLOR_ERROR,
+                                ),
+                                err=True,
+                            )
 
                     except Exception as e:
                         click.echo(
@@ -3056,7 +3066,7 @@ def export_photo(
                             err=True,
                         )
                         results.error.append(
-                            str(pathlib.Path(dest) / original_filename)
+                            (str(pathlib.Path(dest) / original_filename), e)
                         )
             else:
                 verbose_(f"Skipping original version of {photo.original_filename}")
@@ -3165,7 +3175,7 @@ def export_photo(
                             ),
                             err=True,
                         )
-                        results.error.append(str(pathlib.Path(dest) / edited_filename))
+                        results.error.append((str(pathlib.Path(dest) / edited_filename),e))
 
             if verbose:
                 if update:
@@ -3369,7 +3379,7 @@ def write_export_report(report_file, results):
             "sidecar_json": 0,
             "sidecar_exiftool": 0,
             "missing": 0,
-            "error": 0,
+            "error": "",
             "exiftool_warning": "",
             "exiftool_error": "",
             "extended_attributes_written": 0,
@@ -3427,7 +3437,7 @@ def write_export_report(report_file, results):
         all_results[result]["missing"] = 1
 
     for result in results.error:
-        all_results[result]["error"] = 1
+        all_results[result[0]]["error"] = result[1]
 
     for result in results.exiftool_warning:
         all_results[result[0]]["exiftool_warning"] = result[1]
