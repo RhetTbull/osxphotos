@@ -1348,7 +1348,7 @@ def query(
     help="Hardlink files instead of copying them. "
     "Cannot be used with --exiftool which creates copies of the files with embedded EXIF data. "
     "Note: on APFS volumes, files are cloned when exporting giving many of the same "
-    "advantages as hardlinks without having to use --export-as-hardlink."
+    "advantages as hardlinks without having to use --export-as-hardlink.",
 )
 @click.option(
     "--touch-file",
@@ -2999,7 +2999,19 @@ def export_photo(
             if export_original:
                 if missing_original:
                     space = " " if not verbose else ""
-                    verbose_(f"{space}Skipping missing photo {photo.original_filename}")
+                    verbose_(
+                        f"{space}Skipping missing photo {photo.original_filename} ({photo.uuid})"
+                    )
+                    results.missing.append(
+                        str(pathlib.Path(dest_path) / original_filename)
+                    )
+                elif photo.intrash and (not photo.path or use_photos_export):
+                    # skip deleted files if they're missing or using use_photos_export
+                    # as AppleScript/PhotoKit cannot export deleted photos
+                    space = " " if not verbose else ""
+                    verbose_(
+                        f"{space}Skipping missing deleted photo {photo.original_filename} ({photo.uuid})"
+                    )
                     results.missing.append(
                         str(pathlib.Path(dest_path) / original_filename)
                     )
@@ -3074,9 +3086,6 @@ def export_photo(
             # if export-edited, also export the edited version
             # verify the photo has adjustments and valid path to avoid raising an exception
             if export_edited and photo.hasadjustments:
-                # if download_missing and the photo is missing or path doesn't exist,
-                # try to download with Photos
-
                 edited_filename = pathlib.Path(filename)
                 # check for correct edited suffix
                 if photo.path_edited is not None:
@@ -3119,10 +3128,21 @@ def export_photo(
                 )
                 if missing_edited:
                     space = " " if not verbose else ""
-                    verbose_(f"{space}Skipping missing edited photo for {filename}")
+                    verbose_(f"{space}Skipping missing edited photo for {edited_filename}")
                     results.missing.append(
                         str(pathlib.Path(dest_path) / edited_filename)
                     )
+                elif photo.intrash and (not photo.path_edited or use_photos_export):
+                    # skip deleted files if they're missing or using use_photos_export
+                    # as AppleScript/PhotoKit cannot export deleted photos
+                    space = " " if not verbose else ""
+                    verbose_(
+                        f"{space}Skipping missing deleted photo {photo.original_filename} ({photo.uuid})"
+                    )
+                    results.missing.append(
+                        str(pathlib.Path(dest_path) / edited_filename )
+                    )
+
                 else:
                     try:
                         export_results_edited = photo.export2(
@@ -3175,7 +3195,9 @@ def export_photo(
                             ),
                             err=True,
                         )
-                        results.error.append((str(pathlib.Path(dest) / edited_filename),e))
+                        results.error.append(
+                            (str(pathlib.Path(dest) / edited_filename), e)
+                        )
 
             if verbose:
                 if update:
