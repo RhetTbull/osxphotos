@@ -3,7 +3,7 @@
 #
 # setup.py script for osxphotos
 #
-# Copyright (c) 2019, 2020 Rhet Turnbull, rturnbull+git@gmail.com
+# Copyright (c) 2019, 2020, 2021 Rhet Turnbull, rturnbull+git@gmail.com
 # All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person
@@ -45,7 +45,7 @@ with open(
     exec(f.read(), about)
 
 # read README.md into long_description
-with open(os.path.join(this_directory, "README.md"), encoding="utf-8") as f:
+with open(os.path.join(this_directory, "README.rst"), encoding="utf-8") as f:
     about["long_description"] = f.read()
 
 setup(
@@ -53,7 +53,7 @@ setup(
     version=about["__version__"],
     description="Export photos from Apple's macOS Photos app and query the Photos library database to access metadata about images.",
     long_description=about["long_description"],
-    long_description_content_type="text/markdown",
+    long_description_content_type="text/x-rst",
     author="Rhet Turnbull",
     author_email="rturnbull+git@gmail.com",
     url="https://github.com/RhetTbull/",
