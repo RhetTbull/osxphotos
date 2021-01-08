@@ -128,7 +128,17 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "kradalby",
+      "name": "Kristoffer Dalby",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/98431?v=4",
+      "profile": "https://kradalby.no",
+      "contributions": [
+        "code"
+      ]
     }
   ],
-  "contributorsPerLine": 7
+  "contributorsPerLine": 7,
+  "skipCi": true
 }
