@@ -6,42 +6,43 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-14-orange.svg?style=flat)](#contributors)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-- [OSXPhotos](#osxphotos)
-  * [What is osxphotos?](#what-is-osxphotos)
-  * [Supported operating systems](#supported-operating-systems)
-  * [Installation instructions](#installation-instructions)
-  * [Command Line Usage](#command-line-usage)
-    + [Command line examples](#command-line-examples)
-    + [Command line reference: export](#command-line-reference-export)
-  * [Package Interface](#package-interface)
-    + [PhotosDB](#photosdb)
-    + [PhotoInfo](#photoinfo)
-    + [ExifInfo](#exifinfo)
-    + [AlbumInfo](#albuminfo)
-    + [ImportInfo](#importinfo)
-    + [FolderInfo](#folderinfo)
-    + [PlaceInfo](#placeinfo)
-    + [ScoreInfo](#scoreinfo)
-    + [SearchInfo](#searchinfo)
-    + [PersonInfo](#personinfo)
-    + [FaceInfo](#faceinfo)
-    + [CommentInfo](#commentinfo)
-    + [LikeInfo](#likeinfo)
-    + [Raw Photos](#raw-photos)
-    + [Template Substitutions](#template-substitutions)
-    + [Utility Functions](#utility-functions)
-  * [Examples](#examples)
-  * [Related Projects](#related-projects)
-  * [Contributing](#contributing)
-  * [Known Bugs](#known-bugs)
-  * [Implementation Notes](#implementation-notes)
-  * [Dependencies](#dependencies)
-  * [Acknowledgements](#acknowledgements)
+> OSXPhotos provides the ability to interact with and query Apple's Photos.app library on macOS. You can query the Photos library database — for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos.
+
+<p align="center"><img src="docs/screencast/demo.gif?raw=true" width="713" height="430"/></p>
+
+# Table of Contents
+* [Supported operating systems](#supported-operating-systems)
+* [Installation instructions](#installation-instructions)
+* [Command Line Usage](#command-line-usage)
+  + [Command line examples](#command-line-examples)
+  + [Command line reference: export](#command-line-reference-export)
+* [Package Interface](#package-interface)
+  + [PhotosDB](#photosdb)
+  + [PhotoInfo](#photoinfo)
+  + [ExifInfo](#exifinfo)
+  + [AlbumInfo](#albuminfo)
+  + [ImportInfo](#importinfo)
+  + [FolderInfo](#folderinfo)
+  + [PlaceInfo](#placeinfo)
+  + [ScoreInfo](#scoreinfo)
+  + [SearchInfo](#searchinfo)
+  + [PersonInfo](#personinfo)
+  + [FaceInfo](#faceinfo)
+  + [CommentInfo](#commentinfo)
+  + [LikeInfo](#likeinfo)
+  + [Raw Photos](#raw-photos)
+  + [Template Substitutions](#template-substitutions)
+  + [Utility Functions](#utility-functions)
+* [Examples](#examples)
+* [Related Projects](#related-projects)
+* [Contributing](#contributing)
+* [Known Bugs](#known-bugs)
+* [Implementation Notes](#implementation-notes)
+* [Dependencies](#dependencies)
+* [Acknowledgements](#acknowledgements)
+
 
   
-## What is osxphotos?
-
-OSXPhotos provides the ability to interact with and query Apple's Photos.app library on macOS. You can query the Photos library database -- for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos.
 
 ## Supported operating systems
 
