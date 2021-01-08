@@ -1443,7 +1443,7 @@ def _exiftool_dict(
 
     if keyword_list:
         # remove duplicates
-        keyword_list = sorted(list(set(keyword_list)))
+        keyword_list = sorted(list(set([str(keyword) for keyword in keyword_list])))
         exif["IPTC:Keywords"] = keyword_list.copy()
         exif["XMP:Subject"] = keyword_list.copy()
         exif["XMP:TagsList"] = keyword_list.copy()
