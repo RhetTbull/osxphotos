@@ -776,7 +776,12 @@ def export2(
                         photo = [p for p in bursts if p.uuid.startswith(self.uuid)]
                         photo = photo[0] if photo else None
                     if not photo:
-                        all_results.error.append((str(dest), f"PhotoKitFetchFailed exception exporting photo {self.uuid}: {e}"))
+                        all_results.error.append(
+                            (
+                                str(dest),
+                                f"PhotoKitFetchFailed exception exporting photo {self.uuid}: {e}",
+                            )
+                        )
                 if photo:
                     try:
                         exported = photo.export(
@@ -821,7 +826,7 @@ def export2(
                 if photo:
                     try:
                         exported = photo.export(
-                        dest.parent, dest.name, version=PHOTOS_VERSION_ORIGINAL
+                            dest.parent, dest.name, version=PHOTOS_VERSION_ORIGINAL
                         )
                         all_results.exported.extend(exported)
                     except Exception as e:
@@ -829,15 +834,15 @@ def export2(
             else:
                 try:
                     exported = _export_photo_uuid_applescript(
-                    self.uuid,
-                    dest.parent,
-                    filestem=filestem,
-                    original=True,
-                    edited=False,
-                    live_photo=live_photo,
-                    timeout=timeout,
-                    burst=self.burst,
-                    dry_run=dry_run,
+                        self.uuid,
+                        dest.parent,
+                        filestem=filestem,
+                        original=True,
+                        edited=False,
+                        live_photo=live_photo,
+                        timeout=timeout,
+                        burst=self.burst,
+                        dry_run=dry_run,
                     )
                     all_results.exported.extend(exported)
                 except ExportError as e:
@@ -852,7 +857,7 @@ def export2(
                 all_results.new.extend(all_results.exported)
 
         # else:
-            # all_results.error.append((str(dest), f"Error exporting photo {self.uuid} to {dest} with use_photos_export"))
+        # all_results.error.append((str(dest), f"Error exporting photo {self.uuid} to {dest} with use_photos_export"))
 
     # export metadata
     sidecars = []
@@ -1539,6 +1544,7 @@ def _get_exif_keywords(self):
                 kw = exifdict[field]
                 if kw and type(kw) != list:
                     kw = [kw]
+                kw = [str(k) for k in kw]
                 keywords.extend(kw)
             except KeyError:
                 pass
@@ -1555,6 +1561,7 @@ def _get_exif_persons(self):
             p = exifdict["XMP:PersonInImage"]
             if p and type(p) != list:
                 p = [p]
+            p = [str(p_) for p_ in p]
             persons.extend(p)
         except KeyError:
             pass
