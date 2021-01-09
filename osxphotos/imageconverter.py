@@ -1,11 +1,12 @@
 """ ImageConverter class
-    Convert an image to JPEG using CoreImage -- 
+    Convert an image to JPEG using CoreImage --
     for example, RAW to JPEG.  Only works if Mac equipped with GPU. """
 
 # reference: https://stackoverflow.com/questions/59330149/coreimage-ciimage-write-jpg-is-shifting-colors-macos/59334308#59334308
 
 import pathlib
 
+import objc
 import Metal
 import Quartz
 from Cocoa import NSURL
@@ -19,6 +20,7 @@ class ImageConversionError(Exception):
     """Base class for exceptions in this module. """
 
     pass
+
 
 class ImageConverter:
     """ Convert images to jpeg.  This class is a singleton
@@ -67,49 +69,58 @@ class ImageConverter:
             ImageConversionError if error during conversion
         """
 
-        # accept input_path or output_path as pathlib.Path
-        if not isinstance(input_path, str):
-            input_path = str(input_path)
+        # Set up a dedicated objc autorelease pool for this function call.
+        # This is to ensure that all the NSObjects are cleaned up after each
+        # call to prevent memory leaks.
+        # https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/MemoryMgmt/Articles/mmAutoreleasePools.html
+        # https://pyobjc.readthedocs.io/en/latest/api/module-objc.html#memory-management
+        with objc.autorelease_pool():
+            # accept input_path or output_path as pathlib.Path
+            if not isinstance(input_path, str):
+                input_path = str(input_path)
 
-        if not isinstance(output_path, str):
-            output_path = str(output_path)
+            if not isinstance(output_path, str):
+                output_path = str(output_path)
 
-        if not pathlib.Path(input_path).is_file():
-            raise FileNotFoundError(f"could not find {input_path}")
+            if not pathlib.Path(input_path).is_file():
+                raise FileNotFoundError(f"could not find {input_path}")
 
-        if not (0.0 <= compression_quality <= 1.0):
-            raise ValueError(
-                "illegal value for compression_quality: {compression_quality}"
+            if not (0.0 <= compression_quality <= 1.0):
+                raise ValueError(
+                    "illegal value for compression_quality: {compression_quality}"
+                )
+
+            input_url = NSURL.fileURLWithPath_(input_path)
+            output_url = NSURL.fileURLWithPath_(output_path)
+
+            with pipes() as (out, err):
+                # capture stdout and stderr from system calls
+                # otherwise, Quartz.CIImage.imageWithContentsOfURL_
+                # prints to stderr something like:
+                # 2020-09-20 20:55:25.538 python[73042:5650492] Creating client/daemon connection: B8FE995E-3F27-47F4-9FA8-559C615FD774
+                # 2020-09-20 20:55:25.652 python[73042:5650492] Got the query meta data reply for: com.apple.MobileAsset.RawCamera.Camera, response: 0
+                input_image = Quartz.CIImage.imageWithContentsOfURL_(input_url)
+
+            if input_image is None:
+                raise ImageConversionError(f"Could not create CIImage for {input_path}")
+
+            output_colorspace = input_image.colorSpace() or Quartz.CGColorSpaceCreateWithName(
+                Quartz.CoreGraphics.kCGColorSpaceSRGB
             )
 
-        input_url = NSURL.fileURLWithPath_(input_path)
-        output_url = NSURL.fileURLWithPath_(output_path)
-
-        with pipes() as (out, err):
-            # capture stdout and stderr from system calls
-            # otherwise, Quartz.CIImage.imageWithContentsOfURL_
-            # prints to stderr something like:
-            # 2020-09-20 20:55:25.538 python[73042:5650492] Creating client/daemon connection: B8FE995E-3F27-47F4-9FA8-559C615FD774
-            # 2020-09-20 20:55:25.652 python[73042:5650492] Got the query meta data reply for: com.apple.MobileAsset.RawCamera.Camera, response: 0
-            input_image = Quartz.CIImage.imageWithContentsOfURL_(input_url)
-
-        if input_image is None:
-            raise ImageConversionError(f"Could not create CIImage for {input_path}")
-
-        output_colorspace = input_image.colorSpace() or Quartz.CGColorSpaceCreateWithName(
-            Quartz.CoreGraphics.kCGColorSpaceSRGB
-        )
-
-        output_options = NSDictionary.dictionaryWithDictionary_(
-            {"kCGImageDestinationLossyCompressionQuality": compression_quality}
-        )
-        _, error = self.context.writeJPEGRepresentationOfImage_toURL_colorSpace_options_error_(
-            input_image, output_url, output_colorspace, output_options, None
-        )
-        if not error:
-            return True
-        else:
-            raise ImageConversionError(
-                "Error converting file {input_path} to jpeg at {output_path}: {error}"
+            output_options = NSDictionary.dictionaryWithDictionary_(
+                {"kCGImageDestinationLossyCompressionQuality": compression_quality}
             )
+            (
+                _,
+                error,
+            ) = self.context.writeJPEGRepresentationOfImage_toURL_colorSpace_options_error_(
+                input_image, output_url, output_colorspace, output_options, None
+            )
+            if not error:
+                return True
+            else:
+                raise ImageConversionError(
+                    "Error converting file {input_path} to jpeg at {output_path}: {error}"
+                )
 
