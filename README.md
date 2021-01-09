@@ -1578,8 +1578,14 @@ Returns `True` if the picture has been marked as a favorite, otherwise `False`
 #### `hidden`
 Returns `True` if the picture has been marked as hidden, otherwise `False`
 
+#### `visible`
+Returns `True` if the picture is visible in library, otherwise `False`.  e.g. non-selected burst photos are not hidden but also not visible
+
 #### `intrash`
 Returns `True` if the picture is in the trash ('Recently Deleted' folder), otherwise `False`
+
+#### `date_trashed`
+Returns the date the photo was placed in the trash as a datetime.datetime object or None if photo is not in the trash 
 
 #### `location`
 Returns latitude and longitude as a tuple of floats (latitude, longitude).  If location is not set, latitude and longitude are returned as `None`

@@ -2,13 +2,14 @@ import os
 import pytest
 
 from osxphotos._constants import _UNKNOWN_PERSON
+from osxphotos.utils import _get_os_version
 
-skip_test = False if "OSXPHOTOS_TEST_EXPORT" in os.environ else True
+OS_VERSION = _get_os_version()
+SKIP_TEST = "OSXPHOTOS_TEST_EXPORT" not in os.environ or OS_VERSION[1] != "15"
+PHOTOS_DB = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
 pytestmark = pytest.mark.skipif(
-    skip_test, reason="These tests only run against system photos library"
+    SKIP_TEST, reason="These tests only run against system photos library"
 )
-
-PHOTOS_DB = "/Users/rhet/Pictures/Photos Library.photoslibrary"
 
 UUID_DICT = {
     "has_adjustments": "2B2D5434-6D31-49E2-BF47-B973D34A317B",
@@ -21,8 +22,7 @@ UUID_DICT = {
 def photosdb():
     import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    return photosdb
+    return osxphotos.PhotosDB(dbfile=PHOTOS_DB)
 
 
 def test_export_default_name(photosdb):

@@ -887,7 +887,9 @@ class PhotosDB:
                     RKMaster.width, 
                     RKMaster.orientation,
                     RKMaster.fileSize,
-                    RKVersion.subType
+                    RKVersion.subType,
+                    RKVersion.inTrashDate,
+                    RKVersion.showInLibrary
                     FROM RKVersion, RKMaster
                     WHERE RKVersion.masterUuid = RKMaster.uuid"""
             )
@@ -915,7 +917,9 @@ class PhotosDB:
                     RKMaster.width, 
                     RKMaster.orientation,
                     RKMaster.originalFileSize,
-                    RKVersion.subType
+                    RKVersion.subType,
+                    RKVersion.inTrashDate,
+                    RKVersion.showInLibrary
                     FROM RKVersion, RKMaster 
                     WHERE RKVersion.masterUuid = RKMaster.uuid"""
             )
@@ -962,6 +966,8 @@ class PhotosDB:
         # 38    RKMaster.orientation,
         # 39    RKMaster.originalFileSize
         # 40    RKVersion.subType
+        # 41    RKVersion.inTrashDate
+        # 42    RKVersion.showInLibrary -- is item visible in library (e.g. non-selected burst images are not visible)
 
         for row in c:
             uuid = row[0]
@@ -1136,7 +1142,14 @@ class PhotosDB:
             )
 
             # recently deleted items
-            self._dbphotos[uuid]["intrash"] = True if row[32] == 1 else False
+            self._dbphotos[uuid]["intrash"] = row[32] == 1
+            self._dbphotos[uuid]["trasheddate_timestamp"] = row[41]
+            try:
+                self._dbphotos[uuid]["trasheddate"] = datetime.fromtimestamp(
+                    row[41] + TIME_DELTA
+                )
+            except (ValueError, TypeError):
+                self._dbphotos[uuid]["trasheddate"] = None
 
             # height/width/orientation
             self._dbphotos[uuid]["height"] = row[33]
@@ -1146,6 +1159,10 @@ class PhotosDB:
             self._dbphotos[uuid]["original_width"] = row[37]
             self._dbphotos[uuid]["original_orientation"] = row[38]
             self._dbphotos[uuid]["original_filesize"] = row[39]
+
+            # visibility state 
+            self._dbphotos[uuid]["visibility_state"] = row[42] 
+            self._dbphotos[uuid]["visible"] = row[42] == 1 
 
             # import session not yet handled for Photos 4
             self._dbphotos[uuid]["import_session"] = None
@@ -1840,7 +1857,9 @@ class PhotosDB:
                 ZADDITIONALASSETATTRIBUTES.ZORIGINALORIENTATION,
                 ZADDITIONALASSETATTRIBUTES.ZORIGINALFILESIZE,
                 {depth_state},
-                {asset_table}.ZADJUSTMENTTIMESTAMP
+                {asset_table}.ZADJUSTMENTTIMESTAMP,
+                {asset_table}.ZVISIBILITYSTATE,
+                {asset_table}.ZTRASHEDDATE
                 FROM {asset_table} 
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
                 ORDER BY {asset_table}.ZUUID  """
@@ -1885,6 +1904,8 @@ class PhotosDB:
         # 35   ZADDITIONALASSETATTRIBUTES.ZORIGINALFILESIZE
         # 36   ZGENERICASSET.ZDEPTHSTATES / ZASSET.ZDEPTHTYPE
         # 37   ZGENERICASSET.ZADJUSTMENTTIMESTAMP -- when was photo edited?
+        # 38   ZGENERICASSET.ZVISIBILITYSTATE -- 0 if visible, 2 if not (e.g. a burst image)
+        # 39   ZGENERICASSET.ZTRASHEDDATE -- date item placed in the trash or null if not in trash
 
         for row in c:
             uuid = row[0]
@@ -1901,9 +1922,7 @@ class PhotosDB:
             info["lastmodifieddate_timestamp"] = row[37]
             try:
                 info["lastmodifieddate"] = datetime.fromtimestamp(row[37] + TIME_DELTA)
-            except ValueError:
-                info["lastmodifieddate"] = None
-            except TypeError:
+            except (ValueError, TypeError):
                 info["lastmodifieddate"] = None
 
             info["imageTimeZoneOffsetSeconds"] = row[6]
@@ -2046,6 +2065,11 @@ class PhotosDB:
 
             # recently deleted items
             info["intrash"] = True if row[28] == 1 else False
+            info["trasheddate_timestamp"] = row[39]
+            try:
+                info["trasheddate"] = datetime.fromtimestamp(row[39] + TIME_DELTA)
+            except (ValueError, TypeError):
+                info["trasheddate"] = None
 
             # height/width/orientation
             info["height"] = row[29]
@@ -2055,6 +2079,11 @@ class PhotosDB:
             info["original_width"] = row[33]
             info["original_orientation"] = row[34]
             info["original_filesize"] = row[35]
+
+            # visibility state, visible (True) if 0, otherwise not visible (False)
+            # only values I've seen are 0 for visible, 2 for not-visible
+            info["visibility_state"] = row[38]
+            info["visible"] = row[38] == 0
 
             # initialize import session info which will be filled in later
             # not every photo has an import session so initialize all records now

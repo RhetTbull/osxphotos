@@ -13,6 +13,11 @@ import pytest
 
 import osxphotos
 from osxphotos._constants import _UNKNOWN_PERSON
+from osxphotos.utils import _get_os_version
+
+OS_VERSION = _get_os_version()
+SKIP_TEST = "OSXPHOTOS_TEST_EXPORT" not in os.environ or OS_VERSION[1] != "15"
+PHOTOS_DB_LOCAL = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
 
 PHOTOS_DB = "tests/Test-10.15.7.photoslibrary/database/photos.db"
 PHOTOS_DB_PATH = "/Test-10.15.7.photoslibrary/database/photos.db"
@@ -96,6 +101,11 @@ UUID_DICT = {
     "intrash_person_keywords": "6FD38366-3BF2-407D-81FE-7153EB6125B6",
     "import_session": "8846E3E6-8AC8-4857-8448-E3D025784410",
     "movie": "D1359D09-1373-4F3B-B0E3-1A4DE573E4A3",
+}
+
+UUID_DICT_LOCAL = {
+    "not_visible": "ABF00253-78E7-4FD6-953B-709307CD489D",
+    "burst": "44AF1FCA-AC2D-4FA5-B288-E67DC18F9CA8",
 }
 
 UUID_PUMPKIN_FARM = [
@@ -192,6 +202,11 @@ ORIGINAL_FILENAME_DICT = {
 @pytest.fixture(scope="module")
 def photosdb():
     return osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+
+
+@pytest.fixture(scope="module")
+def photosdb_local():
+    return osxphotos.PhotosDB(dbfile=PHOTOS_DB_LOCAL)
 
 
 def test_init1():
@@ -413,6 +428,22 @@ def test_not_hidden(photosdb):
     assert p.hidden == False
 
 
+def test_visible(photosdb):
+    """ test visible """
+    photos = photosdb.photos(uuid=[UUID_DICT["not_hidden"]])
+    assert len(photos) == 1
+    p = photos[0]
+    assert p.visible
+
+
+def test_not_burst(photosdb):
+    """ test not burst """
+    photos = photosdb.photos(uuid=[UUID_DICT["not_hidden"]])
+    assert len(photos) == 1
+    p = photos[0]
+    assert not p.burst
+
+
 def test_location_1(photosdb):
     # test photo with lat/lon info
 
@@ -546,6 +577,7 @@ def test_photoinfo_intrash_1(photosdb):
 
     p = photosdb.photos(uuid=[UUID_DICT["intrash"]], intrash=True)[0]
     assert p.intrash
+    assert p.date_trashed.isoformat() == "2120-06-10T11:24:47.685857-05:00"
 
 
 def test_photoinfo_intrash_2(photosdb):
@@ -587,6 +619,7 @@ def test_photoinfo_not_intrash(photosdb):
 
     p = photosdb.photos(uuid=[UUID_DICT["not_intrash"]])[0]
     assert not p.intrash
+    assert p.date_trashed is None
 
 
 def test_keyword_2(photosdb):
@@ -973,7 +1006,7 @@ def test_from_to_date(photosdb):
     time.tzset()
 
     photos = photosdb.photos(from_date=datetime.datetime(2018, 10, 28))
-    assert len(photos) == 10 
+    assert len(photos) == 10
 
     photos = photosdb.photos(to_date=datetime.datetime(2018, 10, 28))
     assert len(photos) == 7
@@ -1132,4 +1165,23 @@ def test_original_filename(photosdb):
     photo._info["originalFilename"] = None
     assert photo.original_filename == ORIGINAL_FILENAME_DICT["filename"]
     photo._info["originalFilename"] = original_filename
+
+
+# The following tests only run on the author's personal library
+# They test things difficult to test in the test libraries
+@pytest.mark.skipif(SKIP_TEST, reason="Skip if not running on author's local machine.")
+def test_not_visible_burst(photosdb_local):
+    """ test not visible and burst (needs image from local library) """
+    photo = photosdb_local.get_photo(UUID_DICT_LOCAL["not_visible"])
+    assert not photo.visible
+    assert photo.burst
+
+
+@pytest.mark.skipif(SKIP_TEST, reason="Skip if not running on author's local machine.")
+def test_visible_burst(photosdb_local):
+    """ test not visible and burst (needs image from local library) """
+    photo = photosdb_local.get_photo(UUID_DICT_LOCAL["burst"])
+    assert photo.visible
+    assert photo.burst
+    assert len(photo.burst_photos) == 4
 

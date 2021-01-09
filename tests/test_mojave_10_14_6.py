@@ -326,6 +326,22 @@ def test_not_hidden(photosdb):
     assert p.hidden == False
 
 
+def test_visible(photosdb):
+    """ test visible """
+    photos = photosdb.photos(uuid=[UUID_DICT["not_hidden"]])
+    assert len(photos) == 1
+    p = photos[0]
+    assert p.visible
+
+
+def test_not_burst(photosdb):
+    """ test not burst """
+    photos = photosdb.photos(uuid=[UUID_DICT["not_hidden"]])
+    assert len(photos) == 1
+    p = photos[0]
+    assert not p.burst
+
+
 def test_location_1(photosdb):
     # test photo with lat/lon info
     photos = photosdb.photos(uuid=[UUID_DICT["location"]])
@@ -417,6 +433,7 @@ def test_photos_intrash_2(photosdb):
     photos = photosdb.photos(intrash=True)
     for p in photos:
         assert p.intrash
+        assert p.date_trashed.isoformat() == "2305-12-17T13:19:08.978144-07:00"
 
 
 def test_photos_not_intrash(photosdb):
@@ -424,6 +441,7 @@ def test_photos_not_intrash(photosdb):
     photos = photosdb.photos(intrash=False)
     for p in photos:
         assert not p.intrash
+        assert p.date_trashed is None
 
 
 def test_photoinfo_intrash_1(photosdb):

@@ -63,8 +63,8 @@ def noop(*args, **kwargs):
 
 
 def _get_os_version():
-    # returns tuple containing OS version
-    # e.g. 10.13.6 = (10, 13, 6)
+    # returns tuple of str containing OS version
+    # e.g. 10.13.6 = ("10", "13", "6")
     version = platform.mac_ver()[0].split(".")
     if len(version) == 2:
         (ver, major) = version

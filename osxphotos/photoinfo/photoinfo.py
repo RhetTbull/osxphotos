@@ -113,15 +113,15 @@ class PhotoInfo:
         # lastmodifieddate anytime photo database record is updated (e.g. adding tags)
         # only report lastmodified date for Photos <=4 if photo is edited;
         # even in this case, the date could be incorrect
-        if self.hasadjustments or self._db._db_version > _PHOTOS_4_VERSION:
-            imagedate = self._info["lastmodifieddate"]
-            if imagedate:
-                seconds = self._info["imageTimeZoneOffsetSeconds"] or 0
-                delta = timedelta(seconds=seconds)
-                tz = timezone(delta)
-                return imagedate.astimezone(tz=tz)
-            else:
-                return None
+        if not self.hasadjustments and self._db._db_version <= _PHOTOS_4_VERSION:
+            return None
+
+        imagedate = self._info["lastmodifieddate"]
+        if imagedate:
+            seconds = self._info["imageTimeZoneOffsetSeconds"] or 0
+            delta = timedelta(seconds=seconds)
+            tz = timezone(delta)
+            return imagedate.astimezone(tz=tz)
         else:
             return None
 
@@ -501,36 +501,51 @@ class PhotoInfo:
                 downloaded from cloud to local storate their status in the database might still show
                 isMissing = 1
         """
-        return True if self._info["isMissing"] == 1 else False
+        return self._info["isMissing"] == 1
 
     @property
     def hasadjustments(self):
         """ True if picture has adjustments / edits """
-        return True if self._info["hasAdjustments"] == 1 else False
+        return self._info["hasAdjustments"] == 1
 
     @property
     def external_edit(self):
         """ Returns True if picture was edited outside of Photos using external editor """
-        return (
-            True
-            if self._info["adjustmentFormatID"] == "com.apple.Photos.externalEdit"
-            else False
-        )
+        return self._info["adjustmentFormatID"] == "com.apple.Photos.externalEdit"
 
     @property
     def favorite(self):
         """ True if picture is marked as favorite """
-        return True if self._info["favorite"] == 1 else False
+        return self._info["favorite"] == 1
 
     @property
     def hidden(self):
         """ True if picture is hidden """
-        return True if self._info["hidden"] == 1 else False
+        return self._info["hidden"] == 1
+
+    @property
+    def visible(self):
+        """ True if picture is visble """
+        return self._info["visible"]
 
     @property
     def intrash(self):
         """ True if picture is in trash ('Recently Deleted' folder)"""
         return self._info["intrash"]
+
+    @property
+    def date_trashed(self):
+        """ Date asset was placed in the trash or None """
+        # TODO: add add_timezone(dt, offset_seconds) to datetime_utils
+        # also update date_modified
+        trasheddate = self._info["trasheddate"]
+        if trasheddate:
+            seconds = self._info["imageTimeZoneOffsetSeconds"] or 0
+            delta = timedelta(seconds=seconds)
+            tz = timezone(delta)
+            return trasheddate.astimezone(tz=tz)
+        else:
+            return None
 
     @property
     def location(self):
@@ -551,14 +566,15 @@ class PhotoInfo:
         """Returns Uniform Type Identifier (UTI) for the image
         for example: public.jpeg or com.apple.quicktime-movie
         """
-        if self._db._db_version <= _PHOTOS_4_VERSION:
-            if self.hasadjustments:
-                return self._info["UTI_edited"]
-            elif self.has_raw and self.raw_original:
-                # return UTI of the non-raw image to match Photos 5+ behavior
-                return self._info["raw_pair_info"]["UTI"]
-            else:
-                return self._info["UTI"]
+        if self._db._db_version <= _PHOTOS_4_VERSION and self.hasadjustments:
+            return self._info["UTI_edited"]
+        elif (
+            self._db._db_version <= _PHOTOS_4_VERSION
+            and self.has_raw
+            and self.raw_original
+        ):
+            # return UTI of the non-raw image to match Photos 5+ behavior
+            return self._info["raw_pair_info"]["UTI"]
         else:
             return self._info["UTI"]
 
@@ -597,12 +613,12 @@ class PhotoInfo:
     @property
     def ismovie(self):
         """Returns True if file is a movie, otherwise False"""
-        return True if self._info["type"] == _MOVIE_TYPE else False
+        return self._info["type"] == _MOVIE_TYPE
 
     @property
     def isphoto(self):
         """Returns True if file is an image, otherwise False"""
-        return True if self._info["type"] == _PHOTO_TYPE else False
+        return self._info["type"] == _PHOTO_TYPE
 
     @property
     def incloud(self):
