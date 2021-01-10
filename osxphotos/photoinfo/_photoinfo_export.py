@@ -437,6 +437,7 @@ def export2(
     exiftool_flags=None,
     merge_exif_keywords=False,
     merge_exif_persons=False,
+    jpeg_ext=None,
 ):
     """export photo, like export but with update and dry_run options
     dest: must be valid destination path or exception raised
@@ -488,6 +489,7 @@ def export2(
     exiftool_flags: optional list of flags to pass to exiftool when using exiftool option, e.g ["-m", "-F"]
     merge_exif_keywords: boolean; if True, merged keywords found in file's exif data (requires exiftool)
     merge_exif_persons: boolean; if True, merged persons found in file's exif data (requires exiftool)
+    jpeg_ext: if set, will use this value for extension on jpegs converted to jpeg with convert_to_jpeg; if not set, uses jpeg; do not include the leading "."
 
     Returns: ExportResults class 
         ExportResults has attributes: 
@@ -576,7 +578,8 @@ def export2(
     if convert_to_jpeg and self.isphoto and uti != "public.jpeg":
         # not a jpeg but will convert to jpeg upon export so fix file extension
         fname_new = pathlib.Path(fname)
-        fname = str(fname_new.parent / f"{fname_new.stem}.jpeg")
+        ext = "." + jpeg_ext if jpeg_ext else ".jpeg"
+        fname = str(fname_new.parent / f"{fname_new.stem}{ext}")
     else:
         # nothing to convert
         convert_to_jpeg = False

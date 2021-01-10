@@ -295,6 +295,10 @@ Options:
   --export-as-hardlink            Hardlink files instead of copying them.
                                   Cannot be used with --exiftool which creates
                                   copies of the files with embedded EXIF data.
+                                  Note: on APFS volumes, files are cloned when
+                                  exporting giving many of the same advantages
+                                  as hardlinks without having to use --export-
+                                  as-hardlink.
   --touch-file                    Sets the file's modification time to match
                                   photo date.
   --overwrite                     Overwrite existing files. Default behavior
@@ -489,6 +493,15 @@ Options:
                                   do not include an extension in the FILENAME
                                   template. See below for additional details
                                   on templating system.
+  --jpeg-ext EXTENSION            Specify file extension for JPEG files.
+                                  Photos uses .jpeg for edited images but many
+                                  images are imported with .jpg or .JPG which
+                                  can result in multiple different extensions
+                                  used for JPEG files upon export.  Use --jpg-
+                                  ext to specify a single extension to use for
+                                  all exported JPEG images. Valid values are
+                                  jpeg, jpg, JPEG, JPG; e.g. '--jpg-ext jpg'
+                                  to use '.jpg' for all JPEGs.
   --strip                         Optionally strip leading and trailing
                                   whitespace from any rendered templates. For
                                   example, if --filename template is "{title,}

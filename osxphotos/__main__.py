@@ -47,6 +47,7 @@ from .path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
 from .photoinfo import ExportResults
 from .photokit import check_photokit_authorization, request_photokit_authorization
 from .phototemplate import TEMPLATE_SUBSTITUTIONS, TEMPLATE_SUBSTITUTIONS_MULTI_VALUED
+from .utils import get_preferred_uti_extension
 
 # global variable to control verbose output
 # set via --verbose/-V
@@ -1589,6 +1590,16 @@ def query(
     "See below for additional details on templating system.",
 )
 @click.option(
+    "--jpeg-ext",
+    multiple=False,
+    metavar="EXTENSION",
+    type=click.Choice(["jpeg", "jpg", "JPEG", "JPG"], case_sensitive=True),
+    help="Specify file extension for JPEG files. Photos uses .jpeg for edited images but many images "
+    "are imported with .jpg or .JPG which can result in multiple different extensions used for JPEG files "
+    "upon export.  Use --jpg-ext to specify a single extension to use for all exported JPEG images. "
+    "Valid values are jpeg, jpg, JPEG, JPG; e.g. '--jpg-ext jpg' to use '.jpg' for all JPEGs.",
+)
+@click.option(
     "--strip",
     is_flag=True,
     help="Optionally strip leading and trailing whitespace from any rendered templates. "
@@ -1759,6 +1770,7 @@ def export(
     has_raw,
     directory,
     filename_template,
+    jpeg_ext,
     strip,
     edited_suffix,
     original_suffix,
@@ -1898,6 +1910,7 @@ def export(
         has_raw = cfg.has_raw
         directory = cfg.directory
         filename_template = cfg.filename_template
+        jpeg_ext = cfg.jpeg_ext
         strip = cfg.strip
         edited_suffix = cfg.edited_suffix
         original_suffix = cfg.original_suffix
@@ -2265,6 +2278,7 @@ def export(
                     use_photokit=use_photokit,
                     exiftool_option=exiftool_option,
                     strip=strip,
+                    jpeg_ext=jpeg_ext,
                 )
                 results += export_results
 
@@ -2839,6 +2853,7 @@ def export_photo(
     use_photokit=False,
     exiftool_option=None,
     strip=False,
+    jpeg_ext=None,
 ):
     """Helper function for export that does the actual export
 
@@ -2876,6 +2891,7 @@ def export_photo(
         exiftool_option: optional list flags (e.g. ["-m", "-F"]) to pass to exiftool
         exiftool_merge_keywords: boolean; if True, merged keywords found in file's exif data (requires exiftool)
         exiftool_merge_persons: boolean; if True, merged persons found in file's exif data (requires exiftool)
+        jpeg_ext: if not None, specify the extension to use for all JPEG images on export
 
     Returns:
         list of path(s) of exported photo or None if photo was missing
@@ -2933,6 +2949,7 @@ def export_photo(
         photo, filename_template, original_name, strip=strip
     )
     for filename in filenames:
+        rendered_suffix = ""
         if original_suffix:
             try:
                 rendered_suffix, unmatched = photo.render_template(
@@ -2955,14 +2972,17 @@ def export_photo(
                 )
             rendered_suffix = rendered_suffix[0]
 
-            original_filename = pathlib.Path(filename)
-            original_filename = (
-                original_filename.parent
-                / f"{original_filename.stem}{rendered_suffix}{original_filename.suffix}"
-            )
-            original_filename = str(original_filename)
-        else:
-            original_filename = filename
+        original_filename = pathlib.Path(filename)
+        file_ext = (
+            "." + jpeg_ext
+            if jpeg_ext and photo.uti == "public.jpeg"
+            else original_filename.suffix
+        )
+        original_filename = (
+            original_filename.parent
+            / f"{original_filename.stem}{rendered_suffix}{file_ext}"
+        )
+        original_filename = str(original_filename)
 
         verbose_(
             f"Exporting {photo.original_filename} ({photo.filename}) as {original_filename}"
@@ -3046,6 +3066,7 @@ def export_photo(
                             use_photokit=use_photokit,
                             verbose=verbose_,
                             exiftool_flags=exiftool_option,
+                            jpeg_ext=jpeg_ext,
                         )
                         results += export_results
                         for warning_ in export_results.exiftool_warning:
@@ -3087,13 +3108,15 @@ def export_photo(
             # verify the photo has adjustments and valid path to avoid raising an exception
             if export_edited and photo.hasadjustments:
                 edited_filename = pathlib.Path(filename)
-                # check for correct edited suffix
-                if photo.path_edited is not None:
-                    edited_ext = pathlib.Path(photo.path_edited).suffix
-                else:
-                    # use filename suffix which might be wrong,
-                    # will be corrected by use_photos_export
-                    edited_ext = pathlib.Path(photo.filename).suffix
+                edited_ext = (
+                    "." + jpeg_ext
+                    if jpeg_ext and photo.uti_edited == "public.jpeg"
+                    else "." + get_preferred_uti_extension(photo.uti_edited)
+                    if photo.uti_edited
+                    else pathlib.Path(photo.path_edited).suffix
+                    if photo.path_edited
+                    else pathlib.Path(photo.filename).suffix
+                )
 
                 if edited_suffix:
                     try:
@@ -3128,7 +3151,9 @@ def export_photo(
                 )
                 if missing_edited:
                     space = " " if not verbose else ""
-                    verbose_(f"{space}Skipping missing edited photo for {edited_filename}")
+                    verbose_(
+                        f"{space}Skipping missing edited photo for {edited_filename}"
+                    )
                     results.missing.append(
                         str(pathlib.Path(dest_path) / edited_filename)
                     )
@@ -3140,7 +3165,7 @@ def export_photo(
                         f"{space}Skipping missing deleted photo {photo.original_filename} ({photo.uuid})"
                     )
                     results.missing.append(
-                        str(pathlib.Path(dest_path) / edited_filename )
+                        str(pathlib.Path(dest_path) / edited_filename)
                     )
 
                 else:
@@ -3173,6 +3198,7 @@ def export_photo(
                             use_photokit=use_photokit,
                             verbose=verbose_,
                             exiftool_flags=exiftool_option,
+                            jpeg_ext=jpeg_ext,
                         )
                         results += export_results_edited
                         for warning_ in export_results_edited.exiftool_warning:

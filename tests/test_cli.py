@@ -565,6 +565,14 @@ UUID_NO_LIKES = [
     "1C1C8F1F-826B-4A24-B1CB-56628946A834",
 ]
 
+UUID_JPEGS_DICT = {
+    "4D521201-92AC-43E5-8F7C-59BC41C37A96": ["IMG_1997", "JPG"],
+    "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51": ["wedding", "jpg"],
+    "E2078879-A29C-4D6F-BACB-E3BBE6C3EB91": ["screenshot-really-a-png", "jpeg"],
+}
+
+UUID_HEIC = {"7783E8E6-9CAC-40F3-BE22-81FB7051C266": "IMG_3092"}
+
 
 def modify_file(filename):
     """ appends data to a file to modify it """
@@ -5238,3 +5246,77 @@ def test_export_xattr_template():
             assert sorted(md.keywords) == sorted(expected)
             assert md.comment == CLI_FINDER_TAGS[uuid]["XMP:Title"]
 
+
+def test_export_jpeg_ext():
+    """ test --jpeg-ext """
+    import glob
+    import os
+    import os.path
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        for uuid, fileinfo in UUID_JPEGS_DICT.items():
+            result = runner.invoke(
+                export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--uuid", uuid]
+            )
+            assert result.exit_code == 0
+            files = glob.glob("*")
+            filename, ext = fileinfo
+            assert f"{filename}.{ext}" in files
+
+    for jpeg_ext in ["jpg", "JPG", "jpeg", "JPEG"]:
+        with runner.isolated_filesystem():
+            for uuid, fileinfo in UUID_JPEGS_DICT.items():
+                result = runner.invoke(
+                    export,
+                    [
+                        os.path.join(cwd, PHOTOS_DB_15_7),
+                        ".",
+                        "-V",
+                        "--uuid",
+                        uuid,
+                        "--jpeg-ext",
+                        jpeg_ext,
+                    ],
+                )
+                assert result.exit_code == 0
+                files = glob.glob("*")
+                filename, ext = fileinfo
+                assert f"{filename}.{jpeg_ext}" in files
+
+
+@pytest.mark.skipif(
+    "OSXPHOTOS_TEST_CONVERT" not in os.environ,
+    reason="Skip if running in Github actions, no GPU.",
+)
+def test_export_jpeg_ext_convert_to_jpeg():
+    """ test --jpeg-ext with --convert-to-jpeg """
+    import glob
+    import os
+    import os.path
+    from osxphotos.__main__ import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        for uuid, filename in UUID_HEIC.items():
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--uuid",
+                    uuid,
+                    "--convert-to-jpeg",
+                    "--jpeg-ext",
+                    "jpg",
+                ],
+            )
+            assert result.exit_code == 0
+            files = glob.glob("*")
+            assert f"{filename}.jpg" in files
