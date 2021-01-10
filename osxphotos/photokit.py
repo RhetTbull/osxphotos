@@ -19,6 +19,7 @@
 # add original=False to export instead of version= (and maybe others like path())
 # make burst/live methods get uuid from self instead of passing as arg
 
+import copy
 import pathlib
 import threading
 import time
@@ -169,12 +170,14 @@ class ImageData:
         requestImageDataAndOrientationForAsset_options_resultHandler_ 
     """
 
-    def __init__(self):
-        self.metadata = None
-        self.uti = None
-        self.image_data = None
-        self.info = None
-        self.orientation = None
+    def __init__(
+        self, metadata=None, uti=None, image_data=None, info=None, orientation=None
+    ):
+        self.metadata = metadata
+        self.uti = uti
+        self.image_data = image_data
+        self.info = info
+        self.orientation = orientation
 
 
 class AVAssetData:
@@ -475,44 +478,48 @@ class PhotoAsset:
         # if self.live:
         #     raise NotImplementedError("Live photos not implemented yet")
 
-        filename = (
-            pathlib.Path(filename) if filename else pathlib.Path(self.original_filename)
-        )
+        with objc.autorelease_pool():
+            filename = (
+                pathlib.Path(filename)
+                if filename
+                else pathlib.Path(self.original_filename)
+            )
 
-        dest = pathlib.Path(dest)
-        if not dest.is_dir():
-            raise ValueError("dest must be a valid directory: {dest}")
+            dest = pathlib.Path(dest)
+            if not dest.is_dir():
+                raise ValueError("dest must be a valid directory: {dest}")
 
-        output_file = None
-        if self.isphoto:
-            imagedata = self._request_image_data(version=version)
-            ext = get_preferred_uti_extension(imagedata.uti)
+            output_file = None
+            if self.isphoto:
+                imagedata = self._request_image_data(version=version)
+                ext = get_preferred_uti_extension(imagedata.uti)
 
-            output_file = dest / f"{filename.stem}.{ext}"
+                output_file = dest / f"{filename.stem}.{ext}"
 
-            if not overwrite:
-                output_file = pathlib.Path(increment_filename(output_file))
+                if not overwrite:
+                    output_file = pathlib.Path(increment_filename(output_file))
 
-            with open(output_file, "wb") as fd:
-                fd.write(imagedata.image_data)
-        elif self.ismovie:
-            videodata = self._request_video_data(version=version)
-            if videodata.asset is None:
-                raise PhotoKitExportError("Could not get video for asset")
+                with open(output_file, "wb") as fd:
+                    fd.write(imagedata.image_data)
+                    del imagedata
+            elif self.ismovie:
+                videodata = self._request_video_data(version=version)
+                if videodata.asset is None:
+                    raise PhotoKitExportError("Could not get video for asset")
 
-            url = videodata.asset.URL()
-            path = pathlib.Path(NSURL_to_path(url))
-            if not path.is_file():
-                raise FileNotFoundError("Could not get path to video file")
-            ext = path.suffix
-            output_file = dest / f"{filename.stem}{ext}"
+                url = videodata.asset.URL()
+                path = pathlib.Path(NSURL_to_path(url))
+                if not path.is_file():
+                    raise FileNotFoundError("Could not get path to video file")
+                ext = path.suffix
+                output_file = dest / f"{filename.stem}{ext}"
 
-            if not overwrite:
-                output_file = pathlib.Path(increment_filename(output_file))
+                if not overwrite:
+                    output_file = pathlib.Path(increment_filename(output_file))
 
-            FileUtil.copy(path, output_file)
+                FileUtil.copy(path, output_file)
 
-        return [str(output_file)]
+            return [str(output_file)]
 
     def _request_image_data(self, version=PHOTOS_VERSION_ORIGINAL):
         """ Request image data and metadata for self._phasset 
@@ -529,50 +536,56 @@ class PhotoAsset:
 
         # reference: https://developer.apple.com/documentation/photokit/phimagemanager/3237282-requestimagedataandorientationfo?language=objc
 
-        if version not in [
-            PHOTOS_VERSION_CURRENT,
-            PHOTOS_VERSION_ORIGINAL,
-            PHOTOS_VERSION_UNADJUSTED,
-        ]:
-            raise ValueError("Invalid value for version")
+        with objc.autorelease_pool():
+            if version not in [
+                PHOTOS_VERSION_CURRENT,
+                PHOTOS_VERSION_ORIGINAL,
+                PHOTOS_VERSION_UNADJUSTED,
+            ]:
+                raise ValueError("Invalid value for version")
 
-        # pylint: disable=no-member
-        options_request = Photos.PHImageRequestOptions.alloc().init()
-        options_request.setNetworkAccessAllowed_(True)
-        options_request.setSynchronous_(True)
-        options_request.setVersion_(version)
-        options_request.setDeliveryMode_(
-            Photos.PHImageRequestOptionsDeliveryModeHighQualityFormat
-        )
-        requestdata = ImageData()
-        event = threading.Event()
-
-        def handler(imageData, dataUTI, orientation, info):
-            """ result handler for requestImageDataAndOrientationForAsset_options_resultHandler_ 
-                all returned by the request is set as properties of nonlocal data (Fetchdata object) """
-
-            nonlocal requestdata
-
-            options = {}
             # pylint: disable=no-member
-            options[Quartz.kCGImageSourceShouldCache] = Foundation.kCFBooleanFalse
-            imgSrc = Quartz.CGImageSourceCreateWithData(imageData, options)
-            requestdata.metadata = Quartz.CGImageSourceCopyPropertiesAtIndex(
-                imgSrc, 0, options
+            options_request = Photos.PHImageRequestOptions.alloc().init()
+            options_request.setNetworkAccessAllowed_(True)
+            options_request.setSynchronous_(True)
+            options_request.setVersion_(version)
+            options_request.setDeliveryMode_(
+                Photos.PHImageRequestOptionsDeliveryModeHighQualityFormat
             )
-            requestdata.uti = dataUTI
-            requestdata.orientation = orientation
-            requestdata.info = info
-            requestdata.image_data = imageData
+            requestdata = ImageData()
+            event = threading.Event()
 
-            event.set()
+            def handler(imageData, dataUTI, orientation, info):
+                """ result handler for requestImageDataAndOrientationForAsset_options_resultHandler_ 
+                    all returned by the request is set as properties of nonlocal data (Fetchdata object) """
 
-        self._manager.requestImageDataAndOrientationForAsset_options_resultHandler_(
-            self.phasset, options_request, handler
-        )
-        event.wait()
-        self._imagedata = requestdata
-        return requestdata
+                nonlocal requestdata
+
+                options = {}
+                # pylint: disable=no-member
+                options[Quartz.kCGImageSourceShouldCache] = Foundation.kCFBooleanFalse
+                imgSrc = Quartz.CGImageSourceCreateWithData(imageData, options)
+                requestdata.metadata = Quartz.CGImageSourceCopyPropertiesAtIndex(
+                    imgSrc, 0, options
+                )
+                requestdata.uti = dataUTI
+                requestdata.orientation = orientation
+                requestdata.info = info
+                requestdata.image_data = imageData
+
+                event.set()
+
+            self._manager.requestImageDataAndOrientationForAsset_options_resultHandler_(
+                self.phasset, options_request, handler
+            )
+            event.wait()
+            # options_request.dealloc()
+
+            # not sure why this is needed -- some weird ref count thing maybe
+            # if I don't do this, memory leaks
+            data = copy.copy(requestdata)
+            del requestdata
+            return data
 
     def _make_result_handle_(self, data):
         """ Make handler function and threading event to use with 
@@ -634,37 +647,41 @@ class SlowMoVideoExporter(NSObject):
         Returns:
             path to exported file
         """
-        exporter = AVFoundation.AVAssetExportSession.alloc().initWithAsset_presetName_(
-            self.avasset, AVFoundation.AVAssetExportPresetHighestQuality
-        )
-        exporter.setOutputURL_(self.url)
-        exporter.setOutputFileType_(AVFoundation.AVFileTypeQuickTimeMovie)
-        exporter.setShouldOptimizeForNetworkUse_(True)
 
-        self.done = False
+        with objc.autorelease_pool():
+            exporter = AVFoundation.AVAssetExportSession.alloc().initWithAsset_presetName_(
+                self.avasset, AVFoundation.AVAssetExportPresetHighestQuality
+            )
+            exporter.setOutputURL_(self.url)
+            exporter.setOutputFileType_(AVFoundation.AVFileTypeQuickTimeMovie)
+            exporter.setShouldOptimizeForNetworkUse_(True)
 
-        def handler():
-            """ result handler for exportAsynchronouslyWithCompletionHandler """
-            self.done = True
+            self.done = False
 
-        exporter.exportAsynchronouslyWithCompletionHandler_(handler)
-        # wait for export to complete
-        # would be more elegant to use a dispatch queue, notification, or thread event to wait
-        # but I can't figure out how to make that work and this does work
-        while True:
-            status = exporter.status()
-            if status == AVFoundation.AVAssetExportSessionStatusCompleted:
-                break
-            elif status not in (
-                AVFoundation.AVAssetExportSessionStatusWaiting,
-                AVFoundation.AVAssetExportSessionStatusExporting,
-            ):
-                raise PhotoKitExportError(
-                    f"Error encountered during exportAsynchronouslyWithCompletionHandler: status = {status}"
-                )
-            time.sleep(MIN_SLEEP)
+            def handler():
+                """ result handler for exportAsynchronouslyWithCompletionHandler """
+                self.done = True
 
-        return NSURL_to_path(exporter.outputURL())
+            exporter.exportAsynchronouslyWithCompletionHandler_(handler)
+            # wait for export to complete
+            # would be more elegant to use a dispatch queue, notification, or thread event to wait
+            # but I can't figure out how to make that work and this does work
+            while True:
+                status = exporter.status()
+                if status == AVFoundation.AVAssetExportSessionStatusCompleted:
+                    break
+                elif status not in (
+                    AVFoundation.AVAssetExportSessionStatusWaiting,
+                    AVFoundation.AVAssetExportSessionStatusExporting,
+                ):
+                    raise PhotoKitExportError(
+                        f"Error encountered during exportAsynchronouslyWithCompletionHandler: status = {status}"
+                    )
+                time.sleep(MIN_SLEEP)
+
+            exported_path = NSURL_to_path(exporter.outputURL())
+            # exporter.dealloc()
+            return exported_path
 
     def __del__(self):
         self.avasset = None
@@ -701,39 +718,43 @@ class VideoAsset(PhotoAsset):
             ValueError if dest is not a valid directory
         """
 
-        if self.slow_mo and version == PHOTOS_VERSION_CURRENT:
-            return [
-                self._export_slow_mo(
-                    dest, filename=filename, version=version, overwrite=overwrite
-                )
-            ]
+        with objc.autorelease_pool():
+            if self.slow_mo and version == PHOTOS_VERSION_CURRENT:
+                return [
+                    self._export_slow_mo(
+                        dest, filename=filename, version=version, overwrite=overwrite
+                    )
+                ]
 
-        filename = (
-            pathlib.Path(filename) if filename else pathlib.Path(self.original_filename)
-        )
+            filename = (
+                pathlib.Path(filename)
+                if filename
+                else pathlib.Path(self.original_filename)
+            )
 
-        dest = pathlib.Path(dest)
-        if not dest.is_dir():
-            raise ValueError("dest must be a valid directory: {dest}")
+            dest = pathlib.Path(dest)
+            if not dest.is_dir():
+                raise ValueError("dest must be a valid directory: {dest}")
 
-        output_file = None
-        videodata = self._request_video_data(version=version)
-        if videodata.asset is None:
-            raise PhotoKitExportError("Could not get video for asset")
+            output_file = None
+            videodata = self._request_video_data(version=version)
+            if videodata.asset is None:
+                raise PhotoKitExportError("Could not get video for asset")
 
-        url = videodata.asset.URL()
-        path = pathlib.Path(NSURL_to_path(url))
-        if not path.is_file():
-            raise FileNotFoundError("Could not get path to video file")
-        ext = path.suffix
-        output_file = dest / f"{filename.stem}{ext}"
+            url = videodata.asset.URL()
+            path = pathlib.Path(NSURL_to_path(url))
+            del videodata
+            if not path.is_file():
+                raise FileNotFoundError("Could not get path to video file")
+            ext = path.suffix
+            output_file = dest / f"{filename.stem}{ext}"
 
-        if not overwrite:
-            output_file = pathlib.Path(increment_filename(output_file))
+            if not overwrite:
+                output_file = pathlib.Path(increment_filename(output_file))
 
-        FileUtil.copy(path, output_file)
+            FileUtil.copy(path, output_file)
 
-        return [str(output_file)]
+            return [str(output_file)]
 
     def _export_slow_mo(
         self, dest, filename=None, version=PHOTOS_VERSION_CURRENT, overwrite=False
@@ -752,33 +773,38 @@ class VideoAsset(PhotoAsset):
         Raises:
             ValueError if dest is not a valid directory
         """
-        if not self.slow_mo:
-            raise PhotoKitMediaTypeError("Not a slow-mo video")
+        with objc.autorelease_pool():
+            if not self.slow_mo:
+                raise PhotoKitMediaTypeError("Not a slow-mo video")
 
-        videodata = self._request_video_data(version=version)
-        if (
-            not isinstance(videodata.asset, AVFoundation.AVComposition)
-            or len(videodata.asset.tracks()) != 2
-        ):
-            raise PhotoKitMediaTypeError("Does not appear to be slow-mo video")
+            videodata = self._request_video_data(version=version)
+            if (
+                not isinstance(videodata.asset, AVFoundation.AVComposition)
+                or len(videodata.asset.tracks()) != 2
+            ):
+                raise PhotoKitMediaTypeError("Does not appear to be slow-mo video")
 
-        filename = (
-            pathlib.Path(filename) if filename else pathlib.Path(self.original_filename)
-        )
+            filename = (
+                pathlib.Path(filename)
+                if filename
+                else pathlib.Path(self.original_filename)
+            )
 
-        dest = pathlib.Path(dest)
-        if not dest.is_dir():
-            raise ValueError("dest must be a valid directory: {dest}")
+            dest = pathlib.Path(dest)
+            if not dest.is_dir():
+                raise ValueError("dest must be a valid directory: {dest}")
 
-        output_file = dest / f"{filename.stem}.mov"
+            output_file = dest / f"{filename.stem}.mov"
 
-        if not overwrite:
-            output_file = pathlib.Path(increment_filename(output_file))
+            if not overwrite:
+                output_file = pathlib.Path(increment_filename(output_file))
 
-        exporter = SlowMoVideoExporter.alloc().initWithAVAsset_path_(
-            videodata.asset, output_file
-        )
-        return exporter.exportSlowMoVideo()
+            exporter = SlowMoVideoExporter.alloc().initWithAVAsset_path_(
+                videodata.asset, output_file
+            )
+            video = exporter.exportSlowMoVideo()
+            # exporter.dealloc()
+            return video
 
     # todo: rewrite this with NotificationCenter and App event loop?
     def _request_video_data(self, version=PHOTOS_VERSION_ORIGINAL):
@@ -793,38 +819,43 @@ class VideoAsset(PhotoAsset):
         Raises:
             ValueError if passed invalid value for version
         """
+        with objc.autorelease_pool():
+            if version not in [
+                PHOTOS_VERSION_CURRENT,
+                PHOTOS_VERSION_ORIGINAL,
+                PHOTOS_VERSION_UNADJUSTED,
+            ]:
+                raise ValueError("Invalid value for version")
 
-        if version not in [
-            PHOTOS_VERSION_CURRENT,
-            PHOTOS_VERSION_ORIGINAL,
-            PHOTOS_VERSION_UNADJUSTED,
-        ]:
-            raise ValueError("Invalid value for version")
+            options_request = Photos.PHVideoRequestOptions.alloc().init()
+            options_request.setNetworkAccessAllowed_(True)
+            options_request.setVersion_(version)
+            options_request.setDeliveryMode_(
+                Photos.PHVideoRequestOptionsDeliveryModeHighQualityFormat
+            )
+            requestdata = AVAssetData()
+            event = threading.Event()
 
-        options_request = Photos.PHVideoRequestOptions.alloc().init()
-        options_request.setNetworkAccessAllowed_(True)
-        options_request.setVersion_(version)
-        options_request.setDeliveryMode_(
-            Photos.PHVideoRequestOptionsDeliveryModeHighQualityFormat
-        )
-        requestdata = AVAssetData()
-        event = threading.Event()
+            def handler(asset, audiomix, info):
+                """ result handler for requestAVAssetForVideo:asset options:options resultHandler """
+                nonlocal requestdata
 
-        def handler(asset, audiomix, info):
-            """ result handler for requestAVAssetForVideo:asset options:options resultHandler """
-            nonlocal requestdata
+                requestdata.asset = asset
+                requestdata.audiomix = audiomix
+                requestdata.info = info
 
-            requestdata.asset = asset
-            requestdata.audiomix = audiomix
-            requestdata.info = info
+                event.set()
 
-            event.set()
+            self._manager.requestAVAssetForVideo_options_resultHandler_(
+                self.phasset, options_request, handler
+            )
+            event.wait()
 
-        self._manager.requestAVAssetForVideo_options_resultHandler_(
-            self.phasset, options_request, handler
-        )
-        event.wait()
-        return requestdata
+            # not sure why this is needed -- some weird ref count thing maybe
+            # if I don't do this, memory leaks
+            data = copy.copy(requestdata)
+            del requestdata
+            return data
 
 
 class LivePhotoRequest(NSObject):
@@ -843,47 +874,54 @@ class LivePhotoRequest(NSObject):
 
     def requestLivePhotoResources(self, version=PHOTOS_VERSION_CURRENT):
         """ return the photos and video components of a live video as [PHAssetResource] """
-        options = Photos.PHLivePhotoRequestOptions.alloc().init()
-        options.setNetworkAccessAllowed_(True)
-        options.setVersion_(version)
-        options.setDeliveryMode_(
-            Photos.PHVideoRequestOptionsDeliveryModeHighQualityFormat
-        )
-        delegate = PhotoKitNotificationDelegate.alloc().init()
 
-        self.nc.addObserver_selector_name_object_(
-            delegate, "liveNotification:", None, None
-        )
-
-        self.live_photo = None
-
-        def handler(result, info):
-            """ result handler for requestLivePhotoForAsset:targetSize:contentMode:options:resultHandler: """
-            if not info["PHImageResultIsDegradedKey"]:
-                self.live_photo = result
-                self.info = info
-                self.nc.postNotificationName_object_(
-                    PHOTOKIT_NOTIFICATION_FINISHED_REQUEST, self
-                )
-
-        try:
-            self.manager.requestLivePhotoForAsset_targetSize_contentMode_options_resultHandler_(
-                self.asset,
-                Photos.PHImageManagerMaximumSize,
-                Photos.PHImageContentModeDefault,
-                options,
-                handler,
+        with objc.autorelease_pool():
+            options = Photos.PHLivePhotoRequestOptions.alloc().init()
+            options.setNetworkAccessAllowed_(True)
+            options.setVersion_(version)
+            options.setDeliveryMode_(
+                Photos.PHVideoRequestOptionsDeliveryModeHighQualityFormat
             )
-            AppHelper.runConsoleEventLoop(installInterrupt=True)
-        except KeyboardInterrupt:
-            AppHelper.stopEventLoop()
-        finally:
-            pass
+            delegate = PhotoKitNotificationDelegate.alloc().init()
 
-        asset_resources = Photos.PHAssetResource.assetResourcesForLivePhoto_(
-            self.live_photo
-        )
-        return asset_resources
+            self.nc.addObserver_selector_name_object_(
+                delegate, "liveNotification:", None, None
+            )
+
+            self.live_photo = None
+
+            def handler(result, info):
+                """ result handler for requestLivePhotoForAsset:targetSize:contentMode:options:resultHandler: """
+                if not info["PHImageResultIsDegradedKey"]:
+                    self.live_photo = result
+                    self.info = info
+                    self.nc.postNotificationName_object_(
+                        PHOTOKIT_NOTIFICATION_FINISHED_REQUEST, self
+                    )
+
+            try:
+                self.manager.requestLivePhotoForAsset_targetSize_contentMode_options_resultHandler_(
+                    self.asset,
+                    Photos.PHImageManagerMaximumSize,
+                    Photos.PHImageContentModeDefault,
+                    options,
+                    handler,
+                )
+                AppHelper.runConsoleEventLoop(installInterrupt=True)
+            except KeyboardInterrupt:
+                AppHelper.stopEventLoop()
+            finally:
+                pass
+
+            asset_resources = Photos.PHAssetResource.assetResourcesForLivePhoto_(
+                self.live_photo
+            )
+
+            # not sure why this is needed -- some weird ref count thing maybe
+            # if I don't do this, memory leaks
+            data = copy.copy(asset_resources)
+            del asset_resources
+            return data
 
     def __del__(self):
         self.manager = None
@@ -923,88 +961,99 @@ class LivePhotoAsset(PhotoAsset):
             ValueError if dest is not a valid directory
             PhotoKitExportError if error during export
         """
-        filename = (
-            pathlib.Path(filename) if filename else pathlib.Path(self.original_filename)
-        )
 
-        dest = pathlib.Path(dest)
-        if not dest.is_dir():
-            raise ValueError("dest must be a valid directory: {dest}")
-
-        request = LivePhotoRequest.alloc().initWithManager_Asset_(
-            self._manager, self.phasset
-        )
-        resources = request.requestLivePhotoResources(version=version)
-
-        video_resource = None
-        photo_resource = None
-        for resource in resources:
-            if resource.type() == Photos.PHAssetResourceTypePairedVideo:
-                video_resource = resource
-            elif resource.type() == Photos.PHAssetMediaTypeImage:
-                photo_resource = resource
-
-        if not video_resource or not photo_resource:
-            raise PhotoKitExportError(
-                "Did not find photo/video resources for live photo"
+        with objc.autorelease_pool():
+            filename = (
+                pathlib.Path(filename)
+                if filename
+                else pathlib.Path(self.original_filename)
             )
 
-        photo_ext = get_preferred_uti_extension(photo_resource.uniformTypeIdentifier())
-        photo_output_file = dest / f"{filename.stem}.{photo_ext}"
-        video_ext = get_preferred_uti_extension(video_resource.uniformTypeIdentifier())
-        video_output_file = dest / f"{filename.stem}.{video_ext}"
+            dest = pathlib.Path(dest)
+            if not dest.is_dir():
+                raise ValueError("dest must be a valid directory: {dest}")
 
-        if not overwrite:
-            photo_output_file = pathlib.Path(increment_filename(photo_output_file))
-            video_output_file = pathlib.Path(increment_filename(video_output_file))
+            request = LivePhotoRequest.alloc().initWithManager_Asset_(
+                self._manager, self.phasset
+            )
+            resources = request.requestLivePhotoResources(version=version)
 
-        # def handler(error):
-        #     if error:
-        #         raise PhotoKitExportError(f"writeDataForAssetResource error: {error}")
+            video_resource = None
+            photo_resource = None
+            for resource in resources:
+                if resource.type() == Photos.PHAssetResourceTypePairedVideo:
+                    video_resource = resource
+                elif resource.type() == Photos.PHAssetMediaTypeImage:
+                    photo_resource = resource
 
-        # resource_manager = Photos.PHAssetResourceManager.defaultManager()
-        # options = Photos.PHAssetResourceRequestOptions.alloc().init()
-        # options.setNetworkAccessAllowed_(True)
-        # exported = []
-        # Note: Tried writeDataForAssetResource_toFile_options_completionHandler_ which works
-        # but sets quarantine flag and for reasons I can't determine (maybe quarantine flag)
-        # causes pathlib.Path().is_file() to fail in tests
+            if not video_resource or not photo_resource:
+                raise PhotoKitExportError(
+                    "Did not find photo/video resources for live photo"
+                )
 
-        # if photo:
-        #     photo_output_url = path_to_NSURL(photo_output_file)
-        #     resource_manager.writeDataForAssetResource_toFile_options_completionHandler_(
-        #         photo_resource, photo_output_url, options, handler
-        #     )
-        #     exported.append(str(photo_output_file))
+            photo_ext = get_preferred_uti_extension(
+                photo_resource.uniformTypeIdentifier()
+            )
+            photo_output_file = dest / f"{filename.stem}.{photo_ext}"
+            video_ext = get_preferred_uti_extension(
+                video_resource.uniformTypeIdentifier()
+            )
+            video_output_file = dest / f"{filename.stem}.{video_ext}"
 
-        # if video:
-        #     video_output_url = path_to_NSURL(video_output_file)
-        #     resource_manager.writeDataForAssetResource_toFile_options_completionHandler_(
-        #         video_resource, video_output_url, options, handler
-        #     )
-        #     exported.append(str(video_output_file))
+            if not overwrite:
+                photo_output_file = pathlib.Path(increment_filename(photo_output_file))
+                video_output_file = pathlib.Path(increment_filename(video_output_file))
 
-        # def completion_handler(error):
-        #     if error:
-        #         raise PhotoKitExportError(f"writeDataForAssetResource error: {error}")
+            # def handler(error):
+            #     if error:
+            #         raise PhotoKitExportError(f"writeDataForAssetResource error: {error}")
 
-        # would be nice to be able to usewriteDataForAssetResource_toFile_options_completionHandler_
-        # but it sets quarantine flags that cause issues so instead, request the data and write the files directly
+            # resource_manager = Photos.PHAssetResourceManager.defaultManager()
+            # options = Photos.PHAssetResourceRequestOptions.alloc().init()
+            # options.setNetworkAccessAllowed_(True)
+            # exported = []
+            # Note: Tried writeDataForAssetResource_toFile_options_completionHandler_ which works
+            # but sets quarantine flag and for reasons I can't determine (maybe quarantine flag)
+            # causes pathlib.Path().is_file() to fail in tests
 
-        exported = []
-        if photo:
-            data = self._request_resource_data(photo_resource)
-            # image_data = self.request_image_data(version=version)
-            with open(photo_output_file, "wb") as fd:
-                fd.write(data)
-            exported.append(str(photo_output_file))
-        if video:
-            data = self._request_resource_data(video_resource)
-            with open(video_output_file, "wb") as fd:
-                fd.write(data)
-            exported.append(str(video_output_file))
+            # if photo:
+            #     photo_output_url = path_to_NSURL(photo_output_file)
+            #     resource_manager.writeDataForAssetResource_toFile_options_completionHandler_(
+            #         photo_resource, photo_output_url, options, handler
+            #     )
+            #     exported.append(str(photo_output_file))
 
-        return exported
+            # if video:
+            #     video_output_url = path_to_NSURL(video_output_file)
+            #     resource_manager.writeDataForAssetResource_toFile_options_completionHandler_(
+            #         video_resource, video_output_url, options, handler
+            #     )
+            #     exported.append(str(video_output_file))
+
+            # def completion_handler(error):
+            #     if error:
+            #         raise PhotoKitExportError(f"writeDataForAssetResource error: {error}")
+
+            # would be nice to be able to usewriteDataForAssetResource_toFile_options_completionHandler_
+            # but it sets quarantine flags that cause issues so instead, request the data and write the files directly
+
+            exported = []
+            if photo:
+                data = self._request_resource_data(photo_resource)
+                # image_data = self.request_image_data(version=version)
+                with open(photo_output_file, "wb") as fd:
+                    fd.write(data)
+                exported.append(str(photo_output_file))
+                del data
+            if video:
+                data = self._request_resource_data(video_resource)
+                with open(video_output_file, "wb") as fd:
+                    fd.write(data)
+                exported.append(str(video_output_file))
+                del data
+
+            request.dealloc()
+            return exported
 
     def _request_resource_data(self, resource):
         """ Request asset resource data (either photo or video component)
@@ -1015,33 +1064,40 @@ class LivePhotoAsset(PhotoAsset):
         Raises:
         """
 
-        resource_manager = Photos.PHAssetResourceManager.defaultManager()
-        options = Photos.PHAssetResourceRequestOptions.alloc().init()
-        options.setNetworkAccessAllowed_(True)
+        with objc.autorelease_pool():
+            resource_manager = Photos.PHAssetResourceManager.defaultManager()
+            options = Photos.PHAssetResourceRequestOptions.alloc().init()
+            options.setNetworkAccessAllowed_(True)
 
-        requestdata = PHAssetResourceData()
-        event = threading.Event()
+            requestdata = PHAssetResourceData()
+            event = threading.Event()
 
-        def handler(data):
-            """ result handler for requestImageDataAndOrientationForAsset_options_resultHandler_ 
-                all returned by the request is set as properties of nonlocal data (Fetchdata object) """
+            def handler(data):
+                """ result handler for requestImageDataAndOrientationForAsset_options_resultHandler_ 
+                    all returned by the request is set as properties of nonlocal data (Fetchdata object) """
 
-            nonlocal requestdata
+                nonlocal requestdata
 
-            requestdata.data += data
+                requestdata.data += data
 
-        def completion_handler(error):
-            if error:
-                raise PhotoKitExportError("Error requesting data for asset resource")
-            event.set()
+            def completion_handler(error):
+                if error:
+                    raise PhotoKitExportError(
+                        "Error requesting data for asset resource"
+                    )
+                event.set()
 
-        resource_manager.requestDataForAssetResource_options_dataReceivedHandler_completionHandler_(
-            resource, options, handler, completion_handler
-        )
+            resource_manager.requestDataForAssetResource_options_dataReceivedHandler_completionHandler_(
+                resource, options, handler, completion_handler
+            )
 
-        event.wait()
-        options.dealloc()
-        return requestdata.data
+            event.wait()
+
+            # not sure why this is needed -- some weird ref count thing maybe
+            # if I don't do this, memory leaks
+            data = copy.copy(requestdata.data)
+            del requestdata
+            return data
 
     # def request_image_data(self, version=PHOTOS_VERSION_CURRENT):
     #     # Returns an NSImage which isn't overly useful
@@ -1127,19 +1183,20 @@ class PhotoLibrary:
         """
 
         # pylint: disable=no-member
-        fetch_options = Photos.PHFetchOptions.alloc().init()
-        fetch_result = Photos.PHAsset.fetchAssetsWithLocalIdentifiers_options_(
-            uuid_list, fetch_options
-        )
-        if fetch_result and fetch_result.count() >= 1:
-            return [
-                self._asset_factory(fetch_result.objectAtIndex_(idx))
-                for idx in range(fetch_result.count())
-            ]
-        else:
-            raise PhotoKitFetchFailed(
-                f"Fetch did not return result for uuid_list {uuid_list}"
+        with objc.autorelease_pool():
+            fetch_options = Photos.PHFetchOptions.alloc().init()
+            fetch_result = Photos.PHAsset.fetchAssetsWithLocalIdentifiers_options_(
+                uuid_list, fetch_options
             )
+            if fetch_result and fetch_result.count() >= 1:
+                return [
+                    self._asset_factory(fetch_result.objectAtIndex_(idx))
+                    for idx in range(fetch_result.count())
+                ]
+            else:
+                raise PhotoKitFetchFailed(
+                    f"Fetch did not return result for uuid_list {uuid_list}"
+                )
 
     def fetch_uuid(self, uuid):
         """ fetch PHAsset with uuid = uuid

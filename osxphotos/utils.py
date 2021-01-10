@@ -260,10 +260,10 @@ def get_preferred_uti_extension(uti):
         returns: preferred extension as str """
 
     # reference: https://developer.apple.com/documentation/coreservices/1442744-uttypecopypreferredtagwithclass?language=objc
-
-    return CoreServices.UTTypeCopyPreferredTagWithClass(
-        uti, CoreServices.kUTTagClassFilenameExtension
-    )
+    with objc.autorelease_pool():
+        return CoreServices.UTTypeCopyPreferredTagWithClass(
+            uti, CoreServices.kUTTagClassFilenameExtension
+        )
 
 
 def findfiles(pattern, path_):
