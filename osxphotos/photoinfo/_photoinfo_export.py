@@ -49,7 +49,7 @@ from ..photokit import (
     PhotoKitFetchFailed,
     PhotoLibrary,
 )
-from ..utils import dd_to_dms_str, findfiles, noop
+from ..utils import dd_to_dms_str, findfiles, noop, get_preferred_uti_extension
 
 
 class ExportError(Exception):
@@ -309,6 +309,34 @@ def _check_export_suffix(src, dest, edited):
         or suffixes == [".jpeg", ".jpg"]
         or suffixes == [".tif", ".tiff"]
     )
+
+
+# not a class method, don't import into PhotoInfo
+def rename_jpeg_files(files, jpeg_ext, fileutil):
+    """ rename any jpeg files in files so that extension matches jpeg_ext
+
+    Args:
+        files: list of file paths
+        jpeg_ext: extension to use for jpeg files found in files, e.g. "jpg"
+        fileutil: a FileUtil object
+    
+    Returns:
+        list of files with updated names
+
+    Note: If non-jpeg files found, they will be ignore and returned in the return list
+    """
+    jpeg_ext = "." + jpeg_ext
+    jpegs = [".jpeg", ".jpg"]
+    new_files = []
+    for file in files:
+        path = pathlib.Path(file)
+        if path.suffix.lower() in jpegs and path.suffix != jpeg_ext:
+            new_file = path.parent / (path.stem + jpeg_ext)
+            fileutil.rename(file, new_file)
+            new_files.append(new_file)
+        else:
+            new_files.append(file)
+    return new_files
 
 
 def export(
@@ -749,6 +777,8 @@ def export2(
                 )
                 all_results += results
     else:
+        # TODO: move this big if/else block to separate functions
+        # e.g. _export_with_photos_export or such
         # use_photo_export
         # export live_photo .mov file?
         live_photo = True if live_photo and self.live_photo else False
@@ -763,7 +793,10 @@ def export2(
             else:
                 # didn't get passed a filename, add _edited
                 filestem = f"{dest.stem}{edited_identifier}"
-                dest = dest.parent / f"{filestem}.jpeg"
+                uti = self.uti_edited if edited and self.uti_edited else self.uti
+                ext = get_preferred_uti_extension(uti)
+                dest = dest.parent / f"{filestem}{ext}"
+
             if use_photokit:
                 photolib = PhotoLibrary()
                 photo = None
@@ -786,13 +819,17 @@ def export2(
                             )
                         )
                 if photo:
-                    try:
-                        exported = photo.export(
-                            dest.parent, dest.name, version=PHOTOS_VERSION_CURRENT
-                        )
-                        all_results.exported.extend(exported)
-                    except Exception as e:
-                        all_results.error.append((str(dest), e))
+                    if not dry_run:
+                        try:
+                            exported = photo.export(
+                                dest.parent, dest.name, version=PHOTOS_VERSION_CURRENT
+                            )
+                            all_results.exported.extend(exported)
+                        except Exception as e:
+                            all_results.error.append((str(dest), e))
+                    else:
+                        # dry_run, don't actually export
+                        all_results.exported.append(str(dest))
             else:
                 try:
                     exported = _export_photo_uuid_applescript(
@@ -827,13 +864,17 @@ def export2(
                         photo = [p for p in bursts if p.uuid.startswith(self.uuid)]
                         photo = photo[0] if photo else None
                 if photo:
-                    try:
-                        exported = photo.export(
-                            dest.parent, dest.name, version=PHOTOS_VERSION_ORIGINAL
-                        )
-                        all_results.exported.extend(exported)
-                    except Exception as e:
-                        all_results.error.append((str(dest), e))
+                    if not dry_run:
+                        try:
+                            exported = photo.export(
+                                dest.parent, dest.name, version=PHOTOS_VERSION_ORIGINAL
+                            )
+                            all_results.exported.extend(exported)
+                        except Exception as e:
+                            all_results.error.append((str(dest), e))
+                    else:
+                        # dry_run, don't actually export
+                        all_results.exported.append(str(dest))
             else:
                 try:
                     exported = _export_photo_uuid_applescript(
@@ -851,6 +892,13 @@ def export2(
                 except ExportError as e:
                     all_results.error.append((str(dest), e))
         if all_results.exported:
+            if jpeg_ext:
+                # use_photos_export (both PhotoKit and AppleScript) don't use the
+                # file extension provided (instead they use extension for UTI)
+                # so if jpeg_ext is set, rename any non-conforming jpegs
+                all_results.exported = rename_jpeg_files(
+                    all_results.exported, jpeg_ext, fileutil
+                )
             if touch_file:
                 for exported_file in all_results.exported:
                     all_results.touched.append(exported_file)
@@ -858,9 +906,6 @@ def export2(
                     fileutil.utime(exported_file, (ts, ts))
             if update:
                 all_results.new.extend(all_results.exported)
-
-        # else:
-        # all_results.error.append((str(dest), f"Error exporting photo {self.uuid} to {dest} with use_photos_export"))
 
     # export metadata
     sidecars = []
@@ -1769,3 +1814,4 @@ def _write_sidecar(self, filename, sidecar_str):
     f = open(filename, "w")
     f.write(sidecar_str)
     f.close()
+

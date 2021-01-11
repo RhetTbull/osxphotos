@@ -107,3 +107,21 @@ def test_convert_to_jpeg_quality():
         assert FileUtil.convert_to_jpeg(imgfile, outfile, compression_quality=0.1)
         assert outfile.is_file()
         assert outfile.stat().st_size < 1000000
+
+
+def test_rename_file():
+    # rename file with valid src, dest
+    import pathlib
+    import tempfile
+    from osxphotos.fileutil import FileUtil
+
+    temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    src = "tests/test-images/wedding.jpg"
+    dest = f"{temp_dir.name}/foo.jpg"
+    dest2 = f"{temp_dir.name}/bar.jpg"
+    FileUtil.copy(src, dest)
+    result = FileUtil.rename(dest, dest2)
+    assert result
+    assert pathlib.Path(dest2).exists()
+    assert not pathlib.Path(dest).exists()
+

@@ -60,6 +60,11 @@ class FileUtilABC(ABC):
     def convert_to_jpeg(cls, src_file, dest_file, compression_quality=1.0):
         pass
 
+    @classmethod
+    @abstractmethod
+    def rename(cls, src, dest):
+        pass
+
 
 class FileUtilMacOS(FileUtilABC):
     """ Various file utilities """
@@ -201,6 +206,21 @@ class FileUtilMacOS(FileUtilABC):
             src_file, dest_file, compression_quality=compression_quality
         )
 
+    @classmethod
+    def rename(cls, src, dest):
+        """ Copy src to dest 
+
+        Args:
+            src: path to source file
+            dest: path to destination file
+        
+        Returns:
+            Name of renamed file (dest)
+        
+        """
+        os.rename(str(src), str(dest))
+        return dest
+
     @staticmethod
     def _sig(st):
         """ return tuple of (mode, size, mtime) of file based on os.stat
@@ -266,3 +286,7 @@ class FileUtilNoOp(FileUtil):
     @classmethod
     def convert_to_jpeg(cls, src_file, dest_file, compression_quality=1.0):
         cls.verbose(f"convert_to_jpeg: {src_file}, {dest_file}, {compression_quality}")
+
+    @classmethod
+    def rename(cls, src, dest):
+        cls.verbose(f"rename: {src}, {dest}")
