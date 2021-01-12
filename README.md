@@ -46,11 +46,11 @@ OSXPhotos provides the ability to interact with and query Apple's Photos.app lib
 
 ## Supported operating systems
 
-Only works on macOS (aka Mac OS X). Tested on macOS Sierra (10.12.6) until macOS Catalina (10.15.7). 
+Only works on macOS (aka Mac OS X). Tested on macOS Sierra (10.12.6) until macOS Big Sur (10.16/11.1).
 
 | macOS Version     | macOS name | Photos.app version |
 | ----------------- |------------|:-------------------|
-| 10.16             | Big Sur    | 6.0 ⚠️ Beta support, not tested on M1 / Apple silicon Macs. |
+| 10.16             | Big Sur    | 6.0 ✅             |
 | 10.15.1 - 10.15.7 | Catalina   | 5.0 ✅             |
 | 10.14.5, 10.14.6  | Mojave     | 4.0 ✅             |
 | 10.13.6           | High Sierra| 3.0 ✅             |
