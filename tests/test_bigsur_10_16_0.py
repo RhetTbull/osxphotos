@@ -1117,8 +1117,13 @@ def test_photosinfo_repr():
 
 
 def test_from_to_date():
+    import os
+    import time
     import osxphotos
     import datetime as dt
+
+    os.environ["TZ"] = "US/Pacific"
+    time.tzset()
 
     photosdb = osxphotos.PhotosDB(PHOTOS_DB)
 
