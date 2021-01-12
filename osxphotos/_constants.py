@@ -5,6 +5,8 @@ Constants used by osxphotos
 import os.path
 from datetime import datetime
 
+OSXPHOTOS_URL = "https://github.com/RhetTbull/osxphotos"
+
 # Time delta: add this to Photos times to get unix time
 # Apple Epoch is Jan 1, 2001
 TIME_DELTA = (datetime(2001, 1, 1, 0, 0) - datetime(1970, 1, 1, 0, 0)).total_seconds()

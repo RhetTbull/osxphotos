@@ -28,6 +28,7 @@ from ._constants import (
     DEFAULT_ORIGINAL_SUFFIX,
     EXTENDED_ATTRIBUTE_NAMES,
     EXTENDED_ATTRIBUTE_NAMES_QUOTED,
+    OSXPHOTOS_URL,
     SIDECAR_EXIFTOOL,
     SIDECAR_JSON,
     SIDECAR_XMP,
@@ -687,631 +688,6 @@ def query_options(f):
 @click.pass_context
 def cli(ctx, db, json_, debug):
     ctx.obj = CLI_Obj(db=db, json=json_, debug=debug)
-
-
-@cli.command(hidden=True)
-@DB_OPTION
-@DB_ARGUMENT
-@click.option(
-    "--dump",
-    metavar="ATTR",
-    help="Name of PhotosDB attribute to print; "
-    + "can also use albums, persons, keywords, photos to dump related attributes.",
-    multiple=True,
-)
-@click.option(
-    "--uuid",
-    metavar="UUID",
-    help="Use with '--dump photos' to dump only certain UUIDs",
-    multiple=True,
-)
-@click.option("--verbose", "-V", "verbose", is_flag=True, help="Print verbose output.")
-@click.pass_obj
-@click.pass_context
-def debug_dump(ctx, cli_obj, db, photos_library, dump, uuid, verbose):
-    """ Print out debug info """
-
-    global VERBOSE
-    VERBOSE = bool(verbose)
-
-    db = get_photos_db(*photos_library, db, cli_obj.db)
-    if db is None:
-        click.echo(cli.commands["debug-dump"].get_help(ctx), err=True)
-        click.echo("\n\nLocated the following Photos library databases: ", err=True)
-        _list_libraries()
-        return
-
-    start_t = time.perf_counter()
-    print(f"Opening database: {db}")
-    photosdb = osxphotos.PhotosDB(dbfile=db, verbose=verbose_)
-    stop_t = time.perf_counter()
-    print(f"Done; took {(stop_t-start_t):.2f} seconds")
-
-    for attr in dump:
-        if attr == "albums":
-            print("_dbalbums_album:")
-            pprint.pprint(photosdb._dbalbums_album)
-            print("_dbalbums_uuid:")
-            pprint.pprint(photosdb._dbalbums_uuid)
-            print("_dbalbum_details:")
-            pprint.pprint(photosdb._dbalbum_details)
-            print("_dbalbum_folders:")
-            pprint.pprint(photosdb._dbalbum_folders)
-            print("_dbfolder_details:")
-            pprint.pprint(photosdb._dbfolder_details)
-        elif attr == "keywords":
-            print("_dbkeywords_keyword:")
-            pprint.pprint(photosdb._dbkeywords_keyword)
-            print("_dbkeywords_uuid:")
-            pprint.pprint(photosdb._dbkeywords_uuid)
-        elif attr == "persons":
-            print("_dbfaces_uuid:")
-            pprint.pprint(photosdb._dbfaces_uuid)
-            print("_dbfaces_pk:")
-            pprint.pprint(photosdb._dbfaces_pk)
-            print("_dbpersons_pk:")
-            pprint.pprint(photosdb._dbpersons_pk)
-            print("_dbpersons_fullname:")
-            pprint.pprint(photosdb._dbpersons_fullname)
-        elif attr == "photos":
-            if uuid:
-                for uuid_ in uuid:
-                    print(f"_dbphotos['{uuid_}']:")
-                    try:
-                        pprint.pprint(photosdb._dbphotos[uuid_])
-                    except KeyError:
-                        print(f"Did not find uuid {uuid_} in _dbphotos")
-            else:
-                print("_dbphotos:")
-                pprint.pprint(photosdb._dbphotos)
-        else:
-            try:
-                val = getattr(photosdb, attr)
-                print(f"{attr}:")
-                pprint.pprint(val)
-            except Exception:
-                print(f"Did not find attribute {attr} in PhotosDB")
-
-
-@cli.command()
-@DB_OPTION
-@JSON_OPTION
-@DB_ARGUMENT
-@click.pass_obj
-@click.pass_context
-def keywords(ctx, cli_obj, db, json_, photos_library):
-    """ Print out keywords found in the Photos library. """
-
-    # below needed for to make CliRunner work for testing
-    cli_db = cli_obj.db if cli_obj is not None else None
-    db = get_photos_db(*photos_library, db, cli_db)
-    if db is None:
-        click.echo(cli.commands["keywords"].get_help(ctx), err=True)
-        click.echo("\n\nLocated the following Photos library databases: ", err=True)
-        _list_libraries()
-        return
-
-    photosdb = osxphotos.PhotosDB(dbfile=db)
-    keywords = {"keywords": photosdb.keywords_as_dict}
-    if json_ or cli_obj.json:
-        click.echo(json.dumps(keywords, ensure_ascii=False))
-    else:
-        click.echo(yaml.dump(keywords, sort_keys=False, allow_unicode=True))
-
-
-@cli.command()
-@DB_OPTION
-@JSON_OPTION
-@DB_ARGUMENT
-@click.pass_obj
-@click.pass_context
-def albums(ctx, cli_obj, db, json_, photos_library):
-    """ Print out albums found in the Photos library. """
-
-    # below needed for to make CliRunner work for testing
-    cli_db = cli_obj.db if cli_obj is not None else None
-    db = get_photos_db(*photos_library, db, cli_db)
-    if db is None:
-        click.echo(cli.commands["albums"].get_help(ctx), err=True)
-        click.echo("\n\nLocated the following Photos library databases: ", err=True)
-        _list_libraries()
-        return
-
-    photosdb = osxphotos.PhotosDB(dbfile=db)
-    albums = {"albums": photosdb.albums_as_dict}
-    if photosdb.db_version > _PHOTOS_4_VERSION:
-        albums["shared albums"] = photosdb.albums_shared_as_dict
-
-    if json_ or cli_obj.json:
-        click.echo(json.dumps(albums, ensure_ascii=False))
-    else:
-        click.echo(yaml.dump(albums, sort_keys=False, allow_unicode=True))
-
-
-@cli.command()
-@DB_OPTION
-@JSON_OPTION
-@DB_ARGUMENT
-@click.pass_obj
-@click.pass_context
-def persons(ctx, cli_obj, db, json_, photos_library):
-    """ Print out persons (faces) found in the Photos library. """
-
-    # below needed for to make CliRunner work for testing
-    cli_db = cli_obj.db if cli_obj is not None else None
-    db = get_photos_db(*photos_library, db, cli_db)
-    if db is None:
-        click.echo(cli.commands["persons"].get_help(ctx), err=True)
-        click.echo("\n\nLocated the following Photos library databases: ", err=True)
-        _list_libraries()
-        return
-
-    photosdb = osxphotos.PhotosDB(dbfile=db)
-    persons = {"persons": photosdb.persons_as_dict}
-    if json_ or cli_obj.json:
-        click.echo(json.dumps(persons, ensure_ascii=False))
-    else:
-        click.echo(yaml.dump(persons, sort_keys=False, allow_unicode=True))
-
-
-@cli.command()
-@DB_OPTION
-@JSON_OPTION
-@DB_ARGUMENT
-@click.pass_obj
-@click.pass_context
-def labels(ctx, cli_obj, db, json_, photos_library):
-    """ Print out image classification labels found in the Photos library. """
-
-    # below needed for to make CliRunner work for testing
-    cli_db = cli_obj.db if cli_obj is not None else None
-    db = get_photos_db(*photos_library, db, cli_db)
-    if db is None:
-        click.echo(cli.commands["labels"].get_help(ctx), err=True)
-        click.echo("\n\nLocated the following Photos library databases: ", err=True)
-        _list_libraries()
-        return
-
-    photosdb = osxphotos.PhotosDB(dbfile=db)
-    labels = {"labels": photosdb.labels_as_dict}
-    if json_ or cli_obj.json:
-        click.echo(json.dumps(labels, ensure_ascii=False))
-    else:
-        click.echo(yaml.dump(labels, sort_keys=False, allow_unicode=True))
-
-
-@cli.command()
-@DB_OPTION
-@JSON_OPTION
-@DB_ARGUMENT
-@click.pass_obj
-@click.pass_context
-def info(ctx, cli_obj, db, json_, photos_library):
-    """ Print out descriptive info of the Photos library database. """
-
-    db = get_photos_db(*photos_library, db, cli_obj.db)
-    if db is None:
-        click.echo(cli.commands["info"].get_help(ctx), err=True)
-        click.echo("\n\nLocated the following Photos library databases: ", err=True)
-        _list_libraries()
-        return
-
-    photosdb = osxphotos.PhotosDB(dbfile=db)
-    info = {"database_path": photosdb.db_path, "database_version": photosdb.db_version}
-    photos = photosdb.photos(movies=False)
-    not_shared_photos = [p for p in photos if not p.shared]
-    info["photo_count"] = len(not_shared_photos)
-
-    hidden = [p for p in photos if p.hidden]
-    info["hidden_photo_count"] = len(hidden)
-
-    movies = photosdb.photos(images=False, movies=True)
-    not_shared_movies = [p for p in movies if not p.shared]
-    info["movie_count"] = len(not_shared_movies)
-
-    if photosdb.db_version > _PHOTOS_4_VERSION:
-        shared_photos = [p for p in photos if p.shared]
-        info["shared_photo_count"] = len(shared_photos)
-
-        shared_movies = [p for p in movies if p.shared]
-        info["shared_movie_count"] = len(shared_movies)
-
-    keywords = photosdb.keywords_as_dict
-    info["keywords_count"] = len(keywords)
-    info["keywords"] = keywords
-
-    albums = photosdb.albums_as_dict
-    info["albums_count"] = len(albums)
-    info["albums"] = albums
-
-    if photosdb.db_version > _PHOTOS_4_VERSION:
-        albums_shared = photosdb.albums_shared_as_dict
-        info["shared_albums_count"] = len(albums_shared)
-        info["shared_albums"] = albums_shared
-
-    persons = photosdb.persons_as_dict
-
-    info["persons_count"] = len(persons)
-    info["persons"] = persons
-
-    if cli_obj.json or json_:
-        click.echo(json.dumps(info, ensure_ascii=False))
-    else:
-        click.echo(yaml.dump(info, sort_keys=False, allow_unicode=True))
-
-
-@cli.command()
-@DB_OPTION
-@JSON_OPTION
-@DB_ARGUMENT
-@click.pass_obj
-@click.pass_context
-def places(ctx, cli_obj, db, json_, photos_library):
-    """ Print out places found in the Photos library. """
-
-    # below needed for to make CliRunner work for testing
-    cli_db = cli_obj.db if cli_obj is not None else None
-    db = get_photos_db(*photos_library, db, cli_db)
-    if db is None:
-        click.echo(cli.commands["places"].get_help(ctx), err=True)
-        click.echo("\n\nLocated the following Photos library databases: ", err=True)
-        _list_libraries()
-        return
-
-    photosdb = osxphotos.PhotosDB(dbfile=db)
-    place_names = {}
-    for photo in photosdb.photos(movies=True):
-        if photo.place:
-            try:
-                place_names[photo.place.name] += 1
-            except Exception:
-                place_names[photo.place.name] = 1
-        else:
-            try:
-                place_names[_UNKNOWN_PLACE] += 1
-            except Exception:
-                place_names[_UNKNOWN_PLACE] = 1
-
-    # sort by place count
-    places = {
-        "places": {
-            name: place_names[name]
-            for name in sorted(
-                place_names.keys(), key=lambda key: place_names[key], reverse=True
-            )
-        }
-    }
-
-    # below needed for to make CliRunner work for testing
-    cli_json = cli_obj.json if cli_obj is not None else None
-    if json_ or cli_json:
-        click.echo(json.dumps(places, ensure_ascii=False))
-    else:
-        click.echo(yaml.dump(places, sort_keys=False, allow_unicode=True))
-
-
-@cli.command()
-@DB_OPTION
-@JSON_OPTION
-@deleted_options
-@DB_ARGUMENT
-@click.pass_obj
-@click.pass_context
-def dump(ctx, cli_obj, db, json_, deleted, deleted_only, photos_library):
-    """ Print list of all photos & associated info from the Photos library. """
-
-    db = get_photos_db(*photos_library, db, cli_obj.db)
-    if db is None:
-        click.echo(cli.commands["dump"].get_help(ctx), err=True)
-        click.echo("\n\nLocated the following Photos library databases: ", err=True)
-        _list_libraries()
-        return
-
-    # check exclusive options
-    if deleted and deleted_only:
-        click.echo("Incompatible dump options", err=True)
-        click.echo(cli.commands["dump"].get_help(ctx), err=True)
-        return
-
-    photosdb = osxphotos.PhotosDB(dbfile=db)
-    if deleted or deleted_only:
-        photos = photosdb.photos(movies=True, intrash=True)
-    else:
-        photos = []
-    if not deleted_only:
-        photos += photosdb.photos(movies=True)
-
-    print_photo_info(photos, json_ or cli_obj.json)
-
-
-@cli.command(name="list")
-@JSON_OPTION
-@click.pass_obj
-@click.pass_context
-def list_libraries(ctx, cli_obj, json_):
-    """ Print list of Photos libraries found on the system. """
-
-    # implemented in _list_libraries so it can be called by other CLI functions
-    # without errors due to passing ctx and cli_obj
-    _list_libraries(json_=json_ or cli_obj.json, error=False)
-
-
-def _list_libraries(json_=False, error=True):
-    """Print list of Photos libraries found on the system.
-    If json_ == True, print output as JSON (default = False)"""
-
-    photo_libs = osxphotos.utils.list_photo_libraries()
-    sys_lib = osxphotos.utils.get_system_library_path()
-    last_lib = osxphotos.utils.get_last_library_path()
-
-    if json_:
-        libs = {
-            "photo_libraries": photo_libs,
-            "system_library": sys_lib,
-            "last_library": last_lib,
-        }
-        click.echo(json.dumps(libs, ensure_ascii=False))
-    else:
-        last_lib_flag = sys_lib_flag = False
-
-        for lib in photo_libs:
-            if lib == sys_lib:
-                click.echo(f"(*)\t{lib}", err=error)
-                sys_lib_flag = True
-            elif lib == last_lib:
-                click.echo(f"(#)\t{lib}", err=error)
-                last_lib_flag = True
-            else:
-                click.echo(f"\t{lib}", err=error)
-
-        if sys_lib_flag or last_lib_flag:
-            click.echo("\n", err=error)
-        if sys_lib_flag:
-            click.echo("(*)\tSystem Photos Library", err=error)
-        if last_lib_flag:
-            click.echo("(#)\tLast opened Photos Library", err=error)
-
-
-@cli.command()
-@DB_OPTION
-@JSON_OPTION
-@query_options
-@deleted_options
-@click.option("--missing", is_flag=True, help="Search for photos missing from disk.")
-@click.option(
-    "--not-missing",
-    is_flag=True,
-    help="Search for photos present on disk (e.g. not missing).",
-)
-@click.option(
-    "--cloudasset",
-    is_flag=True,
-    help="Search for photos that are part of an iCloud library",
-)
-@click.option(
-    "--not-cloudasset",
-    is_flag=True,
-    help="Search for photos that are not part of an iCloud library",
-)
-@click.option(
-    "--incloud",
-    is_flag=True,
-    help="Search for photos that are in iCloud (have been synched)",
-)
-@click.option(
-    "--not-incloud",
-    is_flag=True,
-    help="Search for photos that are not in iCloud (have not been synched)",
-)
-@DB_ARGUMENT
-@click.pass_obj
-@click.pass_context
-def query(
-    ctx,
-    cli_obj,
-    db,
-    photos_library,
-    keyword,
-    person,
-    album,
-    folder,
-    uuid,
-    uuid_from_file,
-    title,
-    no_title,
-    description,
-    no_description,
-    ignore_case,
-    json_,
-    edited,
-    external_edit,
-    favorite,
-    not_favorite,
-    hidden,
-    not_hidden,
-    missing,
-    not_missing,
-    shared,
-    not_shared,
-    only_movies,
-    only_photos,
-    uti,
-    burst,
-    not_burst,
-    live,
-    not_live,
-    cloudasset,
-    not_cloudasset,
-    incloud,
-    not_incloud,
-    from_date,
-    to_date,
-    portrait,
-    not_portrait,
-    screenshot,
-    not_screenshot,
-    slow_mo,
-    not_slow_mo,
-    time_lapse,
-    not_time_lapse,
-    hdr,
-    not_hdr,
-    selfie,
-    not_selfie,
-    panorama,
-    not_panorama,
-    has_raw,
-    place,
-    no_place,
-    label,
-    deleted,
-    deleted_only,
-    has_comment,
-    no_comment,
-    has_likes,
-    no_likes,
-):
-    """Query the Photos database using 1 or more search options;
-    if more than one option is provided, they are treated as "AND"
-    (e.g. search for photos matching all options).
-    """
-
-    # if no query terms, show help and return
-    # sanity check input args
-    nonexclusive = [
-        keyword,
-        person,
-        album,
-        folder,
-        uuid,
-        uuid_from_file,
-        edited,
-        external_edit,
-        uti,
-        has_raw,
-        from_date,
-        to_date,
-        label,
-    ]
-    exclusive = [
-        (favorite, not_favorite),
-        (hidden, not_hidden),
-        (missing, not_missing),
-        (any(title), no_title),
-        (any(description), no_description),
-        (only_photos, only_movies),
-        (burst, not_burst),
-        (live, not_live),
-        (cloudasset, not_cloudasset),
-        (incloud, not_incloud),
-        (portrait, not_portrait),
-        (screenshot, not_screenshot),
-        (slow_mo, not_slow_mo),
-        (time_lapse, not_time_lapse),
-        (hdr, not_hdr),
-        (selfie, not_selfie),
-        (panorama, not_panorama),
-        (any(place), no_place),
-        (deleted, deleted_only),
-        (shared, not_shared),
-        (has_comment, no_comment),
-        (has_likes, no_likes),
-    ]
-    # print help if no non-exclusive term or a double exclusive term is given
-    if any(all(bb) for bb in exclusive) or not any(
-        nonexclusive + [b ^ n for b, n in exclusive]
-    ):
-        click.echo("Incompatible query options", err=True)
-        click.echo(cli.commands["query"].get_help(ctx), err=True)
-        return
-
-    # actually have something to query
-    isphoto = ismovie = True  # default searches for everything
-    if only_movies:
-        isphoto = False
-    if only_photos:
-        ismovie = False
-
-    # load UUIDs if necessary and append to any uuids passed with --uuid
-    if uuid_from_file:
-        uuid_list = list(uuid)  # Click option is a tuple
-        uuid_list.extend(load_uuid_from_file(uuid_from_file))
-        uuid = tuple(uuid_list)
-
-    # below needed for to make CliRunner work for testing
-    cli_db = cli_obj.db if cli_obj is not None else None
-    db = get_photos_db(*photos_library, db, cli_db)
-    if db is None:
-        click.echo(cli.commands["query"].get_help(ctx), err=True)
-        click.echo("\n\nLocated the following Photos library databases: ", err=True)
-        _list_libraries()
-        return
-
-    photosdb = osxphotos.PhotosDB(dbfile=db, verbose=verbose_)
-    photos = _query(
-        photosdb=photosdb,
-        keyword=keyword,
-        person=person,
-        album=album,
-        folder=folder,
-        uuid=uuid,
-        title=title,
-        no_title=no_title,
-        description=description,
-        no_description=no_description,
-        ignore_case=ignore_case,
-        edited=edited,
-        external_edit=external_edit,
-        favorite=favorite,
-        not_favorite=not_favorite,
-        hidden=hidden,
-        not_hidden=not_hidden,
-        missing=missing,
-        not_missing=not_missing,
-        shared=shared,
-        not_shared=not_shared,
-        isphoto=isphoto,
-        ismovie=ismovie,
-        uti=uti,
-        burst=burst,
-        not_burst=not_burst,
-        live=live,
-        not_live=not_live,
-        cloudasset=cloudasset,
-        not_cloudasset=not_cloudasset,
-        incloud=incloud,
-        not_incloud=not_incloud,
-        from_date=from_date,
-        to_date=to_date,
-        portrait=portrait,
-        not_portrait=not_portrait,
-        screenshot=screenshot,
-        not_screenshot=not_screenshot,
-        slow_mo=slow_mo,
-        not_slow_mo=not_slow_mo,
-        time_lapse=time_lapse,
-        not_time_lapse=not_time_lapse,
-        hdr=hdr,
-        not_hdr=not_hdr,
-        selfie=selfie,
-        not_selfie=not_selfie,
-        panorama=panorama,
-        not_panorama=not_panorama,
-        has_raw=has_raw,
-        place=place,
-        no_place=no_place,
-        label=label,
-        deleted=deleted,
-        deleted_only=deleted_only,
-        has_comment=has_comment,
-        no_comment=no_comment,
-        has_likes=has_likes,
-        no_likes=no_likes,
-    )
-
-    # below needed for to make CliRunner work for testing
-    cli_json = cli_obj.json if cli_obj is not None else None
-    print_photo_info(photos, cli_json or json_)
 
 
 @cli.command(cls=ExportCommand)
@@ -2389,6 +1765,248 @@ def help(ctx, topic, **kw):
     else:
         click.echo(f"Invalid command: {topic}", err=True)
         click.echo(ctx.parent.get_help())
+
+
+@cli.command()
+@DB_OPTION
+@JSON_OPTION
+@query_options
+@deleted_options
+@click.option("--missing", is_flag=True, help="Search for photos missing from disk.")
+@click.option(
+    "--not-missing",
+    is_flag=True,
+    help="Search for photos present on disk (e.g. not missing).",
+)
+@click.option(
+    "--cloudasset",
+    is_flag=True,
+    help="Search for photos that are part of an iCloud library",
+)
+@click.option(
+    "--not-cloudasset",
+    is_flag=True,
+    help="Search for photos that are not part of an iCloud library",
+)
+@click.option(
+    "--incloud",
+    is_flag=True,
+    help="Search for photos that are in iCloud (have been synched)",
+)
+@click.option(
+    "--not-incloud",
+    is_flag=True,
+    help="Search for photos that are not in iCloud (have not been synched)",
+)
+@DB_ARGUMENT
+@click.pass_obj
+@click.pass_context
+def query(
+    ctx,
+    cli_obj,
+    db,
+    photos_library,
+    keyword,
+    person,
+    album,
+    folder,
+    uuid,
+    uuid_from_file,
+    title,
+    no_title,
+    description,
+    no_description,
+    ignore_case,
+    json_,
+    edited,
+    external_edit,
+    favorite,
+    not_favorite,
+    hidden,
+    not_hidden,
+    missing,
+    not_missing,
+    shared,
+    not_shared,
+    only_movies,
+    only_photos,
+    uti,
+    burst,
+    not_burst,
+    live,
+    not_live,
+    cloudasset,
+    not_cloudasset,
+    incloud,
+    not_incloud,
+    from_date,
+    to_date,
+    portrait,
+    not_portrait,
+    screenshot,
+    not_screenshot,
+    slow_mo,
+    not_slow_mo,
+    time_lapse,
+    not_time_lapse,
+    hdr,
+    not_hdr,
+    selfie,
+    not_selfie,
+    panorama,
+    not_panorama,
+    has_raw,
+    place,
+    no_place,
+    label,
+    deleted,
+    deleted_only,
+    has_comment,
+    no_comment,
+    has_likes,
+    no_likes,
+):
+    """Query the Photos database using 1 or more search options;
+    if more than one option is provided, they are treated as "AND"
+    (e.g. search for photos matching all options).
+    """
+
+    # if no query terms, show help and return
+    # sanity check input args
+    nonexclusive = [
+        keyword,
+        person,
+        album,
+        folder,
+        uuid,
+        uuid_from_file,
+        edited,
+        external_edit,
+        uti,
+        has_raw,
+        from_date,
+        to_date,
+        label,
+    ]
+    exclusive = [
+        (favorite, not_favorite),
+        (hidden, not_hidden),
+        (missing, not_missing),
+        (any(title), no_title),
+        (any(description), no_description),
+        (only_photos, only_movies),
+        (burst, not_burst),
+        (live, not_live),
+        (cloudasset, not_cloudasset),
+        (incloud, not_incloud),
+        (portrait, not_portrait),
+        (screenshot, not_screenshot),
+        (slow_mo, not_slow_mo),
+        (time_lapse, not_time_lapse),
+        (hdr, not_hdr),
+        (selfie, not_selfie),
+        (panorama, not_panorama),
+        (any(place), no_place),
+        (deleted, deleted_only),
+        (shared, not_shared),
+        (has_comment, no_comment),
+        (has_likes, no_likes),
+    ]
+    # print help if no non-exclusive term or a double exclusive term is given
+    if any(all(bb) for bb in exclusive) or not any(
+        nonexclusive + [b ^ n for b, n in exclusive]
+    ):
+        click.echo("Incompatible query options", err=True)
+        click.echo(cli.commands["query"].get_help(ctx), err=True)
+        return
+
+    # actually have something to query
+    isphoto = ismovie = True  # default searches for everything
+    if only_movies:
+        isphoto = False
+    if only_photos:
+        ismovie = False
+
+    # load UUIDs if necessary and append to any uuids passed with --uuid
+    if uuid_from_file:
+        uuid_list = list(uuid)  # Click option is a tuple
+        uuid_list.extend(load_uuid_from_file(uuid_from_file))
+        uuid = tuple(uuid_list)
+
+    # below needed for to make CliRunner work for testing
+    cli_db = cli_obj.db if cli_obj is not None else None
+    db = get_photos_db(*photos_library, db, cli_db)
+    if db is None:
+        click.echo(cli.commands["query"].get_help(ctx), err=True)
+        click.echo("\n\nLocated the following Photos library databases: ", err=True)
+        _list_libraries()
+        return
+
+    photosdb = osxphotos.PhotosDB(dbfile=db, verbose=verbose_)
+    photos = _query(
+        photosdb=photosdb,
+        keyword=keyword,
+        person=person,
+        album=album,
+        folder=folder,
+        uuid=uuid,
+        title=title,
+        no_title=no_title,
+        description=description,
+        no_description=no_description,
+        ignore_case=ignore_case,
+        edited=edited,
+        external_edit=external_edit,
+        favorite=favorite,
+        not_favorite=not_favorite,
+        hidden=hidden,
+        not_hidden=not_hidden,
+        missing=missing,
+        not_missing=not_missing,
+        shared=shared,
+        not_shared=not_shared,
+        isphoto=isphoto,
+        ismovie=ismovie,
+        uti=uti,
+        burst=burst,
+        not_burst=not_burst,
+        live=live,
+        not_live=not_live,
+        cloudasset=cloudasset,
+        not_cloudasset=not_cloudasset,
+        incloud=incloud,
+        not_incloud=not_incloud,
+        from_date=from_date,
+        to_date=to_date,
+        portrait=portrait,
+        not_portrait=not_portrait,
+        screenshot=screenshot,
+        not_screenshot=not_screenshot,
+        slow_mo=slow_mo,
+        not_slow_mo=not_slow_mo,
+        time_lapse=time_lapse,
+        not_time_lapse=not_time_lapse,
+        hdr=hdr,
+        not_hdr=not_hdr,
+        selfie=selfie,
+        not_selfie=not_selfie,
+        panorama=panorama,
+        not_panorama=not_panorama,
+        has_raw=has_raw,
+        place=place,
+        no_place=no_place,
+        label=label,
+        deleted=deleted,
+        deleted_only=deleted_only,
+        has_comment=has_comment,
+        no_comment=no_comment,
+        has_likes=has_likes,
+        no_likes=no_likes,
+    )
+
+    # below needed for to make CliRunner work for testing
+    cli_json = cli_obj.json if cli_obj is not None else None
+    print_photo_info(photos, cli_json or json_)
 
 
 def print_photo_info(photos, json=False):
@@ -3725,6 +3343,422 @@ def write_extended_attributes(photo, files, xattr_template, strip=False):
 
     return list(written), [f for f in skipped if f not in written]
 
+
+@cli.command(hidden=True)
+@DB_OPTION
+@DB_ARGUMENT
+@click.option(
+    "--dump",
+    metavar="ATTR",
+    help="Name of PhotosDB attribute to print; "
+    + "can also use albums, persons, keywords, photos to dump related attributes.",
+    multiple=True,
+)
+@click.option(
+    "--uuid",
+    metavar="UUID",
+    help="Use with '--dump photos' to dump only certain UUIDs",
+    multiple=True,
+)
+@click.option("--verbose", "-V", "verbose", is_flag=True, help="Print verbose output.")
+@click.pass_obj
+@click.pass_context
+def debug_dump(ctx, cli_obj, db, photos_library, dump, uuid, verbose):
+    """ Print out debug info """
+
+    global VERBOSE
+    VERBOSE = bool(verbose)
+
+    db = get_photos_db(*photos_library, db, cli_obj.db)
+    if db is None:
+        click.echo(cli.commands["debug-dump"].get_help(ctx), err=True)
+        click.echo("\n\nLocated the following Photos library databases: ", err=True)
+        _list_libraries()
+        return
+
+    start_t = time.perf_counter()
+    print(f"Opening database: {db}")
+    photosdb = osxphotos.PhotosDB(dbfile=db, verbose=verbose_)
+    stop_t = time.perf_counter()
+    print(f"Done; took {(stop_t-start_t):.2f} seconds")
+
+    for attr in dump:
+        if attr == "albums":
+            print("_dbalbums_album:")
+            pprint.pprint(photosdb._dbalbums_album)
+            print("_dbalbums_uuid:")
+            pprint.pprint(photosdb._dbalbums_uuid)
+            print("_dbalbum_details:")
+            pprint.pprint(photosdb._dbalbum_details)
+            print("_dbalbum_folders:")
+            pprint.pprint(photosdb._dbalbum_folders)
+            print("_dbfolder_details:")
+            pprint.pprint(photosdb._dbfolder_details)
+        elif attr == "keywords":
+            print("_dbkeywords_keyword:")
+            pprint.pprint(photosdb._dbkeywords_keyword)
+            print("_dbkeywords_uuid:")
+            pprint.pprint(photosdb._dbkeywords_uuid)
+        elif attr == "persons":
+            print("_dbfaces_uuid:")
+            pprint.pprint(photosdb._dbfaces_uuid)
+            print("_dbfaces_pk:")
+            pprint.pprint(photosdb._dbfaces_pk)
+            print("_dbpersons_pk:")
+            pprint.pprint(photosdb._dbpersons_pk)
+            print("_dbpersons_fullname:")
+            pprint.pprint(photosdb._dbpersons_fullname)
+        elif attr == "photos":
+            if uuid:
+                for uuid_ in uuid:
+                    print(f"_dbphotos['{uuid_}']:")
+                    try:
+                        pprint.pprint(photosdb._dbphotos[uuid_])
+                    except KeyError:
+                        print(f"Did not find uuid {uuid_} in _dbphotos")
+            else:
+                print("_dbphotos:")
+                pprint.pprint(photosdb._dbphotos)
+        else:
+            try:
+                val = getattr(photosdb, attr)
+                print(f"{attr}:")
+                pprint.pprint(val)
+            except Exception:
+                print(f"Did not find attribute {attr} in PhotosDB")
+
+
+@cli.command()
+@DB_OPTION
+@JSON_OPTION
+@DB_ARGUMENT
+@click.pass_obj
+@click.pass_context
+def keywords(ctx, cli_obj, db, json_, photos_library):
+    """ Print out keywords found in the Photos library. """
+
+    # below needed for to make CliRunner work for testing
+    cli_db = cli_obj.db if cli_obj is not None else None
+    db = get_photos_db(*photos_library, db, cli_db)
+    if db is None:
+        click.echo(cli.commands["keywords"].get_help(ctx), err=True)
+        click.echo("\n\nLocated the following Photos library databases: ", err=True)
+        _list_libraries()
+        return
+
+    photosdb = osxphotos.PhotosDB(dbfile=db)
+    keywords = {"keywords": photosdb.keywords_as_dict}
+    if json_ or cli_obj.json:
+        click.echo(json.dumps(keywords, ensure_ascii=False))
+    else:
+        click.echo(yaml.dump(keywords, sort_keys=False, allow_unicode=True))
+
+
+@cli.command()
+@DB_OPTION
+@JSON_OPTION
+@DB_ARGUMENT
+@click.pass_obj
+@click.pass_context
+def albums(ctx, cli_obj, db, json_, photos_library):
+    """ Print out albums found in the Photos library. """
+
+    # below needed for to make CliRunner work for testing
+    cli_db = cli_obj.db if cli_obj is not None else None
+    db = get_photos_db(*photos_library, db, cli_db)
+    if db is None:
+        click.echo(cli.commands["albums"].get_help(ctx), err=True)
+        click.echo("\n\nLocated the following Photos library databases: ", err=True)
+        _list_libraries()
+        return
+
+    photosdb = osxphotos.PhotosDB(dbfile=db)
+    albums = {"albums": photosdb.albums_as_dict}
+    if photosdb.db_version > _PHOTOS_4_VERSION:
+        albums["shared albums"] = photosdb.albums_shared_as_dict
+
+    if json_ or cli_obj.json:
+        click.echo(json.dumps(albums, ensure_ascii=False))
+    else:
+        click.echo(yaml.dump(albums, sort_keys=False, allow_unicode=True))
+
+
+@cli.command()
+@DB_OPTION
+@JSON_OPTION
+@DB_ARGUMENT
+@click.pass_obj
+@click.pass_context
+def persons(ctx, cli_obj, db, json_, photos_library):
+    """ Print out persons (faces) found in the Photos library. """
+
+    # below needed for to make CliRunner work for testing
+    cli_db = cli_obj.db if cli_obj is not None else None
+    db = get_photos_db(*photos_library, db, cli_db)
+    if db is None:
+        click.echo(cli.commands["persons"].get_help(ctx), err=True)
+        click.echo("\n\nLocated the following Photos library databases: ", err=True)
+        _list_libraries()
+        return
+
+    photosdb = osxphotos.PhotosDB(dbfile=db)
+    persons = {"persons": photosdb.persons_as_dict}
+    if json_ or cli_obj.json:
+        click.echo(json.dumps(persons, ensure_ascii=False))
+    else:
+        click.echo(yaml.dump(persons, sort_keys=False, allow_unicode=True))
+
+
+@cli.command()
+@DB_OPTION
+@JSON_OPTION
+@DB_ARGUMENT
+@click.pass_obj
+@click.pass_context
+def labels(ctx, cli_obj, db, json_, photos_library):
+    """ Print out image classification labels found in the Photos library. """
+
+    # below needed for to make CliRunner work for testing
+    cli_db = cli_obj.db if cli_obj is not None else None
+    db = get_photos_db(*photos_library, db, cli_db)
+    if db is None:
+        click.echo(cli.commands["labels"].get_help(ctx), err=True)
+        click.echo("\n\nLocated the following Photos library databases: ", err=True)
+        _list_libraries()
+        return
+
+    photosdb = osxphotos.PhotosDB(dbfile=db)
+    labels = {"labels": photosdb.labels_as_dict}
+    if json_ or cli_obj.json:
+        click.echo(json.dumps(labels, ensure_ascii=False))
+    else:
+        click.echo(yaml.dump(labels, sort_keys=False, allow_unicode=True))
+
+
+@cli.command()
+@DB_OPTION
+@JSON_OPTION
+@DB_ARGUMENT
+@click.pass_obj
+@click.pass_context
+def info(ctx, cli_obj, db, json_, photos_library):
+    """ Print out descriptive info of the Photos library database. """
+
+    db = get_photos_db(*photos_library, db, cli_obj.db)
+    if db is None:
+        click.echo(cli.commands["info"].get_help(ctx), err=True)
+        click.echo("\n\nLocated the following Photos library databases: ", err=True)
+        _list_libraries()
+        return
+
+    photosdb = osxphotos.PhotosDB(dbfile=db)
+    info = {"database_path": photosdb.db_path, "database_version": photosdb.db_version}
+    photos = photosdb.photos(movies=False)
+    not_shared_photos = [p for p in photos if not p.shared]
+    info["photo_count"] = len(not_shared_photos)
+
+    hidden = [p for p in photos if p.hidden]
+    info["hidden_photo_count"] = len(hidden)
+
+    movies = photosdb.photos(images=False, movies=True)
+    not_shared_movies = [p for p in movies if not p.shared]
+    info["movie_count"] = len(not_shared_movies)
+
+    if photosdb.db_version > _PHOTOS_4_VERSION:
+        shared_photos = [p for p in photos if p.shared]
+        info["shared_photo_count"] = len(shared_photos)
+
+        shared_movies = [p for p in movies if p.shared]
+        info["shared_movie_count"] = len(shared_movies)
+
+    keywords = photosdb.keywords_as_dict
+    info["keywords_count"] = len(keywords)
+    info["keywords"] = keywords
+
+    albums = photosdb.albums_as_dict
+    info["albums_count"] = len(albums)
+    info["albums"] = albums
+
+    if photosdb.db_version > _PHOTOS_4_VERSION:
+        albums_shared = photosdb.albums_shared_as_dict
+        info["shared_albums_count"] = len(albums_shared)
+        info["shared_albums"] = albums_shared
+
+    persons = photosdb.persons_as_dict
+
+    info["persons_count"] = len(persons)
+    info["persons"] = persons
+
+    if cli_obj.json or json_:
+        click.echo(json.dumps(info, ensure_ascii=False))
+    else:
+        click.echo(yaml.dump(info, sort_keys=False, allow_unicode=True))
+
+
+@cli.command()
+@DB_OPTION
+@JSON_OPTION
+@DB_ARGUMENT
+@click.pass_obj
+@click.pass_context
+def places(ctx, cli_obj, db, json_, photos_library):
+    """ Print out places found in the Photos library. """
+
+    # below needed for to make CliRunner work for testing
+    cli_db = cli_obj.db if cli_obj is not None else None
+    db = get_photos_db(*photos_library, db, cli_db)
+    if db is None:
+        click.echo(cli.commands["places"].get_help(ctx), err=True)
+        click.echo("\n\nLocated the following Photos library databases: ", err=True)
+        _list_libraries()
+        return
+
+    photosdb = osxphotos.PhotosDB(dbfile=db)
+    place_names = {}
+    for photo in photosdb.photos(movies=True):
+        if photo.place:
+            try:
+                place_names[photo.place.name] += 1
+            except Exception:
+                place_names[photo.place.name] = 1
+        else:
+            try:
+                place_names[_UNKNOWN_PLACE] += 1
+            except Exception:
+                place_names[_UNKNOWN_PLACE] = 1
+
+    # sort by place count
+    places = {
+        "places": {
+            name: place_names[name]
+            for name in sorted(
+                place_names.keys(), key=lambda key: place_names[key], reverse=True
+            )
+        }
+    }
+
+    # below needed for to make CliRunner work for testing
+    cli_json = cli_obj.json if cli_obj is not None else None
+    if json_ or cli_json:
+        click.echo(json.dumps(places, ensure_ascii=False))
+    else:
+        click.echo(yaml.dump(places, sort_keys=False, allow_unicode=True))
+
+
+@cli.command()
+@DB_OPTION
+@JSON_OPTION
+@deleted_options
+@DB_ARGUMENT
+@click.pass_obj
+@click.pass_context
+def dump(ctx, cli_obj, db, json_, deleted, deleted_only, photos_library):
+    """ Print list of all photos & associated info from the Photos library. """
+
+    db = get_photos_db(*photos_library, db, cli_obj.db)
+    if db is None:
+        click.echo(cli.commands["dump"].get_help(ctx), err=True)
+        click.echo("\n\nLocated the following Photos library databases: ", err=True)
+        _list_libraries()
+        return
+
+    # check exclusive options
+    if deleted and deleted_only:
+        click.echo("Incompatible dump options", err=True)
+        click.echo(cli.commands["dump"].get_help(ctx), err=True)
+        return
+
+    photosdb = osxphotos.PhotosDB(dbfile=db)
+    if deleted or deleted_only:
+        photos = photosdb.photos(movies=True, intrash=True)
+    else:
+        photos = []
+    if not deleted_only:
+        photos += photosdb.photos(movies=True)
+
+    print_photo_info(photos, json_ or cli_obj.json)
+
+
+@cli.command(name="list")
+@JSON_OPTION
+@click.pass_obj
+@click.pass_context
+def list_libraries(ctx, cli_obj, json_):
+    """ Print list of Photos libraries found on the system. """
+
+    # implemented in _list_libraries so it can be called by other CLI functions
+    # without errors due to passing ctx and cli_obj
+    _list_libraries(json_=json_ or cli_obj.json, error=False)
+
+
+def _list_libraries(json_=False, error=True):
+    """Print list of Photos libraries found on the system.
+    If json_ == True, print output as JSON (default = False)"""
+
+    photo_libs = osxphotos.utils.list_photo_libraries()
+    sys_lib = osxphotos.utils.get_system_library_path()
+    last_lib = osxphotos.utils.get_last_library_path()
+
+    if json_:
+        libs = {
+            "photo_libraries": photo_libs,
+            "system_library": sys_lib,
+            "last_library": last_lib,
+        }
+        click.echo(json.dumps(libs, ensure_ascii=False))
+    else:
+        last_lib_flag = sys_lib_flag = False
+
+        for lib in photo_libs:
+            if lib == sys_lib:
+                click.echo(f"(*)\t{lib}", err=error)
+                sys_lib_flag = True
+            elif lib == last_lib:
+                click.echo(f"(#)\t{lib}", err=error)
+                last_lib_flag = True
+            else:
+                click.echo(f"\t{lib}", err=error)
+
+        if sys_lib_flag or last_lib_flag:
+            click.echo("\n", err=error)
+        if sys_lib_flag:
+            click.echo("(*)\tSystem Photos Library", err=error)
+        if last_lib_flag:
+            click.echo("(#)\tLast opened Photos Library", err=error)
+
+
+@cli.command(name="about")
+@click.pass_obj
+@click.pass_context
+def about(ctx, cli_obj):
+    """ Print information about osxphotos including license. """
+    license = """
+MIT License
+
+Copyright (c) 2019-2021 Rhet Turnbull
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
+    click.echo(f"osxphotos, version {__version__}")
+    click.echo("")
+    click.echo(f"Source code available at: {OSXPHOTOS_URL}")
+    click.echo(license)
 
 if __name__ == "__main__":
     cli()  # pylint: disable=no-value-for-parameter

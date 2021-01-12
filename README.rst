@@ -97,6 +97,7 @@ Alternatively, you can also run the command line utility like this: ``python3 -m
      -h, --help                   Show this message and exit.
 
    Commands:
+     about     Print information about osxphotos including license.
      albums    Print out albums found in the Photos library.
      dump      Print list of all photos & associated info from the Photos...
      export    Export photos from the Photos database.

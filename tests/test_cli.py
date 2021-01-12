@@ -692,6 +692,17 @@ def test_osxphotos_help_3():
     assert "Invalid command: foo" in result.output
 
 
+def test_about():
+    """ Test about """
+    from osxphotos.__main__ import about
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(about, [])
+    assert result.exit_code == 0
+    assert "MIT License" in result.output
+
+
 def test_query_uuid():
     import json
     import os
@@ -1576,7 +1587,7 @@ def test_export_convert_to_jpeg():
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG)
         large_file = pathlib.Path(CLI_EXPORT_CONVERT_TO_JPEG_LARGE_FILE)
-        assert large_file.stat().st_size > 10000000
+        assert large_file.stat().st_size > 7000000 
 
 
 @pytest.mark.skipif(
