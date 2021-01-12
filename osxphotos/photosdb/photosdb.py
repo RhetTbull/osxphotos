@@ -85,12 +85,12 @@ class PhotosDB:
 
         # Check OS version
         system = platform.system()
-        (_, major, _) = _get_os_version()
-        if system != "Darwin" or (major not in _TESTED_OS_VERSIONS):
+        (ver, major, _) = _get_os_version()
+        if system != "Darwin" or ((ver, major) not in _TESTED_OS_VERSIONS):
             logging.warning(
-                f"WARNING: This module has only been tested with MacOS 10."
-                f"[{', '.join(_TESTED_OS_VERSIONS)}]: "
-                f"you have {system}, OS version: {major}"
+                f"WARNING: This module has only been tested with macOS versions "
+                f"[{', '.join(f'{v}.{m}' for (v, m) in _TESTED_OS_VERSIONS)}]: "
+                f"you have {system}, OS version: {ver}.{major}"
             )
 
         if verbose is None:
@@ -1160,9 +1160,9 @@ class PhotosDB:
             self._dbphotos[uuid]["original_orientation"] = row[38]
             self._dbphotos[uuid]["original_filesize"] = row[39]
 
-            # visibility state 
-            self._dbphotos[uuid]["visibility_state"] = row[42] 
-            self._dbphotos[uuid]["visible"] = row[42] == 1 
+            # visibility state
+            self._dbphotos[uuid]["visibility_state"] = row[42]
+            self._dbphotos[uuid]["visible"] = row[42] == 1
 
             # import session not yet handled for Photos 4
             self._dbphotos[uuid]["import_session"] = None

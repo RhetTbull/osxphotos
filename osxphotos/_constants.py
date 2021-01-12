@@ -58,8 +58,16 @@ _DB_TABLE_NAMES = {
     },
 }
 
-# which major version operating systems have been tested
-_TESTED_OS_VERSIONS = ["12", "13", "14", "15", "16"]
+# which version operating systems have been tested
+_TESTED_OS_VERSIONS = [
+    ("10", "12"),
+    ("10", "13"),
+    ("10", "14"),
+    ("10", "15"),
+    ("10", "16"),
+    ("11", "0"),
+    ("11", "1"),
+]
 
 # Photos 5 has persons who are empty string if unidentified face
 _UNKNOWN_PERSON = "_UNKNOWN_"
