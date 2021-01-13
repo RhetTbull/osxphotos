@@ -1,6 +1,6 @@
 """ Test template.py """
 import pytest
-
+import osxphotos
 from osxphotos.exiftool import get_exiftool_path
 
 try:
@@ -184,6 +184,8 @@ TEMPLATE_VALUES_DATE_MODIFIED = {
     "{modified.dd}": "31",
     "{modified.doy}": "305",
     "{modified.dow}": "Saturday",
+    "{modified.strftime,%Y-%m-%d-%H%M%S}": "2020-10-31-080321",
+    "{modified.strftime}": "_",
 }
 
 TEMPLATE_VALUES_DATE_NOT_MODIFIED = {
@@ -202,6 +204,7 @@ TEMPLATE_VALUES_DATE_NOT_MODIFIED = {
     "{modified.hour}": "19",
     "{modified.min}": "07",
     "{modified.sec}": "38",
+    "{modified.strftime,%Y-%m-%d-%H%M%S}": "2020-02-04-190738",
 }
 
 
@@ -215,14 +218,37 @@ COMMENT_UUID_DICT = {
 }
 
 
-def test_lookup():
+@pytest.fixture(scope="module")
+def photosdb_places():
+    return osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
+
+
+@pytest.fixture(scope="module")
+def photosdb():
+    return osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
+
+
+@pytest.fixture(scope="module")
+def photosdb_14_6():
+    return osxphotos.PhotosDB(dbfile=PHOTOS_DB_14_6)
+
+
+@pytest.fixture(scope="module")
+def photosdb_comments():
+    return osxphotos.PhotosDB(dbfile=PHOTOS_DB_COMMENTS)
+
+
+@pytest.fixture(scope="module")
+def photosdb_cloud():
+    return osxphotos.PhotosDB(dbfile=PHOTOS_DB_CLOUD)
+
+
+def test_lookup(photosdb_places):
     """ Test that a lookup is returned for every possible value """
     import re
-    import osxphotos
     from osxphotos.phototemplate import TEMPLATE_SUBSTITUTIONS, PhotoTemplate
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
-    photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
+    photo = photosdb_places.photos(uuid=[UUID_DICT["place_dc"]])[0]
     template = PhotoTemplate(photo)
 
     for subst in TEMPLATE_SUBSTITUTIONS:
@@ -231,18 +257,16 @@ def test_lookup():
         assert lookup or lookup is None
 
 
-def test_lookup_multi():
+def test_lookup_multi(photosdb_places):
     """ Test that a lookup is returned for every possible value """
     import os
     import re
-    import osxphotos
     from osxphotos.phototemplate import (
         TEMPLATE_SUBSTITUTIONS_MULTI_VALUED,
         PhotoTemplate,
     )
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
-    photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
+    photo = photosdb_places.photos(uuid=[UUID_DICT["place_dc"]])[0]
     template = PhotoTemplate(photo)
 
     for subst in TEMPLATE_SUBSTITUTIONS_MULTI_VALUED:
@@ -252,70 +276,61 @@ def test_lookup_multi():
         assert len(lookup) >= 1
 
 
-def test_subst():
+def test_subst(photosdb_places):
     """ Test that substitutions are correct """
     import locale
-    import osxphotos
 
     locale.setlocale(locale.LC_ALL, "en_US")
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
-    photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
+    photo = photosdb_places.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     for template in TEMPLATE_VALUES:
         rendered, _ = photo.render_template(template)
         assert rendered[0] == TEMPLATE_VALUES[template]
 
 
-def test_subst_date_modified():
+def test_subst_date_modified(photosdb_places):
     """ Test that substitutions are correct for date modified """
     import locale
-    import osxphotos
 
     locale.setlocale(locale.LC_ALL, "en_US")
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
-    photo = photosdb.photos(uuid=[UUID_DICT["date_modified"]])[0]
+    photo = photosdb_places.photos(uuid=[UUID_DICT["date_modified"]])[0]
 
     for template in TEMPLATE_VALUES_DATE_MODIFIED:
         rendered, _ = photo.render_template(template)
         assert rendered[0] == TEMPLATE_VALUES_DATE_MODIFIED[template]
 
 
-def test_subst_date_not_modified():
+def test_subst_date_not_modified(photosdb_places):
     """ Test that substitutions are correct for date modified when photo isn't modified """
     import locale
-    import osxphotos
 
     locale.setlocale(locale.LC_ALL, "en_US")
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
-    photo = photosdb.photos(uuid=[UUID_DICT["date_not_modified"]])[0]
+    photo = photosdb_places.photos(uuid=[UUID_DICT["date_not_modified"]])[0]
 
     for template in TEMPLATE_VALUES_DATE_NOT_MODIFIED:
         rendered, _ = photo.render_template(template)
         assert rendered[0] == TEMPLATE_VALUES_DATE_NOT_MODIFIED[template]
 
 
-def test_subst_locale_1():
+def test_subst_locale_1(photosdb_places):
     """ Test that substitutions are correct in user locale"""
     import locale
-    import osxphotos
 
     # osxphotos.template sets local on load so set the environment first
     # set locale to DE
     locale.setlocale(locale.LC_ALL, "de_DE.UTF-8")
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
-    photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
+    photo = photosdb_places.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     for template in TEMPLATE_VALUES_DEU:
         rendered, _ = photo.render_template(template)
         assert rendered[0] == TEMPLATE_VALUES_DEU[template]
 
 
-def test_subst_locale_2():
+def test_subst_locale_2(photosdb_places):
     """ Test that substitutions are correct in user locale"""
     import locale
     import os
-    import osxphotos
 
     # osxphotos.template sets local on load so set the environment first
     os.environ["LANG"] = "de_DE.UTF-8"
@@ -326,50 +341,44 @@ def test_subst_locale_2():
     os.environ["LC_NUMERIC"] = "de_DE.UTF-8"
     os.environ["LC_TIME"] = "de_DE.UTF-8"
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
-    photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
+    photo = photosdb_places.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     for template in TEMPLATE_VALUES_DEU:
         rendered, _ = photo.render_template(template)
         assert rendered[0] == TEMPLATE_VALUES_DEU[template]
 
 
-def test_subst_default_val():
+def test_subst_default_val(photosdb_places):
     """ Test substitution with default value specified """
     import locale
     import osxphotos
 
     locale.setlocale(locale.LC_ALL, "en_US")
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
-    photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
+    photo = photosdb_places.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     template = "{place.name.area_of_interest,UNKNOWN}"
     rendered, _ = photo.render_template(template)
     assert rendered[0] == "UNKNOWN"
 
 
-def test_subst_default_val_2():
+def test_subst_default_val_2(photosdb_places):
     """ Test substitution with ',' but no default value """
     import locale
-    import osxphotos
 
     locale.setlocale(locale.LC_ALL, "en_US")
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
-    photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
+    photo = photosdb_places.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     template = "{place.name.area_of_interest,}"
     rendered, _ = photo.render_template(template)
     assert rendered[0] == ""
 
 
-def test_subst_unknown_val():
+def test_subst_unknown_val(photosdb_places):
     """ Test substitution with unknown value specified """
     import locale
-    import osxphotos
 
     locale.setlocale(locale.LC_ALL, "en_US")
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
-    photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
+    photo = photosdb_places.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     template = "{created.year}/{foo}"
     rendered, unknown = photo.render_template(template)
@@ -377,12 +386,10 @@ def test_subst_unknown_val():
     assert unknown == ["foo"]
 
 
-def test_subst_double_brace():
+def test_subst_double_brace(photosdb_places):
     """ Test substitution with double brace {{ which should be ignored """
-    import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
-    photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
+    photo = photosdb_places.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     template = "{created.year}/{{foo}}"
     rendered, unknown = photo.render_template(template)
@@ -390,14 +397,12 @@ def test_subst_double_brace():
     assert not unknown
 
 
-def test_subst_unknown_val_with_default():
+def test_subst_unknown_val_with_default(photosdb_places):
     """ Test substitution with unknown value specified """
     import locale
-    import osxphotos
 
     locale.setlocale(locale.LC_ALL, "en_US")
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
-    photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
+    photo = photosdb_places.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     template = "{created.year}/{foo,bar}"
     rendered, unknown = photo.render_template(template)
@@ -405,12 +410,11 @@ def test_subst_unknown_val_with_default():
     assert unknown == ["foo"]
 
 
-def test_subst_multi_1_1_2():
+def test_subst_multi_1_1_2(photosdb):
     """ Test that substitutions are correct """
     # one album, one keyword, two persons
     import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
     photo = photosdb.photos(uuid=[UUID_DICT["1_1_2"]])[0]
 
     template = "{created.year}/{album}/{keyword}/{person}"
@@ -419,12 +423,10 @@ def test_subst_multi_1_1_2():
     assert sorted(rendered) == sorted(expected)
 
 
-def test_subst_multi_2_1_1():
+def test_subst_multi_2_1_1(photosdb):
     """ Test that substitutions are correct """
     # 2 albums, 1 keyword, 1 person
-    import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
     # one album, one keyword, two persons
     photo = photosdb.photos(uuid=[UUID_DICT["2_1_1"]])[0]
 
@@ -434,12 +436,10 @@ def test_subst_multi_2_1_1():
     assert sorted(rendered) == sorted(expected)
 
 
-def test_subst_multi_2_1_1_single():
+def test_subst_multi_2_1_1_single(photosdb):
     """ Test that substitutions are correct """
     # 2 albums, 1 keyword, 1 person but only do keywords
-    import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
     # one album, one keyword, two persons
     photo = photosdb.photos(uuid=[UUID_DICT["2_1_1"]])[0]
 
@@ -449,12 +449,10 @@ def test_subst_multi_2_1_1_single():
     assert sorted(rendered) == sorted(expected)
 
 
-def test_subst_multi_0_2_0():
+def test_subst_multi_0_2_0(photosdb):
     """ Test that substitutions are correct """
     # 0 albums, 2 keywords, 0 persons
-    import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
     # one album, one keyword, two persons
     photo = photosdb.photos(uuid=[UUID_DICT["0_2_0"]])[0]
 
@@ -464,12 +462,10 @@ def test_subst_multi_0_2_0():
     assert sorted(rendered) == sorted(expected)
 
 
-def test_subst_multi_0_2_0_single():
+def test_subst_multi_0_2_0_single(photosdb):
     """ Test that substitutions are correct """
     # 0 albums, 2 keywords, 0 persons, but only do albums
-    import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
     # one album, one keyword, two persons
     photo = photosdb.photos(uuid=[UUID_DICT["0_2_0"]])[0]
 
@@ -479,12 +475,10 @@ def test_subst_multi_0_2_0_single():
     assert sorted(rendered) == sorted(expected)
 
 
-def test_subst_multi_0_2_0_default_val():
+def test_subst_multi_0_2_0_default_val(photosdb):
     """ Test that substitutions are correct """
     # 0 albums, 2 keywords, 0 persons, default vals provided
-    import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
     # one album, one keyword, two persons
     photo = photosdb.photos(uuid=[UUID_DICT["0_2_0"]])[0]
 
@@ -494,12 +488,11 @@ def test_subst_multi_0_2_0_default_val():
     assert sorted(rendered) == sorted(expected)
 
 
-def test_subst_multi_0_2_0_default_val_unknown_val():
+def test_subst_multi_0_2_0_default_val_unknown_val(photosdb):
     """ Test that substitutions are correct """
     # 0 albums, 2 keywords, 0 persons, default vals provided, unknown val in template
     import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
     # one album, one keyword, two persons
     photo = photosdb.photos(uuid=[UUID_DICT["0_2_0"]])[0]
 
@@ -515,12 +508,10 @@ def test_subst_multi_0_2_0_default_val_unknown_val():
     assert unknown == ["foo"]
 
 
-def test_subst_multi_0_2_0_default_val_unknown_val_2():
+def test_subst_multi_0_2_0_default_val_unknown_val_2(photosdb):
     """ Test that substitutions are correct """
     # 0 albums, 2 keywords, 0 persons, default vals provided, unknown val in template
-    import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
     # one album, one keyword, two persons
     photo = photosdb.photos(uuid=[UUID_DICT["0_2_0"]])[0]
 
@@ -534,11 +525,8 @@ def test_subst_multi_0_2_0_default_val_unknown_val_2():
     assert unknown == ["foo"]
 
 
-def test_subst_multi_folder_albums_1():
+def test_subst_multi_folder_albums_1(photosdb):
     """ Test substitutions for folder_album are correct """
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
 
     # photo in an album in a folder
     photo = photosdb.photos(uuid=[UUID_DICT["folder_album_1"]])[0]
@@ -553,11 +541,8 @@ def test_subst_multi_folder_albums_1():
     assert unknown == []
 
 
-def test_subst_multi_folder_albums_1_path_sep():
+def test_subst_multi_folder_albums_1_path_sep(photosdb):
     """ Test substitutions for folder_album are correct with custom PATH_SEP """
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
 
     # photo in an album in a folder
     photo = photosdb.photos(uuid=[UUID_DICT["folder_album_1"]])[0]
@@ -572,11 +557,8 @@ def test_subst_multi_folder_albums_1_path_sep():
     assert unknown == []
 
 
-def test_subst_multi_folder_albums_2():
+def test_subst_multi_folder_albums_2(photosdb):
     """ Test substitutions for folder_album are correct """
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
 
     # photo in an album in a folder
     photo = photosdb.photos(uuid=[UUID_DICT["folder_album_no_folder"]])[0]
@@ -587,11 +569,8 @@ def test_subst_multi_folder_albums_2():
     assert unknown == []
 
 
-def test_subst_multi_folder_albums_2_path_sep():
+def test_subst_multi_folder_albums_2_path_sep(photosdb):
     """ Test substitutions for folder_album are correct with custom PATH_SEP """
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
 
     # photo in an album in a folder
     photo = photosdb.photos(uuid=[UUID_DICT["folder_album_no_folder"]])[0]
@@ -602,14 +581,11 @@ def test_subst_multi_folder_albums_2_path_sep():
     assert unknown == []
 
 
-def test_subst_multi_folder_albums_3():
+def test_subst_multi_folder_albums_3(photosdb_14_6):
     """ Test substitutions for folder_album on < Photos 5 """
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_14_6)
 
     # photo in an album in a folder
-    photo = photosdb.photos(uuid=[UUID_DICT["mojave_album_1"]])[0]
+    photo = photosdb_14_6.photos(uuid=[UUID_DICT["mojave_album_1"]])[0]
     template = "{folder_album}"
     expected = ["Folder1/SubFolder2/AlbumInFolder", "Pumpkin Farm", "Test Album (1)"]
     rendered, unknown = photo.render_template(template)
@@ -617,14 +593,12 @@ def test_subst_multi_folder_albums_3():
     assert unknown == []
 
 
-def test_subst_multi_folder_albums_3_path_sep():
+def test_subst_multi_folder_albums_3_path_sep(photosdb_14_6):
     """ Test substitutions for folder_album on < Photos 5 with custom PATH_SEP """
     import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_14_6)
-
     # photo in an album in a folder
-    photo = photosdb.photos(uuid=[UUID_DICT["mojave_album_1"]])[0]
+    photo = photosdb_14_6.photos(uuid=[UUID_DICT["mojave_album_1"]])[0]
     template = "{folder_album(:)}"
     expected = ["Folder1:SubFolder2:AlbumInFolder", "Pumpkin Farm", "Test Album (1)"]
     rendered, unknown = photo.render_template(template)
@@ -632,14 +606,13 @@ def test_subst_multi_folder_albums_3_path_sep():
     assert unknown == []
 
 
-def test_subst_strftime():
+def test_subst_strftime(photosdb_places):
     """ Test that strftime substitutions are correct """
     import locale
     import osxphotos
 
     locale.setlocale(locale.LC_ALL, "en_US")
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
-    photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
+    photo = photosdb_places.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     rendered, unmatched = photo.render_template("{created.strftime,%Y-%m-%d-%H%M%S}")
     assert rendered[0] == "2020-02-04-190738"
@@ -648,11 +621,9 @@ def test_subst_strftime():
     assert rendered[0] == "_"
 
 
-def test_subst_expand_inplace_1():
+def test_subst_expand_inplace_1(photosdb):
     """ Test that substitutions are correct when expand_inplace=True """
-    import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
     # one album, one keyword, two persons
     photo = photosdb.photos(uuid=[UUID_DICT["1_1_2"]])[0]
 
@@ -662,11 +633,8 @@ def test_subst_expand_inplace_1():
     assert sorted(rendered) == sorted(expected)
 
 
-def test_subst_expand_inplace_2():
+def test_subst_expand_inplace_2(photosdb):
     """ Test that substitutions are correct when expand_inplace=True """
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
     # one album, one keyword, two persons
     photo = photosdb.photos(uuid=[UUID_DICT["1_1_2"]])[0]
 
@@ -676,11 +644,8 @@ def test_subst_expand_inplace_2():
     assert sorted(rendered) == sorted(expected)
 
 
-def test_subst_expand_inplace_3():
+def test_subst_expand_inplace_3(photosdb):
     """ Test that substitutions are correct when expand_inplace=True and inplace_sep specified"""
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
     # one album, one keyword, two persons
     photo = photosdb.photos(uuid=[UUID_DICT["1_1_2"]])[0]
 
@@ -692,76 +657,60 @@ def test_subst_expand_inplace_3():
     assert sorted(rendered) == sorted(expected)
 
 
-def test_comment():
+def test_comment(photosdb_comments):
     import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_COMMENTS)
     for uuid in COMMENT_UUID_DICT:
-        photo = photosdb.get_photo(uuid)
+        photo = photosdb_comments.get_photo(uuid)
         comments = photo.render_template("{comment}")
         assert comments[0] == COMMENT_UUID_DICT[uuid]
 
 
-def test_media_type():
+def test_media_type(photosdb_cloud):
     """ test {media_type} template """
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(PHOTOS_DB_CLOUD)
 
     for field, uuid in UUID_MEDIA_TYPE.items():
         if uuid is not None:
-            photo = photosdb.get_photo(uuid)
+            photo = photosdb_cloud.get_photo(uuid)
             rendered, _ = photo.render_template("{media_type}")
             assert rendered[0] == osxphotos.phototemplate.MEDIA_TYPE_DEFAULTS[field]
 
 
-def test_media_type_default():
+def test_media_type_default(photosdb_cloud):
     """ test {media_type,photo=foo} template style """
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(PHOTOS_DB_CLOUD)
 
     for field, uuid in UUID_MEDIA_TYPE.items():
         if uuid is not None:
-            photo = photosdb.get_photo(uuid)
+            photo = photosdb_cloud.get_photo(uuid)
             rendered, _ = photo.render_template("{media_type," + f"{field}" + "=foo}")
             assert rendered[0] == "foo"
 
 
-def test_bool_values():
+def test_bool_values(photosdb_cloud):
     """ test {bool?TRUE,FALSE} template values """
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(PHOTOS_DB_CLOUD)
 
     for field, uuid in UUID_BOOL_VALUES.items():
         if uuid is not None:
-            photo = photosdb.get_photo(uuid)
+            photo = photosdb_cloud.get_photo(uuid)
             rendered, _ = photo.render_template("{" + f"{field}" + "?True,False}")
             assert rendered[0] == "True"
 
 
-def test_bool_values_not():
+def test_bool_values_not(photosdb_cloud):
     """ test {bool?TRUE,FALSE} template values for FALSE values """
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(PHOTOS_DB_CLOUD)
 
     for field, uuid in UUID_BOOL_VALUES_NOT.items():
         if uuid is not None:
-            photo = photosdb.get_photo(uuid)
+            photo = photosdb_cloud.get_photo(uuid)
             rendered, _ = photo.render_template("{" + f"{field}" + "?True,False}")
             assert rendered[0] == "False"
 
 
-def test_partial_match():
+def test_partial_match(photosdb_cloud):
     """ test that template successfully rejects a field that is superset of valid field """
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(PHOTOS_DB_CLOUD)
 
     for uuid in COMMENT_UUID_DICT:
-        photo = photosdb.get_photo(uuid)
+        photo = photosdb_cloud.get_photo(uuid)
         rendered, notmatched = photo.render_template("{keywords}")
         assert [rendered, notmatched] == [["{keywords}"], ["keywords"]]
         rendered, notmatched = photo.render_template("{keywords,}")
@@ -772,11 +721,10 @@ def test_partial_match():
         assert [rendered, notmatched] == [["{,+keywords,foo}"], ["keywords"]]
 
 
-def test_expand_in_place_with_delim():
+def test_expand_in_place_with_delim(photosdb):
     """ Test that substitutions are correct when {DELIM+FIELD} format used """
     import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
     photo = photosdb.get_photo(UUID_MULTI_KEYWORDS)
 
     for template in TEMPLATE_VALUES_MULTI_KEYWORDS:
@@ -784,11 +732,9 @@ def test_expand_in_place_with_delim():
         assert sorted(rendered) == sorted(TEMPLATE_VALUES_MULTI_KEYWORDS[template])
 
 
-def test_expand_in_place_with_delim_single_value():
+def test_expand_in_place_with_delim_single_value(photosdb):
     """ Test that single-value substitutions are correct when {DELIM+FIELD} format used """
-    import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
     photo = photosdb.get_photo(UUID_TITLE)
 
     for template in TEMPLATE_VALUES_TITLE:
@@ -797,10 +743,7 @@ def test_expand_in_place_with_delim_single_value():
 
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
-def test_exiftool_template():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_15_7)
+def test_exiftool_template(photosdb):
     for uuid in UUID_EXIFTOOL:
         photo = photosdb.get_photo(uuid)
         for template in UUID_EXIFTOOL[uuid]:

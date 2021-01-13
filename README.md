@@ -889,6 +889,16 @@ Substitution                    Description
 {modified.sec}                  2-digit second of the photo modification
                                 time; uses creation date if photo is not
                                 modified
+{modified.strftime}             Apply strftime template to file modification
+                                date/time. Should be used in form
+                                {modified.strftime,TEMPLATE} where TEMPLATE
+                                is a valid strftime template, e.g.
+                                {modified.strftime,%Y-%U} would result in
+                                year-week number of year: '2020-23'. If used
+                                with no template will return null value.
+                                Uses creation date if photo is not modified.
+                                See https://strftime.org/ for help on
+                                strftime templates.
 {today.date}                    Current date in iso format, e.g.
                                 '2020-03-22'
 {today.year}                    4-digit year of current date
@@ -2436,6 +2446,7 @@ The following template field substitutions are availabe for use with `PhotoInfo.
 |{modified.hour}|2-digit hour of the photo modification time; uses creation date if photo is not modified|
 |{modified.min}|2-digit minute of the photo modification time; uses creation date if photo is not modified|
 |{modified.sec}|2-digit second of the photo modification time; uses creation date if photo is not modified|
+|{modified.strftime}|Apply strftime template to file modification date/time. Should be used in form {modified.strftime,TEMPLATE} where TEMPLATE is a valid strftime template, e.g. {modified.strftime,%Y-%U} would result in year-week number of year: '2020-23'. If used with no template will return null value. Uses creation date if photo is not modified. See https://strftime.org/ for help on strftime templates.|
 |{today.date}|Current date in iso format, e.g. '2020-03-22'|
 |{today.year}|4-digit year of current date|
 |{today.yy}|2-digit year of current date|
