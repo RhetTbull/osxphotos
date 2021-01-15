@@ -51,6 +51,9 @@ from ..photokit import (
 )
 from ..utils import dd_to_dms_str, findfiles, noop, get_preferred_uti_extension
 
+# retry if use_photos_export fails the first time (which sometimes it does)
+MAX_PHOTOSCRIPT_RETRIES = 3
+
 
 class ExportError(Exception):
     """ error during export """
@@ -233,9 +236,16 @@ def _export_photo_uuid_applescript(
     exported_files = []
     filename = None
     try:
-        photo = photoscript.Photo(uuid)
-        filename = photo.filename
-        exported_files = photo.export(tmpdir.name, original=original, timeout=timeout)
+        # I've seen intermittent failures with the PhotoScript export so retry if 
+        # export doesn't return anything
+        retries = 0
+        while not exported_files and retries < MAX_PHOTOSCRIPT_RETRIES:
+            photo = photoscript.Photo(uuid)
+            filename = photo.filename
+            exported_files = photo.export(
+                tmpdir.name, original=original, timeout=timeout
+            )
+            retries += 1
     except Exception as e:
         raise ExportError(e)
 
@@ -268,7 +278,7 @@ def _export_photo_uuid_applescript(
             exported_paths.append(str(dest_new))
         return exported_paths
     else:
-        return None
+        return []
 
 
 # _check_export_suffix is not a class method, don't import this into PhotoInfo
