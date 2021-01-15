@@ -159,48 +159,47 @@ To get help on a specific command, use `osxphotos help <command_name>`
 ### Command line reference: export
 
 `osxphotos help export`
-
+<!-- OSXPHOTOS-EXPORT-USAGE:START - Do not remove or modify this section -->
 ```
 Usage: osxphotos export [OPTIONS] [PHOTOS_LIBRARY]... DEST
 
   Export photos from the Photos database. Export path DEST is required.
   Optionally, query the Photos database using 1 or more search options; if
-  more than one option is provided, they are treated as "AND" (e.g. search
-  for photos matching all options). If no query options are provided, all
-  photos will be exported. By default, all versions of all photos will be
-  exported including edited versions, live photo movies, burst photos, and
-  associated raw images. See --skip-edited, --skip-live, --skip-bursts, and
-  --skip-raw options to modify this behavior.
+  more than one option is provided, they are treated as "AND" (e.g. search for
+  photos matching all options). If no query options are provided, all photos
+  will be exported. By default, all versions of all photos will be exported
+  including edited versions, live photo movies, burst photos, and associated
+  raw images. See --skip-edited, --skip-live, --skip-bursts, and --skip-raw
+  options to modify this behavior.
 
 Options:
   --db <Photos database path>     Specify Photos database path. Path to Photos
-                                  library/database can be specified using
-                                  either --db or directly as PHOTOS_LIBRARY
-                                  positional argument. If neither --db or
-                                  PHOTOS_LIBRARY provided, will attempt to
-                                  find the library to use in the following
-                                  order: 1. last opened library, 2. system
-                                  library, 3. ~/Pictures/Photos
-                                  Library.photoslibrary
+                                  library/database can be specified using either
+                                  --db or directly as PHOTOS_LIBRARY positional
+                                  argument. If neither --db or PHOTOS_LIBRARY
+                                  provided, will attempt to find the library to
+                                  use in the following order: 1. last opened
+                                  library, 2. system library, 3.
+                                  ~/Pictures/Photos Library.photoslibrary
   -V, --verbose                   Print verbose output.
   --keyword KEYWORD               Search for photos with keyword KEYWORD. If
                                   more than one keyword, treated as "OR", e.g.
                                   find photos matching any keyword
-  --person PERSON                 Search for photos with person PERSON. If
-                                  more than one person, treated as "OR", e.g.
-                                  find photos matching any person
-  --album ALBUM                   Search for photos in album ALBUM. If more
-                                  than one album, treated as "OR", e.g. find
-                                  photos matching any album
+  --person PERSON                 Search for photos with person PERSON. If more
+                                  than one person, treated as "OR", e.g. find
+                                  photos matching any person
+  --album ALBUM                   Search for photos in album ALBUM. If more than
+                                  one album, treated as "OR", e.g. find photos
+                                  matching any album
   --folder FOLDER                 Search for photos in an album in folder
                                   FOLDER. If more than one folder, treated as
                                   "OR", e.g. find photos in any FOLDER.  Only
-                                  searches top level folders (e.g. does not
-                                  look at subfolders)
+                                  searches top level folders (e.g. does not look
+                                  at subfolders)
   --uuid UUID                     Search for photos with UUID(s).
   --uuid-from-file FILE           Search for photos with UUID(s) loaded from
-                                  FILE. Format is a single UUID per line.
-                                  Lines preceeded with # are ignored.
+                                  FILE. Format is a single UUID per line.  Lines
+                                  preceeded with # are ignored.
   --title TITLE                   Search for TITLE in title of photo.
   --no-title                      Search for photos with no title.
   --description DESC              Search for DESC in description of photo.
@@ -210,14 +209,13 @@ Options:
   --no-place                      Search for photos with no associated place
                                   name info (no reverse geolocation info)
   --label LABEL                   Search for photos with image classification
-                                  label LABEL (Photos 5 only). If more than
-                                  one label, treated as "OR", e.g. find photos
+                                  label LABEL (Photos 5 only). If more than one
+                                  label, treated as "OR", e.g. find photos
                                   matching any label
   --uti UTI                       Search for photos whose uniform type
                                   identifier (UTI) matches UTI
   -i, --ignore-case               Case insensitive search for title,
-                                  description, place, keyword, person, or
-                                  album.
+                                  description, place, keyword, person, or album.
   --edited                        Search for photos that have been edited.
   --external-edit                 Search for photos edited in external editor.
   --favorite                      Search for photos marked favorite.
@@ -228,16 +226,15 @@ Options:
                                   (Photos 5 only).
   --not-shared                    Search for photos not in shared iCloud album
                                   (Photos 5 only).
-  --burst                         Search for photos that were taken in a
-                                  burst.
+  --burst                         Search for photos that were taken in a burst.
   --not-burst                     Search for photos that are not part of a
                                   burst.
   --live                          Search for Apple live photos
   --not-live                      Search for photos that are not Apple live
                                   photos.
   --portrait                      Search for Apple portrait mode photos.
-  --not-portrait                  Search for photos that are not Apple
-                                  portrait mode photos.
+  --not-portrait                  Search for photos that are not Apple portrait
+                                  mode photos.
   --screenshot                    Search for screenshot photos.
   --not-screenshot                Search for photos that are not screenshot
                                   photos.
@@ -256,25 +253,24 @@ Options:
   --not-panorama                  Search for photos that are not panoramas.
   --has-raw                       Search for photos with both a jpeg and raw
                                   version
-  --only-movies                   Search only for movies (default searches
-                                  both images and movies).
+  --only-movies                   Search only for movies (default searches both
+                                  images and movies).
   --only-photos                   Search only for photos/images (default
                                   searches both images and movies).
   --from-date DATETIME            Search by start item date, e.g.
                                   2000-01-12T12:00:00,
-                                  2001-01-12T12:00:00-07:00, or 2000-12-31
-                                  (ISO 8601).
+                                  2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO
+                                  8601).
   --to-date DATETIME              Search by end item date, e.g.
                                   2000-01-12T12:00:00,
-                                  2001-01-12T12:00:00-07:00, or 2000-12-31
-                                  (ISO 8601).
+                                  2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO
+                                  8601).
   --has-comment                   Search for photos that have comments.
   --no-comment                    Search for photos with no comments.
   --has-likes                     Search for photos that have likes.
   --no-likes                      Search for photos with no likes.
   --missing                       Export only photos missing from the Photos
-                                  library; must be used with --download-
-                                  missing.
+                                  library; must be used with --download-missing.
   --deleted                       Include photos from the 'Recently Deleted'
                                   folder.
   --deleted-only                  Include only photos from the 'Recently
@@ -282,31 +278,30 @@ Options:
   --update                        Only export new or updated files. See notes
                                   below on export and --update.
   --ignore-signature              When used with --update, ignores file
-                                  signature when updating files. This is
-                                  useful if you have processed or edited
-                                  exported photos changing the file signature
-                                  (size & modification date). In this case,
-                                  --update would normally re-export the
-                                  processed files but with --ignore-signature,
-                                  files which exist in the export directory
-                                  will not be re-exported.
+                                  signature when updating files. This is useful
+                                  if you have processed or edited exported
+                                  photos changing the file signature (size &
+                                  modification date). In this case, --update
+                                  would normally re-export the processed files
+                                  but with --ignore-signature, files which exist
+                                  in the export directory will not be re-
+                                  exported.
   --dry-run                       Dry run (test) the export but don't actually
-                                  export any files; most useful with
-                                  --verbose.
-  --export-as-hardlink            Hardlink files instead of copying them.
-                                  Cannot be used with --exiftool which creates
-                                  copies of the files with embedded EXIF data.
-                                  Note: on APFS volumes, files are cloned when
-                                  exporting giving many of the same advantages
-                                  as hardlinks without having to use --export-
-                                  as-hardlink.
+                                  export any files; most useful with --verbose.
+  --export-as-hardlink            Hardlink files instead of copying them. Cannot
+                                  be used with --exiftool which creates copies
+                                  of the files with embedded EXIF data. Note: on
+                                  APFS volumes, files are cloned when exporting
+                                  giving many of the same advantages as
+                                  hardlinks without having to use --export-as-
+                                  hardlink.
   --touch-file                    Sets the file's modification time to match
                                   photo date.
-  --overwrite                     Overwrite existing files. Default behavior
-                                  is to add (1), (2), etc to filename if file
+  --overwrite                     Overwrite existing files. Default behavior is
+                                  to add (1), (2), etc to filename if file
                                   already exists. Use this with caution as it
-                                  may create name collisions on export. (e.g.
-                                  if two files happen to have the same name)
+                                  may create name collisions on export. (e.g. if
+                                  two files happen to have the same name)
   --export-by-date                Automatically create output folders to
                                   organize photos by date created (e.g.
                                   DEST/2019/12/20/photoname.jpg).
@@ -324,265 +319,252 @@ Options:
                                   associated jpeg image (e.g. the raw file was
                                   imported to Photos without a jpeg preview).
   --current-name                  Use photo's current filename instead of
-                                  original filename for export.  Note:
-                                  Starting with Photos 5, all photos are
-                                  renamed upon import.  By default, photos are
-                                  exported with the the original name they had
-                                  before import.
+                                  original filename for export.  Note: Starting
+                                  with Photos 5, all photos are renamed upon
+                                  import.  By default, photos are exported with
+                                  the the original name they had before import.
   --convert-to-jpeg               Convert all non-jpeg images (e.g. raw, HEIC,
-                                  PNG, etc) to JPEG upon export.  Only works
-                                  if your Mac has a GPU.
+                                  PNG, etc) to JPEG upon export.  Only works if
+                                  your Mac has a GPU.
   --jpeg-quality FLOAT RANGE      Value in range 0.0 to 1.0 to use with
                                   --convert-to-jpeg. A value of 1.0 specifies
-                                  best quality, a value of 0.0 specifies
-                                  maximum compression. Defaults to 1.0
+                                  best quality, a value of 0.0 specifies maximum
+                                  compression. Defaults to 1.0
   --download-missing              Attempt to download missing photos from
                                   iCloud. The current implementation uses
-                                  Applescript to interact with Photos to
-                                  export the photo which will force Photos to
-                                  download from iCloud if the photo does not
-                                  exist on disk.  This will be slow and will
-                                  require internet connection. This obviously
-                                  only works if the Photos library is synched
-                                  to iCloud.  Note: --download-missing does
-                                  not currently export all burst images; only
-                                  the primary photo will be exported--
-                                  associated burst images will be skipped.
-  --sidecar FORMAT                Create sidecar for each photo exported;
-                                  valid FORMAT values: xmp, json, exiftool;
-                                  --sidecar xmp: create XMP sidecar used by
-                                  Adobe Lightroom, etc. The sidecar file is
-                                  named in format photoname.ext.xmp The XMP
-                                  sidecar exports the following tags:
-                                  Description, Title, Keywords/Tags, Subject
-                                  (set to Keywords + PersonInImage),
-                                  PersonInImage, CreateDate, ModifyDate,
-                                  GPSLongitude. 
-                                  --sidecar json: create JSON
-                                  sidecar useable by exiftool
+                                  Applescript to interact with Photos to export
+                                  the photo which will force Photos to download
+                                  from iCloud if the photo does not exist on
+                                  disk.  This will be slow and will require
+                                  internet connection. This obviously only works
+                                  if the Photos library is synched to iCloud.
+                                  Note: --download-missing does not currently
+                                  export all burst images; only the primary
+                                  photo will be exported--associated burst
+                                  images will be skipped.
+  --sidecar FORMAT                Create sidecar for each photo exported; valid
+                                  FORMAT values: xmp, json, exiftool; --sidecar
+                                  xmp: create XMP sidecar used by Adobe
+                                  Lightroom, etc. The sidecar file is named in
+                                  format photoname.ext.xmp The XMP sidecar
+                                  exports the following tags: Description,
+                                  Title, Keywords/Tags, Subject (set to Keywords
+                                  + PersonInImage), PersonInImage, CreateDate,
+                                  ModifyDate, GPSLongitude. 
+                                  --sidecar json:
+                                  create JSON sidecar useable by exiftool
                                   (https://exiftool.org/) The sidecar file can
                                   be used to apply metadata to the file with
                                   exiftool, for example: "exiftool
                                   -j=photoname.jpg.json photoname.jpg" The
                                   sidecar file is named in format
-                                  photoname.ext.json; format includes tag
-                                  groups (equivalent to running 'exiftool -G
-                                  -j'). 
-                                  --sidecar exiftool: create JSON
-                                  sidecar compatible with output of 'exiftool
-                                  -j'. Unlike '--sidecar json', '--sidecar
-                                  exiftool' does not export tag groups.
-                                  Sidecar filename is in format
-                                  photoname.ext.json; For a list of tags
-                                  exported in the JSON and exiftool sidecar,
-                                  see '--exiftool'.
-  --sidecar-drop-ext              Drop the photo's extension when naming
-                                  sidecar files. By default, sidecar files are
-                                  named in format
-                                  'photo_filename.photo_ext.sidecar_ext', e.g.
-                                  'IMG_1234.JPG.json'. Use '--sidecar-drop-
-                                  ext' to ignore the photo extension.
-                                  Resulting sidecar files will have name in
-                                  format 'IMG_1234.json'. Warning: this may
-                                  result in sidecar filename collisions if
-                                  there are files of different types but the
-                                  same name in the output directory, e.g.
-                                  'IMG_1234.JPG' and 'IMG_1234.MOV'.
+                                  photoname.ext.json; format includes tag groups
+                                  (equivalent to running 'exiftool -G -j').
+                                  --sidecar exiftool: create JSON sidecar
+                                  compatible with output of 'exiftool -j'.
+                                  Unlike '--sidecar json', '--sidecar exiftool'
+                                  does not export tag groups. Sidecar filename
+                                  is in format photoname.ext.json; For a list of
+                                  tags exported in the JSON and exiftool
+                                  sidecar, see '--exiftool'.
+  --sidecar-drop-ext              Drop the photo's extension when naming sidecar
+                                  files. By default, sidecar files are named in
+                                  format 'photo_filename.photo_ext.sidecar_ext',
+                                  e.g. 'IMG_1234.JPG.json'. Use '--sidecar-drop-
+                                  ext' to ignore the photo extension. Resulting
+                                  sidecar files will have name in format
+                                  'IMG_1234.json'. Warning: this may result in
+                                  sidecar filename collisions if there are files
+                                  of different types but the same name in the
+                                  output directory, e.g. 'IMG_1234.JPG' and
+                                  'IMG_1234.MOV'.
   --exiftool                      Use exiftool to write metadata directly to
-                                  exported photos. To use this option,
-                                  exiftool must be installed and in the path.
-                                  exiftool may be installed from
-                                  https://exiftool.org/.  Cannot be used with
-                                  --export-as-hardlink.  Writes the following
-                                  metadata: EXIF:ImageDescription,
-                                  XMP:Description (see also --description-
-                                  template); XMP:Title; XMP:TagsList,
-                                  IPTC:Keywords, XMP:Subject (see also
-                                  --keyword-template, --person-keyword,
+                                  exported photos. To use this option, exiftool
+                                  must be installed and in the path.  exiftool
+                                  may be installed from https://exiftool.org/.
+                                  Cannot be used with --export-as-hardlink.
+                                  Writes the following metadata:
+                                  EXIF:ImageDescription, XMP:Description (see
+                                  also --description-template); XMP:Title;
+                                  XMP:TagsList, IPTC:Keywords, XMP:Subject (see
+                                  also --keyword-template, --person-keyword,
                                   --album-keyword); XMP:PersonInImage;
                                   EXIF:GPSLatitudeRef; EXIF:GPSLongitudeRef;
                                   EXIF:GPSLatitude; EXIF:GPSLongitude;
                                   EXIF:GPSPosition; EXIF:DateTimeOriginal;
-                                  EXIF:OffsetTimeOriginal; EXIF:ModifyDate
-                                  (see --ignore-date-modified);
-                                  IPTC:DateCreated; IPTC:TimeCreated; (video
-                                  files only): QuickTime:CreationDate;
-                                  QuickTime:CreateDate; QuickTime:ModifyDate
-                                  (see also --ignore-date-modified);
-                                  QuickTime:GPSCoordinates;
+                                  EXIF:OffsetTimeOriginal; EXIF:ModifyDate (see
+                                  --ignore-date-modified); IPTC:DateCreated;
+                                  IPTC:TimeCreated; (video files only):
+                                  QuickTime:CreationDate; QuickTime:CreateDate;
+                                  QuickTime:ModifyDate (see also --ignore-date-
+                                  modified); QuickTime:GPSCoordinates;
                                   UserData:GPSCoordinates.
   --exiftool-path EXIFTOOL_PATH   Optionally specify path to exiftool; if not
                                   provided, will look for exiftool in $PATH.
-  --exiftool-option OPTION        Optional flag/option to pass to exiftool
-                                  when using --exiftool. For example,
-                                  --exiftool-option '-m' to ignore minor
-                                  warnings. Specify these as you would on the
-                                  exiftool command line. See exiftool docs at
+  --exiftool-option OPTION        Optional flag/option to pass to exiftool when
+                                  using --exiftool. For example, --exiftool-
+                                  option '-m' to ignore minor warnings. Specify
+                                  these as you would on the exiftool command
+                                  line. See exiftool docs at
                                   https://exiftool.org/exiftool_pod.html for
-                                  full list of options. More than one option
-                                  may be specified by repeating the option,
-                                  e.g. --exiftool-option '-m' --exiftool-
-                                  option '-F'.
-  --exiftool-merge-keywords       Merge any keywords found in the original
-                                  file with keywords used for '--exiftool' and
-                                  '--sidecar'.
+                                  full list of options. More than one option may
+                                  be specified by repeating the option, e.g.
+                                  --exiftool-option '-m' --exiftool-option '-F'.
+  --exiftool-merge-keywords       Merge any keywords found in the original file
+                                  with keywords used for '--exiftool' and '--
+                                  sidecar'.
   --exiftool-merge-persons        Merge any persons found in the original file
                                   with persons used for '--exiftool' and '--
                                   sidecar'.
   --ignore-date-modified          If used with --exiftool or --sidecar, will
                                   ignore the photo modification date and set
-                                  EXIF:ModifyDate to EXIF:DateTimeOriginal;
-                                  this is consistent with how Photos handles
-                                  the EXIF:ModifyDate tag.
+                                  EXIF:ModifyDate to EXIF:DateTimeOriginal; this
+                                  is consistent with how Photos handles the
+                                  EXIF:ModifyDate tag.
   --person-keyword                Use person in image as keyword/tag when
                                   exporting metadata.
   --album-keyword                 Use album name as keyword/tag when exporting
                                   metadata.
-  --keyword-template TEMPLATE     For use with --exiftool, --sidecar; specify
-                                  a template string to use as keyword in the
-                                  form '{name,DEFAULT}' This is the same
-                                  format as --directory.  For example, if you
-                                  wanted to add the full path to the folder
-                                  and album photo is contained in as a keyword
-                                  when exporting you could specify --keyword-
-                                  template "{folder_album}" You may specify
-                                  more than one template, for example
-                                  --keyword-template "{folder_album}"
-                                  --keyword-template "{created.year}" See
-                                  Templating System below.
+  --keyword-template TEMPLATE     For use with --exiftool, --sidecar; specify a
+                                  template string to use as keyword in the form
+                                  '{name,DEFAULT}' This is the same format as
+                                  --directory.  For example, if you wanted to
+                                  add the full path to the folder and album
+                                  photo is contained in as a keyword when
+                                  exporting you could specify --keyword-template
+                                  "{folder_album}" You may specify more than one
+                                  template, for example --keyword-template
+                                  "{folder_album}" --keyword-template
+                                  "{created.year}" See Templating System below.
   --description-template TEMPLATE
-                                  For use with --exiftool, --sidecar; specify
-                                  a template string to use as description in
-                                  the form '{name,DEFAULT}' This is the same
-                                  format as --directory.  For example, if you
-                                  wanted to append 'exported with osxphotos on
-                                  [today's date]' to the description, you
-                                  could specify --description-template
-                                  "{descr} exported with osxphotos on
-                                  {today.date}" See Templating System below.
-  --finder-tag-template TEMPLATE  Set MacOS Finder tags to TEMPLATE. These
-                                  tags can be searched in the Finder or
-                                  Spotlight with 'tag:tagname' format. For
-                                  example, '--finder-tag-template "{label}"'
-                                  to set Finder tags to photo labels. You may
-                                  specify multiple TEMPLATE values by using '
-                                  --finder-tag-template' multiple times. See
-                                  also '--finder-tag-keywords and Extended
-                                  Attributes below.'.
+                                  For use with --exiftool, --sidecar; specify a
+                                  template string to use as description in the
+                                  form '{name,DEFAULT}' This is the same format
+                                  as --directory.  For example, if you wanted to
+                                  append 'exported with osxphotos on [today's
+                                  date]' to the description, you could specify
+                                  --description-template "{descr} exported with
+                                  osxphotos on {today.date}" See Templating
+                                  System below.
+  --finder-tag-template TEMPLATE  Set MacOS Finder tags to TEMPLATE. These tags
+                                  can be searched in the Finder or Spotlight
+                                  with 'tag:tagname' format. For example, '--
+                                  finder-tag-template "{label}"' to set Finder
+                                  tags to photo labels. You may specify multiple
+                                  TEMPLATE values by using '--finder-tag-
+                                  template' multiple times. See also '--finder-
+                                  tag-keywords and Extended Attributes below.'.
   --finder-tag-keywords           Set MacOS Finder tags to keywords; any
-                                  keywords specified via '--keyword-template',
-                                  '--person-keyword', etc. will also be used
-                                  as Finder tags. See also '--finder-tag-
-                                  template and Extended Attributes below.'.
+                                  keywords specified via '--keyword-template', '
+                                  --person-keyword', etc. will also be used as
+                                  Finder tags. See also '--finder-tag-template
+                                  and Extended Attributes below.'.
   --xattr-template ATTRIBUTE TEMPLATE
                                   Set extended attribute ATTRIBUTE to TEMPLATE
                                   value. Valid attributes are: 'authors',
                                   'comment', 'copyright', 'description',
                                   'findercomment', 'headline', 'keywords'. For
-                                  example, to set Finder comment to the
-                                  photo's title and description: '--xattr-
-                                  template findercomment "{title}; {descr}"
-                                  See Extended Attributes below for additional
-                                  details on this option.
+                                  example, to set Finder comment to the photo's
+                                  title and description: '--xattr-template
+                                  findercomment "{title}; {descr}" See Extended
+                                  Attributes below for additional details on
+                                  this option.
   --directory DIRECTORY           Optional template for specifying name of
-                                  output directory in the form
-                                  '{name,DEFAULT}'. See below for additional
-                                  details on templating system.
+                                  output directory in the form '{name,DEFAULT}'.
+                                  See below for additional details on templating
+                                  system.
   --filename FILENAME             Optional template for specifying name of
-                                  output file in the form '{name,DEFAULT}'.
-                                  File extension will be added automatically--
-                                  do not include an extension in the FILENAME
-                                  template. See below for additional details
-                                  on templating system.
-  --jpeg-ext EXTENSION            Specify file extension for JPEG files.
-                                  Photos uses .jpeg for edited images but many
-                                  images are imported with .jpg or .JPG which
-                                  can result in multiple different extensions
-                                  used for JPEG files upon export.  Use --jpg-
-                                  ext to specify a single extension to use for
-                                  all exported JPEG images. Valid values are
-                                  jpeg, jpg, JPEG, JPG; e.g. '--jpg-ext jpg'
-                                  to use '.jpg' for all JPEGs.
+                                  output file in the form '{name,DEFAULT}'. File
+                                  extension will be added automatically--do not
+                                  include an extension in the FILENAME template.
+                                  See below for additional details on templating
+                                  system.
+  --jpeg-ext EXTENSION            Specify file extension for JPEG files. Photos
+                                  uses .jpeg for edited images but many images
+                                  are imported with .jpg or .JPG which can
+                                  result in multiple different extensions used
+                                  for JPEG files upon export.  Use --jpg-ext to
+                                  specify a single extension to use for all
+                                  exported JPEG images. Valid values are jpeg,
+                                  jpg, JPEG, JPG; e.g. '--jpg-ext jpg' to use
+                                  '.jpg' for all JPEGs.
   --strip                         Optionally strip leading and trailing
                                   whitespace from any rendered templates. For
                                   example, if --filename template is "{title,}
                                   {original_name}" and image has no title,
-                                  resulting file would have a leading space
-                                  but if used with --strip, this will be
-                                  removed.
+                                  resulting file would have a leading space but
+                                  if used with --strip, this will be removed.
   --edited-suffix SUFFIX          Optional suffix template for naming edited
-                                  photos.  Default name for edited photos is
-                                  in form 'photoname_edited.ext'. For example,
-                                  with '--edited-suffix _bearbeiten', the
-                                  edited photo would be named
+                                  photos.  Default name for edited photos is in
+                                  form 'photoname_edited.ext'. For example, with
+                                  '--edited-suffix _bearbeiten', the edited
+                                  photo would be named
                                   'photoname_bearbeiten.ext'.  The default
                                   suffix is '_edited'. Multi-value templates
-                                  (see Templating System) are not permitted
-                                  with --edited-suffix.
+                                  (see Templating System) are not permitted with
+                                  --edited-suffix.
   --original-suffix SUFFIX        Optional suffix template for naming original
                                   photos.  Default name for original photos is
-                                  in form 'filename.ext'. For example, with '
-                                  --original-suffix _original', the original
-                                  photo would be named
-                                  'filename_original.ext'.  The default suffix
-                                  is '' (no suffix). Multi-value templates
-                                  (see Templating System) are not permitted
-                                  with --original-suffix.
+                                  in form 'filename.ext'. For example, with '--
+                                  original-suffix _original', the original photo
+                                  would be named 'filename_original.ext'.  The
+                                  default suffix is '' (no suffix). Multi-value
+                                  templates (see Templating System) are not
+                                  permitted with --original-suffix.
   --use-photos-export             Force the use of AppleScript or PhotoKit to
                                   export even if not missing (see also '--
                                   download-missing' and '--use-photokit').
   --use-photokit                  Use with '--download-missing' or '--use-
-                                  photos-export' to use direct Photos
-                                  interface instead of AppleScript to export.
-                                  Highly experimental alpha feature; does not
-                                  work with iTerm2 (use with Terminal.app).
-                                  This is faster and more reliable than the
-                                  default AppleScript interface.
+                                  photos-export' to use direct Photos interface
+                                  instead of AppleScript to export. Highly
+                                  experimental alpha feature; does not work with
+                                  iTerm2 (use with Terminal.app). This is faster
+                                  and more reliable than the default AppleScript
+                                  interface.
   --report <path to export report>
-                                  Write a CSV formatted report of all files
-                                  that were exported.
-  --cleanup                       Cleanup export directory by deleting any
-                                  files which were not included in this export
-                                  set. For example, photos which had
-                                  previously been exported and were
-                                  subsequently deleted in Photos.
-  --exportdb EXPORTDB_FILE        Specify alternate name for database file
-                                  which stores state information for export
-                                  and --update. If --exportdb is not
-                                  specified, export database will be saved to
+                                  Write a CSV formatted report of all files that
+                                  were exported.
+  --cleanup                       Cleanup export directory by deleting any files
+                                  which were not included in this export set.
+                                  For example, photos which had previously been
+                                  exported and were subsequently deleted in
+                                  Photos.
+  --exportdb EXPORTDB_FILE        Specify alternate name for database file which
+                                  stores state information for export and
+                                  --update. If --exportdb is not specified,
+                                  export database will be saved to
                                   '.osxphotos_export.db' in the export
                                   directory.  Must be specified as filename
                                   only, not a path, as export database will be
                                   saved in export directory.
   --load-config <config file path>
-                                  Load options from file as written with
-                                  --save-config. This allows you to save a
-                                  complex export command to file for later
-                                  reuse. For example: 'osxphotos export <lots
-                                  of options here> --save-config
-                                  osxphotos.toml' then  'osxphotos export
-                                  /path/to/export --load-config
-                                  osxphotos.toml'. If any other command line
-                                  options are used in conjunction with --load-
-                                  config, they will override the corresponding
-                                  values in the config file.
+                                  Load options from file as written with --save-
+                                  config. This allows you to save a complex
+                                  export command to file for later reuse. For
+                                  example: 'osxphotos export <lots of options
+                                  here> --save-config osxphotos.toml' then
+                                  'osxphotos export /path/to/export --load-
+                                  config osxphotos.toml'. If any other command
+                                  line options are used in conjunction with
+                                  --load-config, they will override the
+                                  corresponding values in the config file.
   --save-config <config file path>
                                   Save options to file for use with --load-
                                   config. File format is TOML.
-  -h, --help                      Show this message and exit.
+  --help                          Show this message and exit.
 
 ** Export **
 When exporting photos, osxphotos creates a database in the top-level export
-folder called '.osxphotos_export.db'.  This database preserves state
-information used for determining which files need to be updated when run with
---update.  It is recommended that if you later move the export folder tree you
-also move the database file.
+folder called '.osxphotos_export.db'.  This database preserves state information
+used for determining which files need to be updated when run with --update.  It
+is recommended that if you later move the export folder tree you also move the
+database file.
 
-The --update option will only copy new or updated files from the library to
-the export folder.  If a file is changed in the export folder (for example,
-you edited the exported image), osxphotos will detect this as a difference and
-re-export the original image from the library thus overwriting the changes.
-If using --update, the exported library should be treated as a backup, not a
+The --update option will only copy new or updated files from the library to the
+export folder.  If a file is changed in the export folder (for example, you
+edited the exported image), osxphotos will detect this as a difference and re-
+export the original image from the library thus overwriting the changes.  If
+using --update, the exported library should be treated as a backup, not a
 working copy where you intend to make changes. If you do edit or process the
 exported files and do not want them to be overwritten withsubsequent --update,
 use --ignore-signature which will match filename but not file signature when
@@ -594,59 +576,56 @@ are reported in the total photos exported.
 
 Implementation note: To determine which files need to be updated, osxphotos
 stores file signature information in the '.osxphotos_export.db' database. The
-signature includes size, modification time, and filename.  In order to
-minimize run time, --update does not do a full comparison (diff) of the files
-nor does it compare hashes of the files.  In normal usage, this is sufficient
-for updating the library. You can always run export without the --update
-option to re-export the entire library thus rebuilding the
-'.osxphotos_export.db' database.
+signature includes size, modification time, and filename.  In order to minimize
+run time, --update does not do a full comparison (diff) of the files nor does it
+compare hashes of the files.  In normal usage, this is sufficient for updating
+the library. You can always run export without the --update option to re-export
+the entire library thus rebuilding the '.osxphotos_export.db' database.
 
 
 ** Extended Attributes **
 
 Some options (currently '--finder-tag-template', '--finder-tag-keywords',
-'-xattr-template') write additional metadata to extended attributes in the
-file. These options will only work if the destination filesystem supports
-extended attributes (most do). For example, --finder-tag-keyword writes all
-keywords (including any specified by '--keyword-template' or other options) to
-Finder tags that are searchable in Spotlight using the syntax: 'tag:tagname'.
-For example, if you have images with keyword "Travel" then using '--finder-
-tag-keywords' you could quickly find those images in the Finder by typing
+'-xattr-template') write additional metadata to extended attributes in the file.
+These options will only work if the destination filesystem supports extended
+attributes (most do). For example, --finder-tag-keyword writes all keywords
+(including any specified by '--keyword-template' or other options) to Finder
+tags that are searchable in Spotlight using the syntax: 'tag:tagname'. For
+example, if you have images with keyword "Travel" then using '--finder-tag-
+keywords' you could quickly find those images in the Finder by typing
 'tag:Travel' in the Spotlight search bar. Finder tags are written to the
-'com.apple.metadata:_kMDItemUserTags' extended attribute. Unlike EXIF
-metadata, extended attributes do not modify the actual file. Most cloud
-storage services do not synch extended attributes. Dropbox does sync them and
-any changes to a file's extended attributes will cause Dropbox to re-sync the
-files.
+'com.apple.metadata:_kMDItemUserTags' extended attribute. Unlike EXIF metadata,
+extended attributes do not modify the actual file. Most cloud storage services
+do not synch extended attributes. Dropbox does sync them and any changes to a
+file's extended attributes will cause Dropbox to re-sync the files.
 
 The following attributes may be used with '--xattr-template':
 
 
-authors        The author, or authors, of the contents of the file.  A list
-               of strings. (com.apple.metadata:kMDItemAuthors)
+authors        The author, or authors, of the contents of the file.  A list of
+               strings. (com.apple.metadata:kMDItemAuthors)
 comment        A comment related to the file.  This differs from the Finder
                comment, kMDItemFinderComment.  A string.
                (com.apple.metadata:kMDItemComment)
 copyright      The copyright owner of the file contents.  A string.
                (com.apple.metadata:kMDItemCopyright)
-description    A description of the content of the resource.  The
-               description may include an abstract, table of contents,
-               reference to a graphical representation of content or a free-
-               text account of the content.  A string.
-               (com.apple.metadata:kMDItemDescription)
+description    A description of the content of the resource.  The description
+               may include an abstract, table of contents, reference to a
+               graphical representation of content or a free-text account of
+               the content.  A string. (com.apple.metadata:kMDItemDescription)
 findercomment  Finder comments for this file.  A string.
                (com.apple.metadata:kMDItemFinderComment)
-headline       A publishable entry providing a synopsis of the contents of
-               the file.  A string. (com.apple.metadata:kMDItemHeadline)
+headline       A publishable entry providing a synopsis of the contents of the
+               file.  A string. (com.apple.metadata:kMDItemHeadline)
 keywords       Keywords associated with this file. For example, “Birthday”,
                “Important”, etc. This differs from Finder tags
-               (_kMDItemUserTags) which are keywords/tags shown in the
-               Finder and searchable in Spotlight using "tag:tag_name".  A
-               list of strings. (com.apple.metadata:kMDItemKeywords)
+               (_kMDItemUserTags) which are keywords/tags shown in the Finder
+               and searchable in Spotlight using "tag:tag_name".  A list of
+               strings. (com.apple.metadata:kMDItemKeywords)
 
-For additional information on extended attributes see: https://developer.apple
-.com/documentation/coreservices/file_metadata/mditem/common_metadata_attribute
-_keys
+For additional information on extended attributes see: https://developer.apple.c
+om/documentation/coreservices/file_metadata/mditem/common_metadata_attribute_key
+s
 
 
 ** Templating System **
@@ -657,8 +636,8 @@ example, '{created.month}' would be replaced with the month name of the photo
 creation date.  e.g. 'November'.
 
 Some options supporting templates may be repeated e.g., --keyword-template
-'{label}'  --keyword-template '{media_type}' to add both labels and media
-types to the  keywords.
+'{label}'  --keyword-template '{media_type}' to add both labels and media types
+to the  keywords.
 
 The general format for a template is '{TEMPLATE_FIELD,DEFAULT}'. The full
 template format is:
@@ -681,12 +660,12 @@ place' with an optional delimiter using the template form
 
 - 'TEMPLATE_FIELD' The name of the template field, for example 'keyword'
 
-- '(PATH_SEP)' Some template fields such as '{folder_album}' are "path-like"
-in  that they join multiple elements into a single path-like string. For
-example,  if photo is in album Album1 in folder Folder1, '{folder_album}'
-results in 'Folder1/Album1'. This is so these template fields may be used as
-paths in --directory. If you intend to use such a field as a string, e.g. in
-the filename, you may specify a different path separator using the form:
+- '(PATH_SEP)' Some template fields such as '{folder_album}' are "path-like" in
+that they join multiple elements into a single path-like string. For example,
+if photo is in album Album1 in folder Folder1, '{folder_album}' results in
+'Folder1/Album1'. This is so these template fields may be used as paths in
+--directory. If you intend to use such a field as a string, e.g. in the
+filename, you may specify a different path separator using the form:
 '{TEMPLATE_FIELD(PATH_SEP)}'. For example, using the example above,
 '{folder_album(-)}' would result in 'Folder1-Album1' and '{folder_album()}'
 would result in  'Folder1Album1'.
@@ -706,14 +685,14 @@ False. These take the form: '{TEMPLATE_FIELD?VALUE_IF_TRUE,VALUE_IF_FALSE}',
 e.g. {hdr?is_hdr,not_hdr} which would result in 'is_hdr' if photo is an HDR
 image and 'not_hdr' otherwise.
 
-- ',DEFAULT' The ',' and DEFAULT value are optional.  If TEMPLATE_FIELD
-results in a null (empty) value, the template will result in default value of
-'_'. You may specify an alternate default value by appending ',DEFAULT' after
+- ',DEFAULT' The ',' and DEFAULT value are optional.  If TEMPLATE_FIELD results
+in a null (empty) value, the template will result in default value of '_'. You
+may specify an alternate default value by appending ',DEFAULT' after
 template_field. Example: '{title,no_title}' would result in 'no_title' if the
 photo had no title. Example: '{created.year}/{place.address,NO_ADDRESS}' but
-there was  no address associated with the photo, the resulting output would
-be: '2020/NO_ADDRESS/photoname.jpg'. If specified, the default value may not
-contain a brace symbol ('{' or '}').
+there was  no address associated with the photo, the resulting output would be:
+'2020/NO_ADDRESS/photoname.jpg'. If specified, the default value may not contain
+a brace symbol ('{' or '}').
 
 Again, if you do not specify a default value and the template substitution has
 no value, '_' (underscore) will be used as the default value. For example, in
@@ -729,11 +708,11 @@ than one template field in a single string,  e.g. '{created.year} -
 {created.month}' (e.g. '2020 - November').
 
 Some templates may resolve to more than one value.  For example, a photo can
-have multiple keywords so '{keyword}' can result in multiple values.  If used
-in a filename  or directory, these templates may result in more than one copy
-of the photo being exported.  For example, if photo has keywords "foo" and
-"bar", --directory '{keyword}' will result in  copies of the photo being
-exported to 'foo/image_name.jpeg' and 'bar/image_name.jpeg'.
+have multiple keywords so '{keyword}' can result in multiple values.  If used in
+a filename  or directory, these templates may result in more than one copy of
+the photo being exported.  For example, if photo has keywords "foo" and "bar",
+--directory '{keyword}' will result in  copies of the photo being exported to
+'foo/image_name.jpeg' and 'bar/image_name.jpeg'.
 
 Some template fields such as '{media_type}' use the 'DEFAULT' value to allow
 customization  of the output. For example, '{media_type}' resolves to the
@@ -746,60 +725,56 @@ ordinary video.
 
 With the --directory and --filename options you may specify a template for the
 export directory or filename, respectively. The directory will be appended to
-the export path specified in the export DEST argument to export. For example,
-if template is '{created.year}/{created.month}', and export destination DEST
-is '/Users/maria/Pictures/export', the actual export directory for a photo
-would be '/Users/maria/Pictures/export/2020/March' if the photo was created in
-March 2020.
+the export path specified in the export DEST argument to export. For example, if
+template is '{created.year}/{created.month}', and export destination DEST is
+'/Users/maria/Pictures/export', the actual export directory for a photo would be
+'/Users/maria/Pictures/export/2020/March' if the photo was created in March
+2020.
 
-The templating system may also be used with the --keyword-template option to
-set keywords on export (with --exiftool or --sidecar), for example, to set a
-new keyword in format 'folder/subfolder/album' to preserve the folder/album
+The templating system may also be used with the --keyword-template option to set
+keywords on export (with --exiftool or --sidecar), for example, to set a new
+keyword in format 'folder/subfolder/album' to preserve the folder/album
 structure, you can use --keyword-template "{folder_album}"
 
 In the template, valid template substitutions will be replaced by the
-corresponding value from the table below.  Invalid substitutions will result
-in an error.
+corresponding value from the table below.  Invalid substitutions will result in
+an error.
 
-If you want the actual text of the template substition to appear in the
-rendered name, use double braces, e.g. '{{' or '}}', thus using
-'{created.year}/{{name}}' for --directory would result in output of
-2020/{name}/photoname.jpg
+If you want the actual text of the template substition to appear in the rendered
+name, use double braces, e.g. '{{' or '}}', thus using '{created.year}/{{name}}'
+for --directory would result in output of 2020/{name}/photoname.jpg
 
 With the --directory and --filename options you may specify a template for the
 export directory or filename, respectively. The directory will be appended to
 the export path specified in the export DEST argument to export.  For example,
-if template is '{created.year}/{created.month}', and export destination DEST
-is '/Users/maria/Pictures/export', the actual export directory for a photo
-would be '/Users/maria/Pictures/export/2020/March' if the photo was created in
-March 2020.
+if template is '{created.year}/{created.month}', and export destination DEST is
+'/Users/maria/Pictures/export', the actual export directory for a photo would be
+'/Users/maria/Pictures/export/2020/March' if the photo was created in March
+2020.
 
-The templating system may also be used with the --keyword-template option to
-set keywords on export (with --exiftool or --sidecar), for example, to set a
-new keyword in format 'folder/subfolder/album' to preserve the folder/album
+The templating system may also be used with the --keyword-template option to set
+keywords on export (with --exiftool or --sidecar), for example, to set a new
+keyword in format 'folder/subfolder/album' to preserve the folder/album
 structure, you can use --keyword-template "{folder_album}"
 
 In the template, valid template substitutions will be replaced by the
-corresponding value from the table below.  Invalid substitutions will result
-in a an error and the script will abort.
+corresponding value from the table below.  Invalid substitutions will result in
+a an error and the script will abort.
 
-If you want the actual text of the template substition to appear in the
-rendered name, use double braces, e.g. '{{' or '}}', thus using
-'{created.year}/{{name}}' for --directory would result in output of
-2020/{name}/photoname.jpg
+If you want the actual text of the template substition to appear in the rendered
+name, use double braces, e.g. '{{' or '}}', thus using '{created.year}/{{name}}'
+for --directory would result in output of 2020/{name}/photoname.jpg
 
 You may specify an optional default value to use if the substitution does not
-contain a value (e.g. the value is null) by specifying the default value after
-a ',' in the template string: for example, if template is
-'{created.year}/{place.address,NO_ADDRESS}' but there was no address
-associated with the photo, the resulting output would be:
-'2020/NO_ADDRESS/photoname.jpg'. If specified, the default value may not
-contain a brace symbol ('{' or '}').
+contain a value (e.g. the value is null) by specifying the default value after a
+',' in the template string: for example, if template is
+'{created.year}/{place.address,NO_ADDRESS}' but there was no address associated
+with the photo, the resulting output would be: '2020/NO_ADDRESS/photoname.jpg'.
+If specified, the default value may not contain a brace symbol ('{' or '}').
 
 If you do not specify a default value and the template substitution has no
 value, '_' (underscore) will be used as the default value. For example, in the
-above example, this would result in '2020/_/photoname.jpg' if address was
-null.
+above example, this would result in '2020/_/photoname.jpg' if address was null.
 
 You may specify a null default (e.g. "" or empty string) by omitting the value
 after the comma, e.g. {title,} which would render to "" if title had no value.
@@ -815,14 +790,13 @@ Substitution                    Description
                                 slow_mo, screenshot, portrait, live_photo,
                                 burst, photo, video. Defaults to 'photo' or
                                 'video' if no special type. Customize one or
-                                more media types using format: '{media_type,
-                                video=vidéo;time_lapse=vidéo_accélérée}'
-{photo_or_video}                'photo' or 'video' depending on what type
-                                the image is. To customize, use default
-                                value as in
-                                '{photo_or_video,photo=fotos;video=videos}'
-{hdr}                           Photo is HDR?; True/False value, use in
-                                format '{hdr?VALUE_IF_TRUE,VALUE_IF_FALSE}'
+                                more media types using format: '{media_type,vi
+                                deo=vidéo;time_lapse=vidéo_accélérée}'
+{photo_or_video}                'photo' or 'video' depending on what type the
+                                image is. To customize, use default value as
+                                in '{photo_or_video,photo=fotos;video=videos}'
+{hdr}                           Photo is HDR?; True/False value, use in format
+                                '{hdr?VALUE_IF_TRUE,VALUE_IF_FALSE}'
 {edited}                        Photo has been edited (has adjustments)?;
                                 True/False value, use in format
                                 '{edited?VALUE_IF_TRUE,VALUE_IF_FALSE}'
@@ -830,85 +804,81 @@ Substitution                    Description
                                 '2020-03-22'
 {created.year}                  4-digit year of photo creation time
 {created.yy}                    2-digit year of photo creation time
-{created.mm}                    2-digit month of the photo creation time
-                                (zero padded)
+{created.mm}                    2-digit month of the photo creation time (zero
+                                padded)
 {created.month}                 Month name in user's locale of the photo
                                 creation time
-{created.mon}                   Month abbreviation in the user's locale of
-                                the photo creation time
+{created.mon}                   Month abbreviation in the user's locale of the
+                                photo creation time
 {created.dd}                    2-digit day of the month (zero padded) of
                                 photo creation time
 {created.dow}                   Day of week in user's locale of the photo
                                 creation time
-{created.doy}                   3-digit day of year (e.g Julian day) of
-                                photo creation time, starting from 1 (zero
-                                padded)
+{created.doy}                   3-digit day of year (e.g Julian day) of photo
+                                creation time, starting from 1 (zero padded)
 {created.hour}                  2-digit hour of the photo creation time
 {created.min}                   2-digit minute of the photo creation time
 {created.sec}                   2-digit second of the photo creation time
 {created.strftime}              Apply strftime template to file creation
                                 date/time. Should be used in form
-                                {created.strftime,TEMPLATE} where TEMPLATE
-                                is a valid strftime template, e.g.
-                                {created.strftime,%Y-%U} would result in
-                                year-week number of year: '2020-23'. If used
-                                with no template will return null value. See
+                                {created.strftime,TEMPLATE} where TEMPLATE is
+                                a valid strftime template, e.g.
+                                {created.strftime,%Y-%U} would result in year-
+                                week number of year: '2020-23'. If used with
+                                no template will return null value. See
                                 https://strftime.org/ for help on strftime
                                 templates.
-{modified.date}                 Photo's modification date in ISO format,
-                                e.g. '2020-03-22'; uses creation date if
-                                photo is not modified
-{modified.year}                 4-digit year of photo modification time;
-                                uses creation date if photo is not modified
-{modified.yy}                   2-digit year of photo modification time;
-                                uses creation date if photo is not modified
+{modified.date}                 Photo's modification date in ISO format, e.g.
+                                '2020-03-22'; uses creation date if photo is
+                                not modified
+{modified.year}                 4-digit year of photo modification time; uses
+                                creation date if photo is not modified
+{modified.yy}                   2-digit year of photo modification time; uses
+                                creation date if photo is not modified
 {modified.mm}                   2-digit month of the photo modification time
-                                (zero padded); uses creation date if photo
-                                is not modified
+                                (zero padded); uses creation date if photo is
+                                not modified
 {modified.month}                Month name in user's locale of the photo
-                                modification time; uses creation date if
-                                photo is not modified
-{modified.mon}                  Month abbreviation in the user's locale of
-                                the photo modification time; uses creation
-                                date if photo is not modified
-{modified.dd}                   2-digit day of the month (zero padded) of
-                                the photo modification time; uses creation
-                                date if photo is not modified
-{modified.dow}                  Day of week in user's locale of the photo
-                                modification time; uses creation date if
-                                photo is not modified
-{modified.doy}                  3-digit day of year (e.g Julian day) of
-                                photo modification time, starting from 1
-                                (zero padded); uses creation date if photo
+                                modification time; uses creation date if photo
                                 is not modified
+{modified.mon}                  Month abbreviation in the user's locale of the
+                                photo modification time; uses creation date if
+                                photo is not modified
+{modified.dd}                   2-digit day of the month (zero padded) of the
+                                photo modification time; uses creation date if
+                                photo is not modified
+{modified.dow}                  Day of week in user's locale of the photo
+                                modification time; uses creation date if photo
+                                is not modified
+{modified.doy}                  3-digit day of year (e.g Julian day) of photo
+                                modification time, starting from 1 (zero
+                                padded); uses creation date if photo is not
+                                modified
 {modified.hour}                 2-digit hour of the photo modification time;
                                 uses creation date if photo is not modified
-{modified.min}                  2-digit minute of the photo modification
-                                time; uses creation date if photo is not
-                                modified
-{modified.sec}                  2-digit second of the photo modification
-                                time; uses creation date if photo is not
-                                modified
+{modified.min}                  2-digit minute of the photo modification time;
+                                uses creation date if photo is not modified
+{modified.sec}                  2-digit second of the photo modification time;
+                                uses creation date if photo is not modified
 {modified.strftime}             Apply strftime template to file modification
                                 date/time. Should be used in form
-                                {modified.strftime,TEMPLATE} where TEMPLATE
-                                is a valid strftime template, e.g.
+                                {modified.strftime,TEMPLATE} where TEMPLATE is
+                                a valid strftime template, e.g.
                                 {modified.strftime,%Y-%U} would result in
                                 year-week number of year: '2020-23'. If used
-                                with no template will return null value.
-                                Uses creation date if photo is not modified.
-                                See https://strftime.org/ for help on
-                                strftime templates.
-{today.date}                    Current date in iso format, e.g.
-                                '2020-03-22'
+                                with no template will return null value. Uses
+                                creation date if photo is not modified. See
+                                https://strftime.org/ for help on strftime
+                                templates.
+{today.date}                    Current date in iso format, e.g. '2020-03-22'
 {today.year}                    4-digit year of current date
 {today.yy}                      2-digit year of current date
 {today.mm}                      2-digit month of the current date (zero
                                 padded)
 {today.month}                   Month name in user's locale of the current
                                 date
-{today.mon}                     Month abbreviation in the user's locale of
-                                the current date
+{today.mon}                     Month abbreviation in the user's locale of the
+                                current date
 {today.dd}                      2-digit day of the month (zero padded) of
                                 current date
 {today.dow}                     Day of week in user's locale of the current
@@ -918,10 +888,10 @@ Substitution                    Description
 {today.hour}                    2-digit hour of the current date
 {today.min}                     2-digit minute of the current date
 {today.sec}                     2-digit second of the current date
-{today.strftime}                Apply strftime template to current
-                                date/time. Should be used in form
-                                {today.strftime,TEMPLATE} where TEMPLATE is
-                                a valid strftime template, e.g.
+{today.strftime}                Apply strftime template to current date/time.
+                                Should be used in form
+                                {today.strftime,TEMPLATE} where TEMPLATE is a
+                                valid strftime template, e.g.
                                 {today.strftime,%Y-%U} would result in year-
                                 week number of year: '2020-23'. If used with
                                 no template will return null value. See
@@ -929,22 +899,22 @@ Substitution                    Description
                                 templates.
 {place.name}                    Place name from the photo's reverse
                                 geolocation data, as displayed in Photos
-{place.country_code}            The ISO country code from the photo's
-                                reverse geolocation data
+{place.country_code}            The ISO country code from the photo's reverse
+                                geolocation data
 {place.name.country}            Country name from the photo's reverse
                                 geolocation data
 {place.name.state_province}     State or province name from the photo's
                                 reverse geolocation data
-{place.name.city}               City or locality name from the photo's
-                                reverse geolocation data
-{place.name.area_of_interest}   Area of interest name (e.g. landmark or
-                                public place) from the photo's reverse
+{place.name.city}               City or locality name from the photo's reverse
                                 geolocation data
+{place.name.area_of_interest}   Area of interest name (e.g. landmark or public
+                                place) from the photo's reverse geolocation
+                                data
 {place.address}                 Postal address from the photo's reverse
                                 geolocation data, e.g. '2007 18th St NW,
                                 Washington, DC 20009, United States'
-{place.address.street}          Street part of the postal address, e.g.
-                                '2007 18th St NW'
+{place.address.street}          Street part of the postal address, e.g. '2007
+                                18th St NW'
 {place.address.city}            City part of the postal address, e.g.
                                 'Washington'
 {place.address.state_province}  State/province part of the postal address,
@@ -957,24 +927,24 @@ Substitution                    Description
                                 'US'
 {searchinfo.season}             Season of the year associated with a photo,
                                 e.g. 'Summer'; (Photos 5+ only, applied
-                                automatically by Photos' image
-                                categorization algorithms).
+                                automatically by Photos' image categorization
+                                algorithms).
 {exif.camera_make}              Camera make from original photo's EXIF
-                                inormation as imported by Photos, e.g.
+                                information as imported by Photos, e.g.
                                 'Apple'
 {exif.camera_model}             Camera model from original photo's EXIF
-                                inormation as imported by Photos, e.g.
+                                information as imported by Photos, e.g.
                                 'iPhone 6s'
 {exif.lens_model}               Lens model from original photo's EXIF
-                                inormation as imported by Photos, e.g.
+                                information as imported by Photos, e.g.
                                 'iPhone 6s back camera 4.15mm f/2.2'
-{uuid}                          Photo's internal universally unique
-                                identifier (UUID) for the photo, a
-                                36-character string unique to the photo,
-                                e.g. '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'
+{uuid}                          Photo's internal universally unique identifier
+                                (UUID) for the photo, a 36-character string
+                                unique to the photo, e.g.
+                                '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'
 
-The following substitutions may result in multiple values. Thus if specified
-for --directory these could result in multiple copies of a photo being being
+The following substitutions may result in multiple values. Thus if specified for
+--directory these could result in multiple copies of a photo being being
 exported, one to each directory.  For example: --directory
 '{created.year}/{album}' could result in the same photo being exported to each
 of the following directories if the photos were created in 2019 and were in
@@ -990,16 +960,16 @@ Substitution              Description
 {label}                   Image categorization label associated with a photo
                           (Photos 5+ only)
 {label_normalized}        All lower case version of 'label' (Photos 5+ only)
-{comment}                 Comment(s) on shared Photos; format is 'Person
-                          name: comment text' (Photos 5+ only)
+{comment}                 Comment(s) on shared Photos; format is 'Person name:
+                          comment text' (Photos 5+ only)
 {exiftool:GROUP:TAGNAME}  Use exiftool (https://exiftool.org) to extract
                           metadata, in form GROUP:TAGNAME, from image.  E.g.
                           '{exiftool:EXIF:Make}' to get camera make, or
                           {exiftool:IPTC:Keywords} to extract keywords. See
-                          https://exiftool.org/TagNames/ for list of valid
-                          tag names.  You must specify group (e.g. EXIF,
-                          IPTC, etc) as used in `exiftool -G`. exiftool must
-                          be installed in the path to use this template.
+                          https://exiftool.org/TagNames/ for list of valid tag
+                          names.  You must specify group (e.g. EXIF, IPTC,
+                          etc) as used in `exiftool -G`. exiftool must be
+                          installed in the path to use this template.
 {searchinfo.holiday}      Holiday names associated with a photo, e.g.
                           'Christmas Day'; (Photos 5+ only, applied
                           automatically by Photos' image categorization
@@ -1011,13 +981,12 @@ Substitution              Description
                           restaurant; (Photos 5+ only, applied automatically
                           by Photos' image categorization algorithms).
 {searchinfo.venue_type}   Venue types associated with a photo, e.g.
-                          'Restaurant'; (Photos 5+ only, applied
-                          automatically by Photos' image categorization
-                          algorithms).
+                          'Restaurant'; (Photos 5+ only, applied automatically
+                          by Photos' image categorization algorithms).
+
+
 ```
-
-
-
+<!-- OSXPHOTOS-EXPORT-USAGE:END -->
 
 ## Example uses of the package 
 
@@ -2410,7 +2379,7 @@ To get the path of every raw photo, whether it's a single raw photo or a raw+JPE
 ### Template Substitutions
 
 The following template field substitutions are availabe for use with `PhotoInfo.render_template()`
-
+<!-- OSXPHOTOS-TEMPLATE-TABLE:START - Do not remove or modify this section -->
 | Substitution | Description |
 |--------------|-------------|
 |{name}|Current filename of the photo|
@@ -2474,9 +2443,9 @@ The following template field substitutions are availabe for use with `PhotoInfo.
 |{place.address.country}|Country name of the postal address, e.g. 'United States'|
 |{place.address.country_code}|ISO country code of the postal address, e.g. 'US'|
 |{searchinfo.season}|Season of the year associated with a photo, e.g. 'Summer'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
-|{exif.camera_make}|Camera make from original photo's EXIF inormation as imported by Photos, e.g. 'Apple'|
-|{exif.camera_model}|Camera model from original photo's EXIF inormation as imported by Photos, e.g. 'iPhone 6s'|
-|{exif.lens_model}|Lens model from original photo's EXIF inormation as imported by Photos, e.g. 'iPhone 6s back camera 4.15mm f/2.2'|
+|{exif.camera_make}|Camera make from original photo's EXIF information as imported by Photos, e.g. 'Apple'|
+|{exif.camera_model}|Camera model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s'|
+|{exif.lens_model}|Lens model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s back camera 4.15mm f/2.2'|
 |{uuid}|Photo's internal universally unique identifier (UUID) for the photo, a 36-character string unique to the photo, e.g. '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
@@ -2490,6 +2459,7 @@ The following template field substitutions are availabe for use with `PhotoInfo.
 |{searchinfo.activity}|Activities associated with a photo, e.g. 'Sporting Event'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
 |{searchinfo.venue}|Venues associated with a photo, e.g. name of restaurant; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
 |{searchinfo.venue_type}|Venue types associated with a photo, e.g. 'Restaurant'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
+<!-- OSXPHOTOS-TEMPLATE-TABLE:END -->
 
 ### Utility Functions
 

@@ -118,9 +118,9 @@ TEMPLATE_SUBSTITUTIONS = {
     "{place.address.country}": "Country name of the postal address, e.g. 'United States'",
     "{place.address.country_code}": "ISO country code of the postal address, e.g. 'US'",
     "{searchinfo.season}": "Season of the year associated with a photo, e.g. 'Summer'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).",
-    "{exif.camera_make}": "Camera make from original photo's EXIF inormation as imported by Photos, e.g. 'Apple'",
-    "{exif.camera_model}": "Camera model from original photo's EXIF inormation as imported by Photos, e.g. 'iPhone 6s'",
-    "{exif.lens_model}": "Lens model from original photo's EXIF inormation as imported by Photos, e.g. 'iPhone 6s back camera 4.15mm f/2.2'",
+    "{exif.camera_make}": "Camera make from original photo's EXIF information as imported by Photos, e.g. 'Apple'",
+    "{exif.camera_model}": "Camera model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s'",
+    "{exif.lens_model}": "Lens model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s back camera 4.15mm f/2.2'",
     "{uuid}": "Photo's internal universally unique identifier (UUID) for the photo, a 36-character string unique to the photo, e.g. '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'",
 }
 
