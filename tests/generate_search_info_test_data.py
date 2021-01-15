@@ -2,6 +2,8 @@
 
 # reads data from the author's system photo library to build the test data
 # used to test SearchInfo
+# run as:
+# python3 tests/generate_search_info_test_data.py >tests/search_info_test_data_10_15_7.json
 
 import json
 

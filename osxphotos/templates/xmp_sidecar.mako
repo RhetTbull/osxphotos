@@ -10,28 +10,44 @@
 
 <%def name="dc_description(desc)">
     % if desc is None:
-        <dc:description></dc:description>
+        <dc:description>
+         <rdf:Alt>
+          <rdf:li xml:lang='x-default'/>
+         </rdf:Alt>
+        </dc:description>
     % else:
-        <dc:description>${desc | x}</dc:description>
+        <dc:description>
+        <rdf:Alt>
+            <rdf:li xml:lang='x-default'>${desc | x}</rdf:li>
+        </rdf:Alt>
+        </dc:description>
     % endif
 </%def>
 
 <%def name="dc_title(title)">
     % if title is None:
-        <dc:title></dc:title>
+        <dc:title>
+         <rdf:Alt>
+          <rdf:li xml:lang='x-default'/>
+         </rdf:Alt>
+        </dc:title>
     % else:
-        <dc:title>${title | x}</dc:title>
+        <dc:title>
+         <rdf:Alt>
+          <rdf:li xml:lang='x-default'>${title | x}</rdf:li>
+         </rdf:Alt>
+        </dc:title>
     % endif
 </%def>
 
 <%def name="dc_subject(subject)">
     % if subject:
         <dc:subject>
-            <rdf:Seq>
-            % for subj in subject:
-                <rdf:li>${subj | x}</rdf:li>
-            % endfor
-            </rdf:Seq>
+         <rdf:Bag>
+         % for subj in subject:
+            <rdf:li>${subj | x}</rdf:li>
+         % endfor
+         </rdf:Bag>
         </dc:subject>
     % endif
 </%def>
@@ -86,7 +102,6 @@
 </%def>
 
 <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 5.4.0">
-    <!-- mirrors Photos 5 "Export IPTC as XMP" option -->
     <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
         <rdf:Description rdf:about="" 
             xmlns:dc="http://purl.org/dc/elements/1.1/" 

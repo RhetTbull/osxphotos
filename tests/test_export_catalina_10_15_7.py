@@ -1,3 +1,8 @@
+""" Test export for 10.15.7 """
+
+import json
+import pathlib
+
 import pytest
 
 import osxphotos
@@ -12,6 +17,7 @@ except:
     exiftool = None
 
 PHOTOS_DB = "./tests/Test-10.15.7.photoslibrary/database/photos.db"
+SIDECAR_DIR = "./tests/sidecars"
 
 
 @pytest.fixture(scope="module")
@@ -76,50 +82,6 @@ XMP_FILENAME = "Pumkins1.jpg.xmp"
 XMP_JPG_FILENAME = "Pumkins1.jpg"
 
 EXIF_JSON_UUID = UUID_DICT["has_adjustments"]
-EXIF_JSON_EXPECTED = """ 
-    [{"EXIF:ImageDescription": "Bride Wedding day", 
-    "XMP:Description": "Bride Wedding day", 
-    "XMP:TagsList": ["Maria", "wedding"], 
-    "IPTC:Keywords": ["Maria", "wedding"], 
-    "XMP:PersonInImage": ["Maria"], 
-    "XMP:Subject": ["wedding", "Maria"], 
-    "EXIF:DateTimeOriginal": "2019:04:15 14:40:24", 
-    "EXIF:CreateDate": "2019:04:15 14:40:24", 
-    "EXIF:OffsetTimeOriginal": "-04:00", 
-    "IPTC:DateCreated": "2019:04:15", 
-    "IPTC:TimeCreated": "14:40:24-04:00", 
-    "EXIF:ModifyDate": "2019:07:27 17:33:28"}]
-    """
-
-EXIFTOOL_SIDECAR_EXPECTED = """ 
-    [{"ImageDescription": "Bride Wedding day", 
-    "Description": "Bride Wedding day", 
-    "TagsList": ["Maria", "wedding"], 
-    "Keywords": ["Maria", "wedding"], 
-    "PersonInImage": ["Maria"], 
-    "Subject": ["wedding", "Maria"], 
-    "DateTimeOriginal": "2019:04:15 14:40:24", 
-    "CreateDate": "2019:04:15 14:40:24", 
-    "OffsetTimeOriginal": "-04:00", 
-    "DateCreated": "2019:04:15", 
-    "TimeCreated": "14:40:24-04:00", 
-    "ModifyDate": "2019:07:27 17:33:28"}]
-    """
-
-EXIF_JSON_EXPECTED_IGNORE_DATE_MODIFIED = """ 
-    [{"EXIF:ImageDescription": "Bride Wedding day", 
-    "XMP:Description": "Bride Wedding day", 
-    "XMP:TagsList": ["Maria", "wedding"], 
-    "IPTC:Keywords": ["Maria", "wedding"], 
-    "XMP:PersonInImage": ["Maria"], 
-    "XMP:Subject": ["wedding", "Maria"], 
-    "EXIF:DateTimeOriginal": "2019:04:15 14:40:24", 
-    "EXIF:CreateDate": "2019:04:15 14:40:24", 
-    "EXIF:OffsetTimeOriginal": "-04:00", 
-    "IPTC:DateCreated": "2019:04:15", 
-    "IPTC:TimeCreated": "14:40:24-04:00", 
-    "EXIF:ModifyDate": "2019:04:15 14:40:24"}]
-    """
 
 
 def test_export_1(photosdb):
@@ -175,10 +137,9 @@ def test_export_3(photosdb):
     filename = photos[0].filename
     filename2 = pathlib.Path(filename)
     filename2 = f"{filename2.stem} (1){filename2.suffix}"
-    expected_dest = os.path.join(dest, filename)
     expected_dest_2 = os.path.join(dest, filename2)
 
-    got_dest = photos[0].export(dest)[0]
+    got_dest_1 = photos[0].export(dest)[0]
     got_dest_2 = photos[0].export(dest)[0]
 
     assert got_dest_2 == expected_dest_2
@@ -200,10 +161,9 @@ def test_export_4(photosdb):
     timestamp = time.time()
     filename = f"osxphotos-export-2-test-{timestamp}.jpg"
     filename2 = f"osxphotos-export-2-test-{timestamp} (1).jpg"
-    expected_dest = os.path.join(dest, filename)
     expected_dest_2 = os.path.join(dest, filename2)
 
-    got_dest = photos[0].export(dest, filename)[0]
+    got_dest_1 = photos[0].export(dest, filename)[0]
     got_dest_2 = photos[0].export(dest, filename)[0]
 
     assert got_dest_2 == expected_dest_2
@@ -440,56 +400,37 @@ def test_dd_to_dms_str_4():
 
 
 def test_exiftool_json_sidecar(photosdb):
-    import json
 
-    photos = photosdb.photos(uuid=[EXIF_JSON_UUID])
+    uuid = EXIF_JSON_UUID
+    photo = photosdb.get_photo(uuid)
 
-    json_expected = json.loads(EXIF_JSON_EXPECTED)[0]
+    with open(str(pathlib.Path(SIDECAR_DIR) / f"{uuid}.json"), "r") as fp:
+        json_expected = json.load(fp)[0]
 
-    json_got = photos[0]._exiftool_json_sidecar()
+    json_got = photo._exiftool_json_sidecar()
     json_got = json.loads(json_got)[0]
 
-    # some gymnastics to account for different sort order in different pythons
-    for k, v in json_got.items():
-        if type(v) in (list, tuple):
-            assert sorted(json_expected[k]) == sorted(v)
-        else:
-            assert json_expected[k] == v
-
-    for k, v in json_expected.items():
-        if type(v) in (list, tuple):
-            assert sorted(json_got[k]) == sorted(v)
-        else:
-            assert json_got[k] == v
+    assert json_got == json_expected
 
 
 def test_exiftool_json_sidecar_ignore_date_modified(photosdb):
-    import json
 
-    photos = photosdb.photos(uuid=[EXIF_JSON_UUID])
+    uuid = EXIF_JSON_UUID
+    photo = photosdb.get_photo(uuid)
 
-    json_expected = json.loads(EXIF_JSON_EXPECTED_IGNORE_DATE_MODIFIED)[0]
+    with open(
+        str(pathlib.Path(SIDECAR_DIR) / f"{uuid}_ignore_date_modified.json"), "r"
+    ) as fp:
+        json_expected = json.load(fp)[0]
 
-    json_got = photos[0]._exiftool_json_sidecar(ignore_date_modified=True)
+    json_got = photo._exiftool_json_sidecar(ignore_date_modified=True)
     json_got = json.loads(json_got)[0]
 
-    # some gymnastics to account for different sort order in different pythons
-    for k, v in json_got.items():
-        if type(v) in (list, tuple):
-            assert sorted(json_expected[k]) == sorted(v)
-        else:
-            assert json_expected[k] == v
-
-    for k, v in json_expected.items():
-        if type(v) in (list, tuple):
-            assert sorted(json_got[k]) == sorted(v)
-        else:
-            assert json_got[k] == v
+    assert json_got == json_expected
 
 
 def test_exiftool_json_sidecar_keyword_template_long(caplog, photosdb):
     from osxphotos._constants import _MAX_IPTC_KEYWORD_LEN
-    import json
 
     photos = photosdb.photos(uuid=[EXIF_JSON_UUID])
 
@@ -536,165 +477,62 @@ def test_exiftool_json_sidecar_keyword_template_long(caplog, photosdb):
 
 
 def test_exiftool_json_sidecar_keyword_template(photosdb):
-    import json
 
-    photos = photosdb.photos(uuid=[EXIF_JSON_UUID])
+    uuid = EXIF_JSON_UUID
+    photo = photosdb.get_photo(uuid)
 
-    json_expected = json.loads(
-        """
-        [{"EXIF:ImageDescription": "Bride Wedding day", 
-        "XMP:Description": "Bride Wedding day", 
-        "XMP:TagsList": ["Maria", "wedding", "Folder1/SubFolder2/AlbumInFolder", "I have a deleted twin"], 
-        "IPTC:Keywords": ["Maria", "wedding", "Folder1/SubFolder2/AlbumInFolder", "I have a deleted twin"], 
-        "XMP:Subject": ["Maria", "wedding", "Folder1/SubFolder2/AlbumInFolder", "I have a deleted twin"], 
-        "XMP:PersonInImage": ["Maria"], 
-        "EXIF:DateTimeOriginal": "2019:04:15 14:40:24", 
-        "EXIF:CreateDate": "2019:04:15 14:40:24", 
-        "EXIF:OffsetTimeOriginal": "-04:00", 
-        "IPTC:DateCreated": "2019:04:15", 
-        "IPTC:TimeCreated": "14:40:24-04:00", 
-        "EXIF:ModifyDate": "2019:07:27 17:33:28"}]
-        """
-    )[0]
+    with open(
+        str(pathlib.Path(SIDECAR_DIR) / f"{uuid}_keyword_template.json"), "r"
+    ) as fp:
+        json_expected = json.load(fp)
+    json_got = photo._exiftool_json_sidecar(keyword_template=["{folder_album}"])
+    json_got = json.loads(json_got)
 
-    json_got = photos[0]._exiftool_json_sidecar(keyword_template=["{folder_album}"])
-    json_got = json.loads(json_got)[0]
-
-    # some gymnastics to account for different sort order in different pythons
-    for k, v in json_got.items():
-        if type(v) in (list, tuple):
-            assert sorted(json_expected[k]) == sorted(v)
-        else:
-            assert json_expected[k] == v
-
-    for k, v in json_expected.items():
-        if type(v) in (list, tuple):
-            assert sorted(json_got[k]) == sorted(v)
-        else:
-            assert json_got[k] == v
-
-    # some gymnastics to account for different sort order in different pythons
-    for k, v in json_got.items():
-        if type(v) in (list, tuple):
-            assert sorted(json_expected[k]) == sorted(v)
-        else:
-            assert json_expected[k] == v
-
-    for k, v in json_expected.items():
-        if type(v) in (list, tuple):
-            assert sorted(json_got[k]) == sorted(v)
-        else:
-            assert json_got[k] == v
-
-    for k, v in json_expected.items():
-        if type(v) in (list, tuple):
-            assert sorted(json_got[k]) == sorted(v)
-        else:
-            assert json_got[k] == v
+    assert json_got == json_expected
 
 
 def test_exiftool_json_sidecar_use_persons_keyword(photosdb):
-    import json
 
-    photos = photosdb.photos(uuid=[UUID_DICT["xmp"]])
+    uuid = UUID_DICT["xmp"]
+    photo = photosdb.get_photo(uuid)
 
-    json_expected = json.loads(
-        """
-        [{"EXIF:ImageDescription": "Girls with pumpkins", 
-        "XMP:Description": "Girls with pumpkins", 
-        "XMP:Title": "Can we carry this?", 
-        "XMP:TagsList": ["Kids", "Suzy", "Katie"], 
-        "IPTC:Keywords": ["Kids", "Suzy", "Katie"],
-        "XMP:PersonInImage": ["Suzy", "Katie"],
-        "XMP:Subject": ["Kids", "Suzy", "Katie"],
-        "EXIF:DateTimeOriginal": "2018:09:28 15:35:49", 
-        "EXIF:CreateDate": "2018:09:28 15:35:49", 
-        "EXIF:OffsetTimeOriginal": "-04:00", 
-        "IPTC:DateCreated": "2018:09:28", 
-        "IPTC:TimeCreated": "15:35:49-04:00", 
-        "EXIF:ModifyDate": "2018:09:28 15:35:49"}]
-        """
-    )[0]
+    with open(
+        str(pathlib.Path(SIDECAR_DIR) / f"{uuid}_persons_as_keywords.json"), "r"
+    ) as fp:
+        json_expected = json.load(fp)[0]
 
-    json_got = photos[0]._exiftool_json_sidecar(use_persons_as_keywords=True)
+    json_got = photo._exiftool_json_sidecar(use_persons_as_keywords=True)
     json_got = json.loads(json_got)[0]
 
-    # some gymnastics to account for different sort order in different pythons
-    for k, v in json_got.items():
-        if type(v) in (list, tuple):
-            assert sorted(json_expected[k]) == sorted(v)
-        else:
-            assert json_expected[k] == v
-
-    for k, v in json_expected.items():
-        if type(v) in (list, tuple):
-            assert sorted(json_got[k]) == sorted(v)
-        else:
-            assert json_got[k] == v
+    assert json_got == json_expected
 
 
-def test_exiftool_json_sidecar_use_albums_keyword(photosdb):
-    import json
+def test_exiftool_json_sidecar_use_albums_keywords(photosdb):
 
-    photos = photosdb.photos(uuid=[UUID_DICT["xmp"]])
+    uuid = UUID_DICT["xmp"]
+    photo = photosdb.get_photo(uuid)
 
-    json_expected = json.loads(
-        """
-        [{"EXIF:ImageDescription": "Girls with pumpkins", 
-        "XMP:Description": "Girls with pumpkins", 
-        "XMP:Title": "Can we carry this?", 
-        "XMP:TagsList": ["Kids", "Pumpkin Farm", "Test Album"], 
-        "IPTC:Keywords": ["Kids", "Pumpkin Farm", "Test Album"], 
-        "XMP:PersonInImage": ["Suzy", "Katie"], 
-        "XMP:Subject": ["Kids", "Pumpkin Farm", "Test Album"], 
-        "EXIF:DateTimeOriginal": "2018:09:28 15:35:49", 
-        "EXIF:CreateDate": "2018:09:28 15:35:49", 
-        "EXIF:OffsetTimeOriginal": "-04:00", 
-        "IPTC:DateCreated": "2018:09:28", 
-        "IPTC:TimeCreated": "15:35:49-04:00", 
-        "EXIF:ModifyDate": "2018:09:28 15:35:49"}]
-        """
-    )[0]
+    with open(
+        str(pathlib.Path(SIDECAR_DIR) / f"{uuid}_albums_as_keywords.json"), "r"
+    ) as fp:
+        json_expected = json.load(fp)
 
-    json_got = photos[0]._exiftool_json_sidecar(use_albums_as_keywords=True)
-    json_got = json.loads(json_got)[0]
+    json_got = photo._exiftool_json_sidecar(use_albums_as_keywords=True)
+    json_got = json.loads(json_got)
 
-    # some gymnastics to account for different sort order in different pythons
-    for k, v in json_got.items():
-        if type(v) in (list, tuple):
-            assert sorted(json_expected[k]) == sorted(v)
-        else:
-            assert json_expected[k] == v
-
-    for k, v in json_expected.items():
-        if type(v) in (list, tuple):
-            assert sorted(json_got[k]) == sorted(v)
-        else:
-            assert json_got[k] == v
+    assert json_got == json_expected
 
 
 def test_exiftool_sidecar(photosdb):
-    import json
+    uuid = EXIF_JSON_UUID
+    photo = photosdb.get_photo(uuid)
 
-    photos = photosdb.photos(uuid=[EXIF_JSON_UUID])
+    with open(pathlib.Path(SIDECAR_DIR) / f"{uuid}_no_tag_groups.json", "r") as fp:
+        json_expected = fp.read()
 
-    json_expected = json.loads(EXIFTOOL_SIDECAR_EXPECTED)[0]
+    json_got = photo._exiftool_json_sidecar(tag_groups=False)
 
-    json_got = photos[0]._exiftool_json_sidecar(tag_groups=False)
-    json_got = json.loads(json_got)[0]
-
-    # some gymnastics to account for different sort order in different pythons
-    for k, v in json_got.items():
-        if type(v) in (list, tuple):
-            assert sorted(json_expected[k]) == sorted(v)
-        else:
-            assert json_expected[k] == v
-
-    for k, v in json_expected.items():
-        if type(v) in (list, tuple):
-            assert sorted(json_got[k]) == sorted(v)
-        else:
-            assert json_got[k] == v
+    assert json_got == json_expected
 
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
@@ -713,383 +551,75 @@ def test_xmp_sidecar_is_valid(tmp_path, photosdb):
 
 def test_xmp_sidecar(photosdb):
 
-    photos = photosdb.photos(uuid=[UUID_DICT["xmp"]])
+    uuid = UUID_DICT["xmp"]
+    photos = photosdb.photos(uuid=[uuid])
 
-    xmp_expected = """<!-- Created with osxphotos https://github.com/RhetTbull/osxphotos -->
-        <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 5.4.0">
-        <!-- mirrors Photos 5 "Export IPTC as XMP" option -->
-        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-        <rdf:Description rdf:about="" 
-            xmlns:dc="http://purl.org/dc/elements/1.1/" 
-            xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/">
-        <photoshop:SidecarForExtension>jpg</photoshop:SidecarForExtension>
-        <dc:description>Girls with pumpkins</dc:description>
-        <dc:title>Can we carry this?</dc:title>
-        <dc:subject>
-            <rdf:Seq>
-                <rdf:li>Kids</rdf:li>
-            </rdf:Seq>
-        </dc:subject>
-        <photoshop:DateCreated>2018-09-28T15:35:49.063000-04:00</photoshop:DateCreated>
-        </rdf:Description>
-        <rdf:Description rdf:about="" 
-            xmlns:Iptc4xmpExt='http://iptc.org/std/Iptc4xmpExt/2008-02-29/'>
-        <Iptc4xmpExt:PersonInImage>
-            <rdf:Bag>
-                    <rdf:li>Suzy</rdf:li>
-                    <rdf:li>Katie</rdf:li>
-            </rdf:Bag>
-        </Iptc4xmpExt:PersonInImage>
-        </rdf:Description>
-        <rdf:Description rdf:about="" 
-            xmlns:digiKam='http://www.digikam.org/ns/1.0/'>
-        <digiKam:TagsList>
-            <rdf:Seq>
-                <rdf:li>Kids</rdf:li>
-            </rdf:Seq>
-        </digiKam:TagsList>
-        </rdf:Description>
-        <rdf:Description rdf:about="" 
-            xmlns:xmp='http://ns.adobe.com/xap/1.0/'>
-        <xmp:CreateDate>2018-09-28T15:35:49</xmp:CreateDate>
-        <xmp:ModifyDate>2018-09-28T15:35:49</xmp:ModifyDate>
-        </rdf:Description>
-         <rdf:Description rdf:about=""
-            xmlns:exif='http://ns.adobe.com/exif/1.0/'>
-        </rdf:Description>
-        </rdf:RDF>
-    </x:xmpmeta>"""
-
-    xmp_expected_lines = [line.strip() for line in xmp_expected.split("\n")]
-
+    with open(f"tests/sidecars/{uuid}.xmp", "r") as file:
+        xmp_expected = file.read()
     xmp_got = photos[0]._xmp_sidecar(extension="jpg")
-    xmp_got_lines = [line.strip() for line in xmp_got.split("\n")]
-
-    for line_expected, line_got in zip(
-        sorted(xmp_expected_lines), sorted(xmp_got_lines)
-    ):
-        assert line_expected == line_got
+    assert xmp_got == xmp_expected
 
 
 def test_xmp_sidecar_extension(photosdb):
     """ test XMP sidecar when no extension is passed """
 
-    photos = photosdb.photos(uuid=[UUID_DICT["xmp"]])
+    uuid = UUID_DICT["xmp"]
+    photos = photosdb.photos(uuid=[uuid])
 
-    xmp_expected = """<!-- Created with osxphotos https://github.com/RhetTbull/osxphotos -->
-        <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 5.4.0">
-        <!-- mirrors Photos 5 "Export IPTC as XMP" option -->
-        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-        <rdf:Description rdf:about="" 
-            xmlns:dc="http://purl.org/dc/elements/1.1/" 
-            xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/">
-        <photoshop:SidecarForExtension>jpg</photoshop:SidecarForExtension>
-        <dc:description>Girls with pumpkins</dc:description>
-        <dc:title>Can we carry this?</dc:title>
-        <dc:subject>
-            <rdf:Seq>
-                <rdf:li>Kids</rdf:li>
-            </rdf:Seq>
-        </dc:subject>
-        <photoshop:DateCreated>2018-09-28T15:35:49.063000-04:00</photoshop:DateCreated>
-        </rdf:Description>
-        <rdf:Description rdf:about="" 
-            xmlns:Iptc4xmpExt='http://iptc.org/std/Iptc4xmpExt/2008-02-29/'>
-        <Iptc4xmpExt:PersonInImage>
-            <rdf:Bag>
-                    <rdf:li>Suzy</rdf:li>
-                    <rdf:li>Katie</rdf:li>
-            </rdf:Bag>
-        </Iptc4xmpExt:PersonInImage>
-        </rdf:Description>
-        <rdf:Description rdf:about="" 
-            xmlns:digiKam='http://www.digikam.org/ns/1.0/'>
-        <digiKam:TagsList>
-            <rdf:Seq>
-                <rdf:li>Kids</rdf:li>
-            </rdf:Seq>
-        </digiKam:TagsList>
-        </rdf:Description>
-        <rdf:Description rdf:about="" 
-            xmlns:xmp='http://ns.adobe.com/xap/1.0/'>
-        <xmp:CreateDate>2018-09-28T15:35:49</xmp:CreateDate>
-        <xmp:ModifyDate>2018-09-28T15:35:49</xmp:ModifyDate>
-        </rdf:Description>
-         <rdf:Description rdf:about=""
-            xmlns:exif='http://ns.adobe.com/exif/1.0/'>
-        </rdf:Description>
-        </rdf:RDF>
-    </x:xmpmeta>"""
-
-    xmp_expected_lines = [line.strip() for line in xmp_expected.split("\n")]
+    with open(f"tests/sidecars/{uuid}.xmp", "r") as file:
+        xmp_expected = file.read()
+        xmp_expected_lines = [line.strip() for line in xmp_expected.split("\n")]
 
     xmp_got = photos[0]._xmp_sidecar()
-    xmp_got_lines = [line.strip() for line in xmp_got.split("\n")]
-
-    for line_expected, line_got in zip(
-        sorted(xmp_expected_lines), sorted(xmp_got_lines)
-    ):
-        assert line_expected == line_got
+    assert xmp_got == xmp_expected
 
 
 def test_xmp_sidecar_use_persons_keyword(photosdb):
 
-    photos = photosdb.photos(uuid=[UUID_DICT["xmp"]])
+    uuid = UUID_DICT["xmp"]
+    photo = photosdb.get_photo(uuid)
 
-    xmp_expected = """<!-- Created with osxphotos https://github.com/RhetTbull/osxphotos -->
-        <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 5.4.0">
-        <!-- mirrors Photos 5 "Export IPTC as XMP" option -->
-        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-        <rdf:Description rdf:about="" 
-            xmlns:dc="http://purl.org/dc/elements/1.1/" 
-            xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/">
-        <photoshop:SidecarForExtension>jpg</photoshop:SidecarForExtension>
-        <dc:description>Girls with pumpkins</dc:description>
-        <dc:title>Can we carry this?</dc:title>
-        <dc:subject>
-            <rdf:Seq>
-                <rdf:li>Kids</rdf:li>
-                <rdf:li>Suzy</rdf:li>
-                <rdf:li>Katie</rdf:li>
-            </rdf:Seq>
-        </dc:subject>
-        <photoshop:DateCreated>2018-09-28T15:35:49.063000-04:00</photoshop:DateCreated>
-        </rdf:Description>
-        <rdf:Description rdf:about="" 
-            xmlns:Iptc4xmpExt='http://iptc.org/std/Iptc4xmpExt/2008-02-29/'>
-        <Iptc4xmpExt:PersonInImage>
-            <rdf:Bag>
-                    <rdf:li>Suzy</rdf:li>
-                    <rdf:li>Katie</rdf:li>
-            </rdf:Bag>
-        </Iptc4xmpExt:PersonInImage>
-        </rdf:Description>
-        <rdf:Description rdf:about="" 
-            xmlns:digiKam='http://www.digikam.org/ns/1.0/'>
-        <digiKam:TagsList>
-            <rdf:Seq>
-                <rdf:li>Kids</rdf:li>
-                <rdf:li>Suzy</rdf:li>
-                <rdf:li>Katie</rdf:li>
-            </rdf:Seq>
-        </digiKam:TagsList>
-        </rdf:Description>
-        <rdf:Description rdf:about="" 
-            xmlns:xmp='http://ns.adobe.com/xap/1.0/'>
-        <xmp:CreateDate>2018-09-28T15:35:49</xmp:CreateDate>
-        <xmp:ModifyDate>2018-09-28T15:35:49</xmp:ModifyDate>
-        </rdf:Description>
-        <rdf:Description rdf:about=""
-            xmlns:exif='http://ns.adobe.com/exif/1.0/'>
-        </rdf:Description>
-        </rdf:RDF>
-    </x:xmpmeta>"""
+    with open(pathlib.Path(SIDECAR_DIR) / f"{uuid}_persons_as_keywords.xmp") as fp:
+        xmp_expected = fp.read()
 
-    xmp_expected_lines = [line.strip() for line in xmp_expected.split("\n")]
-
-    xmp_got = photos[0]._xmp_sidecar(use_persons_as_keywords=True, extension="jpg")
-    xmp_got_lines = [line.strip() for line in xmp_got.split("\n")]
-
-    for line_expected, line_got in zip(
-        sorted(xmp_expected_lines), sorted(xmp_got_lines)
-    ):
-        assert line_expected == line_got
+    xmp_got = photo._xmp_sidecar(use_persons_as_keywords=True, extension="jpg")
+    assert xmp_got == xmp_expected
 
 
 def test_xmp_sidecar_use_albums_keyword(photosdb):
 
-    photos = photosdb.photos(uuid=[UUID_DICT["xmp"]])
+    uuid = UUID_DICT["xmp"]
+    photo = photosdb.get_photo(uuid)
 
-    xmp_expected = """<!-- Created with osxphotos https://github.com/RhetTbull/osxphotos -->
-        <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 5.4.0">
-        <!-- mirrors Photos 5 "Export IPTC as XMP" option -->
-        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-        <rdf:Description rdf:about="" 
-            xmlns:dc="http://purl.org/dc/elements/1.1/" 
-            xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/">
-        <photoshop:SidecarForExtension>jpg</photoshop:SidecarForExtension>
-        <dc:description>Girls with pumpkins</dc:description>
-        <dc:title>Can we carry this?</dc:title>
-        <dc:subject>
-            <rdf:Seq>
-                <rdf:li>Kids</rdf:li>
-                <rdf:li>Pumpkin Farm</rdf:li>
-                <rdf:li>Test Album</rdf:li>
-            </rdf:Seq>
-        </dc:subject>
-        <photoshop:DateCreated>2018-09-28T15:35:49.063000-04:00</photoshop:DateCreated>
-        </rdf:Description>
-        <rdf:Description rdf:about="" 
-            xmlns:Iptc4xmpExt='http://iptc.org/std/Iptc4xmpExt/2008-02-29/'>
-        <Iptc4xmpExt:PersonInImage>
-            <rdf:Bag>
-                    <rdf:li>Suzy</rdf:li>
-                    <rdf:li>Katie</rdf:li>
-            </rdf:Bag>
-        </Iptc4xmpExt:PersonInImage>
-        </rdf:Description>
-        <rdf:Description rdf:about="" 
-            xmlns:digiKam='http://www.digikam.org/ns/1.0/'>
-        <digiKam:TagsList>
-            <rdf:Seq>
-                <rdf:li>Kids</rdf:li>
-                <rdf:li>Pumpkin Farm</rdf:li>
-                <rdf:li>Test Album</rdf:li>
-            </rdf:Seq>
-        </digiKam:TagsList>
-        </rdf:Description>
-        <rdf:Description rdf:about="" 
-            xmlns:xmp='http://ns.adobe.com/xap/1.0/'>
-        <xmp:CreateDate>2018-09-28T15:35:49</xmp:CreateDate>
-        <xmp:ModifyDate>2018-09-28T15:35:49</xmp:ModifyDate>
-        </rdf:Description>
-        <rdf:Description rdf:about=""
-            xmlns:exif='http://ns.adobe.com/exif/1.0/'>
-        </rdf:Description>
-        </rdf:RDF>
-    </x:xmpmeta>"""
+    with open(pathlib.Path(SIDECAR_DIR) / f"{uuid}_albums_as_keywords.xmp") as fp:
+        xmp_expected = fp.read()
 
-    xmp_expected_lines = [line.strip() for line in xmp_expected.split("\n")]
-
-    xmp_got = photos[0]._xmp_sidecar(use_albums_as_keywords=True, extension="jpg")
-    xmp_got_lines = [line.strip() for line in xmp_got.split("\n")]
-
-    for line_expected, line_got in zip(
-        sorted(xmp_expected_lines), sorted(xmp_got_lines)
-    ):
-        assert line_expected == line_got
+    xmp_got = photo._xmp_sidecar(use_albums_as_keywords=True, extension="jpg")
+    assert xmp_got == xmp_expected
 
 
 def test_xmp_sidecar_gps(photosdb):
     """ Test export XMP sidecar with GPS info """
 
-    photos = photosdb.photos(uuid=[UUID_DICT["location"]])
+    uuid = UUID_DICT["location"]
+    photo = photosdb.get_photo(uuid)
 
-    xmp_expected = """<!-- Created with osxphotos https://github.com/RhetTbull/osxphotos -->
-<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 5.4.0">
-    <!-- mirrors Photos 5 "Export IPTC as XMP" option -->
-    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-        <rdf:Description rdf:about="" 
-            xmlns:dc="http://purl.org/dc/elements/1.1/" 
-            xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/">
-        <photoshop:SidecarForExtension>jpg</photoshop:SidecarForExtension>
-        <dc:description></dc:description>
-        <dc:title>St. James&#39;s Park</dc:title>
-        <dc:subject>
-            <rdf:Seq>
-                <rdf:li>UK</rdf:li>
-                <rdf:li>England</rdf:li>
-                <rdf:li>London</rdf:li>
-                <rdf:li>United Kingdom</rdf:li>
-                <rdf:li>London 2018</rdf:li>
-                <rdf:li>St. James&#39;s Park</rdf:li>
-            </rdf:Seq>
-        </dc:subject>
-        <photoshop:DateCreated>2018-10-13T09:18:12.501000-04:00</photoshop:DateCreated>
-        </rdf:Description>
-        <rdf:Description rdf:about=""  
-            xmlns:Iptc4xmpExt='http://iptc.org/std/Iptc4xmpExt/2008-02-29/'>
-        </rdf:Description>
-        <rdf:Description rdf:about="" 
-            xmlns:digiKam='http://www.digikam.org/ns/1.0/'>
-        <digiKam:TagsList>
-            <rdf:Seq>
-                <rdf:li>UK</rdf:li>
-                <rdf:li>England</rdf:li>
-                <rdf:li>London</rdf:li>
-                <rdf:li>United Kingdom</rdf:li>
-                <rdf:li>London 2018</rdf:li>
-                <rdf:li>St. James&#39;s Park</rdf:li>
-            </rdf:Seq>
-        </digiKam:TagsList>
-        </rdf:Description>
-        <rdf:Description rdf:about="" 
-            xmlns:xmp='http://ns.adobe.com/xap/1.0/'>
-        <xmp:CreateDate>2018-10-13T09:18:12</xmp:CreateDate>
-        <xmp:ModifyDate>2018-10-13T09:18:12</xmp:ModifyDate>
-        </rdf:Description>
-        <rdf:Description rdf:about=""
-            xmlns:exif='http://ns.adobe.com/exif/1.0/'>
-        <exif:GPSLongitude>0,7.908329999999999W</exif:GPSLongitude>
-        <exif:GPSLatitude>51,30.21430019999997N</exif:GPSLatitude>
-        </rdf:Description>
-   </rdf:RDF>
-</x:xmpmeta>"""
+    with open(pathlib.Path(SIDECAR_DIR) / f"{uuid}.xmp") as fp:
+        xmp_expected = fp.read()
 
-    xmp_expected_lines = [line.strip() for line in xmp_expected.split("\n")]
-
-    xmp_got = photos[0]._xmp_sidecar(extension="jpg")
-    xmp_got_lines = [line.strip() for line in xmp_got.split("\n")]
-
-    for line_expected, line_got in zip(
-        sorted(xmp_expected_lines), sorted(xmp_got_lines)
-    ):
-        assert line_expected == line_got
+    xmp_got = photo._xmp_sidecar()
+    assert xmp_got == xmp_expected
 
 
 def test_xmp_sidecar_keyword_template(photosdb):
 
-    photos = photosdb.photos(uuid=[UUID_DICT["xmp"]])
+    uuid = UUID_DICT["location"]
+    photo = photosdb.get_photo(uuid)
 
-    xmp_expected = """<!-- Created with osxphotos https://github.com/RhetTbull/osxphotos -->
-    <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 5.4.0">
-    <!-- mirrors Photos 5 "Export IPTC as XMP" option -->
-    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-        <rdf:Description rdf:about="" 
-            xmlns:dc="http://purl.org/dc/elements/1.1/" 
-            xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/">
-        <photoshop:SidecarForExtension>jpg</photoshop:SidecarForExtension>
-        <dc:description>Girls with pumpkins</dc:description>
-        <dc:title>Can we carry this?</dc:title>
-        <dc:subject>
-            <rdf:Seq>
-                <rdf:li>Kids</rdf:li>
-                <rdf:li>Pumpkin Farm</rdf:li>
-                <rdf:li>Test Album</rdf:li>
-                <rdf:li>2018</rdf:li>
-            </rdf:Seq>
-        </dc:subject>
-        <photoshop:DateCreated>2018-09-28T15:35:49.063000-04:00</photoshop:DateCreated>
-        </rdf:Description>
-        <rdf:Description rdf:about="" 
-            xmlns:Iptc4xmpExt='http://iptc.org/std/Iptc4xmpExt/2008-02-29/'>
-        <Iptc4xmpExt:PersonInImage>
-            <rdf:Bag>
-                    <rdf:li>Suzy</rdf:li>
-                    <rdf:li>Katie</rdf:li>
-            </rdf:Bag>
-        </Iptc4xmpExt:PersonInImage>
-        </rdf:Description>
-        <rdf:Description rdf:about="" 
-            xmlns:digiKam='http://www.digikam.org/ns/1.0/'>
-        <digiKam:TagsList>
-            <rdf:Seq>
-                <rdf:li>Kids</rdf:li>
-                <rdf:li>Pumpkin Farm</rdf:li>
-                <rdf:li>Test Album</rdf:li>
-                <rdf:li>2018</rdf:li>
-            </rdf:Seq>
-        </digiKam:TagsList>
-        </rdf:Description>
-        <rdf:Description rdf:about=""
-            xmlns:xmp='http://ns.adobe.com/xap/1.0/'>
-        <xmp:CreateDate>2018-09-28T15:35:49</xmp:CreateDate>
-        <xmp:ModifyDate>2018-09-28T15:35:49</xmp:ModifyDate>
-        </rdf:Description>
-        <rdf:Description rdf:about=""
-            xmlns:exif='http://ns.adobe.com/exif/1.0/'>
-        </rdf:Description>
-    </rdf:RDF>
-    </x:xmpmeta>"""
+    with open(pathlib.Path(SIDECAR_DIR) / f"{uuid}_keyword_template.xmp") as fp:
+        xmp_expected = fp.read()
 
-    xmp_expected_lines = [line.strip() for line in xmp_expected.split("\n")]
-
-    xmp_got = photos[0]._xmp_sidecar(
+    xmp_got = photo._xmp_sidecar(
         keyword_template=["{created.year}", "{folder_album}"], extension="jpg"
     )
-    xmp_got_lines = [line.strip() for line in xmp_got.split("\n")]
-
-    for line_expected, line_got in zip(
-        sorted(xmp_expected_lines), sorted(xmp_got_lines)
-    ):
-        assert line_expected == line_got
+    assert xmp_got == xmp_expected
