@@ -623,3 +623,4 @@ def test_xmp_sidecar_keyword_template(photosdb):
         keyword_template=["{created.year}", "{folder_album}"], extension="jpg"
     )
     assert xmp_got == xmp_expected
+

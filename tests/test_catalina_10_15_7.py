@@ -198,6 +198,9 @@ ORIGINAL_FILENAME_DICT = {
     "original_filename": "Pumkins2.jpg",
 }
 
+UUID_IS_REFERENCE = "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C"
+UUID_NOT_REFERENCE = "F12384F6-CD17-4151-ACBA-AE0E3688539E"
+
 
 @pytest.fixture(scope="module")
 def photosdb():
@@ -1185,3 +1188,11 @@ def test_visible_burst(photosdb_local):
     assert photo.burst
     assert len(photo.burst_photos) == 4
 
+
+def test_is_reference(photosdb):
+    """ test isreference """
+
+    photo = photosdb.get_photo(UUID_IS_REFERENCE)
+    assert photo.isreference
+    photo = photosdb.get_photo(UUID_NOT_REFERENCE)
+    assert not photo.isreference

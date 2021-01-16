@@ -674,6 +674,11 @@ def query_options(f):
         o("--no-comment", is_flag=True, help="Search for photos with no comments."),
         o("--has-likes", is_flag=True, help="Search for photos that have likes."),
         o("--no-likes", is_flag=True, help="Search for photos with no likes."),
+        o(
+            "--is-reference",
+            is_flag=True,
+            help="Search for photos that were imported as referenced files (not copied into Photos library).",
+        ),
     ]
     for o in options[::-1]:
         f = o(f)
@@ -1166,6 +1171,7 @@ def export(
     exportdb,
     load_config,
     save_config,
+    is_reference,
 ):
     """Export photos from the Photos database.
     Export path DEST is required.
@@ -1590,6 +1596,7 @@ def export(
         no_comment=no_comment,
         has_likes=has_likes,
         no_likes=no_likes,
+        is_reference=is_reference,
     )
 
     if photos:
@@ -1865,6 +1872,7 @@ def query(
     no_comment,
     has_likes,
     no_likes,
+    is_reference,
 ):
     """Query the Photos database using 1 or more search options;
     if more than one option is provided, they are treated as "AND"
@@ -1887,6 +1895,7 @@ def query(
         from_date,
         to_date,
         label,
+        is_reference,
     ]
     exclusive = [
         (favorite, not_favorite),
@@ -2002,6 +2011,7 @@ def query(
         no_comment=no_comment,
         has_likes=has_likes,
         no_likes=no_likes,
+        is_reference=is_reference,
     )
 
     # below needed for to make CliRunner work for testing
@@ -2172,6 +2182,7 @@ def _query(
     no_comment=False,
     has_likes=False,
     no_likes=False,
+    is_reference=False,
 ):
     """Run a query against PhotosDB to extract the photos based on user supply criteria used by query and export commands
 
@@ -2316,9 +2327,9 @@ def _query(
         photos = [p for p in photos if not p.hidden]
 
     if missing:
-        photos = [p for p in photos if p.ismissing]
+        photos = [p for p in photos if not p.path]
     elif not_missing:
-        photos = [p for p in photos if not p.ismissing]
+        photos = [p for p in photos if p.path]
 
     if shared:
         photos = [p for p in photos if p.shared]
@@ -2400,6 +2411,9 @@ def _query(
         photos = [p for p in photos if p.likes]
     elif no_likes:
         photos = [p for p in photos if not p.likes]
+
+    if is_reference:
+        photos = [p for p in photos if p.isreference]
 
     return photos
 
@@ -3759,6 +3773,7 @@ SOFTWARE.
     click.echo("")
     click.echo(f"Source code available at: {OSXPHOTOS_URL}")
     click.echo(license)
+
 
 if __name__ == "__main__":
     cli()  # pylint: disable=no-value-for-parameter

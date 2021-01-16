@@ -138,6 +138,7 @@ class PhotoInfo:
         except AttributeError:
             self._path = None
             photopath = None
+            # TODO: should path try to return path even if ismissing?
             if self._info["isMissing"] == 1:
                 return photopath  # path would be meaningless until downloaded
 
@@ -644,6 +645,11 @@ class PhotoInfo:
             return True if self._info["cloudAssetGUID"] is not None else False
 
     @property
+    def isreference(self):
+        """ Returns True if photo is a reference (not copied to the Photos library), otherwise False """
+        return self._info["isreference"]
+
+    @property
     def burst(self):
         """ Returns True if photo is part of a Burst photo set, otherwise False """
         return self._info["burst"]
@@ -1033,6 +1039,7 @@ class PhotoInfo:
             "path_live_photo": self.path_live_photo,
             "iscloudasset": self.iscloudasset,
             "incloud": self.incloud,
+            "isreference": self.isreference,
             "date_modified": self.date_modified,
             "portrait": self.portrait,
             "screenshot": self.screenshot,

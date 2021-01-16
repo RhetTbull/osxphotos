@@ -100,6 +100,8 @@ PHOTOS_DB_LEN = 13
 PHOTOS_NOT_IN_TRASH_LEN = 12
 PHOTOS_IN_TRASH_LEN = 1
 
+UUID_NOT_REFERENCE = "6bxcNnzRQKGnK4uPrCJ9UQ"
+UUID_IS_REFERENCE = "od0fmC7NQx+ayVr+%i06XA"
 
 RawInfo = namedtuple(
     "RawInfo",
@@ -595,7 +597,7 @@ def test_raw(photosdb):
     photo = photosdb.get_photo(UUID_DICT["raw"])
     # assert photo.israw
     assert not photo.has_raw
-    assert photo.uti_raw == None
+    assert photo.uti_raw is None
     assert photo.uti == "com.adobe.raw-image"
     assert photo.path_raw is None
 
@@ -626,3 +628,12 @@ def test_raw():
         assert photo.uti == rawinfo.uti
         assert photo.uti_original == rawinfo.uti_original
         assert photo.uti_raw == rawinfo.uti_raw
+
+
+def test_is_reference(photosdb):
+    """ test isreference """
+
+    photo = photosdb.get_photo(UUID_IS_REFERENCE)
+    assert photo.isreference
+    photo = photosdb.get_photo(UUID_NOT_REFERENCE)
+    assert not photo.isreference

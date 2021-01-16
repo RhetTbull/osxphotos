@@ -889,7 +889,8 @@ class PhotosDB:
                     RKMaster.fileSize,
                     RKVersion.subType,
                     RKVersion.inTrashDate,
-                    RKVersion.showInLibrary
+                    RKVersion.showInLibrary,
+                    RKMaster.fileIsReference
                     FROM RKVersion, RKMaster
                     WHERE RKVersion.masterUuid = RKMaster.uuid"""
             )
@@ -919,8 +920,9 @@ class PhotosDB:
                     RKMaster.originalFileSize,
                     RKVersion.subType,
                     RKVersion.inTrashDate,
-                    RKVersion.showInLibrary
-                    FROM RKVersion, RKMaster 
+                    RKVersion.showInLibrary,
+                    RKMaster.fileIsReference
+                    FROM RKVersion, RKMaster
                     WHERE RKVersion.masterUuid = RKMaster.uuid"""
             )
 
@@ -968,6 +970,7 @@ class PhotosDB:
         # 40    RKVersion.subType
         # 41    RKVersion.inTrashDate
         # 42    RKVersion.showInLibrary -- is item visible in library (e.g. non-selected burst images are not visible)
+        # 43    RKMaster.fileIsReference -- file is reference (imported without copying to Photos library)
 
         for row in c:
             uuid = row[0]
@@ -1163,6 +1166,10 @@ class PhotosDB:
             # visibility state
             self._dbphotos[uuid]["visibility_state"] = row[42]
             self._dbphotos[uuid]["visible"] = row[42] == 1
+
+            # file is reference (not copied into Photos library)
+            self._dbphotos[uuid]["isreference"] = row[43] == 1
+            self._dbphotos[uuid]["saved_asset_type"] = None  # Photos 5+
 
             # import session not yet handled for Photos 4
             self._dbphotos[uuid]["import_session"] = None
@@ -1859,7 +1866,8 @@ class PhotosDB:
                 {depth_state},
                 {asset_table}.ZADJUSTMENTTIMESTAMP,
                 {asset_table}.ZVISIBILITYSTATE,
-                {asset_table}.ZTRASHEDDATE
+                {asset_table}.ZTRASHEDDATE,
+                {asset_table}.ZSAVEDASSETTYPE
                 FROM {asset_table} 
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
                 ORDER BY {asset_table}.ZUUID  """
@@ -1906,6 +1914,7 @@ class PhotosDB:
         # 37   ZGENERICASSET.ZADJUSTMENTTIMESTAMP -- when was photo edited?
         # 38   ZGENERICASSET.ZVISIBILITYSTATE -- 0 if visible, 2 if not (e.g. a burst image)
         # 39   ZGENERICASSET.ZTRASHEDDATE -- date item placed in the trash or null if not in trash
+        # 40   ZGENERICASSET.ZSAVEDASSETTYPE -- how item imported
 
         for row in c:
             uuid = row[0]
@@ -2084,6 +2093,14 @@ class PhotosDB:
             # only values I've seen are 0 for visible, 2 for not-visible
             info["visibility_state"] = row[38]
             info["visible"] = row[38] == 0
+
+            # ZSAVEDASSETTYPE Values:
+            # 3: imported by copying to Photos library
+            # 4: shared iCloud photo
+            # 6: imported by iCloud (e.g. from iPhone)
+            # 10: referenced file (not copied to Photos library)
+            info["saved_asset_type"] = row[40]
+            info["isreference"] = row[40] == 10
 
             # initialize import session info which will be filled in later
             # not every photo has an import session so initialize all records now

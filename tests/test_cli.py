@@ -573,6 +573,11 @@ UUID_JPEGS_DICT = {
 
 UUID_HEIC = {"7783E8E6-9CAC-40F3-BE22-81FB7051C266": "IMG_3092"}
 
+UUID_IS_REFERENCE = [
+    "8E1D7BC9-9321-44F9-8CFB-4083F6B9232A",
+    "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C",
+]
+
 
 def modify_file(filename):
     """ appends data to a file to modify it """
@@ -855,6 +860,26 @@ def test_query_no_likes():
         assert uuid in uuid_got
     for uuid in uuid_got:
         assert uuid not in UUID_HAS_LIKES
+
+
+def test_query_is_reference():
+    """ Test query with --is-reference """
+    import json
+    import os
+    import os.path
+    from osxphotos.__main__ import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--is-reference"]
+    )
+    assert result.exit_code == 0
+
+    # build list of uuids we got from the output JSON
+    json_got = json.loads(result.output)
+    uuid_got = [photo["uuid"] for photo in json_got]
+    assert sorted(uuid_got) == sorted(UUID_IS_REFERENCE)
 
 
 def test_export():
@@ -1587,7 +1612,7 @@ def test_export_convert_to_jpeg():
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG)
         large_file = pathlib.Path(CLI_EXPORT_CONVERT_TO_JPEG_LARGE_FILE)
-        assert large_file.stat().st_size > 7000000 
+        assert large_file.stat().st_size > 7000000
 
 
 @pytest.mark.skipif(

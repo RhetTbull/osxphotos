@@ -1,9 +1,9 @@
-import pytest
-
 from collections import namedtuple
 
-from osxphotos._constants import _UNKNOWN_PERSON
+import pytest
 
+import osxphotos
+from osxphotos._constants import _UNKNOWN_PERSON
 
 PHOTOS_DB = "tests/Test-10.16.0.1.photoslibrary/database/photos.db"
 PHOTOS_DB_PATH = "/Test-10.16.0.1.photoslibrary/database/photos.db"
@@ -169,6 +169,15 @@ PATH_HEIC_EDITED = (
     "resources/renders/7/7783E8E6-9CAC-40F3-BE22-81FB7051C266_1_201_a.heic"
 )
 
+# file is reference (not copied to library)
+UUID_IS_REFERENCE = "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C"
+UUID_NOT_REFERENCE = "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"
+
+
+@pytest.fixture(scope="module")
+def photosdb():
+    return osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+
 
 def test_init1():
     # test named argument
@@ -230,80 +239,56 @@ def test_init5(mocker):
         assert osxphotos.PhotosDB()
 
 
-def test_db_len():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+def test_db_len(photosdb):
     # assert photosdb.db_version in osxphotos._TESTED_DB_VERSIONS
     assert len(photosdb) == PHOTOS_DB_LEN
 
 
-def test_db_version():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+def test_db_version(photosdb):
     # assert photosdb.db_version in osxphotos._TESTED_DB_VERSIONS
     assert photosdb.db_version == "6000"
 
 
-def test_persons():
-    import osxphotos
+def test_persons(photosdb):
     import collections
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     assert "Katie" in photosdb.persons
     assert collections.Counter(PERSONS) == collections.Counter(photosdb.persons)
 
 
-def test_keywords():
-    import osxphotos
+def test_keywords(photosdb):
     import collections
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     assert "wedding" in photosdb.keywords
     assert collections.Counter(KEYWORDS) == collections.Counter(photosdb.keywords)
 
 
-def test_album_names():
-    import osxphotos
+def test_album_names(photosdb):
     import collections
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     assert "Pumpkin Farm" in photosdb.albums
     assert collections.Counter(ALBUMS) == collections.Counter(photosdb.albums)
 
 
-def test_keywords_dict():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+def test_keywords_dict(photosdb):
     keywords = photosdb.keywords_as_dict
     assert keywords["wedding"] == 3
     assert keywords == KEYWORDS_DICT
 
 
-def test_persons_as_dict():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+def test_persons_as_dict(photosdb):
     persons = photosdb.persons_as_dict
     assert persons["Maria"] == 2
     assert persons == PERSONS_DICT
 
 
-def test_albums_as_dict():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+def test_albums_as_dict(photosdb):
     albums = photosdb.albums_as_dict
     assert albums["Pumpkin Farm"] == 3
     assert albums == ALBUM_DICT
 
 
-def test_album_sort_order():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+def test_album_sort_order(photosdb):
     album = [a for a in photosdb.album_info if a.title == "Pumpkin Farm"][0]
     photos = album.photos
 
@@ -311,20 +296,15 @@ def test_album_sort_order():
     assert uuids == ALBUM_SORT_ORDER
 
 
-def test_album_empty_album():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+def test_album_empty_album(photosdb):
     album = [a for a in photosdb.album_info if a.title == "EmptyAlbum"][0]
     photos = album.photos
     assert photos == []
 
 
-def test_attributes():
+def test_attributes(photosdb):
     import datetime
-    import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=["D79B8D77-BFFC-460B-9312-034F2877D35B"])
     assert len(photos) == 1
     p = photos[0]
@@ -344,12 +324,10 @@ def test_attributes():
     assert p.ismissing == False
 
 
-def test_attributes_2():
+def test_attributes_2(photosdb):
     """ Test attributes including height, width, etc """
     import datetime
-    import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["has_adjustments"]])
     assert len(photos) == 1
     p = photos[0]
@@ -384,10 +362,7 @@ def test_attributes_2():
     assert p.original_filesize == 460483
 
 
-def test_missing():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+def test_missing(photosdb):
     photos = photosdb.photos(uuid=[UUID_DICT["missing"]])
     assert len(photos) == 1
     p = photos[0]
@@ -395,51 +370,36 @@ def test_missing():
     assert p.ismissing == True
 
 
-def test_favorite():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+def test_favorite(photosdb):
     photos = photosdb.photos(uuid=[UUID_DICT["favorite"]])
     assert len(photos) == 1
     p = photos[0]
     assert p.favorite == True
 
 
-def test_not_favorite():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+def test_not_favorite(photosdb):
     photos = photosdb.photos(uuid=[UUID_DICT["not_favorite"]])
     assert len(photos) == 1
     p = photos[0]
     assert p.favorite == False
 
 
-def test_hidden():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+def test_hidden(photosdb):
     photos = photosdb.photos(uuid=[UUID_DICT["hidden"]])
     assert len(photos) == 1
     p = photos[0]
     assert p.hidden == True
 
 
-def test_not_hidden():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+def test_not_hidden(photosdb):
     photos = photosdb.photos(uuid=[UUID_DICT["not_hidden"]])
     assert len(photos) == 1
     p = photos[0]
     assert p.hidden == False
 
 
-def test_location_1():
+def test_location_1(photosdb):
     # test photo with lat/lon info
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["location"]])
     assert len(photos) == 1
     p = photos[0]
@@ -448,11 +408,8 @@ def test_location_1():
     assert lon == pytest.approx(-0.1318055)
 
 
-def test_location_2():
+def test_location_2(photosdb):
     # test photo with no location info
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["no_location"]])
     assert len(photos) == 1
     p = photos[0]
@@ -461,33 +418,24 @@ def test_location_2():
     assert lon is None
 
 
-def test_hasadjustments1():
+def test_hasadjustments1(photosdb):
     # test hasadjustments == True
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["has_adjustments"]])
     assert len(photos) == 1
     p = photos[0]
     assert p.hasadjustments == True
 
 
-def test_hasadjustments2():
+def test_hasadjustments2(photosdb):
     # test hasadjustments == False
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["no_adjustments"]])
     assert len(photos) == 1
     p = photos[0]
     assert p.hasadjustments == False
 
 
-def test_external_edit1():
+def test_external_edit1(photosdb):
     # test image has been edited in external editor
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["external_edit"]])
     assert len(photos) == 1
     p = photos[0]
@@ -495,11 +443,8 @@ def test_external_edit1():
     assert p.external_edit == True
 
 
-def test_external_edit2():
+def test_external_edit2(photosdb):
     # test image has not been edited in external editor
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["no_external_edit"]])
     assert len(photos) == 1
     p = photos[0]
@@ -507,12 +452,10 @@ def test_external_edit2():
     assert p.external_edit == False
 
 
-def test_path_edited_jpeg():
+def test_path_edited_jpeg(photosdb):
     # test a valid edited path
     import os.path
-    import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=["E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"])
     assert len(photos) == 1
     p = photos[0]
@@ -523,22 +466,17 @@ def test_path_edited_jpeg():
     assert os.path.exists(path)
 
 
-def test_path_edited_heic():
+def test_path_edited_heic(photosdb):
     # test a valid edited path for .heic image
     import pathlib
-    import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photo = photosdb.get_photo(UUID_HEIC_EDITED)
     assert photo.path_edited.endswith(PATH_HEIC_EDITED)
     assert pathlib.Path(photo.path_edited).is_file()
 
 
-def test_path_edited2():
+def test_path_edited2(photosdb):
     # test an invalid edited path
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["no_adjustments"]])
     assert len(photos) == 1
     p = photos[0]
@@ -546,115 +484,79 @@ def test_path_edited2():
     assert path is None
 
 
-def test_count():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+def test_count(photosdb):
     photos = photosdb.photos()
     assert len(photos) == PHOTOS_NOT_IN_TRASH_LEN
 
 
-def test_photos_intrash_1():
+def test_photos_intrash_1(photosdb):
     """ test PhotosDB.photos(intrash=True) """
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(intrash=True)
     assert len(photos) == PHOTOS_IN_TRASH_LEN
 
 
-def test_photos_intrash_2():
+def test_photos_intrash_2(photosdb):
     """ test PhotosDB.photos(intrash=True) """
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(intrash=True)
     for p in photos:
         assert p.intrash
 
 
-def test_photos_intrash_3():
+def test_photos_intrash_3(photosdb):
     """ test PhotosDB.photos(intrash=False) """
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(intrash=False)
     for p in photos:
         assert not p.intrash
 
 
-def test_photoinfo_intrash_1():
+def test_photoinfo_intrash_1(photosdb):
     """ Test PhotoInfo.intrash """
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     p = photosdb.photos(uuid=[UUID_DICT["intrash"]], intrash=True)[0]
     assert p.intrash
 
 
-def test_photoinfo_intrash_2():
+def test_photoinfo_intrash_2(photosdb):
     """ Test PhotoInfo.intrash and intrash=default"""
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     p = photosdb.photos(uuid=[UUID_DICT["intrash"]])
     assert not p
 
 
-def test_photoinfo_intrash_3():
+def test_photoinfo_intrash_3(photosdb):
     """ Test PhotoInfo.intrash and photo has keyword and person """
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     p = photosdb.photos(uuid=[UUID_DICT["intrash_person_keywords"]], intrash=True)[0]
     assert p.intrash
     assert "Maria" in p.persons
     assert "wedding" in p.keywords
 
 
-def test_photoinfo_intrash_4():
+def test_photoinfo_intrash_4(photosdb):
     """ Test PhotoInfo.intrash and photo has keyword and person """
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     p = photosdb.photos(persons=["Maria"], intrash=True)[0]
     assert p.intrash
     assert "Maria" in p.persons
     assert "wedding" in p.keywords
 
 
-def test_photoinfo_intrash_5():
+def test_photoinfo_intrash_5(photosdb):
     """ Test PhotoInfo.intrash and photo has keyword and person """
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     p = photosdb.photos(keywords=["wedding"], intrash=True)[0]
     assert p.intrash
     assert "Maria" in p.persons
     assert "wedding" in p.keywords
 
 
-def test_photoinfo_not_intrash():
+def test_photoinfo_not_intrash(photosdb):
     """ Test PhotoInfo.intrash """
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     p = photosdb.photos(uuid=[UUID_DICT["not_intrash"]])[0]
     assert not p.intrash
 
 
-def test_keyword_2():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+def test_keyword_2(photosdb):
     photos = photosdb.photos(keywords=["wedding"])
     assert len(photos) == 2  # won't show the one in the trash
 
 
-def test_keyword_not_in_album():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+def test_keyword_not_in_album(photosdb):
 
     # find all photos with keyword "Kids" not in the album "Pumpkin Farm"
     photos1 = photosdb.photos(albums=["Pumpkin Farm"])
@@ -664,47 +566,33 @@ def test_keyword_not_in_album():
     assert photos3[0].uuid == "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C"
 
 
-def test_album_folder_name():
+def test_album_folder_name(photosdb):
     """Test query with album name same as a folder name """
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
 
     photos = photosdb.photos(albums=["Pumpkin Farm"])
     assert sorted(p.uuid for p in photos) == sorted(UUID_PUMPKIN_FARM)
 
 
-def test_multi_person():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(PHOTOS_DB)
+def test_multi_person(photosdb):
     photos = photosdb.photos(persons=["Katie", "Suzy"])
 
     assert len(photos) == 3
 
 
-def test_get_db_path():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+def test_get_db_path(photosdb):
     db_path = photosdb.db_path
     assert db_path.endswith(PHOTOS_DB_PATH)
 
 
-def test_get_library_path():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+def test_get_library_path(photosdb):
     lib_path = photosdb.library_path
     assert lib_path.endswith(PHOTOS_LIBRARY_PATH)
 
 
-def test_get_db_connection():
+def test_get_db_connection(photosdb):
     """ Test PhotosDB.get_db_connection """
-    import osxphotos
     import sqlite3
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     conn, cursor = photosdb.get_db_connection()
 
     assert isinstance(conn, sqlite3.Connection)
@@ -717,18 +605,15 @@ def test_get_db_connection():
     conn.close()
 
 
-def test_export_1():
+def test_export_1(photosdb):
     # test basic export
     # get an unedited image and export it using default filename
     import os
     import os.path
     import tempfile
 
-    import osxphotos
-
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
     filename = photos[0].filename
@@ -739,18 +624,15 @@ def test_export_1():
     assert os.path.isfile(got_dest)
 
 
-def test_export_2():
+def test_export_2(photosdb):
     # test export with user provided filename
     import os
     import os.path
     import tempfile
     import time
 
-    import osxphotos
-
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
     timestamp = time.time()
@@ -762,18 +644,15 @@ def test_export_2():
     assert os.path.isfile(got_dest)
 
 
-def test_export_3():
+def test_export_3(photosdb):
     # test file already exists and test increment=True (default)
     import os
     import os.path
     import pathlib
     import tempfile
 
-    import osxphotos
-
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
     filename = photos[0].filename
@@ -788,7 +667,7 @@ def test_export_3():
     assert os.path.isfile(got_dest_2)
 
 
-def test_export_4():
+def test_export_4(photosdb):
     # test user supplied file already exists and test increment=True (default)
     import os
     import os.path
@@ -796,11 +675,8 @@ def test_export_4():
     import tempfile
     import time
 
-    import osxphotos
-
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
     timestamp = time.time()
@@ -815,18 +691,15 @@ def test_export_4():
     assert os.path.isfile(got_dest_2)
 
 
-def test_export_5():
+def test_export_5(photosdb):
     # test file already exists and test increment=True (default)
     # and overwrite = True
     import os
     import os.path
     import tempfile
 
-    import osxphotos
-
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
     filename = photos[0].filename
@@ -840,7 +713,7 @@ def test_export_5():
     assert os.path.isfile(got_dest_2)
 
 
-def test_export_6():
+def test_export_6(photosdb):
     # test user supplied file already exists and test increment=True (default)
     # and overwrite = True
     import os
@@ -849,11 +722,8 @@ def test_export_6():
     import tempfile
     import time
 
-    import osxphotos
-
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
     timestamp = time.time()
@@ -868,18 +738,15 @@ def test_export_6():
     assert os.path.isfile(got_dest_2)
 
 
-def test_export_7():
+def test_export_7(photosdb):
     # test file already exists and test increment=False (not default), overwrite=False (default)
     # should raise exception
     import os
     import os.path
     import tempfile
 
-    import osxphotos
-
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
     filename = photos[0].filename
@@ -891,18 +758,15 @@ def test_export_7():
     assert e.type == type(FileExistsError())
 
 
-def test_export_8():
+def test_export_8(photosdb):
     # try to export missing file
     # should raise exception
     import os
     import os.path
     import tempfile
 
-    import osxphotos
-
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["missing"]])
 
     filename = photos[0].filename
@@ -912,16 +776,13 @@ def test_export_8():
     assert e.type == type(FileNotFoundError())
 
 
-def test_export_9():
+def test_export_9(photosdb):
     # try to export edited file that's not edited
     # should raise exception
     import os
     import os.path
     import tempfile
 
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
     photos = photosdb.photos(uuid=[UUID_DICT["no_adjustments"]])
@@ -933,7 +794,7 @@ def test_export_9():
     assert e.type == ValueError
 
 
-def test_export_10():
+def test_export_10(photosdb):
     # try to export edited file that's not edited and name provided
     # should raise exception
     import os
@@ -941,9 +802,6 @@ def test_export_10():
     import tempfile
     import time
 
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
     photos = photosdb.photos(uuid=[UUID_DICT["no_adjustments"]])
@@ -956,18 +814,15 @@ def test_export_10():
     assert e.type == ValueError
 
 
-def test_export_11():
+def test_export_11(photosdb):
     # export edited file with name provided
     import os
     import os.path
     import tempfile
     import time
 
-    import osxphotos
-
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["has_adjustments"]])
 
     timestamp = time.time()
@@ -978,18 +833,15 @@ def test_export_11():
     assert got_dest == expected_dest
 
 
-def test_export_12():
+def test_export_12(photosdb):
     # export edited file with default name
     import os
     import os.path
     import pathlib
     import tempfile
 
-    import osxphotos
-
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["has_adjustments"]])
 
     edited_name = pathlib.Path(photos[0].path_edited).name
@@ -1001,14 +853,12 @@ def test_export_12():
     assert got_dest == expected_dest
 
 
-def test_export_13():
+def test_export_13(photosdb):
     # export to invalid destination
     # should raise exception
     import os
     import os.path
     import tempfile
-
-    import osxphotos
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
@@ -1019,7 +869,6 @@ def test_export_13():
         dest = os.path.join(dest, str(i))
         i += 1
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
     filename = photos[0].filename
@@ -1029,18 +878,15 @@ def test_export_13():
     assert e.type == type(FileNotFoundError())
 
 
-def test_export_14(caplog):
+def test_export_14(caplog, photosdb):
     # test export with user provided filename with different (but valid) extension than source
     import os
     import os.path
     import tempfile
     import time
 
-    import osxphotos
-
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["export_tif"]])
 
     timestamp = time.time()
@@ -1054,24 +900,22 @@ def test_export_14(caplog):
     assert "Invalid destination suffix" not in caplog.text
 
 
-def test_eq():
+def test_eq(photosdb):
     """ Test equality of two PhotoInfo objects """
     import osxphotos
 
-    photosdb1 = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photosdb2 = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    photos1 = photosdb1.photos(uuid=[UUID_DICT["export"]])
+    photos1 = photosdb.photos(uuid=[UUID_DICT["export"]])
     photos2 = photosdb2.photos(uuid=[UUID_DICT["export"]])
     assert photos1[0] == photos2[0]
 
 
-def test_eq_2():
+def test_eq_2(photosdb):
     """ Test equality of two PhotoInfo objects when one has memoized property """
     import osxphotos
 
-    photosdb1 = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photosdb2 = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-    photos1 = photosdb1.photos(uuid=[UUID_DICT["in_album"]])
+    photos1 = photosdb.photos(uuid=[UUID_DICT["in_album"]])
     photos2 = photosdb2.photos(uuid=[UUID_DICT["in_album"]])
 
     # memoize a value
@@ -1081,18 +925,13 @@ def test_eq_2():
     assert photos1[0] == photos2[0]
 
 
-def test_not_eq():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+def test_not_eq(photosdb):
     photos1 = photosdb.photos(uuid=[UUID_DICT["export"]])
     photos2 = photosdb.photos(uuid=[UUID_DICT["missing"]])
     assert photos1[0] != photos2[0]
 
 
 def test_photosdb_repr():
-    import osxphotos
-
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photosdb2 = eval(repr(photosdb))
 
@@ -1102,11 +941,9 @@ def test_photosdb_repr():
     }
 
 
-def test_photosinfo_repr():
-    import osxphotos
+def test_photosinfo_repr(photosdb):
     import datetime
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["favorite"]])
     photo = photos[0]
     photo2 = eval(repr(photo))
@@ -1116,16 +953,13 @@ def test_photosinfo_repr():
     }
 
 
-def test_from_to_date():
-    import osxphotos
+def test_from_to_date(photosdb):
     import datetime as dt
     import os
     import time
 
     os.environ["TZ"] = "US/Pacific"
     time.tzset()
-
-    photosdb = osxphotos.PhotosDB(PHOTOS_DB)
 
     photos = photosdb.photos(from_date=dt.datetime(2018, 10, 28))
     assert len(photos) == 7
@@ -1139,12 +973,10 @@ def test_from_to_date():
     assert len(photos) == 4
 
 
-def test_date_invalid():
+def test_date_invalid(photosdb):
     """ Test date is invalid  """
     from datetime import datetime, timedelta, timezone
-    import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     # UUID_DICT["date_invalid"] has an invalid date that's
     # been manually adjusted in the database
     photos = photosdb.photos(uuid=[UUID_DICT["date_invalid"]])
@@ -1155,12 +987,10 @@ def test_date_invalid():
     assert p.date == datetime(1970, 1, 1).astimezone(tz=tz)
 
 
-def test_date_modified_invalid():
+def test_date_modified_invalid(photosdb):
     """ Test date modified is invalid """
     from datetime import datetime, timedelta, timezone
-    import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     # UUID_DICT["date_invalid"] has an invalid modified date that's
     # been manually adjusted in the database
     photos = photosdb.photos(uuid=[UUID_DICT["date_invalid"]])
@@ -1169,11 +999,8 @@ def test_date_modified_invalid():
     assert p.date_modified is None
 
 
-def test_uti():
+def test_uti(photosdb):
     """ test uti """
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
 
     for uuid, uti in UTI_DICT.items():
         photo = photosdb.get_photo(uuid)
@@ -1181,11 +1008,8 @@ def test_uti():
         assert photo.uti_original == UTI_ORIGINAL_DICT[uuid]
 
 
-def test_raw():
+def test_raw(photosdb):
     """ Test various raw properties """
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
 
     for uuid, rawinfo in RAW_DICT.items():
         photo = photosdb.get_photo(uuid)
@@ -1195,3 +1019,12 @@ def test_raw():
         assert photo.uti == rawinfo.uti
         assert photo.uti_original == rawinfo.uti_original
         assert photo.uti_raw == rawinfo.uti_raw
+
+
+def test_is_reference(photosdb):
+    """ test isreference """
+
+    photo = photosdb.get_photo(UUID_IS_REFERENCE)
+    assert photo.isreference
+    photo = photosdb.get_photo(UUID_NOT_REFERENCE)
+    assert not photo.isreference

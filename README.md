@@ -269,6 +269,9 @@ Options:
   --no-comment                    Search for photos with no comments.
   --has-likes                     Search for photos that have likes.
   --no-likes                      Search for photos with no likes.
+  --is-reference                  Search for photos that were imported as
+                                  referenced files (not copied into Photos
+                                  library).
   --missing                       Export only photos missing from the Photos
                                   library; must be used with --download-missing.
   --deleted                       Include photos from the 'Recently Deleted'
@@ -1600,6 +1603,9 @@ Returns list of [CommentInfo](#commentinfo) objects for comments on shared photo
 Returns list of [LikeInfo](#likeinfo) objects for likes on shared photos or empty list if no likes.
 
 **Note**: *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns empty list.
+
+#### `isreference`
+Returns `True` if the original image file is a referenced file (imported without copying to the Photos library) otherwise returns `False`.
 
 #### `isphoto`
 Returns True if type is photo/still image, otherwise False
