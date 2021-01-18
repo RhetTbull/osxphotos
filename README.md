@@ -2268,6 +2268,22 @@ UUID of the photo this face is associated with.
 #### `photo`
 [PhotoInfo](#photoinfo) object representing the photo that contains this face.
 
+#### `mwg_rs_area`
+Returns named tuple with following coordinates as used in Metdata Working Group (mwg) face regions in XMP files.
+
+* `x` = `stArea:x`
+* `y` = `stArea:y`
+* `h` = `stArea:h`
+* `w` = `stArea:w`
+
+#### `mpri_reg_rect`
+Returnes named tuple with following coordinates as used in Microsoft Photo Region Rectangle (mpri) in XMP files.
+
+* `x` = x coordinate of top left corner of rectangle
+* `y` = y coordinate of top left corner of rectangle
+* `h` = height of rectangle
+* `w` = width of rectangle
+
 #### `face_rect()`
 Returns list of x, y coordinates as tuples `[(x0, y0), (x1, y1)]` representing the corners of rectangular region that contains the face.  Coordinates are in same format and [reference frame](https://pillow.readthedocs.io/en/stable/handbook/concepts.html#coordinate-system) as used by [Pillow](https://pypi.org/project/Pillow/) imaging library.  **Note**: face_rect() and all other properties/methods that return coordinates refer to the *current version* of the image. E.g. if the image has been edited ([`PhotoInfo.hasadjustments`](#hasadjustments)), these refer to [`PhotoInfo.path_edited`](#pathedited).  If the image has no adjustments, these coordinates refer to the original photo ([`PhotoInfo.path`](#path)).
 

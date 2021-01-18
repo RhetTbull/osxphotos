@@ -1715,6 +1715,7 @@ def _xmp_sidecar(
     use_persons_as_keywords: treat person names as keywords
     keyword_template: (list of strings); list of template strings to render as keywords
     description_template: string; optional template string that will be rendered for use as photo description
+    extension: which extension to use for SidecarForExtension property
     merge_exif_keywords: boolean; if True, merged keywords found in file's exif data (requires exiftool)
     merge_exif_persons: boolean; if True, merged persons found in file's exif data (requires exiftool)
     """
