@@ -16,7 +16,7 @@
     % else:
         <dc:description>
         <rdf:Alt>
-            <rdf:li xml:lang='x-default'>${desc | x}</rdf:li>
+         <rdf:li xml:lang='x-default'>${desc | x}</rdf:li>
         </rdf:Alt>
         </dc:description>
     % endif
@@ -43,7 +43,7 @@
         <dc:subject>
          <rdf:Bag>
          % for subj in subject:
-            <rdf:li>${subj | x}</rdf:li>
+          <rdf:li>${subj | x}</rdf:li>
          % endfor
          </rdf:Bag>
         </dc:subject>
@@ -59,11 +59,11 @@
 <%def name="iptc_personinimage(persons)">
     % if persons:
         <Iptc4xmpExt:PersonInImage>
-            <rdf:Bag>
-                % for person in persons:
-                    <rdf:li>${person | x}</rdf:li>
-                % endfor
-            </rdf:Bag>
+        <rdf:Bag>
+         % for person in persons:
+         <rdf:li>${person | x}</rdf:li>
+         % endfor
+        </rdf:Bag>
         </Iptc4xmpExt:PersonInImage>
     % endif 
 </%def>
@@ -71,11 +71,11 @@
 <%def name="dk_tagslist(keywords)">
     % if keywords:
         <digiKam:TagsList>
-            <rdf:Seq>
-            % for keyword in keywords:
-                <rdf:li>${keyword | x}</rdf:li>
-            % endfor
-            </rdf:Seq>
+        <rdf:Seq>
+         % for keyword in keywords:
+          <rdf:li>${keyword | x}</rdf:li>
+         % endfor
+        </rdf:Seq>
         </digiKam:TagsList>
     % endif
 </%def>
@@ -105,37 +105,44 @@
     % endif
 </%def>
 
-<%def name="face_regions(photo)">
+<%def name="mwg_face_regions(photo)">
     % if photo.face_info:
     <mwg-rs:Regions rdf:parseType="Resource">
-    <mwg-rs:AppliedToDimensions stDim:w=${photo.width} stDim:h=${photo.height} stDim:unit="pixel"/>
-        <mwg-rs:RegionList>
-            <rdf:Bag>
-            % for face in photo.face_info:
-                <rdf:li>
-                <rdf:Description
-                mwg-rs:Rotation="${face.roll}"
-                mwg-rs:Name="${face.name}"
-                mwg-rs:Type="Face">
-                <mwg-rs:Area
-                stArea:h="${'{0:.6f}'.format(face.mwg_rs_area.h)}"
-                stArea:w="${'{0:.6f}'.format(face.mwg_rs_area.w)}"
-                stArea:x="${'{0:.6f}'.format(face.mwg_rs_area.x)}"
-                stArea:y="${'{0:.6f}'.format(face.mwg_rs_area.y)}"
-                stArea:unit="normalized"/>
-                </rdf:Description>
-                </rdf:li>
-            % endfor
-            </rdf:Bag>
-        </mwg-rs:RegionList>
+    <mwg-rs:AppliedToDimensions rdf:parseType="Resource">
+    <stDim:unit>pixel</stDim:unit>
+    </mwg-rs:AppliedToDimensions>
+    <mwg-rs:RegionList>
+    <rdf:Bag>
+    % for face in photo.face_info:
+     <rdf:li rdf:parseType="Resource">
+      <mwg-rs:Area rdf:parseType="Resource">
+      <stArea:h>${'{0:.6f}'.format(face.mwg_rs_area.h)}</stArea:h>
+      <stArea:w>${'{0:.6f}'.format(face.mwg_rs_area.w)}</stArea:w>
+      <stArea:x>${'{0:.6f}'.format(face.mwg_rs_area.x)}</stArea:x>
+      <stArea:y>${'{0:.6f}'.format(face.mwg_rs_area.y)}</stArea:y>
+      <stArea:unit>normalized</stArea:unit>
+      </mwg-rs:Area>
+      <mwg-rs:Name>${face.name}</mwg-rs:Name>
+      <mwg-rs:Rotation>${face.roll}</mwg-rs:Rotation>
+      <mwg-rs:Type>Face</mwg-rs:Type>
+     </rdf:li>
+    % endfor
+    </rdf:Bag>
+    </mwg-rs:RegionList>
     </mwg-rs:Regions>
+    % endif
+</%def>
+
+<%def name="mpri_face_regions(photo)">
+    % if photo.face_info:
     <MP:RegionInfo rdf:parseType="Resource">
      <MPRI:Regions>
       <rdf:Bag>
       % for face in photo.face_info:
-       <rdf:li
-        MPReg:Rectangle="${'{0:.6f}'.format(face.mpri_reg_rect.x)}, ${'{0:.6f}'.format(face.mpri_reg_rect.y)}, ${'{0:.6f}'.format(face.mpri_reg_rect.h)}, ${'{0:.6f}'.format(face.mpri_reg_rect.w)}"
-        MPReg:PersonDisplayName="${face.name}"/>
+       <rdf:li rdf:parseType="Resource">
+       <MPReg:PersonDisplayName>${face.name}</MPReg:PersonDisplayName>
+       <MPReg:Rectangle>${'{0:.6f}'.format(face.mpri_reg_rect.x)}, ${'{0:.6f}'.format(face.mpri_reg_rect.y)}, ${'{0:.6f}'.format(face.mpri_reg_rect.h)}, ${'{0:.6f}'.format(face.mpri_reg_rect.w)}</MPReg:Rectangle>
+       </rdf:li>
       % endfor
       </rdf:Bag>
      </MPRI:Regions>
@@ -143,46 +150,61 @@
     % endif
 </%def>
 
+
+<?xpacket begin="${"\uFEFF"}" id="W5M0MpCehiHzreSzNTczkc9d"?>
 <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="osxphotos ${version}">
-    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-        <rdf:Description rdf:about="" 
-            xmlns:dc="http://purl.org/dc/elements/1.1/" 
-            xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/">
-            ${photoshop_sidecar_for_extension(extension)}
-            ${dc_description(description)}
-            ${dc_title(photo.title)}
-            ${dc_subject(subjects)}
-            ${dc_datecreated(photo.date)}
-        </rdf:Description>
-        <rdf:Description rdf:about=""  
-            xmlns:Iptc4xmpExt='http://iptc.org/std/Iptc4xmpExt/2008-02-29/'>
-            ${iptc_personinimage(persons)}
-        </rdf:Description>
-        <rdf:Description rdf:about="" 
-            xmlns:digiKam='http://www.digikam.org/ns/1.0/'>
-            ${dk_tagslist(keywords)}
-        </rdf:Description>
-        <rdf:Description rdf:about="" 
-            xmlns:xmp='http://ns.adobe.com/xap/1.0/'>
-            ${adobe_createdate(photo.date)}
-            ${adobe_modifydate(photo.date)}
-        </rdf:Description>
-        <rdf:Description rdf:about=""
-            xmlns:exif='http://ns.adobe.com/exif/1.0/'>
-            ${gps_info(*photo.location)}
-        </rdf:Description>
-        <rdf:Description rdf:about=''
-            xmlns:tiff='http://ns.adobe.com/tiff/1.0/'>
-            ${orientation(photo.orientation)}
-        </rdf:Description>
-        <rdf:Description rdf:about=""
-            xmlns:mwg-rs="http://www.metadataworkinggroup.com/schemas/regions/"
-            xmlns:stArea="http://ns.adobe.com/xmp/sType/Area#"
-            xmlns:stDim="http://ns.adobe.com/xap/1.0/sType/Dimensions#"
-            xmlns:MP="http://ns.microsoft.com/photo/1.2/"
-            xmlns:MPRI="http://ns.microsoft.com/photo/1.2/t/RegionInfo#"
-            xmlns:MPReg="http://ns.microsoft.com/photo/1.2/t/Region#">
-            ${face_regions(photo)}
-        </rdf:Description>
-   </rdf:RDF>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<rdf:Description rdf:about="" 
+ xmlns:dc="http://purl.org/dc/elements/1.1/" 
+ xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/">
+ ${photoshop_sidecar_for_extension(extension)}
+ ${dc_description(description)}
+ ${dc_title(photo.title)}
+ ${dc_subject(subjects)}
+ ${dc_datecreated(photo.date)}
+</rdf:Description>
+
+<rdf:Description rdf:about=""  
+ xmlns:Iptc4xmpExt='http://iptc.org/std/Iptc4xmpExt/2008-02-29/'>
+ ${iptc_personinimage(persons)}
+</rdf:Description>
+
+<rdf:Description rdf:about="" 
+ xmlns:digiKam='http://www.digikam.org/ns/1.0/'>
+ ${dk_tagslist(keywords)}
+</rdf:Description>
+
+<rdf:Description rdf:about="" 
+ xmlns:xmp='http://ns.adobe.com/xap/1.0/'>
+ ${adobe_createdate(photo.date)}
+ ${adobe_modifydate(photo.date)}
+</rdf:Description>
+
+<rdf:Description rdf:about=""
+ xmlns:exif='http://ns.adobe.com/exif/1.0/'>
+ ${gps_info(*photo.location)}
+</rdf:Description>
+
+<rdf:Description rdf:about=''
+ xmlns:tiff='http://ns.adobe.com/tiff/1.0/'>
+ ${orientation(photo.orientation)}
+</rdf:Description>
+
+<rdf:Description rdf:about=""
+ xmlns:mwg-rs="http://www.metadataworkinggroup.com/schemas/regions/"
+ xmlns:stArea="http://ns.adobe.com/xmp/sType/Area#"
+ xmlns:stDim="http://ns.adobe.com/xap/1.0/sType/Dimensions#">
+ ${mwg_face_regions(photo)}
+</rdf:Description>
+
+
+<rdf:Description rdf:about=""
+ xmlns:MP="http://ns.microsoft.com/photo/1.2/"
+ xmlns:MPRI="http://ns.microsoft.com/photo/1.2/t/RegionInfo#"
+ xmlns:MPReg="http://ns.microsoft.com/photo/1.2/t/Region#">
+ ${mpri_face_regions(photo)}
+</rdf:Description>
+
+</rdf:RDF>
 </x:xmpmeta>
+<?xpacket end="w"?>
