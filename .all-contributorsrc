@@ -156,6 +156,16 @@
         "bug",
         "userTesting"
       ]
+    },
+    {
+      "login": "martinhrpi",
+      "name": "Martin",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/19407684?v=4",
+      "profile": "https://github.com/martinhrpi",
+      "contributions": [
+        "research",
+        "userTesting"
+      ]
     }
   ],
   "contributorsPerLine": 7,
