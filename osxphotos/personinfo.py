@@ -235,8 +235,8 @@ class FaceInfo:
         Reference:
             https://photo.stackexchange.com/questions/106410/how-does-xmp-define-the-face-region
         """
-        x = self.center_x
-        y = 1.0 - self.center_y
+        x, y = self.center_x, self.center_y
+        x, y = self._fix_orientation((x, y))
         h = self.size_pixels / self.photo.height
         w = self.size_pixels / self.photo.width
 
@@ -256,8 +256,10 @@ class FaceInfo:
         Reference:
             https://docs.microsoft.com/en-us/windows/win32/wic/-wic-people-tagging
         """
-        x = self.center_x - self.size_pixels / self.photo.width / 2
-        y = 1.0 - self.center_y - self.size_pixels / self.photo.height / 2
+        x, y = self.center_x, self.center_y
+        x, y = self._fix_orientation((x, y))
+        x = x - self.size_pixels / self.photo.width / 2
+        y = y - self.size_pixels / self.photo.height / 2
 
         # though the docs clearly say height, width, these appear to be flipped
         h = self.size_pixels / self.photo.width
@@ -308,6 +310,33 @@ class FaceInfo:
         _, _, yaw = self.roll_pitch_yaw()
         return yaw
 
+    def _fix_orientation(self, xy):
+        """ Translate an (x, y) tuple based on image orientation
+
+        Arguments:
+            xy: tuple of (x, y) coordinates for point to translate
+                in format used by Photos (percent of height/width)
+        
+        Returns:
+            (x, y) tuple of translated coordinates
+        """
+        # Reference: https://github.com/neilpa/phace/blob/7594776480505d0c389688a42099c94ac5d34f3f/cmd/phace/draw.go#L79-L94
+
+        orientation = self.photo.orientation
+        x, y = xy
+        if orientation in [1, 2]:
+            y = 1.0 - y
+        elif orientation in [3, 4]:
+            x = 1.0 - x
+        elif orientation in [5, 6]:
+            x, y = 1.0 - y, 1.0 - x
+        elif orientation in [7, 8]:
+            x, y = y, x
+        else:
+            logging.warning(f"Unhandled orientation: {orientation}")
+
+        return (x, y)
+
     def _make_point(self, xy):
         """ Translate an (x, y) tuple based on image orientation
             and convert to image coordinates
@@ -322,22 +351,11 @@ class FaceInfo:
         # Reference: https://github.com/neilpa/phace/blob/7594776480505d0c389688a42099c94ac5d34f3f/cmd/phace/draw.go#L79-L94
 
         orientation = self.photo.orientation
-        x, y = xy
+        x, y = self._fix_orientation(xy)
         dx = self.photo.width
         dy = self.photo.height
-        if orientation in [1, 2]:
-            y = 1.0 - y
-        elif orientation in [3, 4]:
-            x = 1.0 - x
-        elif orientation in [5, 6]:
-            x, y = 1.0 - y, 1.0 - x
+        if orientation in [5, 6, 7, 8]:
             dx, dy = dy, dx
-        elif orientation in [7, 8]:
-            x, y = y, x
-            dx, dy = dy, dx
-        else:
-            logging.warning(f"Unhandled orientation: {orientation}")
-
         return (int(x * dx), int(y * dy))
 
     def _make_point_with_rotation(self, xy):
