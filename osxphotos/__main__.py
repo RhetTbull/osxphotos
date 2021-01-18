@@ -1063,6 +1063,9 @@ def cli(ctx, db, json_, debug):
     help=("Save options to file for use with --load-config. File format is TOML."),
     type=click.Path(),
 )
+@click.option(
+    "--beta", is_flag=True, default=False, hidden=True, help="Enable beta options."
+)
 @DB_ARGUMENT
 @click.argument("dest", nargs=1, type=click.Path(exists=True))
 @click.pass_obj
@@ -1172,6 +1175,7 @@ def export(
     load_config,
     save_config,
     is_reference,
+    beta,
 ):
     """Export photos from the Photos database.
     Export path DEST is required.
@@ -1310,6 +1314,7 @@ def export(
         report = cfg.report
         cleanup = cfg.cleanup
         exportdb = cfg.exportdb
+        beta = cfg.beta
 
         # config file might have changed verbose
         VERBOSE = bool(verbose)
@@ -1537,6 +1542,10 @@ def export(
             )
 
     photosdb = osxphotos.PhotosDB(dbfile=db, verbose=verbose_, exiftool=exiftool_path)
+
+    # enable beta features if requested
+    photosdb._beta = beta
+
     photos = _query(
         photosdb=photosdb,
         keyword=keyword,

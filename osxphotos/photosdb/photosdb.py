@@ -99,6 +99,9 @@ class PhotosDB:
             raise TypeError("verbose must be callable")
         self._verbose = verbose
 
+        # enable beta features
+        self._beta = False
+
         self._exiftool_path = exiftool
 
         # create a temporary directory

@@ -4,6 +4,11 @@ import json
 import logging
 import math
 
+from collections import namedtuple
+
+MWG_RS_Area = namedtuple("MWG_RS_Area", ["x", "y", "h", "w"])
+MPRI_Reg_Rect = namedtuple("MPRI_Reg_Rect", ["x", "y", "h", "w"])
+
 
 class PersonInfo:
     """ Info about a person in the Photos library
@@ -215,6 +220,50 @@ class FaceInfo:
             if self._photo is None:
                 logging.warning(f"Could not get photo for uuid: {self.asset_uuid}")
             return self._photo
+
+    @property
+    def mwg_rs_area(self):
+        """ Get coordinates for Metadata Working Group Region Area. 
+
+        Returns:
+            MWG_RS_Area named tuple with x, y, h, w where:
+            x = stArea:x
+            y = stArea:y
+            h = stArea:h
+            w = stArea:w
+
+        Reference:
+            https://photo.stackexchange.com/questions/106410/how-does-xmp-define-the-face-region
+        """
+        x = self.center_x
+        y = 1.0 - self.center_y
+        h = self.size_pixels / self.photo.height
+        w = self.size_pixels / self.photo.width
+
+        return MWG_RS_Area(x, y, h, w)
+
+    @property
+    def mpri_reg_rect(self):
+        """ Get coordinates for Microsoft Photo Region Rectangle.
+
+        Returns:
+            MPRI_Reg_Rect named tuple with x, y, h, w where:
+            x = x coordinate of top left corner of rectangle
+            y = y coordinate of top left corner of rectangle
+            h = height of rectangle
+            w = width of rectangle
+
+        Reference:
+            https://docs.microsoft.com/en-us/windows/win32/wic/-wic-people-tagging
+        """
+        x = self.center_x - self.size_pixels / self.photo.width / 2
+        y = 1.0 - self.center_y - self.size_pixels / self.photo.height / 2
+
+        # though the docs clearly say height, width, these appear to be flipped
+        h = self.size_pixels / self.photo.width
+        w = self.size_pixels / self.photo.height
+
+        return MPRI_Reg_Rect(x, y, h, w)
 
     def face_rect(self):
         """ Get face rectangle coordinates for current version of the associated image

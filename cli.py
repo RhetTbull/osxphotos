@@ -3,8 +3,7 @@
     To build this into an executable:
     - install pyinstaller:
         python3 -m pip install pyinstaller
-    - then use make_cli_exe.sh to run pyinstaller or execute the following command:
-        pyinstaller --onefile --hidden-import="pkg_resources.py2_warn" --name osxphotos --add-data osxphotos/templates/xmp_sidecar.mako:osxphotos/templates cli.py
+    - then use make_cli_exe.sh to run pyinstaller
 
     Resulting executable will be in "dist/osxphotos"
 

@@ -35,10 +35,12 @@ from .._constants import (
     _TEMPLATE_DIR,
     _UNKNOWN_PERSON,
     _XMP_TEMPLATE_NAME,
+    _XMP_TEMPLATE_NAME_BETA,
     SIDECAR_EXIFTOOL,
     SIDECAR_JSON,
     SIDECAR_XMP,
 )
+from .._version import __version__
 from ..datetime_utils import datetime_tz_to_utc
 from ..exiftool import ExifTool
 from ..export_db import ExportDBNoOp
@@ -49,7 +51,7 @@ from ..photokit import (
     PhotoKitFetchFailed,
     PhotoLibrary,
 )
-from ..utils import dd_to_dms_str, findfiles, noop, get_preferred_uti_extension
+from ..utils import findfiles, get_preferred_uti_extension, noop
 
 # retry if use_photos_export fails the first time (which sometimes it does)
 MAX_PHOTOSCRIPT_RETRIES = 3
@@ -236,7 +238,7 @@ def _export_photo_uuid_applescript(
     exported_files = []
     filename = None
     try:
-        # I've seen intermittent failures with the PhotoScript export so retry if 
+        # I've seen intermittent failures with the PhotoScript export so retry if
         # export doesn't return anything
         retries = 0
         while not exported_files and retries < MAX_PHOTOSCRIPT_RETRIES:
@@ -1717,7 +1719,10 @@ def _xmp_sidecar(
     merge_exif_persons: boolean; if True, merged persons found in file's exif data (requires exiftool)
     """
 
-    xmp_template = Template(filename=os.path.join(_TEMPLATE_DIR, _XMP_TEMPLATE_NAME))
+    xmp_template_file = (
+        _XMP_TEMPLATE_NAME if not self._db._beta else _XMP_TEMPLATE_NAME_BETA
+    )
+    xmp_template = Template(filename=os.path.join(_TEMPLATE_DIR, xmp_template_file))
 
     if extension is None:
         extension = pathlib.Path(self.original_filename)
@@ -1803,6 +1808,7 @@ def _xmp_sidecar(
         persons=person_list,
         subjects=subject_list,
         extension=extension,
+        version=__version__,
     )
 
     # remove extra lines that mako inserts from template
@@ -1824,4 +1830,3 @@ def _write_sidecar(self, filename, sidecar_str):
     f = open(filename, "w")
     f.write(sidecar_str)
     f.close()
-
