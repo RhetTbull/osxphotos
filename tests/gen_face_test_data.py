@@ -6,7 +6,8 @@ import sys
 
 import osxphotos
 
-photosdb = osxphotos.PhotosDB()
+db = sys.argv[1]
+photosdb = osxphotos.PhotosDB(dbfile=db)
 
 face_photos = [p for p in photosdb.photos() if p.face_info]
 

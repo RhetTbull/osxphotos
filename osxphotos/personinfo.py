@@ -237,8 +237,13 @@ class FaceInfo:
         """
         x, y = self.center_x, self.center_y
         x, y = self._fix_orientation((x, y))
-        h = self.size_pixels / self.photo.height
-        w = self.size_pixels / self.photo.width
+
+        if self.photo.orientation in [5, 6, 7, 8]:
+            w = self.size_pixels / self.photo.height
+            h = self.size_pixels / self.photo.width
+        else:
+            h = self.size_pixels / self.photo.height
+            w = self.size_pixels / self.photo.width
 
         return MWG_RS_Area(x, y, h, w)
 
@@ -258,12 +263,17 @@ class FaceInfo:
         """
         x, y = self.center_x, self.center_y
         x, y = self._fix_orientation((x, y))
-        x = x - self.size_pixels / self.photo.width / 2
-        y = y - self.size_pixels / self.photo.height / 2
 
-        # though the docs clearly say height, width, these appear to be flipped
-        h = self.size_pixels / self.photo.width
-        w = self.size_pixels / self.photo.height
+        if self.photo.orientation in [5, 6, 7, 8]:
+            w = self.size_pixels / self.photo.width
+            h = self.size_pixels / self.photo.height
+            x = x - self.size_pixels / self.photo.height / 2
+            y = y - self.size_pixels / self.photo.width / 2
+        else:
+            h = self.size_pixels / self.photo.width
+            w = self.size_pixels / self.photo.height
+            x = x - self.size_pixels / self.photo.width / 2
+            y = y - self.size_pixels / self.photo.height / 2
 
         return MPRI_Reg_Rect(x, y, h, w)
 
@@ -403,6 +413,8 @@ class FaceInfo:
             "right_eye": self.right_eye,
             "size": self.size,
             "face_rect": self.face_rect(),
+            "mpri_reg_rect": self.mpri_reg_rect._asdict(),
+            "mwg_rs_area": self.mwg_rs_area._asdict(),
             "roll": roll,
             "pitch": pitch,
             "yaw": yaw,
