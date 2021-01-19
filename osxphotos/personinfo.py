@@ -334,13 +334,23 @@ class FaceInfo:
 
         orientation = self.photo.orientation
         x, y = xy
-        if orientation in [1, 2]:
+        if orientation == 1:
             y = 1.0 - y
-        elif orientation in [3, 4]:
+        elif orientation == 2:
+            y = 1.0 - y
             x = 1.0 - x
-        elif orientation in [5, 6]:
+        elif orientation == 3:
+            x = 1.0 - x
+        elif orientation == 4:
+            pass
+        elif orientation == 5:
+            x, y = 1.0 - y, x
+        elif orientation == 6:
             x, y = 1.0 - y, 1.0 - x
-        elif orientation in [7, 8]:
+        elif orientation == 7:
+            x, y = y, x
+            y = 1.0 - y
+        elif orientation ==8:
             x, y = y, x
         else:
             logging.warning(f"Unhandled orientation: {orientation}")
