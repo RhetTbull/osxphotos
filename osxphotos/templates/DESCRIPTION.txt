@@ -1,0 +1,8 @@
+Templates for creating XMP sidecar files
+
+* xmp_sidecar.mako: Mako template for generating XMP sidecar
+* xmp_sidecar_beta.mako: template for beta testing new XMP properties, if run with --beta, osxphotos will use this template, otherwise it always uses xmp_sidecar.mako
+
+Reference: 
+* https://www.adobe.com/devnet/xmp.html
+* https://www.makotemplates.org/
