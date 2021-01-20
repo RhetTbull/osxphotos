@@ -1445,7 +1445,7 @@ movies = photosdb.photos(images=False, movies=True)
 
 For example, in my library, Photos says I have 19,386 photos and 474 movies.  However, PhotosDB.photos() reports 25,002 photos.  The difference is due to 5,609 shared photos and 7 hidden photos.  (*Note* Shared photos only valid for Photos 5).  Similarly, filtering for just movies returns 625 results.  The difference between 625 and 474 reported by Photos is due to 151 shared movies.
 
-```python
+```pycon
 >>> import osxphotos
 >>> photosdb = osxphotos.PhotosDB("/Users/smith/Pictures/Photos Library.photoslibrary")
 >>> photos = photosdb.photos()
@@ -1642,7 +1642,7 @@ If photo is a burst image (see [burst](#burst)), returns a list of PhotoInfo obj
 
 Example below gets list of all photos that are bursts, selects one of of them and prints out the names of the other images in the burst set.  PhotosDB.photos() will only return the photos in the burst set that the user [selected](https://support.apple.com/guide/photos/view-photo-bursts-phtde06a275d/mac) using "Make a Selection..." in Photos or the key image Photos selected if the user has not yet made a selection.  This is similar to how Photos displays and counts burst photos.  Using `burst_photos` you can access the other images in the burst set to export them, etc. 
 
-```python
+```pycon
 >>> import osxphotos
 >>> photosdb = osxphotos.PhotosDB("/Users/smith/Pictures/Photos Library.photoslibrary")
 >>> bursts = [p for p in photosdb.photos() if p.burst]
@@ -1735,7 +1735,7 @@ If the file is missing from the library (e.g. not downloaded from iCloud), retur
 
 exiftool must be installed in the path for this to work.  If exiftool cannot be found in the path, calling `exiftool` will log a warning and return `None`.  You can check the exiftool path using `osxphotos.exiftool.get_exiftool_path` which will raise FileNotFoundError if exiftool cannot be found.
 
-```python
+```pycon
 >>> import osxphotos
 >>> osxphotos.exiftool.get_exiftool_path()
 '/usr/local/bin/exiftool'
@@ -2029,7 +2029,7 @@ Returns a [FolderInfo](#FolderInfo) object representing the folder's parent fold
 
 **Note**: FolderInfo and AlbumInfo objects effectively work as a linked list.  The children of a folder are contained in `subfolders` and `album_info` and the parent object of both `AlbumInfo` and `FolderInfo` is represented by `parent`.  For example:
 
-```python
+```pycon
 >>> import osxphotos
 >>> photosdb = osxphotos.PhotosDB()
 >>> photosdb.folder_info
@@ -2109,7 +2109,7 @@ Returns a `PostalAddress` namedtuple with details of the postal address containi
 - `iso_country_code`
 
 For example:
-```python
+```pycon
 >>> photo.place.address
 PostalAddress(street='3700 Wailea Alanui Dr', sub_locality=None, city='Kihei', sub_administrative_area='Maui', state='HI', postal_code='96753', country='United States', iso_country_code='US')
 >>> photo.place.address.postal_code
@@ -2388,7 +2388,7 @@ The latter are treated by Photos as a single image.  By default, Photos will tre
 #### Example
 To get the path of every raw photo, whether it's a single raw photo or a raw+JPEG pair, one could do something like this:
 
-```python
+```pycon
 >>> import osxphotos
 >>> photosdb = osxphotos.PhotosDB()
 >>> photos = photosdb.photos()
