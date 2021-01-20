@@ -816,11 +816,11 @@ def cli(ctx, db, json_, debug):
     metavar="FORMAT",
     type=click.Choice(["xmp", "json", "exiftool"], case_sensitive=False),
     help="Create sidecar for each photo exported; valid FORMAT values: xmp, json, exiftool; "
-    "--sidecar xmp: create XMP sidecar used by Adobe Lightroom, etc. "
+    "--sidecar xmp: create XMP sidecar used by Digikam, Adobe Lightroom, etc. "
     "The sidecar file is named in format photoname.ext.xmp "
     "The XMP sidecar exports the following tags: Description, Title, Keywords/Tags, "
     "Subject (set to Keywords + PersonInImage), PersonInImage, CreateDate, ModifyDate, "
-    "GPSLongitude. "
+    "GPSLongitude, Face Regions (Metadata Working Group and Microsoft Photo)."
     f"\n--sidecar json: create JSON sidecar useable by exiftool ({_EXIF_TOOL_URL}) "
     "The sidecar file can be used to apply metadata to the file with exiftool, for example: "
     '"exiftool -j=photoname.jpg.json photoname.jpg" '
@@ -836,8 +836,8 @@ def cli(ctx, db, json_, debug):
     is_flag=True,
     help="Drop the photo's extension when naming sidecar files. "
     "By default, sidecar files are named in format 'photo_filename.photo_ext.sidecar_ext', "
-    "e.g. 'IMG_1234.JPG.json'. Use '--sidecar-drop-ext' to ignore the photo extension. "
-    "Resulting sidecar files will have name in format 'IMG_1234.json'. "
+    "e.g. 'IMG_1234.JPG.xmp'. Use '--sidecar-drop-ext' to ignore the photo extension. "
+    "Resulting sidecar files will have name in format 'IMG_1234.xmp'. "
     "Warning: this may result in sidecar filename collisions if there are files of different "
     "types but the same name in the output directory, e.g. 'IMG_1234.JPG' and 'IMG_1234.MOV'.",
 )
