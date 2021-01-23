@@ -492,6 +492,9 @@ class PhotoAsset:
             output_file = None
             if self.isphoto:
                 imagedata = self._request_image_data(version=version)
+                if not imagedata.image_data:
+                    raise PhotoKitExportError("Could not get image data")
+
                 ext = get_preferred_uti_extension(imagedata.uti)
 
                 output_file = dest / f"{filename.stem}.{ext}"
@@ -530,6 +533,9 @@ class PhotoAsset:
                      PHOTOS_VERSION_CURRENT, request current version with all edits
                      PHOTOS_VERSION_UNADJUSTED, request highest quality unadjusted version
         
+        Returns:
+            ImageData instance
+
         Raises:
             ValueError if passed invalid value for version
         """

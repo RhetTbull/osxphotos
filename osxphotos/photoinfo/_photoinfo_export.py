@@ -51,7 +51,7 @@ from ..photokit import (
     PhotoKitFetchFailed,
     PhotoLibrary,
 )
-from ..utils import findfiles, get_preferred_uti_extension, noop
+from ..utils import findfiles, get_preferred_uti_extension, lineno, noop
 
 # retry if use_photos_export fails the first time (which sometimes it does)
 MAX_PHOTOSCRIPT_RETRIES = 3
@@ -251,36 +251,33 @@ def _export_photo_uuid_applescript(
     except Exception as e:
         raise ExportError(e)
 
-    if exported_files and filename:
-        # need to find actual filename as sometimes Photos renames JPG to jpeg on export
-        # may be more than one file exported (e.g. if Live Photo, Photos exports both .jpeg and .mov)
-        # TemporaryDirectory will cleanup on return
-        filename_stem = pathlib.Path(filename).stem
-        exported_paths = []
-        for fname in exported_files:
-            path = pathlib.Path(tmpdir.name) / fname
-            if (
-                len(exported_files) > 1
-                and not live_photo
-                and path.suffix.lower() == ".mov"
-            ):
-                # it's the .mov part of live photo but not requested, so don't export
-                continue
-            if len(exported_files) > 1 and burst and path.stem != filename_stem:
-                # skip any burst photo that's not the one we asked for
-                continue
-            if filestem:
-                # rename the file based on filestem, keeping original extension
-                dest_new = dest / f"{filestem}{path.suffix}"
-            else:
-                # use the name Photos provided
-                dest_new = dest / path.name
-            if not dry_run:
-                FileUtil.copy(str(path), str(dest_new))
-            exported_paths.append(str(dest_new))
-        return exported_paths
-    else:
-        return []
+    if not exported_files or not filename:
+        # nothing got exported
+        raise ExportError(f"Could not export photo {uuid}")
+
+    # need to find actual filename as sometimes Photos renames JPG to jpeg on export
+    # may be more than one file exported (e.g. if Live Photo, Photos exports both .jpeg and .mov)
+    # TemporaryDirectory will cleanup on return
+    filename_stem = pathlib.Path(filename).stem
+    exported_paths = []
+    for fname in exported_files:
+        path = pathlib.Path(tmpdir.name) / fname
+        if len(exported_files) > 1 and not live_photo and path.suffix.lower() == ".mov":
+            # it's the .mov part of live photo but not requested, so don't export
+            continue
+        if len(exported_files) > 1 and burst and path.stem != filename_stem:
+            # skip any burst photo that's not the one we asked for
+            continue
+        if filestem:
+            # rename the file based on filestem, keeping original extension
+            dest_new = dest / f"{filestem}{path.suffix}"
+        else:
+            # use the name Photos provided
+            dest_new = dest / path.name
+        if not dry_run:
+            FileUtil.copy(str(path), str(dest_new))
+        exported_paths.append(str(dest_new))
+    return exported_paths
 
 
 # _check_export_suffix is not a class method, don't import this into PhotoInfo
@@ -827,7 +824,7 @@ def export2(
                         all_results.error.append(
                             (
                                 str(dest),
-                                f"PhotoKitFetchFailed exception exporting photo {self.uuid}: {e}",
+                                f"PhotoKitFetchFailed exception exporting photo {self.uuid}: {e} ({lineno(__file__)})",
                             )
                         )
                 if photo:
@@ -838,7 +835,9 @@ def export2(
                             )
                             all_results.exported.extend(exported)
                         except Exception as e:
-                            all_results.error.append((str(dest), e))
+                            all_results.error.append(
+                                (str(dest), f"{e} ({lineno(__file__)})")
+                            )
                     else:
                         # dry_run, don't actually export
                         all_results.exported.append(str(dest))
@@ -857,7 +856,7 @@ def export2(
                     )
                     all_results.exported.extend(exported)
                 except ExportError as e:
-                    all_results.error.append((str(dest), e))
+                    all_results.error.append((str(dest), f"{e} ({lineno(__file__)})"))
         else:
             # export original version and not edited
             filestem = dest.stem
@@ -883,7 +882,9 @@ def export2(
                             )
                             all_results.exported.extend(exported)
                         except Exception as e:
-                            all_results.error.append((str(dest), e))
+                            all_results.error.append(
+                                (str(dest), f"{e} ({lineno(__file__)})")
+                            )
                     else:
                         # dry_run, don't actually export
                         all_results.exported.append(str(dest))
@@ -902,7 +903,7 @@ def export2(
                     )
                     all_results.exported.extend(exported)
                 except ExportError as e:
-                    all_results.error.append((str(dest), e))
+                    all_results.error.append((str(dest), f"{e} ({lineno(__file__)})"))
         if all_results.exported:
             if jpeg_ext:
                 # use_photos_export (both PhotoKit and AppleScript) don't use the

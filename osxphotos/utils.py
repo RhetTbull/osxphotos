@@ -1,5 +1,6 @@
 import fnmatch
 import glob
+import inspect
 import logging
 import os
 import os.path
@@ -9,7 +10,6 @@ import re
 import sqlite3
 import subprocess
 import sys
-import tempfile
 import unicodedata
 import urllib.parse
 from plistlib import load as plistload
@@ -19,7 +19,6 @@ import CoreServices
 import objc
 
 from ._constants import UNICODE_FORMAT
-from .fileutil import FileUtil
 
 _DEBUG = False
 
@@ -60,6 +59,14 @@ def _debug():
 def noop(*args, **kwargs):
     """ do nothing (no operation) """
     pass
+
+
+def lineno(filename):
+    """ Returns string with filename and current line number in caller as '(filename): line_num'
+    Will trim filename to just the name, dropping path, if any. """
+    line = inspect.currentframe().f_back.f_lineno
+    filename = pathlib.Path(filename).name
+    return f"{filename}: {line}"
 
 
 def _get_os_version():

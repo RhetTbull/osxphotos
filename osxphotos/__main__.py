@@ -2725,7 +2725,7 @@ def export_photo(
                         for error_ in export_results.error:
                             click.echo(
                                 click.style(
-                                    f"Error exporting photo, file {error_[0]}: {error_[1]}",
+                                    f"Error exporting photo ({photo.uuid}: {photo.original_filename}) as {error_[0]}: {error_[1]}",
                                     fg=CLI_COLOR_ERROR,
                                 ),
                                 err=True,
@@ -2734,7 +2734,7 @@ def export_photo(
                     except Exception as e:
                         click.echo(
                             click.style(
-                                f"Error exporting photo {photo.original_filename} ({photo.filename}) as {original_filename}: {e}",
+                                f"Error exporting photo ({photo.uuid}: {photo.original_filename}) as {original_filename}: {e}",
                                 fg=CLI_COLOR_ERROR,
                             ),
                             err=True,
@@ -2854,10 +2854,18 @@ def export_photo(
                                 ),
                                 err=True,
                             )
+                        for error_ in export_results_edited.error:
+                            click.echo(
+                                click.style(
+                                    f"Error exporting edited photo ({photo.uuid}: {photo.original_filename}) as {error_[0]}: {error_[1]}",
+                                    fg=CLI_COLOR_ERROR,
+                                ),
+                                err=True,
+                            )
                     except Exception as e:
                         click.echo(
                             click.style(
-                                f"Error exporting photo {filename} as {edited_filename}",
+                                f"Error exporting edited photo ({photo.uuid}: {photo.original_filename}) {filename} as {edited_filename}: {e}",
                                 fg=CLI_COLOR_ERROR,
                             ),
                             err=True,
