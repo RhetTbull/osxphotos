@@ -2616,7 +2616,9 @@ def export_photo(
         original_filename = pathlib.Path(filename)
         file_ext = (
             "." + jpeg_ext
-            if jpeg_ext and photo.uti == "public.jpeg"
+            if jpeg_ext and (photo.uti == "public.jpeg" or convert_to_jpeg)
+            else ".jpeg"
+            if convert_to_jpeg and photo.uti != "public.jpeg"
             else original_filename.suffix
         )
         original_filename = (
@@ -2758,6 +2760,10 @@ def export_photo(
                     if photo.path_edited
                     else pathlib.Path(photo.filename).suffix
                 )
+                # Big Sur uses .heic for some edited photos so need to check
+                # if extension isn't jpeg/jpg and using --convert-to-jpeg
+                if convert_to_jpeg and edited_ext.lower() not in [".jpg", ".jpeg"]:
+                    edited_ext = "." + jpeg_ext if jpeg_ext else ".jpeg"
 
                 if edited_suffix:
                     try:
