@@ -11,6 +11,7 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+import pathlib
 import sys
 
 import sphinx_rtd_theme
@@ -23,6 +24,19 @@ sys.path.insert(0, os.path.abspath(".."))
 project = "osxphotos"
 copyright = "2021, Rhet Turnbull"
 author = "Rhet Turnbull"
+
+# holds config info read from disk
+about = {}
+this_directory = pathlib.Path(__file__).parent
+version_file = this_directory.parent / "osxphotos" / "_version.py"
+# get version info from _version
+with open(
+   version_file, mode="r", encoding="utf-8"
+) as f:
+    exec(f.read(), about)
+
+# The full version, including alpha/beta/rc tags
+release = about["__version__"]
 
 
 # -- General configuration ---------------------------------------------------
