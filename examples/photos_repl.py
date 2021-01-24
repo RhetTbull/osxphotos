@@ -15,7 +15,7 @@ import time
 import click
 
 import osxphotos
-from osxphotos.__main__ import get_photos_db, _list_libraries
+from osxphotos.cli import get_photos_db, _list_libraries
 
 
 def show(photo):
