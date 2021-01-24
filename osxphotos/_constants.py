@@ -206,3 +206,6 @@ EXTENDED_ATTRIBUTE_NAMES = [
     "keywords",
 ]
 EXTENDED_ATTRIBUTE_NAMES_QUOTED = [f"'{x}'" for x in EXTENDED_ATTRIBUTE_NAMES]
+
+# name of export DB
+OSXPHOTOS_EXPORT_DB = ".osxphotos_export.db"

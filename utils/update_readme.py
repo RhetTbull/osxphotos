@@ -10,7 +10,7 @@
 
 from click.testing import CliRunner
 
-from osxphotos.__main__ import help
+from osxphotos.cli import help
 from osxphotos.phototemplate import (
     TEMPLATE_SUBSTITUTIONS,
     TEMPLATE_SUBSTITUTIONS_MULTI_VALUED,

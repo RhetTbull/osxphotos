@@ -1,4 +1,4 @@
-""" Test utility functions in __main__.py """
+""" Test utility functions in cli.py """
 
 import pytest
 
@@ -14,7 +14,7 @@ UUID_EXPECTED_FROM_FILE = [
 
 def test_load_uuid_from_file():
     """Test load_uuid_from_file function """
-    from osxphotos.__main__ import load_uuid_from_file
+    from osxphotos.cli import load_uuid_from_file
 
     uuid_got = load_uuid_from_file(UUID_FILE)
     assert uuid_got == UUID_EXPECTED_FROM_FILE
@@ -22,7 +22,7 @@ def test_load_uuid_from_file():
 
 def test_load_uuid_from_file_filenotfound():
     """Test load_uuid_from_file function raises error if file not found"""
-    from osxphotos.__main__ import load_uuid_from_file
+    from osxphotos.cli import load_uuid_from_file
 
     with pytest.raises(FileNotFoundError) as err:
         uuid_got = load_uuid_from_file(MISSING_UUID_FILE)
