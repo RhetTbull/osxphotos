@@ -1,0 +1,380 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome to osxphotos’s documentation! &#8212; osxphotos 0.40.4 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="osxphotos command line interface (CLI)" href="cli.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="welcome-to-osxphotos-s-documentation">
+<h1>Welcome to osxphotos’s documentation!<a class="headerlink" href="#welcome-to-osxphotos-s-documentation" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="osxphotos">
+<h1>OSXPhotos<a class="headerlink" href="#osxphotos" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="what-is-osxphotos">
+<h2>What is osxphotos?<a class="headerlink" href="#what-is-osxphotos" title="Permalink to this headline">¶</a></h2>
+<p>OSXPhotos provides both the ability to interact with and query Apple’s Photos.app library on macOS directly from your python code
+as well as a very flexible command line interface (CLI) app for exporting photos.
+You can query the Photos library database – for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc.
+You can also easily export both the original and edited photos.</p>
+</div>
+<div class="section" id="supported-operating-systems">
+<h2>Supported operating systems<a class="headerlink" href="#supported-operating-systems" title="Permalink to this headline">¶</a></h2>
+<p>Only works on macOS (aka Mac OS X). Tested on macOS Sierra (10.12.6) until macOS Catalina (10.15.7).
+Beta support for macOS Big Sur (10.16.01/11.01).</p>
+<p>This package will read Photos databases for any supported version on any supported macOS version.
+E.g. you can read a database created with Photos 5.0 on MacOS 10.15 on a machine running macOS 10.12 and vice versa.</p>
+<p>Requires python &gt;= <code class="docutils literal notranslate"><span class="pre">3.7</span></code>.</p>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>If you are new to python and just want to use the command line application, I recommend you to install using pipx. See other advanced options below.</p>
+<div class="section" id="installation-using-pipx">
+<h3>Installation using pipx<a class="headerlink" href="#installation-using-pipx" title="Permalink to this headline">¶</a></h3>
+<p>If you aren’t familiar with installing python applications, I recommend you install <code class="docutils literal notranslate"><span class="pre">osxphotos</span></code> with <a class="reference external" href="https://github.com/pipxproject/pipx">pipx</a>. If you use <code class="docutils literal notranslate"><span class="pre">pipx</span></code>, you will not need to create a virtual environment as <code class="docutils literal notranslate"><span class="pre">pipx</span></code> takes care of this. The easiest way to do this on a Mac is to use <a class="reference external" href="https://brew.sh/">homebrew</a>:</p>
+<ul class="simple">
+<li><p>Open <code class="docutils literal notranslate"><span class="pre">Terminal</span></code> (search for <code class="docutils literal notranslate"><span class="pre">Terminal</span></code> in Spotlight or look in <code class="docutils literal notranslate"><span class="pre">Applications/Utilities</span></code>)</p></li>
+<li><p>Install <code class="docutils literal notranslate"><span class="pre">homebrew</span></code> according to instructions at <a class="reference external" href="https://brew.sh/">https://brew.sh/</a></p></li>
+<li><p>Type the following into Terminal: <code class="docutils literal notranslate"><span class="pre">brew</span> <span class="pre">install</span> <span class="pre">pipx</span></code></p></li>
+<li><p>Then type this: <code class="docutils literal notranslate"><span class="pre">pipx</span> <span class="pre">install</span> <span class="pre">osxphotos</span></code></p></li>
+<li><p>Now you should be able to run <code class="docutils literal notranslate"><span class="pre">osxphotos</span></code> by typing: <code class="docutils literal notranslate"><span class="pre">osxphotos</span></code></p></li>
+</ul>
+</div>
+<div class="section" id="installation-using-pip">
+<h3>Installation using pip<a class="headerlink" href="#installation-using-pip" title="Permalink to this headline">¶</a></h3>
+<p>You can also install directly from <a class="reference external" href="https://pypi.org/project/osxphotos/">pypi</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">osxphotos</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="installation-from-git-repository">
+<h3>Installation from git repository<a class="headerlink" href="#installation-from-git-repository" title="Permalink to this headline">¶</a></h3>
+<p>OSXPhotos uses setuptools, thus simply run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">RhetTbull</span><span class="o">/</span><span class="n">osxphotos</span><span class="o">.</span><span class="n">git</span>
+<span class="n">cd</span> <span class="n">osxphotos</span>
+<span class="n">python3</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span>
+</pre></div>
+</div>
+<p>I recommend you create a <a class="reference external" href="https://docs.python.org/3/tutorial/venv.html">virtual environment</a> before installing osxphotos.</p>
+<p><strong>WARNING</strong> The git repo for this project is very large (&gt; 1GB) because it contains multiple Photos libraries used for testing
+on different versions of macOS.  If you just want to use the osxphotos package in your own code,
+I recommend you install the latest version from <a class="reference external" href="https://pypi.org/project/osxphotos/">PyPI</a> which does not include all the test
+libraries. If you just want to use the command line utility, you can download a pre-built executable of the latest
+<a class="reference external" href="https://github.com/RhetTbull/osxphotos/releases">release</a> or you can install via <code class="docutils literal notranslate"><span class="pre">pip</span></code> which also installs the command line app.
+If you aren’t comfortable with running python on your Mac, start with the pre-built executable or <code class="docutils literal notranslate"><span class="pre">pipx</span></code> as described above.</p>
+</div>
+</div>
+<div class="section" id="command-line-usage">
+<h2>Command Line Usage<a class="headerlink" href="#command-line-usage" title="Permalink to this headline">¶</a></h2>
+<p>This package will install a command line utility called <code class="docutils literal notranslate"><span class="pre">osxphotos</span></code> that allows you to query the Photos database and export photos.
+Alternatively, you can also run the command line utility like this: <code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">-m</span> <span class="pre">osxphotos</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">osxphotos</span>
+<span class="n">Usage</span><span class="p">:</span> <span class="n">osxphotos</span> <span class="p">[</span><span class="n">OPTIONS</span><span class="p">]</span> <span class="n">COMMAND</span> <span class="p">[</span><span class="n">ARGS</span><span class="p">]</span><span class="o">...</span>
+
+<span class="n">Options</span><span class="p">:</span>
+  <span class="o">--</span><span class="n">db</span> <span class="o">&lt;</span><span class="n">Photos</span> <span class="n">database</span> <span class="n">path</span><span class="o">&gt;</span>  <span class="n">Specify</span> <span class="n">Photos</span> <span class="n">database</span> <span class="n">path</span><span class="o">.</span> <span class="n">Path</span> <span class="n">to</span> <span class="n">Photos</span>
+                               <span class="n">library</span><span class="o">/</span><span class="n">database</span> <span class="n">can</span> <span class="n">be</span> <span class="n">specified</span> <span class="n">using</span> <span class="n">either</span>
+                               <span class="o">--</span><span class="n">db</span> <span class="ow">or</span> <span class="n">directly</span> <span class="k">as</span> <span class="n">PHOTOS_LIBRARY</span> <span class="n">positional</span>
+                               <span class="n">argument</span><span class="o">.</span> <span class="n">If</span> <span class="n">neither</span> <span class="o">--</span><span class="n">db</span> <span class="ow">or</span> <span class="n">PHOTOS_LIBRARY</span>
+                               <span class="n">provided</span><span class="p">,</span> <span class="n">will</span> <span class="n">attempt</span> <span class="n">to</span> <span class="n">find</span> <span class="n">the</span> <span class="n">library</span> <span class="n">to</span>
+                               <span class="n">use</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">following</span> <span class="n">order</span><span class="p">:</span> <span class="mf">1.</span> <span class="n">last</span> <span class="n">opened</span>
+                               <span class="n">library</span><span class="p">,</span> <span class="mf">2.</span> <span class="n">system</span> <span class="n">library</span><span class="p">,</span> <span class="mf">3.</span>
+                               <span class="o">~/</span><span class="n">Pictures</span><span class="o">/</span><span class="n">Photos</span> <span class="n">Library</span><span class="o">.</span><span class="n">photoslibrary</span>
+  <span class="o">--</span><span class="n">json</span>                       <span class="n">Print</span> <span class="n">output</span> <span class="ow">in</span> <span class="n">JSON</span> <span class="nb">format</span><span class="o">.</span>
+  <span class="o">-</span><span class="n">v</span><span class="p">,</span> <span class="o">--</span><span class="n">version</span>                <span class="n">Show</span> <span class="n">the</span> <span class="n">version</span> <span class="ow">and</span> <span class="n">exit</span><span class="o">.</span>
+  <span class="o">-</span><span class="n">h</span><span class="p">,</span> <span class="o">--</span><span class="n">help</span>                   <span class="n">Show</span> <span class="n">this</span> <span class="n">message</span> <span class="ow">and</span> <span class="n">exit</span><span class="o">.</span>
+
+<span class="n">Commands</span><span class="p">:</span>
+  <span class="n">about</span>     <span class="n">Print</span> <span class="n">information</span> <span class="n">about</span> <span class="n">osxphotos</span> <span class="n">including</span> <span class="n">license</span><span class="o">.</span>
+  <span class="n">albums</span>    <span class="n">Print</span> <span class="n">out</span> <span class="n">albums</span> <span class="n">found</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">Photos</span> <span class="n">library</span><span class="o">.</span>
+  <span class="n">dump</span>      <span class="n">Print</span> <span class="nb">list</span> <span class="n">of</span> <span class="nb">all</span> <span class="n">photos</span> <span class="o">&amp;</span> <span class="n">associated</span> <span class="n">info</span> <span class="kn">from</span> <span class="nn">the</span> <span class="n">Photos</span><span class="o">...</span>
+  <span class="n">export</span>    <span class="n">Export</span> <span class="n">photos</span> <span class="kn">from</span> <span class="nn">the</span> <span class="n">Photos</span> <span class="n">database</span><span class="o">.</span>
+  <span class="n">help</span>      <span class="n">Print</span> <span class="n">help</span><span class="p">;</span> <span class="k">for</span> <span class="n">help</span> <span class="n">on</span> <span class="n">commands</span><span class="p">:</span> <span class="n">help</span> <span class="o">&lt;</span><span class="n">command</span><span class="o">&gt;.</span>
+  <span class="n">info</span>      <span class="n">Print</span> <span class="n">out</span> <span class="n">descriptive</span> <span class="n">info</span> <span class="n">of</span> <span class="n">the</span> <span class="n">Photos</span> <span class="n">library</span> <span class="n">database</span><span class="o">.</span>
+  <span class="n">keywords</span>  <span class="n">Print</span> <span class="n">out</span> <span class="n">keywords</span> <span class="n">found</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">Photos</span> <span class="n">library</span><span class="o">.</span>
+  <span class="n">labels</span>    <span class="n">Print</span> <span class="n">out</span> <span class="n">image</span> <span class="n">classification</span> <span class="n">labels</span> <span class="n">found</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">Photos</span><span class="o">...</span>
+  <span class="nb">list</span>      <span class="n">Print</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">Photos</span> <span class="n">libraries</span> <span class="n">found</span> <span class="n">on</span> <span class="n">the</span> <span class="n">system</span><span class="o">.</span>
+  <span class="n">persons</span>   <span class="n">Print</span> <span class="n">out</span> <span class="n">persons</span> <span class="p">(</span><span class="n">faces</span><span class="p">)</span> <span class="n">found</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">Photos</span> <span class="n">library</span><span class="o">.</span>
+  <span class="n">places</span>    <span class="n">Print</span> <span class="n">out</span> <span class="n">places</span> <span class="n">found</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">Photos</span> <span class="n">library</span><span class="o">.</span>
+  <span class="n">query</span>     <span class="n">Query</span> <span class="n">the</span> <span class="n">Photos</span> <span class="n">database</span> <span class="n">using</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">more</span> <span class="n">search</span> <span class="n">options</span><span class="p">;</span> <span class="k">if</span><span class="o">...</span>
+</pre></div>
+</div>
+<p>To get help on a specific command, use <code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">help</span> <span class="pre">&lt;command_name&gt;</span></code></p>
+<div class="section" id="command-line-examples">
+<h3>Command line examples<a class="headerlink" href="#command-line-examples" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="export-all-photos-to-desktop-export-group-in-folders-by-date-created">
+<h4>export all photos to ~/Desktop/export group in folders by date created<a class="headerlink" href="#export-all-photos-to-desktop-export-group-in-folders-by-date-created" title="Permalink to this headline">¶</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">export</span> <span class="pre">--export-by-date</span> <span class="pre">~/Pictures/Photos\</span> <span class="pre">Library.photoslibrary</span> <span class="pre">~/Desktop/export</span></code></p>
+<p><strong>Note</strong>: Photos library/database path can also be specified using <code class="docutils literal notranslate"><span class="pre">--db</span></code> option:</p>
+<p><code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">export</span> <span class="pre">--export-by-date</span> <span class="pre">--db</span> <span class="pre">~/Pictures/Photos\</span> <span class="pre">Library.photoslibrary</span> <span class="pre">~/Desktop/export</span></code></p>
+</div>
+<div class="section" id="find-all-photos-with-keyword-kids-and-output-results-to-json-file-named-results-json">
+<h4>find all photos with keyword “Kids” and output results to json file named results.json:<a class="headerlink" href="#find-all-photos-with-keyword-kids-and-output-results-to-json-file-named-results-json" title="Permalink to this headline">¶</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">query</span> <span class="pre">--keyword</span> <span class="pre">Kids</span> <span class="pre">--json</span> <span class="pre">~/Pictures/Photos\</span> <span class="pre">Library.photoslibrary</span> <span class="pre">&gt;results.json</span></code></p>
+</div>
+<div class="section" id="export-photos-to-file-structure-based-on-4-digit-year-and-full-name-of-month-of-photo-s-creation-date">
+<h4>export photos to file structure based on 4-digit year and full name of month of photo’s creation date:<a class="headerlink" href="#export-photos-to-file-structure-based-on-4-digit-year-and-full-name-of-month-of-photo-s-creation-date" title="Permalink to this headline">¶</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">export</span> <span class="pre">~/Desktop/export</span> <span class="pre">--directory</span> <span class="pre">&quot;{created.year}/{created.month}&quot;</span></code></p>
+<p>(by default, it will attempt to use the system library)</p>
+</div>
+<div class="section" id="export-photos-to-file-structure-based-on-4-digit-year-of-photo-s-creation-date-and-add-keywords-for-media-type-and-labels-labels-are-only-awailable-on-photos-5-and-higher">
+<h4>export photos to file structure based on 4-digit year of photo’s creation date and add keywords for media type and labels (labels are only awailable on Photos 5 and higher):<a class="headerlink" href="#export-photos-to-file-structure-based-on-4-digit-year-of-photo-s-creation-date-and-add-keywords-for-media-type-and-labels-labels-are-only-awailable-on-photos-5-and-higher" title="Permalink to this headline">¶</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">export</span> <span class="pre">~/Desktop/export</span> <span class="pre">--directory</span> <span class="pre">&quot;{created.year}&quot;</span> <span class="pre">--keyword-template</span> <span class="pre">&quot;{label}&quot;</span> <span class="pre">--keyword-template</span> <span class="pre">&quot;{media_type}&quot;</span></code></p>
+</div>
+<div class="section" id="export-default-library-using-country-name-year-as-output-directory-but-use-nocountry-year-if-country-not-specified-add-persons-album-names-and-year-as-keywords-write-exif-metadata-to-files-when-exporting-update-only-changed-files-print-verbose-ouput">
+<h4>export default library using ‘country name/year’ as output directory (but use “NoCountry/year” if country not specified), add persons, album names, and year as keywords, write exif metadata to files when exporting, update only changed files, print verbose ouput<a class="headerlink" href="#export-default-library-using-country-name-year-as-output-directory-but-use-nocountry-year-if-country-not-specified-add-persons-album-names-and-year-as-keywords-write-exif-metadata-to-files-when-exporting-update-only-changed-files-print-verbose-ouput" title="Permalink to this headline">¶</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">export</span> <span class="pre">~/Desktop/export</span> <span class="pre">--directory</span> <span class="pre">&quot;{place.name.country,NoCountry}/{created.year}&quot;</span>&#160; <span class="pre">--person-keyword</span> <span class="pre">--album-keyword</span> <span class="pre">--keyword-template</span> <span class="pre">&quot;{created.year}&quot;</span> <span class="pre">--exiftool</span> <span class="pre">--update</span> <span class="pre">--verbose</span></code></p>
+</div>
+</div>
+</div>
+<div class="section" id="example-uses-of-the-package">
+<h2>Example uses of the package<a class="headerlink" href="#example-uses-of-the-package" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot; Simple usage of the package &quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">osxphotos</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">photosdb</span><span class="o">.</span><span class="n">keywords</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">photosdb</span><span class="o">.</span><span class="n">persons</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">photosdb</span><span class="o">.</span><span class="n">album_names</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">photosdb</span><span class="o">.</span><span class="n">keywords_as_dict</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">photosdb</span><span class="o">.</span><span class="n">persons_as_dict</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">photosdb</span><span class="o">.</span><span class="n">albums_as_dict</span><span class="p">)</span>
+
+    <span class="c1"># find all photos with Keyword = Foo and containing John Smith</span>
+    <span class="n">photos</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Foo&quot;</span><span class="p">],</span><span class="n">persons</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;John Smith&quot;</span><span class="p">])</span>
+
+    <span class="c1"># find all photos that include Alice Smith but do not contain the keyword Bar</span>
+    <span class="n">photos</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">persons</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Alice Smith&quot;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">(</span><span class="n">keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Bar&quot;</span><span class="p">])</span> <span class="p">]</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">original_filename</span><span class="p">,</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">date</span><span class="p">,</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">keywords</span><span class="p">,</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">albums</span><span class="p">,</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">persons</span><span class="p">,</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+        <span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot; Export all photos to specified directory using album names as folders</span>
+<span class="sd">    If file has been edited, also export the edited version,</span>
+<span class="sd">    otherwise, export the original version</span>
+<span class="sd">    This will result in duplicate photos if photo is in more than album &quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">import</span> <span class="nn">click</span>
+<span class="kn">from</span> <span class="nn">pathvalidate</span> <span class="kn">import</span> <span class="n">is_valid_filepath</span><span class="p">,</span> <span class="n">sanitize_filepath</span>
+
+<span class="kn">import</span> <span class="nn">osxphotos</span>
+
+
+<span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s2">&quot;export_path&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--default-album&quot;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Default folder for photos with no album. Defaults to &#39;unfiled&#39;&quot;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="s2">&quot;unfiled&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--library-path&quot;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to Photos library, default to last used library&quot;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="n">default_album</span><span class="p">,</span> <span class="n">library_path</span><span class="p">):</span>
+    <span class="n">export_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">export_path</span><span class="p">)</span>
+    <span class="n">library_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">library_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">library_path</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">library_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">(</span><span class="n">library_path</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">photosdb</span> <span class="o">=</span> <span class="n">osxphotos</span><span class="o">.</span><span class="n">PhotosDB</span><span class="p">()</span>
+
+    <span class="n">photos</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">photos</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">ismissing</span><span class="p">:</span>
+            <span class="n">albums</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">albums</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">albums</span><span class="p">:</span>
+                <span class="n">albums</span> <span class="o">=</span> <span class="p">[</span><span class="n">default_album</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">album</span> <span class="ow">in</span> <span class="n">albums</span><span class="p">:</span>
+                <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;exporting </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2"> in album </span><span class="si">{</span><span class="n">album</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                <span class="c1"># make sure no invalid characters in destination path (could be in album name)</span>
+                <span class="n">album_name</span> <span class="o">=</span> <span class="n">sanitize_filepath</span><span class="p">(</span><span class="n">album</span><span class="p">,</span> <span class="n">platform</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">)</span>
+
+                <span class="c1"># create destination folder, if necessary, based on album name</span>
+                <span class="n">dest_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_path</span><span class="p">,</span> <span class="n">album_name</span><span class="p">)</span>
+
+                <span class="c1"># verify path is a valid path</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid_filepath</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">,</span> <span class="n">platform</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">):</span>
+                    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid filepath </span><span class="si">{</span><span class="n">dest_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                <span class="c1"># create destination dir if needed</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">):</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">)</span>
+
+                <span class="c1"># export the photo</span>
+                <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">hasadjustments</span><span class="p">:</span>
+                    <span class="c1"># export edited version</span>
+                    <span class="n">exported</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">,</span> <span class="n">edited</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">edited_name</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">path_edited</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+                    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Exported </span><span class="si">{</span><span class="n">edited_name</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">exported</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="c1"># export unedited version</span>
+                <span class="n">exported</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">)</span>
+                <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Exported </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">exported</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Skipping missing photo: </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">export</span><span class="p">()</span>  <span class="c1"># pylint: disable=no-value-for-parameter</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="package-interface">
+<h2>Package Interface<a class="headerlink" href="#package-interface" title="Permalink to this headline">¶</a></h2>
+<p>Reference full documentation on <a class="reference external" href="https://github.com/RhetTbull/osxphotos/blob/master/README.md">GitHub</a></p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">osxphotos command line interface (CLI)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#osxphotos">osxphotos</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli.html#osxphotos-about">about</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli.html#osxphotos-albums">albums</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli.html#osxphotos-dump">dump</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli.html#osxphotos-export">export</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli.html#osxphotos-help">help</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli.html#osxphotos-info">info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli.html#osxphotos-keywords">keywords</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli.html#osxphotos-labels">labels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli.html#osxphotos-list">list</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli.html#osxphotos-persons">persons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli.html#osxphotos-places">places</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli.html#osxphotos-query">query</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">osxphotos package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos-module">osxphotos module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">osxphotos</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">osxphotos command line interface (CLI)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">osxphotos package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="cli.html" title="next chapter">osxphotos command line interface (CLI)</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Rhet Turnbull.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

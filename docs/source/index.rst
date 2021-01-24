@@ -6,14 +6,14 @@
 Welcome to osxphotos's documentation!
 =====================================
 
-.. include:: ../README.rst
+.. include:: ../../README.rst
 
 .. toctree::
    :maxdepth: 4 
-   :caption: Contents:
 
    cli
    reference
+
 
 Indices and tables
 ==================

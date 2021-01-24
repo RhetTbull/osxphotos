@@ -28,7 +28,7 @@ author = "Rhet Turnbull"
 # holds config info read from disk
 about = {}
 this_directory = pathlib.Path(__file__).parent
-version_file = this_directory.parent / "osxphotos" / "_version.py"
+version_file = this_directory.parent.parent / "osxphotos" / "_version.py"
 # get version info from _version
 with open(
    version_file, mode="r", encoding="utf-8"
