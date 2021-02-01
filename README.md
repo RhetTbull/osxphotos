@@ -290,6 +290,10 @@ Options:
                                   but with --ignore-signature, files which exist
                                   in the export directory will not be re-
                                   exported.
+  --only-new                      If used with --update, ignores any previously
+                                  exported files, even if missing from the
+                                  export folder and only exports new files that
+                                  haven't previously been exported.
   --dry-run                       Dry run (test) the export but don't actually
                                   export any files; most useful with --verbose.
   --export-as-hardlink            Hardlink files instead of copying them. Cannot

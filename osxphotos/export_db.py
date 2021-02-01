@@ -85,6 +85,10 @@ class ExportDB_ABC(ABC):
         pass
 
     @abstractmethod
+    def get_previous_uuids(self):
+        pass
+
+    @abstractmethod
     def set_data(
         self,
         filename,
@@ -154,6 +158,9 @@ class ExportDBNoOp(ExportDB_ABC):
 
     def get_sidecar_for_file(self, filename):
         return None, (None, None, None)
+
+    def get_previous_uuids(self):
+        return []
 
     def set_data(
         self,
@@ -434,6 +441,19 @@ class ExportDB(ExportDB_ABC):
             conn.commit()
         except Error as e:
             logging.warning(e)
+
+    def get_previous_uuids(self):
+        """returns list of UUIDs of previously exported photos found in export database """
+        conn = self._conn
+        previous_uuids = []
+        try:
+            c = conn.cursor()
+            c.execute("SELECT DISTINCT uuid FROM files")
+            results = c.fetchall()
+            previous_uuids = [row[0] for row in results]
+        except Error as e:
+            logging.warning(e)
+        return previous_uuids
 
     def set_data(
         self,

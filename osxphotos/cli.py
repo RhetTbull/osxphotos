@@ -444,6 +444,12 @@ def cli(ctx, db, json_, debug):
     "in the export directory will not be re-exported.",
 )
 @click.option(
+    "--only-new",
+    is_flag=True,
+    help="If used with --update, ignores any previously exported files, even if missing from "
+    "the export folder and only exports new files that haven't previously been exported.",
+)
+@click.option(
     "--dry-run",
     is_flag=True,
     help="Dry run (test) the export but don't actually export any files; most useful with --verbose.",
@@ -825,6 +831,7 @@ def export(
     missing,
     update,
     ignore_signature,
+    only_new,
     dry_run,
     export_as_hardlink,
     touch_file,
@@ -1039,6 +1046,7 @@ def export(
         cleanup = cfg.cleanup
         exportdb = cfg.exportdb
         beta = cfg.beta
+        only_new = cfg.only_new
 
         # config file might have changed verbose
         VERBOSE = bool(verbose)
@@ -1077,6 +1085,7 @@ def export(
         ("missing", ("download_missing", "use_photos_export")),
         ("jpeg_quality", ("convert_to_jpeg")),
         ("ignore_signature", ("update")),
+        ("only_new", ("update")),
         ("exiftool_option", ("exiftool")),
         ("exiftool_merge_keywords", ("exiftool", "sidecar")),
         ("exiftool_merge_persons", ("exiftool", "sidecar")),
@@ -1333,6 +1342,11 @@ def export(
     )
 
     if photos:
+        if only_new:
+            # ignore previously exported files
+            previous_uuids = {uuid: 1 for uuid in export_db.get_previous_uuids()}
+            photos = [p for p in photos if p.uuid not in previous_uuids]
+
         if export_bursts:
             # add the burst_photos to the export set
             photos_burst = [p for p in photos if p.burst]
