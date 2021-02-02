@@ -10,7 +10,7 @@ attrs==19.1.0
 backcall==0.1.0
 better-exceptions-fork==0.2.1.post6
 black==19.10b0
-bleach==3.1.4
+bleach==3.3.0
 bpylist2==3.0.2
 certifi==2020.4.5.1
 cffi==1.14.0
