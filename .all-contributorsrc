@@ -166,6 +166,15 @@
         "research",
         "userTesting"
       ]
+    },
+    {
+      "login": "davidjroos",
+      "name": "davidjroos ",
+      "avatar_url": "https://avatars.githubusercontent.com/u/15630844?v=4",
+      "profile": "https://github.com/davidjroos",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,
