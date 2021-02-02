@@ -707,8 +707,8 @@ def cli(ctx, db, json_, debug):
     type=click.Choice(["jpeg", "jpg", "JPEG", "JPG"], case_sensitive=True),
     help="Specify file extension for JPEG files. Photos uses .jpeg for edited images but many images "
     "are imported with .jpg or .JPG which can result in multiple different extensions used for JPEG files "
-    "upon export.  Use --jpg-ext to specify a single extension to use for all exported JPEG images. "
-    "Valid values are jpeg, jpg, JPEG, JPG; e.g. '--jpg-ext jpg' to use '.jpg' for all JPEGs.",
+    "upon export.  Use --jpeg-ext to specify a single extension to use for all exported JPEG images. "
+    "Valid values are jpeg, jpg, JPEG, JPG; e.g. '--jpeg-ext jpg' to use '.jpg' for all JPEGs.",
 )
 @click.option(
     "--strip",

@@ -491,10 +491,10 @@ Options:
                                   uses .jpeg for edited images but many images
                                   are imported with .jpg or .JPG which can
                                   result in multiple different extensions used
-                                  for JPEG files upon export.  Use --jpg-ext to
+                                  for JPEG files upon export.  Use --jpeg-ext to
                                   specify a single extension to use for all
                                   exported JPEG images. Valid values are jpeg,
-                                  jpg, JPEG, JPG; e.g. '--jpg-ext jpg' to use
+                                  jpg, JPEG, JPG; e.g. '--jpeg-ext jpg' to use
                                   '.jpg' for all JPEGs.
   --strip                         Optionally strip leading and trailing
                                   whitespace from any rendered templates. For
