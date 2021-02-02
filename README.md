@@ -51,7 +51,7 @@ Only works on macOS (aka Mac OS X). Tested on macOS Sierra (10.12.6) until macOS
 
 | macOS Version     | macOS name | Photos.app version |
 | ----------------- |------------|:-------------------|
-| 10.16             | Big Sur    | 6.0 ✅             |
+| 10.16, 11.0-11.2  | Big Sur    | 6.0 ✅             |
 | 10.15.1 - 10.15.7 | Catalina   | 5.0 ✅             |
 | 10.14.5, 10.14.6  | Mojave     | 4.0 ✅             |
 | 10.13.6           | High Sierra| 3.0 ✅             |
