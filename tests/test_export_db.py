@@ -45,6 +45,7 @@ def test_export_db():
     assert db.get_stat_converted_for_file(filepath) == (7, 8, 9)
     db.set_sidecar_for_file(filepath, SIDECAR_DATA, (13, 14, 15))
     assert db.get_sidecar_for_file(filepath) == (SIDECAR_DATA, (13, 14, 15))
+    assert db.get_previous_uuids() == ["FOO-BAR"]
 
     # test set_data which sets all at the same time
     filepath2 = os.path.join(tempdir.name, "test2.jpg")
@@ -65,6 +66,7 @@ def test_export_db():
     assert db.get_stat_exif_for_file(filepath2) == (4, 5, 6)
     assert db.get_stat_converted_for_file(filepath2) == (7, 8, 9)
     assert db.get_stat_edited_for_file(filepath2) == (10, 11, 12)
+    assert sorted(db.get_previous_uuids()) == (["BAR-FOO", "FOO-BAR"])
 
     # close and re-open
     db.close()
@@ -77,10 +79,12 @@ def test_export_db():
     assert db.get_stat_exif_for_file(filepath2) == (4, 5, 6)
     assert db.get_stat_converted_for_file(filepath2) == (7, 8, 9)
     assert db.get_stat_edited_for_file(filepath2) == (10, 11, 12)
+    assert sorted(db.get_previous_uuids()) == (["BAR-FOO", "FOO-BAR"])
 
     # update data
     db.set_uuid_for_file(filepath, "FUBAR")
     assert db.get_uuid_for_file(filepath) == "FUBAR"
+    assert sorted(db.get_previous_uuids()) == (["BAR-FOO", "FUBAR"])
 
 
 def test_export_db_no_op():
@@ -115,6 +119,7 @@ def test_export_db_no_op():
     assert db.get_stat_edited_for_file(filepath) is None
     db.set_sidecar_for_file(filepath, SIDECAR_DATA, (13, 14, 15))
     assert db.get_sidecar_for_file(filepath) == (None, (None, None, None))
+    assert db.get_previous_uuids() == []
 
     # test set_data which sets all at the same time
     filepath2 = os.path.join(tempdir.name, "test2.jpg")
@@ -135,6 +140,7 @@ def test_export_db_no_op():
     assert db.get_stat_exif_for_file(filepath2) is None
     assert db.get_stat_converted_for_file(filepath) is None
     assert db.get_stat_edited_for_file(filepath) is None
+    assert db.get_previous_uuids() == []
 
     # update data
     db.set_uuid_for_file(filepath, "FUBAR")
@@ -167,6 +173,7 @@ def test_export_db_in_memory():
     db.set_stat_converted_for_file(filepath, (7, 8, 9))
     db.set_stat_edited_for_file(filepath, (10, 11, 12))
     db.set_sidecar_for_file(filepath, SIDECAR_DATA, (13, 14, 15))
+    assert db.get_previous_uuids() == ["FOO-BAR"]
 
     db.close()
 
@@ -184,6 +191,7 @@ def test_export_db_in_memory():
     assert dbram.get_stat_converted_for_file(filepath) == (7, 8, 9)
     assert dbram.get_stat_edited_for_file(filepath) == (10, 11, 12)
     assert dbram.get_sidecar_for_file(filepath) == (SIDECAR_DATA, (13, 14, 15))
+    assert dbram.get_previous_uuids() == ["FOO-BAR"]
 
     # change a value
     dbram.set_uuid_for_file(filepath, "FUBAR")
@@ -203,6 +211,7 @@ def test_export_db_in_memory():
     assert dbram.get_stat_converted_for_file(filepath) == (1, 2, 3)
     assert dbram.get_stat_edited_for_file(filepath) == (4, 5, 6)
     assert dbram.get_sidecar_for_file(filepath) == ("FUBAR", (20, 21, 22))
+    assert dbram.get_previous_uuids() == ["FUBAR"]
 
     dbram.close()
 
@@ -216,6 +225,7 @@ def test_export_db_in_memory():
     assert db.get_stat_converted_for_file(filepath) == (7, 8, 9)
     assert db.get_stat_edited_for_file(filepath) == (10, 11, 12)
     assert db.get_sidecar_for_file(filepath) == (SIDECAR_DATA, (13, 14, 15))
+    assert db.get_previous_uuids() == ["FOO-BAR"]
 
     assert db.get_info_for_uuid("FUBAR") is None
 
@@ -253,5 +263,6 @@ def test_export_db_in_memory_nofile():
     assert dbram.get_stat_converted_for_file(filepath) == (1, 2, 3)
     assert dbram.get_stat_edited_for_file(filepath) == (4, 5, 6)
     assert dbram.get_sidecar_for_file(filepath) == ("FUBAR", (20, 21, 22))
-
+    assert dbram.get_previous_uuids() == ["FUBAR"]
+    
     dbram.close()
