@@ -16,6 +16,10 @@ github:
 	@make html
 	@cp -a _build/html/. ../docs
 
+pdf:
+	@make latexpdf
+	@cp -a _build/latex/osxphotos.pdf ../docs
+
 .PHONY: help Makefile
 
 # Catch-all target: route all unknown targets to Sphinx using the new

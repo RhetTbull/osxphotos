@@ -1,0 +1,16 @@
+.metrics
+.DS_store
+__pycache__
+.coverage
+.condaauto
+t.out
+.vscode/
+.tox/
+dist/
+build/
+working/
+osxphotos.egg-info/
+.mypy_cache/
+cli.spec
+*.pyc
+docsrc/_build/
