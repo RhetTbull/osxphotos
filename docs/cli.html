@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos command line interface (CLI) &#8212; osxphotos 0.40.4 documentation</title>
+    <title>osxphotos command line interface (CLI) &#8212; osxphotos 0.40.7 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -496,6 +496,12 @@ to modify this behavior.</p>
 </dd></dl>
 
 <dl class="std option">
+<dt id="cmdoption-osxphotos-export-only-new">
+<code class="sig-name descname">--only-new</code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-osxphotos-export-only-new" title="Permalink to this definition">¶</a></dt>
+<dd><p>If used with –update, ignores any previously exported files, even if missing from the export folder and only exports new files that haven’t previously been exported.</p>
+</dd></dl>
+
+<dl class="std option">
 <dt id="cmdoption-osxphotos-export-dry-run">
 <code class="sig-name descname">--dry-run</code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-osxphotos-export-dry-run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dry run (test) the export but don’t actually export any files; most useful with –verbose.</p>
@@ -691,7 +697,7 @@ to modify this behavior.</p>
 <dl class="std option">
 <dt id="cmdoption-osxphotos-export-jpeg-ext">
 <code class="sig-name descname">--jpeg-ext</code><code class="sig-prename descclassname"> &lt;EXTENSION&gt;</code><a class="headerlink" href="#cmdoption-osxphotos-export-jpeg-ext" title="Permalink to this definition">¶</a></dt>
-<dd><p>Specify file extension for JPEG files. Photos uses .jpeg for edited images but many images are imported with .jpg or .JPG which can result in multiple different extensions used for JPEG files upon export.  Use –jpg-ext to specify a single extension to use for all exported JPEG images. Valid values are jpeg, jpg, JPEG, JPG; e.g. ‘–jpg-ext jpg’ to use ‘.jpg’ for all JPEGs.</p>
+<dd><p>Specify file extension for JPEG files. Photos uses .jpeg for edited images but many images are imported with .jpg or .JPG which can result in multiple different extensions used for JPEG files upon export.  Use –jpeg-ext to specify a single extension to use for all exported JPEG images. Valid values are jpeg, jpg, JPEG, JPG; e.g. ‘–jpeg-ext jpg’ to use ‘.jpg’ for all JPEGs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Options</dt>
 <dd class="field-odd"><p>jpeg|jpg|JPEG|JPG</p>
