@@ -152,7 +152,7 @@
 
 
 <?xpacket begin="${"\uFEFF"}" id="W5M0MpCehiHzreSzNTczkc9d"?>
-<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="osxphotos ${version}">
+<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="osxphotos">
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
 <rdf:Description rdf:about="" 
  xmlns:dc="http://purl.org/dc/elements/1.1/" 
