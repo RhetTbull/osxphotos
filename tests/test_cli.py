@@ -3839,6 +3839,68 @@ def test_export_update_edits():
         )
 
 
+def test_export_update_only_new():
+    """ test --update --only-new """
+    import glob
+    import os
+    import os.path
+    import time
+
+    import osxphotos
+    from osxphotos.cli import export, OSXPHOTOS_EXPORT_DB
+
+    os.environ["TZ"] = "US/Pacific"
+    time.tzset()
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        # basic export
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--to-date",
+                "2020-12-20T18:33:41.766684-08:00",
+            ],
+        )
+        assert result.exit_code == 0
+
+        # --update with --only-new --dry-run
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--dry-run",
+                "--update",
+                "--only-new",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "exported: 1" in result.output
+
+        # --update with --only-new
+        result = runner.invoke(
+            export,
+            [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--update", "--only-new"],
+        )
+        assert result.exit_code == 0
+        assert "exported: 1" in result.output
+
+        # --update with --only-new, should export nothing
+        result = runner.invoke(
+            export,
+            [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--update", "--only-new"],
+        )
+        assert result.exit_code == 0
+        assert "exported: 0" in result.output
+
+
 def test_export_update_no_db():
     """ test export then update after db has been deleted """
     import glob
