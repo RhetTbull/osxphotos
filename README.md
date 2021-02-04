@@ -273,6 +273,9 @@ Options:
   --is-reference                  Search for photos that were imported as
                                   referenced files (not copied into Photos
                                   library).
+  --in-album                      Search for photos that are in one or more
+                                  albums.
+  --not-in-album                  Search for photos that are not in any albums.
   --missing                       Export only photos missing from the Photos
                                   library; must be used with --download-missing.
   --deleted                       Include photos from the 'Recently Deleted'

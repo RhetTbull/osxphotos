@@ -578,6 +578,29 @@ UUID_IS_REFERENCE = [
     "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C",
 ]
 
+UUID_IN_ALBUM = [
+    "F12384F6-CD17-4151-ACBA-AE0E3688539E",
+    "8E1D7BC9-9321-44F9-8CFB-4083F6B9232A",
+    "1EB2B765-0765-43BA-A90C-0D0580E6172C",
+    "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51",
+    "A92D9C26-3A50-4197-9388-CB5F7DB9FA91",
+    "D79B8D77-BFFC-460B-9312-034F2877D35B",
+    "4D521201-92AC-43E5-8F7C-59BC41C37A96",
+    "D05A5FE3-15FB-49A1-A15D-AB3DA6F8B068",
+    "3DD2C897-F19E-4CA6-8C22-B027D5A71907",
+]
+
+UUID_NOT_IN_ALBUM = [
+    "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C",
+    "7783E8E6-9CAC-40F3-BE22-81FB7051C266",
+    "DC99FBDD-7A52-4100-A5BB-344131646C30",
+    "D1359D09-1373-4F3B-B0E3-1A4DE573E4A3",
+    "E2078879-A29C-4D6F-BACB-E3BBE6C3EB91",
+    "6191423D-8DB8-4D4C-92BE-9BBBA308AAC4",
+    "35329C57-B963-48D6-BB75-6AFF9370CBBC",
+    "8846E3E6-8AC8-4857-8448-E3D025784410",
+]
+
 
 def modify_file(filename):
     """ appends data to a file to modify it """
@@ -880,6 +903,46 @@ def test_query_is_reference():
     json_got = json.loads(result.output)
     uuid_got = [photo["uuid"] for photo in json_got]
     assert sorted(uuid_got) == sorted(UUID_IS_REFERENCE)
+
+
+def test_query_in_album():
+    """ Test query with --in-album """
+    import json
+    import os
+    import os.path
+    from osxphotos.cli import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--in-album"]
+    )
+    assert result.exit_code == 0
+
+    # build list of uuids we got from the output JSON
+    json_got = json.loads(result.output)
+    uuid_got = [photo["uuid"] for photo in json_got]
+    assert sorted(uuid_got) == sorted(UUID_IN_ALBUM)
+
+
+def test_query_not_in_album():
+    """ Test query with --not-in-album """
+    import json
+    import os
+    import os.path
+    from osxphotos.cli import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--not-in-album"]
+    )
+    assert result.exit_code == 0
+
+    # build list of uuids we got from the output JSON
+    json_got = json.loads(result.output)
+    uuid_got = [photo["uuid"] for photo in json_got]
+    assert sorted(uuid_got) == sorted(UUID_NOT_IN_ALBUM)
 
 
 def test_export():

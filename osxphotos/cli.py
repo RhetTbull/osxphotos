@@ -403,6 +403,16 @@ def query_options(f):
             is_flag=True,
             help="Search for photos that were imported as referenced files (not copied into Photos library).",
         ),
+        o(
+            "--in-album",
+            is_flag=True,
+            help="Search for photos that are in one or more albums.",
+        ),
+        o(
+            "--not-in-album",
+            is_flag=True,
+            help="Search for photos that are not in any albums.",
+        ),
     ]
     for o in options[::-1]:
         f = o(f)
@@ -907,6 +917,8 @@ def export(
     save_config,
     is_reference,
     beta,
+    in_album,
+    not_in_album,
 ):
     """Export photos from the Photos database.
     Export path DEST is required.
@@ -1047,6 +1059,8 @@ def export(
         exportdb = cfg.exportdb
         beta = cfg.beta
         only_new = cfg.only_new
+        in_album = cfg.in_album
+        not_in_album = cfg.not_in_album
 
         # config file might have changed verbose
         VERBOSE = bool(verbose)
@@ -1080,6 +1094,7 @@ def export(
         ("shared", "not_shared"),
         ("has_comment", "no_comment"),
         ("has_likes", "no_likes"),
+        ("in_album", "not_in_album"),
     ]
     dependent_options = [
         ("missing", ("download_missing", "use_photos_export")),
@@ -1339,6 +1354,8 @@ def export(
         has_likes=has_likes,
         no_likes=no_likes,
         is_reference=is_reference,
+        in_album=in_album,
+        not_in_album=not_in_album,
     )
 
     if photos:
@@ -1620,6 +1637,8 @@ def query(
     has_likes,
     no_likes,
     is_reference,
+    in_album,
+    not_in_album,
 ):
     """Query the Photos database using 1 or more search options;
     if more than one option is provided, they are treated as "AND"
@@ -1667,6 +1686,7 @@ def query(
         (shared, not_shared),
         (has_comment, no_comment),
         (has_likes, no_likes),
+        (in_album, not_in_album),
     ]
     # print help if no non-exclusive term or a double exclusive term is given
     if any(all(bb) for bb in exclusive) or not any(
@@ -1759,6 +1779,8 @@ def query(
         has_likes=has_likes,
         no_likes=no_likes,
         is_reference=is_reference,
+        in_album=in_album,
+        not_in_album=not_in_album,
     )
 
     # below needed for to make CliRunner work for testing
@@ -1930,6 +1952,8 @@ def _query(
     has_likes=False,
     no_likes=False,
     is_reference=False,
+    in_album=False,
+    not_in_album=False,
 ):
     """Run a query against PhotosDB to extract the photos based on user supply criteria used by query and export commands
 
@@ -2161,6 +2185,11 @@ def _query(
 
     if is_reference:
         photos = [p for p in photos if p.isreference]
+
+    if in_album:
+        photos = [p for p in photos if p.albums]
+    elif not_in_album:
+        photos = [p for p in photos if not p.albums]
 
     return photos
 
