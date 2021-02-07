@@ -562,11 +562,11 @@ def export2(
     if export_db is None:
         export_db = ExportDBNoOp()
 
-    if verbose is None:
-        verbose = noop
-    elif not callable(verbose):
+    if verbose and not callable(verbose):
         raise TypeError("verbose must be callable")
-    self._verbose = verbose
+
+    if verbose is None:
+        verbose = self._verbose
 
     # suffix to add to edited files
     # e.g. name will be filename_edited.jpg
@@ -1501,8 +1501,8 @@ def _exiftool_dict(
             if len(long_str) > _MAX_IPTC_KEYWORD_LEN
         ]
         if long_keywords:
-            logging.warning(
-                f"Some keywords exceed max IPTC Keyword length of {_MAX_IPTC_KEYWORD_LEN}: {long_keywords}"
+            self._verbose(
+                f"Warning: some keywords exceed max IPTC Keyword length of {_MAX_IPTC_KEYWORD_LEN} (exiftool will truncate these): {long_keywords}"
             )
 
         keyword_list.extend(rendered_keywords)
@@ -1780,17 +1780,6 @@ def _xmp_sidecar(
             for keyword in rendered_keywords
             if _OSXPHOTOS_NONE_SENTINEL not in keyword
         ]
-
-        # check to see if any keywords too long
-        long_keywords = [
-            long_str
-            for long_str in rendered_keywords
-            if len(long_str) > _MAX_IPTC_KEYWORD_LEN
-        ]
-        if long_keywords:
-            logging.warning(
-                f"Some keywords exceed max IPTC Keyword length of {_MAX_IPTC_KEYWORD_LEN}: {long_keywords}"
-            )
 
         keyword_list.extend(rendered_keywords)
 

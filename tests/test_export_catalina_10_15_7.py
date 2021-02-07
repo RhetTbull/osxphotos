@@ -429,7 +429,7 @@ def test_exiftool_json_sidecar_ignore_date_modified(photosdb):
     assert json_got == json_expected
 
 
-def test_exiftool_json_sidecar_keyword_template_long(caplog, photosdb):
+def test_exiftool_json_sidecar_keyword_template_long(capsys, photosdb):
     from osxphotos._constants import _MAX_IPTC_KEYWORD_LEN
 
     photos = photosdb.photos(uuid=[EXIF_JSON_UUID])
@@ -452,10 +452,13 @@ def test_exiftool_json_sidecar_keyword_template_long(caplog, photosdb):
     )[0]
 
     long_str = "x" * (_MAX_IPTC_KEYWORD_LEN + 1)
+    photos[0]._verbose = print
     json_got = photos[0]._exiftool_json_sidecar(keyword_template=[long_str])
     json_got = json.loads(json_got)[0]
 
-    assert "Some keywords exceed max IPTC Keyword length" in caplog.text
+    captured = capsys.readouterr()
+    assert "some keywords exceed max IPTC Keyword length" in captured.out
+
     # some gymnastics to account for different sort order in different pythons
     for k, v in json_got.items():
         if type(v) in (list, tuple):

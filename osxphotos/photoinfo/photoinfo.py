@@ -70,6 +70,7 @@ class PhotoInfo:
         self._uuid = uuid
         self._info = info
         self._db = db
+        self._verbose = self._db._verbose
 
     @property
     def filename(self):
