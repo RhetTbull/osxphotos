@@ -2381,13 +2381,16 @@ def export_photo(
             rendered_suffix = rendered_suffix[0]
 
         original_filename = pathlib.Path(filename)
-        file_ext = (
-            "." + jpeg_ext
-            if jpeg_ext and (photo.uti == "public.jpeg" or convert_to_jpeg)
-            else ".jpeg"
-            if convert_to_jpeg and photo.uti != "public.jpeg"
-            else original_filename.suffix
-        )
+        file_ext = original_filename.suffix
+        if photo.isphoto and (jpeg_ext or convert_to_jpeg):
+            # change the file extension to correct jpeg extension if needed
+            file_ext = (
+                "." + jpeg_ext
+                if jpeg_ext and (photo.uti == "public.jpeg" or convert_to_jpeg)
+                else ".jpeg"
+                if convert_to_jpeg and photo.uti != "public.jpeg"
+                else original_filename.suffix
+            )
         original_filename = (
             original_filename.parent
             / f"{original_filename.stem}{rendered_suffix}{file_ext}"
