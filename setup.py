@@ -84,6 +84,7 @@ setup(
         "photoscript>=0.1.0",
         "toml>=0.10.0",
         "osxmetadata>=0.99.13",
+        "textx==2.3.0",
     ],
     entry_points={"console_scripts": ["osxphotos=osxphotos.__main__:cli"]},
     include_package_data=True,

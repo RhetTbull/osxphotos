@@ -189,6 +189,7 @@ requests==2.23.0
 requests-toolbelt==0.9.1
 six==1.14.0
 termcolor==1.1.0
+textx==2.3.0
 toml==0.10.0
 tornado==6.0.4
 tox==3.19.0
