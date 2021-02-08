@@ -2363,15 +2363,15 @@ def export_photo(
                 rendered_suffix, unmatched = photo.render_template(
                     original_suffix, filename=True, strip=strip
                 )
-            except ValueError:
+            except ValueError as e:
                 raise click.BadOptionUsage(
                     "original_suffix",
-                    f"Invalid template for --original-suffix '{original_suffix}'",
+                    f"Invalid template for --original-suffix '{original_suffix}': {e}",
                 )
             if not rendered_suffix or unmatched:
                 raise click.BadOptionUsage(
                     "original_suffix",
-                    f"Invalid template for --original-suffix '{original_suffix}': results={rendered_suffix} unmatched={unmatched}",
+                    f"Invalid template for --original-suffix '{original_suffix}': results={rendered_suffix} unknown field={unmatched}",
                 )
             if len(rendered_suffix) > 1:
                 raise click.BadOptionUsage(
@@ -2540,15 +2540,15 @@ def export_photo(
                         rendered_suffix, unmatched = photo.render_template(
                             edited_suffix, filename=True, strip=strip
                         )
-                    except ValueError:
+                    except ValueError as e:
                         raise click.BadOptionUsage(
                             "edited_suffix",
-                            f"Invalid template for --edited-suffix '{edited_suffix}'",
+                            f"Invalid template for --edited-suffix '{edited_suffix}': {e}",
                         )
                     if not rendered_suffix or unmatched:
                         raise click.BadOptionUsage(
                             "edited_suffix",
-                            f"Invalid template for --edited-suffix '{edited_suffix}': results={rendered_suffix} unmatched={unmatched}",
+                            f"Invalid template for --edited-suffix '{edited_suffix}': unknown field={unmatched}",
                         )
                     if len(rendered_suffix) > 1:
                         raise click.BadOptionUsage(
@@ -2687,14 +2687,14 @@ def get_filenames_from_template(photo, filename_template, original_name, strip=F
             filenames, unmatched = photo.render_template(
                 filename_template, path_sep="_", filename=True, strip=strip
             )
-        except ValueError:
+        except ValueError as e:
             raise click.BadOptionUsage(
-                "filename_template", f"Invalid template '{filename_template}'"
+                "filename_template", f"Invalid template '{filename_template}': {e}"
             )
         if not filenames or unmatched:
             raise click.BadOptionUsage(
                 "filename_template",
-                f"Invalid template '{filename_template}': results={filenames} unmatched={unmatched}",
+                f"Invalid template '{filename_template}': unknown field={unmatched}",
             )
         filenames = [f"{file_}{photo_ext}" for file_ in filenames]
     else:
@@ -2741,12 +2741,12 @@ def get_dirnames_from_template(
             dirnames, unmatched = photo.render_template(
                 directory, dirname=True, strip=strip
             )
-        except ValueError:
-            raise click.BadOptionUsage("directory", f"Invalid template '{directory}'")
+        except ValueError as e:
+            raise click.BadOptionUsage("directory", f"Invalid template '{directory}': {e}")
         if not dirnames or unmatched:
             raise click.BadOptionUsage(
                 "directory",
-                f"Invalid template '{directory}': results={dirnames} unmatched={unmatched}",
+                f"Invalid template '{directory}': unknown field={unmatched}",
             )
 
         dest_paths = []
@@ -3047,16 +3047,16 @@ def write_finder_tags(
                     path_sep="/",
                     strip=strip,
                 )
-            except ValueError:
+            except ValueError as e:
                 raise click.BadOptionUsage(
                     "finder_tag_template",
-                    f"Invalid template for --finder-tag-template': {template_str}",
+                    f"Invalid template for --finder-tag-template '{template_str}': {e}",
                 )
 
             if unmatched:
                 click.echo(
                     click.style(
-                        f"Warning: unmatched template substitution for template: {template_str} {unmatched}",
+                        f"Warning: unknown field for template: {template_str} unknown field = {unmatched}",
                         fg=CLI_COLOR_WARNING,
                     ),
                     err=True,
@@ -3103,15 +3103,15 @@ def write_extended_attributes(photo, files, xattr_template, strip=False):
                 path_sep="/",
                 strip=strip,
             )
-        except ValueError:
+        except ValueError as e:
             raise click.BadOptionUsage(
                 "xattr_template",
-                f"Invalid template for --xattr-template': {template_str}",
+                f"Invalid template for --xattr-template '{template_str}': {e}",
             )
         if unmatched:
             click.echo(
                 click.style(
-                    f"Warning: unmatched template substitution for template: {template_str} {unmatched}",
+                    f"Warning: unmatched template substitution for template: {template_str} unknown field={unmatched}",
                     fg=CLI_COLOR_WARNING,
                 ),
                 err=True,
