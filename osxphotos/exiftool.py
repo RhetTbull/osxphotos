@@ -315,7 +315,13 @@ class ExifTool:
         if not json_str:
             return dict()
 
-        exifdict = json.loads(json_str)
+        try:
+            exifdict = json.loads(json_str)
+        except Exception as e:
+            # will fail with some commands, e.g --ext AVI which produces
+            # 'No file with specified extension' instead of json
+            return dict()
+
         exifdict = exifdict[0]
         if not tag_groups:
             # strip tag groups
