@@ -5,7 +5,7 @@ import locale
 import os
 import pathlib
 
-from textx import TextXSyntaxError, metamodel_from_str
+from textx import TextXSyntaxError, metamodel_from_file
 
 from ._constants import _UNKNOWN_PERSON
 from .datetime_formatter import DateTimeFormatter
@@ -15,124 +15,9 @@ from .path_utils import sanitize_dirname, sanitize_filename, sanitize_pathpart
 # ensure locale set to user's locale
 locale.setlocale(locale.LC_ALL, "")
 
-OTL_GRAMMAR = """
-// OSXPhotos Template Language (OTL)
-// a TemplateString has format:
-// pre{delim+template_field:subfield(path_sep)[find,replace]?bool_value,default}post
-// a TemplateStatement may contain zero or more TemplateStrings
-// The pre and post are optional strings
-// The template itself (inside the {}) is also optional but if present
-// everything but template_field is also optional
+OTL_GRAMMAR_MODEL = str(pathlib.Path(__file__).parent / "phototemplate.tx")
 
-Statement:
-    (template_strings+=TemplateString)?
-;
-
-TemplateString:
-    pre=NON_TEMPLATE_STRING?
-    template=Template?
-    post=NON_TEMPLATE_STRING?
-;
-
-Template:
-    (
-    "{"
-    delim=Delim
-    field=Field
-    subfield=SubField
-    pathsep=PathSep
-    findreplace=FindReplace
-    bool=Boolean
-    default=Default
-    "}"
-    )?
-;
-
-NON_TEMPLATE_STRING:
-    /[^\{\},]*/
-;
-
-Delim:
-    (
-    (value=DELIM_WORD)?
-    '+'
-    )?
-;
-
-DELIM_WORD:
-    /[^\{\}]*(?=\+\w)/
-;
-
-Field:
-    FIELD_WORD+
-;
-
-SubField:
-    (
-    ":"-
-    SUBFIELD_WORD+
-    )?
-;
-
-FIELD_WORD:
-    /[\.\w]+/
-;
-
-SUBFIELD_WORD:
-    /[\.\w:]+/
-;
-
-
-PathSep:
-    (
-    "("
-    (value=/[^\(\)\{\}]{0,1}/)?
-    ")"
-    )?
-;
-
-FindReplace:
-    (
-    "["
-    (pairs+=FindReplacePair['|'])?
-    "]"
-    )?
-;
-
-FindReplacePair:
-    find=FIND_WORD
-    ","
-    (replace=REPLACE_WORD)?
-;
-
-FIND_WORD:
-    /[^\[\]\|]*(?=\,)/
-;
-
-REPLACE_WORD:
-    /[^\[\]\|]*/
-;
-
-
-Boolean:
-    (
-    "?"
-    (value=TemplateString)?
-    )?
-;
-
-BOOL_WORD:
-    /[^,\{\}]*/
-;
-
-Default:
-    (
-    ","
-    (value=TemplateString)?
-    )?
-;
-
-"""
+"""TextX metamodel for osxphotos template language """
 
 PHOTO_VIDEO_TYPE_DEFAULTS = {"photo": "photo", "video": "video"}
 
@@ -289,7 +174,7 @@ class PhotoTemplateParser:
         if hasattr(self, "metamodel"):
             return
 
-        self.metamodel = metamodel_from_str(OTL_GRAMMAR, skipws=False)
+        self.metamodel = metamodel_from_file(OTL_GRAMMAR_MODEL, skipws=False)
 
     def parse(self, template_statement):
         """Parse a template_statement string """
