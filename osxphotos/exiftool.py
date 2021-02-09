@@ -254,7 +254,11 @@ class ExifTool:
         filename = os.fsencode(self.file) if not no_file else b""
 
         if self.flags:
-            command_str = b"\n".join([f.encode("utf-8") for f in self.flags])
+            # need to split flags, e.g. so "--ext AVI" becomes ["--ext", "AVI"]
+            flags = []
+            for f in self.flags:
+                flags.extend(f.split())
+            command_str = b"\n".join([f.encode("utf-8") for f in flags])
             command_str += b"\n"
         else:
             command_str = b""
