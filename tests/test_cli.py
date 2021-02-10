@@ -571,6 +571,14 @@ UUID_JPEGS_DICT = {
     "E2078879-A29C-4D6F-BACB-E3BBE6C3EB91": ["screenshot-really-a-png", "jpeg"],
 }
 
+
+UUID_JPEGS_DICT_NOT_JPEG = {
+    "7783E8E6-9CAC-40F3-BE22-81FB7051C266": ["IMG_3092", "heic"],
+    "D05A5FE3-15FB-49A1-A15D-AB3DA6F8B068": ["DSC03584", "dng"],
+    "8846E3E6-8AC8-4857-8448-E3D025784410": ["IMG_1693", "tif"]
+}
+
+
 UUID_HEIC = {"7783E8E6-9CAC-40F3-BE22-81FB7051C266": "IMG_3092"}
 
 UUID_IS_REFERENCE = [
@@ -5447,6 +5455,48 @@ def test_export_jpeg_ext():
                 files = glob.glob("*")
                 filename, ext = fileinfo
                 assert f"{filename}.{jpeg_ext}" in files
+
+
+def test_export_jpeg_ext_not_jpeg():
+    """ test --jpeg-ext with non-jpeg files"""
+    import glob
+    import os
+    import os.path
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        for uuid, fileinfo in UUID_JPEGS_DICT.items():
+            result = runner.invoke(
+                export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--uuid", uuid]
+            )
+            assert result.exit_code == 0
+            files = glob.glob("*")
+            filename, ext = fileinfo
+            assert f"{filename}.{ext}" in files
+
+    for jpeg_ext in ["jpg", "JPG", "jpeg", "JPEG"]:
+        with runner.isolated_filesystem():
+            for uuid, fileinfo in UUID_JPEGS_DICT_NOT_JPEG.items():
+                result = runner.invoke(
+                    export,
+                    [
+                        os.path.join(cwd, PHOTOS_DB_15_7),
+                        ".",
+                        "-V",
+                        "--uuid",
+                        uuid,
+                        "--jpeg-ext",
+                        jpeg_ext,
+                    ],
+                )
+                assert result.exit_code == 0
+                files = glob.glob("*")
+                filename, ext = fileinfo
+                assert f"{filename}.{ext}" in files
+
 
 
 @pytest.mark.skipif(
