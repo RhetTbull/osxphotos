@@ -2386,9 +2386,9 @@ def export_photo(
             # change the file extension to correct jpeg extension if needed
             file_ext = (
                 "." + jpeg_ext
-                if jpeg_ext and (photo.uti == "public.jpeg" or convert_to_jpeg)
+                if jpeg_ext and (photo.uti_original == "public.jpeg" or convert_to_jpeg)
                 else ".jpeg"
-                if convert_to_jpeg and photo.uti != "public.jpeg"
+                if convert_to_jpeg and photo.uti_original != "public.jpeg"
                 else original_filename.suffix
             )
         original_filename = (
