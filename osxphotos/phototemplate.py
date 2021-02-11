@@ -138,6 +138,13 @@ TEMPLATE_SUBSTITUTIONS_MULTI_VALUED = {
     "{searchinfo.venue_type}": "Venue types associated with a photo, e.g. 'Restaurant'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).",
 }
 
+TEMPLATE_VALUE_SUBSTITUTIONS_FILTER = {
+    "{lower}": "Convert value to lower case; use in format: '{lower,template string}'",
+    "{upper}": "Convert value to upper case; use in format: '{upper,template string}'",
+    "{strip}": "Strip whitespace from beginning/end of value; use in format: '{strip,template string}'",
+    "{brace}": "Enclose value in curly braces, e.g. '{value}'; use in format: '{brace,template string}'",
+}
+
 # Just the substitutions without the braces
 SINGLE_VALUE_SUBSTITUTIONS = [
     field.replace("{", "").replace("}", "") for field in TEMPLATE_SUBSTITUTIONS
@@ -149,7 +156,13 @@ MULTI_VALUE_SUBSTITUTIONS = [
     for field in TEMPLATE_SUBSTITUTIONS_MULTI_VALUED
 ]
 
-FIELD_NAMES = SINGLE_VALUE_SUBSTITUTIONS + MULTI_VALUE_SUBSTITUTIONS
+# Just the multi-valued substitution names without the braces
+FILTER_VALUE_SUBSTITUTIONS = [
+    field.replace("{", "").replace("}", "")
+    for field in TEMPLATE_VALUE_SUBSTITUTIONS_FILTER
+]
+
+FIELD_NAMES = SINGLE_VALUE_SUBSTITUTIONS + MULTI_VALUE_SUBSTITUTIONS + FILTER_VALUE_SUBSTITUTIONS
 
 # default values for string manipulation template options
 INPLACE_DEFAULT = ","
@@ -391,12 +404,13 @@ class PhotoTemplate:
                 vals = self.get_template_value_multi(
                     field, path_sep=path_sep, filename=filename, dirname=dirname
                 )
+            elif field in FILTER_VALUE_SUBSTITUTIONS:
+                vals = self.get_template_value_filter(field, default)
             else:
                 unmatched.append(field)
                 return [], unmatched
 
             vals = [val for val in vals if val is not None]
-
             if is_bool:
                 if not vals:
                     vals = default
@@ -455,7 +469,6 @@ class PhotoTemplate:
         Raises:
             ValueError if no rule exists for field.
         """
-
         if field not in FIELD_NAMES:
             raise ValueError(f"SyntaxError: Unknown field: {field}")
 
@@ -717,6 +730,31 @@ class PhotoTemplate:
             value = sanitize_dirname(value)
 
         return [value]
+
+    def get_template_value_filter(self, field, default):
+        if field == "lower":
+            if default and type(default) == list:
+                value = [v.lower() for v in default]
+            else:
+                value = [default.lower()]
+        elif field == "upper":
+            if default and type(default) == list:
+                value = [v.upper() for v in default]
+            else:
+                value = [default.upper()]
+        elif field == "strip":
+            if default and type(default) == list:
+                value = [v.strip() for v in default]
+            else:
+                value = [default.strip()]
+        elif field == "brace":
+            if default and type(default) == list:
+                value = ["{"+v+"}" for v in default]
+            else:
+                value = ["{"+default+"}"]
+        else:
+            value = []
+        return value
 
     def get_template_value_multi(self, field, path_sep, filename=False, dirname=False):
         """lookup value for template field (multi-value template substitutions)
