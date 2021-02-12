@@ -2522,17 +2522,28 @@ def export_photo(
             if export_edited and photo.hasadjustments:
                 edited_filename = pathlib.Path(filename)
                 edited_ext = (
-                    "." + jpeg_ext
-                    if jpeg_ext and photo.uti_edited == "public.jpeg"
-                    else "." + get_preferred_uti_extension(photo.uti_edited)
+                    # rare cases on Photos <= 4 that uti_edited is None
+                    "." + get_preferred_uti_extension(photo.uti_edited)
                     if photo.uti_edited
                     else pathlib.Path(photo.path_edited).suffix
                     if photo.path_edited
                     else pathlib.Path(photo.filename).suffix
                 )
+
+                if (
+                    photo.isphoto
+                    and jpeg_ext
+                    and edited_ext.lower() in [".jpg", ".jpeg"]
+                ):
+                    edited_ext = "." + jpeg_ext
+
                 # Big Sur uses .heic for some edited photos so need to check
                 # if extension isn't jpeg/jpg and using --convert-to-jpeg
-                if convert_to_jpeg and edited_ext.lower() not in [".jpg", ".jpeg"]:
+                if (
+                    photo.isphoto
+                    and convert_to_jpeg
+                    and edited_ext.lower() not in [".jpg", ".jpeg"]
+                ):
                     edited_ext = "." + jpeg_ext if jpeg_ext else ".jpeg"
 
                 if edited_suffix:

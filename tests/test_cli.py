@@ -20,6 +20,7 @@ PHOTOS_DB_15_6 = "tests/Test-10.15.6.photoslibrary"
 PHOTOS_DB_15_7 = "tests/Test-10.15.7.photoslibrary"
 PHOTOS_DB_TOUCH = PHOTOS_DB_15_6
 PHOTOS_DB_14_6 = "tests/Test-10.14.6.photoslibrary"
+PHOTOS_DB_MOVIES = "tests/Test-Movie-5_0.photoslibrary"
 
 UUID_FILE = "tests/uuid_from_file.txt"
 
@@ -575,9 +576,12 @@ UUID_JPEGS_DICT = {
 UUID_JPEGS_DICT_NOT_JPEG = {
     "7783E8E6-9CAC-40F3-BE22-81FB7051C266": ["IMG_3092", "heic"],
     "D05A5FE3-15FB-49A1-A15D-AB3DA6F8B068": ["DSC03584", "dng"],
-    "8846E3E6-8AC8-4857-8448-E3D025784410": ["IMG_1693", "tif"]
+    "8846E3E6-8AC8-4857-8448-E3D025784410": ["IMG_1693", "tif"],
 }
 
+UUID_MOVIES_NOT_JPEGS_DICT = {
+    "423C0683-672D-4DDD-979C-23A6A53D7256": ["IMG_0670B_NOGPS", "MOV"]
+}
 
 UUID_HEIC = {"7783E8E6-9CAC-40F3-BE22-81FB7051C266": "IMG_3092"}
 
@@ -5498,6 +5502,49 @@ def test_export_jpeg_ext_not_jpeg():
                 assert f"{filename}.{ext}" in files
 
 
+def test_export_jpeg_ext_edited_movie():
+    """ test --jpeg-ext doesn't change extension on edited movie (issue #366)"""
+    import glob
+    import os
+    import os.path
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        for uuid, fileinfo in UUID_MOVIES_NOT_JPEGS_DICT.items():
+            result = runner.invoke(
+                export, [os.path.join(cwd, PHOTOS_DB_MOVIES), ".", "-V", "--uuid", uuid]
+            )
+            assert result.exit_code == 0
+            files = glob.glob("*")
+            files = [f.lower() for f in files]
+            filename, ext = fileinfo
+            assert f"{filename}_edited.{ext}".lower() in files
+
+    for jpeg_ext in ["jpg", "JPG", "jpeg", "JPEG"]:
+        with runner.isolated_filesystem():
+            for uuid, fileinfo in UUID_MOVIES_NOT_JPEGS_DICT.items():
+                result = runner.invoke(
+                    export,
+                    [
+                        os.path.join(cwd, PHOTOS_DB_MOVIES),
+                        ".",
+                        "-V",
+                        "--uuid",
+                        uuid,
+                        "--jpeg-ext",
+                        jpeg_ext,
+                    ],
+                )
+                assert result.exit_code == 0
+                files = glob.glob("*")
+                files = [f.lower() for f in files]
+                filename, ext = fileinfo
+                assert f"{filename}_edited.{jpeg_ext}".lower() not in files
+                assert f"{filename}_edited.{ext}".lower() in files
+
 
 @pytest.mark.skipif(
     "OSXPHOTOS_TEST_CONVERT" not in os.environ,
@@ -5531,3 +5578,41 @@ def test_export_jpeg_ext_convert_to_jpeg():
             assert result.exit_code == 0
             files = glob.glob("*")
             assert f"{filename}.jpg" in files
+
+
+@pytest.mark.skipif(
+    "OSXPHOTOS_TEST_CONVERT" not in os.environ,
+    reason="Skip if running in Github actions, no GPU.",
+)
+def test_export_jpeg_ext_convert_to_jpeg_movie():
+    """ test --jpeg-ext with --convert-to-jpeg and a movie, shouldn't convert or change extensions, #366"""
+    import glob
+    import os
+    import os.path
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        for uuid, fileinfo in UUID_MOVIES_NOT_JPEGS_DICT.items():
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_MOVIES),
+                    ".",
+                    "-V",
+                    "--uuid",
+                    uuid,
+                    "--convert-to-jpeg",
+                    "--jpeg-ext",
+                    "jpg",
+                ],
+            )
+            assert result.exit_code == 0
+            files = glob.glob("*")
+            files = [f.lower() for f in files]
+            filename, ext = fileinfo
+            assert f"{filename}.jpg".lower() not in files
+            assert f"{filename}.{ext}".lower() in files
+            assert f"{filename}_edited.{ext}".lower() in files
