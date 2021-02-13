@@ -475,6 +475,8 @@ def export2(
     merge_exif_keywords=False,
     merge_exif_persons=False,
     jpeg_ext=None,
+    persons=True,
+    location=True,
 ):
     """export photo, like export but with update and dry_run options
     dest: must be valid destination path or exception raised
@@ -527,6 +529,8 @@ def export2(
     merge_exif_keywords: boolean; if True, merged keywords found in file's exif data (requires exiftool)
     merge_exif_persons: boolean; if True, merged persons found in file's exif data (requires exiftool)
     jpeg_ext: if set, will use this value for extension on jpegs converted to jpeg with convert_to_jpeg; if not set, uses jpeg; do not include the leading "."
+    persons: if True, include persons in exported metadata
+    location: if True, include location in exported metadata
 
     Returns: ExportResults class 
         ExportResults has attributes: 
@@ -941,6 +945,8 @@ def export2(
             merge_exif_keywords=merge_exif_keywords,
             merge_exif_persons=merge_exif_persons,
             filename=dest.name,
+            persons=persons,
+            location=location,
         )
         sidecars.append(
             (
@@ -964,6 +970,8 @@ def export2(
             merge_exif_keywords=merge_exif_keywords,
             merge_exif_persons=merge_exif_persons,
             filename=dest.name,
+            persons=persons,
+            location=location,
         )
         sidecars.append(
             (
@@ -983,6 +991,8 @@ def export2(
             keyword_template=keyword_template,
             description_template=description_template,
             extension=dest.suffix[1:] if dest.suffix else None,
+            persons=persons,
+            location=location,
         )
         sidecars.append(
             (
@@ -1050,6 +1060,8 @@ def export2(
                         ignore_date_modified=ignore_date_modified,
                         merge_exif_keywords=merge_exif_keywords,
                         merge_exif_persons=merge_exif_persons,
+                        persons=persons,
+                        location=location,
                     )
                 )[0]
                 if old_data != current_data:
@@ -1070,6 +1082,8 @@ def export2(
                         flags=exiftool_flags,
                         merge_exif_keywords=merge_exif_keywords,
                         merge_exif_persons=merge_exif_persons,
+                        persons=persons,
+                        location=location,
                     )
                     if warning_:
                         all_results.exiftool_warning.append((exported_file, warning_))
@@ -1087,6 +1101,8 @@ def export2(
                         ignore_date_modified=ignore_date_modified,
                         merge_exif_keywords=merge_exif_keywords,
                         merge_exif_persons=merge_exif_persons,
+                        persons=persons,
+                        location=location,
                     ),
                 )
                 export_db.set_stat_exif_for_file(
@@ -1109,6 +1125,8 @@ def export2(
                     flags=exiftool_flags,
                     merge_exif_keywords=merge_exif_keywords,
                     merge_exif_persons=merge_exif_persons,
+                    persons=persons,
+                    location=location,
                 )
                 if warning_:
                     all_results.exiftool_warning.append((exported_file, warning_))
@@ -1126,6 +1144,8 @@ def export2(
                     ignore_date_modified=ignore_date_modified,
                     merge_exif_keywords=merge_exif_keywords,
                     merge_exif_persons=merge_exif_persons,
+                    persons=persons,
+                    location=location,
                 ),
             )
             export_db.set_stat_exif_for_file(
@@ -1345,6 +1365,8 @@ def _write_exif_data(
     flags=None,
     merge_exif_keywords=False,
     merge_exif_persons=False,
+    persons=True,
+    location=True,
 ):
     """write exif data to image file at filepath
 
@@ -1355,6 +1377,8 @@ def _write_exif_data(
         keyword_template: (list of strings); list of template strings to render as keywords
         ignore_date_modified: if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
         flags: optional list of exiftool flags to prepend to exiftool command when writing metadata (e.g. -m or -F)
+        persons: if True, write person data to metadata
+        location: if True, write location data to metadata
 
     Returns:
         (warning, error) of warning and error strings if exiftool produces warnings or errors
@@ -1369,6 +1393,8 @@ def _write_exif_data(
         ignore_date_modified=ignore_date_modified,
         merge_exif_keywords=merge_exif_keywords,
         merge_exif_persons=merge_exif_persons,
+        persons=persons,
+        location=location,
     )
 
     with ExifTool(filepath, flags=flags, exiftool=self._db._exiftool_path) as exiftool:
@@ -1391,6 +1417,8 @@ def _exiftool_dict(
     merge_exif_keywords=False,
     merge_exif_persons=False,
     filename=None,
+    persons=True,
+    location=True,
 ):
     """Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
         Does not include all the EXIF fields as those are likely already in the image.
@@ -1404,6 +1432,8 @@ def _exiftool_dict(
         ignore_date_modified: if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
         merge_exif_keywords: merge keywords in the file's exif metadata (requires exiftool)
         merge_exif_persons: merge persons in the file's exif metadata (requires exiftool)
+        persons: if True, include person data
+        location: if True, include location data
 
     Returns: dict with exiftool tags / values
 
@@ -1411,8 +1441,10 @@ def _exiftool_dict(
         EXIF:ImageDescription (may include template)
         XMP:Description (may include template)
         XMP:Title
+        IPTC:ObjectName
         XMP:TagsList (may include album name, person name, or template)
         IPTC:Keywords (may include album name, person name, or template)
+        IPTC:Caption-Abstract
         XMP:Subject (set to keywords + persons)
         XMP:PersonInImage
         EXIF:GPSLatitudeRef, EXIF:GPSLongitudeRef
@@ -1428,6 +1460,9 @@ def _exiftool_dict(
         QuickTime:ModifyDate (UTC)
         QuickTime:GPSCoordinates
         UserData:GPSCoordinates
+
+    Reference: 
+        https://iptc.org/std/photometadata/specification/IPTC-PhotoMetadata-201610_1.pdf
     """
 
     exif = (
@@ -1447,12 +1482,15 @@ def _exiftool_dict(
         description = " ".join(rendered) if rendered else ""
         exif["EXIF:ImageDescription"] = description
         exif["XMP:Description"] = description
+        exif["IPTC:Caption-Abstract"] = description
     elif self.description:
         exif["EXIF:ImageDescription"] = self.description
         exif["XMP:Description"] = self.description
+        exif["IPTC:Caption-Abstract"] = self.description
 
     if self.title:
         exif["XMP:Title"] = self.title
+        exif["IPTC:ObjectName"] = self.title
 
     keyword_list = []
     if merge_exif_keywords:
@@ -1462,15 +1500,16 @@ def _exiftool_dict(
         keyword_list.extend(self.keywords)
 
     person_list = []
-    if merge_exif_persons:
-        person_list.extend(self._get_exif_persons())
+    if persons:
+        if merge_exif_persons:
+            person_list.extend(self._get_exif_persons())
 
-    if self.persons:
-        # filter out _UNKNOWN_PERSON
-        person_list.extend([p for p in self.persons if p != _UNKNOWN_PERSON])
+        if self.persons:
+            # filter out _UNKNOWN_PERSON
+            person_list.extend([p for p in self.persons if p != _UNKNOWN_PERSON])
 
-    if use_persons_as_keywords and person_list:
-        keyword_list.extend(person_list)
+        if use_persons_as_keywords and person_list:
+            keyword_list.extend(person_list)
 
     if use_albums_as_keywords and self.albums:
         keyword_list.extend(self.albums)
@@ -1514,25 +1553,26 @@ def _exiftool_dict(
         exif["XMP:Subject"] = keyword_list.copy()
         exif["XMP:TagsList"] = keyword_list.copy()
 
-    if person_list:
+    if persons and person_list:
         person_list = sorted(list(set(person_list)))
         exif["XMP:PersonInImage"] = person_list.copy()
 
     # if self.favorite():
     #     exif["Rating"] = 5
 
-    (lat, lon) = self.location
-    if lat is not None and lon is not None:
-        if self.isphoto:
-            exif["EXIF:GPSLatitude"] = lat
-            exif["EXIF:GPSLongitude"] = lon
-            lat_ref = "N" if lat >= 0 else "S"
-            lon_ref = "E" if lon >= 0 else "W"
-            exif["EXIF:GPSLatitudeRef"] = lat_ref
-            exif["EXIF:GPSLongitudeRef"] = lon_ref
-        elif self.ismovie:
-            exif["Keys:GPSCoordinates"] = f"{lat} {lon}"
-            exif["UserData:GPSCoordinates"] = f"{lat} {lon}"
+    if location:
+        (lat, lon) = self.location
+        if lat is not None and lon is not None:
+            if self.isphoto:
+                exif["EXIF:GPSLatitude"] = lat
+                exif["EXIF:GPSLongitude"] = lon
+                lat_ref = "N" if lat >= 0 else "S"
+                lon_ref = "E" if lon >= 0 else "W"
+                exif["EXIF:GPSLatitudeRef"] = lat_ref
+                exif["EXIF:GPSLongitudeRef"] = lon_ref
+            elif self.ismovie:
+                exif["Keys:GPSCoordinates"] = f"{lat} {lon}"
+                exif["UserData:GPSCoordinates"] = f"{lat} {lon}"
 
     # process date/time and timezone offset
     # Photos exports the following fields and sets modify date to creation date
@@ -1640,6 +1680,8 @@ def _exiftool_json_sidecar(
     merge_exif_keywords=False,
     merge_exif_persons=False,
     filename=None,
+    persons=True,
+    location=True,
 ):
     """Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
         Does not include all the EXIF fields as those are likely already in the image.
@@ -1654,13 +1696,17 @@ def _exiftool_json_sidecar(
         merge_exif_keywords: boolean; if True, merged keywords found in file's exif data (requires exiftool)
         merge_exif_persons: boolean; if True, merged persons found in file's exif data (requires exiftool)
         filename: filename of the destination image file for including in exiftool signature in JSON sidecar
+        persons: if True, include person data
+        location: if True, include location data
 
     Returns: dict with exiftool tags / values
 
     Exports the following:
         EXIF:ImageDescription
         XMP:Description (may include template)
+        IPTC:CaptionAbstract
         XMP:Title
+        IPTC:ObjectName
         XMP:TagsList
         IPTC:Keywords (may include album name, person name, or template)
         XMP:Subject (set to keywords + person)
@@ -1688,6 +1734,8 @@ def _exiftool_json_sidecar(
         merge_exif_keywords=merge_exif_keywords,
         merge_exif_persons=merge_exif_persons,
         filename=filename,
+        persons=persons,
+        location=location,
     )
 
     if not tag_groups:
@@ -1710,6 +1758,8 @@ def _xmp_sidecar(
     extension=None,
     merge_exif_keywords=False,
     merge_exif_persons=False,
+    persons=True,
+    location=True,
 ):
     """returns string for XMP sidecar
     use_albums_as_keywords: treat album names as keywords
@@ -1719,6 +1769,8 @@ def _xmp_sidecar(
     extension: which extension to use for SidecarForExtension property
     merge_exif_keywords: boolean; if True, merged keywords found in file's exif data (requires exiftool)
     merge_exif_persons: boolean; if True, merged persons found in file's exif data (requires exiftool)
+    persons: if True, include person data
+    location: if True, include location data
     """
 
     xmp_template_file = (
@@ -1749,15 +1801,16 @@ def _xmp_sidecar(
     # good candidate for pulling out in a function
 
     person_list = []
-    if merge_exif_persons:
-        person_list.extend(self._get_exif_persons())
+    if persons:
+        if merge_exif_persons:
+            person_list.extend(self._get_exif_persons())
 
-    if self.persons:
-        # filter out _UNKNOWN_PERSON
-        person_list.extend([p for p in self.persons if p != _UNKNOWN_PERSON])
+        if self.persons:
+            # filter out _UNKNOWN_PERSON
+            person_list.extend([p for p in self.persons if p != _UNKNOWN_PERSON])
 
-    if use_persons_as_keywords and person_list:
-        keyword_list.extend(person_list)
+        if use_persons_as_keywords and person_list:
+            keyword_list.extend(person_list)
 
     if use_albums_as_keywords and self.albums:
         keyword_list.extend(self.albums)
@@ -1787,10 +1840,13 @@ def _xmp_sidecar(
     # sorted mainly to make testing the XMP file easier
     if keyword_list:
         keyword_list = sorted(list(set(keyword_list)))
-    if person_list:
+    if persons and person_list:
         person_list = sorted(list(set(person_list)))
 
     subject_list = keyword_list
+
+    if location:
+        latlon = self.location
 
     xmp_str = xmp_template.render(
         photo=self,
@@ -1799,6 +1855,7 @@ def _xmp_sidecar(
         persons=person_list,
         subjects=subject_list,
         extension=extension,
+        location=latlon,
         version=__version__,
     )
 

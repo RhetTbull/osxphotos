@@ -182,7 +182,7 @@
 
 <rdf:Description rdf:about=""
  xmlns:exif='http://ns.adobe.com/exif/1.0/'>
- ${gps_info(*photo.location)}
+ ${gps_info(*location)}
 </rdf:Description>
 
 <rdf:Description rdf:about=''
