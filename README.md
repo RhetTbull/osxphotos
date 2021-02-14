@@ -284,15 +284,24 @@ Options:
                                   Deleted' folder.
   --update                        Only export new or updated files. See notes
                                   below on export and --update.
-  --ignore-signature              When used with --update, ignores file
+  --ignore-signature              When used with '--update', ignores file
                                   signature when updating files. This is useful
                                   if you have processed or edited exported
                                   photos changing the file signature (size &
-                                  modification date). In this case, --update
+                                  modification date). In this case, '--update'
                                   would normally re-export the processed files
-                                  but with --ignore-signature, files which exist
-                                  in the export directory will not be re-
-                                  exported.
+                                  but with '--ignore-signature', files which
+                                  exist in the export directory will not be re-
+                                  exported. If used with '--sidecar', '--ignore-
+                                  signature' has the following behavior: 1) if
+                                  the metadata (in Photos) that went into the
+                                  sidecar did not change, the sidecar will not
+                                  be updated; 2) if the metadata (in Photos)
+                                  that went into the sidecar did change, a new
+                                  sidecar is written but a new image file is
+                                  not; 3) if a sidecar does not exist for the
+                                  photo, a sidecar will be written whether or
+                                  not the photo file was written or updated.
   --only-new                      If used with --update, ignores any previously
                                   exported files, even if missing from the
                                   export folder and only exports new files that
@@ -377,7 +386,8 @@ Options:
                                   does not export tag groups. Sidecar filename
                                   is in format photoname.ext.json; For a list of
                                   tags exported in the JSON and exiftool
-                                  sidecar, see '--exiftool'.
+                                  sidecar, see '--exiftool'. See also '--ignore-
+                                  signature'.
   --sidecar-drop-ext              Drop the photo's extension when naming sidecar
                                   files. By default, sidecar files are named in
                                   format 'photo_filename.photo_ext.sidecar_ext',

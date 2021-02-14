@@ -447,11 +447,18 @@ def cli(ctx, db, json_, debug):
 @click.option(
     "--ignore-signature",
     is_flag=True,
-    help="When used with --update, ignores file signature when updating files. "
+    help="When used with '--update', ignores file signature when updating files. "
     "This is useful if you have processed or edited exported photos changing the "
-    "file signature (size & modification date). In this case, --update would normally "
-    "re-export the processed files but with --ignore-signature, files which exist "
-    "in the export directory will not be re-exported.",
+    "file signature (size & modification date). In this case, '--update' would normally "
+    "re-export the processed files but with '--ignore-signature', files which exist "
+    "in the export directory will not be re-exported. "
+    "If used with '--sidecar', '--ignore-signature' has the following behavior: "
+    "1) if the metadata (in Photos) that went into the sidecar did not change, "
+    "the sidecar will not be updated; "
+    "2) if the metadata (in Photos) that went into the sidecar did change, "
+    "a new sidecar is written but a new image file is not; "
+    "3) if a sidecar does not exist for the photo, a sidecar will be written "
+    "whether or not the photo file was written or updated.",
 )
 @click.option(
     "--only-new",
@@ -569,7 +576,8 @@ def cli(ctx, db, json_, debug):
     "\n--sidecar exiftool: create JSON sidecar compatible with output of 'exiftool -j'. "
     "Unlike '--sidecar json', '--sidecar exiftool' does not export tag groups. "
     "Sidecar filename is in format photoname.ext.json; "
-    "For a list of tags exported in the JSON and exiftool sidecar, see '--exiftool'.",
+    "For a list of tags exported in the JSON and exiftool sidecar, see '--exiftool'. "
+    "See also '--ignore-signature'.",
 )
 @click.option(
     "--sidecar-drop-ext",
