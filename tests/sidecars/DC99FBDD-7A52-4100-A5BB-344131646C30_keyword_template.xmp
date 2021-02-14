@@ -55,10 +55,6 @@
         <exif:GPSLongitude>0,7.908329999999999W</exif:GPSLongitude>
         <exif:GPSLatitude>51,30.21430019999997N</exif:GPSLatitude>
 </rdf:Description>
-<rdf:Description rdf:about=''
- xmlns:tiff='http://ns.adobe.com/tiff/1.0/'>
-        <tiff:Orientation>1</tiff:Orientation>
-</rdf:Description>
 <rdf:Description rdf:about=""
  xmlns:mwg-rs="http://www.metadataworkinggroup.com/schemas/regions/"
  xmlns:stArea="http://ns.adobe.com/xmp/sType/Area#"
