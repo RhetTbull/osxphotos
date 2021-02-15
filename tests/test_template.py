@@ -587,6 +587,22 @@ def test_subst_multi_folder_albums_1_path_sep(photosdb):
     assert unknown == []
 
 
+def test_subst_multi_folder_albums_1_path_sep_lower(photosdb):
+    """ Test substitutions for folder_album are correct with custom PATH_SEP """
+
+    # photo in an album in a folder
+    photo = photosdb.photos(uuid=[UUID_DICT["folder_album_1"]])[0]
+    template = "{folder_album|lower(:)}"
+    expected = [
+        "2018-10 - sponsion, museum, frühstück, römermuseum",
+        "2019-10/11 paris clermont",
+        "folder1:subfolder2:albuminfolder",
+    ]
+    rendered, unknown = photo.render_template(template)
+    assert sorted(rendered) == sorted(expected)
+    assert unknown == []
+
+
 def test_subst_multi_folder_albums_2(photosdb):
     """ Test substitutions for folder_album are correct """
 
