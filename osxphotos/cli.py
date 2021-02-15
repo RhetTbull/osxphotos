@@ -652,8 +652,16 @@ def cli(ctx, db, json_, debug):
     "the full path to the folder and album photo is contained in as a keyword when exporting "
     'you could specify --keyword-template "{folder_album}" '
     'You may specify more than one template, for example --keyword-template "{folder_album}" '
-    '--keyword-template "{created.year}" '
-    "See Templating System below.",
+    '--keyword-template "{created.year}". '
+    "See '--replace-keywords' and Templating System below.",
+)
+@click.option(
+    "--replace-keywords",
+    is_flag=True,
+    help="Replace keywords with any values specified with --keyword-template. "
+    "By default, --keyword-template will add keywords to any keywords already associated "
+    "with the photo.  If --replace-keywords is specified, values from --keyword-template "
+    "will replace any existing keywords instead of adding additional keywords.",
 )
 @click.option(
     "--description-template",
@@ -855,6 +863,7 @@ def export(
     person_keyword,
     album_keyword,
     keyword_template,
+    replace_keywords,
     description_template,
     finder_tag_template,
     finder_tag_keywords,
@@ -2742,7 +2751,9 @@ def get_dirnames_from_template(
                 directory, dirname=True, strip=strip
             )
         except ValueError as e:
-            raise click.BadOptionUsage("directory", f"Invalid template '{directory}': {e}")
+            raise click.BadOptionUsage(
+                "directory", f"Invalid template '{directory}': {e}"
+            )
         if not dirnames or unmatched:
             raise click.BadOptionUsage(
                 "directory",
