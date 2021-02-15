@@ -636,6 +636,19 @@ def test_subst_multi_folder_albums_3_path_sep(photosdb_14_6):
     assert unknown == []
 
 
+def test_subst_multi_folder_albums_4_path_sep_lower(photosdb_14_6):
+    """ Test substitutions for folder_album on < Photos 5 with custom PATH_SEP """
+    import osxphotos
+
+    # photo in an album in a folder
+    photo = photosdb_14_6.photos(uuid=[UUID_DICT["mojave_album_1"]])[0]
+    template = "{folder_album|lower(>)}"
+    expected = ["folder1>subfolder2>albuminfolder", "pumpkin farm", "test album (1)"]
+    rendered, unknown = photo.render_template(template)
+    assert sorted(rendered) == sorted(expected)
+    assert unknown == []
+
+
 def test_subst_strftime(photosdb_places):
     """ Test that strftime substitutions are correct """
     import locale
