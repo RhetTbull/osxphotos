@@ -853,3 +853,13 @@ def test_nested_template(photosdb):
 
     rendered, _ = photomock.render_template("{keyword,{title}}")
     assert rendered == ["My Title"]
+
+
+def test_punctuation(photosdb):
+    from osxphotos.phototemplate import PUNCTUATION
+
+    photo = photosdb.get_photo(UUID_MULTI_KEYWORDS)
+    for punc in PUNCTUATION:
+        rendered, _ = photo.render_template("{" + punc + "}")
+        assert rendered[0] == PUNCTUATION[punc]
+

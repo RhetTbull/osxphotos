@@ -117,6 +117,15 @@ TEMPLATE_SUBSTITUTIONS = {
     "{exif.camera_model}": "Camera model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s'",
     "{exif.lens_model}": "Lens model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s back camera 4.15mm f/2.2'",
     "{uuid}": "Photo's internal universally unique identifier (UUID) for the photo, a 36-character string unique to the photo, e.g. '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'",
+    "{comma}": "A comma: ','",
+    "{semicolon}": "A semicolon: ';'",
+    "{pipe}": "A vertical pipe: '|'",
+    "{openbrace}": "An open brace: '{'",
+    "{closebrace}": "A close brace: '}'",
+    "{openparens}": "An open parentheses: '('",
+    "{closeparens}": "A close parentheses: ')'",
+    "{openbracket}": "An open bracket: '['",
+    "{closebracket}": "A close bracket: ']'",
 }
 
 # Permitted multi-value substitutions (each of these returns None or 1 or more values)
@@ -160,13 +169,23 @@ MULTI_VALUE_SUBSTITUTIONS = [
     for field in TEMPLATE_SUBSTITUTIONS_MULTI_VALUED
 ]
 
-FIELD_NAMES = (
-    SINGLE_VALUE_SUBSTITUTIONS + MULTI_VALUE_SUBSTITUTIONS
-)
+FIELD_NAMES = SINGLE_VALUE_SUBSTITUTIONS + MULTI_VALUE_SUBSTITUTIONS
 
 # default values for string manipulation template options
 INPLACE_DEFAULT = ","
 PATH_SEP_DEFAULT = os.path.sep
+
+PUNCTUATION = {
+    "comma": ",",
+    "semicolon": ";",
+    "pipe": "|",
+    "openbrace": "{",
+    "closebrace": "}",
+    "openparens": "(",
+    "closeparens": ")",
+    "openbracket": "[",
+    "closebracket": "]",
+}
 
 
 class PhotoTemplateParser:
@@ -727,6 +746,8 @@ class PhotoTemplate:
             value = self.photo.exif_info.lens_model if self.photo.exif_info else None
         elif field == "uuid":
             value = self.photo.uuid
+        elif field in PUNCTUATION:
+            value = PUNCTUATION[field]
         else:
             # if here, didn't get a match
             raise ValueError(f"Unhandled template value: {field}")
