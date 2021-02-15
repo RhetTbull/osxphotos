@@ -99,12 +99,6 @@
     % endif
 </%def>
 
-<%def name="orientation(orientation)">
-    % if orientation is not None:
-        <tiff:Orientation>${orientation}</tiff:Orientation>
-    % endif
-</%def>
-
 <%def name="mwg_face_regions(photo)">
     % if photo.face_info:
     <mwg-rs:Regions rdf:parseType="Resource">
@@ -182,12 +176,7 @@
 
 <rdf:Description rdf:about=""
  xmlns:exif='http://ns.adobe.com/exif/1.0/'>
- ${gps_info(*photo.location)}
-</rdf:Description>
-
-<rdf:Description rdf:about=''
- xmlns:tiff='http://ns.adobe.com/tiff/1.0/'>
- ${orientation(photo.orientation)}
+ ${gps_info(*location)}
 </rdf:Description>
 
 <rdf:Description rdf:about=""

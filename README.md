@@ -284,15 +284,24 @@ Options:
                                   Deleted' folder.
   --update                        Only export new or updated files. See notes
                                   below on export and --update.
-  --ignore-signature              When used with --update, ignores file
+  --ignore-signature              When used with '--update', ignores file
                                   signature when updating files. This is useful
                                   if you have processed or edited exported
                                   photos changing the file signature (size &
-                                  modification date). In this case, --update
+                                  modification date). In this case, '--update'
                                   would normally re-export the processed files
-                                  but with --ignore-signature, files which exist
-                                  in the export directory will not be re-
-                                  exported.
+                                  but with '--ignore-signature', files which
+                                  exist in the export directory will not be re-
+                                  exported. If used with '--sidecar', '--ignore-
+                                  signature' has the following behavior: 1) if
+                                  the metadata (in Photos) that went into the
+                                  sidecar did not change, the sidecar will not
+                                  be updated; 2) if the metadata (in Photos)
+                                  that went into the sidecar did change, a new
+                                  sidecar is written but a new image file is
+                                  not; 3) if a sidecar does not exist for the
+                                  photo, a sidecar will be written whether or
+                                  not the photo file was written or updated.
   --only-new                      If used with --update, ignores any previously
                                   exported files, even if missing from the
                                   export folder and only exports new files that
@@ -377,7 +386,8 @@ Options:
                                   does not export tag groups. Sidecar filename
                                   is in format photoname.ext.json; For a list of
                                   tags exported in the JSON and exiftool
-                                  sidecar, see '--exiftool'.
+                                  sidecar, see '--exiftool'. See also '--ignore-
+                                  signature'.
   --sidecar-drop-ext              Drop the photo's extension when naming sidecar
                                   files. By default, sidecar files are named in
                                   format 'photo_filename.photo_ext.sidecar_ext',
@@ -2635,6 +2645,7 @@ This project follows the [all-contributors](https://github.com/all-contributors/
 
 My goal is make osxphotos as reliable and comprehensive as possible.  The test suite currently has over 800 tests--but there are still some [bugs](https://github.com/RhetTbull/osxphotos/issues?q=is%3Aissue+is%3Aopen+label%3Abug) or incomplete features lurking.  If you find bugs please open an [issue](https://github.com/RhetTbull/osxphotos/issues).  Please consult the list of open bugs before deciding that you want to use this code on your Photos library.  Notable issues include:
 
+- Image orientation is not always correct for photos rotated in Photos.app.  See [Issue #379](https://github.com/RhetTbull/osxphotos/issues/379).
 - Face coordinates (mouth, left eye, right eye) may not be correct for images where the head is tilted.  See [Issue #196](https://github.com/RhetTbull/osxphotos/issues/196).
 - Raw images imported to Photos with an associated jpeg preview are not handled correctly by osxphotos.  osxphotos query and export will operate on the jpeg preview instead of the raw image as will `PhotoInfo.path`.  If the user selects "Use RAW as original" in Photos, the raw image will be exported or operated on but the jpeg will be ignored.  See [Issue #101](https://github.com/RhetTbull/osxphotos/issues/101). Note: Beta version of fix for this bug is implemented in the current version of osxphotos.
 - The `--download-missing` option for `osxphotos export` does not work correctly with burst images.  It will download the primary image but not the other burst images.  See [Issue #75](https://github.com/RhetTbull/osxphotos/issues/75).

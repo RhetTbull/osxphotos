@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos.photoinfo._photoinfo_export &#8212; osxphotos 0.40.8 documentation</title>
+    <title>osxphotos.photoinfo._photoinfo_export &#8212; osxphotos 0.40.16 documentation</title>
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -595,11 +595,11 @@
     <span class="k">if</span> <span class="n">export_db</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">export_db</span> <span class="o">=</span> <span class="n">ExportDBNoOp</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="n">verbose</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">verbose</span> <span class="o">=</span> <span class="n">noop</span>
-    <span class="k">elif</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">verbose</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">verbose</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">verbose</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;verbose must be callable&quot;</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+
+    <span class="k">if</span> <span class="n">verbose</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">verbose</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span>
 
     <span class="c1"># suffix to add to edited files</span>
     <span class="c1"># e.g. name will be filename_edited.jpg</span>
@@ -1534,8 +1534,8 @@
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">long_str</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">_MAX_IPTC_KEYWORD_LEN</span>
         <span class="p">]</span>
         <span class="k">if</span> <span class="n">long_keywords</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Some keywords exceed max IPTC Keyword length of </span><span class="si">{</span><span class="n">_MAX_IPTC_KEYWORD_LEN</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">long_keywords</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Warning: some keywords exceed max IPTC Keyword length of </span><span class="si">{</span><span class="n">_MAX_IPTC_KEYWORD_LEN</span><span class="si">}</span><span class="s2"> (exiftool will truncate these): </span><span class="si">{</span><span class="n">long_keywords</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
 
         <span class="n">keyword_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">rendered_keywords</span><span class="p">)</span>
@@ -1813,17 +1813,6 @@
             <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">rendered_keywords</span>
             <span class="k">if</span> <span class="n">_OSXPHOTOS_NONE_SENTINEL</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">keyword</span>
         <span class="p">]</span>
-
-        <span class="c1"># check to see if any keywords too long</span>
-        <span class="n">long_keywords</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">long_str</span>
-            <span class="k">for</span> <span class="n">long_str</span> <span class="ow">in</span> <span class="n">rendered_keywords</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">long_str</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">_MAX_IPTC_KEYWORD_LEN</span>
-        <span class="p">]</span>
-        <span class="k">if</span> <span class="n">long_keywords</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Some keywords exceed max IPTC Keyword length of </span><span class="si">{</span><span class="n">_MAX_IPTC_KEYWORD_LEN</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">long_keywords</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
 
         <span class="n">keyword_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">rendered_keywords</span><span class="p">)</span>
 

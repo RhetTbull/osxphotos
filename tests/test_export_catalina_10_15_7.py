@@ -438,6 +438,7 @@ def test_exiftool_json_sidecar_keyword_template_long(capsys, photosdb):
         """
         [{"EXIF:ImageDescription": "Bride Wedding day", 
         "XMP:Description": "Bride Wedding day", 
+        "IPTC:Caption-Abstract": "Bride Wedding day", 
         "XMP:TagsList": ["Maria", "wedding", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"], 
         "IPTC:Keywords": ["Maria", "wedding", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"], 
         "XMP:Subject": ["Maria", "wedding", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"], 

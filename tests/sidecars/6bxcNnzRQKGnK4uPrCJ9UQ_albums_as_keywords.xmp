@@ -46,10 +46,6 @@
 <rdf:Description rdf:about=""
  xmlns:exif='http://ns.adobe.com/exif/1.0/'>
 </rdf:Description>
-<rdf:Description rdf:about=''
- xmlns:tiff='http://ns.adobe.com/tiff/1.0/'>
-        <tiff:Orientation>1</tiff:Orientation>
-</rdf:Description>
 <rdf:Description rdf:about=""
  xmlns:mwg-rs="http://www.metadataworkinggroup.com/schemas/regions/"
  xmlns:stArea="http://ns.adobe.com/xmp/sType/Area#"

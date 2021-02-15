@@ -447,11 +447,18 @@ def cli(ctx, db, json_, debug):
 @click.option(
     "--ignore-signature",
     is_flag=True,
-    help="When used with --update, ignores file signature when updating files. "
+    help="When used with '--update', ignores file signature when updating files. "
     "This is useful if you have processed or edited exported photos changing the "
-    "file signature (size & modification date). In this case, --update would normally "
-    "re-export the processed files but with --ignore-signature, files which exist "
-    "in the export directory will not be re-exported.",
+    "file signature (size & modification date). In this case, '--update' would normally "
+    "re-export the processed files but with '--ignore-signature', files which exist "
+    "in the export directory will not be re-exported. "
+    "If used with '--sidecar', '--ignore-signature' has the following behavior: "
+    "1) if the metadata (in Photos) that went into the sidecar did not change, "
+    "the sidecar will not be updated; "
+    "2) if the metadata (in Photos) that went into the sidecar did change, "
+    "a new sidecar is written but a new image file is not; "
+    "3) if a sidecar does not exist for the photo, a sidecar will be written "
+    "whether or not the photo file was written or updated.",
 )
 @click.option(
     "--only-new",
@@ -569,7 +576,8 @@ def cli(ctx, db, json_, debug):
     "\n--sidecar exiftool: create JSON sidecar compatible with output of 'exiftool -j'. "
     "Unlike '--sidecar json', '--sidecar exiftool' does not export tag groups. "
     "Sidecar filename is in format photoname.ext.json; "
-    "For a list of tags exported in the JSON and exiftool sidecar, see '--exiftool'.",
+    "For a list of tags exported in the JSON and exiftool sidecar, see '--exiftool'. "
+    "See also '--ignore-signature'.",
 )
 @click.option(
     "--sidecar-drop-ext",
@@ -2395,9 +2403,9 @@ def export_photo(
             # change the file extension to correct jpeg extension if needed
             file_ext = (
                 "." + jpeg_ext
-                if jpeg_ext and (photo.uti == "public.jpeg" or convert_to_jpeg)
+                if jpeg_ext and (photo.uti_original == "public.jpeg" or convert_to_jpeg)
                 else ".jpeg"
-                if convert_to_jpeg and photo.uti != "public.jpeg"
+                if convert_to_jpeg and photo.uti_original != "public.jpeg"
                 else original_filename.suffix
             )
         original_filename = (
@@ -2531,17 +2539,28 @@ def export_photo(
             if export_edited and photo.hasadjustments:
                 edited_filename = pathlib.Path(filename)
                 edited_ext = (
-                    "." + jpeg_ext
-                    if jpeg_ext and photo.uti_edited == "public.jpeg"
-                    else "." + get_preferred_uti_extension(photo.uti_edited)
+                    # rare cases on Photos <= 4 that uti_edited is None
+                    "." + get_preferred_uti_extension(photo.uti_edited)
                     if photo.uti_edited
                     else pathlib.Path(photo.path_edited).suffix
                     if photo.path_edited
                     else pathlib.Path(photo.filename).suffix
                 )
+
+                if (
+                    photo.isphoto
+                    and jpeg_ext
+                    and edited_ext.lower() in [".jpg", ".jpeg"]
+                ):
+                    edited_ext = "." + jpeg_ext
+
                 # Big Sur uses .heic for some edited photos so need to check
                 # if extension isn't jpeg/jpg and using --convert-to-jpeg
-                if convert_to_jpeg and edited_ext.lower() not in [".jpg", ".jpeg"]:
+                if (
+                    photo.isphoto
+                    and convert_to_jpeg
+                    and edited_ext.lower() not in [".jpg", ".jpeg"]
+                ):
                     edited_ext = "." + jpeg_ext if jpeg_ext else ".jpeg"
 
                 if edited_suffix:
