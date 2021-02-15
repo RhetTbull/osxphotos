@@ -3,6 +3,8 @@ import pytest
 import osxphotos
 from osxphotos.exiftool import get_exiftool_path
 
+from photoinfo_mock import PhotoInfoMock
+
 try:
     exiftool = get_exiftool_path()
 except:
@@ -778,3 +780,47 @@ def test_exiftool_template(photosdb):
             rendered, _ = photo.render_template(template)
             assert sorted(rendered) == sorted(UUID_EXIFTOOL[uuid][template])
 
+
+def test_hdr(photosdb):
+    """ Test hdr """
+    photo = photosdb.get_photo(UUID_MULTI_KEYWORDS)
+    photomock = PhotoInfoMock(photo, hdr="hdr")
+    rendered, _ = photomock.render_template("{hdr}")
+    assert rendered == ["hdr"]
+
+
+def test_edited(photosdb):
+    """ Test edited """
+    photo = photosdb.get_photo(UUID_MULTI_KEYWORDS)
+    photomock = PhotoInfoMock(photo, hasadjustments=True)
+    rendered, _ = photomock.render_template("{edited}")
+    assert rendered == ["edited"]
+
+
+def test_nested_template_bool(photosdb):
+    photo = photosdb.get_photo(UUID_MULTI_KEYWORDS)
+    template = "{hdr?{edited?HDR_EDITED,HDR_NOT_EDITED},{edited?NOT_HDR_EDITED,NOT_HDR_NOT_EDITED}}"
+
+    photomock = PhotoInfoMock(photo, hdr=True, hasadjustments=True)
+    rendered, _ = photomock.render_template(template)
+    assert rendered == ["HDR_EDITED"]
+
+    photomock = PhotoInfoMock(photo, hdr=True, hasadjustments=False)
+    rendered, _ = photomock.render_template(template)
+    assert rendered == ["HDR_NOT_EDITED"]
+
+    photomock = PhotoInfoMock(photo, hdr=False, hasadjustments=False)
+    rendered, _ = photomock.render_template(template)
+    assert rendered == ["NOT_HDR_NOT_EDITED"]
+
+    photomock = PhotoInfoMock(photo, hdr=False, hasadjustments=True)
+    rendered, _ = photomock.render_template(template)
+    assert rendered == ["NOT_HDR_EDITED"]
+
+
+def test_nested_template(photosdb):
+    photo = photosdb.get_photo(UUID_MULTI_KEYWORDS)
+    photomock = PhotoInfoMock(photo, keywords=[], title="My Title")
+
+    rendered, _ = photomock.render_template("{keyword,{title}}")
+    assert rendered == ["My Title"]
