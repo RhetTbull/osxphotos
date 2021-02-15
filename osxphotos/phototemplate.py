@@ -138,11 +138,15 @@ TEMPLATE_SUBSTITUTIONS_MULTI_VALUED = {
     "{searchinfo.venue_type}": "Venue types associated with a photo, e.g. 'Restaurant'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).",
 }
 
-TEMPLATE_VALUE_SUBSTITUTIONS_FILTER = {
-    "{lower}": "Convert value to lower case; use in format: '{lower,template string}'",
-    "{upper}": "Convert value to upper case; use in format: '{upper,template string}'",
-    "{strip}": "Strip whitespace from beginning/end of value; use in format: '{strip,template string}'",
-    "{brace}": "Enclose value in curly braces, e.g. '{value}'; use in format: '{brace,template string}'",
+FILTER_VALUES = {
+    "lower": "Convert value to lower case, e.g. 'Value' => 'value'.",
+    "upper": "Convert value to upper case, e.g. 'Value' => 'VALUE'.",
+    "strip": "Strip whitespace from beginning/end of value, e.g. ' Value ' => 'Value'.",
+    "title": "Convert value to title case, e.g. 'my value' => 'My Value'.",
+    "capitalize": "Capitalize first word of value and convert other words to lower case, e.g. 'MY VALUE' => 'My value'.",
+    "braces": "Enclose value in curly braces, e.g. 'value => '{value}'.",
+    "parens": "Enclose value in parentheses, e.g. 'value' => '(value')",
+    "brackets": "Enclose value in brackets, e.g. 'value' => '[value]'",
 }
 
 # Just the substitutions without the braces
@@ -156,13 +160,9 @@ MULTI_VALUE_SUBSTITUTIONS = [
     for field in TEMPLATE_SUBSTITUTIONS_MULTI_VALUED
 ]
 
-# Just the multi-valued substitution names without the braces
-FILTER_VALUE_SUBSTITUTIONS = [
-    field.replace("{", "").replace("}", "")
-    for field in TEMPLATE_VALUE_SUBSTITUTIONS_FILTER
-]
-
-FIELD_NAMES = SINGLE_VALUE_SUBSTITUTIONS + MULTI_VALUE_SUBSTITUTIONS + FILTER_VALUE_SUBSTITUTIONS
+FIELD_NAMES = (
+    SINGLE_VALUE_SUBSTITUTIONS + MULTI_VALUE_SUBSTITUTIONS
+)
 
 # default values for string manipulation template options
 INPLACE_DEFAULT = ","
@@ -327,6 +327,11 @@ class PhotoTemplate:
 
             subfield = ts.template.subfield
 
+            # process filters
+            filters = []
+            if ts.template.filter is not None:
+                filters = ts.template.filter.value
+
             # process path_sep
             if ts.template.pathsep is not None:
                 path_sep = ts.template.pathsep.value
@@ -404,13 +409,12 @@ class PhotoTemplate:
                 vals = self.get_template_value_multi(
                     field, path_sep=path_sep, filename=filename, dirname=dirname
                 )
-            elif field in FILTER_VALUE_SUBSTITUTIONS:
-                vals = self.get_template_value_filter(field, default)
             else:
                 unmatched.append(field)
                 return [], unmatched
 
             vals = [val for val in vals if val is not None]
+
             if is_bool:
                 if not vals:
                     vals = default
@@ -422,6 +426,9 @@ class PhotoTemplate:
             if expand_inplace or delim is not None:
                 sep = delim if delim is not None else inplace_sep
                 vals = [sep.join(sorted(vals))]
+
+            for filter_ in filters:
+                vals = self.get_template_value_filter(filter_, vals)
 
             pre = ts.pre or ""
             post = ts.post or ""
@@ -731,27 +738,47 @@ class PhotoTemplate:
 
         return [value]
 
-    def get_template_value_filter(self, field, default):
-        if field == "lower":
-            if default and type(default) == list:
-                value = [v.lower() for v in default]
+    def get_template_value_filter(self, filter_, values):
+        if filter_ == "lower":
+            if values and type(values) == list:
+                value = [v.lower() for v in values]
             else:
-                value = [default.lower()]
-        elif field == "upper":
-            if default and type(default) == list:
-                value = [v.upper() for v in default]
+                value = [values.lower()]
+        elif filter_ == "upper":
+            if values and type(values) == list:
+                value = [v.upper() for v in values]
             else:
-                value = [default.upper()]
-        elif field == "strip":
-            if default and type(default) == list:
-                value = [v.strip() for v in default]
+                value = [values.upper()]
+        elif filter_ == "strip":
+            if values and type(values) == list:
+                value = [v.strip() for v in values]
             else:
-                value = [default.strip()]
-        elif field == "brace":
-            if default and type(default) == list:
-                value = ["{"+v+"}" for v in default]
+                value = [values.strip()]
+        elif filter_ == "capitalize":
+            if values and type(values) == list:
+                value = [v.capitalize() for v in values]
             else:
-                value = ["{"+default+"}"]
+                value = [values.capitalize()]
+        elif filter_ == "title":
+            if values and type(values) == list:
+                value = [v.title() for v in values]
+            else:
+                value = [values.title()]
+        elif filter_ == "braces":
+            if values and type(values) == list:
+                value = ["{" + v + "}" for v in values]
+            else:
+                value = ["{" + values + "}"]
+        elif filter_ == "parens":
+            if values and type(values) == list:
+                value = ["(" + v + ")" for v in values]
+            else:
+                value = ["(" + values + ")"]
+        elif filter_ == "brackets":
+            if values and type(values) == list:
+                value = ["[" + v + "]" for v in values]
+            else:
+                value = ["[" + values + "]"]
         else:
             value = []
         return value

@@ -22,6 +22,7 @@ Template:
     delim=Delim
     field=Field
     subfield=SubField
+    filter=Filter
     pathsep=PathSep
     findreplace=FindReplace
     bool=Boolean
@@ -64,6 +65,16 @@ SUBFIELD_WORD:
     /[\.\w:]+/
 ;
 
+Filter:
+    (
+    "|"-
+    (value+=FILTER_WORD['|'])?
+    )?
+;
+
+FILTER_WORD:
+    /[\.\w]+/
+;
 
 PathSep:
     (

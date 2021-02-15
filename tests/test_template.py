@@ -45,15 +45,36 @@ UUID_MEDIA_TYPE = {
 UUID_MULTI_KEYWORDS = "6191423D-8DB8-4D4C-92BE-9BBBA308AAC4"
 TEMPLATE_VALUES_MULTI_KEYWORDS = {
     "{keyword}": ["flowers", "wedding"],
+    "{keyword|parens}": ["(flowers)", "(wedding)"],
+    "{keyword|braces}": ["{flowers}", "{wedding}"],
+    "{keyword|brackets}": ["[flowers]", "[wedding]"],
+    "{keyword|parens|brackets|capitalize}": ["[(flowers)]", "[(wedding)]"],
+    "{keyword|capitalize|parens|brackets}": ["[(Flowers)]", "[(Wedding)]"],
+    "{keyword|upper}": ["FLOWERS", "WEDDING"],
+    "{keyword|lower}": ["flowers", "wedding"],
+    "{keyword|title}": ["Flowers", "Wedding"],
+    "{keyword|capitalize}": ["Flowers", "Wedding"],
     "{+keyword}": ["flowerswedding"],
+    "{+keyword|title}": ["Flowerswedding"],
+    "{+keyword|capitalize}": ["Flowerswedding"],
     "{;+keyword}": ["flowers;wedding"],
     "{; +keyword}": ["flowers; wedding"],
+    "{; +keyword|title}": ["Flowers; Wedding"],
+    "{; +keyword|title|parens}": ["(Flowers; Wedding)"],
 }
 
 UUID_TITLE = "6191423D-8DB8-4D4C-92BE-9BBBA308AAC4"
 TEMPLATE_VALUES_TITLE = {
     "{title}": ["Tulips tied together at a flower shop"],
+    "{title|title}": ["Tulips Tied Together At A Flower Shop"],
+    "{title|upper}": ["TULIPS TIED TOGETHER AT A FLOWER SHOP"],
+    "{title|title|lower|upper}": ["TULIPS TIED TOGETHER AT A FLOWER SHOP"],
+    "{title|upper|title}": ["Tulips Tied Together At A Flower Shop"],
+    "{title|capitalize}": ["Tulips tied together at a flower shop"],
     "{title[ ,_]}": ["Tulips_tied_together_at_a_flower_shop"],
+    "{title[ ,_|e,]}": ["Tulips_tid_togthr_at_a_flowr_shop"],
+    "{title[ ,|e,]}": ["Tulipstidtogthrataflowrshop"],
+    "{title[e,]}": ["Tulips tid togthr at a flowr shop"],
     "{+title}": ["Tulips tied together at a flower shop"],
     "{,+title}": ["Tulips tied together at a flower shop"],
     "{, +title}": ["Tulips tied together at a flower shop"],
@@ -94,6 +115,14 @@ UUID_EXIFTOOL = {
             "England",
             "London",
             "London_2018",
+            "St_James's_Park",
+            "UK",
+            "United_Kingdom",
+        ],
+        "{exiftool:IPTC:Keywords[ ,_|.,|L,]}": [
+            "England",
+            "ondon",
+            "ondon_2018",
             "St_James's_Park",
             "UK",
             "United_Kingdom",
@@ -275,6 +304,7 @@ def test_lookup_multi(photosdb_places):
             continue
         lookup = template.get_template_value_multi(lookup_str, path_sep=os.path.sep)
         assert isinstance(lookup, list)
+
 
 def test_subst(photosdb_places):
     """ Test that substitutions are correct """
@@ -496,9 +526,7 @@ def test_subst_multi_0_2_0_default_val_unknown_val(photosdb):
     # one album, one keyword, two persons
     photo = photosdb.photos(uuid=[UUID_DICT["0_2_0"]])[0]
 
-    template = (
-        "{created.year}/{album,NOALBUM}/{keyword,NOKEYWORD}/{person}/{foo}/{baz}"
-    )
+    template = "{created.year}/{album,NOALBUM}/{keyword,NOKEYWORD}/{person}/{foo}/{baz}"
     expected = [
         "2019/NOALBUM/wedding/_/{foo}/{baz}",
         "2019/NOALBUM/flowers/_/{foo}/{baz}",
@@ -599,8 +627,8 @@ def test_subst_multi_folder_albums_3_path_sep(photosdb_14_6):
 
     # photo in an album in a folder
     photo = photosdb_14_6.photos(uuid=[UUID_DICT["mojave_album_1"]])[0]
-    template = "{folder_album(:)}"
-    expected = ["Folder1:SubFolder2:AlbumInFolder", "Pumpkin Farm", "Test Album (1)"]
+    template = "{folder_album(>)}"
+    expected = ["Folder1>SubFolder2>AlbumInFolder", "Pumpkin Farm", "Test Album (1)"]
     rendered, unknown = photo.render_template(template)
     assert sorted(rendered) == sorted(expected)
     assert unknown == []
