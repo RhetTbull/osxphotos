@@ -1017,6 +1017,7 @@ def export(
         person_keyword = cfg.person_keyword
         album_keyword = cfg.album_keyword
         keyword_template = cfg.keyword_template
+        replace_keywords = cfg.replace_keywords
         description_template = cfg.description_template
         finder_tag_template = cfg.finder_tag_template
         finder_tag_keywords = cfg.finder_tag_keywords
@@ -1443,6 +1444,7 @@ def export(
                     exiftool_option=exiftool_option,
                     strip=strip,
                     jpeg_ext=jpeg_ext,
+                    replace_keywords=replace_keywords,
                 )
                 results += export_results
 
@@ -2279,6 +2281,7 @@ def export_photo(
     exiftool_option=None,
     strip=False,
     jpeg_ext=None,
+    replace_keywords=False,
 ):
     """Helper function for export that does the actual export
 
@@ -2317,6 +2320,7 @@ def export_photo(
         exiftool_merge_keywords: boolean; if True, merged keywords found in file's exif data (requires exiftool)
         exiftool_merge_persons: boolean; if True, merged persons found in file's exif data (requires exiftool)
         jpeg_ext: if not None, specify the extension to use for all JPEG images on export
+        replace_keywords: if True, --keyword-template replaces keywords instead of adding keywords
 
     Returns:
         list of path(s) of exported photo or None if photo was missing
@@ -2497,6 +2501,7 @@ def export_photo(
                             verbose=verbose_,
                             exiftool_flags=exiftool_option,
                             jpeg_ext=jpeg_ext,
+                            replace_keywords=replace_keywords,
                         )
                         results += export_results
                         for warning_ in export_results.exiftool_warning:
@@ -2644,6 +2649,7 @@ def export_photo(
                             verbose=verbose_,
                             exiftool_flags=exiftool_option,
                             jpeg_ext=jpeg_ext,
+                            replace_keywords=replace_keywords,
                         )
                         results += export_results_edited
                         for warning_ in export_results_edited.exiftool_warning:

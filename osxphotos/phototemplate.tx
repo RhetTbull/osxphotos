@@ -1,6 +1,6 @@
 // OSXPhotos Template Language (OTL)
 // a TemplateString has format:
-// pre{delim+template_field:subfield(path_sep)[find,replace]?bool_value,default}post
+// pre{delim+template_field:subfield|filter(path_sep)[find,replace]?bool_value,default}post
 // a TemplateStatement may contain zero or more TemplateStrings
 // The pre and post are optional strings
 // The template itself (inside the {}) is also optional but if present

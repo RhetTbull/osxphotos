@@ -8,7 +8,7 @@ import importlib
 pathex = os.getcwd()
 
 # include necessary data files
-datas=[('osxphotos/templates/xmp_sidecar.mako', 'osxphotos/templates'), ('osxphotos/templates/xmp_sidecar_beta.mako', 'osxphotos/templates'), ('osxphotos/phototemplate.tx', 'osxphotos')]
+datas=[('osxphotos/templates/xmp_sidecar.mako', 'osxphotos/templates'), ('osxphotos/templates/xmp_sidecar_beta.mako', 'osxphotos/templates'), ('osxphotos/phototemplate.tx', 'osxphotos'), ('osxphotos/phototemplate.md', 'osxphotos')]
 package_imports = [['photoscript', ['photoscript.applescript']]]
 for package, files in package_imports:
     proot = os.path.dirname(importlib.import_module(package).__file__)
