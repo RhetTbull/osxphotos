@@ -2041,6 +2041,7 @@ class PhotosDB:
             # > 6 = portrait (sometimes, see ZDEPTHSTATE/ZDEPTHTYPE)
             info["customRenderedValue"] = row[22]
             info["hdr"] = True if row[22] == 3 else False
+            info["depth_state"] = row[36]
             info["portrait"] = True if row[36] != 0 else False
 
             # Set panorama from either KindSubType or RenderedValue
