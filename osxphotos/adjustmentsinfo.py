@@ -45,7 +45,7 @@ class AdjustmentsInfo:
             self._adjustments = None
 
     def _decode_adjustments_from_plist(self, plist):
-        """decode adjustmentData from Apple Photos adjusments
+        """decode adjustmentData from Apple Photos adjustments
 
         Args:
             plist: a plist dict as loaded by plistlib
@@ -109,12 +109,18 @@ class AdjustmentsInfo:
     @property
     def adjustments(self):
         """List of adjustment dictionaries (or empty list if none or could not be decoded)"""
-        return self._adjustments["adjustments"] if self._adjustments else []
+        try:
+            return self._adjustments["adjustments"] if self._adjustments else []
+        except KeyError:
+            return []
 
     @property
     def adj_metadata(self):
         """Metadata dictionary or None if adjustment data could not be decoded"""
-        return self._adjustments["metadata"] if self._adjustments else None
+        try:
+            return self._adjustments["metadata"] if self._adjustments else None
+        except KeyError:
+            return None
 
     @property
     def adj_orientation(self):
@@ -131,12 +137,18 @@ class AdjustmentsInfo:
     @property
     def adj_format_version(self):
         """Format version for adjustments data (formatVersion field from adjustmentData) or None if adjustments could not be decoded"""
-        return self._adjustments["formatVersion"] if self._adjustments else None
+        try:
+            return self._adjustments["formatVersion"] if self._adjustments else None
+        except KeyError:
+            return None
 
     @property
     def adj_version_info(self):
         """version info for adjustments data or None if adjustments data could not be decoded"""
-        return self._adjustments["versionInfo"] if self._adjustments else None
+        try:
+            return self._adjustments["versionInfo"] if self._adjustments else None
+        except KeyError:
+            return None
 
     def asdict(self):
         """Returns all adjustments info as dictionary"""
