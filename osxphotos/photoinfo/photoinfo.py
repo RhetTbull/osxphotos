@@ -27,6 +27,7 @@ from .._constants import (
     _PHOTOS_5_SHARED_PHOTO_PATH,
     _PHOTOS_5_VERSION,
 )
+from ..adjustmentsinfo import AdjustmentsInfo
 from ..albuminfo import AlbumInfo, ImportInfo
 from ..personinfo import FaceInfo, PersonInfo
 from ..phototemplate import PhotoTemplate
@@ -511,6 +512,30 @@ class PhotoInfo:
         return self._info["hasAdjustments"] == 1
 
     @property
+    def adjustments(self):
+        """ Returns AdjustmentsInfo class for adjustment data or None if no adjustments; Photos 5+ only """
+        if self._db._db_version <= _PHOTOS_4_VERSION:
+            return None
+
+        if self.hasadjustments:
+            try:
+                return self._adjustmentinfo
+            except AttributeError:
+                library = self._db._library_path
+                directory = self._uuid[0]  # first char of uuid
+                plist_file = (
+                    pathlib.Path(library)
+                    / "resources"
+                    / "renders"
+                    / directory
+                    / f"{self._uuid}.plist"
+                )
+                if not plist_file.is_file():
+                    return None
+                self._adjustmentinfo = AdjustmentsInfo(plist_file)
+                return self._adjustmentinfo
+
+    @property
     def external_edit(self):
         """ Returns True if picture was edited outside of Photos using external editor """
         return self._info["adjustmentFormatID"] == "com.apple.Photos.externalEdit"
@@ -823,8 +848,19 @@ class PhotoInfo:
 
     @property
     def orientation(self):
-        """ returns EXIF orientation of the current photo version as int """
-        return self._info["orientation"]
+        """ returns EXIF orientation of the current photo version as int or 0 if current orientation cannot be determined """
+        if self._db._db_version <= _PHOTOS_4_VERSION:
+            return self._info["orientation"]
+
+        # For Photos 5+, try to get the adjusted orientation
+        if self.hasadjustments:
+            if self.adjustments:
+                return self.adjustments.adj_orientation
+            else:
+                # can't reliably determine orientation for edited photo if adjustmentinfo not available
+                return 0
+        else:
+            return self._info["orientation"]
 
     @property
     def original_height(self):

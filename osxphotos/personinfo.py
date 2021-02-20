@@ -11,16 +11,15 @@ MPRI_Reg_Rect = namedtuple("MPRI_Reg_Rect", ["x", "y", "h", "w"])
 
 
 class PersonInfo:
-    """ Info about a person in the Photos library
-    """
+    """Info about a person in the Photos library"""
 
     def __init__(self, db=None, pk=None):
-        """ Creates a new PersonInfo instance
+        """Creates a new PersonInfo instance
 
         Arguments:
             db: instance of PhotosDB object
-            pk: primary key value of person to initialize PersonInfo with    
-        
+            pk: primary key value of person to initialize PersonInfo with
+
         Returns:
             PersonInfo instance
         """
@@ -57,8 +56,8 @@ class PersonInfo:
 
     @property
     def face_info(self):
-        """ Returns a list of FaceInfo objects associated with this person sorted by quality score
-            Highest quality face is result[0] and lowest quality face is result[n] 
+        """Returns a list of FaceInfo objects associated with this person sorted by quality score
+        Highest quality face is result[0] and lowest quality face is result[n]
         """
         try:
             faces = self._db._db_faceinfo_person[self._pk]
@@ -103,16 +102,15 @@ class PersonInfo:
 
 
 class FaceInfo:
-    """ Info about a face in the Photos library
-    """
+    """Info about a face in the Photos library"""
 
     def __init__(self, db=None, pk=None):
-        """ Creates a new FaceInfo instance
+        """Creates a new FaceInfo instance
 
         Arguments:
             db: instance of PhotosDB object
-            pk: primary key value of face to init the object with    
-        
+            pk: primary key value of face to init the object with
+
         Returns:
             FaceInfo instance
         """
@@ -156,7 +154,7 @@ class FaceInfo:
 
     @property
     def center(self):
-        """ Coordinates, in PIL format, for center of face 
+        """Coordinates, in PIL format, for center of face
 
         Returns:
             tuple of coordinates in form (x, y)
@@ -165,7 +163,7 @@ class FaceInfo:
 
     @property
     def size_pixels(self):
-        """ Size of face in pixels (centered around center_x, center_y)
+        """Size of face in pixels (centered around center_x, center_y)
 
         Returns:
             size, in int pixels, of a circle drawn around the center of the face
@@ -176,7 +174,7 @@ class FaceInfo:
 
     @property
     def mouth(self):
-        """ Coordinates, in PIL format, for mouth position
+        """Coordinates, in PIL format, for mouth position
 
         Returns:
             tuple of coordinates in form (x, y)
@@ -185,7 +183,7 @@ class FaceInfo:
 
     @property
     def left_eye(self):
-        """ Coordinates, in PIL format, for left eye position
+        """Coordinates, in PIL format, for left eye position
 
         Returns:
             tuple of coordinates in form (x, y)
@@ -194,7 +192,7 @@ class FaceInfo:
 
     @property
     def right_eye(self):
-        """ Coordinates, in PIL format, for right eye position
+        """Coordinates, in PIL format, for right eye position
 
         Returns:
             tuple of coordinates in form (x, y)
@@ -223,7 +221,7 @@ class FaceInfo:
 
     @property
     def mwg_rs_area(self):
-        """ Get coordinates for Metadata Working Group Region Area. 
+        """Get coordinates for Metadata Working Group Region Area.
 
         Returns:
             MWG_RS_Area named tuple with x, y, h, w where:
@@ -249,7 +247,7 @@ class FaceInfo:
 
     @property
     def mpri_reg_rect(self):
-        """ Get coordinates for Microsoft Photo Region Rectangle.
+        """Get coordinates for Microsoft Photo Region Rectangle.
 
         Returns:
             MPRI_Reg_Rect named tuple with x, y, h, w where:
@@ -278,7 +276,7 @@ class FaceInfo:
         return MPRI_Reg_Rect(x, y, h, w)
 
     def face_rect(self):
-        """ Get face rectangle coordinates for current version of the associated image
+        """Get face rectangle coordinates for current version of the associated image
             If image has been edited, rectangle applies to edited version, otherwise original version
             Coordinates in format and reference frame used by PIL
 
@@ -321,12 +319,12 @@ class FaceInfo:
         return yaw
 
     def _fix_orientation(self, xy):
-        """ Translate an (x, y) tuple based on image orientation
+        """Translate an (x, y) tuple based on image orientation
 
         Arguments:
             xy: tuple of (x, y) coordinates for point to translate
                 in format used by Photos (percent of height/width)
-        
+
         Returns:
             (x, y) tuple of translated coordinates
         """
@@ -350,21 +348,24 @@ class FaceInfo:
         elif orientation == 7:
             x, y = y, x
             y = 1.0 - y
-        elif orientation ==8:
+        elif orientation == 8:
             x, y = y, x
+        elif orientation == 0:
+            # set by osxphotos if adjusted orientation cannot be read, assume it's 1
+            y = 1.0 - y
         else:
             logging.warning(f"Unhandled orientation: {orientation}")
 
         return (x, y)
 
     def _make_point(self, xy):
-        """ Translate an (x, y) tuple based on image orientation
+        """Translate an (x, y) tuple based on image orientation
             and convert to image coordinates
 
         Arguments:
             xy: tuple of (x, y) coordinates for point to translate
                 in format used by Photos (percent of height/width)
-        
+
         Returns:
             (x, y) tuple of translated coordinates in pixels in PIL format/reference frame
         """
@@ -379,13 +380,13 @@ class FaceInfo:
         return (int(x * dx), int(y * dy))
 
     def _make_point_with_rotation(self, xy):
-        """ Translate an (x, y) tuple based on image orientation and rotation
+        """Translate an (x, y) tuple based on image orientation and rotation
             and convert to image coordinates
 
         Arguments:
             xy: tuple of (x, y) coordinates for point to translate
                 in format used by Photos (percent of height/width)
-        
+
         Returns:
             (x, y) tuple of translated coordinates in pixels in PIL format/reference frame
         """
@@ -472,14 +473,14 @@ class FaceInfo:
 
 
 def rotate_image_point(x, y, xmid, ymid, angle):
-    """ rotate image point about xm, ym by angle in radians
+    """rotate image point about xm, ym by angle in radians
 
     Arguments:
-        x: x coordinate of point to rotate    
+        x: x coordinate of point to rotate
         y: y coordinate of point to rotate
         xmid: x coordinate of center point to rotate about
         ymid: y coordinate of center point to rotate about
-        angle: angle in radians about which to coordinate, 
+        angle: angle in radians about which to coordinate,
             counter-clockwise is positive
 
     Returns:

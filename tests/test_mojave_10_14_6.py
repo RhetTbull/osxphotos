@@ -637,3 +637,18 @@ def test_is_reference(photosdb):
     assert photo.isreference
     photo = photosdb.get_photo(UUID_NOT_REFERENCE)
     assert not photo.isreference
+
+
+def test_adjustments(photosdb):
+    """ test adjustments/AdjustmentsInfo (not implemented for 10.14) """
+    from osxphotos.adjustmentsinfo import AdjustmentsInfo
+
+    photo = photosdb.get_photo(UUID_DICT["has_adjustments"])
+    assert photo.adjustments is None
+
+
+def test_no_adjustments(photosdb):
+    """ test adjustments when photo has no adjusments"""
+
+    photo = photosdb.get_photo(UUID_DICT["no_adjustments"])
+    assert photo.adjustments is None
