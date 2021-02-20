@@ -4,7 +4,7 @@
 [![tests](https://github.com/RhetTbull/osxphotos/workflows/Tests/badge.svg)](https://github.com/RhetTbull/osxphotos/workflows/Tests/badge.svg)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/osxphotos)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-18-orange.svg?style=flat)](#contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-19-orange.svg?style=flat)](#contributors)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 OSXPhotos provides the ability to interact with and query Apple's Photos.app library on macOS. You can query the Photos library database — for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos.
@@ -31,6 +31,7 @@ OSXPhotos provides the ability to interact with and query Apple's Photos.app lib
   + [FaceInfo](#faceinfo)
   + [CommentInfo](#commentinfo)
   + [LikeInfo](#likeinfo)
+  + [AdjustmentsInfo](#adjustmentsinfo)
   + [Raw Photos](#raw-photos)
   + [Template Substitutions](#template-substitutions)
   + [Utility Functions](#utility-functions)
@@ -1582,7 +1583,7 @@ Returns height of the photo in pixels.  If image has been edited, returns height
 Returns width of the photo in pixels.  If image has been edited, returns width of the edited image, otherwise returns width of the original image.  See also [original_width](#original_width).
 
 #### `orientation`
-Returns EXIF orientation value of the photo as integer.  If image has been edited, returns orientation of the edited image, otherwise returns orientation of the original image. See also [original_orientation](#original_orientation).
+Returns EXIF orientation value of the photo as integer.  If image has been edited, returns orientation of the edited image, otherwise returns orientation of the original image. See also [original_orientation](#original_orientation).  If orientation cannot be determined, returns 0 (this happens if osxphotos cannot decode the adjustment info for an edited image).
 
 #### `original_height`
 Returns height of the original photo in pixels. See also [height](#height).
@@ -1601,6 +1602,9 @@ Returns `True` if the original image file is missing on disk, otherwise `False`.
 
 #### `hasadjustments`
 Returns `True` if the picture has been edited, otherwise `False`
+
+#### `adjustments`
+On Photos 5+, returns an [AdjustmentsInfo](#adjustmentsinfo) object representing the adjustments (edits) to the photo or None if there are no adjustments.  On earlier versions of Photos, always returns None.
 
 #### `external_edit`
 Returns `True` if the picture was edited in an external editor (outside Photos.app), otherwise `False`
@@ -2441,8 +2445,25 @@ Returns a JSON representation of the FaceInfo instance.
 [PhotoInfo.likes](#likes) returns a list of LikeInfo objects for "likes" on shared photos. (Photos 5/MacOS 10.15+ only).  The list of LikeInfo objects will be sorted in ascending order by date like was made.  LikeInfo contains the following fields:
 
 - `datetime`: `datetime.datetime`, date/time like was made
-- `user`: `str`, name of user who made the like 
+- `user`: `str`, name of user who made the like
 - `ismine`: `bool`, True if like was made by person who owns the Photos library being operated on
+
+### AdjustmentsInfo
+[PhotoInfo.adjustments](#adjustments) returns an AdjustmentsInfo object, if the photo has adjustments, or `None` if the photo does not have adjusments.   AdjustmentsInfo has the following properties and methods:
+
+- `plist`: The adjustments plist file maintained by Photos as a dict.
+- `data`: The raw, undecoded adjustments info as binary blob.
+- `editor`: The editor bundle ID of the app which made the edits, e.g. `com.apple.photos`.
+- `format_id`: The format identifier set by the app which made the edits, e.g. `com.apple.photos`.
+- `base_version`: Version info set by the app which made the edits.
+- `format_version`: Version info set by the app which made the edits.
+- `timestamp`: Time stamp of the adjustment as a timezone-aware datetime.datetime object; None if no timestamp is set.
+- `adjustments`: a list of dicts containing information about the decoded adjustments to the photo or None if adjustments could not be decoded. AdjustmentsInfo can decode adjustments made by Photos but cannot decode adjustments made by external plugins or apps.
+- `adj_metadata`: a dict containing additional data about the photo decoded from the adjustment data.
+- `adj_orientation`: the EXIF orientation of the edited photo decoded from the adjustment metadata.
+- `adj_format_version`: version for adjustments format decoded from the adjustment data.
+- `adj_version_info`: version info for the application which made the adjustments to the photo decoded from the adjustments data.
+- `asdict()`: dict representation of the AdjustmentsInfo object; contains all properties with exception of `plist`.
 
 ### Raw Photos
 Handling raw photos in `osxphotos` requires a bit of extra work.  Raw photos in Photos can be imported in two different ways: 1) a single raw photo with no associated JPEG image is imported 2) a raw+JPEG pair is imported -- two separate images with same file stem (e.g. `IMG_0001.CR2` and `IMG_001.JPG`) are imported.  
@@ -2700,6 +2721,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://github.com/narensankar0529"><img src="https://avatars3.githubusercontent.com/u/74054766?v=4?s=75" width="75px;" alt=""/><br /><sub><b>narensankar0529</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Anarensankar0529" title="Bug reports">🐛</a> <a href="#userTesting-narensankar0529" title="User Testing">📓</a></td>
     <td align="center"><a href="https://github.com/martinhrpi"><img src="https://avatars2.githubusercontent.com/u/19407684?v=4?s=75" width="75px;" alt=""/><br /><sub><b>Martin</b></sub></a><br /><a href="#research-martinhrpi" title="Research">🔬</a> <a href="#userTesting-martinhrpi" title="User Testing">📓</a></td>
     <td align="center"><a href="https://github.com/davidjroos"><img src="https://avatars.githubusercontent.com/u/15630844?v=4?s=75" width="75px;" alt=""/><br /><sub><b>davidjroos </b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=davidjroos" title="Documentation">📖</a></td>
+    <td align="center"><a href="https://neilpa.me"><img src="https://avatars.githubusercontent.com/u/42419?v=4?s=75" width="75px;" alt=""/><br /><sub><b>Neil Pankey</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=neilpa" title="Code">💻</a></td>
   </tr>
 </table>
 
