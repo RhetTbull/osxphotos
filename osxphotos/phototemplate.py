@@ -151,7 +151,7 @@ FILTER_VALUES = {
     "lower": "Convert value to lower case, e.g. 'Value' => 'value'.",
     "upper": "Convert value to upper case, e.g. 'Value' => 'VALUE'.",
     "strip": "Strip whitespace from beginning/end of value, e.g. ' Value ' => 'Value'.",
-    "title": "Convert value to title case, e.g. 'my value' => 'My Value'.",
+    "titlecase": "Convert value to title case, e.g. 'my value' => 'My Value'.",
     "capitalize": "Capitalize first word of value and convert other words to lower case, e.g. 'MY VALUE' => 'My value'.",
     "braces": "Enclose value in curly braces, e.g. 'value => '{value}'.",
     "parens": "Enclose value in parentheses, e.g. 'value' => '(value')",
@@ -780,7 +780,7 @@ class PhotoTemplate:
                 value = [v.capitalize() for v in values]
             else:
                 value = [values.capitalize()]
-        elif filter_ == "title":
+        elif filter_ == "titlecase":
             if values and type(values) == list:
                 value = [v.title() for v in values]
             else:
@@ -972,3 +972,12 @@ def parse_default_kv(default, default_dict):
             except ValueError:
                 pass
     return default_dict_
+
+
+def get_template_help():
+    """Return help for template system as markdown string """
+    # TODO: would be better to use importlib.abc.ResourceReader but I can't find a single example of how to do this
+    help_file = pathlib.Path(__file__).parent / "phototemplate.md"
+    with open(help_file, "r") as fd:
+        md = fd.read()
+    return md

@@ -236,7 +236,7 @@ def query_options(f):
             default=None,
             multiple=False,
             help="Search for photos with UUID(s) loaded from FILE. "
-            "Format is a single UUID per line.  Lines preceeded with # are ignored.",
+            "Format is a single UUID per line.  Lines preceded with # are ignored.",
             type=click.Path(exists=True),
         ),
         o(

@@ -34,7 +34,7 @@ Valid filters are:
 - lower: Convert value to lower case, e.g. 'Value' => 'value'.
 - upper: Convert value to upper case, e.g. 'Value' => 'VALUE'.
 - strip: Strip whitespace from beginning/end of value, e.g. ' Value ' => 'Value'.
-- title: Convert value to title case, e.g. 'my value' => 'My Value'.
+- titlecase: Convert value to title case, e.g. 'my value' => 'My Value'.
 - capitalize: Capitalize first word of value and convert other words to lower case, e.g. 'MY VALUE' => 'My value'.
 - braces: Enclose value in curly braces, e.g. 'value => '{value}'.
 - parens: Enclose value in parentheses, e.g. 'value' => '(value')
@@ -50,7 +50,7 @@ e.g. if Photo keywords are `["FOO","bar"]`:
 
 e.g. if Photo description is "my description":
 
-- `"{descr|title}"` renders to: `"My Description"`
+- `"{descr|titlecase}"` renders to: `"My Description"`
 
 `(path_sep)`: optional path separator to use when joining path-like fields, for example `{folder_album}`.  Default is "/".
 
