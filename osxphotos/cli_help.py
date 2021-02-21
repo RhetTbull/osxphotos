@@ -1,14 +1,23 @@
 """Help text helper class for osxphotos CLI """
 
+import io
+import re
+
 import click
 import osxmetadata
+from rich.console import Console
+from rich.markdown import Markdown
 
 from ._constants import (
     EXTENDED_ATTRIBUTE_NAMES,
     EXTENDED_ATTRIBUTE_NAMES_QUOTED,
     OSXPHOTOS_EXPORT_DB,
 )
-from .phototemplate import get_template_help, TEMPLATE_SUBSTITUTIONS, TEMPLATE_SUBSTITUTIONS_MULTI_VALUED
+from .phototemplate import (
+    TEMPLATE_SUBSTITUTIONS,
+    TEMPLATE_SUBSTITUTIONS_MULTI_VALUED,
+    get_template_help,
+)
 
 
 class ExportCommand(click.Command):
@@ -17,11 +26,11 @@ class ExportCommand(click.Command):
     def get_help(self, ctx):
         help_text = super().get_help(ctx)
         formatter = click.HelpFormatter()
-
         # passed to click.HelpFormatter.write_dl for formatting
 
         formatter.write("\n\n")
-        formatter.write_text("** Export **")
+        formatter.write(rich_text("[bold]** Export **[/bold]", width=formatter.width))
+        formatter.write("\n")
         formatter.write_text(
             "When exporting photos, osxphotos creates a database in the top-level "
             + f"export folder called '{OSXPHOTOS_EXPORT_DB}'.  This database preserves state information "
@@ -56,7 +65,7 @@ class ExportCommand(click.Command):
             + f"rebuilding the '{OSXPHOTOS_EXPORT_DB}' database."
         )
         formatter.write("\n\n")
-        formatter.write_text("** Extended Attributes **")
+        formatter.write(rich_text("[bold]** Extended Attributes **[/bold]", width=formatter.width))
         formatter.write("\n")
         formatter.write_text(
             """
@@ -90,8 +99,9 @@ The following attributes may be used with '--xattr-template':
             "For additional information on extended attributes see: https://developer.apple.com/documentation/coreservices/file_metadata/mditem/common_metadata_attribute_keys"
         )
         formatter.write("\n\n")
-        formatter.write_text("** Templating System **")
-        formatter.write_text(get_template_help())
+        formatter.write(rich_text("[bold]** Templating System **[/bold]", width=formatter.width))
+        formatter.write("\n")
+        formatter.write(template_help(width=formatter.width))
         formatter.write("\n")
         formatter.write_text(
             "With the --directory and --filename options you may specify a template for the "
@@ -108,7 +118,8 @@ The following attributes may be used with '--xattr-template':
             "The templating system may also be used with the --keyword-template option "
             + "to set keywords on export (with --exiftool or --sidecar), "
             + "for example, to set a new keyword in format 'folder/subfolder/album' to "
-            + 'preserve the folder/album structure, you can use --keyword-template "{folder_album}"'
+            + 'preserve the folder/album structure, you can use --keyword-template "{folder_album}" '
+            + "or in the 'folder>subfolder>album' format used in Lightroom Classic, --keyword-template \"{folder_album(>)}\"."
         )
         formatter.write("\n")
         formatter.write_text(
@@ -117,33 +128,7 @@ The following attributes may be used with '--xattr-template':
             + "an error and the script will abort."
         )
         formatter.write("\n")
-        formatter.write_text(
-            "If you want the actual text of the template substition to appear "
-            + "in the rendered name, use double braces, e.g. '{{' or '}}', thus "
-            + "using '{created.year}/{{name}}' for --directory "
-            + "would result in output of 2020/{name}/photoname.jpg"
-        )
-        formatter.write("\n")
-        formatter.write_text(
-            "You may specify an optional default value to use if the substitution does not contain a value "
-            + "(e.g. the value is null) "
-            + "by specifying the default value after a ',' in the template string: "
-            + "for example, if template is '{created.year}/{place.address,NO_ADDRESS}' "
-            + "but there was no address associated with the photo, the resulting output would be: "
-            + "'2020/NO_ADDRESS/photoname.jpg'. "
-            + "If specified, the default value may not contain a brace symbol ('{' or '}')."
-        )
-        formatter.write("\n")
-        formatter.write_text(
-            "If you do not specify a default value and the template substitution "
-            + "has no value, '_' (underscore) will be used as the default value. For example, in the "
-            + "above example, this would result in '2020/_/photoname.jpg' if address was null."
-        )
-        formatter.write("\n")
-        formatter.write_text(
-            'You may specify a null default (e.g. "" or empty string) by omitting the value after '
-            + 'the comma, e.g. {title,} which would render to "" if title had no value.'
-        )
+        formatter.write(rich_text("[bold]** Template Substitutions **[/bold]", width=formatter.width))
         formatter.write("\n")
         templ_tuples = [("Substitution", "Description")]
         templ_tuples.extend((k, v) for k, v in TEMPLATE_SUBSTITUTIONS.items())
@@ -168,3 +153,45 @@ The following attributes may be used with '--xattr-template':
         formatter.write_dl(templ_tuples)
         help_text += formatter.getvalue()
         return help_text
+
+
+def template_help(width=78):
+    """Return formatted string for template system """
+    sio = io.StringIO()
+    console = Console(file=sio, force_terminal=True, width=width)
+    template_help_md = strip_md_links(get_template_help())
+    console.print(Markdown(template_help_md))
+    help_str = sio.getvalue()
+    sio.close()
+    return help_str
+
+
+def rich_text(text, width=78):
+    """Return rich formatted text"""
+    sio = io.StringIO()
+    console = Console(file=sio, force_terminal=True, width=width)
+    console.print(text)
+    rich_text = sio.getvalue()
+    sio.close()
+    return rich_text
+
+
+def strip_md_links(md):
+    """strip markdown links from markdown text md
+    
+    Args:
+        md: str, markdown text
+    
+    Returns:
+        str with markdown links removed
+
+    Note: This uses a very basic regex that likely fails on all sorts of edge cases 
+    but works for the links in the osxphotos docs
+    """
+    links = r"(?:[*#])|\[(.*?)\]\(.+?\)"
+
+    def subfn(match):
+        return match.group(1)
+
+    return re.sub(links, subfn, md)
+
