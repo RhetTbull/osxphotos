@@ -271,8 +271,6 @@ class PhotoTemplate:
         if type(template) is not str:
             raise TypeError(f"template must be type str, not {type(template)}")
 
-        results = []
-        unmatched = []
         try:
             model = self.parser.parse(template)
         except TextXSyntaxError as e:
@@ -280,9 +278,33 @@ class PhotoTemplate:
 
         if not model:
             # empty string
-            return results, unmatched
+            return [], []
 
-        for ts in model.template_strings:
+        return self._render_statement(
+            model,
+            none_str=none_str,
+            path_sep=path_sep,
+            expand_inplace=expand_inplace,
+            inplace_sep=inplace_sep,
+            filename=filename,
+            dirname=dirname,
+            strip=strip,
+        )
+
+    def _render_statement(
+        self,
+        statement,
+        none_str="_",
+        path_sep=None,
+        expand_inplace=False,
+        inplace_sep=None,
+        filename=False,
+        dirname=False,
+        strip=False,
+    ):
+        results = []
+        unmatched = []
+        for ts in statement.template_strings:
             results, unmatched = self._render_template_string(
                 ts,
                 none_str=none_str,
@@ -365,7 +387,7 @@ class PhotoTemplate:
             if ts.template.bool is not None:
                 is_bool = True
                 if ts.template.bool.value is not None:
-                    bool_val, u = self._render_template_string(
+                    bool_val, u = self._render_statement(
                         ts.template.bool.value,
                         none_str=none_str,
                         path_sep=path_sep,
@@ -373,8 +395,6 @@ class PhotoTemplate:
                         inplace_sep=inplace_sep,
                         filename=filename,
                         dirname=dirname,
-                        results=[],
-                        unmatched=[],
                     )
                     unmatched.extend(u)
                 else:
@@ -388,7 +408,7 @@ class PhotoTemplate:
             if ts.template.default is not None:
                 # default is also a TemplateString
                 if ts.template.default.value is not None:
-                    default, u = self._render_template_string(
+                    default, u = self._render_statement(
                         ts.template.default.value,
                         none_str=none_str,
                         path_sep=path_sep,
@@ -396,8 +416,6 @@ class PhotoTemplate:
                         inplace_sep=inplace_sep,
                         filename=filename,
                         dirname=dirname,
-                        results=[],
-                        unmatched=[],
                     )
                     unmatched.extend(u)
                 else:

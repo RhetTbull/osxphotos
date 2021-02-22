@@ -110,17 +110,13 @@ REPLACE_WORD:
 Boolean:
     (
     "?"
-    (value=TemplateString)?
+    (value=Statement)?
     )?
-;
-
-BOOL_WORD:
-    /[^,\{\}]*/
 ;
 
 Default:
     (
     ","
-    (value=TemplateString)?
+    (value=Statement)?
     )?
 ;

@@ -171,6 +171,8 @@ TEMPLATE_VALUES = {
     "{exif.camera_make}": "Apple",
     "{exif.camera_model}": "iPhone 6s",
     "{exif.lens_model}": "iPhone 6s back camera 4.15mm f/2.2",
+    "{album?{folder_album},{created.year}/{created.mm}}": "2020/02",
+    "{title?Title is '{title} - {descr}',No Title}": "Title is 'Glen Ord - Jack Rose Dining Saloon'",
 }
 
 
