@@ -1,14 +1,23 @@
 """Help text helper class for osxphotos CLI """
 
+import io
+import re
+
 import click
 import osxmetadata
+from rich.console import Console
+from rich.markdown import Markdown
 
 from ._constants import (
     EXTENDED_ATTRIBUTE_NAMES,
     EXTENDED_ATTRIBUTE_NAMES_QUOTED,
     OSXPHOTOS_EXPORT_DB,
 )
-from .phototemplate import TEMPLATE_SUBSTITUTIONS, TEMPLATE_SUBSTITUTIONS_MULTI_VALUED
+from .phototemplate import (
+    TEMPLATE_SUBSTITUTIONS,
+    TEMPLATE_SUBSTITUTIONS_MULTI_VALUED,
+    get_template_help,
+)
 
 
 class ExportCommand(click.Command):
@@ -17,11 +26,11 @@ class ExportCommand(click.Command):
     def get_help(self, ctx):
         help_text = super().get_help(ctx)
         formatter = click.HelpFormatter()
-
         # passed to click.HelpFormatter.write_dl for formatting
 
         formatter.write("\n\n")
-        formatter.write_text("** Export **")
+        formatter.write(rich_text("[bold]** Export **[/bold]", width=formatter.width))
+        formatter.write("\n")
         formatter.write_text(
             "When exporting photos, osxphotos creates a database in the top-level "
             + f"export folder called '{OSXPHOTOS_EXPORT_DB}'.  This database preserves state information "
@@ -56,7 +65,7 @@ class ExportCommand(click.Command):
             + f"rebuilding the '{OSXPHOTOS_EXPORT_DB}' database."
         )
         formatter.write("\n\n")
-        formatter.write_text("** Extended Attributes **")
+        formatter.write(rich_text("[bold]** Extended Attributes **[/bold]", width=formatter.width))
         formatter.write("\n")
         formatter.write_text(
             """
@@ -90,124 +99,9 @@ The following attributes may be used with '--xattr-template':
             "For additional information on extended attributes see: https://developer.apple.com/documentation/coreservices/file_metadata/mditem/common_metadata_attribute_keys"
         )
         formatter.write("\n\n")
-        formatter.write_text("** Templating System **")
+        formatter.write(rich_text("[bold]** Templating System **[/bold]", width=formatter.width))
         formatter.write("\n")
-        formatter.write_text(
-            """
-Several options, such as --directory, allow you to specify a template  which
-will be rendered to substitute template fields with values from the photo.
-For example, '{created.month}' would be replaced with the month name of the
-photo creation date.  e.g. 'November'.
-
-Some options supporting templates may be repeated e.g., --keyword-template
-'{label}'  --keyword-template '{media_type}' to add both labels and media
-types to the  keywords.
-
-The general format for a template is '{TEMPLATE_FIELD,DEFAULT}'. The full template format is: 
-'{DELIM+TEMPLATE_FIELD(PATH_SEP)[OLD,NEW]?VALUE_IF_TRUE,DEFAULT}'
-
-With a few exceptions (like '{created.strftime}') everything but the TEMPLATE_FIELD
-is optional.
-
-- 'DELIM+' Multi-value template fields such as '{keyword}' may be expanded 'in place'
-with an optional delimiter using the template form '{DELIM+TEMPLATE_FIELD}'.
-For example, a photo with  keywords 'foo' and 'bar':
-
-'{keyword}' renders to 'foo' and 'bar'
-
-'{,+keyword}' renders to: 'foo,bar'
-
-'{; +keyword}' renders to: 'foo; bar'
-
-'{+keyword}' renders to 'foobar'
-
-- 'TEMPLATE_FIELD' The name of the template field, for example 'keyword'
-
-- '(PATH_SEP)' Some template fields such as '{folder_album}' are "path-like" in 
-that they join multiple elements into a single path-like string. For example, 
-if photo is in album Album1 in folder Folder1, '{folder_album}' results in
-'Folder1/Album1'. This is so these template fields may be used as paths in
---directory. If you intend to use such a field as a string, e.g. in the
-filename, you may specify a different path separator using the form:
-'{TEMPLATE_FIELD(PATH_SEP)}'. For example, using the example above,
-'{folder_album(-)}' would result in 'Folder1-Album1' and '{folder_album()}'
-would result in  'Folder1Album1'.
-
-- '[OLD,NEW]' Use the [OLD,NEW] option to replace text "OLD" in the template value
-with text "NEW". For example, if you have album names with '/' in the album name you
-could replace '/' with "-" using the template '{album[/,-]}'. This would replace
-any occurence of "/" in the album name with "-"; album "Vacation/2019" would thus
-become "Vacation-2019".  You may specify more than one pair of OLD,NEW values by
-listing them delimited by '|'. For example: '{album[/,-|:,-]}' to replace both
-'/' and ':' by '-'. You can also use the [OLD,NEW] syntax to delete a character by
-omitting the NEW value as in '{album[/,]}'.
-
-- '?' Some template fields such as 'hdr' are boolean and resolve to True or False.
-These take the form: '{TEMPLATE_FIELD?VALUE_IF_TRUE,VALUE_IF_FALSE}', e.g.
-{hdr?is_hdr,not_hdr} which would result in 'is_hdr' if photo is an HDR  image
-and 'not_hdr' otherwise.
-
-- ',DEFAULT' The ',' and DEFAULT value are optional.  If TEMPLATE_FIELD results
-in a null (empty) value, the template will result in default value of '_'.
-You may specify an alternate default value by appending ',DEFAULT' after
-template_field. Example: '{title,no_title}' would result in 'no_title' if the photo
-had no title. Example: '{created.year}/{place.address,NO_ADDRESS}' but there was 
-no address associated with the photo, the resulting output would be:
-'2020/NO_ADDRESS/photoname.jpg'. If specified, the default value may not
-contain a brace symbol ('{' or '}').
-
-Again, if you do not specify a default value and the template substitution has no
-value, '_' (underscore) will be used as the default value. For example, in the
-above example, this would result in '2020/_/photoname.jpg' if address was
-null.
-
-You may specify a null default (e.g. "" or empty string) by omitting the value
-after the comma, e.g. {title,} which would render to "" if title had no value thus
-effectively deleting the template from the resulting string.
-
-You may include other text in the template string outside the {}
-and use more than one template field in a single string, 
-e.g. '{created.year} - {created.month}' (e.g. '2020 - November').
-
-Some templates may resolve to more than one value.  For example, a photo can
-have multiple keywords so '{keyword}' can result in multiple values.  If used
-in a filename  or directory, these templates may result in more than one copy
-of the photo being exported.  For example, if photo has keywords "foo" and
-"bar", --directory '{keyword}' will result in  copies of the photo being
-exported to 'foo/image_name.jpeg' and 'bar/image_name.jpeg'.
-
-Some template fields such as '{media_type}' use the 'DEFAULT' value to allow
-customization  of the output. For example, '{media_type}' resolves to the
-special media type of the  photo such as 'panorama' or 'selfie'.  You may use
-the 'DEFAULT' value to override  these in form:
-'{media_type,video=vidéo;time_lapse=vidéo_accélérée}'.  In this example, if
-photo is a time_lapse photo, 'media_type' would resolve to  'vidéo_accélérée'
-instead of 'time_lapse' and video would resolve to 'vidéo' if photo is an
-ordinary video.
-
-With the --directory and --filename options you may specify a template for the
-export directory or filename, respectively. The directory will be appended to
-the export path specified in the export DEST argument to export. For example,
-if template is '{created.year}/{created.month}', and export destination DEST
-is '/Users/maria/Pictures/export', the actual export directory for a photo
-would be '/Users/maria/Pictures/export/2020/March' if the photo was created in
-March 2020.
-
-The templating system may also be used with the --keyword-template option to
-set keywords on export (with --exiftool or --sidecar), for example, to set a
-new keyword in format 'folder/subfolder/album' to preserve the folder/album
-structure, you can use --keyword-template "{folder_album}"
-
-In the template, valid template substitutions will be replaced by the
-corresponding value from the table below.  Invalid substitutions will result
-in an error.
-
-If you want the actual text of the template substition to appear in the
-rendered name, use double braces, e.g. '{{' or '}}', thus using
-'{created.year}/{{name}}' for --directory would result in output of
-2020/{name}/photoname.jpg
-"""
-        )
+        formatter.write(template_help(width=formatter.width))
         formatter.write("\n")
         formatter.write_text(
             "With the --directory and --filename options you may specify a template for the "
@@ -224,7 +118,8 @@ rendered name, use double braces, e.g. '{{' or '}}', thus using
             "The templating system may also be used with the --keyword-template option "
             + "to set keywords on export (with --exiftool or --sidecar), "
             + "for example, to set a new keyword in format 'folder/subfolder/album' to "
-            + 'preserve the folder/album structure, you can use --keyword-template "{folder_album}"'
+            + 'preserve the folder/album structure, you can use --keyword-template "{folder_album}" '
+            + "or in the 'folder>subfolder>album' format used in Lightroom Classic, --keyword-template \"{folder_album(>)}\"."
         )
         formatter.write("\n")
         formatter.write_text(
@@ -233,33 +128,7 @@ rendered name, use double braces, e.g. '{{' or '}}', thus using
             + "an error and the script will abort."
         )
         formatter.write("\n")
-        formatter.write_text(
-            "If you want the actual text of the template substition to appear "
-            + "in the rendered name, use double braces, e.g. '{{' or '}}', thus "
-            + "using '{created.year}/{{name}}' for --directory "
-            + "would result in output of 2020/{name}/photoname.jpg"
-        )
-        formatter.write("\n")
-        formatter.write_text(
-            "You may specify an optional default value to use if the substitution does not contain a value "
-            + "(e.g. the value is null) "
-            + "by specifying the default value after a ',' in the template string: "
-            + "for example, if template is '{created.year}/{place.address,NO_ADDRESS}' "
-            + "but there was no address associated with the photo, the resulting output would be: "
-            + "'2020/NO_ADDRESS/photoname.jpg'. "
-            + "If specified, the default value may not contain a brace symbol ('{' or '}')."
-        )
-        formatter.write("\n")
-        formatter.write_text(
-            "If you do not specify a default value and the template substitution "
-            + "has no value, '_' (underscore) will be used as the default value. For example, in the "
-            + "above example, this would result in '2020/_/photoname.jpg' if address was null."
-        )
-        formatter.write("\n")
-        formatter.write_text(
-            'You may specify a null default (e.g. "" or empty string) by omitting the value after '
-            + 'the comma, e.g. {title,} which would render to "" if title had no value.'
-        )
+        formatter.write(rich_text("[bold]** Template Substitutions **[/bold]", width=formatter.width))
         formatter.write("\n")
         templ_tuples = [("Substitution", "Description")]
         templ_tuples.extend((k, v) for k, v in TEMPLATE_SUBSTITUTIONS.items())
@@ -284,3 +153,45 @@ rendered name, use double braces, e.g. '{{' or '}}', thus using
         formatter.write_dl(templ_tuples)
         help_text += formatter.getvalue()
         return help_text
+
+
+def template_help(width=78):
+    """Return formatted string for template system """
+    sio = io.StringIO()
+    console = Console(file=sio, force_terminal=True, width=width)
+    template_help_md = strip_md_links(get_template_help())
+    console.print(Markdown(template_help_md))
+    help_str = sio.getvalue()
+    sio.close()
+    return help_str
+
+
+def rich_text(text, width=78):
+    """Return rich formatted text"""
+    sio = io.StringIO()
+    console = Console(file=sio, force_terminal=True, width=width)
+    console.print(text)
+    rich_text = sio.getvalue()
+    sio.close()
+    return rich_text
+
+
+def strip_md_links(md):
+    """strip markdown links from markdown text md
+    
+    Args:
+        md: str, markdown text
+    
+    Returns:
+        str with markdown links removed
+
+    Note: This uses a very basic regex that likely fails on all sorts of edge cases 
+    but works for the links in the osxphotos docs
+    """
+    links = r"(?:[*#])|\[(.*?)\]\(.+?\)"
+
+    def subfn(match):
+        return match.group(1)
+
+    return re.sub(links, subfn, md)
+

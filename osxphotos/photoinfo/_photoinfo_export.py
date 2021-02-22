@@ -477,6 +477,7 @@ def export2(
     jpeg_ext=None,
     persons=True,
     location=True,
+    replace_keywords=False,
 ):
     """export photo, like export but with update and dry_run options
     dest: must be valid destination path or exception raised
@@ -531,6 +532,7 @@ def export2(
     jpeg_ext: if set, will use this value for extension on jpegs converted to jpeg with convert_to_jpeg; if not set, uses jpeg; do not include the leading "."
     persons: if True, include persons in exported metadata
     location: if True, include location in exported metadata
+    replace_keywords: if True, keyword_template replaces any keywords, otherwise it's additive
 
     Returns: ExportResults class 
         ExportResults has attributes: 
@@ -947,6 +949,7 @@ def export2(
             filename=dest.name,
             persons=persons,
             location=location,
+            replace_keywords=replace_keywords
         )
         sidecars.append(
             (
@@ -972,6 +975,7 @@ def export2(
             filename=dest.name,
             persons=persons,
             location=location,
+            replace_keywords=replace_keywords
         )
         sidecars.append(
             (
@@ -993,6 +997,7 @@ def export2(
             extension=dest.suffix[1:] if dest.suffix else None,
             persons=persons,
             location=location,
+            replace_keywords=replace_keywords
         )
         sidecars.append(
             (
@@ -1062,6 +1067,7 @@ def export2(
                         merge_exif_persons=merge_exif_persons,
                         persons=persons,
                         location=location,
+                        replace_keywords=replace_keywords
                     )
                 )[0]
                 if old_data != current_data:
@@ -1084,6 +1090,7 @@ def export2(
                         merge_exif_persons=merge_exif_persons,
                         persons=persons,
                         location=location,
+                        replace_keywords=replace_keywords
                     )
                     if warning_:
                         all_results.exiftool_warning.append((exported_file, warning_))
@@ -1103,6 +1110,7 @@ def export2(
                         merge_exif_persons=merge_exif_persons,
                         persons=persons,
                         location=location,
+                        replace_keywords=replace_keywords
                     ),
                 )
                 export_db.set_stat_exif_for_file(
@@ -1127,6 +1135,7 @@ def export2(
                     merge_exif_persons=merge_exif_persons,
                     persons=persons,
                     location=location,
+                    replace_keywords=replace_keywords
                 )
                 if warning_:
                     all_results.exiftool_warning.append((exported_file, warning_))
@@ -1146,6 +1155,7 @@ def export2(
                     merge_exif_persons=merge_exif_persons,
                     persons=persons,
                     location=location,
+                    replace_keywords=replace_keywords
                 ),
             )
             export_db.set_stat_exif_for_file(
@@ -1367,6 +1377,7 @@ def _write_exif_data(
     merge_exif_persons=False,
     persons=True,
     location=True,
+    replace_keywords=False,
 ):
     """write exif data to image file at filepath
 
@@ -1379,6 +1390,7 @@ def _write_exif_data(
         flags: optional list of exiftool flags to prepend to exiftool command when writing metadata (e.g. -m or -F)
         persons: if True, write person data to metadata
         location: if True, write location data to metadata
+        replace_keywords: if True, keyword_template replaces any keywords, otherwise it's additive
 
     Returns:
         (warning, error) of warning and error strings if exiftool produces warnings or errors
@@ -1395,6 +1407,7 @@ def _write_exif_data(
         merge_exif_persons=merge_exif_persons,
         persons=persons,
         location=location,
+        replace_keywords=replace_keywords,
     )
 
     with ExifTool(filepath, flags=flags, exiftool=self._db._exiftool_path) as exiftool:
@@ -1419,6 +1432,7 @@ def _exiftool_dict(
     filename=None,
     persons=True,
     location=True,
+    replace_keywords=False,
 ):
     """Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
         Does not include all the EXIF fields as those are likely already in the image.
@@ -1434,6 +1448,7 @@ def _exiftool_dict(
         merge_exif_persons: merge persons in the file's exif metadata (requires exiftool)
         persons: if True, include person data
         location: if True, include location data
+        replace_keywords: if True, keyword_template replaces any keywords, otherwise it's additive
 
     Returns: dict with exiftool tags / values
 
@@ -1496,7 +1511,7 @@ def _exiftool_dict(
     if merge_exif_keywords:
         keyword_list.extend(self._get_exif_keywords())
 
-    if self.keywords:
+    if self.keywords and not replace_keywords:
         keyword_list.extend(self.keywords)
 
     person_list = []
@@ -1682,6 +1697,7 @@ def _exiftool_json_sidecar(
     filename=None,
     persons=True,
     location=True,
+    replace_keywords=False,
 ):
     """Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
         Does not include all the EXIF fields as those are likely already in the image.
@@ -1698,6 +1714,7 @@ def _exiftool_json_sidecar(
         filename: filename of the destination image file for including in exiftool signature in JSON sidecar
         persons: if True, include person data
         location: if True, include location data
+        replace_keywords: if True, keyword_template replaces any keywords, otherwise it's additive
 
     Returns: dict with exiftool tags / values
 
@@ -1736,6 +1753,7 @@ def _exiftool_json_sidecar(
         filename=filename,
         persons=persons,
         location=location,
+        replace_keywords=replace_keywords,
     )
 
     if not tag_groups:
@@ -1760,6 +1778,7 @@ def _xmp_sidecar(
     merge_exif_persons=False,
     persons=True,
     location=True,
+    replace_keywords=False,
 ):
     """returns string for XMP sidecar
     use_albums_as_keywords: treat album names as keywords
@@ -1771,6 +1790,7 @@ def _xmp_sidecar(
     merge_exif_persons: boolean; if True, merged persons found in file's exif data (requires exiftool)
     persons: if True, include person data
     location: if True, include location data
+    replace_keywords: if True, keyword_template replaces any keywords, otherwise it's additive
     """
 
     xmp_template_file = (
@@ -1794,7 +1814,7 @@ def _xmp_sidecar(
     if merge_exif_keywords:
         keyword_list.extend(self._get_exif_keywords())
 
-    if self.keywords:
+    if self.keywords and not replace_keywords:
         keyword_list.extend(self.keywords)
 
     # TODO: keyword handling in this and _exiftool_json_sidecar is

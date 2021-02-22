@@ -1,0 +1,122 @@
+// OSXPhotos Template Language (OTL)
+// a TemplateString has format:
+// pre{delim+template_field:subfield|filter(path_sep)[find,replace]?bool_value,default}post
+// a TemplateStatement may contain zero or more TemplateStrings
+// The pre and post are optional strings
+// The template itself (inside the {}) is also optional but if present
+// everything but template_field is also optional
+
+Statement:
+    (template_strings+=TemplateString)?
+;
+
+TemplateString:
+    pre=NON_TEMPLATE_STRING?
+    template=Template?
+    post=NON_TEMPLATE_STRING?
+;
+
+Template:
+    (
+    "{"
+    delim=Delim
+    field=Field
+    subfield=SubField
+    filter=Filter
+    pathsep=PathSep
+    findreplace=FindReplace
+    bool=Boolean
+    default=Default
+    "}"
+    )?
+;
+
+NON_TEMPLATE_STRING:
+    /[^\{\},]*/
+;
+
+Delim:
+    (
+    (value=DELIM_WORD)?
+    '+'
+    )?
+;
+
+DELIM_WORD:
+    /[^\{\}]*(?=\+\w)/
+;
+
+Field:
+    FIELD_WORD+
+;
+
+SubField:
+    (
+    ":"-
+    SUBFIELD_WORD+
+    )?
+;
+
+FIELD_WORD:
+    /[\.\w]+/
+;
+
+SUBFIELD_WORD:
+    /[\.\w:]+/
+;
+
+Filter:
+    (
+    "|"-
+    (value+=FILTER_WORD['|'])?
+    )?
+;
+
+FILTER_WORD:
+    /[\.\w]+/
+;
+
+PathSep:
+    (
+    "("
+    (value=/[^\(\)\{\}]{0,1}/)?
+    ")"
+    )?
+;
+
+FindReplace:
+    (
+    "["
+    (pairs+=FindReplacePair['|'])?
+    "]"
+    )?
+;
+
+FindReplacePair:
+    find=FIND_WORD
+    ","
+    (replace=REPLACE_WORD)?
+;
+
+FIND_WORD:
+    /[^\[\]\|]*(?=\,)/
+;
+
+REPLACE_WORD:
+    /[^\[\]\|]*/
+;
+
+
+Boolean:
+    (
+    "?"
+    (value=Statement)?
+    )?
+;
+
+Default:
+    (
+    ","
+    (value=Statement)?
+    )?
+;

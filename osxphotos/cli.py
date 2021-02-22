@@ -236,7 +236,7 @@ def query_options(f):
             default=None,
             multiple=False,
             help="Search for photos with UUID(s) loaded from FILE. "
-            "Format is a single UUID per line.  Lines preceeded with # are ignored.",
+            "Format is a single UUID per line.  Lines preceded with # are ignored.",
             type=click.Path(exists=True),
         ),
         o(
@@ -660,8 +660,16 @@ def cli(ctx, db, json_, debug):
     "the full path to the folder and album photo is contained in as a keyword when exporting "
     'you could specify --keyword-template "{folder_album}" '
     'You may specify more than one template, for example --keyword-template "{folder_album}" '
-    '--keyword-template "{created.year}" '
-    "See Templating System below.",
+    '--keyword-template "{created.year}". '
+    "See '--replace-keywords' and Templating System below.",
+)
+@click.option(
+    "--replace-keywords",
+    is_flag=True,
+    help="Replace keywords with any values specified with --keyword-template. "
+    "By default, --keyword-template will add keywords to any keywords already associated "
+    "with the photo.  If --replace-keywords is specified, values from --keyword-template "
+    "will replace any existing keywords instead of adding additional keywords.",
 )
 @click.option(
     "--description-template",
@@ -863,6 +871,7 @@ def export(
     person_keyword,
     album_keyword,
     keyword_template,
+    replace_keywords,
     description_template,
     finder_tag_template,
     finder_tag_keywords,
@@ -1008,6 +1017,7 @@ def export(
         person_keyword = cfg.person_keyword
         album_keyword = cfg.album_keyword
         keyword_template = cfg.keyword_template
+        replace_keywords = cfg.replace_keywords
         description_template = cfg.description_template
         finder_tag_template = cfg.finder_tag_template
         finder_tag_keywords = cfg.finder_tag_keywords
@@ -1434,6 +1444,7 @@ def export(
                     exiftool_option=exiftool_option,
                     strip=strip,
                     jpeg_ext=jpeg_ext,
+                    replace_keywords=replace_keywords,
                 )
                 results += export_results
 
@@ -2270,6 +2281,7 @@ def export_photo(
     exiftool_option=None,
     strip=False,
     jpeg_ext=None,
+    replace_keywords=False,
 ):
     """Helper function for export that does the actual export
 
@@ -2308,6 +2320,7 @@ def export_photo(
         exiftool_merge_keywords: boolean; if True, merged keywords found in file's exif data (requires exiftool)
         exiftool_merge_persons: boolean; if True, merged persons found in file's exif data (requires exiftool)
         jpeg_ext: if not None, specify the extension to use for all JPEG images on export
+        replace_keywords: if True, --keyword-template replaces keywords instead of adding keywords
 
     Returns:
         list of path(s) of exported photo or None if photo was missing
@@ -2371,15 +2384,15 @@ def export_photo(
                 rendered_suffix, unmatched = photo.render_template(
                     original_suffix, filename=True, strip=strip
                 )
-            except ValueError:
+            except ValueError as e:
                 raise click.BadOptionUsage(
                     "original_suffix",
-                    f"Invalid template for --original-suffix '{original_suffix}'",
+                    f"Invalid template for --original-suffix '{original_suffix}': {e}",
                 )
             if not rendered_suffix or unmatched:
                 raise click.BadOptionUsage(
                     "original_suffix",
-                    f"Invalid template for --original-suffix '{original_suffix}': results={rendered_suffix} unmatched={unmatched}",
+                    f"Invalid template for --original-suffix '{original_suffix}': results={rendered_suffix} unknown field={unmatched}",
                 )
             if len(rendered_suffix) > 1:
                 raise click.BadOptionUsage(
@@ -2488,6 +2501,7 @@ def export_photo(
                             verbose=verbose_,
                             exiftool_flags=exiftool_option,
                             jpeg_ext=jpeg_ext,
+                            replace_keywords=replace_keywords,
                         )
                         results += export_results
                         for warning_ in export_results.exiftool_warning:
@@ -2559,15 +2573,15 @@ def export_photo(
                         rendered_suffix, unmatched = photo.render_template(
                             edited_suffix, filename=True, strip=strip
                         )
-                    except ValueError:
+                    except ValueError as e:
                         raise click.BadOptionUsage(
                             "edited_suffix",
-                            f"Invalid template for --edited-suffix '{edited_suffix}'",
+                            f"Invalid template for --edited-suffix '{edited_suffix}': {e}",
                         )
                     if not rendered_suffix or unmatched:
                         raise click.BadOptionUsage(
                             "edited_suffix",
-                            f"Invalid template for --edited-suffix '{edited_suffix}': results={rendered_suffix} unmatched={unmatched}",
+                            f"Invalid template for --edited-suffix '{edited_suffix}': unknown field={unmatched}",
                         )
                     if len(rendered_suffix) > 1:
                         raise click.BadOptionUsage(
@@ -2635,6 +2649,7 @@ def export_photo(
                             verbose=verbose_,
                             exiftool_flags=exiftool_option,
                             jpeg_ext=jpeg_ext,
+                            replace_keywords=replace_keywords,
                         )
                         results += export_results_edited
                         for warning_ in export_results_edited.exiftool_warning:
@@ -2706,14 +2721,14 @@ def get_filenames_from_template(photo, filename_template, original_name, strip=F
             filenames, unmatched = photo.render_template(
                 filename_template, path_sep="_", filename=True, strip=strip
             )
-        except ValueError:
+        except ValueError as e:
             raise click.BadOptionUsage(
-                "filename_template", f"Invalid template '{filename_template}'"
+                "filename_template", f"Invalid template '{filename_template}': {e}"
             )
         if not filenames or unmatched:
             raise click.BadOptionUsage(
                 "filename_template",
-                f"Invalid template '{filename_template}': results={filenames} unmatched={unmatched}",
+                f"Invalid template '{filename_template}': unknown field={unmatched}",
             )
         filenames = [f"{file_}{photo_ext}" for file_ in filenames]
     else:
@@ -2760,12 +2775,14 @@ def get_dirnames_from_template(
             dirnames, unmatched = photo.render_template(
                 directory, dirname=True, strip=strip
             )
-        except ValueError:
-            raise click.BadOptionUsage("directory", f"Invalid template '{directory}'")
+        except ValueError as e:
+            raise click.BadOptionUsage(
+                "directory", f"Invalid template '{directory}': {e}"
+            )
         if not dirnames or unmatched:
             raise click.BadOptionUsage(
                 "directory",
-                f"Invalid template '{directory}': results={dirnames} unmatched={unmatched}",
+                f"Invalid template '{directory}': unknown field={unmatched}",
             )
 
         dest_paths = []
@@ -3066,16 +3083,16 @@ def write_finder_tags(
                     path_sep="/",
                     strip=strip,
                 )
-            except ValueError:
+            except ValueError as e:
                 raise click.BadOptionUsage(
                     "finder_tag_template",
-                    f"Invalid template for --finder-tag-template': {template_str}",
+                    f"Invalid template for --finder-tag-template '{template_str}': {e}",
                 )
 
             if unmatched:
                 click.echo(
                     click.style(
-                        f"Warning: unmatched template substitution for template: {template_str} {unmatched}",
+                        f"Warning: unknown field for template: {template_str} unknown field = {unmatched}",
                         fg=CLI_COLOR_WARNING,
                     ),
                     err=True,
@@ -3122,15 +3139,15 @@ def write_extended_attributes(photo, files, xattr_template, strip=False):
                 path_sep="/",
                 strip=strip,
             )
-        except ValueError:
+        except ValueError as e:
             raise click.BadOptionUsage(
                 "xattr_template",
-                f"Invalid template for --xattr-template': {template_str}",
+                f"Invalid template for --xattr-template '{template_str}': {e}",
             )
         if unmatched:
             click.echo(
                 click.style(
-                    f"Warning: unmatched template substitution for template: {template_str} {unmatched}",
+                    f"Warning: unmatched template substitution for template: {template_str} unknown field={unmatched}",
                     fg=CLI_COLOR_WARNING,
                 ),
                 err=True,

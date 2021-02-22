@@ -201,7 +201,7 @@ Options:
   --uuid UUID                     Search for photos with UUID(s).
   --uuid-from-file FILE           Search for photos with UUID(s) loaded from
                                   FILE. Format is a single UUID per line.  Lines
-                                  preceeded with # are ignored.
+                                  preceded with # are ignored.
   --title TITLE                   Search for TITLE in title of photo.
   --no-title                      Search for photos with no title.
   --description DESC              Search for DESC in description of photo.
@@ -457,7 +457,16 @@ Options:
                                   "{folder_album}" You may specify more than one
                                   template, for example --keyword-template
                                   "{folder_album}" --keyword-template
-                                  "{created.year}" See Templating System below.
+                                  "{created.year}". See '--replace-keywords' and
+                                  Templating System below.
+  --replace-keywords              Replace keywords with any values specified
+                                  with --keyword-template. By default,
+                                  --keyword-template will add keywords to any
+                                  keywords already associated with the photo.
+                                  If --replace-keywords is specified, values
+                                  from --keyword-template will replace any
+                                  existing keywords instead of adding additional
+                                  keywords.
   --description-template TEMPLATE
                                   For use with --exiftool, --sidecar; specify a
                                   template string to use as description in the
@@ -576,6 +585,7 @@ Options:
   --help                          Show this message and exit.
 
 ** Export **
+
 When exporting photos, osxphotos creates a database in the top-level export
 folder called '.osxphotos_export.db'.  This database preserves state information
 used for determining which files need to be updated when run with --update.  It
@@ -652,119 +662,138 @@ s
 
 ** Templating System **
 
-Several options, such as --directory, allow you to specify a template  which
-will be rendered to substitute template fields with values from the photo. For
-example, '{created.month}' would be replaced with the month name of the photo
-creation date.  e.g. 'November'.
+The templating system converts one or template statements, written in osxphotos 
+templating language, to one or more rendered values using information from the  
+photo being processed.                                                          
 
-Some options supporting templates may be repeated e.g., --keyword-template
-'{label}'  --keyword-template '{media_type}' to add both labels and media types
-to the  keywords.
+In its simplest form, a template statement has the form: "{template_field}", for
+example "{title}" which would resolve to the title of the photo.                
 
-The general format for a template is '{TEMPLATE_FIELD,DEFAULT}'. The full
-template format is:
-'{DELIM+TEMPLATE_FIELD(PATH_SEP)[OLD,NEW]?VALUE_IF_TRUE,DEFAULT}'
+Template statements may contain one or more modifiers.  The full syntax is:     
 
-With a few exceptions (like '{created.strftime}') everything but the
-TEMPLATE_FIELD is optional.
+"pretext{delim+template_field:subfield|filter(path_sep)[find,replace]?bool_value
+,default}posttext"                                                              
 
-- 'DELIM+' Multi-value template fields such as '{keyword}' may be expanded 'in
-place' with an optional delimiter using the template form
-'{DELIM+TEMPLATE_FIELD}'. For example, a photo with  keywords 'foo' and 'bar':
+Template statements are white-space sensitive meaning that white space (spaces, 
+tabs) changes the meaning of the template statement.                            
 
-'{keyword}' renders to 'foo' and 'bar'
+pretext and posttext are free form text.  For example, if a photo has title "My 
+Photo Title". the template statement "The title of the photo is {title}",       
+resolves to "The title of the photo is My Photo Title".  The pretext in this    
+example is "The title if the photo is " and the template_field is {title}.      
 
-'{,+keyword}' renders to: 'foo,bar'
+delim: optional delimiter string to use when expanding multi-valued template    
+values in-place                                                                 
 
-'{; +keyword}' renders to: 'foo; bar'
++: If present before template name, expands the template in place.  If delim not
+provided, values are joined with no delimiter.                                  
 
-'{+keyword}' renders to 'foobar'
+e.g. if Photo keywords are ["foo","bar"]:                                       
 
-- 'TEMPLATE_FIELD' The name of the template field, for example 'keyword'
+ • "{keyword}" renders to "foo", "bar"                                          
+ • "{,+keyword}" renders to: "foo,bar"                                          
+ • "{; +keyword}" renders to: "foo; bar"                                        
+ • "{+keyword}" renders to "foobar"                                             
 
-- '(PATH_SEP)' Some template fields such as '{folder_album}' are "path-like" in
-that they join multiple elements into a single path-like string. For example,
-if photo is in album Album1 in folder Folder1, '{folder_album}' results in
-'Folder1/Album1'. This is so these template fields may be used as paths in
---directory. If you intend to use such a field as a string, e.g. in the
-filename, you may specify a different path separator using the form:
-'{TEMPLATE_FIELD(PATH_SEP)}'. For example, using the example above,
-'{folder_album(-)}' would result in 'Folder1-Album1' and '{folder_album()}'
-would result in  'Folder1Album1'.
+template_field: The template field to resolve.  See Template Substitutions for  
+full list of template fields.                                                   
 
-- '[OLD,NEW]' Use the [OLD,NEW] option to replace text "OLD" in the template
-value with text "NEW". For example, if you have album names with '/' in the
-album name you could replace '/' with "-" using the template '{album[/,-]}'.
-This would replace any occurence of "/" in the album name with "-"; album
-"Vacation/2019" would thus become "Vacation-2019".  You may specify more than
-one pair of OLD,NEW values by listing them delimited by '|'. For example:
-'{album[/,-|:,-]}' to replace both '/' and ':' by '-'. You can also use the
-[OLD,NEW] syntax to delete a character by omitting the NEW value as in
-'{album[/,]}'.
+:subfield: Some templates have sub-fields, For example, {exiftool:IPTC:Make};   
+the template_field is exiftool and the sub-field is IPTC:Make.                  
 
-- '?' Some template fields such as 'hdr' are boolean and resolve to True or
-False. These take the form: '{TEMPLATE_FIELD?VALUE_IF_TRUE,VALUE_IF_FALSE}',
-e.g. {hdr?is_hdr,not_hdr} which would result in 'is_hdr' if photo is an HDR
-image and 'not_hdr' otherwise.
+|filter: You may optionally append one or more filter commands to the end of the
+template field using the vertical pipe ('|') symbol.  Filters may be combined,  
+separated by '|' as in: {keyword|capitalize|parens}.                            
 
-- ',DEFAULT' The ',' and DEFAULT value are optional.  If TEMPLATE_FIELD results
-in a null (empty) value, the template will result in default value of '_'. You
-may specify an alternate default value by appending ',DEFAULT' after
-template_field. Example: '{title,no_title}' would result in 'no_title' if the
-photo had no title. Example: '{created.year}/{place.address,NO_ADDRESS}' but
-there was  no address associated with the photo, the resulting output would be:
-'2020/NO_ADDRESS/photoname.jpg'. If specified, the default value may not contain
-a brace symbol ('{' or '}').
+Valid filters are:                                                              
 
-Again, if you do not specify a default value and the template substitution has
-no value, '_' (underscore) will be used as the default value. For example, in
-the above example, this would result in '2020/_/photoname.jpg' if address was
-null.
+ • lower: Convert value to lower case, e.g. 'Value' => 'value'.                 
+ • upper: Convert value to upper case, e.g. 'Value' => 'VALUE'.                 
+ • strip: Strip whitespace from beginning/end of value, e.g. ' Value ' =>       
+   'Value'.                                                                     
+ • titlecase: Convert value to title case, e.g. 'my value' => 'My Value'.       
+ • capitalize: Capitalize first word of value and convert other words to lower  
+   case, e.g. 'MY VALUE' => 'My value'.                                         
+ • braces: Enclose value in curly braces, e.g. 'value => '{value}'.             
+ • parens: Enclose value in parentheses, e.g. 'value' => '(value')              
+ • brackets: Enclose value in brackets, e.g. 'value' => '[value]'               
 
-You may specify a null default (e.g. "" or empty string) by omitting the value
-after the comma, e.g. {title,} which would render to "" if title had no value
-thus effectively deleting the template from the resulting string.
+e.g. if Photo keywords are ["FOO","bar"]:                                       
 
-You may include other text in the template string outside the {} and use more
-than one template field in a single string,  e.g. '{created.year} -
-{created.month}' (e.g. '2020 - November').
+ • "{keyword|lower}" renders to "foo", "bar"                                    
+ • "{keyword|upper}" renders to: "FOO", "BAR"                                   
+ • "{keyword|capitalize}" renders to: "Foo", "Bar"                              
+ • "{keyword|lower|parens}" renders to: "(foo)", "(bar)"                        
 
-Some templates may resolve to more than one value.  For example, a photo can
-have multiple keywords so '{keyword}' can result in multiple values.  If used in
-a filename  or directory, these templates may result in more than one copy of
-the photo being exported.  For example, if photo has keywords "foo" and "bar",
---directory '{keyword}' will result in  copies of the photo being exported to
-'foo/image_name.jpeg' and 'bar/image_name.jpeg'.
+e.g. if Photo description is "my description":                                  
 
-Some template fields such as '{media_type}' use the 'DEFAULT' value to allow
-customization  of the output. For example, '{media_type}' resolves to the
-special media type of the  photo such as 'panorama' or 'selfie'.  You may use
-the 'DEFAULT' value to override  these in form:
-'{media_type,video=vidéo;time_lapse=vidéo_accélérée}'.  In this example, if
-photo is a time_lapse photo, 'media_type' would resolve to  'vidéo_accélérée'
-instead of 'time_lapse' and video would resolve to 'vidéo' if photo is an
-ordinary video.
+ • "{descr|titlecase}" renders to: "My Description"                             
 
-With the --directory and --filename options you may specify a template for the
-export directory or filename, respectively. The directory will be appended to
-the export path specified in the export DEST argument to export. For example, if
-template is '{created.year}/{created.month}', and export destination DEST is
-'/Users/maria/Pictures/export', the actual export directory for a photo would be
-'/Users/maria/Pictures/export/2020/March' if the photo was created in March
-2020.
+(path_sep): optional path separator to use when joining path-like fields, for   
+example {folder_album}.  Default is "/".                                        
 
-The templating system may also be used with the --keyword-template option to set
-keywords on export (with --exiftool or --sidecar), for example, to set a new
-keyword in format 'folder/subfolder/album' to preserve the folder/album
-structure, you can use --keyword-template "{folder_album}"
+e.g. If Photo is in Album1 in Folder1:                                          
 
-In the template, valid template substitutions will be replaced by the
-corresponding value from the table below.  Invalid substitutions will result in
-an error.
+ • "{folder_album}" renders to ["Folder1/Album1"]                               
+ • "{folder_album(>)}" renders to ["Folder1>Album1"]                            
+ • "{folder_album()}" renders to ["Folder1Album1"]                              
 
-If you want the actual text of the template substition to appear in the rendered
-name, use double braces, e.g. '{{' or '}}', thus using '{created.year}/{{name}}'
-for --directory would result in output of 2020/{name}/photoname.jpg
+[find|replace]: optional text replacement to perform on rendered template value.
+For example, to replace "/" in an album name, you could use the template        
+"{album[/,-]}".  Multiple replacements can be made by appending "|" and adding  
+another find|replace pair.  e.g. to replace both "/" and ":" in album name:     
+"{album[/,-|:,-]}".  find/replace pairs are not limited to single characters.   
+The "|" character cannot be used in a find/replace pair.                        
+
+?bool_value: Template fields may be evaluated as boolean by appending "?" after 
+the field name (and following "(path_sep)" or "[find/replace]".  If a field is  
+True (e.g. photo is HDR and field is "{hdr}") or has any value, the value       
+following the "?" will be used to render the template instead of the actual     
+field value.  If the template field evaluates to False (e.g. in above example,  
+photo is not HDR) or has no value (e.g. photo has no title and field is         
+"{title}") then the default value following a "," will be used.                 
+
+e.g. if photo is an HDR image,                                                  
+
+ • "{hdr?ISHDR,NOTHDR}" renders to "ISHDR"                                      
+
+and if it is not an HDR image,                                                  
+
+ • "{hdr?ISHDR,NOTHDR}" renders to "NOTHDR"                                     
+
+,default: optional default value to use if the template name has no value.  This
+modifier is also used for the value if False for boolean-type fields (see above)
+as well as to hold a sub-template for values like {created.strftime}.  If no    
+default value provided, "_" is used.                                            
+
+e.g., if photo has no title set,                                                
+
+ • "{title}" renders to "_"                                                     
+ • "{title,I have no title}" renders to "I have no title"                       
+
+Template fields such as created.strftime use the default value to pass the      
+template to use for strftime.                                                   
+
+e.g., if photo date is 4 February 2020, 19:07:38,                               
+
+ • "{created.strftime,%Y-%m-%d-%H%M%S}" renders to "2020-02-04-190738"          
+
+Some template fields such as "{media_type}" use the default value to allow      
+customization of the output. For example, "{media_type}" resolves to the special
+media type of the photo such as panorama or selfie.  You may use the default    
+value to override these in form:                                                
+"{media_type,video=vidéo;time_lapse=vidéo_accélérée}". In this example, if photo
+was a time_lapse photo, media_type would resolve to vidéo_accélérée instead of  
+time_lapse.                                                                     
+
+Either or both bool_value or default (False value) may be empty which would     
+result in empty string "" when rendered.                                        
+
+If you want to include "{" or "}" in the output, use "{openbrace}" or           
+"{closebrace}" template substitution.                                           
+
+e.g. "{created.year}/{openbrace}{title}{closebrace}" would result in            
+"2020/{Photo Title}".                                                           
 
 With the --directory and --filename options you may specify a template for the
 export directory or filename, respectively. The directory will be appended to
@@ -777,29 +806,15 @@ if template is '{created.year}/{created.month}', and export destination DEST is
 The templating system may also be used with the --keyword-template option to set
 keywords on export (with --exiftool or --sidecar), for example, to set a new
 keyword in format 'folder/subfolder/album' to preserve the folder/album
-structure, you can use --keyword-template "{folder_album}"
+structure, you can use --keyword-template "{folder_album}" or in the
+'folder>subfolder>album' format used in Lightroom Classic, --keyword-template
+"{folder_album(>)}".
 
 In the template, valid template substitutions will be replaced by the
 corresponding value from the table below.  Invalid substitutions will result in
 a an error and the script will abort.
 
-If you want the actual text of the template substition to appear in the rendered
-name, use double braces, e.g. '{{' or '}}', thus using '{created.year}/{{name}}'
-for --directory would result in output of 2020/{name}/photoname.jpg
-
-You may specify an optional default value to use if the substitution does not
-contain a value (e.g. the value is null) by specifying the default value after a
-',' in the template string: for example, if template is
-'{created.year}/{place.address,NO_ADDRESS}' but there was no address associated
-with the photo, the resulting output would be: '2020/NO_ADDRESS/photoname.jpg'.
-If specified, the default value may not contain a brace symbol ('{' or '}').
-
-If you do not specify a default value and the template substitution has no
-value, '_' (underscore) will be used as the default value. For example, in the
-above example, this would result in '2020/_/photoname.jpg' if address was null.
-
-You may specify a null default (e.g. "" or empty string) by omitting the value
-after the comma, e.g. {title,} which would render to "" if title had no value.
+** Template Substitutions **
 
 Substitution                    Description
 {name}                          Current filename of the photo
@@ -964,6 +979,15 @@ Substitution                    Description
                                 (UUID) for the photo, a 36-character string
                                 unique to the photo, e.g.
                                 '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'
+{comma}                         A comma: ','
+{semicolon}                     A semicolon: ';'
+{pipe}                          A vertical pipe: '|'
+{openbrace}                     An open brace: '{'
+{closebrace}                    A close brace: '}'
+{openparens}                    An open parentheses: '('
+{closeparens}                   A close parentheses: ')'
+{openbracket}                   An open bracket: '['
+{closebracket}                  A close bracket: ']'
 
 The following substitutions may result in multiple values. Thus if specified for
 --directory these could result in multiple copies of a photo being being
@@ -972,39 +996,40 @@ exported, one to each directory.  For example: --directory
 of the following directories if the photos were created in 2019 and were in
 albums 'Vacation' and 'Family': 2019/Vacation, 2019/Family
 
-Substitution              Description
-{album}                   Album(s) photo is contained in
-{folder_album}            Folder path + album photo is contained in. e.g.
-                          'Folder/Subfolder/Album' or just 'Album' if no
-                          enclosing folder
-{keyword}                 Keyword(s) assigned to photo
-{person}                  Person(s) / face(s) in a photo
-{label}                   Image categorization label associated with a photo
-                          (Photos 5+ only)
-{label_normalized}        All lower case version of 'label' (Photos 5+ only)
-{comment}                 Comment(s) on shared Photos; format is 'Person name:
-                          comment text' (Photos 5+ only)
-{exiftool:GROUP:TAGNAME}  Use exiftool (https://exiftool.org) to extract
-                          metadata, in form GROUP:TAGNAME, from image.  E.g.
-                          '{exiftool:EXIF:Make}' to get camera make, or
-                          {exiftool:IPTC:Keywords} to extract keywords. See
-                          https://exiftool.org/TagNames/ for list of valid tag
-                          names.  You must specify group (e.g. EXIF, IPTC,
-                          etc) as used in `exiftool -G`. exiftool must be
-                          installed in the path to use this template.
-{searchinfo.holiday}      Holiday names associated with a photo, e.g.
-                          'Christmas Day'; (Photos 5+ only, applied
-                          automatically by Photos' image categorization
-                          algorithms).
-{searchinfo.activity}     Activities associated with a photo, e.g. 'Sporting
-                          Event'; (Photos 5+ only, applied automatically by
-                          Photos' image categorization algorithms).
-{searchinfo.venue}        Venues associated with a photo, e.g. name of
-                          restaurant; (Photos 5+ only, applied automatically
-                          by Photos' image categorization algorithms).
-{searchinfo.venue_type}   Venue types associated with a photo, e.g.
-                          'Restaurant'; (Photos 5+ only, applied automatically
-                          by Photos' image categorization algorithms).
+Substitution             Description
+{album}                  Album(s) photo is contained in
+{folder_album}           Folder path + album photo is contained in. e.g.
+                         'Folder/Subfolder/Album' or just 'Album' if no
+                         enclosing folder
+{keyword}                Keyword(s) assigned to photo
+{person}                 Person(s) / face(s) in a photo
+{label}                  Image categorization label associated with a photo
+                         (Photos 5+ only)
+{label_normalized}       All lower case version of 'label' (Photos 5+ only)
+{comment}                Comment(s) on shared Photos; format is 'Person name:
+                         comment text' (Photos 5+ only)
+{exiftool}               Format: '{exiftool:GROUP:TAGNAME}'; use exiftool
+                         (https://exiftool.org) to extract metadata, in form
+                         GROUP:TAGNAME, from image.  E.g.
+                         '{exiftool:EXIF:Make}' to get camera make, or
+                         {exiftool:IPTC:Keywords} to extract keywords. See
+                         https://exiftool.org/TagNames/ for list of valid tag
+                         names.  You must specify group (e.g. EXIF, IPTC, etc)
+                         as used in `exiftool -G`. exiftool must be installed
+                         in the path to use this template.
+{searchinfo.holiday}     Holiday names associated with a photo, e.g.
+                         'Christmas Day'; (Photos 5+ only, applied
+                         automatically by Photos' image categorization
+                         algorithms).
+{searchinfo.activity}    Activities associated with a photo, e.g. 'Sporting
+                         Event'; (Photos 5+ only, applied automatically by
+                         Photos' image categorization algorithms).
+{searchinfo.venue}       Venues associated with a photo, e.g. name of
+                         restaurant; (Photos 5+ only, applied automatically by
+                         Photos' image categorization algorithms).
+{searchinfo.venue_type}  Venue types associated with a photo, e.g.
+                         'Restaurant'; (Photos 5+ only, applied automatically
+                         by Photos' image categorization algorithms).
 
 
 ```
@@ -1850,76 +1875,117 @@ If overwrite=False and increment=False, export will fail if destination file alr
 
 Render template string for photo.  none_str is used if template substitution results in None value and no default specified.
 
-- `template_str`: str in format "{[[DELIM]+]name[(PATH_SEP)][?TRUE_VALUE][,[DEFAULT]]}" where name is one of the values in the [Template Substitutions](#template-substitutions) table. See notes below regarding specific details of the syntax.
+- `template_str`: str in osxphotos template language (OTL) format. See also [Template Substitutions](#template-substitutions) table. See notes below regarding specific details of the syntax.
 - `none_str`: optional str to use as substitution when template value is None and no default specified in the template string.  default is "_".
-- `path_sep`: optional character to use as path separator, default is `os.path.sep`
+- `path_sep`: optional character to use as path separator when joining path like fields such as `{folder_album}`; default is `os.path.sep`.  May also be provided in the template itself. If provided both in the call to `render_template()` and in the template itself, the value in the template string takes precedence.
 - `expand_inplace`: expand multi-valued substitutions in-place as a single string instead of returning individual strings
 - `inplace_sep`: optional string to use as separator between multi-valued keywords with expand_inplace; default is ','
 - `filename`: if True, template output will be sanitized to produce valid file name
 - `dirname`: if True, template output will be sanitized to produce valid directory name
 - `strip`: if True, leading/trailign whitespace will be stripped from rendered template strings
 
-Returns a tuple of (rendered, unmatched) where rendered is a list of rendered strings with all substitutions made and unmatched is a list of any strings that resembled a template substitution but did not match a known substitution. E.g. if template contained "{foo}", unmatched would be ["foo"].
+Returns a tuple of (rendered, unmatched) where rendered is a list of rendered strings with all substitutions made and unmatched is a list of any strings that resembled a template substitution but did not match a known substitution. E.g. if template contained "{foo}", unmatched would be ["foo"].  If there are unmatched strings, rendered will be [].  E.g. a template statement must fully match or will result in error and return all unmatched fields in unmatched.
 
-e.g. `render_template("{created.year}/{foo}", photo)` would return `(["2020/{foo}"],["foo"])`
-
-If you want to include "{" or "}" in the output, use "{{" or "}}"
-
-e.g. `render_template("{created.year}/{{foo}}", photo)` would return `(["2020/{foo}"],[])`
+e.g. `render_template("{created.year}/{foo}", photo)` would return `([],["foo"])`
 
 Some substitutions, notably `album`, `keyword`, and `person` could return multiple values, hence a new string will be return for each possible substitution (hence why a list of rendered strings is returned).  For example, a photo in 2 albums: 'Vacation' and 'Family' would result in the following rendered values if template was "{created.year}/{album}" and created.year == 2020: `["2020/Vacation","2020/Family"]` 
 
-The template field format contains optional modifiers:
+<!-- OSXPHOTOS-TEMPLATE-HELP:START - Do not remove or modify this section -->
+The templating system converts one or template statements, written in osxphotos templating language, to one or more rendered values using information from the photo being processed. 
 
-`"{DELIM+name(PATH_SEP)[OLD,NEW]?TRUE_VALUE,DEFAULT}"`
+In its simplest form, a template statement has the form: `"{template_field}"`, for example `"{title}"` which would resolve to the title of the photo.
 
-`DELIM`: optional delimiter string to use when expanding multi-valued template values in-place
+Template statements may contain one or more modifiers.  The full syntax is:
 
-`+`: If present before template `name`, expands the template in place.  If `DELIM` not provided, values are joined with no delimiter.
+`"pretext{delim+template_field:subfield|filter(path_sep)[find,replace]?bool_value,default}posttext"`
+
+Template statements are white-space sensitive meaning that white space (spaces, tabs) changes the meaning of the template statement.
+
+`pretext` and `posttext` are free form text.  For example, if a photo has title "My Photo Title". the template statement `"The title of the photo is {title}"`, resolves to `"The title of the photo is My Photo Title"`.  The `pretext` in this example is `"The title if the photo is "` and the template_field is `{title}`.  
+
+
+`delim`: optional delimiter string to use when expanding multi-valued template values in-place
+
+`+`: If present before template `name`, expands the template in place.  If `delim` not provided, values are joined with no delimiter.
 
 e.g. if Photo keywords are `["foo","bar"]`:
 
-- `"{keyword}"` renders to `["foo", "bar"]`
-- `"{,+keyword}"` renders to: `["foo,bar"]`
-- `"{; +keyword}"` renders to: `["foo; bar"]`
-- `"{+keyword}"` renders to `["foobar"]`
+- `"{keyword}"` renders to `"foo", "bar"`
+- `"{,+keyword}"` renders to: `"foo,bar"`
+- `"{; +keyword}"` renders to: `"foo; bar"`
+- `"{+keyword}"` renders to `"foobar"`
 
-`PATH_SEP`: optional path separator to use when joining path like fields, for example `{folder_album}`.  May also be provided as `path_sep` argument in `render_template()`.  If provided both in the call to `render_template()` and in the template itself, the value in the template string takes precedence.  If not provided in either the template string or in `path_sep` argument, defaults to `os.path.sep`.
+`template_field`: The template field to resolve.  See [Template Substitutions](#template-substitutions) for full list of template fields. 
+
+`:subfield`: Some templates have sub-fields, For example, `{exiftool:IPTC:Make}`; the template_field is `exiftool` and the sub-field is `IPTC:Make`.
+
+`|filter`: You may optionally append one or more filter commands to the end of the template field using the vertical pipe ('|') symbol.  Filters may be combined, separated by '|' as in: `{keyword|capitalize|parens}`.
+
+Valid filters are:
+
+<!-- OSXPHOTOS-FILTER-TABLE:START - Do not remove or modify this section -->
+- lower: Convert value to lower case, e.g. 'Value' => 'value'.
+- upper: Convert value to upper case, e.g. 'Value' => 'VALUE'.
+- strip: Strip whitespace from beginning/end of value, e.g. ' Value ' => 'Value'.
+- titlecase: Convert value to title case, e.g. 'my value' => 'My Value'.
+- capitalize: Capitalize first word of value and convert other words to lower case, e.g. 'MY VALUE' => 'My value'.
+- braces: Enclose value in curly braces, e.g. 'value => '{value}'.
+- parens: Enclose value in parentheses, e.g. 'value' => '(value')
+- brackets: Enclose value in brackets, e.g. 'value' => '[value]'
+<!-- OSXPHOTOS-FILTER-TABLE:END -->
+
+e.g. if Photo keywords are `["FOO","bar"]`:
+
+- `"{keyword|lower}"` renders to `"foo", "bar"`
+- `"{keyword|upper}"` renders to: `"FOO", "BAR"`
+- `"{keyword|capitalize}"` renders to: `"Foo", "Bar"`
+- `"{keyword|lower|parens}"` renders to: `"(foo)", "(bar)"`
+
+e.g. if Photo description is "my description":
+
+- `"{descr|titlecase}"` renders to: `"My Description"`
+
+`(path_sep)`: optional path separator to use when joining path-like fields, for example `{folder_album}`.  Default is "/".
 
 e.g. If Photo is in `Album1` in `Folder1`:
 
 - `"{folder_album}"` renders to `["Folder1/Album1"]`
-- `"{folder_album(:)}"` renders to `["Folder1:Album1"]`
+- `"{folder_album(>)}"` renders to `["Folder1>Album1"]`
 - `"{folder_album()}"` renders to `["Folder1Album1"]`
 
-`[OLD,NEW]`: optional text replacement to perform on rendered template value.  For example, to replace "/" in an album name, you could use the template `"{album[/,-]}"`.
+`[find|replace]`: optional text replacement to perform on rendered template value.  For example, to replace "/" in an album name, you could use the template `"{album[/,-]}"`.  Multiple replacements can be made by appending "|" and adding another find|replace pair.  e.g. to replace both "/" and ":" in album name: `"{album[/,-|:,-]}"`.  find/replace pairs are not limited to single characters.  The "|" character cannot be used in a find/replace pair.
 
-`?TRUE_VALUE`: optional value to use if name is boolean-type field which evaluates to true.  For example `"{hdr}"` evaluates to True if photo is an high dynamic range (HDR) image and False otherwise. In these types of fields, use `?TRUE_VALUE` to provide the value if True and `,DEFAULT` to provide the value of False.  
+`?bool_value`: Template fields may be evaluated as boolean by appending "?" after the field name (and following "(path_sep)" or "[find/replace]".  If a field is True (e.g. photo is HDR and field is `"{hdr}"`) or has any value, the value following the "?" will be used to render the template instead of the actual field value.  If the template field evaluates to False (e.g. in above example, photo is not HDR) or has no value (e.g. photo has no title and field is `"{title}"`) then the default value following a "," will be used.  
 
 e.g. if photo is an HDR image,
 
-- `"{hdr?ISHDR,NOTHDR}"` renders to `["ISHDR"]`
+- `"{hdr?ISHDR,NOTHDR}"` renders to `"ISHDR"`
 
 and if it is not an HDR image,
 
-- `"{hdr?ISHDR,NOTHDR}"` renders to `["NOTHDR"]`
+- `"{hdr?ISHDR,NOTHDR}"` renders to `"NOTHDR"`
 
-Either or both `TRUE_VALUE` or `DEFAULT` (False value) may be empty which would result in empty string `[""]` when rendered.
-
-`,DEFAULT`: optional default value to use if the template name has no value.  This modifier is also used for the value if False for boolean-type fields (see above) as well as to hold a sub-template for values like `{created.strftime}`.  If no default value provided, "_" is used. May also be provided in the `none_str` argument to `render_template()`.  If provided both in the template string and in `none_str`, the value in the template string takes precedence.
+`,default`: optional default value to use if the template name has no value.  This modifier is also used for the value if False for boolean-type fields (see above) as well as to hold a sub-template for values like `{created.strftime}`.  If no default value provided, "_" is used. 
 
 e.g., if photo has no title set,
 
-- `"{title}"` renders to ["_"]
-- `"{title,I have no title}"` renders to `["I have no title"]`
+- `"{title}"` renders to "_"
+- `"{title,I have no title}"` renders to `"I have no title"`
 
-Template fields such as `created.strftime` use the DEFAULT value to pass the template to use for `strftime`.  
+Template fields such as `created.strftime` use the default value to pass the template to use for `strftime`.  
 
 e.g., if photo date is 4 February 2020, 19:07:38,
 
-- `"{created.strftime,%Y-%m-%d-%H%M%S}"` renders to `["2020-02-04-190738"]`
+- `"{created.strftime,%Y-%m-%d-%H%M%S}"` renders to `"2020-02-04-190738"`
 
-Some template fields such as `"{media_type}"` use the `DEFAULT` value to allow customization of the output. For example, `"{media_type}"` resolves to the special media type of the photo such as `panorama` or `selfie`.  You may use the `DEFAULT` value to override these in form: `"{media_type,video=vidéo;time_lapse=vidéo_accélérée}"`. In this example, if photo was a time_lapse photo, `media_type` would resolve to `vidéo_accélérée` instead of `time_lapse`. 
+Some template fields such as `"{media_type}"` use the default value to allow customization of the output. For example, `"{media_type}"` resolves to the special media type of the photo such as `panorama` or `selfie`.  You may use the default value to override these in form: `"{media_type,video=vidéo;time_lapse=vidéo_accélérée}"`. In this example, if photo was a time_lapse photo, `media_type` would resolve to `vidéo_accélérée` instead of `time_lapse`. 
+
+Either or both bool_value or default (False value) may be empty which would result in empty string `""` when rendered.
+
+If you want to include "{" or "}" in the output, use "{openbrace}" or "{closebrace}" template substitution.
+
+e.g. `"{created.year}/{openbrace}{title}{closebrace}"` would result in `"2020/{Photo Title}"`.
+<!-- OSXPHOTOS-TEMPLATE-HELP:END -->
 
 See [Template Substitutions](#template-substitutions) for additional details.
 
@@ -2508,6 +2574,15 @@ The following template field substitutions are availabe for use with `PhotoInfo.
 |{exif.camera_model}|Camera model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s'|
 |{exif.lens_model}|Lens model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s back camera 4.15mm f/2.2'|
 |{uuid}|Photo's internal universally unique identifier (UUID) for the photo, a 36-character string unique to the photo, e.g. '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'|
+|{comma}|A comma: ','|
+|{semicolon}|A semicolon: ';'|
+|{pipe}|A vertical pipe: '|'|
+|{openbrace}|An open brace: '{'|
+|{closebrace}|A close brace: '}'|
+|{openparens}|An open parentheses: '('|
+|{closeparens}|A close parentheses: ')'|
+|{openbracket}|An open bracket: '['|
+|{closebracket}|A close bracket: ']'|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
 |{keyword}|Keyword(s) assigned to photo|
@@ -2515,7 +2590,7 @@ The following template field substitutions are availabe for use with `PhotoInfo.
 |{label}|Image categorization label associated with a photo (Photos 5+ only)|
 |{label_normalized}|All lower case version of 'label' (Photos 5+ only)|
 |{comment}|Comment(s) on shared Photos; format is 'Person name: comment text' (Photos 5+ only)|
-|{exiftool:GROUP:TAGNAME}|Use exiftool (https://exiftool.org) to extract metadata, in form GROUP:TAGNAME, from image.  E.g. '{exiftool:EXIF:Make}' to get camera make, or {exiftool:IPTC:Keywords} to extract keywords. See https://exiftool.org/TagNames/ for list of valid tag names.  You must specify group (e.g. EXIF, IPTC, etc) as used in `exiftool -G`. exiftool must be installed in the path to use this template.|
+|{exiftool}|Format: '{exiftool:GROUP:TAGNAME}'; use exiftool (https://exiftool.org) to extract metadata, in form GROUP:TAGNAME, from image.  E.g. '{exiftool:EXIF:Make}' to get camera make, or {exiftool:IPTC:Keywords} to extract keywords. See https://exiftool.org/TagNames/ for list of valid tag names.  You must specify group (e.g. EXIF, IPTC, etc) as used in `exiftool -G`. exiftool must be installed in the path to use this template.|
 |{searchinfo.holiday}|Holiday names associated with a photo, e.g. 'Christmas Day'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
 |{searchinfo.activity}|Activities associated with a photo, e.g. 'Sporting Event'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
 |{searchinfo.venue}|Venues associated with a photo, e.g. name of restaurant; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
@@ -2690,6 +2765,8 @@ For additional details about how osxphotos is implemented or if you would like t
 - [wurlitzer](https://pypi.org/project/wurlitzer/)
 - [toml](https://github.com/uiri/toml)
 - [PhotoScript](https://github.com/RhetTbull/PhotoScript)
+- [Rich](https://github.com/willmcgugan/rich)
+- [textx](https://github.com/textX/textX)
 
 
 ## Acknowledgements
