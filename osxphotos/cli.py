@@ -3006,7 +3006,7 @@ def cleanup_files(dest_path, files_to_keep, fileutil):
     Returns:
         tuple of (number of files deleted, number of directories deleted)
     """
-    keepers = {filename.lower(): 1 for filename in files_to_keep}
+    keepers = {str(filename).lower(): 1 for filename in files_to_keep}
 
     deleted_files = 0
     for p in pathlib.Path(dest_path).rglob("*"):
