@@ -44,7 +44,7 @@ def test_export_live_1():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["live"]])
 
-    filename = photos[0].filename
+    filename = photos[0].original_filename
     expected_dest = os.path.join(dest.name, filename)
     got_dest = photos[0].export(dest.name, live_photo=True)[0]
     got_movie = f"{pathlib.Path(got_dest).parent / pathlib.Path(got_dest).stem}.mov"
@@ -70,7 +70,7 @@ def test_export_live_2():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["live"]])
 
-    filename = photos[0].filename
+    filename = photos[0].original_filename
     expected_dest = os.path.join(dest.name, filename)
     got_dest = photos[0].export(dest.name, live_photo=False)[0]
     got_movie = f"{pathlib.Path(got_dest).parent / pathlib.Path(got_dest).stem}.mov"
@@ -97,7 +97,7 @@ def test_export_live_3():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["live"]])
 
-    filename = photos[0].filename
+    filename = photos[0].original_filename
     expected_dest = os.path.join(dest.name, filename)
     expected_mov = f"{dest.name}/{pathlib.Path(expected_dest).stem}.mov"
     got_files = photos[0].export(dest.name, live_photo=True)

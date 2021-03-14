@@ -613,9 +613,9 @@ def export2(
                 )
             edited_name = pathlib.Path(self.path_edited).name
             edited_suffix = pathlib.Path(edited_name).suffix
-            fname = pathlib.Path(self.filename).stem + edited_identifier + edited_suffix
+            fname = pathlib.Path(self.original_filename).stem + edited_identifier + edited_suffix
         else:
-            fname = self.filename
+            fname = self.original_filename
 
     uti = self.uti if edited else self.uti_original
     if convert_to_jpeg and self.isphoto and uti != "public.jpeg":
