@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos package &#8212; osxphotos 0.41.0 documentation</title>
+    <title>osxphotos package &#8212; osxphotos 0.41.2 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -37,74 +37,74 @@
 <h2>osxphotos module<a class="headerlink" href="#osxphotos-module" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="osxphotos.PhotosDB">
-<em class="property">class </em><code class="sig-prename descclassname">osxphotos.</code><code class="sig-name descname">PhotosDB</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dbfile</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">exiftool</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/photosdb/photosdb.html#PhotosDB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osxphotos.PhotosDB" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">osxphotos.</span></code><code class="sig-name descname"><span class="pre">PhotosDB</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dbfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exiftool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/photosdb/photosdb.html#PhotosDB"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotosDB" title="Permalink to this definition">¶</a></dt>
 <dd><p>Processes a Photos.app library database to extract information about photos</p>
 <dl class="py method">
 <dt id="osxphotos.PhotosDB.album_info">
-<em class="property">property </em><code class="sig-name descname">album_info</code><a class="headerlink" href="#osxphotos.PhotosDB.album_info" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">album_info</span></code><a class="headerlink" href="#osxphotos.PhotosDB.album_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>return list of AlbumInfo objects for each album in the photos database</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotosDB.album_info_shared">
-<em class="property">property </em><code class="sig-name descname">album_info_shared</code><a class="headerlink" href="#osxphotos.PhotosDB.album_info_shared" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">album_info_shared</span></code><a class="headerlink" href="#osxphotos.PhotosDB.album_info_shared" title="Permalink to this definition">¶</a></dt>
 <dd><p>return list of AlbumInfo objects for each shared album in the photos database
 only valid for Photos 5; on Photos &lt;= 4, prints warning and returns empty list</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotosDB.albums">
-<em class="property">property </em><code class="sig-name descname">albums</code><a class="headerlink" href="#osxphotos.PhotosDB.albums" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">albums</span></code><a class="headerlink" href="#osxphotos.PhotosDB.albums" title="Permalink to this definition">¶</a></dt>
 <dd><p>return list of albums found in photos database</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotosDB.albums_as_dict">
-<em class="property">property </em><code class="sig-name descname">albums_as_dict</code><a class="headerlink" href="#osxphotos.PhotosDB.albums_as_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">albums_as_dict</span></code><a class="headerlink" href="#osxphotos.PhotosDB.albums_as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>return albums as dict of albums, count in reverse sorted order (descending)</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotosDB.albums_shared">
-<em class="property">property </em><code class="sig-name descname">albums_shared</code><a class="headerlink" href="#osxphotos.PhotosDB.albums_shared" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">albums_shared</span></code><a class="headerlink" href="#osxphotos.PhotosDB.albums_shared" title="Permalink to this definition">¶</a></dt>
 <dd><p>return list of shared albums found in photos database
 only valid for Photos 5; on Photos &lt;= 4, prints warning and returns empty list</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotosDB.albums_shared_as_dict">
-<em class="property">property </em><code class="sig-name descname">albums_shared_as_dict</code><a class="headerlink" href="#osxphotos.PhotosDB.albums_shared_as_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">albums_shared_as_dict</span></code><a class="headerlink" href="#osxphotos.PhotosDB.albums_shared_as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns shared albums as dict of albums, count in reverse sorted order (descending)
 valid only on Photos 5; on Photos &lt;= 4, prints warning and returns empty dict</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotosDB.db_path">
-<em class="property">property </em><code class="sig-name descname">db_path</code><a class="headerlink" href="#osxphotos.PhotosDB.db_path" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">db_path</span></code><a class="headerlink" href="#osxphotos.PhotosDB.db_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns path to the Photos library database PhotosDB was initialized with</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotosDB.db_version">
-<em class="property">property </em><code class="sig-name descname">db_version</code><a class="headerlink" href="#osxphotos.PhotosDB.db_version" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">db_version</span></code><a class="headerlink" href="#osxphotos.PhotosDB.db_version" title="Permalink to this definition">¶</a></dt>
 <dd><p>return the database version as stored in LiGlobals table</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotosDB.folder_info">
-<em class="property">property </em><code class="sig-name descname">folder_info</code><a class="headerlink" href="#osxphotos.PhotosDB.folder_info" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">folder_info</span></code><a class="headerlink" href="#osxphotos.PhotosDB.folder_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>return list FolderInfo objects representing top-level folders in the photos database</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotosDB.folders">
-<em class="property">property </em><code class="sig-name descname">folders</code><a class="headerlink" href="#osxphotos.PhotosDB.folders" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">folders</span></code><a class="headerlink" href="#osxphotos.PhotosDB.folders" title="Permalink to this definition">¶</a></dt>
 <dd><p>return list of top-level folder names in the photos database</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotosDB.get_db_connection">
-<code class="sig-name descname">get_db_connection</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/photosdb/photosdb.html#PhotosDB.get_db_connection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osxphotos.PhotosDB.get_db_connection" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_db_connection</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/photosdb/photosdb.html#PhotosDB.get_db_connection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotosDB.get_db_connection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get connection to the working copy of the Photos database</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -115,7 +115,7 @@ valid only on Photos 5; on Photos &lt;= 4, prints warning and returns empty dict
 
 <dl class="py method">
 <dt id="osxphotos.PhotosDB.get_photo">
-<code class="sig-name descname">get_photo</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">uuid</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/photosdb/photosdb.html#PhotosDB.get_photo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osxphotos.PhotosDB.get_photo" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_photo</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/photosdb/photosdb.html#PhotosDB.get_photo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotosDB.get_photo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a single photo matching uuid</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -129,31 +129,31 @@ valid only on Photos 5; on Photos &lt;= 4, prints warning and returns empty dict
 
 <dl class="py method">
 <dt id="osxphotos.PhotosDB.import_info">
-<em class="property">property </em><code class="sig-name descname">import_info</code><a class="headerlink" href="#osxphotos.PhotosDB.import_info" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">import_info</span></code><a class="headerlink" href="#osxphotos.PhotosDB.import_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>return list of ImportInfo objects for each import session in the database</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotosDB.keywords">
-<em class="property">property </em><code class="sig-name descname">keywords</code><a class="headerlink" href="#osxphotos.PhotosDB.keywords" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">keywords</span></code><a class="headerlink" href="#osxphotos.PhotosDB.keywords" title="Permalink to this definition">¶</a></dt>
 <dd><p>return list of keywords found in photos database</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotosDB.keywords_as_dict">
-<em class="property">property </em><code class="sig-name descname">keywords_as_dict</code><a class="headerlink" href="#osxphotos.PhotosDB.keywords_as_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">keywords_as_dict</span></code><a class="headerlink" href="#osxphotos.PhotosDB.keywords_as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>return keywords as dict of keyword, count in reverse sorted order (descending)</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotosDB.labels">
-<em class="property">property </em><code class="sig-name descname">labels</code><a class="headerlink" href="#osxphotos.PhotosDB.labels" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">labels</span></code><a class="headerlink" href="#osxphotos.PhotosDB.labels" title="Permalink to this definition">¶</a></dt>
 <dd><p>return list of all search info labels found in the library</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotosDB.labels_as_dict">
-<em class="property">property </em><code class="sig-name descname">labels_as_dict</code><a class="headerlink" href="#osxphotos.PhotosDB.labels_as_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">labels_as_dict</span></code><a class="headerlink" href="#osxphotos.PhotosDB.labels_as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>count in reverse sorted order (descending)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -164,13 +164,13 @@ valid only on Photos 5; on Photos &lt;= 4, prints warning and returns empty dict
 
 <dl class="py method">
 <dt id="osxphotos.PhotosDB.labels_normalized">
-<em class="property">property </em><code class="sig-name descname">labels_normalized</code><a class="headerlink" href="#osxphotos.PhotosDB.labels_normalized" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">labels_normalized</span></code><a class="headerlink" href="#osxphotos.PhotosDB.labels_normalized" title="Permalink to this definition">¶</a></dt>
 <dd><p>return list of all normalized search info labels found in the library</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotosDB.labels_normalized_as_dict">
-<em class="property">property </em><code class="sig-name descname">labels_normalized_as_dict</code><a class="headerlink" href="#osxphotos.PhotosDB.labels_normalized_as_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">labels_normalized_as_dict</span></code><a class="headerlink" href="#osxphotos.PhotosDB.labels_normalized_as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>count in reverse sorted order (descending)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -181,31 +181,31 @@ valid only on Photos 5; on Photos &lt;= 4, prints warning and returns empty dict
 
 <dl class="py method">
 <dt id="osxphotos.PhotosDB.library_path">
-<em class="property">property </em><code class="sig-name descname">library_path</code><a class="headerlink" href="#osxphotos.PhotosDB.library_path" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">library_path</span></code><a class="headerlink" href="#osxphotos.PhotosDB.library_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns path to the Photos library PhotosDB was initialized with</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotosDB.person_info">
-<em class="property">property </em><code class="sig-name descname">person_info</code><a class="headerlink" href="#osxphotos.PhotosDB.person_info" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">person_info</span></code><a class="headerlink" href="#osxphotos.PhotosDB.person_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>return list of PersonInfo objects for each person in the photos database</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotosDB.persons">
-<em class="property">property </em><code class="sig-name descname">persons</code><a class="headerlink" href="#osxphotos.PhotosDB.persons" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">persons</span></code><a class="headerlink" href="#osxphotos.PhotosDB.persons" title="Permalink to this definition">¶</a></dt>
 <dd><p>return list of persons found in photos database</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotosDB.persons_as_dict">
-<em class="property">property </em><code class="sig-name descname">persons_as_dict</code><a class="headerlink" href="#osxphotos.PhotosDB.persons_as_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">persons_as_dict</span></code><a class="headerlink" href="#osxphotos.PhotosDB.persons_as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>return persons as dict of person, count in reverse sorted order (descending)</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotosDB.photos">
-<code class="sig-name descname">photos</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">keywords</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">uuid</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">persons</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">albums</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">images</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">movies</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">from_date</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">to_date</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">intrash</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/photosdb/photosdb.html#PhotosDB.photos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osxphotos.PhotosDB.photos" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">photos</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keywords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">persons</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">albums</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">images</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">movies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intrash</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/photosdb/photosdb.html#PhotosDB.photos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotosDB.photos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list of PhotoInfo objects
 If called with no args, returns the entire database of photos
 If called with args, returns photos matching the args (e.g. keywords, persons, etc.)
@@ -237,7 +237,7 @@ if False returns only photos that aren’t deleted; default is False</p></li>
 
 <dl class="py method">
 <dt id="osxphotos.PhotosDB.photos_by_uuid">
-<code class="sig-name descname">photos_by_uuid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">uuids</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/photosdb/photosdb.html#PhotosDB.photos_by_uuid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osxphotos.PhotosDB.photos_by_uuid" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">photos_by_uuid</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuids</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/photosdb/photosdb.html#PhotosDB.photos_by_uuid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotosDB.photos_by_uuid" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Returns a list of photos with UUID in uuids.</dt><dd><p>Does not generate error if invalid or missing UUID passed.
 This is faster than using PhotosDB.photos if you have list of UUIDs.
@@ -258,117 +258,117 @@ Returns photos regardless of intrash state.</p>
 
 <dl class="py class">
 <dt id="osxphotos.PhotoInfo">
-<em class="property">class </em><code class="sig-prename descclassname">osxphotos.</code><code class="sig-name descname">PhotoInfo</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">db</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">uuid</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">info</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/photoinfo/photoinfo.html#PhotoInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osxphotos.PhotoInfo" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">osxphotos.</span></code><code class="sig-name descname"><span class="pre">PhotoInfo</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/photoinfo/photoinfo.html#PhotoInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotoInfo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Info about a specific photo, contains all the details about the photo
 including keywords, persons, albums, uuid, path, etc.</p>
 <dl class="py class">
 <dt id="osxphotos.PhotoInfo.ExifInfo">
-<em class="property">class </em><code class="sig-name descname">ExifInfo</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">flash_fired</span><span class="p">:</span> <span class="n">bool</span></em>, <em class="sig-param"><span class="n">iso</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">metering_mode</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">sample_rate</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">track_format</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">white_balance</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">aperture</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">bit_rate</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">duration</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">exposure_bias</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">focal_length</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">fps</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">latitude</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">longitude</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">shutter_speed</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">camera_make</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">camera_model</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">codec</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">lens_model</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">ExifInfo</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flash_fired</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iso</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metering_mode</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_format</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">white_balance</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aperture</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bit_rate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exposure_bias</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">focal_length</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">latitude</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">longitude</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shutter_speed</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera_make</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera_model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">codec</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lens_model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo" title="Permalink to this definition">¶</a></dt>
 <dd><p>EXIF info associated with a photo from the Photos library</p>
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ExifInfo.aperture">
-<code class="sig-name descname">aperture</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.aperture" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">aperture</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.aperture" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ExifInfo.bit_rate">
-<code class="sig-name descname">bit_rate</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.bit_rate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">bit_rate</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.bit_rate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ExifInfo.camera_make">
-<code class="sig-name descname">camera_make</code><em class="property">: str</em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.camera_make" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">camera_make</span></code><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.camera_make" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ExifInfo.camera_model">
-<code class="sig-name descname">camera_model</code><em class="property">: str</em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.camera_model" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">camera_model</span></code><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.camera_model" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ExifInfo.codec">
-<code class="sig-name descname">codec</code><em class="property">: str</em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.codec" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">codec</span></code><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.codec" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ExifInfo.duration">
-<code class="sig-name descname">duration</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.duration" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">duration</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.duration" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ExifInfo.exposure_bias">
-<code class="sig-name descname">exposure_bias</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.exposure_bias" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">exposure_bias</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.exposure_bias" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ExifInfo.flash_fired">
-<code class="sig-name descname">flash_fired</code><em class="property">: bool</em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.flash_fired" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">flash_fired</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.flash_fired" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ExifInfo.focal_length">
-<code class="sig-name descname">focal_length</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.focal_length" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">focal_length</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.focal_length" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ExifInfo.fps">
-<code class="sig-name descname">fps</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.fps" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">fps</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.fps" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ExifInfo.iso">
-<code class="sig-name descname">iso</code><em class="property">: int</em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.iso" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">iso</span></code><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.iso" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ExifInfo.latitude">
-<code class="sig-name descname">latitude</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.latitude" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">latitude</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.latitude" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ExifInfo.lens_model">
-<code class="sig-name descname">lens_model</code><em class="property">: str</em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.lens_model" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">lens_model</span></code><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.lens_model" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ExifInfo.longitude">
-<code class="sig-name descname">longitude</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.longitude" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">longitude</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.longitude" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ExifInfo.metering_mode">
-<code class="sig-name descname">metering_mode</code><em class="property">: int</em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.metering_mode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">metering_mode</span></code><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.metering_mode" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ExifInfo.sample_rate">
-<code class="sig-name descname">sample_rate</code><em class="property">: int</em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.sample_rate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">sample_rate</span></code><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.sample_rate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ExifInfo.shutter_speed">
-<code class="sig-name descname">shutter_speed</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.shutter_speed" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">shutter_speed</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.shutter_speed" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ExifInfo.track_format">
-<code class="sig-name descname">track_format</code><em class="property">: int</em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.track_format" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">track_format</span></code><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.track_format" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ExifInfo.white_balance">
-<code class="sig-name descname">white_balance</code><em class="property">: int</em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.white_balance" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">white_balance</span></code><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ExifInfo.white_balance" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="osxphotos.PhotoInfo.ExportResults">
-<em class="property">class </em><code class="sig-name descname">ExportResults</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">exported</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">new</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">updated</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">skipped</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">exif_updated</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">touched</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">converted_to_jpeg</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sidecar_json_written</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sidecar_json_skipped</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sidecar_exiftool_written</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sidecar_exiftool_skipped</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sidecar_xmp_written</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sidecar_xmp_skipped</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">missing</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">exiftool_warning</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">exiftool_error</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">xattr_written</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">xattr_skipped</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#osxphotos.PhotoInfo.ExportResults" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">ExportResults</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exported</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">updated</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skipped</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exif_updated</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">touched</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">converted_to_jpeg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sidecar_json_written</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sidecar_json_skipped</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sidecar_exiftool_written</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sidecar_exiftool_skipped</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sidecar_xmp_written</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sidecar_xmp_skipped</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exiftool_warning</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exiftool_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xattr_written</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xattr_skipped</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#osxphotos.PhotoInfo.ExportResults" title="Permalink to this definition">¶</a></dt>
 <dd><p>holds export results for export2</p>
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.ExportResults.all_files">
-<code class="sig-name descname">all_files</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#osxphotos.PhotoInfo.ExportResults.all_files" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">all_files</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#osxphotos.PhotoInfo.ExportResults.all_files" title="Permalink to this definition">¶</a></dt>
 <dd><p>return all filenames contained in results</p>
 </dd></dl>
 
@@ -376,298 +376,304 @@ including keywords, persons, albums, uuid, path, etc.</p>
 
 <dl class="py class">
 <dt id="osxphotos.PhotoInfo.ScoreInfo">
-<em class="property">class </em><code class="sig-name descname">ScoreInfo</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">overall</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">curation</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">promotion</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">highlight_visibility</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">behavioral</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">failure</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">harmonious_color</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">immersiveness</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">interaction</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">interesting_subject</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">intrusive_object_presence</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">lively_color</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">low_light</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">noise</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">pleasant_camera_tilt</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">pleasant_composition</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">pleasant_lighting</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">pleasant_pattern</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">pleasant_perspective</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">pleasant_post_processing</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">pleasant_reflection</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">pleasant_symmetry</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">sharply_focused_subject</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">tastefully_blurred</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">well_chosen_subject</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">well_framed_subject</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">well_timed_shot</span><span class="p">:</span> <span class="n">float</span></em><span class="sig-paren">)</span><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">ScoreInfo</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">overall</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curation</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">promotion</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">highlight_visibility</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">behavioral</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">failure</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">harmonious_color</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">immersiveness</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interesting_subject</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intrusive_object_presence</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lively_color</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_light</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pleasant_camera_tilt</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pleasant_composition</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pleasant_lighting</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pleasant_pattern</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pleasant_perspective</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pleasant_post_processing</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pleasant_reflection</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pleasant_symmetry</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharply_focused_subject</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tastefully_blurred</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">well_chosen_subject</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">well_framed_subject</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">well_timed_shot</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computed photo score info associated with a photo from the Photos library</p>
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ScoreInfo.behavioral">
-<code class="sig-name descname">behavioral</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.behavioral" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">behavioral</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.behavioral" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ScoreInfo.curation">
-<code class="sig-name descname">curation</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.curation" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">curation</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.curation" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ScoreInfo.failure">
-<code class="sig-name descname">failure</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.failure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">failure</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.failure" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ScoreInfo.harmonious_color">
-<code class="sig-name descname">harmonious_color</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.harmonious_color" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">harmonious_color</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.harmonious_color" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ScoreInfo.highlight_visibility">
-<code class="sig-name descname">highlight_visibility</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.highlight_visibility" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">highlight_visibility</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.highlight_visibility" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ScoreInfo.immersiveness">
-<code class="sig-name descname">immersiveness</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.immersiveness" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">immersiveness</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.immersiveness" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ScoreInfo.interaction">
-<code class="sig-name descname">interaction</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.interaction" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">interaction</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.interaction" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ScoreInfo.interesting_subject">
-<code class="sig-name descname">interesting_subject</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.interesting_subject" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">interesting_subject</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.interesting_subject" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ScoreInfo.intrusive_object_presence">
-<code class="sig-name descname">intrusive_object_presence</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.intrusive_object_presence" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">intrusive_object_presence</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.intrusive_object_presence" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ScoreInfo.lively_color">
-<code class="sig-name descname">lively_color</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.lively_color" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">lively_color</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.lively_color" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ScoreInfo.low_light">
-<code class="sig-name descname">low_light</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.low_light" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">low_light</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.low_light" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ScoreInfo.noise">
-<code class="sig-name descname">noise</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.noise" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">noise</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.noise" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ScoreInfo.overall">
-<code class="sig-name descname">overall</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.overall" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">overall</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.overall" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ScoreInfo.pleasant_camera_tilt">
-<code class="sig-name descname">pleasant_camera_tilt</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.pleasant_camera_tilt" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">pleasant_camera_tilt</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.pleasant_camera_tilt" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ScoreInfo.pleasant_composition">
-<code class="sig-name descname">pleasant_composition</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.pleasant_composition" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">pleasant_composition</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.pleasant_composition" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ScoreInfo.pleasant_lighting">
-<code class="sig-name descname">pleasant_lighting</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.pleasant_lighting" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">pleasant_lighting</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.pleasant_lighting" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ScoreInfo.pleasant_pattern">
-<code class="sig-name descname">pleasant_pattern</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.pleasant_pattern" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">pleasant_pattern</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.pleasant_pattern" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ScoreInfo.pleasant_perspective">
-<code class="sig-name descname">pleasant_perspective</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.pleasant_perspective" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">pleasant_perspective</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.pleasant_perspective" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ScoreInfo.pleasant_post_processing">
-<code class="sig-name descname">pleasant_post_processing</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.pleasant_post_processing" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">pleasant_post_processing</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.pleasant_post_processing" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ScoreInfo.pleasant_reflection">
-<code class="sig-name descname">pleasant_reflection</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.pleasant_reflection" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">pleasant_reflection</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.pleasant_reflection" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ScoreInfo.pleasant_symmetry">
-<code class="sig-name descname">pleasant_symmetry</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.pleasant_symmetry" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">pleasant_symmetry</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.pleasant_symmetry" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ScoreInfo.promotion">
-<code class="sig-name descname">promotion</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.promotion" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">promotion</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.promotion" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ScoreInfo.sharply_focused_subject">
-<code class="sig-name descname">sharply_focused_subject</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.sharply_focused_subject" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">sharply_focused_subject</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.sharply_focused_subject" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ScoreInfo.tastefully_blurred">
-<code class="sig-name descname">tastefully_blurred</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.tastefully_blurred" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">tastefully_blurred</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.tastefully_blurred" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ScoreInfo.well_chosen_subject">
-<code class="sig-name descname">well_chosen_subject</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.well_chosen_subject" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">well_chosen_subject</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.well_chosen_subject" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ScoreInfo.well_framed_subject">
-<code class="sig-name descname">well_framed_subject</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.well_framed_subject" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">well_framed_subject</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.well_framed_subject" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="osxphotos.PhotoInfo.ScoreInfo.well_timed_shot">
-<code class="sig-name descname">well_timed_shot</code><em class="property">: float</em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.well_timed_shot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">well_timed_shot</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><a class="headerlink" href="#osxphotos.PhotoInfo.ScoreInfo.well_timed_shot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="osxphotos.PhotoInfo.SearchInfo">
-<em class="property">class </em><code class="sig-name descname">SearchInfo</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">photo</span></em>, <em class="sig-param"><span class="n">normalized</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">SearchInfo</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">photo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalized</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Info about search terms such as machine learning labels that Photos knows about a photo</p>
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.SearchInfo.activities">
-<em class="property">property </em><code class="sig-name descname">activities</code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.activities" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">activities</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.activities" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns list of activity names</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.SearchInfo.all">
-<em class="property">property </em><code class="sig-name descname">all</code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.all" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">all</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.all" title="Permalink to this definition">¶</a></dt>
 <dd><p>return all search info properties in a single list</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.SearchInfo.asdict">
-<code class="sig-name descname">asdict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.asdict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">asdict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.asdict" title="Permalink to this definition">¶</a></dt>
 <dd><p>return dict of search info</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.SearchInfo.bodies_of_water">
-<em class="property">property </em><code class="sig-name descname">bodies_of_water</code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.bodies_of_water" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">bodies_of_water</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.bodies_of_water" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns list of body of water names</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.SearchInfo.city">
-<em class="property">property </em><code class="sig-name descname">city</code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.city" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">city</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.city" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns city/town</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.SearchInfo.country">
-<em class="property">property </em><code class="sig-name descname">country</code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.country" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">country</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.country" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns country name</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.SearchInfo.holidays">
-<em class="property">property </em><code class="sig-name descname">holidays</code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.holidays" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">holidays</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.holidays" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns list of holiday names</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.SearchInfo.labels">
-<em class="property">property </em><code class="sig-name descname">labels</code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.labels" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">labels</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.labels" title="Permalink to this definition">¶</a></dt>
 <dd><p>return list of labels associated with Photo</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.SearchInfo.locality_names">
-<em class="property">property </em><code class="sig-name descname">locality_names</code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.locality_names" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">locality_names</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.locality_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns list of other locality names</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.SearchInfo.media_types">
-<em class="property">property </em><code class="sig-name descname">media_types</code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.media_types" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">media_types</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.media_types" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns list of media types (photo, video, panorama, etc)</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.SearchInfo.month">
-<em class="property">property </em><code class="sig-name descname">month</code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.month" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">month</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.month" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns month name</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.SearchInfo.neighborhoods">
-<em class="property">property </em><code class="sig-name descname">neighborhoods</code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.neighborhoods" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">neighborhoods</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.neighborhoods" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns list of neighborhoods</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.SearchInfo.place_names">
-<em class="property">property </em><code class="sig-name descname">place_names</code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.place_names" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">place_names</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.place_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns list of place names</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.SearchInfo.season">
-<em class="property">property </em><code class="sig-name descname">season</code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.season" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">season</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.season" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns season name</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.SearchInfo.state">
-<em class="property">property </em><code class="sig-name descname">state</code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.state" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">state</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.state" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns state name</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.SearchInfo.state_abbreviation">
-<em class="property">property </em><code class="sig-name descname">state_abbreviation</code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.state_abbreviation" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">state_abbreviation</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.state_abbreviation" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns state abbreviation</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.SearchInfo.streets">
-<em class="property">property </em><code class="sig-name descname">streets</code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.streets" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">streets</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.streets" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns list of street names</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.SearchInfo.venue_types">
-<em class="property">property </em><code class="sig-name descname">venue_types</code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.venue_types" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">venue_types</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.venue_types" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns list of venue types</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.SearchInfo.venues">
-<em class="property">property </em><code class="sig-name descname">venues</code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.venues" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">venues</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.venues" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns list of venue names</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.SearchInfo.year">
-<em class="property">property </em><code class="sig-name descname">year</code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.year" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">year</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.SearchInfo.year" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns year</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py method">
+<dt id="osxphotos.PhotoInfo.adjustments">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">adjustments</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.adjustments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns AdjustmentsInfo class for adjustment data or None if no adjustments; Photos 5+ only</p>
+</dd></dl>
+
+<dl class="py method">
 <dt id="osxphotos.PhotoInfo.album_info">
-<em class="property">property </em><code class="sig-name descname">album_info</code><a class="headerlink" href="#osxphotos.PhotoInfo.album_info" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">album_info</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.album_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of AlbumInfo objects representing albums the photos is contained in</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.albums">
-<em class="property">property </em><code class="sig-name descname">albums</code><a class="headerlink" href="#osxphotos.PhotoInfo.albums" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">albums</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.albums" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of albums picture is contained in</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.asdict">
-<code class="sig-name descname">asdict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/photoinfo/photoinfo.html#PhotoInfo.asdict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osxphotos.PhotoInfo.asdict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">asdict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/photoinfo/photoinfo.html#PhotoInfo.asdict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotoInfo.asdict" title="Permalink to this definition">¶</a></dt>
 <dd><p>return dict representation</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.burst">
-<em class="property">property </em><code class="sig-name descname">burst</code><a class="headerlink" href="#osxphotos.PhotoInfo.burst" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">burst</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.burst" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns True if photo is part of a Burst photo set, otherwise False</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.burst_photos">
-<em class="property">property </em><code class="sig-name descname">burst_photos</code><a class="headerlink" href="#osxphotos.PhotoInfo.burst_photos" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">burst_photos</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.burst_photos" title="Permalink to this definition">¶</a></dt>
 <dd><p>If photo is a burst photo, returns list of PhotoInfo objects
 that are part of the same burst photo set; otherwise returns empty list.
 self is not included in the returned list</p>
@@ -675,38 +681,38 @@ self is not included in the returned list</p>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.comments">
-<em class="property">property </em><code class="sig-name descname">comments</code><a class="headerlink" href="#osxphotos.PhotoInfo.comments" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">comments</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.comments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns list of Comment objects for any comments on the photo (sorted by date)</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.date">
-<em class="property">property </em><code class="sig-name descname">date</code><a class="headerlink" href="#osxphotos.PhotoInfo.date" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">date</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.date" title="Permalink to this definition">¶</a></dt>
 <dd><p>image creation date as timezone aware datetime object</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.date_modified">
-<em class="property">property </em><code class="sig-name descname">date_modified</code><a class="headerlink" href="#osxphotos.PhotoInfo.date_modified" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">date_modified</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.date_modified" title="Permalink to this definition">¶</a></dt>
 <dd><p>image modification date as timezone aware datetime object
 or None if no modification date set</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.date_trashed">
-<em class="property">property </em><code class="sig-name descname">date_trashed</code><a class="headerlink" href="#osxphotos.PhotoInfo.date_trashed" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">date_trashed</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.date_trashed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Date asset was placed in the trash or None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.description">
-<em class="property">property </em><code class="sig-name descname">description</code><a class="headerlink" href="#osxphotos.PhotoInfo.description" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">description</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.description" title="Permalink to this definition">¶</a></dt>
 <dd><p>long / extended description of picture</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.exif_info">
-<em class="property">property </em><code class="sig-name descname">exif_info</code><a class="headerlink" href="#osxphotos.PhotoInfo.exif_info" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">exif_info</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.exif_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an ExifInfo object with the EXIF data for photo
 Note: the returned EXIF data is the data Photos stores in the database on import;
 ExifInfo does not provide access to the EXIF info in the actual image file
@@ -716,7 +722,7 @@ Only valid for Photos 5; on earlier database returns None</p>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.exiftool">
-<em class="property">property </em><code class="sig-name descname">exiftool</code><a class="headerlink" href="#osxphotos.PhotoInfo.exiftool" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">exiftool</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.exiftool" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an ExifTool object for the photo
 requires that exiftool (<a class="reference external" href="https://exiftool.org/">https://exiftool.org/</a>) be installed
 If exiftool not installed, logs warning and returns None
@@ -725,7 +731,7 @@ If photo path is missing, returns None</p>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.export">
-<code class="sig-name descname">export</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dest</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">filename</span></em>, <em class="sig-param"><span class="n">edited</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">live_photo</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">raw_photo</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">export_as_hardlink</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">overwrite</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">increment</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">sidecar_json</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">sidecar_exiftool</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">sidecar_xmp</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">use_photos_export</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">timeout</span><span class="o">=</span><span class="default_value">120</span></em>, <em class="sig-param"><span class="n">exiftool</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">use_albums_as_keywords</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">use_persons_as_keywords</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">keyword_template</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">description_template</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#osxphotos.PhotoInfo.export" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">export</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dest</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edited</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">live_photo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_photo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_as_hardlink</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">increment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sidecar_json</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sidecar_exiftool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sidecar_xmp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_photos_export</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">120</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exiftool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_albums_as_keywords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_persons_as_keywords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keyword_template</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description_template</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#osxphotos.PhotoInfo.export" title="Permalink to this definition">¶</a></dt>
 <dd><p>export photo
 dest: must be valid destination path (or exception raised)
 filename: (optional): name of exported picture; if not provided, will use current filename</p>
@@ -775,7 +781,7 @@ description_template: string; optional template string that will be rendered for
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.export2">
-<code class="sig-name descname">export2</code><span class="sig-paren">(</span><em class="sig-param">dest</em>, <em class="sig-param">*filename</em>, <em class="sig-param">edited=False</em>, <em class="sig-param">live_photo=False</em>, <em class="sig-param">raw_photo=False</em>, <em class="sig-param">export_as_hardlink=False</em>, <em class="sig-param">overwrite=False</em>, <em class="sig-param">increment=True</em>, <em class="sig-param">sidecar=0</em>, <em class="sig-param">sidecar_drop_ext=False</em>, <em class="sig-param">use_photos_export=False</em>, <em class="sig-param">timeout=120</em>, <em class="sig-param">exiftool=False</em>, <em class="sig-param">use_albums_as_keywords=False</em>, <em class="sig-param">use_persons_as_keywords=False</em>, <em class="sig-param">keyword_template=None</em>, <em class="sig-param">description_template=None</em>, <em class="sig-param">update=False</em>, <em class="sig-param">ignore_signature=False</em>, <em class="sig-param">export_db=None</em>, <em class="sig-param">fileutil=&lt;class 'osxphotos.fileutil.FileUtil'&gt;</em>, <em class="sig-param">dry_run=False</em>, <em class="sig-param">touch_file=False</em>, <em class="sig-param">convert_to_jpeg=False</em>, <em class="sig-param">jpeg_quality=1.0</em>, <em class="sig-param">ignore_date_modified=False</em>, <em class="sig-param">use_photokit=False</em>, <em class="sig-param">verbose=None</em>, <em class="sig-param">exiftool_flags=None</em>, <em class="sig-param">merge_exif_keywords=False</em>, <em class="sig-param">merge_exif_persons=False</em>, <em class="sig-param">jpeg_ext=None</em><span class="sig-paren">)</span><a class="headerlink" href="#osxphotos.PhotoInfo.export2" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">export2</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">dest</span></em>, <em class="sig-param"><span class="pre">*filename</span></em>, <em class="sig-param"><span class="pre">edited=False</span></em>, <em class="sig-param"><span class="pre">live_photo=False</span></em>, <em class="sig-param"><span class="pre">raw_photo=False</span></em>, <em class="sig-param"><span class="pre">export_as_hardlink=False</span></em>, <em class="sig-param"><span class="pre">overwrite=False</span></em>, <em class="sig-param"><span class="pre">increment=True</span></em>, <em class="sig-param"><span class="pre">sidecar=0</span></em>, <em class="sig-param"><span class="pre">sidecar_drop_ext=False</span></em>, <em class="sig-param"><span class="pre">use_photos_export=False</span></em>, <em class="sig-param"><span class="pre">timeout=120</span></em>, <em class="sig-param"><span class="pre">exiftool=False</span></em>, <em class="sig-param"><span class="pre">use_albums_as_keywords=False</span></em>, <em class="sig-param"><span class="pre">use_persons_as_keywords=False</span></em>, <em class="sig-param"><span class="pre">keyword_template=None</span></em>, <em class="sig-param"><span class="pre">description_template=None</span></em>, <em class="sig-param"><span class="pre">update=False</span></em>, <em class="sig-param"><span class="pre">ignore_signature=False</span></em>, <em class="sig-param"><span class="pre">export_db=None</span></em>, <em class="sig-param"><span class="pre">fileutil=&lt;class</span> <span class="pre">'osxphotos.fileutil.FileUtil'&gt;</span></em>, <em class="sig-param"><span class="pre">dry_run=False</span></em>, <em class="sig-param"><span class="pre">touch_file=False</span></em>, <em class="sig-param"><span class="pre">convert_to_jpeg=False</span></em>, <em class="sig-param"><span class="pre">jpeg_quality=1.0</span></em>, <em class="sig-param"><span class="pre">ignore_date_modified=False</span></em>, <em class="sig-param"><span class="pre">use_photokit=False</span></em>, <em class="sig-param"><span class="pre">verbose=None</span></em>, <em class="sig-param"><span class="pre">exiftool_flags=None</span></em>, <em class="sig-param"><span class="pre">merge_exif_keywords=False</span></em>, <em class="sig-param"><span class="pre">merge_exif_persons=False</span></em>, <em class="sig-param"><span class="pre">jpeg_ext=None</span></em>, <em class="sig-param"><span class="pre">persons=True</span></em>, <em class="sig-param"><span class="pre">location=True</span></em>, <em class="sig-param"><span class="pre">replace_keywords=False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#osxphotos.PhotoInfo.export2" title="Permalink to this definition">¶</a></dt>
 <dd><p>export photo, like export but with update and dry_run options
 dest: must be valid destination path or exception raised
 filename: (optional): name of exported picture; if not provided, will use current filename</p>
@@ -840,7 +846,10 @@ verbose: optional callable function to use for printing verbose text during proc
 exiftool_flags: optional list of flags to pass to exiftool when using exiftool option, e.g [“-m”, “-F”]
 merge_exif_keywords: boolean; if True, merged keywords found in file’s exif data (requires exiftool)
 merge_exif_persons: boolean; if True, merged persons found in file’s exif data (requires exiftool)
-jpeg_ext: if set, will use this value for extension on jpegs converted to jpeg with convert_to_jpeg; if not set, uses jpeg; do not include the leading “.”</p>
+jpeg_ext: if set, will use this value for extension on jpegs converted to jpeg with convert_to_jpeg; if not set, uses jpeg; do not include the leading “.”
+persons: if True, include persons in exported metadata
+location: if True, include location in exported metadata
+replace_keywords: if True, keyword_template replaces any keywords, otherwise it’s additive</p>
 <dl class="simple">
 <dt>Returns: ExportResults class</dt><dd><p>ExportResults has attributes:
 “exported”,
@@ -869,67 +878,67 @@ jpeg_ext: if set, will use this value for extension on jpegs converted to jpeg w
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.external_edit">
-<em class="property">property </em><code class="sig-name descname">external_edit</code><a class="headerlink" href="#osxphotos.PhotoInfo.external_edit" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">external_edit</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.external_edit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns True if picture was edited outside of Photos using external editor</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.face_info">
-<em class="property">property </em><code class="sig-name descname">face_info</code><a class="headerlink" href="#osxphotos.PhotoInfo.face_info" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">face_info</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.face_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of FaceInfo objects for faces in picture</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.favorite">
-<em class="property">property </em><code class="sig-name descname">favorite</code><a class="headerlink" href="#osxphotos.PhotoInfo.favorite" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">favorite</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.favorite" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if picture is marked as favorite</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.filename">
-<em class="property">property </em><code class="sig-name descname">filename</code><a class="headerlink" href="#osxphotos.PhotoInfo.filename" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">filename</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.filename" title="Permalink to this definition">¶</a></dt>
 <dd><p>filename of the picture</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.has_raw">
-<em class="property">property </em><code class="sig-name descname">has_raw</code><a class="headerlink" href="#osxphotos.PhotoInfo.has_raw" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">has_raw</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.has_raw" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns True if photo has an associated raw image (that is, it’s a RAW+JPEG pair), otherwise False</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.hasadjustments">
-<em class="property">property </em><code class="sig-name descname">hasadjustments</code><a class="headerlink" href="#osxphotos.PhotoInfo.hasadjustments" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">hasadjustments</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.hasadjustments" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if picture has adjustments / edits</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.hdr">
-<em class="property">property </em><code class="sig-name descname">hdr</code><a class="headerlink" href="#osxphotos.PhotoInfo.hdr" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">hdr</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.hdr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns True if photo is an HDR photo, otherwise False</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.height">
-<em class="property">property </em><code class="sig-name descname">height</code><a class="headerlink" href="#osxphotos.PhotoInfo.height" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">height</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.height" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns height of the current photo version in pixels</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.hidden">
-<em class="property">property </em><code class="sig-name descname">hidden</code><a class="headerlink" href="#osxphotos.PhotoInfo.hidden" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">hidden</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.hidden" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if picture is hidden</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.import_info">
-<em class="property">property </em><code class="sig-name descname">import_info</code><a class="headerlink" href="#osxphotos.PhotoInfo.import_info" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">import_info</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.import_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>ImportInfo object representing import session for the photo or None if no import session</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.incloud">
-<em class="property">property </em><code class="sig-name descname">incloud</code><a class="headerlink" href="#osxphotos.PhotoInfo.incloud" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">incloud</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.incloud" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns True if photo is cloud asset and is synched to cloud
 False if photo is cloud asset and not yet synched to cloud
 None if photo is not cloud asset</p>
@@ -937,20 +946,20 @@ None if photo is not cloud asset</p>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.intrash">
-<em class="property">property </em><code class="sig-name descname">intrash</code><a class="headerlink" href="#osxphotos.PhotoInfo.intrash" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">intrash</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.intrash" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if picture is in trash (‘Recently Deleted’ folder)</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.iscloudasset">
-<em class="property">property </em><code class="sig-name descname">iscloudasset</code><a class="headerlink" href="#osxphotos.PhotoInfo.iscloudasset" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">iscloudasset</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.iscloudasset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns True if photo is a cloud asset (in an iCloud library),
 otherwise False</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.ismissing">
-<em class="property">property </em><code class="sig-name descname">ismissing</code><a class="headerlink" href="#osxphotos.PhotoInfo.ismissing" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">ismissing</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.ismissing" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns true if photo is missing from disk (which means it’s not been downloaded from iCloud)
 NOTE:   the photos.db database uses an asynchrounous write-ahead log so changes in Photos</p>
 <blockquote>
@@ -965,130 +974,130 @@ isMissing = 1</p>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.ismovie">
-<em class="property">property </em><code class="sig-name descname">ismovie</code><a class="headerlink" href="#osxphotos.PhotoInfo.ismovie" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">ismovie</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.ismovie" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns True if file is a movie, otherwise False</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.isphoto">
-<em class="property">property </em><code class="sig-name descname">isphoto</code><a class="headerlink" href="#osxphotos.PhotoInfo.isphoto" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">isphoto</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.isphoto" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns True if file is an image, otherwise False</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.israw">
-<em class="property">property </em><code class="sig-name descname">israw</code><a class="headerlink" href="#osxphotos.PhotoInfo.israw" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">israw</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.israw" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns True if photo is a raw image. For images with an associated RAW+JPEG pair, see has_raw</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.isreference">
-<em class="property">property </em><code class="sig-name descname">isreference</code><a class="headerlink" href="#osxphotos.PhotoInfo.isreference" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">isreference</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.isreference" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns True if photo is a reference (not copied to the Photos library), otherwise False</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.json">
-<code class="sig-name descname">json</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/photoinfo/photoinfo.html#PhotoInfo.json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osxphotos.PhotoInfo.json" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">json</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/photoinfo/photoinfo.html#PhotoInfo.json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotoInfo.json" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return JSON representation</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.keywords">
-<em class="property">property </em><code class="sig-name descname">keywords</code><a class="headerlink" href="#osxphotos.PhotoInfo.keywords" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">keywords</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.keywords" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of keywords for picture</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.labels">
-<em class="property">property </em><code class="sig-name descname">labels</code><a class="headerlink" href="#osxphotos.PhotoInfo.labels" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">labels</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.labels" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns list of labels applied to photo by Photos image categorization
 only valid on Photos 5, on older libraries returns empty list</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.labels_normalized">
-<em class="property">property </em><code class="sig-name descname">labels_normalized</code><a class="headerlink" href="#osxphotos.PhotoInfo.labels_normalized" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">labels_normalized</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.labels_normalized" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns normalized list of labels applied to photo by Photos image categorization
 only valid on Photos 5, on older libraries returns empty list</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.likes">
-<em class="property">property </em><code class="sig-name descname">likes</code><a class="headerlink" href="#osxphotos.PhotoInfo.likes" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">likes</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.likes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns list of Like objects for any likes on the photo (sorted by date)</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.live_photo">
-<em class="property">property </em><code class="sig-name descname">live_photo</code><a class="headerlink" href="#osxphotos.PhotoInfo.live_photo" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">live_photo</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.live_photo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns True if photo is a live photo, otherwise False</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.location">
-<em class="property">property </em><code class="sig-name descname">location</code><a class="headerlink" href="#osxphotos.PhotoInfo.location" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">location</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.location" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns (latitude, longitude) as float in degrees or None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.orientation">
-<em class="property">property </em><code class="sig-name descname">orientation</code><a class="headerlink" href="#osxphotos.PhotoInfo.orientation" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns EXIF orientation of the current photo version as int</p>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">orientation</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.orientation" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns EXIF orientation of the current photo version as int or 0 if current orientation cannot be determined</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.original_filename">
-<em class="property">property </em><code class="sig-name descname">original_filename</code><a class="headerlink" href="#osxphotos.PhotoInfo.original_filename" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">original_filename</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.original_filename" title="Permalink to this definition">¶</a></dt>
 <dd><p>original filename of the picture
 Photos 5 mangles filenames upon import</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.original_filesize">
-<em class="property">property </em><code class="sig-name descname">original_filesize</code><a class="headerlink" href="#osxphotos.PhotoInfo.original_filesize" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">original_filesize</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.original_filesize" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns filesize of original photo in bytes as int</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.original_height">
-<em class="property">property </em><code class="sig-name descname">original_height</code><a class="headerlink" href="#osxphotos.PhotoInfo.original_height" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">original_height</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.original_height" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns height of the original photo version in pixels</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.original_orientation">
-<em class="property">property </em><code class="sig-name descname">original_orientation</code><a class="headerlink" href="#osxphotos.PhotoInfo.original_orientation" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">original_orientation</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.original_orientation" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns EXIF orientation of the original photo version as int</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.original_width">
-<em class="property">property </em><code class="sig-name descname">original_width</code><a class="headerlink" href="#osxphotos.PhotoInfo.original_width" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">original_width</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.original_width" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns width of the original photo version in pixels</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.panorama">
-<em class="property">property </em><code class="sig-name descname">panorama</code><a class="headerlink" href="#osxphotos.PhotoInfo.panorama" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">panorama</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.panorama" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns True if photo is a panorama, otherwise False</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.path">
-<em class="property">property </em><code class="sig-name descname">path</code><a class="headerlink" href="#osxphotos.PhotoInfo.path" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">path</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.path" title="Permalink to this definition">¶</a></dt>
 <dd><p>absolute path on disk of the original picture</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.path_edited">
-<em class="property">property </em><code class="sig-name descname">path_edited</code><a class="headerlink" href="#osxphotos.PhotoInfo.path_edited" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">path_edited</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.path_edited" title="Permalink to this definition">¶</a></dt>
 <dd><p>absolute path on disk of the edited picture</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.path_live_photo">
-<em class="property">property </em><code class="sig-name descname">path_live_photo</code><a class="headerlink" href="#osxphotos.PhotoInfo.path_live_photo" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">path_live_photo</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.path_live_photo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns path to the associated video file for a live photo
 If photo is not a live photo, returns None
 If photo is missing, returns None</p>
@@ -1096,37 +1105,37 @@ If photo is missing, returns None</p>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.path_raw">
-<em class="property">property </em><code class="sig-name descname">path_raw</code><a class="headerlink" href="#osxphotos.PhotoInfo.path_raw" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">path_raw</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.path_raw" title="Permalink to this definition">¶</a></dt>
 <dd><p>absolute path of associated RAW image or None if there is not one</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.person_info">
-<em class="property">property </em><code class="sig-name descname">person_info</code><a class="headerlink" href="#osxphotos.PhotoInfo.person_info" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">person_info</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.person_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of PersonInfo objects for person in picture</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.persons">
-<em class="property">property </em><code class="sig-name descname">persons</code><a class="headerlink" href="#osxphotos.PhotoInfo.persons" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">persons</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.persons" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of persons in picture</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.place">
-<em class="property">property </em><code class="sig-name descname">place</code><a class="headerlink" href="#osxphotos.PhotoInfo.place" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">place</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.place" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns PlaceInfo object containing reverse geolocation info</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.portrait">
-<em class="property">property </em><code class="sig-name descname">portrait</code><a class="headerlink" href="#osxphotos.PhotoInfo.portrait" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">portrait</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.portrait" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns True if photo is a portrait, otherwise False</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.raw_original">
-<em class="property">property </em><code class="sig-name descname">raw_original</code><a class="headerlink" href="#osxphotos.PhotoInfo.raw_original" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">raw_original</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.raw_original" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns True if associated raw image and the raw image is selected in Photos
 via “Use RAW as Original ”
 otherwise returns False</p>
@@ -1134,7 +1143,7 @@ otherwise returns False</p>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.render_template">
-<code class="sig-name descname">render_template</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">template_str</span></em>, <em class="sig-param"><span class="n">none_str</span><span class="o">=</span><span class="default_value">'_'</span></em>, <em class="sig-param"><span class="n">path_sep</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">expand_inplace</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">inplace_sep</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">dirname</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">strip</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/photoinfo/photoinfo.html#PhotoInfo.render_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osxphotos.PhotoInfo.render_template" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">render_template</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template_str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">none_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_sep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expand_inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace_sep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dirname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/photoinfo/photoinfo.html#PhotoInfo.render_template"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotoInfo.render_template" title="Permalink to this definition">¶</a></dt>
 <dd><p>Renders a template string for PhotoInfo instance using PhotoTemplate</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1163,7 +1172,7 @@ with expand_inplace; default is ‘,’</p></li>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.score">
-<em class="property">property </em><code class="sig-name descname">score</code><a class="headerlink" href="#osxphotos.PhotoInfo.score" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">score</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.score" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computed score information for a photo</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -1174,71 +1183,71 @@ with expand_inplace; default is ‘,’</p></li>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.screenshot">
-<em class="property">property </em><code class="sig-name descname">screenshot</code><a class="headerlink" href="#osxphotos.PhotoInfo.screenshot" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">screenshot</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.screenshot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns True if photo is an HDR photo, otherwise False</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.search_info">
-<em class="property">property </em><code class="sig-name descname">search_info</code><a class="headerlink" href="#osxphotos.PhotoInfo.search_info" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">search_info</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.search_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns SearchInfo object for photo
 only valid on Photos 5, on older libraries, returns None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.search_info_normalized">
-<em class="property">property </em><code class="sig-name descname">search_info_normalized</code><a class="headerlink" href="#osxphotos.PhotoInfo.search_info_normalized" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">search_info_normalized</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.search_info_normalized" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns SearchInfo object for photo that produces normalized results
 only valid on Photos 5, on older libraries, returns None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.selfie">
-<em class="property">property </em><code class="sig-name descname">selfie</code><a class="headerlink" href="#osxphotos.PhotoInfo.selfie" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">selfie</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.selfie" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns True if photo is a selfie (front facing camera), otherwise False</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.shared">
-<em class="property">property </em><code class="sig-name descname">shared</code><a class="headerlink" href="#osxphotos.PhotoInfo.shared" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">shared</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.shared" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns True if photos is in a shared iCloud album otherwise false
 Only valid on Photos 5; returns None on older versions</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.slow_mo">
-<em class="property">property </em><code class="sig-name descname">slow_mo</code><a class="headerlink" href="#osxphotos.PhotoInfo.slow_mo" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">slow_mo</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.slow_mo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns True if photo is a slow motion video, otherwise False</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.time_lapse">
-<em class="property">property </em><code class="sig-name descname">time_lapse</code><a class="headerlink" href="#osxphotos.PhotoInfo.time_lapse" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">time_lapse</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.time_lapse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns True if photo is a time lapse video, otherwise False</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.title">
-<em class="property">property </em><code class="sig-name descname">title</code><a class="headerlink" href="#osxphotos.PhotoInfo.title" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">title</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.title" title="Permalink to this definition">¶</a></dt>
 <dd><p>name / title of picture</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.tzoffset">
-<em class="property">property </em><code class="sig-name descname">tzoffset</code><a class="headerlink" href="#osxphotos.PhotoInfo.tzoffset" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">tzoffset</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.tzoffset" title="Permalink to this definition">¶</a></dt>
 <dd><p>timezone offset from UTC in seconds</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.uti">
-<em class="property">property </em><code class="sig-name descname">uti</code><a class="headerlink" href="#osxphotos.PhotoInfo.uti" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">uti</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.uti" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns Uniform Type Identifier (UTI) for the image
 for example: public.jpeg or com.apple.quicktime-movie</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.uti_edited">
-<em class="property">property </em><code class="sig-name descname">uti_edited</code><a class="headerlink" href="#osxphotos.PhotoInfo.uti_edited" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">uti_edited</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.uti_edited" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns Uniform Type Identifier (UTI) for the edited image
 if the photo has been edited, otherwise None;
 for example: public.jpeg</p>
@@ -1246,14 +1255,14 @@ for example: public.jpeg</p>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.uti_original">
-<em class="property">property </em><code class="sig-name descname">uti_original</code><a class="headerlink" href="#osxphotos.PhotoInfo.uti_original" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">uti_original</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.uti_original" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns Uniform Type Identifier (UTI) for the original image
 for example: public.jpeg or com.apple.quicktime-movie</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.uti_raw">
-<em class="property">property </em><code class="sig-name descname">uti_raw</code><a class="headerlink" href="#osxphotos.PhotoInfo.uti_raw" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">uti_raw</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.uti_raw" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns Uniform Type Identifier (UTI) for the RAW image if there is one
 for example: com.canon.cr2-raw-image
 Returns None if no associated RAW image</p>
@@ -1261,19 +1270,19 @@ Returns None if no associated RAW image</p>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.uuid">
-<em class="property">property </em><code class="sig-name descname">uuid</code><a class="headerlink" href="#osxphotos.PhotoInfo.uuid" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">uuid</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.uuid" title="Permalink to this definition">¶</a></dt>
 <dd><p>UUID of picture</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.visible">
-<em class="property">property </em><code class="sig-name descname">visible</code><a class="headerlink" href="#osxphotos.PhotoInfo.visible" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">visible</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.visible" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if picture is visble</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.width">
-<em class="property">property </em><code class="sig-name descname">width</code><a class="headerlink" href="#osxphotos.PhotoInfo.width" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">width</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.width" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns width of the current photo version in pixels</p>
 </dd></dl>
 
@@ -1341,7 +1350,7 @@ Returns None if no associated RAW image</p>
       &copy;2021, Rhet Turnbull.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

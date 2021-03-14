@@ -782,7 +782,10 @@ def cli(ctx, db, json_, debug):
     "--cleanup",
     is_flag=True,
     help="Cleanup export directory by deleting any files which were not included in this export set. "
-    "For example, photos which had previously been exported and were subsequently deleted in Photos.",
+    "For example, photos which had previously been exported and were subsequently deleted in Photos. "
+    "WARNING: --cleanup will delete *any* files in the export directory that were not exported by osxphotos, "
+    "for example, your own scripts or other files.  Be sure this is what you intend before using "
+    "--cleanup.  Use --dry-run with --cleanup first if you're not certain.",
 )
 @click.option(
     "--exportdb",

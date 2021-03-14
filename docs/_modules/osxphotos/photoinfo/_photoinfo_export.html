@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos.photoinfo._photoinfo_export &#8212; osxphotos 0.41.0 documentation</title>
+    <title>osxphotos.photoinfo._photoinfo_export &#8212; osxphotos 0.41.2 documentation</title>
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -508,6 +508,9 @@
     <span class="n">merge_exif_keywords</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">merge_exif_persons</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">jpeg_ext</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">persons</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">location</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">replace_keywords</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;export photo, like export but with update and dry_run options</span>
 <span class="sd">    dest: must be valid destination path or exception raised</span>
@@ -560,6 +563,9 @@
 <span class="sd">    merge_exif_keywords: boolean; if True, merged keywords found in file&#39;s exif data (requires exiftool)</span>
 <span class="sd">    merge_exif_persons: boolean; if True, merged persons found in file&#39;s exif data (requires exiftool)</span>
 <span class="sd">    jpeg_ext: if set, will use this value for extension on jpegs converted to jpeg with convert_to_jpeg; if not set, uses jpeg; do not include the leading &quot;.&quot;</span>
+<span class="sd">    persons: if True, include persons in exported metadata</span>
+<span class="sd">    location: if True, include location in exported metadata</span>
+<span class="sd">    replace_keywords: if True, keyword_template replaces any keywords, otherwise it&#39;s additive</span>
 
 <span class="sd">    Returns: ExportResults class </span>
 <span class="sd">        ExportResults has attributes: </span>
@@ -974,6 +980,9 @@
             <span class="n">merge_exif_keywords</span><span class="o">=</span><span class="n">merge_exif_keywords</span><span class="p">,</span>
             <span class="n">merge_exif_persons</span><span class="o">=</span><span class="n">merge_exif_persons</span><span class="p">,</span>
             <span class="n">filename</span><span class="o">=</span><span class="n">dest</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">persons</span><span class="o">=</span><span class="n">persons</span><span class="p">,</span>
+            <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+            <span class="n">replace_keywords</span><span class="o">=</span><span class="n">replace_keywords</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">sidecars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="p">(</span>
@@ -997,6 +1006,9 @@
             <span class="n">merge_exif_keywords</span><span class="o">=</span><span class="n">merge_exif_keywords</span><span class="p">,</span>
             <span class="n">merge_exif_persons</span><span class="o">=</span><span class="n">merge_exif_persons</span><span class="p">,</span>
             <span class="n">filename</span><span class="o">=</span><span class="n">dest</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">persons</span><span class="o">=</span><span class="n">persons</span><span class="p">,</span>
+            <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+            <span class="n">replace_keywords</span><span class="o">=</span><span class="n">replace_keywords</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">sidecars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="p">(</span>
@@ -1016,6 +1028,9 @@
             <span class="n">keyword_template</span><span class="o">=</span><span class="n">keyword_template</span><span class="p">,</span>
             <span class="n">description_template</span><span class="o">=</span><span class="n">description_template</span><span class="p">,</span>
             <span class="n">extension</span><span class="o">=</span><span class="n">dest</span><span class="o">.</span><span class="n">suffix</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">dest</span><span class="o">.</span><span class="n">suffix</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">persons</span><span class="o">=</span><span class="n">persons</span><span class="p">,</span>
+            <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+            <span class="n">replace_keywords</span><span class="o">=</span><span class="n">replace_keywords</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">sidecars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="p">(</span>
@@ -1083,6 +1098,9 @@
                         <span class="n">ignore_date_modified</span><span class="o">=</span><span class="n">ignore_date_modified</span><span class="p">,</span>
                         <span class="n">merge_exif_keywords</span><span class="o">=</span><span class="n">merge_exif_keywords</span><span class="p">,</span>
                         <span class="n">merge_exif_persons</span><span class="o">=</span><span class="n">merge_exif_persons</span><span class="p">,</span>
+                        <span class="n">persons</span><span class="o">=</span><span class="n">persons</span><span class="p">,</span>
+                        <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+                        <span class="n">replace_keywords</span><span class="o">=</span><span class="n">replace_keywords</span><span class="p">,</span>
                     <span class="p">)</span>
                 <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">old_data</span> <span class="o">!=</span> <span class="n">current_data</span><span class="p">:</span>
@@ -1103,6 +1121,9 @@
                         <span class="n">flags</span><span class="o">=</span><span class="n">exiftool_flags</span><span class="p">,</span>
                         <span class="n">merge_exif_keywords</span><span class="o">=</span><span class="n">merge_exif_keywords</span><span class="p">,</span>
                         <span class="n">merge_exif_persons</span><span class="o">=</span><span class="n">merge_exif_persons</span><span class="p">,</span>
+                        <span class="n">persons</span><span class="o">=</span><span class="n">persons</span><span class="p">,</span>
+                        <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+                        <span class="n">replace_keywords</span><span class="o">=</span><span class="n">replace_keywords</span><span class="p">,</span>
                     <span class="p">)</span>
                     <span class="k">if</span> <span class="n">warning_</span><span class="p">:</span>
                         <span class="n">all_results</span><span class="o">.</span><span class="n">exiftool_warning</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">exported_file</span><span class="p">,</span> <span class="n">warning_</span><span class="p">))</span>
@@ -1120,6 +1141,9 @@
                         <span class="n">ignore_date_modified</span><span class="o">=</span><span class="n">ignore_date_modified</span><span class="p">,</span>
                         <span class="n">merge_exif_keywords</span><span class="o">=</span><span class="n">merge_exif_keywords</span><span class="p">,</span>
                         <span class="n">merge_exif_persons</span><span class="o">=</span><span class="n">merge_exif_persons</span><span class="p">,</span>
+                        <span class="n">persons</span><span class="o">=</span><span class="n">persons</span><span class="p">,</span>
+                        <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+                        <span class="n">replace_keywords</span><span class="o">=</span><span class="n">replace_keywords</span><span class="p">,</span>
                     <span class="p">),</span>
                 <span class="p">)</span>
                 <span class="n">export_db</span><span class="o">.</span><span class="n">set_stat_exif_for_file</span><span class="p">(</span>
@@ -1142,6 +1166,9 @@
                     <span class="n">flags</span><span class="o">=</span><span class="n">exiftool_flags</span><span class="p">,</span>
                     <span class="n">merge_exif_keywords</span><span class="o">=</span><span class="n">merge_exif_keywords</span><span class="p">,</span>
                     <span class="n">merge_exif_persons</span><span class="o">=</span><span class="n">merge_exif_persons</span><span class="p">,</span>
+                    <span class="n">persons</span><span class="o">=</span><span class="n">persons</span><span class="p">,</span>
+                    <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+                    <span class="n">replace_keywords</span><span class="o">=</span><span class="n">replace_keywords</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="n">warning_</span><span class="p">:</span>
                     <span class="n">all_results</span><span class="o">.</span><span class="n">exiftool_warning</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">exported_file</span><span class="p">,</span> <span class="n">warning_</span><span class="p">))</span>
@@ -1159,6 +1186,9 @@
                     <span class="n">ignore_date_modified</span><span class="o">=</span><span class="n">ignore_date_modified</span><span class="p">,</span>
                     <span class="n">merge_exif_keywords</span><span class="o">=</span><span class="n">merge_exif_keywords</span><span class="p">,</span>
                     <span class="n">merge_exif_persons</span><span class="o">=</span><span class="n">merge_exif_persons</span><span class="p">,</span>
+                    <span class="n">persons</span><span class="o">=</span><span class="n">persons</span><span class="p">,</span>
+                    <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+                    <span class="n">replace_keywords</span><span class="o">=</span><span class="n">replace_keywords</span><span class="p">,</span>
                 <span class="p">),</span>
             <span class="p">)</span>
             <span class="n">export_db</span><span class="o">.</span><span class="n">set_stat_exif_for_file</span><span class="p">(</span>
@@ -1378,6 +1408,9 @@
     <span class="n">flags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">merge_exif_keywords</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">merge_exif_persons</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">persons</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">location</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">replace_keywords</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;write exif data to image file at filepath</span>
 
@@ -1388,6 +1421,9 @@
 <span class="sd">        keyword_template: (list of strings); list of template strings to render as keywords</span>
 <span class="sd">        ignore_date_modified: if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set</span>
 <span class="sd">        flags: optional list of exiftool flags to prepend to exiftool command when writing metadata (e.g. -m or -F)</span>
+<span class="sd">        persons: if True, write person data to metadata</span>
+<span class="sd">        location: if True, write location data to metadata</span>
+<span class="sd">        replace_keywords: if True, keyword_template replaces any keywords, otherwise it&#39;s additive</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        (warning, error) of warning and error strings if exiftool produces warnings or errors</span>
@@ -1402,6 +1438,9 @@
         <span class="n">ignore_date_modified</span><span class="o">=</span><span class="n">ignore_date_modified</span><span class="p">,</span>
         <span class="n">merge_exif_keywords</span><span class="o">=</span><span class="n">merge_exif_keywords</span><span class="p">,</span>
         <span class="n">merge_exif_persons</span><span class="o">=</span><span class="n">merge_exif_persons</span><span class="p">,</span>
+        <span class="n">persons</span><span class="o">=</span><span class="n">persons</span><span class="p">,</span>
+        <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+        <span class="n">replace_keywords</span><span class="o">=</span><span class="n">replace_keywords</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">with</span> <span class="n">ExifTool</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">,</span> <span class="n">exiftool</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_exiftool_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">exiftool</span><span class="p">:</span>
@@ -1424,6 +1463,9 @@
     <span class="n">merge_exif_keywords</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">merge_exif_persons</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">persons</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">location</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">replace_keywords</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.</span>
 <span class="sd">        Does not include all the EXIF fields as those are likely already in the image.</span>
@@ -1437,6 +1479,9 @@
 <span class="sd">        ignore_date_modified: if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set</span>
 <span class="sd">        merge_exif_keywords: merge keywords in the file&#39;s exif metadata (requires exiftool)</span>
 <span class="sd">        merge_exif_persons: merge persons in the file&#39;s exif metadata (requires exiftool)</span>
+<span class="sd">        persons: if True, include person data</span>
+<span class="sd">        location: if True, include location data</span>
+<span class="sd">        replace_keywords: if True, keyword_template replaces any keywords, otherwise it&#39;s additive</span>
 
 <span class="sd">    Returns: dict with exiftool tags / values</span>
 
@@ -1444,8 +1489,10 @@
 <span class="sd">        EXIF:ImageDescription (may include template)</span>
 <span class="sd">        XMP:Description (may include template)</span>
 <span class="sd">        XMP:Title</span>
+<span class="sd">        IPTC:ObjectName</span>
 <span class="sd">        XMP:TagsList (may include album name, person name, or template)</span>
 <span class="sd">        IPTC:Keywords (may include album name, person name, or template)</span>
+<span class="sd">        IPTC:Caption-Abstract</span>
 <span class="sd">        XMP:Subject (set to keywords + persons)</span>
 <span class="sd">        XMP:PersonInImage</span>
 <span class="sd">        EXIF:GPSLatitudeRef, EXIF:GPSLongitudeRef</span>
@@ -1461,6 +1508,9 @@
 <span class="sd">        QuickTime:ModifyDate (UTC)</span>
 <span class="sd">        QuickTime:GPSCoordinates</span>
 <span class="sd">        UserData:GPSCoordinates</span>
+
+<span class="sd">    Reference: </span>
+<span class="sd">        https://iptc.org/std/photometadata/specification/IPTC-PhotoMetadata-201610_1.pdf</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">exif</span> <span class="o">=</span> <span class="p">(</span>
@@ -1480,30 +1530,34 @@
         <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rendered</span><span class="p">)</span> <span class="k">if</span> <span class="n">rendered</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
         <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;EXIF:ImageDescription&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">description</span>
         <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;XMP:Description&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">description</span>
+        <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;IPTC:Caption-Abstract&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">description</span>
     <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
         <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;EXIF:ImageDescription&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span>
         <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;XMP:Description&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span>
+        <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;IPTC:Caption-Abstract&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">:</span>
         <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;XMP:Title&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span>
+        <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;IPTC:ObjectName&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span>
 
     <span class="n">keyword_list</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">merge_exif_keywords</span><span class="p">:</span>
         <span class="n">keyword_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_exif_keywords</span><span class="p">())</span>
 
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">keywords</span><span class="p">:</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">keywords</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">replace_keywords</span><span class="p">:</span>
         <span class="n">keyword_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keywords</span><span class="p">)</span>
 
     <span class="n">person_list</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">if</span> <span class="n">merge_exif_persons</span><span class="p">:</span>
-        <span class="n">person_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_exif_persons</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">persons</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">merge_exif_persons</span><span class="p">:</span>
+            <span class="n">person_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_exif_persons</span><span class="p">())</span>
 
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">persons</span><span class="p">:</span>
-        <span class="c1"># filter out _UNKNOWN_PERSON</span>
-        <span class="n">person_list</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">persons</span> <span class="k">if</span> <span class="n">p</span> <span class="o">!=</span> <span class="n">_UNKNOWN_PERSON</span><span class="p">])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">persons</span><span class="p">:</span>
+            <span class="c1"># filter out _UNKNOWN_PERSON</span>
+            <span class="n">person_list</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">persons</span> <span class="k">if</span> <span class="n">p</span> <span class="o">!=</span> <span class="n">_UNKNOWN_PERSON</span><span class="p">])</span>
 
-    <span class="k">if</span> <span class="n">use_persons_as_keywords</span> <span class="ow">and</span> <span class="n">person_list</span><span class="p">:</span>
-        <span class="n">keyword_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">person_list</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">use_persons_as_keywords</span> <span class="ow">and</span> <span class="n">person_list</span><span class="p">:</span>
+            <span class="n">keyword_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">person_list</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">use_albums_as_keywords</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">albums</span><span class="p">:</span>
         <span class="n">keyword_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">albums</span><span class="p">)</span>
@@ -1547,25 +1601,26 @@
         <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;XMP:Subject&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">keyword_list</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;XMP:TagsList&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">keyword_list</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="n">person_list</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">persons</span> <span class="ow">and</span> <span class="n">person_list</span><span class="p">:</span>
         <span class="n">person_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">person_list</span><span class="p">)))</span>
         <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;XMP:PersonInImage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">person_list</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="c1"># if self.favorite():</span>
     <span class="c1">#     exif[&quot;Rating&quot;] = 5</span>
 
-    <span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span>
-    <span class="k">if</span> <span class="n">lat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">lon</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isphoto</span><span class="p">:</span>
-            <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;EXIF:GPSLatitude&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lat</span>
-            <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;EXIF:GPSLongitude&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lon</span>
-            <span class="n">lat_ref</span> <span class="o">=</span> <span class="s2">&quot;N&quot;</span> <span class="k">if</span> <span class="n">lat</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;S&quot;</span>
-            <span class="n">lon_ref</span> <span class="o">=</span> <span class="s2">&quot;E&quot;</span> <span class="k">if</span> <span class="n">lon</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;W&quot;</span>
-            <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;EXIF:GPSLatitudeRef&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lat_ref</span>
-            <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;EXIF:GPSLongitudeRef&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lon_ref</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">ismovie</span><span class="p">:</span>
-            <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;Keys:GPSCoordinates&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lat</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">lon</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;UserData:GPSCoordinates&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lat</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">lon</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">if</span> <span class="n">location</span><span class="p">:</span>
+        <span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span>
+        <span class="k">if</span> <span class="n">lat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">lon</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isphoto</span><span class="p">:</span>
+                <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;EXIF:GPSLatitude&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lat</span>
+                <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;EXIF:GPSLongitude&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lon</span>
+                <span class="n">lat_ref</span> <span class="o">=</span> <span class="s2">&quot;N&quot;</span> <span class="k">if</span> <span class="n">lat</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;S&quot;</span>
+                <span class="n">lon_ref</span> <span class="o">=</span> <span class="s2">&quot;E&quot;</span> <span class="k">if</span> <span class="n">lon</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;W&quot;</span>
+                <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;EXIF:GPSLatitudeRef&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lat_ref</span>
+                <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;EXIF:GPSLongitudeRef&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lon_ref</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">ismovie</span><span class="p">:</span>
+                <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;Keys:GPSCoordinates&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lat</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">lon</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;UserData:GPSCoordinates&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lat</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">lon</span><span class="si">}</span><span class="s2">&quot;</span>
 
     <span class="c1"># process date/time and timezone offset</span>
     <span class="c1"># Photos exports the following fields and sets modify date to creation date</span>
@@ -1624,6 +1679,13 @@
             <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;QuickTime:ModifyDate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime_tz_to_utc</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">date_modified</span>
             <span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y:%m:</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># remove any new lines in any fields</span>
+    <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">exif</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">exif</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="n">exif</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">val</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">exif</span>
 
 
@@ -1673,6 +1735,9 @@
     <span class="n">merge_exif_keywords</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">merge_exif_persons</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">persons</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">location</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">replace_keywords</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.</span>
 <span class="sd">        Does not include all the EXIF fields as those are likely already in the image.</span>
@@ -1687,13 +1752,18 @@
 <span class="sd">        merge_exif_keywords: boolean; if True, merged keywords found in file&#39;s exif data (requires exiftool)</span>
 <span class="sd">        merge_exif_persons: boolean; if True, merged persons found in file&#39;s exif data (requires exiftool)</span>
 <span class="sd">        filename: filename of the destination image file for including in exiftool signature in JSON sidecar</span>
+<span class="sd">        persons: if True, include person data</span>
+<span class="sd">        location: if True, include location data</span>
+<span class="sd">        replace_keywords: if True, keyword_template replaces any keywords, otherwise it&#39;s additive</span>
 
 <span class="sd">    Returns: dict with exiftool tags / values</span>
 
 <span class="sd">    Exports the following:</span>
 <span class="sd">        EXIF:ImageDescription</span>
 <span class="sd">        XMP:Description (may include template)</span>
+<span class="sd">        IPTC:CaptionAbstract</span>
 <span class="sd">        XMP:Title</span>
+<span class="sd">        IPTC:ObjectName</span>
 <span class="sd">        XMP:TagsList</span>
 <span class="sd">        IPTC:Keywords (may include album name, person name, or template)</span>
 <span class="sd">        XMP:Subject (set to keywords + person)</span>
@@ -1721,6 +1791,9 @@
         <span class="n">merge_exif_keywords</span><span class="o">=</span><span class="n">merge_exif_keywords</span><span class="p">,</span>
         <span class="n">merge_exif_persons</span><span class="o">=</span><span class="n">merge_exif_persons</span><span class="p">,</span>
         <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+        <span class="n">persons</span><span class="o">=</span><span class="n">persons</span><span class="p">,</span>
+        <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+        <span class="n">replace_keywords</span><span class="o">=</span><span class="n">replace_keywords</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">tag_groups</span><span class="p">:</span>
@@ -1743,6 +1816,9 @@
     <span class="n">extension</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">merge_exif_keywords</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">merge_exif_persons</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">persons</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">location</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">replace_keywords</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;returns string for XMP sidecar</span>
 <span class="sd">    use_albums_as_keywords: treat album names as keywords</span>
@@ -1752,6 +1828,9 @@
 <span class="sd">    extension: which extension to use for SidecarForExtension property</span>
 <span class="sd">    merge_exif_keywords: boolean; if True, merged keywords found in file&#39;s exif data (requires exiftool)</span>
 <span class="sd">    merge_exif_persons: boolean; if True, merged persons found in file&#39;s exif data (requires exiftool)</span>
+<span class="sd">    persons: if True, include person data</span>
+<span class="sd">    location: if True, include location data</span>
+<span class="sd">    replace_keywords: if True, keyword_template replaces any keywords, otherwise it&#39;s additive</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">xmp_template_file</span> <span class="o">=</span> <span class="p">(</span>
@@ -1775,22 +1854,23 @@
     <span class="k">if</span> <span class="n">merge_exif_keywords</span><span class="p">:</span>
         <span class="n">keyword_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_exif_keywords</span><span class="p">())</span>
 
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">keywords</span><span class="p">:</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">keywords</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">replace_keywords</span><span class="p">:</span>
         <span class="n">keyword_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keywords</span><span class="p">)</span>
 
     <span class="c1"># TODO: keyword handling in this and _exiftool_json_sidecar is</span>
     <span class="c1"># good candidate for pulling out in a function</span>
 
     <span class="n">person_list</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">if</span> <span class="n">merge_exif_persons</span><span class="p">:</span>
-        <span class="n">person_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_exif_persons</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">persons</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">merge_exif_persons</span><span class="p">:</span>
+            <span class="n">person_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_exif_persons</span><span class="p">())</span>
 
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">persons</span><span class="p">:</span>
-        <span class="c1"># filter out _UNKNOWN_PERSON</span>
-        <span class="n">person_list</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">persons</span> <span class="k">if</span> <span class="n">p</span> <span class="o">!=</span> <span class="n">_UNKNOWN_PERSON</span><span class="p">])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">persons</span><span class="p">:</span>
+            <span class="c1"># filter out _UNKNOWN_PERSON</span>
+            <span class="n">person_list</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">persons</span> <span class="k">if</span> <span class="n">p</span> <span class="o">!=</span> <span class="n">_UNKNOWN_PERSON</span><span class="p">])</span>
 
-    <span class="k">if</span> <span class="n">use_persons_as_keywords</span> <span class="ow">and</span> <span class="n">person_list</span><span class="p">:</span>
-        <span class="n">keyword_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">person_list</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">use_persons_as_keywords</span> <span class="ow">and</span> <span class="n">person_list</span><span class="p">:</span>
+            <span class="n">keyword_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">person_list</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">use_albums_as_keywords</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">albums</span><span class="p">:</span>
         <span class="n">keyword_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">albums</span><span class="p">)</span>
@@ -1820,10 +1900,13 @@
     <span class="c1"># sorted mainly to make testing the XMP file easier</span>
     <span class="k">if</span> <span class="n">keyword_list</span><span class="p">:</span>
         <span class="n">keyword_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">keyword_list</span><span class="p">)))</span>
-    <span class="k">if</span> <span class="n">person_list</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">persons</span> <span class="ow">and</span> <span class="n">person_list</span><span class="p">:</span>
         <span class="n">person_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">person_list</span><span class="p">)))</span>
 
     <span class="n">subject_list</span> <span class="o">=</span> <span class="n">keyword_list</span>
+
+    <span class="k">if</span> <span class="n">location</span><span class="p">:</span>
+        <span class="n">latlon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span>
 
     <span class="n">xmp_str</span> <span class="o">=</span> <span class="n">xmp_template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
         <span class="n">photo</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
@@ -1832,6 +1915,7 @@
         <span class="n">persons</span><span class="o">=</span><span class="n">person_list</span><span class="p">,</span>
         <span class="n">subjects</span><span class="o">=</span><span class="n">subject_list</span><span class="p">,</span>
         <span class="n">extension</span><span class="o">=</span><span class="n">extension</span><span class="p">,</span>
+        <span class="n">location</span><span class="o">=</span><span class="n">latlon</span><span class="p">,</span>
         <span class="n">version</span><span class="o">=</span><span class="n">__version__</span><span class="p">,</span>
     <span class="p">)</span>
 
@@ -1912,7 +1996,7 @@
       &copy;2021, Rhet Turnbull.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
