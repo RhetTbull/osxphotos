@@ -994,7 +994,7 @@ def test_export_12():
 
     edited_name = pathlib.Path(photos[0].path_edited).name
     edited_suffix = pathlib.Path(edited_name).suffix
-    filename = pathlib.Path(photos[0].filename).stem + "_edited" + edited_suffix
+    filename = pathlib.Path(photos[0].original_filename).stem + "_edited" + edited_suffix
     expected_dest = os.path.join(dest, filename)
 
     got_dest = photos[0].export(dest, edited=True)[0]

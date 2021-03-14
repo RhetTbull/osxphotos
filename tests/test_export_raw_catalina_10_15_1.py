@@ -101,7 +101,7 @@ def test_export_edited_default():
     photos = photosdb.photos(uuid=[UUID_DICT["has_adjustments"]])
 
     got_dest = photos[0].export(dest, edited=True)[0]
-    assert pathlib.Path(got_dest).name == FILENAME_DICT["current_edited"]
+    assert pathlib.Path(got_dest).name == FILENAME_DICT["original_edited"]
 
 
 def test_export_edited_wrong_suffix():
