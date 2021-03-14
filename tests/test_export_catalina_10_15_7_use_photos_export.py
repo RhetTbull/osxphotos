@@ -29,7 +29,7 @@ def test_export_default_name(photosdb):
     # test basic export
     # get an unedited image and export it using default filename
     import os
-    import os.path
+    import pathlib
     import tempfile
 
     import osxphotos
@@ -38,11 +38,12 @@ def test_export_default_name(photosdb):
     dest = tempdir.name
     photos = photosdb.photos(uuid=[UUID_DICT["no_adjustments"]])
 
-    filename = photos[0].filename
-    expected_dest = os.path.join(dest, filename)
+    filename = photos[0].original_filename
+    expected_dest = pathlib.Path(dest) / filename
+    expected_dest = expected_dest.parent / f"{expected_dest.stem}.jpeg"
     got_dest = photos[0].export(dest, use_photos_export=True)[0]
 
-    assert got_dest == expected_dest
+    assert got_dest == str(expected_dest)
     assert os.path.isfile(got_dest)
 
 
@@ -82,7 +83,7 @@ def test_export_edited(photosdb):
     photos = photosdb.photos(uuid=[UUID_DICT["has_adjustments"]])
 
     suffix = pathlib.Path(photos[0].path_edited).suffix
-    filename = f"{pathlib.Path(photos[0].filename).stem}_edited{suffix}"
+    filename = f"{pathlib.Path(photos[0].original_filename).stem}_edited{suffix}"
     expected_dest = os.path.join(dest, filename)
     got_dest = photos[0].export(dest, use_photos_export=True, edited=True)[0]
 

@@ -87,6 +87,8 @@ class ExportResults:
         exiftool_error=None,
         xattr_written=None,
         xattr_skipped=None,
+        deleted_files=None,
+        deleted_directories=None,
     ):
         self.exported = exported or []
         self.new = new or []
@@ -107,6 +109,8 @@ class ExportResults:
         self.exiftool_error = exiftool_error or []
         self.xattr_written = xattr_written or []
         self.xattr_skipped = xattr_skipped or []
+        self.deleted_files = deleted_files or []
+        self.deleted_directories = deleted_directories or []
 
     def all_files(self):
         """ return all filenames contained in results """
@@ -151,6 +155,8 @@ class ExportResults:
         self.error += other.error
         self.exiftool_warning += other.exiftool_warning
         self.exiftool_error += other.exiftool_error
+        self.deleted_files += other.deleted_files
+        self.deleted_directories += other.deleted_directories
         return self
 
     def __str__(self):
@@ -173,6 +179,8 @@ class ExportResults:
             + f",error={self.error}"
             + f",exiftool_warning={self.exiftool_warning}"
             + f",exiftool_error={self.exiftool_error}"
+            + f",deleted_files={self.deleted_files}"
+            + f",deleted_directories={self.deleted_directories}"
             + ")"
         )
 

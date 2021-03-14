@@ -21,6 +21,8 @@ EXPORT_RESULT_ATTRIBUTES = [
     "error",
     "exiftool_warning",
     "exiftool_error",
+    "deleted_files",
+    "deleted_directories",
 ]
 
 
@@ -43,6 +45,8 @@ def test_exportresults_init():
     assert results.error == []
     assert results.exiftool_warning == []
     assert results.exiftool_error == []
+    assert results.deleted_files == []
+    assert results.deleted_directories == []
 
 
 def test_exportresults_iadd():
@@ -64,6 +68,12 @@ def test_exportresults_iadd():
     results1.exiftool_error = [("exiftool_error1", "foo")]
     results2.exiftool_error = [("exiftool_error2", "bar")]
 
+    results1.deleted_files = [("foo1")]
+    results2.deleted_files = [("foo2")]
+
+    results1.deleted_directories = [("bar1")]
+    results2.deleted_directories = [("bar2")]
+
     results1 += results2
 
     assert results1.exiftool_warning == [
@@ -75,6 +85,9 @@ def test_exportresults_iadd():
         ("exiftool_error2", "bar"),
     ]
 
+    assert results1.deleted_files == ["foo1", "foo2"]
+    assert results1.deleted_directories == ["bar1", "bar2"]
+
 
 def test_all_files():
     """ test ExportResults.all_files() """
@@ -84,10 +97,12 @@ def test_all_files():
     results.exiftool_warning = [("exiftool_warning1", "foo")]
     results.exiftool_error = [("exiftool_error1", "foo")]
     results.error = [("error1", "foo")]
+    results.deleted_files = ["deleted_files1"]
+    results.deleted_directories = ["deleted_directories1"]
 
-    assert sorted(results.all_files()) == sorted(
-        [f"{x}1" for x in EXPORT_RESULT_ATTRIBUTES]
-    )
+    assert sorted(
+        results.all_files() + results.deleted_files + results.deleted_directories
+    ) == sorted([f"{x}1" for x in EXPORT_RESULT_ATTRIBUTES])
 
 
 def test_str():
@@ -95,6 +110,6 @@ def test_str():
     results = ExportResults()
     assert (
         str(results)
-        == "ExportResults(exported=[],new=[],updated=[],skipped=[],exif_updated=[],touched=[],converted_to_jpeg=[],sidecar_json_written=[],sidecar_json_skipped=[],sidecar_exiftool_written=[],sidecar_exiftool_skipped=[],sidecar_xmp_written=[],sidecar_xmp_skipped=[],missing=[],error=[],exiftool_warning=[],exiftool_error=[])"
+        == "ExportResults(exported=[],new=[],updated=[],skipped=[],exif_updated=[],touched=[],converted_to_jpeg=[],sidecar_json_written=[],sidecar_json_skipped=[],sidecar_exiftool_written=[],sidecar_exiftool_skipped=[],sidecar_xmp_written=[],sidecar_xmp_skipped=[],missing=[],error=[],exiftool_warning=[],exiftool_error=[],deleted_files=[],deleted_directories=[])"
     )
 

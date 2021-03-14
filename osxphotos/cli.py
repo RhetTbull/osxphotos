@@ -1509,10 +1509,14 @@ def export(
                 + [str(pathlib.Path(export_db_path).resolve())]
             )
             click.echo(f"Cleaning up {dest}")
-            (cleaned_files, cleaned_dirs) = cleanup_files(dest, all_files, fileutil)
-            file_str = "files" if cleaned_files != 1 else "file"
-            dir_str = "directories" if cleaned_dirs != 1 else "directory"
-            click.echo(f"Deleted: {cleaned_files} {file_str}, {cleaned_dirs} {dir_str}")
+            cleaned_files, cleaned_dirs = cleanup_files(dest, all_files, fileutil)
+            file_str = "files" if len(cleaned_files) != 1 else "file"
+            dir_str = "directories" if len(cleaned_dirs) != 1 else "directory"
+            click.echo(
+                f"Deleted: {len(cleaned_files)} {file_str}, {len(cleaned_dirs)} {dir_str}"
+            )
+            results.deleted_files = cleaned_files
+            results.deleted_directories = cleaned_dirs
 
         if report:
             verbose_(f"Writing export report to {report}")
@@ -2896,8 +2900,12 @@ def write_export_report(report_file, results):
             "exiftool_error": "",
             "extended_attributes_written": 0,
             "extended_attributes_skipped": 0,
+            "cleanup_deleted_file": 0,
+            "cleanup_deleted_directory": 0,
         }
         for result in results.all_files()
+        + results.deleted_files
+        + results.deleted_directories
     }
 
     for result in results.exported:
@@ -2963,6 +2971,12 @@ def write_export_report(report_file, results):
     for result in results.xattr_skipped:
         all_results[result]["extended_attributes_skipped"] = 1
 
+    for result in results.deleted_files:
+        all_results[result]["cleanup_deleted_file"] = 1
+
+    for result in results.deleted_directories:
+        all_results[result]["cleanup_deleted_directory"] = 1
+
     report_columns = [
         "filename",
         "exported",
@@ -2981,6 +2995,8 @@ def write_export_report(report_file, results):
         "exiftool_error",
         "extended_attributes_written",
         "extended_attributes_skipped",
+        "cleanup_deleted_file",
+        "cleanup_deleted_directory",
     ]
 
     try:
@@ -3007,27 +3023,27 @@ def cleanup_files(dest_path, files_to_keep, fileutil):
         fileutile: FileUtil object
 
     Returns:
-        tuple of (number of files deleted, number of directories deleted)
+        tuple of (list of files deleted, list of directories deleted)
     """
     keepers = {str(filename).lower(): 1 for filename in files_to_keep}
 
-    deleted_files = 0
+    deleted_files = []
     for p in pathlib.Path(dest_path).rglob("*"):
         path = str(p).lower()
         if p.is_file() and path not in keepers:
             verbose_(f"Deleting {p}")
             fileutil.unlink(p)
-            deleted_files += 1
+            deleted_files.append(str(p))
 
     # delete empty directories
-    deleted_dirs = 0
+    deleted_dirs = []
     for p in pathlib.Path(dest_path).rglob("*"):
         path = str(p).lower()
         # if directory and directory is empty
         if p.is_dir() and not next(p.iterdir(), False):
             verbose_(f"Deleting empty directory {p}")
             fileutil.rmdir(p)
-            deleted_dirs += 1
+            deleted_dirs.append(str(p))
 
     return (deleted_files, deleted_dirs)
 
