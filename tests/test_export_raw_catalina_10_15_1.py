@@ -29,13 +29,13 @@ def test_export_1():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["has_adjustments"]])
 
-    filename = photos[0].filename
+    filename = photos[0].original_filename
     expected_dest = os.path.join(dest, filename)
     got_dest = photos[0].export(dest)[0]
 
     assert got_dest == expected_dest
     assert os.path.isfile(got_dest)
-    assert pathlib.Path(got_dest).name == FILENAME_DICT["current"]
+    assert pathlib.Path(got_dest).name == FILENAME_DICT["original"]
 
 
 def test_export_2():

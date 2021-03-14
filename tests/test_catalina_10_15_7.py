@@ -693,7 +693,7 @@ def test_export_1(photosdb):
     dest = tempdir.name
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
-    filename = photos[0].filename
+    filename = photos[0].original_filename
     expected_dest = os.path.join(dest, filename)
     got_dest = photos[0].export(dest)[0]
 
@@ -724,7 +724,7 @@ def test_export_3(photosdb):
     dest = tempdir.name
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
-    filename = photos[0].filename
+    filename = photos[0].original_filename
     filename2 = pathlib.Path(filename)
     filename2 = f"{filename2.stem} (1){filename2.suffix}"
     expected_dest_2 = os.path.join(dest, filename2)
@@ -763,7 +763,7 @@ def test_export_5(photosdb):
     dest = tempdir.name
     photos = photosdb.photos(uuid=[UUID_DICT["export"]])
 
-    filename = photos[0].filename
+    filename = photos[0].original_filename
     expected_dest = os.path.join(dest, filename)
 
     got_dest = photos[0].export(dest)[0]
