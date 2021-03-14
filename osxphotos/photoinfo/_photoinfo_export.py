@@ -949,7 +949,7 @@ def export2(
             filename=dest.name,
             persons=persons,
             location=location,
-            replace_keywords=replace_keywords
+            replace_keywords=replace_keywords,
         )
         sidecars.append(
             (
@@ -975,7 +975,7 @@ def export2(
             filename=dest.name,
             persons=persons,
             location=location,
-            replace_keywords=replace_keywords
+            replace_keywords=replace_keywords,
         )
         sidecars.append(
             (
@@ -997,7 +997,7 @@ def export2(
             extension=dest.suffix[1:] if dest.suffix else None,
             persons=persons,
             location=location,
-            replace_keywords=replace_keywords
+            replace_keywords=replace_keywords,
         )
         sidecars.append(
             (
@@ -1067,7 +1067,7 @@ def export2(
                         merge_exif_persons=merge_exif_persons,
                         persons=persons,
                         location=location,
-                        replace_keywords=replace_keywords
+                        replace_keywords=replace_keywords,
                     )
                 )[0]
                 if old_data != current_data:
@@ -1090,7 +1090,7 @@ def export2(
                         merge_exif_persons=merge_exif_persons,
                         persons=persons,
                         location=location,
-                        replace_keywords=replace_keywords
+                        replace_keywords=replace_keywords,
                     )
                     if warning_:
                         all_results.exiftool_warning.append((exported_file, warning_))
@@ -1110,7 +1110,7 @@ def export2(
                         merge_exif_persons=merge_exif_persons,
                         persons=persons,
                         location=location,
-                        replace_keywords=replace_keywords
+                        replace_keywords=replace_keywords,
                     ),
                 )
                 export_db.set_stat_exif_for_file(
@@ -1135,7 +1135,7 @@ def export2(
                     merge_exif_persons=merge_exif_persons,
                     persons=persons,
                     location=location,
-                    replace_keywords=replace_keywords
+                    replace_keywords=replace_keywords,
                 )
                 if warning_:
                     all_results.exiftool_warning.append((exported_file, warning_))
@@ -1155,7 +1155,7 @@ def export2(
                     merge_exif_persons=merge_exif_persons,
                     persons=persons,
                     location=location,
-                    replace_keywords=replace_keywords
+                    replace_keywords=replace_keywords,
                 ),
             )
             export_db.set_stat_exif_for_file(
@@ -1646,6 +1646,13 @@ def _exiftool_dict(
             exif["QuickTime:ModifyDate"] = datetime_tz_to_utc(
                 self.date_modified
             ).strftime("%Y:%m:%d %H:%M:%S")
+    
+    # remove any new lines in any fields
+    for field, val in exif.items():
+        if type(val) == str:
+            exif[field] = val.replace("\n", " ")
+        elif type(val) == list:
+            exif[field] = [v.replace("\n", " ") for v in val]
     return exif
 
 

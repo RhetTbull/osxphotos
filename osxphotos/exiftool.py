@@ -176,6 +176,10 @@ class ExifTool:
         command = [f"-{tag}={value}"]
         if self.overwrite and not self._context_mgr:
             command.append("-overwrite_original")
+
+        # avoid "Warning: Some character(s) could not be encoded in Latin" warning
+        command.append("-iptc:codedcharacterset=utf8")
+
         if self._context_mgr:
             self._commands.extend(command)
             return True

@@ -23,10 +23,10 @@ PHOTOS_DB = "tests/Test-10.15.7.photoslibrary/database/photos.db"
 PHOTOS_DB_PATH = "/Test-10.15.7.photoslibrary/database/photos.db"
 PHOTOS_LIBRARY_PATH = "/Test-10.15.7.photoslibrary"
 
-PHOTOS_DB_LEN = 19
-PHOTOS_NOT_IN_TRASH_LEN = 17
+PHOTOS_DB_LEN = 20
+PHOTOS_NOT_IN_TRASH_LEN = 18
 PHOTOS_IN_TRASH_LEN = 2
-PHOTOS_DB_IMPORT_SESSIONS = 14
+PHOTOS_DB_IMPORT_SESSIONS = 15
 
 KEYWORDS = [
     "Kids",
@@ -41,6 +41,10 @@ KEYWORDS = [
     "foo/bar",
     "Travel",
     "Maria",
+    "Drink",
+    "Val d'Isère",
+    "Wine",
+    "Wine Bottle",
 ]
 # Photos 5 includes blank person for detected face
 PERSONS = ["Katie", "Suzy", "Maria", _UNKNOWN_PERSON]
@@ -67,6 +71,10 @@ KEYWORDS_DICT = {
     "foo/bar": 1,
     "Travel": 2,
     "Maria": 1,
+    "Drink": 1,
+    "Val d'Isère": 1,
+    "Wine": 1,
+    "Wine Bottle": 1,
 }
 PERSONS_DICT = {"Katie": 3, "Suzy": 2, "Maria": 2, _UNKNOWN_PERSON: 1}
 ALBUM_DICT = {
@@ -102,6 +110,7 @@ UUID_DICT = {
     "intrash_person_keywords": "6FD38366-3BF2-407D-81FE-7153EB6125B6",
     "import_session": "8846E3E6-8AC8-4857-8448-E3D025784410",
     "movie": "D1359D09-1373-4F3B-B0E3-1A4DE573E4A3",
+    "description_newlines": "7F74DD34-5920-4DA3-B284-479887A34F66",
 }
 
 UUID_DICT_LOCAL = {
@@ -1010,7 +1019,7 @@ def test_from_to_date(photosdb):
     time.tzset()
 
     photos = photosdb.photos(from_date=datetime.datetime(2018, 10, 28))
-    assert len(photos) == 10
+    assert len(photos) == 11
 
     photos = photosdb.photos(to_date=datetime.datetime(2018, 10, 28))
     assert len(photos) == 7
@@ -1266,3 +1275,12 @@ def test_no_adjustments(photosdb):
 
     photo = photosdb.get_photo(UUID_DICT["no_adjustments"])
     assert photo.adjustments is None
+
+
+def test_exiftool_newlines_in_description(photosdb):
+    """ Test that exiftool code removes newlines embedded in description, issue #393"""
+
+    photo = photosdb.get_photo(UUID_DICT["description_newlines"])
+    exif = photo._exiftool_dict()
+    assert photo.description.find("\n") > 0
+    assert exif["EXIF:ImageDescription"].find("\n") == -1
