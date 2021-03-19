@@ -49,7 +49,7 @@ pathvalidate==2.2.1
 pexpect==4.8.0
 photoscript==0.1.0
 pickleshare==0.7.5
-Pillow==7.2.0
+Pillow==8.1.1
 pkginfo==1.5.0.1
 pluggy==0.12.0
 prompt-toolkit==3.0.4
