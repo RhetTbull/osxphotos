@@ -1846,6 +1846,36 @@ def test_query_date_timezone():
     assert len(json_got) == 4
 
 
+def test_query_time():
+    """ Test --from-time, --to-time"""
+    import json
+    import osxphotos
+    import os
+    import os.path
+    import time
+    from osxphotos.cli import query
+
+    os.environ["TZ"] = "US/Pacific"
+    time.tzset()
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, CLI_PHOTOS_DB),
+            "--from-time=16:00",
+            "--to-time=17:00",
+        ],
+    )
+    assert result.exit_code == 0
+
+    json_got = json.loads(result.output)
+    assert len(json_got) == 3
+
+
 def test_query_keyword_1():
     """Test query --keyword """
     import json

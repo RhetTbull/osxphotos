@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos command line interface (CLI) &#8212; osxphotos 0.41.2 documentation</title>
+    <title>osxphotos command line interface (CLI) &#8212; osxphotos 0.41.4 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -426,13 +426,25 @@ to modify this behavior.</p>
 <dl class="std option">
 <dt id="cmdoption-osxphotos-export-from-date">
 <code class="sig-name descname"><span class="pre">--from-date</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;from_date&gt;</span></code><a class="headerlink" href="#cmdoption-osxphotos-export-from-date" title="Permalink to this definition">¶</a></dt>
-<dd><p>Search by start item date, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601).</p>
+<dd><p>Search by item start date, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-osxphotos-export-to-date">
 <code class="sig-name descname"><span class="pre">--to-date</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;to_date&gt;</span></code><a class="headerlink" href="#cmdoption-osxphotos-export-to-date" title="Permalink to this definition">¶</a></dt>
-<dd><p>Search by end item date, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601).</p>
+<dd><p>Search by item end date, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-osxphotos-export-from-time">
+<code class="sig-name descname"><span class="pre">--from-time</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;from_time&gt;</span></code><a class="headerlink" href="#cmdoption-osxphotos-export-from-time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search by item start time of day, e.g. 12:00, or 12:00:00.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-osxphotos-export-to-time">
+<code class="sig-name descname"><span class="pre">--to-time</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;to_time&gt;</span></code><a class="headerlink" href="#cmdoption-osxphotos-export-to-time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search by item end time of day, e.g. 12:00 or 12:00:00.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -1248,13 +1260,25 @@ if more than one option is provided, they are treated as “AND”
 <dl class="std option">
 <dt id="cmdoption-osxphotos-query-from-date">
 <code class="sig-name descname"><span class="pre">--from-date</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;from_date&gt;</span></code><a class="headerlink" href="#cmdoption-osxphotos-query-from-date" title="Permalink to this definition">¶</a></dt>
-<dd><p>Search by start item date, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601).</p>
+<dd><p>Search by item start date, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).</p>
 </dd></dl>
 
 <dl class="std option">
 <dt id="cmdoption-osxphotos-query-to-date">
 <code class="sig-name descname"><span class="pre">--to-date</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;to_date&gt;</span></code><a class="headerlink" href="#cmdoption-osxphotos-query-to-date" title="Permalink to this definition">¶</a></dt>
-<dd><p>Search by end item date, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601).</p>
+<dd><p>Search by item end date, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-osxphotos-query-from-time">
+<code class="sig-name descname"><span class="pre">--from-time</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;from_time&gt;</span></code><a class="headerlink" href="#cmdoption-osxphotos-query-from-time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search by item start time of day, e.g. 12:00, or 12:00:00.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-osxphotos-query-to-time">
+<code class="sig-name descname"><span class="pre">--to-time</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;to_time&gt;</span></code><a class="headerlink" href="#cmdoption-osxphotos-query-to-time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search by item end time of day, e.g. 12:00 or 12:00:00.</p>
 </dd></dl>
 
 <dl class="std option">

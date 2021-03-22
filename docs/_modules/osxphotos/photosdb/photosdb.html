@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos.photosdb.photosdb &#8212; osxphotos 0.41.0 documentation</title>
+    <title>osxphotos.photosdb.photosdb &#8212; osxphotos 0.41.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -2074,6 +2074,7 @@
             <span class="c1"># &gt; 6 = portrait (sometimes, see ZDEPTHSTATE/ZDEPTHTYPE)</span>
             <span class="n">info</span><span class="p">[</span><span class="s2">&quot;customRenderedValue&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">22</span><span class="p">]</span>
             <span class="n">info</span><span class="p">[</span><span class="s2">&quot;hdr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="mi">22</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span> <span class="k">else</span> <span class="kc">False</span>
+            <span class="n">info</span><span class="p">[</span><span class="s2">&quot;depth_state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">36</span><span class="p">]</span>
             <span class="n">info</span><span class="p">[</span><span class="s2">&quot;portrait&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="mi">36</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">False</span>
 
             <span class="c1"># Set panorama from either KindSubType or RenderedValue</span>
@@ -2951,7 +2952,7 @@
       &copy;2021, Rhet Turnbull.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

@@ -282,15 +282,21 @@ Options:
   --only-photos                   Search only for photos/images (default
                                   searches both images and movies).
 
-  --from-date DATETIME            Search by start item date, e.g.
+  --from-date DATETIME            Search by item start date, e.g.
                                   2000-01-12T12:00:00,
                                   2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO
-                                  8601).
+                                  8601 with/without timezone).
 
-  --to-date DATETIME              Search by end item date, e.g.
+  --to-date DATETIME              Search by item end date, e.g.
                                   2000-01-12T12:00:00,
                                   2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO
-                                  8601).
+                                  8601 with/without timezone).
+
+  --from-time TIME                Search by item start time of day, e.g. 12:00,
+                                  or 12:00:00.
+
+  --to-time TIME                  Search by item end time of day, e.g. 12:00 or
+                                  12:00:00.
 
   --has-comment                   Search for photos that have comments.
   --no-comment                    Search for photos with no comments.

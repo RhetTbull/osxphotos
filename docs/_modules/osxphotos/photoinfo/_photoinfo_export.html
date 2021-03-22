@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos.photoinfo._photoinfo_export &#8212; osxphotos 0.41.2 documentation</title>
+    <title>osxphotos.photoinfo._photoinfo_export &#8212; osxphotos 0.41.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -120,6 +120,8 @@
         <span class="n">exiftool_error</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">xattr_written</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">xattr_skipped</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">deleted_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">deleted_directories</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exported</span> <span class="o">=</span> <span class="n">exported</span> <span class="ow">or</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">new</span> <span class="o">=</span> <span class="n">new</span> <span class="ow">or</span> <span class="p">[]</span>
@@ -140,6 +142,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">exiftool_error</span> <span class="o">=</span> <span class="n">exiftool_error</span> <span class="ow">or</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xattr_written</span> <span class="o">=</span> <span class="n">xattr_written</span> <span class="ow">or</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xattr_skipped</span> <span class="o">=</span> <span class="n">xattr_skipped</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deleted_files</span> <span class="o">=</span> <span class="n">deleted_files</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deleted_directories</span> <span class="o">=</span> <span class="n">deleted_directories</span> <span class="ow">or</span> <span class="p">[]</span>
 
     <span class="k">def</span> <span class="nf">all_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; return all filenames contained in results &quot;&quot;&quot;</span>
@@ -184,6 +188,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">error</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exiftool_warning</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">exiftool_warning</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exiftool_error</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">exiftool_error</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deleted_files</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">deleted_files</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deleted_directories</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">deleted_directories</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -206,6 +212,8 @@
             <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;,error=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;,exiftool_warning=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">exiftool_warning</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;,exiftool_error=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">exiftool_error</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;,deleted_files=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">deleted_files</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;,deleted_directories=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">deleted_directories</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
         <span class="p">)</span>
 
@@ -646,9 +654,9 @@
                 <span class="p">)</span>
             <span class="n">edited_name</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_edited</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
             <span class="n">edited_suffix</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">edited_name</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span>
-            <span class="n">fname</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span> <span class="o">+</span> <span class="n">edited_identifier</span> <span class="o">+</span> <span class="n">edited_suffix</span>
+            <span class="n">fname</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original_filename</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span> <span class="o">+</span> <span class="n">edited_identifier</span> <span class="o">+</span> <span class="n">edited_suffix</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">fname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span>
+            <span class="n">fname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_filename</span>
 
     <span class="n">uti</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uti</span> <span class="k">if</span> <span class="n">edited</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">uti_original</span>
     <span class="k">if</span> <span class="n">convert_to_jpeg</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">isphoto</span> <span class="ow">and</span> <span class="n">uti</span> <span class="o">!=</span> <span class="s2">&quot;public.jpeg&quot;</span><span class="p">:</span>

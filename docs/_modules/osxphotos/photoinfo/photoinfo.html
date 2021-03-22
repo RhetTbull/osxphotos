@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos.photoinfo.photoinfo &#8212; osxphotos 0.41.0 documentation</title>
+    <title>osxphotos.photoinfo.photoinfo &#8212; osxphotos 0.41.4 documentation</title>
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -60,6 +60,7 @@
     <span class="n">_PHOTOS_5_SHARED_PHOTO_PATH</span><span class="p">,</span>
     <span class="n">_PHOTOS_5_VERSION</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..adjustmentsinfo</span> <span class="kn">import</span> <span class="n">AdjustmentsInfo</span>
 <span class="kn">from</span> <span class="nn">..albuminfo</span> <span class="kn">import</span> <span class="n">AlbumInfo</span><span class="p">,</span> <span class="n">ImportInfo</span>
 <span class="kn">from</span> <span class="nn">..personinfo</span> <span class="kn">import</span> <span class="n">FaceInfo</span><span class="p">,</span> <span class="n">PersonInfo</span>
 <span class="kn">from</span> <span class="nn">..phototemplate</span> <span class="kn">import</span> <span class="n">PhotoTemplate</span>
@@ -544,6 +545,30 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;hasAdjustments&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">adjustments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns AdjustmentsInfo class for adjustment data or None if no adjustments; Photos 5+ only &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hasadjustments</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_adjustmentinfo</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="n">library</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_library_path</span>
+                <span class="n">directory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># first char of uuid</span>
+                <span class="n">plist_file</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">library</span><span class="p">)</span>
+                    <span class="o">/</span> <span class="s2">&quot;resources&quot;</span>
+                    <span class="o">/</span> <span class="s2">&quot;renders&quot;</span>
+                    <span class="o">/</span> <span class="n">directory</span>
+                    <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="si">}</span><span class="s2">.plist&quot;</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">plist_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                    <span class="k">return</span> <span class="kc">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_adjustmentinfo</span> <span class="o">=</span> <span class="n">AdjustmentsInfo</span><span class="p">(</span><span class="n">plist_file</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_adjustmentinfo</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">external_edit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Returns True if picture was edited outside of Photos using external editor &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;adjustmentFormatID&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;com.apple.Photos.externalEdit&quot;</span>
@@ -856,8 +881,19 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">orientation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; returns EXIF orientation of the current photo version as int &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;orientation&quot;</span><span class="p">]</span>
+        <span class="sd">&quot;&quot;&quot; returns EXIF orientation of the current photo version as int or 0 if current orientation cannot be determined &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;orientation&quot;</span><span class="p">]</span>
+
+        <span class="c1"># For Photos 5+, try to get the adjusted orientation</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hasadjustments</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjustments</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjustments</span><span class="o">.</span><span class="n">adj_orientation</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># can&#39;t reliably determine orientation for edited photo if adjustmentinfo not available</span>
+                <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;orientation&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">original_height</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1185,7 +1221,7 @@
       &copy;2021, Rhet Turnbull.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

@@ -131,6 +131,21 @@ class DateTimeISO8601(click.ParamType):
             )
 
 
+class TimeISO8601(click.ParamType):
+
+    name = "TIME"
+
+    def convert(self, value, param, ctx):
+        try:
+            return datetime.time.fromisoformat(value).replace(tzinfo=None)
+        except Exception:
+            self.fail(
+                f"Invalid value for --{param.name}: invalid time format {value}. "
+                "Valid format: HH[:MM[:SS[.fff[fff]]]][+HH:MM[:SS[.ffffff]]] "
+                "however, note that timezone will be ignored."
+            )
+
+
 # Click CLI object & context settings
 class CLI_Obj:
     def __init__(self, db=None, json=False, debug=False):
@@ -386,13 +401,23 @@ def query_options(f):
         ),
         o(
             "--from-date",
-            help="Search by start item date, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601).",
+            help="Search by item start date, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).",
             type=DateTimeISO8601(),
         ),
         o(
             "--to-date",
-            help="Search by end item date, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601).",
+            help="Search by item end date, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).",
             type=DateTimeISO8601(),
+        ),
+        o(
+            "--from-time",
+            help="Search by item start time of day, e.g. 12:00, or 12:00:00.",
+            type=TimeISO8601(),
+        ),
+        o(
+            "--to-time",
+            help="Search by item end time of day, e.g. 12:00 or 12:00:00.",
+            type=TimeISO8601(),
         ),
         o("--has-comment", is_flag=True, help="Search for photos that have comments."),
         o("--no-comment", is_flag=True, help="Search for photos with no comments."),
@@ -856,6 +881,8 @@ def export(
     not_shared,
     from_date,
     to_date,
+    from_time,
+    to_time,
     verbose,
     missing,
     update,
@@ -1003,6 +1030,8 @@ def export(
         not_shared = cfg.not_shared
         from_date = cfg.from_date
         to_date = cfg.to_date
+        from_time = cfg.from_time
+        to_time = cfg.to_time
         verbose = cfg.verbose
         missing = cfg.missing
         update = cfg.update
@@ -1350,6 +1379,8 @@ def export(
         not_incloud=False,
         from_date=from_date,
         to_date=to_date,
+        from_time=from_time,
+        to_time=to_time,
         portrait=portrait,
         not_portrait=not_portrait,
         screenshot=screenshot,
@@ -1638,6 +1669,8 @@ def query(
     not_incloud,
     from_date,
     to_date,
+    from_time,
+    to_time,
     portrait,
     not_portrait,
     screenshot,
@@ -1686,6 +1719,8 @@ def query(
         has_raw,
         from_date,
         to_date,
+        from_time,
+        to_time,
         label,
         is_reference,
     ]
@@ -1780,6 +1815,8 @@ def query(
         not_incloud=not_incloud,
         from_date=from_date,
         to_date=to_date,
+        from_time=from_time,
+        to_time=to_time,
         portrait=portrait,
         not_portrait=not_portrait,
         screenshot=screenshot,
@@ -1953,6 +1990,8 @@ def _query(
     not_incloud=None,
     from_date=None,
     to_date=None,
+    from_time=None,
+    to_time=None,
     portrait=None,
     not_portrait=None,
     screenshot=None,
@@ -2216,6 +2255,12 @@ def _query(
         photos = [p for p in photos if p.albums]
     elif not_in_album:
         photos = [p for p in photos if not p.albums]
+
+    if from_time:
+        photos = [p for p in photos if p.date.time() >= from_time]
+
+    if to_time:
+        photos = [p for p in photos if p.date.time() <= to_time]
 
     return photos
 
