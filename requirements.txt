@@ -181,7 +181,7 @@ pyobjc-framework-Vision==6.2.2
 pyobjc-framework-WebKit==6.2.2
 pyparsing==2.4.1.1
 python-dateutil==2.8.1
-PyYAML==5.1.2
+PyYAML==5.4
 pyzmq==18.1.1
 readme-renderer==25.0
 regex==2020.2.20
