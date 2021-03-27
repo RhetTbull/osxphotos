@@ -454,8 +454,23 @@ class PhotoInfo:
             return self._albums
 
     @property
+    def burst_albums(self):
+        """If photo is non-selected burst photo, list of albums any other images in the same burst set are contained in, otherwise returns self.albums"""
+        if self.burst_selected or not self.burst:
+            return self.albums
+
+        try:
+            return self._burst_albums
+        except AttributeError:
+            burst_albums = []
+            for photo in self.burst_photos:
+                burst_albums.extend(photo.albums)
+            self._burst_albums = list(set(burst_albums))
+            return self._burst_albums
+
+    @property
     def album_info(self):
-        """ list of AlbumInfo objects representing albums the photos is contained in """
+        """ list of AlbumInfo objects representing albums the photo is contained in """
         try:
             return self._album_info
         except AttributeError:
@@ -464,6 +479,21 @@ class PhotoInfo:
                 AlbumInfo(db=self._db, uuid=album) for album in album_uuids
             ]
             return self._album_info
+
+    @property
+    def burst_album_info(self):
+        """ If photo is a non-selected burst photo, returns list of AlbumInfo objects representing albums any other photos in the same burst set are contained in, otherwise returns self.album_info """
+        if self.burst_selected or not self.burst:
+            return self.album_info
+
+        try:
+            return self._burst_album_info
+        except AttributeError:
+            burst_album_info = []
+            for photo in self.burst_photos:
+                burst_album_info.extend(photo.album_info)
+            self._burst_album_info = list(set(burst_album_info))
+            return self._burst_album_info
 
     @property
     def import_info(self):
@@ -679,6 +709,11 @@ class PhotoInfo:
     def burst(self):
         """ Returns True if photo is part of a Burst photo set, otherwise False """
         return self._info["burst"]
+
+    @property
+    def burst_selected(self):
+        """ Returns True if photo is a burst photo and has been selected from the burst set by the user, otherwise False """
+        return self._info["burst_key"]
 
     @property
     def burst_photos(self):

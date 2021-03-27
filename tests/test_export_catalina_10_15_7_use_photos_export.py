@@ -17,6 +17,34 @@ UUID_DICT = {
     "live": "BFF29EBD-22DF-4FCF-9817-317E7104EA50",
 }
 
+UUID_BURSTS = {
+    "9F90DC00-AAAF-4A05-9A65-61FEEE0D67F2": {
+        "selected": True,
+        "filename": "IMAGE_9812.JPG",
+        "albums": ["TestBurst"],
+    },
+    "964F457D-5FFC-47B9-BEAD-56B0A83FEF63": {
+        "selected": True,
+        "filename": "IMG_9816.JPG",
+        "albums": [],
+    },
+    "A385FA13-DF8E-482F-A8C5-970EDDF54C2F": {
+        "selected": False,
+        "filename": "IMG_9813.JPG",
+        "albums": ["TestBurst", "TestBurst2"],
+    },
+    "38F8F30C-FF6D-49DA-8092-18497F1D6628": {
+        "selected": True,
+        "filename": "IMG_9814.JPG",
+        "albums": ["TestBurst2"],
+    },
+    "E3863443-9EA8-417F-A90B-8F7086623DAD": {
+        "selected": False,
+        "filename": "IMG_9815.JPG",
+        "albums": ["TestBurst", "TestBurst2"],
+    },
+}
+
 
 @pytest.fixture(scope="module")
 def photosdb():
@@ -156,3 +184,13 @@ def test_export_edited_no_edit(photosdb):
     with pytest.raises(Exception) as e:
         assert photos[0].export(dest, use_photos_export=True, edited=True)
     assert e.type == ValueError
+
+
+def test_burst_albums(photosdb):
+    """Test burst_selected, burst_albums"""
+
+    for uuid in UUID_BURSTS:
+        photo = photosdb.get_photo(uuid)
+        assert photo.burst
+        assert photo.burst_selected == UUID_BURSTS[uuid]["selected"]
+        assert sorted(photo.burst_albums) == sorted(UUID_BURSTS[uuid]["albums"])

@@ -840,7 +840,7 @@ class PhotoTemplate:
         """ return list of values for a multi-valued template field """
         values = []
         if field == "album":
-            values = self.photo.albums
+            values = self.photo.burst_albums if self.photo.burst else self.photo.albums
         elif field == "keyword":
             values = self.photo.keywords
         elif field == "person":
@@ -854,7 +854,11 @@ class PhotoTemplate:
         elif field == "folder_album":
             values = []
             # photos must be in an album to be in a folder
-            for album in self.photo.album_info:
+            if self.photo.burst:
+                album_info = self.photo.burst_album_info
+            else:
+                album_info = self.photo.album_info
+            for album in album_info:
                 if album.folder_names:
                     # album in folder
                     if dirname:

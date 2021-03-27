@@ -22,6 +22,17 @@ PHOTOS_DB_TOUCH = PHOTOS_DB_15_6
 PHOTOS_DB_14_6 = "tests/Test-10.14.6.photoslibrary"
 PHOTOS_DB_MOVIES = "tests/Test-Movie-5_0.photoslibrary"
 
+# my personal library which some tests require
+PHOTOS_DB_RHET = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
+UUID_BURST_ALBUM = "9F90DC00-AAAF-4A05-9A65-61FEEE0D67F2"  # in my personal library
+BURST_ALBUM_FILES = [
+    "IMG_9812.JPG",
+    "IMG_9813.JPG",
+    "IMG_9814.JPG",
+    "IMG_9815.JPG",
+    "IMG_9816.JPG",
+]
+
 UUID_FILE = "tests/uuid_from_file.txt"
 
 CLI_OUTPUT_NO_SUBCOMMAND = [
@@ -5649,3 +5660,42 @@ def test_export_jpeg_ext_convert_to_jpeg_movie():
             assert f"{filename}.jpg".lower() not in files
             assert f"{filename}.{ext}".lower() in files
             assert f"{filename}_edited.{ext}".lower() in files
+
+
+@pytest.mark.skipif(
+    "OSXPHOTOS_TEST_EXPORT" not in os.environ,
+    reason="Skip if not running on author's personal library.",
+)
+def test_export_burst_folder_album():
+    """ test non-selected burst photos are exported with the album their key photo is in, issue #401 """
+    import glob
+    import os
+    import os.path
+    import pathlib
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_RHET),
+                ".",
+                "-V",
+                "--directory",
+                "{folder_album}",
+                "--uuid",
+                UUID_BURST_ALBUM,
+                "--download-missing",
+                "--use-photokit",
+            ],
+        )
+        assert result.exit_code == 0
+        folder_album = pathlib.Path("TestBurst")
+        assert folder_album.is_dir()
+        for filename in BURST_ALBUM_FILES:
+            path = folder_album / filename
+            assert path.is_file()
+

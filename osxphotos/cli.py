@@ -1408,6 +1408,9 @@ def export(
         is_reference=is_reference,
         in_album=in_album,
         not_in_album=not_in_album,
+        burst_photos=export_bursts,
+        # skip missing bursts if using --download-missing by itself as AppleScript otherwise causes errors
+        missing_bursts=(download_missing and use_photokit) or not download_missing,
     )
 
     if photos:
@@ -1415,13 +1418,6 @@ def export(
             # ignore previously exported files
             previous_uuids = {uuid: 1 for uuid in export_db.get_previous_uuids()}
             photos = [p for p in photos if p.uuid not in previous_uuids]
-
-        if export_bursts:
-            # add the burst_photos to the export set
-            photos_burst = [p for p in photos if p.burst]
-            for burst in photos_burst:
-                burst_set = [p for p in burst.burst_photos if not p.ismissing]
-                photos.extend(burst_set)
 
         num_photos = len(photos)
         # TODO: photos or photo appears several times, pull into a separate function
@@ -2019,6 +2015,8 @@ def _query(
     is_reference=False,
     in_album=False,
     not_in_album=False,
+    burst_photos=None,
+    missing_bursts=None,
 ):
     """Run a query against PhotosDB to extract the photos based on user supply criteria used by query and export commands
 
@@ -2261,6 +2259,27 @@ def _query(
 
     if to_time:
         photos = [p for p in photos if p.date.time() <= to_time]
+
+    if burst_photos:
+        # add the burst_photos to the export set
+        photos_burst = [p for p in photos if p.burst]
+        for burst in photos_burst:
+            if missing_bursts:
+                # include burst photos that are missing
+                photos.extend(burst.burst_photos)
+            else:
+                # don't include missing burst images (these can't be downloaded with AppleScript)
+                photos.extend([p for p in burst.burst_photos if not p.ismissing])
+
+        # remove duplicates as each burst photo in the set that's selected would
+        # result in the entire set being added above
+        # can't use set() because PhotoInfo not hashable
+        seen_uuids = {}
+        for p in photos:
+            if p.uuid in seen_uuids:
+                continue
+            seen_uuids[p.uuid] = p
+        photos = list(seen_uuids.values())
 
     return photos
 
