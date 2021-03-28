@@ -518,6 +518,13 @@ def cli(ctx, db, json_, debug):
     "(e.g. if two files happen to have the same name)",
 )
 @click.option(
+    "--retry",
+    metavar="RETRY",
+    type=click.INT,
+    help="Automatically retry export up to RETRY times if an error occurs during export.  "
+    "This may be useful with network drives that experience intermittent errors.",
+)
+@click.option(
     "--export-by-date",
     is_flag=True,
     help="Automatically create output folders to organize photos by date created "
@@ -892,6 +899,7 @@ def export(
     export_as_hardlink,
     touch_file,
     overwrite,
+    retry,
     export_by_date,
     skip_edited,
     skip_original_if_edited,
@@ -1040,6 +1048,7 @@ def export(
         export_as_hardlink = cfg.export_as_hardlink
         touch_file = cfg.touch_file
         overwrite = cfg.overwrite
+        retry = cfg.retry
         export_by_date = cfg.export_by_date
         skip_edited = cfg.skip_edited
         skip_original_if_edited = cfg.skip_original_if_edited
@@ -1199,6 +1208,7 @@ def export(
     original_suffix = (
         DEFAULT_ORIGINAL_SUFFIX if original_suffix is None else original_suffix
     )
+    retry = 0 if not retry else retry
 
     if not os.path.isdir(dest):
         click.echo(
@@ -1475,6 +1485,7 @@ def export(
                     strip=strip,
                     jpeg_ext=jpeg_ext,
                     replace_keywords=replace_keywords,
+                    retry=retry,
                 )
                 results += export_results
 
@@ -2353,6 +2364,7 @@ def export_photo(
     strip=False,
     jpeg_ext=None,
     replace_keywords=False,
+    retry=0,
 ):
     """Helper function for export that does the actual export
 
@@ -2392,6 +2404,7 @@ def export_photo(
         exiftool_merge_persons: boolean; if True, merged persons found in file's exif data (requires exiftool)
         jpeg_ext: if not None, specify the extension to use for all JPEG images on export
         replace_keywords: if True, --keyword-template replaces keywords instead of adding keywords
+        retry: retry up to retry # of times if there's an error
 
     Returns:
         list of path(s) of exported photo or None if photo was missing
@@ -2541,72 +2554,88 @@ def export_photo(
                         str(pathlib.Path(dest_path) / original_filename)
                     )
                 else:
-                    try:
-                        export_results = photo.export2(
-                            dest_path,
-                            original_filename,
-                            sidecar=sidecar_flags,
-                            sidecar_drop_ext=sidecar_drop_ext,
-                            live_photo=export_live,
-                            raw_photo=export_raw,
-                            export_as_hardlink=export_as_hardlink,
-                            overwrite=overwrite,
-                            use_photos_export=use_photos_export,
-                            exiftool=exiftool,
-                            merge_exif_keywords=exiftool_merge_keywords,
-                            merge_exif_persons=exiftool_merge_persons,
-                            use_albums_as_keywords=album_keyword,
-                            use_persons_as_keywords=person_keyword,
-                            keyword_template=keyword_template,
-                            description_template=description_template,
-                            update=update,
-                            ignore_signature=ignore_signature,
-                            export_db=export_db,
-                            fileutil=fileutil,
-                            dry_run=dry_run,
-                            touch_file=touch_file,
-                            convert_to_jpeg=convert_to_jpeg,
-                            jpeg_quality=jpeg_quality,
-                            ignore_date_modified=ignore_date_modified,
-                            use_photokit=use_photokit,
-                            verbose=verbose_,
-                            exiftool_flags=exiftool_option,
-                            jpeg_ext=jpeg_ext,
-                            replace_keywords=replace_keywords,
-                        )
-                        results += export_results
-                        for warning_ in export_results.exiftool_warning:
-                            verbose_(
-                                f"exiftool warning for file {warning_[0]}: {warning_[1]}"
+                    tries = 0
+                    while tries <= retry:
+                        tries += 1
+                        error = 0
+                        try:
+                            export_results = photo.export2(
+                                dest_path,
+                                original_filename,
+                                sidecar=sidecar_flags,
+                                sidecar_drop_ext=sidecar_drop_ext,
+                                live_photo=export_live,
+                                raw_photo=export_raw,
+                                export_as_hardlink=export_as_hardlink,
+                                overwrite=overwrite,
+                                use_photos_export=use_photos_export,
+                                exiftool=exiftool,
+                                merge_exif_keywords=exiftool_merge_keywords,
+                                merge_exif_persons=exiftool_merge_persons,
+                                use_albums_as_keywords=album_keyword,
+                                use_persons_as_keywords=person_keyword,
+                                keyword_template=keyword_template,
+                                description_template=description_template,
+                                update=update,
+                                ignore_signature=ignore_signature,
+                                export_db=export_db,
+                                fileutil=fileutil,
+                                dry_run=dry_run,
+                                touch_file=touch_file,
+                                convert_to_jpeg=convert_to_jpeg,
+                                jpeg_quality=jpeg_quality,
+                                ignore_date_modified=ignore_date_modified,
+                                use_photokit=use_photokit,
+                                verbose=verbose_,
+                                exiftool_flags=exiftool_option,
+                                jpeg_ext=jpeg_ext,
+                                replace_keywords=replace_keywords,
                             )
-                        for error_ in export_results.exiftool_error:
+                            for warning_ in export_results.exiftool_warning:
+                                verbose_(
+                                    f"exiftool warning for file {warning_[0]}: {warning_[1]}"
+                                )
+                            for error_ in export_results.exiftool_error:
+                                click.echo(
+                                    click.style(
+                                        f"exiftool error for file {error_[0]}: {error_[1]}",
+                                        fg=CLI_COLOR_ERROR,
+                                    ),
+                                    err=True,
+                                )
+                            for error_ in export_results.error:
+                                click.echo(
+                                    click.style(
+                                        f"Error exporting photo ({photo.uuid}: {photo.original_filename}) as {error_[0]}: {error_[1]}",
+                                        fg=CLI_COLOR_ERROR,
+                                    ),
+                                    err=True,
+                                )
+                                error += 1
+                            if not error or tries > retry:
+                                results += export_results
+                                break
+                            else:
+                                click.echo(
+                                    "Retrying export for photo ({photo.uuid}: {photo.original_filename})"
+                                )
+                        except Exception as e:
                             click.echo(
                                 click.style(
-                                    f"exiftool error for file {error_[0]}: {error_[1]}",
+                                    f"Error exporting photo ({photo.uuid}: {photo.original_filename}) as {original_filename}: {e}",
                                     fg=CLI_COLOR_ERROR,
                                 ),
                                 err=True,
                             )
-                        for error_ in export_results.error:
-                            click.echo(
-                                click.style(
-                                    f"Error exporting photo ({photo.uuid}: {photo.original_filename}) as {error_[0]}: {error_[1]}",
-                                    fg=CLI_COLOR_ERROR,
-                                ),
-                                err=True,
-                            )
-
-                    except Exception as e:
-                        click.echo(
-                            click.style(
-                                f"Error exporting photo ({photo.uuid}: {photo.original_filename}) as {original_filename}: {e}",
-                                fg=CLI_COLOR_ERROR,
-                            ),
-                            err=True,
-                        )
-                        results.error.append(
-                            (str(pathlib.Path(dest) / original_filename), e)
-                        )
+                            if tries > retry:
+                                results.error.append(
+                                    (str(pathlib.Path(dest) / original_filename), e)
+                                )
+                                break
+                            else:
+                                click.echo(
+                                    f"Retrying export for photo ({photo.uuid}: {photo.original_filename})"
+                                )
             else:
                 verbose_(f"Skipping original version of {photo.original_filename}")
 
@@ -2690,70 +2719,87 @@ def export_photo(
                     )
 
                 else:
-                    try:
-                        export_results_edited = photo.export2(
-                            dest_path,
-                            edited_filename,
-                            sidecar=sidecar_flags,
-                            sidecar_drop_ext=sidecar_drop_ext,
-                            export_as_hardlink=export_as_hardlink,
-                            overwrite=overwrite,
-                            edited=True,
-                            use_photos_export=use_photos_export,
-                            exiftool=exiftool,
-                            merge_exif_keywords=exiftool_merge_keywords,
-                            merge_exif_persons=exiftool_merge_persons,
-                            use_albums_as_keywords=album_keyword,
-                            use_persons_as_keywords=person_keyword,
-                            keyword_template=keyword_template,
-                            description_template=description_template,
-                            update=update,
-                            ignore_signature=ignore_signature,
-                            export_db=export_db,
-                            fileutil=fileutil,
-                            dry_run=dry_run,
-                            touch_file=touch_file,
-                            convert_to_jpeg=convert_to_jpeg,
-                            jpeg_quality=jpeg_quality,
-                            ignore_date_modified=ignore_date_modified,
-                            use_photokit=use_photokit,
-                            verbose=verbose_,
-                            exiftool_flags=exiftool_option,
-                            jpeg_ext=jpeg_ext,
-                            replace_keywords=replace_keywords,
-                        )
-                        results += export_results_edited
-                        for warning_ in export_results_edited.exiftool_warning:
-                            verbose_(
-                                f"exiftool warning for file {warning_[0]}: {warning_[1]}"
+                    tries = 0
+                    while tries <= retry:
+                        tries += 1
+                        error = 0
+                        try:
+                            export_results_edited = photo.export2(
+                                dest_path,
+                                edited_filename,
+                                sidecar=sidecar_flags,
+                                sidecar_drop_ext=sidecar_drop_ext,
+                                export_as_hardlink=export_as_hardlink,
+                                overwrite=overwrite,
+                                edited=True,
+                                use_photos_export=use_photos_export,
+                                exiftool=exiftool,
+                                merge_exif_keywords=exiftool_merge_keywords,
+                                merge_exif_persons=exiftool_merge_persons,
+                                use_albums_as_keywords=album_keyword,
+                                use_persons_as_keywords=person_keyword,
+                                keyword_template=keyword_template,
+                                description_template=description_template,
+                                update=update,
+                                ignore_signature=ignore_signature,
+                                export_db=export_db,
+                                fileutil=fileutil,
+                                dry_run=dry_run,
+                                touch_file=touch_file,
+                                convert_to_jpeg=convert_to_jpeg,
+                                jpeg_quality=jpeg_quality,
+                                ignore_date_modified=ignore_date_modified,
+                                use_photokit=use_photokit,
+                                verbose=verbose_,
+                                exiftool_flags=exiftool_option,
+                                jpeg_ext=jpeg_ext,
+                                replace_keywords=replace_keywords,
                             )
-                        for error_ in export_results_edited.exiftool_error:
+                            for warning_ in export_results_edited.exiftool_warning:
+                                verbose_(
+                                    f"exiftool warning for file {warning_[0]}: {warning_[1]}"
+                                )
+                            for error_ in export_results_edited.exiftool_error:
+                                click.echo(
+                                    click.style(
+                                        f"exiftool error for file {error_[0]}: {error_[1]}",
+                                        fg=CLI_COLOR_ERROR,
+                                    ),
+                                    err=True,
+                                )
+                            for error_ in export_results_edited.error:
+                                click.echo(
+                                    click.style(
+                                        f"Error exporting edited photo ({photo.uuid}: {photo.original_filename}) as {error_[0]}: {error_[1]}",
+                                        fg=CLI_COLOR_ERROR,
+                                    ),
+                                    err=True,
+                                )
+                                error += 1
+                            if not error or tries > retry:
+                                results += export_results_edited
+                                break
+                            else:
+                                click.echo(
+                                    "Retrying export for photo ({photo.uuid}: {photo.original_filename})"
+                                )
+                        except Exception as e:
                             click.echo(
                                 click.style(
-                                    f"exiftool error for file {error_[0]}: {error_[1]}",
+                                    f"Error exporting edited photo ({photo.uuid}: {photo.original_filename}) {filename} as {edited_filename}: {e}",
                                     fg=CLI_COLOR_ERROR,
                                 ),
                                 err=True,
                             )
-                        for error_ in export_results_edited.error:
-                            click.echo(
-                                click.style(
-                                    f"Error exporting edited photo ({photo.uuid}: {photo.original_filename}) as {error_[0]}: {error_[1]}",
-                                    fg=CLI_COLOR_ERROR,
-                                ),
-                                err=True,
-                            )
-                    except Exception as e:
-                        click.echo(
-                            click.style(
-                                f"Error exporting edited photo ({photo.uuid}: {photo.original_filename}) {filename} as {edited_filename}: {e}",
-                                fg=CLI_COLOR_ERROR,
-                            ),
-                            err=True,
-                        )
-                        results.error.append(
-                            (str(pathlib.Path(dest) / edited_filename), e)
-                        )
+                            if tries > retry:
+                                results.error.append(
+                                    (str(pathlib.Path(dest) / edited_filename), e)
+                                )
+                                break
+                            else:
+                                click.echo(
+                                    f"Retrying export for photo ({photo.uuid}: {photo.original_filename})"
+                                )
 
             if verbose:
                 if update:

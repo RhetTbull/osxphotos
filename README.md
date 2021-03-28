@@ -366,6 +366,11 @@ Options:
                                   may create name collisions on export. (e.g. if
                                   two files happen to have the same name)
 
+  --retry RETRY                   Automatically retry export up to RETRY times
+                                  if an error occurs during export.  This may be
+                                  useful with network drives that experience
+                                  intermittent errors.
+
   --export-by-date                Automatically create output folders to
                                   organize photos by date created (e.g.
                                   DEST/2019/12/20/photoname.jpg).

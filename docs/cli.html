@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos command line interface (CLI) &#8212; osxphotos 0.41.4 documentation</title>
+    <title>osxphotos command line interface (CLI) &#8212; osxphotos 0.41.6 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -547,6 +547,12 @@ to modify this behavior.</p>
 <dt id="cmdoption-osxphotos-export-overwrite">
 <code class="sig-name descname"><span class="pre">--overwrite</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-osxphotos-export-overwrite" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overwrite existing files. Default behavior is to add (1), (2), etc to filename if file already exists. Use this with caution as it may create name collisions on export. (e.g. if two files happen to have the same name)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-osxphotos-export-retry">
+<code class="sig-name descname"><span class="pre">--retry</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;RETRY&gt;</span></code><a class="headerlink" href="#cmdoption-osxphotos-export-retry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Automatically retry export up to RETRY times if an error occurs during export.  This may be useful with network drives that experience intermittent errors.</p>
 </dd></dl>
 
 <dl class="std option">
