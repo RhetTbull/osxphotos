@@ -1828,7 +1828,6 @@ class PhotosDB:
 
         # get details about photos
         verbose("Processing photo details.")
-        logging.debug(f"Getting information about photos")
         c.execute(
             f"""SELECT {asset_table}.ZUUID, 
                 ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT, 
@@ -2736,8 +2735,6 @@ class PhotosDB:
                                 # an empty album will be in _dbalbum_titles but not _dbalbums_album
                                 pass
                         album_set.update(title_set)
-                    else:
-                        logging.debug(f"Could not find album '{album}' in database")
                 photos_sets.append(album_set)
 
             if uuid:
@@ -2745,8 +2742,6 @@ class PhotosDB:
                 for u in uuid:
                     if u in self._dbphotos:
                         uuid_set.update([u])
-                    else:
-                        logging.debug(f"Could not find uuid '{u}' in database")
                 photos_sets.append(uuid_set)
 
             if keywords:
@@ -2754,8 +2749,6 @@ class PhotosDB:
                 for keyword in keywords:
                     if keyword in self._dbkeywords_keyword:
                         keyword_set.update(self._dbkeywords_keyword[keyword])
-                    else:
-                        logging.debug(f"Could not find keyword '{keyword}' in database")
                 photos_sets.append(keyword_set)
 
             if persons:
@@ -2768,8 +2761,6 @@ class PhotosDB:
                             except KeyError:
                                 # some persons have zero photos so they won't be in _dbfaces_pk
                                 pass
-                    else:
-                        logging.debug(f"Could not find person '{person}' in database")
                 photos_sets.append(person_set)
 
             if from_date or to_date:  # sourcery off
@@ -2780,14 +2771,10 @@ class PhotosDB:
                     dsel = {
                         k: v for k, v in dsel.items() if v["imageDate"] >= from_date
                     }
-                    logging.debug(
-                        f"Found %i items with from_date {from_date}" % len(dsel)
-                    )
                 if to_date:
                     if not datetime_has_tz(to_date):
                         to_date = datetime_naive_to_local(to_date)
                     dsel = {k: v for k, v in dsel.items() if v["imageDate"] <= to_date}
-                    logging.debug(f"Found %i items with to_date {to_date}" % len(dsel))
                 photos_sets.append(set(dsel.keys()))
 
         photoinfo = []
