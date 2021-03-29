@@ -59,7 +59,7 @@ py==1.8.0
 py2app==0.21
 pycparser==2.20
 pyfiglet==0.8.post1
-Pygments==2.6.1
+Pygments==2.7.4
 PyInstaller==3.6
 pyinstaller-setuptools==2019.3
 pylint==2.3.1
