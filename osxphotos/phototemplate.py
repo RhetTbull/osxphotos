@@ -918,6 +918,7 @@ class PhotoTemplate:
         if subfield in exifdict:
             values = exifdict[subfield]
             values = [values] if not isinstance(values, list) else values
+            values = [str(v) for v in values]
 
             # sanitize directory names if needed
             if filename:
