@@ -133,6 +133,9 @@ UUID_EXIFTOOL = {
             "England,London,London 2018,St. James's Park,UK,United Kingdom"
         ],
     },
+    "1EB2B765-0765-43BA-A90C-0D0580E6172C": {
+        "{exiftool:EXIF:SubSecTimeOriginal}": ["22"]
+    },
 }
 
 TEMPLATE_VALUES = {
