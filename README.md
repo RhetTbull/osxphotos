@@ -203,6 +203,11 @@ Options:
                                   searches top level folders (e.g. does not look
                                   at subfolders)
 
+  --name FILENAME                 Search for photos with filename matching
+                                  FILENAME. If more than one --name options is
+                                  specified, they are treated as "OR", e.g. find
+                                  photos matching any FILENAME.
+
   --uuid UUID                     Search for photos with UUID(s).
   --uuid-from-file FILE           Search for photos with UUID(s) loaded from
                                   FILE. Format is a single UUID per line.  Lines

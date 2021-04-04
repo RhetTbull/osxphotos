@@ -5699,3 +5699,72 @@ def test_export_burst_folder_album():
             path = folder_album / filename
             assert path.is_file()
 
+
+def test_query_name():
+    """ test query --name """
+    import json
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.cli import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--name", "DSC03584"],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+
+    assert len(json_got) == 1
+    assert json_got[0]["original_filename"] == "DSC03584.dng"
+
+
+def test_query_name_i():
+    """ test query --name -i """
+    import json
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.cli import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--name",
+            "dsc03584",
+            "-i",
+        ],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+
+    assert len(json_got) == 1
+    assert json_got[0]["original_filename"] == "DSC03584.dng"
+
+
+def test_export_name():
+    """ test export --name """
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--name", "DSC03584"]
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert len(files) == 1
+

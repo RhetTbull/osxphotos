@@ -239,6 +239,15 @@ def query_options(f):
             "Only searches top level folders (e.g. does not look at subfolders)",
         ),
         o(
+            "--name",
+            metavar="FILENAME",
+            default=None,
+            multiple=True,
+            help="Search for photos with filename matching FILENAME. "
+            'If more than one --name options is specified, they are treated as "OR", '
+            "e.g. find photos matching any FILENAME. ",
+        ),
+        o(
             "--uuid",
             metavar="UUID",
             default=None,
@@ -871,6 +880,7 @@ def export(
     album,
     folder,
     uuid,
+    name,
     uuid_from_file,
     title,
     no_title,
@@ -1020,6 +1030,7 @@ def export(
         person = cfg.person
         album = cfg.album
         folder = cfg.folder
+        name = cfg.name
         uuid = cfg.uuid
         uuid_from_file = cfg.uuid_from_file
         title = cfg.title
@@ -1421,6 +1432,7 @@ def export(
         burst_photos=export_bursts,
         # skip missing bursts if using --download-missing by itself as AppleScript otherwise causes errors
         missing_bursts=(download_missing and use_photokit) or not download_missing,
+        name=name,
     )
 
     if photos:
@@ -1645,6 +1657,7 @@ def query(
     person,
     album,
     folder,
+    name,
     uuid,
     uuid_from_file,
     title,
@@ -1718,6 +1731,7 @@ def query(
         person,
         album,
         folder,
+        name,
         uuid,
         uuid_from_file,
         edited,
@@ -1851,6 +1865,7 @@ def query(
         is_reference=is_reference,
         in_album=in_album,
         not_in_album=not_in_album,
+        name=name,
     )
 
     # below needed for to make CliRunner work for testing
@@ -2028,6 +2043,7 @@ def _query(
     not_in_album=False,
     burst_photos=None,
     missing_bursts=None,
+    name=None,
 ):
     """Run a query against PhotosDB to extract the photos based on user supply criteria used by query and export commands
 
@@ -2094,30 +2110,38 @@ def _query(
     if title:
         # search title field for text
         # if more than one, find photos with all title values in title
+        photo_list = []
         if ignore_case:
             # case-insensitive
             for t in title:
                 t = t.lower()
-                photos = [p for p in photos if p.title and t in p.title.lower()]
+                photo_list.extend(
+                    [p for p in photos if p.title and t in p.title.lower()]
+                )
         else:
             for t in title:
-                photos = [p for p in photos if p.title and t in p.title]
+                photo_list.extend([p for p in photos if p.title and t in p.title])
+        photos = photo_list
     elif no_title:
         photos = [p for p in photos if not p.title]
 
     if description:
         # search description field for text
         # if more than one, find photos with all description values in description
+        photo_list = []
         if ignore_case:
             # case-insensitive
             for d in description:
                 d = d.lower()
-                photos = [
-                    p for p in photos if p.description and d in p.description.lower()
-                ]
+                photo_list.extend(
+                    [p for p in photos if p.description and d in p.description.lower()]
+                )
         else:
             for d in description:
-                photos = [p for p in photos if p.description and d in p.description]
+                photo_list.extend(
+                    [p for p in photos if p.description and d in p.description]
+                )
+        photos = photo_list
     elif no_description:
         photos = [p for p in photos if not p.description]
 
@@ -2291,6 +2315,28 @@ def _query(
                 continue
             seen_uuids[p.uuid] = p
         photos = list(seen_uuids.values())
+
+    if name:
+        # search filename fields for text
+        # if more than one, find photos with all title values in filename
+        photo_list = []
+        if ignore_case:
+            # case-insensitive
+            for n in name:
+                n = n.lower()
+                photo_list.extend(
+                    [
+                        p
+                        for p in photos
+                        if n in p.filename.lower() or n in p.original_filename.lower()
+                    ]
+                )
+        else:
+            for n in name:
+                photo_list.extend(
+                    [p for p in photos if n in p.filename or n in p.original_filename]
+                )
+        photos = photo_list
 
     return photos
 
