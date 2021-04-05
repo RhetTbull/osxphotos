@@ -1660,7 +1660,7 @@ def _exiftool_dict(
         if type(val) == str:
             exif[field] = val.replace("\n", " ")
         elif type(val) == list:
-            exif[field] = [v.replace("\n", " ") for v in val]
+            exif[field] = [str(v).replace("\n", " ") for v in val if v is not None]
     return exif
 
 
