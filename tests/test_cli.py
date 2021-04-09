@@ -5768,3 +5768,34 @@ def test_export_name():
         files = glob.glob("*")
         assert len(files) == 1
 
+def test_query_eval():
+    """ test export --query-eval """
+    import glob
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--query-eval", "'DSC03584' in photo.original_filename"]
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert len(files) == 1
+
+
+def test_bad_query_eval():
+    """ test export --query-eval with bad input """
+    import glob
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--query-eval", "'DSC03584' in photo.originalfilename"]
+        )
+        assert result.exit_code != 0
+        assert "Error: Invalid query-eval CRITERIA" in result.output

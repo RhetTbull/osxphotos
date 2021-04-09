@@ -447,6 +447,19 @@ def query_options(f):
             is_flag=True,
             help="Search for photos that are not in any albums.",
         ),
+        o(
+            "--query-eval",
+            metavar="CRITERIA",
+            multiple=True,
+            help="Evaluate CRITERIA to filter photos. "
+            "CRITERIA will be evaluated in context of the following list comprehension: "
+            "`photos = [photo for photo in photos if CRITERIA]` "
+            "where photo represents a PhotoInfo object. "
+            "For example: `--query-eval photo.favorite` returns all photos that have been "
+            "favorited and is equivalent to --favorite. "
+            "You may specify more than one CRITERIA by using --query-eval multiple times. "
+            "See https://rhettbull.github.io/osxphotos/ for additional documentation on the PhotoInfo class.",
+        ),
     ]
     for o in options[::-1]:
         f = o(f)
@@ -984,6 +997,7 @@ def export(
     beta,
     in_album,
     not_in_album,
+    query_eval,
 ):
     """Export photos from the Photos database.
     Export path DEST is required.
@@ -1131,6 +1145,7 @@ def export(
         only_new = cfg.only_new
         in_album = cfg.in_album
         not_in_album = cfg.not_in_album
+        query_eval = cfg.query_eval
 
         # config file might have changed verbose
         VERBOSE = bool(verbose)
@@ -1433,6 +1448,7 @@ def export(
         # skip missing bursts if using --download-missing by itself as AppleScript otherwise causes errors
         missing_bursts=(download_missing and use_photokit) or not download_missing,
         name=name,
+        query_eval=query_eval,
     )
 
     if photos:
@@ -1718,6 +1734,7 @@ def query(
     is_reference,
     in_album,
     not_in_album,
+    query_eval,
 ):
     """Query the Photos database using 1 or more search options;
     if more than one option is provided, they are treated as "AND"
@@ -1744,6 +1761,7 @@ def query(
         to_time,
         label,
         is_reference,
+        query_eval,
     ]
     exclusive = [
         (favorite, not_favorite),
@@ -1866,6 +1884,7 @@ def query(
         in_album=in_album,
         not_in_album=not_in_album,
         name=name,
+        query_eval=query_eval,
     )
 
     # below needed for to make CliRunner work for testing
@@ -2044,6 +2063,7 @@ def _query(
     burst_photos=None,
     missing_bursts=None,
     name=None,
+    query_eval=None,
 ):
     """Run a query against PhotosDB to extract the photos based on user supply criteria used by query and export commands
 
@@ -2337,6 +2357,16 @@ def _query(
                     [p for p in photos if n in p.filename or n in p.original_filename]
                 )
         photos = photo_list
+
+    if query_eval:
+        for q in query_eval:
+            query_string = f"[photo for photo in photos if {q}]"
+            try:
+                photos = eval(query_string)
+            except Exception as e:
+                raise click.BadOptionUsage(
+                    "query_eval", f"Invalid query-eval CRITERIA: {e}"
+                )
 
     return photos
 
