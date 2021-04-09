@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos command line interface (CLI) &#8212; osxphotos 0.41.6 documentation</title>
+    <title>osxphotos command line interface (CLI) &#8212; osxphotos 0.41.10 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -181,6 +181,12 @@ to modify this behavior.</p>
 <dt id="cmdoption-osxphotos-export-folder">
 <code class="sig-name descname"><span class="pre">--folder</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;FOLDER&gt;</span></code><a class="headerlink" href="#cmdoption-osxphotos-export-folder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Search for photos in an album in folder FOLDER. If more than one folder, treated as “OR”, e.g. find photos in any FOLDER.  Only searches top level folders (e.g. does not look at subfolders)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-osxphotos-export-name">
+<code class="sig-name descname"><span class="pre">--name</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;FILENAME&gt;</span></code><a class="headerlink" href="#cmdoption-osxphotos-export-name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with filename matching FILENAME. If more than one –name options is specified, they are treated as “OR”, e.g. find photos matching any FILENAME.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -487,6 +493,12 @@ to modify this behavior.</p>
 <dt id="cmdoption-osxphotos-export-not-in-album">
 <code class="sig-name descname"><span class="pre">--not-in-album</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-osxphotos-export-not-in-album" title="Permalink to this definition">¶</a></dt>
 <dd><p>Search for photos that are not in any albums.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-osxphotos-export-query-eval">
+<code class="sig-name descname"><span class="pre">--query-eval</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;CRITERIA&gt;</span></code><a class="headerlink" href="#cmdoption-osxphotos-export-query-eval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate CRITERIA to filter photos. CRITERIA will be evaluated in context of the following python list comprehension: <cite>photos = [photo for photo in photos if CRITERIA]</cite> where photo represents a PhotoInfo object. For example: <cite>–query-eval photo.favorite</cite> returns all photos that have been favorited and is equivalent to –favorite. You may specify more than one CRITERIA by using –query-eval multiple times. CRITERIA must be a valid python expression. See <a class="reference external" href="https://rhettbull.github.io/osxphotos/">https://rhettbull.github.io/osxphotos/</a> for additional documentation on the PhotoInfo class.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -1024,6 +1036,12 @@ if more than one option is provided, they are treated as “AND”
 </dd></dl>
 
 <dl class="std option">
+<dt id="cmdoption-osxphotos-query-name">
+<code class="sig-name descname"><span class="pre">--name</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;FILENAME&gt;</span></code><a class="headerlink" href="#cmdoption-osxphotos-query-name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with filename matching FILENAME. If more than one –name options is specified, they are treated as “OR”, e.g. find photos matching any FILENAME.</p>
+</dd></dl>
+
+<dl class="std option">
 <dt id="cmdoption-osxphotos-query-uuid">
 <code class="sig-name descname"><span class="pre">--uuid</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;UUID&gt;</span></code><a class="headerlink" href="#cmdoption-osxphotos-query-uuid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Search for photos with UUID(s).</p>
@@ -1327,6 +1345,12 @@ if more than one option is provided, they are treated as “AND”
 <dt id="cmdoption-osxphotos-query-not-in-album">
 <code class="sig-name descname"><span class="pre">--not-in-album</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-osxphotos-query-not-in-album" title="Permalink to this definition">¶</a></dt>
 <dd><p>Search for photos that are not in any albums.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-osxphotos-query-query-eval">
+<code class="sig-name descname"><span class="pre">--query-eval</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;CRITERIA&gt;</span></code><a class="headerlink" href="#cmdoption-osxphotos-query-query-eval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate CRITERIA to filter photos. CRITERIA will be evaluated in context of the following python list comprehension: <cite>photos = [photo for photo in photos if CRITERIA]</cite> where photo represents a PhotoInfo object. For example: <cite>–query-eval photo.favorite</cite> returns all photos that have been favorited and is equivalent to –favorite. You may specify more than one CRITERIA by using –query-eval multiple times. CRITERIA must be a valid python expression. See <a class="reference external" href="https://rhettbull.github.io/osxphotos/">https://rhettbull.github.io/osxphotos/</a> for additional documentation on the PhotoInfo class.</p>
 </dd></dl>
 
 <dl class="std option">

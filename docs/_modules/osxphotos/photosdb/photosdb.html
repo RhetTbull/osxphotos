@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos.photosdb.photosdb &#8212; osxphotos 0.41.4 documentation</title>
+    <title>osxphotos.photosdb.photosdb &#8212; osxphotos 0.41.10 documentation</title>
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -1861,7 +1861,6 @@
 
         <span class="c1"># get details about photos</span>
         <span class="n">verbose</span><span class="p">(</span><span class="s2">&quot;Processing photo details.&quot;</span><span class="p">)</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Getting information about photos&quot;</span><span class="p">)</span>
         <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;&quot;&quot;SELECT </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZUUID, </span>
 <span class="s2">                ZADDITIONALASSETATTRIBUTES.ZMASTERFINGERPRINT, </span>
@@ -2769,8 +2768,6 @@
                                 <span class="c1"># an empty album will be in _dbalbum_titles but not _dbalbums_album</span>
                                 <span class="k">pass</span>
                         <span class="n">album_set</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">title_set</span><span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not find album &#39;</span><span class="si">{</span><span class="n">album</span><span class="si">}</span><span class="s2">&#39; in database&quot;</span><span class="p">)</span>
                 <span class="n">photos_sets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">album_set</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">uuid</span><span class="p">:</span>
@@ -2778,8 +2775,6 @@
                 <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">uuid</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">:</span>
                         <span class="n">uuid_set</span><span class="o">.</span><span class="n">update</span><span class="p">([</span><span class="n">u</span><span class="p">])</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not find uuid &#39;</span><span class="si">{</span><span class="n">u</span><span class="si">}</span><span class="s2">&#39; in database&quot;</span><span class="p">)</span>
                 <span class="n">photos_sets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">uuid_set</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">keywords</span><span class="p">:</span>
@@ -2787,8 +2782,6 @@
                 <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">keywords</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbkeywords_keyword</span><span class="p">:</span>
                         <span class="n">keyword_set</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbkeywords_keyword</span><span class="p">[</span><span class="n">keyword</span><span class="p">])</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not find keyword &#39;</span><span class="si">{</span><span class="n">keyword</span><span class="si">}</span><span class="s2">&#39; in database&quot;</span><span class="p">)</span>
                 <span class="n">photos_sets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">keyword_set</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">persons</span><span class="p">:</span>
@@ -2801,8 +2794,6 @@
                             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                                 <span class="c1"># some persons have zero photos so they won&#39;t be in _dbfaces_pk</span>
                                 <span class="k">pass</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not find person &#39;</span><span class="si">{</span><span class="n">person</span><span class="si">}</span><span class="s2">&#39; in database&quot;</span><span class="p">)</span>
                 <span class="n">photos_sets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">person_set</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">from_date</span> <span class="ow">or</span> <span class="n">to_date</span><span class="p">:</span>  <span class="c1"># sourcery off</span>
@@ -2813,14 +2804,10 @@
                     <span class="n">dsel</span> <span class="o">=</span> <span class="p">{</span>
                         <span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dsel</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="p">[</span><span class="s2">&quot;imageDate&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">from_date</span>
                     <span class="p">}</span>
-                    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Found %i items with from_date </span><span class="si">{</span><span class="n">from_date</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">dsel</span><span class="p">)</span>
-                    <span class="p">)</span>
                 <span class="k">if</span> <span class="n">to_date</span><span class="p">:</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">datetime_has_tz</span><span class="p">(</span><span class="n">to_date</span><span class="p">):</span>
                         <span class="n">to_date</span> <span class="o">=</span> <span class="n">datetime_naive_to_local</span><span class="p">(</span><span class="n">to_date</span><span class="p">)</span>
                     <span class="n">dsel</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dsel</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="p">[</span><span class="s2">&quot;imageDate&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">to_date</span><span class="p">}</span>
-                    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found %i items with to_date </span><span class="si">{</span><span class="n">to_date</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">dsel</span><span class="p">))</span>
                 <span class="n">photos_sets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">dsel</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
 
         <span class="n">photoinfo</span> <span class="o">=</span> <span class="p">[]</span>
