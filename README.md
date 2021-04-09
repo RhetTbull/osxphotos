@@ -317,14 +317,16 @@ Options:
   --not-in-album                  Search for photos that are not in any albums.
   --query-eval CRITERIA           Evaluate CRITERIA to filter photos. CRITERIA
                                   will be evaluated in context of the following
-                                  list comprehension: `photos = [photo for photo
-                                  in photos if CRITERIA]` where photo represents
-                                  a PhotoInfo object. For example: `--query-eval
-                                  photo.favorite` returns all photos that have
-                                  been favorited and is equivalent to
-                                  --favorite. You may specify more than one
-                                  CRITERIA by using --query-eval multiple times.
-                                  See https://rhettbull.github.io/osxphotos/ for
+                                  python list comprehension: `photos = [photo
+                                  for photo in photos if CRITERIA]` where photo
+                                  represents a PhotoInfo object. For example:
+                                  `--query-eval photo.favorite` returns all
+                                  photos that have been favorited and is
+                                  equivalent to --favorite. You may specify more
+                                  than one CRITERIA by using --query-eval
+                                  multiple times. CRITERIA must be a valid
+                                  python expression. See
+                                  https://rhettbull.github.io/osxphotos/ for
                                   additional documentation on the PhotoInfo
                                   class.
 
