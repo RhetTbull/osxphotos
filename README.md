@@ -1213,6 +1213,18 @@ Substitution             Description
                          'Restaurant'; (Photos 5+ only, applied automatically
                          by Photos' image categorization algorithms).
 
+{photo}                  Provides direct access to the PhotoInfo object for
+                         the photo. Must be used in format '{photo.property}'
+                         where 'property' represents a PhotoInfo property. For
+                         example: '{photo.favorite}' is the same as
+                         '{favorite}' and '{photo.place.name}' is the same as
+                         '{place.name}'. '{photo}' provides access to
+                         properties that are not available as separate
+                         template fields but it assumes some knowledge of the
+                         underlying PhotoInfo class.  See
+                         https://rhettbull.github.io/osxphotos/ for additional
+                         documentation on the PhotoInfo class.
+
 
 
 ```
@@ -2788,6 +2800,7 @@ The following template field substitutions are availabe for use with `PhotoInfo.
 |{searchinfo.activity}|Activities associated with a photo, e.g. 'Sporting Event'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
 |{searchinfo.venue}|Venues associated with a photo, e.g. name of restaurant; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
 |{searchinfo.venue_type}|Venue types associated with a photo, e.g. 'Restaurant'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
+|{photo}|Provides direct access to the PhotoInfo object for the photo. Must be used in format '{photo.property}' where 'property' represents a PhotoInfo property. For example: '{photo.favorite}' is the same as '{favorite}' and '{photo.place.name}' is the same as '{place.name}'. '{photo}' provides access to properties that are not available as separate template fields but it assumes some knowledge of the underlying PhotoInfo class.  See https://rhettbull.github.io/osxphotos/ for additional documentation on the PhotoInfo class.|
 <!-- OSXPHOTOS-TEMPLATE-TABLE:END -->
 
 ### Utility Functions

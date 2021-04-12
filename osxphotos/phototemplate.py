@@ -146,6 +146,11 @@ TEMPLATE_SUBSTITUTIONS_MULTI_VALUED = {
     "{searchinfo.activity}": "Activities associated with a photo, e.g. 'Sporting Event'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).",
     "{searchinfo.venue}": "Venues associated with a photo, e.g. name of restaurant; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).",
     "{searchinfo.venue_type}": "Venue types associated with a photo, e.g. 'Restaurant'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).",
+    "{photo}": "Provides direct access to the PhotoInfo object for the photo. "
+    + "Must be used in format '{photo.property}' where 'property' represents a PhotoInfo property. "
+    + "For example: '{photo.favorite}' is the same as '{favorite}' and '{photo.place.name}' is the same as '{place.name}'. "
+    + "'{photo}' provides access to properties that are not available as separate template fields but it assumes some knowledge of "
+    + "the underlying PhotoInfo class.  See https://rhettbull.github.io/osxphotos/ for additional documentation on the PhotoInfo class.",
 }
 
 FILTER_VALUES = {
@@ -363,7 +368,7 @@ class PhotoTemplate:
         if ts.template:
             # have a template field to process
             field = ts.template.field
-            if field not in FIELD_NAMES:
+            if field not in FIELD_NAMES and not field.startswith("photo"):
                 unmatched.append(field)
                 return [], unmatched
 
@@ -443,7 +448,7 @@ class PhotoTemplate:
                 vals = self.get_template_value_exiftool(
                     subfield, filename=filename, dirname=dirname
                 )
-            elif field in MULTI_VALUE_SUBSTITUTIONS:
+            elif field in MULTI_VALUE_SUBSTITUTIONS or field.startswith("photo"):
                 vals = self.get_template_value_multi(
                     field, path_sep=path_sep, filename=filename, dirname=dirname
                 )
@@ -894,6 +899,32 @@ class PhotoTemplate:
             values = (
                 self.photo.search_info.venue_types if self.photo.search_info else []
             )
+        elif field.startswith("photo"):
+            # provide access to PhotoInfo object
+            properties = field.split(".")
+            if len(properties) <= 1:
+                raise ValueError(
+                    "Missing property in {photo} template.  Use in form {photo.property}."
+                )
+            obj = self.photo
+            for i in range(1, len(properties)):
+                property_ = properties[i]
+                try:
+                    obj = getattr(obj, property_)
+                    if obj is None:
+                        break
+                except AttributeError:
+                    raise ValueError(
+                        "Invalid property for {photo} template: " + f"'{property_}'"
+                    )
+            if obj is None:
+                values = []
+            elif isinstance(obj, bool):
+                values = [property_] if obj else []
+            elif isinstance(obj, (str, int, float)):
+                values = [str(obj)]
+            else:
+                values = [val for val in obj]
         else:
             raise ValueError(f"Unhandled template value: {field}")
 

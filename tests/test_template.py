@@ -256,6 +256,25 @@ COMMENT_UUID_DICT = {
     "4E4944A0-3E5C-4028-9600-A8709F2FA1DB": ["None: Nice trophy"],
 }
 
+UUID_PHOTO = {
+    "DC99FBDD-7A52-4100-A5BB-344131646C30": {
+        "{photo.title}": ["St. James's Park"],
+        "{photo.favorite?FAVORITE,NOTFAVORITE}": ["NOTFAVORITE"],
+        "{photo.hdr}": ["_"],
+        "{photo.keywords}": [
+            "England",
+            "London",
+            "London 2018",
+            "St. James's Park",
+            "UK",
+            "United Kingdom",
+        ],
+    },
+    "3DD2C897-F19E-4CA6-8C22-B027D5A71907": {"{photo.place.country_code}": ["AU"]},
+    "F12384F6-CD17-4151-ACBA-AE0E3688539E": {"{photo.place.name}": ["_"]},
+    "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51": {"{photo.favorite}": ["favorite"]},
+}
+
 
 @pytest.fixture(scope="module")
 def photosdb_places():
@@ -310,7 +329,7 @@ def test_lookup_multi(photosdb_places):
 
     for subst in TEMPLATE_SUBSTITUTIONS_MULTI_VALUED:
         lookup_str = re.match(r"\{([^\\,}]+)\}", subst).group(1)
-        if subst == "{exiftool}":
+        if subst in ["{exiftool}", "{photo}"]:
             continue
         lookup = template.get_template_value_multi(lookup_str, path_sep=os.path.sep)
         assert isinstance(lookup, list)
@@ -879,3 +898,10 @@ def test_punctuation(photosdb):
         rendered, _ = photo.render_template("{" + punc + "}")
         assert rendered[0] == PUNCTUATION[punc]
 
+
+def test_photo_template(photosdb):
+    for uuid in UUID_PHOTO:
+        photo = photosdb.get_photo(uuid)
+        for template in UUID_PHOTO[uuid]:
+            rendered, _ = photo.render_template(template)
+            assert sorted(rendered) == sorted(UUID_PHOTO[uuid][template])
