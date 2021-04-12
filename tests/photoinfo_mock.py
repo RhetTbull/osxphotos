@@ -24,6 +24,14 @@ class PhotoInfoMock(PhotoInfo):
         )
 
     @property
+    def favorite(self):
+        return (
+            self._mock_favorite
+            if getattr(self, "_mock_favorite", None) is not None
+            else self._photo.favorite
+        )
+
+    @property
     def hasadjustments(self):
         return (
             self._mock_hasadjustments

@@ -28,6 +28,7 @@ UUID_DICT = {
     "mojave_album_1": "15uNd7%8RguTEgNPKHfTWw",
     "date_modified": "A9B73E13-A6F2-4915-8D67-7213B39BAE9F",
     "date_not_modified": "128FB4C6-0B16-4E7D-9108-FB2E90DA1546",
+    "favorite": "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51",
 }
 
 UUID_MEDIA_TYPE = {
@@ -176,6 +177,8 @@ TEMPLATE_VALUES = {
     "{exif.lens_model}": "iPhone 6s back camera 4.15mm f/2.2",
     "{album?{folder_album},{created.year}/{created.mm}}": "2020/02",
     "{title?Title is '{title} - {descr}',No Title}": "Title is 'Glen Ord - Jack Rose Dining Saloon'",
+    "{favorite}": "_",
+    "{favorite?FAV,NOTFAV}": "NOTFAV",
 }
 
 
@@ -829,6 +832,14 @@ def test_edited(photosdb):
     photomock = PhotoInfoMock(photo, hasadjustments=True)
     rendered, _ = photomock.render_template("{edited}")
     assert rendered == ["edited"]
+
+
+def test_favorite(photosdb):
+    """ Test favorite"""
+    photo = photosdb.get_photo(UUID_MULTI_KEYWORDS)
+    photomock = PhotoInfoMock(photo, favorite=True)
+    rendered, _ = photomock.render_template("{favorite}")
+    assert rendered == ["favorite"]
 
 
 def test_nested_template_bool(photosdb):

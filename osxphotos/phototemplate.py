@@ -48,6 +48,7 @@ TEMPLATE_SUBSTITUTIONS = {
     "{photo_or_video}": "'photo' or 'video' depending on what type the image is. To customize, use default value as in '{photo_or_video,photo=fotos;video=videos}'",
     "{hdr}": "Photo is HDR?; True/False value, use in format '{hdr?VALUE_IF_TRUE,VALUE_IF_FALSE}'",
     "{edited}": "Photo has been edited (has adjustments)?; True/False value, use in format '{edited?VALUE_IF_TRUE,VALUE_IF_FALSE}'",
+    "{favorite}": "Photo has been marked as favorite?; True/False value, use in format '{favorite?VALUE_IF_TRUE,VALUE_IF_FALSE}'",
     "{created.date}": "Photo's creation date in ISO format, e.g. '2020-03-22'",
     "{created.year}": "4-digit year of photo creation time",
     "{created.yy}": "2-digit year of photo creation time",
@@ -539,6 +540,8 @@ class PhotoTemplate:
             value = "hdr" if self.photo.hdr else None
         elif field == "edited":
             value = "edited" if self.photo.hasadjustments else None
+        elif field == "favorite":
+            value = "favorite" if self.photo.favorite else None
         elif field == "created.date":
             value = DateTimeFormatter(self.photo.date).date
         elif field == "created.year":
