@@ -283,6 +283,50 @@ UUID_PHOTO = {
     "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51": {"{photo.favorite}": ["favorite"]},
 }
 
+UUID_CONDITIONAL = {
+    "3DD2C897-F19E-4CA6-8C22-B027D5A71907": {
+        "{title matches Elder Park?YES,NO}": ["YES"],
+        "{title matches not Elder Park?YES,NO}": ["NO"],
+        "{title contains Park?YES,NO}": ["YES"],
+        "{title not contains Park?YES,NO}": ["NO"],
+        "{title matches Park?YES,NO}": ["NO"],
+        "{title matches Elder Park?YES,NO}": ["YES"],
+        "{title == Elder Park?YES,NO}": ["YES"],
+        "{title != Elder Park?YES,NO}": ["NO"],
+        "{title[ ,] == ElderPark?YES,NO}": ["YES"],
+        "{title not != Elder Park?YES,NO}": ["YES"],
+        "{title not == Elder Park?YES,NO}": ["NO"],
+        "{title endswith Park?YES,NO}": ["YES"],
+        "{title endswith Elder?YES,NO}": ["NO"],
+        "{title startswith Elder?YES,NO}": ["YES"],
+        "{title endswith Elder?YES,NO}": ["NO"],
+        "{photo.place.name contains Adelaide?YES,NO}": ["YES"],
+        "{photo.place.name|lower contains adelaide?YES,NO}": ["YES"],
+        "{photo.place.name|lower not contains adelaide?YES,NO}": ["NO"],
+        "{photo.score.overall < 0.7?YES,NO}": ["YES"],
+        "{photo.score.overall <= 0.7?YES,NO}": ["YES"],
+        "{photo.score.overall > 0.7?YES,NO}": ["NO"],
+        "{photo.score.overall >= 0.7?YES,NO}": ["NO"],
+        "{photo.score.overall not < 0.7?YES,NO}": ["NO"],
+        "{folder_album(-) contains Folder1-SubFolder2-AlbumInFolder?YES,NO}": ["YES"],
+        "{folder_album(-)[In,] contains Folder1-SubFolder2-AlbumFolder?YES,NO}": [
+            "YES"
+        ],
+    },
+    "DC99FBDD-7A52-4100-A5BB-344131646C30": {
+        "{keyword == {keyword}?YES,NO}": ["YES"],
+        "{keyword contains England?YES,NO}": ["YES"],
+        "{keyword contains Eng?YES,NO}": ["YES"],
+        "{keyword contains Foo?YES,NO}": ["NO"],
+        "{keyword matches England?YES,NO}": ["YES"],
+        "{keyword matches Eng?YES,NO}": ["NO"],
+        "{keyword contains Foo|Bar|England?YES,NO}": ["YES"],
+        "{keyword contains Foo|Bar?YES,NO}": ["NO"],
+        "{keyword matches Foo|Bar|England?YES,NO}": ["YES"],
+        "{keyword matches Foo|Bar?YES,NO}": ["NO"],
+    },
+}
+
 
 @pytest.fixture(scope="module")
 def photosdb_places():
@@ -913,3 +957,11 @@ def test_photo_template(photosdb):
         for template in UUID_PHOTO[uuid]:
             rendered, _ = photo.render_template(template)
             assert sorted(rendered) == sorted(UUID_PHOTO[uuid][template])
+
+
+def test_conditional(photosdb):
+    for uuid in UUID_CONDITIONAL:
+        photo = photosdb.get_photo(uuid)
+        for template in UUID_CONDITIONAL[uuid]:
+            rendered, _ = photo.render_template(template)
+            assert sorted(rendered) == sorted(UUID_CONDITIONAL[uuid][template])

@@ -120,6 +120,7 @@ TEMPLATE_SUBSTITUTIONS = {
     "{uuid}": "Photo's internal universally unique identifier (UUID) for the photo, a 36-character string unique to the photo, e.g. '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'",
     "{comma}": "A comma: ','",
     "{semicolon}": "A semicolon: ';'",
+    "{questionmark}": "A question mark: '?'",
     "{pipe}": "A vertical pipe: '|'",
     "{openbrace}": "An open brace: '{'",
     "{closebrace}": "A close brace: '}'",
@@ -191,6 +192,7 @@ PUNCTUATION = {
     "closeparens": ")",
     "openbracket": "[",
     "closebracket": "]",
+    "questionmark": "?",
 }
 
 
@@ -323,17 +325,6 @@ class PhotoTemplate:
                 unmatched=unmatched,
             )
 
-            # process find/replace
-            if ts.template and ts.template.findreplace:
-                new_results = []
-                for result in results:
-                    for pair in ts.template.findreplace.pairs:
-                        find = pair.find or ""
-                        repl = pair.replace or ""
-                        result = result.replace(find, repl)
-                    new_results.append(result)
-                results = new_results
-
         rendered_strings = results
 
         if filename:
@@ -430,6 +421,30 @@ class PhotoTemplate:
             else:
                 default = []
 
+            # process conditional
+            if ts.template.conditional is not None:
+                operator = ts.template.conditional.operator
+                negation = ts.template.conditional.negation
+                if ts.template.conditional.value is not None:
+                    # conditional value is also a TemplateString
+                    conditional_value, u = self._render_statement(
+                        ts.template.conditional.value,
+                        none_str=none_str,
+                        path_sep=path_sep,
+                        expand_inplace=expand_inplace,
+                        inplace_sep=inplace_sep,
+                        filename=filename,
+                        dirname=dirname,
+                    )
+                    unmatched.extend(u)
+                else:
+                    # this shouldn't happen
+                    conditional_value = [""]
+            else:
+                operator = None
+                negation = None
+                conditional_value = []
+
             vals = []
             if field in SINGLE_VALUE_SUBSTITUTIONS:
                 vals = self.get_template_value(
@@ -458,20 +473,105 @@ class PhotoTemplate:
 
             vals = [val for val in vals if val is not None]
 
-            if is_bool:
-                if not vals:
-                    vals = default
-                else:
-                    vals = bool_val
-            elif not vals:
-                vals = default or [none_str]
-
             if expand_inplace or delim is not None:
                 sep = delim if delim is not None else inplace_sep
                 vals = [sep.join(sorted(vals))]
 
             for filter_ in filters:
                 vals = self.get_template_value_filter(filter_, vals)
+
+            # process find/replace
+            if ts.template.findreplace:
+                new_vals = []
+                for val in vals:
+                    for pair in ts.template.findreplace.pairs:
+                        find = pair.find or ""
+                        repl = pair.replace or ""
+                        val = val.replace(find, repl)
+                    new_vals.append(val)
+                vals = new_vals
+
+            if operator:
+                # have a conditional operator
+
+                def string_test(test_function):
+                    """ Perform string comparison using test_function; closure to capture conditional_value, vals, negation """
+                    match = False
+                    for c in conditional_value:
+                        for v in vals:
+                            if test_function(v, c):
+                                match = True
+                                break
+                        if match:
+                            break
+                    if (match and not negation) or (negation and not match):
+                        return ["True"]
+                    else:
+                        return []
+
+                def comparison_test(test_function):
+                    """ Perform numerical comparisons using test_function; closure to capture conditional_val, vals, negation """
+                    if len(vals) != 1 or len(conditional_value) != 1:
+                        raise ValueError(
+                            f"comparison operators may only be used with a single value: {vals} {conditional_value}"
+                        )
+                    try:
+                        match = (
+                            True
+                            if test_function(
+                                float(vals[0]), float(conditional_value[0])
+                            )
+                            else False
+                        )
+                        if (match and not negation) or (negation and not match):
+                            return ["True"]
+                        else:
+                            return []
+                    except ValueError as e:
+                        raise ValueError(
+                            f"comparison operators may only be used with values that can be converted to numbers: {vals} {conditional_value}"
+                        )
+
+                if operator in ["contains", "matches", "startswith", "endswith"]:
+                    # process any "or" values separated by "|"
+                    temp_values = []
+                    for c in conditional_value:
+                        temp_values.extend(c.split("|"))
+                    conditional_value = temp_values
+
+                if operator == "contains":
+                    vals = string_test(lambda v, c: c in v)
+                elif operator == "matches":
+                    vals = string_test(lambda v, c: v == c)
+                elif operator == "startswith":
+                    vals = string_test(lambda v, c: v.startswith(c))
+                elif operator == "endswith":
+                    vals = string_test(lambda v, c: v.endswith(c))
+                elif operator == "==":
+                    match = sorted(vals) == sorted(conditional_value)
+                    if (match and not negation) or (negation and not match):
+                        vals = ["True"]
+                    else:
+                        vals = []
+                elif operator == "!=":
+                    match = sorted(vals) != sorted(conditional_value)
+                    if (match and not negation) or (negation and not match):
+                        vals = ["True"]
+                    else:
+                        vals = []
+                elif operator == "<":
+                    vals = comparison_test(lambda v, c: v < c)
+                elif operator == "<=":
+                    vals = comparison_test(lambda v, c: v <= c)
+                elif operator == ">":
+                    vals = comparison_test(lambda v, c: v > c)
+                elif operator == ">=":
+                    vals = comparison_test(lambda v, c: v >= c)
+
+            if is_bool:
+                vals = default if not vals else bool_val
+            elif not vals:
+                vals = default or [none_str]
 
             pre = ts.pre or ""
             post = ts.post or ""

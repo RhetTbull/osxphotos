@@ -791,8 +791,8 @@ example "{title}" which would resolve to the title of the photo.
 
 Template statements may contain one or more modifiers.  The full syntax is:     
 
-"pretext{delim+template_field:subfield|filter(path_sep)[find,replace]?bool_value
-,default}posttext"                                                              
+"pretext{delim+template_field:subfield|filter(path_sep)[find,replace]           
+conditional?bool_value,default}posttext"                                        
 
 Template statements are white-space sensitive meaning that white space (spaces, 
 tabs) changes the meaning of the template statement.                            
@@ -865,13 +865,68 @@ another find|replace pair.  e.g. to replace both "/" and ":" in album name:
 "{album[/,-|:,-]}".  find/replace pairs are not limited to single characters.   
 The "|" character cannot be used in a find/replace pair.                        
 
-?bool_value: Template fields may be evaluated as boolean by appending "?" after 
-the field name (and following "(path_sep)" or "[find/replace]".  If a field is  
-True (e.g. photo is HDR and field is "{hdr}") or has any value, the value       
-following the "?" will be used to render the template instead of the actual     
-field value.  If the template field evaluates to False (e.g. in above example,  
-photo is not HDR) or has no value (e.g. photo has no title and field is         
-"{title}") then the default value following a "," will be used.                 
+conditional: optional conditional expression that is evaluated as boolean       
+(True/False) for use with the ?bool_value modifier.  Conditional expressions    
+take the form ' not operator value' where not is an optional modifier that      
+negates the operator.  Note: the space before the conditional expression is     
+required if you use a conditional expression.  Valid comparison operators are:  
+
+ • contains: template field contains value, similar to python's in              
+ • matches: template field contains exactly value, unlike contains: does not    
+   match partial matches                                                        
+ • startswith: template field starts with value                                 
+ • endswith: template field ends with value                                     
+ • <=: template field is less than or equal to value                            
+ • >=: template field is greater than or equal to value                         
+ • <: template field is less than value                                         
+ • >: template field is greater than value                                      
+ • ==: template field equals value                                              
+ • !=: template field does not equal value                                      
+
+The value part of the conditional expression is treated as a bare (unquoted)    
+word/phrase.  Multiple values may be separated by '|' (the pipe symbol).  value 
+is itself a template statement so you can use one or more template fields in    
+value which will be resolved before the comparison occurs.                      
+
+For example:                                                                    
+
+ • {keyword matches Beach} resolves to True if 'Beach' is a keyword. It would   
+   not match keyword 'BeachDay'.                                                
+ • {keyword contains Beach} resolves to True if any keyword contains the word   
+   'Beach' so it would match both 'Beach' and 'BeachDay'.                       
+ • {photo.score.overall > 0.7} resolves to True if the photo's overall aesthetic
+   score is greater than 0.7.                                                   
+ • {keyword|lower contains beach} uses the lower case filter to do              
+   case-insensitive matching to match any keyword that contains the word        
+   'beach'.                                                                     
+ • {keyword|lower not contains beach} uses the not modifier to negate the       
+   comparison so this resolves to True if there is no keyword that matches      
+   'beach'.                                                                     
+
+Examples: to export photos that contain certain keywords with the osxphotos     
+export command's --directory option:                                            
+
+--directory "{keyword|lower matches                                             
+travel|vacation?Travel-Photos,Not-Travel-Photos}"                               
+
+This exports any photo that has keywords 'travel' or 'vacation' into a directory
+'Travel-Photos' and all other photos into directory 'Not-Travel-Photos'.        
+
+This can be used to rename files as well, for example: --filename               
+"{favorite?Favorite-{original_name},{original_name}}"                           
+
+This renames any photo that is a favorite as 'Favorite-ImageName.jpg' (where    
+'ImageName.jpg' is the original name of the photo) and all other photos with the
+unmodified original name.                                                       
+
+?bool_value: Template fields may be evaluated as boolean (True/False) by        
+appending "?" after the field name (and following "(path_sep)" or               
+"[find/replace]".  If a field is True (e.g. photo is HDR and field is "{hdr}")  
+or has any value, the value following the "?" will be used to render the        
+template instead of the actual field value.  If the template field evaluates to 
+False (e.g. in above example, photo is not HDR) or has no value (e.g. photo has 
+no title and field is "{title}") then the default value following a "," will be 
+used.                                                                           
 
 e.g. if photo is an HDR image,                                                  
 
@@ -1156,6 +1211,7 @@ Substitution                    Description
 
 {comma}                         A comma: ','
 {semicolon}                     A semicolon: ';'
+{questionmark}                  A question mark: '?'
 {pipe}                          A vertical pipe: '|'
 {openbrace}                     An open brace: '{'
 {closebrace}                    A close brace: '}'
@@ -2101,7 +2157,7 @@ In its simplest form, a template statement has the form: `"{template_field}"`, f
 
 Template statements may contain one or more modifiers.  The full syntax is:
 
-`"pretext{delim+template_field:subfield|filter(path_sep)[find,replace]?bool_value,default}posttext"`
+`"pretext{delim+template_field:subfield|filter(path_sep)[find,replace] conditional?bool_value,default}posttext"`
 
 Template statements are white-space sensitive meaning that white space (spaces, tabs) changes the meaning of the template statement.
 
@@ -2159,7 +2215,41 @@ e.g. If Photo is in `Album1` in `Folder1`:
 
 `[find|replace]`: optional text replacement to perform on rendered template value.  For example, to replace "/" in an album name, you could use the template `"{album[/,-]}"`.  Multiple replacements can be made by appending "|" and adding another find|replace pair.  e.g. to replace both "/" and ":" in album name: `"{album[/,-|:,-]}"`.  find/replace pairs are not limited to single characters.  The "|" character cannot be used in a find/replace pair.
 
-`?bool_value`: Template fields may be evaluated as boolean by appending "?" after the field name (and following "(path_sep)" or "[find/replace]".  If a field is True (e.g. photo is HDR and field is `"{hdr}"`) or has any value, the value following the "?" will be used to render the template instead of the actual field value.  If the template field evaluates to False (e.g. in above example, photo is not HDR) or has no value (e.g. photo has no title and field is `"{title}"`) then the default value following a "," will be used.  
+`conditional`: optional conditional expression that is evaluated as boolean (True/False) for use with the `?bool_value` modifier.  Conditional expressions take the form '` not operator value`' where `not` is an optional modifier that negates the `operator`.  Note: the space before the conditional expression is required if you use a conditional expression.  Valid comparison operators are:
+
+- `contains`: template field contains value, similar to python's `in`
+- `matches`: template field contains exactly value, unlike `contains`: does not match partial matches
+- `startswith`: template field starts with value
+- `endswith`: template field ends with value
+- `<=`: template field is less than or equal to value
+- `>=`: template field is greater than or equal to value
+- `<`: template field is less than value
+- `>`: template field is greater than value
+- `==`: template field equals value
+- `!=`: template field does not equal value
+
+The `value` part of the conditional expression is treated as a bare (unquoted) word/phrase.  Multiple values may be separated by '|' (the pipe symbol).  `value` is itself a template statement so you can use one or more template fields in `value` which will be resolved before the comparison occurs.
+
+For example:
+
+- `{keyword matches Beach}` resolves to True if 'Beach' is a keyword. It would not match keyword 'BeachDay'.
+- `{keyword contains Beach}` resolves to True if any keyword contains the word 'Beach' so it would match both 'Beach' and 'BeachDay'.
+- `{photo.score.overall > 0.7}` resolves to True if the photo's overall aesthetic score is greater than 0.7.
+- `{keyword|lower contains beach}` uses the lower case filter to do case-insensitive matching to match any keyword that contains the word 'beach'.
+- `{keyword|lower not contains beach}` uses the `not` modifier to negate the comparison so this resolves to True if there is no keyword that matches 'beach'.
+
+Examples: to export photos that contain certain keywords with the `osxphotos export` command's `--directory` option:
+
+`--directory "{keyword|lower matches travel|vacation?Travel-Photos,Not-Travel-Photos}"`
+
+This exports any photo that has keywords 'travel' or 'vacation' into a directory 'Travel-Photos' and all other photos into directory 'Not-Travel-Photos'.
+
+This can be used to rename files as well, for example:
+`--filename "{favorite?Favorite-{original_name},{original_name}}"`
+
+This renames any photo that is a favorite as 'Favorite-ImageName.jpg' (where 'ImageName.jpg' is the original name of the photo) and all other photos with the unmodified original name.
+
+`?bool_value`: Template fields may be evaluated as boolean (True/False) by appending "?" after the field name (and following "(path_sep)" or "[find/replace]".  If a field is True (e.g. photo is HDR and field is `"{hdr}"`) or has any value, the value following the "?" will be used to render the template instead of the actual field value.  If the template field evaluates to False (e.g. in above example, photo is not HDR) or has no value (e.g. photo has no title and field is `"{title}"`) then the default value following a "," will be used.  
 
 e.g. if photo is an HDR image,
 
@@ -2781,6 +2871,7 @@ The following template field substitutions are availabe for use with `PhotoInfo.
 |{uuid}|Photo's internal universally unique identifier (UUID) for the photo, a 36-character string unique to the photo, e.g. '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'|
 |{comma}|A comma: ','|
 |{semicolon}|A semicolon: ';'|
+|{questionmark}|A question mark: '?'|
 |{pipe}|A vertical pipe: '|'|
 |{openbrace}|An open brace: '{'|
 |{closebrace}|A close brace: '}'|
