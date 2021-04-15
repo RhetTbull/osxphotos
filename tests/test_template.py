@@ -381,7 +381,7 @@ def test_lookup_multi(photosdb_places):
 
     for subst in TEMPLATE_SUBSTITUTIONS_MULTI_VALUED:
         lookup_str = re.match(r"\{([^\\,}]+)\}", subst).group(1)
-        if subst in ["{exiftool}", "{photo}"]:
+        if subst in ["{exiftool}", "{photo}", "{function}"]:
             continue
         lookup = template.get_template_value_multi(lookup_str, path_sep=os.path.sep)
         assert isinstance(lookup, list)
@@ -965,3 +965,20 @@ def test_conditional(photosdb):
         for template in UUID_CONDITIONAL[uuid]:
             rendered, _ = photo.render_template(template)
             assert sorted(rendered) == sorted(UUID_CONDITIONAL[uuid][template])
+
+
+def test_function(photosdb):
+    """ Test {function} """
+    photo = photosdb.get_photo(UUID_MULTI_KEYWORDS)
+    rendered, _ = photo.render_template("{function:tests/template_function.py::foo}")
+    assert rendered == [f"{photo.original_filename}-FOO"]
+
+
+def test_function_bad(photosdb):
+    """ Test invalid {function} """
+    photo = photosdb.get_photo(UUID_MULTI_KEYWORDS)
+    with pytest.raises(ValueError):
+        rendered, _ = photo.render_template(
+            "{function:tests/template_function.py::foobar}"
+        )
+

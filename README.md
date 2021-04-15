@@ -858,7 +858,7 @@ e.g. If Photo is in Album1 in Folder1:
  • "{folder_album(>)}" renders to ["Folder1>Album1"]                            
  • "{folder_album()}" renders to ["Folder1Album1"]                              
 
-[find|replace]: optional text replacement to perform on rendered template value.
+[find,replace]: optional text replacement to perform on rendered template value.
 For example, to replace "/" in an album name, you could use the template        
 "{album[/,-]}".  Multiple replacements can be made by appending "|" and adding  
 another find|replace pair.  e.g. to replace both "/" and ":" in album name:     
@@ -1280,6 +1280,16 @@ Substitution             Description
                          underlying PhotoInfo class.  See
                          https://rhettbull.github.io/osxphotos/ for additional
                          documentation on the PhotoInfo class.
+
+{function}               Execute a python function from an external file and
+                         use return value as template substitution. Use in
+                         format: {function:file.py::function_name} where
+                         'file.py' is the name of the python file and
+                         'function_name' is the name of the function to call.
+                         The function will be passed the PhotoInfo object for
+                         the photo. See https://github.com/RhetTbull/osxphotos
+                         /blob/master/examples/template_function.py for an
+                         example of how to implement a template function.
 
 
 
@@ -2213,7 +2223,7 @@ e.g. If Photo is in `Album1` in `Folder1`:
 - `"{folder_album(>)}"` renders to `["Folder1>Album1"]`
 - `"{folder_album()}"` renders to `["Folder1Album1"]`
 
-`[find|replace]`: optional text replacement to perform on rendered template value.  For example, to replace "/" in an album name, you could use the template `"{album[/,-]}"`.  Multiple replacements can be made by appending "|" and adding another find|replace pair.  e.g. to replace both "/" and ":" in album name: `"{album[/,-|:,-]}"`.  find/replace pairs are not limited to single characters.  The "|" character cannot be used in a find/replace pair.
+`[find,replace]`: optional text replacement to perform on rendered template value.  For example, to replace "/" in an album name, you could use the template `"{album[/,-]}"`.  Multiple replacements can be made by appending "|" and adding another find|replace pair.  e.g. to replace both "/" and ":" in album name: `"{album[/,-|:,-]}"`.  find/replace pairs are not limited to single characters.  The "|" character cannot be used in a find/replace pair.
 
 `conditional`: optional conditional expression that is evaluated as boolean (True/False) for use with the `?bool_value` modifier.  Conditional expressions take the form '` not operator value`' where `not` is an optional modifier that negates the `operator`.  Note: the space before the conditional expression is required if you use a conditional expression.  Valid comparison operators are:
 
@@ -2892,6 +2902,7 @@ The following template field substitutions are availabe for use with `PhotoInfo.
 |{searchinfo.venue}|Venues associated with a photo, e.g. name of restaurant; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
 |{searchinfo.venue_type}|Venue types associated with a photo, e.g. 'Restaurant'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
 |{photo}|Provides direct access to the PhotoInfo object for the photo. Must be used in format '{photo.property}' where 'property' represents a PhotoInfo property. For example: '{photo.favorite}' is the same as '{favorite}' and '{photo.place.name}' is the same as '{place.name}'. '{photo}' provides access to properties that are not available as separate template fields but it assumes some knowledge of the underlying PhotoInfo class.  See https://rhettbull.github.io/osxphotos/ for additional documentation on the PhotoInfo class.|
+|{function}|Execute a python function from an external file and use return value as template substitution. Use in format: {function:file.py::function_name} where 'file.py' is the name of the python file and 'function_name' is the name of the function to call. The function will be passed the PhotoInfo object for the photo. See https://github.com/RhetTbull/osxphotos/blob/master/examples/template_function.py for an example of how to implement a template function.|
 <!-- OSXPHOTOS-TEMPLATE-TABLE:END -->
 
 ### Utility Functions

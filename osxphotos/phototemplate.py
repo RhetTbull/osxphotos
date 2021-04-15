@@ -11,6 +11,7 @@ from ._constants import _UNKNOWN_PERSON
 from .datetime_formatter import DateTimeFormatter
 from .exiftool import ExifTool
 from .path_utils import sanitize_dirname, sanitize_filename, sanitize_pathpart
+from .utils import load_function
 
 # ensure locale set to user's locale
 locale.setlocale(locale.LC_ALL, "")
@@ -152,6 +153,10 @@ TEMPLATE_SUBSTITUTIONS_MULTI_VALUED = {
     + "For example: '{photo.favorite}' is the same as '{favorite}' and '{photo.place.name}' is the same as '{place.name}'. "
     + "'{photo}' provides access to properties that are not available as separate template fields but it assumes some knowledge of "
     + "the underlying PhotoInfo class.  See https://rhettbull.github.io/osxphotos/ for additional documentation on the PhotoInfo class.",
+    "{function}": "Execute a python function from an external file and use return value as template substitution. "
+    + "Use in format: {function:file.py::function_name} where 'file.py' is the name of the python file and 'function_name' is the name of the function to call. "
+    + "The function will be passed the PhotoInfo object for the photo. "
+    + "See https://github.com/RhetTbull/osxphotos/blob/master/examples/template_function.py for an example of how to implement a template function.",
 }
 
 FILTER_VALUES = {
@@ -461,6 +466,14 @@ class PhotoTemplate:
                         "SyntaxError: GROUP:NAME subfield must not be null with {exiftool:GROUP:NAME}'"
                     )
                 vals = self.get_template_value_exiftool(
+                    subfield, filename=filename, dirname=dirname
+                )
+            elif field == "function":
+                if subfield is None:
+                    raise ValueError(
+                        "SyntaxError: filename and function must not be null with {function::filename.py:function_name}"
+                    )
+                vals = self.get_template_value_function(
                     subfield, filename=filename, dirname=dirname
                 )
             elif field in MULTI_VALUE_SUBSTITUTIONS or field.startswith("photo"):
@@ -1061,6 +1074,39 @@ class PhotoTemplate:
                 values = [sanitize_dirname(value) for value in values]
         else:
             values = []
+
+        return values
+
+    def get_template_value_function(self, subfield, filename=None, dirname=None):
+        """Get template value from external function """
+
+        if "::" not in subfield:
+            raise ValueError(
+                f"SyntaxError: could not parse function name from '{subfield}'"
+            )
+
+        filename, funcname = subfield.split("::")
+
+        print(filename, funcname)
+
+        if not pathlib.Path(filename).is_file():
+            raise ValueError(f"'{filename}' does not appear to be a file")
+
+        template_func = load_function(filename, funcname)
+        values = template_func(self.photo)
+
+        if not isinstance(values, (str, list)):
+            raise TypeError(
+                f"Invalid return type for function {funcname}: expected str or list"
+            )
+        if type(values) == str:
+            values = [values]
+
+        # sanitize directory names if needed
+        if filename:
+            values = [sanitize_pathpart(value) for value in values]
+        elif dirname:
+            values = [sanitize_dirname(value) for value in values]
 
         return values
 

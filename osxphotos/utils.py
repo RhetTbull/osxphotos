@@ -1,5 +1,8 @@
+""" Utility functions used in osxphotos """
+
 import fnmatch
 import glob
+import importlib
 import inspect
 import logging
 import os
@@ -13,6 +16,7 @@ import sys
 import unicodedata
 import urllib.parse
 from plistlib import load as plistload
+from typing import Callable
 
 import CoreFoundation
 import CoreServices
@@ -401,3 +405,28 @@ def increment_filename(filepath):
         count += 1
     dest = dest.parent / f"{dest_new}{dest.suffix}"
     return str(dest)
+
+
+def load_function(pyfile: str, function_name: str) -> Callable:
+    """ Load function_name from python file pyfile """
+    module_file = pathlib.Path(pyfile)
+    if not module_file.is_file():
+        raise FileNotFoundError(f"module {pyfile} does not appear to exist")
+
+    module_dir = module_file.parent or pathlib.Path(os.getcwd())
+    module_name = module_file.stem
+
+    # store old sys.path and ensure module_dir at beginning of path
+    syspath = sys.path
+    sys.path = [str(module_dir)] + syspath
+    module = importlib.import_module(module_name)
+
+    try:
+        func = getattr(module, function_name)
+    except AttributeError:
+        raise ValueError(f"'{function_name}' not found in module '{module_name}'")
+    finally:
+        # restore sys.path
+        sys.path = syspath
+
+    return func

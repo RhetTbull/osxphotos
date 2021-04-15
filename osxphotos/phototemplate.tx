@@ -51,6 +51,10 @@ Field:
     FIELD_WORD+
 ;
 
+FIELD_WORD:
+    /[\.\w]+/
+;
+
 SubField:
     (
     ":"-
@@ -58,12 +62,8 @@ SubField:
     )?
 ;
 
-FIELD_WORD:
-    /[\.\w]+/
-;
-
 SUBFIELD_WORD:
-    /[\.\w:]+/
+    /[\.\w:\/]+/
 ;
 
 Filter:
