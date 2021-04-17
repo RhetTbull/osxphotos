@@ -129,6 +129,10 @@ TEMPLATE_SUBSTITUTIONS = {
     "{closeparens}": "A close parentheses: ')'",
     "{openbracket}": "An open bracket: '['",
     "{closebracket}": "A close bracket: ']'",
+    "{newline}": r"A newline: '\n'",
+    "{lf}": r"A line feed: '\n', alias for {newline}",
+    "{cr}": r"A carriage return: '\r'",
+    "{crlf}": r"a carriage return + line feed: '\r\n'",
 }
 
 # Permitted multi-value substitutions (each of these returns None or 1 or more values)
@@ -200,6 +204,10 @@ PUNCTUATION = {
     "openbracket": "[",
     "closebracket": "]",
     "questionmark": "?",
+    "newline": "\n",
+    "lf": "\n",
+    "cr": "\r",
+    "crlf": "\r\n",
 }
 
 
