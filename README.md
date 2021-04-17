@@ -1219,6 +1219,10 @@ Substitution                    Description
 {closeparens}                   A close parentheses: ')'
 {openbracket}                   An open bracket: '['
 {closebracket}                  A close bracket: ']'
+{newline}                       A newline: '\n'
+{lf}                            A line feed: '\n', alias for {newline}
+{cr}                            A carriage return: '\r'
+{crlf}                          a carriage return + line feed: '\r\n'
 
 The following substitutions may result in multiple values. Thus if specified for
 --directory these could result in multiple copies of a photo being being
@@ -2893,6 +2897,10 @@ The following template field substitutions are availabe for use with `PhotoInfo.
 |{closeparens}|A close parentheses: ')'|
 |{openbracket}|An open bracket: '['|
 |{closebracket}|A close bracket: ']'|
+|{newline}|A newline: '\n'|
+|{lf}|A line feed: '\n', alias for {newline}|
+|{cr}|A carriage return: '\r'|
+|{crlf}|a carriage return + line feed: '\r\n'|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
 |{keyword}|Keyword(s) assigned to photo|
