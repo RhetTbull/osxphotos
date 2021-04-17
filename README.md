@@ -1236,7 +1236,11 @@ Substitution             Description
 {keyword}                Keyword(s) assigned to photo
 {person}                 Person(s) / face(s) in a photo
 {label}                  Image categorization label associated with a photo
-                         (Photos 5+ only)
+                         (Photos 5+ only). Labels are added automatically by
+                         Photos using machine learning algorithms to
+                         categorize images. These are not the same as
+                         {keyword} which refers to the user-defined
+                         keywords/tags applied in Photos.
 
 {label_normalized}       All lower case version of 'label' (Photos 5+ only)
 {comment}                Comment(s) on shared Photos; format is 'Person name:
@@ -2893,7 +2897,7 @@ The following template field substitutions are availabe for use with `PhotoInfo.
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
 |{keyword}|Keyword(s) assigned to photo|
 |{person}|Person(s) / face(s) in a photo|
-|{label}|Image categorization label associated with a photo (Photos 5+ only)|
+|{label}|Image categorization label associated with a photo (Photos 5+ only). Labels are added automatically by Photos using machine learning algorithms to categorize images. These are not the same as {keyword} which refers to the user-defined keywords/tags applied in Photos.|
 |{label_normalized}|All lower case version of 'label' (Photos 5+ only)|
 |{comment}|Comment(s) on shared Photos; format is 'Person name: comment text' (Photos 5+ only)|
 |{exiftool}|Format: '{exiftool:GROUP:TAGNAME}'; use exiftool (https://exiftool.org) to extract metadata, in form GROUP:TAGNAME, from image.  E.g. '{exiftool:EXIF:Make}' to get camera make, or {exiftool:IPTC:Keywords} to extract keywords. See https://exiftool.org/TagNames/ for list of valid tag names.  You must specify group (e.g. EXIF, IPTC, etc) as used in `exiftool -G`. exiftool must be installed in the path to use this template.|
