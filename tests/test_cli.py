@@ -462,7 +462,17 @@ CLI_FINDER_TAGS = {
         "XMP:Description": "Girl holding pumpkin",
         "XMP:PersonInImage": "Katie",
         "XMP:Subject": "Kids",
-    }
+    },
+    "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51": {
+        "File:FileName": "wedding.jpg",
+        "IPTC:Keywords": ["Maria", "wedding"],
+        "XMP:TagsList": ["Maria", "wedding"],
+        "XMP:Title": None,
+        "EXIF:ImageDescription": "Bride Wedding day",
+        "XMP:Description": "Bride Wedding day",
+        "XMP:PersonInImage": "Maria",
+        "XMP:Subject": ["Maria", "wedding"],
+    },
 }
 
 LABELS_JSON = {
@@ -5330,7 +5340,7 @@ def test_export_finder_tag_template_multiple():
             keywords = [keywords] if type(keywords) != list else keywords
             persons = CLI_FINDER_TAGS[uuid]["XMP:PersonInImage"]
             persons = [persons] if type(persons) != list else persons
-            expected = [Tag(x) for x in keywords + persons]
+            expected = [Tag(x) for x in set(keywords + persons)]
             assert sorted(md.tags) == sorted(expected)
 
 
@@ -5368,7 +5378,42 @@ def test_export_finder_tag_template_keywords():
             keywords = [keywords] if type(keywords) != list else keywords
             persons = CLI_FINDER_TAGS[uuid]["XMP:PersonInImage"]
             persons = [persons] if type(persons) != list else persons
-            expected = [Tag(x) for x in keywords + persons]
+            expected = [Tag(x) for x in set(keywords + persons)]
+            assert sorted(md.tags) == sorted(expected)
+
+
+def test_export_finder_tag_template_multi_field():
+    """ test --finder-tag-template with multiple fields (issue #422) """
+    import glob
+    import os
+    import os.path
+
+    from osxmetadata import OSXMetaData, Tag
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        for uuid in CLI_FINDER_TAGS:
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--finder-tag-template",
+                    "{title};{descr}",
+                    "--uuid",
+                    f"{uuid}",
+                ],
+            )
+            assert result.exit_code == 0
+
+            md = OSXMetaData(CLI_FINDER_TAGS[uuid]["File:FileName"])
+            title = CLI_FINDER_TAGS[uuid]["XMP:Title"] or ""
+            descr = CLI_FINDER_TAGS[uuid]["XMP:Description"] or ""
+            expected = [Tag(f"{title};{descr}")]
             assert sorted(md.tags) == sorted(expected)
 
 
@@ -5397,7 +5442,7 @@ def test_export_xattr_template():
                     "{person}",
                     "--xattr-template",
                     "comment",
-                    "{title}",
+                    "{title};{descr}",
                     "--uuid",
                     f"{uuid}",
                 ],
@@ -5408,7 +5453,9 @@ def test_export_xattr_template():
             expected = CLI_FINDER_TAGS[uuid]["XMP:PersonInImage"]
             expected = [expected] if type(expected) != list else expected
             assert sorted(md.keywords) == sorted(expected)
-            assert md.comment == CLI_FINDER_TAGS[uuid]["XMP:Title"]
+            title = CLI_FINDER_TAGS[uuid]["XMP:Title"] or ""
+            descr = CLI_FINDER_TAGS[uuid]["XMP:Description"] or ""
+            assert md.comment == f"{title};{descr}"
 
             # run again with --update, should skip writing extended attributes
             result = runner.invoke(
@@ -5422,7 +5469,7 @@ def test_export_xattr_template():
                     "{person}",
                     "--xattr-template",
                     "comment",
-                    "{title}",
+                    "{title};{descr}",
                     "--uuid",
                     f"{uuid}",
                     "--update",
@@ -5768,6 +5815,7 @@ def test_export_name():
         files = glob.glob("*")
         assert len(files) == 1
 
+
 def test_query_eval():
     """ test export --query-eval """
     import glob
@@ -5778,7 +5826,14 @@ def test_query_eval():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--query-eval", "'DSC03584' in photo.original_filename"]
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--query-eval",
+                "'DSC03584' in photo.original_filename",
+            ],
         )
         assert result.exit_code == 0
         files = glob.glob("*")
@@ -5795,7 +5850,14 @@ def test_bad_query_eval():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--query-eval", "'DSC03584' in photo.originalfilename"]
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--query-eval",
+                "'DSC03584' in photo.originalfilename",
+            ],
         )
         assert result.exit_code != 0
         assert "Error: Invalid query-eval CRITERIA" in result.output

@@ -3307,7 +3307,7 @@ def write_finder_tags(
 
         # filter out any template values that didn't match by looking for sentinel
         rendered_tags = [
-            tag for tag in rendered_tags if _OSXPHOTOS_NONE_SENTINEL not in tag
+            value.replace(_OSXPHOTOS_NONE_SENTINEL, "") for value in rendered_tags
         ]
         tags.extend(rendered_tags)
 
@@ -3358,10 +3358,10 @@ def write_extended_attributes(photo, files, xattr_template, strip=False):
                 ),
                 err=True,
             )
+
         # filter out any template values that didn't match by looking for sentinel
-        rendered = [
-            value for value in rendered if _OSXPHOTOS_NONE_SENTINEL not in value
-        ]
+        rendered = [value.replace(_OSXPHOTOS_NONE_SENTINEL, "") for value in rendered]
+
         try:
             attributes[xattr].extend(rendered)
         except KeyError:
