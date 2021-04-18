@@ -3105,6 +3105,7 @@ For additional details about how osxphotos is implemented or if you would like t
 - [PhotoScript](https://github.com/RhetTbull/PhotoScript)
 - [Rich](https://github.com/willmcgugan/rich)
 - [textx](https://github.com/textX/textX)
+- [bitmath](https://github.com/tbielawa/bitmath)
 
 
 ## Acknowledgements
