@@ -373,12 +373,15 @@ def _db_is_locked(dbname):
 
 def normalize_unicode(value):
     """ normalize unicode data """
-    if value is None:
+    if value is not None:
+        if isinstance(value, (tuple, list)):
+            return tuple(unicodedata.normalize(UNICODE_FORMAT, v) for v in value)
+        elif isinstance(value, str):
+            return unicodedata.normalize(UNICODE_FORMAT, value)
+        else:
+            return value
+    else:
         return None
-
-    if not isinstance(value, str):
-        raise ValueError("value must be str")
-    return unicodedata.normalize(UNICODE_FORMAT, value)
 
 
 def increment_filename(filepath):

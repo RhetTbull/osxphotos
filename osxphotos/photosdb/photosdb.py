@@ -12,6 +12,9 @@ import sys
 import tempfile
 from datetime import datetime, timedelta, timezone
 from pprint import pformat
+from typing import List
+
+import bitmath
 
 from .._constants import (
     _DB_TABLE_NAMES,
@@ -47,6 +50,7 @@ from ..utils import (
     noop,
     normalize_unicode,
 )
+from ..queryoptions import QueryOptions
 from .photosdb_utils import get_db_model_version, get_db_version
 
 # TODO: Add test for imageTimeZoneOffsetSeconds = None
@@ -2833,6 +2837,346 @@ class PhotosDB:
                 pass
         return photos
 
+    def query(self, options: QueryOptions) -> List[PhotoInfo]:
+        """Run a query against PhotosDB to extract the photos based on user supplied options
+
+        Args:
+            options: a QueryOptions instance
+        """
+
+        if options.deleted or options.deleted_only:
+            photos = self.photos(
+                uuid=options.uuid,
+                images=options.photos,
+                movies=options.movies,
+                from_date=options.from_date,
+                to_date=options.to_date,
+                intrash=True,
+            )
+        else:
+            photos = []
+
+        if not options.deleted_only:
+            photos += self.photos(
+                uuid=options.uuid,
+                images=options.photos,
+                movies=options.movies,
+                from_date=options.from_date,
+                to_date=options.to_date,
+            )
+
+        person = normalize_unicode(options.person)
+        keyword = normalize_unicode(options.keyword)
+        album = normalize_unicode(options.album)
+        folder = normalize_unicode(options.folder)
+        title = normalize_unicode(options.title)
+        description = normalize_unicode(options.description)
+        place = normalize_unicode(options.place)
+        label = normalize_unicode(options.label)
+        name = normalize_unicode(options.name)
+
+        if album:
+            photos = _get_photos_by_attribute(
+                photos, "albums", album, options.ignore_case
+            )
+
+        if keyword:
+            photos = _get_photos_by_attribute(
+                photos, "keywords", keyword, options.ignore_case
+            )
+
+        if person:
+            photos = _get_photos_by_attribute(
+                photos, "persons", person, options.ignore_case
+            )
+
+        if label:
+            photos = _get_photos_by_attribute(
+                photos, "labels", label, options.ignore_case
+            )
+
+        if folder:
+            # search for photos in an album in folder
+            # finds photos that have albums whose top level folder matches folder
+            photo_list = []
+            for f in folder:
+                photo_list.extend(
+                    [
+                        p
+                        for p in photos
+                        if p.album_info
+                        and f
+                        in [a.folder_names[0] for a in p.album_info if a.folder_names]
+                    ]
+                )
+            photos = photo_list
+
+        if title:
+            # search title field for text
+            # if more than one, find photos with all title values in title
+            photo_list = []
+            if options.ignore_case:
+                # case-insensitive
+                for t in title:
+                    t = t.lower()
+                    photo_list.extend(
+                        [p for p in photos if p.title and t in p.title.lower()]
+                    )
+            else:
+                for t in title:
+                    photo_list.extend([p for p in photos if p.title and t in p.title])
+            photos = photo_list
+        elif options.no_title:
+            photos = [p for p in photos if not p.title]
+
+        if description:
+            # search description field for text
+            # if more than one, find photos with all description values in description
+            photo_list = []
+            if options.ignore_case:
+                # case-insensitive
+                for d in description:
+                    d = d.lower()
+                    photo_list.extend(
+                        [
+                            p
+                            for p in photos
+                            if p.description and d in p.description.lower()
+                        ]
+                    )
+            else:
+                for d in description:
+                    photo_list.extend(
+                        [p for p in photos if p.description and d in p.description]
+                    )
+            photos = photo_list
+        elif options.no_description:
+            photos = [p for p in photos if not p.description]
+
+        if place:
+            # search place.names for text matching place
+            # if more than one place, find photos with all place values in description
+            if options.ignore_case:
+                # case-insensitive
+                for place_name in place:
+                    place_name = place_name.lower()
+                    photos = [
+                        p
+                        for p in photos
+                        if p.place
+                        and any(
+                            pname
+                            for pname in p.place.names
+                            if any(
+                                pvalue
+                                for pvalue in pname
+                                if place_name in pvalue.lower()
+                            )
+                        )
+                    ]
+            else:
+                for place_name in place:
+                    photos = [
+                        p
+                        for p in photos
+                        if p.place
+                        and any(
+                            pname
+                            for pname in p.place.names
+                            if any(pvalue for pvalue in pname if place_name in pvalue)
+                        )
+                    ]
+        elif options.no_place:
+            photos = [p for p in photos if not p.place]
+
+        if options.edited:
+            photos = [p for p in photos if p.hasadjustments]
+
+        if options.external_edit:
+            photos = [p for p in photos if p.external_edit]
+
+        if options.favorite:
+            photos = [p for p in photos if p.favorite]
+        elif options.not_favorite:
+            photos = [p for p in photos if not p.favorite]
+
+        if options.hidden:
+            photos = [p for p in photos if p.hidden]
+        elif options.not_hidden:
+            photos = [p for p in photos if not p.hidden]
+
+        if options.missing:
+            photos = [p for p in photos if not p.path]
+        elif options.not_missing:
+            photos = [p for p in photos if p.path]
+
+        if options.shared:
+            photos = [p for p in photos if p.shared]
+        elif options.not_shared:
+            photos = [p for p in photos if not p.shared]
+
+        if options.shared:
+            photos = [p for p in photos if p.shared]
+        elif options.not_shared:
+            photos = [p for p in photos if not p.shared]
+
+        if options.uti:
+            photos = [p for p in photos if options.uti in p.uti_original]
+
+        if options.burst:
+            photos = [p for p in photos if p.burst]
+        elif options.not_burst:
+            photos = [p for p in photos if not p.burst]
+
+        if options.live:
+            photos = [p for p in photos if p.live_photo]
+        elif options.not_live:
+            photos = [p for p in photos if not p.live_photo]
+
+        if options.portrait:
+            photos = [p for p in photos if p.portrait]
+        elif options.not_portrait:
+            photos = [p for p in photos if not p.portrait]
+
+        if options.screenshot:
+            photos = [p for p in photos if p.screenshot]
+        elif options.not_screenshot:
+            photos = [p for p in photos if not p.screenshot]
+
+        if options.slow_mo:
+            photos = [p for p in photos if p.slow_mo]
+        elif options.not_slow_mo:
+            photos = [p for p in photos if not p.slow_mo]
+
+        if options.time_lapse:
+            photos = [p for p in photos if p.time_lapse]
+        elif options.not_time_lapse:
+            photos = [p for p in photos if not p.time_lapse]
+
+        if options.hdr:
+            photos = [p for p in photos if p.hdr]
+        elif options.not_hdr:
+            photos = [p for p in photos if not p.hdr]
+
+        if options.selfie:
+            photos = [p for p in photos if p.selfie]
+        elif options.not_selfie:
+            photos = [p for p in photos if not p.selfie]
+
+        if options.panorama:
+            photos = [p for p in photos if p.panorama]
+        elif options.not_panorama:
+            photos = [p for p in photos if not p.panorama]
+
+        if options.cloudasset:
+            photos = [p for p in photos if p.iscloudasset]
+        elif options.not_cloudasset:
+            photos = [p for p in photos if not p.iscloudasset]
+
+        if options.incloud:
+            photos = [p for p in photos if p.incloud]
+        elif options.not_incloud:
+            photos = [p for p in photos if not p.incloud]
+
+        if options.has_raw:
+            photos = [p for p in photos if p.has_raw]
+
+        if options.has_comment:
+            photos = [p for p in photos if p.comments]
+        elif options.no_comment:
+            photos = [p for p in photos if not p.comments]
+
+        if options.has_likes:
+            photos = [p for p in photos if p.likes]
+        elif options.no_likes:
+            photos = [p for p in photos if not p.likes]
+
+        if options.is_reference:
+            photos = [p for p in photos if p.isreference]
+
+        if options.in_album:
+            photos = [p for p in photos if p.albums]
+        elif options.not_in_album:
+            photos = [p for p in photos if not p.albums]
+
+        if options.from_time:
+            photos = [p for p in photos if p.date.time() >= options.from_time]
+
+        if options.to_time:
+            photos = [p for p in photos if p.date.time() <= options.to_time]
+
+        if options.burst_photos:
+            # add the burst_photos to the export set
+            photos_burst = [p for p in photos if p.burst]
+            for burst in photos_burst:
+                if options.missing_bursts:
+                    # include burst photos that are missing
+                    photos.extend(burst.burst_photos)
+                else:
+                    # don't include missing burst images (these can't be downloaded with AppleScript)
+                    photos.extend([p for p in burst.burst_photos if not p.ismissing])
+
+            # remove duplicates as each burst photo in the set that's selected would
+            # result in the entire set being added above
+            # can't use set() because PhotoInfo not hashable
+            seen_uuids = {}
+            for p in photos:
+                if p.uuid in seen_uuids:
+                    continue
+                seen_uuids[p.uuid] = p
+            photos = list(seen_uuids.values())
+
+        if name:
+            # search filename fields for text
+            # if more than one, find photos with all title values in filename
+            photo_list = []
+            if options.ignore_case:
+                # case-insensitive
+                for n in name:
+                    n = n.lower()
+                    photo_list.extend(
+                        [
+                            p
+                            for p in photos
+                            if n in p.filename.lower()
+                            or n in p.original_filename.lower()
+                        ]
+                    )
+            else:
+                for n in name:
+                    photo_list.extend(
+                        [
+                            p
+                            for p in photos
+                            if n in p.filename or n in p.original_filename
+                        ]
+                    )
+            photos = photo_list
+
+        if options.min_size:
+            photos = [
+                p
+                for p in photos
+                if bitmath.Byte(p.original_filesize) >= options.min_size
+            ]
+
+        if options.max_size:
+            photos = [
+                p
+                for p in photos
+                if bitmath.Byte(p.original_filesize) <= options.max_size
+            ]
+
+        if options.query_eval:
+            for q in options.query_eval:
+                query_string = f"[photo for photo in photos if {q}]"
+                try:
+                    photos = eval(query_string)
+                except Exception as e:
+                    raise ValueError(f"Invalid query_eval CRITERIA: {e}")
+
+        return photos
+
     def __repr__(self):
         return f"osxphotos.{self.__class__.__name__}(dbfile='{self.db_path}')"
 
@@ -2848,3 +3192,32 @@ class PhotosDB:
             Includes recently deleted photos and non-selected burst images
         """
         return len(self._dbphotos)
+
+
+def _get_photos_by_attribute(photos, attribute, values, ignore_case):
+    """Search for photos based on values being in PhotoInfo.attribute
+
+    Args:
+        photos: a list of PhotoInfo objects
+        attribute: str, name of PhotoInfo attribute to search (e.g. keywords, persons, etc)
+        values: list of values to search in property
+        ignore_case: ignore case when searching
+
+    Returns:
+        list of PhotoInfo objects matching search criteria
+    """
+    photos_search = []
+    if ignore_case:
+        # case-insensitive
+        for x in values:
+            x = x.lower()
+            photos_search.extend(
+                p
+                for p in photos
+                if x in [attr.lower() for attr in getattr(p, attribute)]
+            )
+    else:
+        for x in values:
+            photos_search.extend(p for p in photos if x in getattr(p, attribute))
+    return photos_search
+
