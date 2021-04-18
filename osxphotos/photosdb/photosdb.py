@@ -8,6 +8,7 @@ import os
 import os.path
 import pathlib
 import platform
+import re
 import sys
 import tempfile
 from datetime import datetime, timedelta, timezone
