@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos package &#8212; osxphotos 0.42.4 documentation</title>
+    <title>osxphotos package &#8212; osxphotos 0.42.6 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -250,6 +250,17 @@ Returns photos regardless of intrash state.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>list of PhotoInfo instance for photo with UUID matching uuid or [] if no match</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="osxphotos.PhotosDB.query">
+<code class="sig-name descname"><span class="pre">query</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">osxphotos.queryoptions.QueryOptions</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">osxphotos.photoinfo.photoinfo.PhotoInfo</span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="_modules/osxphotos/photosdb/photosdb.html#PhotosDB.query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotosDB.query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run a query against PhotosDB to extract the photos based on user supplied options</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>options</strong> – a QueryOptions instance</p>
 </dd>
 </dl>
 </dd></dl>
