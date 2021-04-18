@@ -80,25 +80,3 @@ class QueryOptions:
 
     def asdict(self):
         return asdict(self)
-
-    # def init_with_values(
-    #     self,
-    #     keyword: Optional[Iterable[str]] = None,
-    #     person: Optional[Iterable[str]] = None,
-    #     album: Optional[Iterable[str]] = None,
-    #     folder: Optional[Iterable[str]] = None,
-    #     uuid: Optional[Iterable[str]] = None,
-    #     title: Optional[Iterable[str]] = None,
-    #     no_title: Optional[bool] = None,
-    #     **kwargs
-    # ):
-    #     self.keyword = keyword
-    #     self.person = person
-    #     self.album = album
-    #     self.folder = folder
-    #     self.uuid = uuid
-    #     self.title = title
-    #     self.no_title
-
-    #     print(asdict(self))
-
