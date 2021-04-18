@@ -86,6 +86,7 @@ setup(
         "osxmetadata>=0.99.13",
         "textx==2.3.0",
         "rich>=9.11.1",
+        "bitmath==bitmath 1.3.3.1",
     ],
     entry_points={"console_scripts": ["osxphotos=osxphotos.__main__:cli"]},
     include_package_data=True,

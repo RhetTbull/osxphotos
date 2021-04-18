@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos command line interface (CLI) &#8212; osxphotos 0.42.3 documentation</title>
+    <title>osxphotos command line interface (CLI) &#8212; osxphotos 0.42.4 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -493,6 +493,18 @@ to modify this behavior.</p>
 <dt id="cmdoption-osxphotos-export-not-in-album">
 <code class="sig-name descname"><span class="pre">--not-in-album</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-osxphotos-export-not-in-album" title="Permalink to this definition">¶</a></dt>
 <dd><p>Search for photos that are not in any albums.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-osxphotos-export-min-size">
+<code class="sig-name descname"><span class="pre">--min-size</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;SIZE&gt;</span></code><a class="headerlink" href="#cmdoption-osxphotos-export-min-size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with size &gt;= SIZE bytes. The size evaluated is the photo’s original size (when imported to Photos). Size may be specified as integer bytes or using SI or NIST units. For example, the following are all valid and equivalent sizes: ‘1048576’ ‘1.048576MB’, ‘1 MiB’.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-osxphotos-export-max-size">
+<code class="sig-name descname"><span class="pre">--max-size</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;SIZE&gt;</span></code><a class="headerlink" href="#cmdoption-osxphotos-export-max-size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with size &lt;= SIZE bytes. The size evaluated is the photo’s original size (when imported to Photos). Size may be specified as integer bytes or using SI or NIST units. For example, the following are all valid and equivalent sizes: ‘1048576’ ‘1.048576MB’, ‘1 MiB’.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -1345,6 +1357,18 @@ if more than one option is provided, they are treated as “AND”
 <dt id="cmdoption-osxphotos-query-not-in-album">
 <code class="sig-name descname"><span class="pre">--not-in-album</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-osxphotos-query-not-in-album" title="Permalink to this definition">¶</a></dt>
 <dd><p>Search for photos that are not in any albums.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-osxphotos-query-min-size">
+<code class="sig-name descname"><span class="pre">--min-size</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;SIZE&gt;</span></code><a class="headerlink" href="#cmdoption-osxphotos-query-min-size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with size &gt;= SIZE bytes. The size evaluated is the photo’s original size (when imported to Photos). Size may be specified as integer bytes or using SI or NIST units. For example, the following are all valid and equivalent sizes: ‘1048576’ ‘1.048576MB’, ‘1 MiB’.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-osxphotos-query-max-size">
+<code class="sig-name descname"><span class="pre">--max-size</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;SIZE&gt;</span></code><a class="headerlink" href="#cmdoption-osxphotos-query-max-size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with size &lt;= SIZE bytes. The size evaluated is the photo’s original size (when imported to Photos). Size may be specified as integer bytes or using SI or NIST units. For example, the following are all valid and equivalent sizes: ‘1048576’ ‘1.048576MB’, ‘1 MiB’.</p>
 </dd></dl>
 
 <dl class="std option">

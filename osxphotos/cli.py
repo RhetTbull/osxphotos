@@ -11,6 +11,7 @@ import sys
 import time
 import unicodedata
 
+import bitmath
 import click
 import osxmetadata
 import yaml
@@ -129,6 +130,26 @@ class DateTimeISO8601(click.ParamType):
                 f"Invalid value for --{param.name}: invalid datetime format {value}. "
                 "Valid format: YYYY-MM-DD[*HH[:MM[:SS[.fff[fff]]]][+HH:MM[:SS[.ffffff]]]]"
             )
+
+
+class BitMathSize(click.ParamType):
+
+    name = "BITMATH"
+
+    def convert(self, value, param, ctx):
+        try:
+            value = bitmath.parse_string(value)
+        except ValueError:
+            # no units specified
+            try:
+                value = int(value)
+                value = bitmath.Byte(value)
+            except ValueError as e:
+                self.fail(
+                    f"{value} must be specified as bytes or using SI/NIST units. "
+                    + "For example, the following are all valid and equivalent sizes: '1048576' '1.048576MB', '1 MiB'."
+                )
+        return value
 
 
 class TimeISO8601(click.ParamType):
@@ -446,6 +467,24 @@ def query_options(f):
             "--not-in-album",
             is_flag=True,
             help="Search for photos that are not in any albums.",
+        ),
+        o(
+            "--min-size",
+            metavar="SIZE",
+            type=BitMathSize(),
+            help="Search for photos with size >= SIZE bytes. "
+            "The size evaluated is the photo's original size (when imported to Photos). "
+            "Size may be specified as integer bytes or using SI or NIST units. "
+            "For example, the following are all valid and equivalent sizes: '1048576' '1.048576MB', '1 MiB'.",
+        ),
+        o(
+            "--max-size",
+            metavar="SIZE",
+            type=BitMathSize(),
+            help="Search for photos with size <= SIZE bytes. "
+            "The size evaluated is the photo's original size (when imported to Photos). "
+            "Size may be specified as integer bytes or using SI or NIST units. "
+            "For example, the following are all valid and equivalent sizes: '1048576' '1.048576MB', '1 MiB'.",
         ),
         o(
             "--query-eval",
@@ -998,6 +1037,8 @@ def export(
     beta,
     in_album,
     not_in_album,
+    min_size,
+    max_size,
     query_eval,
 ):
     """Export photos from the Photos database.
@@ -1146,6 +1187,8 @@ def export(
         only_new = cfg.only_new
         in_album = cfg.in_album
         not_in_album = cfg.not_in_album
+        min_size = cfg.min_size
+        max_size = cfg.max_size
         query_eval = cfg.query_eval
 
         # config file might have changed verbose
@@ -1449,6 +1492,8 @@ def export(
         # skip missing bursts if using --download-missing by itself as AppleScript otherwise causes errors
         missing_bursts=(download_missing and use_photokit) or not download_missing,
         name=name,
+        min_size=min_size,
+        max_size=max_size,
         query_eval=query_eval,
     )
 
@@ -1735,6 +1780,8 @@ def query(
     is_reference,
     in_album,
     not_in_album,
+    min_size,
+    max_size,
     query_eval,
 ):
     """Query the Photos database using 1 or more search options;
@@ -1763,6 +1810,8 @@ def query(
         label,
         is_reference,
         query_eval,
+        min_size,
+        max_size,
     ]
     exclusive = [
         (favorite, not_favorite),
@@ -1885,6 +1934,8 @@ def query(
         in_album=in_album,
         not_in_album=not_in_album,
         name=name,
+        min_size=min_size,
+        max_size=max_size,
         query_eval=query_eval,
     )
 
@@ -2064,6 +2115,8 @@ def _query(
     burst_photos=None,
     missing_bursts=None,
     name=None,
+    min_size=None,
+    max_size=None,
     query_eval=None,
 ):
     """Run a query against PhotosDB to extract the photos based on user supply criteria used by query and export commands
@@ -2358,6 +2411,12 @@ def _query(
                     [p for p in photos if n in p.filename or n in p.original_filename]
                 )
         photos = photo_list
+
+    if min_size:
+        photos = [p for p in photos if bitmath.Byte(p.original_filesize) >= min_size]
+
+    if max_size:
+        photos = [p for p in photos if bitmath.Byte(p.original_filesize) <= max_size]
 
     if query_eval:
         for q in query_eval:

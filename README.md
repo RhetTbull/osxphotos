@@ -315,6 +315,22 @@ Options:
                                   albums.
 
   --not-in-album                  Search for photos that are not in any albums.
+  --min-size SIZE                 Search for photos with size >= SIZE bytes. The
+                                  size evaluated is the photo's original size
+                                  (when imported to Photos). Size may be
+                                  specified as integer bytes or using SI or NIST
+                                  units. For example, the following are all
+                                  valid and equivalent sizes: '1048576'
+                                  '1.048576MB', '1 MiB'.
+
+  --max-size SIZE                 Search for photos with size <= SIZE bytes. The
+                                  size evaluated is the photo's original size
+                                  (when imported to Photos). Size may be
+                                  specified as integer bytes or using SI or NIST
+                                  units. For example, the following are all
+                                  valid and equivalent sizes: '1048576'
+                                  '1.048576MB', '1 MiB'.
+
   --query-eval CRITERIA           Evaluate CRITERIA to filter photos. CRITERIA
                                   will be evaluated in context of the following
                                   python list comprehension: `photos = [photo

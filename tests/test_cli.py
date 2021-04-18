@@ -5861,3 +5861,135 @@ def test_bad_query_eval():
         )
         assert result.exit_code != 0
         assert "Error: Invalid query-eval CRITERIA" in result.output
+
+
+def test_query_min_size_1():
+    """ test query --min-size """
+    import json
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.cli import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--min-size", "10MB"],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+
+    assert len(json_got) == 2
+
+
+def test_query_min_size_2():
+    """ test query --min-size """
+    import json
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.cli import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--min-size",
+            "10_000_000",
+        ],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+
+    assert len(json_got) == 2
+
+
+def test_query_max_size_1():
+    """ test query --max-size """
+    import json
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.cli import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--max-size", "500 kB"],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+
+    assert len(json_got) == 1
+
+
+def test_query_max_size_2():
+    """ test query --max-size """
+    import json
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.cli import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--max-size", "500_000"],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+
+    assert len(json_got) == 1
+
+
+def test_query_min_max_size():
+    """ test query --max-size with --min-size"""
+    import json
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.cli import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--min-size",
+            "48MB",
+            "--max-size",
+            "49MB",
+        ],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+
+    assert len(json_got) == 1
+
+
+def test_query_min_size_error():
+    """ test query --max-size with invalid size """
+    import json
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.cli import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--min-size", "500 foo"],
+    )
+    assert result.exit_code != 0
+
