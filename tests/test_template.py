@@ -982,3 +982,31 @@ def test_function_bad(photosdb):
             "{function:tests/template_function.py::foobar}"
         )
 
+
+def test_function_filter(photosdb):
+    """ Test {field|function} filter"""
+    photo = photosdb.get_photo(UUID_MULTI_KEYWORDS)
+
+    rendered, _ = photo.render_template(
+        "{photo.original_filename|function:tests/template_filter.py::myfilter}"
+    )
+    assert rendered == [f"foo-{photo.original_filename}"]
+
+    rendered, _ = photo.render_template(
+        "{photo.original_filename|lower|function:tests/template_filter.py::myfilter}"
+    )
+    assert rendered == [f"foo-{photo.original_filename.lower()}"]
+
+    rendered, _ = photo.render_template(
+        "{photo.original_filename|function:tests/template_filter.py::myfilter|lower}"
+    )
+    assert rendered == [f"foo-{photo.original_filename.lower()}"]
+
+
+def test_function_filter_bad(photosdb):
+    """ Test invalid {field|function} filter"""
+    photo = photosdb.get_photo(UUID_MULTI_KEYWORDS)
+    with pytest.raises(ValueError):
+        rendered, _ = photo.render_template(
+            "{photo.original_filename|function:tests/template_filter.py::foobar}"
+        )

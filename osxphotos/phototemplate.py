@@ -913,42 +913,44 @@ class PhotoTemplate:
             if values and type(values) == list:
                 value = [v.lower() for v in values]
             else:
-                value = [values.lower()]
+                value = [values.lower()] if values else []
         elif filter_ == "upper":
             if values and type(values) == list:
                 value = [v.upper() for v in values]
             else:
-                value = [values.upper()]
+                value = [values.upper()] if values else []
         elif filter_ == "strip":
             if values and type(values) == list:
                 value = [v.strip() for v in values]
             else:
-                value = [values.strip()]
+                value = [values.strip()] if values else []
         elif filter_ == "capitalize":
             if values and type(values) == list:
                 value = [v.capitalize() for v in values]
             else:
-                value = [values.capitalize()]
+                value = [values.capitalize()] if values else []
         elif filter_ == "titlecase":
             if values and type(values) == list:
                 value = [v.title() for v in values]
             else:
-                value = [values.title()]
+                value = [values.title()] if values else []
         elif filter_ == "braces":
             if values and type(values) == list:
                 value = ["{" + v + "}" for v in values]
             else:
-                value = ["{" + values + "}"]
+                value = ["{" + values + "}"] if values else []
         elif filter_ == "parens":
             if values and type(values) == list:
                 value = ["(" + v + ")" for v in values]
             else:
-                value = ["(" + values + ")"]
+                value = ["(" + values + ")"] if values else []
         elif filter_ == "brackets":
             if values and type(values) == list:
                 value = ["[" + v + "]" for v in values]
             else:
-                value = ["[" + values + "]"]
+                value = ["[" + values + "]"] if values else []
+        elif filter_.startswith("function:"):
+            value = self.get_template_value_filter_function(filter_, values)
         else:
             value = []
         return value
@@ -1097,8 +1099,6 @@ class PhotoTemplate:
 
         filename, funcname = subfield.split("::")
 
-        print(filename, funcname)
-
         if not pathlib.Path(filename).is_file():
             raise ValueError(f"'{filename}' does not appear to be a file")
 
@@ -1119,6 +1119,35 @@ class PhotoTemplate:
             values = [sanitize_dirname(value) for value in values]
 
         return values
+
+    def get_template_value_filter_function(self, filter_, values):
+        """Filter template value from external function """
+
+        filter_ = filter_.replace("function:","")
+
+        if "::" not in filter_:
+            raise ValueError(
+                f"SyntaxError: could not parse function name from '{filter_}'"
+            )
+
+        filename, funcname = filter_.split("::")
+
+        if not pathlib.Path(filename).is_file():
+            raise ValueError(f"'{filename}' does not appear to be a file")
+
+        template_func = load_function(filename, funcname)
+
+        if not isinstance(values, (list, tuple)):
+            values = [values]
+        values = template_func(values)
+
+        if not isinstance(values, list):
+            raise TypeError(
+                f"Invalid return type for function {funcname}: expected list"
+            )
+
+        return values
+
 
     def get_photo_video_type(self, default):
         """ return media type, e.g. photo or video """
