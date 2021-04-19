@@ -853,6 +853,9 @@ Valid filters are:
  • braces: Enclose value in curly braces, e.g. 'value => '{value}'.             
  • parens: Enclose value in parentheses, e.g. 'value' => '(value')              
  • brackets: Enclose value in brackets, e.g. 'value' => '[value]'               
+ • function: Run custom python function to filter value; use in format          
+   'function:/path/to/file.py::function_name'. See example at https://github.com
+   /RhetTbull/osxphotos/blob/master/examples/template_filter.py                 
 
 e.g. if Photo keywords are ["FOO","bar"]:                                       
 
@@ -2226,6 +2229,7 @@ Valid filters are:
 - braces: Enclose value in curly braces, e.g. 'value => '{value}'.
 - parens: Enclose value in parentheses, e.g. 'value' => '(value')
 - brackets: Enclose value in brackets, e.g. 'value' => '[value]'
+- function: Run custom python function to filter value; use in format 'function:/path/to/file.py::function_name'. See example at https://github.com/RhetTbull/osxphotos/blob/master/examples/template_filter.py
 <!-- OSXPHOTOS-FILTER-TABLE:END -->
 
 e.g. if Photo keywords are `["FOO","bar"]`:

@@ -174,6 +174,7 @@ FILTER_VALUES = {
     "braces": "Enclose value in curly braces, e.g. 'value => '{value}'.",
     "parens": "Enclose value in parentheses, e.g. 'value' => '(value')",
     "brackets": "Enclose value in brackets, e.g. 'value' => '[value]'",
+    "function": "Run custom python function to filter value; use in format 'function:/path/to/file.py::function_name'. See example at https://github.com/RhetTbull/osxphotos/blob/master/examples/template_filter.py"
 }
 
 # Just the substitutions without the braces
