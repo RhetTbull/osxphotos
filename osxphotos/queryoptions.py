@@ -1,7 +1,7 @@
 """ QueryOptions class for PhotosDB.query """
 
 from dataclasses import dataclass
-from typing import Optional, Iterable
+from typing import Optional, Iterable, Tuple
 import datetime
 import bitmath
 
@@ -76,6 +76,7 @@ class QueryOptions:
     name: Optional[Iterable[str]] = None
     min_size: Optional[bitmath.Byte] = None
     max_size: Optional[bitmath.Byte] = None
+    regex: Optional[Iterable[Tuple[str, str]]] = None
     query_eval: Optional[Iterable[str]] = None
 
     def asdict(self):

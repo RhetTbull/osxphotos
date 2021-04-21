@@ -3168,6 +3168,19 @@ class PhotosDB:
                 if bitmath.Byte(p.original_filesize) <= options.max_size
             ]
 
+        if options.regex:
+            flags = re.IGNORECASE if options.ignore_case else 0
+            for regex, template in options.regex:
+                regex = re.compile(regex, flags)
+                photo_list = []
+                for p in photos:
+                    rendered, _ = p.render_template(template, none_str="")
+                    for value in rendered:
+                        if regex.search(value):
+                            photo_list.append(p)
+                            break
+            photos = photo_list
+
         if options.query_eval:
             for q in options.query_eval:
                 query_string = f"[photo for photo in photos if {q}]"

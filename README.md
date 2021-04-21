@@ -331,6 +331,13 @@ Options:
                                   valid and equivalent sizes: '1048576'
                                   '1.048576MB', '1 MiB'.
 
+  --regex REGEX TEMPLATE          Search for photos where TEMPLATE matches
+                                  regular expression REGEX. For example, to find
+                                  photos in an album that begins with 'Beach': '
+                                  --regex "^Beach" "{album}"'. You may specify
+                                  more than one regular expression match by
+                                  repeating '--regex' with different arguments.
+
   --query-eval CRITERIA           Evaluate CRITERIA to filter photos. CRITERIA
                                   will be evaluated in context of the following
                                   python list comprehension: `photos = [photo

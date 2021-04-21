@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos.photosdb.photosdb &#8212; osxphotos 0.42.6 documentation</title>
+    <title>osxphotos.photosdb.photosdb &#8212; osxphotos 0.42.9 documentation</title>
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -3200,6 +3200,19 @@
                 <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span>
                 <span class="k">if</span> <span class="n">bitmath</span><span class="o">.</span><span class="n">Byte</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">original_filesize</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">options</span><span class="o">.</span><span class="n">max_size</span>
             <span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">regex</span><span class="p">:</span>
+            <span class="n">flags</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span> <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">ignore_case</span> <span class="k">else</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">regex</span><span class="p">,</span> <span class="n">template</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">regex</span><span class="p">:</span>
+                <span class="n">regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">flags</span><span class="p">)</span>
+                <span class="n">photo_list</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span><span class="p">:</span>
+                    <span class="n">rendered</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">render_template</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">none_str</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">rendered</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">regex</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                            <span class="n">photo_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+                            <span class="k">break</span>
+            <span class="n">photos</span> <span class="o">=</span> <span class="n">photo_list</span>
 
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">query_eval</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">query_eval</span><span class="p">:</span>

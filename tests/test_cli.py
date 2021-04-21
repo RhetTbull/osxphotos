@@ -5993,3 +5993,111 @@ def test_query_min_size_error():
     )
     assert result.exit_code != 0
 
+
+def test_query_regex_1():
+    """ test query --regex against title """
+    import json
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.cli import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--regex",
+            "I found",
+            "{title}",
+        ],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+
+    assert len(json_got) == 1
+
+
+def test_query_regex_2():
+    """ test query --regex with no match"""
+    import json
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.cli import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--regex",
+            "{title}",
+            "i Found",
+        ],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+
+    assert len(json_got) == 0
+
+
+def test_query_regex_3():
+    """ test query --regex with --ignore-case """
+    import json
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.cli import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--regex",
+            "i Found",
+            "{title}",
+            "--ignore-case",
+        ],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+
+    assert len(json_got) == 1
+
+
+def test_query_regex_4():
+    """ test query --regex against album """
+    import json
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.cli import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--regex",
+            "^Test",
+            "{album}",
+        ],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+
+    assert len(json_got) == 2

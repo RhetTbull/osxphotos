@@ -475,6 +475,15 @@ def QUERY_OPTIONS(f):
             "For example, the following are all valid and equivalent sizes: '1048576' '1.048576MB', '1 MiB'.",
         ),
         o(
+            "--regex",
+            metavar="REGEX TEMPLATE",
+            nargs=2,
+            multiple=True,
+            help="Search for photos where TEMPLATE matches regular expression REGEX. "
+            "For example, to find photos in an album that begins with 'Beach': '--regex \"^Beach\" \"{album}\"'. "
+            "You may specify more than one regular expression match by repeating '--regex' with different arguments.",
+        ),
+        o(
             "--query-eval",
             metavar="CRITERIA",
             multiple=True,
@@ -1027,6 +1036,7 @@ def export(
     not_in_album,
     min_size,
     max_size,
+    regex,
     query_eval,
 ):
     """Export photos from the Photos database.
@@ -1177,6 +1187,7 @@ def export(
         not_in_album = cfg.not_in_album
         min_size = cfg.min_size
         max_size = cfg.max_size
+        regex = cfg.regex
         query_eval = cfg.query_eval
 
         # config file might have changed verbose
@@ -1481,6 +1492,7 @@ def export(
         name=name,
         min_size=min_size,
         max_size=max_size,
+        regex=regex,
         query_eval=query_eval,
     )
 
@@ -1780,6 +1792,7 @@ def query(
     not_in_album,
     min_size,
     max_size,
+    regex,
     query_eval,
 ):
     """Query the Photos database using 1 or more search options;
@@ -1810,6 +1823,7 @@ def query(
         query_eval,
         min_size,
         max_size,
+        regex,
     ]
     exclusive = [
         (favorite, not_favorite),
@@ -1934,6 +1948,7 @@ def query(
         min_size=min_size,
         max_size=max_size,
         query_eval=query_eval,
+        regex=regex,
     )
 
     try:
