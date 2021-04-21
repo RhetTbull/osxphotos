@@ -56,7 +56,7 @@ pluggy==0.12.0
 prompt-toolkit==3.0.4
 psutil==5.7.0
 ptyprocess==0.6.0
-py==1.8.0
+py==1.10.0
 py2app==0.21
 pycparser==2.20
 pyfiglet==0.8.post1
