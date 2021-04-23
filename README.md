@@ -106,6 +106,10 @@ Once you've installed osxphotos via the git repository, to upgrade to the latest
     git pull
     python3 setup.py install
 
+### Installing pre-built executable
+
+You can also download a stand-alone pre-built executable--that doesn't require installing python--from the [releases](https://github.com/RhetTbull/osxphotos/releases) page.  Look for the file with a name similar to `osxphotos_MacOS_exe_darwin_x64_v0.42.9.zip`.  In this case `v0.42.9` specifies version 0.42.9.  Unzip the file and put the included `osxphotos` binary in your system path.  Currently, the binary is not signed or notarized so you'll have to authorize the app to run in the System Preferences | Security & Privacy settings.  It's also likely this executable will not run on M1 Macs.  If you don't know how to do this, I recommend using `pipx` as described above.
+
 ## Command Line Usage
 
 This package will install a command line utility called `osxphotos` that allows you to query the Photos database.  Alternatively, you can also run the command line utility like this: `python3 -m osxphotos`
