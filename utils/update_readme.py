@@ -10,16 +10,19 @@
 # Running this script ensures the above sections of the README.md contain
 # the most current information, updated directly from the code.
 
+import re
+
 from click.testing import CliRunner
 
 from osxphotos.cli import help
 from osxphotos.phototemplate import (
+    FILTER_VALUES,
     TEMPLATE_SUBSTITUTIONS,
     TEMPLATE_SUBSTITUTIONS_MULTI_VALUED,
-    FILTER_VALUES,
 )
 
 TEMPLATE_HELP = "osxphotos/phototemplate.md"
+TUTORIAL_HELP = "docsrc/source/tutorial.md"
 
 USAGE_START = (
     "<!-- OSXPHOTOS-EXPORT-USAGE:START - Do not remove or modify this section -->"
@@ -40,6 +43,15 @@ TEMPLATE_FILTER_TABLE_START = (
     "!-- OSXPHOTOS-FILTER-TABLE:START - Do not remove or modify this section -->"
 )
 TEMPLATE_FILTER_TABLE_STOP = "<!-- OSXPHOTOS-FILTER-TABLE:END -->"
+
+TUTORIAL_START = "<!-- OSXPHOTOS-TUTORIAL:START -->"
+TUTORIAL_STOP = "<!-- OSXPHOTOS-TUTORIAL:END -->"
+
+TUTORIAL_HEADER_START = "<!-- OSXPHOTOS-TUTORIAL-HEADER:START -->"
+TUTORIAL_HEADER_STOP = "<!-- OSXPHOTOS-TUTORIAL-HEADER:END -->"
+
+TEMPLATE_SYSTEM_LINK_START = "<!-- OSXPHOTOS-TEMPLATE-SYSTEM-LINK:START -->"
+TEMPLATE_SYSTEM_LINK_STOP = "<!-- OSXPHOTOS-TEMPLATE-SYSTEM-LINK:END -->"
 
 
 def generate_template_table():
@@ -155,6 +167,30 @@ def main():
         prefix="\n",
         postfix="\n",
     )
+
+    # update the tutorial
+    print("Updating tutorial")
+    with open(TUTORIAL_HELP) as fd:
+        tutorial_help = fd.read()
+
+    # indent all Markdown headers one more level
+    tutorial_help = re.sub(r"^([#]+)", r"\1#", tutorial_help, flags=re.MULTILINE)
+
+    # insert link for Template System
+    tutorial_help = replace_text(
+        tutorial_help,
+        TEMPLATE_SYSTEM_LINK_START,
+        TEMPLATE_SYSTEM_LINK_STOP,
+        "[Template System](#template-system)",
+    )
+
+    # remove Tutorial Header
+    tutorial_help = replace_text(
+        tutorial_help, TUTORIAL_HEADER_START, TUTORIAL_HEADER_STOP, ""
+    )
+
+    # insert tutorial text into readme
+    new_readme = replace_text(new_readme, TUTORIAL_START, TUTORIAL_STOP, tutorial_help)
 
     print("Writing new README.md")
     with open("README.md", "w") as file:
