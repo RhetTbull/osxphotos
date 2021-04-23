@@ -282,11 +282,11 @@ Explanation of the template string:
  │           │      │ │       │ │  │ 
  └──> insert title  │ │       │ │  │ 
              │      │ │       │ │  │
-             └───> is title blank?
+             └───> is there a title?
                     │ │       │ │  │
-                    └───> if not, is descr blank? 
+                    └───> if so, is there a description? 
                       │       │ │  │
-                      └───> if not, insert new line 
+                      └───> if so, insert new line 
                               │ │  │
                               └───> if descr is blank, insert nothing
                                 │  │ 
