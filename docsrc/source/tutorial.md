@@ -202,7 +202,7 @@ If you want to use osxphotos to perform periodic backups of your Photos library 
 
 will read the export database located in `/path/to/export/.osxphotos_export.db` and only export photos that have been added or changed since the last time osxphotos was run.  You can run osxphotos with the `--update` option even if it's never been run before.  If the database isn't found, osxphotos will create it.  If you run `osxphotos export` without `--update` in a folder where you had previously exported photos, it will re-export all the photos.  If your intent is to keep a periodic backup of your Photos Library up to date with osxphotos, you should always use `--update`.
 
-If your workflow involves moving files out of the export directory (for example, you move them into a digital asset management app) but you want to use the features of `--update`, you can use the `--only-new` with `--update` to force osxphotos to only export photos that are new (added to the library) since the last update.  In this case, osxphotos will ignore the previously exported files that are now missing.  Without --only-new, osxphotos would see that previously exported files are missing and re-export them.
+If your workflow involves moving files out of the export directory (for example, you move them into a digital asset management app) but you want to use the features of `--update`, you can use the `--only-new` with `--update` to force osxphotos to only export photos that are new (added to the library) since the last update.  In this case, osxphotos will ignore the previously exported files that are now missing.  Without `--only-new`, osxphotos would see that previously exported files are missing and re-export them.
 
 `osxphotos export /path/to/export --update --only-new`
 
@@ -283,7 +283,7 @@ Explanation of the template string:
  └──> insert title  │ │       │ │  │ 
              │      │ │       │ │  │
              └───> is title blank?
-```                 │ │       │ │  │
+                    │ │       │ │  │
                     └───> if not, is descr blank? 
                       │       │ │  │
                       └───> if not, insert new line 
