@@ -2163,8 +2163,6 @@ def export_photo(
     global VERBOSE
     VERBOSE = bool(verbose)
 
-    results = ExportResults()
-
     export_original = not (skip_original_if_edited and photo.hasadjustments)
 
     # can't export edited if photo doesn't have edited versions
@@ -2206,33 +2204,54 @@ def export_photo(
         if photo.hasadjustments and photo.path_edited is None:
             missing_edited = True
 
+    sidecar = [s.lower() for s in sidecar]
+    sidecar_flags = 0
+    if "json" in sidecar:
+        sidecar_flags |= SIDECAR_JSON
+    if "xmp" in sidecar:
+        sidecar_flags |= SIDECAR_XMP
+    if "exiftool" in sidecar:
+        sidecar_flags |= SIDECAR_EXIFTOOL
+
+    rendered_suffix = ""
+    if original_suffix:
+        try:
+            rendered_suffix, unmatched = photo.render_template(
+                original_suffix, filename=True, strip=strip
+            )
+        except ValueError as e:
+            raise click.BadOptionUsage(
+                "original_suffix",
+                f"Invalid template for --original-suffix '{original_suffix}': {e}",
+            )
+        if not rendered_suffix or unmatched:
+            raise click.BadOptionUsage(
+                "original_suffix",
+                f"Invalid template for --original-suffix '{original_suffix}': results={rendered_suffix} unknown field={unmatched}",
+            )
+        if len(rendered_suffix) > 1:
+            raise click.BadOptionUsage(
+                "original_suffix",
+                f"Invalid template for --original-suffix: may not use multi-valued templates: '{original_suffix}': results={rendered_suffix}",
+            )
+        rendered_suffix = rendered_suffix[0]
+
+    # if download_missing and the photo is missing or path doesn't exist,
+    # try to download with Photos
+    use_photos_export = use_photos_export or (
+        download_missing
+        and (
+            photo.ismissing
+            or photo.path is None
+            or (export_edited and photo.path_edited is None)
+        )
+    )
+
+    results = ExportResults()
     filenames = get_filenames_from_template(
         photo, filename_template, original_name, strip=strip
     )
     for filename in filenames:
-        rendered_suffix = ""
-        if original_suffix:
-            try:
-                rendered_suffix, unmatched = photo.render_template(
-                    original_suffix, filename=True, strip=strip
-                )
-            except ValueError as e:
-                raise click.BadOptionUsage(
-                    "original_suffix",
-                    f"Invalid template for --original-suffix '{original_suffix}': {e}",
-                )
-            if not rendered_suffix or unmatched:
-                raise click.BadOptionUsage(
-                    "original_suffix",
-                    f"Invalid template for --original-suffix '{original_suffix}': results={rendered_suffix} unknown field={unmatched}",
-                )
-            if len(rendered_suffix) > 1:
-                raise click.BadOptionUsage(
-                    "original_suffix",
-                    f"Invalid template for --original-suffix: may not use multi-valued templates: '{original_suffix}': results={rendered_suffix}",
-                )
-            rendered_suffix = rendered_suffix[0]
-
         original_filename = pathlib.Path(filename)
         file_ext = original_filename.suffix
         if photo.isphoto and (jpeg_ext or convert_to_jpeg):
@@ -2254,314 +2273,331 @@ def export_photo(
             f"Exporting {photo.original_filename} ({photo.filename}) as {original_filename}"
         )
 
-        dest_paths = get_dirnames_from_template(
-            photo, directory, export_by_date, dest, dry_run, strip=strip
+        results += export_photo_with_template(
+            photo=photo,
+            filename=original_filename,
+            directory=directory,
+            edited=False,
+            use_photos_export=use_photos_export,
+            export_by_date=export_by_date,
+            dest=dest,
+            dry_run=dry_run,
+            strip=strip,
+            export_original=export_original,
+            missing=missing_original,
+            verbose=verbose,
+            sidecar_flags=sidecar_flags,
+            sidecar_drop_ext=sidecar_drop_ext,
+            export_live=export_live,
+            export_raw=export_raw,
+            export_as_hardlink=export_as_hardlink,
+            overwrite=overwrite,
+            exiftool=exiftool,
+            exiftool_merge_keywords=exiftool_merge_keywords,
+            exiftool_merge_persons=exiftool_merge_persons,
+            album_keyword=album_keyword,
+            person_keyword=person_keyword,
+            keyword_template=keyword_template,
+            description_template=description_template,
+            update=update,
+            ignore_signature=ignore_signature,
+            export_db=export_db,
+            fileutil=fileutil,
+            touch_file=touch_file,
+            convert_to_jpeg=convert_to_jpeg,
+            jpeg_quality=jpeg_quality,
+            ignore_date_modified=ignore_date_modified,
+            use_photokit=use_photokit,
+            exiftool_option=exiftool_option,
+            jpeg_ext=jpeg_ext,
+            replace_keywords=replace_keywords,
+            retry=retry,
         )
 
-        sidecar = [s.lower() for s in sidecar]
-        sidecar_flags = 0
-        if "json" in sidecar:
-            sidecar_flags |= SIDECAR_JSON
-        if "xmp" in sidecar:
-            sidecar_flags |= SIDECAR_XMP
-        if "exiftool" in sidecar:
-            sidecar_flags |= SIDECAR_EXIFTOOL
-
-        # if download_missing and the photo is missing or path doesn't exist,
-        # try to download with Photos
-        use_photos_export = use_photos_export or (
-            download_missing
-            and (
-                photo.ismissing
-                or photo.path is None
-                or (export_edited and photo.path_edited is None)
-            )
+    if export_edited and photo.hasadjustments:
+        # if export-edited, also export the edited version
+        edited_filenames = get_filenames_from_template(
+            photo, filename_template, original_name, strip=strip
         )
-
-        # export the photo to each path in dest_paths
-        for dest_path in dest_paths:
-            # TODO: if --skip-original-if-edited, it's possible edited version is on disk but
-            # original is missing, in which case we should download the edited version
-            if export_original:
-                if missing_original:
-                    space = " " if not verbose else ""
-                    verbose_(
-                        f"{space}Skipping missing photo {photo.original_filename} ({photo.uuid})"
-                    )
-                    results.missing.append(
-                        str(pathlib.Path(dest_path) / original_filename)
-                    )
-                elif photo.intrash and (not photo.path or use_photos_export):
-                    # skip deleted files if they're missing or using use_photos_export
-                    # as AppleScript/PhotoKit cannot export deleted photos
-                    space = " " if not verbose else ""
-                    verbose_(
-                        f"{space}Skipping missing deleted photo {photo.original_filename} ({photo.uuid})"
-                    )
-                    results.missing.append(
-                        str(pathlib.Path(dest_path) / original_filename)
-                    )
-                else:
-                    tries = 0
-                    while tries <= retry:
-                        tries += 1
-                        error = 0
-                        try:
-                            export_results = photo.export2(
-                                dest_path,
-                                original_filename,
-                                sidecar=sidecar_flags,
-                                sidecar_drop_ext=sidecar_drop_ext,
-                                live_photo=export_live,
-                                raw_photo=export_raw,
-                                export_as_hardlink=export_as_hardlink,
-                                overwrite=overwrite,
-                                use_photos_export=use_photos_export,
-                                exiftool=exiftool,
-                                merge_exif_keywords=exiftool_merge_keywords,
-                                merge_exif_persons=exiftool_merge_persons,
-                                use_albums_as_keywords=album_keyword,
-                                use_persons_as_keywords=person_keyword,
-                                keyword_template=keyword_template,
-                                description_template=description_template,
-                                update=update,
-                                ignore_signature=ignore_signature,
-                                export_db=export_db,
-                                fileutil=fileutil,
-                                dry_run=dry_run,
-                                touch_file=touch_file,
-                                convert_to_jpeg=convert_to_jpeg,
-                                jpeg_quality=jpeg_quality,
-                                ignore_date_modified=ignore_date_modified,
-                                use_photokit=use_photokit,
-                                verbose=verbose_,
-                                exiftool_flags=exiftool_option,
-                                jpeg_ext=jpeg_ext,
-                                replace_keywords=replace_keywords,
-                            )
-                            for warning_ in export_results.exiftool_warning:
-                                verbose_(
-                                    f"exiftool warning for file {warning_[0]}: {warning_[1]}"
-                                )
-                            for error_ in export_results.exiftool_error:
-                                click.echo(
-                                    click.style(
-                                        f"exiftool error for file {error_[0]}: {error_[1]}",
-                                        fg=CLI_COLOR_ERROR,
-                                    ),
-                                    err=True,
-                                )
-                            for error_ in export_results.error:
-                                click.echo(
-                                    click.style(
-                                        f"Error exporting photo ({photo.uuid}: {photo.original_filename}) as {error_[0]}: {error_[1]}",
-                                        fg=CLI_COLOR_ERROR,
-                                    ),
-                                    err=True,
-                                )
-                                error += 1
-                            if not error or tries > retry:
-                                results += export_results
-                                break
-                            else:
-                                click.echo(
-                                    "Retrying export for photo ({photo.uuid}: {photo.original_filename})"
-                                )
-                        except Exception as e:
-                            click.echo(
-                                click.style(
-                                    f"Error exporting photo ({photo.uuid}: {photo.original_filename}) as {original_filename}: {e}",
-                                    fg=CLI_COLOR_ERROR,
-                                ),
-                                err=True,
-                            )
-                            if tries > retry:
-                                results.error.append(
-                                    (str(pathlib.Path(dest) / original_filename), e)
-                                )
-                                break
-                            else:
-                                click.echo(
-                                    f"Retrying export for photo ({photo.uuid}: {photo.original_filename})"
-                                )
-            else:
-                verbose_(f"Skipping original version of {photo.original_filename}")
-
-            # if export-edited, also export the edited version
+        for edited_filename in edited_filenames:
+            edited_filename = pathlib.Path(edited_filename)
             # verify the photo has adjustments and valid path to avoid raising an exception
-            if export_edited and photo.hasadjustments:
-                edited_filename = pathlib.Path(filename)
-                edited_ext = (
-                    # rare cases on Photos <= 4 that uti_edited is None
-                    "." + get_preferred_uti_extension(photo.uti_edited)
-                    if photo.uti_edited
-                    else pathlib.Path(photo.path_edited).suffix
-                    if photo.path_edited
-                    else pathlib.Path(photo.filename).suffix
-                )
+            edited_ext = (
+                # rare cases on Photos <= 4 that uti_edited is None
+                "." + get_preferred_uti_extension(photo.uti_edited)
+                if photo.uti_edited
+                else pathlib.Path(photo.path_edited).suffix
+                if photo.path_edited
+                else pathlib.Path(photo.filename).suffix
+            )
 
-                if (
-                    photo.isphoto
-                    and jpeg_ext
-                    and edited_ext.lower() in [".jpg", ".jpeg"]
-                ):
-                    edited_ext = "." + jpeg_ext
+            if photo.isphoto and jpeg_ext and edited_ext.lower() in [".jpg", ".jpeg"]:
+                edited_ext = "." + jpeg_ext
 
-                # Big Sur uses .heic for some edited photos so need to check
-                # if extension isn't jpeg/jpg and using --convert-to-jpeg
-                if (
-                    photo.isphoto
-                    and convert_to_jpeg
-                    and edited_ext.lower() not in [".jpg", ".jpeg"]
-                ):
-                    edited_ext = "." + jpeg_ext if jpeg_ext else ".jpeg"
+            # Big Sur uses .heic for some edited photos so need to check
+            # if extension isn't jpeg/jpg and using --convert-to-jpeg
+            if (
+                photo.isphoto
+                and convert_to_jpeg
+                and edited_ext.lower() not in [".jpg", ".jpeg"]
+            ):
+                edited_ext = "." + jpeg_ext if jpeg_ext else ".jpeg"
 
-                if edited_suffix:
-                    try:
-                        rendered_suffix, unmatched = photo.render_template(
-                            edited_suffix, filename=True, strip=strip
-                        )
-                    except ValueError as e:
-                        raise click.BadOptionUsage(
-                            "edited_suffix",
-                            f"Invalid template for --edited-suffix '{edited_suffix}': {e}",
-                        )
-                    if not rendered_suffix or unmatched:
-                        raise click.BadOptionUsage(
-                            "edited_suffix",
-                            f"Invalid template for --edited-suffix '{edited_suffix}': unknown field={unmatched}",
-                        )
-                    if len(rendered_suffix) > 1:
-                        raise click.BadOptionUsage(
-                            "edited_suffix",
-                            f"Invalid template for --edited-suffix: may not use multi-valued templates: '{edited_suffix}': results={rendered_suffix}",
-                        )
-                    rendered_suffix = rendered_suffix[0]
-
-                    edited_filename = (
-                        f"{edited_filename.stem}{rendered_suffix}{edited_ext}"
+            if edited_suffix:
+                try:
+                    rendered_suffix, unmatched = photo.render_template(
+                        edited_suffix, filename=True, strip=strip
                     )
-                else:
-                    edited_filename = f"{edited_filename.stem}{edited_ext}"
+                except ValueError as e:
+                    raise click.BadOptionUsage(
+                        "edited_suffix",
+                        f"Invalid template for --edited-suffix '{edited_suffix}': {e}",
+                    )
+                if not rendered_suffix or unmatched:
+                    raise click.BadOptionUsage(
+                        "edited_suffix",
+                        f"Invalid template for --edited-suffix '{edited_suffix}': unknown field={unmatched}",
+                    )
+                if len(rendered_suffix) > 1:
+                    raise click.BadOptionUsage(
+                        "edited_suffix",
+                        f"Invalid template for --edited-suffix: may not use multi-valued templates: '{edited_suffix}': results={rendered_suffix}",
+                    )
+                rendered_suffix = rendered_suffix[0]
+                edited_filename = f"{edited_filename.stem}{rendered_suffix}{edited_ext}"
+            else:
+                edited_filename = f"{edited_filename.stem}{edited_ext}"
 
+            verbose_(
+                f"Exporting edited version of {photo.original_filename} ({photo.filename}) as {edited_filename}"
+            )
+
+            results += export_photo_with_template(
+                photo=photo,
+                filename=edited_filename,
+                directory=directory,
+                edited=True,
+                use_photos_export=use_photos_export,
+                export_by_date=export_by_date,
+                dest=dest,
+                dry_run=dry_run,
+                strip=strip,
+                export_original=export_original,
+                missing=missing_edited,
+                verbose=verbose,
+                sidecar_flags=sidecar_flags,
+                sidecar_drop_ext=sidecar_drop_ext,
+                export_live=export_live,
+                export_raw=export_raw,
+                export_as_hardlink=export_as_hardlink,
+                overwrite=overwrite,
+                exiftool=exiftool,
+                exiftool_merge_keywords=exiftool_merge_keywords,
+                exiftool_merge_persons=exiftool_merge_persons,
+                album_keyword=album_keyword,
+                person_keyword=person_keyword,
+                keyword_template=keyword_template,
+                description_template=description_template,
+                update=update,
+                ignore_signature=ignore_signature,
+                export_db=export_db,
+                fileutil=fileutil,
+                touch_file=touch_file,
+                convert_to_jpeg=convert_to_jpeg,
+                jpeg_quality=jpeg_quality,
+                ignore_date_modified=ignore_date_modified,
+                use_photokit=use_photokit,
+                exiftool_option=exiftool_option,
+                jpeg_ext=jpeg_ext,
+                replace_keywords=replace_keywords,
+                retry=retry,
+            )
+
+    return results
+
+
+def export_photo_with_template(
+    photo,
+    filename,
+    directory,
+    edited,
+    use_photos_export,
+    export_by_date,
+    dest,
+    dry_run,
+    strip,
+    export_original,
+    missing,
+    verbose,
+    sidecar_flags,
+    sidecar_drop_ext,
+    export_live,
+    export_raw,
+    export_as_hardlink,
+    overwrite,
+    exiftool,
+    exiftool_merge_keywords,
+    exiftool_merge_persons,
+    album_keyword,
+    person_keyword,
+    keyword_template,
+    description_template,
+    update,
+    ignore_signature,
+    export_db,
+    fileutil,
+    touch_file,
+    convert_to_jpeg,
+    jpeg_quality,
+    ignore_date_modified,
+    use_photokit,
+    exiftool_option,
+    jpeg_ext,
+    replace_keywords,
+    retry,
+):
+    """ Evaluate directory template then export photo to each directory """
+
+    results = ExportResults()
+
+    dest_paths = get_dirnames_from_template(
+        photo, directory, export_by_date, dest, dry_run, strip=strip
+    )
+
+    # export the photo to each path in dest_paths
+    for dest_path in dest_paths:
+        # TODO: if --skip-original-if-edited, it's possible edited version is on disk but
+        # original is missing, in which case we should download the edited version
+        if export_original:
+            if missing:
+                space = " " if not verbose else ""
                 verbose_(
-                    f"Exporting edited version of {photo.original_filename} ({photo.filename}) as {edited_filename}"
+                    f"{space}Skipping missing photo {photo.original_filename} ({photo.uuid})"
                 )
-                if missing_edited:
-                    space = " " if not verbose else ""
-                    verbose_(
-                        f"{space}Skipping missing edited photo for {edited_filename}"
+                results.missing.append(str(pathlib.Path(dest_path) / filename))
+                continue
+            elif photo.intrash and (not photo.path or use_photos_export):
+                # skip deleted files if they're missing or using use_photos_export
+                # as AppleScript/PhotoKit cannot export deleted photos
+                space = " " if not verbose else ""
+                verbose_(
+                    f"{space}Skipping missing deleted photo {photo.original_filename} ({photo.uuid})"
+                )
+                results.missing.append(str(pathlib.Path(dest_path) / filename))
+                continue
+        elif not edited:
+            verbose_(f"Skipping original version of {photo.original_filename}")
+            continue
+        else:
+            # exporting the edited version
+            if missing:
+                space = " " if not verbose else ""
+                verbose_(f"{space}Skipping missing edited photo for {filename}")
+                results.missing.append(str(pathlib.Path(dest_path) / filename))
+                continue
+            elif photo.intrash and (not photo.path_edited or use_photos_export):
+                # skip deleted files if they're missing or using use_photos_export
+                # as AppleScript/PhotoKit cannot export deleted photos
+                space = " " if not verbose else ""
+                verbose_(
+                    f"{space}Skipping missing deleted photo {photo.original_filename} ({photo.uuid})"
+                )
+                results.missing.append(str(pathlib.Path(dest_path) / filename))
+                continue
+
+        tries = 0
+        while tries <= retry:
+            tries += 1
+            error = 0
+            try:
+                export_results = photo.export2(
+                    dest_path,
+                    filename,
+                    edited=edited,
+                    sidecar=sidecar_flags,
+                    sidecar_drop_ext=sidecar_drop_ext,
+                    live_photo=export_live,
+                    raw_photo=export_raw,
+                    export_as_hardlink=export_as_hardlink,
+                    overwrite=overwrite,
+                    use_photos_export=use_photos_export,
+                    exiftool=exiftool,
+                    merge_exif_keywords=exiftool_merge_keywords,
+                    merge_exif_persons=exiftool_merge_persons,
+                    use_albums_as_keywords=album_keyword,
+                    use_persons_as_keywords=person_keyword,
+                    keyword_template=keyword_template,
+                    description_template=description_template,
+                    update=update,
+                    ignore_signature=ignore_signature,
+                    export_db=export_db,
+                    fileutil=fileutil,
+                    dry_run=dry_run,
+                    touch_file=touch_file,
+                    convert_to_jpeg=convert_to_jpeg,
+                    jpeg_quality=jpeg_quality,
+                    ignore_date_modified=ignore_date_modified,
+                    use_photokit=use_photokit,
+                    verbose=verbose_,
+                    exiftool_flags=exiftool_option,
+                    jpeg_ext=jpeg_ext,
+                    replace_keywords=replace_keywords,
+                )
+                for warning_ in export_results.exiftool_warning:
+                    verbose_(f"exiftool warning for file {warning_[0]}: {warning_[1]}")
+                for error_ in export_results.exiftool_error:
+                    click.echo(
+                        click.style(
+                            f"exiftool error for file {error_[0]}: {error_[1]}",
+                            fg=CLI_COLOR_ERROR,
+                        ),
+                        err=True,
                     )
-                    results.missing.append(
-                        str(pathlib.Path(dest_path) / edited_filename)
+                for error_ in export_results.error:
+                    click.echo(
+                        click.style(
+                            f"Error exporting photo ({photo.uuid}: {photo.original_filename}) as {error_[0]}: {error_[1]}",
+                            fg=CLI_COLOR_ERROR,
+                        ),
+                        err=True,
                     )
-                elif photo.intrash and (not photo.path_edited or use_photos_export):
-                    # skip deleted files if they're missing or using use_photos_export
-                    # as AppleScript/PhotoKit cannot export deleted photos
-                    space = " " if not verbose else ""
-                    verbose_(
-                        f"{space}Skipping missing deleted photo {photo.original_filename} ({photo.uuid})"
+                    error += 1
+                if not error or tries > retry:
+                    results += export_results
+                    break
+                else:
+                    click.echo(
+                        "Retrying export for photo ({photo.uuid}: {photo.original_filename})"
                     )
-                    results.missing.append(
-                        str(pathlib.Path(dest_path) / edited_filename)
+            except Exception as e:
+                click.echo(
+                    click.style(
+                        f"Error exporting photo ({photo.uuid}: {photo.original_filename}) as {filename}: {e}",
+                        fg=CLI_COLOR_ERROR,
+                    ),
+                    err=True,
+                )
+                if tries > retry:
+                    results.error.append((str(pathlib.Path(dest) / filename), e))
+                    break
+                else:
+                    click.echo(
+                        f"Retrying export for photo ({photo.uuid}: {photo.original_filename})"
                     )
 
-                else:
-                    tries = 0
-                    while tries <= retry:
-                        tries += 1
-                        error = 0
-                        try:
-                            export_results_edited = photo.export2(
-                                dest_path,
-                                edited_filename,
-                                sidecar=sidecar_flags,
-                                sidecar_drop_ext=sidecar_drop_ext,
-                                export_as_hardlink=export_as_hardlink,
-                                overwrite=overwrite,
-                                edited=True,
-                                use_photos_export=use_photos_export,
-                                exiftool=exiftool,
-                                merge_exif_keywords=exiftool_merge_keywords,
-                                merge_exif_persons=exiftool_merge_persons,
-                                use_albums_as_keywords=album_keyword,
-                                use_persons_as_keywords=person_keyword,
-                                keyword_template=keyword_template,
-                                description_template=description_template,
-                                update=update,
-                                ignore_signature=ignore_signature,
-                                export_db=export_db,
-                                fileutil=fileutil,
-                                dry_run=dry_run,
-                                touch_file=touch_file,
-                                convert_to_jpeg=convert_to_jpeg,
-                                jpeg_quality=jpeg_quality,
-                                ignore_date_modified=ignore_date_modified,
-                                use_photokit=use_photokit,
-                                verbose=verbose_,
-                                exiftool_flags=exiftool_option,
-                                jpeg_ext=jpeg_ext,
-                                replace_keywords=replace_keywords,
-                            )
-                            for warning_ in export_results_edited.exiftool_warning:
-                                verbose_(
-                                    f"exiftool warning for file {warning_[0]}: {warning_[1]}"
-                                )
-                            for error_ in export_results_edited.exiftool_error:
-                                click.echo(
-                                    click.style(
-                                        f"exiftool error for file {error_[0]}: {error_[1]}",
-                                        fg=CLI_COLOR_ERROR,
-                                    ),
-                                    err=True,
-                                )
-                            for error_ in export_results_edited.error:
-                                click.echo(
-                                    click.style(
-                                        f"Error exporting edited photo ({photo.uuid}: {photo.original_filename}) as {error_[0]}: {error_[1]}",
-                                        fg=CLI_COLOR_ERROR,
-                                    ),
-                                    err=True,
-                                )
-                                error += 1
-                            if not error or tries > retry:
-                                results += export_results_edited
-                                break
-                            else:
-                                click.echo(
-                                    "Retrying export for photo ({photo.uuid}: {photo.original_filename})"
-                                )
-                        except Exception as e:
-                            click.echo(
-                                click.style(
-                                    f"Error exporting edited photo ({photo.uuid}: {photo.original_filename}) {filename} as {edited_filename}: {e}",
-                                    fg=CLI_COLOR_ERROR,
-                                ),
-                                err=True,
-                            )
-                            if tries > retry:
-                                results.error.append(
-                                    (str(pathlib.Path(dest) / edited_filename), e)
-                                )
-                                break
-                            else:
-                                click.echo(
-                                    f"Retrying export for photo ({photo.uuid}: {photo.original_filename})"
-                                )
-
-            if verbose:
-                if update:
-                    for new in results.new:
-                        verbose_(f"Exported new file {new}")
-                    for updated in results.updated:
-                        verbose_(f"Exported updated file {updated}")
-                    for skipped in results.skipped:
-                        verbose_(f"Skipped up to date file {skipped}")
-                else:
-                    for exported in results.exported:
-                        verbose_(f"Exported {exported}")
-                for touched in results.touched:
-                    verbose_(f"Touched date on file {touched}")
+        if verbose:
+            if update:
+                for new in results.new:
+                    verbose_(f"Exported new file {new}")
+                for updated in results.updated:
+                    verbose_(f"Exported updated file {updated}")
+                for skipped in results.skipped:
+                    verbose_(f"Skipped up to date file {skipped}")
+            else:
+                for exported in results.exported:
+                    verbose_(f"Exported {exported}")
+            for touched in results.touched:
+                verbose_(f"Touched date on file {touched}")
 
     return results
 
