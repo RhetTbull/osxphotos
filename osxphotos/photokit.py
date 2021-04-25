@@ -1227,7 +1227,7 @@ class PhotoLibrary:
         
         Args:
             burstid: str, burst UUID
-            all: return all burst assets; if False returns only those selected by the user
+            all: return all burst assets; if False returns only those selected by the user (including the "key photo" even if user hasn't manually selected it)
 
         Returns:
             list of PhotoAsset objects

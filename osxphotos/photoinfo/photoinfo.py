@@ -26,6 +26,10 @@ from .._constants import (
     _PHOTOS_5_SHARED_ALBUM_KIND,
     _PHOTOS_5_SHARED_PHOTO_PATH,
     _PHOTOS_5_VERSION,
+    BURST_DEFAULT_PICK,
+    BURST_KEY,
+    BURST_NOT_SELECTED,
+    BURST_SELECTED,
 )
 from ..adjustmentsinfo import AdjustmentsInfo
 from ..albuminfo import AlbumInfo, ImportInfo
@@ -455,16 +459,14 @@ class PhotoInfo:
 
     @property
     def burst_albums(self):
-        """If photo is non-selected burst photo, list of albums any other images in the same burst set are contained in, otherwise returns self.albums"""
-        if self.burst_selected or not self.burst:
-            return self.albums
-
+        """If photo is burst photo, list of albums it is contained in as well as any albums the key photo is contained in, otherwise returns self.albums """
         try:
             return self._burst_albums
         except AttributeError:
-            burst_albums = []
+            burst_albums = list(self.albums)
             for photo in self.burst_photos:
-                burst_albums.extend(photo.albums)
+                if photo.burst_key:
+                    burst_albums.extend(photo.albums)
             self._burst_albums = list(set(burst_albums))
             return self._burst_albums
 
@@ -482,16 +484,14 @@ class PhotoInfo:
 
     @property
     def burst_album_info(self):
-        """ If photo is a non-selected burst photo, returns list of AlbumInfo objects representing albums any other photos in the same burst set are contained in, otherwise returns self.album_info """
-        if self.burst_selected or not self.burst:
-            return self.album_info
-
+        """ If photo is a burst photo, returns list of AlbumInfo objects representing albums the photo is contained in as well as albums the burst key photo is contained in, otherwise returns self.album_info. """
         try:
             return self._burst_album_info
         except AttributeError:
-            burst_album_info = []
+            burst_album_info = list(self.album_info) 
             for photo in self.burst_photos:
-                burst_album_info.extend(photo.album_info)
+                if photo.burst_key:
+                    burst_album_info.extend(photo.album_info)
             self._burst_album_info = list(set(burst_album_info))
             return self._burst_album_info
 
@@ -713,7 +713,17 @@ class PhotoInfo:
     @property
     def burst_selected(self):
         """ Returns True if photo is a burst photo and has been selected from the burst set by the user, otherwise False """
-        return self._info["burst_key"]
+        return bool(self._info["burstPickType"] & BURST_SELECTED)
+
+    @property
+    def burst_key(self):
+        """ Returns True if photo is a burst photo and is the key image for the burst set (the image that Photos shows on top of the burst stack), otherwise False """
+        return bool(self._info["burstPickType"] & BURST_KEY)
+
+    @property
+    def burst_default_pick(self):
+        """ Returns True if photo is a burst image and is the photo that Photos selected as the default image for the burst set, otherwise False """
+        return bool(self._info["burstPickType"] & BURST_DEFAULT_PICK)
 
     @property
     def burst_photos(self):

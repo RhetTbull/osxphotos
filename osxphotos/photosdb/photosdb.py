@@ -33,6 +33,8 @@ from .._constants import (
     _PHOTOS_5_SHARED_ALBUM_KIND,
     _TESTED_OS_VERSIONS,
     _UNKNOWN_PERSON,
+    BURST_KEY,
+    BURST_SELECTED,
     TIME_DELTA,
 )
 from .._version import __version__
@@ -41,6 +43,7 @@ from ..datetime_utils import datetime_has_tz, datetime_naive_to_local
 from ..fileutil import FileUtil
 from ..personinfo import PersonInfo
 from ..photoinfo import PhotoInfo
+from ..queryoptions import QueryOptions
 from ..utils import (
     _check_file_exists,
     _db_is_locked,
@@ -51,7 +54,6 @@ from ..utils import (
     noop,
     normalize_unicode,
 )
-from ..queryoptions import QueryOptions
 from .photosdb_utils import get_db_model_version, get_db_version
 
 # TODO: Add test for imageTimeZoneOffsetSeconds = None
@@ -1067,18 +1069,9 @@ class PhotosDB:
                 if burst_uuid not in self._dbphotos_burst:
                     self._dbphotos_burst[burst_uuid] = set()
                 self._dbphotos_burst[burst_uuid].add(uuid)
-                if row[24] != 2 and row[24] != 4:
-                    self._dbphotos[uuid][
-                        "burst_key"
-                    ] = True  # it's a key photo (selected from the burst)
-                else:
-                    self._dbphotos[uuid][
-                        "burst_key"
-                    ] = False  # it's a burst photo but not one that's selected
             else:
                 # not a burst photo
                 self._dbphotos[uuid]["burst"] = False
-                self._dbphotos[uuid]["burst_key"] = None
 
             # RKVersion.specialType
             # 1 == panorama
@@ -2010,18 +2003,9 @@ class PhotosDB:
                 if burst_uuid not in self._dbphotos_burst:
                     self._dbphotos_burst[burst_uuid] = set()
                 self._dbphotos_burst[burst_uuid].add(uuid)
-                if row[20] != 2 and row[20] != 4:
-                    info[
-                        "burst_key"
-                    ] = True  # it's a key photo (selected from the burst)
-                else:
-                    info[
-                        "burst_key"
-                    ] = False  # it's a burst photo but not one that's selected
             else:
                 # not a burst photo
                 info["burst"] = False
-                info["burst_key"] = None
 
             # Info on sub-type (live photo, panorama, etc)
             # ZGENERICASSET.ZKINDSUBTYPE
@@ -2787,7 +2771,10 @@ class PhotosDB:
             # get the intersection of each argument/search criteria
             for p in set.intersection(*photos_sets):
                 # filter for non-selected burst photos
-                if self._dbphotos[p]["burst"] and not self._dbphotos[p]["burst_key"]:
+                if self._dbphotos[p]["burst"] and not (
+                    self._dbphotos[p]["burstPickType"] & BURST_SELECTED
+                    or self._dbphotos[p]["burstPickType"] & BURST_KEY
+                ):
                     # not a key/selected burst photo, don't include in returned results
                     continue
 
@@ -3234,4 +3221,3 @@ def _get_photos_by_attribute(photos, attribute, values, ignore_case):
         for x in values:
             photos_search.extend(p for p in photos if x in getattr(p, attribute))
     return photos_search
-

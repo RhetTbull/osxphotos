@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos.photosdb.photosdb &#8212; osxphotos 0.42.9 documentation</title>
+    <title>osxphotos.photosdb.photosdb &#8212; osxphotos 0.42.11 documentation</title>
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -66,6 +66,8 @@
     <span class="n">_PHOTOS_5_SHARED_ALBUM_KIND</span><span class="p">,</span>
     <span class="n">_TESTED_OS_VERSIONS</span><span class="p">,</span>
     <span class="n">_UNKNOWN_PERSON</span><span class="p">,</span>
+    <span class="n">BURST_KEY</span><span class="p">,</span>
+    <span class="n">BURST_SELECTED</span><span class="p">,</span>
     <span class="n">TIME_DELTA</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.._version</span> <span class="kn">import</span> <span class="n">__version__</span>
@@ -74,6 +76,7 @@
 <span class="kn">from</span> <span class="nn">..fileutil</span> <span class="kn">import</span> <span class="n">FileUtil</span>
 <span class="kn">from</span> <span class="nn">..personinfo</span> <span class="kn">import</span> <span class="n">PersonInfo</span>
 <span class="kn">from</span> <span class="nn">..photoinfo</span> <span class="kn">import</span> <span class="n">PhotoInfo</span>
+<span class="kn">from</span> <span class="nn">..queryoptions</span> <span class="kn">import</span> <span class="n">QueryOptions</span>
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">_check_file_exists</span><span class="p">,</span>
     <span class="n">_db_is_locked</span><span class="p">,</span>
@@ -84,7 +87,6 @@
     <span class="n">noop</span><span class="p">,</span>
     <span class="n">normalize_unicode</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">..queryoptions</span> <span class="kn">import</span> <span class="n">QueryOptions</span>
 <span class="kn">from</span> <span class="nn">.photosdb_utils</span> <span class="kn">import</span> <span class="n">get_db_model_version</span><span class="p">,</span> <span class="n">get_db_version</span>
 
 <span class="c1"># TODO: Add test for imageTimeZoneOffsetSeconds = None</span>
@@ -1100,18 +1102,9 @@
                 <span class="k">if</span> <span class="n">burst_uuid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos_burst</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos_burst</span><span class="p">[</span><span class="n">burst_uuid</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos_burst</span><span class="p">[</span><span class="n">burst_uuid</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">uuid</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="mi">24</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">row</span><span class="p">[</span><span class="mi">24</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span>
-                        <span class="s2">&quot;burst_key&quot;</span>
-                    <span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># it&#39;s a key photo (selected from the burst)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span>
-                        <span class="s2">&quot;burst_key&quot;</span>
-                    <span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># it&#39;s a burst photo but not one that&#39;s selected</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># not a burst photo</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;burst&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;burst_key&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
             <span class="c1"># RKVersion.specialType</span>
             <span class="c1"># 1 == panorama</span>
@@ -2043,18 +2036,9 @@
                 <span class="k">if</span> <span class="n">burst_uuid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos_burst</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos_burst</span><span class="p">[</span><span class="n">burst_uuid</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos_burst</span><span class="p">[</span><span class="n">burst_uuid</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">uuid</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="mi">20</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">row</span><span class="p">[</span><span class="mi">20</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
-                    <span class="n">info</span><span class="p">[</span>
-                        <span class="s2">&quot;burst_key&quot;</span>
-                    <span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># it&#39;s a key photo (selected from the burst)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">info</span><span class="p">[</span>
-                        <span class="s2">&quot;burst_key&quot;</span>
-                    <span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># it&#39;s a burst photo but not one that&#39;s selected</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># not a burst photo</span>
                 <span class="n">info</span><span class="p">[</span><span class="s2">&quot;burst&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">info</span><span class="p">[</span><span class="s2">&quot;burst_key&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
             <span class="c1"># Info on sub-type (live photo, panorama, etc)</span>
             <span class="c1"># ZGENERICASSET.ZKINDSUBTYPE</span>
@@ -2820,7 +2804,10 @@
             <span class="c1"># get the intersection of each argument/search criteria</span>
             <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">set</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="o">*</span><span class="n">photos_sets</span><span class="p">):</span>
                 <span class="c1"># filter for non-selected burst photos</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="s2">&quot;burst&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="s2">&quot;burst_key&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="s2">&quot;burst&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="s2">&quot;burstPickType&quot;</span><span class="p">]</span> <span class="o">&amp;</span> <span class="n">BURST_SELECTED</span>
+                    <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="s2">&quot;burstPickType&quot;</span><span class="p">]</span> <span class="o">&amp;</span> <span class="n">BURST_KEY</span>
+                <span class="p">):</span>
                     <span class="c1"># not a key/selected burst photo, don&#39;t include in returned results</span>
                     <span class="k">continue</span>
 
@@ -3267,7 +3254,6 @@
         <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
             <span class="n">photos_search</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">attribute</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">photos_search</span>
-
 </pre></div>
 
           </div>

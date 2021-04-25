@@ -54,7 +54,7 @@ UUID_DICT = {
     "burst": {
         "uuid": "CD97EC84-71F0-40C6-BAC1-2BABEE305CAC",
         "filename": "IMG_8196.JPG",
-        "burst_selected": 3,
+        "burst_selected": 4,
         "burst_all": 5,
     },
 }

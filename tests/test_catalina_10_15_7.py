@@ -116,6 +116,12 @@ UUID_DICT = {
 UUID_DICT_LOCAL = {
     "not_visible": "ABF00253-78E7-4FD6-953B-709307CD489D",
     "burst": "44AF1FCA-AC2D-4FA5-B288-E67DC18F9CA8",
+    "burst_key": "9F90DC00-AAAF-4A05-9A65-61FEEE0D67F2",
+    "burst_not_key": "38F8F30C-FF6D-49DA-8092-18497F1D6628",
+    "burst_selected": "38F8F30C-FF6D-49DA-8092-18497F1D6628",
+    "burst_not_selected": "A385FA13-DF8E-482F-A8C5-970EDDF54C2F",
+    "burst_default": "964F457D-5FFC-47B9-BEAD-56B0A83FEF63",
+    "burst_not_default": "A385FA13-DF8E-482F-A8C5-970EDDF54C2F",
 }
 
 UUID_PUMPKIN_FARM = [
@@ -890,7 +896,9 @@ def test_export_12(photosdb):
 
     edited_name = pathlib.Path(photos[0].path_edited).name
     edited_suffix = pathlib.Path(edited_name).suffix
-    filename = pathlib.Path(photos[0].original_filename).stem + "_edited" + edited_suffix
+    filename = (
+        pathlib.Path(photos[0].original_filename).stem + "_edited" + edited_suffix
+    )
     expected_dest = os.path.join(dest, filename)
 
     got_dest = photos[0].export(dest, edited=True)[0]
@@ -1197,6 +1205,36 @@ def test_visible_burst(photosdb_local):
     assert photo.visible
     assert photo.burst
     assert len(photo.burst_photos) == 4
+
+
+@pytest.mark.skipif(SKIP_TEST, reason="Skip if not running on author's local machine.")
+def test_burst_key(photosdb_local):
+    """ test burst_key """
+    photo = photosdb_local.get_photo(UUID_DICT_LOCAL["burst_key"])
+    assert photo.burst_key
+
+    photo = photosdb_local.get_photo(UUID_DICT_LOCAL["burst_not_key"])
+    assert not photo.burst_key
+
+
+@pytest.mark.skipif(SKIP_TEST, reason="Skip if not running on author's local machine.")
+def test_burst_selected(photosdb_local):
+    """ test burst_selected """
+    photo = photosdb_local.get_photo(UUID_DICT_LOCAL["burst_selected"])
+    assert photo.burst_selected
+
+    photo = photosdb_local.get_photo(UUID_DICT_LOCAL["burst_not_selected"])
+    assert not photo.burst_selected
+
+
+@pytest.mark.skipif(SKIP_TEST, reason="Skip if not running on author's local machine.")
+def test_burst_default_pic(photosdb_local):
+    """ test burst_default_pick"""
+    photo = photosdb_local.get_photo(UUID_DICT_LOCAL["burst_default"])
+    assert photo.burst_default_pick
+
+    photo = photosdb_local.get_photo(UUID_DICT_LOCAL["burst_not_default"])
+    assert not photo.burst_default_pick
 
 
 def test_is_reference(photosdb):

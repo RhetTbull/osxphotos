@@ -24,14 +24,24 @@ PHOTOS_DB_MOVIES = "tests/Test-Movie-5_0.photoslibrary"
 
 # my personal library which some tests require
 PHOTOS_DB_RHET = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
-UUID_BURST_ALBUM = "9F90DC00-AAAF-4A05-9A65-61FEEE0D67F2"  # in my personal library
-BURST_ALBUM_FILES = [
-    "IMG_9812.JPG",
-    "IMG_9813.JPG",
-    "IMG_9814.JPG",
-    "IMG_9815.JPG",
-    "IMG_9816.JPG",
-]
+UUID_BURST_ALBUM = {
+    "9F90DC00-AAAF-4A05-9A65-61FEEE0D67F2": [
+        "TestBurst/IMG_9812.JPG",  # in my personal library, IMG_9812.JPG == "9F90DC00-AAAF-4A05-9A65-61FEEE0D67F2"
+        "TestBurst/IMG_9813.JPG",
+        "TestBurst/IMG_9814.JPG",
+        "TestBurst/IMG_9815.JPG",
+        "TestBurst/IMG_9816.JPG",
+        "TestBurst2/IMG_9814.JPG",
+    ],
+    "38F8F30C-FF6D-49DA-8092-18497F1D6628": [
+        "TestBurst/IMG_9812.JPG", 
+        "TestBurst/IMG_9813.JPG",
+        "TestBurst/IMG_9814.JPG", # in my personal library, "38F8F30C-FF6D-49DA-8092-18497F1D6628" 
+        "TestBurst/IMG_9815.JPG",
+        "TestBurst/IMG_9816.JPG",
+        "TestBurst2/IMG_9814.JPG",
+    ],
+}
 
 UUID_FILE = "tests/uuid_from_file.txt"
 
@@ -5724,27 +5734,25 @@ def test_export_burst_folder_album():
     runner = CliRunner()
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
-    with runner.isolated_filesystem():
-        result = runner.invoke(
-            export,
-            [
-                os.path.join(cwd, PHOTOS_DB_RHET),
-                ".",
-                "-V",
-                "--directory",
-                "{folder_album}",
-                "--uuid",
-                UUID_BURST_ALBUM,
-                "--download-missing",
-                "--use-photokit",
-            ],
-        )
-        assert result.exit_code == 0
-        folder_album = pathlib.Path("TestBurst")
-        assert folder_album.is_dir()
-        for filename in BURST_ALBUM_FILES:
-            path = folder_album / filename
-            assert path.is_file()
+    for uuid in UUID_BURST_ALBUM:
+        with runner.isolated_filesystem():
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_RHET),
+                    ".",
+                    "-V",
+                    "--directory",
+                    "{folder_album}",
+                    "--uuid",
+                    uuid,
+                    "--download-missing",
+                    "--use-photokit",
+                ],
+            )
+            assert result.exit_code == 0
+            files = [str(p) for p in pathlib.Path(".").glob("**/*.JPG")]
+            assert sorted(files) == sorted(UUID_BURST_ALBUM[uuid])
 
 
 def test_query_name():

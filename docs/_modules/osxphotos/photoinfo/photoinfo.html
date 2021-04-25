@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos.photoinfo.photoinfo &#8212; osxphotos 0.42.9 documentation</title>
+    <title>osxphotos.photoinfo.photoinfo &#8212; osxphotos 0.42.11 documentation</title>
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -59,6 +59,10 @@
     <span class="n">_PHOTOS_5_SHARED_ALBUM_KIND</span><span class="p">,</span>
     <span class="n">_PHOTOS_5_SHARED_PHOTO_PATH</span><span class="p">,</span>
     <span class="n">_PHOTOS_5_VERSION</span><span class="p">,</span>
+    <span class="n">BURST_DEFAULT_PICK</span><span class="p">,</span>
+    <span class="n">BURST_KEY</span><span class="p">,</span>
+    <span class="n">BURST_NOT_SELECTED</span><span class="p">,</span>
+    <span class="n">BURST_SELECTED</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">..adjustmentsinfo</span> <span class="kn">import</span> <span class="n">AdjustmentsInfo</span>
 <span class="kn">from</span> <span class="nn">..albuminfo</span> <span class="kn">import</span> <span class="n">AlbumInfo</span><span class="p">,</span> <span class="n">ImportInfo</span>
@@ -488,16 +492,14 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">burst_albums</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;If photo is non-selected burst photo, list of albums any other images in the same burst set are contained in, otherwise returns self.albums&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst_selected</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">albums</span>
-
+        <span class="sd">&quot;&quot;&quot;If photo is burst photo, list of albums it is contained in as well as any albums the key photo is contained in, otherwise returns self.albums &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_burst_albums</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="n">burst_albums</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">burst_albums</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">albums</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">photo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst_photos</span><span class="p">:</span>
-                <span class="n">burst_albums</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">photo</span><span class="o">.</span><span class="n">albums</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">photo</span><span class="o">.</span><span class="n">burst_key</span><span class="p">:</span>
+                    <span class="n">burst_albums</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">photo</span><span class="o">.</span><span class="n">albums</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_burst_albums</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">burst_albums</span><span class="p">))</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_burst_albums</span>
 
@@ -515,16 +517,14 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">burst_album_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; If photo is a non-selected burst photo, returns list of AlbumInfo objects representing albums any other photos in the same burst set are contained in, otherwise returns self.album_info &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst_selected</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">album_info</span>
-
+        <span class="sd">&quot;&quot;&quot; If photo is a burst photo, returns list of AlbumInfo objects representing albums the photo is contained in as well as albums the burst key photo is contained in, otherwise returns self.album_info. &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_burst_album_info</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="n">burst_album_info</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">burst_album_info</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">album_info</span><span class="p">)</span> 
             <span class="k">for</span> <span class="n">photo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst_photos</span><span class="p">:</span>
-                <span class="n">burst_album_info</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">photo</span><span class="o">.</span><span class="n">album_info</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">photo</span><span class="o">.</span><span class="n">burst_key</span><span class="p">:</span>
+                    <span class="n">burst_album_info</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">photo</span><span class="o">.</span><span class="n">album_info</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_burst_album_info</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">burst_album_info</span><span class="p">))</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_burst_album_info</span>
 
@@ -746,7 +746,17 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">burst_selected</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Returns True if photo is a burst photo and has been selected from the burst set by the user, otherwise False &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;burst_key&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;burstPickType&quot;</span><span class="p">]</span> <span class="o">&amp;</span> <span class="n">BURST_SELECTED</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">burst_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns True if photo is a burst photo and is the key image for the burst set (the image that Photos shows on top of the burst stack), otherwise False &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;burstPickType&quot;</span><span class="p">]</span> <span class="o">&amp;</span> <span class="n">BURST_KEY</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">burst_default_pick</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns True if photo is a burst image and is the photo that Photos selected as the default image for the burst set, otherwise False &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;burstPickType&quot;</span><span class="p">]</span> <span class="o">&amp;</span> <span class="n">BURST_DEFAULT_PICK</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">burst_photos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

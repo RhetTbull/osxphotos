@@ -2305,6 +2305,12 @@ See [burst_photos](#burst_photos)
 #### `burst_selected`
 Returns True if photo is a burst photo and has been selected from the burst set by the user, otherwise False.
 
+#### `burst_key`
+Returns True if photo is a burst photo and is the key image for the burst set (the image that Photos shows on top of the burst stack), otherwise False.
+
+#### `burst_default_pick`
+Returns True if photo is a burst image and is the photo that Photos selected as the default image for the burst set, otherwise False.
+
 #### `burst_photos`
 If photo is a burst image (see [burst](#burst)), returns a list of PhotoInfo objects for all other photos in the same burst set. If not a burst image, returns empty list.
 
@@ -2329,7 +2335,9 @@ IMG_9855.JPG
 ```
 
 #### `burst_albums`
-If photo is a non-selected burst photo, returns a list of albums any other photos in the same burst set, are contained in. Otherwise, returns `PhotoInfo.albums`. If a burst photo which has unselected burst images (e.g. the burst images are in the library but haven't been selected by the user using the "Make a selection" feature) is placed in a an album, Photos treats only the selected "key" photo as in the album.  The unselected burst images, while associated with the photo in the album, are not technically in the album.  If you are handling one of these unselected burst photos and want to know which album it would be in based on which albums it's selected key images are in, use `burst_albums`. See also [burst_album_info](#burst_album_info) and [albums](#albums).
+If photo is burst photo, returns list of albums it is contained in as well as any albums the key photo is contained in, otherwise returns `PhotoInfo.albums`.  
+
+If a burst photo which has unselected burst images (e.g. the burst images are in the library but haven't been selected by the user using the "Make a selection" feature) is placed in a an album, Photos treats only the selected "key" photo as in the album.  The unselected burst images, while associated with the photo in the album, are not technically in the album.  If you are handling one of these unselected burst photos and want to know which album it would be in based on which albums it's selected key images are in, use `burst_albums`. See also [burst_album_info](#burst_album_info) and [albums](#albums).
 
 #### `burst_album_info`
 If photo is non-selected burst photo, teturns a list of [AlbumInfo](#AlbumInfo) objects representing the albums any other photos in the same burst set are contained in.  Otherwise, returns `PhotoInfo.album_info`. See also [burst_albums](#burst_albums) and [album_info](#album_info).

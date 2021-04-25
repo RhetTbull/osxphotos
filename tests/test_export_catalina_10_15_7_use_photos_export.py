@@ -19,29 +19,34 @@ UUID_DICT = {
 
 UUID_BURSTS = {
     "9F90DC00-AAAF-4A05-9A65-61FEEE0D67F2": {
-        "selected": True,
-        "filename": "IMAGE_9812.JPG",
-        "albums": ["TestBurst"],
-    },
-    "964F457D-5FFC-47B9-BEAD-56B0A83FEF63": {
-        "selected": True,
-        "filename": "IMG_9816.JPG",
-        "albums": [],
+        "selected": False,
+        "filename": "IMG_9812.JPG",
+        "burst_albums": ["TestBurst"],
+        "albums": ["TestBurst"]
     },
     "A385FA13-DF8E-482F-A8C5-970EDDF54C2F": {
         "selected": False,
         "filename": "IMG_9813.JPG",
-        "albums": ["TestBurst", "TestBurst2"],
+        "burst_albums": ["TestBurst"],
+        "albums": []
     },
     "38F8F30C-FF6D-49DA-8092-18497F1D6628": {
         "selected": True,
         "filename": "IMG_9814.JPG",
-        "albums": ["TestBurst2"],
+        "burst_albums": ["TestBurst", "TestBurst2"],
+        "albums": ["TestBurst2"]
     },
     "E3863443-9EA8-417F-A90B-8F7086623DAD": {
         "selected": False,
         "filename": "IMG_9815.JPG",
-        "albums": ["TestBurst", "TestBurst2"],
+        "burst_albums": ["TestBurst"],
+        "albums": []
+    },
+        "964F457D-5FFC-47B9-BEAD-56B0A83FEF63": {
+        "selected": True,
+        "filename": "IMG_9816.JPG",
+        "burst_albums": ["TestBurst"],
+        "albums": []
     },
 }
 
@@ -193,4 +198,5 @@ def test_burst_albums(photosdb):
         photo = photosdb.get_photo(uuid)
         assert photo.burst
         assert photo.burst_selected == UUID_BURSTS[uuid]["selected"]
-        assert sorted(photo.burst_albums) == sorted(UUID_BURSTS[uuid]["albums"])
+        assert sorted(photo.albums) == sorted(UUID_BURSTS[uuid]["albums"])
+        assert sorted(photo.burst_albums) == sorted(UUID_BURSTS[uuid]["burst_albums"])

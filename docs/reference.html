@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos package &#8212; osxphotos 0.42.9 documentation</title>
+    <title>osxphotos package &#8212; osxphotos 0.42.11 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -685,13 +685,25 @@ including keywords, persons, albums, uuid, path, etc.</p>
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.burst_album_info">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">burst_album_info</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.burst_album_info" title="Permalink to this definition">¶</a></dt>
-<dd><p>If photo is a non-selected burst photo, returns list of AlbumInfo objects representing albums any other photos in the same burst set are contained in, otherwise returns self.album_info</p>
+<dd><p>If photo is a burst photo, returns list of AlbumInfo objects representing albums the photo is contained in as well as albums the burst key photo is contained in, otherwise returns self.album_info.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="osxphotos.PhotoInfo.burst_albums">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">burst_albums</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.burst_albums" title="Permalink to this definition">¶</a></dt>
-<dd><p>If photo is non-selected burst photo, list of albums any other images in the same burst set are contained in, otherwise returns self.albums</p>
+<dd><p>If photo is burst photo, list of albums it is contained in as well as any albums the key photo is contained in, otherwise returns self.albums</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="osxphotos.PhotoInfo.burst_default_pick">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">burst_default_pick</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.burst_default_pick" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if photo is a burst image and is the photo that Photos selected as the default image for the burst set, otherwise False</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="osxphotos.PhotoInfo.burst_key">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">burst_key</span></code><a class="headerlink" href="#osxphotos.PhotoInfo.burst_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if photo is a burst photo and is the key image for the burst set (the image that Photos shows on top of the burst stack), otherwise False</p>
 </dd></dl>
 
 <dl class="py method">
