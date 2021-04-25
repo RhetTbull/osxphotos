@@ -1082,8 +1082,7 @@ class PhotoTemplate:
             return []
 
         exif = ExifTool(self.photo.path, exiftool=self.exiftool_path)
-        exifdict = exif.asdict()
-        exifdict = {k.lower(): v for (k, v) in exifdict.items()}
+        exifdict = exif.asdict(normalized=True)
         subfield = subfield.lower()
         if subfield in exifdict:
             values = exifdict[subfield]

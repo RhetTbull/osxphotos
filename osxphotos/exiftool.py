@@ -308,12 +308,13 @@ class ExifTool:
         ver, _, _ = self.run_commands("-ver", no_file=True)
         return ver.decode("utf-8")
 
-    def asdict(self, tag_groups=True):
+    def asdict(self, tag_groups=True, normalized=False):
         """return dictionary of all EXIF tags and values from exiftool
         returns empty dict if no tags
 
         Args:
             tag_groups: if True (default), dict keys have tag groups, e.g. "IPTC:Keywords"; if False, drops groups from keys, e.g. "Keywords"
+            normalized: if True, dict keys are all normalized to lower case (default is False)
         """
         json_str, _, _ = self.run_commands("-json")
         if not json_str:
@@ -334,6 +335,10 @@ class ExifTool:
                 k = re.sub(r".*:", "", k)
                 exif_new[k] = v
             exifdict = exif_new
+
+        if normalized:
+            exifdict = {k.lower(): v for (k, v) in exifdict.items()}
+
         return exifdict
 
     def json(self):
@@ -360,3 +365,7 @@ class ExifTool:
         elif self._commands:
             # run_commands sets self.warning and self.error as needed
             self.run_commands(*self._commands)
+
+
+
+

@@ -349,6 +349,15 @@ def test_as_dict():
     assert exifdata["XMP:TagsList"] == "wedding"
 
 
+def test_as_dict_normalized():
+    import osxphotos.exiftool
+
+    exif1 = osxphotos.exiftool.ExifTool(TEST_FILE_ONE_KEYWORD)
+    exifdata = exif1.asdict(normalized=True)
+    assert exifdata["xmp:tagslist"] == "wedding"
+    assert "XMP:TagsList" not in exifdata
+
+
 def test_as_dict_no_tag_groups():
     import osxphotos.exiftool
 
