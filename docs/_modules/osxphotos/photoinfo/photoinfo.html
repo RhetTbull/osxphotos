@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos.photoinfo.photoinfo &#8212; osxphotos 0.42.11 documentation</title>
+    <title>osxphotos.photoinfo.photoinfo &#8212; osxphotos 0.42.12 documentation</title>
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -970,6 +970,7 @@
         <span class="n">filename</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">dirname</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">strip</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">edited</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Renders a template string for PhotoInfo instance using PhotoTemplate</span>
 
@@ -985,6 +986,7 @@
 <span class="sd">            filename: if True, template output will be sanitized to produce valid file name</span>
 <span class="sd">            dirname: if True, template output will be sanitized to produce valid directory name</span>
 <span class="sd">            strip: if True, strips leading/trailing white space from resulting template</span>
+<span class="sd">            edited: if True, sets {edited_version} field to True, otherwise it gets set to False; set if you want template evaluated for edited version</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            ([rendered_strings], [unmatched]): tuple of list of rendered strings and list of unmatched template values</span>
@@ -999,6 +1001,7 @@
             <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
             <span class="n">dirname</span><span class="o">=</span><span class="n">dirname</span><span class="p">,</span>
             <span class="n">strip</span><span class="o">=</span><span class="n">strip</span><span class="p">,</span>
+            <span class="n">edited_version</span><span class="o">=</span><span class="n">edited</span><span class="p">,</span>
         <span class="p">)</span></div>
 
     <span class="nd">@property</span>

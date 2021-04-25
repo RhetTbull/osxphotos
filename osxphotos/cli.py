@@ -2317,7 +2317,7 @@ def export_photo(
     if export_edited and photo.hasadjustments:
         # if export-edited, also export the edited version
         edited_filenames = get_filenames_from_template(
-            photo, filename_template, original_name, strip=strip
+            photo, filename_template, original_name, strip=strip, edited=True
         )
         for edited_filename in edited_filenames:
             edited_filename = pathlib.Path(edited_filename)
@@ -2461,7 +2461,7 @@ def export_photo_with_template(
     results = ExportResults()
 
     dest_paths = get_dirnames_from_template(
-        photo, directory, export_by_date, dest, dry_run, strip=strip
+        photo, directory, export_by_date, dest, dry_run, strip=strip, edited=edited
     )
 
     # export the photo to each path in dest_paths
@@ -2602,13 +2602,17 @@ def export_photo_with_template(
     return results
 
 
-def get_filenames_from_template(photo, filename_template, original_name, strip=False):
+def get_filenames_from_template(
+    photo, filename_template, original_name, strip=False, edited=False
+):
     """get list of export filenames for a photo
 
     Args:
         photo: a PhotoInfo instance
         filename_template: a PhotoTemplate template string, may be None
         original_name: boolean; if True, use photo's original filename instead of current filename
+        strip: if True, strips leading/trailing white space from resulting template
+        edited: if True, sets {edited_version} field to True, otherwise it gets set to False; set if you want template evaluated for edited version
 
     Returns:
         list of filenames
@@ -2620,7 +2624,11 @@ def get_filenames_from_template(photo, filename_template, original_name, strip=F
         photo_ext = pathlib.Path(photo.original_filename).suffix
         try:
             filenames, unmatched = photo.render_template(
-                filename_template, path_sep="_", filename=True, strip=strip
+                filename_template,
+                path_sep="_",
+                filename=True,
+                strip=strip,
+                edited=edited,
             )
         except ValueError as e:
             raise click.BadOptionUsage(
@@ -2644,7 +2652,7 @@ def get_filenames_from_template(photo, filename_template, original_name, strip=F
 
 
 def get_dirnames_from_template(
-    photo, directory, export_by_date, dest, dry_run, strip=False
+    photo, directory, export_by_date, dest, dry_run, strip=False, edited=False
 ):
     """get list of directories to export a photo into, creates directories if they don't exist
 
@@ -2654,6 +2662,8 @@ def get_dirnames_from_template(
         export_by_date: boolean; if True, creates output directories in form YYYY-MM-DD
         dest: top-level destination directory
         dry_run: boolean; if True, runs in dry-run mode and does not create output directories
+        strip: if True, strips leading/trailing white space from resulting template
+        edited: if True, sets {edited_version} field to True, otherwise it gets set to False; set if you want template evaluated for edited version
 
     Returns:
         list of export directories
@@ -2674,7 +2684,7 @@ def get_dirnames_from_template(
         # got a directory template, render it and check results are valid
         try:
             dirnames, unmatched = photo.render_template(
-                directory, dirname=True, strip=strip
+                directory, dirname=True, strip=strip, edited=edited
             )
         except ValueError as e:
             raise click.BadOptionUsage(

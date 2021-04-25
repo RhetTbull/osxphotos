@@ -87,11 +87,13 @@ TEMPLATE_VALUES_TITLE = {
 UUID_BOOL_VALUES = {
     "hdr": "D11D25FF-5F31-47D2-ABA9-58418878DC15",
     "edited": "51F2BEF7-431A-4D31-8AC1-3284A57826AE",
+    "edited_version": "51F2BEF7-431A-4D31-8AC1-3284A57826AE",
 }
 
 # Boolean type values that render to False
 UUID_BOOL_VALUES_NOT = {
     "hdr": "51F2BEF7-431A-4D31-8AC1-3284A57826AE",
+    "edited_version": "51F2BEF7-431A-4D31-8AC1-3284A57826AE",
     "edited": "CCBE0EB9-AE9F-4479-BFFD-107042C75227",
 }
 
@@ -830,7 +832,10 @@ def test_bool_values(photosdb_cloud):
     for field, uuid in UUID_BOOL_VALUES.items():
         if uuid is not None:
             photo = photosdb_cloud.get_photo(uuid)
-            rendered, _ = photo.render_template("{" + f"{field}" + "?True,False}")
+            edited = field == "edited_version"
+            rendered, _ = photo.render_template(
+                "{" + f"{field}" + "?True,False}", edited=edited
+            )
             assert rendered[0] == "True"
 
 

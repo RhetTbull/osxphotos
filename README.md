@@ -1362,9 +1362,12 @@ Substitution                    Description
 {hdr}                           Photo is HDR?; True/False value, use in format
                                 '{hdr?VALUE_IF_TRUE,VALUE_IF_FALSE}'
 
-{edited}                        Photo has been edited (has adjustments)?;
-                                True/False value, use in format
+{edited}                        True if photo has been edited (has
+                                adjustments), otherwise False; use in format
                                 '{edited?VALUE_IF_TRUE,VALUE_IF_FALSE}'
+
+{edited_version}                True if template is being rendered for the
+                                edited version of a photo, otherwise False.
 
 {favorite}                      Photo has been marked as favorite?; True/False
                                 value, use in format
@@ -3187,7 +3190,8 @@ The following template field substitutions are availabe for use the templating s
 |{media_type}|Special media type resolved in this precedence: selfie, time_lapse, panorama, slow_mo, screenshot, portrait, live_photo, burst, photo, video. Defaults to 'photo' or 'video' if no special type. Customize one or more media types using format: '{media_type,video=vidéo;time_lapse=vidéo_accélérée}'|
 |{photo_or_video}|'photo' or 'video' depending on what type the image is. To customize, use default value as in '{photo_or_video,photo=fotos;video=videos}'|
 |{hdr}|Photo is HDR?; True/False value, use in format '{hdr?VALUE_IF_TRUE,VALUE_IF_FALSE}'|
-|{edited}|Photo has been edited (has adjustments)?; True/False value, use in format '{edited?VALUE_IF_TRUE,VALUE_IF_FALSE}'|
+|{edited}|True if photo has been edited (has adjustments), otherwise False; use in format '{edited?VALUE_IF_TRUE,VALUE_IF_FALSE}'|
+|{edited_version}|True if template is being rendered for the edited version of a photo, otherwise False. |
 |{favorite}|Photo has been marked as favorite?; True/False value, use in format '{favorite?VALUE_IF_TRUE,VALUE_IF_FALSE}'|
 |{created.date}|Photo's creation date in ISO format, e.g. '2020-03-22'|
 |{created.year}|4-digit year of photo creation time|

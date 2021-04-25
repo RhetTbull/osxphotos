@@ -937,6 +937,7 @@ class PhotoInfo:
         filename=False,
         dirname=False,
         strip=False,
+        edited=False,
     ):
         """Renders a template string for PhotoInfo instance using PhotoTemplate
 
@@ -952,6 +953,7 @@ class PhotoInfo:
             filename: if True, template output will be sanitized to produce valid file name
             dirname: if True, template output will be sanitized to produce valid directory name
             strip: if True, strips leading/trailing white space from resulting template
+            edited: if True, sets {edited_version} field to True, otherwise it gets set to False; set if you want template evaluated for edited version
 
         Returns:
             ([rendered_strings], [unmatched]): tuple of list of rendered strings and list of unmatched template values
@@ -966,6 +968,7 @@ class PhotoInfo:
             filename=filename,
             dirname=dirname,
             strip=strip,
+            edited_version=edited,
         )
 
     @property

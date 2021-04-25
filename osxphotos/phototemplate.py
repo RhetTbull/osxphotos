@@ -48,7 +48,8 @@ TEMPLATE_SUBSTITUTIONS = {
     ),
     "{photo_or_video}": "'photo' or 'video' depending on what type the image is. To customize, use default value as in '{photo_or_video,photo=fotos;video=videos}'",
     "{hdr}": "Photo is HDR?; True/False value, use in format '{hdr?VALUE_IF_TRUE,VALUE_IF_FALSE}'",
-    "{edited}": "Photo has been edited (has adjustments)?; True/False value, use in format '{edited?VALUE_IF_TRUE,VALUE_IF_FALSE}'",
+    "{edited}": "True if photo has been edited (has adjustments), otherwise False; use in format '{edited?VALUE_IF_TRUE,VALUE_IF_FALSE}'",
+    "{edited_version}": "True if template is being rendered for the edited version of a photo, otherwise False. ",
     "{favorite}": "Photo has been marked as favorite?; True/False value, use in format '{favorite?VALUE_IF_TRUE,VALUE_IF_FALSE}'",
     "{created.date}": "Photo's creation date in ISO format, e.g. '2020-03-22'",
     "{created.year}": "4-digit year of photo creation time",
@@ -257,6 +258,9 @@ class PhotoTemplate:
         # get parser singleton
         self.parser = PhotoTemplateParser()
 
+        # should {edited_version} render True?
+        self.edited_version = False
+
     def render(
         self,
         template,
@@ -267,6 +271,7 @@ class PhotoTemplate:
         filename=False,
         dirname=False,
         strip=False,
+        edited_version=False,
     ):
         """ Render a filename or directory template 
 
@@ -281,6 +286,7 @@ class PhotoTemplate:
             filename: if True, template output will be sanitized to produce valid file name
             dirname: if True, template output will be sanitized to produce valid directory name 
             strip: if True, strips leading/trailing whitespace from rendered templates
+            edited_version: set to True if you want {edited_version} to resolve to True (e.g. exporting edited version of photo)
 
         Returns:
             ([rendered_strings], [unmatched]): tuple of list of rendered strings and list of unmatched template values
@@ -303,6 +309,8 @@ class PhotoTemplate:
         if not model:
             # empty string
             return [], []
+
+        self.edited_version = edited_version
 
         return self._render_statement(
             model,
@@ -669,6 +677,8 @@ class PhotoTemplate:
             value = "hdr" if self.photo.hdr else None
         elif field == "edited":
             value = "edited" if self.photo.hasadjustments else None
+        elif field == "edited_version":
+            value = "edited_version" if self.edited_version else None
         elif field == "favorite":
             value = "favorite" if self.photo.favorite else None
         elif field == "created.date":
