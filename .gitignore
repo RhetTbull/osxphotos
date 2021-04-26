@@ -6,6 +6,7 @@ __pycache__
 t.out
 .vscode/
 .tox/
+.idea/
 dist/
 build/
 working/
