@@ -9,7 +9,7 @@ from textx import TextXSyntaxError, metamodel_from_file
 
 from ._constants import _UNKNOWN_PERSON
 from .datetime_formatter import DateTimeFormatter
-from .exiftool import ExifTool
+from .exiftool import ExifToolCaching
 from .path_utils import sanitize_dirname, sanitize_filename, sanitize_pathpart
 from .utils import load_function
 
@@ -1081,7 +1081,7 @@ class PhotoTemplate:
         if not self.photo.path:
             return []
 
-        exif = ExifTool(self.photo.path, exiftool=self.exiftool_path)
+        exif = ExifToolCaching(self.photo.path, exiftool=self.exiftool_path)
         exifdict = exif.asdict(normalized=True)
         subfield = subfield.lower()
         if subfield in exifdict:

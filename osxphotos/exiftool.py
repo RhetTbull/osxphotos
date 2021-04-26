@@ -13,6 +13,7 @@ import re
 import shutil
 import subprocess
 from functools import lru_cache  # pylint: disable=syntax-error
+from abc import ABC, abstractmethod
 
 # exiftool -stay_open commands outputs this EOF marker after command is run
 EXIFTOOL_STAYOPEN_EOF = "{ready}"
@@ -367,5 +368,72 @@ class ExifTool:
             self.run_commands(*self._commands)
 
 
+class ExifToolCaching(ExifTool):
+    """ Basic exiftool interface for reading and writing EXIF tags, with caching. 
+        Use this only when you know the file's EXIF data will not be changed by any external process. 
+        
+        Creates a singleton cached ExifTool instance """
 
+    _singletons = {}
+
+    def __new__(cls, filepath, exiftool=None):
+        """ create new object or return instance of already created singleton """
+        if filepath not in cls._singletons:
+            cls._singletons[filepath] = _ExifToolCaching(filepath, exiftool=exiftool)
+        return cls._singletons[filepath]
+
+
+class _ExifToolCaching(ExifTool):
+    def __init__(self, filepath, exiftool=None):
+        """Create read-only ExifTool object that caches values
+
+        Args:
+            file: path to image file
+            exiftool: path to exiftool, if not specified will look in path
+
+        Returns:
+            ExifTool instance
+        """
+        self._json_cache = None
+        self._asdict_cache = {}
+        super().__init__(filepath, exiftool=exiftool, overwrite=False, flags=None)
+
+    def run_commands(self, *commands, no_file=False):
+        if commands[0] not in ["-json", "-ver"]:
+            raise NotImplementedError(f"{self.__class__} is read-only")
+        return super().run_commands(*commands, no_file=no_file)
+
+    def setvalue(self, tag, value):
+        raise NotImplementedError(f"{self.__class__} is read-only")
+
+    def addvalues(self, tag, *values):
+        raise NotImplementedError(f"{self.__class__} is read-only")
+
+    def json(self):
+        if not self._json_cache:
+            self._json_cache = super().json()
+        return self._json_cache
+
+    def asdict(self, tag_groups=True, normalized=False):
+        """return dictionary of all EXIF tags and values from exiftool
+        returns empty dict if no tags
+
+        Args:
+            tag_groups: if True (default), dict keys have tag groups, e.g. "IPTC:Keywords"; if False, drops groups from keys, e.g. "Keywords"
+            normalized: if True, dict keys are all normalized to lower case (default is False)
+        """
+        try:
+            return self._asdict_cache[tag_groups][normalized]
+        except KeyError:
+            if tag_groups not in self._asdict_cache:
+                self._asdict_cache[tag_groups] = {}
+            self._asdict_cache[tag_groups][normalized] = super().asdict(
+                tag_groups=tag_groups, normalized=normalized
+            )
+            return self._asdict_cache[tag_groups][normalized]
+
+    def flush_cache(self):
+        """ Clear cached data so that calls to json or asdict return fresh data """
+        self._json_cache = None
+        self._asdict_cache = {}
 
