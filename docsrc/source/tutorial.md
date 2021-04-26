@@ -319,19 +319,33 @@ The configuration file is a plain text file in [TOML](https://toml.io/en/) forma
 
 Here's a comprehensive use case from an actual osxphotos user that integrates many of the concepts discussed in this tutorial (thank-you Philippe for contributing this!):
 
-    I usually import my iPhone’s photo roll on a more or less regular basis, and it includes photos and videos. As a result, the size ot my Photos library may rise very quickly. Nevertheless, I will tag and geolocate everything as Photos has a quite good keyword management system.
+    I usually import my iPhone’s photo roll on a more or less regular basis, and it
+    includes photos and videos. As a result, the size ot my Photos library may rise
+    very quickly. Nevertheless, I will tag and geolocate everything as Photos has a
+    quite good keyword management system.
 
-    After a while, I want to take most of the videos out of the library and move them to a separate "videos" folder on a different folder / volume. As I might want to use them in Final Cut Pro, and since Final Cut is able to import Finder tags into its internal library tagging system, I will use osxphotos to do just this.
+    After a while, I want to take most of the videos out of the library and move them
+    to a separate "videos" folder on a different folder / volume. As I might want to
+    use them in Final Cut Pro, and since Final Cut is able to import Finder tags into
+    its internal library tagging system, I will use osxphotos to do just this.
 
-    Picking the videos can be left to Photos, using a smart folder for instance. Then just add a keyword to all videos to be processed. Here I chose "Quik" as I wanted to spot all videos created on my iPhone using the Quik application (now part of GoPro).
+    Picking the videos can be left to Photos, using a smart folder for instance. Then
+    just add a keyword to all videos to be processed. Here I chose "Quik" as I wanted
+    to spot all videos created on my iPhone using the Quik application (now part of
+    GoPro).
 
-    I want to retrieve my keywords only and make sure they populate the Finder tags, as well as export all the persons identified in the videos by Photos.  I also want to merge any keywords or persons already in the video metadata with the exported metadata.
+    I want to retrieve my keywords only and make sure they populate the Finder tags, as
+    well as export all the persons identified in the videos by Photos.  I also want to
+    merge any keywords or persons already in the video metadata with the exported
+    metadata.
 
-    Keeping Photo’s edited titles and descriptions and putting both in the Finder comments field in a readable manner is also enabled.
+    Keeping Photo’s edited titles and descriptions and putting both in the Finder
+    comments field in a readable manner is also enabled.
 
     And I want to keep the file’s creation date (using `--touch-file`).
 
-    Finally, use `--strip` to remove any leading or trailing whitespace from processed template fields.
+    Finally, use `--strip` to remove any leading or trailing whitespace from processed
+    template fields.
 
 `osxphotos export ~/Desktop/folder for exported videos/ --keyword Quik --only-movies --db /path to my.photoslibrary --touch-file --finder-tag-keywords --person-keyword --xattr-template findercomment "{title}{title?{descr?{newline},},}{descr}" --exiftool-merge-keywords --exiftool-merge-persons --exiftool --strip`
 
