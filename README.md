@@ -39,7 +39,7 @@ OSXPhotos provides the ability to interact with and query Apple's Photos.app lib
 * [Examples](#examples)
 * [Related Projects](#related-projects)
 * [Contributing](#contributing)
-* [Known Bugs and Limitation](#known-bugs-and-limitations)
+* [Known Bugs and Limitations](#known-bugs-and-limitations)
 * [Implementation Notes](#implementation-notes)
 * [Dependencies](#dependencies)
 * [Acknowledgements](#acknowledgements)
