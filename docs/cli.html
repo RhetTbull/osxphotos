@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos command line interface (CLI) &#8212; osxphotos 0.42.14 documentation</title>
+    <title>osxphotos command line interface (CLI) &#8212; osxphotos 0.42.15 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -1453,6 +1453,12 @@ if more than one option is provided, they are treated as “AND”
 <dt id="cmdoption-osxphotos-query-not-incloud">
 <code class="sig-name descname"><span class="pre">--not-incloud</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-osxphotos-query-not-incloud" title="Permalink to this definition">¶</a></dt>
 <dd><p>Search for photos that are not in iCloud (have not been synched)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-osxphotos-query-add-to-album">
+<code class="sig-name descname"><span class="pre">--add-to-album</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;ALBUM&gt;</span></code><a class="headerlink" href="#cmdoption-osxphotos-query-add-to-album" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add all photos from query to album ALBUM in Photos. Album ALBUM will be created if it doesn’t exist.  All photos in the query results will be added to this album. This only works if the Photos library being queried is the last-opened (default) library in Photos. This feature is currently experimental.  I don’t know how well it will work on large query sets.</p>
 </dd></dl>
 
 <p class="rubric">Arguments</p>
