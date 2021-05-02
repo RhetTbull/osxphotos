@@ -1630,8 +1630,9 @@ def export(
                             for filename in export_results.exported
                         ]
                     except Exception as e:
-                        click.echo(
+                        click.secho(
                             f"Error adding photo {p.original_filename} ({p.uuid}) to album {album_export.name}: {e}",
+                            fg=CLI_COLOR_ERROR,
                             err=True,
                         )
 
@@ -1643,8 +1644,9 @@ def export(
                             for filename in export_results.skipped
                         ]
                     except Exception as e:
-                        click.echo(
+                        click.secho(
                             f"Error adding photo {p.original_filename} ({p.uuid}) to album {album_skipped.name}: {e}",
+                            fg=CLI_COLOR_ERROR,
                             err=True,
                         )
 
@@ -1656,8 +1658,9 @@ def export(
                             for filename in export_results.missing
                         ]
                     except Exception as e:
-                        click.echo(
+                        click.secho(
                             f"Error adding photo {p.original_filename} ({p.uuid}) to album {album_missing.name}: {e}",
+                            fg=CLI_COLOR_ERROR,
                             err=True,
                         )
 
@@ -1807,6 +1810,14 @@ def help(ctx, topic, **kw):
     is_flag=True,
     help="Search for photos that are not in iCloud (have not been synched)",
 )
+@click.option(
+    "--add-to-album",
+    metavar="ALBUM",
+    help="Add all photos from query to album ALBUM in Photos. Album ALBUM will be created "
+    "if it doesn't exist.  All photos in the query results will be added to this album. "
+    "This only works if the Photos library being queried is the last-opened (default) library in Photos. "
+    "This feature is currently experimental.  I don't know how well it will work on large query sets.",
+)
 @DB_ARGUMENT
 @click.pass_obj
 @click.pass_context
@@ -1884,6 +1895,7 @@ def query(
     max_size,
     regex,
     query_eval,
+    add_to_album,
 ):
     """Query the Photos database using 1 or more search options;
     if more than one option is provided, they are treated as "AND"
@@ -2054,6 +2066,24 @@ def query(
 
     # below needed for to make CliRunner work for testing
     cli_json = cli_obj.json if cli_obj is not None else None
+
+    if add_to_album and photos:
+        album_query = PhotosAlbum(add_to_album, verbose=None)
+        photo_len = len(photos)
+        photo_word = "photos" if photo_len > 1 else "photo"
+        click.echo(
+            f"Adding {photo_len} {photo_word} to album '{album_query.name}'. Note: Photos may prompt you to confirm this action.",
+            err=True,
+        )
+        try:
+            album_query.add_list(photos)
+        except Exception as e:
+            click.secho(
+                f"Error adding photos to album {add_to_album}",
+                fg=CLI_COLOR_ERROR,
+                err=True,
+            )
+
     print_photo_info(photos, cli_json or json_)
 
 

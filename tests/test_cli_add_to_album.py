@@ -90,3 +90,26 @@ def test_export_add_to_album(addalbum_library):
         got_uuids = [p.uuid for p in missing_album.photos()]
         assert sorted(got_uuids) == sorted(list(UUID_MISSING.keys()))
 
+
+@pytest.mark.addalbum
+def test_query_add_to_album(addalbum_library):
+    from osxphotos.cli import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    with runner.isolated_filesystem():
+        QUERY_ALBUM = "OSXPhotos Query"
+
+        uuid_opt = [f"--uuid={uuid}" for uuid in UUID_EXPORT]
+
+        result = runner.invoke(query, ["--add-to-album", QUERY_ALBUM, *uuid_opt])
+        assert result.exit_code == 0
+
+        photoslib = photoscript.PhotosLibrary()
+        album = photoslib.album(QUERY_ALBUM)
+        assert album is not None
+
+        assert len(album) == len(UUID_EXPORT)
+        got_uuids = [p.uuid for p in album.photos()]
+        assert sorted(got_uuids) == sorted(list(UUID_EXPORT.keys()))
+
