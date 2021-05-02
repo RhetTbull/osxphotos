@@ -48,7 +48,7 @@ parso==0.6.2
 pathspec==0.7.0
 pathvalidate==2.2.1
 pexpect==4.8.0
-photoscript==0.1.0
+photoscript==0.1.2
 pickleshare==0.7.5
 Pillow==8.1.1
 pkginfo==1.5.0.1

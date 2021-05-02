@@ -81,7 +81,7 @@ setup(
         "pathvalidate==2.2.1",
         "dataclasses==0.7;python_version<'3.7'",
         "wurlitzer>=2.0.1",
-        "photoscript>=0.1.0",
+        "photoscript>=0.1.2",
         "toml>=0.10.0",
         "osxmetadata>=0.99.13",
         "textx==2.3.0",

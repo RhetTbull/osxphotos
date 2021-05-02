@@ -14,6 +14,7 @@ import unicodedata
 import bitmath
 import click
 import osxmetadata
+import photoscript
 import yaml
 
 import osxphotos
@@ -53,6 +54,7 @@ from .photoinfo import ExportResults
 from .photokit import check_photokit_authorization, request_photokit_authorization
 from .queryoptions import QueryOptions
 from .utils import get_preferred_uti_extension
+from .photosalbum import PhotosAlbum
 
 # global variable to control verbose output
 # set via --verbose/-V
@@ -879,6 +881,30 @@ def cli(ctx, db, json_, debug):
     "--cleanup.  Use --dry-run with --cleanup first if you're not certain.",
 )
 @click.option(
+    "--add-exported-to-album",
+    metavar="ALBUM",
+    help="Add all exported photos to album ALBUM in Photos. Album ALBUM will be created "
+    "if it doesn't exist.  All exported photos will be added to this album. "
+    "This only works if the Photos library being exported is the last-opened (default) library in Photos. "
+    "This feature is currently experimental.  I don't know how well it will work on large export sets.",
+)
+@click.option(
+    "--add-skipped-to-album",
+    metavar="ALBUM",
+    help="Add all skipped photos to album ALBUM in Photos. Album ALBUM will be created "
+    "if it doesn't exist.  All skipped photos will be added to this album. "
+    "This only works if the Photos library being exported is the last-opened (default) library in Photos. "
+    "This feature is currently experimental.  I don't know how well it will work on large export sets.",
+)
+@click.option(
+    "--add-missing-to-album",
+    metavar="ALBUM",
+    help="Add all missing photos to album ALBUM in Photos. Album ALBUM will be created "
+    "if it doesn't exist.  All missing photos will be added to this album. "
+    "This only works if the Photos library being exported is the last-opened (default) library in Photos. "
+    "This feature is currently experimental.  I don't know how well it will work on large export sets.",
+)
+@click.option(
     "--exportdb",
     metavar="EXPORTDB_FILE",
     default=None,
@@ -1027,6 +1053,9 @@ def export(
     use_photokit,
     report,
     cleanup,
+    add_exported_to_album,
+    add_skipped_to_album,
+    add_missing_to_album,
     exportdb,
     load_config,
     save_config,
@@ -1180,6 +1209,9 @@ def export(
         use_photokit = cfg.use_photokit
         report = cfg.report
         cleanup = cfg.cleanup
+        add_exported_to_album = cfg.add_exported_to_album
+        add_skipped_to_album = cfg.add_skipped_to_album
+        add_missing_to_album = cfg.add_missing_to_album
         exportdb = cfg.exportdb
         beta = cfg.beta
         only_new = cfg.only_new
@@ -1524,6 +1556,24 @@ def export(
         original_name = not current_name
 
         results = ExportResults()
+
+        # set up for --add-export-to-album if needed
+        album_export = (
+            PhotosAlbum(add_exported_to_album, verbose=verbose_)
+            if add_exported_to_album
+            else None
+        )
+        album_skipped = (
+            PhotosAlbum(add_skipped_to_album, verbose=verbose_)
+            if add_skipped_to_album
+            else None
+        )
+        album_missing = (
+            PhotosAlbum(add_missing_to_album, verbose=verbose_)
+            if add_missing_to_album
+            else None
+        )
+
         # send progress bar output to /dev/null if verbose to hide the progress bar
         fp = open(os.devnull, "w") if verbose else None
         with click.progressbar(photos, file=fp) as bar:
@@ -1571,6 +1621,46 @@ def export(
                     replace_keywords=replace_keywords,
                     retry=retry,
                 )
+
+                if album_export and export_results.exported:
+                    try:
+                        album_export.add(p)
+                        export_results.exported_album = [
+                            (filename, album_export.name)
+                            for filename in export_results.exported
+                        ]
+                    except Exception as e:
+                        click.echo(
+                            f"Error adding photo {p.original_filename} ({p.uuid}) to album {album_export.name}: {e}",
+                            err=True,
+                        )
+
+                if album_skipped and export_results.skipped:
+                    try:
+                        album_skipped.add(p)
+                        export_results.skipped_album = [
+                            (filename, album_skipped.name)
+                            for filename in export_results.skipped
+                        ]
+                    except Exception as e:
+                        click.echo(
+                            f"Error adding photo {p.original_filename} ({p.uuid}) to album {album_skipped.name}: {e}",
+                            err=True,
+                        )
+
+                if album_missing and export_results.missing:
+                    try:
+                        album_missing.add(p)
+                        export_results.missing_album = [
+                            (filename, album_missing.name)
+                            for filename in export_results.missing
+                        ]
+                    except Exception as e:
+                        click.echo(
+                            f"Error adding photo {p.original_filename} ({p.uuid}) to album {album_missing.name}: {e}",
+                            err=True,
+                        )
+
                 results += export_results
 
                 # all photo files (not including sidecars) that are part of this export set
@@ -2784,7 +2874,6 @@ def write_export_report(report_file, results):
     """
 
     # Collect results for reporting
-    # TODO: pull this in a separate write_report function
     all_results = {
         result: {
             "filename": result,
@@ -2806,6 +2895,7 @@ def write_export_report(report_file, results):
             "extended_attributes_skipped": 0,
             "cleanup_deleted_file": 0,
             "cleanup_deleted_directory": 0,
+            "exported_album": "",
         }
         for result in results.all_files()
         + results.deleted_files
@@ -2881,6 +2971,9 @@ def write_export_report(report_file, results):
     for result in results.deleted_directories:
         all_results[result]["cleanup_deleted_directory"] = 1
 
+    for result, album in results.exported_album:
+        all_results[result]["exported_album"] = album
+
     report_columns = [
         "filename",
         "exported",
@@ -2901,6 +2994,7 @@ def write_export_report(report_file, results):
         "extended_attributes_skipped",
         "cleanup_deleted_file",
         "cleanup_deleted_directory",
+        "exported_album",
     ]
 
     try:

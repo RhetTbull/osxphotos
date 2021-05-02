@@ -89,6 +89,9 @@ class ExportResults:
         xattr_skipped=None,
         deleted_files=None,
         deleted_directories=None,
+        exported_album=None,
+        skipped_album=None,
+        missing_album=None,
     ):
         self.exported = exported or []
         self.new = new or []
@@ -111,6 +114,9 @@ class ExportResults:
         self.xattr_skipped = xattr_skipped or []
         self.deleted_files = deleted_files or []
         self.deleted_directories = deleted_directories or []
+        self.exported_album = exported_album or []
+        self.skipped_album = skipped_album or []
+        self.missing_album = missing_album or []
 
     def all_files(self):
         """ return all filenames contained in results """
@@ -157,6 +163,10 @@ class ExportResults:
         self.exiftool_error += other.exiftool_error
         self.deleted_files += other.deleted_files
         self.deleted_directories += other.deleted_directories
+        self.exported_album += other.exported_album
+        self.skipped_album += other.skipped_album
+        self.missing_album += other.missing_album
+
         return self
 
     def __str__(self):
@@ -181,6 +191,9 @@ class ExportResults:
             + f",exiftool_error={self.exiftool_error}"
             + f",deleted_files={self.deleted_files}"
             + f",deleted_directories={self.deleted_directories}"
+            + f",exported_album={self.exported_album}"
+            + f",skipped_album={self.skipped_album}"
+            + f",missing_album={self.missing_album}"
             + ")"
         )
 
@@ -621,7 +634,11 @@ def export2(
                 )
             edited_name = pathlib.Path(self.path_edited).name
             edited_suffix = pathlib.Path(edited_name).suffix
-            fname = pathlib.Path(self.original_filename).stem + edited_identifier + edited_suffix
+            fname = (
+                pathlib.Path(self.original_filename).stem
+                + edited_identifier
+                + edited_suffix
+            )
         else:
             fname = self.original_filename
 
@@ -1654,7 +1671,7 @@ def _exiftool_dict(
             exif["QuickTime:ModifyDate"] = datetime_tz_to_utc(
                 self.date_modified
             ).strftime("%Y:%m:%d %H:%M:%S")
-    
+
     # remove any new lines in any fields
     for field, val in exif.items():
         if type(val) == str:

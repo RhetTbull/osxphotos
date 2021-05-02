@@ -47,6 +47,9 @@ def test_exportresults_init():
     assert results.exiftool_error == []
     assert results.deleted_files == []
     assert results.deleted_directories == []
+    assert results.exported_album == []
+    assert results.skipped_album == []
+    assert results.missing_album == []
 
 
 def test_exportresults_iadd():
@@ -110,6 +113,6 @@ def test_str():
     results = ExportResults()
     assert (
         str(results)
-        == "ExportResults(exported=[],new=[],updated=[],skipped=[],exif_updated=[],touched=[],converted_to_jpeg=[],sidecar_json_written=[],sidecar_json_skipped=[],sidecar_exiftool_written=[],sidecar_exiftool_skipped=[],sidecar_xmp_written=[],sidecar_xmp_skipped=[],missing=[],error=[],exiftool_warning=[],exiftool_error=[],deleted_files=[],deleted_directories=[])"
+        == "ExportResults(exported=[],new=[],updated=[],skipped=[],exif_updated=[],touched=[],converted_to_jpeg=[],sidecar_json_written=[],sidecar_json_skipped=[],sidecar_exiftool_written=[],sidecar_exiftool_skipped=[],sidecar_xmp_written=[],sidecar_xmp_skipped=[],missing=[],error=[],exiftool_warning=[],exiftool_error=[],deleted_files=[],deleted_directories=[],exported_album=[],skipped_album=[],missing_album=[])"
     )
 

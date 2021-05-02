@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos command line interface (CLI) &#8212; osxphotos 0.42.13 documentation</title>
+    <title>osxphotos command line interface (CLI) &#8212; osxphotos 0.42.14 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -811,6 +811,24 @@ to modify this behavior.</p>
 <dt id="cmdoption-osxphotos-export-cleanup">
 <code class="sig-name descname"><span class="pre">--cleanup</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-osxphotos-export-cleanup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Cleanup export directory by deleting any files which were not included in this export set. For example, photos which had previously been exported and were subsequently deleted in Photos. WARNING: –cleanup will delete <em>any</em> files in the export directory that were not exported by osxphotos, for example, your own scripts or other files.  Be sure this is what you intend before using –cleanup.  Use –dry-run with –cleanup first if you’re not certain.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-osxphotos-export-add-exported-to-album">
+<code class="sig-name descname"><span class="pre">--add-exported-to-album</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;ALBUM&gt;</span></code><a class="headerlink" href="#cmdoption-osxphotos-export-add-exported-to-album" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add all exported photos to album ALBUM in Photos. Album ALBUM will be created if it doesn’t exist.  All exported photos will be added to this album. This only works if the Photos library being exported is the last-opened (default) library in Photos. This feature is currently experimental.  I don’t know how well it will work on large export sets.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-osxphotos-export-add-skipped-to-album">
+<code class="sig-name descname"><span class="pre">--add-skipped-to-album</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;ALBUM&gt;</span></code><a class="headerlink" href="#cmdoption-osxphotos-export-add-skipped-to-album" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add all skipped photos to album ALBUM in Photos. Album ALBUM will be created if it doesn’t exist.  All skipped photos will be added to this album. This only works if the Photos library being exported is the last-opened (default) library in Photos. This feature is currently experimental.  I don’t know how well it will work on large export sets.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-osxphotos-export-add-missing-to-album">
+<code class="sig-name descname"><span class="pre">--add-missing-to-album</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;ALBUM&gt;</span></code><a class="headerlink" href="#cmdoption-osxphotos-export-add-missing-to-album" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add all missing photos to album ALBUM in Photos. Album ALBUM will be created if it doesn’t exist.  All missing photos will be added to this album. This only works if the Photos library being exported is the last-opened (default) library in Photos. This feature is currently experimental.  I don’t know how well it will work on large export sets.</p>
 </dd></dl>
 
 <dl class="std option">

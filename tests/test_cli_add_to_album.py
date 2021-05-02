@@ -1,0 +1,92 @@
+""" Test --add-exported-to-album """
+
+import pytest
+import os
+from click.testing import CliRunner
+import photoscript
+
+UUID_EXPORT = {"3DD2C897-F19E-4CA6-8C22-B027D5A71907": {"filename": "IMG_4547.jpg"}}
+UUID_MISSING = {
+    "8E1D7BC9-9321-44F9-8CFB-4083F6B9232A": {"filename": "IMG_2000.JPGssss"}
+}
+
+
+@pytest.mark.addalbum
+def test_export_add_to_album(addalbum_library):
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    with runner.isolated_filesystem():
+        EXPORT_ALBUM = "OSXPhotos Export"
+        SKIP_ALBUM = "OSXPhotos Skipped"
+        MISSING_ALBUM = "OSXPhotos Missing"
+
+        uuid_opt = [f"--uuid={uuid}" for uuid in UUID_EXPORT]
+        uuid_opt += [f"--uuid={uuid}" for uuid in UUID_MISSING]
+
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "-V",
+                "--add-exported-to-album",
+                EXPORT_ALBUM,
+                "--add-skipped-to-album",
+                SKIP_ALBUM,
+                *uuid_opt,
+            ],
+        )
+        assert result.exit_code == 0
+        assert f"Creating Photos album '{EXPORT_ALBUM}'" in result.output
+        assert f"Creating Photos album '{SKIP_ALBUM}'" in result.output
+
+        photoslib = photoscript.PhotosLibrary()
+        album = photoslib.album(EXPORT_ALBUM)
+        assert album is not None
+
+        assert len(album) == len(UUID_EXPORT)
+        got_uuids = [p.uuid for p in album.photos()]
+        assert sorted(got_uuids) == sorted(list(UUID_EXPORT.keys()))
+
+        skip_album = photoslib.album(SKIP_ALBUM)
+        assert skip_album is not None
+        assert len(skip_album) == 0
+
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "-V",
+                "--add-exported-to-album",
+                EXPORT_ALBUM,
+                "--add-skipped-to-album",
+                SKIP_ALBUM,
+                "--add-missing-to-album",
+                MISSING_ALBUM,
+                "--update",
+                *uuid_opt,
+            ],
+        )
+        assert result.exit_code == 0
+        assert f"Creating Photos album '{EXPORT_ALBUM}'" not in result.output
+        assert f"Creating Photos album '{SKIP_ALBUM}'" not in result.output
+        assert f"Creating Photos album '{MISSING_ALBUM}'" in result.output
+
+        photoslib = photoscript.PhotosLibrary()
+        export_album = photoslib.album(EXPORT_ALBUM)
+        assert export_album is not None
+        assert len(export_album) == len(UUID_EXPORT)
+
+        skip_album = photoslib.album(SKIP_ALBUM)
+        assert skip_album is not None
+        assert len(skip_album) == len(UUID_EXPORT)
+        got_uuids = [p.uuid for p in skip_album.photos()]
+        assert sorted(got_uuids) == sorted(list(UUID_EXPORT.keys()))
+
+        missing_album = photoslib.album(MISSING_ALBUM)
+        assert missing_album is not None
+        assert len(missing_album) == len(UUID_MISSING)
+        got_uuids = [p.uuid for p in missing_album.photos()]
+        assert sorted(got_uuids) == sorted(list(UUID_MISSING.keys()))
+
