@@ -146,6 +146,11 @@ export default library using 'country name/year' as output directory (but use "N
 
 ``osxphotos export ~/Desktop/export --directory "{place.name.country,NoCountry}/{created.year}"  --person-keyword --album-keyword --keyword-template "{created.year}" --exiftool --update --verbose``
 
+find all videos larger than 200MB and add them to Photos album "Big Videos" creating the album if necessary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``osxphotos query --only-movies --min-size 200MB --add-to-album "Big Videos"``
+
 Example uses of the package
 ---------------------------
 

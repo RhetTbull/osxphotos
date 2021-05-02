@@ -163,6 +163,10 @@ To get help on a specific command, use `osxphotos help <command_name>`
 
 `osxphotos query --keyword Kids --json ~/Pictures/Photos\ Library.photoslibrary >results.json`
 
+#### Find all videos larger than 200MB and add them to an album named "Big Videos" in Photos, creating the album if necessary
+
+`osxphotos query --only-movies --min-size 200MB --add-to-album "Big Videos"`
+
 ### Tutorial
 <!-- OSXPHOTOS-TUTORIAL:START --><!-- OSXPHOTOS-TUTORIAL-HEADER:START --><!-- OSXPHOTOS-TUTORIAL-HEADER:END -->
 
