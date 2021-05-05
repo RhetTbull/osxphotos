@@ -1020,6 +1020,9 @@ class PhotosDB:
                 tz = timezone(timedelta(0))
                 self._dbphotos[uuid]["imageDate"] = imagedate.astimezone(tz=tz)
 
+            # haven't figured out added_date for Photos 4
+            self._dbphotos[uuid]["added_date"] = None
+
             self._dbphotos[uuid]["mainRating"] = row[6]
             self._dbphotos[uuid]["hasAdjustments"] = row[7]
             self._dbphotos[uuid]["hasKeywords"] = row[8]
@@ -1867,7 +1870,8 @@ class PhotosDB:
                 {asset_table}.ZADJUSTMENTTIMESTAMP,
                 {asset_table}.ZVISIBILITYSTATE,
                 {asset_table}.ZTRASHEDDATE,
-                {asset_table}.ZSAVEDASSETTYPE
+                {asset_table}.ZSAVEDASSETTYPE,
+                {asset_table}.ZADDEDDATE
                 FROM {asset_table} 
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
                 ORDER BY {asset_table}.ZUUID  """
@@ -1915,6 +1919,7 @@ class PhotosDB:
         # 38   ZGENERICASSET.ZVISIBILITYSTATE -- 0 if visible, 2 if not (e.g. a burst image)
         # 39   ZGENERICASSET.ZTRASHEDDATE -- date item placed in the trash or null if not in trash
         # 40   ZGENERICASSET.ZSAVEDASSETTYPE -- how item imported
+        # 41   ZGENERICASSET.ZADDEDDATE -- date item added to the library
 
         for row in c:
             uuid = row[0]
@@ -2093,6 +2098,11 @@ class PhotosDB:
             # 10: referenced file (not copied to Photos library)
             info["saved_asset_type"] = row[40]
             info["isreference"] = row[40] == 10
+
+            try:
+                info["added_date"] = datetime.fromtimestamp(row[41] + TIME_DELTA)
+            except (ValueError, TypeError):
+                info["added_date"] = datetime(1970, 1, 1)
 
             # initialize import session info which will be filled in later
             # not every photo has an import session so initialize all records now

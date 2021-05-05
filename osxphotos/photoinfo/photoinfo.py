@@ -488,7 +488,7 @@ class PhotoInfo:
         try:
             return self._burst_album_info
         except AttributeError:
-            burst_album_info = list(self.album_info) 
+            burst_album_info = list(self.album_info)
             for photo in self.burst_photos:
                 if photo.burst_key:
                     burst_album_info.extend(photo.album_info)
@@ -601,6 +601,21 @@ class PhotoInfo:
             delta = timedelta(seconds=seconds)
             tz = timezone(delta)
             return trasheddate.astimezone(tz=tz)
+        else:
+            return None
+
+    @property
+    def date_added(self):
+        """ Date photo was added to the database """
+        if self._db._db_version <= _PHOTOS_4_VERSION:
+            return None
+
+        added_date = self._info["added_date"]
+        if added_date:
+            seconds = self._info["imageTimeZoneOffsetSeconds"] or 0
+            delta = timedelta(seconds=seconds)
+            tz = timezone(delta)
+            return added_date.astimezone(tz=tz)
         else:
             return None
 
