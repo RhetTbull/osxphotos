@@ -2271,7 +2271,7 @@ Returns list of paths to any derivative preview images associated with the photo
 
 I've not yet decoded the suffixes to know which preview is used for which purpose but in general, if you look for the largest file, you'll get the highest resolution preview. 
 
-Returns empty list of no preview images are found. 
+Returns empty list if no preview images are found. 
 
 **Note**: only implemented for Photos 5+
 
