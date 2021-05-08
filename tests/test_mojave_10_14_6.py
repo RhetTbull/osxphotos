@@ -244,6 +244,15 @@ def test_attributes(photosdb):
     assert p.date == datetime.datetime(
         2018, 9, 28, 16, 7, 7, 0, datetime.timezone(datetime.timedelta(seconds=-14400))
     )
+    assert p.date_added == datetime.datetime(
+        2019,
+        7,
+        27,
+        9,
+        16,
+        50,
+        tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=72000)),
+    )
     assert p.description == "Girl holding pumpkin"
     assert p.title == "I found one!"
     assert sorted(p.albums) == sorted(

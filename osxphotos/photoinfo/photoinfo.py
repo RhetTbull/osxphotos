@@ -607,17 +607,19 @@ class PhotoInfo:
     @property
     def date_added(self):
         """ Date photo was added to the database """
-        if self._db._db_version <= _PHOTOS_4_VERSION:
-            return None
+        try:
+            return self._date_added
+        except AttributeError:
+            added_date = self._info["added_date"]
+            if added_date:
+                seconds = self._info["imageTimeZoneOffsetSeconds"] or 0
+                delta = timedelta(seconds=seconds)
+                tz = timezone(delta)
+                self._date_added = added_date.astimezone(tz=tz)
+            else:
+                self._date_added = None
 
-        added_date = self._info["added_date"]
-        if added_date:
-            seconds = self._info["imageTimeZoneOffsetSeconds"] or 0
-            delta = timedelta(seconds=seconds)
-            tz = timezone(delta)
-            return added_date.astimezone(tz=tz)
-        else:
-            return None
+            return self._date_added
 
     @property
     def location(self):

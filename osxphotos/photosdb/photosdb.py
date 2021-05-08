@@ -900,7 +900,8 @@ class PhotosDB:
                     RKVersion.subType,
                     RKVersion.inTrashDate,
                     RKVersion.showInLibrary,
-                    RKMaster.fileIsReference
+                    RKMaster.fileIsReference,
+                    RKMaster.importGroupUuid
                     FROM RKVersion, RKMaster
                     WHERE RKVersion.masterUuid = RKMaster.uuid"""
             )
@@ -931,7 +932,8 @@ class PhotosDB:
                     RKVersion.subType,
                     RKVersion.inTrashDate,
                     RKVersion.showInLibrary,
-                    RKMaster.fileIsReference
+                    RKMaster.fileIsReference,
+                    RKMaster.importGroupUuid
                     FROM RKVersion, RKMaster
                     WHERE RKVersion.masterUuid = RKMaster.uuid"""
             )
@@ -981,6 +983,7 @@ class PhotosDB:
         # 41    RKVersion.inTrashDate
         # 42    RKVersion.showInLibrary -- is item visible in library (e.g. non-selected burst images are not visible)
         # 43    RKMaster.fileIsReference -- file is reference (imported without copying to Photos library)
+        # 44    RKMaster.importGroupUuid -- to get date added from RKImportGroup
 
         for row in c:
             uuid = row[0]
@@ -1019,9 +1022,6 @@ class PhotosDB:
                 imagedate = datetime(1970, 1, 1)
                 tz = timezone(timedelta(0))
                 self._dbphotos[uuid]["imageDate"] = imagedate.astimezone(tz=tz)
-
-            # haven't figured out added_date for Photos 4
-            self._dbphotos[uuid]["added_date"] = None
 
             self._dbphotos[uuid]["mainRating"] = row[6]
             self._dbphotos[uuid]["hasAdjustments"] = row[7]
@@ -1177,7 +1177,7 @@ class PhotosDB:
 
             # import session not yet handled for Photos 4
             self._dbphotos[uuid]["import_session"] = None
-            self._dbphotos[uuid]["import_uuid"] = None
+            self._dbphotos[uuid]["import_uuid"] = row[44]
             self._dbphotos[uuid]["fok_import_session"] = None
 
         # get additional details from RKMaster, needed for RAW processing
@@ -1367,10 +1367,16 @@ class PhotosDB:
 
         # get the place data
         place_data = c.execute(
-            "SELECT modelID, defaultName, type, area " "FROM RKPlace "
+            "SELECT modelID, defaultName, type, area FROM RKPlace"
         ).fetchall()
         places = {p[0]: p for p in place_data}
         self._db_places = places
+
+        # get import data
+        import_data = c.execute(
+            "SELECT modelID, uuid, name, importDate from RKImportGroup"
+        ).fetchall()
+        self._db_import_group = {i[1]: i for i in import_data}
 
         for uuid in self._dbphotos:
             # get placeId which is then used to lookup defaultName
@@ -1404,6 +1410,17 @@ class PhotosDB:
 
             self._dbphotos[uuid]["placeNames"] = place_names
             self._dbphotos[uuid]["reverse_geolocation"] = None  # Photos 5
+
+            # add date added
+            try:
+                import_session = self._db_import_group[
+                    self._dbphotos[uuid]["import_uuid"]
+                ]
+                self._dbphotos[uuid]["added_date"] = datetime.fromtimestamp(
+                    import_session[3] + TIME_DELTA
+                )
+            except (ValueError, TypeError, KeyError):
+                self._dbphotos[uuid]["added_date"] = datetime(1970, 1, 1)
 
         # build album_titles dictionary
         for album_id in self._dbalbum_details:

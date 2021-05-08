@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos.photosdb.photosdb &#8212; osxphotos 0.42.14 documentation</title>
+    <title>osxphotos.photosdb.photosdb &#8212; osxphotos 0.42.16 documentation</title>
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -933,7 +933,8 @@
 <span class="sd">                    RKVersion.subType,</span>
 <span class="sd">                    RKVersion.inTrashDate,</span>
 <span class="sd">                    RKVersion.showInLibrary,</span>
-<span class="sd">                    RKMaster.fileIsReference</span>
+<span class="sd">                    RKMaster.fileIsReference,</span>
+<span class="sd">                    RKMaster.importGroupUuid</span>
 <span class="sd">                    FROM RKVersion, RKMaster</span>
 <span class="sd">                    WHERE RKVersion.masterUuid = RKMaster.uuid&quot;&quot;&quot;</span>
             <span class="p">)</span>
@@ -964,7 +965,8 @@
 <span class="sd">                    RKVersion.subType,</span>
 <span class="sd">                    RKVersion.inTrashDate,</span>
 <span class="sd">                    RKVersion.showInLibrary,</span>
-<span class="sd">                    RKMaster.fileIsReference</span>
+<span class="sd">                    RKMaster.fileIsReference,</span>
+<span class="sd">                    RKMaster.importGroupUuid</span>
 <span class="sd">                    FROM RKVersion, RKMaster</span>
 <span class="sd">                    WHERE RKVersion.masterUuid = RKMaster.uuid&quot;&quot;&quot;</span>
             <span class="p">)</span>
@@ -1014,6 +1016,7 @@
         <span class="c1"># 41    RKVersion.inTrashDate</span>
         <span class="c1"># 42    RKVersion.showInLibrary -- is item visible in library (e.g. non-selected burst images are not visible)</span>
         <span class="c1"># 43    RKMaster.fileIsReference -- file is reference (imported without copying to Photos library)</span>
+        <span class="c1"># 44    RKMaster.importGroupUuid -- to get date added from RKImportGroup</span>
 
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
             <span class="n">uuid</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -1207,7 +1210,7 @@
 
             <span class="c1"># import session not yet handled for Photos 4</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;import_session&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;import_uuid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;import_uuid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">44</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;fok_import_session&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># get additional details from RKMaster, needed for RAW processing</span>
@@ -1397,10 +1400,16 @@
 
         <span class="c1"># get the place data</span>
         <span class="n">place_data</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-            <span class="s2">&quot;SELECT modelID, defaultName, type, area &quot;</span> <span class="s2">&quot;FROM RKPlace &quot;</span>
+            <span class="s2">&quot;SELECT modelID, defaultName, type, area FROM RKPlace&quot;</span>
         <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
         <span class="n">places</span> <span class="o">=</span> <span class="p">{</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">place_data</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_db_places</span> <span class="o">=</span> <span class="n">places</span>
+
+        <span class="c1"># get import data</span>
+        <span class="n">import_data</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s2">&quot;SELECT modelID, uuid, name, importDate from RKImportGroup&quot;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db_import_group</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">import_data</span><span class="p">}</span>
 
         <span class="k">for</span> <span class="n">uuid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">:</span>
             <span class="c1"># get placeId which is then used to lookup defaultName</span>
@@ -1434,6 +1443,17 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;placeNames&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">place_names</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;reverse_geolocation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Photos 5</span>
+
+            <span class="c1"># add date added</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">import_session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_import_group</span><span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;import_uuid&quot;</span><span class="p">]</span>
+                <span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;added_date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span>
+                    <span class="n">import_session</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="n">TIME_DELTA</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;added_date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">1970</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
         <span class="c1"># build album_titles dictionary</span>
         <span class="k">for</span> <span class="n">album_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbalbum_details</span><span class="p">:</span>
@@ -1900,7 +1920,8 @@
 <span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZADJUSTMENTTIMESTAMP,</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZVISIBILITYSTATE,</span>
 <span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZTRASHEDDATE,</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZSAVEDASSETTYPE</span>
+<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZSAVEDASSETTYPE,</span>
+<span class="s2">                </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZADDEDDATE</span>
 <span class="s2">                FROM </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2"> </span>
 <span class="s2">                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.Z_PK </span>
 <span class="s2">                ORDER BY </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZUUID  &quot;&quot;&quot;</span>
@@ -1948,6 +1969,7 @@
         <span class="c1"># 38   ZGENERICASSET.ZVISIBILITYSTATE -- 0 if visible, 2 if not (e.g. a burst image)</span>
         <span class="c1"># 39   ZGENERICASSET.ZTRASHEDDATE -- date item placed in the trash or null if not in trash</span>
         <span class="c1"># 40   ZGENERICASSET.ZSAVEDASSETTYPE -- how item imported</span>
+        <span class="c1"># 41   ZGENERICASSET.ZADDEDDATE -- date item added to the library</span>
 
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
             <span class="n">uuid</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -2126,6 +2148,11 @@
             <span class="c1"># 10: referenced file (not copied to Photos library)</span>
             <span class="n">info</span><span class="p">[</span><span class="s2">&quot;saved_asset_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">40</span><span class="p">]</span>
             <span class="n">info</span><span class="p">[</span><span class="s2">&quot;isreference&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">40</span><span class="p">]</span> <span class="o">==</span> <span class="mi">10</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">info</span><span class="p">[</span><span class="s2">&quot;added_date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">41</span><span class="p">]</span> <span class="o">+</span> <span class="n">TIME_DELTA</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+                <span class="n">info</span><span class="p">[</span><span class="s2">&quot;added_date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">1970</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
             <span class="c1"># initialize import session info which will be filled in later</span>
             <span class="c1"># not every photo has an import session so initialize all records now</span>

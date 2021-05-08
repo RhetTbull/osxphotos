@@ -2221,6 +2221,9 @@ Returns the original filename of the photo when it was imported to Photos.  **No
 #### `date`
 Returns the create date of the photo as a datetime.datetime object
 
+#### `date_added`
+Returns the date the photo was added to the Photos library as a timezone aware datetime.datetime object, or None if the data added cannot be determined
+
 #### `date_modified`
 Returns the modification date of the photo as a datetime.datetime object or None if photo has no modification date
 

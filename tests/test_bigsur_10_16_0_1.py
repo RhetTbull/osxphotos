@@ -316,6 +316,16 @@ def test_attributes(photosdb):
     assert p.date == datetime.datetime(
         2018, 9, 28, 16, 7, 7, 0, datetime.timezone(datetime.timedelta(seconds=-14400))
     )
+    assert p.date_added == datetime.datetime(
+        2019,
+        7,
+        27,
+        9,
+        16,
+        49,
+        778432,
+        tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=72000)),
+    )
     assert p.description == "Girl holding pumpkin"
     assert p.title == "I found one!"
     assert sorted(p.albums) == ["Pumpkin Farm", "Test Album"]
@@ -848,7 +858,9 @@ def test_export_12(photosdb):
 
     edited_name = pathlib.Path(photos[0].path_edited).name
     edited_suffix = pathlib.Path(edited_name).suffix
-    filename = pathlib.Path(photos[0].original_filename).stem + "_edited" + edited_suffix
+    filename = (
+        pathlib.Path(photos[0].original_filename).stem + "_edited" + edited_suffix
+    )
     expected_dest = os.path.join(dest, filename)
 
     got_dest = photos[0].export(dest, edited=True)[0]

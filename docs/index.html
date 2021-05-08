@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Welcome to osxphotos’s documentation! &#8212; osxphotos 0.42.15 documentation</title>
+    <title>Welcome to osxphotos’s documentation! &#8212; osxphotos 0.42.16 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -149,6 +149,10 @@ Alternatively, you can also run the command line utility like this: <code class=
 <div class="section" id="export-default-library-using-country-name-year-as-output-directory-but-use-nocountry-year-if-country-not-specified-add-persons-album-names-and-year-as-keywords-write-exif-metadata-to-files-when-exporting-update-only-changed-files-print-verbose-ouput">
 <h4>export default library using ‘country name/year’ as output directory (but use “NoCountry/year” if country not specified), add persons, album names, and year as keywords, write exif metadata to files when exporting, update only changed files, print verbose ouput<a class="headerlink" href="#export-default-library-using-country-name-year-as-output-directory-but-use-nocountry-year-if-country-not-specified-add-persons-album-names-and-year-as-keywords-write-exif-metadata-to-files-when-exporting-update-only-changed-files-print-verbose-ouput" title="Permalink to this headline">¶</a></h4>
 <p><code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">export</span> <span class="pre">~/Desktop/export</span> <span class="pre">--directory</span> <span class="pre">&quot;{place.name.country,NoCountry}/{created.year}&quot;</span>&#160; <span class="pre">--person-keyword</span> <span class="pre">--album-keyword</span> <span class="pre">--keyword-template</span> <span class="pre">&quot;{created.year}&quot;</span> <span class="pre">--exiftool</span> <span class="pre">--update</span> <span class="pre">--verbose</span></code></p>
+</div>
+<div class="section" id="find-all-videos-larger-than-200mb-and-add-them-to-photos-album-big-videos-creating-the-album-if-necessary">
+<h4>find all videos larger than 200MB and add them to Photos album “Big Videos” creating the album if necessary<a class="headerlink" href="#find-all-videos-larger-than-200mb-and-add-them-to-photos-album-big-videos-creating-the-album-if-necessary" title="Permalink to this headline">¶</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">query</span> <span class="pre">--only-movies</span> <span class="pre">--min-size</span> <span class="pre">200MB</span> <span class="pre">--add-to-album</span> <span class="pre">&quot;Big</span> <span class="pre">Videos&quot;</span></code></p>
 </div>
 </div>
 </div>
