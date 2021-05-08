@@ -2262,6 +2262,19 @@ Returns the absolute path to the edited photo on disk as a string.  If the photo
 
 **Note**: will also return None if the edited photo is missing on disk. 
 
+#### `path_derivatives`
+Returns list of paths to any derivative preview images associated with the photo. These will be named like: 
+
+- `F19E06B8-A712-4B5C-907A-C007D37BDA16_1_101_o.jpeg`
+- `F19E06B8-A712-4B5C-907A-C007D37BDA16_1_102_o.jpeg`
+- `F19E06B8-A712-4B5C-907A-C007D37BDA16_1_105_c.jpeg`
+
+I've not yet decoded the suffixes to know which preview is used for which purpose but in general, if you look for the largest file, you'll get the highest resolution preview. 
+
+Returns empty list of no preview images are found. 
+
+**Note**: only implemented for Photos 5+
+
 #### `path_raw`
 Returns the absolute path to the associated raw photo on disk as a string, if photo is part of a RAW+JPEG pair, otherwise returns None.  See [notes on Raw Photos](#raw-photos).
 

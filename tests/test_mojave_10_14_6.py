@@ -419,6 +419,16 @@ def test_path_edited1(photosdb):
     assert os.path.exists(path)
 
 
+def test_path_derivatives(photosdb):
+    # test path_derivatives (not currently implemented for Photos <= 4)
+    import os.path
+
+    photos = photosdb.photos(uuid=[UUID_DICT["has_adjustments"]])
+    p = photos[0]
+    path = p.path_derivatives
+    assert path == []
+
+
 def test_path_edited2(photosdb):
     # test an invalid edited path
     photos = photosdb.photos(uuid=[UUID_DICT["no_adjustments"]])

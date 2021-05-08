@@ -819,6 +819,24 @@ class PhotoInfo:
         return photopath
 
     @property
+    def path_derivatives(self):
+        """ Return any derivative (preview) images associated with the photo as a list of paths, 
+            currently only implemented for Photos >= 5 """
+        if self._db._db_version <= _PHOTOS_4_VERSION:
+            return []
+
+        directory = self._uuid[0]  # first char of uuid
+        derivative_path = (
+            pathlib.Path(self._db._library_path)
+            / "resources"
+            / "derivatives"
+            / directory
+        )
+        files = derivative_path.glob(f"{self.uuid}*.*")
+        # return list of filename but skip .THM files (these are actually low-res thumbnails in JPEG format but with .THM extension)
+        return [str(filename) for filename in files if filename.suffix != ".THM"]
+
+    @property
     def panorama(self):
         """ Returns True if photo is a panorama, otherwise False """
         return self._info["panorama"]

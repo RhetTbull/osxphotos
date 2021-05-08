@@ -556,6 +556,24 @@ def test_path_edited2(photosdb):
     assert path is None
 
 
+def test_path_derivatives(photosdb):
+    # test an path_derivatives
+
+    photos = photosdb.photos(uuid=[UUID_DICT["no_adjustments"]])
+    assert len(photos) == 1
+    p = photos[0]
+    path = p.path_derivatives
+    derivs = sorted(
+        [
+            "D05A5FE3-15FB-49A1-A15D-AB3DA6F8B068_1_105_c.jpeg",
+            "D05A5FE3-15FB-49A1-A15D-AB3DA6F8B068_1_100_o.jpeg",
+        ]
+    )
+    path = sorted(path)
+    for i, p in enumerate(path):
+        assert p.endswith(derivs[i])
+
+
 def test_ismovie(photosdb):
     # test ismovie == True
 
