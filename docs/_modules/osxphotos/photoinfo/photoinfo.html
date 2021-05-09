@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos.photoinfo.photoinfo &#8212; osxphotos 0.42.17 documentation</title>
+    <title>osxphotos.photoinfo.photoinfo &#8212; osxphotos 0.42.19 documentation</title>
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -853,10 +853,9 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">path_derivatives</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Return any derivative (preview) images associated with the photo as a list of paths, </span>
-<span class="sd">            currently only implemented for Photos &gt;= 5 &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; Return any derivative (preview) images associated with the photo as a list of paths &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[]</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_derivatives_4</span><span class="p">()</span>
 
         <span class="n">directory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># first char of uuid</span>
         <span class="n">derivative_path</span> <span class="o">=</span> <span class="p">(</span>
@@ -868,6 +867,40 @@
         <span class="n">files</span> <span class="o">=</span> <span class="n">derivative_path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">*.*&quot;</span><span class="p">)</span>
         <span class="c1"># return list of filename but skip .THM files (these are actually low-res thumbnails in JPEG format but with .THM extension)</span>
         <span class="k">return</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">files</span> <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">suffix</span> <span class="o">!=</span> <span class="s2">&quot;.THM&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_path_derivatives_4</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return paths to all derivative (preview) files for Photos &lt;= 4&quot;&quot;&quot;</span>
+        <span class="n">modelid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;masterModelID&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">modelid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="n">folder_id</span><span class="p">,</span> <span class="n">file_id</span> <span class="o">=</span> <span class="n">_get_resource_loc</span><span class="p">(</span><span class="n">modelid</span><span class="p">)</span>
+        <span class="n">derivatives_root</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_library_path</span><span class="p">)</span>
+            <span class="o">/</span> <span class="s2">&quot;resources&quot;</span>
+            <span class="o">/</span> <span class="s2">&quot;proxies&quot;</span>
+            <span class="o">/</span> <span class="s2">&quot;derivatives&quot;</span>
+            <span class="o">/</span> <span class="n">folder_id</span>
+        <span class="p">)</span>
+
+        <span class="c1"># photos appears to usually be in &quot;00&quot; subfolder but</span>
+        <span class="c1"># could be elsewhere--I haven&#39;t figured out this logic yet</span>
+        <span class="c1"># first see if it&#39;s in 00</span>
+
+        <span class="n">derivatives_path</span> <span class="o">=</span> <span class="n">derivatives_root</span> <span class="o">/</span> <span class="s2">&quot;00&quot;</span> <span class="o">/</span> <span class="n">file_id</span>
+        <span class="k">if</span> <span class="n">derivatives_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="n">derivatives_path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">files</span><span class="p">]</span>
+
+        <span class="c1"># didn&#39;t find derivatives path</span>
+        <span class="k">for</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">derivatives_root</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">subdir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                <span class="n">derivatives_path</span> <span class="o">=</span> <span class="n">derivatives_root</span> <span class="o">/</span> <span class="n">subdir</span> <span class="o">/</span> <span class="n">file_id</span>
+                <span class="k">if</span> <span class="n">derivatives_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                    <span class="n">files</span> <span class="o">=</span> <span class="n">derivatives_path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">files</span><span class="p">]</span>
+
+        <span class="c1"># didn&#39;t find a derivatives path</span>
+        <span class="k">return</span> <span class="p">[]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">panorama</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
