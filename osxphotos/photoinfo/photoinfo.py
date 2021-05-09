@@ -820,10 +820,9 @@ class PhotoInfo:
 
     @property
     def path_derivatives(self):
-        """ Return any derivative (preview) images associated with the photo as a list of paths, 
-            currently only implemented for Photos >= 5 """
+        """ Return any derivative (preview) images associated with the photo as a list of paths """
         if self._db._db_version <= _PHOTOS_4_VERSION:
-            return []
+            return self._path_derivatives_4()
 
         directory = self._uuid[0]  # first char of uuid
         derivative_path = (
@@ -835,6 +834,40 @@ class PhotoInfo:
         files = derivative_path.glob(f"{self.uuid}*.*")
         # return list of filename but skip .THM files (these are actually low-res thumbnails in JPEG format but with .THM extension)
         return [str(filename) for filename in files if filename.suffix != ".THM"]
+
+    def _path_derivatives_4(self):
+        """ Return paths to all derivative (preview) files for Photos <= 4"""
+        modelid = self._info["masterModelID"]
+        if modelid is None:
+            return []
+        folder_id, file_id = _get_resource_loc(modelid)
+        derivatives_root = (
+            pathlib.Path(self._db._library_path)
+            / "resources"
+            / "proxies"
+            / "derivatives"
+            / folder_id
+        )
+
+        # photos appears to usually be in "00" subfolder but
+        # could be elsewhere--I haven't figured out this logic yet
+        # first see if it's in 00
+
+        derivatives_path = derivatives_root / "00" / file_id
+        if derivatives_path.is_dir():
+            files = derivatives_path.glob("*")
+            return [str(filename) for filename in files]
+
+        # didn't find derivatives path
+        for subdir in derivatives_root.glob("*"):
+            if subdir.is_dir():
+                derivatives_path = derivatives_root / subdir / file_id
+                if derivatives_path.is_dir():
+                    files = derivatives_path.glob("*")
+                    return [str(filename) for filename in files]
+
+        # didn't find a derivatives path
+        return []
 
     @property
     def panorama(self):
