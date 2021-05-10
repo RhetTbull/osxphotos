@@ -425,14 +425,11 @@ def test_path_derivatives(photosdb):
 
     photos = photosdb.photos(uuid=[UUID_DICT["has_adjustments"]])
     p = photos[0]
-    derivs = sorted(
-        [
-            "/resources/proxies/derivatives/00/00/1/Y6OofYkbR96spbS6XgwOQw_thumb_1.jpg",
-            "/resources/proxies/derivatives/00/00/1/Y6OofYkbR96spbS6XgwOQw_mini_1.jpg",
-        ]
-    )
-    path = sorted(p.path_derivatives)
-    for i, p in enumerate(path):
+    derivs = [
+        "/resources/proxies/derivatives/00/00/1/Y6OofYkbR96spbS6XgwOQw_thumb_1.jpg",
+        "/resources/proxies/derivatives/00/00/1/Y6OofYkbR96spbS6XgwOQw_mini_1.jpg",
+    ]
+    for i, p in enumerate(p.path_derivatives):
         assert p.endswith(derivs[i])
 
 

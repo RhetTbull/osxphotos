@@ -820,7 +820,7 @@ class PhotoInfo:
 
     @property
     def path_derivatives(self):
-        """ Return any derivative (preview) images associated with the photo as a list of paths """
+        """ Return any derivative (preview) images associated with the photo as a list of paths, sorted by file size (largest first) """
         if self._db._db_version <= _PHOTOS_4_VERSION:
             return self._path_derivatives_4()
 
@@ -832,6 +832,7 @@ class PhotoInfo:
             / directory
         )
         files = derivative_path.glob(f"{self.uuid}*.*")
+        files = sorted(files, reverse=True, key=lambda f: f.stat().st_size)
         # return list of filename but skip .THM files (these are actually low-res thumbnails in JPEG format but with .THM extension)
         return [str(filename) for filename in files if filename.suffix != ".THM"]
 
@@ -856,6 +857,7 @@ class PhotoInfo:
         derivatives_path = derivatives_root / "00" / file_id
         if derivatives_path.is_dir():
             files = derivatives_path.glob("*")
+            files = sorted(files, reverse=True, key=lambda f: f.stat().st_size)
             return [str(filename) for filename in files]
 
         # didn't find derivatives path
@@ -864,6 +866,7 @@ class PhotoInfo:
                 derivatives_path = derivatives_root / subdir / file_id
                 if derivatives_path.is_dir():
                     files = derivatives_path.glob("*")
+                    files = sorted(files, reverse=True, key=lambda f: f.stat().st_size)
                     return [str(filename) for filename in files]
 
         # didn't find a derivatives path
