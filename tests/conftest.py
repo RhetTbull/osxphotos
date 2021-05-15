@@ -34,7 +34,7 @@ if OS_VER == "15":
     TEST_LIBRARY = "tests/Test-10.15.7.photoslibrary"
 else:
     TEST_LIBRARY = None
-    pytest.exit("This test suite currently only runs on MacOS Catalina ")
+    # pytest.exit("This test suite currently only runs on MacOS Catalina ")
 
 
 @pytest.fixture(autouse=True)
@@ -59,10 +59,11 @@ def pytest_configure(config):
 
 
 def pytest_collection_modifyitems(config, items):
-    if config.getoption("--addalbum"):
+    if config.getoption("--addalbum") and TEST_LIBRARY is not None:
         # --addalbum given in cli: do not skip addalbum tests (these require interactive test)
         return
-    skip_addalbum = pytest.mark.skip(reason="need --addalbum option to run")
+
+    skip_addalbum = pytest.mark.skip(reason="need --addalbum option and MacOS Catalina to run")
     for item in items:
         if "addalbum" in item.keywords:
             item.add_marker(skip_addalbum)

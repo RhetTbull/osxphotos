@@ -4,10 +4,12 @@ import datetime
 import locale
 import os
 import pathlib
+import sys
 
 from textx import TextXSyntaxError, metamodel_from_file
 
 from ._constants import _UNKNOWN_PERSON
+from ._version import __version__
 from .datetime_formatter import DateTimeFormatter
 from .exiftool import ExifToolCaching
 from .path_utils import sanitize_dirname, sanitize_filename, sanitize_pathpart
@@ -134,6 +136,8 @@ TEMPLATE_SUBSTITUTIONS = {
     "{lf}": r"A line feed: '\n', alias for {newline}",
     "{cr}": r"A carriage return: '\r'",
     "{crlf}": r"a carriage return + line feed: '\r\n'",
+    "{osxphotos_version}": f"The osxphotos version, e.g. '{__version__}'",
+    "{osxphotos_cmd_line}": "The full command line used to run osxphotos"
 }
 
 # Permitted multi-value substitutions (each of these returns None or 1 or more values)
@@ -908,6 +912,10 @@ class PhotoTemplate:
             value = self.photo.uuid
         elif field in PUNCTUATION:
             value = PUNCTUATION[field]
+        elif field == "osxphotos_version":
+            value = __version__
+        elif field == "osxphotos_cmd_line":
+            value = " ".join(sys.argv)
         else:
             # if here, didn't get a match
             raise ValueError(f"Unhandled template value: {field}")
