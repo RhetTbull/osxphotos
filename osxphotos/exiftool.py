@@ -6,19 +6,28 @@
     If these aren't important to you, I highly recommend you use Sven Marnach's excellent 
     pyexiftool: https://github.com/smarnach/pyexiftool which provides more functionality """
 
+import atexit
 import json
 import logging
 import os
 import re
 import shutil
 import subprocess
-from functools import lru_cache  # pylint: disable=syntax-error
 from abc import ABC, abstractmethod
+from functools import lru_cache  # pylint: disable=syntax-error
 
 # exiftool -stay_open commands outputs this EOF marker after command is run
 EXIFTOOL_STAYOPEN_EOF = "{ready}"
 EXIFTOOL_STAYOPEN_EOF_LEN = len(EXIFTOOL_STAYOPEN_EOF)
 
+# list of exiftool processes to cleanup when exiting or when terminate is called
+EXIFTOOL_PROCESSES = []
+
+@atexit.register
+def terminate_exiftool():
+    """Terminate any running ExifTool subprocesses; call this to cleanup when done using ExifTool """
+    for proc in EXIFTOOL_PROCESSES:
+        proc._stop_proc()
 
 @lru_cache(maxsize=1)
 def get_exiftool_path():
@@ -60,6 +69,8 @@ class _ExifToolProc:
         self._process_running = False
         self._exiftool = exiftool or get_exiftool_path()
         self._start_proc()
+
+        EXIFTOOL_PROCESSES.append(self)
 
     @property
     def process(self):
@@ -117,9 +128,6 @@ class _ExifToolProc:
         try:
             self._process.communicate(timeout=5)
         except subprocess.TimeoutExpired:
-            logging.warning(
-                f"exiftool pid {self._process.pid} did not exit, killing it"
-            )
             self._process.kill()
             self._process.communicate()
 

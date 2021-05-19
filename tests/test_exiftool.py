@@ -417,3 +417,16 @@ def test_photoinfo_exiftool_none():
         photo = photosdb.photos(uuid=[uuid])[0]
         exiftool = photo.exiftool
         assert exiftool is None
+
+
+def test_exiftool_terminate():
+    """ Test that exiftool process is terminated when exiftool.terminate() is called """
+    import osxphotos.exiftool
+    import subprocess
+
+    exif1 = osxphotos.exiftool.ExifTool(TEST_FILE_ONE_KEYWORD)
+    osxphotos.exiftool.terminate_exiftool()
+
+    ps = subprocess.run(["ps"], capture_output=True)
+    stdout = ps.stdout.decode("utf-8")
+    assert "exiftool -stay_open" not in stdout
