@@ -838,7 +838,7 @@ class PhotoInfo:
 
     def _path_derivatives_4(self):
         """ Return paths to all derivative (preview) files for Photos <= 4"""
-        modelid = self._info["masterModelID"]
+        modelid = self._info["modelID"]
         if modelid is None:
             return []
         folder_id, file_id = _get_resource_loc(modelid)

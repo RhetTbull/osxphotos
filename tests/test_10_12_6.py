@@ -30,6 +30,8 @@ KEYWORDS_DICT = {
 PERSONS_DICT = {"Katie": 3, "Suzy": 2, "Maria": 1, _UNKNOWN_PERSON: 1}
 ALBUM_DICT = {"Pumpkin Farm": 3, "AlbumInFolder": 1}
 
+UUID_DICT = {"derivatives": "FPm+ICxpQV+LPBKR22UepA"}
+
 
 def test_init():
     import osxphotos
@@ -162,3 +164,19 @@ def test_keyword_not_in_album():
     photos3 = [p for p in photos2 if p not in photos1]
     assert len(photos3) == 1
     assert photos3[0].uuid == "Pj99JmYjQkeezdY2OFuSaw"
+
+
+def test_path_derivatives():
+    # test path_derivatives
+    import osxphotos
+
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+
+    photos = photosdb.photos(uuid=[UUID_DICT["derivatives"]])
+    p = photos[0]
+    derivs = [
+        "/resources/proxies/derivatives/00/00/9/UNADJUSTEDRAW_thumb_9.jpg",
+        "/resources/proxies/derivatives/00/00/9/UNADJUSTEDRAW_mini_9.jpg",
+    ]
+    for i, p in enumerate(p.path_derivatives):
+        assert p.endswith(derivs[i])
