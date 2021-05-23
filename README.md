@@ -35,6 +35,7 @@ OSXPhotos provides the ability to interact with and query Apple's Photos.app lib
   + [AdjustmentsInfo](#adjustmentsinfo)
   + [Raw Photos](#raw-photos)
   + [Template System](#template-system)
+  + [ExifTool](#exiftoolExifTool)
   + [Utility Functions](#utility-functions)
 * [Examples](#examples)
 * [Related Projects](#related-projects)
