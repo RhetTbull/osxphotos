@@ -121,6 +121,6 @@ class ImageConverter:
                 return True
             else:
                 raise ImageConversionError(
-                    "Error converting file {input_path} to jpeg at {output_path}: {error}"
+                    f"Error converting file {input_path} to jpeg at {output_path}: {error}"
                 )
 
