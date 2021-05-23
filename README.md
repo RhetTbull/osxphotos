@@ -2347,7 +2347,7 @@ Returns an [ExifInfo](#exifinfo) object with EXIF details from the Photos databa
 See also `exiftool`.
 
 #### `exiftool`
-Returns an ExifTool object for the photo which provides an interface to [exiftool](https://exiftool.org/) allowing you to read or write the actual EXIF data in the image file inside the Photos library.  If [exif_info](#exif-info) doesn't give you all the data you need, you can use `exiftool` to read the entire EXIF contents of the image.
+Returns an [ExifToolCaching](#exiftoolExifTool) object for the photo which provides an interface to [exiftool](https://exiftool.org/) allowing you to read the actual EXIF data in the image file inside the Photos library.  If [exif_info](#exif-info) doesn't give you all the data you need, you can use `exiftool` to read the entire EXIF contents of the image.
 
 If the file is missing from the library (e.g. not downloaded from iCloud), returns None. 
 
@@ -2360,7 +2360,7 @@ exiftool must be installed in the path for this to work.  If exiftool cannot be 
 >>>
 ```
 
-`ExifTool` provides the following methods:
+`ExifToolCaching` provides the following methods:
 
 - `asdict(tag_groups=True)`: returns all EXIF metadata found in the file as a dictionary in following form (Note: this shows just a subset of available metadata).  See [exiftool](https://exiftool.org/) documentation to understand which metadata keys are available. If `tag_groups` is True (default) dict keys are in form "GROUP:TAG", e.g. "IPTC:Keywords". If `tag_groups` is False, dict keys do not have group names, e.g. "Keywords".
 
@@ -2378,14 +2378,7 @@ exiftool must be installed in the path for this to work.  If exiftool cannot be 
 
 - `json()`: returns same information as `asdict()` but as a serialized JSON string.
 
-- `setvalue(tag, value)`: write to the EXIF data in the photo file. To delete a tag, use setvalue with value = `None`. For example:
-```python
-photo.exiftool.setvalue("XMP:Title", "Title of photo")
-```
-- `addvalues(tag, *values)`: Add one or more value(s) to tag.  For a tag that accepts multiple values, like "IPTC:Keywords", this will add the values as additional list values.  However, for tags which are not usually lists, such as "EXIF:ISO" this will literally add the new value to the old value which is probably not the desired effect.  Be sure you understand the behavior of the individual tag before using this. For example:
-```python
-photo.exiftool.addvalues("IPTC:Keywords", "vacation", "beach")
-```
+The `ExifToolCaching` class caches values read from the photo via `exiftool` and is read-only.  This speeds access to the underlying EXIF data but any changes made to the EXIF data in the image will not be reflected in subsequent calls to `exiftool`.  In practice, the images in the Photos Library should not be modified after import so this is unlikely to cause any issues.
 
 **Caution**: I caution against writing new EXIF data to photos in the Photos library because this will overwrite the original copy of the photo and could adversely affect how Photos behaves.  `exiftool.asdict()` is useful for getting access to all the photos information but if you want to write new EXIF data, I recommend you export the photo first then write the data.  [PhotoInfo.export()](#export) does this if called with `exiftool=True`.
 
@@ -3214,6 +3207,66 @@ The following template field substitutions are availabe for use the templating s
 |{photo}|Provides direct access to the PhotoInfo object for the photo. Must be used in format '{photo.property}' where 'property' represents a PhotoInfo property. For example: '{photo.favorite}' is the same as '{favorite}' and '{photo.place.name}' is the same as '{place.name}'. '{photo}' provides access to properties that are not available as separate template fields but it assumes some knowledge of the underlying PhotoInfo class.  See https://rhettbull.github.io/osxphotos/ for additional documentation on the PhotoInfo class.|
 |{function}|Execute a python function from an external file and use return value as template substitution. Use in format: {function:file.py::function_name} where 'file.py' is the name of the python file and 'function_name' is the name of the function to call. The function will be passed the PhotoInfo object for the photo. See https://github.com/RhetTbull/osxphotos/blob/master/examples/template_function.py for an example of how to implement a template function.|
 <!-- OSXPHOTOS-TEMPLATE-TABLE:END -->
+
+### <a name="exiftoolExifTool">ExifTool</a>
+
+osxphotos includes its own `exiftool` library that can be accessed via `osxphotos.exiftool`:
+
+```python
+>>> from osxphotos.exiftool import ExifTool
+>>> exiftool = ExifTool("/Users/rhet/Downloads/test.jpeg")
+>>> exifdict = exiftool.asdict()
+>>> exifdict["EXIF:Make"]
+'Canon'
+>>> exiftool.setvalue("IPTC:Keywords","Keyword1")
+True
+>>> exiftool.asdict()["IPTC:Keywords"]
+'Keyword1'
+>>> exiftool.addvalues("IPTC:Keywords","Keyword2","Keyword3")
+True
+>>> exiftool.asdict()["IPTC:Keywords"]
+['Keyword1', 'Keyword2', 'Keyword3']
+```
+
+`ExifTool(filepath, exiftool=None)`
+
+- `filepath`: str, path to photo
+- `exiftool`: str, optional path to `exiftool`; if not provided, will look for `exiftool` in the system path
+
+#### ExifTool methods
+
+- `asdict(tag_groups=True)`: returns all EXIF metadata found in the file as a dictionary in following form (Note: this shows just a subset of available metadata).  See [exiftool](https://exiftool.org/) documentation to understand which metadata keys are available. If `tag_groups` is True (default) dict keys are in form "GROUP:TAG", e.g. "IPTC:Keywords". If `tag_groups` is False, dict keys do not have group names, e.g. "Keywords".
+
+```python
+{'Composite:Aperture': 2.2,
+ 'Composite:GPSPosition': '-34.9188916666667 138.596861111111',
+ 'Composite:ImageSize': '2754 2754',
+ 'EXIF:CreateDate': '2017:06:20 17:18:56',
+ 'EXIF:LensMake': 'Apple',
+ 'EXIF:LensModel': 'iPhone 6s back camera 4.15mm f/2.2',
+ 'EXIF:Make': 'Apple',
+ 'XMP:Title': 'Elder Park',
+}
+```
+
+- `json()`: returns same information as `asdict()` but as a serialized JSON string.
+
+- `setvalue(tag, value)`: write to the EXIF data in the photo file. To delete a tag, use setvalue with value = `None`. For example:
+```python
+photo.exiftool.setvalue("XMP:Title", "Title of photo")
+```
+- `addvalues(tag, *values)`: Add one or more value(s) to tag.  For a tag that accepts multiple values, like "IPTC:Keywords", this will add the values as additional list values.  However, for tags which are not usually lists, such as "EXIF:ISO" this will literally add the new value to the old value which is probably not the desired effect.  Be sure you understand the behavior of the individual tag before using this. For example:
+```python
+photo.exiftool.addvalues("IPTC:Keywords", "vacation", "beach")
+```
+
+osxphotos.exiftool also provides an `ExifToolCaching` class which caches all metadata after the first call to `exiftool`. This can significantly speed up repeated access to the metadata but should only be used if you do not intend to modify the file's metadata.
+
+[`PhotoInfo.exiftool`](#exiftool) returns an `ExifToolCaching` instance for the original image in the Photos library.
+
+#### Implementation Note
+
+`ExifTool()` runs `exiftool` as a subprocess using the `-stay_open True` flag to keep the process running in the background.  The subprocess will be cleaned up when your main script terminates.  `ExifTool()` uses a singleton pattern to ensure that only one instance of `exiftool` is created.  Multiple instances of `ExifTool()` will all use the same `exiftool` subprocess.
 
 ### Utility Functions
 

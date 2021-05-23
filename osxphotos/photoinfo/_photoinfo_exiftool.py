@@ -3,13 +3,13 @@
 import logging
 import os
 
-from ..exiftool import ExifTool, get_exiftool_path
+from ..exiftool import ExifToolCaching, get_exiftool_path
 
 
 @property
 def exiftool(self):
-    """ Returns an ExifTool object for the photo
-        requires that exiftool (https://exiftool.org/) be installed
+    """ Returns a ExifToolCaching (read-only instance of ExifTool) object for the photo.
+        Requires that exiftool (https://exiftool.org/) be installed
         If exiftool not installed, logs warning and returns None
         If photo path is missing, returns None
     """
@@ -20,7 +20,7 @@ def exiftool(self):
         try:
             exiftool_path = self._db._exiftool_path or get_exiftool_path()
             if self.path is not None and os.path.isfile(self.path):
-                exiftool = ExifTool(self.path, exiftool=exiftool_path)
+                exiftool = ExifToolCaching(self.path, exiftool=exiftool_path)
             else:
                 exiftool = None
         except FileNotFoundError:

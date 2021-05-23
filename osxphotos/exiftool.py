@@ -194,7 +194,7 @@ class ExifTool:
             return True
         else:
             _, _, error = self.run_commands(*command)
-            return error is None
+            return error == ""
 
     def addvalues(self, tag, *values):
         """Add one or more value(s) to tag
@@ -236,7 +236,7 @@ class ExifTool:
             return True
         else:
             _, _, error = self.run_commands(*command)
-            return error is None
+            return error == ""
 
     def run_commands(self, *commands, no_file=False):
         """Run commands in the exiftool process and return result.
