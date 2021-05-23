@@ -213,6 +213,15 @@
         "example",
         "ideas"
       ]
+    },
+    {
+      "login": "kaduskj",
+      "name": "kaduskj",
+      "avatar_url": "https://avatars.githubusercontent.com/u/983067?v=4",
+      "profile": "https://github.com/kaduskj",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
