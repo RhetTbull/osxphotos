@@ -1615,7 +1615,11 @@ class PhotosDB:
 
         for person in c:
             pk = person[0]
-            fullname = person[2] if person[2] != "" else _UNKNOWN_PERSON
+            fullname = (
+                person[2]
+                if (person[2] != "" and person[2] is not None)
+                else _UNKNOWN_PERSON
+            )
             self._dbpersons_pk[pk] = {
                 "pk": pk,
                 "uuid": person[1],
