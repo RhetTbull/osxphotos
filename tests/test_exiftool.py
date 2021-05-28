@@ -425,8 +425,17 @@ def test_exiftool_terminate():
     import subprocess
 
     exif1 = osxphotos.exiftool.ExifTool(TEST_FILE_ONE_KEYWORD)
+
+    ps = subprocess.run(["ps"], capture_output=True)
+    stdout = ps.stdout.decode("utf-8")
+    assert "exiftool -stay_open" in stdout
+
     osxphotos.exiftool.terminate_exiftool()
 
     ps = subprocess.run(["ps"], capture_output=True)
     stdout = ps.stdout.decode("utf-8")
     assert "exiftool -stay_open" not in stdout
+ 
+    # verify we can create a new instance after termination
+    exif2 = osxphotos.exiftool.ExifTool(TEST_FILE_ONE_KEYWORD)
+    assert exif2.asdict()["IPTC:Keywords"] == "wedding"

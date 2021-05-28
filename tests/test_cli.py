@@ -34,9 +34,9 @@ UUID_BURST_ALBUM = {
         "TestBurst2/IMG_9814.JPG",
     ],
     "38F8F30C-FF6D-49DA-8092-18497F1D6628": [
-        "TestBurst/IMG_9812.JPG", 
+        "TestBurst/IMG_9812.JPG",
         "TestBurst/IMG_9813.JPG",
-        "TestBurst/IMG_9814.JPG", # in my personal library, "38F8F30C-FF6D-49DA-8092-18497F1D6628" 
+        "TestBurst/IMG_9814.JPG",  # in my personal library, "38F8F30C-FF6D-49DA-8092-18497F1D6628"
         "TestBurst/IMG_9815.JPG",
         "TestBurst/IMG_9816.JPG",
         "TestBurst2/IMG_9814.JPG",
@@ -1229,16 +1229,12 @@ def test_export_exiftool_path():
     import shutil
     import tempfile
     from osxphotos.cli import export
-    from osxphotos.exiftool import ExifTool, get_exiftool_path
+    from osxphotos.exiftool import ExifTool
 
     runner = CliRunner()
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
-        tempdir = tempfile.TemporaryDirectory()
-        exiftool_source = get_exiftool_path()
-        exiftool_path = os.path.join(tempdir.name, "myexiftool")
-        shutil.copy2(exiftool_source, exiftool_path)
         for uuid in CLI_EXIFTOOL:
             result = runner.invoke(
                 export,
@@ -1250,11 +1246,11 @@ def test_export_exiftool_path():
                     "--uuid",
                     f"{uuid}",
                     "--exiftool-path",
-                    exiftool_path,
+                    exiftool,
                 ],
             )
             assert result.exit_code == 0
-            assert f"exiftool path: {exiftool_path}" in result.output
+            assert f"exiftool path: {exiftool}" in result.output
             files = glob.glob("*")
             assert sorted(files) == sorted([CLI_EXIFTOOL[uuid]["File:FileName"]])
 
@@ -1290,9 +1286,6 @@ def test_export_exiftool_path_render_template():
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
-        tempdir = tempfile.TemporaryDirectory()
-        exiftool_path = os.path.join(tempdir.name, "myexiftool")
-        shutil.copy2(exiftool_source, exiftool_path)
         for uuid in CLI_EXIFTOOL:
             result = runner.invoke(
                 export,
@@ -1305,7 +1298,7 @@ def test_export_exiftool_path_render_template():
                     "--uuid",
                     f"{uuid}",
                     "--exiftool-path",
-                    exiftool_path,
+                    exiftool,
                 ],
             )
             assert result.exit_code == 0

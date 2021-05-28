@@ -3,9 +3,10 @@ import os
 import pathlib
 
 import pytest
-from applescript import AppleScript
 from photoscript.utils import ditto
 
+import osxphotos
+from applescript import AppleScript
 from osxphotos.exiftool import _ExifToolProc
 
 
@@ -63,7 +64,9 @@ def pytest_collection_modifyitems(config, items):
         # --addalbum given in cli: do not skip addalbum tests (these require interactive test)
         return
 
-    skip_addalbum = pytest.mark.skip(reason="need --addalbum option and MacOS Catalina to run")
+    skip_addalbum = pytest.mark.skip(
+        reason="need --addalbum option and MacOS Catalina to run"
+    )
     for item in items:
         if "addalbum" in item.keywords:
             item.add_marker(skip_addalbum)

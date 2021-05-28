@@ -23,11 +23,13 @@ EXIFTOOL_STAYOPEN_EOF_LEN = len(EXIFTOOL_STAYOPEN_EOF)
 # list of exiftool processes to cleanup when exiting or when terminate is called
 EXIFTOOL_PROCESSES = []
 
+
 @atexit.register
 def terminate_exiftool():
     """Terminate any running ExifTool subprocesses; call this to cleanup when done using ExifTool """
     for proc in EXIFTOOL_PROCESSES:
         proc._stop_proc()
+
 
 @lru_cache(maxsize=1)
 def get_exiftool_path():
@@ -70,15 +72,14 @@ class _ExifToolProc:
         self._exiftool = exiftool or get_exiftool_path()
         self._start_proc()
 
-        EXIFTOOL_PROCESSES.append(self)
-
     @property
     def process(self):
         """ return the exiftool subprocess """
         if self._process_running:
             return self._process
         else:
-            raise ValueError("exiftool process is not running")
+            self._start_proc()
+            return self._process
 
     @property
     def pid(self):
@@ -116,15 +117,21 @@ class _ExifToolProc:
         )
         self._process_running = True
 
+        EXIFTOOL_PROCESSES.append(self)
+
     def _stop_proc(self):
         """ stop the exiftool process if it's running, otherwise, do nothing """
 
         if not self._process_running:
             return
 
-        self._process.stdin.write(b"-stay_open\n")
-        self._process.stdin.write(b"False\n")
-        self._process.stdin.flush()
+        try:
+            self._process.stdin.write(b"-stay_open\n")
+            self._process.stdin.write(b"False\n")
+            self._process.stdin.flush()
+        except Exception as e:
+            pass
+
         try:
             self._process.communicate(timeout=5)
         except subprocess.TimeoutExpired:
@@ -133,9 +140,6 @@ class _ExifToolProc:
 
         del self._process
         self._process_running = False
-
-    def __del__(self):
-        self._stop_proc()
 
 
 class ExifTool:
@@ -162,8 +166,11 @@ class ExifTool:
         # if running as a context manager, self._context_mgr will be True
         self._context_mgr = False
         self._exiftoolproc = _ExifToolProc(exiftool=exiftool)
-        self._process = self._exiftoolproc.process
         self._read_exif()
+
+    @property
+    def _process(self):
+        return self._exiftoolproc.process
 
     def setvalue(self, tag, value):
         """Set tag to value(s); if value is None, will delete tag
