@@ -70,6 +70,7 @@ _TESTED_OS_VERSIONS = [
     ("11", "0"),
     ("11", "1"),
     ("11", "2"),
+    ("11", "3"),
 ]
 
 # Photos 5 has persons who are empty string if unidentified face
@@ -212,8 +213,13 @@ EXTENDED_ATTRIBUTE_NAMES_QUOTED = [f"'{x}'" for x in EXTENDED_ATTRIBUTE_NAMES]
 OSXPHOTOS_EXPORT_DB = ".osxphotos_export.db"
 
 # bit flags for burst images ("burstPickType")
-BURST_NOT_SELECTED = 0b10 # 2: burst image is not selected
-BURST_DEFAULT_PICK = 0b100 # 4: burst image is the one Photos picked to be key image before any selections made
-BURST_SELECTED = 0b1000 # 8: burst image is selected
-BURST_KEY = 0b10000 # 16: burst image is the key photo (top of burst stack)
-BURST_UNKNOWN = 0b100000 # 32: this is almost always set with BURST_DEFAULT_PICK and never if BURST_DEFAULT_PICK is not set.  I think this has something to do with what algorithm Photos used to pick the default image
+BURST_NOT_SELECTED = 0b10  # 2: burst image is not selected
+BURST_DEFAULT_PICK = (
+    0b100
+)  # 4: burst image is the one Photos picked to be key image before any selections made
+BURST_SELECTED = 0b1000  # 8: burst image is selected
+BURST_KEY = 0b10000  # 16: burst image is the key photo (top of burst stack)
+BURST_UNKNOWN = (
+    0b100000
+)  # 32: this is almost always set with BURST_DEFAULT_PICK and never if BURST_DEFAULT_PICK is not set.  I think this has something to do with what algorithm Photos used to pick the default image
+
