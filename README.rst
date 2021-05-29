@@ -16,8 +16,7 @@ You can also easily export both the original and edited photos.
 Supported operating systems
 ---------------------------
 
-Only works on macOS (aka Mac OS X). Tested on macOS Sierra (10.12.6) until macOS Catalina (10.15.7). 
-Beta support for macOS Big Sur (10.16.01/11.01).
+Only works on macOS (aka Mac OS X). Tested on macOS Sierra (10.12.6) through macOS Big Sur (11.3).
 
 This package will read Photos databases for any supported version on any supported macOS version.  
 E.g. you can read a database created with Photos 5.0 on MacOS 10.15 on a machine running macOS 10.12 and vice versa.
