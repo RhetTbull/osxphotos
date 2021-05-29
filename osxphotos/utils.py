@@ -268,13 +268,22 @@ def list_photo_libraries():
 def get_preferred_uti_extension(uti):
     """ get preferred extension for a UTI type
         uti: UTI str, e.g. 'public.jpeg'
-        returns: preferred extension as str """
+        returns: preferred extension as str or None if cannot be determined """
 
     # reference: https://developer.apple.com/documentation/coreservices/1442744-uttypecopypreferredtagwithclass?language=objc
     with objc.autorelease_pool():
-        return CoreServices.UTTypeCopyPreferredTagWithClass(
+        extension = CoreServices.UTTypeCopyPreferredTagWithClass(
             uti, CoreServices.kUTTagClassFilenameExtension
         )
+
+        if extension:
+            return extension
+
+        # on MacOS 10.12, HEIC files are not supported and UTTypeCopyPreferredTagWithClass will return None for HEIC
+        if uti == "public.heic":
+            return "HEIC"
+
+        return None
 
 
 def findfiles(pattern, path_):
