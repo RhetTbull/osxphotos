@@ -111,6 +111,7 @@ UUID_DICT = {
     "import_session": "8846E3E6-8AC8-4857-8448-E3D025784410",
     "movie": "D1359D09-1373-4F3B-B0E3-1A4DE573E4A3",
     "description_newlines": "7F74DD34-5920-4DA3-B284-479887A34F66",
+    "no_duplicates": "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51",
 }
 
 UUID_DICT_LOCAL = {
@@ -216,6 +217,8 @@ ORIGINAL_FILENAME_DICT = {
 
 UUID_IS_REFERENCE = "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C"
 UUID_NOT_REFERENCE = "F12384F6-CD17-4151-ACBA-AE0E3688539E"
+
+UUID_DUPLICATE = ""
 
 
 @pytest.fixture(scope="module")
@@ -1347,3 +1350,19 @@ def test_exiftool_newlines_in_description(photosdb):
     exif = photo._exiftool_dict()
     assert photo.description.find("\n") > 0
     assert exif["EXIF:ImageDescription"].find("\n") == -1
+
+
+@pytest.mark.skip(SKIP_TEST, reason="Not yet implemented")
+def test_duplicates_1(photosdb):
+    # test photo has duplicates
+
+    photo = photosdb.get_photo(uuid=UUID_DICT["duplicates"])
+    assert len(photo.duplicates) == 1
+    assert photo.duplicates[0].uuid == UUID_DUPLICATE
+
+
+def test_duplicates_2(photosdb):
+    # test photo does not have duplicates
+
+    photo = photosdb.get_photo(uuid=UUID_DICT["no_duplicates"])
+    assert not photo.duplicates

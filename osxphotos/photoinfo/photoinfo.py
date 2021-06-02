@@ -998,6 +998,21 @@ class PhotoInfo:
         """ returns filesize of original photo in bytes as int """
         return self._info["original_filesize"]
 
+    @property
+    def duplicates(self):
+        """ return list of PhotoInfo objects for possible duplicates (matching signature of original size, date, height, width) or empty list if no matching duplicates """
+        signature = self._db._duplicate_signature(self.uuid)
+        duplicates = []
+        try:
+            for uuid in self._db._db_signatures[signature]:
+                if uuid != self.uuid:
+                    # found a possible duplicate
+                    duplicates.append(self._db.get_photo(uuid))
+        except KeyError:
+            # don't expect this to happen as the signature should be in db
+            logging.warning(f"Did not find signature for {self.uuid} in _db_signatures")
+        return duplicates
+
     def render_template(
         self,
         template_str,

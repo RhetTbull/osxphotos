@@ -240,6 +240,10 @@ class PhotosDB:
         # Will hold the primary key of root folder
         self._folder_root_pk = None
 
+        # Dict to hold signatures for finding possible duplicates
+        # key is tuple of (original_filesize, date) and value is list of uuids that match that signature
+        self._db_signatures = {}
+
         if _debug():
             logging.debug(f"dbfile = {dbfile}")
 
@@ -1179,6 +1183,13 @@ class PhotosDB:
             self._dbphotos[uuid]["import_session"] = None
             self._dbphotos[uuid]["import_uuid"] = row[44]
             self._dbphotos[uuid]["fok_import_session"] = None
+
+            # compute signatures for finding possible duplicates
+            signature = self._duplicate_signature(uuid)
+            try:
+                self._db_signatures[signature].append(uuid)
+            except KeyError:
+                self._db_signatures[signature] = [uuid]
 
         # get additional details from RKMaster, needed for RAW processing
         verbose("Processing additional photo details.")
@@ -2144,6 +2155,13 @@ class PhotosDB:
             info["raw_info"] = None  # Photos 4
 
             self._dbphotos[uuid] = info
+
+            # compute signatures for finding possible duplicates
+            signature = self._duplicate_signature(uuid)
+            try:
+                self._db_signatures[signature].append(uuid)
+            except KeyError:
+                self._db_signatures[signature] = [uuid]
 
             # # if row[19] is not None and ((row[20] == 2) or (row[20] == 4)):
             # # burst photo
@@ -3208,6 +3226,17 @@ class PhotosDB:
                     raise ValueError(f"Invalid query_eval CRITERIA: {e}")
 
         return photos
+
+    def _duplicate_signature(self, uuid):
+        """ Compute a signature for finding possible duplicates """
+        return (
+            self._dbphotos[uuid]["original_filesize"],
+            self._dbphotos[uuid]["imageDate"],
+            self._dbphotos[uuid]["height"],
+            self._dbphotos[uuid]["width"],
+            self._dbphotos[uuid]["UTI"],
+            self._dbphotos[uuid]["hasAdjustments"],
+        )
 
     def __repr__(self):
         return f"osxphotos.{self.__class__.__name__}(dbfile='{self.db_path}')"
