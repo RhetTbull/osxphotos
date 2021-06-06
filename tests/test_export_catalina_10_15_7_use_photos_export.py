@@ -12,41 +12,41 @@ pytestmark = pytest.mark.skipif(
 )
 
 UUID_DICT = {
-    "has_adjustments": "2B2D5434-6D31-49E2-BF47-B973D34A317B",
-    "no_adjustments": "A8D646C3-89A9-4D74-8001-4EB46BA55B94",
-    "live": "BFF29EBD-22DF-4FCF-9817-317E7104EA50",
+    "has_adjustments": "C925CFDC-FF2B-4E71-AC9D-C669B6453A8B",
+    "no_adjustments": "16A6AF6B-D8FC-4256-AE33-889733E3EEAB",
+    "live": "8EC216A2-0032-4934-BD3F-04C6259B3304",
 }
 
 UUID_BURSTS = {
-    "9F90DC00-AAAF-4A05-9A65-61FEEE0D67F2": {
+    "9A5B4CE6-6A9F-4917-95D4-1C98D14FCE4F": {
         "selected": False,
         "filename": "IMG_9812.JPG",
         "burst_albums": ["TestBurst"],
-        "albums": ["TestBurst"]
+        "albums": ["TestBurst"],
     },
-    "A385FA13-DF8E-482F-A8C5-970EDDF54C2F": {
+    "89E235DD-B9AC-4E8D-BDA2-986981CA7582": {
         "selected": False,
         "filename": "IMG_9813.JPG",
         "burst_albums": ["TestBurst"],
-        "albums": []
+        "albums": [],
     },
-    "38F8F30C-FF6D-49DA-8092-18497F1D6628": {
+    "75154738-83AA-4DCD-A913-632D5D1C0FEE": {
         "selected": True,
         "filename": "IMG_9814.JPG",
         "burst_albums": ["TestBurst", "TestBurst2"],
-        "albums": ["TestBurst2"]
+        "albums": ["TestBurst2"],
     },
-    "E3863443-9EA8-417F-A90B-8F7086623DAD": {
+    "4A836160-51B2-4E32-907D-ECDDB2CEC657": {
         "selected": False,
         "filename": "IMG_9815.JPG",
         "burst_albums": ["TestBurst"],
-        "albums": []
+        "albums": [],
     },
-        "964F457D-5FFC-47B9-BEAD-56B0A83FEF63": {
+    "F5E6BD24-B493-44E9-BDA2-7AD9D2CC8C9D": {
         "selected": True,
         "filename": "IMG_9816.JPG",
         "burst_albums": ["TestBurst"],
-        "albums": []
+        "albums": [],
     },
 }
 

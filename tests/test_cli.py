@@ -25,18 +25,18 @@ PHOTOS_DB_MOVIES = "tests/Test-Movie-5_0.photoslibrary"
 # my personal library which some tests require
 PHOTOS_DB_RHET = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
 UUID_BURST_ALBUM = {
-    "9F90DC00-AAAF-4A05-9A65-61FEEE0D67F2": [
-        "TestBurst/IMG_9812.JPG",  # in my personal library, IMG_9812.JPG == "9F90DC00-AAAF-4A05-9A65-61FEEE0D67F2"
+    "9A5B4CE6-6A9F-4917-95D4-1C98D14FCE4F": [
+        "TestBurst/IMG_9812.JPG",  # in my personal library, IMG_9812.JPG == "9A5B4CE6-6A9F-4917-95D4-1C98D14FCE4F"
         "TestBurst/IMG_9813.JPG",
         "TestBurst/IMG_9814.JPG",
         "TestBurst/IMG_9815.JPG",
         "TestBurst/IMG_9816.JPG",
         "TestBurst2/IMG_9814.JPG",
     ],
-    "38F8F30C-FF6D-49DA-8092-18497F1D6628": [
+    "75154738-83AA-4DCD-A913-632D5D1C0FEE": [
         "TestBurst/IMG_9812.JPG",
         "TestBurst/IMG_9813.JPG",
-        "TestBurst/IMG_9814.JPG",  # in my personal library, "38F8F30C-FF6D-49DA-8092-18497F1D6628"
+        "TestBurst/IMG_9814.JPG",  # in my personal library, "75154738-83AA-4DCD-A913-632D5D1C0FEE"
         "TestBurst/IMG_9815.JPG",
         "TestBurst/IMG_9816.JPG",
         "TestBurst2/IMG_9814.JPG",
