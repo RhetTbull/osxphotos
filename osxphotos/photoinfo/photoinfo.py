@@ -61,6 +61,7 @@ class PhotoInfo:
         _export_photo,
         _exiftool_dict,
         _exiftool_json_sidecar,
+        _export_photo_with_photos_export,
         _get_exif_keywords,
         _get_exif_persons,
         _write_exif_data,

@@ -24,35 +24,35 @@ pytestmark = pytest.mark.skipif(
 
 UUID_DICT = {
     "plain_photo": {
-        "uuid": "A8D646C3-89A9-4D74-8001-4EB46BA55B94",
+        "uuid": "C6C712C5-9316-408D-A3C3-125661422DA9",
         "filename": "IMG_8844.JPG",
     },
-    "hdr": {"uuid": "DA87C6FF-60E8-4DCB-A21D-9C57595667F1", "filename": "IMG_6162.JPG"},
+    "hdr": {"uuid": "DD641004-4E37-4233-AF31-CAA0896490B2", "filename": "IMG_6162.JPG"},
     "selfie": {
-        "uuid": "316AEBE0-971D-4A33-833C-6BDBFF83469B",
+        "uuid": "C925CFDC-FF2B-4E71-AC9D-C669B6453A8B",
         "filename": "IMG_1929.JPG",
     },
     "video": {
-        "uuid": "5814D9DE-FAB6-473A-9C9A-5A73C6DD1AF5",
+        "uuid": "F4430659-7B17-487E-8029-8C1ABEBE23DF",
         "filename": "IMG_9411.TRIM.MOV",
     },
     "hasadjustments": {
-        "uuid": "2B2D5434-6D31-49E2-BF47-B973D34A317B",
+        "uuid": "2F252D2C-C9DE-4BE1-8610-9F968C634D3D",
         "filename": "IMG_2860.JPG",
         "adjusted_size": 3012634,
         "unadjusted_size": 2580058,
     },
     "slow_mo": {
-        "uuid": "DAABC6D9-1FBA-4485-AA39-0A2B100300B1",
+        "uuid": "160447F8-4EB0-4FAE-A26A-3D32EA698F75",
         "filename": "IMG_4055.MOV",
     },
     "live_photo": {
-        "uuid": "612CE30B-3D8F-417A-9B14-EC42CBA10ACC",
+        "uuid": "8EC216A2-0032-4934-BD3F-04C6259B3304",
         "filename": "IMG_3259.HEIC",
         "filename_video": "IMG_3259.mov",
     },
     "burst": {
-        "uuid": "CD97EC84-71F0-40C6-BAC1-2BABEE305CAC",
+        "uuid": "CDE4E5D9-1428-41E6-8569-EC0C45FD8E5A",
         "filename": "IMG_8196.JPG",
         "burst_selected": 4,
         "burst_all": 5,
@@ -61,7 +61,7 @@ UUID_DICT = {
 
 
 def test_fetch_uuid():
-    """ test fetch_uuid """
+    """test fetch_uuid"""
     uuid = UUID_DICT["plain_photo"]["uuid"]
     filename = UUID_DICT["plain_photo"]["filename"]
 
@@ -71,7 +71,7 @@ def test_fetch_uuid():
 
 
 def test_plain_photo():
-    """ test plain_photo """
+    """test plain_photo"""
     uuid = UUID_DICT["plain_photo"]["uuid"]
     filename = UUID_DICT["plain_photo"]["filename"]
 
@@ -83,7 +83,7 @@ def test_plain_photo():
 
 
 def test_hdr():
-    """ test hdr """
+    """test hdr"""
     uuid = UUID_DICT["hdr"]["uuid"]
     filename = UUID_DICT["hdr"]["filename"]
 
@@ -94,7 +94,7 @@ def test_hdr():
 
 
 def test_burst():
-    """ test burst and burstid """
+    """test burst and burstid"""
     test_dict = UUID_DICT["burst"]
     uuid = test_dict["uuid"]
     filename = test_dict["filename"]
@@ -104,7 +104,6 @@ def test_burst():
     assert photo.original_filename == filename
     assert photo.burst
     assert photo.burstid
-
 
 
 # def test_selfie():
@@ -119,7 +118,7 @@ def test_burst():
 
 
 def test_video():
-    """ test ismovie """
+    """test ismovie"""
     uuid = UUID_DICT["video"]["uuid"]
     filename = UUID_DICT["video"]["filename"]
 
@@ -132,7 +131,7 @@ def test_video():
 
 
 def test_slow_mo():
-    """ test slow_mo """
+    """test slow_mo"""
     test_dict = UUID_DICT["slow_mo"]
     uuid = test_dict["uuid"]
     filename = test_dict["filename"]
@@ -150,7 +149,7 @@ def test_slow_mo():
 
 
 def test_export_photo_original():
-    """ test PhotoAsset.export """
+    """test PhotoAsset.export"""
     test_dict = UUID_DICT["hasadjustments"]
     uuid = test_dict["uuid"]
     lib = PhotoLibrary()
@@ -166,7 +165,7 @@ def test_export_photo_original():
 
 
 def test_export_photo_unadjusted():
-    """ test PhotoAsset.export """
+    """test PhotoAsset.export"""
     test_dict = UUID_DICT["hasadjustments"]
     uuid = test_dict["uuid"]
     lib = PhotoLibrary()
@@ -182,7 +181,7 @@ def test_export_photo_unadjusted():
 
 
 def test_export_photo_current():
-    """ test PhotoAsset.export """
+    """test PhotoAsset.export"""
     test_dict = UUID_DICT["hasadjustments"]
     uuid = test_dict["uuid"]
     lib = PhotoLibrary()
@@ -201,7 +200,7 @@ def test_export_photo_current():
 
 
 def test_export_video_original():
-    """ test VideoAsset.export """
+    """test VideoAsset.export"""
     test_dict = UUID_DICT["video"]
     uuid = test_dict["uuid"]
     lib = PhotoLibrary()
@@ -216,7 +215,7 @@ def test_export_video_original():
 
 
 def test_export_video_unadjusted():
-    """ test VideoAsset.export """
+    """test VideoAsset.export"""
     test_dict = UUID_DICT["video"]
     uuid = test_dict["uuid"]
     lib = PhotoLibrary()
@@ -231,7 +230,7 @@ def test_export_video_unadjusted():
 
 
 def test_export_video_current():
-    """ test VideoAsset.export """
+    """test VideoAsset.export"""
     test_dict = UUID_DICT["video"]
     uuid = test_dict["uuid"]
     lib = PhotoLibrary()
@@ -249,7 +248,7 @@ def test_export_video_current():
 
 
 def test_export_slow_mo_original():
-    """ test VideoAsset.export for slow mo video"""
+    """test VideoAsset.export for slow mo video"""
     test_dict = UUID_DICT["slow_mo"]
     uuid = test_dict["uuid"]
     lib = PhotoLibrary()
@@ -264,7 +263,7 @@ def test_export_slow_mo_original():
 
 
 def test_export_slow_mo_unadjusted():
-    """ test VideoAsset.export for slow mo video"""
+    """test VideoAsset.export for slow mo video"""
     test_dict = UUID_DICT["slow_mo"]
     uuid = test_dict["uuid"]
     lib = PhotoLibrary()
@@ -279,7 +278,7 @@ def test_export_slow_mo_unadjusted():
 
 
 def test_export_slow_mo_current():
-    """ test VideoAsset.export for slow mo video"""
+    """test VideoAsset.export for slow mo video"""
     test_dict = UUID_DICT["slow_mo"]
     uuid = test_dict["uuid"]
     lib = PhotoLibrary()
@@ -297,7 +296,7 @@ def test_export_slow_mo_current():
 
 
 def test_export_live_original():
-    """ test LivePhotoAsset.export """
+    """test LivePhotoAsset.export"""
     test_dict = UUID_DICT["live_photo"]
     uuid = test_dict["uuid"]
     lib = PhotoLibrary()
@@ -313,7 +312,7 @@ def test_export_live_original():
 
 
 def test_export_live_unadjusted():
-    """ test LivePhotoAsset.export """
+    """test LivePhotoAsset.export"""
     test_dict = UUID_DICT["live_photo"]
     uuid = test_dict["uuid"]
     lib = PhotoLibrary()
@@ -329,7 +328,7 @@ def test_export_live_unadjusted():
 
 
 def test_export_live_current():
-    """ test LivePhotAsset.export """
+    """test LivePhotAsset.export"""
     test_dict = UUID_DICT["live_photo"]
     uuid = test_dict["uuid"]
     lib = PhotoLibrary()
@@ -345,7 +344,7 @@ def test_export_live_current():
 
 
 def test_export_live_current_just_photo():
-    """ test LivePhotAsset.export """
+    """test LivePhotAsset.export"""
     test_dict = UUID_DICT["live_photo"]
     uuid = test_dict["uuid"]
     lib = PhotoLibrary()
@@ -358,7 +357,7 @@ def test_export_live_current_just_photo():
 
 
 def test_export_live_current_just_video():
-    """ test LivePhotAsset.export """
+    """test LivePhotAsset.export"""
     test_dict = UUID_DICT["live_photo"]
     uuid = test_dict["uuid"]
     lib = PhotoLibrary()
@@ -371,7 +370,7 @@ def test_export_live_current_just_video():
 
 
 def test_fetch_burst_uuid():
-    """ test fetch_burst_uuid """
+    """test fetch_burst_uuid"""
     test_dict = UUID_DICT["burst"]
     uuid = test_dict["uuid"]
     filename = test_dict["filename"]

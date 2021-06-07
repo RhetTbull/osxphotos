@@ -58,13 +58,13 @@ MAX_PHOTOSCRIPT_RETRIES = 3
 
 
 class ExportError(Exception):
-    """ error during export """
+    """error during export"""
 
     pass
 
 
 class ExportResults:
-    """ holds export results for export2 """
+    """holds export results for export2"""
 
     def __init__(
         self,
@@ -119,7 +119,7 @@ class ExportResults:
         self.missing_album = missing_album or []
 
     def all_files(self):
-        """ return all filenames contained in results """
+        """return all filenames contained in results"""
         files = (
             self.exported
             + self.new
@@ -200,7 +200,7 @@ class ExportResults:
 
 # hexdigest is not a class method, don't import this into PhotoInfo
 def hexdigest(strval):
-    """ hexdigest of a string, using blake2b """
+    """hexdigest of a string, using blake2b"""
     h = hashlib.blake2b(digest_size=20)
     h.update(bytes(strval, "utf-8"))
     return h.hexdigest()
@@ -343,13 +343,13 @@ def _check_export_suffix(src, dest, edited):
 
 # not a class method, don't import into PhotoInfo
 def rename_jpeg_files(files, jpeg_ext, fileutil):
-    """ rename any jpeg files in files so that extension matches jpeg_ext
+    """rename any jpeg files in files so that extension matches jpeg_ext
 
     Args:
         files: list of file paths
         jpeg_ext: extension to use for jpeg files found in files, e.g. "jpg"
         fileutil: a FileUtil object
-    
+
     Returns:
         list of files with updated names
 
@@ -415,7 +415,7 @@ def export(
     sidecar_exiftool: if set will write a json sidecar with data in format readable by exiftool
                 sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. `exiftool -j`)
     sidecar_xmp: if set will write an XMP sidecar with IPTC data
-                sidecar filename will be dest/filename.xmp           
+                sidecar filename will be dest/filename.xmp
     use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos
     timeout: (int, default=120) timeout in seconds used with use_photos_export
     exiftool: (boolean, default = False); if True, will use exiftool to write metadata to export file
@@ -426,7 +426,7 @@ def export(
     when exporting metadata with exiftool or sidecar
     keyword_template: (list of strings); list of template strings that will be rendered as used as keywords
     description_template: string; optional template string that will be rendered for use as photo description
-    
+
     Returns: list of photos exported
     """
 
@@ -555,8 +555,8 @@ def export2(
     location: if True, include location in exported metadata
     replace_keywords: if True, keyword_template replaces any keywords, otherwise it's additive
 
-    Returns: ExportResults class 
-        ExportResults has attributes: 
+    Returns: ExportResults class
+        ExportResults has attributes:
         "exported",
         "new",
         "updated",
@@ -576,7 +576,7 @@ def export2(
         "exiftool_warning",
         "exiftool_error",
 
- 
+
     Note: to use dry run mode, you must set dry_run=True and also pass in memory version of export_db,
           and no-op fileutil (e.g. ExportDBInMemory and FileUtilNoOp)
     """
@@ -817,139 +817,21 @@ def export2(
                 )
                 all_results += results
     else:
-        # TODO: move this big if/else block to separate functions
-        # e.g. _export_with_photos_export or such
-        # use_photo_export
-        # export live_photo .mov file?
-        live_photo = True if live_photo and self.live_photo else False
-        if edited or self.shared:
-            # exported edited version and not original
-            # shared photos (in shared albums) show up as not having adjustments (not edited)
-            # but Photos is unable to export the "original" as only a jpeg copy is shared in iCloud
-            # so tell Photos to export the current version in this case
-            if filename:
-                # use filename stem provided
-                filestem = dest.stem
-            else:
-                # didn't get passed a filename, add _edited
-                filestem = f"{dest.stem}{edited_identifier}"
-                uti = self.uti_edited if edited and self.uti_edited else self.uti
-                ext = get_preferred_uti_extension(uti)
-                dest = dest.parent / f"{filestem}{ext}"
-
-            if use_photokit:
-                photolib = PhotoLibrary()
-                photo = None
-                try:
-                    photo = photolib.fetch_uuid(self.uuid)
-                except PhotoKitFetchFailed as e:
-                    # if failed to find UUID, might be a burst photo
-                    if self.burst and self._info["burstUUID"]:
-                        bursts = photolib.fetch_burst_uuid(
-                            self._info["burstUUID"], all=True
-                        )
-                        # PhotoKit UUIDs may contain "/L0/001" so only look at beginning
-                        photo = [p for p in bursts if p.uuid.startswith(self.uuid)]
-                        photo = photo[0] if photo else None
-                    if not photo:
-                        all_results.error.append(
-                            (
-                                str(dest),
-                                f"PhotoKitFetchFailed exception exporting photo {self.uuid}: {e} ({lineno(__file__)})",
-                            )
-                        )
-                if photo:
-                    if not dry_run:
-                        try:
-                            exported = photo.export(
-                                dest.parent, dest.name, version=PHOTOS_VERSION_CURRENT
-                            )
-                            all_results.exported.extend(exported)
-                        except Exception as e:
-                            all_results.error.append(
-                                (str(dest), f"{e} ({lineno(__file__)})")
-                            )
-                    else:
-                        # dry_run, don't actually export
-                        all_results.exported.append(str(dest))
-            else:
-                try:
-                    exported = _export_photo_uuid_applescript(
-                        self.uuid,
-                        dest.parent,
-                        filestem=filestem,
-                        original=False,
-                        edited=True,
-                        live_photo=live_photo,
-                        timeout=timeout,
-                        burst=self.burst,
-                        dry_run=dry_run,
-                    )
-                    all_results.exported.extend(exported)
-                except ExportError as e:
-                    all_results.error.append((str(dest), f"{e} ({lineno(__file__)})"))
-        else:
-            # export original version and not edited
-            filestem = dest.stem
-            if use_photokit:
-                photolib = PhotoLibrary()
-                photo = None
-                try:
-                    photo = photolib.fetch_uuid(self.uuid)
-                except PhotoKitFetchFailed:
-                    # if failed to find UUID, might be a burst photo
-                    if self.burst and self._info["burstUUID"]:
-                        bursts = photolib.fetch_burst_uuid(
-                            self._info["burstUUID"], all=True
-                        )
-                        # PhotoKit UUIDs may contain "/L0/001" so only look at beginning
-                        photo = [p for p in bursts if p.uuid.startswith(self.uuid)]
-                        photo = photo[0] if photo else None
-                if photo:
-                    if not dry_run:
-                        try:
-                            exported = photo.export(
-                                dest.parent, dest.name, version=PHOTOS_VERSION_ORIGINAL
-                            )
-                            all_results.exported.extend(exported)
-                        except Exception as e:
-                            all_results.error.append(
-                                (str(dest), f"{e} ({lineno(__file__)})")
-                            )
-                    else:
-                        # dry_run, don't actually export
-                        all_results.exported.append(str(dest))
-            else:
-                try:
-                    exported = _export_photo_uuid_applescript(
-                        self.uuid,
-                        dest.parent,
-                        filestem=filestem,
-                        original=True,
-                        edited=False,
-                        live_photo=live_photo,
-                        timeout=timeout,
-                        burst=self.burst,
-                        dry_run=dry_run,
-                    )
-                    all_results.exported.extend(exported)
-                except ExportError as e:
-                    all_results.error.append((str(dest), f"{e} ({lineno(__file__)})"))
-        if all_results.exported:
-            if jpeg_ext:
-                # use_photos_export (both PhotoKit and AppleScript) don't use the
-                # file extension provided (instead they use extension for UTI)
-                # so if jpeg_ext is set, rename any non-conforming jpegs
-                all_results.exported = rename_jpeg_files(
-                    all_results.exported, jpeg_ext, fileutil
-                )
-            if touch_file:
-                for exported_file in all_results.exported:
-                    all_results.touched.append(exported_file)
-                    ts = int(self.date.timestamp())
-                    fileutil.utime(exported_file, (ts, ts))
-            if update:
-                all_results.new.extend(all_results.exported)
+        self._export_photo_with_photos_export(
+            dest,
+            filename,
+            all_results,
+            fileutil,
+            use_photokit=use_photokit,
+            dry_run=dry_run,
+            timeout=timeout,
+            jpeg_ext=jpeg_ext,
+            touch_file=touch_file,
+            update=update,
+            live_photo=live_photo,
+            edited=edited,
+            edited_identifier=edited_identifier,
+        )
 
     # export metadata
     sidecars = []
@@ -1205,6 +1087,156 @@ def export2(
     all_results.sidecar_xmp_skipped = sidecar_xmp_files_skipped
 
     return all_results
+
+
+def _export_photo_with_photos_export(
+    self,
+    dest,
+    filename,
+    all_results,
+    fileutil,
+    use_photokit=None,
+    dry_run=None,
+    timeout=None,
+    jpeg_ext=None,
+    touch_file=None,
+    update=None,
+    live_photo=None,
+    edited=None,
+    edited_identifier=None,
+):
+    # e.g. _export_with_photos_export or such
+    # use_photo_export
+    # export live_photo .mov file?
+    live_photo = True if live_photo and self.live_photo else False
+    if edited or self.shared:
+        # exported edited version and not original
+        # shared photos (in shared albums) show up as not having adjustments (not edited)
+        # but Photos is unable to export the "original" as only a jpeg copy is shared in iCloud
+        # so tell Photos to export the current version in this case
+        if filename:
+            # use filename stem provided
+            filestem = dest.stem
+        else:
+            # didn't get passed a filename, add _edited
+            filestem = f"{dest.stem}{edited_identifier}"
+            uti = self.uti_edited if edited and self.uti_edited else self.uti
+            ext = get_preferred_uti_extension(uti)
+            dest = dest.parent / f"{filestem}{ext}"
+
+        if use_photokit:
+            photolib = PhotoLibrary()
+            photo = None
+            try:
+                photo = photolib.fetch_uuid(self.uuid)
+            except PhotoKitFetchFailed as e:
+                # if failed to find UUID, might be a burst photo
+                if self.burst and self._info["burstUUID"]:
+                    bursts = photolib.fetch_burst_uuid(
+                        self._info["burstUUID"], all=True
+                    )
+                    # PhotoKit UUIDs may contain "/L0/001" so only look at beginning
+                    photo = [p for p in bursts if p.uuid.startswith(self.uuid)]
+                    photo = photo[0] if photo else None
+                if not photo:
+                    all_results.error.append(
+                        (
+                            str(dest),
+                            f"PhotoKitFetchFailed exception exporting photo {self.uuid}: {e} ({lineno(__file__)})",
+                        )
+                    )
+            if photo:
+                if not dry_run:
+                    try:
+                        exported = photo.export(
+                            dest.parent, dest.name, version=PHOTOS_VERSION_CURRENT
+                        )
+                        all_results.exported.extend(exported)
+                    except Exception as e:
+                        all_results.error.append(
+                            (str(dest), f"{e} ({lineno(__file__)})")
+                        )
+                else:
+                    # dry_run, don't actually export
+                    all_results.exported.append(str(dest))
+        else:
+            try:
+                exported = _export_photo_uuid_applescript(
+                    self.uuid,
+                    dest.parent,
+                    filestem=filestem,
+                    original=False,
+                    edited=True,
+                    live_photo=live_photo,
+                    timeout=timeout,
+                    burst=self.burst,
+                    dry_run=dry_run,
+                )
+                all_results.exported.extend(exported)
+            except ExportError as e:
+                all_results.error.append((str(dest), f"{e} ({lineno(__file__)})"))
+    else:
+        # export original version and not edited
+        filestem = dest.stem
+        if use_photokit:
+            photolib = PhotoLibrary()
+            photo = None
+            try:
+                photo = photolib.fetch_uuid(self.uuid)
+            except PhotoKitFetchFailed:
+                # if failed to find UUID, might be a burst photo
+                if self.burst and self._info["burstUUID"]:
+                    bursts = photolib.fetch_burst_uuid(
+                        self._info["burstUUID"], all=True
+                    )
+                    # PhotoKit UUIDs may contain "/L0/001" so only look at beginning
+                    photo = [p for p in bursts if p.uuid.startswith(self.uuid)]
+                    photo = photo[0] if photo else None
+            if photo:
+                if not dry_run:
+                    try:
+                        exported = photo.export(
+                            dest.parent, dest.name, version=PHOTOS_VERSION_ORIGINAL
+                        )
+                        all_results.exported.extend(exported)
+                    except Exception as e:
+                        all_results.error.append(
+                            (str(dest), f"{e} ({lineno(__file__)})")
+                        )
+                else:
+                    # dry_run, don't actually export
+                    all_results.exported.append(str(dest))
+        else:
+            try:
+                exported = _export_photo_uuid_applescript(
+                    self.uuid,
+                    dest.parent,
+                    filestem=filestem,
+                    original=True,
+                    edited=False,
+                    live_photo=live_photo,
+                    timeout=timeout,
+                    burst=self.burst,
+                    dry_run=dry_run,
+                )
+                all_results.exported.extend(exported)
+            except ExportError as e:
+                all_results.error.append((str(dest), f"{e} ({lineno(__file__)})"))
+    if all_results.exported:
+        if jpeg_ext:
+            # use_photos_export (both PhotoKit and AppleScript) don't use the
+            # file extension provided (instead they use extension for UTI)
+            # so if jpeg_ext is set, rename any non-conforming jpegs
+            all_results.exported = rename_jpeg_files(
+                all_results.exported, jpeg_ext, fileutil
+            )
+        if touch_file:
+            for exported_file in all_results.exported:
+                all_results.touched.append(exported_file)
+                ts = int(self.date.timestamp())
+                fileutil.utime(exported_file, (ts, ts))
+        if update:
+            all_results.new.extend(all_results.exported)
 
 
 def _export_photo(
@@ -1501,7 +1533,7 @@ def _exiftool_dict(
         QuickTime:GPSCoordinates
         UserData:GPSCoordinates
 
-    Reference: 
+    Reference:
         https://iptc.org/std/photometadata/specification/IPTC-PhotoMetadata-201610_1.pdf
     """
 
@@ -1682,7 +1714,7 @@ def _exiftool_dict(
 
 
 def _get_exif_keywords(self):
-    """ returns list of keywords found in the file's exif metadata """
+    """returns list of keywords found in the file's exif metadata"""
     keywords = []
     exif = self.exiftool
     if exif:
@@ -1700,7 +1732,7 @@ def _get_exif_keywords(self):
 
 
 def _get_exif_persons(self):
-    """ returns list of persons found in the file's exif metadata """
+    """returns list of persons found in the file's exif metadata"""
     persons = []
     exif = self.exiftool
     if exif:
