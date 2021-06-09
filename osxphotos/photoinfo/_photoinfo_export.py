@@ -39,6 +39,7 @@ from .._constants import (
     SIDECAR_EXIFTOOL,
     SIDECAR_JSON,
     SIDECAR_XMP,
+    LIVE_VIDEO_EXTENSIONS,
 )
 from .._version import __version__
 from ..datetime_utils import datetime_tz_to_utc
@@ -512,10 +513,10 @@ def export2(
                 reference PhotoInfo.path_edited
     edited: (boolean, default=False); if True will export the edited version of the photo
             (or raise exception if no edited version)
-    live_photo: (boolean, default=False); if True, will also export the associted .mov for live photos
-    raw_photo: (boolean, default=False); if True, will also export the associted RAW photo
+    live_photo: (boolean, default=False); if True, will also export the associated .mov for live photos
+    raw_photo: (boolean, default=False); if True, will also export the associated RAW photo
     export_as_hardlink: (boolean, default=False); if True, will hardlink files instead of copying them
-    overwrite: (boolean, default=False); if True will overwrite files if they alreay exist
+    overwrite: (boolean, default=False); if True will overwrite files if they already exist
     increment: (boolean, default=True); if True, will increment file name until a non-existant name is found
                 if overwrite=False and increment=False, export will fail if destination file already exists
     sidecar: bit field: set to one or more of SIDECAR_XMP, SIDECAR_JSON, SIDECAR_EXIFTOOL
@@ -822,15 +823,19 @@ def export2(
             filename,
             all_results,
             fileutil,
+            export_db,
             use_photokit=use_photokit,
             dry_run=dry_run,
             timeout=timeout,
             jpeg_ext=jpeg_ext,
             touch_file=touch_file,
             update=update,
+            overwrite=overwrite,
             live_photo=live_photo,
             edited=edited,
             edited_identifier=edited_identifier,
+            convert_to_jpeg=convert_to_jpeg,
+            jpeg_quality=jpeg_quality,
         )
 
     # export metadata
@@ -1095,20 +1100,24 @@ def _export_photo_with_photos_export(
     filename,
     all_results,
     fileutil,
+    export_db,
     use_photokit=None,
     dry_run=None,
     timeout=None,
     jpeg_ext=None,
     touch_file=None,
     update=None,
+    overwrite=None,
     live_photo=None,
     edited=None,
     edited_identifier=None,
+    convert_to_jpeg=None,
+    jpeg_quality=1.0,
 ):
-    # e.g. _export_with_photos_export or such
-    # use_photo_export
+    # TODO: duplicative code with the if edited/else--remove it
     # export live_photo .mov file?
-    live_photo = True if live_photo and self.live_photo else False
+    live_photo = bool(live_photo and self.live_photo)
+    overwrite = overwrite or update
     if edited or self.shared:
         # exported edited version and not original
         # shared photos (in shared albums) show up as not having adjustments (not edited)
@@ -1146,19 +1155,19 @@ def _export_photo_with_photos_export(
                         )
                     )
             if photo:
-                if not dry_run:
+                if dry_run:
+                    # dry_run, don't actually export
+                    all_results.exported.append(str(dest))
+                else:
                     try:
                         exported = photo.export(
-                            dest.parent, dest.name, version=PHOTOS_VERSION_CURRENT
+                            dest.parent, dest.name, version=PHOTOS_VERSION_CURRENT, overwrite=overwrite
                         )
                         all_results.exported.extend(exported)
                     except Exception as e:
                         all_results.error.append(
                             (str(dest), f"{e} ({lineno(__file__)})")
                         )
-                else:
-                    # dry_run, don't actually export
-                    all_results.exported.append(str(dest))
         else:
             try:
                 exported = _export_photo_uuid_applescript(
@@ -1196,7 +1205,7 @@ def _export_photo_with_photos_export(
                 if not dry_run:
                     try:
                         exported = photo.export(
-                            dest.parent, dest.name, version=PHOTOS_VERSION_ORIGINAL
+                            dest.parent, dest.name, version=PHOTOS_VERSION_ORIGINAL, overwrite=overwrite
                         )
                         all_results.exported.extend(exported)
                     except Exception as e:
@@ -1223,6 +1232,35 @@ def _export_photo_with_photos_export(
             except ExportError as e:
                 all_results.error.append((str(dest), f"{e} ({lineno(__file__)})"))
     if all_results.exported:
+        for idx, photopath in enumerate(all_results.exported):
+            converted_stat = (None, None, None)
+            photopath = pathlib.Path(photopath)
+            if convert_to_jpeg and self.isphoto:
+                # if passed convert_to_jpeg=True, will assume the photo is a photo and not already a jpeg
+                if photopath.suffix.lower() not in LIVE_VIDEO_EXTENSIONS:
+                    dest_str = photopath.parent / f"{photopath.stem}.jpeg"
+                    fileutil.convert_to_jpeg(
+                        photopath, dest_str, compression_quality=jpeg_quality
+                    )
+                    converted_stat = fileutil.file_sig(dest_str)
+                    fileutil.unlink(photopath)
+                    all_results.exported[idx] = dest_str
+                    all_results.converted_to_jpeg.append(dest_str)
+                    photopath = dest_str
+
+            photopath = str(photopath)
+            export_db.set_data(
+                filename=photopath,
+                uuid=self.uuid,
+                orig_stat=fileutil.file_sig(photopath),
+                exif_stat=(None, None, None),
+                converted_stat=converted_stat,
+                edited_stat=(None, None, None),
+                info_json=self.json(),
+                exif_json=None,
+            )
+
+            # todo: handle signatures
         if jpeg_ext:
             # use_photos_export (both PhotoKit and AppleScript) don't use the
             # file extension provided (instead they use extension for UTI)
