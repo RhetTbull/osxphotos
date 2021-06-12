@@ -1002,12 +1002,15 @@ def test_from_to_date(photosdb):
     assert len(photos) == 4
 
 
-def test_date_invalid(photosdb):
+def test_date_invalid():
     """ Test date is invalid  """
+    # doesn't run correctly with the module-level fixture
     from datetime import datetime, timedelta, timezone
+    import osxphotos
 
     # UUID_DICT["date_invalid"] has an invalid date that's
     # been manually adjusted in the database
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["date_invalid"]])
     assert len(photos) == 1
     p = photos[0]
