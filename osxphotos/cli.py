@@ -1539,12 +1539,12 @@ def export(
         else:
             raise ValueError(e)
 
-    if photos:
-        if only_new:
-            # ignore previously exported files
-            previous_uuids = {uuid: 1 for uuid in export_db.get_previous_uuids()}
-            photos = [p for p in photos if p.uuid not in previous_uuids]
+    if photos and only_new:
+        # ignore previously exported files
+        previous_uuids = {uuid: 1 for uuid in export_db.get_previous_uuids()}
+        photos = [p for p in photos if p.uuid not in previous_uuids]
 
+    if photos:
         num_photos = len(photos)
         # TODO: photos or photo appears several times, pull into a separate function
         photo_str = "photos" if num_photos > 1 else "photo"
