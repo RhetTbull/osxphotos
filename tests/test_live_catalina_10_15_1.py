@@ -2,6 +2,8 @@
 
 import pytest
 
+import osxphotos
+
 PHOTOS_DB = "./tests/Test-Cloud-10.15.1.photoslibrary/database/photos.db"
 
 UUID_DICT = {
@@ -10,38 +12,34 @@ UUID_DICT = {
 }
 
 
-def test_live_photo():
-    import osxphotos
+@pytest.fixture(scope="module")
+def photosdb():
+    return osxphotos.PhotosDB(dbfile=PHOTOS_DB)
 
-    photosdb = osxphotos.PhotosDB(PHOTOS_DB)
+
+def test_live_photo(photosdb):
     photos = photosdb.photos(uuid=[UUID_DICT["live"]])
 
     assert photos[0].live_photo
     assert photos[0].path_live_photo is not None
 
 
-def test_not_live_photo():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(PHOTOS_DB)
+def test_not_live_photo(photosdb):
     photos = photosdb.photos(uuid=[UUID_DICT["not_live"]])
 
     assert not photos[0].live_photo
     assert photos[0].path_live_photo is None
 
 
-def test_export_live_1():
+def test_export_live_1(photosdb):
     # export a live photo and associated .mov
     import glob
     import os.path
     import pathlib
     import tempfile
 
-    import osxphotos
-
     dest = tempfile.TemporaryDirectory(prefix="osxphotos_")
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["live"]])
 
     filename = photos[0].original_filename
@@ -56,18 +54,15 @@ def test_export_live_1():
     assert got_movie in files
 
 
-def test_export_live_2():
+def test_export_live_2(photosdb):
     # don't export the live photo
     import glob
     import os.path
     import pathlib
     import tempfile
 
-    import osxphotos
-
     dest = tempfile.TemporaryDirectory(prefix="osxphotos_")
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["live"]])
 
     filename = photos[0].original_filename
@@ -82,7 +77,7 @@ def test_export_live_2():
     assert got_movie not in files
 
 
-def test_export_live_3():
+def test_export_live_3(photosdb):
     # export a live photo and associated .mov,
     # check list return of export
     import glob
@@ -90,11 +85,8 @@ def test_export_live_3():
     import pathlib
     import tempfile
 
-    import osxphotos
-
     dest = tempfile.TemporaryDirectory(prefix="osxphotos_")
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["live"]])
 
     filename = photos[0].original_filename

@@ -1,5 +1,7 @@
 import pytest
 
+import osxphotos
+
 from osxphotos._constants import _UNKNOWN_PERSON
 
 PHOTOS_DB = "./tests/Test-10.13.6.photoslibrary/database/photos.db"
@@ -42,14 +44,15 @@ ALBUM_PHOTO_UUID_DICT = {
 }
 
 
+@pytest.fixture(scope="module")
+def photosdb():
+    return osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+
+
 ######### Test FolderInfo ##########
 
 
-def test_folders_1():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-
+def test_folders_1(photosdb):
     folders = photosdb.folders
 
     # top level folders
@@ -61,32 +64,20 @@ def test_folders_1():
     assert sorted(folder_names) == sorted(TOP_LEVEL_FOLDERS)
 
 
-def test_folder_names():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-
+def test_folder_names(photosdb):
     # check folder names
     folder_names = photosdb.folders
     assert folder_names == TOP_LEVEL_FOLDERS
     assert sorted(folder_names) == sorted(TOP_LEVEL_FOLDERS)
 
 
-def test_folders_len():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-
+def test_folders_len(photosdb):
     # top level folders
     folders = photosdb.folder_info
     assert len(folders[0]) == len(TOP_LEVEL_CHILDREN)
 
 
-def test_folders_children():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-
+def test_folders_children(photosdb):
     # top level folders
     folders = photosdb.folder_info
 
@@ -105,11 +96,7 @@ def test_folders_children():
     assert sorted(folder_names) == sorted(TOP_LEVEL_FOLDERS)
 
 
-def test_folders_parent():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-
+def test_folders_parent(photosdb):
     # top level folders
     folders = photosdb.folder_info
 
@@ -122,11 +109,7 @@ def test_folders_parent():
             assert child.parent.uuid == folder.uuid
 
 
-def test_folders_albums():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-
+def test_folders_albums(photosdb):
     # top level folders
     folders = photosdb.folder_info
 
@@ -143,11 +126,7 @@ def test_folders_albums():
 ########## Test AlbumInfo ##########
 
 
-def test_albums_1():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-
+def test_albums_1(photosdb):
     albums = photosdb.album_info
     assert len(albums) == len(ALBUM_NAMES)
 
@@ -156,11 +135,7 @@ def test_albums_1():
     assert sorted(album_names) == sorted(ALBUM_NAMES)
 
 
-def test_albums_parent():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-
+def test_albums_parent(photosdb):
     albums = photosdb.album_info
 
     for album in albums:
@@ -168,11 +143,7 @@ def test_albums_parent():
         assert parent == ALBUM_PARENT_DICT[album.title]
 
 
-def test_albums_folder_names():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-
+def test_albums_folder_names(photosdb):
     albums = photosdb.album_info
 
     for album in albums:
@@ -180,11 +151,7 @@ def test_albums_folder_names():
         assert folder_names == ALBUM_FOLDER_NAMES_DICT[album.title]
 
 
-def test_albums_folders():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-
+def test_albums_folders(photosdb):
     albums = photosdb.album_info
 
     for album in albums:
@@ -193,22 +160,14 @@ def test_albums_folders():
         assert folder_names == ALBUM_FOLDER_NAMES_DICT[album.title]
 
 
-def test_albums_len():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-
+def test_albums_len(photosdb):
     albums = photosdb.album_info
 
     for album in albums:
         assert len(album) == ALBUM_LEN_DICT[album.title]
 
 
-def test_albums_photos():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-
+def test_albums_photos(photosdb):
     albums = photosdb.album_info
 
     for album in albums:
@@ -219,10 +178,7 @@ def test_albums_photos():
             assert photo.uuid in ALBUM_PHOTO_UUID_DICT[album.title]
 
 
-def test_photoinfo_albums():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+def test_photoinfo_albums(photosdb):
     photos = photosdb.photos(uuid=ALBUM_PHOTO_UUID_DICT["Pumpkin Farm"])
 
     albums = photos[0].albums

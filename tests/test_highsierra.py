@@ -1,5 +1,7 @@
 import pytest
 
+import osxphotos
+
 from osxphotos._constants import _UNKNOWN_PERSON
 
 PHOTOS_DB = "./tests/Test-10.13.6.photoslibrary/database/photos.db"
@@ -31,80 +33,62 @@ PERSONS_DICT = {"Katie": 3, "Suzy": 2, "Maria": 1, _UNKNOWN_PERSON: 1}
 ALBUM_DICT = {"Pumpkin Farm": 3, "TestAlbum": 1, "AlbumInFolder": 1}
 
 
-def test_init():
-    import osxphotos
+@pytest.fixture(scope="module")
+def photosdb():
+    return osxphotos.PhotosDB(dbfile=PHOTOS_DB)
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+
+def test_init(photosdb):
     assert isinstance(photosdb, osxphotos.PhotosDB)
 
 
-def test_db_version():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+def test_db_version(photosdb):
     assert photosdb.db_version == "3301"
     # assert photosdb.db_version in osxphotos._TESTED_DB_VERSIONS
 
 
-def test_persons():
-    import osxphotos
+def test_persons(photosdb):
     import collections
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     assert "Katie" in photosdb.persons
     assert collections.Counter(PERSONS) == collections.Counter(photosdb.persons)
 
 
-def test_keywords():
-    import osxphotos
+def test_keywords(photosdb):
     import collections
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     assert "wedding" in photosdb.keywords
     assert collections.Counter(KEYWORDS) == collections.Counter(photosdb.keywords)
 
 
-def test_album_names():
-    import osxphotos
+def test_album_names(photosdb):
     import collections
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     assert "Pumpkin Farm" in photosdb.albums
     assert collections.Counter(ALBUMS) == collections.Counter(photosdb.albums)
 
 
-def test_keywords_dict():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+def test_keywords_dict(photosdb):
     keywords = photosdb.keywords_as_dict
     assert keywords["wedding"] == 2
     assert keywords == KEYWORDS_DICT
 
 
-def test_persons_as_dict():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+def test_persons_as_dict(photosdb):
     persons = photosdb.persons_as_dict
     assert persons["Maria"] == 1
     assert persons == PERSONS_DICT
 
 
-def test_albums_as_dict():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+def test_albums_as_dict(photosdb):
     albums = photosdb.albums_as_dict
     assert albums["Pumpkin Farm"] == 3
     assert albums == ALBUM_DICT
 
 
-def test_attributes():
+def test_attributes(photosdb):
     import datetime
-    import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=["RWmFYiDjSyKjeK8Pfna0Eg"])
     assert len(photos) == 1
     p = photos[0]
@@ -124,38 +108,25 @@ def test_attributes():
     assert p.ismissing == False
 
 
-def test_missing():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+def test_missing(photosdb):
     photos = photosdb.photos(uuid=["6iAZJP7ZQ5iXxapoJb3ytA"])
     assert len(photos) == 1
     p = photos[0]
-    assert p.path == None
-    assert p.ismissing == True
+    assert p.path is None
+    assert p.ismissing
 
 
-def test_count():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+def test_count(photosdb):
     photos = photosdb.photos()
     assert len(photos) == 7
 
 
-def test_keyword_2():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+def test_keyword_2(photosdb):
     photos = photosdb.photos(keywords=["wedding"])
     assert len(photos) == 2
 
 
-def test_keyword_not_in_album():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
-
+def test_keyword_not_in_album(photosdb):
     # find all photos with keyword "Kids" not in the album "Pumpkin Farm"
     photos1 = photosdb.photos(albums=["Pumpkin Farm"])
     photos2 = photosdb.photos(keywords=["Kids"])

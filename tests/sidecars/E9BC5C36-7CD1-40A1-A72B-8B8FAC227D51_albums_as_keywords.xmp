@@ -20,6 +20,7 @@
           <rdf:li>AlbumInFolder</rdf:li>
           <rdf:li>I have a deleted twin</rdf:li>
           <rdf:li>Maria</rdf:li>
+          <rdf:li>Multi Keyword</rdf:li>
           <rdf:li>wedding</rdf:li>
          </rdf:Bag>
         </dc:subject>
@@ -40,6 +41,7 @@
           <rdf:li>AlbumInFolder</rdf:li>
           <rdf:li>I have a deleted twin</rdf:li>
           <rdf:li>Maria</rdf:li>
+          <rdf:li>Multi Keyword</rdf:li>
           <rdf:li>wedding</rdf:li>
         </rdf:Seq>
         </digiKam:TagsList>

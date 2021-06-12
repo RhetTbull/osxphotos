@@ -57,6 +57,7 @@ ALBUMS = [
     "EmptyAlbum",
     "2018-10 - Sponsion, Museum, Frühstück, Römermuseum",
     "2019-10/11 Paris Clermont",
+    "Multi Keyword",
 ]
 KEYWORDS_DICT = {
     "Kids": 4,
@@ -86,6 +87,7 @@ ALBUM_DICT = {
     "EmptyAlbum": 0,
     "2018-10 - Sponsion, Museum, Frühstück, Römermuseum": 1,
     "2019-10/11 Paris Clermont": 1,
+    "Multi Keyword": 2,
 }  # Note: there are 2 albums named "Test Album" for testing duplicate album names
 
 UUID_DICT = {
@@ -112,17 +114,19 @@ UUID_DICT = {
     "movie": "D1359D09-1373-4F3B-B0E3-1A4DE573E4A3",
     "description_newlines": "7F74DD34-5920-4DA3-B284-479887A34F66",
     "no_duplicates": "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51",
+    "multi_query_1": "D79B8D77-BFFC-460B-9312-034F2877D35B",
+    "multi_query_2": "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51",
 }
 
 UUID_DICT_LOCAL = {
-    "not_visible": "4A836160-51B2-4E32-907D-ECDDB2CEC657", # IMG_9815.JPG
-    "burst": "9A5B4CE6-6A9F-4917-95D4-1C98D14FCE4F", # IMG_9812.JPG
-    "burst_key": "9A5B4CE6-6A9F-4917-95D4-1C98D14FCE4F", # IMG_9812.JPG
-    "burst_not_key": "4A836160-51B2-4E32-907D-ECDDB2CEC657", # IMG_9815.JPG
-    "burst_selected": "75154738-83AA-4DCD-A913-632D5D1C0FEE", # IMG_9814.JPG
-    "burst_not_selected": "89E235DD-B9AC-4E8D-BDA2-986981CA7582", # IMG_9813.JPG
-    "burst_default": "F5E6BD24-B493-44E9-BDA2-7AD9D2CC8C9D", # IMG_9816.JPG
-    "burst_not_default": "75154738-83AA-4DCD-A913-632D5D1C0FEE", # IMG_9814.JPG
+    "not_visible": "4A836160-51B2-4E32-907D-ECDDB2CEC657",  # IMG_9815.JPG
+    "burst": "9A5B4CE6-6A9F-4917-95D4-1C98D14FCE4F",  # IMG_9812.JPG
+    "burst_key": "9A5B4CE6-6A9F-4917-95D4-1C98D14FCE4F",  # IMG_9812.JPG
+    "burst_not_key": "4A836160-51B2-4E32-907D-ECDDB2CEC657",  # IMG_9815.JPG
+    "burst_selected": "75154738-83AA-4DCD-A913-632D5D1C0FEE",  # IMG_9814.JPG
+    "burst_not_selected": "89E235DD-B9AC-4E8D-BDA2-986981CA7582",  # IMG_9813.JPG
+    "burst_default": "F5E6BD24-B493-44E9-BDA2-7AD9D2CC8C9D",  # IMG_9816.JPG
+    "burst_not_default": "75154738-83AA-4DCD-A913-632D5D1C0FEE",  # IMG_9814.JPG
 }
 
 UUID_PUMPKIN_FARM = [
@@ -374,7 +378,7 @@ def test_attributes(photosdb):
     )
     assert p.description == "Girl holding pumpkin"
     assert p.title == "I found one!"
-    assert sorted(p.albums) == ["Pumpkin Farm", "Test Album"]
+    assert sorted(p.albums) == ["Multi Keyword", "Pumpkin Farm", "Test Album"]
     assert p.persons == ["Katie"]
     assert p.path.endswith(
         "tests/Test-10.15.7.photoslibrary/originals/D/D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg"
@@ -383,7 +387,7 @@ def test_attributes(photosdb):
 
 
 def test_attributes_2(photosdb):
-    """ Test attributes including height, width, etc """
+    """Test attributes including height, width, etc"""
 
     photos = photosdb.photos(uuid=[UUID_DICT["has_adjustments"]])
     assert len(photos) == 1
@@ -403,7 +407,11 @@ def test_attributes_2(photosdb):
     )
     assert p.description == "Bride Wedding day"
     assert p.title is None
-    assert sorted(p.albums) == ["AlbumInFolder", "I have a deleted twin"]
+    assert sorted(p.albums) == [
+        "AlbumInFolder",
+        "I have a deleted twin",
+        "Multi Keyword",
+    ]
     assert p.persons == ["Maria"]
     assert p.path.endswith(
         "tests/Test-10.15.7.photoslibrary/originals/E/E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51.jpeg"
@@ -461,7 +469,7 @@ def test_not_hidden(photosdb):
 
 
 def test_visible(photosdb):
-    """ test visible """
+    """test visible"""
     photos = photosdb.photos(uuid=[UUID_DICT["not_hidden"]])
     assert len(photos) == 1
     p = photos[0]
@@ -469,7 +477,7 @@ def test_visible(photosdb):
 
 
 def test_not_burst(photosdb):
-    """ test not burst """
+    """test not burst"""
     photos = photosdb.photos(uuid=[UUID_DICT["not_hidden"]])
     assert len(photos) == 1
     p = photos[0]
@@ -597,14 +605,14 @@ def test_count(photosdb):
 
 
 def test_photos_intrash_1(photosdb):
-    """ test PhotosDB.photos(intrash=True) """
+    """test PhotosDB.photos(intrash=True)"""
 
     photos = photosdb.photos(intrash=True)
     assert len(photos) == PHOTOS_IN_TRASH_LEN
 
 
 def test_photos_intrash_2(photosdb):
-    """ test PhotosDB.photos(intrash=True) """
+    """test PhotosDB.photos(intrash=True)"""
 
     photos = photosdb.photos(intrash=True)
     for p in photos:
@@ -612,7 +620,7 @@ def test_photos_intrash_2(photosdb):
 
 
 def test_photos_intrash_3(photosdb):
-    """ test PhotosDB.photos(intrash=False) """
+    """test PhotosDB.photos(intrash=False)"""
 
     photos = photosdb.photos(intrash=False)
     for p in photos:
@@ -620,7 +628,7 @@ def test_photos_intrash_3(photosdb):
 
 
 def test_photoinfo_intrash_1(photosdb):
-    """ Test PhotoInfo.intrash """
+    """Test PhotoInfo.intrash"""
 
     p = photosdb.photos(uuid=[UUID_DICT["intrash"]], intrash=True)[0]
     assert p.intrash
@@ -628,14 +636,14 @@ def test_photoinfo_intrash_1(photosdb):
 
 
 def test_photoinfo_intrash_2(photosdb):
-    """ Test PhotoInfo.intrash and intrash=default"""
+    """Test PhotoInfo.intrash and intrash=default"""
 
     p = photosdb.photos(uuid=[UUID_DICT["intrash"]])
     assert not p
 
 
 def test_photoinfo_intrash_3(photosdb):
-    """ Test PhotoInfo.intrash and photo has keyword and person """
+    """Test PhotoInfo.intrash and photo has keyword and person"""
 
     p = photosdb.photos(uuid=[UUID_DICT["intrash_person_keywords"]], intrash=True)[0]
     assert p.intrash
@@ -644,7 +652,7 @@ def test_photoinfo_intrash_3(photosdb):
 
 
 def test_photoinfo_intrash_4(photosdb):
-    """ Test PhotoInfo.intrash and photo has keyword and person """
+    """Test PhotoInfo.intrash and photo has keyword and person"""
 
     p = photosdb.photos(persons=["Maria"], intrash=True)[0]
     assert p.intrash
@@ -653,7 +661,7 @@ def test_photoinfo_intrash_4(photosdb):
 
 
 def test_photoinfo_intrash_5(photosdb):
-    """ Test PhotoInfo.intrash and photo has keyword and person """
+    """Test PhotoInfo.intrash and photo has keyword and person"""
 
     p = photosdb.photos(keywords=["wedding"], intrash=True)[0]
     assert p.intrash
@@ -662,7 +670,7 @@ def test_photoinfo_intrash_5(photosdb):
 
 
 def test_photoinfo_not_intrash(photosdb):
-    """ Test PhotoInfo.intrash """
+    """Test PhotoInfo.intrash"""
 
     p = photosdb.photos(uuid=[UUID_DICT["not_intrash"]])[0]
     assert not p.intrash
@@ -686,7 +694,7 @@ def test_keyword_not_in_album(photosdb):
 
 
 def test_album_folder_name(photosdb):
-    """Test query with album name same as a folder name """
+    """Test query with album name same as a folder name"""
 
     photos = photosdb.photos(albums=["Pumpkin Farm"])
     assert sorted(p.uuid for p in photos) == sorted(UUID_PUMPKIN_FARM)
@@ -712,7 +720,7 @@ def test_get_library_path(photosdb):
 
 
 def test_get_db_connection(photosdb):
-    """ Test PhotosDB.get_db_connection """
+    """Test PhotosDB.get_db_connection"""
 
     conn, cursor = photosdb.get_db_connection()
 
@@ -995,7 +1003,7 @@ def test_export_no_original_filename(photosdb):
 
 
 def test_eq():
-    """ Test equality of two PhotoInfo objects """
+    """Test equality of two PhotoInfo objects"""
 
     photosdb1 = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photosdb2 = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
@@ -1005,7 +1013,7 @@ def test_eq():
 
 
 def test_eq_2():
-    """ Test equality of two PhotoInfo objects when one has memoized property """
+    """Test equality of two PhotoInfo objects when one has memoized property"""
 
     photosdb1 = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photosdb2 = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
@@ -1049,7 +1057,7 @@ def test_photosinfo_repr(photosdb):
 
 
 def test_from_to_date(photosdb):
-    """ test from_date / to_date """
+    """test from_date / to_date"""
 
     os.environ["TZ"] = "US/Pacific"
     time.tzset()
@@ -1067,7 +1075,7 @@ def test_from_to_date(photosdb):
 
 
 def test_from_to_date_tz(photosdb):
-    """ Test from_date / to_date with and without timezone """
+    """Test from_date / to_date with and without timezone"""
 
     os.environ["TZ"] = "US/Pacific"
     time.tzset()
@@ -1104,7 +1112,7 @@ def test_from_to_date_tz(photosdb):
 
 
 def test_date_invalid():
-    """ Test date is invalid """
+    """Test date is invalid"""
     # doesn't run correctly with the module-level fixture
     from datetime import datetime, timedelta, timezone
     import osxphotos
@@ -1119,7 +1127,7 @@ def test_date_invalid():
 
 
 def test_date_modified_invalid(photosdb):
-    """ Test date modified is invalid """
+    """Test date modified is invalid"""
 
     photos = photosdb.photos(uuid=[UUID_DICT["date_invalid"]])
     assert len(photos) == 1
@@ -1128,14 +1136,14 @@ def test_date_modified_invalid(photosdb):
 
 
 def test_import_session_count(photosdb):
-    """ Test PhotosDB.import_session """
+    """Test PhotosDB.import_session"""
 
     import_sessions = photosdb.import_info
     assert len(import_sessions) == PHOTOS_DB_IMPORT_SESSIONS
 
 
 def test_import_session_photo(photosdb):
-    """ Test photo.import_session """
+    """Test photo.import_session"""
 
     photo = photosdb.get_photo(UUID_DICT["import_session"])
     import_session = photo.import_info
@@ -1173,7 +1181,7 @@ def test_import_session_photo(photosdb):
 
 
 def test_uti(photosdb):
-    """ test uti """
+    """test uti"""
 
     for uuid, uti in UTI_DICT.items():
         photo = photosdb.get_photo(uuid)
@@ -1182,7 +1190,7 @@ def test_uti(photosdb):
 
 
 def test_raw(photosdb):
-    """ Test various raw properties """
+    """Test various raw properties"""
 
     for uuid, rawinfo in RAW_DICT.items():
         photo = photosdb.get_photo(uuid)
@@ -1195,7 +1203,7 @@ def test_raw(photosdb):
 
 
 def test_verbose(capsys):
-    """ test verbose output in PhotosDB() """
+    """test verbose output in PhotosDB()"""
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB, verbose=print)
     captured = capsys.readouterr()
@@ -1203,7 +1211,7 @@ def test_verbose(capsys):
 
 
 def test_original_filename(photosdb):
-    """ test original filename """
+    """test original filename"""
     uuid = ORIGINAL_FILENAME_DICT["uuid"]
     photo = photosdb.get_photo(uuid)
     assert photo.original_filename == ORIGINAL_FILENAME_DICT["original_filename"]
@@ -1220,7 +1228,7 @@ def test_original_filename(photosdb):
 # They test things difficult to test in the test libraries
 @pytest.mark.skipif(SKIP_TEST, reason="Skip if not running on author's local machine.")
 def test_not_visible_burst(photosdb_local):
-    """ test not visible and burst (needs image from local library) """
+    """test not visible and burst (needs image from local library)"""
     photo = photosdb_local.get_photo(UUID_DICT_LOCAL["not_visible"])
     assert not photo.visible
     assert photo.burst
@@ -1228,7 +1236,7 @@ def test_not_visible_burst(photosdb_local):
 
 @pytest.mark.skipif(SKIP_TEST, reason="Skip if not running on author's local machine.")
 def test_visible_burst(photosdb_local):
-    """ test not visible and burst (needs image from local library) """
+    """test not visible and burst (needs image from local library)"""
     photo = photosdb_local.get_photo(UUID_DICT_LOCAL["burst"])
     assert photo.visible
     assert photo.burst
@@ -1237,7 +1245,7 @@ def test_visible_burst(photosdb_local):
 
 @pytest.mark.skipif(SKIP_TEST, reason="Skip if not running on author's local machine.")
 def test_burst_key(photosdb_local):
-    """ test burst_key """
+    """test burst_key"""
     photo = photosdb_local.get_photo(UUID_DICT_LOCAL["burst_key"])
     assert photo.burst_key
 
@@ -1247,7 +1255,7 @@ def test_burst_key(photosdb_local):
 
 @pytest.mark.skipif(SKIP_TEST, reason="Skip if not running on author's local machine.")
 def test_burst_selected(photosdb_local):
-    """ test burst_selected """
+    """test burst_selected"""
     photo = photosdb_local.get_photo(UUID_DICT_LOCAL["burst_selected"])
     assert photo.burst_selected
 
@@ -1257,7 +1265,7 @@ def test_burst_selected(photosdb_local):
 
 @pytest.mark.skipif(SKIP_TEST, reason="Skip if not running on author's local machine.")
 def test_burst_default_pic(photosdb_local):
-    """ test burst_default_pick"""
+    """test burst_default_pick"""
     photo = photosdb_local.get_photo(UUID_DICT_LOCAL["burst_default"])
     assert photo.burst_default_pick
 
@@ -1266,7 +1274,7 @@ def test_burst_default_pic(photosdb_local):
 
 
 def test_is_reference(photosdb):
-    """ test isreference """
+    """test isreference"""
 
     photo = photosdb.get_photo(UUID_IS_REFERENCE)
     assert photo.isreference
@@ -1275,7 +1283,7 @@ def test_is_reference(photosdb):
 
 
 def test_adjustments(photosdb):
-    """ test adjustments/AdjustmentsInfo """
+    """test adjustments/AdjustmentsInfo"""
     from osxphotos.adjustmentsinfo import AdjustmentsInfo
 
     photo = photosdb.get_photo(UUID_DICT["adjustments_info"])
@@ -1337,14 +1345,14 @@ def test_adjustments(photosdb):
 
 
 def test_no_adjustments(photosdb):
-    """ test adjustments when photo has no adjusments"""
+    """test adjustments when photo has no adjusments"""
 
     photo = photosdb.get_photo(UUID_DICT["no_adjustments"])
     assert photo.adjustments is None
 
 
 def test_exiftool_newlines_in_description(photosdb):
-    """ Test that exiftool code removes newlines embedded in description, issue #393"""
+    """Test that exiftool code removes newlines embedded in description, issue #393"""
 
     photo = photosdb.get_photo(UUID_DICT["description_newlines"])
     exif = photo._exiftool_dict()
@@ -1366,3 +1374,33 @@ def test_duplicates_2(photosdb):
 
     photo = photosdb.get_photo(uuid=UUID_DICT["no_duplicates"])
     assert not photo.duplicates
+
+
+def test_compound_query(photosdb):
+    """ test photos() with multiple query terms """
+    photos = photosdb.photos(persons=["Katie", "Maria"], albums=["Multi Keyword"])
+
+    assert len(photos) == 2
+    assert UUID_DICT["multi_query_1"] in [p.uuid for p in photos]
+    assert UUID_DICT["multi_query_2"] in [p.uuid for p in photos]
+
+
+def test_multi_keyword(photosdb):
+    """ test photos() with multiple keywords """
+    photos = photosdb.photos(keywords=["Kids", "wedding"])
+
+    assert len(photos) == 6
+
+
+def test_multi_album(photosdb):
+    """ test photos() with multiple albums """
+    photos = photosdb.photos(albums=["Pumpkin Farm", "Test Album"])
+
+    assert len(photos) == 3
+
+
+def test_multi_uuid(photosdb):
+    """ test photos() with multiple uuids """
+    photos = photosdb.photos(uuid=[UUID_DICT["favorite"], UUID_DICT["not_favorite"]])
+
+    assert len(photos) == 2

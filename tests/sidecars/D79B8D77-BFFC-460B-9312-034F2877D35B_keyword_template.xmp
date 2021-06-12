@@ -19,6 +19,7 @@
          <rdf:Bag>
           <rdf:li>2018</rdf:li>
           <rdf:li>Kids</rdf:li>
+          <rdf:li>Multi Keyword</rdf:li>
           <rdf:li>Pumpkin Farm</rdf:li>
           <rdf:li>Test Album</rdf:li>
          </rdf:Bag>
@@ -39,6 +40,7 @@
         <rdf:Seq>
           <rdf:li>2018</rdf:li>
           <rdf:li>Kids</rdf:li>
+          <rdf:li>Multi Keyword</rdf:li>
           <rdf:li>Pumpkin Farm</rdf:li>
           <rdf:li>Test Album</rdf:li>
         </rdf:Seq>

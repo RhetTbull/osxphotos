@@ -18,6 +18,7 @@
         <dc:subject>
          <rdf:Bag>
           <rdf:li>Kids</rdf:li>
+          <rdf:li>Multi Keyword</rdf:li>
           <rdf:li>Pumpkin Farm</rdf:li>
           <rdf:li>Test Album</rdf:li>
          </rdf:Bag>
@@ -37,6 +38,7 @@
         <digiKam:TagsList>
         <rdf:Seq>
           <rdf:li>Kids</rdf:li>
+          <rdf:li>Multi Keyword</rdf:li>
           <rdf:li>Pumpkin Farm</rdf:li>
           <rdf:li>Test Album</rdf:li>
         </rdf:Seq>

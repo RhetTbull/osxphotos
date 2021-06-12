@@ -1,5 +1,7 @@
 import pytest
 
+import osxphotos
+
 PHOTOS_DB = "./tests/Test-10.15.7.photoslibrary/database/photos.db"
 
 UUID_DICT = {
@@ -7,12 +9,13 @@ UUID_DICT = {
     "not_modified": "D05A5FE3-15FB-49A1-A15D-AB3DA6F8B068",
 }
 
+@pytest.fixture(scope="module")
+def photosdb():
+    return osxphotos.PhotosDB(dbfile=PHOTOS_DB)
 
-def test_modified():
+def test_modified(photosdb):
     import datetime
-    import osxphotos
 
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(uuid=[UUID_DICT["modified"]])
     assert photos[0].date_modified is not None
     assert photos[0].date_modified == datetime.datetime(
@@ -27,9 +30,6 @@ def test_modified():
     )
 
 
-def test_not_modified():
-    import osxphotos
-
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+def test_not_modified(photosdb):
     photos = photosdb.photos(uuid=[UUID_DICT["not_modified"]])
     assert photos[0].date_modified is None

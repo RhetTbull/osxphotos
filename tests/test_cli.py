@@ -8,17 +8,14 @@ from click.testing import CliRunner
 import osxphotos
 from osxphotos.exiftool import get_exiftool_path
 
-CLI_PHOTOS_DB = "tests/Test-10.15.1.photoslibrary"
+CLI_PHOTOS_DB = "tests/Test-10.15.7.photoslibrary"
 LIVE_PHOTOS_DB = "tests/Test-Cloud-10.15.1.photoslibrary"
 RAW_PHOTOS_DB = "tests/Test-RAW-10.15.1.photoslibrary"
 COMMENTS_PHOTOS_DB = "tests/Test-Cloud-10.15.6.photoslibrary"
 PLACES_PHOTOS_DB = "tests/Test-Places-Catalina-10_15_1.photoslibrary"
 PLACES_PHOTOS_DB_13 = "tests/Test-Places-High-Sierra-10.13.6.photoslibrary"
-PHOTOS_DB_15_4 = "tests/Test-10.15.4.photoslibrary"
-PHOTOS_DB_15_5 = "tests/Test-10.15.5.photoslibrary"
-PHOTOS_DB_15_6 = "tests/Test-10.15.6.photoslibrary"
 PHOTOS_DB_15_7 = "tests/Test-10.15.7.photoslibrary"
-PHOTOS_DB_TOUCH = PHOTOS_DB_15_6
+PHOTOS_DB_TOUCH = PHOTOS_DB_15_7
 PHOTOS_DB_14_6 = "tests/Test-10.14.6.photoslibrary"
 PHOTOS_DB_MOVIES = "tests/Test-Movie-5_0.photoslibrary"
 
@@ -68,7 +65,7 @@ CLI_OUTPUT_NO_SUBCOMMAND = [
     "  query     Query the Photos database using 1 or more search options; if",
 ]
 
-CLI_OUTPUT_QUERY_UUID = '[{"uuid": "D79B8D77-BFFC-460B-9312-034F2877D35B", "filename": "D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg", "original_filename": "Pumkins2.jpg", "date": "2018-09-28T16:07:07-04:00", "description": "Girl holding pumpkin", "title": "I found one!", "keywords": ["Kids"], "albums": ["Pumpkin Farm", "Test Album", "Multi Keyword"], "persons": ["Katie"], "path": "/tests/Test-10.15.1.photoslibrary/originals/D/D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg", "ismissing": false, "hasadjustments": false, "external_edit": false, "favorite": false, "hidden": false, "latitude": null, "longitude": null, "path_edited": null, "shared": false, "isphoto": true, "ismovie": false, "uti": "public.jpeg", "burst": false, "live_photo": false, "path_live_photo": null, "iscloudasset": false, "incloud": null}]'
+CLI_OUTPUT_QUERY_UUID = '[{"uuid": "D79B8D77-BFFC-460B-9312-034F2877D35B", "filename": "D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg", "original_filename": "Pumkins2.jpg", "date": "2018-09-28T16:07:07-04:00", "description": "Girl holding pumpkin", "title": "I found one!", "keywords": ["Kids"], "albums": ["Pumpkin Farm", "Test Album", "Multi Keyword"], "persons": ["Katie"], "path": "/tests/Test-10.15.7.photoslibrary/originals/D/D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg", "ismissing": false, "hasadjustments": false, "external_edit": false, "favorite": false, "hidden": false, "latitude": 41.256566, "longitude": -95.940257, "path_edited": null, "shared": false, "isphoto": true, "ismovie": false, "uti": "public.jpeg", "burst": false, "live_photo": false, "path_live_photo": null, "iscloudasset": false, "incloud": null}]'
 
 CLI_EXPORT_FILENAMES = [
     "Pumkins1.jpg",
@@ -79,6 +76,20 @@ CLI_EXPORT_FILENAMES = [
     "Tulips.jpg",
     "wedding.jpg",
     "wedding_edited.jpeg",
+    "DSC03584.dng",
+    "IMG_1693.tif",
+    "IMG_1994.JPG",
+    "IMG_1994.cr2",
+    "IMG_1997.JPG",
+    "IMG_1997.cr2",
+    "IMG_3092.heic",
+    "IMG_3092_edited.jpeg",
+    "IMG_4547.jpg",
+    "Jellyfish.MOV",
+    "Jellyfish1.mp4",
+    "Tulips_edited.jpeg",
+    "screenshot-really-a-png.jpeg",
+    "winebottle.jpeg",
 ]
 
 CLI_EXPORT_IGNORE_SIGNATURE_FILENAMES = ["Tulips.jpg", "wedding.jpg"]
@@ -103,6 +114,20 @@ CLI_EXPORT_FILENAMES_EDITED_SUFFIX = [
     "Tulips.jpg",
     "wedding.jpg",
     "wedding_bearbeiten.jpeg",
+    "DSC03584.dng",
+    "IMG_1693.tif",
+    "IMG_1994.JPG",
+    "IMG_1994.cr2",
+    "IMG_1997.JPG",
+    "IMG_1997.cr2",
+    "IMG_3092.heic",
+    "IMG_3092_bearbeiten.jpeg",
+    "IMG_4547.jpg",
+    "Jellyfish.MOV",
+    "Jellyfish1.mp4",
+    "Tulips_bearbeiten.jpeg",
+    "screenshot-really-a-png.jpeg",
+    "winebottle.jpeg",
 ]
 
 CLI_EXPORT_FILENAMES_EDITED_SUFFIX_TEMPLATE = [
@@ -114,6 +139,20 @@ CLI_EXPORT_FILENAMES_EDITED_SUFFIX_TEMPLATE = [
     "Tulips.jpg",
     "wedding.jpg",
     "wedding_edited.jpeg",
+    "DSC03584.dng",
+    "IMG_1693.tif",
+    "IMG_1994.JPG",
+    "IMG_1994.cr2",
+    "IMG_1997.JPG",
+    "IMG_1997.cr2",
+    "IMG_3092.heic",
+    "IMG_3092_edited.jpeg",
+    "IMG_4547.jpg",
+    "Jellyfish.MOV",
+    "Jellyfish1.mp4",
+    "Tulips_edited.jpeg",
+    "screenshot-really-a-png.jpeg",
+    "winebottle.jpeg",
 ]
 
 CLI_EXPORT_FILENAMES_ORIGINAL_SUFFIX = [
@@ -125,6 +164,20 @@ CLI_EXPORT_FILENAMES_ORIGINAL_SUFFIX = [
     "Tulips_original.jpg",
     "wedding_original.jpg",
     "wedding_edited.jpeg",
+    "DSC03584_original.dng",
+    "IMG_1693_original.tif",
+    "IMG_1994_original.JPG",
+    "IMG_1994_original.cr2",
+    "IMG_1997_original.JPG",
+    "IMG_1997_original.cr2",
+    "IMG_3092_original.heic",
+    "IMG_3092_edited.jpeg",
+    "IMG_4547_original.jpg",
+    "Jellyfish_original.MOV",
+    "Jellyfish1_original.mp4",
+    "Tulips_edited.jpeg",
+    "screenshot-really-a-png_original.jpeg",
+    "winebottle_original.jpeg",
 ]
 
 CLI_EXPORT_FILENAMES_ORIGINAL_SUFFIX_TEMPLATE = [
@@ -133,9 +186,23 @@ CLI_EXPORT_FILENAMES_ORIGINAL_SUFFIX_TEMPLATE = [
     "Pumpkins3.jpg",
     "St James Park_original.jpg",
     "St James Park_edited.jpeg",
-    "Tulips.jpg",
+    "Tulips_original.jpg",
     "wedding_original.jpg",
     "wedding_edited.jpeg",
+    "Tulips_edited.jpeg",
+    "DSC03584.dng",
+    "IMG_1693.tif",
+    "IMG_1994.JPG",
+    "IMG_1994.cr2",
+    "IMG_1997.JPG",
+    "IMG_1997.cr2",
+    "IMG_3092_original.heic",
+    "IMG_3092_edited.jpeg",
+    "IMG_4547.jpg",
+    "Jellyfish.MOV",
+    "Jellyfish1.mp4",
+    "screenshot-really-a-png.jpeg",
+    "winebottle.jpeg",
 ]
 
 CLI_EXPORT_FILENAMES_CURRENT = [
@@ -153,6 +220,14 @@ CLI_EXPORT_FILENAMES_CURRENT = [
     "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51.jpeg",
     "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51_edited.jpeg",
     "F12384F6-CD17-4151-ACBA-AE0E3688539E.jpeg",
+    "35329C57-B963-48D6-BB75-6AFF9370CBBC.mov",
+    "6191423D-8DB8-4D4C-92BE-9BBBA308AAC4_edited.jpeg",
+    "7783E8E6-9CAC-40F3-BE22-81FB7051C266.heic",
+    "7783E8E6-9CAC-40F3-BE22-81FB7051C266_edited.jpeg",
+    "7F74DD34-5920-4DA3-B284-479887A34F66.jpeg",
+    "8846E3E6-8AC8-4857-8448-E3D025784410.tiff",
+    "D1359D09-1373-4F3B-B0E3-1A4DE573E4A3.mp4",
+    "E2078879-A29C-4D6F-BACB-E3BBE6C3EB91.jpeg",
 ]
 
 CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG = [
@@ -174,6 +249,10 @@ CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG = [
     "Tulips_edited.jpeg",
     "wedding.jpg",
     "wedding_edited.jpeg",
+    "Jellyfish.MOV",
+    "Jellyfish1.mp4",
+    "screenshot-really-a-png.jpeg",
+    "winebottle.jpeg",
 ]
 
 CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG_SKIP_RAW = [
@@ -193,6 +272,10 @@ CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG_SKIP_RAW = [
     "Tulips_edited.jpeg",
     "wedding.jpg",
     "wedding_edited.jpeg",
+    "Jellyfish.MOV",
+    "Jellyfish1.mp4",
+    "screenshot-really-a-png.jpeg",
+    "winebottle.jpeg",
 ]
 
 CLI_EXPORT_CONVERT_TO_JPEG_LARGE_FILE = "DSC03584.jpeg"
@@ -235,7 +318,7 @@ CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES_ALBUM2 = [
 CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES2 = [
     "St James's Park, Great Britain, Westminster, England, United Kingdom/St James Park.jpg",
     "_/Pumpkins3.jpg",
-    "_/Pumkins2.jpg",
+    "Omaha, Nebraska, United States/Pumkins2.jpg",
     "_/Pumkins1.jpg",
     "_/Tulips.jpg",
     "_/wedding.jpg",
@@ -349,7 +432,7 @@ CLI_EXPORT_RAW_EDITED = [
 ]
 CLI_EXPORT_RAW_EDITED_ORIGINAL = ["IMG_0476_2.CR2", "IMG_0476_2_edited.jpeg"]
 
-CLI_UUID_DICT_15_5 = {
+CLI_UUID_DICT_15_7 = {
     "intrash": "71E3E212-00EB-430D-8A63-5E294B268554",
     "template": "F12384F6-CD17-4151-ACBA-AE0E3688539E",
 }
@@ -362,13 +445,9 @@ PHOTOS_NOT_IN_TRASH_LEN_14_6 = 12
 PHOTOS_IN_TRASH_LEN_14_6 = 1
 PHOTOS_MISSING_14_6 = 1
 
-PHOTOS_NOT_IN_TRASH_LEN_15_5 = 13
-PHOTOS_IN_TRASH_LEN_15_5 = 2
-PHOTOS_MISSING_15_5 = 2
-
-PHOTOS_NOT_IN_TRASH_LEN_15_6 = 14
-PHOTOS_IN_TRASH_LEN_15_6 = 2
-PHOTOS_MISSING_15_6 = 1
+PHOTOS_NOT_IN_TRASH_LEN_15_7 = 18
+PHOTOS_IN_TRASH_LEN_15_7 = 2
+PHOTOS_MISSING_15_7 = 2
 
 CLI_PLACES_JSON = """{"places": {"_UNKNOWN_": 1, "Maui, Wailea, Hawai'i, United States": 1, "Washington, District of Columbia, United States": 1}}"""
 
@@ -443,10 +522,10 @@ CLI_EXIFTOOL_IGNORE_DATE_MODIFIED = {
         "File:FileName": "wedding.jpg",
         "EXIF:ImageDescription": "Bride Wedding day",
         "XMP:Description": "Bride Wedding day",
-        "XMP:TagsList": "wedding",
-        "IPTC:Keywords": "wedding",
+        "XMP:TagsList": ["Maria", "wedding"],
+        "IPTC:Keywords": ["Maria", "wedding"],
         "XMP:PersonInImage": "Maria",
-        "XMP:Subject": "wedding",
+        "XMP:Subject": ["Maria", "wedding"],
         "EXIF:DateTimeOriginal": "2019:04:15 14:40:24",
         "EXIF:CreateDate": "2019:04:15 14:40:24",
         "EXIF:OffsetTimeOriginal": "-04:00",
@@ -487,39 +566,31 @@ CLI_FINDER_TAGS = {
 
 LABELS_JSON = {
     "labels": {
-        "Plant": 7,
-        "Outdoor": 4,
-        "Sky": 3,
-        "Tree": 2,
+        "Outdoor": 3,
+        "Sky": 2,
+        "Land": 2,
+        "Plant": 2,
         "Art": 2,
-        "Foliage": 2,
-        "People": 2,
-        "Agriculture": 2,
-        "Farm": 2,
         "Food": 2,
-        "Vegetable": 2,
-        "Pumpkin": 2,
-        "Waterways": 1,
-        "River": 1,
+        "People": 2,
         "Cloudy": 1,
-        "Land": 1,
-        "Water Body": 1,
-        "Water": 1,
-        "Statue": 1,
-        "Window": 1,
-        "Decorative Plant": 1,
-        "Blue Sky": 1,
-        "Palm Tree": 1,
+        "Grass": 1,
         "Flower": 1,
+        "Container": 1,
+        "Vase": 1,
         "Flower Arrangement": 1,
         "Bouquet": 1,
-        "Vase": 1,
-        "Container": 1,
         "Camera": 1,
+        "Blue Sky": 1,
+        "Fruit": 1,
+        "Apricot": 1,
+        "Foliage": 1,
+        "Pumpkin": 1,
         "Child": 1,
+        "Vegetable": 1,
+        "Recreation": 1,
         "Clothing": 1,
-        "Jeans": 1,
-        "Straw Hay": 1,
+        "Adult": 1,
     }
 }
 
@@ -527,37 +598,34 @@ KEYWORDS_JSON = {
     "keywords": {
         "Kids": 4,
         "wedding": 3,
+        "Travel": 2,
+        "UK": 1,
+        "England": 1,
+        "London": 1,
+        "United Kingdom": 1,
         "London 2018": 1,
         "St. James's Park": 1,
-        "England": 1,
-        "United Kingdom": 1,
-        "UK": 1,
-        "London": 1,
         "flowers": 1,
+        "foo/bar": 1,
+        "Maria": 1,
+        "Wine": 1,
+        "Val d'Isère": 1,
+        "Drink": 1,
+        "Wine Bottle": 1,
     }
 }
 
-ALBUMS_JSON = {
-    "albums": {
-        "Raw": 4,
-        "Pumpkin Farm": 3,
-        "Test Album": 2,
-        "AlbumInFolder": 2,
-        "I have a deleted twin": 1,
-        "2018-10 - Sponsion, Museum, Frühstück, Römermuseum": 1,
-        "2019-10/11 Paris Clermont": 1,
-        "EmptyAlbum": 0,
-    },
-    "shared albums": {},
-}
+ALBUMS_JSON = {"albums": {"Raw": 4, "Pumpkin Farm": 3, "Test Album": 2, "AlbumInFolder": 2, "Multi Keyword": 2, "I have a deleted twin": 1, "2018-10 - Sponsion, Museum, Frühstück, Römermuseum": 1, "2019-10/11 Paris Clermont": 1, "EmptyAlbum": 0}, "shared albums": {}}
 
 ALBUMS_STR = """albums:
   Raw: 4
   Pumpkin Farm: 3
   Test Album: 2
   AlbumInFolder: 2
+  Multi Keyword: 2
   I have a deleted twin: 1
   2018-10 - Sponsion, Museum, Frühstück, Römermuseum: 1
+  2019-10/11 Paris Clermont: 1
   EmptyAlbum: 0
 shared albums: {}
 """
@@ -647,14 +715,14 @@ UUID_NOT_IN_ALBUM = [
 
 
 def modify_file(filename):
-    """ appends data to a file to modify it """
+    """appends data to a file to modify it"""
     with open(filename, "ab") as fd:
         fd.write(b"foo")
 
 
 @pytest.fixture(autouse=True)
 def reset_globals():
-    """ reset globals in cli that tests may have changed """
+    """reset globals in cli that tests may have changed"""
     yield
     osxphotos.cli.VERBOSE = False
 
@@ -691,7 +759,7 @@ def touch_all_photos_in_db(dbpath):
 
 
 def setup_touch_tests():
-    """ perform setup needed for --touch-file tests """
+    """perform setup needed for --touch-file tests"""
     import os
     import time
     import logging
@@ -765,7 +833,7 @@ def test_osxphotos_help_3():
 
 
 def test_about():
-    """ Test about """
+    """Test about"""
     from osxphotos.cli import about
 
     runner = CliRunner()
@@ -815,7 +883,7 @@ def test_query_uuid():
 
 
 def test_query_uuid_from_file_1():
-    """ Test query with --uuid-from-file """
+    """Test query with --uuid-from-file"""
     import json
     import os
     import os.path
@@ -829,7 +897,7 @@ def test_query_uuid_from_file_1():
         [
             "--json",
             "--db",
-            os.path.join(cwd, PHOTOS_DB_15_5),
+            os.path.join(cwd, PHOTOS_DB_15_7),
             "--uuid-from-file",
             UUID_FILE,
         ],
@@ -843,7 +911,7 @@ def test_query_uuid_from_file_1():
 
 
 def test_query_has_comment():
-    """ Test query with --has-comment """
+    """Test query with --has-comment"""
     import json
     import os
     import os.path
@@ -864,7 +932,7 @@ def test_query_has_comment():
 
 
 def test_query_no_comment():
-    """ Test query with --no-comment """
+    """Test query with --no-comment"""
     import json
     import os
     import os.path
@@ -887,7 +955,7 @@ def test_query_no_comment():
 
 
 def test_query_has_likes():
-    """ Test query with --has-likes"""
+    """Test query with --has-likes"""
     import json
     import os
     import os.path
@@ -907,7 +975,7 @@ def test_query_has_likes():
 
 
 def test_query_no_likes():
-    """ Test query with --no-likes"""
+    """Test query with --no-likes"""
     import json
     import os
     import os.path
@@ -930,7 +998,7 @@ def test_query_no_likes():
 
 
 def test_query_is_reference():
-    """ Test query with --is-reference """
+    """Test query with --is-reference"""
     import json
     import os
     import os.path
@@ -950,7 +1018,7 @@ def test_query_is_reference():
 
 
 def test_query_in_album():
-    """ Test query with --in-album """
+    """Test query with --in-album"""
     import json
     import os
     import os.path
@@ -970,7 +1038,7 @@ def test_query_in_album():
 
 
 def test_query_not_in_album():
-    """ Test query with --not-in-album """
+    """Test query with --not-in-album"""
     import json
     import os
     import os.path
@@ -1007,7 +1075,7 @@ def test_export():
 
 
 def test_export_uuid_from_file():
-    """ Test export with --uuid-from-file """
+    """Test export with --uuid-from-file"""
     import glob
     import os
     import os.path
@@ -1021,7 +1089,7 @@ def test_export_uuid_from_file():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, PHOTOS_DB_15_5),
+                os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
                 "--uuid-from-file",
@@ -1122,7 +1190,7 @@ def test_export_current_name():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export, [os.path.join(cwd, PHOTOS_DB_15_4), ".", "--current-name", "-V"]
+            export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "--current-name", "-V"]
         )
         assert result.exit_code == 0
         files = glob.glob("*")
@@ -1149,7 +1217,7 @@ def test_export_skip_edited():
 
 
 def test_export_skip_original_if_edited():
-    """ test export with --skip-original-if-edited """
+    """test export with --skip-original-if-edited"""
     import glob
     import os
     import os.path
@@ -1162,7 +1230,7 @@ def test_export_skip_original_if_edited():
     with runner.isolated_filesystem():
         result = runner.invoke(
             export,
-            [os.path.join(cwd, PHOTOS_DB_15_6), ".", "--skip-original-if-edited", "-V"],
+            [os.path.join(cwd, PHOTOS_DB_15_7), ".", "--skip-original-if-edited", "-V"],
         )
         assert result.exit_code == 0
         assert "Skipping original version of wedding.jpg" in result.output
@@ -1200,7 +1268,7 @@ def test_export_exiftool():
             result = runner.invoke(
                 export,
                 [
-                    os.path.join(cwd, PHOTOS_DB_15_6),
+                    os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
                     "--exiftool",
@@ -1222,7 +1290,7 @@ def test_export_exiftool():
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool_path():
-    """ test --exiftool with --exiftool-path """
+    """test --exiftool with --exiftool-path"""
     import glob
     import os
     import os.path
@@ -1239,7 +1307,7 @@ def test_export_exiftool_path():
             result = runner.invoke(
                 export,
                 [
-                    os.path.join(cwd, PHOTOS_DB_15_6),
+                    os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
                     "--exiftool",
@@ -1264,7 +1332,7 @@ def test_export_exiftool_path():
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool_path_render_template():
-    """ test --exiftool-path with {exiftool:} template rendering """
+    """test --exiftool-path with {exiftool:} template rendering"""
     import glob
     import os
     import os.path
@@ -1290,7 +1358,7 @@ def test_export_exiftool_path_render_template():
             result = runner.invoke(
                 export,
                 [
-                    os.path.join(cwd, PHOTOS_DB_15_6),
+                    os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
                     "--filename",
@@ -1323,7 +1391,7 @@ def test_export_exiftool_ignore_date_modified():
             result = runner.invoke(
                 export,
                 [
-                    os.path.join(cwd, PHOTOS_DB_15_6),
+                    os.path.join(cwd, PHOTOS_DB_15_7),
                     ".",
                     "-V",
                     "--exiftool",
@@ -1348,7 +1416,7 @@ def test_export_exiftool_ignore_date_modified():
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool_quicktime():
-    """ test --exiftol correctly writes QuickTime tags """
+    """test --exiftol correctly writes QuickTime tags"""
     import glob
     import os
     import os.path
@@ -1388,7 +1456,7 @@ def test_export_exiftool_quicktime():
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool_duplicate_keywords():
-    """ ensure duplicate keywords are removed """
+    """ensure duplicate keywords are removed"""
     import glob
     import os
     import os.path
@@ -1419,7 +1487,7 @@ def test_export_exiftool_duplicate_keywords():
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool_error():
-    """" test --exiftool catching error """
+    """ " test --exiftool catching error"""
     import glob
     import os
     import os.path
@@ -1456,7 +1524,7 @@ def test_export_exiftool_error():
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool_option():
-    """ test --exiftool-option """
+    """test --exiftool-option"""
     import glob
     import os
     import os.path
@@ -1493,7 +1561,7 @@ def test_export_exiftool_option():
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool_merge():
-    """ test --exiftool-merge-keywords and --exiftool-merge-persons """
+    """test --exiftool-merge-keywords and --exiftool-merge-persons"""
     import glob
     import os
     import os.path
@@ -1532,7 +1600,7 @@ def test_export_exiftool_merge():
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool_merge_sidecar():
-    """ test --exiftool-merge-keywords and --exiftool-merge-persons with --sidecar """
+    """test --exiftool-merge-keywords and --exiftool-merge-persons with --sidecar"""
     import glob
     import json
     import os
@@ -1582,7 +1650,7 @@ def test_export_exiftool_merge_sidecar():
 
 
 def test_export_edited_suffix():
-    """ test export with --edited-suffix """
+    """test export with --edited-suffix"""
     import glob
     import os
     import os.path
@@ -1609,7 +1677,7 @@ def test_export_edited_suffix():
 
 
 def test_export_edited_suffix_template():
-    """ test export with --edited-suffix template """
+    """test export with --edited-suffix template"""
     import glob
     import os
     import os.path
@@ -1636,7 +1704,7 @@ def test_export_edited_suffix_template():
 
 
 def test_export_original_suffix():
-    """ test export with --original-suffix """
+    """test export with --original-suffix"""
     import glob
     import os
     import os.path
@@ -1663,7 +1731,7 @@ def test_export_original_suffix():
 
 
 def test_export_original_suffix_template():
-    """ test export with --original-suffix template """
+    """test export with --original-suffix template"""
     import glob
     import os
     import os.path
@@ -1694,7 +1762,7 @@ def test_export_original_suffix_template():
     reason="Skip if running in Github actions, no GPU.",
 )
 def test_export_convert_to_jpeg():
-    """ test --convert-to-jpeg """
+    """test --convert-to-jpeg"""
     import glob
     import os
     import os.path
@@ -1706,7 +1774,7 @@ def test_export_convert_to_jpeg():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export, [os.path.join(cwd, PHOTOS_DB_15_6), ".", "-V", "--convert-to-jpeg"]
+            export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--convert-to-jpeg"]
         )
         assert result.exit_code == 0
         files = glob.glob("*")
@@ -1720,7 +1788,7 @@ def test_export_convert_to_jpeg():
     reason="Skip if running in Github actions, no GPU.",
 )
 def test_export_convert_to_jpeg_quality():
-    """ test --convert-to-jpeg --jpeg-quality """
+    """test --convert-to-jpeg --jpeg-quality"""
     import glob
     import os
     import os.path
@@ -1734,7 +1802,7 @@ def test_export_convert_to_jpeg_quality():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, PHOTOS_DB_15_6),
+                os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
                 "--convert-to-jpeg",
@@ -1754,7 +1822,7 @@ def test_export_convert_to_jpeg_quality():
     reason="Skip if running in Github actions, no GPU.",
 )
 def test_export_convert_to_jpeg_skip_raw():
-    """ test --convert-to-jpeg """
+    """test --convert-to-jpeg"""
     import glob
     import os
     import os.path
@@ -1768,7 +1836,7 @@ def test_export_convert_to_jpeg_skip_raw():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, PHOTOS_DB_15_6),
+                os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
                 "--convert-to-jpeg",
@@ -1781,7 +1849,7 @@ def test_export_convert_to_jpeg_skip_raw():
 
 
 def test_query_date_1():
-    """ Test --from-date and --to-date """
+    """Test --from-date and --to-date"""
     import json
     import osxphotos
     import os
@@ -1811,7 +1879,7 @@ def test_query_date_1():
 
 
 def test_query_date_2():
-    """ Test --from-date and --to-date """
+    """Test --from-date and --to-date"""
     import json
     import osxphotos
     import os
@@ -1841,7 +1909,7 @@ def test_query_date_2():
 
 
 def test_query_date_timezone():
-    """ Test --from-date, --to-date with ISO 8601 timezone """
+    """Test --from-date, --to-date with ISO 8601 timezone"""
     import json
     import osxphotos
     import os
@@ -1871,7 +1939,7 @@ def test_query_date_timezone():
 
 
 def test_query_time():
-    """ Test --from-time, --to-time"""
+    """Test --from-time, --to-time"""
     import json
     import osxphotos
     import os
@@ -1901,7 +1969,7 @@ def test_query_time():
 
 
 def test_query_keyword_1():
-    """Test query --keyword """
+    """Test query --keyword"""
     import json
     import osxphotos
     import os
@@ -1912,7 +1980,7 @@ def test_query_keyword_1():
     cwd = os.getcwd()
     result = runner.invoke(
         query,
-        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_5), "--keyword", "Kids"],
+        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--keyword", "Kids"],
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
@@ -1931,7 +1999,7 @@ def test_query_keyword_2():
     cwd = os.getcwd()
     result = runner.invoke(
         query,
-        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_5), "--keyword", "kids"],
+        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--keyword", "kids"],
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
@@ -1953,7 +2021,7 @@ def test_query_keyword_3():
         [
             "--json",
             "--db",
-            os.path.join(cwd, PHOTOS_DB_15_5),
+            os.path.join(cwd, PHOTOS_DB_15_7),
             "--keyword",
             "kids",
             "--ignore-case",
@@ -1979,7 +2047,7 @@ def test_query_keyword_4():
         [
             "--json",
             "--db",
-            os.path.join(cwd, PHOTOS_DB_15_5),
+            os.path.join(cwd, PHOTOS_DB_15_7),
             "--keyword",
             "Kids",
             "--keyword",
@@ -2003,7 +2071,7 @@ def test_query_person_1():
     cwd = os.getcwd()
     result = runner.invoke(
         query,
-        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_5), "--person", "Katie"],
+        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--person", "Katie"],
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
@@ -2022,7 +2090,7 @@ def test_query_person_2():
     cwd = os.getcwd()
     result = runner.invoke(
         query,
-        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_5), "--person", "katie"],
+        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--person", "katie"],
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
@@ -2044,7 +2112,7 @@ def test_query_person_3():
         [
             "--json",
             "--db",
-            os.path.join(cwd, PHOTOS_DB_15_5),
+            os.path.join(cwd, PHOTOS_DB_15_7),
             "--person",
             "katie",
             "--ignore-case",
@@ -2070,7 +2138,7 @@ def test_query_person_4():
         [
             "--json",
             "--db",
-            os.path.join(cwd, PHOTOS_DB_15_5),
+            os.path.join(cwd, PHOTOS_DB_15_7),
             "--person",
             "Katie",
             "--person",
@@ -2097,7 +2165,7 @@ def test_query_album_1():
         [
             "--json",
             "--db",
-            os.path.join(cwd, PHOTOS_DB_15_5),
+            os.path.join(cwd, PHOTOS_DB_15_7),
             "--album",
             "Pumpkin Farm",
         ],
@@ -2122,7 +2190,7 @@ def test_query_album_2():
         [
             "--json",
             "--db",
-            os.path.join(cwd, PHOTOS_DB_15_5),
+            os.path.join(cwd, PHOTOS_DB_15_7),
             "--album",
             "pumpkin farm",
         ],
@@ -2147,7 +2215,7 @@ def test_query_album_3():
         [
             "--json",
             "--db",
-            os.path.join(cwd, PHOTOS_DB_15_5),
+            os.path.join(cwd, PHOTOS_DB_15_7),
             "--album",
             "pumpkin farm",
             "--ignore-case",
@@ -2173,7 +2241,7 @@ def test_query_album_4():
         [
             "--json",
             "--db",
-            os.path.join(cwd, PHOTOS_DB_15_5),
+            os.path.join(cwd, PHOTOS_DB_15_7),
             "--album",
             "Pumpkin Farm",
             "--album",
@@ -2197,7 +2265,7 @@ def test_query_label_1():
     cwd = os.getcwd()
     result = runner.invoke(
         query,
-        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_5), "--label", "Statue"],
+        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--label", "Bouquet"],
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
@@ -2205,7 +2273,7 @@ def test_query_label_1():
 
 
 def test_query_label_2():
-    """Test query --label with lower case label """
+    """Test query --label with lower case label"""
     import json
     import osxphotos
     import os
@@ -2216,7 +2284,7 @@ def test_query_label_2():
     cwd = os.getcwd()
     result = runner.invoke(
         query,
-        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_5), "--label", "statue"],
+        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--label", "bouquet"],
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
@@ -2238,9 +2306,9 @@ def test_query_label_3():
         [
             "--json",
             "--db",
-            os.path.join(cwd, PHOTOS_DB_15_5),
+            os.path.join(cwd, PHOTOS_DB_15_7),
             "--label",
-            "statue",
+            "bouquet",
             "--ignore-case",
         ],
     )
@@ -2264,16 +2332,16 @@ def test_query_label_4():
         [
             "--json",
             "--db",
-            os.path.join(cwd, PHOTOS_DB_15_5),
+            os.path.join(cwd, PHOTOS_DB_15_7),
             "--label",
-            "Statue",
+            "Bouquet",
             "--label",
             "Plant",
         ],
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
-    assert len(json_got) == 8
+    assert len(json_got) == 2
 
 
 def test_query_deleted_deleted_only():
@@ -2291,7 +2359,7 @@ def test_query_deleted_deleted_only():
         [
             "--json",
             "--db",
-            os.path.join(cwd, PHOTOS_DB_15_5),
+            os.path.join(cwd, PHOTOS_DB_15_7),
             "--deleted",
             "--deleted-only",
         ],
@@ -2310,11 +2378,11 @@ def test_query_deleted_1():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_5), "--deleted"]
+        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--deleted"]
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
-    assert len(json_got) == PHOTOS_NOT_IN_TRASH_LEN_15_5 + PHOTOS_IN_TRASH_LEN_15_5
+    assert len(json_got) == PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_IN_TRASH_LEN_15_7
 
 
 def test_query_deleted_2():
@@ -2328,11 +2396,11 @@ def test_query_deleted_2():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_6), "--deleted"]
+        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--deleted"]
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
-    assert len(json_got) == PHOTOS_NOT_IN_TRASH_LEN_15_6 + PHOTOS_IN_TRASH_LEN_15_6
+    assert len(json_got) == PHOTOS_NOT_IN_TRASH_LEN_15_7 + PHOTOS_IN_TRASH_LEN_15_7
 
 
 def test_query_deleted_3():
@@ -2346,11 +2414,11 @@ def test_query_deleted_3():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_5), "--deleted-only"]
+        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--deleted-only"]
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
-    assert len(json_got) == PHOTOS_IN_TRASH_LEN_15_5
+    assert len(json_got) == PHOTOS_IN_TRASH_LEN_15_7
     assert json_got[0]["intrash"]
 
 
@@ -2365,16 +2433,16 @@ def test_query_deleted_4():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_6), "--deleted-only"]
+        query, ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--deleted-only"]
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
-    assert len(json_got) == PHOTOS_IN_TRASH_LEN_15_6
+    assert len(json_got) == PHOTOS_IN_TRASH_LEN_15_7
     assert json_got[0]["intrash"]
 
 
 def test_export_sidecar():
-    """ test --sidecar """
+    """test --sidecar"""
     import glob
     import os
     import os.path
@@ -2405,7 +2473,7 @@ def test_export_sidecar():
 
 
 def test_export_sidecar_drop_ext():
-    """ test --sidecar with --sidecar-drop-ext option """
+    """test --sidecar with --sidecar-drop-ext option"""
     import glob
     import os
     import os.path
@@ -2437,7 +2505,7 @@ def test_export_sidecar_drop_ext():
 
 
 def test_export_sidecar_exiftool():
-    """ test --sidecar exiftool """
+    """test --sidecar exiftool"""
     import glob
     import os
     import os.path
@@ -2485,10 +2553,10 @@ def test_export_sidecar_templates():
             [
                 "export",
                 "--db",
-                os.path.join(cwd, PHOTOS_DB_15_5),
+                os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "--sidecar=json",
-                f"--uuid={CLI_UUID_DICT_15_5['template']}",
+                f"--uuid={CLI_UUID_DICT_15_7['template']}",
                 "-V",
                 "--keyword-template",
                 "{person}",
@@ -2511,7 +2579,7 @@ def test_export_sidecar_templates():
 
 
 def test_export_sidecar_templates_exiftool():
-    """ test --sidecar exiftool with templates """
+    """test --sidecar exiftool with templates"""
     import json
     import os
     import os.path
@@ -2528,10 +2596,10 @@ def test_export_sidecar_templates_exiftool():
             [
                 "export",
                 "--db",
-                os.path.join(cwd, PHOTOS_DB_15_5),
+                os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "--sidecar=exiftool",
-                f"--uuid={CLI_UUID_DICT_15_5['template']}",
+                f"--uuid={CLI_UUID_DICT_15_7['template']}",
                 "-V",
                 "--keyword-template",
                 "{person}",
@@ -2554,7 +2622,7 @@ def test_export_sidecar_templates_exiftool():
 
 
 def test_export_sidecar_update():
-    """ test sidecar don't update if not changed and do update if changed """
+    """test sidecar don't update if not changed and do update if changed"""
     import datetime
     import glob
     import os
@@ -2690,7 +2758,7 @@ def test_export_sidecar_update():
 
 
 def test_export_sidecar_invalid():
-    """ test invalid combination of sidecars """
+    """test invalid combination of sidecars"""
     import os
 
     from osxphotos.cli import cli
@@ -3029,7 +3097,7 @@ def test_export_directory_template_locale():
 
 
 def test_export_filename_template_1():
-    """ export photos using filename template """
+    """export photos using filename template"""
     import glob
     import locale
     import os
@@ -3055,11 +3123,12 @@ def test_export_filename_template_1():
         )
         assert result.exit_code == 0
         files = glob.glob("*.*")
-        assert sorted(files) == sorted(CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES1)
+        for file in CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES1:
+            assert file in files
 
 
 def test_export_filename_template_2():
-    """ export photos using filename template with folder_album and path_sep """
+    """export photos using filename template with folder_album and path_sep"""
     import glob
     import locale
     import os
@@ -3076,7 +3145,7 @@ def test_export_filename_template_2():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, PHOTOS_DB_15_5),
+                os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
                 "--filename",
@@ -3085,11 +3154,12 @@ def test_export_filename_template_2():
         )
         assert result.exit_code == 0
         files = glob.glob("*.*")
-        assert sorted(files) == sorted(CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES2)
+        for file in CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES2:
+            assert file in files
 
 
 def test_export_filename_template_strip():
-    """ export photos using filename template with --strip """
+    """export photos using filename template with --strip"""
     import glob
     import locale
     import os
@@ -3116,11 +3186,12 @@ def test_export_filename_template_strip():
         )
         assert result.exit_code == 0
         files = glob.glob("*.*")
-        assert sorted(files) == sorted(CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES1)
+        for file in CLI_EXPORTED_FILENAME_TEMPLATE_FILENAMES1:
+            assert file in files
 
 
 def test_export_filename_template_pathsep_in_name_1():
-    """ export photos using filename template with folder_album and "/" in album name """
+    """export photos using filename template with folder_album and "/" in album name"""
     import locale
     import os
     import os.path
@@ -3136,7 +3207,7 @@ def test_export_filename_template_pathsep_in_name_1():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, PHOTOS_DB_15_6),
+                os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
                 "--directory",
@@ -3152,7 +3223,7 @@ def test_export_filename_template_pathsep_in_name_1():
 
 
 def test_export_filename_template_pathsep_in_name_2():
-    """ export photos using filename template with keyword and "/" in keyword """
+    """export photos using filename template with keyword and "/" in keyword"""
     import locale
     import os
     import os.path
@@ -3168,7 +3239,7 @@ def test_export_filename_template_pathsep_in_name_2():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, PHOTOS_DB_15_6),
+                os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
                 "--directory",
@@ -3185,7 +3256,7 @@ def test_export_filename_template_pathsep_in_name_2():
 
 
 def test_export_filename_template_long_description():
-    """ export photos using filename template with description that exceeds max length """
+    """export photos using filename template with description that exceeds max length"""
     import locale
     import os
     import os.path
@@ -3202,7 +3273,7 @@ def test_export_filename_template_long_description():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, PHOTOS_DB_15_6),
+                os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "-V",
                 "--filename",
@@ -3217,7 +3288,7 @@ def test_export_filename_template_long_description():
 
 
 def test_export_filename_template_3():
-    """ test --filename with invalid template """
+    """test --filename with invalid template"""
     import glob
     import os
     import os.path
@@ -3243,7 +3314,7 @@ def test_export_filename_template_3():
 
 
 def test_export_album():
-    """Test export of an album """
+    """Test export of an album"""
     import glob
     import os
     import os.path
@@ -3256,7 +3327,7 @@ def test_export_album():
     with runner.isolated_filesystem():
         result = runner.invoke(
             export,
-            [os.path.join(cwd, PHOTOS_DB_15_5), ".", "--album", "Pumpkin Farm", "-V"],
+            [os.path.join(cwd, PHOTOS_DB_15_7), ".", "--album", "Pumpkin Farm", "-V"],
         )
         assert result.exit_code == 0
         files = glob.glob("*")
@@ -3264,7 +3335,7 @@ def test_export_album():
 
 
 def test_export_album_unicode_name():
-    """Test export of an album with non-English characters in name """
+    """Test export of an album with non-English characters in name"""
     import glob
     import os
     import os.path
@@ -3277,7 +3348,7 @@ def test_export_album_unicode_name():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, PHOTOS_DB_15_6),
+                os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "--album",
                 "2018-10 - Sponsion, Museum, Frühstück, Römermuseum",
@@ -3290,7 +3361,7 @@ def test_export_album_unicode_name():
 
 
 def test_export_album_deleted_twin():
-    """Test export of an album where album of same name has been deleted """
+    """Test export of an album where album of same name has been deleted"""
     import glob
     import os
     import os.path
@@ -3304,7 +3375,7 @@ def test_export_album_deleted_twin():
         result = runner.invoke(
             export,
             [
-                os.path.join(cwd, PHOTOS_DB_15_5),
+                os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "--album",
                 "I have a deleted twin",
@@ -3317,7 +3388,7 @@ def test_export_album_deleted_twin():
 
 
 def test_export_deleted_1():
-    """Test export with --deleted """
+    """Test export with --deleted"""
     import glob
     import os
     import os.path
@@ -3330,20 +3401,20 @@ def test_export_deleted_1():
     with runner.isolated_filesystem():
         skip = ["--skip-edited", "--skip-bursts", "--skip-live", "--skip-raw"]
         result = runner.invoke(
-            export, [os.path.join(cwd, PHOTOS_DB_15_5), ".", "--deleted", *skip]
+            export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "--deleted", *skip]
         )
         assert result.exit_code == 0
         files = glob.glob("*")
         assert (
             len(files)
-            == PHOTOS_NOT_IN_TRASH_LEN_15_5
-            + PHOTOS_IN_TRASH_LEN_15_5
-            - PHOTOS_MISSING_15_5
+            == PHOTOS_NOT_IN_TRASH_LEN_15_7
+            + PHOTOS_IN_TRASH_LEN_15_7
+            - PHOTOS_MISSING_15_7
         )
 
 
 def test_export_deleted_2():
-    """Test export with --deleted """
+    """Test export with --deleted"""
     import glob
     import os
     import os.path
@@ -3369,7 +3440,7 @@ def test_export_deleted_2():
 
 
 def test_export_not_deleted_1():
-    """Test export does not find intrash files without --deleted flag """
+    """Test export does not find intrash files without --deleted flag"""
     import glob
     import os
     import os.path
@@ -3381,14 +3452,14 @@ def test_export_not_deleted_1():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         skip = ["--skip-edited", "--skip-bursts", "--skip-live", "--skip-raw"]
-        result = runner.invoke(export, [os.path.join(cwd, PHOTOS_DB_15_5), ".", *skip])
+        result = runner.invoke(export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", *skip])
         assert result.exit_code == 0
         files = glob.glob("*")
-        assert len(files) == PHOTOS_NOT_IN_TRASH_LEN_15_5 - PHOTOS_MISSING_15_5
+        assert len(files) == PHOTOS_NOT_IN_TRASH_LEN_15_7 - PHOTOS_MISSING_15_7
 
 
 def test_export_not_deleted_2():
-    """Test export does not find intrash files without --deleted flag """
+    """Test export does not find intrash files without --deleted flag"""
     import glob
     import os
     import os.path
@@ -3407,7 +3478,7 @@ def test_export_not_deleted_2():
 
 
 def test_export_deleted_only_1():
-    """Test export with --deleted-only """
+    """Test export with --deleted-only"""
     import glob
     import os
     import os.path
@@ -3420,15 +3491,15 @@ def test_export_deleted_only_1():
     with runner.isolated_filesystem():
         skip = ["--skip-edited", "--skip-bursts", "--skip-live", "--skip-raw"]
         result = runner.invoke(
-            export, [os.path.join(cwd, PHOTOS_DB_15_5), ".", "--deleted-only", *skip]
+            export, [os.path.join(cwd, PHOTOS_DB_15_7), ".", "--deleted-only", *skip]
         )
         assert result.exit_code == 0
         files = glob.glob("*")
-        assert len(files) == PHOTOS_IN_TRASH_LEN_15_5
+        assert len(files) == PHOTOS_IN_TRASH_LEN_15_7
 
 
 def test_export_deleted_only_2():
-    """Test export with --deleted-only """
+    """Test export with --deleted-only"""
     import glob
     import os
     import os.path
@@ -3593,7 +3664,7 @@ def test_no_folder_1_15():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            query, [os.path.join(cwd, PHOTOS_DB_15_4), "--json", "--folder", "Folder1"]
+            query, [os.path.join(cwd, PHOTOS_DB_15_7), "--json", "--folder", "Folder1"]
         )
         assert result.exit_code == 0
         json_got = json.loads(result.output)
@@ -3604,7 +3675,14 @@ def test_no_folder_1_15():
                 "3DD2C897-F19E-4CA6-8C22-B027D5A71907",
                 "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51",
             ]
-            assert item["albums"] == ["AlbumInFolder"]
+            for album in item["albums"]:
+                assert album in [
+                    "2019-10/11 Paris Clermont",
+                    "2018-10 - Sponsion, Museum, Frühstück, Römermuseum",
+                    "AlbumInFolder",
+                    "I have a deleted twin",
+                    "Multi Keyword",
+                ]
 
 
 def test_no_folder_2_15():
@@ -3622,7 +3700,7 @@ def test_no_folder_2_15():
         result = runner.invoke(
             query,
             [
-                os.path.join(cwd, PHOTOS_DB_15_4),
+                os.path.join(cwd, PHOTOS_DB_15_7),
                 "--json",
                 "--folder",
                 "Folder1",
@@ -3636,7 +3714,9 @@ def test_no_folder_2_15():
         assert len(json_got) == 1  # single element
         for item in json_got:
             assert item["uuid"] == "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"
-            assert item["albums"] == ["AlbumInFolder"]
+            assert sorted(item["albums"]) == sorted(
+                ["AlbumInFolder", "I have a deleted twin", "Multi Keyword"]
+            )
 
 
 def test_no_folder_1_14():
@@ -3711,7 +3791,11 @@ def test_export_sidecar_keyword_template():
             "EXIF:OffsetTimeOriginal": "-04:00", 
             "IPTC:DateCreated": "2018:09:28",
             "IPTC:TimeCreated": "16:07:07-04:00",
-            "EXIF:ModifyDate": "2018:09:28 16:07:07"}]
+            "EXIF:ModifyDate": "2018:09:28 16:07:07",
+            "EXIF:GPSLatitude": 41.256566,
+            "EXIF:GPSLongitude": -95.940257,
+            "EXIF:GPSLatitudeRef": "N",
+            "EXIF:GPSLongitudeRef": "W"}]
             """
         )[0]
 
@@ -3733,7 +3817,7 @@ def test_export_sidecar_keyword_template():
 
 
 def test_export_update_basic():
-    """ test export then update """
+    """test export then update"""
     import glob
     import os
     import os.path
@@ -3758,13 +3842,13 @@ def test_export_update_basic():
         )
         assert result.exit_code == 0
         assert (
-            "Processed: 7 photos, exported: 0, updated: 0, skipped: 8, updated EXIF data: 0, missing: 1, error: 0"
+            "Processed: 18 photos, exported: 0, updated: 0, skipped: 22, updated EXIF data: 0, missing: 2, error: 0"
             in result.output
         )
 
 
 def test_export_update_child_folder():
-    """ test export then update into a child folder of previous export """
+    """test export then update into a child folder of previous export"""
     import glob
     import os
     import os.path
@@ -3791,7 +3875,7 @@ def test_export_update_child_folder():
 
 
 def test_export_update_parent_folder():
-    """ test export then update into a parent folder of previous export """
+    """test export then update into a parent folder of previous export"""
     import glob
     import os
     import os.path
@@ -3818,7 +3902,7 @@ def test_export_update_parent_folder():
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_update_exiftool():
-    """ test export then update with exiftool """
+    """test export then update with exiftool"""
     import glob
     import os
     import os.path
@@ -3842,7 +3926,7 @@ def test_export_update_exiftool():
         )
         assert result.exit_code == 0
         assert (
-            "Processed: 7 photos, exported: 0, updated: 8, skipped: 0, updated EXIF data: 8, missing: 1, error: 0"
+            "Processed: 18 photos, exported: 0, updated: 22, skipped: 0, updated EXIF data: 22, missing: 2, error: 1"
             in result.output
         )
 
@@ -3852,13 +3936,13 @@ def test_export_update_exiftool():
         )
         assert result.exit_code == 0
         assert (
-            "Processed: 7 photos, exported: 0, updated: 0, skipped: 8, updated EXIF data: 0, missing: 1, error: 0"
+            "Processed: 18 photos, exported: 0, updated: 0, skipped: 22, updated EXIF data: 0, missing: 2, error: 0"
             in result.output
         )
 
 
 def test_export_update_hardlink():
-    """ test export with hardlink then update """
+    """test export with hardlink then update"""
     import glob
     import os
     import os.path
@@ -3889,7 +3973,7 @@ def test_export_update_hardlink():
         )
         assert result.exit_code == 0
         assert (
-            "Processed: 7 photos, exported: 0, updated: 8, skipped: 0, updated EXIF data: 0, missing: 1, error: 0"
+            "Processed: 18 photos, exported: 0, updated: 22, skipped: 0, updated EXIF data: 0, missing: 2, error: 0"
             in result.output
         )
         assert not os.path.samefile(CLI_EXPORT_UUID_FILENAME, photo.path)
@@ -3897,7 +3981,7 @@ def test_export_update_hardlink():
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_update_hardlink_exiftool():
-    """ test export with hardlink then update with exiftool """
+    """test export with hardlink then update with exiftool"""
     import glob
     import os
     import os.path
@@ -3928,14 +4012,14 @@ def test_export_update_hardlink_exiftool():
         )
         assert result.exit_code == 0
         assert (
-            "Processed: 7 photos, exported: 0, updated: 8, skipped: 0, updated EXIF data: 8, missing: 1, error: 0"
+            "Processed: 18 photos, exported: 0, updated: 22, skipped: 0, updated EXIF data: 22, missing: 2, error: 1"
             in result.output
         )
         assert not os.path.samefile(CLI_EXPORT_UUID_FILENAME, photo.path)
 
 
 def test_export_update_edits():
-    """ test export then update after removing and editing files """
+    """test export then update after removing and editing files"""
     import glob
     import os
     import os.path
@@ -3966,13 +4050,13 @@ def test_export_update_edits():
         )
         assert result.exit_code == 0
         assert (
-            "Processed: 7 photos, exported: 1, updated: 1, skipped: 6, updated EXIF data: 0, missing: 1, error: 0"
+            "Processed: 18 photos, exported: 1, updated: 1, skipped: 20, updated EXIF data: 0, missing: 2, error: 0"
             in result.output
         )
 
 
 def test_export_update_only_new():
-    """ test --update --only-new """
+    """test --update --only-new"""
     import glob
     import os
     import os.path
@@ -4034,7 +4118,7 @@ def test_export_update_only_new():
 
 
 def test_export_update_no_db():
-    """ test export then update after db has been deleted """
+    """test export then update after db has been deleted"""
     import glob
     import os
     import os.path
@@ -4064,14 +4148,14 @@ def test_export_update_no_db():
         # edited files will be re-exported because there won't be an edited signature
         # in the database
         assert (
-            "Processed: 7 photos, exported: 0, updated: 2, skipped: 6, updated EXIF data: 0, missing: 1, error: 0"
+            "Processed: 18 photos, exported: 0, updated: 4, skipped: 18, updated EXIF data: 0, missing: 2, error: 0"
             in result.output
         )
         assert os.path.isfile(OSXPHOTOS_EXPORT_DB)
 
 
 def test_export_then_hardlink():
-    """ test export then hardlink """
+    """test export then hardlink"""
     import glob
     import os
     import os.path
@@ -4103,12 +4187,14 @@ def test_export_then_hardlink():
             ],
         )
         assert result.exit_code == 0
-        assert "Processed: 7 photos, exported: 8, missing: 1, error: 0" in result.output
+        assert (
+            "Processed: 18 photos, exported: 22, missing: 2, error: 0" in result.output
+        )
         assert os.path.samefile(CLI_EXPORT_UUID_FILENAME, photo.path)
 
 
 def test_export_dry_run():
-    """ test export with dry-run flag """
+    """test export with dry-run flag"""
     import os
     import os.path
     import re
@@ -4123,14 +4209,16 @@ def test_export_dry_run():
             export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--dry-run"]
         )
         assert result.exit_code == 0
-        assert "Processed: 7 photos, exported: 8, missing: 1, error: 0" in result.output
+        assert (
+            "Processed: 18 photos, exported: 22, missing: 2, error: 0" in result.output
+        )
         for filepath in CLI_EXPORT_FILENAMES:
             assert re.search(r"Exported.*" + f"{filepath}", result.output)
             assert not os.path.isfile(filepath)
 
 
 def test_export_update_edits_dry_run():
-    """ test export then update after removing and editing files with dry-run flag """
+    """test export then update after removing and editing files with dry-run flag"""
     import glob
     import os
     import os.path
@@ -4167,7 +4255,7 @@ def test_export_update_edits_dry_run():
         )
         assert result.exit_code == 0
         assert (
-            "Processed: 7 photos, exported: 1, updated: 1, skipped: 6, updated EXIF data: 0, missing: 1, error: 0"
+            "Processed: 18 photos, exported: 1, updated: 1, skipped: 20, updated EXIF data: 0, missing: 2, error: 0"
             in result.output
         )
 
@@ -4176,7 +4264,7 @@ def test_export_update_edits_dry_run():
 
 
 def test_export_directory_template_1_dry_run():
-    """ test export using directory template with dry-run flag """
+    """test export using directory template with dry-run flag"""
     import locale
     import os
     import os.path
@@ -4202,7 +4290,7 @@ def test_export_directory_template_1_dry_run():
             ],
         )
         assert result.exit_code == 0
-        assert "exported: 8" in result.output
+        assert "exported: 22" in result.output
         workdir = os.getcwd()
         for filepath in CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES1:
             assert re.search(r"Exported.*" + f"{filepath}", result.output)
@@ -4210,7 +4298,7 @@ def test_export_directory_template_1_dry_run():
 
 
 def test_export_touch_files():
-    """ test export with --touch-files """
+    """test export with --touch-files"""
     import os
     import time
 
@@ -4238,8 +4326,8 @@ def test_export_touch_files():
         )
         assert result.exit_code == 0
 
-        assert "exported: 18" in result.output
-        assert "touched date: 16" in result.output
+        assert "exported: 22" in result.output
+        assert "touched date: 20" in result.output
 
         for fname, mtime in zip(CLI_EXPORT_BY_DATE, CLI_EXPORT_BY_DATE_TOUCH_TIMES):
             st = os.stat(fname)
@@ -4247,7 +4335,7 @@ def test_export_touch_files():
 
 
 def test_export_touch_files_update():
-    """ test complex export scenario with --update and --touch-files """
+    """test complex export scenario with --update and --touch-files"""
     import os
     import pathlib
     import time
@@ -4271,7 +4359,7 @@ def test_export_touch_files_update():
         )
         assert result.exit_code == 0
 
-        assert "exported: 18" in result.output
+        assert "exported: 22" in result.output
 
         assert not pathlib.Path(CLI_EXPORT_BY_DATE[0]).is_file()
 
@@ -4281,7 +4369,7 @@ def test_export_touch_files_update():
         )
         assert result.exit_code == 0
 
-        assert "exported: 18" in result.output
+        assert "exported: 22" in result.output
 
         assert pathlib.Path(CLI_EXPORT_BY_DATE[0]).is_file()
 
@@ -4292,7 +4380,7 @@ def test_export_touch_files_update():
         )
         assert result.exit_code == 0
 
-        assert "skipped: 18" in result.output
+        assert "skipped: 22" in result.output
 
         # --update --touch-file --dry-run
         result = runner.invoke(
@@ -4307,8 +4395,8 @@ def test_export_touch_files_update():
             ],
         )
         assert result.exit_code == 0
-        assert "skipped: 18" in result.output
-        assert "touched date: 16" in result.output
+        assert "skipped: 22" in result.output
+        assert "touched date: 20" in result.output
 
         for fname, mtime in zip(
             CLI_EXPORT_BY_DATE_NEED_TOUCH, CLI_EXPORT_BY_DATE_NEED_TOUCH_TIMES
@@ -4328,8 +4416,8 @@ def test_export_touch_files_update():
             ],
         )
         assert result.exit_code == 0
-        assert "skipped: 18" in result.output
-        assert "touched date: 16" in result.output
+        assert "skipped: 22" in result.output
+        assert "touched date: 20" in result.output
 
         for fname, mtime in zip(
             CLI_EXPORT_BY_DATE_NEED_TOUCH, CLI_EXPORT_BY_DATE_NEED_TOUCH_TIMES
@@ -4352,7 +4440,7 @@ def test_export_touch_files_update():
             ],
         )
         assert result.exit_code == 0
-        assert "updated: 1, skipped: 17" in result.output
+        assert "updated: 1, skipped: 21" in result.output
         assert "touched date: 1" in result.output
 
         for fname, mtime in zip(CLI_EXPORT_BY_DATE, CLI_EXPORT_BY_DATE_TOUCH_TIMES):
@@ -4366,13 +4454,13 @@ def test_export_touch_files_update():
         )
         assert result.exit_code == 0
 
-        assert "skipped: 18" in result.output
+        assert "skipped: 22" in result.output
 
 
 @pytest.mark.skip("TODO: This fails on some machines but not all")
 # @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_touch_files_exiftool_update():
-    """ test complex export scenario with --update, --exiftool, and --touch-files """
+    """test complex export scenario with --update, --exiftool, and --touch-files"""
     import os
     import pathlib
     import time
@@ -4547,7 +4635,7 @@ def test_export_touch_files_exiftool_update():
 
 
 def test_export_ignore_signature():
-    """ test export with --ignore-signature """
+    """test export with --ignore-signature"""
     import os
     from osxphotos.cli import export
 
@@ -4596,7 +4684,7 @@ def test_export_ignore_signature():
 
 
 def test_export_ignore_signature_sidecar():
-    """ test export with --ignore-signature and --sidecar """
+    """test export with --ignore-signature and --sidecar"""
     """
     Test the following use cases: 
     If the metadata (in Photos) that went into the sidecar did not change, the sidecar will not be updated
@@ -4725,7 +4813,7 @@ def test_export_ignore_signature_sidecar():
 
 
 def test_labels():
-    """Test osxphotos labels """
+    """Test osxphotos labels"""
     import json
     import osxphotos
     import os
@@ -4735,7 +4823,7 @@ def test_labels():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        labels, ["--db", os.path.join(cwd, PHOTOS_DB_15_5), "--json"]
+        labels, ["--db", os.path.join(cwd, PHOTOS_DB_15_7), "--json"]
     )
     assert result.exit_code == 0
 
@@ -4744,7 +4832,7 @@ def test_labels():
 
 
 def test_keywords():
-    """Test osxphotos keywords """
+    """Test osxphotos keywords"""
     import json
     import osxphotos
     import os
@@ -4754,7 +4842,7 @@ def test_keywords():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        keywords, ["--db", os.path.join(cwd, PHOTOS_DB_15_5), "--json"]
+        keywords, ["--db", os.path.join(cwd, PHOTOS_DB_15_7), "--json"]
     )
     assert result.exit_code == 0
 
@@ -4774,14 +4862,14 @@ def test_keywords():
 
 #     runner = CliRunner()
 #     cwd = os.getcwd()
-#     result = runner.invoke(albums, ["--db", os.path.join(cwd, PHOTOS_DB_15_6), ])
+#     result = runner.invoke(albums, ["--db", os.path.join(cwd, PHOTOS_DB_15_7), ])
 #     assert result.exit_code == 0
 
 #     assert result.output == ALBUMS_STR
 
 
 def test_albums_json():
-    """Test osxphotos albums json output """
+    """Test osxphotos albums json output"""
     import json
     import osxphotos
     import os
@@ -4791,7 +4879,7 @@ def test_albums_json():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        albums, ["--db", os.path.join(cwd, PHOTOS_DB_15_6), "--json"]
+        albums, ["--db", os.path.join(cwd, PHOTOS_DB_15_7), "--json"]
     )
     assert result.exit_code == 0
 
@@ -4800,7 +4888,7 @@ def test_albums_json():
 
 
 def test_persons():
-    """Test osxphotos persons """
+    """Test osxphotos persons"""
     import json
     import osxphotos
     import os
@@ -4810,7 +4898,7 @@ def test_persons():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        persons, ["--db", os.path.join(cwd, PHOTOS_DB_15_5), "--json"]
+        persons, ["--db", os.path.join(cwd, PHOTOS_DB_15_7), "--json"]
     )
     assert result.exit_code == 0
 
@@ -4819,7 +4907,7 @@ def test_persons():
 
 
 def test_export_report():
-    """ test export with --report option """
+    """test export with --report option"""
     import glob
     import os
     import os.path
@@ -4840,7 +4928,7 @@ def test_export_report():
 
 
 def test_export_report_not_a_file():
-    """ test export with --report option and bad report value """
+    """test export with --report option and bad report value"""
     import glob
     import os
     import os.path
@@ -4859,7 +4947,7 @@ def test_export_report_not_a_file():
 
 
 def test_export_as_hardlink_download_missing():
-    """ test export with incompatible export options """
+    """test export with incompatible export options"""
     import glob
     import os
     import os.path
@@ -4886,7 +4974,7 @@ def test_export_as_hardlink_download_missing():
 
 
 def test_export_missing():
-    """ test export with --missing """
+    """test export with --missing"""
     import glob
     import os
     import os.path
@@ -4913,7 +5001,7 @@ def test_export_missing():
 
 
 def test_export_missing_not_download_missing():
-    """ test export with incompatible export options """
+    """test export with incompatible export options"""
     import glob
     import os
     import os.path
@@ -4932,7 +5020,7 @@ def test_export_missing_not_download_missing():
 
 
 def test_export_cleanup():
-    """ test export with --cleanup flag """
+    """test export with --cleanup flag"""
     import pathlib
     from osxphotos.cli import export
 
@@ -4978,7 +5066,7 @@ def test_export_cleanup():
 
 
 def test_save_load_config():
-    """ test --save-config, --load-config """
+    """test --save-config, --load-config"""
     import glob
     import os
     import os.path
@@ -5079,7 +5167,7 @@ def test_save_load_config():
 
 
 def test_export_exportdb():
-    """ test --exportdb """
+    """test --exportdb"""
     import glob
     import os
     import os.path
@@ -5146,7 +5234,7 @@ def test_export_exportdb():
 
 
 def test_export_finder_tag_keywords():
-    """ test --finder-tag-keywords """
+    """test --finder-tag-keywords"""
     import glob
     import os
     import os.path
@@ -5226,7 +5314,7 @@ def test_export_finder_tag_keywords():
 
 
 def test_export_finder_tag_template():
-    """ test --finder-tag-template """
+    """test --finder-tag-template"""
     import glob
     import os
     import os.path
@@ -5309,7 +5397,7 @@ def test_export_finder_tag_template():
 
 
 def test_export_finder_tag_template_multiple():
-    """ test --finder-tag-template used more than once """
+    """test --finder-tag-template used more than once"""
     import glob
     import os
     import os.path
@@ -5348,7 +5436,7 @@ def test_export_finder_tag_template_multiple():
 
 
 def test_export_finder_tag_template_keywords():
-    """ test --finder-tag-template with --finder-tag-keywords """
+    """test --finder-tag-template with --finder-tag-keywords"""
     import glob
     import os
     import os.path
@@ -5386,7 +5474,7 @@ def test_export_finder_tag_template_keywords():
 
 
 def test_export_finder_tag_template_multi_field():
-    """ test --finder-tag-template with multiple fields (issue #422) """
+    """test --finder-tag-template with multiple fields (issue #422)"""
     import glob
     import os
     import os.path
@@ -5421,7 +5509,7 @@ def test_export_finder_tag_template_multi_field():
 
 
 def test_export_xattr_template():
-    """ test --xattr template """
+    """test --xattr template"""
     import glob
     import os
     import os.path
@@ -5515,7 +5603,7 @@ def test_export_xattr_template():
 
 
 def test_export_jpeg_ext():
-    """ test --jpeg-ext """
+    """test --jpeg-ext"""
     import glob
     import os
     import os.path
@@ -5556,7 +5644,7 @@ def test_export_jpeg_ext():
 
 
 def test_export_jpeg_ext_not_jpeg():
-    """ test --jpeg-ext with non-jpeg files"""
+    """test --jpeg-ext with non-jpeg files"""
     import glob
     import os
     import os.path
@@ -5597,7 +5685,7 @@ def test_export_jpeg_ext_not_jpeg():
 
 
 def test_export_jpeg_ext_edited_movie():
-    """ test --jpeg-ext doesn't change extension on edited movie (issue #366)"""
+    """test --jpeg-ext doesn't change extension on edited movie (issue #366)"""
     import glob
     import os
     import os.path
@@ -5645,7 +5733,7 @@ def test_export_jpeg_ext_edited_movie():
     reason="Skip if running in Github actions, no GPU.",
 )
 def test_export_jpeg_ext_convert_to_jpeg():
-    """ test --jpeg-ext with --convert-to-jpeg """
+    """test --jpeg-ext with --convert-to-jpeg"""
     import glob
     import os
     import os.path
@@ -5679,7 +5767,7 @@ def test_export_jpeg_ext_convert_to_jpeg():
     reason="Skip if running in Github actions, no GPU.",
 )
 def test_export_jpeg_ext_convert_to_jpeg_movie():
-    """ test --jpeg-ext with --convert-to-jpeg and a movie, shouldn't convert or change extensions, #366"""
+    """test --jpeg-ext with --convert-to-jpeg and a movie, shouldn't convert or change extensions, #366"""
     import glob
     import os
     import os.path
@@ -5717,7 +5805,7 @@ def test_export_jpeg_ext_convert_to_jpeg_movie():
     reason="Skip if not running on author's personal library.",
 )
 def test_export_burst_folder_album():
-    """ test non-selected burst photos are exported with the album their key photo is in, issue #401 """
+    """test non-selected burst photos are exported with the album their key photo is in, issue #401"""
     import glob
     import os
     import os.path
@@ -5749,7 +5837,7 @@ def test_export_burst_folder_album():
 
 
 def test_query_name():
-    """ test query --name """
+    """test query --name"""
     import json
     import os
     import os.path
@@ -5770,7 +5858,7 @@ def test_query_name():
 
 
 def test_query_name_i():
-    """ test query --name -i """
+    """test query --name -i"""
     import json
     import os
     import os.path
@@ -5798,7 +5886,7 @@ def test_query_name_i():
 
 
 def test_export_name():
-    """ test export --name """
+    """test export --name"""
     import glob
     import os
     import os.path
@@ -5818,7 +5906,7 @@ def test_export_name():
 
 
 def test_query_eval():
-    """ test export --query-eval """
+    """test export --query-eval"""
     import glob
     from osxphotos.cli import export
 
@@ -5842,7 +5930,7 @@ def test_query_eval():
 
 
 def test_bad_query_eval():
-    """ test export --query-eval with bad input """
+    """test export --query-eval with bad input"""
     import glob
     from osxphotos.cli import export
 
@@ -5865,7 +5953,7 @@ def test_bad_query_eval():
 
 
 def test_query_min_size_1():
-    """ test query --min-size """
+    """test query --min-size"""
     import json
     import os
     import os.path
@@ -5885,7 +5973,7 @@ def test_query_min_size_1():
 
 
 def test_query_min_size_2():
-    """ test query --min-size """
+    """test query --min-size"""
     import json
     import os
     import os.path
@@ -5911,7 +5999,7 @@ def test_query_min_size_2():
 
 
 def test_query_max_size_1():
-    """ test query --max-size """
+    """test query --max-size"""
     import json
     import os
     import os.path
@@ -5931,7 +6019,7 @@ def test_query_max_size_1():
 
 
 def test_query_max_size_2():
-    """ test query --max-size """
+    """test query --max-size"""
     import json
     import os
     import os.path
@@ -5951,7 +6039,7 @@ def test_query_max_size_2():
 
 
 def test_query_min_max_size():
-    """ test query --max-size with --min-size"""
+    """test query --max-size with --min-size"""
     import json
     import os
     import os.path
@@ -5979,7 +6067,7 @@ def test_query_min_max_size():
 
 
 def test_query_min_size_error():
-    """ test query --max-size with invalid size """
+    """test query --max-size with invalid size"""
     import json
     import os
     import os.path
@@ -5996,7 +6084,7 @@ def test_query_min_size_error():
 
 
 def test_query_regex_1():
-    """ test query --regex against title """
+    """test query --regex against title"""
     import json
     import os
     import os.path
@@ -6023,7 +6111,7 @@ def test_query_regex_1():
 
 
 def test_query_regex_2():
-    """ test query --regex with no match"""
+    """test query --regex with no match"""
     import json
     import os
     import os.path
@@ -6050,7 +6138,7 @@ def test_query_regex_2():
 
 
 def test_query_regex_3():
-    """ test query --regex with --ignore-case """
+    """test query --regex with --ignore-case"""
     import json
     import os
     import os.path
@@ -6078,7 +6166,7 @@ def test_query_regex_3():
 
 
 def test_query_regex_4():
-    """ test query --regex against album """
+    """test query --regex against album"""
     import json
     import os
     import os.path
