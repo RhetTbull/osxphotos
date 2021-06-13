@@ -3449,6 +3449,7 @@ For additional details about how osxphotos is implemented or if you would like t
 - [Rich](https://github.com/willmcgugan/rich)
 - [textx](https://github.com/textX/textX)
 - [bitmath](https://github.com/tbielawa/bitmath)
+- [more-itertools](https://github.com/more-itertools/more-itertools)
 
 
 ## Acknowledgements

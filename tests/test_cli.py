@@ -90,6 +90,34 @@ CLI_EXPORT_FILENAMES = [
     "Tulips_edited.jpeg",
     "screenshot-really-a-png.jpeg",
     "winebottle.jpeg",
+    "winebottle (1).jpeg",
+]
+
+
+CLI_EXPORT_FILENAMES_DRY_RUN = [
+    "Pumkins1.jpg",
+    "Pumkins2.jpg",
+    "Pumpkins3.jpg",
+    "St James Park.jpg",
+    "St James Park_edited.jpeg",
+    "Tulips.jpg",
+    "wedding.jpg",
+    "wedding_edited.jpeg",
+    "DSC03584.dng",
+    "IMG_1693.tif",
+    "IMG_1994.JPG",
+    "IMG_1994.cr2",
+    "IMG_1997.JPG",
+    "IMG_1997.cr2",
+    "IMG_3092.heic",
+    "IMG_3092_edited.jpeg",
+    "IMG_4547.jpg",
+    "Jellyfish.MOV",
+    "Jellyfish1.mp4",
+    "Tulips_edited.jpeg",
+    "screenshot-really-a-png.jpeg",
+    "winebottle.jpeg",
+    "winebottle.jpeg",
 ]
 
 CLI_EXPORT_IGNORE_SIGNATURE_FILENAMES = ["Tulips.jpg", "wedding.jpg"]
@@ -128,6 +156,7 @@ CLI_EXPORT_FILENAMES_EDITED_SUFFIX = [
     "Tulips_bearbeiten.jpeg",
     "screenshot-really-a-png.jpeg",
     "winebottle.jpeg",
+    "winebottle (1).jpeg",
 ]
 
 CLI_EXPORT_FILENAMES_EDITED_SUFFIX_TEMPLATE = [
@@ -153,6 +182,7 @@ CLI_EXPORT_FILENAMES_EDITED_SUFFIX_TEMPLATE = [
     "Tulips_edited.jpeg",
     "screenshot-really-a-png.jpeg",
     "winebottle.jpeg",
+    "winebottle (1).jpeg",
 ]
 
 CLI_EXPORT_FILENAMES_ORIGINAL_SUFFIX = [
@@ -178,6 +208,7 @@ CLI_EXPORT_FILENAMES_ORIGINAL_SUFFIX = [
     "Tulips_edited.jpeg",
     "screenshot-really-a-png_original.jpeg",
     "winebottle_original.jpeg",
+    "winebottle_original (1).jpeg",
 ]
 
 CLI_EXPORT_FILENAMES_ORIGINAL_SUFFIX_TEMPLATE = [
@@ -203,6 +234,7 @@ CLI_EXPORT_FILENAMES_ORIGINAL_SUFFIX_TEMPLATE = [
     "Jellyfish1.mp4",
     "screenshot-really-a-png.jpeg",
     "winebottle.jpeg",
+    "winebottle (1).jpeg",
 ]
 
 CLI_EXPORT_FILENAMES_CURRENT = [
@@ -228,6 +260,7 @@ CLI_EXPORT_FILENAMES_CURRENT = [
     "8846E3E6-8AC8-4857-8448-E3D025784410.tiff",
     "D1359D09-1373-4F3B-B0E3-1A4DE573E4A3.mp4",
     "E2078879-A29C-4D6F-BACB-E3BBE6C3EB91.jpeg",
+    "52083079-73D5-4921-AC1B-FE76F279133F.jpeg",
 ]
 
 CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG = [
@@ -253,6 +286,7 @@ CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG = [
     "Jellyfish1.mp4",
     "screenshot-really-a-png.jpeg",
     "winebottle.jpeg",
+    "winebottle (1).jpeg",
 ]
 
 CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG_SKIP_RAW = [
@@ -276,6 +310,7 @@ CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG_SKIP_RAW = [
     "Jellyfish1.mp4",
     "screenshot-really-a-png.jpeg",
     "winebottle.jpeg",
+    "winebottle (1).jpeg",
 ]
 
 CLI_EXPORT_CONVERT_TO_JPEG_LARGE_FILE = "DSC03584.jpeg"
@@ -445,9 +480,10 @@ PHOTOS_NOT_IN_TRASH_LEN_14_6 = 12
 PHOTOS_IN_TRASH_LEN_14_6 = 1
 PHOTOS_MISSING_14_6 = 1
 
-PHOTOS_NOT_IN_TRASH_LEN_15_7 = 18
+PHOTOS_NOT_IN_TRASH_LEN_15_7 = 19
 PHOTOS_IN_TRASH_LEN_15_7 = 2
 PHOTOS_MISSING_15_7 = 2
+PHOTOS_EDITED_15_7 = 4
 
 CLI_PLACES_JSON = """{"places": {"_UNKNOWN_": 1, "Maui, Wailea, Hawai'i, United States": 1, "Washington, District of Columbia, United States": 1}}"""
 
@@ -608,14 +644,27 @@ KEYWORDS_JSON = {
         "flowers": 1,
         "foo/bar": 1,
         "Maria": 1,
-        "Wine": 1,
-        "Val d'Isère": 1,
-        "Drink": 1,
-        "Wine Bottle": 1,
+        "Wine": 2,
+        "Val d'Isère": 2,
+        "Drink": 2,
+        "Wine Bottle": 2,
     }
 }
 
-ALBUMS_JSON = {"albums": {"Raw": 4, "Pumpkin Farm": 3, "Test Album": 2, "AlbumInFolder": 2, "Multi Keyword": 2, "I have a deleted twin": 1, "2018-10 - Sponsion, Museum, Frühstück, Römermuseum": 1, "2019-10/11 Paris Clermont": 1, "EmptyAlbum": 0}, "shared albums": {}}
+ALBUMS_JSON = {
+    "albums": {
+        "Raw": 4,
+        "Pumpkin Farm": 3,
+        "Test Album": 2,
+        "AlbumInFolder": 2,
+        "Multi Keyword": 2,
+        "I have a deleted twin": 1,
+        "2018-10 - Sponsion, Museum, Frühstück, Römermuseum": 1,
+        "2019-10/11 Paris Clermont": 1,
+        "EmptyAlbum": 0,
+    },
+    "shared albums": {},
+}
 
 ALBUMS_STR = """albums:
   Raw: 4
@@ -711,6 +760,12 @@ UUID_NOT_IN_ALBUM = [
     "35329C57-B963-48D6-BB75-6AFF9370CBBC",
     "8846E3E6-8AC8-4857-8448-E3D025784410",
     "7F74DD34-5920-4DA3-B284-479887A34F66",
+    "52083079-73D5-4921-AC1B-FE76F279133F",
+]
+
+UUID_DUPLICATES = [
+    "7F74DD34-5920-4DA3-B284-479887A34F66",
+    "52083079-73D5-4921-AC1B-FE76F279133F",
 ]
 
 
@@ -1055,6 +1110,27 @@ def test_query_not_in_album():
     json_got = json.loads(result.output)
     uuid_got = [photo["uuid"] for photo in json_got]
     assert sorted(uuid_got) == sorted(UUID_NOT_IN_ALBUM)
+
+
+def test_query_duplicate():
+    """Test query with --duplicate"""
+    import json
+    import os
+    import os.path
+    from osxphotos.cli import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        ["--json", "--db", os.path.join(cwd, CLI_PHOTOS_DB), "--duplicate"],
+    )
+    assert result.exit_code == 0
+
+    # build list of uuids we got from the output JSON
+    json_got = json.loads(result.output)
+    uuid_got = [photo["uuid"] for photo in json_got]
+    assert sorted(uuid_got) == sorted(UUID_DUPLICATES)
 
 
 def test_export():
@@ -1846,6 +1922,26 @@ def test_export_convert_to_jpeg_skip_raw():
         assert result.exit_code == 0
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_CONVERT_TO_JPEG_SKIP_RAW)
+
+
+def test_export_duplicate():
+    """Test export with --duplicate"""
+    import glob
+    import os
+    import os.path
+    import osxphotos
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--duplicate"]
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert len(files) == len(UUID_DUPLICATES)
 
 
 def test_query_date_1():
@@ -3842,7 +3938,7 @@ def test_export_update_basic():
         )
         assert result.exit_code == 0
         assert (
-            "Processed: 18 photos, exported: 0, updated: 0, skipped: 22, updated EXIF data: 0, missing: 2, error: 0"
+            "Processed: 19 photos, exported: 0, updated: 0, skipped: 23, updated EXIF data: 0, missing: 2, error: 0"
             in result.output
         )
 
@@ -3926,7 +4022,7 @@ def test_export_update_exiftool():
         )
         assert result.exit_code == 0
         assert (
-            "Processed: 18 photos, exported: 0, updated: 22, skipped: 0, updated EXIF data: 22, missing: 2, error: 1"
+            "Processed: 19 photos, exported: 0, updated: 23, skipped: 0, updated EXIF data: 23, missing: 2, error: 1"
             in result.output
         )
 
@@ -3936,7 +4032,7 @@ def test_export_update_exiftool():
         )
         assert result.exit_code == 0
         assert (
-            "Processed: 18 photos, exported: 0, updated: 0, skipped: 22, updated EXIF data: 0, missing: 2, error: 0"
+            "Processed: 19 photos, exported: 0, updated: 0, skipped: 23, updated EXIF data: 0, missing: 2, error: 0"
             in result.output
         )
 
@@ -3973,7 +4069,7 @@ def test_export_update_hardlink():
         )
         assert result.exit_code == 0
         assert (
-            "Processed: 18 photos, exported: 0, updated: 22, skipped: 0, updated EXIF data: 0, missing: 2, error: 0"
+            "Processed: 19 photos, exported: 0, updated: 23, skipped: 0, updated EXIF data: 0, missing: 2, error: 0"
             in result.output
         )
         assert not os.path.samefile(CLI_EXPORT_UUID_FILENAME, photo.path)
@@ -4012,7 +4108,7 @@ def test_export_update_hardlink_exiftool():
         )
         assert result.exit_code == 0
         assert (
-            "Processed: 18 photos, exported: 0, updated: 22, skipped: 0, updated EXIF data: 22, missing: 2, error: 1"
+            "Processed: 19 photos, exported: 0, updated: 23, skipped: 0, updated EXIF data: 23, missing: 2, error: 1"
             in result.output
         )
         assert not os.path.samefile(CLI_EXPORT_UUID_FILENAME, photo.path)
@@ -4050,7 +4146,7 @@ def test_export_update_edits():
         )
         assert result.exit_code == 0
         assert (
-            "Processed: 18 photos, exported: 1, updated: 1, skipped: 20, updated EXIF data: 0, missing: 2, error: 0"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 1, updated: 1, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7-2}, updated EXIF data: 0, missing: 2, error: 0"
             in result.output
         )
 
@@ -4148,7 +4244,7 @@ def test_export_update_no_db():
         # edited files will be re-exported because there won't be an edited signature
         # in the database
         assert (
-            "Processed: 18 photos, exported: 0, updated: 4, skipped: 18, updated EXIF data: 0, missing: 2, error: 0"
+            "Processed: 19 photos, exported: 0, updated: 4, skipped: 19, updated EXIF data: 0, missing: 2, error: 0"
             in result.output
         )
         assert os.path.isfile(OSXPHOTOS_EXPORT_DB)
@@ -4188,7 +4284,7 @@ def test_export_then_hardlink():
         )
         assert result.exit_code == 0
         assert (
-            "Processed: 18 photos, exported: 22, missing: 2, error: 0" in result.output
+            "Processed: 19 photos, exported: 23, missing: 2, error: 0" in result.output
         )
         assert os.path.samefile(CLI_EXPORT_UUID_FILENAME, photo.path)
 
@@ -4210,9 +4306,9 @@ def test_export_dry_run():
         )
         assert result.exit_code == 0
         assert (
-            "Processed: 18 photos, exported: 22, missing: 2, error: 0" in result.output
+            "Processed: 19 photos, exported: 23, missing: 2, error: 0" in result.output
         )
-        for filepath in CLI_EXPORT_FILENAMES:
+        for filepath in CLI_EXPORT_FILENAMES_DRY_RUN:
             assert re.search(r"Exported.*" + f"{filepath}", result.output)
             assert not os.path.isfile(filepath)
 
@@ -4255,7 +4351,7 @@ def test_export_update_edits_dry_run():
         )
         assert result.exit_code == 0
         assert (
-            "Processed: 18 photos, exported: 1, updated: 1, skipped: 20, updated EXIF data: 0, missing: 2, error: 0"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 1, updated: 1, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7-2}, updated EXIF data: 0, missing: 2, error: 0"
             in result.output
         )
 
@@ -4290,7 +4386,7 @@ def test_export_directory_template_1_dry_run():
             ],
         )
         assert result.exit_code == 0
-        assert "exported: 22" in result.output
+        assert "exported: 23" in result.output
         workdir = os.getcwd()
         for filepath in CLI_EXPORTED_DIRECTORY_TEMPLATE_FILENAMES1:
             assert re.search(r"Exported.*" + f"{filepath}", result.output)
@@ -4326,8 +4422,8 @@ def test_export_touch_files():
         )
         assert result.exit_code == 0
 
-        assert "exported: 22" in result.output
-        assert "touched date: 20" in result.output
+        assert "exported: 23" in result.output
+        assert "touched date: 21" in result.output
 
         for fname, mtime in zip(CLI_EXPORT_BY_DATE, CLI_EXPORT_BY_DATE_TOUCH_TIMES):
             st = os.stat(fname)
@@ -4359,7 +4455,7 @@ def test_export_touch_files_update():
         )
         assert result.exit_code == 0
 
-        assert "exported: 22" in result.output
+        assert "exported: 23" in result.output
 
         assert not pathlib.Path(CLI_EXPORT_BY_DATE[0]).is_file()
 
@@ -4369,7 +4465,7 @@ def test_export_touch_files_update():
         )
         assert result.exit_code == 0
 
-        assert "exported: 22" in result.output
+        assert "exported: 23" in result.output
 
         assert pathlib.Path(CLI_EXPORT_BY_DATE[0]).is_file()
 
@@ -4380,7 +4476,7 @@ def test_export_touch_files_update():
         )
         assert result.exit_code == 0
 
-        assert "skipped: 22" in result.output
+        assert "skipped: 23" in result.output
 
         # --update --touch-file --dry-run
         result = runner.invoke(
@@ -4395,8 +4491,8 @@ def test_export_touch_files_update():
             ],
         )
         assert result.exit_code == 0
-        assert "skipped: 22" in result.output
-        assert "touched date: 20" in result.output
+        assert "skipped: 23" in result.output
+        assert "touched date: 21" in result.output
 
         for fname, mtime in zip(
             CLI_EXPORT_BY_DATE_NEED_TOUCH, CLI_EXPORT_BY_DATE_NEED_TOUCH_TIMES
@@ -4416,8 +4512,8 @@ def test_export_touch_files_update():
             ],
         )
         assert result.exit_code == 0
-        assert "skipped: 22" in result.output
-        assert "touched date: 20" in result.output
+        assert "skipped: 23" in result.output
+        assert "touched date: 21" in result.output
 
         for fname, mtime in zip(
             CLI_EXPORT_BY_DATE_NEED_TOUCH, CLI_EXPORT_BY_DATE_NEED_TOUCH_TIMES
@@ -4440,7 +4536,7 @@ def test_export_touch_files_update():
             ],
         )
         assert result.exit_code == 0
-        assert "updated: 1, skipped: 21" in result.output
+        assert "updated: 1, skipped: 22" in result.output
         assert "touched date: 1" in result.output
 
         for fname, mtime in zip(CLI_EXPORT_BY_DATE, CLI_EXPORT_BY_DATE_TOUCH_TIMES):
@@ -4454,7 +4550,7 @@ def test_export_touch_files_update():
         )
         assert result.exit_code == 0
 
-        assert "skipped: 22" in result.output
+        assert "skipped: 23" in result.output
 
 
 @pytest.mark.skip("TODO: This fails on some machines but not all")
@@ -4505,7 +4601,7 @@ def test_export_touch_files_exiftool_update():
         )
         assert result.exit_code == 0
 
-        assert "skipped: 18" in result.output
+        assert "skipped: 19" in result.output
 
         # --update --exiftool --dry-run
         result = runner.invoke(
@@ -4553,7 +4649,7 @@ def test_export_touch_files_exiftool_update():
             ],
         )
         assert result.exit_code == 0
-        assert "skipped: 18" in result.output
+        assert "skipped: 19" in result.output
         assert "touched date: 18" in result.output
 
         # --update --touch-file --exiftool
@@ -4569,7 +4665,7 @@ def test_export_touch_files_exiftool_update():
             ],
         )
         assert result.exit_code == 0
-        assert "skipped: 18" in result.output
+        assert "skipped: 19" in result.output
         assert "touched date: 18" in result.output
 
         for fname, mtime in zip(CLI_EXPORT_BY_DATE, CLI_EXPORT_BY_DATE_TOUCH_TIMES):
@@ -4615,7 +4711,7 @@ def test_export_touch_files_exiftool_update():
         )
         assert result.exit_code == 0
         assert "exported: 0" in result.output
-        assert "skipped: 18" in result.output
+        assert "skipped: 19" in result.output
 
         # run update without --touch-file
         result = runner.invoke(
@@ -4631,7 +4727,7 @@ def test_export_touch_files_exiftool_update():
         assert result.exit_code == 0
 
         assert "exported: 0" in result.output
-        assert "skipped: 18" in result.output
+        assert "skipped: 19" in result.output
 
 
 def test_export_ignore_signature():

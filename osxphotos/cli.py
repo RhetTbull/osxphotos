@@ -9,12 +9,10 @@ import pathlib
 import pprint
 import sys
 import time
-import unicodedata
 
 import bitmath
 import click
 import osxmetadata
-import photoscript
 import yaml
 
 import osxphotos
@@ -457,6 +455,14 @@ def QUERY_OPTIONS(f):
             "--not-in-album",
             is_flag=True,
             help="Search for photos that are not in any albums.",
+        ),
+        o(
+            "--duplicate",
+            is_flag=True,
+            help="Search for photos with possible duplicates. osxphotos will compare signatures of photos, "
+            "evaluating date created, size, height, width, and edited status to find *possible* duplicates. "
+            "This does not compare images byte-for-byte nor compare hashes but should find photos imported multiple "
+            "times or duplicated within Photos."
         ),
         o(
             "--min-size",
@@ -1067,6 +1073,7 @@ def export(
     max_size,
     regex,
     query_eval,
+    duplicate,
 ):
     """Export photos from the Photos database.
     Export path DEST is required.
@@ -1221,6 +1228,7 @@ def export(
         max_size = cfg.max_size
         regex = cfg.regex
         query_eval = cfg.query_eval
+        duplicate = cfg.duplicate
 
         # config file might have changed verbose
         VERBOSE = bool(verbose)
@@ -1526,6 +1534,7 @@ def export(
         max_size=max_size,
         regex=regex,
         query_eval=query_eval,
+        duplicate=duplicate,
     )
 
     try:
@@ -1891,6 +1900,7 @@ def query(
     is_reference,
     in_album,
     not_in_album,
+    duplicate,
     min_size,
     max_size,
     regex,
@@ -1926,6 +1936,7 @@ def query(
         min_size,
         max_size,
         regex,
+        duplicate,
     ]
     exclusive = [
         (favorite, not_favorite),
@@ -2051,6 +2062,7 @@ def query(
         max_size=max_size,
         query_eval=query_eval,
         regex=regex,
+        duplicate=duplicate
     )
 
     try:

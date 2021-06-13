@@ -23,8 +23,8 @@ PHOTOS_DB = "tests/Test-10.15.7.photoslibrary/database/photos.db"
 PHOTOS_DB_PATH = "/Test-10.15.7.photoslibrary/database/photos.db"
 PHOTOS_LIBRARY_PATH = "/Test-10.15.7.photoslibrary"
 
-PHOTOS_DB_LEN = 20
-PHOTOS_NOT_IN_TRASH_LEN = 18
+PHOTOS_DB_LEN = 21
+PHOTOS_NOT_IN_TRASH_LEN = 19
 PHOTOS_IN_TRASH_LEN = 2
 PHOTOS_DB_IMPORT_SESSIONS = 15
 
@@ -72,10 +72,10 @@ KEYWORDS_DICT = {
     "foo/bar": 1,
     "Travel": 2,
     "Maria": 1,
-    "Drink": 1,
-    "Val d'Isère": 1,
-    "Wine": 1,
-    "Wine Bottle": 1,
+    "Drink": 2,
+    "Val d'Isère": 2,
+    "Wine": 2,
+    "Wine Bottle": 2,
 }
 PERSONS_DICT = {"Katie": 3, "Suzy": 2, "Maria": 2, _UNKNOWN_PERSON: 1}
 ALBUM_DICT = {
@@ -1063,7 +1063,7 @@ def test_from_to_date(photosdb):
     time.tzset()
 
     photos = photosdb.photos(from_date=datetime.datetime(2018, 10, 28))
-    assert len(photos) == 11
+    assert len(photos) == 12
 
     photos = photosdb.photos(to_date=datetime.datetime(2018, 10, 28))
     assert len(photos) == 7

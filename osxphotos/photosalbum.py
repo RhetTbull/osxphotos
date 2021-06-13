@@ -1,7 +1,10 @@
 """ PhotosAlbum class to create an album in default Photos library and add photos to it """
 
-from typing import Optional, List
+from typing import List, Optional
+
 import photoscript
+from more_itertools import chunked
+
 from .photoinfo import PhotoInfo
 from .utils import noop
 
@@ -27,7 +30,8 @@ class PhotosAlbum:
 
     def add_list(self, photo_list: List[PhotoInfo]):
         photos = [photoscript.Photo(p.uuid) for p in photo_list]
-        self.album.add(photos)
+        for photolist in chunked(photos, 10):
+            self.album.add(photolist)
         photo_len = len(photos)
         photo_word = "photos" if photo_len > 1 else "photo"
         self.verbose(f"Added {photo_len} {photo_word} to album {self.name}")

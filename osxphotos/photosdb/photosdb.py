@@ -11,6 +11,7 @@ import platform
 import re
 import sys
 import tempfile
+from collections import OrderedDict
 from datetime import datetime, timedelta, timezone
 from pprint import pformat
 from typing import List
@@ -65,17 +66,17 @@ class PhotosDB:
     """Processes a Photos.app library database to extract information about photos"""
 
     # import additional methods
+    from ._photosdb_process_comments import _process_comments
     from ._photosdb_process_exif import _process_exifinfo
     from ._photosdb_process_faceinfo import _process_faceinfo
+    from ._photosdb_process_scoreinfo import _process_scoreinfo
     from ._photosdb_process_searchinfo import (
         _process_searchinfo,
         labels,
-        labels_normalized,
         labels_as_dict,
+        labels_normalized,
         labels_normalized_as_dict,
     )
-    from ._photosdb_process_scoreinfo import _process_scoreinfo
-    from ._photosdb_process_comments import _process_comments
 
     def __init__(self, dbfile=None, verbose=None, exiftool=None):
         """Create a new PhotosDB object.
@@ -3224,6 +3225,32 @@ class PhotosDB:
                     photos = eval(query_string)
                 except Exception as e:
                     raise ValueError(f"Invalid query_eval CRITERIA: {e}")
+
+        if options.duplicate:
+            no_date = datetime(1970, 1, 1)
+            tz = timezone(timedelta(0))
+            no_date = no_date.astimezone(tz=tz)
+            photos = sorted(
+                [p for p in photos if p.duplicates],
+                key=lambda x: x.date_added or no_date,
+            )
+            # gather all duplicates but ensure each uuid is only represented once
+            photodict = OrderedDict()
+            for p in photos:
+                if p.uuid not in photodict:
+                    photodict[p.uuid] = p
+                    for d in sorted(
+                        p.duplicates, key=lambda x: x.date_added or no_date
+                    ):
+                        if d.uuid not in photodict:
+                            photodict[d.uuid] = d
+            photos = list(photodict.values())
+
+            # filter for deleted as photo.duplicates will include photos in the trash
+            if not (options.deleted or options.deleted_only):
+                photos = [p for p in photos if not p.intrash]
+            if options.deleted_only:
+                photos = [p for p in photos if p.intrash]
 
         return photos
 
