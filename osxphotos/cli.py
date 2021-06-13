@@ -50,9 +50,10 @@ from .fileutil import FileUtil, FileUtilNoOp
 from .path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
 from .photoinfo import ExportResults
 from .photokit import check_photokit_authorization, request_photokit_authorization
+from .photosalbum import PhotosAlbum
+from .phototemplate import RenderOptions
 from .queryoptions import QueryOptions
 from .utils import get_preferred_uti_extension
-from .photosalbum import PhotosAlbum
 
 # global variable to control verbose output
 # set via --verbose/-V
@@ -60,7 +61,7 @@ VERBOSE = False
 
 
 def verbose_(*args, **kwargs):
-    """ print output if verbose flag set """
+    """print output if verbose flag set"""
     if VERBOSE:
         styled_args = []
         for arg in args:
@@ -462,7 +463,7 @@ def QUERY_OPTIONS(f):
             help="Search for photos with possible duplicates. osxphotos will compare signatures of photos, "
             "evaluating date created, size, height, width, and edited status to find *possible* duplicates. "
             "This does not compare images byte-for-byte nor compare hashes but should find photos imported multiple "
-            "times or duplicated within Photos."
+            "times or duplicated within Photos.",
         ),
         o(
             "--min-size",
@@ -1697,13 +1698,18 @@ def export(
                         exiftool_merge_keywords=exiftool_merge_keywords,
                         finder_tag_template=finder_tag_template,
                         strip=strip,
+                        export_dir=dest,
                     )
                     results.xattr_written.extend(tags_written)
                     results.xattr_skipped.extend(tags_skipped)
 
                 if xattr_template:
                     xattr_written, xattr_skipped = write_extended_attributes(
-                        p, photo_files, xattr_template, strip=strip
+                        p,
+                        photo_files,
+                        xattr_template,
+                        strip=strip,
+                        export_dir=dest,
                     )
                     results.xattr_written.extend(xattr_written)
                     results.xattr_skipped.extend(xattr_skipped)
@@ -1777,7 +1783,7 @@ def export(
 @click.argument("topic", default=None, required=False, nargs=1)
 @click.pass_context
 def help(ctx, topic, **kw):
-    """ Print help; for help on commands: help <command>. """
+    """Print help; for help on commands: help <command>."""
     if topic is None:
         click.echo(ctx.parent.get_help())
     elif topic in cli.commands:
@@ -2062,7 +2068,7 @@ def query(
         max_size=max_size,
         query_eval=query_eval,
         regex=regex,
-        duplicate=duplicate
+        duplicate=duplicate,
     )
 
     try:
@@ -2348,9 +2354,8 @@ def export_photo(
     rendered_suffix = ""
     if original_suffix:
         try:
-            rendered_suffix, unmatched = photo.render_template(
-                original_suffix, filename=True, strip=strip
-            )
+            options = RenderOptions(filename=True, strip=strip, export_dir=dest)
+            rendered_suffix, unmatched = photo.render_template(original_suffix, options)
         except ValueError as e:
             raise click.BadOptionUsage(
                 "original_suffix",
@@ -2477,8 +2482,13 @@ def export_photo(
 
             if edited_suffix:
                 try:
+                    options = RenderOptions(
+                        filename=True,
+                        strip=strip,
+                        export_dir=dest,
+                    )
                     rendered_suffix, unmatched = photo.render_template(
-                        edited_suffix, filename=True, strip=strip
+                        edited_suffix, options
                     )
                 except ValueError as e:
                     raise click.BadOptionUsage(
@@ -2588,7 +2598,7 @@ def export_photo_with_template(
     replace_keywords,
     retry,
 ):
-    """ Evaluate directory template then export photo to each directory """
+    """Evaluate directory template then export photo to each directory"""
 
     results = ExportResults()
 
@@ -2735,7 +2745,11 @@ def export_photo_with_template(
 
 
 def get_filenames_from_template(
-    photo, filename_template, original_name, strip=False, edited=False
+    photo,
+    filename_template,
+    original_name,
+    strip=False,
+    edited=False,
 ):
     """get list of export filenames for a photo
 
@@ -2755,13 +2769,13 @@ def get_filenames_from_template(
     if filename_template:
         photo_ext = pathlib.Path(photo.original_filename).suffix
         try:
-            filenames, unmatched = photo.render_template(
-                filename_template,
+            options = RenderOptions(
                 path_sep="_",
                 filename=True,
                 strip=strip,
-                edited=edited,
+                edited_version=edited,
             )
+            filenames, unmatched = photo.render_template(filename_template, options)
         except ValueError as e:
             raise click.BadOptionUsage(
                 "filename_template", f"Invalid template '{filename_template}': {e}"
@@ -2815,9 +2829,8 @@ def get_dirnames_from_template(
     elif directory:
         # got a directory template, render it and check results are valid
         try:
-            dirnames, unmatched = photo.render_template(
-                directory, dirname=True, strip=strip, edited=edited
-            )
+            options = RenderOptions(dirname=True, strip=strip, edited_version=edited)
+            dirnames, unmatched = photo.render_template(directory, options)
         except ValueError as e:
             raise click.BadOptionUsage(
                 "directory", f"Invalid template '{directory}': {e}"
@@ -3098,6 +3111,7 @@ def write_finder_tags(
     exiftool_merge_keywords=None,
     finder_tag_template=None,
     strip=False,
+    export_dir=None,
 ):
     """Write Finder tags (extended attributes) to files; only writes attributes if attributes on file differ from what would be written
 
@@ -3110,6 +3124,7 @@ def write_finder_tags(
         person_keyword: if True, use person in image as keywords
         exiftool_merge_keywords: if True, include any keywords in the exif data of the source image as keywords
         finder_tag_template: list of templates to evaluate for determining Finder tags
+        export_dir: value to use for {export_dir} template
 
     Returns:
         (list of file paths that were updated with new Finder tags, list of file paths skipped because Finder tags didn't need updating)
@@ -3136,12 +3151,13 @@ def write_finder_tags(
         rendered_tags = []
         for template_str in finder_tag_template:
             try:
-                rendered, unmatched = photo.render_template(
-                    template_str,
+                options = RenderOptions(
                     none_str=_OSXPHOTOS_NONE_SENTINEL,
                     path_sep="/",
                     strip=strip,
+                    export_dir=export_dir,
                 )
+                rendered, unmatched = photo.render_template(template_str, options)
             except ValueError as e:
                 raise click.BadOptionUsage(
                     "finder_tag_template",
@@ -3178,13 +3194,16 @@ def write_finder_tags(
     return (written, skipped)
 
 
-def write_extended_attributes(photo, files, xattr_template, strip=False):
-    """ Writes extended attributes to exported files
+def write_extended_attributes(
+    photo, files, xattr_template, strip=False, export_dir=None
+):
+    """Writes extended attributes to exported files
 
     Args:
         photo: a PhotoInfo object
-        xattr_template: list of tuples: (attribute name, attribute template)
-    
+        strip:   xattr_template: list of tuples: (attribute name, attribute template)
+        export_dir: value to use for {export_dir} template
+
     Returns:
         tuple(list of file paths that were updated with new attributes, list of file paths skipped because attributes didn't need updating)
     """
@@ -3192,12 +3211,13 @@ def write_extended_attributes(photo, files, xattr_template, strip=False):
     attributes = {}
     for xattr, template_str in xattr_template:
         try:
-            rendered, unmatched = photo.render_template(
-                template_str,
+            options = RenderOptions(
                 none_str=_OSXPHOTOS_NONE_SENTINEL,
                 path_sep="/",
                 strip=strip,
+                export_dir=export_dir,
             )
+            rendered, unmatched = photo.render_template(template_str, options)
         except ValueError as e:
             raise click.BadOptionUsage(
                 "xattr_template",
@@ -3266,7 +3286,7 @@ def write_extended_attributes(photo, files, xattr_template, strip=False):
 @click.pass_obj
 @click.pass_context
 def debug_dump(ctx, cli_obj, db, photos_library, dump, uuid, verbose):
-    """ Print out debug info """
+    """Print out debug info"""
 
     global VERBOSE
     VERBOSE = bool(verbose)
@@ -3337,7 +3357,7 @@ def debug_dump(ctx, cli_obj, db, photos_library, dump, uuid, verbose):
 @click.pass_obj
 @click.pass_context
 def keywords(ctx, cli_obj, db, json_, photos_library):
-    """ Print out keywords found in the Photos library. """
+    """Print out keywords found in the Photos library."""
 
     # below needed for to make CliRunner work for testing
     cli_db = cli_obj.db if cli_obj is not None else None
@@ -3363,7 +3383,7 @@ def keywords(ctx, cli_obj, db, json_, photos_library):
 @click.pass_obj
 @click.pass_context
 def albums(ctx, cli_obj, db, json_, photos_library):
-    """ Print out albums found in the Photos library. """
+    """Print out albums found in the Photos library."""
 
     # below needed for to make CliRunner work for testing
     cli_db = cli_obj.db if cli_obj is not None else None
@@ -3392,7 +3412,7 @@ def albums(ctx, cli_obj, db, json_, photos_library):
 @click.pass_obj
 @click.pass_context
 def persons(ctx, cli_obj, db, json_, photos_library):
-    """ Print out persons (faces) found in the Photos library. """
+    """Print out persons (faces) found in the Photos library."""
 
     # below needed for to make CliRunner work for testing
     cli_db = cli_obj.db if cli_obj is not None else None
@@ -3418,7 +3438,7 @@ def persons(ctx, cli_obj, db, json_, photos_library):
 @click.pass_obj
 @click.pass_context
 def labels(ctx, cli_obj, db, json_, photos_library):
-    """ Print out image classification labels found in the Photos library. """
+    """Print out image classification labels found in the Photos library."""
 
     # below needed for to make CliRunner work for testing
     cli_db = cli_obj.db if cli_obj is not None else None
@@ -3444,7 +3464,7 @@ def labels(ctx, cli_obj, db, json_, photos_library):
 @click.pass_obj
 @click.pass_context
 def info(ctx, cli_obj, db, json_, photos_library):
-    """ Print out descriptive info of the Photos library database. """
+    """Print out descriptive info of the Photos library database."""
 
     db = get_photos_db(*photos_library, db, cli_obj.db)
     if db is None:
@@ -3504,7 +3524,7 @@ def info(ctx, cli_obj, db, json_, photos_library):
 @click.pass_obj
 @click.pass_context
 def places(ctx, cli_obj, db, json_, photos_library):
-    """ Print out places found in the Photos library. """
+    """Print out places found in the Photos library."""
 
     # below needed for to make CliRunner work for testing
     cli_db = cli_obj.db if cli_obj is not None else None
@@ -3555,7 +3575,7 @@ def places(ctx, cli_obj, db, json_, photos_library):
 @click.pass_obj
 @click.pass_context
 def dump(ctx, cli_obj, db, json_, deleted, deleted_only, photos_library):
-    """ Print list of all photos & associated info from the Photos library. """
+    """Print list of all photos & associated info from the Photos library."""
 
     db = get_photos_db(*photos_library, db, cli_obj.db)
     if db is None:
@@ -3586,7 +3606,7 @@ def dump(ctx, cli_obj, db, json_, deleted, deleted_only, photos_library):
 @click.pass_obj
 @click.pass_context
 def list_libraries(ctx, cli_obj, json_):
-    """ Print list of Photos libraries found on the system. """
+    """Print list of Photos libraries found on the system."""
 
     # implemented in _list_libraries so it can be called by other CLI functions
     # without errors due to passing ctx and cli_obj
@@ -3633,7 +3653,7 @@ def _list_libraries(json_=False, error=True):
 @click.pass_obj
 @click.pass_context
 def about(ctx, cli_obj):
-    """ Print information about osxphotos including license. """
+    """Print information about osxphotos including license."""
     license = """
 MIT License
 

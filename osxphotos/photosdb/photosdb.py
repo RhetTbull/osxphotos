@@ -44,6 +44,7 @@ from ..datetime_utils import datetime_has_tz, datetime_naive_to_local
 from ..fileutil import FileUtil
 from ..personinfo import PersonInfo
 from ..photoinfo import PhotoInfo
+from ..phototemplate import RenderOptions
 from ..queryoptions import QueryOptions
 from ..utils import (
     _check_file_exists,
@@ -3207,11 +3208,12 @@ class PhotosDB:
 
         if options.regex:
             flags = re.IGNORECASE if options.ignore_case else 0
+            render_options = RenderOptions(none_str="")
             for regex, template in options.regex:
                 regex = re.compile(regex, flags)
                 photo_list = []
                 for p in photos:
-                    rendered, _ = p.render_template(template, none_str="")
+                    rendered, _ = p.render_template(template, render_options)
                     for value in rendered:
                         if regex.search(value):
                             photo_list.append(p)

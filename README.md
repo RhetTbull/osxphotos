@@ -1574,6 +1574,20 @@ Substitution             Description
                          /blob/master/examples/template_function.py for an
                          example of how to implement a template function.
 
+The following substitutions are 'path-like'. You can access various parts of the
+path using the following modifiers:
+
+{field.parent}: the parent directory
+{field.name}: the name of the file or final sub-directory
+{field.stem}: the name of the file without the extension
+{field.suffix}: the suffix of the file including the leading '.'
+
+For example, if the field {export_dir} is '/Shared/Backup/Photos',
+{export_dir.parent} is '/Shared/Backup'
+
+Substitution  Description
+{export_dir}  The full path to the export directory
+
 
 ```
 <!-- OSXPHOTOS-EXPORT-USAGE:END -->

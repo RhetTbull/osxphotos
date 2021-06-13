@@ -16,12 +16,13 @@ from ._constants import (
 from .phototemplate import (
     TEMPLATE_SUBSTITUTIONS,
     TEMPLATE_SUBSTITUTIONS_MULTI_VALUED,
+    TEMPLATE_SUBSTITUTIONS_PATHLIB,
     get_template_help,
 )
 
 
 class ExportCommand(click.Command):
-    """ Custom click.Command that overrides get_help() to show additional help info for export """
+    """Custom click.Command that overrides get_help() to show additional help info for export"""
 
     def get_help(self, ctx):
         help_text = super().get_help(ctx)
@@ -65,7 +66,9 @@ class ExportCommand(click.Command):
             + f"rebuilding the '{OSXPHOTOS_EXPORT_DB}' database."
         )
         formatter.write("\n\n")
-        formatter.write(rich_text("[bold]** Extended Attributes **[/bold]", width=formatter.width))
+        formatter.write(
+            rich_text("[bold]** Extended Attributes **[/bold]", width=formatter.width)
+        )
         formatter.write("\n")
         formatter.write_text(
             """
@@ -99,7 +102,9 @@ The following attributes may be used with '--xattr-template':
             "For additional information on extended attributes see: https://developer.apple.com/documentation/coreservices/file_metadata/mditem/common_metadata_attribute_keys"
         )
         formatter.write("\n\n")
-        formatter.write(rich_text("[bold]** Templating System **[/bold]", width=formatter.width))
+        formatter.write(
+            rich_text("[bold]** Templating System **[/bold]", width=formatter.width)
+        )
         formatter.write("\n")
         formatter.write(template_help(width=formatter.width))
         formatter.write("\n")
@@ -128,7 +133,11 @@ The following attributes may be used with '--xattr-template':
             + "an error and the script will abort."
         )
         formatter.write("\n")
-        formatter.write(rich_text("[bold]** Template Substitutions **[/bold]", width=formatter.width))
+        formatter.write(
+            rich_text(
+                "[bold]** Template Substitutions **[/bold]", width=formatter.width
+            )
+        )
         formatter.write("\n")
         templ_tuples = [("Substitution", "Description")]
         templ_tuples.extend((k, v) for k, v in TEMPLATE_SUBSTITUTIONS.items())
@@ -151,12 +160,36 @@ The following attributes may be used with '--xattr-template':
         )
 
         formatter.write_dl(templ_tuples)
+
+        formatter.write("\n")
+        formatter.write_text(
+            "The following substitutions are 'path-like'. "
+            + "You can access various parts of the path using the following modifiers:"
+        )
+        formatter.write("\n")
+        formatter.write("{field.parent}: the parent directory\n")
+        formatter.write("{field.name}: the name of the file or final sub-directory\n")
+        formatter.write("{field.stem}: the name of the file without the extension\n")
+        formatter.write(
+            "{field.suffix}: the suffix of the file including the leading '.'\n"
+        )
+        formatter.write("\n")
+        formatter.write_text(
+            "For example, if the field {export_dir} is '/Shared/Backup/Photos', "
+            + "{export_dir.parent} is '/Shared/Backup'"
+        )
+        formatter.write("\n")
+        templ_tuples = [("Substitution", "Description")]
+        templ_tuples.extend((k, v) for k, v in TEMPLATE_SUBSTITUTIONS_PATHLIB.items())
+
+        formatter.write_dl(templ_tuples)
+
         help_text += formatter.getvalue()
         return help_text
 
 
 def template_help(width=78):
-    """Return formatted string for template system """
+    """Return formatted string for template system"""
     sio = io.StringIO()
     console = Console(file=sio, force_terminal=True, width=width)
     template_help_md = strip_md_links(get_template_help())
@@ -178,14 +211,14 @@ def rich_text(text, width=78):
 
 def strip_md_links(md):
     """strip markdown links from markdown text md
-    
+
     Args:
         md: str, markdown text
-    
+
     Returns:
         str with markdown links removed
 
-    Note: This uses a very basic regex that likely fails on all sorts of edge cases 
+    Note: This uses a very basic regex that likely fails on all sorts of edge cases
     but works for the links in the osxphotos docs
     """
     links = r"(?:[*#])|\[(.*?)\]\(.+?\)"
@@ -194,4 +227,3 @@ def strip_md_links(md):
         return match.group(1)
 
     return re.sub(links, subfn, md)
-

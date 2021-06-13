@@ -3,7 +3,6 @@ PhotoInfo class
 Represents a single photo in the Photos library and provides access to the photo's attributes
 PhotosDB.photos() returns a list of PhotoInfo objects
 """
-
 import dataclasses
 import datetime
 import json
@@ -12,6 +11,7 @@ import os
 import os.path
 import pathlib
 from datetime import timedelta, timezone
+from typing import Optional
 
 import yaml
 
@@ -34,7 +34,7 @@ from .._constants import (
 from ..adjustmentsinfo import AdjustmentsInfo
 from ..albuminfo import AlbumInfo, ImportInfo
 from ..personinfo import FaceInfo, PersonInfo
-from ..phototemplate import PhotoTemplate
+from ..phototemplate import PhotoTemplate, RenderOptions
 from ..placeinfo import PlaceInfo4, PlaceInfo5
 from ..utils import _debug, _get_resource_loc, findfiles, get_preferred_uti_extension
 
@@ -46,31 +46,31 @@ class PhotoInfo:
     """
 
     # import additional methods
-    from ._photoinfo_searchinfo import (
-        search_info,
-        search_info_normalized,
-        labels,
-        labels_normalized,
-        SearchInfo,
-    )
-    from ._photoinfo_exifinfo import exif_info, ExifInfo
+    from ._photoinfo_comments import comments, likes
+    from ._photoinfo_exifinfo import ExifInfo, exif_info
     from ._photoinfo_exiftool import exiftool
     from ._photoinfo_export import (
-        export,
-        export2,
-        _export_photo,
+        ExportResults,
         _exiftool_dict,
         _exiftool_json_sidecar,
+        _export_photo,
         _export_photo_with_photos_export,
         _get_exif_keywords,
         _get_exif_persons,
         _write_exif_data,
         _write_sidecar,
         _xmp_sidecar,
-        ExportResults,
+        export,
+        export2,
     )
-    from ._photoinfo_scoreinfo import score, ScoreInfo
-    from ._photoinfo_comments import comments, likes
+    from ._photoinfo_scoreinfo import ScoreInfo, score
+    from ._photoinfo_searchinfo import (
+        SearchInfo,
+        labels,
+        labels_normalized,
+        search_info,
+        search_info_normalized,
+    )
 
     def __init__(self, db=None, uuid=None, info=None):
         self._uuid = uuid
@@ -1015,48 +1015,20 @@ class PhotoInfo:
         return duplicates
 
     def render_template(
-        self,
-        template_str,
-        none_str="_",
-        path_sep=None,
-        expand_inplace=False,
-        inplace_sep=None,
-        filename=False,
-        dirname=False,
-        strip=False,
-        edited=False,
+        self, template_str: str, options: Optional[RenderOptions] = None
     ):
         """Renders a template string for PhotoInfo instance using PhotoTemplate
 
         Args:
             template_str: a template string with fields to render
-            none_str: a str to use if template field renders to None, default is "_".
-            path_sep: a single character str to use as path separator when joining
-                fields like folder_album; if not provided, defaults to os.path.sep
-            expand_inplace: expand multi-valued substitutions in-place as a single string
-                instead of returning individual strings
-            inplace_sep: optional string to use as separator between multi-valued keywords
-                with expand_inplace; default is ','
-            filename: if True, template output will be sanitized to produce valid file name
-            dirname: if True, template output will be sanitized to produce valid directory name
-            strip: if True, strips leading/trailing white space from resulting template
-            edited: if True, sets {edited_version} field to True, otherwise it gets set to False; set if you want template evaluated for edited version
+            options: a RenderOptions instance
 
         Returns:
             ([rendered_strings], [unmatched]): tuple of list of rendered strings and list of unmatched template values
         """
+        options = options or RenderOptions()
         template = PhotoTemplate(self, exiftool_path=self._db._exiftool_path)
-        return template.render(
-            template_str,
-            none_str=none_str,
-            path_sep=path_sep,
-            expand_inplace=expand_inplace,
-            inplace_sep=inplace_sep,
-            filename=filename,
-            dirname=dirname,
-            strip=strip,
-            edited_version=edited,
-        )
+        return template.render(template_str, options)
 
     @property
     def _longitude(self):
@@ -1269,3 +1241,13 @@ class PhotoInfo:
     def __hash__(self):
         """Make PhotoInfo hashable"""
         return hash(self.uuid)
+
+
+class PhotoInfoNone:
+    """mock class that returns None for all attributes"""
+
+    def __init__(self):
+        pass
+
+    def __getattribute__(self, name):
+        return None

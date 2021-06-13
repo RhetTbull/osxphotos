@@ -2,6 +2,9 @@ import datetime
 
 import pytest
 
+import osxphotos
+from osxphotos.phototemplate import RenderOptions
+
 PHOTOS_DB_PLACES = (
     "./tests/Test-Places-Catalina-10_15_1.photoslibrary/database/photos.db"
 )
@@ -35,35 +38,40 @@ TODAY_VALUES = {
 }
 
 
-def test_subst_today():
-    """ Test that substitutions are correct for {today.x}"""
+@pytest.fixture(scope="module")
+def photosdb():
+    return osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
+
+
+def test_subst_today(photosdb):
+    """Test that substitutions are correct for {today.x}"""
     import locale
-    import osxphotos
 
     locale.setlocale(locale.LC_ALL, "en_US")
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
     photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     photo_template = osxphotos.PhotoTemplate(photo)
     photo_template.today = DATETIME_TODAY
 
+    options = RenderOptions()
     for template in TODAY_VALUES:
-        rendered, _ = photo_template.render(template)
+        rendered, _ = photo_template.render(template, options)
         assert rendered[0] == TODAY_VALUES[template]
 
 
-def test_subst_strftime_today():
-    """ Test that strftime substitutions are correct for {today.strftime}"""
+def test_subst_strftime_today(photosdb):
+    """Test that strftime substitutions are correct for {today.strftime}"""
     import locale
-    import osxphotos
 
     locale.setlocale(locale.LC_ALL, "en_US")
-    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_PLACES)
     photo = photosdb.photos(uuid=[UUID_DICT["place_dc"]])[0]
 
     photo_template = osxphotos.PhotoTemplate(photo)
     photo_template.today = DATETIME_TODAY
-    rendered, unmatched = photo_template.render("{today.strftime,%Y-%m-%d-%H%M%S}")
+    options = RenderOptions()
+    rendered, unmatched = photo_template.render(
+        "{today.strftime,%Y-%m-%d-%H%M%S}", options
+    )
     assert rendered[0] == "2020-06-21-130000"
 
     rendered, unmatched = photo.render_template("{today.strftime}")

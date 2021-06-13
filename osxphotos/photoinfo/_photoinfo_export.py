@@ -36,10 +36,10 @@ from .._constants import (
     _UNKNOWN_PERSON,
     _XMP_TEMPLATE_NAME,
     _XMP_TEMPLATE_NAME_BETA,
+    LIVE_VIDEO_EXTENSIONS,
     SIDECAR_EXIFTOOL,
     SIDECAR_JSON,
     SIDECAR_XMP,
-    LIVE_VIDEO_EXTENSIONS,
 )
 from .._version import __version__
 from ..datetime_utils import datetime_tz_to_utc
@@ -52,6 +52,7 @@ from ..photokit import (
     PhotoKitFetchFailed,
     PhotoLibrary,
 )
+from ..phototemplate import RenderOptions
 from ..utils import findfiles, get_preferred_uti_extension, lineno, noop
 
 # retry if use_photos_export fails the first time (which sometimes it does)
@@ -390,6 +391,7 @@ def export(
     use_persons_as_keywords=False,
     keyword_template=None,
     description_template=None,
+    export_dir=None,
 ):
     """export photo
     dest: must be valid destination path (or exception raised)
@@ -427,6 +429,7 @@ def export(
     when exporting metadata with exiftool or sidecar
     keyword_template: (list of strings); list of template strings that will be rendered as used as keywords
     description_template: string; optional template string that will be rendered for use as photo description
+    export_dir: value to use for {export_dir} template
 
     Returns: list of photos exported
     """
@@ -458,6 +461,7 @@ def export(
         use_persons_as_keywords=use_persons_as_keywords,
         keyword_template=keyword_template,
         description_template=description_template,
+        export_dir=export_dir,
     )
 
     return results.exported
@@ -500,6 +504,7 @@ def export2(
     persons=True,
     location=True,
     replace_keywords=False,
+    export_dir=None,
 ):
     """export photo, like export but with update and dry_run options
     dest: must be valid destination path or exception raised
@@ -555,6 +560,7 @@ def export2(
     persons: if True, include persons in exported metadata
     location: if True, include location in exported metadata
     replace_keywords: if True, keyword_template replaces any keywords, otherwise it's additive
+    export_dir: value to use for {export_dir} template
 
     Returns: ExportResults class
         ExportResults has attributes:
@@ -1161,7 +1167,10 @@ def _export_photo_with_photos_export(
                 else:
                     try:
                         exported = photo.export(
-                            dest.parent, dest.name, version=PHOTOS_VERSION_CURRENT, overwrite=overwrite
+                            dest.parent,
+                            dest.name,
+                            version=PHOTOS_VERSION_CURRENT,
+                            overwrite=overwrite,
                         )
                         all_results.exported.extend(exported)
                     except Exception as e:
@@ -1205,7 +1214,10 @@ def _export_photo_with_photos_export(
                 if not dry_run:
                     try:
                         exported = photo.export(
-                            dest.parent, dest.name, version=PHOTOS_VERSION_ORIGINAL, overwrite=overwrite
+                            dest.parent,
+                            dest.name,
+                            version=PHOTOS_VERSION_ORIGINAL,
+                            overwrite=overwrite,
                         )
                         all_results.exported.extend(exported)
                     except Exception as e:
@@ -1586,9 +1598,8 @@ def _exiftool_dict(
     )
 
     if description_template is not None:
-        rendered = self.render_template(
-            description_template, expand_inplace=True, inplace_sep=", "
-        )[0]
+        options = RenderOptions(expand_inplace=True, inplace_sep=", ")
+        rendered = self.render_template(description_template, options)[0]
         description = " ".join(rendered) if rendered else ""
         exif["EXIF:ImageDescription"] = description
         exif["XMP:Description"] = description
@@ -1626,10 +1637,9 @@ def _exiftool_dict(
 
     if keyword_template:
         rendered_keywords = []
+        options = RenderOptions(none_str=_OSXPHOTOS_NONE_SENTINEL, path_sep="/")
         for template_str in keyword_template:
-            rendered, unmatched = self.render_template(
-                template_str, none_str=_OSXPHOTOS_NONE_SENTINEL, path_sep="/"
-            )
+            rendered, unmatched = self.render_template(template_str, options)
             if unmatched:
                 logging.warning(
                     f"Unmatched template substitution for template: {template_str} {unmatched}"
@@ -1905,9 +1915,8 @@ def _xmp_sidecar(
         extension = extension.suffix[1:] if extension.suffix else None
 
     if description_template is not None:
-        rendered = self.render_template(
-            description_template, expand_inplace=True, inplace_sep=", "
-        )[0]
+        options = RenderOptions(expand_inplace=True, inplace_sep=", ")
+        rendered = self.render_template(description_template, options)[0]
         description = " ".join(rendered) if rendered else ""
     else:
         description = self.description if self.description is not None else ""
@@ -1939,10 +1948,9 @@ def _xmp_sidecar(
 
     if keyword_template:
         rendered_keywords = []
+        options = RenderOptions(none_str=_OSXPHOTOS_NONE_SENTINEL, path_sep="/")
         for template_str in keyword_template:
-            rendered, unmatched = self.render_template(
-                template_str, none_str=_OSXPHOTOS_NONE_SENTINEL, path_sep="/"
-            )
+            rendered, unmatched = self.render_template(template_str, options)
             if unmatched:
                 logging.warning(
                     f"Unmatched template substitution for template: {template_str} {unmatched}"

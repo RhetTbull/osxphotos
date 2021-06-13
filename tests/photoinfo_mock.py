@@ -8,6 +8,7 @@ class PhotoInfoMock(PhotoInfo):
         self._photo = photo
         self._db = photo._db
         self._info = photo._info
+        self._uuid = photo.uuid
 
         for kw in kwargs:
             if hasattr(photo, kw):
