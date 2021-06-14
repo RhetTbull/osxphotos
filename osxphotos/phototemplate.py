@@ -146,6 +146,7 @@ TEMPLATE_SUBSTITUTIONS = {
 
 TEMPLATE_SUBSTITUTIONS_PATHLIB = {
     "{export_dir}": "The full path to the export directory",
+    "{filepath}": "The full path to the exported file",
 }
 
 # Permitted multi-value substitutions (each of these returns None or 1 or more values)
@@ -504,9 +505,7 @@ class PhotoTemplate:
                     path_sep=path_sep,
                 )
             elif field.split(".")[0] in PATHLIB_SUBSTITUTIONS:
-                vals = self.get_template_value_pathlib(
-                    field,
-                )
+                vals = self.get_template_value_pathlib(field)
             else:
                 unmatched.append(field)
                 return [], unmatched
@@ -931,10 +930,7 @@ class PhotoTemplate:
 
         return [value]
 
-    def get_template_value_pathlib(
-        self,
-        field,
-    ):
+    def get_template_value_pathlib(self, field):
         """lookup value for template pathlib template fields
 
         Args:
@@ -946,10 +942,17 @@ class PhotoTemplate:
         Raises:
             ValueError if no rule exists for field.
         """
-        if field.split(".")[0] not in PATHLIB_SUBSTITUTIONS:
+        field_stem = field.split(".")[0]
+        if field_stem not in PATHLIB_SUBSTITUTIONS:
             raise ValueError(f"SyntaxError: Unknown field: {field}")
 
-        value = _get_pathlib_value(field, self.export_dir)
+        field_value = None
+        try:
+            field_value = getattr(self, field_stem)
+        except AttributeError:
+            raise ValueError(f"Unknown path-like field: {field_stem}")
+
+        value = _get_pathlib_value(field, field_value)
 
         if self.filename:
             value = sanitize_pathpart(value)

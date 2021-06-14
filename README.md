@@ -1505,7 +1505,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.42.31'
+{osxphotos_version}             The osxphotos version, e.g. '0.42.32'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified for
@@ -1574,19 +1574,26 @@ Substitution             Description
                          /blob/master/examples/template_function.py for an
                          example of how to implement a template function.
 
-The following substitutions are 'path-like'. You can access various parts of the
-path using the following modifiers:
+The following substitutions are file or directory paths. You can access various
+parts of the path using the following modifiers:
 
-{field.parent}: the parent directory
-{field.name}: the name of the file or final sub-directory
-{field.stem}: the name of the file without the extension
-{field.suffix}: the suffix of the file including the leading '.'
+{path.parent}: the parent directory
+{path.name}: the name of the file or final sub-directory
+{path.stem}: the name of the file without the extension
+{path.suffix}: the suffix of the file including the leading '.'
 
-For example, if the field {export_dir} is '/Shared/Backup/Photos',
+For example, if the field {export_dir} is '/Shared/Backup/Photos':
 {export_dir.parent} is '/Shared/Backup'
+
+If the field {filepath} is '/Shared/Backup/Photos/IMG_1234.JPG':
+{filepath.parent} is '/Shared/Backup/Photos'
+{filepath.name} is 'IMG_1234.JPG'
+{filepath.stem} is 'IMG_1234'
+{filepath.suffix} is '.JPG'
 
 Substitution  Description
 {export_dir}  The full path to the export directory
+{filepath}    The full path to the exported file
 
 
 ```
@@ -3216,7 +3223,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.42.31'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.42.32'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|

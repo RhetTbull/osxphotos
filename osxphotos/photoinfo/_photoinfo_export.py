@@ -15,6 +15,7 @@
 # TODO: should this be its own PhotoExporter class?
 # TODO: the various sidecar_json, sidecar_xmp, etc args should all be collapsed to a sidecar param using a bit mask
 
+import dataclasses
 import glob
 import hashlib
 import json
@@ -24,6 +25,7 @@ import pathlib
 import re
 import tempfile
 from collections import namedtuple  # pylint: disable=syntax-error
+from typing import Optional
 
 import photoscript
 from mako.template import Template
@@ -391,7 +393,7 @@ def export(
     use_persons_as_keywords=False,
     keyword_template=None,
     description_template=None,
-    export_dir=None,
+    render_options: Optional[RenderOptions] = None,
 ):
     """export photo
     dest: must be valid destination path (or exception raised)
@@ -429,7 +431,7 @@ def export(
     when exporting metadata with exiftool or sidecar
     keyword_template: (list of strings); list of template strings that will be rendered as used as keywords
     description_template: string; optional template string that will be rendered for use as photo description
-    export_dir: value to use for {export_dir} template
+    render_options: an optional osxphotos.phototemplate.RenderOptions instance with options to pass to template renderer
 
     Returns: list of photos exported
     """
@@ -461,7 +463,7 @@ def export(
         use_persons_as_keywords=use_persons_as_keywords,
         keyword_template=keyword_template,
         description_template=description_template,
-        export_dir=export_dir,
+        render_options = render_options,
     )
 
     return results.exported
@@ -504,7 +506,7 @@ def export2(
     persons=True,
     location=True,
     replace_keywords=False,
-    export_dir=None,
+    render_options: Optional[RenderOptions] = None
 ):
     """export photo, like export but with update and dry_run options
     dest: must be valid destination path or exception raised
@@ -560,7 +562,7 @@ def export2(
     persons: if True, include persons in exported metadata
     location: if True, include location in exported metadata
     replace_keywords: if True, keyword_template replaces any keywords, otherwise it's additive
-    export_dir: value to use for {export_dir} template
+    render_options: optional osxphotos.phototemplate.RenderOptions instance to specify options for rendering templates
 
     Returns: ExportResults class
         ExportResults has attributes:
@@ -601,6 +603,8 @@ def export2(
 
     if verbose is None:
         verbose = self._verbose
+
+    self._render_options = render_options or RenderOptions()
 
     # suffix to add to edited files
     # e.g. name will be filename_edited.jpg
@@ -685,6 +689,7 @@ def export2(
             f"destination exists ({dest}); overwrite={overwrite}, increment={increment}"
         )
 
+    self._render_options.filepath = str(dest)
     all_results = ExportResults()
     if not use_photos_export:
         # find the source file on disk and export
@@ -1598,7 +1603,7 @@ def _exiftool_dict(
     )
 
     if description_template is not None:
-        options = RenderOptions(expand_inplace=True, inplace_sep=", ")
+        options = dataclasses.replace(self._render_options, expand_inplace=True, inplace_sep=", ")
         rendered = self.render_template(description_template, options)[0]
         description = " ".join(rendered) if rendered else ""
         exif["EXIF:ImageDescription"] = description
@@ -1637,7 +1642,7 @@ def _exiftool_dict(
 
     if keyword_template:
         rendered_keywords = []
-        options = RenderOptions(none_str=_OSXPHOTOS_NONE_SENTINEL, path_sep="/")
+        options = dataclasses.replace(self._render_options, none_str=_OSXPHOTOS_NONE_SENTINEL, path_sep="/")
         for template_str in keyword_template:
             rendered, unmatched = self.render_template(template_str, options)
             if unmatched:
@@ -1915,7 +1920,7 @@ def _xmp_sidecar(
         extension = extension.suffix[1:] if extension.suffix else None
 
     if description_template is not None:
-        options = RenderOptions(expand_inplace=True, inplace_sep=", ")
+        options = dataclasses.replace(self._render_options, expand_inplace=True, inplace_sep=", ")
         rendered = self.render_template(description_template, options)[0]
         description = " ".join(rendered) if rendered else ""
     else:
@@ -1948,7 +1953,7 @@ def _xmp_sidecar(
 
     if keyword_template:
         rendered_keywords = []
-        options = RenderOptions(none_str=_OSXPHOTOS_NONE_SENTINEL, path_sep="/")
+        options = dataclasses.replace(self._render_options, none_str=_OSXPHOTOS_NONE_SENTINEL, path_sep="/")
         for template_str in keyword_template:
             rendered, unmatched = self.render_template(template_str, options)
             if unmatched:

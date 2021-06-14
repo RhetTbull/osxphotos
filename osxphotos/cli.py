@@ -1630,6 +1630,7 @@ def export(
                     jpeg_ext=jpeg_ext,
                     replace_keywords=replace_keywords,
                     retry=retry,
+                    export_dir=dest,
                 )
 
                 if album_export and export_results.exported:
@@ -2251,6 +2252,7 @@ def export_photo(
     jpeg_ext=None,
     replace_keywords=False,
     retry=0,
+    export_dir=None,
 ):
     """Helper function for export that does the actual export
 
@@ -2291,6 +2293,7 @@ def export_photo(
         jpeg_ext: if not None, specify the extension to use for all JPEG images on export
         replace_keywords: if True, --keyword-template replaces keywords instead of adding keywords
         retry: retry up to retry # of times if there's an error
+        export_dir: top-level export directory for {export_dir} template
 
     Returns:
         list of path(s) of exported photo or None if photo was missing
@@ -2449,6 +2452,7 @@ def export_photo(
             jpeg_ext=jpeg_ext,
             replace_keywords=replace_keywords,
             retry=retry,
+            export_dir=export_dir,
         )
 
     if export_edited and photo.hasadjustments:
@@ -2553,6 +2557,7 @@ def export_photo(
                 jpeg_ext=jpeg_ext,
                 replace_keywords=replace_keywords,
                 retry=retry,
+                export_dir=export_dir,
             )
 
     return results
@@ -2597,6 +2602,7 @@ def export_photo_with_template(
     jpeg_ext,
     replace_keywords,
     retry,
+    export_dir,
 ):
     """Evaluate directory template then export photo to each directory"""
 
@@ -2647,6 +2653,8 @@ def export_photo_with_template(
                 results.missing.append(str(pathlib.Path(dest_path) / filename))
                 continue
 
+        render_options = RenderOptions(export_dir=export_dir)
+
         tries = 0
         while tries <= retry:
             tries += 1
@@ -2684,6 +2692,7 @@ def export_photo_with_template(
                     exiftool_flags=exiftool_option,
                     jpeg_ext=jpeg_ext,
                     replace_keywords=replace_keywords,
+                    render_options=render_options,
                 )
                 for warning_ in export_results.exiftool_warning:
                     verbose_(f"exiftool warning for file {warning_[0]}: {warning_[1]}")

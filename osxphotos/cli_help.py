@@ -163,21 +163,27 @@ The following attributes may be used with '--xattr-template':
 
         formatter.write("\n")
         formatter.write_text(
-            "The following substitutions are 'path-like'. "
+            "The following substitutions are file or directory paths. "
             + "You can access various parts of the path using the following modifiers:"
         )
         formatter.write("\n")
-        formatter.write("{field.parent}: the parent directory\n")
-        formatter.write("{field.name}: the name of the file or final sub-directory\n")
-        formatter.write("{field.stem}: the name of the file without the extension\n")
+        formatter.write("{path.parent}: the parent directory\n")
+        formatter.write("{path.name}: the name of the file or final sub-directory\n")
+        formatter.write("{path.stem}: the name of the file without the extension\n")
         formatter.write(
-            "{field.suffix}: the suffix of the file including the leading '.'\n"
+            "{path.suffix}: the suffix of the file including the leading '.'\n"
         )
         formatter.write("\n")
-        formatter.write_text(
-            "For example, if the field {export_dir} is '/Shared/Backup/Photos', "
-            + "{export_dir.parent} is '/Shared/Backup'"
-        )
+        formatter.write(
+            "For example, if the field {export_dir} is '/Shared/Backup/Photos':\n")
+        formatter.write("{export_dir.parent} is '/Shared/Backup'\n")
+        formatter.write("\n")
+        formatter.write(
+            "If the field {filepath} is '/Shared/Backup/Photos/IMG_1234.JPG':\n")
+        formatter.write("{filepath.parent} is '/Shared/Backup/Photos'\n")
+        formatter.write("{filepath.name} is 'IMG_1234.JPG'\n")
+        formatter.write("{filepath.stem} is 'IMG_1234'\n")
+        formatter.write("{filepath.suffix} is '.JPG'\n")
         formatter.write("\n")
         templ_tuples = [("Substitution", "Description")]
         templ_tuples.extend((k, v) for k, v in TEMPLATE_SUBSTITUTIONS_PATHLIB.items())

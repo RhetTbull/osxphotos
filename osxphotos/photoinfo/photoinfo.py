@@ -78,6 +78,9 @@ class PhotoInfo:
         self._db = db
         self._verbose = self._db._verbose
 
+        # TODO: remove this once refactor of PhotoExporter is done
+        self._render_options = RenderOptions()
+
     @property
     def filename(self):
         """filename of the picture"""

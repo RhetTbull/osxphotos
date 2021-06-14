@@ -1041,3 +1041,29 @@ def test_export_dir():
 
     with pytest.raises(ValueError):
         rendered, _ = template.render("{export_dir.foo}", options)
+
+
+def test_filepath():
+    """Test {filepath} template"""
+    from osxphotos.photoinfo import PhotoInfoNone
+    from osxphotos.phototemplate import PhotoTemplate
+
+    options = RenderOptions(filepath="/foo/bar.jpeg")
+    template = PhotoTemplate(PhotoInfoNone())
+    rendered, _ = template.render("{filepath}", options)
+    assert rendered[0] == "/foo/bar.jpeg"
+
+    rendered, _ = template.render("{filepath.name}", options)
+    assert rendered[0] == "bar.jpeg"
+
+    rendered, _ = template.render("{filepath.parent}", options)
+    assert rendered[0] == "/foo"
+
+    rendered, _ = template.render("{filepath.stem}", options)
+    assert rendered[0] == "bar"
+
+    rendered, _ = template.render("{filepath.suffix}", options)
+    assert rendered[0] == ".jpeg"
+
+    with pytest.raises(ValueError):
+        rendered, _ = template.render("{filepath.foo}", options)

@@ -473,6 +473,7 @@ CLI_UUID_DICT_15_7 = {
 }
 
 CLI_TEMPLATE_SIDECAR_FILENAME = "Pumkins1.jpg.json"
+CLI_TEMPLATE_FILENAME = "Pumkins1.jpg"
 
 CLI_UUID_DICT_14_6 = {"intrash": "3tljdX43R8+k6peNHVrJNQ"}
 
@@ -6286,3 +6287,79 @@ def test_query_regex_4():
     json_got = json.loads(result.output)
 
     assert len(json_got) == 2
+
+
+def test_export_export_dir_template():
+    """Test {export_dir} template"""
+    import json
+    import os
+    import os.path
+    import osxphotos
+
+    from osxphotos.cli import cli
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        isolated_cwd = os.getcwd()
+        result = runner.invoke(
+            cli,
+            [
+                "export",
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "--sidecar=json",
+                f"--uuid={CLI_UUID_DICT_15_7['template']}",
+                "-V",
+                "--keyword-template",
+                "{person}",
+                "--description-template",
+                "{export_dir}",
+            ],
+        )
+        assert result.exit_code == 0
+        assert os.path.isfile(CLI_TEMPLATE_SIDECAR_FILENAME)
+        with open(CLI_TEMPLATE_SIDECAR_FILENAME, "r") as jsonfile:
+            exifdata = json.load(jsonfile)
+        assert exifdata[0]["XMP:Description"] == isolated_cwd
+
+
+def test_export_filepath_template():
+    """Test {filepath} template"""
+    import json
+    import os
+    import os.path
+    import osxphotos
+
+    from osxphotos.cli import cli
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        isolated_cwd = os.getcwd()
+        result = runner.invoke(
+            cli,
+            [
+                "export",
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "--sidecar=json",
+                f"--uuid={CLI_UUID_DICT_15_7['template']}",
+                "-V",
+                "--keyword-template",
+                "{person}",
+                "--description-template",
+                "{filepath}",
+            ],
+        )
+        assert result.exit_code == 0
+        assert os.path.isfile(CLI_TEMPLATE_SIDECAR_FILENAME)
+        with open(CLI_TEMPLATE_SIDECAR_FILENAME, "r") as jsonfile:
+            exifdata = json.load(jsonfile)
+        assert exifdata[0]["XMP:Description"] == os.path.join(
+            isolated_cwd, CLI_TEMPLATE_FILENAME
+        )
