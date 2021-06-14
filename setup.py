@@ -94,6 +94,7 @@ setup(
         "textx==2.3.0",
         "rich==10.2.2",
         "bitmath==1.3.3.1",
+        "more-itertools==8.8.0",
     ],
     entry_points={"console_scripts": ["osxphotos=osxphotos.__main__:cli"]},
     include_package_data=True,
