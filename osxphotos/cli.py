@@ -2124,7 +2124,7 @@ def query(
             album_query.add_list(photos)
         except Exception as e:
             click.secho(
-                f"Error adding photos to album {add_to_album}",
+                f"Error adding photos to album {add_to_album}: {e}",
                 fg=CLI_COLOR_ERROR,
                 err=True,
             )
