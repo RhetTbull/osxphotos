@@ -4,12 +4,13 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    # runs-on: ${{ matrix.os }}
+    runs-on: macos-11
     if: "!contains(github.event.head_commit.message, '[skip ci]')"
     strategy:
       max-parallel: 4
       matrix:
-        os: [macos-10.15, macos-11]
+        # os: [macos-10.15, macos-11]
         python-version: [3.7, 3.8, 3.9]
 
     steps:
