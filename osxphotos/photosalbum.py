@@ -29,7 +29,12 @@ class PhotosAlbum:
         )
 
     def add_list(self, photo_list: List[PhotoInfo]):
-        photos = [photoscript.Photo(p.uuid) for p in photo_list]
+        photos = []
+        for p in photo_list:
+            try:
+                photos.append(photoscript.Photo(p.uuid))
+            except Exception as e:
+                self.verbose(f"Error creating Photo object for photo {p.uuid}: {e}")
         for photolist in chunked(photos, 10):
             self.album.add(photolist)
         photo_len = len(photos)
