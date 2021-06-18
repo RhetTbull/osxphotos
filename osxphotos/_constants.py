@@ -220,3 +220,24 @@ BURST_KEY = 0b10000  # 16: burst image is the key photo (top of burst stack)
 BURST_UNKNOWN = 0b100000  # 32: this is almost always set with BURST_DEFAULT_PICK and never if BURST_DEFAULT_PICK is not set.  I think this has something to do with what algorithm Photos used to pick the default image
 
 LIVE_VIDEO_EXTENSIONS = [".mov"]
+
+# categories that --post-command can be used with; these map to ExportResults fields
+POST_COMMAND_CATEGORIES = {
+    "exported": "All exported files",
+    "new": "When used with '--update', all newly exported files",
+    "updated": "When used with '--update', all files which were previously exported but updated this time",
+    "skipped": "When used with '--update', all files which were skipped (because they were previously exported and didn't change)",
+    "missing": "All files which were not exported because they were missing from the Photos library",
+    "exif_updated": "When used with '--exiftool', all files on which exiftool updated the metadata",
+    "touched": "When used with '--touch-file', all files where the date was touched",
+    "converted_to_jpeg": "When used with '--convert-to-jpeg', all files which were converted to jpeg",
+    "sidecar_json_written": "When used with '--sidecar json', all JSON sidecar files which were written",
+    "sidecar_json_skipped": "When used with '--sidecar json' and '--update', all JSON sidecar files which were skipped",
+    "sidecar_exiftool_written": "When used with '--sidecar exiftool', all exiftool sidecar files which were written",
+    "sidecar_exiftool_skipped": "When used with '--sidecar exiftool' and '--update, all exiftool sidecar files which were skipped",
+    "sidecar_xmp_written": "When used with '--sidecar xmp', all XMP sidecar files which were written",
+    "sidecar_xmp_skipped": "When used with '--sidecar xmp' and '--update', all XMP sidecar files which were skipped",
+    "error": "All files which produced an error during export",
+    # "deleted_files": "When used with '--cleanup', all files deleted during the export",
+    # "deleted_directories": "When used with '--cleanup', all directories deleted during the export",
+}

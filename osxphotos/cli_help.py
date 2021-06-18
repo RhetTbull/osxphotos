@@ -12,6 +12,7 @@ from ._constants import (
     EXTENDED_ATTRIBUTE_NAMES,
     EXTENDED_ATTRIBUTE_NAMES_QUOTED,
     OSXPHOTOS_EXPORT_DB,
+    POST_COMMAND_CATEGORIES,
 )
 from .phototemplate import (
     TEMPLATE_SUBSTITUTIONS,
@@ -21,6 +22,7 @@ from .phototemplate import (
 )
 
 
+# TODO: The following help text could probably be done as mako template
 class ExportCommand(click.Command):
     """Custom click.Command that overrides get_help() to show additional help info for export"""
 
@@ -175,11 +177,13 @@ The following attributes may be used with '--xattr-template':
         )
         formatter.write("\n")
         formatter.write(
-            "For example, if the field {export_dir} is '/Shared/Backup/Photos':\n")
+            "For example, if the field {export_dir} is '/Shared/Backup/Photos':\n"
+        )
         formatter.write("{export_dir.parent} is '/Shared/Backup'\n")
         formatter.write("\n")
         formatter.write(
-            "If the field {filepath} is '/Shared/Backup/Photos/IMG_1234.JPG':\n")
+            "If the field {filepath} is '/Shared/Backup/Photos/IMG_1234.JPG':\n"
+        )
         formatter.write("{filepath.parent} is '/Shared/Backup/Photos'\n")
         formatter.write("{filepath.name} is 'IMG_1234.JPG'\n")
         formatter.write("{filepath.stem} is 'IMG_1234'\n")
@@ -189,6 +193,54 @@ The following attributes may be used with '--xattr-template':
         templ_tuples.extend((k, v) for k, v in TEMPLATE_SUBSTITUTIONS_PATHLIB.items())
 
         formatter.write_dl(templ_tuples)
+
+        formatter.write("\n\n")
+        formatter.write(
+            rich_text("[bold]** Post Command **[/bold]", width=formatter.width)
+        )
+        formatter.write_text(
+            "You can run commands on the exported photos for post-processing "
+            + "using the '--post-command' option. '--post-command' is passed a CATEGORY and a COMMAND. "
+            + "COMMAND is an osxphotos template string which will be rendered and passed to the shell "
+            + "for execution. CATEGORY is the category of file to pass to COMMAND. "
+            + "The following categories are available: "
+        )
+        formatter.write("\n")
+        templ_tuples = [("Catgory", "Description")]
+        templ_tuples.extend((k, v) for k, v in POST_COMMAND_CATEGORIES.items())
+        formatter.write_dl(templ_tuples)
+        formatter.write("\n")
+        formatter.write_text(
+            "In addition to all normal template fields, the template fields "
+            + "'{filepath}' and '{export_dir}' will be available to your command template. "
+            + "Both of these are path-type templates which means their various parts can be accessed using "
+            + "the available properties, e.g. '{filepath.name}' provides just the file name without path "
+            + "and '{filepath.suffix}' is the file extension (suffix) of the file. "
+            + "When using paths in your command template, it is important to properly quote the paths "
+            + "as they will be passed to the shell and path names may contain spaces. "
+            + "Both the '{shell_quote}' template and the '|shell_quote' template filter are available for "
+            + "this purpose.  For example, the following command outputs the full path of newly exported files to file 'new.txt': "
+        )
+        formatter.write("\n")
+        formatter.write(
+            '--post-command new "echo {filepath.name|shell_quote} >> {shell_quote,{export_dir}/exported.txt}"'
+        )
+        formatter.write("\n\n")
+        formatter.write_text(
+            "In the above command, the 'shell_quote' filter is used to ensure '{filepath.name}' is properly quoted "
+            + "and the '{shell_quote}' template ensures the constructed path of '{exported_dir}/exported.txt' is properly quoted. "
+            "If '{filepath.name}' is 'IMG 1234.jpeg' and '{export_dir}' is '/Volumes/Photo Export', the command "
+            "thus renders to: "
+        )
+        formatter.write("\n")
+        formatter.write("echo 'IMG 1234.jpeg' >> '/Volumes/Photo Export/exported.txt'")
+        formatter.write("\n\n")
+        formatter.write_text(
+            "It is highly recommended that you run osxphotos with '--dry-run --verbose' "
+            + "first to ensure your commands are as expected. This will not actually run the commands but will "
+            + "print out the exact command string which would be executed."
+        )
+        formatter.write("\n\n")
 
         help_text += formatter.getvalue()
         return help_text

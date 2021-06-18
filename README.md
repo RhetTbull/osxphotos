@@ -482,6 +482,40 @@ Then the next to you run osxphotos, you can simply do this:
 
 The configuration file is a plain text file in [TOML](https://toml.io/en/) format so the `.toml` extension is standard but you can name the file anything you like. 
 
+#### Run commands on exported photos for post-processing
+
+You can use the `--post-command` option to run one or more commands against exported files. The `--post-command` option takes two arguments: CATEGORY and COMMAND.  CATEGORY is a string that describes which category of file to run the command against.  The available categories are described in the help text available via: `osxphotos help export`. For example, the `exported` category includes all exported photos and the `skipped` category includes all photos that were skipped when running export with `--update`.  COMMAND is an osxphotos template string which will be rendered then passed to the shell for execution.  
+
+For example, the following command generates a log of all exported files and their associated keywords:
+
+`osxphotos export /path/to/export --post-command exported "echo {shell_quote,{filepath}{comma}{,+keyword,}} >> {shell_quote,{export_dir}/exported.txt}"`
+
+The special template field `{shell_quote}` ensures a string is properly quoted for execution in the shell.  For example, it's possible that a file path or keyword in this example has a space in the value and if not properly quoted, this would cause an error in the execution of the command. When running commands, the template `{filepath}` is set to the full path of the exported file and `{export_dir}` is set to the full path of the base export directory.  
+
+Explanation of the template string:
+
+```txt
+{shell_quote,{filepath}{comma}{,+keyword,}}
+ │            │         │      │        │
+ │            │         │      |        │
+ └──> quote everything after comma for proper execution in the shell
+              │         │      │        │
+              └───> filepath of the exported file
+                       │       │        │
+                       └───> insert a comma 
+                               │        │
+                               └───> join the list of keywords together with a ","
+                                        │
+                                        └───> if no keywords, insert nothing (empty string: "")
+```
+
+Another example: if you had `exiftool` installed and wanted to wipe all metadata from all exported files, you could use the following:
+
+`osxphotos export /path/to/export --post-command exported "/usr/local/bin/exiftool -all= {filepath|shell_quote}"`
+
+This command uses the `|shell_quote` template filter instead of the `{shell_quote}` template because the only thing that needs to be quoted is the path to the exported file. Template filters filter the value of the rendered template field.  A number of other filters are available and are described in the help text. 
+
+
 #### An example from an actual osxphotos user
 
 Here's a comprehensive use case from an actual osxphotos user that integrates many of the concepts discussed in this tutorial (thank-you Philippe for contributing this!):
@@ -1009,6 +1043,24 @@ Options:
                                   feature is currently experimental.  I don't
                                   know how well it will work on large export
                                   sets.
+  --post-command CATEGORY COMMAND
+                                  Run COMMAND on exported files of category
+                                  CATEGORY.  CATEGORY can be one of: exported,
+                                  new, updated, skipped, missing, exif_updated,
+                                  touched, converted_to_jpeg,
+                                  sidecar_json_written, sidecar_json_skipped,
+                                  sidecar_exiftool_written,
+                                  sidecar_exiftool_skipped, sidecar_xmp_written,
+                                  sidecar_xmp_skipped, error. COMMAND is an
+                                  osxphotos template string, for example: '--
+                                  post-command exported "echo
+                                  {filepath|shell_quote} >>
+                                  {export_dir}/exported.txt"', which appends the
+                                  full path of all exported files to the file
+                                  'exported.txt'. You can run more than one
+                                  command by repeating the '--post-command'
+                                  option with different arguments. See Post
+                                  Command below.
   --exportdb EXPORTDB_FILE        Specify alternate name for database file which
                                   stores state information for export and
                                   --update. If --exportdb is not specified,
@@ -1166,6 +1218,8 @@ Valid filters are:
  • braces: Enclose value in curly braces, e.g. 'value => '{value}'.             
  • parens: Enclose value in parentheses, e.g. 'value' => '(value')              
  • brackets: Enclose value in brackets, e.g. 'value' => '[value]'               
+ • shell_quote: Quotes the value for safe usage in the shell, e.g. My file.jpeg 
+   => 'My file.jpeg'; only adds quotes if needed.                               
  • function: Run custom python function to filter value; use in format          
    'function:/path/to/file.py::function_name'. See example at https://github.com
    /RhetTbull/osxphotos/blob/master/examples/template_filter.py                 
@@ -1505,7 +1559,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.42.34'
+{osxphotos_version}             The osxphotos version, e.g. '0.42.35'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified for
@@ -1564,6 +1618,10 @@ Substitution             Description
                          underlying PhotoInfo class.  See
                          https://rhettbull.github.io/osxphotos/ for additional
                          documentation on the PhotoInfo class.
+{shell_quote}            Use in form '{shell_quote,TEMPLATE}'; quotes the
+                         rendered TEMPLATE value(s) for safe usage in the
+                         shell, e.g. My file.jpeg => 'My file.jpeg'; only adds
+                         quotes if needed.
 {function}               Execute a python function from an external file and
                          use return value as template substitution. Use in
                          format: {function:file.py::function_name} where
@@ -1594,6 +1652,71 @@ If the field {filepath} is '/Shared/Backup/Photos/IMG_1234.JPG':
 Substitution  Description
 {export_dir}  The full path to the export directory
 {filepath}    The full path to the exported file
+
+
+** Post Command **
+You can run commands on the exported photos for post-processing using the '--
+post-command' option. '--post-command' is passed a CATEGORY and a COMMAND.
+COMMAND is an osxphotos template string which will be rendered and passed to the
+shell for execution. CATEGORY is the category of file to pass to COMMAND. The
+following categories are available:
+
+Catgory                   Description
+exported                  All exported files
+new                       When used with '--update', all newly exported files
+updated                   When used with '--update', all files which were
+                          previously exported but updated this time
+skipped                   When used with '--update', all files which were
+                          skipped (because they were previously exported and
+                          didn't change)
+missing                   All files which were not exported because they were
+                          missing from the Photos library
+exif_updated              When used with '--exiftool', all files on which
+                          exiftool updated the metadata
+touched                   When used with '--touch-file', all files where the
+                          date was touched
+converted_to_jpeg         When used with '--convert-to-jpeg', all files which
+                          were converted to jpeg
+sidecar_json_written      When used with '--sidecar json', all JSON sidecar
+                          files which were written
+sidecar_json_skipped      When used with '--sidecar json' and '--update', all
+                          JSON sidecar files which were skipped
+sidecar_exiftool_written  When used with '--sidecar exiftool', all exiftool
+                          sidecar files which were written
+sidecar_exiftool_skipped  When used with '--sidecar exiftool' and '--update,
+                          all exiftool sidecar files which were skipped
+sidecar_xmp_written       When used with '--sidecar xmp', all XMP sidecar
+                          files which were written
+sidecar_xmp_skipped       When used with '--sidecar xmp' and '--update', all
+                          XMP sidecar files which were skipped
+error                     All files which produced an error during export
+
+In addition to all normal template fields, the template fields '{filepath}' and
+'{export_dir}' will be available to your command template. Both of these are
+path-type templates which means their various parts can be accessed using the
+available properties, e.g. '{filepath.name}' provides just the file name without
+path and '{filepath.suffix}' is the file extension (suffix) of the file. When
+using paths in your command template, it is important to properly quote the
+paths as they will be passed to the shell and path names may contain spaces.
+Both the '{shell_quote}' template and the '|shell_quote' template filter are
+available for this purpose.  For example, the following command outputs the full
+path of newly exported files to file 'new.txt':
+
+--post-command new "echo {filepath.name|shell_quote} >> {shell_quote,{export_dir}/exported.txt}"
+
+In the above command, the 'shell_quote' filter is used to ensure
+'{filepath.name}' is properly quoted and the '{shell_quote}' template ensures
+the constructed path of '{exported_dir}/exported.txt' is properly quoted. If
+'{filepath.name}' is 'IMG 1234.jpeg' and '{export_dir}' is '/Volumes/Photo
+Export', the command thus renders to:
+
+echo 'IMG 1234.jpeg' >> '/Volumes/Photo Export/exported.txt'
+
+It is highly recommended that you run osxphotos with '--dry-run --verbose' first
+to ensure your commands are as expected. This will not actually run the commands
+but will print out the exact command string which would be executed.
+
+
 
 
 ```
@@ -3047,6 +3170,7 @@ Valid filters are:
 - braces: Enclose value in curly braces, e.g. 'value => '{value}'.
 - parens: Enclose value in parentheses, e.g. 'value' => '(value')
 - brackets: Enclose value in brackets, e.g. 'value' => '[value]'
+- shell_quote: Quotes the value for safe usage in the shell, e.g. My file.jpeg => 'My file.jpeg'; only adds quotes if needed.
 - function: Run custom python function to filter value; use in format 'function:/path/to/file.py::function_name'. See example at https://github.com/RhetTbull/osxphotos/blob/master/examples/template_filter.py
 <!-- OSXPHOTOS-FILTER-TABLE:END -->
 
@@ -3223,7 +3347,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.42.34'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.42.35'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
@@ -3238,6 +3362,7 @@ The following template field substitutions are availabe for use the templating s
 |{searchinfo.venue}|Venues associated with a photo, e.g. name of restaurant; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
 |{searchinfo.venue_type}|Venue types associated with a photo, e.g. 'Restaurant'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
 |{photo}|Provides direct access to the PhotoInfo object for the photo. Must be used in format '{photo.property}' where 'property' represents a PhotoInfo property. For example: '{photo.favorite}' is the same as '{favorite}' and '{photo.place.name}' is the same as '{place.name}'. '{photo}' provides access to properties that are not available as separate template fields but it assumes some knowledge of the underlying PhotoInfo class.  See https://rhettbull.github.io/osxphotos/ for additional documentation on the PhotoInfo class.|
+|{shell_quote}|Use in form '{shell_quote,TEMPLATE}'; quotes the rendered TEMPLATE value(s) for safe usage in the shell, e.g. My file.jpeg => 'My file.jpeg'; only adds quotes if needed.|
 |{function}|Execute a python function from an external file and use return value as template substitution. Use in format: {function:file.py::function_name} where 'file.py' is the name of the python file and 'function_name' is the name of the function to call. The function will be passed the PhotoInfo object for the photo. See https://github.com/RhetTbull/osxphotos/blob/master/examples/template_function.py for an example of how to implement a template function.|
 <!-- OSXPHOTOS-TEMPLATE-TABLE:END -->
 

@@ -66,6 +66,7 @@ TEMPLATE_VALUES_MULTI_KEYWORDS = {
     "{keyword|lower}": ["flowers", "wedding"],
     "{keyword|titlecase}": ["Flowers", "Wedding"],
     "{keyword|capitalize}": ["Flowers", "Wedding"],
+    "{keyword|shell_quote}": ["flowers", "wedding"],
     "{+keyword}": ["flowerswedding"],
     "{+keyword|titlecase}": ["Flowerswedding"],
     "{+keyword|capitalize}": ["Flowerswedding"],
@@ -81,6 +82,7 @@ TEMPLATE_VALUES_TITLE = {
     "{title|titlecase}": ["Tulips Tied Together At A Flower Shop"],
     "{title|upper}": ["TULIPS TIED TOGETHER AT A FLOWER SHOP"],
     "{title|titlecase|lower|upper}": ["TULIPS TIED TOGETHER AT A FLOWER SHOP"],
+    "{title|titlecase|lower|upper|shell_quote}": ["'TULIPS TIED TOGETHER AT A FLOWER SHOP'"],
     "{title|upper|titlecase}": ["Tulips Tied Together At A Flower Shop"],
     "{title|capitalize}": ["Tulips tied together at a flower shop"],
     "{title[ ,_]}": ["Tulips_tied_together_at_a_flower_shop"],
@@ -90,6 +92,7 @@ TEMPLATE_VALUES_TITLE = {
     "{+title}": ["Tulips tied together at a flower shop"],
     "{,+title}": ["Tulips tied together at a flower shop"],
     "{, +title}": ["Tulips tied together at a flower shop"],
+    "{title|shell_quote}": ["'Tulips tied together at a flower shop'"],
 }
 
 # Boolean type values that render to True
@@ -385,7 +388,7 @@ def test_lookup_multi(photosdb_places):
         lookup_str = re.match(r"\{([^\\,}]+)\}", subst).group(1)
         if subst in ["{exiftool}", "{photo}", "{function}"]:
             continue
-        lookup = template.get_template_value_multi(lookup_str, path_sep=os.path.sep)
+        lookup = template.get_template_value_multi(lookup_str, path_sep=os.path.sep, default=[])
         assert isinstance(lookup, list)
 
 

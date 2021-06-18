@@ -7,6 +7,8 @@ import os
 import os.path
 import pathlib
 import pprint
+import shlex
+import subprocess
 import sys
 import time
 
@@ -31,10 +33,10 @@ from ._constants import (
     EXTENDED_ATTRIBUTE_NAMES_QUOTED,
     OSXPHOTOS_EXPORT_DB,
     OSXPHOTOS_URL,
+    POST_COMMAND_CATEGORIES,
     SIDECAR_EXIFTOOL,
     SIDECAR_JSON,
     SIDECAR_XMP,
-    UNICODE_FORMAT,
 )
 from ._version import __version__
 from .cli_help import ExportCommand
@@ -51,7 +53,7 @@ from .path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
 from .photoinfo import ExportResults
 from .photokit import check_photokit_authorization, request_photokit_authorization
 from .photosalbum import PhotosAlbum
-from .phototemplate import RenderOptions
+from .phototemplate import PhotoTemplate, RenderOptions
 from .queryoptions import QueryOptions
 from .utils import get_preferred_uti_extension
 
@@ -912,6 +914,19 @@ def cli(ctx, db, json_, debug):
     "This feature is currently experimental.  I don't know how well it will work on large export sets.",
 )
 @click.option(
+    "--post-command",
+    metavar="CATEGORY COMMAND",
+    nargs=2,
+    type=(click.Choice(POST_COMMAND_CATEGORIES, case_sensitive=False), str),
+    multiple=True,
+    help="Run COMMAND on exported files of category CATEGORY.  CATEGORY can be one of: "
+    f"{', '.join(list(POST_COMMAND_CATEGORIES.keys()))}. "
+    "COMMAND is an osxphotos template string, for example: '--post-command exported \"echo {filepath|shell_quote} >> {export_dir}/exported.txt\"', "
+    "which appends the full path of all exported files to the file 'exported.txt'. "
+    "You can run more than one command by repeating the '--post-command' option with different arguments. "
+    "See Post Command below.",
+)
+@click.option(
     "--exportdb",
     metavar="EXPORTDB_FILE",
     default=None,
@@ -1075,6 +1090,7 @@ def export(
     regex,
     query_eval,
     duplicate,
+    post_command,
 ):
     """Export photos from the Photos database.
     Export path DEST is required.
@@ -1230,6 +1246,7 @@ def export(
         regex = cfg.regex
         query_eval = cfg.query_eval
         duplicate = cfg.duplicate
+        post_command = cfg.post_command
 
         # config file might have changed verbose
         VERBOSE = bool(verbose)
@@ -1631,6 +1648,15 @@ def export(
                     replace_keywords=replace_keywords,
                     retry=retry,
                     export_dir=dest,
+                )
+
+                run_post_command(
+                    photo=p,
+                    post_command=post_command,
+                    export_results=export_results,
+                    export_dir=dest,
+                    dry_run=dry_run,
+                    exiftool_path=exiftool_path,
                 )
 
                 if album_export and export_results.exported:
@@ -3273,6 +3299,46 @@ def write_extended_attributes(
                 written.add(f)
 
     return list(written), [f for f in skipped if f not in written]
+
+
+def run_post_command(
+    photo, post_command, export_results, export_dir, dry_run, exiftool_path
+):
+    # todo: pass in RenderOptions from export? (e.g. so it contains strip, etc?)
+    # todo: need a shell_quote template type:
+    # {shell_quote,{filepath}/foo/bar}
+    # that quotes everything in the default value
+    for category, command_template in post_command:
+        files = getattr(export_results, category)
+        for f in files:
+            # some categories, like error, return a tuple of (file, error str)
+            if isinstance(f, tuple):
+                f = f[0]
+            render_options = RenderOptions(export_dir=export_dir, filepath=f)
+            template = PhotoTemplate(photo, exiftool_path=exiftool_path)
+            command, _ = template.render(command_template, options=render_options)
+            command = command[0] if command else None
+            if command:
+                verbose_(f'Running command: "{command}"')
+                if not dry_run:
+                    args = shlex.split(command)
+                    cwd = pathlib.Path(f).parent
+                    run_error = None
+                    run_results = None
+                    try:
+                        run_results = subprocess.run(command, shell=True, cwd=cwd)
+                    except Exception as e:
+                        run_error = e
+                    finally:
+                        run_error = run_error or run_results.returncode
+                        if run_error:
+                            click.echo(
+                                click.style(
+                                    f'Error running command "{command}": {run_error}',
+                                    fg=CLI_COLOR_ERROR,
+                                ),
+                                err=True,
+                            )
 
 
 @cli.command(hidden=True)

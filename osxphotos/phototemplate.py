@@ -5,6 +5,7 @@ import locale
 import os
 import pathlib
 import sys
+import shlex
 
 from textx import TextXSyntaxError, metamodel_from_file
 
@@ -173,6 +174,7 @@ TEMPLATE_SUBSTITUTIONS_MULTI_VALUED = {
     + "For example: '{photo.favorite}' is the same as '{favorite}' and '{photo.place.name}' is the same as '{place.name}'. "
     + "'{photo}' provides access to properties that are not available as separate template fields but it assumes some knowledge of "
     + "the underlying PhotoInfo class.  See https://rhettbull.github.io/osxphotos/ for additional documentation on the PhotoInfo class.",
+    "{shell_quote}": "Use in form '{shell_quote,TEMPLATE}'; quotes the rendered TEMPLATE value(s) for safe usage in the shell, e.g. My file.jpeg => 'My file.jpeg'; only adds quotes if needed.",
     "{function}": "Execute a python function from an external file and use return value as template substitution. "
     + "Use in format: {function:file.py::function_name} where 'file.py' is the name of the python file and 'function_name' is the name of the function to call. "
     + "The function will be passed the PhotoInfo object for the photo. "
@@ -188,6 +190,7 @@ FILTER_VALUES = {
     "braces": "Enclose value in curly braces, e.g. 'value => '{value}'.",
     "parens": "Enclose value in parentheses, e.g. 'value' => '(value')",
     "brackets": "Enclose value in brackets, e.g. 'value' => '[value]'",
+    "shell_quote": "Quotes the value for safe usage in the shell, e.g. My file.jpeg => 'My file.jpeg'; only adds quotes if needed.",
     "function": "Run custom python function to filter value; use in format 'function:/path/to/file.py::function_name'. See example at https://github.com/RhetTbull/osxphotos/blob/master/examples/template_filter.py",
 }
 
@@ -248,6 +251,7 @@ class RenderOptions:
     edited_version: set to True if you want {edited_version} to resolve to True (e.g. exporting edited version of photo)
     export_dir: set to the export directory if you want to evalute {export_dir} template
     filepath: set to value for filepath of the exported photo if you want to evaluate {filepath} template
+    quote: quote path templates for execution in the shell
     """
 
     none_str: str = "_"
@@ -260,6 +264,7 @@ class RenderOptions:
     edited_version: bool = False
     export_dir: Optional[str] = None
     filepath: Optional[str] = None
+    quote: bool = False
 
 
 class PhotoTemplateParser:
@@ -320,6 +325,7 @@ class PhotoTemplate:
         self.strip = options.strip
         self.export_dir = options.export_dir
         self.filepath = options.filepath
+        self.quote = options.quote
 
     def render(
         self,
@@ -349,6 +355,7 @@ class PhotoTemplate:
         self.strip = options.strip
         self.export_dir = options.export_dir
         self.filepath = options.filepath
+        self.quote = options.quote
 
         try:
             model = self.parser.parse(template)
@@ -501,8 +508,7 @@ class PhotoTemplate:
                 )
             elif field in MULTI_VALUE_SUBSTITUTIONS or field.startswith("photo"):
                 vals = self.get_template_value_multi(
-                    field,
-                    path_sep=path_sep,
+                    field, path_sep=path_sep, default=default
                 )
             elif field.split(".")[0] in PATHLIB_SUBSTITUTIONS:
                 vals = self.get_template_value_pathlib(field)
@@ -952,7 +958,7 @@ class PhotoTemplate:
         except AttributeError:
             raise ValueError(f"Unknown path-like field: {field_stem}")
 
-        value = _get_pathlib_value(field, field_value)
+        value = _get_pathlib_value(field, field_value, self.quote)
 
         if self.filename:
             value = sanitize_pathpart(value)
@@ -1002,22 +1008,24 @@ class PhotoTemplate:
                 value = ["[" + v + "]" for v in values]
             else:
                 value = ["[" + values + "]"] if values else []
+        elif filter_ == "shell_quote":
+            if values and type(values) == list:
+                value = [shlex.quote(v) for v in values]
+            else:
+                value = [shlex.quote(values)] if values else []
         elif filter_.startswith("function:"):
             value = self.get_template_value_filter_function(filter_, values)
         else:
             value = []
         return value
 
-    def get_template_value_multi(
-        self,
-        field,
-        path_sep,
-    ):
+    def get_template_value_multi(self, field, path_sep, default):
         """lookup value for template field (multi-value template substitutions)
 
         Args:
             field: template field to find value for.
             path_sep: path separator to use for folder_album field
+            default: value of default field
 
         Returns:
             List of the matching template values or [].
@@ -1084,6 +1092,8 @@ class PhotoTemplate:
             values = (
                 self.photo.search_info.venue_types if self.photo.search_info else []
             )
+        elif field == "shell_quote":
+            values = [shlex.quote(v) for v in default if v]
         elif field.startswith("photo"):
             # provide access to PhotoInfo object
             properties = field.split(".")
@@ -1292,12 +1302,18 @@ def get_template_help():
     return md
 
 
-def _get_pathlib_value(field, value):
-    """Get the value for a pathlib.Path type template"""
+def _get_pathlib_value(field, value, quote):
+    """Get the value for a pathlib.Path type template
+
+    Args:
+        field: the path field, e.g. "filename.stem"
+        value: the value for the path component
+        quote: bool; if true, quotes the returned path for safe execution in the shell
+    """
     parts = field.split(".")
 
     if len(parts) == 1:
-        return value
+        return shlex.quote(value) if quote else value
 
     if len(parts) > 2:
         raise ValueError(f"Illegal value for path template: {field}")
@@ -1307,6 +1323,9 @@ def _get_pathlib_value(field, value):
     path = pathlib.Path(value)
     try:
         val = getattr(path, attribute)
-        return str(val)
+        val_str = str(val)
+        if quote:
+            val_str = shlex.quote(val_str)
+        return val_str
     except AttributeError:
         raise ValueError("Illegal value for path template: {attribute}")

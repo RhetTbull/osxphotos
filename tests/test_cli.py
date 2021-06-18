@@ -6363,3 +6363,83 @@ def test_export_filepath_template():
         assert exifdata[0]["XMP:Description"] == os.path.join(
             isolated_cwd, CLI_TEMPLATE_FILENAME
         )
+
+
+def test_export_post_command():
+    """Test --post-command"""
+    import os.path
+    from osxphotos.cli import cli
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "export",
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "--post-command",
+                "exported",
+                "echo {filepath.name|shell_quote} >> {export_dir}/exported.txt",
+                "--name",
+                "Park",
+                "--skip-original-if-edited",
+            ],
+        )
+        assert result.exit_code == 0
+        with open("exported.txt") as f:
+            lines = [line.strip() for line in f]
+        assert lines[0] == "St James Park_edited.jpeg"
+
+        # run again with --update to test skipped
+        result = runner.invoke(
+            cli,
+            [
+                "export",
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "--post-command",
+                "skipped",
+                "echo {filepath.name|shell_quote} >> {export_dir}/skipped.txt",
+                "--name",
+                "Park",
+                "--skip-original-if-edited",
+                "--update",
+            ],
+        )
+        assert result.exit_code == 0
+        with open("skipped.txt") as f:
+            lines = [line.strip() for line in f]
+        assert lines[0] == "St James Park_edited.jpeg"
+
+
+def test_export_post_command_bad_command():
+    """Test --post-command with bad command"""
+    import os.path
+    from osxphotos.cli import cli
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "export",
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "--post-command",
+                "exported",
+                "foobar {filepath.name|shell_quote} >> {export_dir}/exported.txt",
+                "--name",
+                "Park",
+                "--skip-original-if-edited",
+            ],
+        )
+        assert result.exit_code == 0
+        assert 'Error running command "foobar' in result.output

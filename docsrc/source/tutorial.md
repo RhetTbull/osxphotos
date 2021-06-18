@@ -315,6 +315,40 @@ Then the next to you run osxphotos, you can simply do this:
 
 The configuration file is a plain text file in [TOML](https://toml.io/en/) format so the `.toml` extension is standard but you can name the file anything you like. 
 
+### Run commands on exported photos for post-processing
+
+You can use the `--post-command` option to run one or more commands against exported files. The `--post-command` option takes two arguments: CATEGORY and COMMAND.  CATEGORY is a string that describes which category of file to run the command against.  The available categories are described in the help text available via: `osxphotos help export`. For example, the `exported` category includes all exported photos and the `skipped` category includes all photos that were skipped when running export with `--update`.  COMMAND is an osxphotos template string which will be rendered then passed to the shell for execution.  
+
+For example, the following command generates a log of all exported files and their associated keywords:
+
+`osxphotos export /path/to/export --post-command exported "echo {shell_quote,{filepath}{comma}{,+keyword,}} >> {shell_quote,{export_dir}/exported.txt}"`
+
+The special template field `{shell_quote}` ensures a string is properly quoted for execution in the shell.  For example, it's possible that a file path or keyword in this example has a space in the value and if not properly quoted, this would cause an error in the execution of the command. When running commands, the template `{filepath}` is set to the full path of the exported file and `{export_dir}` is set to the full path of the base export directory.  
+
+Explanation of the template string:
+
+```txt
+{shell_quote,{filepath}{comma}{,+keyword,}}
+ │            │         │      │        │
+ │            │         │      |        │
+ └──> quote everything after comma for proper execution in the shell
+              │         │      │        │
+              └───> filepath of the exported file
+                       │       │        │
+                       └───> insert a comma 
+                               │        │
+                               └───> join the list of keywords together with a ","
+                                        │
+                                        └───> if no keywords, insert nothing (empty string: "")
+```
+
+Another example: if you had `exiftool` installed and wanted to wipe all metadata from all exported files, you could use the following:
+
+`osxphotos export /path/to/export --post-command exported "/usr/local/bin/exiftool -all= {filepath|shell_quote}"`
+
+This command uses the `|shell_quote` template filter instead of the `{shell_quote}` template because the only thing that needs to be quoted is the path to the exported file. Template filters filter the value of the rendered template field.  A number of other filters are available and are described in the help text. 
+
+
 ### An example from an actual osxphotos user
 
 Here's a comprehensive use case from an actual osxphotos user that integrates many of the concepts discussed in this tutorial (thank-you Philippe for contributing this!):
