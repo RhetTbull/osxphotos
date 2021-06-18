@@ -6443,3 +6443,33 @@ def test_export_post_command_bad_command():
         )
         assert result.exit_code == 0
         assert 'Error running command "foobar' in result.output
+
+
+def test_export_directory_template_function():
+    """Test --directory with template function """
+    import os.path
+    import pathlib
+    from osxphotos.cli import cli
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        with open("foo.py", "w") as f:
+            f.writelines(["def foo(photo, **kwargs):\n","    return 'foo/bar'"])
+        result = runner.invoke(
+            cli,
+            [
+                "export",
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "--uuid",
+                CLI_EXPORT_UUID,
+                "--directory",
+                "{function:foo.py::foo}"
+            ],
+        )
+        assert result.exit_code == 0
+        assert pathlib.Path(f"foo/bar/{CLI_EXPORT_UUID_FILENAME}").is_file()
+

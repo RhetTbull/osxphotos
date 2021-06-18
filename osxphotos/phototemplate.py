@@ -1194,7 +1194,8 @@ class PhotoTemplate:
         if self.filename:
             values = [sanitize_pathpart(value) for value in values]
         elif self.dirname:
-            values = [sanitize_dirname(value) for value in values]
+            # sanitize but don't replace any "/" as user function may want to create sub directories
+            values = [sanitize_dirname(value, replacement=None) for value in values]
 
         return values
 
