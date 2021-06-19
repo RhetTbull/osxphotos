@@ -623,9 +623,9 @@ def cli(ctx, db, json_, debug):
 @click.option(
     "--skip-raw",
     is_flag=True,
-    help="Do not export associated raw images of a RAW+JPEG pair.  "
-    "Note: this does not skip raw photos if the raw photo does not have an associated jpeg image "
-    "(e.g. the raw file was imported to Photos without a jpeg preview).",
+    help="Do not export associated RAW image of a RAW+JPEG pair.  "
+    "Note: this does not skip RAW photos if the RAW photo does not have an associated JPEG image "
+    "(e.g. the RAW file was imported to Photos without a JPEG preview).",
 )
 @click.option(
     "--current-name",
@@ -637,8 +637,11 @@ def cli(ctx, db, json_, debug):
 @click.option(
     "--convert-to-jpeg",
     is_flag=True,
-    help="Convert all non-jpeg images (e.g. raw, HEIC, PNG, etc) "
-    "to JPEG upon export.  Only works if your Mac has a GPU.",
+    help="Convert all non-JPEG images (e.g. RAW, HEIC, PNG, etc) to JPEG upon export. "
+    "Note: does not convert the RAW component of a RAW+JPEG pair as the associated JPEG image "
+    "will be exported. You can use --skip-raw to skip exporting the associated RAW image of "
+    "a RAW+JPEG pair. See also --jpeg-quality and --jpeg-ext. "
+    "Only works if your Mac has a GPU (thus may not work on virtual machines).",
 )
 @click.option(
     "--jpeg-quality",

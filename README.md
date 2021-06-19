@@ -784,19 +784,25 @@ Options:
                                   the library if a photo is a burst photo.
   --skip-live                     Do not export the associated live video
                                   component of a live photo.
-  --skip-raw                      Do not export associated raw images of a
-                                  RAW+JPEG pair.  Note: this does not skip raw
-                                  photos if the raw photo does not have an
-                                  associated jpeg image (e.g. the raw file was
-                                  imported to Photos without a jpeg preview).
+  --skip-raw                      Do not export associated RAW image of a
+                                  RAW+JPEG pair.  Note: this does not skip RAW
+                                  photos if the RAW photo does not have an
+                                  associated JPEG image (e.g. the RAW file was
+                                  imported to Photos without a JPEG preview).
   --current-name                  Use photo's current filename instead of
                                   original filename for export.  Note: Starting
                                   with Photos 5, all photos are renamed upon
                                   import.  By default, photos are exported with
                                   the the original name they had before import.
-  --convert-to-jpeg               Convert all non-jpeg images (e.g. raw, HEIC,
-                                  PNG, etc) to JPEG upon export.  Only works if
-                                  your Mac has a GPU.
+  --convert-to-jpeg               Convert all non-JPEG images (e.g. RAW, HEIC,
+                                  PNG, etc) to JPEG upon export. Note: does not
+                                  convert the RAW component of a RAW+JPEG pair
+                                  as the associated JPEG image will be exported.
+                                  You can use --skip-raw to skip exporting the
+                                  associated RAW image of a RAW+JPEG pair. See
+                                  also --jpeg-quality and --jpeg-ext. Only works
+                                  if your Mac has a GPU (thus may not work on
+                                  virtual machines).
   --jpeg-quality FLOAT RANGE      Value in range 0.0 to 1.0 to use with
                                   --convert-to-jpeg. A value of 1.0 specifies
                                   best quality, a value of 0.0 specifies maximum
@@ -1559,7 +1565,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.42.38'
+{osxphotos_version}             The osxphotos version, e.g. '0.42.39'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified for
@@ -3347,7 +3353,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.42.38'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.42.39'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
