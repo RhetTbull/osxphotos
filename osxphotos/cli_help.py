@@ -1,6 +1,7 @@
 """Help text helper class for osxphotos CLI """
 
 import io
+import pathlib
 import re
 
 import click
@@ -250,8 +251,21 @@ def template_help(width=78):
     """Return formatted string for template system"""
     sio = io.StringIO()
     console = Console(file=sio, force_terminal=True, width=width)
-    template_help_md = strip_md_links(get_template_help())
+    template_help_md = strip_md_header_and_links(get_template_help())
     console.print(Markdown(template_help_md))
+    help_str = sio.getvalue()
+    sio.close()
+    return help_str
+
+
+def tutorial_help(width=78):
+    """Return formatted string for tutorial"""
+    sio = io.StringIO()
+    console = Console(file=sio, force_terminal=True, width=width)
+    help_md = get_tutorial_text()
+    help_md = strip_html_comments(help_md)
+    help_md = strip_md_links(help_md)
+    console.print(Markdown(help_md))
     help_str = sio.getvalue()
     sio.close()
     return help_str
@@ -267,6 +281,26 @@ def rich_text(text, width=78):
     return rich_text
 
 
+def strip_md_header_and_links(md):
+    """strip markdown headers and links from markdown text md
+
+    Args:
+        md: str, markdown text
+
+    Returns:
+        str with markdown headers and links removed
+
+    Note: This uses a very basic regex that likely fails on all sorts of edge cases
+    but works for the links in the osxphotos docs
+    """
+    links = r"(?:[*#])|\[(.*?)\]\(.+?\)"
+
+    def subfn(match):
+        return match.group(1)
+
+    return re.sub(links, subfn, md)
+
+
 def strip_md_links(md):
     """strip markdown links from markdown text md
 
@@ -279,9 +313,23 @@ def strip_md_links(md):
     Note: This uses a very basic regex that likely fails on all sorts of edge cases
     but works for the links in the osxphotos docs
     """
-    links = r"(?:[*#])|\[(.*?)\]\(.+?\)"
+    links = r"\[(.*?)\]\(.+?\)"
 
     def subfn(match):
         return match.group(1)
 
     return re.sub(links, subfn, md)
+
+
+def strip_html_comments(text):
+    """Strip html comments from text (which doesn't need to be valid HTML)"""
+    return re.sub(r"<!--(.|\s|\n)*?-->", "", text)
+
+
+def get_tutorial_text():
+    """Load tutorial text from file"""
+    # TODO: would be better to use importlib.abc.ResourceReader but I can't find a single example of how to do this
+    help_file = pathlib.Path(__file__).parent / "tutorial.md"
+    with open(help_file, "r") as fd:
+        md = fd.read()
+    return md

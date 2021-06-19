@@ -22,7 +22,7 @@ from osxphotos.phototemplate import (
 )
 
 TEMPLATE_HELP = "osxphotos/phototemplate.md"
-TUTORIAL_HELP = "docsrc/source/tutorial.md"
+TUTORIAL_HELP = "osxphotos/tutorial.md"
 
 USAGE_START = (
     "<!-- OSXPHOTOS-EXPORT-USAGE:START - Do not remove or modify this section -->"

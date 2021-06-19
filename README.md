@@ -50,11 +50,14 @@ OSXPhotos provides the ability to interact with and query Apple's Photos.app lib
 
 ## Supported operating systems
 
-Only works on macOS (aka Mac OS X). Tested on macOS Sierra (10.12.6) until macOS Big Sur (10.16/11.1).
+Only works on macOS (aka Mac OS X). Tested on macOS Sierra (10.12.6) until macOS Big Sur (10.16/11.3).
+
+If you have access to the macOS 12 / Monterey beta and would like to help ensure osxphotos is compatible, please visit the [Discussions](https://github.com/RhetTbull/osxphotos/discussions) page and let me know!
 
 | macOS Version     | macOS name | Photos.app version |
 | ----------------- |------------|:-------------------|
-| 10.16, 11.0-11.3  | Big Sur    | 6.0 ✅             |
+| 12.0              | Monterey   | ?.0 UNKNOWN        |
+| 10.16, 11.0-11.4  | Big Sur    | 6.0 ✅             |
 | 10.15.1 - 10.15.7 | Catalina   | 5.0 ✅             |
 | 10.14.5, 10.14.6  | Mojave     | 4.0 ✅             |
 | 10.13.6           | High Sierra| 3.0 ✅             |
@@ -1565,7 +1568,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.42.39'
+{osxphotos_version}             The osxphotos version, e.g. '0.42.40'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified for
@@ -3353,7 +3356,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.42.39'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.42.40'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|

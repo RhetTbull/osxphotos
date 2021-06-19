@@ -18,6 +18,8 @@ Supported operating systems
 
 Only works on macOS (aka Mac OS X). Tested on macOS Sierra (10.12.6) through macOS Big Sur (11.3).
 
+If you have access to macOS 12 / Monterey beta and would like to help ensure osxphotos is compatible, please contact me via GitHub.
+
 This package will read Photos databases for any supported version on any supported macOS version.  
 E.g. you can read a database created with Photos 5.0 on MacOS 10.15 on a machine running macOS 10.12 and vice versa.
 
@@ -108,6 +110,7 @@ Alternatively, you can also run the command line utility like this: ``python3 -m
      persons   Print out persons (faces) found in the Photos library.
      places    Print out places found in the Photos library.
      query     Query the Photos database using 1 or more search options; if...
+     tutorial  Display osxphotos tutorial.
 
 To get help on a specific command, use ``osxphotos help <command_name>``
 

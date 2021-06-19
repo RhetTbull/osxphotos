@@ -39,7 +39,7 @@ from ._constants import (
     SIDECAR_XMP,
 )
 from ._version import __version__
-from .cli_help import ExportCommand
+from .cli_help import ExportCommand, tutorial_help
 from .configoptions import (
     ConfigOptions,
     ConfigOptionsInvalidError,
@@ -3759,3 +3759,17 @@ SOFTWARE.
     click.echo("")
     click.echo(f"Source code available at: {OSXPHOTOS_URL}")
     click.echo(license)
+
+
+@cli.command(name="tutorial")
+@click.argument(
+    "WIDTH",
+    nargs=-1,
+    type=click.INT,
+)
+@click.pass_obj
+@click.pass_context
+def tutorial(ctx, cli_obj, width):
+    """Display osxphotos tutorial."""
+    width = width[0] if width else 100
+    click.echo_via_pager(tutorial_help(width=width))
