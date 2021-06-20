@@ -6457,6 +6457,8 @@ def test_export_directory_template_function():
     with runner.isolated_filesystem():
         with open("foo.py", "w") as f:
             f.writelines(["def foo(photo, **kwargs):\n","    return 'foo/bar'"])
+
+        tempdir = os.getcwd()
         result = runner.invoke(
             cli,
             [
@@ -6464,10 +6466,11 @@ def test_export_directory_template_function():
                 "--db",
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
+                "-V",
                 "--uuid",
                 CLI_EXPORT_UUID,
                 "--directory",
-                "{function:foo.py::foo}"
+                "{function:"+f"{tempdir}" + "/foo.py::foo}"
             ],
         )
         assert result.exit_code == 0

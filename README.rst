@@ -110,6 +110,7 @@ Alternatively, you can also run the command line utility like this: ``python3 -m
      persons   Print out persons (faces) found in the Photos library.
      places    Print out places found in the Photos library.
      query     Query the Photos database using 1 or more search options; if...
+     repl      Run interactive osxphotos shell
      tutorial  Display osxphotos tutorial.
 
 To get help on a specific command, use ``osxphotos help <command_name>``

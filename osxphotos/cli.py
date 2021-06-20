@@ -1,5 +1,6 @@
 """Command line interface for osxphotos """
 
+import code
 import csv
 import datetime
 import json
@@ -16,6 +17,7 @@ import bitmath
 import click
 import osxmetadata
 import yaml
+from rich import pretty
 
 import osxphotos
 
@@ -3773,3 +3775,73 @@ def tutorial(ctx, cli_obj, width):
     """Display osxphotos tutorial."""
     width = width[0] if width else 100
     click.echo_via_pager(tutorial_help(width=width))
+
+
+def _show_photo(photo):
+    """open image with default image viewer
+
+    Note: This is for debugging only -- it will actually open any filetype which could
+    be very, very bad.
+
+    Args:
+        photo: PhotoInfo object or a path to a photo on disk
+    """
+    photopath = photo.path if isinstance(photo, osxphotos.PhotoInfo) else photo
+
+    if not os.path.isfile(photopath):
+        return f"'{photopath}' does not appear to be a valid photo path"
+
+    os.system(f"open '{photopath}'")
+
+
+def _load_photos_db(dbpath):
+    print("Loading database")
+    tic = time.perf_counter()
+    photosdb = osxphotos.PhotosDB(dbfile=dbpath, verbose=print)
+    toc = time.perf_counter()
+    tictoc = toc - tic
+    print(f"Done: took {tictoc:0.2f} seconds")
+    return photosdb
+
+
+def _get_photos(photosdb):
+    photos = photosdb.photos(images=True, movies=True)
+    photos.extend(photosdb.photos(images=True, movies=True, intrash=True))
+    return photos
+
+
+@cli.command()
+@DB_OPTION
+@click.pass_obj
+@click.pass_context
+def repl(ctx, cli_obj, db):
+    """Run interactive osxphotos shell"""
+    pretty.install()
+    print(f"python version: {sys.version}")
+    print(f"osxphotos version: {osxphotos._version.__version__}")
+    db = db or get_photos_db()
+    photosdb = _load_photos_db(db)
+    print("Getting photos")
+    tic = time.perf_counter()
+    photos = _get_photos(photosdb)
+    toc = time.perf_counter()
+    tictoc = toc - tic
+
+    # shortcut for helper functions
+    get_photo = photosdb.get_photo
+    show = _show_photo
+
+    print(f"Found {len(photos)} photos in {tictoc:0.2f} seconds")
+    print("The following variables are defined:")
+    print(f"- photosdb: PhotosDB() instance for {photosdb.library_path}")
+    print(
+        f"- photos: list of PhotoInfo objects for all photos in photosdb, including those in the trash"
+    )
+    print(f"\nThe following functions may be helpful:")
+    print(f"- get_photo(uuid): return a PhotoInfo object for photo with uuid")
+    print(f"- show(photo): open a photo object in the default viewer")
+    print(
+        f"- help(object): print help text including list of methods for object; for example, help(PhotosDB)"
+    )
+    print(f"- quit(): exit this interactive shell\n")
+    code.interact(banner="", local=locals())
