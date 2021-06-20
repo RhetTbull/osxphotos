@@ -242,6 +242,19 @@ The following attributes may be used with '--xattr-template':
             + "print out the exact command string which would be executed."
         )
         formatter.write("\n\n")
+        formatter.write(
+            rich_text("[bold]** Post Function **[/bold]", width=formatter.width)
+        )
+        formatter.write_text(
+            "You can run your own python functions on the exported photos for post-processing "
+            + "using the '--post-function' option. '--post-function' is passed the name a python file "
+            + "and the name of the function in the file to call using format 'filename.py::function_name'. "
+            + "See the example function at https://github.com/RhetTbull/osxphotos/blob/master/examples/post_function.py "
+            + "You may specify multiple functions to run by repeating the --post-function option. "
+            + "All post functions will be called immediately after export of each photo and immediately before any --post-command commands. "
+            + "Post functions will not be called if the --dry-run flag is set."
+        )
+        formatter.write("\n")
 
         help_text += formatter.getvalue()
         return help_text

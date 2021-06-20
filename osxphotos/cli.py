@@ -57,7 +57,7 @@ from .photokit import check_photokit_authorization, request_photokit_authorizati
 from .photosalbum import PhotosAlbum
 from .phototemplate import PhotoTemplate, RenderOptions
 from .queryoptions import QueryOptions
-from .utils import get_preferred_uti_extension
+from .utils import get_preferred_uti_extension, load_function
 
 # global variable to control verbose output
 # set via --verbose/-V
@@ -120,7 +120,7 @@ class DateTimeISO8601(click.ParamType):
             return datetime.datetime.fromisoformat(value)
         except Exception:
             self.fail(
-                f"Invalid value for --{param.name}: invalid datetime format {value}. "
+                f"Invalid datetime format {value}. "
                 "Valid format: YYYY-MM-DD[*HH[:MM[:SS[.fff[fff]]]][+HH:MM[:SS[.ffffff]]]]"
             )
 
@@ -154,10 +154,33 @@ class TimeISO8601(click.ParamType):
             return datetime.time.fromisoformat(value).replace(tzinfo=None)
         except Exception:
             self.fail(
-                f"Invalid value for --{param.name}: invalid time format {value}. "
+                f"Invalid time format {value}. "
                 "Valid format: HH[:MM[:SS[.fff[fff]]]][+HH:MM[:SS[.ffffff]]] "
                 "however, note that timezone will be ignored."
             )
+
+
+class FunctionCall(click.ParamType):
+    name = "FUNCTION"
+
+    def convert(self, value, param, ctx):
+        if "::" not in value:
+            self.fail(
+                f"Could not parse function name from '{value}'. "
+                "Valid format filename.py::function"
+            )
+
+        filename, funcname = value.split("::")
+
+        if not pathlib.Path(filename).is_file():
+            self.fail(f"'{filename}' does not appear to be a file")
+
+        try:
+            function = load_function(filename, funcname)
+        except Exception as e:
+            self.fail(f"Could not load function {funcname} from {filename}")
+
+        return (function, value)
 
 
 # Click CLI object & context settings
@@ -932,6 +955,18 @@ def cli(ctx, db, json_, debug):
     "See Post Command below.",
 )
 @click.option(
+    "--post-function",
+    metavar="filename.py::function",
+    nargs=1,
+    type=FunctionCall(),
+    multiple=True,
+    help="Run function on exported files. Use this in format: --post-function filename.py::function where filename.py is a python "
+    "file you've created and function is the name of the function in the python file you want to call.  The function will be "
+    "passed information about the photo that's been exported and a list of all exported files associated with the photo. "
+    "You can run more than one function by repeating the '--post-function' option with different arguments. "
+    "See Post Function below.",
+)
+@click.option(
     "--exportdb",
     metavar="EXPORTDB_FILE",
     default=None,
@@ -1096,6 +1131,7 @@ def export(
     query_eval,
     duplicate,
     post_command,
+    post_function,
 ):
     """Export photos from the Photos database.
     Export path DEST is required.
@@ -1252,6 +1288,7 @@ def export(
         query_eval = cfg.query_eval
         duplicate = cfg.duplicate
         post_command = cfg.post_command
+        post_function = cfg.post_function
 
         # config file might have changed verbose
         VERBOSE = bool(verbose)
@@ -1654,6 +1691,20 @@ def export(
                     retry=retry,
                     export_dir=dest,
                 )
+
+                if post_function:
+                    for function in post_function:
+                        # post function is tuple of (function, filename.py::function_name)
+                        verbose_(f"Calling post-function {function[1]}")
+                        if not dry_run:
+                            try:
+                                function[0](p, export_results, verbose_)
+                            except Exception as e:
+                                click.secho(
+                                    f"Error running post-function {function[1]}: {e}",
+                                    fg=CLI_COLOR_ERROR,
+                                    err=True,
+                                )
 
                 run_post_command(
                     photo=p,

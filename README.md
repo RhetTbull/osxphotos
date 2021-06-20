@@ -1073,6 +1073,18 @@ Options:
                                   command by repeating the '--post-command'
                                   option with different arguments. See Post
                                   Command below.
+  --post-function filename.py::function
+                                  Run function on exported files. Use this in
+                                  format: --post-function filename.py::function
+                                  where filename.py is a python file you've
+                                  created and function is the name of the
+                                  function in the python file you want to call.
+                                  The function will be passed information about
+                                  the photo that's been exported and a list of
+                                  all exported files associated with the photo.
+                                  You can run more than one function by
+                                  repeating the '--post-function' option with
+                                  different arguments. See Post Function below.
   --exportdb EXPORTDB_FILE        Specify alternate name for database file which
                                   stores state information for export and
                                   --update. If --exportdb is not specified,
@@ -1571,7 +1583,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.42.41'
+{osxphotos_version}             The osxphotos version, e.g. '0.42.43'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified for
@@ -1728,6 +1740,17 @@ It is highly recommended that you run osxphotos with '--dry-run --verbose' first
 to ensure your commands are as expected. This will not actually run the commands
 but will print out the exact command string which would be executed.
 
+
+** Post Function **
+You can run your own python functions on the exported photos for post-processing
+using the '--post-function' option. '--post-function' is passed the name a
+python file and the name of the function in the file to call using format
+'filename.py::function_name'. See the example function at
+https://github.com/RhetTbull/osxphotos/blob/master/examples/post_function.py You
+may specify multiple functions to run by repeating the --post-function option.
+All post functions will be called immediately after export of each photo and
+immediately before any --post-command commands. Post functions will not be
+called if the --dry-run flag is set.
 
 
 
@@ -3359,7 +3382,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.42.41'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.42.43'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
