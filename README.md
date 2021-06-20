@@ -616,6 +616,10 @@ Options:
                                   geolocation info
   --no-place                      Search for photos with no associated place
                                   name info (no reverse geolocation info)
+  --location                      Search for photos with associated location
+                                  info (e.g. GPS coordinates)
+  --no-location                   Search for photos with no associated location
+                                  info (e.g. no GPS coordinates)
   --label LABEL                   Search for photos with image classification
                                   label LABEL (Photos 5 only). If more than one
                                   label, treated as "OR", e.g. find photos
@@ -1583,7 +1587,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.42.43'
+{osxphotos_version}             The osxphotos version, e.g. '0.42.44'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified for
@@ -3382,7 +3386,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.42.43'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.42.44'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|

@@ -79,6 +79,8 @@ class QueryOptions:
     regex: Optional[Iterable[Tuple[str, str]]] = None
     query_eval: Optional[Iterable[str]] = None
     duplicate: Optional[bool] = None
+    location: Optional[bool] = None
+    no_location: Optional[bool] = None
 
     def asdict(self):
         return asdict(self)

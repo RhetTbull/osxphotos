@@ -771,6 +771,9 @@ UUID_DUPLICATES = [
     "52083079-73D5-4921-AC1B-FE76F279133F",
 ]
 
+UUID_LOCATION = "D79B8D77-BFFC-460B-9312-034F2877D35B"  # Pumkins2.jpg
+UUID_NO_LOCATION = "6191423D-8DB8-4D4C-92BE-9BBBA308AAC4"  # Tulips.jpg"
+
 
 def modify_file(filename):
     """appends data to a file to modify it"""
@@ -1145,6 +1148,52 @@ def test_query_duplicate():
     json_got = json.loads(result.output)
     uuid_got = [photo["uuid"] for photo in json_got]
     assert sorted(uuid_got) == sorted(UUID_DUPLICATES)
+
+
+def test_query_location():
+    """Test query with --location"""
+    import json
+    import os
+    import os.path
+
+    from osxphotos.cli import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        ["--json", "--db", os.path.join(cwd, CLI_PHOTOS_DB), "--location"],
+    )
+    assert result.exit_code == 0
+
+    # build list of uuids we got from the output JSON
+    json_got = json.loads(result.output)
+    uuid_got = [photo["uuid"] for photo in json_got]
+    assert UUID_LOCATION in uuid_got
+    assert UUID_NO_LOCATION not in uuid_got
+
+
+def test_query_no_location():
+    """Test query with --no-location"""
+    import json
+    import os
+    import os.path
+
+    from osxphotos.cli import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        ["--json", "--db", os.path.join(cwd, CLI_PHOTOS_DB), "--no-location"],
+    )
+    assert result.exit_code == 0
+
+    # build list of uuids we got from the output JSON
+    json_got = json.loads(result.output)
+    uuid_got = [photo["uuid"] for photo in json_got]
+    assert UUID_NO_LOCATION in uuid_got
+    assert UUID_LOCATION not in uuid_got
 
 
 def test_export():

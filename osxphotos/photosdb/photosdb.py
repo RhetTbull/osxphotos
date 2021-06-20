@@ -3254,6 +3254,11 @@ class PhotosDB:
             if options.deleted_only:
                 photos = [p for p in photos if p.intrash]
 
+        if options.location:
+            photos = [p for p in photos if p.location != (None, None)]
+        elif options.no_location:
+            photos = [p for p in photos if p.location == (None, None)]
+
         return photos
 
     def _duplicate_signature(self, uuid):

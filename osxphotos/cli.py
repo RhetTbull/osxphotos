@@ -333,6 +333,16 @@ def QUERY_OPTIONS(f):
             help="Search for photos with no associated place name info (no reverse geolocation info)",
         ),
         o(
+            "--location",
+            is_flag=True,
+            help="Search for photos with associated location info (e.g. GPS coordinates)",
+        ),
+        o(
+            "--no-location",
+            is_flag=True,
+            help="Search for photos with no associated location info (e.g. no GPS coordinates)",
+        ),
+        o(
             "--label",
             metavar="LABEL",
             multiple=True,
@@ -1104,6 +1114,8 @@ def export(
     original_suffix,
     place,
     no_place,
+    location,
+    no_location,
     has_comment,
     no_comment,
     has_likes,
@@ -1263,6 +1275,8 @@ def export(
         original_suffix = cfg.original_suffix
         place = cfg.place
         no_place = cfg.no_place
+        location = cfg.location
+        no_location = cfg.no_location
         has_comment = cfg.has_comment
         no_comment = cfg.no_comment
         has_likes = cfg.has_likes
@@ -1323,6 +1337,7 @@ def export(
         ("has_comment", "no_comment"),
         ("has_likes", "no_likes"),
         ("in_album", "not_in_album"),
+        ("location", "no_location"),
     ]
     dependent_options = [
         ("missing", ("download_missing", "use_photos_export")),
@@ -1576,6 +1591,8 @@ def export(
         has_raw=has_raw,
         place=place,
         no_place=no_place,
+        location=location,
+        no_location=no_location,
         label=label,
         deleted=deleted,
         deleted_only=deleted_only,
@@ -1979,6 +1996,8 @@ def query(
     has_raw,
     place,
     no_place,
+    location,
+    no_location,
     label,
     deleted,
     deleted_only,
@@ -2051,6 +2070,7 @@ def query(
         (has_comment, no_comment),
         (has_likes, no_likes),
         (in_album, not_in_album),
+        (location, no_location),
     ]
     # print help if no non-exclusive term or a double exclusive term is given
     if any(all(bb) for bb in exclusive) or not any(
@@ -2136,6 +2156,8 @@ def query(
         has_raw=has_raw,
         place=place,
         no_place=no_place,
+        location=location,
+        no_location=no_location,
         label=label,
         deleted=deleted,
         deleted_only=deleted_only,
