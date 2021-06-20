@@ -121,6 +121,7 @@ This package will install a command line utility called `osxphotos` that allows 
 
 ```
 > osxphotos
+
 Usage: osxphotos [OPTIONS] COMMAND [ARGS]...
 
 Options:
@@ -149,6 +150,8 @@ Commands:
   persons   Print out persons (faces) found in the Photos library.
   places    Print out places found in the Photos library.
   query     Query the Photos database using 1 or more search options; if...
+  repl      Run interactive osxphotos shell
+  tutorial  Display osxphotos tutorial.
 ```
 
 To get help on a specific command, use `osxphotos help <command_name>`
