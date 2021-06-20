@@ -6649,7 +6649,7 @@ def test_export_post_function():
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
-        with open("foo.py", "w") as f:
+        with open("foo1.py", "w") as f:
             f.writelines(
                 ["def foo(photo, results, verbose):\n", "    verbose('FOO BAR')\n"]
             )
@@ -6663,7 +6663,7 @@ def test_export_post_function():
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "--post-function",
-                f"{tempdir}/foo.py::foo",
+                f"{tempdir}/foo1.py::foo",
                 "--name",
                 "Park",
                 "--skip-original-if-edited",
@@ -6684,7 +6684,7 @@ def test_export_post_function_exception():
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
-        with open("bar.py", "w") as f:
+        with open("bar1.py", "w") as f:
             f.writelines(
                 [
                     "def bar(photo, results, verbose):\n",
@@ -6701,7 +6701,7 @@ def test_export_post_function_exception():
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "--post-function",
-                f"{tempdir}/bar.py::bar",
+                f"{tempdir}/bar1.py::bar",
                 "--name",
                 "Park",
                 "--skip-original-if-edited",
@@ -6722,7 +6722,7 @@ def test_export_post_function_bad_value():
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
-        with open("foo.py", "w") as f:
+        with open("foo2.py", "w") as f:
             f.writelines(
                 [
                     "def foo(photo, results, verbose):\n",
@@ -6739,7 +6739,7 @@ def test_export_post_function_bad_value():
                 os.path.join(cwd, PHOTOS_DB_15_7),
                 ".",
                 "--post-function",
-                f"{tempdir}/foo.py::bar",
+                f"{tempdir}/foo2.py::bar",
                 "--name",
                 "Park",
                 "--skip-original-if-edited",
@@ -6761,7 +6761,7 @@ def test_export_directory_template_function():
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
-        with open("foo.py", "w") as f:
+        with open("foo3.py", "w") as f:
             f.writelines(["def foo(photo, **kwargs):\n", "    return 'foo/bar'"])
 
         tempdir = os.getcwd()
@@ -6776,7 +6776,7 @@ def test_export_directory_template_function():
                 "--uuid",
                 CLI_EXPORT_UUID,
                 "--directory",
-                "{function:" + f"{tempdir}" + "/foo.py::foo}",
+                "{function:" + f"{tempdir}" + "/foo3.py::foo}",
             ],
         )
         assert result.exit_code == 0
