@@ -40,6 +40,8 @@ UUID_BURST_ALBUM = {
     ],
 }
 
+UUID_DOWNLOAD_MISSING = "C6C712C5-9316-408D-A3C3-125661422DA9" # IMG_8844.JPG
+
 UUID_FILE = "tests/uuid_from_file.txt"
 
 CLI_OUTPUT_NO_SUBCOMMAND = [
@@ -5933,6 +5935,55 @@ def test_export_burst_folder_album():
             assert sorted(files) == sorted(UUID_BURST_ALBUM[uuid])
 
 
+@pytest.mark.skipif(
+    "OSXPHOTOS_TEST_EXPORT" not in os.environ,
+    reason="Skip if not running on author's personal library.",
+)
+def test_export_download_missing_file_exists():
+    """test --download-missing with file exists and --update, issue #456"""
+    import glob
+    import os
+    import os.path
+    import pathlib
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_RHET),
+                ".",
+                "-V",
+                "--uuid",
+                UUID_DOWNLOAD_MISSING,
+                "--download-missing",
+                "--use-photos-export",
+            ],
+        )
+        assert result.exit_code == 0
+
+        # export again with --update
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_RHET),
+                ".",
+                "-V",
+                "--uuid",
+                UUID_DOWNLOAD_MISSING,
+                "--download-missing",
+                "--use-photos-export",
+                "--update",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "exported: 1" in result.output
+
+
 def test_query_name():
     """test query --name"""
     import json
@@ -6446,7 +6497,7 @@ def test_export_post_command_bad_command():
 
 
 def test_export_directory_template_function():
-    """Test --directory with template function """
+    """Test --directory with template function"""
     import os.path
     import pathlib
     from osxphotos.cli import cli
@@ -6456,7 +6507,7 @@ def test_export_directory_template_function():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         with open("foo.py", "w") as f:
-            f.writelines(["def foo(photo, **kwargs):\n","    return 'foo/bar'"])
+            f.writelines(["def foo(photo, **kwargs):\n", "    return 'foo/bar'"])
 
         tempdir = os.getcwd()
         result = runner.invoke(
@@ -6470,9 +6521,8 @@ def test_export_directory_template_function():
                 "--uuid",
                 CLI_EXPORT_UUID,
                 "--directory",
-                "{function:"+f"{tempdir}" + "/foo.py::foo}"
+                "{function:" + f"{tempdir}" + "/foo.py::foo}",
             ],
         )
         assert result.exit_code == 0
         assert pathlib.Path(f"foo/bar/{CLI_EXPORT_UUID_FILENAME}").is_file()
-

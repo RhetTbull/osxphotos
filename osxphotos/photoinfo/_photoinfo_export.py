@@ -221,6 +221,7 @@ def _export_photo_uuid_applescript(
     timeout=120,
     burst=False,
     dry_run=False,
+    overwrite=False,
 ):
     """Export photo to dest path using applescript to control Photos
     If photo is a live photo, exports both the photo and associated .mov file
@@ -300,6 +301,8 @@ def _export_photo_uuid_applescript(
             # use the name Photos provided
             dest_new = dest / path.name
         if not dry_run:
+            if overwrite and dest_new.exists():
+                FileUtil.unlink(dest_new)
             FileUtil.copy(str(path), str(dest_new))
         exported_paths.append(str(dest_new))
     return exported_paths
@@ -1194,6 +1197,7 @@ def _export_photo_with_photos_export(
                     timeout=timeout,
                     burst=self.burst,
                     dry_run=dry_run,
+                    overwrite=overwrite,
                 )
                 all_results.exported.extend(exported)
             except ExportError as e:
@@ -1244,6 +1248,7 @@ def _export_photo_with_photos_export(
                     timeout=timeout,
                     burst=self.burst,
                     dry_run=dry_run,
+                    overwrite=overwrite,
                 )
                 all_results.exported.extend(exported)
             except ExportError as e:
