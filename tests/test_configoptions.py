@@ -16,7 +16,7 @@ VARS = {"foo": "bar", "bar": False, "test1": (), "test2": None, "test2_setting":
 def test_init():
     cfg = ConfigOptions("test", VARS)
     assert isinstance(cfg, ConfigOptions)
-    assert cfg.foo is "bar"
+    assert cfg.foo == "bar"
     assert cfg.bar == False
     assert type(cfg.test1) == tuple
 
