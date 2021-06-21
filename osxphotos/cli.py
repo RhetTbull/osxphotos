@@ -543,6 +543,18 @@ def QUERY_OPTIONS(f):
             "CRITERIA must be a valid python expression. "
             "See https://rhettbull.github.io/osxphotos/ for additional documentation on the PhotoInfo class.",
         ),
+        o(
+            "--query-function",
+            metavar="filename.py::function",
+            multiple=True,
+            type=FunctionCall(),
+            help="Run function to filter photos. Use this in format: --query-function filename.py::function where filename.py is a python "
+            + "file you've created and function is the name of the function in the python file you want to call. "
+            + "Your function will be passed a list of PhotoInfo objects and is expected to return a filtered list of PhotoInfo objects. "
+            + "You may use more than one function by repeating the --query-function option with a different value. "
+            + "Your query function will be called after all other query options have been evaluated. "
+            + "See https://github.com/RhetTbull/osxphotos/blob/master/examples/query_function.py for example of how to use this option.",
+        ),
     ]
     for o in options[::-1]:
         f = o(f)
@@ -1141,6 +1153,7 @@ def export(
     max_size,
     regex,
     query_eval,
+    query_function,
     duplicate,
     post_command,
     post_function,
@@ -1300,6 +1313,7 @@ def export(
         max_size = cfg.max_size
         regex = cfg.regex
         query_eval = cfg.query_eval
+        query_function = cfg.query_function
         duplicate = cfg.duplicate
         post_command = cfg.post_command
         post_function = cfg.post_function
@@ -1611,6 +1625,7 @@ def export(
         max_size=max_size,
         regex=regex,
         query_eval=query_eval,
+        function=query_function,
         duplicate=duplicate,
     )
 
@@ -2013,6 +2028,7 @@ def query(
     max_size,
     regex,
     query_eval,
+    query_function,
     add_to_album,
 ):
     """Query the Photos database using 1 or more search options;
@@ -2041,6 +2057,7 @@ def query(
         label,
         is_reference,
         query_eval,
+        query_function,
         min_size,
         max_size,
         regex,
@@ -2172,6 +2189,7 @@ def query(
         min_size=min_size,
         max_size=max_size,
         query_eval=query_eval,
+        function=query_function,
         regex=regex,
         duplicate=duplicate,
     )

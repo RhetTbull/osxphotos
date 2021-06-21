@@ -3259,6 +3259,10 @@ class PhotosDB:
         elif options.no_location:
             photos = [p for p in photos if p.location == (None, None)]
 
+        if options.function:
+            for function in options.function:
+                photos = function[0](photos)
+
         return photos
 
     def _duplicate_signature(self, uuid):

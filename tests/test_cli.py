@@ -6530,6 +6530,39 @@ def test_query_regex_4():
     assert len(json_got) == 2
 
 
+def test_query_function():
+    """test query --query-function"""
+    import json
+
+    from osxphotos.cli import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        with open("query1.py", "w") as f:
+            f.writelines(
+                [
+                    "def query(photos):\n",
+                    "    return [p for p in photos if 'DSC03584' in p.original_filename]",
+                ]
+            )
+        tmpdir = os.getcwd()
+        result = runner.invoke(
+            query,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                "--query-function",
+                f"{tmpdir}/query1.py::query",
+                "--json",
+            ],
+        )
+        assert result.exit_code == 0
+        json_got = json.loads(result.output)
+        assert len(json_got) == 1
+        assert json_got[0]["original_filename"] == "DSC03584.dng"
+
+
 def test_export_export_dir_template():
     """Test {export_dir} template"""
     import json
@@ -6830,3 +6863,39 @@ def test_export_directory_template_function():
         )
         assert result.exit_code == 0
         assert pathlib.Path(f"foo/bar/{CLI_EXPORT_UUID_FILENAME}").is_file()
+
+
+def test_export_query_function():
+    """Test --query-function"""
+    import os.path
+
+    from osxphotos.cli import cli
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        with open("query2.py", "w") as f:
+            f.writelines(
+                [
+                    "def query(photos):\n",
+                    "    return [p for p in photos if p.title and 'Tulips' in p.title]\n",
+                ]
+            )
+
+        tempdir = os.getcwd()
+        result = runner.invoke(
+            cli,
+            [
+                "export",
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "--query-function",
+                f"{tempdir}/query2.py::query",
+                "-V",
+                "--skip-edited",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "exported: 1" in result.output

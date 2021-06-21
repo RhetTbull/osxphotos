@@ -1,8 +1,9 @@
 """ QueryOptions class for PhotosDB.query """
 
-from dataclasses import dataclass, asdict
-from typing import Optional, Iterable, Tuple
 import datetime
+from dataclasses import asdict, dataclass
+from typing import Iterable, List, Optional, Tuple
+
 import bitmath
 
 
@@ -81,6 +82,7 @@ class QueryOptions:
     duplicate: Optional[bool] = None
     location: Optional[bool] = None
     no_location: Optional[bool] = None
+    function: Optional[List[Tuple[callable, str]]] = None
 
     def asdict(self):
         return asdict(self)
