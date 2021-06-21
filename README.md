@@ -733,6 +733,22 @@ Options:
                                   https://rhettbull.github.io/osxphotos/ for
                                   additional documentation on the PhotoInfo
                                   class.
+  --query-function filename.py::function
+                                  Run function to filter photos. Use this in
+                                  format: --query-function filename.py::function
+                                  where filename.py is a python file you've
+                                  created and function is the name of the
+                                  function in the python file you want to call.
+                                  Your function will be passed a list of
+                                  PhotoInfo objects and is expected to return a
+                                  filtered list of PhotoInfo objects. You may
+                                  use more than one function by repeating the
+                                  --query-function option with a different
+                                  value. Your query function will be called
+                                  after all other query options have been
+                                  evaluated. See https://github.com/RhetTbull/os
+                                  xphotos/blob/master/examples/query_function.py
+                                  for example of how to use this option.
   --missing                       Export only photos missing from the Photos
                                   library; must be used with --download-missing.
   --deleted                       Include photos from the 'Recently Deleted'
@@ -1587,7 +1603,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.42.44'
+{osxphotos_version}             The osxphotos version, e.g. '0.42.45'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified for
@@ -3386,7 +3402,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.42.44'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.42.45'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
