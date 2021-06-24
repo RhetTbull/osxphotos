@@ -420,7 +420,7 @@ def increment_filename(filepath):
 
 
 def expand_and_validate_filepath(path: str) -> str:
-    """validate and expand ~ in filepath, also un-escapes "\ "
+    """validate and expand ~ in filepath, also un-escapes spaces
 
     Returns:
         expanded path if path is valid file, else None
