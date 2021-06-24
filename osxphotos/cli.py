@@ -57,7 +57,7 @@ from .photokit import check_photokit_authorization, request_photokit_authorizati
 from .photosalbum import PhotosAlbum
 from .phototemplate import PhotoTemplate, RenderOptions
 from .queryoptions import QueryOptions
-from .utils import get_preferred_uti_extension, load_function
+from .utils import get_preferred_uti_extension, load_function, expand_and_validate_filepath
 
 # global variable to control verbose output
 # set via --verbose/-V
@@ -172,13 +172,14 @@ class FunctionCall(click.ParamType):
 
         filename, funcname = value.split("::")
 
-        if not pathlib.Path(filename).is_file():
+        filename_validated = expand_and_validate_filepath(filename)
+        if not filename_validated:
             self.fail(f"'{filename}' does not appear to be a file")
 
         try:
-            function = load_function(filename, funcname)
+            function = load_function(filename_validated, funcname)
         except Exception as e:
-            self.fail(f"Could not load function {funcname} from {filename}")
+            self.fail(f"Could not load function {funcname} from {filename_validated}")
 
         return (function, value)
 

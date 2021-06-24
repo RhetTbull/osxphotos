@@ -38,7 +38,7 @@ if not _DEBUG:
 
 def _get_logger():
     """Used only for testing
-    
+
     Returns:
         logging.Logger object -- logging.Logger object for osxphotos
     """
@@ -46,7 +46,7 @@ def _get_logger():
 
 
 def _set_debug(debug):
-    """ Enable or disable debug logging """
+    """Enable or disable debug logging"""
     global _DEBUG
     _DEBUG = debug
     if debug:
@@ -56,18 +56,18 @@ def _set_debug(debug):
 
 
 def _debug():
-    """ returns True if debugging turned on (via _set_debug), otherwise, false """
+    """returns True if debugging turned on (via _set_debug), otherwise, false"""
     return _DEBUG
 
 
 def noop(*args, **kwargs):
-    """ do nothing (no operation) """
+    """do nothing (no operation)"""
     pass
 
 
 def lineno(filename):
-    """ Returns string with filename and current line number in caller as '(filename): line_num'
-    Will trim filename to just the name, dropping path, if any. """
+    """Returns string with filename and current line number in caller as '(filename): line_num'
+    Will trim filename to just the name, dropping path, if any."""
     line = inspect.currentframe().f_back.f_lineno
     filename = pathlib.Path(filename).name
     return f"{filename}: {line}"
@@ -92,14 +92,14 @@ def _get_os_version():
 
 
 def _check_file_exists(filename):
-    """ returns true if file exists and is not a directory
-        otherwise returns false """
+    """returns true if file exists and is not a directory
+    otherwise returns false"""
     filename = os.path.abspath(filename)
     return os.path.exists(filename) and not os.path.isdir(filename)
 
 
 def _get_resource_loc(model_id):
-    """ returns folder_id and file_id needed to find location of edited photo """
+    """returns folder_id and file_id needed to find location of edited photo"""
     """ and live photos for version <= Photos 4.0 """
     # determine folder where Photos stores edited version
     # edited images are stored in:
@@ -117,7 +117,7 @@ def _get_resource_loc(model_id):
 
 
 def _dd_to_dms(dd):
-    """ convert lat or lon in decimal degrees (dd) to degrees, minutes, seconds """
+    """convert lat or lon in decimal degrees (dd) to degrees, minutes, seconds"""
     """ return tuple of int(deg), int(min), float(sec) """
     dd = float(dd)
     negative = dd < 0
@@ -136,7 +136,7 @@ def _dd_to_dms(dd):
 
 
 def dd_to_dms_str(lat, lon):
-    """ convert latitude, longitude in degrees to degrees, minutes, seconds as string """
+    """convert latitude, longitude in degrees to degrees, minutes, seconds as string"""
     """ lat: latitude in degrees  """
     """ lon: longitude in degrees """
     """ returns: string tuple in format ("51 deg 30' 12.86\" N", "0 deg 7' 54.50\" W") """
@@ -165,7 +165,7 @@ def dd_to_dms_str(lat, lon):
 
 
 def get_system_library_path():
-    """ return the path to the system Photos library as string """
+    """return the path to the system Photos library as string"""
     """ only works on MacOS 10.15 """
     """ on earlier versions, returns None """
     _, major, _ = _get_os_version()
@@ -190,8 +190,8 @@ def get_system_library_path():
 
 
 def get_last_library_path():
-    """ returns the path to the last opened Photos library 
-        If a library has never been opened, returns None """
+    """returns the path to the last opened Photos library
+    If a library has never been opened, returns None"""
     plist_file = pathlib.Path(
         str(pathlib.Path.home())
         + "/Library/Containers/com.apple.Photos/Data/Library/Preferences/com.apple.Photos.plist"
@@ -241,7 +241,7 @@ def get_last_library_path():
 
 
 def list_photo_libraries():
-    """ returns list of Photos libraries found on the system """
+    """returns list of Photos libraries found on the system"""
     """ on MacOS < 10.15, this may omit some libraries """
 
     # On 10.15, mdfind appears to find all libraries
@@ -266,9 +266,9 @@ def list_photo_libraries():
 
 
 def get_preferred_uti_extension(uti):
-    """ get preferred extension for a UTI type
-        uti: UTI str, e.g. 'public.jpeg'
-        returns: preferred extension as str or None if cannot be determined """
+    """get preferred extension for a UTI type
+    uti: UTI str, e.g. 'public.jpeg'
+    returns: preferred extension as str or None if cannot be determined"""
 
     # reference: https://developer.apple.com/documentation/coreservices/1442744-uttypecopypreferredtagwithclass?language=objc
     with objc.autorelease_pool():
@@ -288,8 +288,8 @@ def get_preferred_uti_extension(uti):
 
 def findfiles(pattern, path_):
     """Returns list of filenames from path_ matched by pattern
-       shell pattern. Matching is case-insensitive.
-       If 'path_' is invalid/doesn't exist, returns []."""
+    shell pattern. Matching is case-insensitive.
+    If 'path_' is invalid/doesn't exist, returns []."""
     if not os.path.isdir(path_):
         return []
     # See: https://gist.github.com/techtonik/5694830
@@ -316,8 +316,8 @@ def findfiles(pattern, path_):
 
 
 def _open_sql_file(dbname):
-    """ opens sqlite file dbname in read-only mode
-        returns tuple of (connection, cursor) """
+    """opens sqlite file dbname in read-only mode
+    returns tuple of (connection, cursor)"""
     try:
         dbpath = pathlib.Path(dbname).resolve()
         conn = sqlite3.connect(f"{dbpath.as_uri()}?mode=ro", timeout=1, uri=True)
@@ -328,9 +328,9 @@ def _open_sql_file(dbname):
 
 
 def _db_is_locked(dbname):
-    """ check to see if a sqlite3 db is locked
-        returns True if database is locked, otherwise False
-        dbname: name of database to test """
+    """check to see if a sqlite3 db is locked
+    returns True if database is locked, otherwise False
+    dbname: name of database to test"""
 
     # first, check to see if lock file exists, if so, assume the file is locked
     lock_name = f"{dbname}.lock"
@@ -381,7 +381,7 @@ def _db_is_locked(dbname):
 
 
 def normalize_unicode(value):
-    """ normalize unicode data """
+    """normalize unicode data"""
     if value is not None:
         if isinstance(value, (tuple, list)):
             return tuple(unicodedata.normalize(UNICODE_FORMAT, v) for v in value)
@@ -394,9 +394,9 @@ def normalize_unicode(value):
 
 
 def increment_filename(filepath):
-    """ Return filename (1).ext, etc if filename.ext exists
+    """Return filename (1).ext, etc if filename.ext exists
 
-        If file exists in filename's parent folder with same stem as filename, 
+        If file exists in filename's parent folder with same stem as filename,
         add (1), (2), etc. until a non-existing filename is found.
 
     Args:
@@ -419,8 +419,22 @@ def increment_filename(filepath):
     return str(dest)
 
 
+def expand_and_validate_filepath(path: str) -> str:
+    """validate and expand ~ in filepath, also un-escapes "\ "
+
+    Returns:
+        expanded path if path is valid file, else None
+    """
+
+    path = re.sub(r"\\ ", " ", path)
+    path = pathlib.Path(path).expanduser()
+    if path.is_file():
+        return str(path)
+    return None
+
+
 def load_function(pyfile: str, function_name: str) -> Callable:
-    """ Load function_name from python file pyfile """
+    """Load function_name from python file pyfile"""
     module_file = pathlib.Path(pyfile)
     if not module_file.is_file():
         raise FileNotFoundError(f"module {pyfile} does not appear to exist")

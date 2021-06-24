@@ -82,7 +82,9 @@ TEMPLATE_VALUES_TITLE = {
     "{title|titlecase}": ["Tulips Tied Together At A Flower Shop"],
     "{title|upper}": ["TULIPS TIED TOGETHER AT A FLOWER SHOP"],
     "{title|titlecase|lower|upper}": ["TULIPS TIED TOGETHER AT A FLOWER SHOP"],
-    "{title|titlecase|lower|upper|shell_quote}": ["'TULIPS TIED TOGETHER AT A FLOWER SHOP'"],
+    "{title|titlecase|lower|upper|shell_quote}": [
+        "'TULIPS TIED TOGETHER AT A FLOWER SHOP'"
+    ],
     "{title|upper|titlecase}": ["Tulips Tied Together At A Flower Shop"],
     "{title|capitalize}": ["Tulips tied together at a flower shop"],
     "{title[ ,_]}": ["Tulips_tied_together_at_a_flower_shop"],
@@ -388,7 +390,9 @@ def test_lookup_multi(photosdb_places):
         lookup_str = re.match(r"\{([^\\,}]+)\}", subst).group(1)
         if subst in ["{exiftool}", "{photo}", "{function}"]:
             continue
-        lookup = template.get_template_value_multi(lookup_str, path_sep=os.path.sep, default=[])
+        lookup = template.get_template_value_multi(
+            lookup_str, path_sep=os.path.sep, default=[]
+        )
         assert isinstance(lookup, list)
 
 
@@ -973,6 +977,15 @@ def test_conditional(photosdb):
         for template in UUID_CONDITIONAL[uuid]:
             rendered, _ = photo.render_template(template)
             assert sorted(rendered) == sorted(UUID_CONDITIONAL[uuid][template])
+
+
+def test_function_hyphen_dir(photosdb):
+    """Test {function} with a hyphenated directory (#477)"""
+    photo = photosdb.get_photo(UUID_MULTI_KEYWORDS)
+    rendered, _ = photo.render_template(
+        "{function:tests/hyphen-dir/template_function.py::foo}"
+    )
+    assert rendered == [f"{photo.original_filename}-FOO"]
 
 
 def test_function(photosdb):

@@ -4,8 +4,10 @@ import datetime
 import locale
 import os
 import pathlib
-import sys
 import shlex
+import sys
+from dataclasses import dataclass
+from typing import Optional
 
 from textx import TextXSyntaxError, metamodel_from_file
 
@@ -14,9 +16,7 @@ from ._version import __version__
 from .datetime_formatter import DateTimeFormatter
 from .exiftool import ExifToolCaching
 from .path_utils import sanitize_dirname, sanitize_filename, sanitize_pathpart
-from .utils import load_function
-from dataclasses import dataclass
-from typing import Optional
+from .utils import expand_and_validate_filepath, load_function
 
 # TODO: a lot of values are passed from function to function like path_sep--make these all class properties
 
@@ -1177,10 +1177,11 @@ class PhotoTemplate:
 
         filename, funcname = subfield.split("::")
 
-        if not pathlib.Path(filename).is_file():
+        filename_validated = expand_and_validate_filepath(filename)
+        if not filename_validated:
             raise ValueError(f"'{filename}' does not appear to be a file")
 
-        template_func = load_function(filename, funcname)
+        template_func = load_function(filename_validated, funcname)
         values = template_func(self.photo)
 
         if not isinstance(values, (str, list)):
@@ -1211,10 +1212,11 @@ class PhotoTemplate:
 
         filename, funcname = filter_.split("::")
 
-        if not pathlib.Path(filename).is_file():
+        filename_validated = expand_and_validate_filepath(filename)
+        if not filename_validated:
             raise ValueError(f"'{filename}' does not appear to be a file")
 
-        template_func = load_function(filename, funcname)
+        template_func = load_function(filename_validated, funcname)
 
         if not isinstance(values, (list, tuple)):
             values = [values]
