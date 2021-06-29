@@ -34,11 +34,12 @@ _PHOTOS_3_VERSION = "3301"
 
 # versions 5.0 and later have a different database structure
 _PHOTOS_4_VERSION = "4025"  # latest Mojove version on 10.14.6
-_PHOTOS_5_VERSION = "6000"  # seems to be current on 10.15.1 through 10.15.6
+_PHOTOS_5_VERSION = "6000"  # seems to be current on 10.15.1 through 10.15.7 (also Big Sur and Monterey which switch to model version)
 
 # Ranges for model version by Photos version
 _PHOTOS_5_MODEL_VERSION = [13000, 13999]
 _PHOTOS_6_MODEL_VERSION = [14000, 14999]
+_PHOTOS_7_MODEL_VERSION = [15000, 15999]  # Monterey developer preview is 15134
 
 # some table names differ between Photos 5 and Photos 6
 _DB_TABLE_NAMES = {
@@ -49,6 +50,10 @@ _DB_TABLE_NAMES = {
         "ALBUM_SORT_ORDER": "Z_26ASSETS.Z_FOK_34ASSETS",
         "IMPORT_FOK": "ZGENERICASSET.Z_FOK_IMPORTSESSION",
         "DEPTH_STATE": "ZGENERICASSET.ZDEPTHSTATES",
+        "UTI_ORIGINAL": "ZINTERNALRESOURCE.ZUNIFORMTYPEIDENTIFIER",
+        "ASSET_ALBUM_JOIN": "Z_26ASSETS.Z_26ALBUMS",
+        "ASSET_ALBUM_TABLE": "Z_26ASSETS",
+        "HDR_TYPE": "ZCUSTOMRENDEREDVALUE",
     },
     6: {
         "ASSET": "ZASSET",
@@ -57,6 +62,22 @@ _DB_TABLE_NAMES = {
         "ALBUM_SORT_ORDER": "Z_26ASSETS.Z_FOK_3ASSETS",
         "IMPORT_FOK": "null",
         "DEPTH_STATE": "ZASSET.ZDEPTHTYPE",
+        "UTI_ORIGINAL": "ZINTERNALRESOURCE.ZUNIFORMTYPEIDENTIFIER",
+        "ASSET_ALBUM_JOIN": "Z_26ASSETS.Z_26ALBUMS",
+        "ASSET_ALBUM_TABLE": "Z_26ASSETS",
+        "HDR_TYPE": "ZCUSTOMRENDEREDVALUE",
+    },
+    7: {
+        "ASSET": "ZASSET",
+        "KEYWORD_JOIN": "Z_1KEYWORDS.Z_38KEYWORDS",
+        "ALBUM_JOIN": "Z_27ASSETS.Z_3ASSETS",
+        "ALBUM_SORT_ORDER": "Z_27ASSETS.Z_FOK_3ASSETS",
+        "IMPORT_FOK": "null",
+        "DEPTH_STATE": "ZASSET.ZDEPTHTYPE",
+        "UTI_ORIGINAL": "ZINTERNALRESOURCE.ZCOMPACTUTI",
+        "ASSET_ALBUM_JOIN": "Z_27ASSETS.Z_27ALBUMS",
+        "ASSET_ALBUM_TABLE": "Z_27ASSETS",
+        "HDR_TYPE": "ZHDRTYPE",
     },
 }
 

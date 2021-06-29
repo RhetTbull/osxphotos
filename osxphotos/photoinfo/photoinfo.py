@@ -36,7 +36,7 @@ from ..albuminfo import AlbumInfo, ImportInfo
 from ..personinfo import FaceInfo, PersonInfo
 from ..phototemplate import PhotoTemplate, RenderOptions
 from ..placeinfo import PlaceInfo4, PlaceInfo5
-from ..uti import get_preferred_uti_extension
+from ..uti import get_preferred_uti_extension, get_uti_for_extension
 from ..utils import _debug, _get_resource_loc, findfiles
 
 
@@ -403,14 +403,10 @@ class PhotoInfo:
                 # Note: In Photos Version 5.0 (141.19.150), images not copied to Photos Library
                 # that are missing do not always trigger is_missing = True as happens
                 # in earlier version so it's possible for this check to fail, if so, return None
-                logging.debug(f"Error getting path to RAW file: {filepath}/{glob_str}")
                 photopath = None
             else:
                 photopath = os.path.join(filepath, raw_file[0])
                 if not os.path.isfile(photopath):
-                    logging.debug(
-                        f"MISSING PATH: RAW photo for UUID {self._uuid} should be at {photopath} but does not appear to exist"
-                    )
                     photopath = None
 
         return photopath
@@ -662,13 +658,23 @@ class PhotoInfo:
         """Returns Uniform Type Identifier (UTI) for the original image
         for example: public.jpeg or com.apple.quicktime-movie
         """
-        if self._db._db_version <= _PHOTOS_4_VERSION and self._info["has_raw"]:
-            return self._info["raw_pair_info"]["UTI"]
-        elif self.shared:
-            # TODO: need reliable way to get original UTI for shared
-            return self.uti
-        else:
-            return self._info["UTI_original"]
+        try:
+            return self._uti_original
+        except AttributeError:
+            if self._db._db_version <= _PHOTOS_4_VERSION and self._info["has_raw"]:
+                self._uti_original = self._info["raw_pair_info"]["UTI"]
+            elif self.shared:
+                # TODO: need reliable way to get original UTI for shared
+                self._uti_original = self.uti
+            elif self._db._photos_ver >= 7:
+                # Monterey+
+                self._uti_original = get_uti_for_extension(
+                    pathlib.Path(self.original_filename).suffix
+                )
+            else:
+                self._uti_original = self._info["UTI_original"]
+
+            return self._uti_original
 
     @property
     def uti_edited(self):

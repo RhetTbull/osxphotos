@@ -9,7 +9,7 @@ from osxphotos.uti import (
     get_uti_for_extension,
 )
 
-EXT_DICT = {"heic": "public.heic", "jpg": "public.jpeg"}
+EXT_DICT = {"heic": "public.heic", "jpg": "public.jpeg", ".jpg": "public.jpeg"}
 UTI_DICT = {"public.heic": "heic", "public.jpeg": "jpeg"}
 
 

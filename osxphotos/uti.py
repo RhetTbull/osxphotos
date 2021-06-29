@@ -587,6 +587,11 @@ def get_preferred_uti_extension(uti):
 
 def get_uti_for_extension(extension):
     """get UTI for a given file extension"""
+
+    # accepts extension with or without leading 0
+    if extension[0] == ".":
+        extension = extension[1:]
+
     if (OS_VER, OS_MAJOR) <= (10, 16):
         # https://developer.apple.com/documentation/coreservices/1448939-uttypecreatepreferredidentifierf
         with objc.autorelease_pool():

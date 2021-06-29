@@ -599,7 +599,9 @@ class PhotosDB:
         verbose = self._verbose
         verbose("Processing database.")
         verbose(f"Database version: {self._db_version}.")
-
+        
+        self._photos_ver = 4 # only used in Photos 5+
+         
         (conn, c) = _open_sql_file(self._tmp_db)
 
         # get info to associate persons with photos
@@ -1595,10 +1597,14 @@ class PhotosDB:
         verbose(f"Database version: {self._db_version}, {photos_ver}.")
         asset_table = _DB_TABLE_NAMES[photos_ver]["ASSET"]
         keyword_join = _DB_TABLE_NAMES[photos_ver]["KEYWORD_JOIN"]
+        asset_album_table = _DB_TABLE_NAMES[photos_ver]["ASSET_ALBUM_TABLE"]
         album_join = _DB_TABLE_NAMES[photos_ver]["ALBUM_JOIN"]
         album_sort = _DB_TABLE_NAMES[photos_ver]["ALBUM_SORT_ORDER"]
+        asset_album_join = _DB_TABLE_NAMES[photos_ver]["ASSET_ALBUM_JOIN"]
         import_fok = _DB_TABLE_NAMES[photos_ver]["IMPORT_FOK"]
         depth_state = _DB_TABLE_NAMES[photos_ver]["DEPTH_STATE"]
+        uti_original_column = _DB_TABLE_NAMES[photos_ver]["UTI_ORIGINAL"]
+        hdr_type_column = _DB_TABLE_NAMES[photos_ver]["HDR_TYPE"]
 
         # Look for all combinations of persons and pictures
         if _debug():
@@ -1718,8 +1724,8 @@ class PhotosDB:
                 {asset_table}.ZUUID,
                 {album_sort}
                 FROM {asset_table} 
-                JOIN Z_26ASSETS ON {album_join} = {asset_table}.Z_PK 
-                JOIN ZGENERICALBUM ON ZGENERICALBUM.Z_PK = Z_26ASSETS.Z_26ALBUMS
+                JOIN {asset_album_table} ON {album_join} = {asset_table}.Z_PK 
+                JOIN ZGENERICALBUM ON ZGENERICALBUM.Z_PK = {asset_album_join}
             """
         )
 
@@ -1886,7 +1892,7 @@ class PhotosDB:
                 {asset_table}.ZAVALANCHEUUID,
                 {asset_table}.ZAVALANCHEPICKTYPE,
                 {asset_table}.ZKINDSUBTYPE,
-                {asset_table}.ZCUSTOMRENDEREDVALUE,
+                {asset_table}.{hdr_type_column},
                 ZADDITIONALASSETATTRIBUTES.ZCAMERACAPTUREDEVICE,
                 {asset_table}.ZCLOUDASSETGUID,
                 ZADDITIONALASSETATTRIBUTES.ZREVERSELOCATIONDATA,
@@ -2250,20 +2256,33 @@ class PhotosDB:
 
         # Get info on remote/local availability for photos in shared albums
         # Also get UTI of original image (zdatastoresubtype = 1)
-        c.execute(
-            f""" SELECT 
+        if self._photos_ver >= 7:
+            sql_missing = f""" SELECT 
                 {asset_table}.ZUUID, 
                 ZINTERNALRESOURCE.ZLOCALAVAILABILITY, 
                 ZINTERNALRESOURCE.ZREMOTEAVAILABILITY,
                 ZINTERNALRESOURCE.ZDATASTORESUBTYPE,
-                ZINTERNALRESOURCE.ZUNIFORMTYPEIDENTIFIER,
+                {uti_original_column},
+                null 
+                FROM {asset_table}
+                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
+                JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZASSET = ZADDITIONALASSETATTRIBUTES.ZASSET 
+                WHERE  ZDATASTORESUBTYPE = 1 OR ZDATASTORESUBTYPE = 3 """
+        else:
+            sql_missing = f""" SELECT 
+                {asset_table}.ZUUID, 
+                ZINTERNALRESOURCE.ZLOCALAVAILABILITY, 
+                ZINTERNALRESOURCE.ZREMOTEAVAILABILITY,
+                ZINTERNALRESOURCE.ZDATASTORESUBTYPE,
+                {uti_original_column},
                 ZUNIFORMTYPEIDENTIFIER.ZIDENTIFIER
                 FROM {asset_table}
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
                 JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZASSET = ZADDITIONALASSETATTRIBUTES.ZASSET 
                 JOIN ZUNIFORMTYPEIDENTIFIER ON ZUNIFORMTYPEIDENTIFIER.Z_PK = ZINTERNALRESOURCE.ZUNIFORMTYPEIDENTIFIER 
                 WHERE  ZDATASTORESUBTYPE = 1 OR ZDATASTORESUBTYPE = 3 """
-        )
+
+        c.execute(sql_missing)
 
         # Order of results:
         # 0 {asset_table}.ZUUID,
@@ -2323,8 +2342,20 @@ class PhotosDB:
 
         # get information about associted RAW images
         # RAW images have ZDATASTORESUBTYPE = 17
-        c.execute(
-            f""" SELECT
+        if self._photos_ver >= 7:
+            sql_raw = f""" SELECT
+                {asset_table}.ZUUID,
+                ZINTERNALRESOURCE.ZDATALENGTH, 
+                null,
+                ZINTERNALRESOURCE.ZDATASTORESUBTYPE,
+                ZINTERNALRESOURCE.ZRESOURCETYPE
+                FROM {asset_table}
+                JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZASSET = ZADDITIONALASSETATTRIBUTES.ZASSET
+                JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
+                WHERE ZINTERNALRESOURCE.ZDATASTORESUBTYPE = 17
+            """
+        else:
+            sql_raw = f""" SELECT
                 {asset_table}.ZUUID,
                 ZINTERNALRESOURCE.ZDATALENGTH, 
                 ZUNIFORMTYPEIDENTIFIER.ZIDENTIFIER,
@@ -2335,8 +2366,10 @@ class PhotosDB:
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
                 JOIN ZUNIFORMTYPEIDENTIFIER ON ZUNIFORMTYPEIDENTIFIER.Z_PK =  ZINTERNALRESOURCE.ZUNIFORMTYPEIDENTIFIER
                 WHERE ZINTERNALRESOURCE.ZDATASTORESUBTYPE = 17
-        """
-        )
+            """
+        
+        c.execute(sql_raw)
+
         for row in c:
             uuid = row[0]
             if uuid in self._dbphotos:
