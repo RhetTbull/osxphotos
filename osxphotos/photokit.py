@@ -34,7 +34,8 @@ from Foundation import NSNotificationCenter, NSObject
 from PyObjCTools import AppHelper
 
 from .fileutil import FileUtil
-from .utils import _get_os_version, get_preferred_uti_extension, increment_filename
+from .uti import get_preferred_uti_extension
+from .utils import _get_os_version, increment_filename
 
 # NOTE: This requires user have granted access to the terminal (e.g. Terminal.app or iTerm)
 # to access Photos.  This should happen automatically the first time it's called. I've

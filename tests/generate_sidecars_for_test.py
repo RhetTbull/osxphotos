@@ -44,7 +44,7 @@ def generate_sidecars(dbname, uuid_dict):
             file.write(xmp)
 
         # with extension
-        ext = osxphotos.utils.get_preferred_uti_extension(photo.uti)
+        ext = osxphotos.uti.get_preferred_uti_extension(photo.uti)
         ext = "jpg" if ext == "jpeg" else ext
         sidecar = str(pathlib.Path(SIDECAR_DIR) / f"{uuid}_ext.xmp")
         xmp = photo._xmp_sidecar(extension=ext)

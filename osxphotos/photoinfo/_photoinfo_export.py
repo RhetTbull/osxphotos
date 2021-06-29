@@ -55,7 +55,8 @@ from ..photokit import (
     PhotoLibrary,
 )
 from ..phototemplate import RenderOptions
-from ..utils import findfiles, get_preferred_uti_extension, lineno, noop
+from ..uti import get_preferred_uti_extension
+from ..utils import findfiles, lineno, noop
 
 # retry if use_photos_export fails the first time (which sometimes it does)
 MAX_PHOTOSCRIPT_RETRIES = 3

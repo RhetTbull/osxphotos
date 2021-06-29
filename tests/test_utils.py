@@ -54,14 +54,6 @@ def test_db_is_locked_unlocked():
 
     assert not osxphotos.utils._db_is_locked(DB_UNLOCKED_10_15)
 
-
-def test_get_preferred_uti_extension():
-    from osxphotos.utils import get_preferred_uti_extension
-
-    for uti, extension in UTI_DICT.items():
-        assert get_preferred_uti_extension(uti) == extension
-
-
 def test_findfiles():
     import tempfile
     import os.path

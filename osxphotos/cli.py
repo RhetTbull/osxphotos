@@ -57,7 +57,8 @@ from .photokit import check_photokit_authorization, request_photokit_authorizati
 from .photosalbum import PhotosAlbum
 from .phototemplate import PhotoTemplate, RenderOptions
 from .queryoptions import QueryOptions
-from .utils import get_preferred_uti_extension, load_function, expand_and_validate_filepath
+from .uti import get_preferred_uti_extension
+from .utils import expand_and_validate_filepath, load_function
 
 # global variable to control verbose output
 # set via --verbose/-V

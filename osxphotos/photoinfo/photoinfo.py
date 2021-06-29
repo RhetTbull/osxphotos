@@ -36,7 +36,8 @@ from ..albuminfo import AlbumInfo, ImportInfo
 from ..personinfo import FaceInfo, PersonInfo
 from ..phototemplate import PhotoTemplate, RenderOptions
 from ..placeinfo import PlaceInfo4, PlaceInfo5
-from ..utils import _debug, _get_resource_loc, findfiles, get_preferred_uti_extension
+from ..uti import get_preferred_uti_extension
+from ..utils import _debug, _get_resource_loc, findfiles
 
 
 class PhotoInfo:
