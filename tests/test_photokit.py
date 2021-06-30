@@ -57,6 +57,14 @@ UUID_DICT = {
         "burst_selected": 4,
         "burst_all": 5,
     },
+    "raw+jpeg": {
+        "uuid": "E3DD04AF-CB65-4D9B-BB79-FF4C955533DB",
+        "filename": "IMG_1994.JPG",
+        "raw_filename": "IMG_1994.CR2",
+        "unadjusted_size": 16128420,
+        "uti_raw": "com.canon.cr2-raw-image",
+        "uti": "public.jpeg",
+    },
 }
 
 
@@ -78,8 +86,21 @@ def test_plain_photo():
     lib = PhotoLibrary()
     photo = lib.fetch_uuid(uuid)
     assert photo.original_filename == filename
+    assert photo.raw_filename is None
     assert photo.isphoto
     assert not photo.ismovie
+
+
+def test_raw_plus_jpeg():
+    """test RAW+JPEG"""
+    uuid = UUID_DICT["raw+jpeg"]["uuid"]
+
+    lib = PhotoLibrary()
+    photo = lib.fetch_uuid(uuid)
+    assert photo.original_filename == UUID_DICT["raw+jpeg"]["filename"]
+    assert photo.raw_filename == UUID_DICT["raw+jpeg"]["raw_filename"]
+    assert photo.uti_raw() == UUID_DICT["raw+jpeg"]["uti_raw"]
+    assert photo.uti() == UUID_DICT["raw+jpeg"]["uti"]
 
 
 def test_hdr():
@@ -194,6 +215,22 @@ def test_export_photo_current():
         filename = test_dict["filename"]
         assert export_path.stem == pathlib.Path(filename).stem
         assert export_path.stat().st_size == test_dict["adjusted_size"]
+
+
+def test_export_photo_raw():
+    """test PhotoAsset.export for raw component"""
+    test_dict = UUID_DICT["raw+jpeg"]
+    uuid = test_dict["uuid"]
+    lib = PhotoLibrary()
+    photo = lib.fetch_uuid(uuid)
+
+    with tempfile.TemporaryDirectory(prefix="photokit_test") as tempdir:
+        export_path = photo.export(tempdir, raw=True)
+        export_path = pathlib.Path(export_path[0])
+        assert export_path.is_file()
+        filename = test_dict["raw_filename"]
+        assert export_path.stem == pathlib.Path(filename).stem
+        assert export_path.stat().st_size == test_dict["unadjusted_size"]
 
 
 ### VideoAsset
