@@ -1188,7 +1188,6 @@ def test_uti(photosdb):
         assert photo.uti_original == UTI_ORIGINAL_DICT[uuid]
 
 
-@pytest.mark.skip(reason="RAW+JPEG not yet working on Monterey")
 def test_raw(photosdb):
     """Test various raw properties"""
 

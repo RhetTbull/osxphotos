@@ -390,19 +390,19 @@ class PhotoInfo:
                 photopath = None
         else:
             filestem = pathlib.Path(self._info["filename"]).stem
-            raw_ext = get_preferred_uti_extension(self._info["UTI_raw"])
+            # raw_ext = get_preferred_uti_extension(self._info["UTI_raw"])
 
             if self._info["directory"].startswith("/"):
                 filepath = self._info["directory"]
             else:
                 filepath = os.path.join(self._db._masters_path, self._info["directory"])
 
-            glob_str = f"{filestem}*.{raw_ext}"
+            # raw files have same name as original but with _4.raw_ext appended
+            # I believe the _4 maps to PHAssetResourceTypeAlternatePhoto = 4
+            # see: https://developer.apple.com/documentation/photokit/phassetresourcetype/phassetresourcetypealternatephoto?language=objc
+            glob_str = f"{filestem}_4*"
             raw_file = findfiles(glob_str, filepath)
-            if len(raw_file) != 1:
-                # Note: In Photos Version 5.0 (141.19.150), images not copied to Photos Library
-                # that are missing do not always trigger is_missing = True as happens
-                # in earlier version so it's possible for this check to fail, if so, return None
+            if not raw_file:
                 photopath = None
             else:
                 photopath = os.path.join(filepath, raw_file[0])
@@ -693,7 +693,14 @@ class PhotoInfo:
         for example: com.canon.cr2-raw-image
         Returns None if no associated RAW image
         """
-        return self._info["UTI_raw"]
+        if self._db._photos_ver < 7:
+            return self._info["UTI_raw"]
+
+        rawpath = self.path_raw
+        if rawpath:
+            return get_uti_for_extension(pathlib.Path(rawpath).suffix)
+        else:
+            return None
 
     @property
     def ismovie(self):
