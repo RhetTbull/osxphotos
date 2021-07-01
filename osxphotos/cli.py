@@ -1647,6 +1647,9 @@ def export(
         previous_uuids = {uuid: 1 for uuid in export_db.get_previous_uuids()}
         photos = [p for p in photos if p.uuid not in previous_uuids]
 
+    # store results of export
+    results = ExportResults()
+
     if photos:
         num_photos = len(photos)
         # TODO: photos or photo appears several times, pull into a separate function
@@ -1657,8 +1660,6 @@ def export(
         # logic uses original_name which is the boolean inverse of current_name
         # because the original code used --original-name as an option
         original_name = not current_name
-
-        results = ExportResults()
 
         # set up for --add-export-to-album if needed
         album_export = (
@@ -1834,41 +1835,6 @@ def export(
         if fp is not None:
             fp.close()
 
-        if cleanup:
-            all_files = (
-                results.exported
-                + results.skipped
-                + results.exif_updated
-                + results.touched
-                + results.converted_to_jpeg
-                + results.sidecar_json_written
-                + results.sidecar_json_skipped
-                + results.sidecar_exiftool_written
-                + results.sidecar_exiftool_skipped
-                + results.sidecar_xmp_written
-                + results.sidecar_xmp_skipped
-                # include missing so a file that was already in export directory
-                # but was missing on --update doesn't get deleted
-                # (better to have old version than none)
-                + results.missing
-                # include files that have error in case they exist from previous export
-                + [r[0] for r in results.error]
-                + [str(pathlib.Path(export_db_path).resolve())]
-            )
-            click.echo(f"Cleaning up {dest}")
-            cleaned_files, cleaned_dirs = cleanup_files(dest, all_files, fileutil)
-            file_str = "files" if len(cleaned_files) != 1 else "file"
-            dir_str = "directories" if len(cleaned_dirs) != 1 else "directory"
-            click.echo(
-                f"Deleted: {len(cleaned_files)} {file_str}, {len(cleaned_dirs)} {dir_str}"
-            )
-            results.deleted_files = cleaned_files
-            results.deleted_directories = cleaned_dirs
-
-        if report:
-            verbose_(f"Writing export report to {report}")
-            write_export_report(report, results)
-
         photo_str_total = "photos" if len(photos) != 1 else "photo"
         if update:
             summary = (
@@ -1892,6 +1858,42 @@ def export(
         click.echo(f"Elapsed time: {(stop_time-start_time):.3f} seconds")
     else:
         click.echo("Did not find any photos to export")
+
+    # cleanup files and do report if needed
+    if cleanup:
+        all_files = (
+            results.exported
+            + results.skipped
+            + results.exif_updated
+            + results.touched
+            + results.converted_to_jpeg
+            + results.sidecar_json_written
+            + results.sidecar_json_skipped
+            + results.sidecar_exiftool_written
+            + results.sidecar_exiftool_skipped
+            + results.sidecar_xmp_written
+            + results.sidecar_xmp_skipped
+            # include missing so a file that was already in export directory
+            # but was missing on --update doesn't get deleted
+            # (better to have old version than none)
+            + results.missing
+            # include files that have error in case they exist from previous export
+            + [r[0] for r in results.error]
+            + [str(pathlib.Path(export_db_path).resolve())]
+        )
+        click.echo(f"Cleaning up {dest}")
+        cleaned_files, cleaned_dirs = cleanup_files(dest, all_files, fileutil)
+        file_str = "files" if len(cleaned_files) != 1 else "file"
+        dir_str = "directories" if len(cleaned_dirs) != 1 else "directory"
+        click.echo(
+            f"Deleted: {len(cleaned_files)} {file_str}, {len(cleaned_dirs)} {dir_str}"
+        )
+        results.deleted_files = cleaned_files
+        results.deleted_directories = cleaned_dirs
+
+    if report:
+        verbose_(f"Writing export report to {report}")
+        write_export_report(report, results)
 
     export_db.close()
 

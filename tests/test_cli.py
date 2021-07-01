@@ -5324,6 +5324,50 @@ def test_export_cleanup():
         assert not pathlib.Path("./foo/delete_me_too.txt").is_file()
 
 
+def test_export_cleanup_empty_album():
+    """test export with --cleanup flag with an empty album (#481)"""
+    import pathlib
+    import tempfile
+
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        assert result.exit_code == 0
+
+        # run cleanup with dry-run
+        with tempfile.TemporaryDirectory() as tempdir:
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, CLI_PHOTOS_DB),
+                    tempdir,
+                    "-V",
+                    "--uuid",
+                    UUID_LOCATION,
+                ],
+            )
+
+            # run cleanup with an empty folder
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, CLI_PHOTOS_DB),
+                    tempdir,
+                    "-V",
+                    "--update",
+                    "--cleanup",
+                    "--album",
+                    "EmptyAlbum",
+                ],
+            )
+            assert "Did not find any photos to export" in result.output
+            assert "Deleted: 1 file" in result.output
+
+
 def test_save_load_config():
     """test --save-config, --load-config"""
     import glob
