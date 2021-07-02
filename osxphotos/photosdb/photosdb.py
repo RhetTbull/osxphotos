@@ -246,6 +246,9 @@ class PhotosDB:
         # key is tuple of (original_filesize, date) and value is list of uuids that match that signature
         self._db_signatures = {}
 
+        # Dict to hold information on volume names (Photos 5+)
+        self._db_filesystem_volumes = {}
+
         if _debug():
             logging.debug(f"dbfile = {dbfile}")
 
@@ -599,9 +602,9 @@ class PhotosDB:
         verbose = self._verbose
         verbose("Processing database.")
         verbose(f"Database version: {self._db_version}.")
-        
-        self._photos_ver = 4 # only used in Photos 5+
-         
+
+        self._photos_ver = 4  # only used in Photos 5+
+
         (conn, c) = _open_sql_file(self._tmp_db)
 
         # get info to associate persons with photos
@@ -2348,7 +2351,8 @@ class PhotosDB:
                 ZINTERNALRESOURCE.ZDATALENGTH, 
                 null,
                 ZINTERNALRESOURCE.ZDATASTORESUBTYPE,
-                ZINTERNALRESOURCE.ZRESOURCETYPE
+                ZINTERNALRESOURCE.ZRESOURCETYPE,
+                ZINTERNALRESOURCE.ZFILESYSTEMBOOKMARK
                 FROM {asset_table}
                 JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZASSET = ZADDITIONALASSETATTRIBUTES.ZASSET
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
@@ -2360,14 +2364,15 @@ class PhotosDB:
                 ZINTERNALRESOURCE.ZDATALENGTH, 
                 ZUNIFORMTYPEIDENTIFIER.ZIDENTIFIER,
                 ZINTERNALRESOURCE.ZDATASTORESUBTYPE,
-                ZINTERNALRESOURCE.ZRESOURCETYPE
+                ZINTERNALRESOURCE.ZRESOURCETYPE,
+                ZINTERNALRESOURCE.ZFILESYSTEMBOOKMARK
                 FROM {asset_table}
                 JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZASSET = ZADDITIONALASSETATTRIBUTES.ZASSET
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
                 JOIN ZUNIFORMTYPEIDENTIFIER ON ZUNIFORMTYPEIDENTIFIER.Z_PK =  ZINTERNALRESOURCE.ZUNIFORMTYPEIDENTIFIER
                 WHERE ZINTERNALRESOURCE.ZDATASTORESUBTYPE = 17
             """
-        
+
         c.execute(sql_raw)
 
         for row in c:
@@ -2378,6 +2383,33 @@ class PhotosDB:
                 self._dbphotos[uuid]["UTI_raw"] = row[2]
                 self._dbphotos[uuid]["datastore_subtype"] = row[3]
                 self._dbphotos[uuid]["resource_type"] = row[4]
+                self._dbphotos[uuid]["raw_bookmark"] = row[5]
+
+        # get paths for the relative imports for RAW+JPEG images
+        c.execute(
+            f""" SELECT
+            {asset_table}.ZUUID,
+            ZFILESYSTEMVOLUME.ZNAME,
+            ZFILESYSTEMBOOKMARK.ZPATHRELATIVETOVOLUME
+            FROM {asset_table} 
+            JOIN ZINTERNALRESOURCE ON ZINTERNALRESOURCE.ZASSET = ZADDITIONALASSETATTRIBUTES.ZASSET
+            JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
+            JOIN ZFILESYSTEMBOOKMARK ON ZFILESYSTEMBOOKMARK.ZRESOURCE = ZINTERNALRESOURCE.Z_PK
+            JOIN ZFILESYSTEMVOLUME ON ZFILESYSTEMVOLUME.Z_PK = ZINTERNALRESOURCE.ZFILESYSTEMVOLUME
+            WHERE ZINTERNALRESOURCE.ZDATASTORESUBTYPE = 17
+            """
+        )
+
+        # path to the raw image will be /Volumes/ZFILESYSTEMVOLUME.ZNAME/ZFILESYSTEMBOOKMARK.ZPATHRELATIVETOVOLUME
+        # 0: {asset_table}.ZUUID, -- UUID
+        # 1: ZFILESYSTEMVOLUME.ZNAME, -- name of the volume
+        # 2: ZFILESYSTEMBOOKMARK.ZPATHRELATIVETOVOLUME -- path to the raw image
+
+        for row in c:
+            uuid = row[0]
+            if uuid in self._dbphotos:
+                self._dbphotos[uuid]["raw_volume"] = row[1]
+                self._dbphotos[uuid]["raw_relative_path"] = row[2]
 
         # add faces and keywords to photo data
         for uuid in self._dbphotos:

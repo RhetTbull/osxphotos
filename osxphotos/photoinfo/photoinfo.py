@@ -149,41 +149,11 @@ class PhotoInfo:
         except AttributeError:
             self._path = None
             photopath = None
-            # TODO: should path try to return path even if ismissing?
             if self._info["isMissing"] == 1:
                 return photopath  # path would be meaningless until downloaded
 
             if self._db._db_version <= _PHOTOS_4_VERSION:
-                if self._info["has_raw"]:
-                    # return the path to JPEG even if RAW is original
-                    vol = (
-                        self._db._dbvolumes[self._info["raw_pair_info"]["volumeId"]]
-                        if self._info["raw_pair_info"]["volumeId"] is not None
-                        else None
-                    )
-                    if vol is not None:
-                        photopath = os.path.join(
-                            "/Volumes", vol, self._info["raw_pair_info"]["imagePath"]
-                        )
-                    else:
-                        photopath = os.path.join(
-                            self._db._masters_path,
-                            self._info["raw_pair_info"]["imagePath"],
-                        )
-                else:
-                    vol = self._info["volume"]
-                    if vol is not None:
-                        photopath = os.path.join(
-                            "/Volumes", vol, self._info["imagePath"]
-                        )
-                    else:
-                        photopath = os.path.join(
-                            self._db._masters_path, self._info["imagePath"]
-                        )
-                if not os.path.isfile(photopath):
-                    photopath = None
-                self._path = photopath
-                return photopath
+                return self._path_4()
 
             if self._info["shared"]:
                 # shared photo
@@ -212,6 +182,37 @@ class PhotoInfo:
                 photopath = None
             self._path = photopath
             return photopath
+
+    def _path_4(self):
+        """return path for photo on Photos <= version 4"""
+        if self._info["has_raw"]:
+            # return the path to JPEG even if RAW is original
+            vol = (
+                self._db._dbvolumes[self._info["raw_pair_info"]["volumeId"]]
+                if self._info["raw_pair_info"]["volumeId"] is not None
+                else None
+            )
+            if vol is not None:
+                photopath = os.path.join(
+                    "/Volumes", vol, self._info["raw_pair_info"]["imagePath"]
+                )
+            else:
+                photopath = os.path.join(
+                    self._db._masters_path,
+                    self._info["raw_pair_info"]["imagePath"],
+                )
+        else:
+            vol = self._info["volume"]
+            if vol is not None:
+                photopath = os.path.join("/Volumes", vol, self._info["imagePath"])
+            else:
+                photopath = os.path.join(
+                    self._db._masters_path, self._info["imagePath"]
+                )
+        if not os.path.isfile(photopath):
+            photopath = None
+        self._path = photopath
+        return photopath
 
     @property
     def path_edited(self):
@@ -252,14 +253,10 @@ class PhotoInfo:
             filename = None
             if self._info["type"] == _PHOTO_TYPE:
                 # it's a photo
-                if self._db._photos_ver == 5:
-                    filename = f"{self._uuid}_1_201_a.jpeg"
+                if self._db._photos_ver != 5 and self.uti == "public.heic":
+                    filename = f"{self._uuid}_1_201_a.heic"
                 else:
-                    # could be a heic or a jpeg
-                    if self.uti == "public.heic":
-                        filename = f"{self._uuid}_1_201_a.heic"
-                    else:
-                        filename = f"{self._uuid}_1_201_a.jpeg"
+                    filename = f"{self._uuid}_1_201_a.jpeg"
             elif self._info["type"] == _MOVIE_TYPE:
                 # it's a movie
                 filename = f"{self._uuid}_2_0_a.mov"
@@ -374,21 +371,9 @@ class PhotoInfo:
         #     return photopath
 
         if self._db._db_version <= _PHOTOS_4_VERSION:
-            vol = self._info["raw_info"]["volume"]
-            if vol is not None:
-                photopath = os.path.join(
-                    "/Volumes", vol, self._info["raw_info"]["imagePath"]
-                )
-            else:
-                photopath = os.path.join(
-                    self._db._masters_path, self._info["raw_info"]["imagePath"]
-                )
-            if not os.path.isfile(photopath):
-                logging.debug(
-                    f"MISSING PATH: RAW photo for UUID {self._uuid} should be at {photopath} but does not appear to exist"
-                )
-                photopath = None
-        else:
+            return self._path_raw_4()
+
+        if not self.isreference:
             filestem = pathlib.Path(self._info["filename"]).stem
             # raw_ext = get_preferred_uti_extension(self._info["UTI_raw"])
 
@@ -405,11 +390,39 @@ class PhotoInfo:
             if not raw_file:
                 photopath = None
             else:
-                photopath = os.path.join(filepath, raw_file[0])
-                if not os.path.isfile(photopath):
-                    photopath = None
+                photopath = pathlib.Path(filepath) / raw_file[0]
+                photopath = str(photopath) if photopath.is_file() else None
+        else:
+            # is a reference
+            try:
+                photopath = (
+                    pathlib.Path("/Volumes")
+                    / self._info["raw_volume"]
+                    / self._info["raw_relative_path"]
+                )
+                photopath = str(photopath) if photopath.is_file() else None
+            except KeyError:
+                # don't have the path details
+                photopath = None
 
         return photopath
+
+    def _path_raw_4(self):
+        """Return path_raw for Photos <= version 4"""
+        vol = self._info["raw_info"]["volume"]
+        if vol is not None:
+            photopath = os.path.join(
+                "/Volumes", vol, self._info["raw_info"]["imagePath"]
+            )
+        else:
+            photopath = os.path.join(
+                self._db._masters_path, self._info["raw_info"]["imagePath"]
+            )
+        if not os.path.isfile(photopath):
+            logging.debug(
+                f"MISSING PATH: RAW photo for UUID {self._uuid} should be at {photopath} but does not appear to exist"
+            )
+            photopath = None
 
     @property
     def description(self):
