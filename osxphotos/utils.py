@@ -275,23 +275,6 @@ def findfiles(pattern, path_):
     return [name for name in os.listdir(path_) if rule.match(name)]
 
 
-# TODO: this doesn't always work, still looking for a way to
-# force Photos to open the library being operated on
-# def _open_photos_library_applescript(library_path):
-#     """ Force Photos to open a specific library
-#         library_path: path to the Photos library """
-#     open_scpt = AppleScript(
-#         f"""
-#         on openLibrary
-#             tell application "Photos"
-# 	          open POSIX file "{library_path}"
-#             end tell
-#         end openLibrary
-#         """
-#     )
-#     open_scpt.run()
-
-
 def _open_sql_file(dbname):
     """opens sqlite file dbname in read-only mode
     returns tuple of (connection, cursor)"""

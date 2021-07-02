@@ -30,7 +30,6 @@ from typing import Optional
 import photoscript
 from mako.template import Template
 
-# from .._applescript import AppleScript
 from .._constants import (
     _MAX_IPTC_KEYWORD_LEN,
     _OSXPHOTOS_NONE_SENTINEL,
