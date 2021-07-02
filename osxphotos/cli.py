@@ -16,6 +16,7 @@ import time
 import bitmath
 import click
 import osxmetadata
+import photoscript
 import yaml
 from rich import pretty
 
@@ -3900,9 +3901,22 @@ def _load_photos_db(dbpath):
 
 
 def _get_photos(photosdb):
+    """get list of all photos in photosdb"""
     photos = photosdb.photos(images=True, movies=True)
     photos.extend(photosdb.photos(images=True, movies=True, intrash=True))
     return photos
+
+
+def _get_selected(photosdb):
+    """get list of PhotoInfo objects for photos selected in Photos"""
+
+    def get_selected():
+        selected = photoscript.PhotosLibrary().selection
+        if not selected:
+            return []
+        return photosdb.photos(uuid=[p.uuid for p in selected])
+
+    return get_selected
 
 
 @cli.command()
@@ -3925,6 +3939,7 @@ def repl(ctx, cli_obj, db):
     # shortcut for helper functions
     get_photo = photosdb.get_photo
     show = _show_photo
+    get_selected = _get_selected(photosdb)
 
     print(f"Found {len(photos)} photos in {tictoc:0.2f} seconds")
     print("The following variables are defined:")
@@ -3934,6 +3949,7 @@ def repl(ctx, cli_obj, db):
     )
     print(f"\nThe following functions may be helpful:")
     print(f"- get_photo(uuid): return a PhotoInfo object for photo with uuid")
+    print(f"- get_selected(): return list of PhotoInfo objects for photos selected in Photos")
     print(f"- show(photo): open a photo object in the default viewer")
     print(
         f"- help(object): print help text including list of methods for object; for example, help(PhotosDB)"
