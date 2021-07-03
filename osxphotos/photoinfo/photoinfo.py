@@ -852,20 +852,35 @@ class PhotoInfo:
     @property
     def path_derivatives(self):
         """Return any derivative (preview) images associated with the photo as a list of paths, sorted by file size (largest first)"""
-        if self._db._db_version <= _PHOTOS_4_VERSION:
-            return self._path_derivatives_4()
+        try:
+            return self._path_derivatives
+        except AttributeError:
+            if self._db._db_version <= _PHOTOS_4_VERSION:
+                self._path_derivatives = self._path_derivatives_4()
+                return self._path_derivatives
 
-        directory = self._uuid[0]  # first char of uuid
-        derivative_path = (
-            pathlib.Path(self._db._library_path)
-            / "resources"
-            / "derivatives"
-            / directory
-        )
-        files = derivative_path.glob(f"{self.uuid}*.*")
-        files = sorted(files, reverse=True, key=lambda f: f.stat().st_size)
-        # return list of filename but skip .THM files (these are actually low-res thumbnails in JPEG format but with .THM extension)
-        return [str(filename) for filename in files if filename.suffix != ".THM"]
+            directory = self._uuid[0]  # first char of uuid
+            derivative_path = (
+                pathlib.Path(self._db._library_path)
+                / "resources"
+                / "derivatives"
+                / directory
+            )
+            files = derivative_path.glob(f"{self.uuid}*.*")
+            files = sorted(files, reverse=True, key=lambda f: f.stat().st_size)
+            # return list of filename but skip .THM files (these are actually low-res thumbnails in JPEG format but with .THM extension)
+            derivatives = [
+                str(filename) for filename in files if filename.suffix != ".THM"
+            ]
+            if (
+                self.isphoto
+                and len(derivatives) > 1
+                and derivatives[0].endswith(".mov")
+            ):
+                derivatives[1], derivatives[0] = derivatives[0], derivatives[1]
+
+            self._path_derivatives = derivatives
+            return self._path_derivatives
 
     def _path_derivatives_4(self):
         """Return paths to all derivative (preview) files for Photos <= 4"""
