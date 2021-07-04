@@ -37,6 +37,7 @@ from .._constants import (
     _UNKNOWN_PERSON,
     _XMP_TEMPLATE_NAME,
     _XMP_TEMPLATE_NAME_BETA,
+    DEFAULT_PREVIEW_SUFFIX,
     LIVE_VIDEO_EXTENSIONS,
     SIDECAR_EXIFTOOL,
     SIDECAR_JSON,
@@ -527,7 +528,7 @@ def export2(
     location=True,
     replace_keywords=False,
     preview=False,
-    preview_suffix="_preview",
+    preview_suffix=DEFAULT_PREVIEW_SUFFIX,
     render_options: Optional[RenderOptions] = None,
 ):
     """export photo, like export but with update and dry_run options
@@ -585,7 +586,7 @@ def export2(
     location: if True, include location in exported metadata
     replace_keywords: if True, keyword_template replaces any keywords, otherwise it's additive
     preview: if True, also exports preview image
-    preview_suffix: optional string to append to end of filename for preview images, if not provided, uses "_preview"
+    preview_suffix: optional string to append to end of filename for preview images
     render_options: optional osxphotos.phototemplate.RenderOptions instance to specify options for rendering templates
 
     Returns: ExportResults class

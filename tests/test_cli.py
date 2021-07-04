@@ -134,6 +134,7 @@ CLI_EXPORT_EDITED_SUFFIX = "_bearbeiten"
 CLI_EXPORT_EDITED_SUFFIX_TEMPLATE = "{edited?_edited,}"
 CLI_EXPORT_ORIGINAL_SUFFIX = "_original"
 CLI_EXPORT_ORIGINAL_SUFFIX_TEMPLATE = "{edited?_original,}"
+CLI_EXPORT_PREVIEW_SUFFIX = "_lowres"
 
 CLI_EXPORT_FILENAMES_EDITED_SUFFIX = [
     "Pumkins1.jpg",
@@ -430,6 +431,8 @@ CLI_EXPORT_UUID_KEYWORD_PATHSEP = "7783E8E6-9CAC-40F3-BE22-81FB7051C266"
 CLI_EXPORT_UUID_LONG_DESCRIPTION = "8846E3E6-8AC8-4857-8448-E3D025784410"
 
 CLI_EXPORT_UUID_FILENAME = "Pumkins2.jpg"
+CLI_EXPORT_UUID_FILENAME_PREVIEW = "Pumkins2_preview.jpeg"
+CLI_EXPORT_UUID_FILENAME_PREVIEW_TEMPLATE = "Pumkins2_lowres.jpeg"
 
 CLI_EXPORT_BY_DATE_TOUCH_UUID = [
     "1EB2B765-0765-43BA-A90C-0D0580E6172C",  # Pumpkins3.jpg
@@ -1240,6 +1243,66 @@ def test_export_uuid_from_file():
         assert result.exit_code == 0
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_UUID_FROM_FILE_FILENAMES)
+
+
+def test_export_preview():
+    """test export with --preview"""
+    import glob
+    import os
+    import os.path
+
+    import osxphotos
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--preview",
+                "--uuid",
+                CLI_EXPORT_UUID,
+            ],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert CLI_EXPORT_UUID_FILENAME_PREVIEW in files
+
+
+def test_export_preview_suffix():
+    """test export with --preview and --preview-suffix"""
+    import glob
+    import os
+    import os.path
+
+    import osxphotos
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--preview",
+                "--preview-suffix",
+                CLI_EXPORT_PREVIEW_SUFFIX,
+                "--uuid",
+                CLI_EXPORT_UUID,
+            ],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert CLI_EXPORT_UUID_FILENAME_PREVIEW_TEMPLATE in files
 
 
 def test_export_as_hardlink():
