@@ -770,18 +770,10 @@ def export2(
         # get path to source file and verify it's not None and is valid file
         # TODO: how to handle ismissing or not hasadjustments and edited=True cases?
         export_src_dest = []
-        if edited:
-            if self.path_edited is not None:
-                export_src_dest.append((self.path_edited, dest_edited))
-            else:
-                raise FileNotFoundError(
-                    f"Cannot export edited photo if path_edited is None"
-                )
-        else:
-            if self.path is not None:
-                export_src_dest.append((self.path, dest_original))
-            else:
-                raise FileNotFoundError("Cannot export photo if path is None")
+        if edited and self.path_edited is not None:
+            export_src_dest.append((self.path_edited, dest_edited))
+        elif not edited and self.path is not None:
+            export_src_dest.append((self.path, dest_original))
 
         for src, dest in export_src_dest:
             if not pathlib.Path(src).is_file():
@@ -907,7 +899,7 @@ def export2(
             all_results += results
 
         # copy associated RAW image if requested
-        if raw_photo and self.has_raw:
+        if raw_photo and self.has_raw and self.path_raw:
             raw_path = pathlib.Path(self.path_raw)
             raw_ext = raw_path.suffix
             raw_name = dest.parent / f"{dest.stem}{raw_ext}"

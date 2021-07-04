@@ -777,6 +777,12 @@ UUID_DUPLICATES = [
 UUID_LOCATION = "D79B8D77-BFFC-460B-9312-034F2877D35B"  # Pumkins2.jpg
 UUID_NO_LOCATION = "6191423D-8DB8-4D4C-92BE-9BBBA308AAC4"  # Tulips.jpg"
 
+UUID_DICT_MISSING = {
+    "8E1D7BC9-9321-44F9-8CFB-4083F6B9232A": "IMG_2000.jpeg",  # missing
+    "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C": "Pumpkins4.jpeg",  # missing
+    "D79B8D77-BFFC-460B-9312-034F2877D35B": "Pumkins2.jpg",  # not missing
+}
+
 
 def modify_file(filename):
     """appends data to a file to modify it"""
@@ -1303,6 +1309,40 @@ def test_export_preview_suffix():
         assert result.exit_code == 0
         files = glob.glob("*")
         assert CLI_EXPORT_UUID_FILENAME_PREVIEW_TEMPLATE in files
+
+
+def test_export_preview_if_missing():
+    """test export with --preview_if_missing"""
+    import glob
+    import os
+    import os.path
+
+    import osxphotos
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        uuid_options = []
+        for uuid in UUID_DICT_MISSING:
+            uuid_options.extend(["--uuid", uuid])
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--preview-if-missing",
+                "--preview-suffix",
+                "",
+                *uuid_options,
+            ],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        expected_files = list(UUID_DICT_MISSING.values())
+        assert sorted(files) == sorted(expected_files)
 
 
 def test_export_as_hardlink():

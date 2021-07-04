@@ -787,7 +787,7 @@ def test_export_7(photosdb):
 
 def test_export_8(photosdb):
     # try to export missing file
-    # should raise exception
+    # should return empty list
     import os
     import os.path
     import tempfile
@@ -796,11 +796,7 @@ def test_export_8(photosdb):
     dest = tempdir.name
     photos = photosdb.photos(uuid=[UUID_DICT["missing"]])
 
-    filename = photos[0].filename
-
-    with pytest.raises(Exception) as e:
-        assert photos[0].export(dest)[0]
-    assert e.type == type(FileNotFoundError())
+    assert photos[0].export(dest) == []
 
 
 def test_export_9(photosdb):
