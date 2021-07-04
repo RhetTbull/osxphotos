@@ -3859,6 +3859,31 @@ def test_export_deleted_only_2():
         assert len(files) == PHOTOS_IN_TRASH_LEN_14_6
 
 
+def test_export_error(monkeypatch):
+    """Test that export catches errors thrown by export2"""
+    # Note: I often comment out the try/except block in cli.py::export_photo_with_template when
+    # debugging to see exactly where the error is
+    # this test verifies I've re-enabled that code
+    import osxphotos
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+
+    def throw_error(*args, **kwargs):
+        raise ValueError("Argh!")
+
+    monkeypatch.setattr(osxphotos.PhotoInfo, "export2", throw_error)
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [os.path.join(cwd, PHOTOS_DB_15_7), ".", "-V", "--uuid", CLI_EXPORT_UUID],
+        )
+        assert result.exit_code == 0
+        assert "Error exporting" in result.output
+
+
 def test_places():
     import json
     import os
