@@ -343,6 +343,37 @@ class PhotoInfo:
         return photopath
 
     @property
+    def path_edited_live_photo(self):
+        """return path to edited version of live photo movie; only valid for Photos 5+"""
+        if self._db._db_version < _PHOTOS_5_VERSION:
+            return None
+
+        try:
+            return self._path_edited_live_photo
+        except AttributeError:
+            self._path_edited_live_photo = self._path_edited_5_live_photo()
+            return self._path_edited_live_photo
+
+    def _path_edited_5_live_photo(self):
+        """return path_edited_live_photo for Photos >= 5"""
+        if self._db._db_version < _PHOTOS_5_VERSION:
+            raise RuntimeError("Wrong database format!")
+
+        if self.live_photo and self._info["hasAdjustments"]:
+            library = self._db._library_path
+            directory = self._uuid[0]  # first char of uuid
+            filename = f"{self._uuid}_2_100_a.mov"
+            photopath = os.path.join(
+                library, "resources", "renders", directory, filename
+            )
+            if not os.path.isfile(photopath):
+                photopath = None
+        else:
+            photopath = None
+
+        return photopath
+
+    @property
     def path_raw(self):
         """absolute path of associated RAW image or None if there is not one"""
 

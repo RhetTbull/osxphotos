@@ -127,6 +127,8 @@ UUID_DICT_LOCAL = {
     "burst_not_selected": "89E235DD-B9AC-4E8D-BDA2-986981CA7582",  # IMG_9813.JPG
     "burst_default": "F5E6BD24-B493-44E9-BDA2-7AD9D2CC8C9D",  # IMG_9816.JPG
     "burst_not_default": "75154738-83AA-4DCD-A913-632D5D1C0FEE",  # IMG_9814.JPG
+    "live_edited": "54A01B04-16D7-4FDE-8860-19F2A641E433",  # IMG_3203.HEIC
+    "live": "8EC216A2-0032-4934-BD3F-04C6259B3304",  # IMG_3259.HEIC
 }
 
 UUID_PUMPKIN_FARM = [
@@ -1273,6 +1275,20 @@ def test_burst_default_pic(photosdb_local):
     assert not photo.burst_default_pick
 
 
+@pytest.mark.skipif(SKIP_TEST, reason="Skip if not running on author's local machine.")
+def test_path_edited_live_photo(photosdb_local):
+    """test path_edited_live_photo (needs image from local library)"""
+    photo = photosdb_local.get_photo(UUID_DICT_LOCAL["live_edited"])
+    assert photo.path_edited_live_photo is not None
+
+
+@pytest.mark.skipif(SKIP_TEST, reason="Skip if not running on author's local machine.")
+def test_path_edited_live_photo_not_edited(photosdb_local):
+    """test path_edited_live_photo for a live photo that's not edited (needs image from local library)"""
+    photo = photosdb_local.get_photo(UUID_DICT_LOCAL["live"])
+    assert photo.path_edited_live_photo is None
+
+
 def test_is_reference(photosdb):
     """test isreference"""
 
@@ -1377,7 +1393,7 @@ def test_duplicates_2(photosdb):
 
 
 def test_compound_query(photosdb):
-    """ test photos() with multiple query terms """
+    """test photos() with multiple query terms"""
     photos = photosdb.photos(persons=["Katie", "Maria"], albums=["Multi Keyword"])
 
     assert len(photos) == 2
@@ -1386,21 +1402,21 @@ def test_compound_query(photosdb):
 
 
 def test_multi_keyword(photosdb):
-    """ test photos() with multiple keywords """
+    """test photos() with multiple keywords"""
     photos = photosdb.photos(keywords=["Kids", "wedding"])
 
     assert len(photos) == 6
 
 
 def test_multi_album(photosdb):
-    """ test photos() with multiple albums """
+    """test photos() with multiple albums"""
     photos = photosdb.photos(albums=["Pumpkin Farm", "Test Album"])
 
     assert len(photos) == 3
 
 
 def test_multi_uuid(photosdb):
-    """ test photos() with multiple uuids """
+    """test photos() with multiple uuids"""
     photos = photosdb.photos(uuid=[UUID_DICT["favorite"], UUID_DICT["not_favorite"]])
 
     assert len(photos) == 2

@@ -379,7 +379,7 @@ def rename_jpeg_files(files, jpeg_ext, fileutil):
 def export(
     self,
     dest,
-    *filename,
+    filename=None,
     edited=False,
     live_photo=False,
     raw_photo=False,
@@ -410,12 +410,12 @@ def export(
                 silently ignored).
                 e.g. to get the extension of the edited photo,
                 reference PhotoInfo.path_edited
-    edited: (boolean, default=False); if True will export the edited version of the photo
+    edited: (boolean, default=False); if True will export the edited version of the photo, otherwise exports the original version
             (or raise exception if no edited version)
-    live_photo: (boolean, default=False); if True, will also export the associted .mov for live photos
-    raw_photo: (boolean, default=False); if True, will also export the associted RAW photo
+    live_photo: (boolean, default=False); if True, will also export the associated .mov for live photos
+    raw_photo: (boolean, default=False); if True, will also export the associated RAW photo
     export_as_hardlink: (boolean, default=False); if True, will hardlink files instead of copying them
-    overwrite: (boolean, default=False); if True will overwrite files if they alreay exist
+    overwrite: (boolean, default=False); if True will overwrite files if they already exist
     increment: (boolean, default=True); if True, will increment file name until a non-existant name is found
                 if overwrite=False and increment=False, export will fail if destination file already exists
     sidecar_json: if set will write a json sidecar with data in format readable by exiftool
@@ -449,10 +449,25 @@ def export(
     if sidecar_xmp:
         sidecar |= SIDECAR_XMP
 
+    if not filename:
+        if not edited:
+            filename = self.original_filename
+        else:
+            original_name = pathlib.Path(self.original_filename)
+            if self.path_edited:
+                ext = pathlib.Path(self.path_edited).suffix
+            else:
+                uti = self.uti_edited if edited and self.uti_edited else self.uti
+                ext = get_preferred_uti_extension(uti)
+                ext = "." + ext
+            filename = original_name.stem + "_edited" + ext
+
     results = self.export2(
         dest,
-        *filename,
+        original=not edited,
+        original_filename=filename,
         edited=edited,
+        edited_filename=filename,
         live_photo=live_photo,
         raw_photo=raw_photo,
         export_as_hardlink=export_as_hardlink,
@@ -466,7 +481,7 @@ def export(
         use_persons_as_keywords=use_persons_as_keywords,
         keyword_template=keyword_template,
         description_template=description_template,
-        render_options = render_options,
+        render_options=render_options,
     )
 
     return results.exported
@@ -475,8 +490,10 @@ def export(
 def export2(
     self,
     dest,
-    *filename,
+    original=True,
+    original_filename=None,
     edited=False,
+    edited_filename=None,
     live_photo=False,
     raw_photo=False,
     export_as_hardlink=False,
@@ -509,7 +526,9 @@ def export2(
     persons=True,
     location=True,
     replace_keywords=False,
-    render_options: Optional[RenderOptions] = None
+    preview=False,
+    preview_suffix="_preview",
+    render_options: Optional[RenderOptions] = None,
 ):
     """export photo, like export but with update and dry_run options
     dest: must be valid destination path or exception raised
@@ -521,8 +540,8 @@ def export2(
                 in which case export will use the extension provided by Photos upon export.
                 e.g. to get the extension of the edited photo,
                 reference PhotoInfo.path_edited
+    original: (boolean, default=True); if True, will export the original version of the photo
     edited: (boolean, default=False); if True will export the edited version of the photo
-            (or raise exception if no edited version)
     live_photo: (boolean, default=False); if True, will also export the associated .mov for live photos
     raw_photo: (boolean, default=False); if True, will also export the associated RAW photo
     export_as_hardlink: (boolean, default=False); if True, will hardlink files instead of copying them
@@ -565,6 +584,8 @@ def export2(
     persons: if True, include persons in exported metadata
     location: if True, include location in exported metadata
     replace_keywords: if True, keyword_template replaces any keywords, otherwise it's additive
+    preview: if True, also exports preview image
+    preview_suffix: optional string to append to end of filename for preview images, if not provided, uses "_preview"
     render_options: optional osxphotos.phototemplate.RenderOptions instance to specify options for rendering templates
 
     Returns: ExportResults class
@@ -609,206 +630,280 @@ def export2(
 
     self._render_options = render_options or RenderOptions()
 
-    # suffix to add to edited files
-    # e.g. name will be filename_edited.jpg
-    edited_identifier = "_edited"
-
-    # check edited and raise exception trying to export edited version of
-    # photo that hasn't been edited
+    export_original = original
+    export_edited = edited
     if edited and not self.hasadjustments:
         raise ValueError(
             "Photo does not have adjustments, cannot export edited version"
         )
 
-    # check arguments and get destination path and filename (if provided)
-    if filename and len(filename) > 2:
-        raise TypeError(
-            "Too many positional arguments.  Should be at most two: destination, filename."
-        )
-
     # verify destination is a valid path
     if dest is None:
-        raise ValueError("Destination must not be None")
+        raise ValueError("dest must not be None")
     elif not dry_run and not os.path.isdir(dest):
         raise FileNotFoundError("Invalid path passed to export")
 
-    if filename and len(filename) == 1:
-        # if filename passed, use it
-        fname = filename[0]
-    else:
-        # no filename provided so use the default
-        # if edited file requested, use filename but add _edited
-        # need to use file extension from edited file as Photos saves a jpeg once edited
-        if edited and not use_photos_export:
-            # verify we have a valid path_edited and use that to get filename
-            if not self.path_edited:
-                raise FileNotFoundError(
-                    "edited=True but path_edited is none; hasadjustments: "
-                    f" {self.hasadjustments}"
-                )
-            edited_name = pathlib.Path(self.path_edited).name
-            edited_suffix = pathlib.Path(edited_name).suffix
-            fname = (
-                pathlib.Path(self.original_filename).stem
-                + edited_identifier
-                + edited_suffix
-            )
+    original_filename = original_filename or self.original_filename
+    dest_original = pathlib.Path(dest) / original_filename
+
+    if not edited_filename:
+        if not edited:
+            edited_filename = self.original_filename
         else:
-            fname = self.original_filename
+            original_name = pathlib.Path(self.original_filename)
+            if self.path_edited:
+                ext = pathlib.Path(self.path_edited).suffix
+            else:
+                uti = self.uti_edited if edited and self.uti_edited else self.uti
+                ext = get_preferred_uti_extension(uti)
+                ext = "." + ext
+            edited_filename = original_name.stem + "_edited" + ext
+    dest_edited = pathlib.Path(dest) / edited_filename
 
-    uti = self.uti if edited else self.uti_original
-    if convert_to_jpeg and self.isphoto and uti != "public.jpeg":
-        # not a jpeg but will convert to jpeg upon export so fix file extension
-        fname_new = pathlib.Path(fname)
+    if convert_to_jpeg and self.isphoto:
+        something_to_convert = False
         ext = "." + jpeg_ext if jpeg_ext else ".jpeg"
-        fname = str(fname_new.parent / f"{fname_new.stem}{ext}")
+        if export_original and self.uti_original != "public.jpeg":
+            # not a jpeg but will convert to jpeg upon export so fix file extension
+            something_to_convert = True
+            dest_original = dest_original.parent / f"{dest_original.stem}{ext}"
+        if export_edited and self.uti != "public.jpeg":
+            # in Big Sur+, edited HEICs are HEIC
+            something_to_convert = True
+            dest_edited = dest_edited.parent / f"{dest_edited.stem}{ext}"
+        convert_to_jpeg = something_to_convert
     else:
-        # nothing to convert
         convert_to_jpeg = False
-
-    # check destination path
-    dest = pathlib.Path(dest)
-    fname = pathlib.Path(fname)
-    dest = dest / fname
 
     # check to see if file exists and if so, add (1), (2), etc until we find one that works
     # Photos checks the stem and adds (1), (2), etc which avoids collision with sidecars
     # e.g. exporting sidecar for file1.png and file1.jpeg
     # if file1.png exists and exporting file1.jpeg,
     # dest will be file1 (1).jpeg even though file1.jpeg doesn't exist to prevent sidecar collision
+    count = 0
     if not update and increment and not overwrite:
-        count = 1
-        dest_files = findfiles(f"{dest.stem}*", str(dest.parent))
+        dest_files = findfiles(f"{dest_original.stem}*", str(dest_original.parent))
         dest_files = [pathlib.Path(f).stem.lower() for f in dest_files]
-        dest_new = dest.stem
+        dest_new = dest_original.stem
         while dest_new.lower() in dest_files:
-            dest_new = f"{dest.stem} ({count})"
             count += 1
-        dest = dest.parent / f"{dest_new}{dest.suffix}"
+            dest_new = f"{dest_original.stem} ({count})"
+        dest_original = dest_original.parent / f"{dest_new}{dest_original.suffix}"
 
     # if overwrite==False and #increment==False, export should fail if file exists
-    if dest.exists() and not update and not overwrite and not increment:
+    if (
+        dest_original.exists()
+        and export_original
+        and not update
+        and not overwrite
+        and not increment
+    ):
         raise FileExistsError(
-            f"destination exists ({dest}); overwrite={overwrite}, increment={increment}"
+            f"destination exists ({dest_original}); overwrite={overwrite}, increment={increment}"
         )
 
-    self._render_options.filepath = str(dest)
+    if export_edited:
+        if not update and increment and not overwrite:
+            dest_files = findfiles(f"{dest_edited.stem}*", str(dest_edited.parent))
+            dest_files = [pathlib.Path(f).stem.lower() for f in dest_files]
+            dest_new = dest_edited.stem
+            if count:
+                # incremented above when checking original destination
+                dest_new = f"{dest_new} ({count})"
+            while dest_new.lower() in dest_files:
+                count += 1
+                dest_new = f"{dest.stem} ({count})"
+            dest_edited = dest_edited.parent / f"{dest_new}{dest_edited.suffix}"
+
+        # if overwrite==False and #increment==False, export should fail if file exists
+        if dest_edited.exists() and not update and not overwrite and not increment:
+            raise FileExistsError(
+                f"destination exists ({dest_edited}); overwrite={overwrite}, increment={increment}"
+            )
+
+    self._render_options.filepath = (
+        str(dest_original) if export_original else str(dest_edited)
+    )
     all_results = ExportResults()
-    if not use_photos_export:
+
+    if use_photos_export:
+        # TODO: collapse these into a single call (refactor _export_photo_with_photos_export)
+        if original:
+            self._export_photo_with_photos_export(
+                dest_original,
+                all_results,
+                fileutil,
+                export_db,
+                use_photokit=use_photokit,
+                dry_run=dry_run,
+                timeout=timeout,
+                jpeg_ext=jpeg_ext,
+                touch_file=touch_file,
+                update=update,
+                overwrite=overwrite,
+                live_photo=live_photo,
+                edited=False,
+                convert_to_jpeg=convert_to_jpeg,
+                jpeg_quality=jpeg_quality,
+            )
+        if edited:
+            self._export_photo_with_photos_export(
+                dest_edited,
+                all_results,
+                fileutil,
+                export_db,
+                use_photokit=use_photokit,
+                dry_run=dry_run,
+                timeout=timeout,
+                jpeg_ext=jpeg_ext,
+                touch_file=touch_file,
+                update=update,
+                overwrite=overwrite,
+                live_photo=live_photo,
+                edited=True,
+                convert_to_jpeg=convert_to_jpeg,
+                jpeg_quality=jpeg_quality,
+            )
+    else:
         # find the source file on disk and export
         # get path to source file and verify it's not None and is valid file
         # TODO: how to handle ismissing or not hasadjustments and edited=True cases?
+        export_src_dest = []
         if edited:
             if self.path_edited is not None:
-                src = self.path_edited
+                export_src_dest.append((self.path_edited, dest_edited))
             else:
                 raise FileNotFoundError(
                     f"Cannot export edited photo if path_edited is None"
                 )
         else:
             if self.path is not None:
-                src = self.path
+                export_src_dest.append((self.path, dest_original))
             else:
                 raise FileNotFoundError("Cannot export photo if path is None")
 
-        if not os.path.isfile(src):
-            raise FileNotFoundError(f"{src} does not appear to exist")
+        for src, dest in export_src_dest:
+            if not pathlib.Path(src).is_file():
+                raise FileNotFoundError(f"{src} does not appear to exist")
 
-        # found source now try to find right destination
-        if update and dest.exists():
-            # destination exists, check to see if destination is the right UUID
-            dest_uuid = export_db.get_uuid_for_file(dest)
-            if dest_uuid is None and fileutil.cmp(src, dest):
-                # might be exporting into a pre-ExportDB folder or the DB got deleted
-                dest_uuid = self.uuid
-                export_db.set_data(
-                    filename=dest,
-                    uuid=self.uuid,
-                    orig_stat=fileutil.file_sig(dest),
-                    exif_stat=(None, None, None),
-                    converted_stat=(None, None, None),
-                    edited_stat=(None, None, None),
-                    info_json=self.json(),
-                    exif_json=None,
-                )
-            if dest_uuid != self.uuid:
-                # not the right file, find the right one
-                count = 1
-                glob_str = str(dest.parent / f"{dest.stem} (*{dest.suffix}")
-                dest_files = glob.glob(glob_str)
-                found_match = False
-                for file_ in dest_files:
-                    dest_uuid = export_db.get_uuid_for_file(file_)
-                    if dest_uuid == self.uuid:
-                        dest = pathlib.Path(file_)
-                        found_match = True
-                        break
-                    elif dest_uuid is None and fileutil.cmp(src, file_):
-                        # files match, update the UUID
-                        dest = pathlib.Path(file_)
-                        found_match = True
-                        export_db.set_data(
-                            filename=dest,
-                            uuid=self.uuid,
-                            orig_stat=fileutil.file_sig(dest),
-                            exif_stat=(None, None, None),
-                            converted_stat=(None, None, None),
-                            edited_stat=(None, None, None),
-                            info_json=self.json(),
-                            exif_json=None,
-                        )
-                        break
-
-                if not found_match:
-                    # increment the destination file
+            # found source now try to find right destination
+            if update and dest.exists():
+                # destination exists, check to see if destination is the right UUID
+                dest_uuid = export_db.get_uuid_for_file(dest)
+                if dest_uuid is None and fileutil.cmp(src, dest):
+                    # might be exporting into a pre-ExportDB folder or the DB got deleted
+                    dest_uuid = self.uuid
+                    export_db.set_data(
+                        filename=dest,
+                        uuid=self.uuid,
+                        orig_stat=fileutil.file_sig(dest),
+                        exif_stat=(None, None, None),
+                        converted_stat=(None, None, None),
+                        edited_stat=(None, None, None),
+                        info_json=self.json(),
+                        exif_json=None,
+                    )
+                if dest_uuid != self.uuid:
+                    # not the right file, find the right one
                     count = 1
-                    glob_str = str(dest.parent / f"{dest.stem}*")
+                    glob_str = str(dest.parent / f"{dest.stem} (*{dest.suffix}")
                     dest_files = glob.glob(glob_str)
-                    dest_files = [pathlib.Path(f).stem for f in dest_files]
-                    dest_new = dest.stem
-                    while dest_new in dest_files:
-                        dest_new = f"{dest.stem} ({count})"
-                        count += 1
-                    dest = dest.parent / f"{dest_new}{dest.suffix}"
+                    found_match = False
+                    for file_ in dest_files:
+                        dest_uuid = export_db.get_uuid_for_file(file_)
+                        if dest_uuid == self.uuid:
+                            dest = pathlib.Path(file_)
+                            found_match = True
+                            break
+                        elif dest_uuid is None and fileutil.cmp(src, file_):
+                            # files match, update the UUID
+                            dest = pathlib.Path(file_)
+                            found_match = True
+                            export_db.set_data(
+                                filename=dest,
+                                uuid=self.uuid,
+                                orig_stat=fileutil.file_sig(dest),
+                                exif_stat=(None, None, None),
+                                converted_stat=(None, None, None),
+                                edited_stat=(None, None, None),
+                                info_json=self.json(),
+                                exif_json=None,
+                            )
+                            break
 
-        # export the dest file
-        results = self._export_photo(
-            src,
-            dest,
-            update,
-            export_db,
-            overwrite,
-            export_as_hardlink,
-            exiftool,
-            touch_file,
-            convert_to_jpeg,
-            fileutil=fileutil,
-            edited=edited,
-            jpeg_quality=jpeg_quality,
-            ignore_signature=ignore_signature,
-        )
-        all_results += results
+                    if not found_match:
+                        # increment the destination file
+                        count = 1
+                        glob_str = str(dest.parent / f"{dest.stem}*")
+                        dest_files = glob.glob(glob_str)
+                        dest_files = [pathlib.Path(f).stem for f in dest_files]
+                        dest_new = dest.stem
+                        while dest_new in dest_files:
+                            dest_new = f"{dest.stem} ({count})"
+                            count += 1
+                        dest = dest.parent / f"{dest_new}{dest.suffix}"
+
+            # export the dest file
+            results = self._export_photo(
+                src,
+                dest,
+                update,
+                export_db,
+                overwrite,
+                export_as_hardlink,
+                exiftool,
+                touch_file,
+                convert_to_jpeg,
+                fileutil=fileutil,
+                edited=edited,
+                jpeg_quality=jpeg_quality,
+                ignore_signature=ignore_signature,
+            )
+            all_results += results
+
+        dest = dest_original if export_original else dest_edited
 
         # copy live photo associated .mov if requested
-        if live_photo and self.live_photo:
+        if export_original and live_photo and self.live_photo and self.path_live_photo:
             live_name = dest.parent / f"{dest.stem}.mov"
             src_live = self.path_live_photo
+            results = self._export_photo(
+                src_live,
+                live_name,
+                update,
+                export_db,
+                overwrite,
+                export_as_hardlink,
+                exiftool,
+                touch_file,
+                False,
+                fileutil=fileutil,
+                ignore_signature=ignore_signature,
+            )
+            all_results += results
 
-            if src_live is not None:
-                results = self._export_photo(
-                    src_live,
-                    live_name,
-                    update,
-                    export_db,
-                    overwrite,
-                    export_as_hardlink,
-                    exiftool,
-                    touch_file,
-                    False,
-                    fileutil=fileutil,
-                    ignore_signature=ignore_signature,
-                )
-                all_results += results
+        if (
+            export_edited
+            and live_photo
+            and self.live_photo
+            and self.path_edited_live_photo
+        ):
+            live_name = dest.parent / f"{dest_edited.stem}.mov"
+            src_live = self.path_edited_live_photo
+            results = self._export_photo(
+                src_live,
+                live_name,
+                update,
+                export_db,
+                overwrite,
+                export_as_hardlink,
+                exiftool,
+                touch_file,
+                False,
+                fileutil=fileutil,
+                ignore_signature=ignore_signature,
+            )
+            all_results += results
 
         # copy associated RAW image if requested
         if raw_photo and self.has_raw:
@@ -831,26 +926,30 @@ def export2(
                     ignore_signature=ignore_signature,
                 )
                 all_results += results
-    else:
-        self._export_photo_with_photos_export(
-            dest,
-            filename,
-            all_results,
-            fileutil,
-            export_db,
-            use_photokit=use_photokit,
-            dry_run=dry_run,
-            timeout=timeout,
-            jpeg_ext=jpeg_ext,
-            touch_file=touch_file,
-            update=update,
-            overwrite=overwrite,
-            live_photo=live_photo,
-            edited=edited,
-            edited_identifier=edited_identifier,
-            convert_to_jpeg=convert_to_jpeg,
-            jpeg_quality=jpeg_quality,
-        )
+
+        # copy preview image if requested
+        if preview and self.path_derivatives:
+            # Photos keeps multiple different derivatives and path_derivatives returns list of them
+            # first derivative is the largest so export that one
+            preview_path = pathlib.Path(self.path_derivatives[0])
+            preview_ext = preview_path.suffix
+            preview_name = dest.parent / f"{dest.stem}{preview_suffix}{preview_ext}"
+            if preview_path is not None:
+                results = self._export_photo(
+                    preview_path,
+                    preview_name,
+                    update,
+                    export_db,
+                    overwrite,
+                    export_as_hardlink,
+                    exiftool,
+                    touch_file,
+                    convert_to_jpeg,
+                    fileutil=fileutil,
+                    jpeg_quality=jpeg_quality,
+                    ignore_signature=ignore_signature,
+                )
+                all_results += results
 
     # export metadata
     sidecars = []
@@ -861,6 +960,7 @@ def export2(
     sidecar_xmp_files_skipped = []
     sidecar_xmp_files_written = []
 
+    dest = dest_original if export_original else dest_edited
     dest_suffix = "" if sidecar_drop_ext else dest.suffix
     if sidecar & SIDECAR_JSON:
         sidecar_filename = dest.parent / pathlib.Path(f"{dest.stem}{dest_suffix}.json")
@@ -1111,7 +1211,6 @@ def export2(
 def _export_photo_with_photos_export(
     self,
     dest,
-    filename,
     all_results,
     fileutil,
     export_db,
@@ -1124,7 +1223,6 @@ def _export_photo_with_photos_export(
     overwrite=None,
     live_photo=None,
     edited=None,
-    edited_identifier=None,
     convert_to_jpeg=None,
     jpeg_quality=1.0,
 ):
@@ -1137,15 +1235,10 @@ def _export_photo_with_photos_export(
         # shared photos (in shared albums) show up as not having adjustments (not edited)
         # but Photos is unable to export the "original" as only a jpeg copy is shared in iCloud
         # so tell Photos to export the current version in this case
-        if filename:
-            # use filename stem provided
-            filestem = dest.stem
-        else:
-            # didn't get passed a filename, add _edited
-            filestem = f"{dest.stem}{edited_identifier}"
-            uti = self.uti_edited if edited and self.uti_edited else self.uti
-            ext = get_preferred_uti_extension(uti)
-            dest = dest.parent / f"{filestem}{ext}"
+        # didn't get passed a filename, add _edited
+        uti = self.uti_edited if edited and self.uti_edited else self.uti
+        ext = get_preferred_uti_extension(uti)
+        dest = dest.parent / f"{dest.stem}.{ext}"
 
         if use_photokit:
             photolib = PhotoLibrary()
@@ -1190,7 +1283,7 @@ def _export_photo_with_photos_export(
                 exported = _export_photo_uuid_applescript(
                     self.uuid,
                     dest.parent,
-                    filestem=filestem,
+                    filestem=dest.stem,
                     original=False,
                     edited=True,
                     live_photo=live_photo,
@@ -1204,7 +1297,6 @@ def _export_photo_with_photos_export(
                 all_results.error.append((str(dest), f"{e} ({lineno(__file__)})"))
     else:
         # export original version and not edited
-        filestem = dest.stem
         if use_photokit:
             photolib = PhotoLibrary()
             photo = None
@@ -1241,7 +1333,7 @@ def _export_photo_with_photos_export(
                 exported = _export_photo_uuid_applescript(
                     self.uuid,
                     dest.parent,
-                    filestem=filestem,
+                    filestem=dest.stem,
                     original=True,
                     edited=False,
                     live_photo=live_photo,
@@ -1608,7 +1700,9 @@ def _exiftool_dict(
     )
 
     if description_template is not None:
-        options = dataclasses.replace(self._render_options, expand_inplace=True, inplace_sep=", ")
+        options = dataclasses.replace(
+            self._render_options, expand_inplace=True, inplace_sep=", "
+        )
         rendered = self.render_template(description_template, options)[0]
         description = " ".join(rendered) if rendered else ""
         exif["EXIF:ImageDescription"] = description
@@ -1647,7 +1741,9 @@ def _exiftool_dict(
 
     if keyword_template:
         rendered_keywords = []
-        options = dataclasses.replace(self._render_options, none_str=_OSXPHOTOS_NONE_SENTINEL, path_sep="/")
+        options = dataclasses.replace(
+            self._render_options, none_str=_OSXPHOTOS_NONE_SENTINEL, path_sep="/"
+        )
         for template_str in keyword_template:
             rendered, unmatched = self.render_template(template_str, options)
             if unmatched:
@@ -1925,7 +2021,9 @@ def _xmp_sidecar(
         extension = extension.suffix[1:] if extension.suffix else None
 
     if description_template is not None:
-        options = dataclasses.replace(self._render_options, expand_inplace=True, inplace_sep=", ")
+        options = dataclasses.replace(
+            self._render_options, expand_inplace=True, inplace_sep=", "
+        )
         rendered = self.render_template(description_template, options)[0]
         description = " ".join(rendered) if rendered else ""
     else:
@@ -1958,7 +2056,9 @@ def _xmp_sidecar(
 
     if keyword_template:
         rendered_keywords = []
-        options = dataclasses.replace(self._render_options, none_str=_OSXPHOTOS_NONE_SENTINEL, path_sep="/")
+        options = dataclasses.replace(
+            self._render_options, none_str=_OSXPHOTOS_NONE_SENTINEL, path_sep="/"
+        )
         for template_str in keyword_template:
             rendered, unmatched = self.render_template(template_str, options)
             if unmatched:
