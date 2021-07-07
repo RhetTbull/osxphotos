@@ -3280,13 +3280,13 @@ def cleanup_files(dest_path, files_to_keep, fileutil):
 
     # delete empty directories
     deleted_dirs = []
-    for p in pathlib.Path(dest_path).rglob("*"):
-        path = str(p).lower()
-        # if directory and directory is empty
-        if p.is_dir() and not next(p.iterdir(), False):
-            verbose_(f"Deleting empty directory {p}")
-            fileutil.rmdir(p)
-            deleted_dirs.append(str(p))
+    # walk directory tree bottom up and verify contents are empty
+    for dirpath, _, _ in os.walk(dest_path, topdown=False):
+        if not list(pathlib.Path(dirpath).glob("*")):
+            # directory and directory is empty
+            verbose_(f"Deleting empty directory {dirpath}")
+            fileutil.rmdir(dirpath)
+            deleted_dirs.append(str(dirpath))
 
     return (deleted_files, deleted_dirs)
 
