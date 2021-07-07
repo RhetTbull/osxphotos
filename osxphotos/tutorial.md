@@ -238,6 +238,12 @@ To export only photos contained in the album "Summer Vacation":
 
 `osxphotos export /path/to/export --album "Summer Vacation"`
 
+In Photos, it's possible to have multiple albums with the same name. In this case, osxphotos would export photos from all albums matching the value passed to `--album`.  If you wanted to export only one of the albums and this album is in a folder, the `--regex` option (short for "regular expression"), which does pattern matching, could be used with the `{folder_album}` template to match the specific album.  For example, if you had a "Summer Vacation" album inside the folder "2018" and also one with the same name inside the folder "2019", you could export just the album "2018/Summer Vacation" using this command:
+
+`osxphotos export /path/to/export --regex "2018/Summer Vacation" "{folder_album}"`
+
+This command matches the pattern "2018/Summer Vacation" against the full folder/album path for every photo.
+
 There are also a number of query options to export only certain types of photos.  For example, to export only photos taken with iPhone "Portrait Mode":
 
 `osxphotos export /path/to/export --portrait`
