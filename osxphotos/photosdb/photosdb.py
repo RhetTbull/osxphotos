@@ -17,6 +17,7 @@ from pprint import pformat
 from typing import List
 
 import bitmath
+import photoscript
 
 from .._constants import (
     _DB_TABLE_NAMES,
@@ -3323,6 +3324,18 @@ class PhotosDB:
             photos = [p for p in photos if p.location != (None, None)]
         elif options.no_location:
             photos = [p for p in photos if p.location == (None, None)]
+
+        if options.selected:
+            # photos selected in Photos app
+            try:
+                # catch AppleScript errors as the scripting interfce to Photos is flaky
+                selected = photoscript.PhotosLibrary().selection
+                selected_uuid = [p.uuid for p in selected]
+                photos = [p for p in photos if p.uuid in selected_uuid]
+            except Exception:
+                # no photos selected or a selected photo was "open"
+                # selection only works if photos selected in main media browser
+                photos = []
 
         if options.function:
             for function in options.function:

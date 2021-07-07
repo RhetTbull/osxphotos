@@ -537,6 +537,11 @@ def QUERY_OPTIONS(f):
             "You may specify more than one regular expression match by repeating '--regex' with different arguments.",
         ),
         o(
+            "--selected",
+            is_flag=True,
+            help="Filter for photos that are currently selected in Photos.",
+        ),
+        o(
             "--query-eval",
             metavar="CRITERIA",
             multiple=True,
@@ -1182,6 +1187,7 @@ def export(
     min_size,
     max_size,
     regex,
+    selected,
     query_eval,
     query_function,
     duplicate,
@@ -1345,6 +1351,7 @@ def export(
         min_size = cfg.min_size
         max_size = cfg.max_size
         regex = cfg.regex
+        selected = cfg.selected
         query_eval = cfg.query_eval
         query_function = cfg.query_function
         duplicate = cfg.duplicate
@@ -1663,6 +1670,7 @@ def export(
         min_size=min_size,
         max_size=max_size,
         regex=regex,
+        selected=selected,
         query_eval=query_eval,
         function=query_function,
         duplicate=duplicate,
@@ -2071,6 +2079,7 @@ def query(
     min_size,
     max_size,
     regex,
+    selected,
     query_eval,
     query_function,
     add_to_album,
@@ -2105,6 +2114,7 @@ def query(
         min_size,
         max_size,
         regex,
+        selected,
         duplicate,
     ]
     exclusive = [
@@ -2235,6 +2245,7 @@ def query(
         query_eval=query_eval,
         function=query_function,
         regex=regex,
+        selected=selected,
         duplicate=duplicate,
     )
 
