@@ -227,10 +227,17 @@ EXTENDED_ATTRIBUTE_NAMES = [
     "authors",
     "comment",
     "copyright",
+    "creator",
     "description",
     "findercomment",
     "headline",
     "keywords",
+    "participants",
+    "projects",
+    "rating",
+    "subject",
+    "title",
+    "version",
 ]
 EXTENDED_ATTRIBUTE_NAMES_QUOTED = [f"'{x}'" for x in EXTENDED_ATTRIBUTE_NAMES]
 
