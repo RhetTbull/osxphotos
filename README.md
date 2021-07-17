@@ -1079,8 +1079,10 @@ Options:
   --xattr-template ATTRIBUTE TEMPLATE
                                   Set extended attribute ATTRIBUTE to TEMPLATE
                                   value. Valid attributes are: 'authors',
-                                  'comment', 'copyright', 'description',
-                                  'findercomment', 'headline', 'keywords'. For
+                                  'comment', 'copyright', 'creator',
+                                  'description', 'findercomment', 'headline',
+                                  'keywords', 'participants', 'projects',
+                                  'rating', 'subject', 'title', 'version'. For
                                   example, to set Finder comment to the photo's
                                   title and description: '--xattr-template
                                   findercomment "{title}; {descr}" See Extended
@@ -1312,6 +1314,10 @@ comment        A comment related to the file.  This differs from the Finder
 copyright      The copyright owner of the file contents.  A string.
                (com.apple.metadata:kMDItemCopyright)
 
+creator        Application used to create the document content (for example
+               “Word”, “Pages”, and so on).  A string.
+               (com.apple.metadata:kMDItemCreator)
+
 description    A description of the content of the resource.  The description
                may include an abstract, table of contents, reference to a
                graphical representation of content or a free-text account of
@@ -1328,6 +1334,29 @@ keywords       Keywords associated with this file. For example, “Birthday”,
                (_kMDItemUserTags) which are keywords/tags shown in the Finder
                and searchable in Spotlight using "tag:tag_name".  A list of
                strings. (com.apple.metadata:kMDItemKeywords)
+
+participants   The list of people who are visible in an image or movie or
+               written about in a document. A list of strings.
+               (com.apple.metadata:kMDItemParticipants)
+
+projects       The list of projects that this file is part of. For example, if
+               you were working on a movie all of the files could be marked as
+               belonging to the project “My Movie”. A list of strings.
+               (com.apple.metadata:kMDItemProjects)
+
+rating         User rating of this item. For example, the stars rating of an
+               iTunes track. An integer.
+               (com.apple.metadata:kMDItemStarRating)
+
+subject        Subject of the this item. A string.
+               (com.apple.metadata:kMDItemSubject)
+
+title          The title of the file. For example, this could be the title of
+               a document, the name of a song, or the subject of an email
+               message. A string. (com.apple.metadata:kMDItemTitle)
+
+version        The version number of this file. A string.
+               (com.apple.metadata:kMDItemVersion)
 
 
 For additional information on extended attributes see: https://developer.apple.c
@@ -1786,7 +1815,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.42.61'
+{osxphotos_version}             The osxphotos version, e.g. '0.42.62'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified for
@@ -3618,7 +3647,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.42.61'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.42.62'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
