@@ -250,6 +250,7 @@ class RenderOptions:
     strip: if True, strips leading/trailing whitespace from rendered templates
     edited_version: set to True if you want {edited_version} to resolve to True (e.g. exporting edited version of photo)
     export_dir: set to the export directory if you want to evalute {export_dir} template
+    dest_path: set to the destination path of the photo (for use by {function} template), only valid with --filename
     filepath: set to value for filepath of the exported photo if you want to evaluate {filepath} template
     quote: quote path templates for execution in the shell
     """
@@ -263,6 +264,7 @@ class RenderOptions:
     strip: bool = False
     edited_version: bool = False
     export_dir: Optional[str] = None
+    dest_path: Optional[str] = None
     filepath: Optional[str] = None
     quote: bool = False
 
@@ -354,8 +356,10 @@ class PhotoTemplate:
         self.dirname = options.dirname
         self.strip = options.strip
         self.export_dir = options.export_dir
+        self.dest_path = options.dest_path
         self.filepath = options.filepath
         self.quote = options.quote
+        self.options = options
 
         try:
             model = self.parser.parse(template)
@@ -1182,7 +1186,7 @@ class PhotoTemplate:
             raise ValueError(f"'{filename}' does not appear to be a file")
 
         template_func = load_function(filename_validated, funcname)
-        values = template_func(self.photo)
+        values = template_func(self.photo, options=self.options)
 
         if not isinstance(values, (str, list)):
             raise TypeError(

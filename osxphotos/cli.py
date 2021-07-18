@@ -2841,7 +2841,7 @@ def export_photo_with_template(
                 results.missing.append(str(pathlib.Path(dest_path) / filename))
                 continue
 
-        render_options = RenderOptions(export_dir=export_dir)
+        render_options = RenderOptions(export_dir=export_dir, dest_path=dest_path)
 
         tries = 0
         while tries <= retry:
