@@ -1,12 +1,13 @@
 """ Example function for use with osxphotos export --post-function option showing how to record album sort order """
 
+import os
 import pathlib
 from typing import Optional
 
 from osxphotos import ExportResults, PhotoInfo
 from osxphotos.albuminfo import AlbumInfo
-from osxphotos.phototemplate import RenderOptions
 from osxphotos.path_utils import sanitize_dirname
+from osxphotos.phototemplate import RenderOptions
 
 
 def _get_album_sort_order(album: AlbumInfo, photo: PhotoInfo) -> Optional[int]:
@@ -31,9 +32,10 @@ def album_sequence(photo: PhotoInfo, options: RenderOptions, **kwargs) -> str:
     """Call this with {function} template to get album sequence (sort order) when exporting with {folder_album} template
 
     For example, calling this template function like the following prepends sequence#_ to each exported file if the file is in an album:
-     
+
     osxphotos export /path/to/export -V --directory "{folder_album}" --filename "{album?{function:examples/album_sort_order.py::album_sequence}_,}{original_name}"
 
+    The sequence will start at 0.  To change the sequence to start at a different offset (e.g. 1), set the environment variable OSXPHOTOS_ALBUM_SEQUENCE_START=1 (or whatever offset you want)
     """
     dest_path = options.dest_path
     if not dest_path:
@@ -50,7 +52,8 @@ def album_sequence(photo: PhotoInfo, options: RenderOptions, **kwargs) -> str:
     else:
         # didn't find the album, so skip this file
         return ""
-    return str(album_info.photo_index(photo))
+    start_index = int(os.getenv("OSXPHOTOS_ALBUM_SEQUENCE_START", 0))
+    return str(album_info.photo_index(photo) + start_index)
 
 
 def album_sort_order(
