@@ -2556,133 +2556,52 @@ def export_photo(
     )
 
     results = ExportResults()
-    filenames = get_filenames_from_template(
-        photo, filename_template, original_name, strip=strip
+    dest_paths = get_dirnames_from_template(
+        photo, directory, export_by_date, dest, dry_run, strip=strip, edited=False
     )
-    for filename in filenames:
-        original_filename = pathlib.Path(filename)
-        file_ext = original_filename.suffix
-        if photo.isphoto and (jpeg_ext or convert_to_jpeg):
-            # change the file extension to correct jpeg extension if needed
-            file_ext = (
-                "." + jpeg_ext
-                if jpeg_ext and (photo.uti_original == "public.jpeg" or convert_to_jpeg)
-                else ".jpeg"
-                if convert_to_jpeg and photo.uti_original != "public.jpeg"
-                else original_filename.suffix
-            )
-        original_filename = (
-            original_filename.parent
-            / f"{original_filename.stem}{rendered_suffix}{file_ext}"
-        )
-        original_filename = str(original_filename)
-
-        verbose_(
-            f"Exporting {photo.original_filename} ({photo.filename}) as {original_filename}"
+    for dest_path in dest_paths:
+        filenames = get_filenames_from_template(
+            photo, filename_template, dest, dest_path, original_name, strip=strip
         )
 
-        results += export_photo_with_template(
-            photo=photo,
-            filename=original_filename,
-            directory=directory,
-            edited=False,
-            use_photos_export=use_photos_export,
-            export_by_date=export_by_date,
-            dest=dest,
-            dry_run=dry_run,
-            strip=strip,
-            export_original=export_original,
-            missing=missing_original,
-            verbose=verbose,
-            sidecar_flags=sidecar_flags,
-            sidecar_drop_ext=sidecar_drop_ext,
-            export_live=export_live,
-            export_raw=export_raw,
-            export_as_hardlink=export_as_hardlink,
-            overwrite=overwrite,
-            exiftool=exiftool,
-            exiftool_merge_keywords=exiftool_merge_keywords,
-            exiftool_merge_persons=exiftool_merge_persons,
-            album_keyword=album_keyword,
-            person_keyword=person_keyword,
-            keyword_template=keyword_template,
-            description_template=description_template,
-            update=update,
-            ignore_signature=ignore_signature,
-            export_db=export_db,
-            fileutil=fileutil,
-            touch_file=touch_file,
-            convert_to_jpeg=convert_to_jpeg,
-            jpeg_quality=jpeg_quality,
-            ignore_date_modified=ignore_date_modified,
-            use_photokit=use_photokit,
-            exiftool_option=exiftool_option,
-            jpeg_ext=jpeg_ext,
-            replace_keywords=replace_keywords,
-            retry=retry,
-            export_dir=export_dir,
-            export_preview=export_preview,
-            preview_suffix=rendered_preview_suffix,
-            preview_if_missing=preview_if_missing,
-        )
-
-    if export_edited and photo.hasadjustments:
-        # if export-edited, also export the edited version
-        edited_filenames = get_filenames_from_template(
-            photo, filename_template, original_name, strip=strip, edited=True
-        )
-        for edited_filename in edited_filenames:
-            edited_filename = pathlib.Path(edited_filename)
-            # verify the photo has adjustments and valid path to avoid raising an exception
-            edited_ext = (
-                # rare cases on Photos <= 4 that uti_edited is None
-                "." + get_preferred_uti_extension(photo.uti_edited)
-                if photo.uti_edited
-                else pathlib.Path(photo.path_edited).suffix
-                if photo.path_edited
-                else pathlib.Path(photo.filename).suffix
+        for filename in filenames:
+            original_filename = pathlib.Path(filename)
+            file_ext = original_filename.suffix
+            if photo.isphoto and (jpeg_ext or convert_to_jpeg):
+                # change the file extension to correct jpeg extension if needed
+                file_ext = (
+                    "." + jpeg_ext
+                    if jpeg_ext
+                    and (photo.uti_original == "public.jpeg" or convert_to_jpeg)
+                    else ".jpeg"
+                    if convert_to_jpeg and photo.uti_original != "public.jpeg"
+                    else original_filename.suffix
+                )
+            original_filename = (
+                original_filename.parent
+                / f"{original_filename.stem}{rendered_suffix}{file_ext}"
             )
-
-            if photo.isphoto and jpeg_ext and edited_ext.lower() in [".jpg", ".jpeg"]:
-                edited_ext = "." + jpeg_ext
-
-            # Big Sur uses .heic for some edited photos so need to check
-            # if extension isn't jpeg/jpg and using --convert-to-jpeg
-            if (
-                photo.isphoto
-                and convert_to_jpeg
-                and edited_ext.lower() not in [".jpg", ".jpeg"]
-            ):
-                edited_ext = "." + jpeg_ext if jpeg_ext else ".jpeg"
-
-            rendered_edited_suffix = _render_suffix_template(
-                edited_suffix, "edited_suffix", "--edited-suffix", strip, dest, photo
-            )
-            edited_filename = (
-                f"{edited_filename.stem}{rendered_edited_suffix}{edited_ext}"
-            )
+            original_filename = str(original_filename)
 
             verbose_(
-                f"Exporting edited version of {photo.original_filename} ({photo.filename}) as {edited_filename}"
+                f"Exporting {photo.original_filename} ({photo.filename}) as {original_filename}"
             )
 
-            results += export_photo_with_template(
+            results += export_photo_to_directory(
                 photo=photo,
-                filename=edited_filename,
-                directory=directory,
-                edited=True,
+                filename=original_filename,
+                dest_path=dest_path,
+                edited=False,
                 use_photos_export=use_photos_export,
-                export_by_date=export_by_date,
                 dest=dest,
                 dry_run=dry_run,
-                strip=strip,
-                export_original=False,
-                missing=missing_edited,
+                export_original=export_original,
+                missing=missing_original,
                 verbose=verbose,
-                sidecar_flags=sidecar_flags if not export_original else 0,
+                sidecar_flags=sidecar_flags,
                 sidecar_drop_ext=sidecar_drop_ext,
                 export_live=export_live,
-                export_raw=not export_original and export_raw,
+                export_raw=export_raw,
                 export_as_hardlink=export_as_hardlink,
                 overwrite=overwrite,
                 exiftool=exiftool,
@@ -2706,10 +2625,106 @@ def export_photo(
                 replace_keywords=replace_keywords,
                 retry=retry,
                 export_dir=export_dir,
-                export_preview=not export_original and export_preview,
+                export_preview=export_preview,
                 preview_suffix=rendered_preview_suffix,
                 preview_if_missing=preview_if_missing,
             )
+
+    if export_edited and photo.hasadjustments:
+        dest_paths = get_dirnames_from_template(
+            photo, directory, export_by_date, dest, dry_run, strip=strip, edited=True
+        )
+        for dest_path in dest_paths:
+            # if export-edited, also export the edited version
+            edited_filenames = get_filenames_from_template(
+                photo, filename_template, dest, dest_path, original_name, strip=strip, edited=True
+            )
+            for edited_filename in edited_filenames:
+                edited_filename = pathlib.Path(edited_filename)
+                # verify the photo has adjustments and valid path to avoid raising an exception
+                edited_ext = (
+                    # rare cases on Photos <= 4 that uti_edited is None
+                    "." + get_preferred_uti_extension(photo.uti_edited)
+                    if photo.uti_edited
+                    else pathlib.Path(photo.path_edited).suffix
+                    if photo.path_edited
+                    else pathlib.Path(photo.filename).suffix
+                )
+
+                if (
+                    photo.isphoto
+                    and jpeg_ext
+                    and edited_ext.lower() in [".jpg", ".jpeg"]
+                ):
+                    edited_ext = "." + jpeg_ext
+
+                # Big Sur uses .heic for some edited photos so need to check
+                # if extension isn't jpeg/jpg and using --convert-to-jpeg
+                if (
+                    photo.isphoto
+                    and convert_to_jpeg
+                    and edited_ext.lower() not in [".jpg", ".jpeg"]
+                ):
+                    edited_ext = "." + jpeg_ext if jpeg_ext else ".jpeg"
+
+                rendered_edited_suffix = _render_suffix_template(
+                    edited_suffix,
+                    "edited_suffix",
+                    "--edited-suffix",
+                    strip,
+                    dest,
+                    photo,
+                )
+                edited_filename = (
+                    f"{edited_filename.stem}{rendered_edited_suffix}{edited_ext}"
+                )
+
+                verbose_(
+                    f"Exporting edited version of {photo.original_filename} ({photo.filename}) as {edited_filename}"
+                )
+
+                results += export_photo_to_directory(
+                    photo=photo,
+                    filename=edited_filename,
+                    dest_path=dest_path,
+                    edited=True,
+                    use_photos_export=use_photos_export,
+                    dest=dest,
+                    dry_run=dry_run,
+                    export_original=False,
+                    missing=missing_edited,
+                    verbose=verbose,
+                    sidecar_flags=sidecar_flags if not export_original else 0,
+                    sidecar_drop_ext=sidecar_drop_ext,
+                    export_live=export_live,
+                    export_raw=not export_original and export_raw,
+                    export_as_hardlink=export_as_hardlink,
+                    overwrite=overwrite,
+                    exiftool=exiftool,
+                    exiftool_merge_keywords=exiftool_merge_keywords,
+                    exiftool_merge_persons=exiftool_merge_persons,
+                    album_keyword=album_keyword,
+                    person_keyword=person_keyword,
+                    keyword_template=keyword_template,
+                    description_template=description_template,
+                    update=update,
+                    ignore_signature=ignore_signature,
+                    export_db=export_db,
+                    fileutil=fileutil,
+                    touch_file=touch_file,
+                    convert_to_jpeg=convert_to_jpeg,
+                    jpeg_quality=jpeg_quality,
+                    ignore_date_modified=ignore_date_modified,
+                    use_photokit=use_photokit,
+                    exiftool_option=exiftool_option,
+                    jpeg_ext=jpeg_ext,
+                    replace_keywords=replace_keywords,
+                    retry=retry,
+                    export_dir=export_dir,
+                    export_preview=not export_original and export_preview,
+                    preview_suffix=rendered_preview_suffix,
+                    preview_if_missing=preview_if_missing,
+                )
 
     return results
 
@@ -2744,16 +2759,14 @@ def _render_suffix_template(suffix_template, var_name, option_name, strip, dest,
     return rendered_suffix[0]
 
 
-def export_photo_with_template(
+def export_photo_to_directory(
     photo,
     filename,
-    directory,
+    dest_path,
     edited,
     use_photos_export,
-    export_by_date,
     dest,
     dry_run,
-    strip,
     export_original,
     missing,
     verbose,
@@ -2788,159 +2801,153 @@ def export_photo_with_template(
     preview_suffix,
     preview_if_missing,
 ):
-    """Evaluate directory template then export photo to each directory"""
+    """Export photo to directory dest_path"""
+
     results = ExportResults()
+    if export_original:
+        if missing and not preview_if_missing:
+            space = " " if not verbose else ""
+            verbose_(
+                f"{space}Skipping missing photo {photo.original_filename} ({photo.uuid})"
+            )
+            results.missing.append(str(pathlib.Path(dest_path) / filename))
+        elif (
+            photo.intrash
+            and (not photo.path or use_photos_export)
+            and not preview_if_missing
+        ):
+            # skip deleted files if they're missing or using use_photos_export
+            # as AppleScript/PhotoKit cannot export deleted photos
+            space = " " if not verbose else ""
+            verbose_(
+                f"{space}Skipping missing deleted photo {photo.original_filename} ({photo.uuid})"
+            )
+            results.missing.append(str(pathlib.Path(dest_path) / filename))
+            return results
+    elif not edited:
+        verbose_(f"Skipping original version of {photo.original_filename}")
+        return results
+    else:
+        # exporting the edited version
+        if missing and not preview_if_missing:
+            space = " " if not verbose else ""
+            verbose_(f"{space}Skipping missing edited photo for {filename}")
+            results.missing.append(str(pathlib.Path(dest_path) / filename))
+            return results
+        elif (
+            photo.intrash
+            and (not photo.path_edited or use_photos_export)
+            and not preview_if_missing
+        ):
+            # skip deleted files if they're missing or using use_photos_export
+            # as AppleScript/PhotoKit cannot export deleted photos
+            space = " " if not verbose else ""
+            verbose_(
+                f"{space}Skipping missing deleted photo {photo.original_filename} ({photo.uuid})"
+            )
+            results.missing.append(str(pathlib.Path(dest_path) / filename))
+            return results
 
-    dest_paths = get_dirnames_from_template(
-        photo, directory, export_by_date, dest, dry_run, strip=strip, edited=edited
-    )
+    render_options = RenderOptions(export_dir=export_dir, dest_path=dest_path)
 
-    # export the photo to each path in dest_paths
-    for dest_path in dest_paths:
-        if export_original:
-            if missing and not preview_if_missing:
-                space = " " if not verbose else ""
-                verbose_(
-                    f"{space}Skipping missing photo {photo.original_filename} ({photo.uuid})"
-                )
-                results.missing.append(str(pathlib.Path(dest_path) / filename))
-            elif (
-                photo.intrash
-                and (not photo.path or use_photos_export)
-                and not preview_if_missing
-            ):
-                # skip deleted files if they're missing or using use_photos_export
-                # as AppleScript/PhotoKit cannot export deleted photos
-                space = " " if not verbose else ""
-                verbose_(
-                    f"{space}Skipping missing deleted photo {photo.original_filename} ({photo.uuid})"
-                )
-                results.missing.append(str(pathlib.Path(dest_path) / filename))
-                continue
-        elif not edited:
-            verbose_(f"Skipping original version of {photo.original_filename}")
-            continue
-        else:
-            # exporting the edited version
-            if missing and not preview_if_missing:
-                space = " " if not verbose else ""
-                verbose_(f"{space}Skipping missing edited photo for {filename}")
-                results.missing.append(str(pathlib.Path(dest_path) / filename))
-                continue
-            elif (
-                photo.intrash
-                and (not photo.path_edited or use_photos_export)
-                and not preview_if_missing
-            ):
-                # skip deleted files if they're missing or using use_photos_export
-                # as AppleScript/PhotoKit cannot export deleted photos
-                space = " " if not verbose else ""
-                verbose_(
-                    f"{space}Skipping missing deleted photo {photo.original_filename} ({photo.uuid})"
-                )
-                results.missing.append(str(pathlib.Path(dest_path) / filename))
-                continue
-
-        render_options = RenderOptions(export_dir=export_dir, dest_path=dest_path)
-
-        tries = 0
-        while tries <= retry:
-            tries += 1
-            error = 0
-            try:
-                export_results = photo.export2(
-                    dest_path,
-                    original_filename=filename,
-                    edited=edited,
-                    original=export_original,
-                    edited_filename=filename,
-                    sidecar=sidecar_flags,
-                    sidecar_drop_ext=sidecar_drop_ext,
-                    live_photo=export_live,
-                    raw_photo=export_raw,
-                    export_as_hardlink=export_as_hardlink,
-                    overwrite=overwrite,
-                    use_photos_export=use_photos_export,
-                    exiftool=exiftool,
-                    merge_exif_keywords=exiftool_merge_keywords,
-                    merge_exif_persons=exiftool_merge_persons,
-                    use_albums_as_keywords=album_keyword,
-                    use_persons_as_keywords=person_keyword,
-                    keyword_template=keyword_template,
-                    description_template=description_template,
-                    update=update,
-                    ignore_signature=ignore_signature,
-                    export_db=export_db,
-                    fileutil=fileutil,
-                    dry_run=dry_run,
-                    touch_file=touch_file,
-                    convert_to_jpeg=convert_to_jpeg,
-                    jpeg_quality=jpeg_quality,
-                    ignore_date_modified=ignore_date_modified,
-                    use_photokit=use_photokit,
-                    verbose=verbose_,
-                    exiftool_flags=exiftool_option,
-                    jpeg_ext=jpeg_ext,
-                    replace_keywords=replace_keywords,
-                    render_options=render_options,
-                    preview=export_preview or (missing and preview_if_missing),
-                    preview_suffix=preview_suffix,
-                )
-                for warning_ in export_results.exiftool_warning:
-                    verbose_(f"exiftool warning for file {warning_[0]}: {warning_[1]}")
-                for error_ in export_results.exiftool_error:
-                    click.echo(
-                        click.style(
-                            f"exiftool error for file {error_[0]}: {error_[1]}",
-                            fg=CLI_COLOR_ERROR,
-                        ),
-                        err=True,
-                    )
-                for error_ in export_results.error:
-                    click.echo(
-                        click.style(
-                            f"Error exporting photo ({photo.uuid}: {photo.original_filename}) as {error_[0]}: {error_[1]}",
-                            fg=CLI_COLOR_ERROR,
-                        ),
-                        err=True,
-                    )
-                    error += 1
-                if not error or tries > retry:
-                    results += export_results
-                    break
-                else:
-                    click.echo(
-                        "Retrying export for photo ({photo.uuid}: {photo.original_filename})"
-                    )
-            except Exception as e:
+    tries = 0
+    while tries <= retry:
+        tries += 1
+        error = 0
+        try:
+            export_results = photo.export2(
+                dest_path,
+                original_filename=filename,
+                edited=edited,
+                original=export_original,
+                edited_filename=filename,
+                sidecar=sidecar_flags,
+                sidecar_drop_ext=sidecar_drop_ext,
+                live_photo=export_live,
+                raw_photo=export_raw,
+                export_as_hardlink=export_as_hardlink,
+                overwrite=overwrite,
+                use_photos_export=use_photos_export,
+                exiftool=exiftool,
+                merge_exif_keywords=exiftool_merge_keywords,
+                merge_exif_persons=exiftool_merge_persons,
+                use_albums_as_keywords=album_keyword,
+                use_persons_as_keywords=person_keyword,
+                keyword_template=keyword_template,
+                description_template=description_template,
+                update=update,
+                ignore_signature=ignore_signature,
+                export_db=export_db,
+                fileutil=fileutil,
+                dry_run=dry_run,
+                touch_file=touch_file,
+                convert_to_jpeg=convert_to_jpeg,
+                jpeg_quality=jpeg_quality,
+                ignore_date_modified=ignore_date_modified,
+                use_photokit=use_photokit,
+                verbose=verbose_,
+                exiftool_flags=exiftool_option,
+                jpeg_ext=jpeg_ext,
+                replace_keywords=replace_keywords,
+                render_options=render_options,
+                preview=export_preview or (missing and preview_if_missing),
+                preview_suffix=preview_suffix,
+            )
+            for warning_ in export_results.exiftool_warning:
+                verbose_(f"exiftool warning for file {warning_[0]}: {warning_[1]}")
+            for error_ in export_results.exiftool_error:
                 click.echo(
                     click.style(
-                        f"Error exporting photo ({photo.uuid}: {photo.original_filename}) as {filename}: {e}",
+                        f"exiftool error for file {error_[0]}: {error_[1]}",
                         fg=CLI_COLOR_ERROR,
                     ),
                     err=True,
                 )
-                if tries > retry:
-                    results.error.append((str(pathlib.Path(dest) / filename), e))
-                    break
-                else:
-                    click.echo(
-                        f"Retrying export for photo ({photo.uuid}: {photo.original_filename})"
-                    )
-
-        if verbose:
-            if update:
-                for new in results.new:
-                    verbose_(f"Exported new file {new}")
-                for updated in results.updated:
-                    verbose_(f"Exported updated file {updated}")
-                for skipped in results.skipped:
-                    verbose_(f"Skipped up to date file {skipped}")
+            for error_ in export_results.error:
+                click.echo(
+                    click.style(
+                        f"Error exporting photo ({photo.uuid}: {photo.original_filename}) as {error_[0]}: {error_[1]}",
+                        fg=CLI_COLOR_ERROR,
+                    ),
+                    err=True,
+                )
+                error += 1
+            if not error or tries > retry:
+                results += export_results
+                break
             else:
-                for exported in results.exported:
-                    verbose_(f"Exported {exported}")
-            for touched in results.touched:
-                verbose_(f"Touched date on file {touched}")
+                click.echo(
+                    "Retrying export for photo ({photo.uuid}: {photo.original_filename})"
+                )
+        except Exception as e:
+            click.echo(
+                click.style(
+                    f"Error exporting photo ({photo.uuid}: {photo.original_filename}) as {filename}: {e}",
+                    fg=CLI_COLOR_ERROR,
+                ),
+                err=True,
+            )
+            if tries > retry:
+                results.error.append((str(pathlib.Path(dest) / filename), e))
+                break
+            else:
+                click.echo(
+                    f"Retrying export for photo ({photo.uuid}: {photo.original_filename})"
+                )
+
+    if verbose:
+        if update:
+            for new in results.new:
+                verbose_(f"Exported new file {new}")
+            for updated in results.updated:
+                verbose_(f"Exported updated file {updated}")
+            for skipped in results.skipped:
+                verbose_(f"Skipped up to date file {skipped}")
+        else:
+            for exported in results.exported:
+                verbose_(f"Exported {exported}")
+        for touched in results.touched:
+            verbose_(f"Touched date on file {touched}")
 
     return results
 
@@ -2948,6 +2955,8 @@ def export_photo_with_template(
 def get_filenames_from_template(
     photo,
     filename_template,
+    export_dir,
+    dest_path,
     original_name,
     strip=False,
     edited=False,
@@ -2958,6 +2967,7 @@ def get_filenames_from_template(
         photo: a PhotoInfo instance
         filename_template: a PhotoTemplate template string, may be None
         original_name: boolean; if True, use photo's original filename instead of current filename
+        dest_path: the path the photo will be exported to
         strip: if True, strips leading/trailing white space from resulting template
         edited: if True, sets {edited_version} field to True, otherwise it gets set to False; set if you want template evaluated for edited version
 
@@ -2975,6 +2985,8 @@ def get_filenames_from_template(
                 filename=True,
                 strip=strip,
                 edited_version=edited,
+                export_dir=export_dir,
+                dest_path=dest_path,
             )
             filenames, unmatched = photo.render_template(filename_template, options)
         except ValueError as e:

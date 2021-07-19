@@ -24,16 +24,16 @@ from .datetime_utils import get_local_tz
 
 
 def sort_list_by_keys(values, sort_keys):
-    """ Sorts list values by a second list sort_keys
+    """Sorts list values by a second list sort_keys
         e.g. given ["a","c","b"], [1, 3, 2], returns ["a", "b", "c"]
 
     Args:
         values: a list of values to be sorted
         sort_keys: a list of keys to sort values by
-    
+
     Returns:
         list of values, sorted by sort_keys
-    
+
     Raises:
         ValueError: raised if len(values) != len(sort_keys)
     """
@@ -63,12 +63,12 @@ class AlbumInfoBaseClass:
 
     @property
     def uuid(self):
-        """ return uuid of album """
+        """return uuid of album"""
         return self._uuid
 
     @property
     def creation_date(self):
-        """ return creation date of album """
+        """return creation date of album"""
         try:
             return self._creation_date
         except AttributeError:
@@ -90,8 +90,8 @@ class AlbumInfoBaseClass:
 
     @property
     def start_date(self):
-        """ For Albums, return start date (earliest image) of album or None for albums with no images
-            For Import Sessions, return start date of import session (when import began) """
+        """For Albums, return start date (earliest image) of album or None for albums with no images
+        For Import Sessions, return start date of import session (when import began)"""
         try:
             return self._start_date
         except AttributeError:
@@ -109,8 +109,8 @@ class AlbumInfoBaseClass:
 
     @property
     def end_date(self):
-        """ For Albums, return end date (most recent image) of album or None for albums with no images
-            For Import Sessions, return end date of import sessions (when import was completed) """
+        """For Albums, return end date (most recent image) of album or None for albums with no images
+        For Import Sessions, return end date of import sessions (when import was completed)"""
         try:
             return self._end_date
         except AttributeError:
@@ -131,7 +131,7 @@ class AlbumInfoBaseClass:
         return []
 
     def __len__(self):
-        """ return number of photos contained in album """
+        """return number of photos contained in album"""
         return len(self.photos)
 
 
@@ -144,12 +144,12 @@ class AlbumInfo(AlbumInfoBaseClass):
 
     @property
     def title(self):
-        """ return title / name of album """
+        """return title / name of album"""
         return self._title
 
     @property
     def photos(self):
-        """ return list of photos contained in album sorted in same sort order as Photos """
+        """return list of photos contained in album sorted in same sort order as Photos"""
         try:
             return self._photos
         except AttributeError:
@@ -163,10 +163,10 @@ class AlbumInfo(AlbumInfoBaseClass):
 
     @property
     def folder_names(self):
-        """ return hierarchical list of folders the album is contained in
-            the folder list is in form:
-            ["Top level folder", "sub folder 1", "sub folder 2", ...]
-            returns empty list if album is not in any folders """
+        """return hierarchical list of folders the album is contained in
+        the folder list is in form:
+        ["Top level folder", "sub folder 1", "sub folder 2", ...]
+        returns empty list if album is not in any folders"""
 
         try:
             return self._folder_names
@@ -176,10 +176,10 @@ class AlbumInfo(AlbumInfoBaseClass):
 
     @property
     def folder_list(self):
-        """ return hierarchical list of folders the album is contained in
-            as list of FolderInfo objects in form 
-            ["Top level folder", "sub folder 1", "sub folder 2", ...]
-            returns empty list if album is not in any folders """
+        """return hierarchical list of folders the album is contained in
+        as list of FolderInfo objects in form
+        ["Top level folder", "sub folder 1", "sub folder 2", ...]
+        returns empty list if album is not in any folders"""
 
         try:
             return self._folders
@@ -189,7 +189,7 @@ class AlbumInfo(AlbumInfoBaseClass):
 
     @property
     def parent(self):
-        """ returns FolderInfo object for parent folder or None if no parent (e.g. top-level album) """
+        """returns FolderInfo object for parent folder or None if no parent (e.g. top-level album)"""
         try:
             return self._parent
         except AttributeError:
@@ -209,11 +209,23 @@ class AlbumInfo(AlbumInfoBaseClass):
                 )
             return self._parent
 
+    def photo_index(self, photo):
+        """return index of photo in album (based on album sort order)"""
+        index = 0
+        for p in self.photos:
+            if p.uuid == photo.uuid:
+                return index
+            index += 1
+        else:
+            raise ValueError(
+                f"Photo with uuid {photo.uuid} does not appear to be in this album"
+            )
+
 
 class ImportInfo(AlbumInfoBaseClass):
     @property
     def photos(self):
-        """ return list of photos contained in import session """
+        """return list of photos contained in import session"""
         try:
             return self._photos
         except AttributeError:
@@ -231,7 +243,7 @@ class ImportInfo(AlbumInfoBaseClass):
 
 class FolderInfo:
     """
-    Info about a specific folder, contains all the details about the folder 
+    Info about a specific folder, contains all the details about the folder
     including folders, albums, etc
     """
 
@@ -247,17 +259,17 @@ class FolderInfo:
 
     @property
     def title(self):
-        """ return title / name of folder"""
+        """return title / name of folder"""
         return self._title
 
     @property
     def uuid(self):
-        """ return uuid of folder """
+        """return uuid of folder"""
         return self._uuid
 
     @property
     def album_info(self):
-        """ return list of albums (as AlbumInfo objects) contained in the folder """
+        """return list of albums (as AlbumInfo objects) contained in the folder"""
         try:
             return self._albums
         except AttributeError:
@@ -282,7 +294,7 @@ class FolderInfo:
 
     @property
     def parent(self):
-        """ returns FolderInfo object for parent or None if no parent (e.g. top-level folder) """
+        """returns FolderInfo object for parent or None if no parent (e.g. top-level folder)"""
         try:
             return self._parent
         except AttributeError:
@@ -304,7 +316,7 @@ class FolderInfo:
 
     @property
     def subfolders(self):
-        """ return list of folders (as FolderInfo objects) contained in the folder """
+        """return list of folders (as FolderInfo objects) contained in the folder"""
         try:
             return self._folders
         except AttributeError:
@@ -328,5 +340,5 @@ class FolderInfo:
             return self._folders
 
     def __len__(self):
-        """ returns count of folders + albums contained in the folder """
+        """returns count of folders + albums contained in the folder"""
         return len(self.subfolders) + len(self.album_info)

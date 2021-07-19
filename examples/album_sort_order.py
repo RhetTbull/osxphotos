@@ -5,11 +5,13 @@ from typing import Optional
 
 from osxphotos import ExportResults, PhotoInfo
 from osxphotos.albuminfo import AlbumInfo
+from osxphotos.phototemplate import RenderOptions
+from osxphotos.path_utils import sanitize_dirname
 
 
 def _get_album_sort_order(album: AlbumInfo, photo: PhotoInfo) -> Optional[int]:
     """Get the sort order of photo in album
-    
+
     Returns: sort order as int or None if photo not found in album
     """
     # get the album sort order from the album_info
@@ -23,6 +25,32 @@ def _get_album_sort_order(album: AlbumInfo, photo: PhotoInfo) -> Optional[int]:
         # didn't find the photo, so skip this file
         return None
     return sort_order
+
+
+def album_sequence(photo: PhotoInfo, options: RenderOptions, **kwargs) -> str:
+    """Call this with {function} template to get album sequence (sort order) when exporting with {folder_album} template
+
+    For example, calling this template function like the following prepends sequence#_ to each exported file if the file is in an album:
+     
+    osxphotos export /path/to/export -V --directory "{folder_album}" --filename "{album?{function:examples/album_sort_order.py::album_sequence}_,}{original_name}"
+
+    """
+    dest_path = options.dest_path
+    if not dest_path:
+        return ""
+
+    album_info = None
+    for album in photo.album_info:
+        # following code is how {folder_album} builds the folder path
+        folder = "/".join(sanitize_dirname(f) for f in album.folder_names)
+        folder += "/" + sanitize_dirname(album.title)
+        if dest_path.endswith(folder):
+            album_info = album
+            break
+    else:
+        # didn't find the album, so skip this file
+        return ""
+    return str(album_info.photo_index(photo))
 
 
 def album_sort_order(
@@ -92,7 +120,7 @@ def album_sort_order(
         if sort_order is None:
             # didn't find the photo, so skip this file
             return
-        
+
         verbose(f"Sort order for {filepath} in album {album_dir} is {sort_order}")
         with open(str(filepath) + "_sort_order.txt", "w") as f:
             f.write(str(sort_order))
