@@ -1,3 +1,4 @@
+from ._constants import AlbumSortOrder
 from ._version import __version__
 from .exiftool import ExifTool
 from .photoinfo import ExportResults, PhotoInfo

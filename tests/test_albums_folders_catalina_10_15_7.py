@@ -2,11 +2,11 @@ import pytest
 
 import osxphotos
 
-from osxphotos._constants import _UNKNOWN_PERSON
+from osxphotos._constants import _UNKNOWN_PERSON, AlbumSortOrder
 
-PHOTOS_DB = "./tests/Test-10.15.4.photoslibrary/database/photos.db"
+PHOTOS_DB = "./tests/Test-10.15.7.photoslibrary/database/photos.db"
 
-TOP_LEVEL_FOLDERS = ["Folder1", "Folder2"]
+TOP_LEVEL_FOLDERS = ["Folder1", "Folder2", "Pumpkin Farm"]
 
 TOP_LEVEL_CHILDREN = ["SubFolder1", "SubFolder2"]
 
@@ -15,25 +15,73 @@ FOLDER_ALBUM_DICT = {
     "SubFolder1": [],
     "SubFolder2": ["AlbumInFolder"],
     "Folder2": ["Raw"],
+    "Pumpkin Farm": [],
 }
 
-ALBUM_NAMES = ["Pumpkin Farm", "AlbumInFolder", "Test Album", "Test Album", "Raw"]
+ALBUM_NAMES = [
+    "2018-10 - Sponsion, Museum, Frühstück, Römermuseum",
+    "2019-10/11 Paris Clermont",
+    "AlbumInFolder",
+    "EmptyAlbum",
+    "I have a deleted twin",
+    "Multi Keyword",
+    "Pumpkin Farm",
+    "Raw",
+    "Sorted Manual",
+    "Sorted Newest First",
+    "Sorted Oldest First",
+    "Sorted Title",
+    "Test Album",
+    "Test Album",
+]
 
 ALBUM_PARENT_DICT = {
-    "Pumpkin Farm": None,
+    "2018-10 - Sponsion, Museum, Frühstück, Römermuseum": None,
+    "2019-10/11 Paris Clermont": None,
     "AlbumInFolder": "SubFolder2",
-    "Test Album": None,
+    "EmptyAlbum": None,
+    "I have a deleted twin": None,
+    "Multi Keyword": None,
+    "Pumpkin Farm": None,
     "Raw": "Folder2",
+    "Sorted Manual": None,
+    "Sorted Newest First": None,
+    "Sorted Oldest First": None,
+    "Sorted Title": None,
+    "Test Album": None,
 }
 
 ALBUM_FOLDER_NAMES_DICT = {
-    "Pumpkin Farm": [],
+    "2018-10 - Sponsion, Museum, Frühstück, Römermuseum": [],
+    "2019-10/11 Paris Clermont": [],
     "AlbumInFolder": ["Folder1", "SubFolder2"],
-    "Test Album": [],
+    "EmptyAlbum": [],
+    "I have a deleted twin": [],
+    "Multi Keyword": [],
+    "Pumpkin Farm": [],
     "Raw": ["Folder2"],
+    "Sorted Manual": [],
+    "Sorted Newest First": [],
+    "Sorted Oldest First": [],
+    "Sorted Title": [],
+    "Test Album": [],
 }
 
-ALBUM_LEN_DICT = {"Pumpkin Farm": 3, "AlbumInFolder": 2, "Test Album": 1, "Raw": 4}
+ALBUM_LEN_DICT = {
+    "2018-10 - Sponsion, Museum, Frühstück, Römermuseum": 1,
+    "2019-10/11 Paris Clermont": 1,
+    "AlbumInFolder": 2,
+    "EmptyAlbum": 0,
+    "I have a deleted twin": 1,
+    "Multi Keyword": 2,
+    "Pumpkin Farm": 3,
+    "Raw": 4,
+    "Sorted Manual": 3,
+    "Sorted Newest First": 3,
+    "Sorted Oldest First": 3,
+    "Sorted Title": 3,
+    "Test Album": 1,
+}
 
 ALBUM_PHOTO_UUID_DICT = {
     "Pumpkin Farm": [
@@ -58,8 +106,31 @@ ALBUM_PHOTO_UUID_DICT = {
 }
 
 UUID_DICT = {
-    "two_albums": "F12384F6-CD17-4151-ACBA-AE0E3688539E",
+    "six_albums": "F12384F6-CD17-4151-ACBA-AE0E3688539E",
     "album_dates": "0C514A98-7B77-4E4F-801B-364B7B65EAFA",
+}
+
+UUID_DICT_SORT_ORDER = {
+    AlbumSortOrder.MANUAL: [
+        "7783E8E6-9CAC-40F3-BE22-81FB7051C266",
+        "3DD2C897-F19E-4CA6-8C22-B027D5A71907",
+        "F12384F6-CD17-4151-ACBA-AE0E3688539E",
+    ],
+    AlbumSortOrder.NEWEST_FIRST: [
+        "7783E8E6-9CAC-40F3-BE22-81FB7051C266",
+        "F12384F6-CD17-4151-ACBA-AE0E3688539E",
+        "3DD2C897-F19E-4CA6-8C22-B027D5A71907",
+    ],
+    AlbumSortOrder.OLDEST_FIRST: [
+        "3DD2C897-F19E-4CA6-8C22-B027D5A71907",
+        "F12384F6-CD17-4151-ACBA-AE0E3688539E",
+        "7783E8E6-9CAC-40F3-BE22-81FB7051C266",
+    ],
+    AlbumSortOrder.TITLE: [
+        "7783E8E6-9CAC-40F3-BE22-81FB7051C266",
+        "F12384F6-CD17-4151-ACBA-AE0E3688539E",
+        "3DD2C897-F19E-4CA6-8C22-B027D5A71907",
+    ],
 }
 
 
@@ -186,8 +257,9 @@ def test_albums_photos(photosdb):
         photos = album.photos
         assert len(photos) == ALBUM_LEN_DICT[album.title]
         assert len(photos) == len(album)
-        for photo in photos:
-            assert photo.uuid in ALBUM_PHOTO_UUID_DICT[album.title]
+        if album.title in ALBUM_PHOTO_UUID_DICT:
+            for photo in photos:
+                assert photo.uuid in ALBUM_PHOTO_UUID_DICT[album.title]
 
 
 def test_album_dates(photosdb):
@@ -237,19 +309,67 @@ def test_photoinfo_albums(photosdb):
 
 def test_photoinfo_albums_2(photosdb):
     """Test that PhotoInfo.albums returns only number albums expected"""
-    photos = photosdb.photos(uuid=[UUID_DICT["two_albums"]])
+    photos = photosdb.photos(uuid=[UUID_DICT["six_albums"]])
 
     albums = photos[0].albums
-    assert len(albums) == 2
+    assert len(albums) == 6
 
 
 def test_photoinfo_album_info(photosdb):
     """test PhotoInfo.album_info"""
-    photos = photosdb.photos(uuid=[UUID_DICT["two_albums"]])
+    photos = photosdb.photos(uuid=[UUID_DICT["six_albums"]])
 
     album_info = photos[0].album_info
-    assert len(album_info) == 2
-    assert album_info[0].title in ["Pumpkin Farm", "Test Album"]
-    assert album_info[1].title in ["Pumpkin Farm", "Test Album"]
+    assert len(album_info) == 6
+    assert album_info[0].title in [
+        "Pumpkin Farm",
+        "Test Album",
+        "Sorted Manual",
+        "Sorted Newest First",
+        "Sorted Oldest First",
+        "Sorted Title",
+    ]
+    assert album_info[1].title in [
+        "Pumpkin Farm",
+        "Test Album",
+        "Sorted Manual",
+        "Sorted Newest First",
+        "Sorted Oldest First",
+        "Sorted Title",
+    ]
 
     assert photos[0].uuid in [photo.uuid for photo in album_info[0].photos]
+
+
+def test_album_sort_order(photosdb):
+    """Test that AlbumInfo.sort_order is set correctly"""
+    albums = photosdb.album_info
+
+    for album in albums:
+        if album.title == "Sorted Manual":
+            assert album.sort_order == AlbumSortOrder.MANUAL
+        elif album.title == "Sorted Newest First":
+            assert album.sort_order == AlbumSortOrder.NEWEST_FIRST
+        elif album.title == "Sorted Oldest First":
+            assert album.sort_order == AlbumSortOrder.OLDEST_FIRST
+        elif album.title == "Sorted Title":
+            assert album.sort_order == AlbumSortOrder.TITLE
+
+
+def test_album_sort_order_photos(photosdb):
+    """Test AlbumInfo.photos returns photos sorted according to AlbumInfo.sort_order"""
+    albums = photosdb.album_info
+    for album in albums:
+        uuids = [photo.uuid for photo in album.photos]
+        if album.title == "Sorted Manual":
+            assert album.sort_order == AlbumSortOrder.MANUAL
+            assert uuids == UUID_DICT_SORT_ORDER[AlbumSortOrder.MANUAL]
+        if album.title == "Sorted Newest First":
+            assert album.sort_order == AlbumSortOrder.NEWEST_FIRST
+            assert uuids == UUID_DICT_SORT_ORDER[AlbumSortOrder.NEWEST_FIRST]
+        if album.title == "Sorted Oldest First":
+            assert album.sort_order == AlbumSortOrder.OLDEST_FIRST
+            assert uuids == UUID_DICT_SORT_ORDER[AlbumSortOrder.OLDEST_FIRST]
+        if album.title == "Sorted Title":
+            assert album.sort_order == AlbumSortOrder.TITLE
+            assert uuids == UUID_DICT_SORT_ORDER[AlbumSortOrder.TITLE]

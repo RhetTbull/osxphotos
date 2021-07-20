@@ -19,6 +19,7 @@ from ._constants import (
     _PHOTOS_5_ALBUM_KIND,
     _PHOTOS_5_FOLDER_KIND,
     TIME_DELTA,
+    AlbumSortOrder,
 )
 from .datetime_utils import get_local_tz
 
@@ -156,7 +157,17 @@ class AlbumInfo(AlbumInfoBaseClass):
             if self.uuid in self._db._dbalbums_album:
                 uuid, sort_order = zip(*self._db._dbalbums_album[self.uuid])
                 sorted_uuid = sort_list_by_keys(uuid, sort_order)
-                self._photos = self._db.photos_by_uuid(sorted_uuid)
+                photos = self._db.photos_by_uuid(sorted_uuid)
+                sort_order = self.sort_order
+                if sort_order == AlbumSortOrder.NEWEST_FIRST:
+                    self._photos = sorted(photos, key=lambda p: p.date, reverse=True)
+                elif sort_order == AlbumSortOrder.OLDEST_FIRST:
+                    self._photos = sorted(photos, key=lambda p: p.date)
+                elif sort_order == AlbumSortOrder.TITLE:
+                    self._photos = sorted(photos, key=lambda p: p.title or "")
+                else:
+                    # assume AlbumSortOrder.MANUAL
+                    self._photos = photos
             else:
                 self._photos = []
             return self._photos
@@ -208,6 +219,27 @@ class AlbumInfo(AlbumInfoBaseClass):
                     else None
                 )
             return self._parent
+
+    @property
+    def sort_order(self):
+        """return sort order of album"""
+        if self._db._db_version <= _PHOTOS_4_VERSION:
+            return AlbumSortOrder.MANUAL
+
+        details = self._db._dbalbum_details[self._uuid]
+        if details["customsortkey"] == 1:
+            if details["customsortascending"] == 0:
+                return AlbumSortOrder.NEWEST_FIRST
+            elif details["customsortascending"] == 1:
+                return AlbumSortOrder.OLDEST_FIRST
+            else:
+                return AlbumSortOrder.UNKNOWN
+        elif details["customsortkey"] == 5:
+            return AlbumSortOrder.TITLE
+        elif details["customsortkey"] == 0:
+            return AlbumSortOrder.MANUAL
+        else:
+            return AlbumSortOrder.UNKNOWN
 
     def photo_index(self, photo):
         """return index of photo in album (based on album sort order)"""

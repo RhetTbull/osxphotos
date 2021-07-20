@@ -790,6 +790,8 @@ class PhotosDB:
                 "creation_date": album[8],
                 "start_date": None,  # Photos 5 only
                 "end_date": None,  # Photos 5 only
+                "customsortascending": None, # Photos 5 only
+                "customsortkey": None, # Photos 5 only
             }
 
         # get details about folders
@@ -1767,7 +1769,9 @@ class PhotosDB:
             "ZTRASHEDSTATE, "  # 9
             "ZCREATIONDATE, "  # 10
             "ZSTARTDATE, "  # 11
-            "ZENDDATE "  # 12
+            "ZENDDATE, "  # 12
+            "ZCUSTOMSORTASCENDING, "  # 13
+            "ZCUSTOMSORTKEY "  # 14
             "FROM ZGENERICALBUM "
         )
         for album in c:
@@ -1787,6 +1791,8 @@ class PhotosDB:
                 "creation_date": album[10],
                 "start_date": album[11],
                 "end_date": album[12],
+                "customsortascending": album[13],
+                "customsortkey": album[14],
             }
 
             # add cross-reference by pk to uuid

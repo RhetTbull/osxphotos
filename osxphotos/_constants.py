@@ -4,6 +4,7 @@ Constants used by osxphotos
 
 import os.path
 from datetime import datetime
+from enum import Enum
 
 OSXPHOTOS_URL = "https://github.com/RhetTbull/osxphotos"
 
@@ -273,3 +274,11 @@ POST_COMMAND_CATEGORIES = {
     # "deleted_files": "When used with '--cleanup', all files deleted during the export",
     # "deleted_directories": "When used with '--cleanup', all directories deleted during the export",
 }
+
+class AlbumSortOrder(Enum):
+    """Album Sort Order"""
+    UNKNOWN = 0
+    MANUAL = 1
+    NEWEST_FIRST = 2
+    OLDEST_FIRST = 3
+    TITLE = 5

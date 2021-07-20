@@ -754,11 +754,11 @@ UUID_IN_ALBUM = [
     "4D521201-92AC-43E5-8F7C-59BC41C37A96",
     "D05A5FE3-15FB-49A1-A15D-AB3DA6F8B068",
     "3DD2C897-F19E-4CA6-8C22-B027D5A71907",
+    "7783E8E6-9CAC-40F3-BE22-81FB7051C266",
 ]
 
 UUID_NOT_IN_ALBUM = [
     "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C",
-    "7783E8E6-9CAC-40F3-BE22-81FB7051C266",
     "DC99FBDD-7A52-4100-A5BB-344131646C30",
     "D1359D09-1373-4F3B-B0E3-1A4DE573E4A3",
     "E2078879-A29C-4D6F-BACB-E3BBE6C3EB91",
@@ -2649,7 +2649,7 @@ def test_query_label_4():
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
-    assert len(json_got) == 2
+    assert len(json_got) == 1 
 
 
 def test_query_deleted_deleted_only():
@@ -2883,11 +2883,11 @@ def test_export_sidecar_templates():
             exifdata = json.load(jsonfile)
         assert (
             exifdata[0]["XMP:Description"]
-            == "Girls with pumpkins Katie, Suzy Kids Pumpkin Farm, Test Album"
+            == "Girls with pumpkins Katie, Suzy Kids Pumpkin Farm, Sorted Manual, Sorted Newest First, Sorted Oldest First, Sorted Title, Test Album"
         )
         assert (
             exifdata[0]["EXIF:ImageDescription"]
-            == "Girls with pumpkins Katie, Suzy Kids Pumpkin Farm, Test Album"
+            == "Girls with pumpkins Katie, Suzy Kids Pumpkin Farm, Sorted Manual, Sorted Newest First, Sorted Oldest First, Sorted Title, Test Album"
         )
 
 
@@ -2926,11 +2926,11 @@ def test_export_sidecar_templates_exiftool():
             exifdata = json.load(jsonfile)
         assert (
             exifdata[0]["Description"]
-            == "Girls with pumpkins Katie, Suzy Kids Pumpkin Farm, Test Album"
+            == "Girls with pumpkins Katie, Suzy Kids Pumpkin Farm, Sorted Manual, Sorted Newest First, Sorted Oldest First, Sorted Title, Test Album"
         )
         assert (
             exifdata[0]["ImageDescription"]
-            == "Girls with pumpkins Katie, Suzy Kids Pumpkin Farm, Test Album"
+            == "Girls with pumpkins Katie, Suzy Kids Pumpkin Farm, Sorted Manual, Sorted Newest First, Sorted Oldest First, Sorted Title, Test Album"
         )
 
 

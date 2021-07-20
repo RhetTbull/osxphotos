@@ -1815,7 +1815,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.42.64'
+{osxphotos_version}             The osxphotos version, e.g. '0.42.65'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified for
@@ -3038,6 +3038,17 @@ Returns a list of [FolderInfo](#FolderInfo) objects representing the sub-folders
 #### `parent`
 Returns a [FolderInfo](#FolderInfo) object representing the folder's parent folder or `None` if album is not a in a folder.
 
+#### `sort_order`
+Returns album sort order (as `AlbumSortOrder` enum).  On Photos <=4, always returns `AlbumSortOrder.MANUAL`.
+
+`AlbumSortOrder` has following values:
+
+- `UNKNOWN`
+- `MANUAL`
+- `NEWEST_FIRST`
+- `OLDEST_FIRST`
+- `TITLE`
+
 #### `photo_index(photo)`
 Returns index of photo in album (based on album sort order).
 
@@ -3652,7 +3663,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.42.64'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.42.65'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|

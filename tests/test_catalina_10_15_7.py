@@ -49,45 +49,53 @@ KEYWORDS = [
 # Photos 5 includes blank person for detected face
 PERSONS = ["Katie", "Suzy", "Maria", _UNKNOWN_PERSON]
 ALBUMS = [
-    "Pumpkin Farm",
-    "Test Album",  # there are 2 albums named "Test Album" for testing duplicate album names
-    "AlbumInFolder",
-    "Raw",
-    "I have a deleted twin",  # there's an empty album with same name that has been deleted
-    "EmptyAlbum",
     "2018-10 - Sponsion, Museum, Frühstück, Römermuseum",
     "2019-10/11 Paris Clermont",
+    "AlbumInFolder",
+    "EmptyAlbum",
+    "I have a deleted twin",  # there's an empty album with same name that has been deleted
     "Multi Keyword",
+    "Pumpkin Farm",
+    "Raw",
+    "Sorted Manual",
+    "Sorted Newest First",
+    "Sorted Oldest First",
+    "Sorted Title",
+    "Test Album",  # there are 2 albums named "Test Album" for testing duplicate album names
 ]
 KEYWORDS_DICT = {
-    "Kids": 4,
-    "wedding": 3,
-    "flowers": 1,
+    "Drink": 2,
     "England": 1,
-    "London": 1,
+    "Kids": 4,
     "London 2018": 1,
+    "London": 1,
+    "Maria": 1,
     "St. James's Park": 1,
+    "Travel": 2,
     "UK": 1,
     "United Kingdom": 1,
-    "foo/bar": 1,
-    "Travel": 2,
-    "Maria": 1,
-    "Drink": 2,
     "Val d'Isère": 2,
-    "Wine": 2,
     "Wine Bottle": 2,
+    "Wine": 2,
+    "flowers": 1,
+    "foo/bar": 1,
+    "wedding": 3,
 }
 PERSONS_DICT = {"Katie": 3, "Suzy": 2, "Maria": 2, _UNKNOWN_PERSON: 1}
 ALBUM_DICT = {
-    "Pumpkin Farm": 3,
-    "Test Album": 2,
-    "AlbumInFolder": 2,
-    "Raw": 4,
-    "I have a deleted twin": 1,
-    "EmptyAlbum": 0,
     "2018-10 - Sponsion, Museum, Frühstück, Römermuseum": 1,
     "2019-10/11 Paris Clermont": 1,
+    "AlbumInFolder": 2,
+    "EmptyAlbum": 0,
+    "I have a deleted twin": 1,
     "Multi Keyword": 2,
+    "Pumpkin Farm": 3,
+    "Raw": 4,
+    "Sorted Manual": 3,
+    "Sorted Newest First": 3,
+    "Sorted Oldest First": 3,
+    "Sorted Title": 3,
+    "Test Album": 2,
 }  # Note: there are 2 albums named "Test Album" for testing duplicate album names
 
 UUID_DICT = {
