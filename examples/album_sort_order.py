@@ -10,24 +10,6 @@ from osxphotos.path_utils import sanitize_dirname
 from osxphotos.phototemplate import RenderOptions
 
 
-def _get_album_sort_order(album: AlbumInfo, photo: PhotoInfo) -> Optional[int]:
-    """Get the sort order of photo in album
-
-    Returns: sort order as int or None if photo not found in album
-    """
-    # get the album sort order from the album_info
-    sort_order = 0  # change this to 1 if you want counting to start at 1
-    for album_photo in album.photos:
-        if album_photo.uuid == photo.uuid:
-            # found the photo we're processing
-            break
-        sort_order += 1
-    else:
-        # didn't find the photo, so skip this file
-        return None
-    return sort_order
-
-
 def album_sequence(photo: PhotoInfo, options: RenderOptions, **kwargs) -> str:
     """Call this with {function} template to get album sequence (sort order) when exporting with {folder_album} template
 
@@ -59,7 +41,7 @@ def album_sequence(photo: PhotoInfo, options: RenderOptions, **kwargs) -> str:
 def album_sort_order(
     photo: PhotoInfo, results: ExportResults, verbose: callable, **kwargs
 ):
-    """Call this with osxphotos export /path/to/export --post-function post_function.py::post_function
+    """Call this with osxphotos export /path/to/export --post-function album_sort_order.py::album_sort_order
         This will get called immediately after the photo has been exported
 
     Args:
@@ -119,9 +101,10 @@ def album_sort_order(
             # didn't find the album, so skip this file
             return
 
-        sort_order = _get_album_sort_order(album_info, photo)
-        if sort_order is None:
-            # didn't find the photo, so skip this file
+        try:
+            sort_order = album_info.photo_index(photo)
+        except ValueError:
+            # photo not in album, so skip this file
             return
 
         verbose(f"Sort order for {filepath} in album {album_dir} is {sort_order}")
