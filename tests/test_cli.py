@@ -608,31 +608,22 @@ CLI_FINDER_TAGS = {
 
 LABELS_JSON = {
     "labels": {
-        "Outdoor": 3,
-        "Sky": 2,
-        "Land": 2,
-        "Plant": 2,
-        "Art": 2,
-        "Food": 2,
-        "People": 2,
-        "Cloudy": 1,
-        "Grass": 1,
-        "Flower": 1,
-        "Container": 1,
+        "Water": 2,
+        "Underwater": 2,
+        "Jellyfish": 2,
+        "Animal": 2,
+        "Wine Bottle": 2,
+        "Drink": 2,
+        "Wine": 2,
         "Vase": 1,
+        "Flower": 1,
+        "Plant": 1,
         "Flower Arrangement": 1,
         "Bouquet": 1,
+        "Art": 1,
+        "Container": 1,
         "Camera": 1,
-        "Blue Sky": 1,
-        "Fruit": 1,
-        "Apricot": 1,
-        "Foliage": 1,
-        "Pumpkin": 1,
-        "Child": 1,
-        "Vegetable": 1,
-        "Recreation": 1,
-        "Clothing": 1,
-        "Adult": 1,
+        "Document": 1,
     }
 }
 
@@ -668,6 +659,10 @@ ALBUMS_JSON = {
         "2018-10 - Sponsion, Museum, Frühstück, Römermuseum": 1,
         "2019-10/11 Paris Clermont": 1,
         "EmptyAlbum": 0,
+        "Sorted Manual": 3,
+        "Sorted Newest First": 3,
+        "Sorted Oldest First": 3,
+        "Sorted Title": 3,
     },
     "shared albums": {},
 }
@@ -2649,7 +2644,7 @@ def test_query_label_4():
     )
     assert result.exit_code == 0
     json_got = json.loads(result.output)
-    assert len(json_got) == 1 
+    assert len(json_got) == 1
 
 
 def test_query_deleted_deleted_only():
@@ -4054,6 +4049,10 @@ def test_no_folder_1_15():
                     "AlbumInFolder",
                     "I have a deleted twin",
                     "Multi Keyword",
+                    "Sorted Manual",
+                    "Sorted Newest First",
+                    "Sorted Oldest First",
+                    "Sorted Title",
                 ]
 
 

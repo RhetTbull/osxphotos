@@ -19,6 +19,10 @@
          <rdf:Bag>
           <rdf:li>Kids</rdf:li>
           <rdf:li>Pumpkin Farm</rdf:li>
+          <rdf:li>Sorted Manual</rdf:li>
+          <rdf:li>Sorted Newest First</rdf:li>
+          <rdf:li>Sorted Oldest First</rdf:li>
+          <rdf:li>Sorted Title</rdf:li>
           <rdf:li>Test Album</rdf:li>
          </rdf:Bag>
         </dc:subject>
@@ -39,6 +43,10 @@
         <rdf:Seq>
           <rdf:li>Kids</rdf:li>
           <rdf:li>Pumpkin Farm</rdf:li>
+          <rdf:li>Sorted Manual</rdf:li>
+          <rdf:li>Sorted Newest First</rdf:li>
+          <rdf:li>Sorted Oldest First</rdf:li>
+          <rdf:li>Sorted Title</rdf:li>
           <rdf:li>Test Album</rdf:li>
         </rdf:Seq>
         </digiKam:TagsList>

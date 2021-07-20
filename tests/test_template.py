@@ -653,6 +653,10 @@ def test_subst_multi_folder_albums_1(photosdb):
         "2018-10 - Sponsion, Museum, Frühstück, Römermuseum",
         "2019-10/11 Paris Clermont",
         "Folder1/SubFolder2/AlbumInFolder",
+        "Sorted Manual",
+        "Sorted Newest First",
+        "Sorted Oldest First",
+        "Sorted Title",
     ]
     rendered, unknown = photo.render_template(template)
     assert sorted(rendered) == sorted(expected)
@@ -669,6 +673,10 @@ def test_subst_multi_folder_albums_1_path_sep(photosdb):
         "2018-10 - Sponsion, Museum, Frühstück, Römermuseum",
         "2019-10/11 Paris Clermont",
         "Folder1:SubFolder2:AlbumInFolder",
+        "Sorted Manual",
+        "Sorted Newest First",
+        "Sorted Oldest First",
+        "Sorted Title",
     ]
     rendered, unknown = photo.render_template(template)
     assert sorted(rendered) == sorted(expected)
@@ -685,6 +693,10 @@ def test_subst_multi_folder_albums_1_path_sep_lower(photosdb):
         "2018-10 - sponsion, museum, frühstück, römermuseum",
         "2019-10/11 paris clermont",
         "folder1:subfolder2:albuminfolder",
+        "sorted manual",
+        "sorted newest first",
+        "sorted oldest first",
+        "sorted title",
     ]
     rendered, unknown = photo.render_template(template)
     assert sorted(rendered) == sorted(expected)
