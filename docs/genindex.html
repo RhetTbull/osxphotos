@@ -5,10 +5,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Index &#8212; osxphotos 0.42.20 documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <title>Index &#8212; osxphotos 0.42.66 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
@@ -169,6 +169,8 @@
 </li>
         <li><a href="cli.html#cmdoption-osxphotos-query-db">osxphotos-query command line option</a>
 </li>
+        <li><a href="cli.html#cmdoption-osxphotos-repl-db">osxphotos-repl command line option</a>
+</li>
       </ul></li>
       <li>
     --deleted
@@ -227,6 +229,15 @@
 
       <ul>
         <li><a href="cli.html#cmdoption-osxphotos-export-dry-run">osxphotos-export command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --duplicate
+
+      <ul>
+        <li><a href="cli.html#cmdoption-osxphotos-export-duplicate">osxphotos-export command line option</a>
+</li>
+        <li><a href="cli.html#cmdoption-osxphotos-query-duplicate">osxphotos-query command line option</a>
 </li>
       </ul></li>
       <li>
@@ -541,6 +552,15 @@
 </li>
       </ul></li>
       <li>
+    --location
+
+      <ul>
+        <li><a href="cli.html#cmdoption-osxphotos-export-location">osxphotos-export command line option</a>
+</li>
+        <li><a href="cli.html#cmdoption-osxphotos-query-location">osxphotos-query command line option</a>
+</li>
+      </ul></li>
+      <li>
     --max-size &lt;SIZE&gt;
 
       <ul>
@@ -585,8 +605,6 @@
         <li><a href="cli.html#cmdoption-osxphotos-query-no-comment">osxphotos-query command line option</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     --no-description
 
@@ -603,6 +621,17 @@
         <li><a href="cli.html#cmdoption-osxphotos-export-no-likes">osxphotos-export command line option</a>
 </li>
         <li><a href="cli.html#cmdoption-osxphotos-query-no-likes">osxphotos-query command line option</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    --no-location
+
+      <ul>
+        <li><a href="cli.html#cmdoption-osxphotos-export-no-location">osxphotos-export command line option</a>
+</li>
+        <li><a href="cli.html#cmdoption-osxphotos-query-no-location">osxphotos-query command line option</a>
 </li>
       </ul></li>
       <li>
@@ -844,12 +873,56 @@
 </li>
       </ul></li>
       <li>
+    --post-command &lt;CATEGORY COMMAND&gt;
+
+      <ul>
+        <li><a href="cli.html#cmdoption-osxphotos-export-post-command">osxphotos-export command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --post-function &lt;filename.py::function&gt;
+
+      <ul>
+        <li><a href="cli.html#cmdoption-osxphotos-export-post-function">osxphotos-export command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --preview
+
+      <ul>
+        <li><a href="cli.html#cmdoption-osxphotos-export-preview">osxphotos-export command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --preview-if-missing
+
+      <ul>
+        <li><a href="cli.html#cmdoption-osxphotos-export-preview-if-missing">osxphotos-export command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --preview-suffix &lt;SUFFIX&gt;
+
+      <ul>
+        <li><a href="cli.html#cmdoption-osxphotos-export-preview-suffix">osxphotos-export command line option</a>
+</li>
+      </ul></li>
+      <li>
     --query-eval &lt;CRITERIA&gt;
 
       <ul>
         <li><a href="cli.html#cmdoption-osxphotos-export-query-eval">osxphotos-export command line option</a>
 </li>
         <li><a href="cli.html#cmdoption-osxphotos-query-query-eval">osxphotos-query command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --query-function &lt;filename.py::function&gt;
+
+      <ul>
+        <li><a href="cli.html#cmdoption-osxphotos-export-query-function">osxphotos-export command line option</a>
+</li>
+        <li><a href="cli.html#cmdoption-osxphotos-query-query-function">osxphotos-query command line option</a>
 </li>
       </ul></li>
       <li>
@@ -896,6 +969,15 @@
         <li><a href="cli.html#cmdoption-osxphotos-export-screenshot">osxphotos-export command line option</a>
 </li>
         <li><a href="cli.html#cmdoption-osxphotos-query-screenshot">osxphotos-query command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --selected
+
+      <ul>
+        <li><a href="cli.html#cmdoption-osxphotos-export-selected">osxphotos-export command line option</a>
+</li>
+        <li><a href="cli.html#cmdoption-osxphotos-query-selected">osxphotos-query command line option</a>
 </li>
       </ul></li>
       <li>
@@ -1122,19 +1204,19 @@
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.activities">activities() (osxphotos.PhotoInfo.SearchInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.activities">activities (osxphotos.PhotoInfo.SearchInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.adjustments">adjustments() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.adjustments">adjustments (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.album_info">album_info() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.album_info">album_info (osxphotos.PhotoInfo property)</a>
 
       <ul>
         <li><a href="reference.html#osxphotos.PhotosDB.album_info">(osxphotos.PhotosDB property)</a>
 </li>
       </ul></li>
-      <li><a href="reference.html#osxphotos.PhotosDB.album_info_shared">album_info_shared() (osxphotos.PhotosDB property)</a>
+      <li><a href="reference.html#osxphotos.PhotosDB.album_info_shared">album_info_shared (osxphotos.PhotosDB property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.albums">albums() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.albums">albums (osxphotos.PhotoInfo property)</a>
 
       <ul>
         <li><a href="reference.html#osxphotos.PhotosDB.albums">(osxphotos.PhotosDB property)</a>
@@ -1142,13 +1224,13 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference.html#osxphotos.PhotosDB.albums_as_dict">albums_as_dict() (osxphotos.PhotosDB property)</a>
+      <li><a href="reference.html#osxphotos.PhotosDB.albums_as_dict">albums_as_dict (osxphotos.PhotosDB property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotosDB.albums_shared">albums_shared() (osxphotos.PhotosDB property)</a>
+      <li><a href="reference.html#osxphotos.PhotosDB.albums_shared">albums_shared (osxphotos.PhotosDB property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotosDB.albums_shared_as_dict">albums_shared_as_dict() (osxphotos.PhotosDB property)</a>
+      <li><a href="reference.html#osxphotos.PhotosDB.albums_shared_as_dict">albums_shared_as_dict (osxphotos.PhotosDB property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.all">all() (osxphotos.PhotoInfo.SearchInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.all">all (osxphotos.PhotoInfo.SearchInfo property)</a>
 </li>
       <li><a href="reference.html#osxphotos.PhotoInfo.ExportResults.all_files">all_files() (osxphotos.PhotoInfo.ExportResults method)</a>
 </li>
@@ -1170,23 +1252,23 @@
 </li>
       <li><a href="reference.html#osxphotos.PhotoInfo.ExifInfo.bit_rate">bit_rate (osxphotos.PhotoInfo.ExifInfo attribute)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.bodies_of_water">bodies_of_water() (osxphotos.PhotoInfo.SearchInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.bodies_of_water">bodies_of_water (osxphotos.PhotoInfo.SearchInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.burst">burst() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.burst">burst (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.burst_album_info">burst_album_info() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.burst_album_info">burst_album_info (osxphotos.PhotoInfo property)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference.html#osxphotos.PhotoInfo.burst_albums">burst_albums() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.burst_albums">burst_albums (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.burst_default_pick">burst_default_pick() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.burst_default_pick">burst_default_pick (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.burst_key">burst_key() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.burst_key">burst_key (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.burst_photos">burst_photos() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.burst_photos">burst_photos (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.burst_selected">burst_selected() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.burst_selected">burst_selected (osxphotos.PhotoInfo property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1198,15 +1280,15 @@
 </li>
       <li><a href="reference.html#osxphotos.PhotoInfo.ExifInfo.camera_model">camera_model (osxphotos.PhotoInfo.ExifInfo attribute)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.city">city() (osxphotos.PhotoInfo.SearchInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.city">city (osxphotos.PhotoInfo.SearchInfo property)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference.html#osxphotos.PhotoInfo.ExifInfo.codec">codec (osxphotos.PhotoInfo.ExifInfo attribute)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.comments">comments() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.comments">comments (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.country">country() (osxphotos.PhotoInfo.SearchInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.country">country (osxphotos.PhotoInfo.SearchInfo property)</a>
 </li>
       <li><a href="reference.html#osxphotos.PhotoInfo.ScoreInfo.curation">curation (osxphotos.PhotoInfo.ScoreInfo attribute)</a>
 </li>
@@ -1216,21 +1298,21 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference.html#osxphotos.PhotoInfo.date">date() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.date">date (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.date_added">date_added() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.date_added">date_added (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.date_modified">date_modified() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.date_modified">date_modified (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.date_trashed">date_trashed() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.date_trashed">date_trashed (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotosDB.db_path">db_path() (osxphotos.PhotosDB property)</a>
+      <li><a href="reference.html#osxphotos.PhotosDB.db_path">db_path (osxphotos.PhotosDB property)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference.html#osxphotos.PhotosDB.db_version">db_version() (osxphotos.PhotosDB property)</a>
+      <li><a href="reference.html#osxphotos.PhotosDB.db_version">db_version (osxphotos.PhotosDB property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.description">description() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.description">description (osxphotos.PhotoInfo property)</a>
 </li>
       <li>
     DEST
@@ -1239,6 +1321,8 @@
         <li><a href="cli.html#cmdoption-osxphotos-export-arg-DEST">osxphotos-export command line option</a>
 </li>
       </ul></li>
+      <li><a href="reference.html#osxphotos.PhotoInfo.duplicates">duplicates (osxphotos.PhotoInfo property)</a>
+</li>
       <li><a href="reference.html#osxphotos.PhotoInfo.ExifInfo.duration">duration (osxphotos.PhotoInfo.ExifInfo attribute)</a>
 </li>
   </ul></td>
@@ -1247,9 +1331,9 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference.html#osxphotos.PhotoInfo.exif_info">exif_info() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.exif_info">exif_info (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.exiftool">exiftool() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.exiftool">exiftool (osxphotos.PhotoInfo property)</a>
 </li>
       <li><a href="reference.html#osxphotos.PhotoInfo.export">export() (osxphotos.PhotoInfo method)</a>
 </li>
@@ -1259,7 +1343,7 @@
 </li>
       <li><a href="reference.html#osxphotos.PhotoInfo.ExifInfo.exposure_bias">exposure_bias (osxphotos.PhotoInfo.ExifInfo attribute)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.external_edit">external_edit() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.external_edit">external_edit (osxphotos.PhotoInfo property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1267,13 +1351,13 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference.html#osxphotos.PhotoInfo.face_info">face_info() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.face_info">face_info (osxphotos.PhotoInfo property)</a>
 </li>
       <li><a href="reference.html#osxphotos.PhotoInfo.ScoreInfo.failure">failure (osxphotos.PhotoInfo.ScoreInfo attribute)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.favorite">favorite() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.favorite">favorite (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.filename">filename() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.filename">filename (osxphotos.PhotoInfo property)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -1281,9 +1365,9 @@
 </li>
       <li><a href="reference.html#osxphotos.PhotoInfo.ExifInfo.focal_length">focal_length (osxphotos.PhotoInfo.ExifInfo attribute)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotosDB.folder_info">folder_info() (osxphotos.PhotosDB property)</a>
+      <li><a href="reference.html#osxphotos.PhotosDB.folder_info">folder_info (osxphotos.PhotosDB property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotosDB.folders">folders() (osxphotos.PhotosDB property)</a>
+      <li><a href="reference.html#osxphotos.PhotosDB.folders">folders (osxphotos.PhotosDB property)</a>
 </li>
       <li><a href="reference.html#osxphotos.PhotoInfo.ExifInfo.fps">fps (osxphotos.PhotoInfo.ExifInfo attribute)</a>
 </li>
@@ -1307,21 +1391,21 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference.html#osxphotos.PhotoInfo.ScoreInfo.harmonious_color">harmonious_color (osxphotos.PhotoInfo.ScoreInfo attribute)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.has_raw">has_raw() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.has_raw">has_raw (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.hasadjustments">hasadjustments() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.hasadjustments">hasadjustments (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.hdr">hdr() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.hdr">hdr (osxphotos.PhotoInfo property)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference.html#osxphotos.PhotoInfo.height">height() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.height">height (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.hidden">hidden() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.hidden">hidden (osxphotos.PhotoInfo property)</a>
 </li>
       <li><a href="reference.html#osxphotos.PhotoInfo.ScoreInfo.highlight_visibility">highlight_visibility (osxphotos.PhotoInfo.ScoreInfo attribute)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.holidays">holidays() (osxphotos.PhotoInfo.SearchInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.holidays">holidays (osxphotos.PhotoInfo.SearchInfo property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1331,37 +1415,37 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference.html#osxphotos.PhotoInfo.ScoreInfo.immersiveness">immersiveness (osxphotos.PhotoInfo.ScoreInfo attribute)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.import_info">import_info() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.import_info">import_info (osxphotos.PhotoInfo property)</a>
 
       <ul>
         <li><a href="reference.html#osxphotos.PhotosDB.import_info">(osxphotos.PhotosDB property)</a>
 </li>
       </ul></li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.incloud">incloud() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.incloud">incloud (osxphotos.PhotoInfo property)</a>
 </li>
       <li><a href="reference.html#osxphotos.PhotoInfo.ScoreInfo.interaction">interaction (osxphotos.PhotoInfo.ScoreInfo attribute)</a>
 </li>
       <li><a href="reference.html#osxphotos.PhotoInfo.ScoreInfo.interesting_subject">interesting_subject (osxphotos.PhotoInfo.ScoreInfo attribute)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.intrash">intrash() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.intrash">intrash (osxphotos.PhotoInfo property)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference.html#osxphotos.PhotoInfo.ScoreInfo.intrusive_object_presence">intrusive_object_presence (osxphotos.PhotoInfo.ScoreInfo attribute)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.iscloudasset">iscloudasset() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.iscloudasset">iscloudasset (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.ismissing">ismissing() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.ismissing">ismissing (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.ismovie">ismovie() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.ismovie">ismovie (osxphotos.PhotoInfo property)</a>
 </li>
       <li><a href="reference.html#osxphotos.PhotoInfo.ExifInfo.iso">iso (osxphotos.PhotoInfo.ExifInfo attribute)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.isphoto">isphoto() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.isphoto">isphoto (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.israw">israw() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.israw">israw (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.isreference">isreference() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.isreference">isreference (osxphotos.PhotoInfo property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1377,7 +1461,7 @@
 <h2 id="K">K</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference.html#osxphotos.PhotoInfo.keywords">keywords() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.keywords">keywords (osxphotos.PhotoInfo property)</a>
 
       <ul>
         <li><a href="reference.html#osxphotos.PhotosDB.keywords">(osxphotos.PhotosDB property)</a>
@@ -1385,7 +1469,7 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference.html#osxphotos.PhotosDB.keywords_as_dict">keywords_as_dict() (osxphotos.PhotosDB property)</a>
+      <li><a href="reference.html#osxphotos.PhotosDB.keywords_as_dict">keywords_as_dict (osxphotos.PhotosDB property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1393,7 +1477,7 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference.html#osxphotos.PhotoInfo.labels">labels() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.labels">labels (osxphotos.PhotoInfo property)</a>
 
       <ul>
         <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.labels">(osxphotos.PhotoInfo.SearchInfo property)</a>
@@ -1401,15 +1485,15 @@
         <li><a href="reference.html#osxphotos.PhotosDB.labels">(osxphotos.PhotosDB property)</a>
 </li>
       </ul></li>
-      <li><a href="reference.html#osxphotos.PhotosDB.labels_as_dict">labels_as_dict() (osxphotos.PhotosDB property)</a>
+      <li><a href="reference.html#osxphotos.PhotosDB.labels_as_dict">labels_as_dict (osxphotos.PhotosDB property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.labels_normalized">labels_normalized() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.labels_normalized">labels_normalized (osxphotos.PhotoInfo property)</a>
 
       <ul>
         <li><a href="reference.html#osxphotos.PhotosDB.labels_normalized">(osxphotos.PhotosDB property)</a>
 </li>
       </ul></li>
-      <li><a href="reference.html#osxphotos.PhotosDB.labels_normalized_as_dict">labels_normalized_as_dict() (osxphotos.PhotosDB property)</a>
+      <li><a href="reference.html#osxphotos.PhotosDB.labels_normalized_as_dict">labels_normalized_as_dict (osxphotos.PhotosDB property)</a>
 </li>
       <li><a href="reference.html#osxphotos.PhotoInfo.ExifInfo.latitude">latitude (osxphotos.PhotoInfo.ExifInfo attribute)</a>
 </li>
@@ -1417,17 +1501,17 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference.html#osxphotos.PhotoInfo.ExifInfo.lens_model">lens_model (osxphotos.PhotoInfo.ExifInfo attribute)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotosDB.library_path">library_path() (osxphotos.PhotosDB property)</a>
+      <li><a href="reference.html#osxphotos.PhotosDB.library_path">library_path (osxphotos.PhotosDB property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.likes">likes() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.likes">likes (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.live_photo">live_photo() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.live_photo">live_photo (osxphotos.PhotoInfo property)</a>
 </li>
       <li><a href="reference.html#osxphotos.PhotoInfo.ScoreInfo.lively_color">lively_color (osxphotos.PhotoInfo.ScoreInfo attribute)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.locality_names">locality_names() (osxphotos.PhotoInfo.SearchInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.locality_names">locality_names (osxphotos.PhotoInfo.SearchInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.location">location() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.location">location (osxphotos.PhotoInfo property)</a>
 </li>
       <li><a href="reference.html#osxphotos.PhotoInfo.ExifInfo.longitude">longitude (osxphotos.PhotoInfo.ExifInfo attribute)</a>
 </li>
@@ -1439,13 +1523,13 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.media_types">media_types() (osxphotos.PhotoInfo.SearchInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.media_types">media_types (osxphotos.PhotoInfo.SearchInfo property)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference.html#osxphotos.PhotoInfo.ExifInfo.metering_mode">metering_mode (osxphotos.PhotoInfo.ExifInfo attribute)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.month">month() (osxphotos.PhotoInfo.SearchInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.month">month (osxphotos.PhotoInfo.SearchInfo property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1453,7 +1537,7 @@
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.neighborhoods">neighborhoods() (osxphotos.PhotoInfo.SearchInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.neighborhoods">neighborhoods (osxphotos.PhotoInfo.SearchInfo property)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -1465,17 +1549,17 @@
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference.html#osxphotos.PhotoInfo.orientation">orientation() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.orientation">orientation (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.original_filename">original_filename() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.original_filename">original_filename (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.original_filesize">original_filesize() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.original_filesize">original_filesize (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.original_height">original_height() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.original_height">original_height (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.original_orientation">original_orientation() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.original_orientation">original_orientation (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.original_width">original_width() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.original_width">original_width (osxphotos.PhotoInfo property)</a>
 </li>
       <li>
     osxphotos command line option
@@ -1554,6 +1638,8 @@
 </li>
         <li><a href="cli.html#cmdoption-osxphotos-export-dry-run">--dry-run</a>
 </li>
+        <li><a href="cli.html#cmdoption-osxphotos-export-duplicate">--duplicate</a>
+</li>
         <li><a href="cli.html#cmdoption-osxphotos-export-edited">--edited</a>
 </li>
         <li><a href="cli.html#cmdoption-osxphotos-export-edited-suffix">--edited-suffix &lt;SUFFIX&gt;</a>
@@ -1624,6 +1710,8 @@
 </li>
         <li><a href="cli.html#cmdoption-osxphotos-export-load-config">--load-config &lt;config file path&gt;</a>
 </li>
+        <li><a href="cli.html#cmdoption-osxphotos-export-location">--location</a>
+</li>
         <li><a href="cli.html#cmdoption-osxphotos-export-max-size">--max-size &lt;SIZE&gt;</a>
 </li>
         <li><a href="cli.html#cmdoption-osxphotos-export-min-size">--min-size &lt;SIZE&gt;</a>
@@ -1637,6 +1725,8 @@
         <li><a href="cli.html#cmdoption-osxphotos-export-no-description">--no-description</a>
 </li>
         <li><a href="cli.html#cmdoption-osxphotos-export-no-likes">--no-likes</a>
+</li>
+        <li><a href="cli.html#cmdoption-osxphotos-export-no-location">--no-location</a>
 </li>
         <li><a href="cli.html#cmdoption-osxphotos-export-no-place">--no-place</a>
 </li>
@@ -1688,7 +1778,19 @@
 </li>
         <li><a href="cli.html#cmdoption-osxphotos-export-portrait">--portrait</a>
 </li>
+        <li><a href="cli.html#cmdoption-osxphotos-export-post-command">--post-command &lt;CATEGORY COMMAND&gt;</a>
+</li>
+        <li><a href="cli.html#cmdoption-osxphotos-export-post-function">--post-function &lt;filename.py::function&gt;</a>
+</li>
+        <li><a href="cli.html#cmdoption-osxphotos-export-preview">--preview</a>
+</li>
+        <li><a href="cli.html#cmdoption-osxphotos-export-preview-if-missing">--preview-if-missing</a>
+</li>
+        <li><a href="cli.html#cmdoption-osxphotos-export-preview-suffix">--preview-suffix &lt;SUFFIX&gt;</a>
+</li>
         <li><a href="cli.html#cmdoption-osxphotos-export-query-eval">--query-eval &lt;CRITERIA&gt;</a>
+</li>
+        <li><a href="cli.html#cmdoption-osxphotos-export-query-function">--query-function &lt;filename.py::function&gt;</a>
 </li>
         <li><a href="cli.html#cmdoption-osxphotos-export-regex">--regex &lt;REGEX TEMPLATE&gt;</a>
 </li>
@@ -1701,6 +1803,8 @@
         <li><a href="cli.html#cmdoption-osxphotos-export-save-config">--save-config &lt;config file path&gt;</a>
 </li>
         <li><a href="cli.html#cmdoption-osxphotos-export-screenshot">--screenshot</a>
+</li>
+        <li><a href="cli.html#cmdoption-osxphotos-export-selected">--selected</a>
 </li>
         <li><a href="cli.html#cmdoption-osxphotos-export-selfie">--selfie</a>
 </li>
@@ -1850,6 +1954,8 @@
 </li>
         <li><a href="cli.html#cmdoption-osxphotos-query-description">--description &lt;DESC&gt;</a>
 </li>
+        <li><a href="cli.html#cmdoption-osxphotos-query-duplicate">--duplicate</a>
+</li>
         <li><a href="cli.html#cmdoption-osxphotos-query-edited">--edited</a>
 </li>
         <li><a href="cli.html#cmdoption-osxphotos-query-external-edit">--external-edit</a>
@@ -1888,6 +1994,8 @@
 </li>
         <li><a href="cli.html#cmdoption-osxphotos-query-live">--live</a>
 </li>
+        <li><a href="cli.html#cmdoption-osxphotos-query-location">--location</a>
+</li>
         <li><a href="cli.html#cmdoption-osxphotos-query-max-size">--max-size &lt;SIZE&gt;</a>
 </li>
         <li><a href="cli.html#cmdoption-osxphotos-query-min-size">--min-size &lt;SIZE&gt;</a>
@@ -1901,6 +2009,8 @@
         <li><a href="cli.html#cmdoption-osxphotos-query-no-description">--no-description</a>
 </li>
         <li><a href="cli.html#cmdoption-osxphotos-query-no-likes">--no-likes</a>
+</li>
+        <li><a href="cli.html#cmdoption-osxphotos-query-no-location">--no-location</a>
 </li>
         <li><a href="cli.html#cmdoption-osxphotos-query-no-place">--no-place</a>
 </li>
@@ -1952,9 +2062,13 @@
 </li>
         <li><a href="cli.html#cmdoption-osxphotos-query-query-eval">--query-eval &lt;CRITERIA&gt;</a>
 </li>
+        <li><a href="cli.html#cmdoption-osxphotos-query-query-function">--query-function &lt;filename.py::function&gt;</a>
+</li>
         <li><a href="cli.html#cmdoption-osxphotos-query-regex">--regex &lt;REGEX TEMPLATE&gt;</a>
 </li>
         <li><a href="cli.html#cmdoption-osxphotos-query-screenshot">--screenshot</a>
+</li>
+        <li><a href="cli.html#cmdoption-osxphotos-query-selected">--selected</a>
 </li>
         <li><a href="cli.html#cmdoption-osxphotos-query-selfie">--selfie</a>
 </li>
@@ -1981,6 +2095,20 @@
         <li><a href="cli.html#cmdoption-osxphotos-query-arg-PHOTOS_LIBRARY">PHOTOS_LIBRARY</a>
 </li>
       </ul></li>
+      <li>
+    osxphotos-repl command line option
+
+      <ul>
+        <li><a href="cli.html#cmdoption-osxphotos-repl-db">--db &lt;Photos database path&gt;</a>
+</li>
+      </ul></li>
+      <li>
+    osxphotos-tutorial command line option
+
+      <ul>
+        <li><a href="cli.html#cmdoption-osxphotos-tutorial-arg-WIDTH">WIDTH</a>
+</li>
+      </ul></li>
       <li><a href="reference.html#osxphotos.PhotoInfo.ScoreInfo.overall">overall (osxphotos.PhotoInfo.ScoreInfo attribute)</a>
 </li>
   </ul></td>
@@ -1989,31 +2117,33 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference.html#osxphotos.PhotoInfo.panorama">panorama() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.panorama">panorama (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.path">path() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.path">path (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.path_derivatives">path_derivatives() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.path_derivatives">path_derivatives (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.path_edited">path_edited() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.path_edited">path_edited (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.path_live_photo">path_live_photo() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.path_edited_live_photo">path_edited_live_photo (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.path_raw">path_raw() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.path_live_photo">path_live_photo (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.person_info">person_info() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.path_raw">path_raw (osxphotos.PhotoInfo property)</a>
+</li>
+      <li><a href="reference.html#osxphotos.PhotoInfo.person_info">person_info (osxphotos.PhotoInfo property)</a>
 
       <ul>
         <li><a href="reference.html#osxphotos.PhotosDB.person_info">(osxphotos.PhotosDB property)</a>
 </li>
       </ul></li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.persons">persons() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.persons">persons (osxphotos.PhotoInfo property)</a>
 
       <ul>
         <li><a href="reference.html#osxphotos.PhotosDB.persons">(osxphotos.PhotosDB property)</a>
 </li>
       </ul></li>
-      <li><a href="reference.html#osxphotos.PhotosDB.persons_as_dict">persons_as_dict() (osxphotos.PhotosDB property)</a>
+      <li><a href="reference.html#osxphotos.PhotosDB.persons_as_dict">persons_as_dict (osxphotos.PhotosDB property)</a>
 </li>
       <li><a href="reference.html#osxphotos.PhotoInfo">PhotoInfo (class in osxphotos)</a>
 </li>
@@ -2056,9 +2186,9 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference.html#osxphotos.PhotosDB">PhotosDB (class in osxphotos)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.place">place() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.place">place (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.place_names">place_names() (osxphotos.PhotoInfo.SearchInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.place_names">place_names (osxphotos.PhotoInfo.SearchInfo property)</a>
 </li>
       <li><a href="reference.html#osxphotos.PhotoInfo.ScoreInfo.pleasant_camera_tilt">pleasant_camera_tilt (osxphotos.PhotoInfo.ScoreInfo attribute)</a>
 </li>
@@ -2076,7 +2206,7 @@
 </li>
       <li><a href="reference.html#osxphotos.PhotoInfo.ScoreInfo.pleasant_symmetry">pleasant_symmetry (osxphotos.PhotoInfo.ScoreInfo attribute)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.portrait">portrait() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.portrait">portrait (osxphotos.PhotoInfo property)</a>
 </li>
       <li><a href="reference.html#osxphotos.PhotoInfo.ScoreInfo.promotion">promotion (osxphotos.PhotoInfo.ScoreInfo attribute)</a>
 </li>
@@ -2094,7 +2224,7 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference.html#osxphotos.PhotoInfo.raw_original">raw_original() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.raw_original">raw_original (osxphotos.PhotoInfo property)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -2108,33 +2238,33 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference.html#osxphotos.PhotoInfo.ExifInfo.sample_rate">sample_rate (osxphotos.PhotoInfo.ExifInfo attribute)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.score">score() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.score">score (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.screenshot">screenshot() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.screenshot">screenshot (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.search_info">search_info() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.search_info">search_info (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.search_info_normalized">search_info_normalized() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.search_info_normalized">search_info_normalized (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.season">season() (osxphotos.PhotoInfo.SearchInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.season">season (osxphotos.PhotoInfo.SearchInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.selfie">selfie() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.selfie">selfie (osxphotos.PhotoInfo property)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference.html#osxphotos.PhotoInfo.shared">shared() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.shared">shared (osxphotos.PhotoInfo property)</a>
 </li>
       <li><a href="reference.html#osxphotos.PhotoInfo.ScoreInfo.sharply_focused_subject">sharply_focused_subject (osxphotos.PhotoInfo.ScoreInfo attribute)</a>
 </li>
       <li><a href="reference.html#osxphotos.PhotoInfo.ExifInfo.shutter_speed">shutter_speed (osxphotos.PhotoInfo.ExifInfo attribute)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.slow_mo">slow_mo() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.slow_mo">slow_mo (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.state">state() (osxphotos.PhotoInfo.SearchInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.state">state (osxphotos.PhotoInfo.SearchInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.state_abbreviation">state_abbreviation() (osxphotos.PhotoInfo.SearchInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.state_abbreviation">state_abbreviation (osxphotos.PhotoInfo.SearchInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.streets">streets() (osxphotos.PhotoInfo.SearchInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.streets">streets (osxphotos.PhotoInfo.SearchInfo property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -2144,9 +2274,9 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference.html#osxphotos.PhotoInfo.ScoreInfo.tastefully_blurred">tastefully_blurred (osxphotos.PhotoInfo.ScoreInfo attribute)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.time_lapse">time_lapse() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.time_lapse">time_lapse (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.title">title() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.title">title (osxphotos.PhotoInfo property)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -2159,7 +2289,7 @@
       </ul></li>
       <li><a href="reference.html#osxphotos.PhotoInfo.ExifInfo.track_format">track_format (osxphotos.PhotoInfo.ExifInfo attribute)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.tzoffset">tzoffset() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.tzoffset">tzoffset (osxphotos.PhotoInfo property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -2167,17 +2297,17 @@
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference.html#osxphotos.PhotoInfo.uti">uti() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.uti">uti (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.uti_edited">uti_edited() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.uti_edited">uti_edited (osxphotos.PhotoInfo property)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference.html#osxphotos.PhotoInfo.uti_original">uti_original() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.uti_original">uti_original (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.uti_raw">uti_raw() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.uti_raw">uti_raw (osxphotos.PhotoInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.uuid">uuid() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.uuid">uuid (osxphotos.PhotoInfo property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -2185,13 +2315,13 @@
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.venue_types">venue_types() (osxphotos.PhotoInfo.SearchInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.venue_types">venue_types (osxphotos.PhotoInfo.SearchInfo property)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.venues">venues() (osxphotos.PhotoInfo.SearchInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.venues">venues (osxphotos.PhotoInfo.SearchInfo property)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.visible">visible() (osxphotos.PhotoInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.visible">visible (osxphotos.PhotoInfo property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -2203,13 +2333,20 @@
 </li>
       <li><a href="reference.html#osxphotos.PhotoInfo.ScoreInfo.well_framed_subject">well_framed_subject (osxphotos.PhotoInfo.ScoreInfo attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference.html#osxphotos.PhotoInfo.ScoreInfo.well_timed_shot">well_timed_shot (osxphotos.PhotoInfo.ScoreInfo attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference.html#osxphotos.PhotoInfo.ExifInfo.white_balance">white_balance (osxphotos.PhotoInfo.ExifInfo attribute)</a>
 </li>
-      <li><a href="reference.html#osxphotos.PhotoInfo.width">width() (osxphotos.PhotoInfo property)</a>
+      <li>
+    WIDTH
+
+      <ul>
+        <li><a href="cli.html#cmdoption-osxphotos-tutorial-arg-WIDTH">osxphotos-tutorial command line option</a>
+</li>
+      </ul></li>
+      <li><a href="reference.html#osxphotos.PhotoInfo.width">width (osxphotos.PhotoInfo property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -2217,7 +2354,7 @@
 <h2 id="Y">Y</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.year">year() (osxphotos.PhotoInfo.SearchInfo property)</a>
+      <li><a href="reference.html#osxphotos.PhotoInfo.SearchInfo.year">year (osxphotos.PhotoInfo.SearchInfo property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -2278,7 +2415,7 @@
       &copy;2021, Rhet Turnbull.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

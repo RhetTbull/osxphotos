@@ -1,0 +1,5 @@
+sphinx_click
+pytest==6.2.4
+pytest-mock
+m2r2
+

@@ -5,10 +5,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos.photoinfo._photoinfo_export &#8212; osxphotos 0.42.17 documentation</title>
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <title>osxphotos.photoinfo._photoinfo_export &#8212; osxphotos 0.42.66 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
@@ -48,6 +48,7 @@
 <span class="c1"># TODO: should this be its own PhotoExporter class?</span>
 <span class="c1"># TODO: the various sidecar_json, sidecar_xmp, etc args should all be collapsed to a sidecar param using a bit mask</span>
 
+<span class="kn">import</span> <span class="nn">dataclasses</span>
 <span class="kn">import</span> <span class="nn">glob</span>
 <span class="kn">import</span> <span class="nn">hashlib</span>
 <span class="kn">import</span> <span class="nn">json</span>
@@ -57,11 +58,11 @@
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>  <span class="c1"># pylint: disable=syntax-error</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">photoscript</span>
 <span class="kn">from</span> <span class="nn">mako.template</span> <span class="kn">import</span> <span class="n">Template</span>
 
-<span class="c1"># from .._applescript import AppleScript</span>
 <span class="kn">from</span> <span class="nn">.._constants</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">_MAX_IPTC_KEYWORD_LEN</span><span class="p">,</span>
     <span class="n">_OSXPHOTOS_NONE_SENTINEL</span><span class="p">,</span>
@@ -69,6 +70,8 @@
     <span class="n">_UNKNOWN_PERSON</span><span class="p">,</span>
     <span class="n">_XMP_TEMPLATE_NAME</span><span class="p">,</span>
     <span class="n">_XMP_TEMPLATE_NAME_BETA</span><span class="p">,</span>
+    <span class="n">DEFAULT_PREVIEW_SUFFIX</span><span class="p">,</span>
+    <span class="n">LIVE_VIDEO_EXTENSIONS</span><span class="p">,</span>
     <span class="n">SIDECAR_EXIFTOOL</span><span class="p">,</span>
     <span class="n">SIDECAR_JSON</span><span class="p">,</span>
     <span class="n">SIDECAR_XMP</span><span class="p">,</span>
@@ -84,20 +87,22 @@
     <span class="n">PhotoKitFetchFailed</span><span class="p">,</span>
     <span class="n">PhotoLibrary</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">findfiles</span><span class="p">,</span> <span class="n">get_preferred_uti_extension</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">noop</span>
+<span class="kn">from</span> <span class="nn">..phototemplate</span> <span class="kn">import</span> <span class="n">RenderOptions</span>
+<span class="kn">from</span> <span class="nn">..uti</span> <span class="kn">import</span> <span class="n">get_preferred_uti_extension</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">findfiles</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">noop</span>
 
 <span class="c1"># retry if use_photos_export fails the first time (which sometimes it does)</span>
 <span class="n">MAX_PHOTOSCRIPT_RETRIES</span> <span class="o">=</span> <span class="mi">3</span>
 
 
 <span class="k">class</span> <span class="nc">ExportError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; error during export &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;error during export&quot;&quot;&quot;</span>
 
     <span class="k">pass</span>
 
 
 <span class="k">class</span> <span class="nc">ExportResults</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot; holds export results for export2 &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;holds export results for export2&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -152,7 +157,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">missing_album</span> <span class="o">=</span> <span class="n">missing_album</span> <span class="ow">or</span> <span class="p">[]</span>
 
     <span class="k">def</span> <span class="nf">all_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; return all filenames contained in results &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;return all filenames contained in results&quot;&quot;&quot;</span>
         <span class="n">files</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">exported</span>
             <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">new</span>
@@ -233,7 +238,7 @@
 
 <span class="c1"># hexdigest is not a class method, don&#39;t import this into PhotoInfo</span>
 <span class="k">def</span> <span class="nf">hexdigest</span><span class="p">(</span><span class="n">strval</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; hexdigest of a string, using blake2b &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;hexdigest of a string, using blake2b&quot;&quot;&quot;</span>
     <span class="n">h</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">blake2b</span><span class="p">(</span><span class="n">digest_size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
     <span class="n">h</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">strval</span><span class="p">,</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">h</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
@@ -250,6 +255,7 @@
     <span class="n">timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span>
     <span class="n">burst</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">dry_run</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Export photo to dest path using applescript to control Photos</span>
 <span class="sd">    If photo is a live photo, exports both the photo and associated .mov file</span>
@@ -329,6 +335,8 @@
             <span class="c1"># use the name Photos provided</span>
             <span class="n">dest_new</span> <span class="o">=</span> <span class="n">dest</span> <span class="o">/</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">dry_run</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">overwrite</span> <span class="ow">and</span> <span class="n">dest_new</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="n">FileUtil</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">dest_new</span><span class="p">)</span>
             <span class="n">FileUtil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest_new</span><span class="p">))</span>
         <span class="n">exported_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dest_new</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">exported_paths</span>
@@ -376,13 +384,13 @@
 
 <span class="c1"># not a class method, don&#39;t import into PhotoInfo</span>
 <span class="k">def</span> <span class="nf">rename_jpeg_files</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">jpeg_ext</span><span class="p">,</span> <span class="n">fileutil</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; rename any jpeg files in files so that extension matches jpeg_ext</span>
+    <span class="sd">&quot;&quot;&quot;rename any jpeg files in files so that extension matches jpeg_ext</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        files: list of file paths</span>
 <span class="sd">        jpeg_ext: extension to use for jpeg files found in files, e.g. &quot;jpg&quot;</span>
 <span class="sd">        fileutil: a FileUtil object</span>
-<span class="sd">    </span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        list of files with updated names</span>
 
@@ -405,7 +413,7 @@
 <span class="k">def</span> <span class="nf">export</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">dest</span><span class="p">,</span>
-    <span class="o">*</span><span class="n">filename</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">edited</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">live_photo</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">raw_photo</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -422,6 +430,7 @@
     <span class="n">use_persons_as_keywords</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">keyword_template</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">description_template</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">render_options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RenderOptions</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;export photo</span>
 <span class="sd">    dest: must be valid destination path (or exception raised)</span>
@@ -435,12 +444,12 @@
 <span class="sd">                silently ignored).</span>
 <span class="sd">                e.g. to get the extension of the edited photo,</span>
 <span class="sd">                reference PhotoInfo.path_edited</span>
-<span class="sd">    edited: (boolean, default=False); if True will export the edited version of the photo</span>
+<span class="sd">    edited: (boolean, default=False); if True will export the edited version of the photo, otherwise exports the original version</span>
 <span class="sd">            (or raise exception if no edited version)</span>
-<span class="sd">    live_photo: (boolean, default=False); if True, will also export the associted .mov for live photos</span>
-<span class="sd">    raw_photo: (boolean, default=False); if True, will also export the associted RAW photo</span>
+<span class="sd">    live_photo: (boolean, default=False); if True, will also export the associated .mov for live photos</span>
+<span class="sd">    raw_photo: (boolean, default=False); if True, will also export the associated RAW photo</span>
 <span class="sd">    export_as_hardlink: (boolean, default=False); if True, will hardlink files instead of copying them</span>
-<span class="sd">    overwrite: (boolean, default=False); if True will overwrite files if they alreay exist</span>
+<span class="sd">    overwrite: (boolean, default=False); if True will overwrite files if they already exist</span>
 <span class="sd">    increment: (boolean, default=True); if True, will increment file name until a non-existant name is found</span>
 <span class="sd">                if overwrite=False and increment=False, export will fail if destination file already exists</span>
 <span class="sd">    sidecar_json: if set will write a json sidecar with data in format readable by exiftool</span>
@@ -448,7 +457,7 @@
 <span class="sd">    sidecar_exiftool: if set will write a json sidecar with data in format readable by exiftool</span>
 <span class="sd">                sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. `exiftool -j`)</span>
 <span class="sd">    sidecar_xmp: if set will write an XMP sidecar with IPTC data</span>
-<span class="sd">                sidecar filename will be dest/filename.xmp           </span>
+<span class="sd">                sidecar filename will be dest/filename.xmp</span>
 <span class="sd">    use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos</span>
 <span class="sd">    timeout: (int, default=120) timeout in seconds used with use_photos_export</span>
 <span class="sd">    exiftool: (boolean, default = False); if True, will use exiftool to write metadata to export file</span>
@@ -459,7 +468,8 @@
 <span class="sd">    when exporting metadata with exiftool or sidecar</span>
 <span class="sd">    keyword_template: (list of strings); list of template strings that will be rendered as used as keywords</span>
 <span class="sd">    description_template: string; optional template string that will be rendered for use as photo description</span>
-<span class="sd">    </span>
+<span class="sd">    render_options: an optional osxphotos.phototemplate.RenderOptions instance with options to pass to template renderer</span>
+
 <span class="sd">    Returns: list of photos exported</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -473,10 +483,25 @@
     <span class="k">if</span> <span class="n">sidecar_xmp</span><span class="p">:</span>
         <span class="n">sidecar</span> <span class="o">|=</span> <span class="n">SIDECAR_XMP</span>
 
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">edited</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_filename</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">original_name</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original_filename</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_edited</span><span class="p">:</span>
+                <span class="n">ext</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_edited</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">uti</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uti_edited</span> <span class="k">if</span> <span class="n">edited</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">uti_edited</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">uti</span>
+                <span class="n">ext</span> <span class="o">=</span> <span class="n">get_preferred_uti_extension</span><span class="p">(</span><span class="n">uti</span><span class="p">)</span>
+                <span class="n">ext</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">ext</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">original_name</span><span class="o">.</span><span class="n">stem</span> <span class="o">+</span> <span class="s2">&quot;_edited&quot;</span> <span class="o">+</span> <span class="n">ext</span>
+
     <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">export2</span><span class="p">(</span>
         <span class="n">dest</span><span class="p">,</span>
-        <span class="o">*</span><span class="n">filename</span><span class="p">,</span>
+        <span class="n">original</span><span class="o">=</span><span class="ow">not</span> <span class="n">edited</span><span class="p">,</span>
+        <span class="n">original_filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
         <span class="n">edited</span><span class="o">=</span><span class="n">edited</span><span class="p">,</span>
+        <span class="n">edited_filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
         <span class="n">live_photo</span><span class="o">=</span><span class="n">live_photo</span><span class="p">,</span>
         <span class="n">raw_photo</span><span class="o">=</span><span class="n">raw_photo</span><span class="p">,</span>
         <span class="n">export_as_hardlink</span><span class="o">=</span><span class="n">export_as_hardlink</span><span class="p">,</span>
@@ -490,6 +515,7 @@
         <span class="n">use_persons_as_keywords</span><span class="o">=</span><span class="n">use_persons_as_keywords</span><span class="p">,</span>
         <span class="n">keyword_template</span><span class="o">=</span><span class="n">keyword_template</span><span class="p">,</span>
         <span class="n">description_template</span><span class="o">=</span><span class="n">description_template</span><span class="p">,</span>
+        <span class="n">render_options</span><span class="o">=</span><span class="n">render_options</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">results</span><span class="o">.</span><span class="n">exported</span>
@@ -498,8 +524,10 @@
 <span class="k">def</span> <span class="nf">export2</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">dest</span><span class="p">,</span>
-    <span class="o">*</span><span class="n">filename</span><span class="p">,</span>
+    <span class="n">original</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">original_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">edited</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">edited_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">live_photo</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">raw_photo</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">export_as_hardlink</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -532,6 +560,9 @@
     <span class="n">persons</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">location</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">replace_keywords</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">preview</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">preview_suffix</span><span class="o">=</span><span class="n">DEFAULT_PREVIEW_SUFFIX</span><span class="p">,</span>
+    <span class="n">render_options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RenderOptions</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;export photo, like export but with update and dry_run options</span>
 <span class="sd">    dest: must be valid destination path or exception raised</span>
@@ -543,12 +574,12 @@
 <span class="sd">                in which case export will use the extension provided by Photos upon export.</span>
 <span class="sd">                e.g. to get the extension of the edited photo,</span>
 <span class="sd">                reference PhotoInfo.path_edited</span>
+<span class="sd">    original: (boolean, default=True); if True, will export the original version of the photo</span>
 <span class="sd">    edited: (boolean, default=False); if True will export the edited version of the photo</span>
-<span class="sd">            (or raise exception if no edited version)</span>
-<span class="sd">    live_photo: (boolean, default=False); if True, will also export the associted .mov for live photos</span>
-<span class="sd">    raw_photo: (boolean, default=False); if True, will also export the associted RAW photo</span>
+<span class="sd">    live_photo: (boolean, default=False); if True, will also export the associated .mov for live photos</span>
+<span class="sd">    raw_photo: (boolean, default=False); if True, will also export the associated RAW photo</span>
 <span class="sd">    export_as_hardlink: (boolean, default=False); if True, will hardlink files instead of copying them</span>
-<span class="sd">    overwrite: (boolean, default=False); if True will overwrite files if they alreay exist</span>
+<span class="sd">    overwrite: (boolean, default=False); if True will overwrite files if they already exist</span>
 <span class="sd">    increment: (boolean, default=True); if True, will increment file name until a non-existant name is found</span>
 <span class="sd">                if overwrite=False and increment=False, export will fail if destination file already exists</span>
 <span class="sd">    sidecar: bit field: set to one or more of SIDECAR_XMP, SIDECAR_JSON, SIDECAR_EXIFTOOL</span>
@@ -587,9 +618,12 @@
 <span class="sd">    persons: if True, include persons in exported metadata</span>
 <span class="sd">    location: if True, include location in exported metadata</span>
 <span class="sd">    replace_keywords: if True, keyword_template replaces any keywords, otherwise it&#39;s additive</span>
+<span class="sd">    preview: if True, also exports preview image</span>
+<span class="sd">    preview_suffix: optional string to append to end of filename for preview images</span>
+<span class="sd">    render_options: optional osxphotos.phototemplate.RenderOptions instance to specify options for rendering templates</span>
 
-<span class="sd">    Returns: ExportResults class </span>
-<span class="sd">        ExportResults has attributes: </span>
+<span class="sd">    Returns: ExportResults class</span>
+<span class="sd">        ExportResults has attributes:</span>
 <span class="sd">        &quot;exported&quot;,</span>
 <span class="sd">        &quot;new&quot;,</span>
 <span class="sd">        &quot;updated&quot;,</span>
@@ -609,7 +643,7 @@
 <span class="sd">        &quot;exiftool_warning&quot;,</span>
 <span class="sd">        &quot;exiftool_error&quot;,</span>
 
-<span class="sd"> </span>
+
 <span class="sd">    Note: to use dry run mode, you must set dry_run=True and also pass in memory version of export_db,</span>
 <span class="sd">          and no-op fileutil (e.g. ExportDBInMemory and FileUtilNoOp)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -628,208 +662,277 @@
     <span class="k">if</span> <span class="n">verbose</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">verbose</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span>
 
-    <span class="c1"># suffix to add to edited files</span>
-    <span class="c1"># e.g. name will be filename_edited.jpg</span>
-    <span class="n">edited_identifier</span> <span class="o">=</span> <span class="s2">&quot;_edited&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_render_options</span> <span class="o">=</span> <span class="n">render_options</span> <span class="ow">or</span> <span class="n">RenderOptions</span><span class="p">()</span>
 
-    <span class="c1"># check edited and raise exception trying to export edited version of</span>
-    <span class="c1"># photo that hasn&#39;t been edited</span>
+    <span class="n">export_original</span> <span class="o">=</span> <span class="n">original</span>
+    <span class="n">export_edited</span> <span class="o">=</span> <span class="n">edited</span>
     <span class="k">if</span> <span class="n">edited</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">hasadjustments</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="s2">&quot;Photo does not have adjustments, cannot export edited version&quot;</span>
         <span class="p">)</span>
 
-    <span class="c1"># check arguments and get destination path and filename (if provided)</span>
-    <span class="k">if</span> <span class="n">filename</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-            <span class="s2">&quot;Too many positional arguments.  Should be at most two: destination, filename.&quot;</span>
-        <span class="p">)</span>
-
     <span class="c1"># verify destination is a valid path</span>
     <span class="k">if</span> <span class="n">dest</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Destination must not be None&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;dest must not be None&quot;</span><span class="p">)</span>
     <span class="k">elif</span> <span class="ow">not</span> <span class="n">dry_run</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">dest</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Invalid path passed to export&quot;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">filename</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="c1"># if filename passed, use it</span>
-        <span class="n">fname</span> <span class="o">=</span> <span class="n">filename</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># no filename provided so use the default</span>
-        <span class="c1"># if edited file requested, use filename but add _edited</span>
-        <span class="c1"># need to use file extension from edited file as Photos saves a jpeg once edited</span>
-        <span class="k">if</span> <span class="n">edited</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">use_photos_export</span><span class="p">:</span>
-            <span class="c1"># verify we have a valid path_edited and use that to get filename</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_edited</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
-                    <span class="s2">&quot;edited=True but path_edited is none; hasadjustments: &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hasadjustments</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="p">)</span>
-            <span class="n">edited_name</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_edited</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
-            <span class="n">edited_suffix</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">edited_name</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span>
-            <span class="n">fname</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original_filename</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span>
-                <span class="o">+</span> <span class="n">edited_identifier</span>
-                <span class="o">+</span> <span class="n">edited_suffix</span>
-            <span class="p">)</span>
+    <span class="n">original_filename</span> <span class="o">=</span> <span class="n">original_filename</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_filename</span>
+    <span class="n">dest_original</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span> <span class="o">/</span> <span class="n">original_filename</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">edited_filename</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">edited</span><span class="p">:</span>
+            <span class="n">edited_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_filename</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">fname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_filename</span>
+            <span class="n">original_name</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original_filename</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_edited</span><span class="p">:</span>
+                <span class="n">ext</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_edited</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">uti</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uti_edited</span> <span class="k">if</span> <span class="n">edited</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">uti_edited</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">uti</span>
+                <span class="n">ext</span> <span class="o">=</span> <span class="n">get_preferred_uti_extension</span><span class="p">(</span><span class="n">uti</span><span class="p">)</span>
+                <span class="n">ext</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">ext</span>
+            <span class="n">edited_filename</span> <span class="o">=</span> <span class="n">original_name</span><span class="o">.</span><span class="n">stem</span> <span class="o">+</span> <span class="s2">&quot;_edited&quot;</span> <span class="o">+</span> <span class="n">ext</span>
+    <span class="n">dest_edited</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span> <span class="o">/</span> <span class="n">edited_filename</span>
 
-    <span class="n">uti</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uti</span> <span class="k">if</span> <span class="n">edited</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">uti_original</span>
-    <span class="k">if</span> <span class="n">convert_to_jpeg</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">isphoto</span> <span class="ow">and</span> <span class="n">uti</span> <span class="o">!=</span> <span class="s2">&quot;public.jpeg&quot;</span><span class="p">:</span>
-        <span class="c1"># not a jpeg but will convert to jpeg upon export so fix file extension</span>
-        <span class="n">fname_new</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">convert_to_jpeg</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">isphoto</span><span class="p">:</span>
+        <span class="n">something_to_convert</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">ext</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">jpeg_ext</span> <span class="k">if</span> <span class="n">jpeg_ext</span> <span class="k">else</span> <span class="s2">&quot;.jpeg&quot;</span>
-        <span class="n">fname</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">fname_new</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fname_new</span><span class="o">.</span><span class="n">stem</span><span class="si">}{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">export_original</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">uti_original</span> <span class="o">!=</span> <span class="s2">&quot;public.jpeg&quot;</span><span class="p">:</span>
+            <span class="c1"># not a jpeg but will convert to jpeg upon export so fix file extension</span>
+            <span class="n">something_to_convert</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">dest_original</span> <span class="o">=</span> <span class="n">dest_original</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest_original</span><span class="o">.</span><span class="n">stem</span><span class="si">}{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">export_edited</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">uti</span> <span class="o">!=</span> <span class="s2">&quot;public.jpeg&quot;</span><span class="p">:</span>
+            <span class="c1"># in Big Sur+, edited HEICs are HEIC</span>
+            <span class="n">something_to_convert</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">dest_edited</span> <span class="o">=</span> <span class="n">dest_edited</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest_edited</span><span class="o">.</span><span class="n">stem</span><span class="si">}{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">convert_to_jpeg</span> <span class="o">=</span> <span class="n">something_to_convert</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># nothing to convert</span>
         <span class="n">convert_to_jpeg</span> <span class="o">=</span> <span class="kc">False</span>
-
-    <span class="c1"># check destination path</span>
-    <span class="n">dest</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
-    <span class="n">fname</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
-    <span class="n">dest</span> <span class="o">=</span> <span class="n">dest</span> <span class="o">/</span> <span class="n">fname</span>
 
     <span class="c1"># check to see if file exists and if so, add (1), (2), etc until we find one that works</span>
     <span class="c1"># Photos checks the stem and adds (1), (2), etc which avoids collision with sidecars</span>
     <span class="c1"># e.g. exporting sidecar for file1.png and file1.jpeg</span>
     <span class="c1"># if file1.png exists and exporting file1.jpeg,</span>
     <span class="c1"># dest will be file1 (1).jpeg even though file1.jpeg doesn&#39;t exist to prevent sidecar collision</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">update</span> <span class="ow">and</span> <span class="n">increment</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
-        <span class="n">count</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="n">dest_files</span> <span class="o">=</span> <span class="n">findfiles</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">*&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="o">.</span><span class="n">parent</span><span class="p">))</span>
+        <span class="n">dest_files</span> <span class="o">=</span> <span class="n">findfiles</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest_original</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">*&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest_original</span><span class="o">.</span><span class="n">parent</span><span class="p">))</span>
         <span class="n">dest_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">dest_files</span><span class="p">]</span>
-        <span class="n">dest_new</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">stem</span>
+        <span class="n">dest_new</span> <span class="o">=</span> <span class="n">dest_original</span><span class="o">.</span><span class="n">stem</span>
         <span class="k">while</span> <span class="n">dest_new</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">dest_files</span><span class="p">:</span>
-            <span class="n">dest_new</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">)&quot;</span>
             <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="n">dest</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest_new</span><span class="si">}{</span><span class="n">dest</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">dest_new</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest_original</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="n">dest_original</span> <span class="o">=</span> <span class="n">dest_original</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest_new</span><span class="si">}{</span><span class="n">dest_original</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span>
 
     <span class="c1"># if overwrite==False and #increment==False, export should fail if file exists</span>
-    <span class="k">if</span> <span class="n">dest</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">update</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">increment</span><span class="p">:</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">dest_original</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+        <span class="ow">and</span> <span class="n">export_original</span>
+        <span class="ow">and</span> <span class="ow">not</span> <span class="n">update</span>
+        <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span>
+        <span class="ow">and</span> <span class="ow">not</span> <span class="n">increment</span>
+    <span class="p">):</span>
         <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;destination exists (</span><span class="si">{</span><span class="n">dest</span><span class="si">}</span><span class="s2">); overwrite=</span><span class="si">{</span><span class="n">overwrite</span><span class="si">}</span><span class="s2">, increment=</span><span class="si">{</span><span class="n">increment</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;destination exists (</span><span class="si">{</span><span class="n">dest_original</span><span class="si">}</span><span class="s2">); overwrite=</span><span class="si">{</span><span class="n">overwrite</span><span class="si">}</span><span class="s2">, increment=</span><span class="si">{</span><span class="n">increment</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
 
+    <span class="k">if</span> <span class="n">export_edited</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">update</span> <span class="ow">and</span> <span class="n">increment</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="n">dest_files</span> <span class="o">=</span> <span class="n">findfiles</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest_edited</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">*&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest_edited</span><span class="o">.</span><span class="n">parent</span><span class="p">))</span>
+            <span class="n">dest_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">dest_files</span><span class="p">]</span>
+            <span class="n">dest_new</span> <span class="o">=</span> <span class="n">dest_edited</span><span class="o">.</span><span class="n">stem</span>
+            <span class="k">if</span> <span class="n">count</span><span class="p">:</span>
+                <span class="c1"># incremented above when checking original destination</span>
+                <span class="n">dest_new</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest_new</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="k">while</span> <span class="n">dest_new</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">dest_files</span><span class="p">:</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">dest_new</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="n">dest_edited</span> <span class="o">=</span> <span class="n">dest_edited</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest_new</span><span class="si">}{</span><span class="n">dest_edited</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="c1"># if overwrite==False and #increment==False, export should fail if file exists</span>
+        <span class="k">if</span> <span class="n">dest_edited</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">update</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">increment</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;destination exists (</span><span class="si">{</span><span class="n">dest_edited</span><span class="si">}</span><span class="s2">); overwrite=</span><span class="si">{</span><span class="n">overwrite</span><span class="si">}</span><span class="s2">, increment=</span><span class="si">{</span><span class="n">increment</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">_render_options</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">dest_original</span><span class="p">)</span> <span class="k">if</span> <span class="n">export_original</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest_edited</span><span class="p">)</span>
+    <span class="p">)</span>
     <span class="n">all_results</span> <span class="o">=</span> <span class="n">ExportResults</span><span class="p">()</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">use_photos_export</span><span class="p">:</span>
+
+    <span class="k">if</span> <span class="n">use_photos_export</span><span class="p">:</span>
+        <span class="c1"># TODO: collapse these into a single call (refactor _export_photo_with_photos_export)</span>
+        <span class="k">if</span> <span class="n">original</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_export_photo_with_photos_export</span><span class="p">(</span>
+                <span class="n">dest_original</span><span class="p">,</span>
+                <span class="n">all_results</span><span class="p">,</span>
+                <span class="n">fileutil</span><span class="p">,</span>
+                <span class="n">export_db</span><span class="p">,</span>
+                <span class="n">use_photokit</span><span class="o">=</span><span class="n">use_photokit</span><span class="p">,</span>
+                <span class="n">dry_run</span><span class="o">=</span><span class="n">dry_run</span><span class="p">,</span>
+                <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
+                <span class="n">jpeg_ext</span><span class="o">=</span><span class="n">jpeg_ext</span><span class="p">,</span>
+                <span class="n">touch_file</span><span class="o">=</span><span class="n">touch_file</span><span class="p">,</span>
+                <span class="n">update</span><span class="o">=</span><span class="n">update</span><span class="p">,</span>
+                <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">,</span>
+                <span class="n">live_photo</span><span class="o">=</span><span class="n">live_photo</span><span class="p">,</span>
+                <span class="n">edited</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">convert_to_jpeg</span><span class="o">=</span><span class="n">convert_to_jpeg</span><span class="p">,</span>
+                <span class="n">jpeg_quality</span><span class="o">=</span><span class="n">jpeg_quality</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">edited</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_export_photo_with_photos_export</span><span class="p">(</span>
+                <span class="n">dest_edited</span><span class="p">,</span>
+                <span class="n">all_results</span><span class="p">,</span>
+                <span class="n">fileutil</span><span class="p">,</span>
+                <span class="n">export_db</span><span class="p">,</span>
+                <span class="n">use_photokit</span><span class="o">=</span><span class="n">use_photokit</span><span class="p">,</span>
+                <span class="n">dry_run</span><span class="o">=</span><span class="n">dry_run</span><span class="p">,</span>
+                <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
+                <span class="n">jpeg_ext</span><span class="o">=</span><span class="n">jpeg_ext</span><span class="p">,</span>
+                <span class="n">touch_file</span><span class="o">=</span><span class="n">touch_file</span><span class="p">,</span>
+                <span class="n">update</span><span class="o">=</span><span class="n">update</span><span class="p">,</span>
+                <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">,</span>
+                <span class="n">live_photo</span><span class="o">=</span><span class="n">live_photo</span><span class="p">,</span>
+                <span class="n">edited</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">convert_to_jpeg</span><span class="o">=</span><span class="n">convert_to_jpeg</span><span class="p">,</span>
+                <span class="n">jpeg_quality</span><span class="o">=</span><span class="n">jpeg_quality</span><span class="p">,</span>
+            <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
         <span class="c1"># find the source file on disk and export</span>
         <span class="c1"># get path to source file and verify it&#39;s not None and is valid file</span>
         <span class="c1"># TODO: how to handle ismissing or not hasadjustments and edited=True cases?</span>
-        <span class="k">if</span> <span class="n">edited</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_edited</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">src</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_edited</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Cannot export edited photo if path_edited is None&quot;</span>
-                <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">src</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Cannot export photo if path is None&quot;</span><span class="p">)</span>
+        <span class="n">export_src_dest</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">edited</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_edited</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">export_src_dest</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">path_edited</span><span class="p">,</span> <span class="n">dest_edited</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">edited</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">export_src_dest</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">dest_original</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">src</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s2"> does not appear to exist&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">src</span><span class="p">,</span> <span class="n">dest</span> <span class="ow">in</span> <span class="n">export_src_dest</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">src</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s2"> does not appear to exist&quot;</span><span class="p">)</span>
 
-        <span class="c1"># found source now try to find right destination</span>
-        <span class="k">if</span> <span class="n">update</span> <span class="ow">and</span> <span class="n">dest</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="c1"># destination exists, check to see if destination is the right UUID</span>
-            <span class="n">dest_uuid</span> <span class="o">=</span> <span class="n">export_db</span><span class="o">.</span><span class="n">get_uuid_for_file</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">dest_uuid</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">cmp</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">):</span>
-                <span class="c1"># might be exporting into a pre-ExportDB folder or the DB got deleted</span>
-                <span class="n">dest_uuid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span>
-                <span class="n">export_db</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span>
-                    <span class="n">filename</span><span class="o">=</span><span class="n">dest</span><span class="p">,</span>
-                    <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
-                    <span class="n">orig_stat</span><span class="o">=</span><span class="n">fileutil</span><span class="o">.</span><span class="n">file_sig</span><span class="p">(</span><span class="n">dest</span><span class="p">),</span>
-                    <span class="n">exif_stat</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-                    <span class="n">converted_stat</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-                    <span class="n">edited_stat</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-                    <span class="n">info_json</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">json</span><span class="p">(),</span>
-                    <span class="n">exif_json</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="k">if</span> <span class="n">dest_uuid</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">:</span>
-                <span class="c1"># not the right file, find the right one</span>
-                <span class="n">count</span> <span class="o">=</span> <span class="mi">1</span>
-                <span class="n">glob_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2"> (*</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">dest_files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">glob_str</span><span class="p">)</span>
-                <span class="n">found_match</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="k">for</span> <span class="n">file_</span> <span class="ow">in</span> <span class="n">dest_files</span><span class="p">:</span>
-                    <span class="n">dest_uuid</span> <span class="o">=</span> <span class="n">export_db</span><span class="o">.</span><span class="n">get_uuid_for_file</span><span class="p">(</span><span class="n">file_</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">dest_uuid</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">:</span>
-                        <span class="n">dest</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">file_</span><span class="p">)</span>
-                        <span class="n">found_match</span> <span class="o">=</span> <span class="kc">True</span>
-                        <span class="k">break</span>
-                    <span class="k">elif</span> <span class="n">dest_uuid</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">cmp</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">file_</span><span class="p">):</span>
-                        <span class="c1"># files match, update the UUID</span>
-                        <span class="n">dest</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">file_</span><span class="p">)</span>
-                        <span class="n">found_match</span> <span class="o">=</span> <span class="kc">True</span>
-                        <span class="n">export_db</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span>
-                            <span class="n">filename</span><span class="o">=</span><span class="n">dest</span><span class="p">,</span>
-                            <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
-                            <span class="n">orig_stat</span><span class="o">=</span><span class="n">fileutil</span><span class="o">.</span><span class="n">file_sig</span><span class="p">(</span><span class="n">dest</span><span class="p">),</span>
-                            <span class="n">exif_stat</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-                            <span class="n">converted_stat</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-                            <span class="n">edited_stat</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-                            <span class="n">info_json</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">json</span><span class="p">(),</span>
-                            <span class="n">exif_json</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                        <span class="p">)</span>
-                        <span class="k">break</span>
-
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">found_match</span><span class="p">:</span>
-                    <span class="c1"># increment the destination file</span>
+            <span class="c1"># found source now try to find right destination</span>
+            <span class="k">if</span> <span class="n">update</span> <span class="ow">and</span> <span class="n">dest</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="c1"># destination exists, check to see if destination is the right UUID</span>
+                <span class="n">dest_uuid</span> <span class="o">=</span> <span class="n">export_db</span><span class="o">.</span><span class="n">get_uuid_for_file</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">dest_uuid</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">cmp</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">):</span>
+                    <span class="c1"># might be exporting into a pre-ExportDB folder or the DB got deleted</span>
+                    <span class="n">dest_uuid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span>
+                    <span class="n">export_db</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span>
+                        <span class="n">filename</span><span class="o">=</span><span class="n">dest</span><span class="p">,</span>
+                        <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+                        <span class="n">orig_stat</span><span class="o">=</span><span class="n">fileutil</span><span class="o">.</span><span class="n">file_sig</span><span class="p">(</span><span class="n">dest</span><span class="p">),</span>
+                        <span class="n">exif_stat</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                        <span class="n">converted_stat</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                        <span class="n">edited_stat</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                        <span class="n">info_json</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">json</span><span class="p">(),</span>
+                        <span class="n">exif_json</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="n">dest_uuid</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">:</span>
+                    <span class="c1"># not the right file, find the right one</span>
                     <span class="n">count</span> <span class="o">=</span> <span class="mi">1</span>
-                    <span class="n">glob_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">*&quot;</span><span class="p">)</span>
+                    <span class="n">glob_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2"> (*</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                     <span class="n">dest_files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">glob_str</span><span class="p">)</span>
-                    <span class="n">dest_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">dest_files</span><span class="p">]</span>
-                    <span class="n">dest_new</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">stem</span>
-                    <span class="k">while</span> <span class="n">dest_new</span> <span class="ow">in</span> <span class="n">dest_files</span><span class="p">:</span>
-                        <span class="n">dest_new</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">)&quot;</span>
-                        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
-                    <span class="n">dest</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest_new</span><span class="si">}{</span><span class="n">dest</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="n">found_match</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">for</span> <span class="n">file_</span> <span class="ow">in</span> <span class="n">dest_files</span><span class="p">:</span>
+                        <span class="n">dest_uuid</span> <span class="o">=</span> <span class="n">export_db</span><span class="o">.</span><span class="n">get_uuid_for_file</span><span class="p">(</span><span class="n">file_</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">dest_uuid</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">:</span>
+                            <span class="n">dest</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">file_</span><span class="p">)</span>
+                            <span class="n">found_match</span> <span class="o">=</span> <span class="kc">True</span>
+                            <span class="k">break</span>
+                        <span class="k">elif</span> <span class="n">dest_uuid</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">cmp</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">file_</span><span class="p">):</span>
+                            <span class="c1"># files match, update the UUID</span>
+                            <span class="n">dest</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">file_</span><span class="p">)</span>
+                            <span class="n">found_match</span> <span class="o">=</span> <span class="kc">True</span>
+                            <span class="n">export_db</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span>
+                                <span class="n">filename</span><span class="o">=</span><span class="n">dest</span><span class="p">,</span>
+                                <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+                                <span class="n">orig_stat</span><span class="o">=</span><span class="n">fileutil</span><span class="o">.</span><span class="n">file_sig</span><span class="p">(</span><span class="n">dest</span><span class="p">),</span>
+                                <span class="n">exif_stat</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                                <span class="n">converted_stat</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                                <span class="n">edited_stat</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                                <span class="n">info_json</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">json</span><span class="p">(),</span>
+                                <span class="n">exif_json</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                            <span class="p">)</span>
+                            <span class="k">break</span>
 
-        <span class="c1"># export the dest file</span>
-        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_export_photo</span><span class="p">(</span>
-            <span class="n">src</span><span class="p">,</span>
-            <span class="n">dest</span><span class="p">,</span>
-            <span class="n">update</span><span class="p">,</span>
-            <span class="n">export_db</span><span class="p">,</span>
-            <span class="n">overwrite</span><span class="p">,</span>
-            <span class="n">export_as_hardlink</span><span class="p">,</span>
-            <span class="n">exiftool</span><span class="p">,</span>
-            <span class="n">touch_file</span><span class="p">,</span>
-            <span class="n">convert_to_jpeg</span><span class="p">,</span>
-            <span class="n">fileutil</span><span class="o">=</span><span class="n">fileutil</span><span class="p">,</span>
-            <span class="n">edited</span><span class="o">=</span><span class="n">edited</span><span class="p">,</span>
-            <span class="n">jpeg_quality</span><span class="o">=</span><span class="n">jpeg_quality</span><span class="p">,</span>
-            <span class="n">ignore_signature</span><span class="o">=</span><span class="n">ignore_signature</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">all_results</span> <span class="o">+=</span> <span class="n">results</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">found_match</span><span class="p">:</span>
+                        <span class="c1"># increment the destination file</span>
+                        <span class="n">count</span> <span class="o">=</span> <span class="mi">1</span>
+                        <span class="n">glob_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">*&quot;</span><span class="p">)</span>
+                        <span class="n">dest_files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">glob_str</span><span class="p">)</span>
+                        <span class="n">dest_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">dest_files</span><span class="p">]</span>
+                        <span class="n">dest_new</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">stem</span>
+                        <span class="k">while</span> <span class="n">dest_new</span> <span class="ow">in</span> <span class="n">dest_files</span><span class="p">:</span>
+                            <span class="n">dest_new</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">)&quot;</span>
+                            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">dest</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest_new</span><span class="si">}{</span><span class="n">dest</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+
+            <span class="c1"># export the dest file</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_export_photo</span><span class="p">(</span>
+                <span class="n">src</span><span class="p">,</span>
+                <span class="n">dest</span><span class="p">,</span>
+                <span class="n">update</span><span class="p">,</span>
+                <span class="n">export_db</span><span class="p">,</span>
+                <span class="n">overwrite</span><span class="p">,</span>
+                <span class="n">export_as_hardlink</span><span class="p">,</span>
+                <span class="n">exiftool</span><span class="p">,</span>
+                <span class="n">touch_file</span><span class="p">,</span>
+                <span class="n">convert_to_jpeg</span><span class="p">,</span>
+                <span class="n">fileutil</span><span class="o">=</span><span class="n">fileutil</span><span class="p">,</span>
+                <span class="n">edited</span><span class="o">=</span><span class="n">edited</span><span class="p">,</span>
+                <span class="n">jpeg_quality</span><span class="o">=</span><span class="n">jpeg_quality</span><span class="p">,</span>
+                <span class="n">ignore_signature</span><span class="o">=</span><span class="n">ignore_signature</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">all_results</span> <span class="o">+=</span> <span class="n">results</span>
+
+        <span class="n">dest</span> <span class="o">=</span> <span class="n">dest_original</span> <span class="k">if</span> <span class="n">export_original</span> <span class="k">else</span> <span class="n">dest_edited</span>
 
         <span class="c1"># copy live photo associated .mov if requested</span>
-        <span class="k">if</span> <span class="n">live_photo</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">live_photo</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">export_original</span> <span class="ow">and</span> <span class="n">live_photo</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">live_photo</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_live_photo</span><span class="p">:</span>
             <span class="n">live_name</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">.mov&quot;</span>
             <span class="n">src_live</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_live_photo</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_export_photo</span><span class="p">(</span>
+                <span class="n">src_live</span><span class="p">,</span>
+                <span class="n">live_name</span><span class="p">,</span>
+                <span class="n">update</span><span class="p">,</span>
+                <span class="n">export_db</span><span class="p">,</span>
+                <span class="n">overwrite</span><span class="p">,</span>
+                <span class="n">export_as_hardlink</span><span class="p">,</span>
+                <span class="n">exiftool</span><span class="p">,</span>
+                <span class="n">touch_file</span><span class="p">,</span>
+                <span class="kc">False</span><span class="p">,</span>
+                <span class="n">fileutil</span><span class="o">=</span><span class="n">fileutil</span><span class="p">,</span>
+                <span class="n">ignore_signature</span><span class="o">=</span><span class="n">ignore_signature</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">all_results</span> <span class="o">+=</span> <span class="n">results</span>
 
-            <span class="k">if</span> <span class="n">src_live</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_export_photo</span><span class="p">(</span>
-                    <span class="n">src_live</span><span class="p">,</span>
-                    <span class="n">live_name</span><span class="p">,</span>
-                    <span class="n">update</span><span class="p">,</span>
-                    <span class="n">export_db</span><span class="p">,</span>
-                    <span class="n">overwrite</span><span class="p">,</span>
-                    <span class="n">export_as_hardlink</span><span class="p">,</span>
-                    <span class="n">exiftool</span><span class="p">,</span>
-                    <span class="n">touch_file</span><span class="p">,</span>
-                    <span class="kc">False</span><span class="p">,</span>
-                    <span class="n">fileutil</span><span class="o">=</span><span class="n">fileutil</span><span class="p">,</span>
-                    <span class="n">ignore_signature</span><span class="o">=</span><span class="n">ignore_signature</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="n">all_results</span> <span class="o">+=</span> <span class="n">results</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">export_edited</span>
+            <span class="ow">and</span> <span class="n">live_photo</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">live_photo</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_edited_live_photo</span>
+        <span class="p">):</span>
+            <span class="n">live_name</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest_edited</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">.mov&quot;</span>
+            <span class="n">src_live</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_edited_live_photo</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_export_photo</span><span class="p">(</span>
+                <span class="n">src_live</span><span class="p">,</span>
+                <span class="n">live_name</span><span class="p">,</span>
+                <span class="n">update</span><span class="p">,</span>
+                <span class="n">export_db</span><span class="p">,</span>
+                <span class="n">overwrite</span><span class="p">,</span>
+                <span class="n">export_as_hardlink</span><span class="p">,</span>
+                <span class="n">exiftool</span><span class="p">,</span>
+                <span class="n">touch_file</span><span class="p">,</span>
+                <span class="kc">False</span><span class="p">,</span>
+                <span class="n">fileutil</span><span class="o">=</span><span class="n">fileutil</span><span class="p">,</span>
+                <span class="n">ignore_signature</span><span class="o">=</span><span class="n">ignore_signature</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">all_results</span> <span class="o">+=</span> <span class="n">results</span>
 
         <span class="c1"># copy associated RAW image if requested</span>
-        <span class="k">if</span> <span class="n">raw_photo</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_raw</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">raw_photo</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_raw</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_raw</span><span class="p">:</span>
             <span class="n">raw_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_raw</span><span class="p">)</span>
             <span class="n">raw_ext</span> <span class="o">=</span> <span class="n">raw_path</span><span class="o">.</span><span class="n">suffix</span>
             <span class="n">raw_name</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}{</span><span class="n">raw_ext</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -849,140 +952,30 @@
                     <span class="n">ignore_signature</span><span class="o">=</span><span class="n">ignore_signature</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">all_results</span> <span class="o">+=</span> <span class="n">results</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># TODO: move this big if/else block to separate functions</span>
-        <span class="c1"># e.g. _export_with_photos_export or such</span>
-        <span class="c1"># use_photo_export</span>
-        <span class="c1"># export live_photo .mov file?</span>
-        <span class="n">live_photo</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">live_photo</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">live_photo</span> <span class="k">else</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="n">edited</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared</span><span class="p">:</span>
-            <span class="c1"># exported edited version and not original</span>
-            <span class="c1"># shared photos (in shared albums) show up as not having adjustments (not edited)</span>
-            <span class="c1"># but Photos is unable to export the &quot;original&quot; as only a jpeg copy is shared in iCloud</span>
-            <span class="c1"># so tell Photos to export the current version in this case</span>
-            <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
-                <span class="c1"># use filename stem provided</span>
-                <span class="n">filestem</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">stem</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># didn&#39;t get passed a filename, add _edited</span>
-                <span class="n">filestem</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}{</span><span class="n">edited_identifier</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="n">uti</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uti_edited</span> <span class="k">if</span> <span class="n">edited</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">uti_edited</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">uti</span>
-                <span class="n">ext</span> <span class="o">=</span> <span class="n">get_preferred_uti_extension</span><span class="p">(</span><span class="n">uti</span><span class="p">)</span>
-                <span class="n">dest</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filestem</span><span class="si">}{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span>
 
-            <span class="k">if</span> <span class="n">use_photokit</span><span class="p">:</span>
-                <span class="n">photolib</span> <span class="o">=</span> <span class="n">PhotoLibrary</span><span class="p">()</span>
-                <span class="n">photo</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">photo</span> <span class="o">=</span> <span class="n">photolib</span><span class="o">.</span><span class="n">fetch_uuid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span>
-                <span class="k">except</span> <span class="n">PhotoKitFetchFailed</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                    <span class="c1"># if failed to find UUID, might be a burst photo</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;burstUUID&quot;</span><span class="p">]:</span>
-                        <span class="n">bursts</span> <span class="o">=</span> <span class="n">photolib</span><span class="o">.</span><span class="n">fetch_burst_uuid</span><span class="p">(</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;burstUUID&quot;</span><span class="p">],</span> <span class="nb">all</span><span class="o">=</span><span class="kc">True</span>
-                        <span class="p">)</span>
-                        <span class="c1"># PhotoKit UUIDs may contain &quot;/L0/001&quot; so only look at beginning</span>
-                        <span class="n">photo</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">bursts</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">uuid</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">)]</span>
-                        <span class="n">photo</span> <span class="o">=</span> <span class="n">photo</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">photo</span> <span class="k">else</span> <span class="kc">None</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">photo</span><span class="p">:</span>
-                        <span class="n">all_results</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                            <span class="p">(</span>
-                                <span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">),</span>
-                                <span class="sa">f</span><span class="s2">&quot;PhotoKitFetchFailed exception exporting photo </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">lineno</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
-                            <span class="p">)</span>
-                        <span class="p">)</span>
-                <span class="k">if</span> <span class="n">photo</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">dry_run</span><span class="p">:</span>
-                        <span class="k">try</span><span class="p">:</span>
-                            <span class="n">exported</span> <span class="o">=</span> <span class="n">photo</span><span class="o">.</span><span class="n">export</span><span class="p">(</span>
-                                <span class="n">dest</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="n">dest</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">PHOTOS_VERSION_CURRENT</span>
-                            <span class="p">)</span>
-                            <span class="n">all_results</span><span class="o">.</span><span class="n">exported</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">exported</span><span class="p">)</span>
-                        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                            <span class="n">all_results</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                                <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">lineno</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
-                            <span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="c1"># dry_run, don&#39;t actually export</span>
-                        <span class="n">all_results</span><span class="o">.</span><span class="n">exported</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">))</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">exported</span> <span class="o">=</span> <span class="n">_export_photo_uuid_applescript</span><span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
-                        <span class="n">dest</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span>
-                        <span class="n">filestem</span><span class="o">=</span><span class="n">filestem</span><span class="p">,</span>
-                        <span class="n">original</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                        <span class="n">edited</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                        <span class="n">live_photo</span><span class="o">=</span><span class="n">live_photo</span><span class="p">,</span>
-                        <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
-                        <span class="n">burst</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">burst</span><span class="p">,</span>
-                        <span class="n">dry_run</span><span class="o">=</span><span class="n">dry_run</span><span class="p">,</span>
-                    <span class="p">)</span>
-                    <span class="n">all_results</span><span class="o">.</span><span class="n">exported</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">exported</span><span class="p">)</span>
-                <span class="k">except</span> <span class="n">ExportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                    <span class="n">all_results</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">lineno</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># export original version and not edited</span>
-            <span class="n">filestem</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">stem</span>
-            <span class="k">if</span> <span class="n">use_photokit</span><span class="p">:</span>
-                <span class="n">photolib</span> <span class="o">=</span> <span class="n">PhotoLibrary</span><span class="p">()</span>
-                <span class="n">photo</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">photo</span> <span class="o">=</span> <span class="n">photolib</span><span class="o">.</span><span class="n">fetch_uuid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span>
-                <span class="k">except</span> <span class="n">PhotoKitFetchFailed</span><span class="p">:</span>
-                    <span class="c1"># if failed to find UUID, might be a burst photo</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;burstUUID&quot;</span><span class="p">]:</span>
-                        <span class="n">bursts</span> <span class="o">=</span> <span class="n">photolib</span><span class="o">.</span><span class="n">fetch_burst_uuid</span><span class="p">(</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;burstUUID&quot;</span><span class="p">],</span> <span class="nb">all</span><span class="o">=</span><span class="kc">True</span>
-                        <span class="p">)</span>
-                        <span class="c1"># PhotoKit UUIDs may contain &quot;/L0/001&quot; so only look at beginning</span>
-                        <span class="n">photo</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">bursts</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">uuid</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">)]</span>
-                        <span class="n">photo</span> <span class="o">=</span> <span class="n">photo</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">photo</span> <span class="k">else</span> <span class="kc">None</span>
-                <span class="k">if</span> <span class="n">photo</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">dry_run</span><span class="p">:</span>
-                        <span class="k">try</span><span class="p">:</span>
-                            <span class="n">exported</span> <span class="o">=</span> <span class="n">photo</span><span class="o">.</span><span class="n">export</span><span class="p">(</span>
-                                <span class="n">dest</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="n">dest</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">PHOTOS_VERSION_ORIGINAL</span>
-                            <span class="p">)</span>
-                            <span class="n">all_results</span><span class="o">.</span><span class="n">exported</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">exported</span><span class="p">)</span>
-                        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                            <span class="n">all_results</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                                <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">lineno</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
-                            <span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="c1"># dry_run, don&#39;t actually export</span>
-                        <span class="n">all_results</span><span class="o">.</span><span class="n">exported</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">))</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">exported</span> <span class="o">=</span> <span class="n">_export_photo_uuid_applescript</span><span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
-                        <span class="n">dest</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span>
-                        <span class="n">filestem</span><span class="o">=</span><span class="n">filestem</span><span class="p">,</span>
-                        <span class="n">original</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                        <span class="n">edited</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                        <span class="n">live_photo</span><span class="o">=</span><span class="n">live_photo</span><span class="p">,</span>
-                        <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
-                        <span class="n">burst</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">burst</span><span class="p">,</span>
-                        <span class="n">dry_run</span><span class="o">=</span><span class="n">dry_run</span><span class="p">,</span>
-                    <span class="p">)</span>
-                    <span class="n">all_results</span><span class="o">.</span><span class="n">exported</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">exported</span><span class="p">)</span>
-                <span class="k">except</span> <span class="n">ExportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                    <span class="n">all_results</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">lineno</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">all_results</span><span class="o">.</span><span class="n">exported</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">jpeg_ext</span><span class="p">:</span>
-                <span class="c1"># use_photos_export (both PhotoKit and AppleScript) don&#39;t use the</span>
-                <span class="c1"># file extension provided (instead they use extension for UTI)</span>
-                <span class="c1"># so if jpeg_ext is set, rename any non-conforming jpegs</span>
-                <span class="n">all_results</span><span class="o">.</span><span class="n">exported</span> <span class="o">=</span> <span class="n">rename_jpeg_files</span><span class="p">(</span>
-                    <span class="n">all_results</span><span class="o">.</span><span class="n">exported</span><span class="p">,</span> <span class="n">jpeg_ext</span><span class="p">,</span> <span class="n">fileutil</span>
+        <span class="c1"># copy preview image if requested</span>
+        <span class="k">if</span> <span class="n">preview</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_derivatives</span><span class="p">:</span>
+            <span class="c1"># Photos keeps multiple different derivatives and path_derivatives returns list of them</span>
+            <span class="c1"># first derivative is the largest so export that one</span>
+            <span class="n">preview_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_derivatives</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">preview_ext</span> <span class="o">=</span> <span class="n">preview_path</span><span class="o">.</span><span class="n">suffix</span>
+            <span class="n">preview_name</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}{</span><span class="n">preview_suffix</span><span class="si">}{</span><span class="n">preview_ext</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="n">preview_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_export_photo</span><span class="p">(</span>
+                    <span class="n">preview_path</span><span class="p">,</span>
+                    <span class="n">preview_name</span><span class="p">,</span>
+                    <span class="n">update</span><span class="p">,</span>
+                    <span class="n">export_db</span><span class="p">,</span>
+                    <span class="n">overwrite</span><span class="p">,</span>
+                    <span class="n">export_as_hardlink</span><span class="p">,</span>
+                    <span class="n">exiftool</span><span class="p">,</span>
+                    <span class="n">touch_file</span><span class="p">,</span>
+                    <span class="n">convert_to_jpeg</span><span class="p">,</span>
+                    <span class="n">fileutil</span><span class="o">=</span><span class="n">fileutil</span><span class="p">,</span>
+                    <span class="n">jpeg_quality</span><span class="o">=</span><span class="n">jpeg_quality</span><span class="p">,</span>
+                    <span class="n">ignore_signature</span><span class="o">=</span><span class="n">ignore_signature</span><span class="p">,</span>
                 <span class="p">)</span>
-            <span class="k">if</span> <span class="n">touch_file</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">exported_file</span> <span class="ow">in</span> <span class="n">all_results</span><span class="o">.</span><span class="n">exported</span><span class="p">:</span>
-                    <span class="n">all_results</span><span class="o">.</span><span class="n">touched</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">exported_file</span><span class="p">)</span>
-                    <span class="n">ts</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">timestamp</span><span class="p">())</span>
-                    <span class="n">fileutil</span><span class="o">.</span><span class="n">utime</span><span class="p">(</span><span class="n">exported_file</span><span class="p">,</span> <span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">ts</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">update</span><span class="p">:</span>
-                <span class="n">all_results</span><span class="o">.</span><span class="n">new</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">all_results</span><span class="o">.</span><span class="n">exported</span><span class="p">)</span>
+                <span class="n">all_results</span> <span class="o">+=</span> <span class="n">results</span>
 
     <span class="c1"># export metadata</span>
     <span class="n">sidecars</span> <span class="o">=</span> <span class="p">[]</span>
@@ -993,6 +986,7 @@
     <span class="n">sidecar_xmp_files_skipped</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">sidecar_xmp_files_written</span> <span class="o">=</span> <span class="p">[]</span>
 
+    <span class="n">dest</span> <span class="o">=</span> <span class="n">dest_original</span> <span class="k">if</span> <span class="n">export_original</span> <span class="k">else</span> <span class="n">dest_edited</span>
     <span class="n">dest_suffix</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">sidecar_drop_ext</span> <span class="k">else</span> <span class="n">dest</span><span class="o">.</span><span class="n">suffix</span>
     <span class="k">if</span> <span class="n">sidecar</span> <span class="o">&amp;</span> <span class="n">SIDECAR_JSON</span><span class="p">:</span>
         <span class="n">sidecar_filename</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}{</span><span class="n">dest_suffix</span><span class="si">}</span><span class="s2">.json&quot;</span><span class="p">)</span>
@@ -1238,6 +1232,189 @@
     <span class="n">all_results</span><span class="o">.</span><span class="n">sidecar_xmp_skipped</span> <span class="o">=</span> <span class="n">sidecar_xmp_files_skipped</span>
 
     <span class="k">return</span> <span class="n">all_results</span>
+
+
+<span class="k">def</span> <span class="nf">_export_photo_with_photos_export</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">dest</span><span class="p">,</span>
+    <span class="n">all_results</span><span class="p">,</span>
+    <span class="n">fileutil</span><span class="p">,</span>
+    <span class="n">export_db</span><span class="p">,</span>
+    <span class="n">use_photokit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">dry_run</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">jpeg_ext</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">touch_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">update</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">overwrite</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">live_photo</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">edited</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">convert_to_jpeg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">jpeg_quality</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="c1"># TODO: duplicative code with the if edited/else--remove it</span>
+    <span class="c1"># export live_photo .mov file?</span>
+    <span class="n">live_photo</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">live_photo</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">live_photo</span><span class="p">)</span>
+    <span class="n">overwrite</span> <span class="o">=</span> <span class="n">overwrite</span> <span class="ow">or</span> <span class="n">update</span>
+    <span class="k">if</span> <span class="n">edited</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared</span><span class="p">:</span>
+        <span class="c1"># exported edited version and not original</span>
+        <span class="c1"># shared photos (in shared albums) show up as not having adjustments (not edited)</span>
+        <span class="c1"># but Photos is unable to export the &quot;original&quot; as only a jpeg copy is shared in iCloud</span>
+        <span class="c1"># so tell Photos to export the current version in this case</span>
+        <span class="c1"># didn&#39;t get passed a filename, add _edited</span>
+        <span class="n">uti</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uti_edited</span> <span class="k">if</span> <span class="n">edited</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">uti_edited</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">uti</span>
+        <span class="n">ext</span> <span class="o">=</span> <span class="n">get_preferred_uti_extension</span><span class="p">(</span><span class="n">uti</span><span class="p">)</span>
+        <span class="n">dest</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="n">use_photokit</span><span class="p">:</span>
+            <span class="n">photolib</span> <span class="o">=</span> <span class="n">PhotoLibrary</span><span class="p">()</span>
+            <span class="n">photo</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">photo</span> <span class="o">=</span> <span class="n">photolib</span><span class="o">.</span><span class="n">fetch_uuid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">PhotoKitFetchFailed</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="c1"># if failed to find UUID, might be a burst photo</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;burstUUID&quot;</span><span class="p">]:</span>
+                    <span class="n">bursts</span> <span class="o">=</span> <span class="n">photolib</span><span class="o">.</span><span class="n">fetch_burst_uuid</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;burstUUID&quot;</span><span class="p">],</span> <span class="nb">all</span><span class="o">=</span><span class="kc">True</span>
+                    <span class="p">)</span>
+                    <span class="c1"># PhotoKit UUIDs may contain &quot;/L0/001&quot; so only look at beginning</span>
+                    <span class="n">photo</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">bursts</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">uuid</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">)]</span>
+                    <span class="n">photo</span> <span class="o">=</span> <span class="n">photo</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">photo</span> <span class="k">else</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">photo</span><span class="p">:</span>
+                    <span class="n">all_results</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="p">(</span>
+                            <span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">),</span>
+                            <span class="sa">f</span><span class="s2">&quot;PhotoKitFetchFailed exception exporting photo </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">lineno</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+            <span class="k">if</span> <span class="n">photo</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">dry_run</span><span class="p">:</span>
+                    <span class="c1"># dry_run, don&#39;t actually export</span>
+                    <span class="n">all_results</span><span class="o">.</span><span class="n">exported</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">exported</span> <span class="o">=</span> <span class="n">photo</span><span class="o">.</span><span class="n">export</span><span class="p">(</span>
+                            <span class="n">dest</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span>
+                            <span class="n">dest</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                            <span class="n">version</span><span class="o">=</span><span class="n">PHOTOS_VERSION_CURRENT</span><span class="p">,</span>
+                            <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="n">all_results</span><span class="o">.</span><span class="n">exported</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">exported</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="n">all_results</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">lineno</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+                        <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">exported</span> <span class="o">=</span> <span class="n">_export_photo_uuid_applescript</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+                    <span class="n">dest</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span>
+                    <span class="n">filestem</span><span class="o">=</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="p">,</span>
+                    <span class="n">original</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">edited</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">live_photo</span><span class="o">=</span><span class="n">live_photo</span><span class="p">,</span>
+                    <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
+                    <span class="n">burst</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">burst</span><span class="p">,</span>
+                    <span class="n">dry_run</span><span class="o">=</span><span class="n">dry_run</span><span class="p">,</span>
+                    <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">all_results</span><span class="o">.</span><span class="n">exported</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">exported</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">ExportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">all_results</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">lineno</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># export original version and not edited</span>
+        <span class="k">if</span> <span class="n">use_photokit</span><span class="p">:</span>
+            <span class="n">photolib</span> <span class="o">=</span> <span class="n">PhotoLibrary</span><span class="p">()</span>
+            <span class="n">photo</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">photo</span> <span class="o">=</span> <span class="n">photolib</span><span class="o">.</span><span class="n">fetch_uuid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">PhotoKitFetchFailed</span><span class="p">:</span>
+                <span class="c1"># if failed to find UUID, might be a burst photo</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">burst</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;burstUUID&quot;</span><span class="p">]:</span>
+                    <span class="n">bursts</span> <span class="o">=</span> <span class="n">photolib</span><span class="o">.</span><span class="n">fetch_burst_uuid</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;burstUUID&quot;</span><span class="p">],</span> <span class="nb">all</span><span class="o">=</span><span class="kc">True</span>
+                    <span class="p">)</span>
+                    <span class="c1"># PhotoKit UUIDs may contain &quot;/L0/001&quot; so only look at beginning</span>
+                    <span class="n">photo</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">bursts</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">uuid</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">)]</span>
+                    <span class="n">photo</span> <span class="o">=</span> <span class="n">photo</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">photo</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">photo</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">dry_run</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">exported</span> <span class="o">=</span> <span class="n">photo</span><span class="o">.</span><span class="n">export</span><span class="p">(</span>
+                            <span class="n">dest</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span>
+                            <span class="n">dest</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                            <span class="n">version</span><span class="o">=</span><span class="n">PHOTOS_VERSION_ORIGINAL</span><span class="p">,</span>
+                            <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="n">all_results</span><span class="o">.</span><span class="n">exported</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">exported</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="n">all_results</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">lineno</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+                        <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># dry_run, don&#39;t actually export</span>
+                    <span class="n">all_results</span><span class="o">.</span><span class="n">exported</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">exported</span> <span class="o">=</span> <span class="n">_export_photo_uuid_applescript</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+                    <span class="n">dest</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span>
+                    <span class="n">filestem</span><span class="o">=</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="p">,</span>
+                    <span class="n">original</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">edited</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">live_photo</span><span class="o">=</span><span class="n">live_photo</span><span class="p">,</span>
+                    <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
+                    <span class="n">burst</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">burst</span><span class="p">,</span>
+                    <span class="n">dry_run</span><span class="o">=</span><span class="n">dry_run</span><span class="p">,</span>
+                    <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">all_results</span><span class="o">.</span><span class="n">exported</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">exported</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">ExportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">all_results</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">lineno</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">all_results</span><span class="o">.</span><span class="n">exported</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">photopath</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_results</span><span class="o">.</span><span class="n">exported</span><span class="p">):</span>
+            <span class="n">converted_stat</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">photopath</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">photopath</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">convert_to_jpeg</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">isphoto</span><span class="p">:</span>
+                <span class="c1"># if passed convert_to_jpeg=True, will assume the photo is a photo and not already a jpeg</span>
+                <span class="k">if</span> <span class="n">photopath</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">LIVE_VIDEO_EXTENSIONS</span><span class="p">:</span>
+                    <span class="n">dest_str</span> <span class="o">=</span> <span class="n">photopath</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">photopath</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">.jpeg&quot;</span>
+                    <span class="n">fileutil</span><span class="o">.</span><span class="n">convert_to_jpeg</span><span class="p">(</span>
+                        <span class="n">photopath</span><span class="p">,</span> <span class="n">dest_str</span><span class="p">,</span> <span class="n">compression_quality</span><span class="o">=</span><span class="n">jpeg_quality</span>
+                    <span class="p">)</span>
+                    <span class="n">converted_stat</span> <span class="o">=</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">file_sig</span><span class="p">(</span><span class="n">dest_str</span><span class="p">)</span>
+                    <span class="n">fileutil</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">photopath</span><span class="p">)</span>
+                    <span class="n">all_results</span><span class="o">.</span><span class="n">exported</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">dest_str</span>
+                    <span class="n">all_results</span><span class="o">.</span><span class="n">converted_to_jpeg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dest_str</span><span class="p">)</span>
+                    <span class="n">photopath</span> <span class="o">=</span> <span class="n">dest_str</span>
+
+            <span class="n">photopath</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">photopath</span><span class="p">)</span>
+            <span class="n">export_db</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="n">photopath</span><span class="p">,</span>
+                <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+                <span class="n">orig_stat</span><span class="o">=</span><span class="n">fileutil</span><span class="o">.</span><span class="n">file_sig</span><span class="p">(</span><span class="n">photopath</span><span class="p">),</span>
+                <span class="n">exif_stat</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                <span class="n">converted_stat</span><span class="o">=</span><span class="n">converted_stat</span><span class="p">,</span>
+                <span class="n">edited_stat</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                <span class="n">info_json</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">json</span><span class="p">(),</span>
+                <span class="n">exif_json</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># todo: handle signatures</span>
+        <span class="k">if</span> <span class="n">jpeg_ext</span><span class="p">:</span>
+            <span class="c1"># use_photos_export (both PhotoKit and AppleScript) don&#39;t use the</span>
+            <span class="c1"># file extension provided (instead they use extension for UTI)</span>
+            <span class="c1"># so if jpeg_ext is set, rename any non-conforming jpegs</span>
+            <span class="n">all_results</span><span class="o">.</span><span class="n">exported</span> <span class="o">=</span> <span class="n">rename_jpeg_files</span><span class="p">(</span>
+                <span class="n">all_results</span><span class="o">.</span><span class="n">exported</span><span class="p">,</span> <span class="n">jpeg_ext</span><span class="p">,</span> <span class="n">fileutil</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">touch_file</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">exported_file</span> <span class="ow">in</span> <span class="n">all_results</span><span class="o">.</span><span class="n">exported</span><span class="p">:</span>
+                <span class="n">all_results</span><span class="o">.</span><span class="n">touched</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">exported_file</span><span class="p">)</span>
+                <span class="n">ts</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">timestamp</span><span class="p">())</span>
+                <span class="n">fileutil</span><span class="o">.</span><span class="n">utime</span><span class="p">(</span><span class="n">exported_file</span><span class="p">,</span> <span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">ts</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">update</span><span class="p">:</span>
+            <span class="n">all_results</span><span class="o">.</span><span class="n">new</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">all_results</span><span class="o">.</span><span class="n">exported</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_export_photo</span><span class="p">(</span>
@@ -1534,7 +1711,7 @@
 <span class="sd">        QuickTime:GPSCoordinates</span>
 <span class="sd">        UserData:GPSCoordinates</span>
 
-<span class="sd">    Reference: </span>
+<span class="sd">    Reference:</span>
 <span class="sd">        https://iptc.org/std/photometadata/specification/IPTC-PhotoMetadata-201610_1.pdf</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1549,9 +1726,10 @@
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">description_template</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">rendered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_template</span><span class="p">(</span>
-            <span class="n">description_template</span><span class="p">,</span> <span class="n">expand_inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace_sep</span><span class="o">=</span><span class="s2">&quot;, &quot;</span>
-        <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_render_options</span><span class="p">,</span> <span class="n">expand_inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace_sep</span><span class="o">=</span><span class="s2">&quot;, &quot;</span>
+        <span class="p">)</span>
+        <span class="n">rendered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_template</span><span class="p">(</span><span class="n">description_template</span><span class="p">,</span> <span class="n">options</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rendered</span><span class="p">)</span> <span class="k">if</span> <span class="n">rendered</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
         <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;EXIF:ImageDescription&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">description</span>
         <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;XMP:Description&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">description</span>
@@ -1589,10 +1767,11 @@
 
     <span class="k">if</span> <span class="n">keyword_template</span><span class="p">:</span>
         <span class="n">rendered_keywords</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_render_options</span><span class="p">,</span> <span class="n">none_str</span><span class="o">=</span><span class="n">_OSXPHOTOS_NONE_SENTINEL</span><span class="p">,</span> <span class="n">path_sep</span><span class="o">=</span><span class="s2">&quot;/&quot;</span>
+        <span class="p">)</span>
         <span class="k">for</span> <span class="n">template_str</span> <span class="ow">in</span> <span class="n">keyword_template</span><span class="p">:</span>
-            <span class="n">rendered</span><span class="p">,</span> <span class="n">unmatched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_template</span><span class="p">(</span>
-                <span class="n">template_str</span><span class="p">,</span> <span class="n">none_str</span><span class="o">=</span><span class="n">_OSXPHOTOS_NONE_SENTINEL</span><span class="p">,</span> <span class="n">path_sep</span><span class="o">=</span><span class="s2">&quot;/&quot;</span>
-            <span class="p">)</span>
+            <span class="n">rendered</span><span class="p">,</span> <span class="n">unmatched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_template</span><span class="p">(</span><span class="n">template_str</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">unmatched</span><span class="p">:</span>
                 <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Unmatched template substitution for template: </span><span class="si">{</span><span class="n">template_str</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">unmatched</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -1715,7 +1894,7 @@
 
 
 <span class="k">def</span> <span class="nf">_get_exif_keywords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; returns list of keywords found in the file&#39;s exif metadata &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;returns list of keywords found in the file&#39;s exif metadata&quot;&quot;&quot;</span>
     <span class="n">keywords</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">exif</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exiftool</span>
     <span class="k">if</span> <span class="n">exif</span><span class="p">:</span>
@@ -1733,7 +1912,7 @@
 
 
 <span class="k">def</span> <span class="nf">_get_exif_persons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; returns list of persons found in the file&#39;s exif metadata &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;returns list of persons found in the file&#39;s exif metadata&quot;&quot;&quot;</span>
     <span class="n">persons</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">exif</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exiftool</span>
     <span class="k">if</span> <span class="n">exif</span><span class="p">:</span>
@@ -1868,9 +2047,10 @@
         <span class="n">extension</span> <span class="o">=</span> <span class="n">extension</span><span class="o">.</span><span class="n">suffix</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">extension</span><span class="o">.</span><span class="n">suffix</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="k">if</span> <span class="n">description_template</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">rendered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_template</span><span class="p">(</span>
-            <span class="n">description_template</span><span class="p">,</span> <span class="n">expand_inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace_sep</span><span class="o">=</span><span class="s2">&quot;, &quot;</span>
-        <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_render_options</span><span class="p">,</span> <span class="n">expand_inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace_sep</span><span class="o">=</span><span class="s2">&quot;, &quot;</span>
+        <span class="p">)</span>
+        <span class="n">rendered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_template</span><span class="p">(</span><span class="n">description_template</span><span class="p">,</span> <span class="n">options</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rendered</span><span class="p">)</span> <span class="k">if</span> <span class="n">rendered</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
@@ -1902,10 +2082,11 @@
 
     <span class="k">if</span> <span class="n">keyword_template</span><span class="p">:</span>
         <span class="n">rendered_keywords</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_render_options</span><span class="p">,</span> <span class="n">none_str</span><span class="o">=</span><span class="n">_OSXPHOTOS_NONE_SENTINEL</span><span class="p">,</span> <span class="n">path_sep</span><span class="o">=</span><span class="s2">&quot;/&quot;</span>
+        <span class="p">)</span>
         <span class="k">for</span> <span class="n">template_str</span> <span class="ow">in</span> <span class="n">keyword_template</span><span class="p">:</span>
-            <span class="n">rendered</span><span class="p">,</span> <span class="n">unmatched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_template</span><span class="p">(</span>
-                <span class="n">template_str</span><span class="p">,</span> <span class="n">none_str</span><span class="o">=</span><span class="n">_OSXPHOTOS_NONE_SENTINEL</span><span class="p">,</span> <span class="n">path_sep</span><span class="o">=</span><span class="s2">&quot;/&quot;</span>
-            <span class="p">)</span>
+            <span class="n">rendered</span><span class="p">,</span> <span class="n">unmatched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_template</span><span class="p">(</span><span class="n">template_str</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">unmatched</span><span class="p">:</span>
                 <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Unmatched template substitution for template: </span><span class="si">{</span><span class="n">template_str</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">unmatched</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -2021,7 +2202,7 @@
       &copy;2021, Rhet Turnbull.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
