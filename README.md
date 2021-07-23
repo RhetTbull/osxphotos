@@ -1801,6 +1801,14 @@ Substitution                    Description
                                 unique to the photo, e.g.
                                 '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'
 
+{id}                            A unique number for the photo based on its
+                                primary key in the Photos database. A
+                                sequential integer, e.g. 1, 2, 3...etc. May be
+                                formatted using a python string format code.
+                                For example, to format as a 5-digit integer
+                                and pad with zeros, use '{id:05d}' which
+                                results in 00001, 00002, 00003...etc.
+
 {comma}                         A comma: ','
 {semicolon}                     A semicolon: ';'
 {questionmark}                  A question mark: '?'
@@ -3649,6 +3657,7 @@ The following template field substitutions are availabe for use the templating s
 |{exif.camera_model}|Camera model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s'|
 |{exif.lens_model}|Lens model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s back camera 4.15mm f/2.2'|
 |{uuid}|Photo's internal universally unique identifier (UUID) for the photo, a 36-character string unique to the photo, e.g. '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'|
+|{id}|A unique number for the photo based on its primary key in the Photos database. A sequential integer, e.g. 1, 2, 3...etc. May be formatted using a python string format code. For example, to format as a 5-digit integer and pad with zeros, use '{id:05d}' which results in 00001, 00002, 00003...etc. |
 |{comma}|A comma: ','|
 |{semicolon}|A semicolon: ';'|
 |{questionmark}|A question mark: '?'|

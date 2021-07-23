@@ -1095,3 +1095,13 @@ def test_filepath():
 
     with pytest.raises(ValueError):
         rendered, _ = template.render("{filepath.foo}", options)
+
+
+def test_id(photosdb):
+    """Test {id} template"""
+    photo = photosdb.get_photo(UUID_MULTI_KEYWORDS)
+    rendered, _ = photo.render_template("{id}")
+    assert rendered[0] == "7"
+
+    rendered, _ = photo.render_template("{id:03d}")
+    assert rendered[0] == "007"

@@ -1104,6 +1104,7 @@ class PhotosDB:
             # get info on special types
             self._dbphotos[uuid]["specialType"] = row[25]
             self._dbphotos[uuid]["masterModelID"] = row[26]
+            self._dbphotos[uuid]["pk"] = row[26] # same as masterModelID, to match Photos 5
             self._dbphotos[uuid]["panorama"] = True if row[25] == 1 else False
             self._dbphotos[uuid]["slow_mo"] = True if row[25] == 2 else False
             self._dbphotos[uuid]["time_lapse"] = True if row[25] == 3 else False
@@ -1921,7 +1922,8 @@ class PhotosDB:
                 {asset_table}.ZVISIBILITYSTATE,
                 {asset_table}.ZTRASHEDDATE,
                 {asset_table}.ZSAVEDASSETTYPE,
-                {asset_table}.ZADDEDDATE
+                {asset_table}.ZADDEDDATE,
+                {asset_table}.Z_PK
                 FROM {asset_table} 
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
                 ORDER BY {asset_table}.ZUUID  """
@@ -1970,6 +1972,7 @@ class PhotosDB:
         # 39   ZGENERICASSET.ZTRASHEDDATE -- date item placed in the trash or null if not in trash
         # 40   ZGENERICASSET.ZSAVEDASSETTYPE -- how item imported
         # 41   ZGENERICASSET.ZADDEDDATE -- date item added to the library
+        # 42   ZGENERICASSET.Z_PK -- primary key
 
         for row in c:
             uuid = row[0]
@@ -2153,6 +2156,8 @@ class PhotosDB:
                 info["added_date"] = datetime.fromtimestamp(row[41] + TIME_DELTA)
             except (ValueError, TypeError):
                 info["added_date"] = datetime(1970, 1, 1)
+
+            info["pk"] = row[42]
 
             # initialize import session info which will be filled in later
             # not every photo has an import session so initialize all records now

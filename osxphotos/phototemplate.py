@@ -127,6 +127,10 @@ TEMPLATE_SUBSTITUTIONS = {
     "{exif.camera_model}": "Camera model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s'",
     "{exif.lens_model}": "Lens model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s back camera 4.15mm f/2.2'",
     "{uuid}": "Photo's internal universally unique identifier (UUID) for the photo, a 36-character string unique to the photo, e.g. '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'",
+    "{id}": "A unique number for the photo based on its primary key in the Photos database. "
+    + "A sequential integer, e.g. 1, 2, 3...etc. May be formatted using a python string format code. "
+    + "For example, to format as a 5-digit integer and pad with zeros, use '{id:05d}' which results in "
+    + "00001, 00002, 00003...etc. ",
     "{comma}": "A comma: ','",
     "{semicolon}": "A semicolon: ';'",
     "{questionmark}": "A question mark: '?'",
@@ -292,6 +296,14 @@ class PhotoTemplateParser:
     def parse(self, template_statement):
         """Parse a template_statement string"""
         return self.metamodel.model_from_str(template_statement)
+
+
+def format_id_str(value, format_str):
+    """Format value based on format code in field in format id:02d"""
+    if not format_str:
+        return str(value)
+    format_str = "{0:" + f"{format_str}" + "}"
+    return format_str.format(value)
 
 
 class PhotoTemplate:
@@ -491,6 +503,7 @@ class PhotoTemplate:
                 vals = self.get_template_value(
                     field,
                     default=default,
+                    subfield=subfield,
                     # delim=delim or self.inplace_sep,
                     # path_sep=path_sep,
                 )
@@ -645,6 +658,7 @@ class PhotoTemplate:
         self,
         field,
         default,
+        subfield=None,
         # bool_val=None,
         # delim=None,
         # path_sep=None,
@@ -657,6 +671,7 @@ class PhotoTemplate:
             bool_val: True value if expression is boolean
             delim: delimiter for expand in place
             path_sep: path separator for fields that are path-like
+            subfield: subfield (value after : in field)
 
         Returns:
             The matching template value (which may be None).
@@ -923,6 +938,8 @@ class PhotoTemplate:
             value = self.photo.exif_info.lens_model if self.photo.exif_info else None
         elif field == "uuid":
             value = self.photo.uuid
+        elif field.startswith("id"):
+            value = format_id_str(self.photo._info["pk"], subfield)
         elif field in PUNCTUATION:
             value = PUNCTUATION[field]
         elif field == "osxphotos_version":
