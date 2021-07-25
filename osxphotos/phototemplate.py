@@ -128,9 +128,28 @@ TEMPLATE_SUBSTITUTIONS = {
     "{exif.lens_model}": "Lens model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s back camera 4.15mm f/2.2'",
     "{uuid}": "Photo's internal universally unique identifier (UUID) for the photo, a 36-character string unique to the photo, e.g. '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'",
     "{id}": "A unique number for the photo based on its primary key in the Photos database. "
-    + "A sequential integer, e.g. 1, 2, 3...etc. May be formatted using a python string format code. "
+    + "A sequential integer, e.g. 1, 2, 3...etc.  Each asset associated with a photo (e.g. an image and Live Photo preview) will share the same id. "
+    + "May be formatted using a python string format code. "
     + "For example, to format as a 5-digit integer and pad with zeros, use '{id:05d}' which results in "
     + "00001, 00002, 00003...etc. ",
+    "{album_seq}": "An integer, starting at 0, indicating the photo's index (sequence) in the containing album. "
+    + "Only valid when used in a '--filename' template and only when '{album}' or '{folder_album}' is used in the '--directory' template. "
+    + 'For example \'--directory "{folder_album}" --filename "{album_seq}_{original_name}"\'. '
+    + "To start counting at a value other than 0, append append a period and the starting value to the field name.  "
+    + "For example, to start counting at 1 instead of 0: '{album_seq.1}'. "
+    + "May be formatted using a python string format code. "
+    + "For example, to format as a 5-digit integer and pad with zeros, use '{album_seq:05d}' which results in "
+    + "00001, 00002, 00003...etc. "
+    + "This may result in incorrect sequences if you have duplicate albums with the same name; see also '{folder_album_seq}'.",
+    "{folder_album_seq}": "An integer, starting at 0, indicating the photo's index (sequence) in the containing album and folder path. "
+    + "Only valid when used in a '--filename' template and only when '{folder_album}' is used in the '--directory' template. "
+    + 'For example \'--directory "{folder_album}" --filename "{folder_album_seq}_{original_name}"\'. '
+    + "To start counting at a value other than 0, append append a period and the starting value to the field name.  "
+    + "For example, to start counting at 1 instead of 0: '{folder_album_seq.1}' "
+    + "May be formatted using a python string format code. "
+    + "For example, to format as a 5-digit integer and pad with zeros, use '{folder_album_seq:05d}' which results in "
+    + "00001, 00002, 00003...etc. "
+    + "This may result in incorrect sequences if you have duplicate albums with the same name in the same folder; see also '{album_seq}'.",
     "{comma}": "A comma: ','",
     "{semicolon}": "A semicolon: ';'",
     "{questionmark}": "A question mark: '?'",
@@ -297,13 +316,10 @@ class PhotoTemplateParser:
         """Parse a template_statement string"""
         return self.metamodel.model_from_str(template_statement)
 
-
-def format_id_str(value, format_str):
-    """Format value based on format code in field in format id:02d"""
-    if not format_str:
-        return str(value)
-    format_str = "{0:" + f"{format_str}" + "}"
-    return format_str.format(value)
+    def fields(self, template_statement):
+        """Return list of fields found in a template statement; does not verify that fields are valid"""
+        model = self.parse(template_statement)
+        return [ts.template.field for ts in model.template_strings if ts.template]
 
 
 class PhotoTemplate:
@@ -329,6 +345,7 @@ class PhotoTemplate:
         # initialize render options
         # this will be done in render() but for testing, some of the lookup functions are called directly
         options = RenderOptions()
+        self.options = options
         self.path_sep = options.path_sep
         self.inplace_sep = options.inplace_sep
         self.edited_version = options.edited_version
@@ -340,6 +357,7 @@ class PhotoTemplate:
         self.export_dir = options.export_dir
         self.filepath = options.filepath
         self.quote = options.quote
+        self.dest_path = options.dest_path
 
     def render(
         self,
@@ -359,6 +377,7 @@ class PhotoTemplate:
         if type(template) is not str:
             raise TypeError(f"template must be type str, not {type(template)}")
 
+        self.options = options
         self.path_sep = options.path_sep
         self.inplace_sep = options.inplace_sep
         self.edited_version = options.edited_version
@@ -371,7 +390,7 @@ class PhotoTemplate:
         self.dest_path = options.dest_path
         self.filepath = options.filepath
         self.quote = options.quote
-        self.options = options
+        self.dest_path = options.dest_path
 
         try:
             model = self.parser.parse(template)
@@ -499,7 +518,10 @@ class PhotoTemplate:
                 conditional_value = []
 
             vals = []
-            if field in SINGLE_VALUE_SUBSTITUTIONS:
+            if (
+                field in SINGLE_VALUE_SUBSTITUTIONS
+                or field.split(".")[0] in SINGLE_VALUE_SUBSTITUTIONS
+            ):
                 vals = self.get_template_value(
                     field,
                     default=default,
@@ -578,12 +600,8 @@ class PhotoTemplate:
                             f"comparison operators may only be used with a single value: {vals} {conditional_value}"
                         )
                     try:
-                        match = (
-                            True
-                            if test_function(
-                                float(vals[0]), float(conditional_value[0])
-                            )
-                            else False
+                        match = bool(
+                            test_function(float(vals[0]), float(conditional_value[0]))
                         )
                         if (match and not negation) or (negation and not match):
                             return ["True"]
@@ -682,9 +700,6 @@ class PhotoTemplate:
 
         if self.photo.uuid is None:
             return []
-
-        if field not in FIELD_NAMES:
-            raise ValueError(f"SyntaxError: Unknown field: {field}")
 
         # initialize today with current date/time if needed
         if self.today is None:
@@ -938,8 +953,26 @@ class PhotoTemplate:
             value = self.photo.exif_info.lens_model if self.photo.exif_info else None
         elif field == "uuid":
             value = self.photo.uuid
-        elif field.startswith("id"):
-            value = format_id_str(self.photo._info["pk"], subfield)
+        elif field == "id":
+            value = format_str_value(self.photo._info["pk"], subfield)
+        elif field.startswith("album_seq") or field.startswith("folder_album_seq"):
+            dest_path = self.dest_path
+            if not dest_path:
+                value = None
+            else:
+                if field.startswith("album_seq"):
+                    album = pathlib.Path(dest_path).name
+                    album_info = _get_album_by_name(self.photo, album)
+                else:
+                    album_info = _get_album_by_path(self.photo, dest_path)
+                value = album_info.photo_index(self.photo) if album_info else None
+            if value is not None:
+                try:
+                    start_id = field.split(".", 1)
+                    value = int(value) + int(start_id[1])
+                except IndexError:
+                    pass
+                value = format_str_value(value, subfield)
         elif field in PUNCTUATION:
             value = PUNCTUATION[field]
         elif field == "osxphotos_version":
@@ -1353,3 +1386,31 @@ def _get_pathlib_value(field, value, quote):
         return val_str
     except AttributeError:
         raise ValueError("Illegal value for path template: {attribute}")
+
+
+def format_str_value(value, format_str):
+    """Format value based on format code in field in format id:02d"""
+    if not format_str:
+        return str(value)
+    format_str = "{0:" + f"{format_str}" + "}"
+    return format_str.format(value)
+
+
+def _get_album_by_name(photo, album):
+    """Finds first album named album that photo is in and returns the AlbumInfo object, otherwise returns None"""
+    for album_info in photo.album_info:
+        if album_info.title == album:
+            return album_info
+    return None
+
+
+def _get_album_by_path(photo, folder_album_path):
+    """finds the first album whose folder_album path matches and folder_album_path and returns the AlbumInfo object, otherwise, returns None"""
+
+    for album_info in photo.album_info:
+        # following code is how {folder_album} builds the folder path
+        folder = "/".join(sanitize_dirname(f) for f in album_info.folder_names)
+        folder += "/" + sanitize_dirname(album_info.title)
+        if folder_album_path.endswith(folder):
+            return album_info
+    return None

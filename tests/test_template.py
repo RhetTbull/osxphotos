@@ -343,6 +343,49 @@ UUID_CONDITIONAL = {
     },
 }
 
+UUID_ALBUM_SEQ = {
+    "7783E8E6-9CAC-40F3-BE22-81FB7051C266": {
+        "album": "/Sorted Manual",
+        "templates": {
+            "{album_seq}": "0",
+            "{album_seq:02d}": "00",
+            "{album_seq.1}": "1",
+            "{album_seq.1:03d}": "001",
+            "{folder_album_seq}": "0",
+            "{folder_album_seq:02d}": "00",
+            "{folder_album_seq.1}": "1",
+            "{folder_album_seq.1:03d}": "001",
+        },
+    },
+    "F12384F6-CD17-4151-ACBA-AE0E3688539E": {
+        "album": "/Sorted Manual",
+        "templates": {
+            "{album_seq}": "2",
+            "{album_seq:02d}": "02",
+            "{album_seq.1}": "3",
+            "{album_seq.1:03d}": "003",
+            "{folder_album_seq}": "2",
+            "{folder_album_seq:02d}": "02",
+            "{folder_album_seq.1}": "3",
+            "{folder_album_seq.1:03d}": "003",
+        },
+    },
+    "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51": {
+        "album": "/Folder1/SubFolder2/AlbumInFolder",
+        "templates": {
+            "{album_seq}": "1",
+            "{album_seq:02d}": "01",
+            "{album_seq.1}": "2",
+            "{album_seq.1:03d}": "002",
+            "{folder_album_seq}": "1",
+            "{folder_album_seq:02d}": "01",
+            "{folder_album_seq.1}": "2",
+            "{folder_album_seq.0}": "1",
+            "{folder_album_seq.1:03d}": "002",
+        },
+    },
+}
+
 
 @pytest.fixture(scope="module")
 def photosdb_places():
@@ -1105,3 +1148,16 @@ def test_id(photosdb):
 
     rendered, _ = photo.render_template("{id:03d}")
     assert rendered[0] == "007"
+
+
+def test_album_seq(photosdb):
+    """Test {album_seq} and {folder_album_seq} templates"""
+    from osxphotos.phototemplate import RenderOptions
+
+    for uuid in UUID_ALBUM_SEQ:
+        photo = photosdb.get_photo(uuid)
+        album = UUID_ALBUM_SEQ[uuid]["album"]
+        options = RenderOptions(dest_path=album)
+        for template, value in UUID_ALBUM_SEQ[uuid]["templates"].items():
+            rendered, _ = photo.render_template(template, options=options)
+            assert rendered[0] == value

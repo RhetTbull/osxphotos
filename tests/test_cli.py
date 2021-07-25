@@ -778,6 +778,21 @@ UUID_DICT_MISSING = {
     "D79B8D77-BFFC-460B-9312-034F2877D35B": "Pumkins2.jpg",  # not missing
 }
 
+UUID_DICT_FOLDER_ALBUM_SEQ = {
+    "7783E8E6-9CAC-40F3-BE22-81FB7051C266": {
+        "directory": "{folder_album}",
+        "album": "Sorted Oldest First",
+        "filename": "{album?{folder_album_seq.1}_,}{original_name}",
+        "result": "3_IMG_3092.heic",
+    },
+    "3DD2C897-F19E-4CA6-8C22-B027D5A71907": {
+        "directory": "{album}",
+        "album": "Sorted Oldest First",
+        "filename": "{album?{album_seq}_,}{original_name}",
+        "result": "0_IMG_4547.jpg",
+    },
+}
+
 
 def modify_file(filename):
     """appends data to a file to modify it"""
@@ -7070,3 +7085,39 @@ def test_export_query_function():
         )
         assert result.exit_code == 0
         assert "exported: 1" in result.output
+
+
+def test_export_album_seq():
+    """Test {album_seq} template"""
+    import glob
+    from osxphotos.cli import cli
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        for uuid in UUID_DICT_FOLDER_ALBUM_SEQ:
+            result = runner.invoke(
+                cli,
+                [
+                    "export",
+                    "--db",
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--album",
+                    UUID_DICT_FOLDER_ALBUM_SEQ[uuid]["album"],
+                    "--directory",
+                    UUID_DICT_FOLDER_ALBUM_SEQ[uuid]["directory"],
+                    "--filename",
+                    UUID_DICT_FOLDER_ALBUM_SEQ[uuid]["filename"],
+                    "--uuid",
+                    uuid,
+                ],
+            )
+        assert result.exit_code == 0
+        files = glob.glob(f"{UUID_DICT_FOLDER_ALBUM_SEQ[uuid]['album']}/*")
+        assert (
+            f"{UUID_DICT_FOLDER_ALBUM_SEQ[uuid]['album']}/{UUID_DICT_FOLDER_ALBUM_SEQ[uuid]['result']}"
+            in files
+        )

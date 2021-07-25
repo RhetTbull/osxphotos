@@ -1803,11 +1803,55 @@ Substitution                    Description
 
 {id}                            A unique number for the photo based on its
                                 primary key in the Photos database. A
-                                sequential integer, e.g. 1, 2, 3...etc. May be
+                                sequential integer, e.g. 1, 2, 3...etc.  Each
+                                asset associated with a photo (e.g. an image
+                                and Live Photo preview) will share the same
+                                id. May be formatted using a python string
+                                format code. For example, to format as a
+                                5-digit integer and pad with zeros, use
+                                '{id:05d}' which results in 00001, 00002,
+                                00003...etc.
+
+{album_seq}                     An integer, starting at 0, indicating the
+                                photo's index (sequence) in the containing
+                                album. Only valid when used in a '--filename'
+                                template and only when '{album}' or
+                                '{folder_album}' is used in the '--directory'
+                                template. For example '--directory
+                                "{folder_album}" --filename
+                                "{album_seq}_{original_name}"'. To start
+                                counting at a value other than 0, append
+                                append a period and the starting value to the
+                                field name.  For example, to start counting at
+                                1 instead of 0: '{album_seq.1}'. May be
                                 formatted using a python string format code.
                                 For example, to format as a 5-digit integer
-                                and pad with zeros, use '{id:05d}' which
-                                results in 00001, 00002, 00003...etc.
+                                and pad with zeros, use '{album_seq:05d}'
+                                which results in 00001, 00002, 00003...etc.
+                                This may result in incorrect sequences if you
+                                have duplicate albums with the same name; see
+                                also '{folder_album_seq}'.
+
+{folder_album_seq}              An integer, starting at 0, indicating the
+                                photo's index (sequence) in the containing
+                                album and folder path. Only valid when used in
+                                a '--filename' template and only when
+                                '{folder_album}' is used in the '--directory'
+                                template. For example '--directory
+                                "{folder_album}" --filename
+                                "{folder_album_seq}_{original_name}"'. To
+                                start counting at a value other than 0, append
+                                append a period and the starting value to the
+                                field name.  For example, to start counting at
+                                1 instead of 0: '{folder_album_seq.1}' May be
+                                formatted using a python string format code.
+                                For example, to format as a 5-digit integer
+                                and pad with zeros, use
+                                '{folder_album_seq:05d}' which results in
+                                00001, 00002, 00003...etc. This may result in
+                                incorrect sequences if you have duplicate
+                                albums with the same name in the same folder;
+                                see also '{album_seq}'.
 
 {comma}                         A comma: ','
 {semicolon}                     A semicolon: ';'
@@ -1823,7 +1867,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.42.66'
+{osxphotos_version}             The osxphotos version, e.g. '0.42.67'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified for
@@ -3657,7 +3701,9 @@ The following template field substitutions are availabe for use the templating s
 |{exif.camera_model}|Camera model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s'|
 |{exif.lens_model}|Lens model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s back camera 4.15mm f/2.2'|
 |{uuid}|Photo's internal universally unique identifier (UUID) for the photo, a 36-character string unique to the photo, e.g. '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'|
-|{id}|A unique number for the photo based on its primary key in the Photos database. A sequential integer, e.g. 1, 2, 3...etc. May be formatted using a python string format code. For example, to format as a 5-digit integer and pad with zeros, use '{id:05d}' which results in 00001, 00002, 00003...etc. |
+|{id}|A unique number for the photo based on its primary key in the Photos database. A sequential integer, e.g. 1, 2, 3...etc.  Each asset associated with a photo (e.g. an image and Live Photo preview) will share the same id. May be formatted using a python string format code. For example, to format as a 5-digit integer and pad with zeros, use '{id:05d}' which results in 00001, 00002, 00003...etc. |
+|{album_seq}|An integer, starting at 0, indicating the photo's index (sequence) in the containing album. Only valid when used in a '--filename' template and only when '{album}' or '{folder_album}' is used in the '--directory' template. For example '--directory "{folder_album}" --filename "{album_seq}_{original_name}"'. To start counting at a value other than 0, append append a period and the starting value to the field name.  For example, to start counting at 1 instead of 0: '{album_seq.1}'. May be formatted using a python string format code. For example, to format as a 5-digit integer and pad with zeros, use '{album_seq:05d}' which results in 00001, 00002, 00003...etc. This may result in incorrect sequences if you have duplicate albums with the same name; see also '{folder_album_seq}'.|
+|{folder_album_seq}|An integer, starting at 0, indicating the photo's index (sequence) in the containing album and folder path. Only valid when used in a '--filename' template and only when '{folder_album}' is used in the '--directory' template. For example '--directory "{folder_album}" --filename "{folder_album_seq}_{original_name}"'. To start counting at a value other than 0, append append a period and the starting value to the field name.  For example, to start counting at 1 instead of 0: '{folder_album_seq.1}' May be formatted using a python string format code. For example, to format as a 5-digit integer and pad with zeros, use '{folder_album_seq:05d}' which results in 00001, 00002, 00003...etc. This may result in incorrect sequences if you have duplicate albums with the same name in the same folder; see also '{album_seq}'.|
 |{comma}|A comma: ','|
 |{semicolon}|A semicolon: ';'|
 |{questionmark}|A question mark: '?'|
@@ -3672,7 +3718,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.42.66'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.42.67'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
