@@ -139,7 +139,7 @@ TEMPLATE_SUBSTITUTIONS = {
     + "For example, to start counting at 1 instead of 0: '{album_seq.1}'. "
     + "May be formatted using a python string format code. "
     + "For example, to format as a 5-digit integer and pad with zeros, use '{album_seq:05d}' which results in "
-    + "00001, 00002, 00003...etc. "
+    + "00000, 00001, 00002...etc. "
     + "This may result in incorrect sequences if you have duplicate albums with the same name; see also '{folder_album_seq}'.",
     "{folder_album_seq}": "An integer, starting at 0, indicating the photo's index (sequence) in the containing album and folder path. "
     + "Only valid when used in a '--filename' template and only when '{folder_album}' is used in the '--directory' template. "
@@ -148,7 +148,7 @@ TEMPLATE_SUBSTITUTIONS = {
     + "For example, to start counting at 1 instead of 0: '{folder_album_seq.1}' "
     + "May be formatted using a python string format code. "
     + "For example, to format as a 5-digit integer and pad with zeros, use '{folder_album_seq:05d}' which results in "
-    + "00001, 00002, 00003...etc. "
+    + "00000, 00001, 00002...etc. "
     + "This may result in incorrect sequences if you have duplicate albums with the same name in the same folder; see also '{album_seq}'.",
     "{comma}": "A comma: ','",
     "{semicolon}": "A semicolon: ';'",
