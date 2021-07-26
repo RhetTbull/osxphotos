@@ -30,12 +30,14 @@ from .._constants import (
     BURST_KEY,
     BURST_NOT_SELECTED,
     BURST_SELECTED,
+    TEXT_DETECTION_CONFIDENCE_THRESHOLD,
 )
 from ..adjustmentsinfo import AdjustmentsInfo
 from ..albuminfo import AlbumInfo, ImportInfo
 from ..personinfo import FaceInfo, PersonInfo
 from ..phototemplate import PhotoTemplate, RenderOptions
 from ..placeinfo import PlaceInfo4, PlaceInfo5
+from ..text_detection import detect_text
 from ..uti import get_preferred_uti_extension, get_uti_for_extension
 from ..utils import _debug, _get_resource_loc, findfiles
 
@@ -1105,6 +1107,41 @@ class PhotoInfo:
         options = options or RenderOptions()
         template = PhotoTemplate(self, exiftool_path=self._db._exiftool_path)
         return template.render(template_str, options)
+
+    def detected_text(self, confidence_threshold=TEXT_DETECTION_CONFIDENCE_THRESHOLD):
+        """Detects text in photo and returns lists of results as (detected text, confidence)
+
+        confidence_threshold: float between 0.0 and 1.0. If text detection confidence is below this threshold,
+        text will not be returned. Default is TEXT_DETECTION_CONFIDENCE_THRESHOLD
+
+        If photo is edited, uses the edited photo, otherwise the original; falls back to the preview image if neither edited or original is available
+
+        Returns: list of (detected text, confidence) tuples
+        """
+        path = (
+            self.path_edited if self.hasadjustments and self.path_edited else self.path
+        )
+        path = path or self.path_derivatives[0] if self.path_derivatives else None
+        if not path:
+            return []
+
+        try:
+            return self._detected_text[(path, confidence_threshold)]
+        except (AttributeError, KeyError) as e:
+            if isinstance(e, AttributeError):
+                self._detected_text = {}
+
+            try:
+                detected_text = detect_text(path)
+            except Exception as e:
+                detected_text = []
+
+            self._detected_text[(path, confidence_threshold)] = [
+                (text, confidence)
+                for text, confidence in detected_text
+                if confidence >= confidence_threshold
+            ]
+            return self._detected_text[(path, confidence_threshold)]
 
     @property
     def _longitude(self):

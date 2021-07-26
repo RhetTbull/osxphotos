@@ -2964,6 +2964,18 @@ Some substitutions, notably `album`, `keyword`, and `person` could return multip
 
 See [Template System](#template-system) for additional details.
 
+#### `detected_text(confidence_threshold=TEXT_DETECTION_CONFIDENCE_THRESHOLD)`
+
+Detects text in photo and returns lists of results as (detected text, confidence)
+
+- `confidence_threshold`: float between 0.0 and 1.0. If text detection confidence is below this threshold, text will not be returned. Default is `osxphotos._constants.TEXT_DETECTION_CONFIDENCE_THRESHOLD`
+
+If photo is edited, uses the edited photo, otherwise the original; falls back to the preview image if neither edited or original is available.
+
+Returns: list of (detected text, confidence) tuples.
+
+Note: This is *not* the same as Live Text in macOS Monterey.  When using `detected_text()`, osxphotos will use Apple's [Vision framework](https://developer.apple.com/documentation/vision/recognizing_text_in_images?language=objc) to perform text detection on the image.  On my circa 2013 MacBook Pro, this takes about 2 seconds per image.  `detected_text()` does memoize the results for a given `confidence_threshold` so repeated calls will not re-process the photo.
+
 ### ExifInfo
 [PhotosInfo.exif_info](#exif-info) returns an `ExifInfo` object with some EXIF data about the photo (Photos 5 only).  `ExifInfo` contains the following properties:
 

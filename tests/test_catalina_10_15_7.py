@@ -234,6 +234,11 @@ UUID_NOT_REFERENCE = "F12384F6-CD17-4151-ACBA-AE0E3688539E"
 
 UUID_DUPLICATE = ""
 
+UUID_DETECTED_TEXT = {
+    "E2078879-A29C-4D6F-BACB-E3BBE6C3EB91": "osxphotos",
+    "A92D9C26-3A50-4197-9388-CB5F7DB9FA91": None,
+}
+
 
 @pytest.fixture(scope="module")
 def photosdb():
@@ -1423,3 +1428,14 @@ def test_multi_uuid(photosdb):
     photos = photosdb.photos(uuid=[UUID_DICT["favorite"], UUID_DICT["not_favorite"]])
 
     assert len(photos) == 2
+
+
+def test_detected_text(photosdb):
+    """test PhotoInfo.detected_text"""
+    for uuid, expected_text in UUID_DETECTED_TEXT.items():
+        photo = photosdb.get_photo(uuid=uuid)
+        detected_text = " ".join(text for text, conf in photo.detected_text())
+        if expected_text is not None:
+            assert expected_text in detected_text
+        else:
+            assert not detected_text
