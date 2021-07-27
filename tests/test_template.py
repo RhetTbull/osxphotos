@@ -262,6 +262,11 @@ TEMPLATE_VALUES_DATE_NOT_MODIFIED = {
     "{modified.strftime,%Y-%m-%d-%H%M%S}": "2020-02-04-190738",
 }
 
+UUID_DETECTED_TEXT = "E2078879-A29C-4D6F-BACB-E3BBE6C3EB91"
+TEMPLATE_VALUES_DETECTED_TEXT = {
+    "{detected_text}": "osxphotos",
+    "{;+detected_text:0.5}": "osxphotos;",
+}
 
 COMMENT_UUID_DICT = {
     "4AD7C8EF-2991-4519-9D3A-7F44A6F031BE": [
@@ -434,7 +439,10 @@ def test_lookup_multi(photosdb_places):
         if subst in ["{exiftool}", "{photo}", "{function}"]:
             continue
         lookup = template.get_template_value_multi(
-            lookup_str, path_sep=os.path.sep, default=[]
+            lookup_str,
+            path_sep=os.path.sep,
+            default=[],
+            subfield=None,
         )
         assert isinstance(lookup, list)
 
@@ -1161,3 +1169,11 @@ def test_album_seq(photosdb):
         for template, value in UUID_ALBUM_SEQ[uuid]["templates"].items():
             rendered, _ = photo.render_template(template, options=options)
             assert rendered[0] == value
+
+
+def test_detected_text(photosdb):
+    """Test {detected_text} template"""
+    photo = photosdb.get_photo(UUID_DETECTED_TEXT)
+    for template, value in TEMPLATE_VALUES_DETECTED_TEXT.items():
+        rendered, _ = photo.render_template(template)
+        assert value in "".join(rendered)

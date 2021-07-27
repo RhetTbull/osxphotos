@@ -1796,6 +1796,7 @@ def export(
                     export_dir=dest,
                     dry_run=dry_run,
                     exiftool_path=exiftool_path,
+                    export_db=export_db,
                 )
 
                 if album_export and export_results.exported:
@@ -1865,6 +1866,7 @@ def export(
                         finder_tag_template=finder_tag_template,
                         strip=strip,
                         export_dir=dest,
+                        export_db=export_db,
                     )
                     results.xattr_written.extend(tags_written)
                     results.xattr_skipped.extend(tags_skipped)
@@ -1876,6 +1878,7 @@ def export(
                         xattr_template,
                         strip=strip,
                         export_dir=dest,
+                        export_db=export_db,
                     )
                     results.xattr_written.extend(xattr_written)
                     results.xattr_skipped.extend(xattr_skipped)
@@ -2538,10 +2541,22 @@ def export_photo(
         sidecar_flags |= SIDECAR_EXIFTOOL
 
     rendered_suffix = _render_suffix_template(
-        original_suffix, "original_suffix", "--original-suffix", strip, dest, photo
+        original_suffix,
+        "original_suffix",
+        "--original-suffix",
+        strip,
+        dest,
+        photo,
+        export_db,
     )
     rendered_preview_suffix = _render_suffix_template(
-        preview_suffix, "preview_suffix", "--preview-suffix", strip, dest, photo
+        preview_suffix,
+        "preview_suffix",
+        "--preview-suffix",
+        strip,
+        dest,
+        photo,
+        export_db,
     )
 
     # if download_missing and the photo is missing or path doesn't exist,
@@ -2557,11 +2572,24 @@ def export_photo(
 
     results = ExportResults()
     dest_paths = get_dirnames_from_template(
-        photo, directory, export_by_date, dest, dry_run, strip=strip, edited=False
+        photo,
+        directory,
+        export_by_date,
+        dest,
+        dry_run,
+        strip=strip,
+        edited=False,
+        export_db=export_db,
     )
     for dest_path in dest_paths:
         filenames = get_filenames_from_template(
-            photo, filename_template, dest, dest_path, original_name, strip=strip
+            photo,
+            filename_template,
+            dest,
+            dest_path,
+            original_name,
+            strip=strip,
+            export_db=export_db,
         )
 
         for filename in filenames:
@@ -2632,12 +2660,26 @@ def export_photo(
 
     if export_edited and photo.hasadjustments:
         dest_paths = get_dirnames_from_template(
-            photo, directory, export_by_date, dest, dry_run, strip=strip, edited=True
+            photo,
+            directory,
+            export_by_date,
+            dest,
+            dry_run,
+            strip=strip,
+            edited=True,
+            export_db=export_db,
         )
         for dest_path in dest_paths:
             # if export-edited, also export the edited version
             edited_filenames = get_filenames_from_template(
-                photo, filename_template, dest, dest_path, original_name, strip=strip, edited=True
+                photo,
+                filename_template,
+                dest,
+                dest_path,
+                original_name,
+                strip=strip,
+                edited=True,
+                export_db=export_db,
             )
             for edited_filename in edited_filenames:
                 edited_filename = pathlib.Path(edited_filename)
@@ -2674,6 +2716,7 @@ def export_photo(
                     strip,
                     dest,
                     photo,
+                    export_db,
                 )
                 edited_filename = (
                     f"{edited_filename.stem}{rendered_edited_suffix}{edited_ext}"
@@ -2729,7 +2772,9 @@ def export_photo(
     return results
 
 
-def _render_suffix_template(suffix_template, var_name, option_name, strip, dest, photo):
+def _render_suffix_template(
+    suffix_template, var_name, option_name, strip, dest, photo, export_db
+):
     """render suffix template
 
     Returns:
@@ -2739,7 +2784,9 @@ def _render_suffix_template(suffix_template, var_name, option_name, strip, dest,
         return ""
 
     try:
-        options = RenderOptions(filename=True, strip=strip, export_dir=dest)
+        options = RenderOptions(
+            filename=True, strip=strip, export_dir=dest, exportdb=export_db
+        )
         rendered_suffix, unmatched = photo.render_template(suffix_template, options)
     except ValueError as e:
         raise click.BadOptionUsage(
@@ -2848,7 +2895,9 @@ def export_photo_to_directory(
             results.missing.append(str(pathlib.Path(dest_path) / filename))
             return results
 
-    render_options = RenderOptions(export_dir=export_dir, dest_path=dest_path)
+    render_options = RenderOptions(
+        export_dir=export_dir, dest_path=dest_path, exportdb=export_db
+    )
 
     tries = 0
     while tries <= retry:
@@ -2960,6 +3009,7 @@ def get_filenames_from_template(
     original_name,
     strip=False,
     edited=False,
+    export_db=None,
 ):
     """get list of export filenames for a photo
 
@@ -2987,6 +3037,7 @@ def get_filenames_from_template(
                 edited_version=edited,
                 export_dir=export_dir,
                 dest_path=dest_path,
+                exportdb=export_db,
             )
             filenames, unmatched = photo.render_template(filename_template, options)
         except ValueError as e:
@@ -3011,7 +3062,14 @@ def get_filenames_from_template(
 
 
 def get_dirnames_from_template(
-    photo, directory, export_by_date, dest, dry_run, strip=False, edited=False
+    photo,
+    directory,
+    export_by_date,
+    dest,
+    dry_run,
+    strip=False,
+    edited=False,
+    export_db=None,
 ):
     """get list of directories to export a photo into, creates directories if they don't exist
 
@@ -3042,7 +3100,9 @@ def get_dirnames_from_template(
     elif directory:
         # got a directory template, render it and check results are valid
         try:
-            options = RenderOptions(dirname=True, strip=strip, edited_version=edited)
+            options = RenderOptions(
+                dirname=True, strip=strip, edited_version=edited, exportdb=export_db
+            )
             dirnames, unmatched = photo.render_template(directory, options)
         except ValueError as e:
             raise click.BadOptionUsage(
@@ -3325,6 +3385,7 @@ def write_finder_tags(
     finder_tag_template=None,
     strip=False,
     export_dir=None,
+    export_db=None,
 ):
     """Write Finder tags (extended attributes) to files; only writes attributes if attributes on file differ from what would be written
 
@@ -3338,6 +3399,7 @@ def write_finder_tags(
         exiftool_merge_keywords: if True, include any keywords in the exif data of the source image as keywords
         finder_tag_template: list of templates to evaluate for determining Finder tags
         export_dir: value to use for {export_dir} template
+        export_db: an ExportDB object
 
     Returns:
         (list of file paths that were updated with new Finder tags, list of file paths skipped because Finder tags didn't need updating)
@@ -3369,6 +3431,7 @@ def write_finder_tags(
                     path_sep="/",
                     strip=strip,
                     export_dir=export_dir,
+                    exportdb=export_db,
                 )
                 rendered, unmatched = photo.render_template(template_str, options)
             except ValueError as e:
@@ -3408,7 +3471,12 @@ def write_finder_tags(
 
 
 def write_extended_attributes(
-    photo, files, xattr_template, strip=False, export_dir=None
+    photo,
+    files,
+    xattr_template,
+    strip=False,
+    export_dir=None,
+    export_db=None,
 ):
     """Writes extended attributes to exported files
 
@@ -3416,6 +3484,7 @@ def write_extended_attributes(
         photo: a PhotoInfo object
         strip:   xattr_template: list of tuples: (attribute name, attribute template)
         export_dir: value to use for {export_dir} template
+        exportdb: an ExportDB object
 
     Returns:
         tuple(list of file paths that were updated with new attributes, list of file paths skipped because attributes didn't need updating)
@@ -3429,6 +3498,7 @@ def write_extended_attributes(
                 path_sep="/",
                 strip=strip,
                 export_dir=export_dir,
+                exportdb=export_db,
             )
             rendered, unmatched = photo.render_template(template_str, options)
         except ValueError as e:
@@ -3480,7 +3550,7 @@ def write_extended_attributes(
 
 
 def run_post_command(
-    photo, post_command, export_results, export_dir, dry_run, exiftool_path
+    photo, post_command, export_results, export_dir, dry_run, exiftool_path, export_db
 ):
     # todo: pass in RenderOptions from export? (e.g. so it contains strip, etc?)
     # todo: need a shell_quote template type:
@@ -3492,7 +3562,9 @@ def run_post_command(
             # some categories, like error, return a tuple of (file, error str)
             if isinstance(f, tuple):
                 f = f[0]
-            render_options = RenderOptions(export_dir=export_dir, filepath=f)
+            render_options = RenderOptions(
+                export_dir=export_dir, filepath=f, exportdb=export_db
+            )
             template = PhotoTemplate(photo, exiftool_path=exiftool_path)
             command, _ = template.render(command_template, options=render_options)
             command = command[0] if command else None

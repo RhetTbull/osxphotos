@@ -1,6 +1,7 @@
 """ Custom template system for osxphotos, implements osxphotos template language (OTL) """
 
 import datetime
+import json
 import locale
 import os
 import pathlib
@@ -11,11 +12,13 @@ from typing import Optional
 
 from textx import TextXSyntaxError, metamodel_from_file
 
-from ._constants import _UNKNOWN_PERSON
+from ._constants import _UNKNOWN_PERSON, TEXT_DETECTION_CONFIDENCE_THRESHOLD
 from ._version import __version__
 from .datetime_formatter import DateTimeFormatter
 from .exiftool import ExifToolCaching
+from .export_db import ExportDB_ABC, ExportDBInMemory
 from .path_utils import sanitize_dirname, sanitize_filename, sanitize_pathpart
+from .text_detection import detect_text
 from .utils import expand_and_validate_filepath, load_function
 
 # TODO: a lot of values are passed from function to function like path_sep--make these all class properties
@@ -197,6 +200,12 @@ TEMPLATE_SUBSTITUTIONS_MULTI_VALUED = {
     + "For example: '{photo.favorite}' is the same as '{favorite}' and '{photo.place.name}' is the same as '{place.name}'. "
     + "'{photo}' provides access to properties that are not available as separate template fields but it assumes some knowledge of "
     + "the underlying PhotoInfo class.  See https://rhettbull.github.io/osxphotos/ for additional documentation on the PhotoInfo class.",
+    "{detected_text}": "List of text strings found in the image after performing text detection. "
+    + "Using '{detected_text}' will cause osxphotos to perform text detection using the built-in macOS text detection algorithms which will slow down your export. "
+    + "The results for each photo will be cached in the export database so that future exports with '--update' do not need to reprocess each photo. "
+    + "You may pass a confidence threshold value between 0.0 and 1.0 after a colon as in '{detected_text:0.5}'; "
+    + f"The default confidence threshold is {TEXT_DETECTION_CONFIDENCE_THRESHOLD}. "
+    + "Note: this feature is not the same thing as Live Text in macOS Monterey, which osxphotos does not yet support.",
     "{shell_quote}": "Use in form '{shell_quote,TEMPLATE}'; quotes the rendered TEMPLATE value(s) for safe usage in the shell, e.g. My file.jpeg => 'My file.jpeg'; only adds quotes if needed.",
     "{function}": "Execute a python function from an external file and use return value as template substitution. "
     + "Use in format: {function:file.py::function_name} where 'file.py' is the name of the python file and 'function_name' is the name of the function to call. "
@@ -276,6 +285,7 @@ class RenderOptions:
     dest_path: set to the destination path of the photo (for use by {function} template), only valid with --filename
     filepath: set to value for filepath of the exported photo if you want to evaluate {filepath} template
     quote: quote path templates for execution in the shell
+    exportdb: ExportDB object
     """
 
     none_str: str = "_"
@@ -290,6 +300,7 @@ class RenderOptions:
     dest_path: Optional[str] = None
     filepath: Optional[str] = None
     quote: bool = False
+    exportdb: Optional[ExportDB_ABC] = None
 
 
 class PhotoTemplateParser:
@@ -358,6 +369,7 @@ class PhotoTemplate:
         self.filepath = options.filepath
         self.quote = options.quote
         self.dest_path = options.dest_path
+        self.exportdb = options.exportdb or ExportDBInMemory(None)
 
     def render(
         self,
@@ -391,6 +403,7 @@ class PhotoTemplate:
         self.filepath = options.filepath
         self.quote = options.quote
         self.dest_path = options.dest_path
+        self.exportdb = options.exportdb or self.exportdb
 
         try:
             model = self.parser.parse(template)
@@ -547,7 +560,7 @@ class PhotoTemplate:
                 )
             elif field in MULTI_VALUE_SUBSTITUTIONS or field.startswith("photo"):
                 vals = self.get_template_value_multi(
-                    field, path_sep=path_sep, default=default
+                    field, subfield, path_sep=path_sep, default=default
                 )
             elif field.split(".")[0] in PATHLIB_SUBSTITUTIONS:
                 vals = self.get_template_value_pathlib(field)
@@ -1073,11 +1086,12 @@ class PhotoTemplate:
             value = []
         return value
 
-    def get_template_value_multi(self, field, path_sep, default):
+    def get_template_value_multi(self, field, subfield, path_sep, default):
         """lookup value for template field (multi-value template substitutions)
 
         Args:
             field: template field to find value for.
+            subfield: the template subfield value
             path_sep: path separator to use for folder_album field
             default: value of default field
 
@@ -1126,12 +1140,10 @@ class PhotoTemplate:
                         folder = path_sep.join(album.folder_names)
                         folder += path_sep + album.title
                     values.append(folder)
+                elif self.dirname:
+                    values.append(sanitize_dirname(album.title))
                 else:
-                    # album not in folder
-                    if self.dirname:
-                        values.append(sanitize_dirname(album.title))
-                    else:
-                        values.append(album.title)
+                    values.append(album.title)
         elif field == "comment":
             values = [
                 f"{comment.user}: {comment.text}" for comment in self.photo.comments
@@ -1174,6 +1186,8 @@ class PhotoTemplate:
                 values = [str(obj)]
             else:
                 values = [val for val in obj]
+        elif field == "detected_text":
+            values = _get_detected_text(self.photo, self.exportdb, confidence=subfield)
         else:
             raise ValueError(f"Unhandled template value: {field}")
 
@@ -1414,3 +1428,37 @@ def _get_album_by_path(photo, folder_album_path):
         if folder_album_path.endswith(folder):
             return album_info
     return None
+
+
+def _get_detected_text(photo, exportdb, confidence=TEXT_DETECTION_CONFIDENCE_THRESHOLD):
+    """Returns the detected text for a photo
+    {detected_text} uses this instead of PhotoInfo.detected_text() to cache the text for all confidence values
+    """
+    if not photo.isphoto:
+        return []
+
+    confidence = (
+        float(confidence)
+        if confidence is not None
+        else TEXT_DETECTION_CONFIDENCE_THRESHOLD
+    )
+
+    detected_text = exportdb.get_detected_text_for_uuid(photo.uuid)
+    if detected_text:
+        detected_text = json.loads(detected_text)
+    else:
+        path = (
+            photo.path_edited
+            if photo.hasadjustments and photo.path_edited
+            else photo.path
+        )
+        path = path or photo.path_derivatives[0] if photo.path_derivatives else None
+        if not path:
+            detected_text = []
+        else:
+            try:
+                detected_text = detect_text(path)
+            except Exception as e:
+                detected_text = []
+        exportdb.set_detected_text_for_uuid(photo.uuid, json.dumps(detected_text))
+    return [text for text, conf in detected_text if conf >= confidence]

@@ -1,6 +1,4 @@
-""" Helper class for managing a database used by 
-    PhotoInfo.export for tracking state of exports and updates
-"""
+""" Helper class for managing a database used by PhotoInfo.export for tracking state of exports and updates """
 
 import datetime
 import logging
@@ -12,13 +10,15 @@ from abc import ABC, abstractmethod
 from io import StringIO
 from sqlite3 import Error
 
+from ._constants import OSXPHOTOS_EXPORT_DB
 from ._version import __version__
 
-OSXPHOTOS_EXPORTDB_VERSION = "3.2"
+OSXPHOTOS_EXPORTDB_VERSION = "4.0"
+OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {str(datetime.datetime.now())}"
 
 
 class ExportDB_ABC(ABC):
-    """ abstract base class for ExportDB """
+    """abstract base class for ExportDB"""
 
     @abstractmethod
     def get_uuid_for_file(self, filename):
@@ -89,6 +89,14 @@ class ExportDB_ABC(ABC):
         pass
 
     @abstractmethod
+    def get_detected_text_for_uuid(self, uuid, confidence):
+        pass
+
+    @abstractmethod
+    def set_detected_text_for_uuid(self, uuid, text, confidence):
+        pass
+
+    @abstractmethod
     def set_data(
         self,
         filename,
@@ -104,7 +112,7 @@ class ExportDB_ABC(ABC):
 
 
 class ExportDBNoOp(ExportDB_ABC):
-    """ An ExportDB with NoOp methods """
+    """An ExportDB with NoOp methods"""
 
     def __init__(self):
         self.was_created = True
@@ -162,6 +170,12 @@ class ExportDBNoOp(ExportDB_ABC):
     def get_previous_uuids(self):
         return []
 
+    def get_detected_text_for_uuid(self, uuid, confidence):
+        return []
+
+    def set_detected_text_for_uuid(self, uuid, text, confidence):
+        pass
+
     def set_data(
         self,
         filename,
@@ -177,23 +191,23 @@ class ExportDBNoOp(ExportDB_ABC):
 
 
 class ExportDB(ExportDB_ABC):
-    """ Interface to sqlite3 database used to store state information for osxphotos export command """
+    """Interface to sqlite3 database used to store state information for osxphotos export command"""
 
     def __init__(self, dbfile):
-        """ dbfile: path to osxphotos export database file """
+        """dbfile: path to osxphotos export database file"""
         self._dbfile = dbfile
         # _path is parent of the database
         # all files referenced by get_/set_uuid_for_file will be converted to
         # relative paths to this parent _path
         # this allows the entire export tree to be moved to a new disk/location
-        # whilst preserving the UUID to filename mappping
+        # whilst preserving the UUID to filename mapping
         self._path = pathlib.Path(dbfile).parent
         self._conn = self._open_export_db(dbfile)
         self._insert_run_info()
 
     def get_uuid_for_file(self, filename):
-        """ query database for filename and return UUID
-            returns None if filename not found in database
+        """query database for filename and return UUID
+        returns None if filename not found in database
         """
         filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
         conn = self._conn
@@ -211,7 +225,7 @@ class ExportDB(ExportDB_ABC):
         return uuid
 
     def set_uuid_for_file(self, filename, uuid):
-        """ set UUID of filename to uuid in the database """
+        """set UUID of filename to uuid in the database"""
         filename = str(pathlib.Path(filename).relative_to(self._path))
         filename_normalized = filename.lower()
         conn = self._conn
@@ -226,9 +240,9 @@ class ExportDB(ExportDB_ABC):
             logging.warning(e)
 
     def set_stat_orig_for_file(self, filename, stats):
-        """ set stat info for filename
-            filename: filename to set the stat info for
-            stat: a tuple of length 3: mode, size, mtime """
+        """set stat info for filename
+        filename: filename to set the stat info for
+        stat: a tuple of length 3: mode, size, mtime"""
         filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
         if len(stats) != 3:
             raise ValueError(f"expected 3 elements for stat, got {len(stats)}")
@@ -247,8 +261,8 @@ class ExportDB(ExportDB_ABC):
             logging.warning(e)
 
     def get_stat_orig_for_file(self, filename):
-        """ get stat info for filename
-            returns: tuple of (mode, size, mtime) 
+        """get stat info for filename
+        returns: tuple of (mode, size, mtime)
         """
         filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
         conn = self._conn
@@ -272,21 +286,21 @@ class ExportDB(ExportDB_ABC):
         return stats
 
     def set_stat_edited_for_file(self, filename, stats):
-        """ set stat info for edited version of image (in Photos' library)
-            filename: filename to set the stat info for
-            stat: a tuple of length 3: mode, size, mtime """
+        """set stat info for edited version of image (in Photos' library)
+        filename: filename to set the stat info for
+        stat: a tuple of length 3: mode, size, mtime"""
         return self._set_stat_for_file("edited", filename, stats)
 
     def get_stat_edited_for_file(self, filename):
-        """ get stat info for edited version of image (in Photos' library)
-            filename: filename to set the stat info for
-            stat: a tuple of length 3: mode, size, mtime """
+        """get stat info for edited version of image (in Photos' library)
+        filename: filename to set the stat info for
+        stat: a tuple of length 3: mode, size, mtime"""
         return self._get_stat_for_file("edited", filename)
 
     def set_stat_exif_for_file(self, filename, stats):
-        """ set stat info for filename (after exiftool has updated it)
-            filename: filename to set the stat info for
-            stat: a tuple of length 3: mode, size, mtime """
+        """set stat info for filename (after exiftool has updated it)
+        filename: filename to set the stat info for
+        stat: a tuple of length 3: mode, size, mtime"""
         filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
         if len(stats) != 3:
             raise ValueError(f"expected 3 elements for stat, got {len(stats)}")
@@ -305,8 +319,8 @@ class ExportDB(ExportDB_ABC):
             logging.warning(e)
 
     def get_stat_exif_for_file(self, filename):
-        """ get stat info for filename (after exiftool has updated it)
-            returns: tuple of (mode, size, mtime) 
+        """get stat info for filename (after exiftool has updated it)
+        returns: tuple of (mode, size, mtime)
         """
         filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
         conn = self._conn
@@ -330,19 +344,19 @@ class ExportDB(ExportDB_ABC):
         return stats
 
     def set_stat_converted_for_file(self, filename, stats):
-        """ set stat info for filename (after image converted to jpeg)
-            filename: filename to set the stat info for
-            stat: a tuple of length 3: mode, size, mtime """
+        """set stat info for filename (after image converted to jpeg)
+        filename: filename to set the stat info for
+        stat: a tuple of length 3: mode, size, mtime"""
         return self._set_stat_for_file("converted", filename, stats)
 
     def get_stat_converted_for_file(self, filename):
-        """ get stat info for filename (after jpeg conversion)
-            returns: tuple of (mode, size, mtime) 
+        """get stat info for filename (after jpeg conversion)
+        returns: tuple of (mode, size, mtime)
         """
         return self._get_stat_for_file("converted", filename)
 
     def get_info_for_uuid(self, uuid):
-        """ returns the info JSON struct for a UUID """
+        """returns the info JSON struct for a UUID"""
         conn = self._conn
         try:
             c = conn.cursor()
@@ -356,7 +370,7 @@ class ExportDB(ExportDB_ABC):
         return info
 
     def set_info_for_uuid(self, uuid, info):
-        """ sets the info JSON struct for a UUID """
+        """sets the info JSON struct for a UUID"""
         conn = self._conn
         try:
             c = conn.cursor()
@@ -369,7 +383,7 @@ class ExportDB(ExportDB_ABC):
             logging.warning(e)
 
     def get_exifdata_for_file(self, filename):
-        """ returns the exifdata JSON struct for a file """
+        """returns the exifdata JSON struct for a file"""
         filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
         conn = self._conn
         try:
@@ -387,7 +401,7 @@ class ExportDB(ExportDB_ABC):
         return exifdata
 
     def set_exifdata_for_file(self, filename, exifdata):
-        """ sets the exifdata JSON struct for a file """
+        """sets the exifdata JSON struct for a file"""
         filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
         conn = self._conn
         try:
@@ -401,7 +415,7 @@ class ExportDB(ExportDB_ABC):
             logging.warning(e)
 
     def get_sidecar_for_file(self, filename):
-        """ returns the sidecar data and signature for a file """
+        """returns the sidecar data and signature for a file"""
         filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
         conn = self._conn
         try:
@@ -429,7 +443,7 @@ class ExportDB(ExportDB_ABC):
         return sidecar_data, sidecar_sig
 
     def set_sidecar_for_file(self, filename, sidecar_data, sidecar_sig):
-        """ sets the sidecar data and signature for a file """
+        """sets the sidecar data and signature for a file"""
         filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
         conn = self._conn
         try:
@@ -443,7 +457,7 @@ class ExportDB(ExportDB_ABC):
             logging.warning(e)
 
     def get_previous_uuids(self):
-        """returns list of UUIDs of previously exported photos found in export database """
+        """returns list of UUIDs of previously exported photos found in export database"""
         conn = self._conn
         previous_uuids = []
         try:
@@ -454,6 +468,36 @@ class ExportDB(ExportDB_ABC):
         except Error as e:
             logging.warning(e)
         return previous_uuids
+
+    def get_detected_text_for_uuid(self, uuid):
+        """Get the detected_text for a uuid"""
+        conn = self._conn
+        try:
+            c = conn.cursor()
+            c.execute(
+                "SELECT text_data FROM detected_text WHERE uuid = ?",
+                (uuid,),
+            )
+            results = c.fetchone()
+            detected_text = results[0] if results else None
+        except Error as e:
+            logging.warning(e)
+            detected_text = None
+
+        return detected_text
+
+    def set_detected_text_for_uuid(self, uuid, text_json):
+        """Set the detected text for uuid"""
+        conn = self._conn
+        try:
+            c = conn.cursor()
+            c.execute(
+                "INSERT OR REPLACE INTO detected_text(uuid, text_data) VALUES (?, ?);",
+                (uuid, text_json),
+            )
+            conn.commit()
+        except Error as e:
+            logging.warning(e)
 
     def set_data(
         self,
@@ -466,8 +510,7 @@ class ExportDB(ExportDB_ABC):
         info_json,
         exif_json,
     ):
-        """ sets all the data for file and uuid at once 
-        """
+        """sets all the data for file and uuid at once"""
         filename = str(pathlib.Path(filename).relative_to(self._path))
         filename_normalized = filename.lower()
         conn = self._conn
@@ -510,7 +553,7 @@ class ExportDB(ExportDB_ABC):
             logging.warning(e)
 
     def close(self):
-        """ close the database connection """
+        """close the database connection"""
         try:
             self._conn.close()
         except Error as e:
@@ -548,9 +591,9 @@ class ExportDB(ExportDB_ABC):
         return stats
 
     def _open_export_db(self, dbfile):
-        """ open export database and return a db connection
-            if dbfile does not exist, will create and initialize the database 
-            returns: connection to the database 
+        """open export database and return a db connection
+        if dbfile does not exist, will create and initialize the database
+        returns: connection to the database
         """
 
         if not os.path.isfile(dbfile):
@@ -573,7 +616,7 @@ class ExportDB(ExportDB_ABC):
         return conn
 
     def _get_db_connection(self, dbfile):
-        """ return db connection to dbname """
+        """return db connection to dbname"""
         try:
             conn = sqlite3.connect(dbfile)
         except Error as e:
@@ -583,15 +626,15 @@ class ExportDB(ExportDB_ABC):
         return conn
 
     def _get_database_version(self, conn):
-        """ return tuple of (osxphotos, exportdb) versions for database connection conn """
+        """return tuple of (osxphotos, exportdb) versions for database connection conn"""
         version_info = conn.execute(
             "SELECT osxphotos, exportdb, max(id) FROM version"
         ).fetchone()
         return (version_info[0], version_info[1])
 
     def _create_db_tables(self, conn):
-        """ create (if not already created) the necessary db tables for the export database
-            conn: sqlite3 db connection 
+        """create (if not already created) the necessary db tables for the export database
+        conn: sqlite3 db connection
         """
         sql_commands = {
             "sql_version_table": """ CREATE TABLE IF NOT EXISTS version (
@@ -599,6 +642,10 @@ class ExportDB(ExportDB_ABC):
                                 osxphotos TEXT,
                                 exportdb TEXT 
                                 ); """,
+            "sql_about_table": """ CREATE TABLE IF NOT EXISTS about (
+                                id INTEGER PRIMARY KEY,
+                                about TEXT
+                                );""",
             "sql_files_table": """ CREATE TABLE IF NOT EXISTS files (
                               id INTEGER PRIMARY KEY,
                               filepath TEXT NOT NULL,
@@ -651,12 +698,18 @@ class ExportDB(ExportDB_ABC):
                               size INTEGER,
                               mtime REAL
                               ); """,
+            "sql_detected_text_table": """ CREATE TABLE IF NOT EXISTS detected_text (
+                              id INTEGER PRIMARY KEY,
+                              uuid TEXT NOT NULL,
+                              text_data JSON
+                              ); """,
             "sql_files_idx": """ CREATE UNIQUE INDEX IF NOT EXISTS idx_files_filepath_normalized on files (filepath_normalized); """,
             "sql_info_idx": """ CREATE UNIQUE INDEX IF NOT EXISTS idx_info_uuid on info (uuid); """,
             "sql_exifdata_idx": """ CREATE UNIQUE INDEX IF NOT EXISTS idx_exifdata_filename on exifdata (filepath_normalized); """,
             "sql_edited_idx": """ CREATE UNIQUE INDEX IF NOT EXISTS idx_edited_filename on edited (filepath_normalized);""",
             "sql_converted_idx": """ CREATE UNIQUE INDEX IF NOT EXISTS idx_converted_filename on converted (filepath_normalized);""",
             "sql_sidecar_idx": """ CREATE UNIQUE INDEX IF NOT EXISTS idx_sidecar_filename on sidecar (filepath_normalized);""",
+            "sql_detected_text_idx": """ CREATE UNIQUE INDEX IF NOT EXISTS idx_detected_text on detected_text (uuid);""",
         }
         try:
             c = conn.cursor()
@@ -666,12 +719,13 @@ class ExportDB(ExportDB_ABC):
                 "INSERT INTO version(osxphotos, exportdb) VALUES (?, ?);",
                 (__version__, OSXPHOTOS_EXPORTDB_VERSION),
             )
+            c.execute("INSERT INTO about(about) VALUES (?);", (OSXPHOTOS_ABOUT_STRING,))
             conn.commit()
         except Error as e:
             logging.warning(e)
 
     def __del__(self):
-        """ ensure the database connection is closed """
+        """ensure the database connection is closed"""
         try:
             self._conn.close()
         except:
@@ -696,35 +750,33 @@ class ExportDB(ExportDB_ABC):
 
 
 class ExportDBInMemory(ExportDB):
-    """ In memory version of ExportDB
-        Copies the on-disk database into memory so it may be operated on without 
-        modifying the on-disk verison 
+    """In memory version of ExportDB
+    Copies the on-disk database into memory so it may be operated on without
+    modifying the on-disk version
     """
 
-    def init(self, dbfile):
-        self._dbfile = dbfile
+    def __init__(self, dbfile):
+        self._dbfile = dbfile or f"./{OSXPHOTOS_EXPORT_DB}"
         # _path is parent of the database
         # all files referenced by get_/set_uuid_for_file will be converted to
         # relative paths to this parent _path
         # this allows the entire export tree to be moved to a new disk/location
-        # whilst preserving the UUID to filename mappping
-        self._path = pathlib.Path(dbfile).parent
-        self._conn = self._open_export_db(dbfile)
+        # whilst preserving the UUID to filename mapping
+        self._path = pathlib.Path(self._dbfile).parent
+        self._conn = self._open_export_db(self._dbfile)
         self._insert_run_info()
 
     def _open_export_db(self, dbfile):
-        """ open export database and return a db connection
-            returns: connection to the database 
+        """open export database and return a db connection
+        returns: connection to the database
         """
         if not os.path.isfile(dbfile):
             conn = self._get_db_connection()
-            if conn:
-                self._create_db_tables(conn)
-                self.was_created = True
-                self.was_upgraded = ()
-                self.version = OSXPHOTOS_EXPORTDB_VERSION
-            else:
+            if not conn:
                 raise Exception("Error getting connection to in-memory database")
+            self._create_db_tables(conn)
+            self.was_created = True
+            self.was_upgraded = ()
         else:
             try:
                 conn = sqlite3.connect(dbfile)
@@ -749,12 +801,11 @@ class ExportDBInMemory(ExportDB):
                 self.was_upgraded = (exportdb_ver, OSXPHOTOS_EXPORTDB_VERSION)
             else:
                 self.was_upgraded = ()
-            self.version = OSXPHOTOS_EXPORTDB_VERSION
-
+        self.version = OSXPHOTOS_EXPORTDB_VERSION
         return conn
 
     def _get_db_connection(self):
-        """ return db connection to in memory database """
+        """return db connection to in memory database"""
         try:
             conn = sqlite3.connect(":memory:")
         except Error as e:
