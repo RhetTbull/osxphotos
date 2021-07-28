@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos package &#8212; osxphotos 0.42.67 documentation</title>
+    <title>osxphotos package &#8212; osxphotos 0.42.69 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
@@ -755,6 +755,16 @@ or None if no modification date set</p>
 <dt class="sig sig-object py" id="osxphotos.PhotoInfo.description">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#osxphotos.PhotoInfo.description" title="Permalink to this definition">¶</a></dt>
 <dd><p>long / extended description of picture</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="osxphotos.PhotoInfo.detected_text">
+<span class="sig-name descname"><span class="pre">detected_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">confidence_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.75</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/photoinfo/photoinfo.html#PhotoInfo.detected_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotoInfo.detected_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detects text in photo and returns lists of results as (detected text, confidence)</p>
+<p>confidence_threshold: float between 0.0 and 1.0. If text detection confidence is below this threshold,
+text will not be returned. Default is TEXT_DETECTION_CONFIDENCE_THRESHOLD</p>
+<p>If photo is edited, uses the edited photo, otherwise the original; falls back to the preview image if neither edited or original is available</p>
+<p>Returns: list of (detected text, confidence) tuples</p>
 </dd></dl>
 
 <dl class="py property">

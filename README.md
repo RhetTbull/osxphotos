@@ -1700,7 +1700,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.42.68'
+{osxphotos_version}             The osxphotos version, e.g. '0.42.69'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified for
@@ -1761,17 +1761,17 @@ Substitution             Description
                          documentation on the PhotoInfo class.
 {detected_text}          List of text strings found in the image after
                          performing text detection. Using '{detected_text}'
-                         will cause osxphotos to perform text detection using
-                         the built-in macOS text detection algorithms which
-                         will slow down your export. The results for each
-                         photo will be cached in the export database so that
-                         future exports with '--update' do not need to
-                         reprocess each photo. You may pass a confidence
-                         threshold value between 0.0 and 1.0 after a colon as
-                         in '{detected_text:0.5}'; The default confidence
-                         threshold is 0.75. Note: this feature is not the same
-                         thing as Live Text in macOS Monterey, which osxphotos
-                         does not yet support.
+                         will cause osxphotos to perform text detection on
+                         your photos using the built-in macOS text detection
+                         algorithms which will slow down your export. The
+                         results for each photo will be cached in the export
+                         database so that future exports with '--update' do
+                         not need to reprocess each photo. You may pass a
+                         confidence threshold value between 0.0 and 1.0 after
+                         a colon as in '{detected_text:0.5}'; The default
+                         confidence threshold is 0.75. Note: this feature is
+                         not the same thing as Live Text in macOS Monterey,
+                         which osxphotos does not yet support.
 {shell_quote}            Use in form '{shell_quote,TEMPLATE}'; quotes the
                          rendered TEMPLATE value(s) for safe usage in the
                          shell, e.g. My file.jpeg => 'My file.jpeg'; only adds
@@ -3553,7 +3553,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.42.68'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.42.69'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
@@ -3568,7 +3568,7 @@ The following template field substitutions are availabe for use the templating s
 |{searchinfo.venue}|Venues associated with a photo, e.g. name of restaurant; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
 |{searchinfo.venue_type}|Venue types associated with a photo, e.g. 'Restaurant'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
 |{photo}|Provides direct access to the PhotoInfo object for the photo. Must be used in format '{photo.property}' where 'property' represents a PhotoInfo property. For example: '{photo.favorite}' is the same as '{favorite}' and '{photo.place.name}' is the same as '{place.name}'. '{photo}' provides access to properties that are not available as separate template fields but it assumes some knowledge of the underlying PhotoInfo class.  See https://rhettbull.github.io/osxphotos/ for additional documentation on the PhotoInfo class.|
-|{detected_text}|List of text strings found in the image after performing text detection. Using '{detected_text}' will cause osxphotos to perform text detection using the built-in macOS text detection algorithms which will slow down your export. The results for each photo will be cached in the export database so that future exports with '--update' do not need to reprocess each photo. You may pass a confidence threshold value between 0.0 and 1.0 after a colon as in '{detected_text:0.5}'; The default confidence threshold is 0.75. Note: this feature is not the same thing as Live Text in macOS Monterey, which osxphotos does not yet support.|
+|{detected_text}|List of text strings found in the image after performing text detection. Using '{detected_text}' will cause osxphotos to perform text detection on your photos using the built-in macOS text detection algorithms which will slow down your export. The results for each photo will be cached in the export database so that future exports with '--update' do not need to reprocess each photo. You may pass a confidence threshold value between 0.0 and 1.0 after a colon as in '{detected_text:0.5}'; The default confidence threshold is 0.75. Note: this feature is not the same thing as Live Text in macOS Monterey, which osxphotos does not yet support.|
 |{shell_quote}|Use in form '{shell_quote,TEMPLATE}'; quotes the rendered TEMPLATE value(s) for safe usage in the shell, e.g. My file.jpeg => 'My file.jpeg'; only adds quotes if needed.|
 |{function}|Execute a python function from an external file and use return value as template substitution. Use in format: {function:file.py::function_name} where 'file.py' is the name of the python file and 'function_name' is the name of the function to call. The function will be passed the PhotoInfo object for the photo. See https://github.com/RhetTbull/osxphotos/blob/master/examples/template_function.py for an example of how to implement a template function.|
 <!-- OSXPHOTOS-TEMPLATE-TABLE:END -->

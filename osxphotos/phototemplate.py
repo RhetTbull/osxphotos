@@ -201,7 +201,7 @@ TEMPLATE_SUBSTITUTIONS_MULTI_VALUED = {
     + "'{photo}' provides access to properties that are not available as separate template fields but it assumes some knowledge of "
     + "the underlying PhotoInfo class.  See https://rhettbull.github.io/osxphotos/ for additional documentation on the PhotoInfo class.",
     "{detected_text}": "List of text strings found in the image after performing text detection. "
-    + "Using '{detected_text}' will cause osxphotos to perform text detection using the built-in macOS text detection algorithms which will slow down your export. "
+    + "Using '{detected_text}' will cause osxphotos to perform text detection on your photos using the built-in macOS text detection algorithms which will slow down your export. "
     + "The results for each photo will be cached in the export database so that future exports with '--update' do not need to reprocess each photo. "
     + "You may pass a confidence threshold value between 0.0 and 1.0 after a colon as in '{detected_text:0.5}'; "
     + f"The default confidence threshold is {TEXT_DETECTION_CONFIDENCE_THRESHOLD}. "
