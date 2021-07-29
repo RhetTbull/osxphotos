@@ -1,5 +1,7 @@
 """ Test ExportDB """
 
+import json
+
 import pytest
 
 EXIF_DATA = """[{"_CreatedBy": "osxphotos, https://github.com/RhetTbull/osxphotos", "EXIF:ImageDescription": "\u2068Elder Park\u2069, \u2068Adelaide\u2069, \u2068Australia\u2069", "XMP:Description": "\u2068Elder Park\u2069, \u2068Adelaide\u2069, \u2068Australia\u2069", "XMP:Title": "Elder Park", "EXIF:GPSLatitude": "34 deg 55' 8.01\" S", "EXIF:GPSLongitude": "138 deg 35' 48.70\" E", "Composite:GPSPosition": "34 deg 55' 8.01\" S, 138 deg 35' 48.70\" E", "EXIF:GPSLatitudeRef": "South", "EXIF:GPSLongitudeRef": "East", "EXIF:DateTimeOriginal": "2017:06:20 17:18:56", "EXIF:OffsetTimeOriginal": "+09:30", "EXIF:ModifyDate": "2020:05:18 14:42:04"}]"""
@@ -12,10 +14,11 @@ DATABASE_VERSION1 = "tests/export_db_version1.db"
 
 
 def test_export_db():
-    """ test ExportDB """
+    """test ExportDB"""
     import os
     import tempfile
-    from osxphotos.export_db import ExportDB, OSXPHOTOS_EXPORTDB_VERSION
+
+    from osxphotos.export_db import OSXPHOTOS_EXPORTDB_VERSION, ExportDB
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dbname = os.path.join(tempdir.name, ".osxphotos_export.db")
@@ -46,6 +49,9 @@ def test_export_db():
     db.set_sidecar_for_file(filepath, SIDECAR_DATA, (13, 14, 15))
     assert db.get_sidecar_for_file(filepath) == (SIDECAR_DATA, (13, 14, 15))
     assert db.get_previous_uuids() == ["FOO-BAR"]
+
+    db.set_detected_text_for_uuid("FOO-BAR", json.dumps([["foo", 0.5]]))
+    assert json.loads(db.get_detected_text_for_uuid("FOO-BAR")) == [["foo", 0.5]]
 
     # test set_data which sets all at the same time
     filepath2 = os.path.join(tempdir.name, "test2.jpg")
@@ -80,6 +86,7 @@ def test_export_db():
     assert db.get_stat_converted_for_file(filepath2) == (7, 8, 9)
     assert db.get_stat_edited_for_file(filepath2) == (10, 11, 12)
     assert sorted(db.get_previous_uuids()) == (["BAR-FOO", "FOO-BAR"])
+    assert json.loads(db.get_detected_text_for_uuid("FOO-BAR")) == [["foo", 0.5]]
 
     # update data
     db.set_uuid_for_file(filepath, "FUBAR")
@@ -88,10 +95,11 @@ def test_export_db():
 
 
 def test_export_db_no_op():
-    """ test ExportDBNoOp """
+    """test ExportDBNoOp"""
     import os
     import tempfile
-    from osxphotos.export_db import ExportDBNoOp, OSXPHOTOS_EXPORTDB_VERSION
+
+    from osxphotos.export_db import OSXPHOTOS_EXPORTDB_VERSION, ExportDBNoOp
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     db = ExportDBNoOp()
@@ -121,6 +129,9 @@ def test_export_db_no_op():
     assert db.get_sidecar_for_file(filepath) == (None, (None, None, None))
     assert db.get_previous_uuids() == []
 
+    db.set_detected_text_for_uuid("FOO-BAR", json.dumps([["foo", 0.5]]))
+    assert db.get_detected_text_for_uuid("FOO-BAR") is None
+    
     # test set_data which sets all at the same time
     filepath2 = os.path.join(tempdir.name, "test2.jpg")
     db.set_data(
@@ -148,13 +159,14 @@ def test_export_db_no_op():
 
 
 def test_export_db_in_memory():
-    """ test ExportDBInMemory """
+    """test ExportDBInMemory"""
     import os
     import tempfile
+
     from osxphotos.export_db import (
+        OSXPHOTOS_EXPORTDB_VERSION,
         ExportDB,
         ExportDBInMemory,
-        OSXPHOTOS_EXPORTDB_VERSION,
     )
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
@@ -174,6 +186,7 @@ def test_export_db_in_memory():
     db.set_stat_edited_for_file(filepath, (10, 11, 12))
     db.set_sidecar_for_file(filepath, SIDECAR_DATA, (13, 14, 15))
     assert db.get_previous_uuids() == ["FOO-BAR"]
+    db.set_detected_text_for_uuid("FOO-BAR", json.dumps([["foo", 0.5]]))
 
     db.close()
 
@@ -192,6 +205,7 @@ def test_export_db_in_memory():
     assert dbram.get_stat_edited_for_file(filepath) == (10, 11, 12)
     assert dbram.get_sidecar_for_file(filepath) == (SIDECAR_DATA, (13, 14, 15))
     assert dbram.get_previous_uuids() == ["FOO-BAR"]
+    assert json.loads(dbram.get_detected_text_for_uuid("FOO-BAR")) == [["foo", 0.5]]
 
     # change a value
     dbram.set_uuid_for_file(filepath, "FUBAR")
@@ -202,6 +216,7 @@ def test_export_db_in_memory():
     dbram.set_stat_converted_for_file(filepath, (1, 2, 3))
     dbram.set_stat_edited_for_file(filepath, (4, 5, 6))
     dbram.set_sidecar_for_file(filepath, "FUBAR", (20, 21, 22))
+    dbram.set_detected_text_for_uuid("FUBAR", json.dumps([["bar", 0.5]]))
 
     assert dbram.get_uuid_for_file(filepath_lower) == "FUBAR"
     assert dbram.get_info_for_uuid("FUBAR") == INFO_DATA2
@@ -212,6 +227,7 @@ def test_export_db_in_memory():
     assert dbram.get_stat_edited_for_file(filepath) == (4, 5, 6)
     assert dbram.get_sidecar_for_file(filepath) == ("FUBAR", (20, 21, 22))
     assert dbram.get_previous_uuids() == ["FUBAR"]
+    assert json.loads(dbram.get_detected_text_for_uuid("FUBAR")) == [["bar", 0.5]]
 
     dbram.close()
 
@@ -228,13 +244,15 @@ def test_export_db_in_memory():
     assert db.get_previous_uuids() == ["FOO-BAR"]
 
     assert db.get_info_for_uuid("FUBAR") is None
+    assert db.get_detected_text_for_uuid("FUBAR") is None
 
 
 def test_export_db_in_memory_nofile():
-    """ test ExportDBInMemory with no dbfile """
+    """test ExportDBInMemory with no dbfile"""
     import os
     import tempfile
-    from osxphotos.export_db import ExportDBInMemory, OSXPHOTOS_EXPORTDB_VERSION
+
+    from osxphotos.export_db import OSXPHOTOS_EXPORTDB_VERSION, ExportDBInMemory
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     filepath = os.path.join(tempdir.name, "test.JPG")
@@ -254,6 +272,7 @@ def test_export_db_in_memory_nofile():
     dbram.set_stat_converted_for_file(filepath, (1, 2, 3))
     dbram.set_stat_edited_for_file(filepath, (4, 5, 6))
     dbram.set_sidecar_for_file(filepath, "FUBAR", (20, 21, 22))
+    dbram.set_detected_text_for_uuid("FUBAR", json.dumps([["bar", 0.5]]))
 
     assert dbram.get_uuid_for_file(filepath_lower) == "FUBAR"
     assert dbram.get_info_for_uuid("FUBAR") == INFO_DATA2
@@ -264,5 +283,6 @@ def test_export_db_in_memory_nofile():
     assert dbram.get_stat_edited_for_file(filepath) == (4, 5, 6)
     assert dbram.get_sidecar_for_file(filepath) == ("FUBAR", (20, 21, 22))
     assert dbram.get_previous_uuids() == ["FUBAR"]
-    
+    assert json.loads(dbram.get_detected_text_for_uuid("FUBAR")) == [["bar", 0.5]]
+
     dbram.close()

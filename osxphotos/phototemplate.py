@@ -3,6 +3,7 @@
 import datetime
 import json
 import locale
+import logging
 import os
 import pathlib
 import shlex
@@ -1444,7 +1445,7 @@ def _get_detected_text(photo, exportdb, confidence=TEXT_DETECTION_CONFIDENCE_THR
     )
 
     detected_text = exportdb.get_detected_text_for_uuid(photo.uuid)
-    if detected_text:
+    if detected_text is not None:
         detected_text = json.loads(detected_text)
     else:
         path = (
@@ -1459,6 +1460,9 @@ def _get_detected_text(photo, exportdb, confidence=TEXT_DETECTION_CONFIDENCE_THR
             try:
                 detected_text = detect_text(path)
             except Exception as e:
-                detected_text = []
+                logging.warning(
+                    f"Error detecting text in image {photo.uuid} at {path}: {e}"
+                )
+                return []
         exportdb.set_detected_text_for_uuid(photo.uuid, json.dumps(detected_text))
     return [text for text, conf in detected_text if conf >= confidence]

@@ -89,11 +89,11 @@ class ExportDB_ABC(ABC):
         pass
 
     @abstractmethod
-    def get_detected_text_for_uuid(self, uuid, confidence):
+    def get_detected_text_for_uuid(self, uuid):
         pass
 
     @abstractmethod
-    def set_detected_text_for_uuid(self, uuid, text, confidence):
+    def set_detected_text_for_uuid(self, uuid, json_text):
         pass
 
     @abstractmethod
@@ -170,10 +170,10 @@ class ExportDBNoOp(ExportDB_ABC):
     def get_previous_uuids(self):
         return []
 
-    def get_detected_text_for_uuid(self, uuid, confidence):
-        return []
+    def get_detected_text_for_uuid(self, uuid):
+        return None 
 
-    def set_detected_text_for_uuid(self, uuid, text, confidence):
+    def set_detected_text_for_uuid(self, uuid, json_text):
         pass
 
     def set_data(
@@ -493,7 +493,7 @@ class ExportDB(ExportDB_ABC):
             c = conn.cursor()
             c.execute(
                 "INSERT OR REPLACE INTO detected_text(uuid, text_data) VALUES (?, ?);",
-                (uuid, text_json),
+                (uuid, text_json,),
             )
             conn.commit()
         except Error as e:
