@@ -206,6 +206,7 @@ TEMPLATE_SUBSTITUTIONS_MULTI_VALUED = {
     + "The results for each photo will be cached in the export database so that future exports with '--update' do not need to reprocess each photo. "
     + "You may pass a confidence threshold value between 0.0 and 1.0 after a colon as in '{detected_text:0.5}'; "
     + f"The default confidence threshold is {TEXT_DETECTION_CONFIDENCE_THRESHOLD}. "
+    + "'{detected_text}' works only on macOS Catalina (10.15) or later. "
     + "Note: this feature is not the same thing as Live Text in macOS Monterey, which osxphotos does not yet support.",
     "{shell_quote}": "Use in form '{shell_quote,TEMPLATE}'; quotes the rendered TEMPLATE value(s) for safe usage in the shell, e.g. My file.jpeg => 'My file.jpeg'; only adds quotes if needed.",
     "{function}": "Execute a python function from an external file and use return value as template substitution. "
