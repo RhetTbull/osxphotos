@@ -1,19 +1,33 @@
-""" Use Apple's Vision Framework via PyObjC to perform text detection on images """
+""" Use Apple's Vision Framework via PyObjC to perform text detection on images (macOS 10.15+ only) """
+
+import logging
+from typing import List
 
 import objc
 import Quartz
-import Vision
 from Cocoa import NSURL
 from Foundation import NSDictionary
-
-from typing import List
 
 # needed to capture system-level stderr
 from wurlitzer import pipes
 
+from .utils import _get_os_version
+
+ver, major, minor = _get_os_version()
+if ver == "10" and int(major) < 15:
+    vision = False
+else:
+    import Vision
+
+    vision = True
+
 
 def detect_text(img_path: str) -> List:
     """process image at img_path with VNRecognizeTextRequest and return list of results"""
+    if not vision:
+        logging.warning(f"detect_text not implemented for this version of macOS")
+        return []
+
     with objc.autorelease_pool():
         input_url = NSURL.fileURLWithPath_(img_path)
 
