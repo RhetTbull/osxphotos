@@ -1134,6 +1134,7 @@ class PhotoInfo:
             try:
                 detected_text = detect_text(path)
             except Exception as e:
+                logging.warning(f"Error detecting text in photo {self.uuid} at {path}: {e}")
                 detected_text = []
 
             self._detected_text[(path, confidence_threshold)] = [
