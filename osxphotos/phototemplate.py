@@ -1445,25 +1445,8 @@ def _get_detected_text(photo, exportdb, confidence=TEXT_DETECTION_CONFIDENCE_THR
         else TEXT_DETECTION_CONFIDENCE_THRESHOLD
     )
 
-    detected_text = exportdb.get_detected_text_for_uuid(photo.uuid)
-    if detected_text is not None:
-        detected_text = json.loads(detected_text)
-    else:
-        path = (
-            photo.path_edited
-            if photo.hasadjustments and photo.path_edited
-            else photo.path
-        )
-        path = path or photo.path_derivatives[0] if photo.path_derivatives else None
-        if not path:
-            detected_text = []
-        else:
-            try:
-                detected_text = detect_text(path)
-            except Exception as e:
-                logging.warning(
-                    f"Error detecting text in image {photo.uuid} at {path}: {e}"
-                )
-                return []
-        exportdb.set_detected_text_for_uuid(photo.uuid, json.dumps(detected_text))
+    # _detected_text caches the text detection results in an extended attribute
+    # so the first time this gets called is slow but repeated accesses are fast
+    detected_text = photo._detected_text()
+    exportdb.set_detected_text_for_uuid(photo.uuid, json.dumps(detected_text))
     return [text for text, conf in detected_text if conf >= confidence]

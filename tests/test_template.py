@@ -1179,13 +1179,3 @@ def test_detected_text(photosdb):
     for template, value in TEMPLATE_VALUES_DETECTED_TEXT.items():
         rendered, _ = photo.render_template(template)
         assert value in "".join(rendered)
-
-
-def test_detected_text_caching(photosdb):
-    """Test {detected_text} template caches values"""
-    exportdb = ExportDBInMemory(None)
-    exportdb.set_detected_text_for_uuid(UUID_DETECTED_TEXT, json.dumps([["foo", 0.9]]))
-    photo = photosdb.get_photo(UUID_DETECTED_TEXT)
-    options = RenderOptions(exportdb=exportdb)
-    rendered, _ = photo.render_template("{detected_text}", options=options)
-    assert rendered[0] == "foo"

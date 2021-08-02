@@ -52,6 +52,9 @@ def detect_text(img_path: str) -> List:
         vision_request.dealloc()
         vision_handler.dealloc()
 
+        for result in results:
+            result[0] = str(result[0])
+
         return results
 
 

@@ -14,6 +14,7 @@ from datetime import timedelta, timezone
 from typing import Optional
 
 import yaml
+from osxmetadata import OSXMetaData
 
 from .._constants import (
     _MOVIE_TYPE,
@@ -1118,6 +1119,28 @@ class PhotoInfo:
 
         Returns: list of (detected text, confidence) tuples
         """
+
+        try:
+            return self._detected_text_cache[confidence_threshold]
+        except (AttributeError, KeyError) as e:
+            if isinstance(e, AttributeError):
+                self._detected_text_cache = {}
+
+            try:
+                detected_text = self._detected_text()
+            except Exception as e:
+                logging.warning(f"Error detecting text in photo {self.uuid}: {e}")
+                detected_text = []
+
+            self._detected_text_cache[confidence_threshold] = [
+                (text, confidence)
+                for text, confidence in detected_text
+                if confidence >= confidence_threshold
+            ]
+            return self._detected_text_cache[confidence_threshold]
+
+    def _detected_text(self):
+        """detect text in photo, either from cached extended attribute or by attempting text detection"""
         path = (
             self.path_edited if self.hasadjustments and self.path_edited else self.path
         )
@@ -1125,24 +1148,12 @@ class PhotoInfo:
         if not path:
             return []
 
-        try:
-            return self._detected_text[(path, confidence_threshold)]
-        except (AttributeError, KeyError) as e:
-            if isinstance(e, AttributeError):
-                self._detected_text = {}
-
-            try:
-                detected_text = detect_text(path)
-            except Exception as e:
-                logging.warning(f"Error detecting text in photo {self.uuid} at {path}: {e}")
-                detected_text = []
-
-            self._detected_text[(path, confidence_threshold)] = [
-                (text, confidence)
-                for text, confidence in detected_text
-                if confidence >= confidence_threshold
-            ]
-            return self._detected_text[(path, confidence_threshold)]
+        md = OSXMetaData(path)
+        detected_text = md.get_attribute("osxphotos_detected_text")
+        if detected_text is None:
+            detected_text = detect_text(path)
+            md.set_attribute("osxphotos_detected_text", detected_text)
+        return detected_text
 
     @property
     def _longitude(self):
