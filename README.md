@@ -35,6 +35,7 @@ OSXPhotos provides the ability to interact with and query Apple's Photos.app lib
   + [Raw Photos](#raw-photos)
   + [Template System](#template-system)
   + [ExifTool](#exiftoolExifTool)
+  + [Text Detection](#textdetection)
   + [Utility Functions](#utility-functions)
 * [Examples](#examples)
 * [Related Projects](#related-projects)
@@ -1700,7 +1701,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.42.71'
+{osxphotos_version}             The osxphotos version, e.g. '0.42.72'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified for
@@ -2788,7 +2789,8 @@ Some substitutions, notably `album`, `keyword`, and `person` could return multip
 
 See [Template System](#template-system) for additional details.
 
-#### `detected_text(confidence_threshold=TEXT_DETECTION_CONFIDENCE_THRESHOLD)`
+
+#### <a name="detected_text_method">`detected_text(confidence_threshold=TEXT_DETECTION_CONFIDENCE_THRESHOLD)`</a>
 
 Detects text in photo and returns lists of results as (detected text, confidence)
 
@@ -2799,6 +2801,8 @@ If photo is edited, uses the edited photo, otherwise the original; falls back to
 Returns: list of (detected text, confidence) tuples.
 
 Note: This is *not* the same as Live Text in macOS Monterey.  When using `detected_text()`, osxphotos will use Apple's [Vision framework](https://developer.apple.com/documentation/vision/recognizing_text_in_images?language=objc) to perform text detection on the image.  On my circa 2013 MacBook Pro, this takes about 2 seconds per image.  `detected_text()` does memoize the results for a given `confidence_threshold` so repeated calls will not re-process the photo.  This works only on macOS Catalina (10.15) or later.
+
+See also [Text Detection](#textdetection).
 
 ### ExifInfo
 [PhotosInfo.exif_info](#exif-info) returns an `ExifInfo` object with some EXIF data about the photo (Photos 5 only).  `ExifInfo` contains the following properties:
@@ -3554,7 +3558,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.42.71'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.42.72'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
@@ -3633,6 +3637,14 @@ osxphotos.exiftool also provides an `ExifToolCaching` class which caches all met
 #### Implementation Note
 
 `ExifTool()` runs `exiftool` as a subprocess using the `-stay_open True` flag to keep the process running in the background.  The subprocess will be cleaned up when your main script terminates.  `ExifTool()` uses a singleton pattern to ensure that only one instance of `exiftool` is created.  Multiple instances of `ExifTool()` will all use the same `exiftool` subprocess.
+
+### <a name="textdetection">Text Detection</a>
+
+The [PhotoInfo.detected_text()](#detected_text_method) and the `{detected_text}` template will perform text detection on the photos in your library. Text detection is a slow process so to avoid unnecessary re-processing of photos, osxphotos will cache the results of the text detection process as an extended attribute on the photo image file.  Extended attributes do not modify the actual file.  The extended attribute is named `osxphotos.metadata:detected_text` and can be viewed using the built-in [xattr](https://ss64.com/osx/xattr.html) command or my [osxmetadata](https://github.com/RhetTbull/osxmetadata) tool.  If you want to remove the cached attribute, you can do so with osxmetadata as follows:
+
+`osxmetadata --clear osxphotos.metadata:detected_text --walk ~/Pictures/Photos\ Library.photoslibrary/`
+
+
 
 ### Utility Functions
 
