@@ -4074,6 +4074,10 @@ def _get_selected(photosdb):
 @click.pass_context
 def repl(ctx, cli_obj, db):
     """Run interactive osxphotos shell"""
+
+    from osxphotos import PhotosDB, PhotoInfo, ExifTool
+    from rich import inspect as _inspect
+
     pretty.install()
     print(f"python version: {sys.version}")
     print(f"osxphotos version: {osxphotos._version.__version__}")
@@ -4090,6 +4094,10 @@ def repl(ctx, cli_obj, db):
     show = _show_photo
     get_selected = _get_selected(photosdb)
 
+    def inspect(obj):
+        """inspect object"""
+        return _inspect(obj, methods=True)
+
     print(f"Found {len(photos)} photos in {tictoc:0.2f} seconds")
     print("The following variables are defined:")
     print(f"- photosdb: PhotosDB() instance for {photosdb.library_path}")
@@ -4104,6 +4112,9 @@ def repl(ctx, cli_obj, db):
     print(f"- show(photo): open a photo object in the default viewer")
     print(
         f"- help(object): print help text including list of methods for object; for example, help(PhotosDB)"
+    )
+    print(
+        f"- inspect(object): print information about an object; for example inspect(photosdb)"
     )
     print(f"- quit(): exit this interactive shell\n")
     code.interact(banner="", local=locals())
