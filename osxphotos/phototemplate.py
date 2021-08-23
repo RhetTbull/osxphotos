@@ -533,10 +533,8 @@ class PhotoTemplate:
                 conditional_value = []
 
             vals = []
-            if (
-                field in SINGLE_VALUE_SUBSTITUTIONS
-                or field.split(".")[0] in SINGLE_VALUE_SUBSTITUTIONS
-            ):
+            singlevalueneeded = field in SINGLE_VALUE_SUBSTITUTIONS or field.split(".")[0] in SINGLE_VALUE_SUBSTITUTIONS
+            if singlevalueneeded:
                 vals = self.get_template_value(
                     field,
                     default=default,
@@ -572,7 +570,7 @@ class PhotoTemplate:
 
             vals = [val for val in vals if val is not None]
 
-            if self.expand_inplace or delim is not None:
+            if not singlevalueneeded and (self.expand_inplace or delim is not None):
                 sep = delim if delim is not None else self.inplace_sep
                 vals = [sep.join(sorted(vals))]
 
