@@ -793,6 +793,10 @@ UUID_DICT_FOLDER_ALBUM_SEQ = {
     },
 }
 
+UUID_EMPTY_TITLE = "7783E8E6-9CAC-40F3-BE22-81FB7051C266"  # IMG_3092.heic
+FILENAME_EMPTY_TITLE = "IMG_3092.heic"
+DESCRIPTION_TEMPLATE_EMPTY_TITLE = "{title,No Title} and {descr,No Descr}"
+DESCRIPTION_VALUE_EMPTY_TITLE =  "No Title and No Descr"
 
 def modify_file(filename):
     """appends data to a file to modify it"""
@@ -7121,3 +7125,39 @@ def test_export_album_seq():
             f"{UUID_DICT_FOLDER_ALBUM_SEQ[uuid]['album']}/{UUID_DICT_FOLDER_ALBUM_SEQ[uuid]['result']}"
             in files
         )
+
+
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+def test_export_description_template():
+    """Test for issue #506"""
+    import json
+    import os
+    import os.path
+
+    import osxphotos
+    from osxphotos.cli import cli
+    from osxphotos.exiftool import ExifTool
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "export",
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "--sidecar=json",
+                f"--uuid={UUID_EMPTY_TITLE}",
+                "-V",
+                "--description-template",
+                DESCRIPTION_TEMPLATE_EMPTY_TITLE,
+                "--exiftool"
+            ],
+        )
+        assert result.exit_code == 0
+        exif = ExifTool(FILENAME_EMPTY_TITLE).asdict()
+        assert exif["EXIF:ImageDescription"] == DESCRIPTION_VALUE_EMPTY_TITLE
+

@@ -393,6 +393,12 @@ UUID_ALBUM_SEQ = {
     },
 }
 
+UUID_EMPTY_TITLE = "7783E8E6-9CAC-40F3-BE22-81FB7051C266"  # IMG_3092.heic
+
+TEMPLATE_VALUES_EMPTY_TITLE = {
+    "{title,No Title} and {descr,No Descr}": "No Title and No Descr"
+}
+
 
 @pytest.fixture(scope="module")
 def photosdb_places():
@@ -1177,5 +1183,13 @@ def test_detected_text(photosdb):
     """Test {detected_text} template"""
     photo = photosdb.get_photo(UUID_DETECTED_TEXT)
     for template, value in TEMPLATE_VALUES_DETECTED_TEXT.items():
+        rendered, _ = photo.render_template(template)
+        assert value in "".join(rendered)
+
+
+def test_empty_title(photosdb):
+    """Test for issue #506"""
+    photo = photosdb.get_photo(UUID_EMPTY_TITLE)
+    for template, value in TEMPLATE_VALUES_EMPTY_TITLE.items():
         rendered, _ = photo.render_template(template)
         assert value in "".join(rendered)

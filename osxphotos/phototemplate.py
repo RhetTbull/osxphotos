@@ -574,7 +574,7 @@ class PhotoTemplate:
 
             if self.expand_inplace or delim is not None:
                 sep = delim if delim is not None else self.inplace_sep
-                vals = [sep.join(sorted(vals))]
+                vals = [sep.join(sorted(vals))] if vals else []
 
             for filter_ in filters:
                 vals = self.get_template_value_filter(filter_, vals)
