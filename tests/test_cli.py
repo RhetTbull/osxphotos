@@ -7196,7 +7196,7 @@ def test_export_description_template_conditional():
             ],
         )
         assert result.exit_code == 0
-        with fp as open(f"{FILENAME_EMPTY_TITLE}.json","r"):
+        with open(f"{FILENAME_EMPTY_TITLE}.json","r") as fp:
             json_got = json.load(fp)[0]
             assert json_got["EXIF:ImageDescription"] == DESCRIPTION_VALUE_TITLE_CONDITIONAL
 
