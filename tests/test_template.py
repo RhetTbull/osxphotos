@@ -396,7 +396,8 @@ UUID_ALBUM_SEQ = {
 UUID_EMPTY_TITLE = "7783E8E6-9CAC-40F3-BE22-81FB7051C266"  # IMG_3092.heic
 
 TEMPLATE_VALUES_EMPTY_TITLE = {
-    "{title,No Title} and {descr,No Descr}": "No Title and No Descr"
+    "{title,No Title} and {descr,No Descr}": "No Title and No Descr",
+    "{title?true,false}": "false",
 }
 
 
