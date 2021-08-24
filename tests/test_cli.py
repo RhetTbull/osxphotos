@@ -797,6 +797,8 @@ UUID_EMPTY_TITLE = "7783E8E6-9CAC-40F3-BE22-81FB7051C266"  # IMG_3092.heic
 FILENAME_EMPTY_TITLE = "IMG_3092.heic"
 DESCRIPTION_TEMPLATE_EMPTY_TITLE = "{title,No Title} and {descr,No Descr}"
 DESCRIPTION_VALUE_EMPTY_TITLE =  "No Title and No Descr"
+DESCRIPTION_TEMPLATE_TITLE_CONDITIONAL = "{title?true,false}"
+DESCRIPTION_VALUE_TITLE_CONDITIONAL = "false"
 
 def modify_file(filename):
     """appends data to a file to modify it"""
@@ -7160,4 +7162,40 @@ def test_export_description_template():
         assert result.exit_code == 0
         exif = ExifTool(FILENAME_EMPTY_TITLE).asdict()
         assert exif["EXIF:ImageDescription"] == DESCRIPTION_VALUE_EMPTY_TITLE
+        
+def test_export_description_template_conditional():
+    """Test for issue #506"""
+    import json
+    import os
+    import os.path
+
+    import osxphotos
+    from osxphotos.cli import cli
+    from osxphotos.exiftool import ExifTool
+    import json
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "export",
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "--sidecar=json",
+                f"--uuid={UUID_EMPTY_TITLE}",
+                "-V",
+                "--description-template",
+                DESCRIPTION_TEMPLATE_TITLE_CONDITIONAL,
+                "--sidecar",
+                "JSON"
+            
+            ],
+        )
+        assert result.exit_code == 0
+        json_got = json.load(f"{FILENAME_TITLE_EMPTY}.json")[0]
+        assert json_got["EXIF:ImageDescription"] == DESCRIPTION_VALUE_TITLE_CONDITIONAL
 
