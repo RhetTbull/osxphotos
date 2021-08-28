@@ -278,15 +278,15 @@ For example, to set Finder comment to the photo's title and description:
 
 In the template string above, `{newline}` instructs osxphotos to insert a new line character ("\n") between the title and description. In this example, if `{title}` or `{descr}` is empty, you'll get "title\n" or "\ndescription" which may not be desired so you can use more advanced features of the template system to handle these cases:
 
-`osxphotos export /path/to/export --xattr-template findercomment "{title}{title?{descr?{newline},},}{descr}"`
+`osxphotos export /path/to/export --xattr-template findercomment "{title,}{title?{descr?{newline},},}{descr,}"`
 
 Explanation of the template string:
 
 ```txt
-{title}{title?{descr?{newline},},}{descr}
+{title,}{title?{descr?{newline},},}{descr,}
  │           │      │ │       │ │  │ 
  │           │      │ │       │ │  │ 
- └──> insert title  │ │       │ │  │ 
+ └──> insert title (or nothing if no title) 
              │      │ │       │ │  │
              └───> is there a title?
                     │ │       │ │  │
@@ -298,7 +298,8 @@ Explanation of the template string:
                                 │  │ 
                                 └───> if title is blank, insert nothing
                                    │
-                                   └───> finally, insert description
+                                   └───> finally, insert description 
+                                         (or nothing if no description)
 ```
 
 In this example, `title?` demonstrates use of the boolean (True/False) feature of the template system.  `title?` is read as "Is the title True (or not blank/empty)?  If so, then the value immediately following the `?` is used in place of `title`.  If `title` is blank, then the value immediately following the comma is used instead.  The format for boolean fields is `field?value if true,value if false`.  Either `value if true` or `value if false` may be blank, in which case a blank string ("") is used for the value and both may also be an entirely new template string as seen in the above example.  Using this format, template strings may be nested inside each other to form complex `if-then-else` statements.
