@@ -209,6 +209,7 @@ TEMPLATE_SUBSTITUTIONS_MULTI_VALUED = {
     + "'{detected_text}' works only on macOS Catalina (10.15) or later. "
     + "Note: this feature is not the same thing as Live Text in macOS Monterey, which osxphotos does not yet support.",
     "{shell_quote}": "Use in form '{shell_quote,TEMPLATE}'; quotes the rendered TEMPLATE value(s) for safe usage in the shell, e.g. My file.jpeg => 'My file.jpeg'; only adds quotes if needed.",
+    "{strip}": "Use in form '{strip,TEMPLATE}'; strips whitespace from begining and end of rendered TEMPLATE value(s).",
     "{function}": "Execute a python function from an external file and use return value as template substitution. "
     + "Use in format: {function:file.py::function_name} where 'file.py' is the name of the python file and 'function_name' is the name of the function to call. "
     + "The function will be passed the PhotoInfo object for the photo. "
@@ -1162,6 +1163,8 @@ class PhotoTemplate:
             )
         elif field == "shell_quote":
             values = [shlex.quote(v) for v in default if v]
+        elif field == "strip":
+            values = [v.strip() for v in default]
         elif field.startswith("photo"):
             # provide access to PhotoInfo object
             properties = field.split(".")

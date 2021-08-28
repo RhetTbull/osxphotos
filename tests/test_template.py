@@ -394,10 +394,16 @@ UUID_ALBUM_SEQ = {
 }
 
 UUID_EMPTY_TITLE = "7783E8E6-9CAC-40F3-BE22-81FB7051C266"  # IMG_3092.heic
+UUID_EMPTY_TITLE_HAS_DESCRIPTION = "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"  # wedding.jpg
 
 TEMPLATE_VALUES_EMPTY_TITLE = {
     "{title,No Title} and {descr,No Descr}": "No Title and No Descr",
     "{title?true,false}": "false",
+}
+
+TEMPLATE_VALUES_EMPTY_TITLE_HAS_DESCRIPTION = {
+    "{title,} {descr} ": " Bride Wedding day ",
+    "{strip,{title,} {descr} }": "Bride Wedding day",
 }
 
 
@@ -1192,5 +1198,13 @@ def test_empty_title(photosdb):
     """Test for issue #506"""
     photo = photosdb.get_photo(UUID_EMPTY_TITLE)
     for template, value in TEMPLATE_VALUES_EMPTY_TITLE.items():
+        rendered, _ = photo.render_template(template)
+        assert value in "".join(rendered)
+
+
+def test_strip(photosdb):
+    """Test {strip} template"""
+    photo = photosdb.get_photo(UUID_EMPTY_TITLE_HAS_DESCRIPTION)
+    for template, value in TEMPLATE_VALUES_EMPTY_TITLE_HAS_DESCRIPTION.items():
         rendered, _ = photo.render_template(template)
         assert value in "".join(rendered)
