@@ -4093,16 +4093,30 @@ def repl(ctx, cli_obj, db):
     get_photo = photosdb.get_photo
     show = _show_photo
     get_selected = _get_selected(photosdb)
+    selected = get_selected()
 
     def inspect(obj):
         """inspect object"""
         return _inspect(obj, methods=True)
 
+    class ReprQuit:
+        def __repr__(self):
+            sys.exit(0)
+
+        def __call__(self):
+            sys.exit(0)
+
+    quit = ReprQuit()
+    q = ReprQuit()
+
     print(f"Found {len(photos)} photos in {tictoc:0.2f} seconds")
     print("The following variables are defined:")
     print(f"- photosdb: PhotosDB() instance for {photosdb.library_path}")
     print(
-        f"- photos: list of PhotoInfo objects for all photos in photosdb, including those in the trash"
+        f"- photos: list of PhotoInfo objects for all photos in photosdb, including those in the trash (len={len(photos)})"
+    )
+    print(
+        f"- selected: list of PhotoInfo objects for any photos selected in Photos (len={len(selected)})"
     )
     print(f"\nThe following functions may be helpful:")
     print(f"- get_photo(uuid): return a PhotoInfo object for photo with uuid")
@@ -4116,5 +4130,5 @@ def repl(ctx, cli_obj, db):
     print(
         f"- inspect(object): print information about an object; for example inspect(photosdb)"
     )
-    print(f"- quit(): exit this interactive shell\n")
+    print(f"- q, quit, or quit(): exit this interactive shell\n")
     code.interact(banner="", local=locals())
