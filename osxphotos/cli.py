@@ -2784,9 +2784,7 @@ def _render_suffix_template(
         return ""
 
     try:
-        options = RenderOptions(
-            filename=True, strip=strip, export_dir=dest, exportdb=export_db
-        )
+        options = RenderOptions(filename=True, export_dir=dest, exportdb=export_db)
         rendered_suffix, unmatched = photo.render_template(suffix_template, options)
     except ValueError as e:
         raise click.BadOptionUsage(
@@ -2803,6 +2801,10 @@ def _render_suffix_template(
             var_name,
             f"Invalid template for {option_name}: may not use multi-valued templates: '{suffix_template}': results={rendered_suffix}",
         )
+
+    if strip:
+        rendered_suffix[0] = rendered_suffix[0].strip()
+
     return rendered_suffix[0]
 
 
@@ -3033,7 +3035,6 @@ def get_filenames_from_template(
             options = RenderOptions(
                 path_sep="_",
                 filename=True,
-                strip=strip,
                 edited_version=edited,
                 export_dir=export_dir,
                 dest_path=dest_path,
@@ -3057,7 +3058,10 @@ def get_filenames_from_template(
             else [photo.filename]
         )
 
+    if strip:
+        filenames = [filename.strip() for filename in filenames]
     filenames = [sanitize_filename(filename) for filename in filenames]
+
     return filenames
 
 
@@ -3101,7 +3105,7 @@ def get_dirnames_from_template(
         # got a directory template, render it and check results are valid
         try:
             options = RenderOptions(
-                dirname=True, strip=strip, edited_version=edited, exportdb=export_db
+                dirname=True, edited_version=edited, exportdb=export_db
             )
             dirnames, unmatched = photo.render_template(directory, options)
         except ValueError as e:
@@ -3116,6 +3120,8 @@ def get_dirnames_from_template(
 
         dest_paths = []
         for dirname in dirnames:
+            if strip:
+                dirname = dirname.strip()
             dirname = sanitize_filepath(dirname)
             dest_path = os.path.join(dest, dirname)
             if not is_valid_filepath(dest_path):
@@ -3429,7 +3435,6 @@ def write_finder_tags(
                 options = RenderOptions(
                     none_str=_OSXPHOTOS_NONE_SENTINEL,
                     path_sep="/",
-                    strip=strip,
                     export_dir=export_dir,
                     exportdb=export_db,
                 )
@@ -3451,6 +3456,9 @@ def write_finder_tags(
             rendered_tags.extend(rendered)
 
         # filter out any template values that didn't match by looking for sentinel
+        if strip:
+            rendered_tags = [value.strip() for value in rendered_tags]
+
         rendered_tags = [
             value.replace(_OSXPHOTOS_NONE_SENTINEL, "") for value in rendered_tags
         ]
@@ -3496,7 +3504,6 @@ def write_extended_attributes(
             options = RenderOptions(
                 none_str=_OSXPHOTOS_NONE_SENTINEL,
                 path_sep="/",
-                strip=strip,
                 export_dir=export_dir,
                 exportdb=export_db,
             )
@@ -3516,6 +3523,9 @@ def write_extended_attributes(
             )
 
         # filter out any template values that didn't match by looking for sentinel
+        if strip:
+            rendered = [value.strip() for value in rendered]
+
         rendered = [value.replace(_OSXPHOTOS_NONE_SENTINEL, "") for value in rendered]
 
         try:

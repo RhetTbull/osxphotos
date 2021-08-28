@@ -530,6 +530,7 @@ def export2(
     preview=False,
     preview_suffix=DEFAULT_PREVIEW_SUFFIX,
     render_options: Optional[RenderOptions] = None,
+    strip=False,
 ):
     """export photo, like export but with update and dry_run options
     dest: must be valid destination path or exception raised
@@ -588,6 +589,7 @@ def export2(
     preview: if True, also exports preview image
     preview_suffix: optional string to append to end of filename for preview images
     render_options: optional osxphotos.phototemplate.RenderOptions instance to specify options for rendering templates
+    strip: if True, strip whitespace from rendered templates
 
     Returns: ExportResults class
         ExportResults has attributes:
@@ -969,6 +971,7 @@ def export2(
             persons=persons,
             location=location,
             replace_keywords=replace_keywords,
+            strip=strip,
         )
         sidecars.append(
             (
@@ -995,6 +998,7 @@ def export2(
             persons=persons,
             location=location,
             replace_keywords=replace_keywords,
+            strip=strip,
         )
         sidecars.append(
             (
@@ -1017,6 +1021,7 @@ def export2(
             persons=persons,
             location=location,
             replace_keywords=replace_keywords,
+            strip=strip,
         )
         sidecars.append(
             (
@@ -1087,6 +1092,7 @@ def export2(
                         persons=persons,
                         location=location,
                         replace_keywords=replace_keywords,
+                        strip=strip,
                     )
                 )[0]
                 if old_data != current_data:
@@ -1110,6 +1116,7 @@ def export2(
                         persons=persons,
                         location=location,
                         replace_keywords=replace_keywords,
+                        strip=strip,
                     )
                     if warning_:
                         all_results.exiftool_warning.append((exported_file, warning_))
@@ -1130,6 +1137,7 @@ def export2(
                         persons=persons,
                         location=location,
                         replace_keywords=replace_keywords,
+                        strip=strip,
                     ),
                 )
                 export_db.set_stat_exif_for_file(
@@ -1155,6 +1163,7 @@ def export2(
                     persons=persons,
                     location=location,
                     replace_keywords=replace_keywords,
+                    strip=strip,
                 )
                 if warning_:
                     all_results.exiftool_warning.append((exported_file, warning_))
@@ -1175,6 +1184,7 @@ def export2(
                     persons=persons,
                     location=location,
                     replace_keywords=replace_keywords,
+                    strip=strip,
                 ),
             )
             export_db.set_stat_exif_for_file(
@@ -1580,6 +1590,7 @@ def _write_exif_data(
     persons=True,
     location=True,
     replace_keywords=False,
+    strip=False,
 ):
     """write exif data to image file at filepath
 
@@ -1593,6 +1604,7 @@ def _write_exif_data(
         persons: if True, write person data to metadata
         location: if True, write location data to metadata
         replace_keywords: if True, keyword_template replaces any keywords, otherwise it's additive
+        strip: if True, strip any leading or trailing whitespace from rendered templates
 
     Returns:
         (warning, error) of warning and error strings if exiftool produces warnings or errors
@@ -1610,6 +1622,7 @@ def _write_exif_data(
         persons=persons,
         location=location,
         replace_keywords=replace_keywords,
+        strip=strip,
     )
 
     with ExifTool(filepath, flags=flags, exiftool=self._db._exiftool_path) as exiftool:
@@ -1635,6 +1648,7 @@ def _exiftool_dict(
     persons=True,
     location=True,
     replace_keywords=False,
+    strip=False,
 ):
     """Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
         Does not include all the EXIF fields as those are likely already in the image.
@@ -1651,6 +1665,7 @@ def _exiftool_dict(
         persons: if True, include person data
         location: if True, include location data
         replace_keywords: if True, keyword_template replaces any keywords, otherwise it's additive
+        strip: if True, strip any rendered templates
 
     Returns: dict with exiftool tags / values
 
@@ -1698,6 +1713,8 @@ def _exiftool_dict(
         )
         rendered = self.render_template(description_template, options)[0]
         description = " ".join(rendered) if rendered else ""
+        if strip:
+            description = description.strip()
         exif["EXIF:ImageDescription"] = description
         exif["XMP:Description"] = description
         exif["IPTC:Caption-Abstract"] = description
@@ -1744,6 +1761,9 @@ def _exiftool_dict(
                     f"Unmatched template substitution for template: {template_str} {unmatched}"
                 )
             rendered_keywords.extend(rendered)
+
+        if strip:
+            rendered_keywords = [keyword.strip() for keyword in rendered_keywords]
 
         # filter out any template values that didn't match by looking for sentinel
         rendered_keywords = [
@@ -1909,6 +1929,7 @@ def _exiftool_json_sidecar(
     persons=True,
     location=True,
     replace_keywords=False,
+    strip=False,
 ):
     """Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
         Does not include all the EXIF fields as those are likely already in the image.
@@ -1926,6 +1947,7 @@ def _exiftool_json_sidecar(
         persons: if True, include person data
         location: if True, include location data
         replace_keywords: if True, keyword_template replaces any keywords, otherwise it's additive
+        strip: if True, strip whitespace from rendered templates
 
     Returns: dict with exiftool tags / values
 
@@ -1965,6 +1987,7 @@ def _exiftool_json_sidecar(
         persons=persons,
         location=location,
         replace_keywords=replace_keywords,
+        strip=strip,
     )
 
     if not tag_groups:
@@ -1990,6 +2013,7 @@ def _xmp_sidecar(
     persons=True,
     location=True,
     replace_keywords=False,
+    strip=False,
 ):
     """returns string for XMP sidecar
     use_albums_as_keywords: treat album names as keywords
@@ -2002,6 +2026,7 @@ def _xmp_sidecar(
     persons: if True, include person data
     location: if True, include location data
     replace_keywords: if True, keyword_template replaces any keywords, otherwise it's additive
+    strip: if True, strip whitespace from rendered templates
     """
 
     xmp_template_file = (
@@ -2019,6 +2044,8 @@ def _xmp_sidecar(
         )
         rendered = self.render_template(description_template, options)[0]
         description = " ".join(rendered) if rendered else ""
+        if strip:
+            description = description.strip()
     else:
         description = self.description if self.description is not None else ""
 
@@ -2059,6 +2086,9 @@ def _xmp_sidecar(
                     f"Unmatched template substitution for template: {template_str} {unmatched}"
                 )
             rendered_keywords.extend(rendered)
+
+        if strip:
+            rendered_keywords = [keyword.strip() for keyword in rendered_keywords]
 
         # filter out any template values that didn't match by looking for sentinel
         rendered_keywords = [
