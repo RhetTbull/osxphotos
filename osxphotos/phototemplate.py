@@ -1004,6 +1004,9 @@ class PhotoTemplate:
         elif self.dirname:
             value = sanitize_dirname(value)
 
+        # ensure no empty strings in value (see #512)
+        value = None if value == "" else value
+
         return [value]
 
     def get_template_value_pathlib(self, field):

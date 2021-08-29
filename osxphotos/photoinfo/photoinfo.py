@@ -564,7 +564,12 @@ class PhotoInfo:
     @property
     def title(self):
         """name / title of picture"""
-        return self._info["name"]
+        # if user sets then deletes title, Photos sets it to empty string in DB instead of NULL
+        # in this case, return None so result is the same as if title had never been set (which returns NULL)
+        # issue #512
+        title = self._info["name"]
+        title = None if title == "" else title
+        return title
 
     @property
     def uuid(self):
