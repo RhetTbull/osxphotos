@@ -241,6 +241,15 @@
       "contributions": [
         "data"
       ]
+    },
+    {
+      "login": "dssinger",
+      "name": "David Singer",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1817903?v=4",
+      "profile": "https://github.com/dssinger",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
