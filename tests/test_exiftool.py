@@ -141,6 +141,44 @@ def test_setvalue_1():
     assert exif.data["IPTC:Keywords"] == "test"
 
 
+def test_setvalue_multiline():
+    # test setting a tag value with embedded newline
+    import os.path
+    import tempfile
+    import osxphotos.exiftool
+    from osxphotos.fileutil import FileUtil
+
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    tempfile = os.path.join(tempdir.name, os.path.basename(TEST_FILE_ONE_KEYWORD))
+    FileUtil.copy(TEST_FILE_ONE_KEYWORD, tempfile)
+
+    exif = osxphotos.exiftool.ExifTool(tempfile)
+    exif.setvalue("EXIF:ImageDescription", "multi\nline")
+    assert not exif.error
+
+    exif._read_exif()
+    assert exif.data["EXIF:ImageDescription"] == "multi\nline"
+
+
+def test_setvalue_non_alphanumeric_chars():
+    # test setting a tag value non-alphanumeric characters
+    import os.path
+    import tempfile
+    import osxphotos.exiftool
+    from osxphotos.fileutil import FileUtil
+
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    tempfile = os.path.join(tempdir.name, os.path.basename(TEST_FILE_ONE_KEYWORD))
+    FileUtil.copy(TEST_FILE_ONE_KEYWORD, tempfile)
+
+    exif = osxphotos.exiftool.ExifTool(tempfile)
+    exif.setvalue("EXIF:ImageDescription", "<hello>{world}$bye#foo%bar")
+    assert not exif.error
+
+    exif._read_exif()
+    assert exif.data["EXIF:ImageDescription"] == "<hello>{world}$bye#foo%bar"
+
+
 def test_setvalue_warning():
     # test setting illegal tag value generates warning
     import os.path
@@ -311,6 +349,45 @@ def test_addvalues_2():
     assert sorted(exif.data["IPTC:Keywords"]) == sorted(test_multi)
 
 
+def test_addvalues_non_alphanumeric_multiline():
+    # test setting a tag value
+    import os.path
+    import tempfile
+    import osxphotos.exiftool
+    from osxphotos.fileutil import FileUtil
+
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    tempfile = os.path.join(tempdir.name, os.path.basename(TEST_FILE_ONE_KEYWORD))
+    FileUtil.copy(TEST_FILE_ONE_KEYWORD, tempfile)
+
+    exif = osxphotos.exiftool.ExifTool(tempfile)
+    exif.addvalues("IPTC:Keywords", "multi\nline", "<Foo>\t{bar}")
+    assert not exif.error
+    exif._read_exif()
+    assert sorted(exif.data["IPTC:Keywords"]) == sorted(
+        ["wedding", "multi\nline", "<Foo>\t{bar}"]
+    )
+
+
+def test_addvalues_unicode():
+    # test setting a tag value with unicode
+    import os.path
+    import tempfile
+    import osxphotos.exiftool
+    from osxphotos.fileutil import FileUtil
+
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    tempfile = os.path.join(tempdir.name, os.path.basename(TEST_FILE_ONE_KEYWORD))
+    FileUtil.copy(TEST_FILE_ONE_KEYWORD, tempfile)
+
+    exif = osxphotos.exiftool.ExifTool(tempfile)
+    exif.setvalue("IPTC:Keywords", None)
+    exif.addvalues("IPTC:Keywords", "ǂ", "Ƕ")
+    assert not exif.error
+    exif._read_exif()
+    assert sorted(exif.data["IPTC:Keywords"]) == sorted(["ǂ", "Ƕ"])
+
+
 def test_singleton():
     import osxphotos.exiftool
 
@@ -384,7 +461,7 @@ def test_str():
 
 
 def test_photoinfo_exiftool():
-    """ test PhotoInfo.exiftool which returns ExifTool object for photo """
+    """test PhotoInfo.exiftool which returns ExifTool object for photo"""
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
@@ -397,7 +474,7 @@ def test_photoinfo_exiftool():
 
 
 def test_photoinfo_exiftool_no_groups():
-    """ test PhotoInfo.exiftool which returns ExifTool object for photo without tag group names"""
+    """test PhotoInfo.exiftool which returns ExifTool object for photo without tag group names"""
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
@@ -420,7 +497,7 @@ def test_photoinfo_exiftool_none():
 
 
 def test_exiftool_terminate():
-    """ Test that exiftool process is terminated when exiftool.terminate() is called """
+    """Test that exiftool process is terminated when exiftool.terminate() is called"""
     import osxphotos.exiftool
     import subprocess
 
@@ -435,7 +512,7 @@ def test_exiftool_terminate():
     ps = subprocess.run(["ps"], capture_output=True)
     stdout = ps.stdout.decode("utf-8")
     assert "exiftool -stay_open" not in stdout
- 
+
     # verify we can create a new instance after termination
     exif2 = osxphotos.exiftool.ExifTool(TEST_FILE_ONE_KEYWORD)
     assert exif2.asdict()["IPTC:Keywords"] == "wedding"

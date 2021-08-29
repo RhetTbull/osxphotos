@@ -1346,12 +1346,12 @@ def test_no_adjustments(photosdb):
 
 
 def test_exiftool_newlines_in_description(photosdb):
-    """Test that exiftool code removes newlines embedded in description, issue #393"""
+    """Test that exiftool handles newlines embedded in description, issue #393"""
 
     photo = photosdb.get_photo(UUID_DICT["description_newlines"])
     exif = photo._exiftool_dict()
     assert photo.description.find("\n") > 0
-    assert exif["EXIF:ImageDescription"].find("\n") == -1
+    assert exif["EXIF:ImageDescription"].find("\n") > 0
 
 
 @pytest.mark.skip(SKIP_TEST, reason="Not yet implemented")

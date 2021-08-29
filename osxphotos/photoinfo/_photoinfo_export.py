@@ -1871,12 +1871,6 @@ def _exiftool_dict(
                 self.date_modified
             ).strftime("%Y:%m:%d %H:%M:%S")
 
-    # remove any new lines in any fields
-    for field, val in exif.items():
-        if type(val) == str:
-            exif[field] = val.replace("\n", " ")
-        elif type(val) == list:
-            exif[field] = [str(v).replace("\n", " ") for v in val if v is not None]
     return exif
 
 
