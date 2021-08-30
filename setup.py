@@ -91,7 +91,7 @@ setup(
         "wurlitzer==2.1.0",
         "photoscript==0.1.4",
         "toml==0.10.2",
-        "osxmetadata==0.99.31",
+        "osxmetadata==0.99.33",
         "textx==2.3.0",
         "rich==10.6.0",
         "bitmath==1.3.3.1",
