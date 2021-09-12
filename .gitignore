@@ -16,3 +16,4 @@ cli.spec
 *.pyc
 docsrc/_build/
 venv/
+.python-version
