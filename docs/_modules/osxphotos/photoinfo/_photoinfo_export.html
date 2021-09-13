@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos.photoinfo._photoinfo_export &#8212; osxphotos 0.42.69 documentation</title>
+    <title>osxphotos.photoinfo._photoinfo_export &#8212; osxphotos 0.42.80 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
@@ -563,6 +563,7 @@
     <span class="n">preview</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">preview_suffix</span><span class="o">=</span><span class="n">DEFAULT_PREVIEW_SUFFIX</span><span class="p">,</span>
     <span class="n">render_options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RenderOptions</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">strip</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;export photo, like export but with update and dry_run options</span>
 <span class="sd">    dest: must be valid destination path or exception raised</span>
@@ -621,6 +622,7 @@
 <span class="sd">    preview: if True, also exports preview image</span>
 <span class="sd">    preview_suffix: optional string to append to end of filename for preview images</span>
 <span class="sd">    render_options: optional osxphotos.phototemplate.RenderOptions instance to specify options for rendering templates</span>
+<span class="sd">    strip: if True, strip whitespace from rendered templates</span>
 
 <span class="sd">    Returns: ExportResults class</span>
 <span class="sd">        ExportResults has attributes:</span>
@@ -1002,6 +1004,7 @@
             <span class="n">persons</span><span class="o">=</span><span class="n">persons</span><span class="p">,</span>
             <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
             <span class="n">replace_keywords</span><span class="o">=</span><span class="n">replace_keywords</span><span class="p">,</span>
+            <span class="n">strip</span><span class="o">=</span><span class="n">strip</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">sidecars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="p">(</span>
@@ -1028,6 +1031,7 @@
             <span class="n">persons</span><span class="o">=</span><span class="n">persons</span><span class="p">,</span>
             <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
             <span class="n">replace_keywords</span><span class="o">=</span><span class="n">replace_keywords</span><span class="p">,</span>
+            <span class="n">strip</span><span class="o">=</span><span class="n">strip</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">sidecars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="p">(</span>
@@ -1050,6 +1054,7 @@
             <span class="n">persons</span><span class="o">=</span><span class="n">persons</span><span class="p">,</span>
             <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
             <span class="n">replace_keywords</span><span class="o">=</span><span class="n">replace_keywords</span><span class="p">,</span>
+            <span class="n">strip</span><span class="o">=</span><span class="n">strip</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">sidecars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="p">(</span>
@@ -1120,6 +1125,7 @@
                         <span class="n">persons</span><span class="o">=</span><span class="n">persons</span><span class="p">,</span>
                         <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
                         <span class="n">replace_keywords</span><span class="o">=</span><span class="n">replace_keywords</span><span class="p">,</span>
+                        <span class="n">strip</span><span class="o">=</span><span class="n">strip</span><span class="p">,</span>
                     <span class="p">)</span>
                 <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">old_data</span> <span class="o">!=</span> <span class="n">current_data</span><span class="p">:</span>
@@ -1143,6 +1149,7 @@
                         <span class="n">persons</span><span class="o">=</span><span class="n">persons</span><span class="p">,</span>
                         <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
                         <span class="n">replace_keywords</span><span class="o">=</span><span class="n">replace_keywords</span><span class="p">,</span>
+                        <span class="n">strip</span><span class="o">=</span><span class="n">strip</span><span class="p">,</span>
                     <span class="p">)</span>
                     <span class="k">if</span> <span class="n">warning_</span><span class="p">:</span>
                         <span class="n">all_results</span><span class="o">.</span><span class="n">exiftool_warning</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">exported_file</span><span class="p">,</span> <span class="n">warning_</span><span class="p">))</span>
@@ -1163,6 +1170,7 @@
                         <span class="n">persons</span><span class="o">=</span><span class="n">persons</span><span class="p">,</span>
                         <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
                         <span class="n">replace_keywords</span><span class="o">=</span><span class="n">replace_keywords</span><span class="p">,</span>
+                        <span class="n">strip</span><span class="o">=</span><span class="n">strip</span><span class="p">,</span>
                     <span class="p">),</span>
                 <span class="p">)</span>
                 <span class="n">export_db</span><span class="o">.</span><span class="n">set_stat_exif_for_file</span><span class="p">(</span>
@@ -1188,6 +1196,7 @@
                     <span class="n">persons</span><span class="o">=</span><span class="n">persons</span><span class="p">,</span>
                     <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
                     <span class="n">replace_keywords</span><span class="o">=</span><span class="n">replace_keywords</span><span class="p">,</span>
+                    <span class="n">strip</span><span class="o">=</span><span class="n">strip</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="n">warning_</span><span class="p">:</span>
                     <span class="n">all_results</span><span class="o">.</span><span class="n">exiftool_warning</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">exported_file</span><span class="p">,</span> <span class="n">warning_</span><span class="p">))</span>
@@ -1208,6 +1217,7 @@
                     <span class="n">persons</span><span class="o">=</span><span class="n">persons</span><span class="p">,</span>
                     <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
                     <span class="n">replace_keywords</span><span class="o">=</span><span class="n">replace_keywords</span><span class="p">,</span>
+                    <span class="n">strip</span><span class="o">=</span><span class="n">strip</span><span class="p">,</span>
                 <span class="p">),</span>
             <span class="p">)</span>
             <span class="n">export_db</span><span class="o">.</span><span class="n">set_stat_exif_for_file</span><span class="p">(</span>
@@ -1613,6 +1623,7 @@
     <span class="n">persons</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">location</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">replace_keywords</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">strip</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;write exif data to image file at filepath</span>
 
@@ -1626,6 +1637,7 @@
 <span class="sd">        persons: if True, write person data to metadata</span>
 <span class="sd">        location: if True, write location data to metadata</span>
 <span class="sd">        replace_keywords: if True, keyword_template replaces any keywords, otherwise it&#39;s additive</span>
+<span class="sd">        strip: if True, strip any leading or trailing whitespace from rendered templates</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        (warning, error) of warning and error strings if exiftool produces warnings or errors</span>
@@ -1643,6 +1655,7 @@
         <span class="n">persons</span><span class="o">=</span><span class="n">persons</span><span class="p">,</span>
         <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
         <span class="n">replace_keywords</span><span class="o">=</span><span class="n">replace_keywords</span><span class="p">,</span>
+        <span class="n">strip</span><span class="o">=</span><span class="n">strip</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">with</span> <span class="n">ExifTool</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">,</span> <span class="n">exiftool</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_exiftool_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">exiftool</span><span class="p">:</span>
@@ -1668,6 +1681,7 @@
     <span class="n">persons</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">location</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">replace_keywords</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">strip</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.</span>
 <span class="sd">        Does not include all the EXIF fields as those are likely already in the image.</span>
@@ -1684,6 +1698,7 @@
 <span class="sd">        persons: if True, include person data</span>
 <span class="sd">        location: if True, include location data</span>
 <span class="sd">        replace_keywords: if True, keyword_template replaces any keywords, otherwise it&#39;s additive</span>
+<span class="sd">        strip: if True, strip any rendered templates</span>
 
 <span class="sd">    Returns: dict with exiftool tags / values</span>
 
@@ -1731,6 +1746,8 @@
         <span class="p">)</span>
         <span class="n">rendered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_template</span><span class="p">(</span><span class="n">description_template</span><span class="p">,</span> <span class="n">options</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rendered</span><span class="p">)</span> <span class="k">if</span> <span class="n">rendered</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">strip</span><span class="p">:</span>
+            <span class="n">description</span> <span class="o">=</span> <span class="n">description</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;EXIF:ImageDescription&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">description</span>
         <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;XMP:Description&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">description</span>
         <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;IPTC:Caption-Abstract&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">description</span>
@@ -1777,6 +1794,9 @@
                     <span class="sa">f</span><span class="s2">&quot;Unmatched template substitution for template: </span><span class="si">{</span><span class="n">template_str</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">unmatched</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="p">)</span>
             <span class="n">rendered_keywords</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">rendered</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">strip</span><span class="p">:</span>
+            <span class="n">rendered_keywords</span> <span class="o">=</span> <span class="p">[</span><span class="n">keyword</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">rendered_keywords</span><span class="p">]</span>
 
         <span class="c1"># filter out any template values that didn&#39;t match by looking for sentinel</span>
         <span class="n">rendered_keywords</span> <span class="o">=</span> <span class="p">[</span>
@@ -1884,12 +1904,6 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">date_modified</span>
             <span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y:%m:</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span>
 
-    <span class="c1"># remove any new lines in any fields</span>
-    <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">exif</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
-            <span class="n">exif</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
-            <span class="n">exif</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">val</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">exif</span>
 
 
@@ -1942,6 +1956,7 @@
     <span class="n">persons</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">location</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">replace_keywords</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">strip</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.</span>
 <span class="sd">        Does not include all the EXIF fields as those are likely already in the image.</span>
@@ -1959,6 +1974,7 @@
 <span class="sd">        persons: if True, include person data</span>
 <span class="sd">        location: if True, include location data</span>
 <span class="sd">        replace_keywords: if True, keyword_template replaces any keywords, otherwise it&#39;s additive</span>
+<span class="sd">        strip: if True, strip whitespace from rendered templates</span>
 
 <span class="sd">    Returns: dict with exiftool tags / values</span>
 
@@ -1998,6 +2014,7 @@
         <span class="n">persons</span><span class="o">=</span><span class="n">persons</span><span class="p">,</span>
         <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
         <span class="n">replace_keywords</span><span class="o">=</span><span class="n">replace_keywords</span><span class="p">,</span>
+        <span class="n">strip</span><span class="o">=</span><span class="n">strip</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">tag_groups</span><span class="p">:</span>
@@ -2023,6 +2040,7 @@
     <span class="n">persons</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">location</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">replace_keywords</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">strip</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;returns string for XMP sidecar</span>
 <span class="sd">    use_albums_as_keywords: treat album names as keywords</span>
@@ -2035,6 +2053,7 @@
 <span class="sd">    persons: if True, include person data</span>
 <span class="sd">    location: if True, include location data</span>
 <span class="sd">    replace_keywords: if True, keyword_template replaces any keywords, otherwise it&#39;s additive</span>
+<span class="sd">    strip: if True, strip whitespace from rendered templates</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">xmp_template_file</span> <span class="o">=</span> <span class="p">(</span>
@@ -2052,6 +2071,8 @@
         <span class="p">)</span>
         <span class="n">rendered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_template</span><span class="p">(</span><span class="n">description_template</span><span class="p">,</span> <span class="n">options</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rendered</span><span class="p">)</span> <span class="k">if</span> <span class="n">rendered</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">strip</span><span class="p">:</span>
+            <span class="n">description</span> <span class="o">=</span> <span class="n">description</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
 
@@ -2092,6 +2113,9 @@
                     <span class="sa">f</span><span class="s2">&quot;Unmatched template substitution for template: </span><span class="si">{</span><span class="n">template_str</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">unmatched</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="p">)</span>
             <span class="n">rendered_keywords</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">rendered</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">strip</span><span class="p">:</span>
+            <span class="n">rendered_keywords</span> <span class="o">=</span> <span class="p">[</span><span class="n">keyword</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">rendered_keywords</span><span class="p">]</span>
 
         <span class="c1"># filter out any template values that didn&#39;t match by looking for sentinel</span>
         <span class="n">rendered_keywords</span> <span class="o">=</span> <span class="p">[</span>
@@ -2180,7 +2204,7 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -2202,7 +2226,7 @@
       &copy;2021, Rhet Turnbull.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
