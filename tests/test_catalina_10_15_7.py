@@ -23,10 +23,10 @@ PHOTOS_DB = "tests/Test-10.15.7.photoslibrary/database/photos.db"
 PHOTOS_DB_PATH = "/Test-10.15.7.photoslibrary/database/photos.db"
 PHOTOS_LIBRARY_PATH = "/Test-10.15.7.photoslibrary"
 
-PHOTOS_DB_LEN = 21
-PHOTOS_NOT_IN_TRASH_LEN = 19
+PHOTOS_DB_LEN = 25
+PHOTOS_NOT_IN_TRASH_LEN = 23
 PHOTOS_IN_TRASH_LEN = 2
-PHOTOS_DB_IMPORT_SESSIONS = 15
+PHOTOS_DB_IMPORT_SESSIONS = 17
 
 KEYWORDS = [
     "Kids",
@@ -45,6 +45,15 @@ KEYWORDS = [
     "Val d'Isère",
     "Wine",
     "Wine Bottle",
+    "Food",
+    "Furniture",
+    "Pizza",
+    "Table",
+    "Cloudy",
+    "Cord",
+    "Outdoor",
+    "Sky",
+    "Sunset Sunrise",
 ]
 # Photos 5 includes blank person for detected face
 PERSONS = ["Katie", "Suzy", "Maria", _UNKNOWN_PERSON]
@@ -80,6 +89,15 @@ KEYWORDS_DICT = {
     "flowers": 1,
     "foo/bar": 1,
     "wedding": 3,
+    "Food": 2,
+    "Furniture": 2,
+    "Pizza": 2,
+    "Table": 2,
+    "Cloudy": 2,
+    "Cord": 2,
+    "Outdoor": 2,
+    "Sky": 2,
+    "Sunset Sunrise": 2,
 }
 PERSONS_DICT = {"Katie": 3, "Suzy": 2, "Maria": 2, _UNKNOWN_PERSON: 1}
 ALBUM_DICT = {
@@ -165,6 +183,12 @@ UTI_ORIGINAL_DICT = {
     "1EB2B765-0765-43BA-A90C-0D0580E6172C": "public.jpeg",
 }
 
+UUID_UNICODE_TITLE = [
+    "B13F4485-94E0-41CD-AF71-913095D62E31", # Frítest.jpg
+    "1793FAAB-DE75-4E25-886C-2BD66C780D6A", # Frítest.jpg
+    "A8266C97-9BAF-4AF4-99F3-0013832869B8", # Frítest.jpg
+    "D1D4040D-D141-44E8-93EA-E403D9F63E07", # Frítest.jpg
+]
 
 RawInfo = namedtuple(
     "RawInfo",
@@ -1073,7 +1097,7 @@ def test_from_to_date(photosdb):
     time.tzset()
 
     photos = photosdb.photos(from_date=datetime.datetime(2018, 10, 28))
-    assert len(photos) == 12
+    assert len(photos) == 16
 
     photos = photosdb.photos(to_date=datetime.datetime(2018, 10, 28))
     assert len(photos) == 7

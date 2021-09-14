@@ -56,7 +56,7 @@ from ..photokit import (
 )
 from ..phototemplate import RenderOptions
 from ..uti import get_preferred_uti_extension
-from ..utils import findfiles, lineno, noop
+from ..utils import findfiles, lineno, noop, normalize_fs_path
 
 # retry if use_photos_export fails the first time (which sometimes it does)
 MAX_PHOTOSCRIPT_RETRIES = 3
@@ -686,9 +686,12 @@ def export2(
     count = 0
     if not update and increment and not overwrite:
         dest_files = findfiles(f"{dest_original.stem}*", str(dest_original.parent))
-        dest_files = [pathlib.Path(f).stem.lower() for f in dest_files]
+        # paths need to be normalized for unicode as filesystem returns unicode in NFD form
+        dest_files = [
+            normalize_fs_path(pathlib.Path(f).stem.lower()) for f in dest_files
+        ]
         dest_new = dest_original.stem
-        while dest_new.lower() in dest_files:
+        while normalize_fs_path(dest_new.lower()) in dest_files:
             count += 1
             dest_new = f"{dest_original.stem} ({count})"
         dest_original = dest_original.parent / f"{dest_new}{dest_original.suffix}"
@@ -708,12 +711,15 @@ def export2(
     if export_edited:
         if not update and increment and not overwrite:
             dest_files = findfiles(f"{dest_edited.stem}*", str(dest_edited.parent))
-            dest_files = [pathlib.Path(f).stem.lower() for f in dest_files]
+            # paths need to be normalized for unicode as filesystem returns unicode in NFD form
+            dest_files = [
+                normalize_fs_path(pathlib.Path(f).stem.lower()) for f in dest_files
+            ]
             dest_new = dest_edited.stem
             if count:
                 # incremented above when checking original destination
                 dest_new = f"{dest_new} ({count})"
-            while dest_new.lower() in dest_files:
+            while normalize_fs_path(dest_new.lower()) in dest_files:
                 count += 1
                 dest_new = f"{dest.stem} ({count})"
             dest_edited = dest_edited.parent / f"{dest_new}{dest_edited.suffix}"

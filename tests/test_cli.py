@@ -796,9 +796,25 @@ UUID_DICT_FOLDER_ALBUM_SEQ = {
 UUID_EMPTY_TITLE = "7783E8E6-9CAC-40F3-BE22-81FB7051C266"  # IMG_3092.heic
 FILENAME_EMPTY_TITLE = "IMG_3092.heic"
 DESCRIPTION_TEMPLATE_EMPTY_TITLE = "{title,No Title} and {descr,No Descr}"
-DESCRIPTION_VALUE_EMPTY_TITLE =  "No Title and No Descr"
+DESCRIPTION_VALUE_EMPTY_TITLE = "No Title and No Descr"
 DESCRIPTION_TEMPLATE_TITLE_CONDITIONAL = "{title?true,false}"
 DESCRIPTION_VALUE_TITLE_CONDITIONAL = "false"
+
+
+UUID_UNICODE_TITLE = [
+    "B13F4485-94E0-41CD-AF71-913095D62E31",  # Frítest.jpg
+    "1793FAAB-DE75-4E25-886C-2BD66C780D6A",  # Frítest.jpg
+    "A8266C97-9BAF-4AF4-99F3-0013832869B8",  # Frítest.jpg
+    "D1D4040D-D141-44E8-93EA-E403D9F63E07",  # Frítest.jpg
+]
+
+EXPORT_UNICODE_TITLE_FILENAMES = [
+    "Frítest.jpg",
+    "Frítest (1).jpg",
+    "Frítest (2).jpg",
+    "Frítest (3).jpg",
+]
+
 
 def modify_file(filename):
     """appends data to a file to modify it"""
@@ -2150,6 +2166,51 @@ def test_export_duplicate():
         assert result.exit_code == 0
         files = glob.glob("*")
         assert len(files) == len(UUID_DUPLICATES)
+
+
+def test_export_duplicate_unicode_filenames():
+    # test issue #515
+    import glob
+    import os
+    import os.path
+
+    import osxphotos
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    uuid = []
+    for u in UUID_UNICODE_TITLE:
+        uuid.append("--uuid")
+        uuid.append(u)
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "--convert-to-jpeg",
+                "--edited-suffix",
+                "",
+                "--filename",
+                "{title,{original_name}}",
+                "--jpeg-ext",
+                "jpg",
+                "--person-keyword",
+                "--skip-bursts",
+                "--skip-live",
+                "--skip-original-if-edited",
+                "--touch-file",
+                "--strip",
+                *uuid,
+                "-V",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "exported: 4" in result.output
+        files = glob.glob("*")
+        assert sorted(files) == sorted(EXPORT_UNICODE_TITLE_FILENAMES)
 
 
 def test_query_date_1():
@@ -7156,13 +7217,14 @@ def test_export_description_template():
                 "-V",
                 "--description-template",
                 DESCRIPTION_TEMPLATE_EMPTY_TITLE,
-                "--exiftool"
+                "--exiftool",
             ],
         )
         assert result.exit_code == 0
         exif = ExifTool(FILENAME_EMPTY_TITLE).asdict()
         assert exif["EXIF:ImageDescription"] == DESCRIPTION_VALUE_EMPTY_TITLE
-        
+
+
 def test_export_description_template_conditional():
     """Test for issue #506"""
     import json
@@ -7191,12 +7253,12 @@ def test_export_description_template_conditional():
                 "--description-template",
                 DESCRIPTION_TEMPLATE_TITLE_CONDITIONAL,
                 "--sidecar",
-                "JSON"
-            
+                "JSON",
             ],
         )
         assert result.exit_code == 0
-        with open(f"{FILENAME_EMPTY_TITLE}.json","r") as fp:
+        with open(f"{FILENAME_EMPTY_TITLE}.json", "r") as fp:
             json_got = json.load(fp)[0]
-            assert json_got["EXIF:ImageDescription"] == DESCRIPTION_VALUE_TITLE_CONDITIONAL
-
+            assert (
+                json_got["EXIF:ImageDescription"] == DESCRIPTION_VALUE_TITLE_CONDITIONAL
+            )

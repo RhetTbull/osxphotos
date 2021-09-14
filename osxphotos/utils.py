@@ -19,6 +19,8 @@ from plistlib import load as plistload
 from typing import Callable
 
 import CoreFoundation
+import objc
+from Foundation import NSString
 
 from ._constants import UNICODE_FORMAT
 
@@ -263,6 +265,13 @@ def list_photo_libraries():
     return lib_list
 
 
+def normalize_fs_path(path: str) -> str:
+    """Normalize filesystem paths with unicode in them"""
+    with objc.autorelease_pool():
+        normalized_path = NSString.fileSystemRepresentation(path)
+        return normalized_path.decode('utf8')
+
+
 def findfiles(pattern, path_):
     """Returns list of filenames from path_ matched by pattern
     shell pattern. Matching is case-insensitive.
@@ -271,8 +280,11 @@ def findfiles(pattern, path_):
         return []
     # See: https://gist.github.com/techtonik/5694830
 
+    # paths need to be normalized for unicode as filesystem returns unicode in NFD form
+    pattern = normalize_fs_path(pattern)
     rule = re.compile(fnmatch.translate(pattern), re.IGNORECASE)
-    return [name for name in os.listdir(path_) if rule.match(name)]
+    files = [normalize_fs_path(p) for p in os.listdir(path_)]
+    return [name for name in files if rule.match(name)]
 
 
 def _open_sql_file(dbname):
