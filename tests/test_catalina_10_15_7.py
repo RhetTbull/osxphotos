@@ -183,13 +183,6 @@ UTI_ORIGINAL_DICT = {
     "1EB2B765-0765-43BA-A90C-0D0580E6172C": "public.jpeg",
 }
 
-UUID_UNICODE_TITLE = [
-    "B13F4485-94E0-41CD-AF71-913095D62E31", # Frítest.jpg
-    "1793FAAB-DE75-4E25-886C-2BD66C780D6A", # Frítest.jpg
-    "A8266C97-9BAF-4AF4-99F3-0013832869B8", # Frítest.jpg
-    "D1D4040D-D141-44E8-93EA-E403D9F63E07", # Frítest.jpg
-]
-
 RawInfo = namedtuple(
     "RawInfo",
     [

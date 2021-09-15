@@ -837,12 +837,17 @@ def export2(
                         count = 1
                         glob_str = str(dest.parent / f"{dest.stem}*")
                         dest_files = glob.glob(glob_str)
-                        dest_files = [pathlib.Path(f).stem for f in dest_files]
+                        dest_files = [normalize_fs_path(pathlib.Path(f).stem) for f in dest_files]
                         dest_new = dest.stem
-                        while dest_new in dest_files:
+                        while normalize_fs_path(dest_new) in dest_files:
                             dest_new = f"{dest.stem} ({count})"
                             count += 1
                         dest = dest.parent / f"{dest_new}{dest.suffix}"
+
+            if export_original:
+                dest_original = dest
+            else:
+                dest_edited = dest
 
             # export the dest file
             results = self._export_photo(
