@@ -4,4 +4,5 @@ pytest-mock
 m2r2
 pyinstaller==4.4
 sphinx_rtd_theme
+wheel
 
