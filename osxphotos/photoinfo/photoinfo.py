@@ -1054,14 +1054,14 @@ class PhotoInfo:
             return self._info["orientation"]
 
         # For Photos 5+, try to get the adjusted orientation
-        if self.hasadjustments:
-            if self.adjustments:
-                return self.adjustments.adj_orientation
-            else:
-                # can't reliably determine orientation for edited photo if adjustmentinfo not available
-                return 0
-        else:
+        if not self.hasadjustments:
             return self._info["orientation"]
+
+        if self.adjustments:
+            return self.adjustments.adj_orientation
+        else:
+            # can't reliably determine orientation for edited photo if adjustmentinfo not available
+            return 0
 
     @property
     def original_height(self):
@@ -1156,7 +1156,8 @@ class PhotoInfo:
         md = OSXMetaData(path)
         detected_text = md.get_attribute("osxphotos_detected_text")
         if detected_text is None:
-            detected_text = detect_text(path)
+            orientation = self.orientation or None
+            detected_text = detect_text(path, orientation)
             md.set_attribute("osxphotos_detected_text", detected_text)
         return detected_text
 

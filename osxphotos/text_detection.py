@@ -1,7 +1,7 @@
 """ Use Apple's Vision Framework via PyObjC to perform text detection on images (macOS 10.15+ only) """
 
 import logging
-from typing import List
+from typing import List, Optional
 
 import objc
 import Quartz
@@ -22,8 +22,13 @@ else:
     vision = True
 
 
-def detect_text(img_path: str) -> List:
-    """process image at img_path with VNRecognizeTextRequest and return list of results"""
+def detect_text(img_path: str, orientation: Optional[int] = None) -> List:
+    """process image at img_path with VNRecognizeTextRequest and return list of results
+
+    Args:
+        img_path: path to the image file
+        orientation: optional EXIF orientation (if known, passing orientation may improve quality of results)
+    """
     if not vision:
         logging.warning(f"detect_text not implemented for this version of macOS")
         return []
@@ -40,9 +45,18 @@ def detect_text(img_path: str) -> List:
             input_image = Quartz.CIImage.imageWithContentsOfURL_(input_url)
 
         vision_options = NSDictionary.dictionaryWithDictionary_({})
-        vision_handler = Vision.VNImageRequestHandler.alloc().initWithCIImage_options_(
-            input_image, vision_options
-        )
+        if orientation is not None:
+            if not 1 <= orientation <= 8:
+                raise ValueError("orientation must be between 1 and 8")
+            vision_handler = Vision.VNImageRequestHandler.alloc().initWithCIImage_orientation_options_(
+                input_image, orientation, vision_options
+            )
+        else:
+            vision_handler = (
+                Vision.VNImageRequestHandler.alloc().initWithCIImage_options_(
+                    input_image, vision_options
+                )
+            )
         results = []
         handler = make_request_handler(results)
         vision_request = (
