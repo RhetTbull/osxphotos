@@ -16,7 +16,7 @@ import sys
 import unicodedata
 import urllib.parse
 from plistlib import load as plistload
-from typing import Callable
+from typing import Callable, Union
 
 import CoreFoundation
 import objc
@@ -269,7 +269,7 @@ def normalize_fs_path(path: str) -> str:
     """Normalize filesystem paths with unicode in them"""
     with objc.autorelease_pool():
         normalized_path = NSString.fileSystemRepresentation(path)
-        return normalized_path.decode('utf8')
+        return normalized_path.decode("utf8")
 
 
 def findfiles(pattern, path_):
@@ -365,30 +365,50 @@ def normalize_unicode(value):
         return None
 
 
-def increment_filename(filepath):
+def increment_filename_with_count(filepath: Union[str,pathlib.Path], count: int = 0) -> str:
     """Return filename (1).ext, etc if filename.ext exists
 
         If file exists in filename's parent folder with same stem as filename,
         add (1), (2), etc. until a non-existing filename is found.
 
     Args:
-        filepath: str; full path, including file name
+        filepath: str or pathlib.Path; full path, including file name
+        count: int; starting increment value
+
+    Returns:
+        tuple of new filepath (or same if not incremented), count
+
+    Note: This obviously is subject to race condition so using with caution.
+    """
+    dest = filepath if isinstance(filepath, pathlib.Path) else pathlib.Path(filepath)
+    dest_files = findfiles(f"{dest.stem}*", str(dest.parent))
+    dest_files = [normalize_fs_path(pathlib.Path(f).stem.lower()) for f in dest_files]
+    dest_new = dest.stem
+    if count:
+        dest_new = f"{dest.stem} ({count})"
+    while normalize_fs_path(dest_new.lower()) in dest_files:
+        count += 1
+        dest_new = f"{dest.stem} ({count})"
+    dest = dest.parent / f"{dest_new}{dest.suffix}"
+    return str(dest), count
+
+
+def increment_filename(filepath: Union[str, pathlib.Path]) -> str:
+    """Return filename (1).ext, etc if filename.ext exists
+
+        If file exists in filename's parent folder with same stem as filename,
+        add (1), (2), etc. until a non-existing filename is found.
+
+    Args:
+        filepath: str or pathlib.Path; full path, including file name
 
     Returns:
         new filepath (or same if not incremented)
 
     Note: This obviously is subject to race condition so using with caution.
     """
-    dest = pathlib.Path(str(filepath))
-    count = 1
-    dest_files = findfiles(f"{dest.stem}*", str(dest.parent))
-    dest_files = [pathlib.Path(f).stem.lower() for f in dest_files]
-    dest_new = dest.stem
-    while dest_new.lower() in dest_files:
-        dest_new = f"{dest.stem} ({count})"
-        count += 1
-    dest = dest.parent / f"{dest_new}{dest.suffix}"
-    return str(dest)
+    new_filepath, _ = increment_filename_with_count(filepath)
+    return new_filepath
 
 
 def expand_and_validate_filepath(path: str) -> str:

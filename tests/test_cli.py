@@ -479,6 +479,7 @@ CLI_EXPORT_UUID = "D79B8D77-BFFC-460B-9312-034F2877D35B"
 CLI_EXPORT_UUID_STATUE = "3DD2C897-F19E-4CA6-8C22-B027D5A71907"
 CLI_EXPORT_UUID_KEYWORD_PATHSEP = "7783E8E6-9CAC-40F3-BE22-81FB7051C266"
 CLI_EXPORT_UUID_LONG_DESCRIPTION = "8846E3E6-8AC8-4857-8448-E3D025784410"
+CLI_EXPORT_UUID_MISSING = "8E1D7BC9-9321-44F9-8CFB-4083F6B9232A"  # IMG_2000.JPG
 
 CLI_EXPORT_UUID_FILENAME = "Pumkins2.jpg"
 CLI_EXPORT_UUID_FILENAME_PREVIEW = "Pumkins2_preview.jpeg"
@@ -1373,6 +1374,48 @@ def test_export_preview():
         assert result.exit_code == 0
         files = glob.glob("*")
         assert CLI_EXPORT_UUID_FILENAME_PREVIEW in files
+
+
+def test_export_preview_file_exists():
+    """test export with --preview when preview images already exist, issue #516"""
+    import glob
+    import os
+    import os.path
+
+    import osxphotos
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--preview",
+                "--uuid",
+                CLI_EXPORT_UUID_MISSING,
+            ],
+        )
+        assert result.exit_code == 0
+
+        # export again
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--preview",
+                "--uuid",
+                CLI_EXPORT_UUID_MISSING,
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Error exporting photo" not in result.output
 
 
 def test_export_preview_suffix():
@@ -4993,7 +5036,10 @@ def test_export_touch_files_update():
             ],
         )
         assert result.exit_code == 0
-        assert f"updated: 1, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7-1}" in result.output
+        assert (
+            f"updated: 1, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7-1}"
+            in result.output
+        )
         assert "touched date: 1" in result.output
 
         for fname, mtime in zip(CLI_EXPORT_BY_DATE, CLI_EXPORT_BY_DATE_TOUCH_TIMES):

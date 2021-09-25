@@ -56,7 +56,7 @@ from ..photokit import (
 )
 from ..phototemplate import RenderOptions
 from ..uti import get_preferred_uti_extension
-from ..utils import findfiles, lineno, noop, normalize_fs_path
+from ..utils import increment_filename, increment_filename_with_count, lineno
 
 # retry if use_photos_export fails the first time (which sometimes it does)
 MAX_PHOTOSCRIPT_RETRIES = 3
@@ -683,18 +683,12 @@ def export2(
     # e.g. exporting sidecar for file1.png and file1.jpeg
     # if file1.png exists and exporting file1.jpeg,
     # dest will be file1 (1).jpeg even though file1.jpeg doesn't exist to prevent sidecar collision
-    count = 0
-    if not update and increment and not overwrite:
-        dest_files = findfiles(f"{dest_original.stem}*", str(dest_original.parent))
-        # paths need to be normalized for unicode as filesystem returns unicode in NFD form
-        dest_files = [
-            normalize_fs_path(pathlib.Path(f).stem.lower()) for f in dest_files
-        ]
-        dest_new = dest_original.stem
-        while normalize_fs_path(dest_new.lower()) in dest_files:
-            count += 1
-            dest_new = f"{dest_original.stem} ({count})"
-        dest_original = dest_original.parent / f"{dest_new}{dest_original.suffix}"
+    increment_file_count = 0
+    if increment and not update and not overwrite:
+        dest_original, increment_file_count = increment_filename_with_count(
+            dest_original
+        )
+        dest_original = pathlib.Path(dest_original)
 
     # if overwrite==False and #increment==False, export should fail if file exists
     if (
@@ -709,20 +703,11 @@ def export2(
         )
 
     if export_edited:
-        if not update and increment and not overwrite:
-            dest_files = findfiles(f"{dest_edited.stem}*", str(dest_edited.parent))
-            # paths need to be normalized for unicode as filesystem returns unicode in NFD form
-            dest_files = [
-                normalize_fs_path(pathlib.Path(f).stem.lower()) for f in dest_files
-            ]
-            dest_new = dest_edited.stem
-            if count:
-                # incremented above when checking original destination
-                dest_new = f"{dest_new} ({count})"
-            while normalize_fs_path(dest_new.lower()) in dest_files:
-                count += 1
-                dest_new = f"{dest.stem} ({count})"
-            dest_edited = dest_edited.parent / f"{dest_new}{dest_edited.suffix}"
+        if increment and not update and not overwrite:
+            dest_edited, increment_file_count = increment_filename_with_count(
+                dest_edited, increment_file_count
+            )
+            dest_edited = pathlib.Path(dest_edited)
 
         # if overwrite==False and #increment==False, export should fail if file exists
         if dest_edited.exists() and not update and not overwrite and not increment:
@@ -806,20 +791,16 @@ def export2(
                     )
                 if dest_uuid != self.uuid:
                     # not the right file, find the right one
-                    count = 1
                     glob_str = str(dest.parent / f"{dest.stem} (*{dest.suffix}")
                     dest_files = glob.glob(glob_str)
-                    found_match = False
                     for file_ in dest_files:
                         dest_uuid = export_db.get_uuid_for_file(file_)
                         if dest_uuid == self.uuid:
                             dest = pathlib.Path(file_)
-                            found_match = True
                             break
                         elif dest_uuid is None and fileutil.cmp(src, file_):
                             # files match, update the UUID
                             dest = pathlib.Path(file_)
-                            found_match = True
                             export_db.set_data(
                                 filename=dest,
                                 uuid=self.uuid,
@@ -831,18 +812,9 @@ def export2(
                                 exif_json=None,
                             )
                             break
-
-                    if not found_match:
+                    else:
                         # increment the destination file
-                        count = 1
-                        glob_str = str(dest.parent / f"{dest.stem}*")
-                        dest_files = glob.glob(glob_str)
-                        dest_files = [normalize_fs_path(pathlib.Path(f).stem) for f in dest_files]
-                        dest_new = dest.stem
-                        while normalize_fs_path(dest_new) in dest_files:
-                            dest_new = f"{dest.stem} ({count})"
-                            count += 1
-                        dest = dest.parent / f"{dest_new}{dest.suffix}"
+                        dest = pathlib.Path(increment_filename(dest))
 
             if export_original:
                 dest_original = dest
@@ -940,6 +912,7 @@ def export2(
             preview_path = pathlib.Path(self.path_derivatives[0])
             preview_ext = preview_path.suffix
             preview_name = dest.parent / f"{dest.stem}{preview_suffix}{preview_ext}"
+            preview_name = pathlib.Path(increment_filename(preview_name))
             if preview_path is not None:
                 results = self._export_photo(
                     preview_path,

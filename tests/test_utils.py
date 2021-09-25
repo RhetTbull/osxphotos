@@ -8,8 +8,9 @@ UTI_DICT = {"public.jpeg": "jpeg", "com.canon.cr2-raw-image": "cr2"}
 
 
 def test_debug_enable():
-    import osxphotos
     import logging
+
+    import osxphotos
 
     osxphotos._set_debug(True)
     logger = osxphotos._get_logger()
@@ -17,8 +18,9 @@ def test_debug_enable():
 
 
 def test_debug_disable():
-    import osxphotos
     import logging
+
+    import osxphotos
 
     osxphotos._set_debug(False)
     logger = osxphotos._get_logger()
@@ -30,6 +32,7 @@ def test_dd_to_dms():
     from osxphotos.utils import _dd_to_dms
 
     assert _dd_to_dms(-0.001) == (0, 0, -3.6)
+
 
 @pytest.mark.skip(reason="Fails on some machines")
 def test_get_system_library_path():
@@ -54,9 +57,11 @@ def test_db_is_locked_unlocked():
 
     assert not osxphotos.utils._db_is_locked(DB_UNLOCKED_10_15)
 
+
 def test_findfiles():
-    import tempfile
     import os.path
+    import tempfile
+
     from osxphotos.utils import findfiles
 
     temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
@@ -72,9 +77,48 @@ def test_findfiles():
 
 def test_findfiles_invalid_dir():
     import tempfile
-    import os.path
+
     from osxphotos.utils import findfiles
 
     temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
-    files = findfiles("*.jpg", f"{temp_dir.name}/no_such_dir" )
+    files = findfiles("*.jpg", f"{temp_dir.name}/no_such_dir")
     assert len(files) == 0
+
+
+def test_increment_filename():
+    # test that increment_filename works
+    import pathlib
+    import tempfile
+
+    from osxphotos.utils import increment_filename, increment_filename_with_count
+
+    with tempfile.TemporaryDirectory(prefix="osxphotos_") as temp_dir:
+        temp_dir = pathlib.Path(temp_dir)
+        filename = str(temp_dir / "file.jpg")
+        assert increment_filename(filename) == str(temp_dir / "file.jpg")
+
+        new_file = temp_dir / "file.jpg"
+        new_file.touch()
+        assert increment_filename(filename) == str(temp_dir / "file (1).jpg")
+
+        # test pathlib.Path as argument
+        assert increment_filename(pathlib.Path(filename)) == str(
+            temp_dir / "file (1).jpg"
+        )
+
+        new_file = temp_dir / "file (1).jpg"
+        new_file.touch()
+        assert increment_filename(filename) == str(temp_dir / "file (2).jpg")
+
+        # test increment_filename_with_count
+        filename = str(temp_dir / "file2.jpg")
+        assert increment_filename_with_count(filename, count=2) == (
+            str(temp_dir / "file2 (2).jpg"),
+            2,
+        )
+        new_file = temp_dir / "file2 (2).jpg"
+        new_file.touch()
+        assert increment_filename_with_count(filename, count=2) == (
+            str(temp_dir / "file2 (3).jpg"),
+            3,
+        )
