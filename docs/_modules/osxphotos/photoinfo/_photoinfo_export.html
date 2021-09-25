@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos.photoinfo._photoinfo_export &#8212; osxphotos 0.42.82 documentation</title>
+    <title>osxphotos.photoinfo._photoinfo_export &#8212; osxphotos 0.42.84 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
@@ -89,7 +89,7 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">..phototemplate</span> <span class="kn">import</span> <span class="n">RenderOptions</span>
 <span class="kn">from</span> <span class="nn">..uti</span> <span class="kn">import</span> <span class="n">get_preferred_uti_extension</span>
-<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">findfiles</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">noop</span><span class="p">,</span> <span class="n">normalize_fs_path</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">increment_filename</span><span class="p">,</span> <span class="n">increment_filename_with_count</span><span class="p">,</span> <span class="n">lineno</span>
 
 <span class="c1"># retry if use_photos_export fails the first time (which sometimes it does)</span>
 <span class="n">MAX_PHOTOSCRIPT_RETRIES</span> <span class="o">=</span> <span class="mi">3</span>
@@ -716,18 +716,12 @@
     <span class="c1"># e.g. exporting sidecar for file1.png and file1.jpeg</span>
     <span class="c1"># if file1.png exists and exporting file1.jpeg,</span>
     <span class="c1"># dest will be file1 (1).jpeg even though file1.jpeg doesn&#39;t exist to prevent sidecar collision</span>
-    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">update</span> <span class="ow">and</span> <span class="n">increment</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
-        <span class="n">dest_files</span> <span class="o">=</span> <span class="n">findfiles</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest_original</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">*&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest_original</span><span class="o">.</span><span class="n">parent</span><span class="p">))</span>
-        <span class="c1"># paths need to be normalized for unicode as filesystem returns unicode in NFD form</span>
-        <span class="n">dest_files</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">normalize_fs_path</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">dest_files</span>
-        <span class="p">]</span>
-        <span class="n">dest_new</span> <span class="o">=</span> <span class="n">dest_original</span><span class="o">.</span><span class="n">stem</span>
-        <span class="k">while</span> <span class="n">normalize_fs_path</span><span class="p">(</span><span class="n">dest_new</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span> <span class="ow">in</span> <span class="n">dest_files</span><span class="p">:</span>
-            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="n">dest_new</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest_original</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">)&quot;</span>
-        <span class="n">dest_original</span> <span class="o">=</span> <span class="n">dest_original</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest_new</span><span class="si">}{</span><span class="n">dest_original</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">increment_file_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">increment</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">update</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
+        <span class="n">dest_original</span><span class="p">,</span> <span class="n">increment_file_count</span> <span class="o">=</span> <span class="n">increment_filename_with_count</span><span class="p">(</span>
+            <span class="n">dest_original</span>
+        <span class="p">)</span>
+        <span class="n">dest_original</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">dest_original</span><span class="p">)</span>
 
     <span class="c1"># if overwrite==False and #increment==False, export should fail if file exists</span>
     <span class="k">if</span> <span class="p">(</span>
@@ -742,20 +736,11 @@
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">export_edited</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">update</span> <span class="ow">and</span> <span class="n">increment</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
-            <span class="n">dest_files</span> <span class="o">=</span> <span class="n">findfiles</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest_edited</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">*&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest_edited</span><span class="o">.</span><span class="n">parent</span><span class="p">))</span>
-            <span class="c1"># paths need to be normalized for unicode as filesystem returns unicode in NFD form</span>
-            <span class="n">dest_files</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">normalize_fs_path</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">dest_files</span>
-            <span class="p">]</span>
-            <span class="n">dest_new</span> <span class="o">=</span> <span class="n">dest_edited</span><span class="o">.</span><span class="n">stem</span>
-            <span class="k">if</span> <span class="n">count</span><span class="p">:</span>
-                <span class="c1"># incremented above when checking original destination</span>
-                <span class="n">dest_new</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest_new</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">)&quot;</span>
-            <span class="k">while</span> <span class="n">normalize_fs_path</span><span class="p">(</span><span class="n">dest_new</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span> <span class="ow">in</span> <span class="n">dest_files</span><span class="p">:</span>
-                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="n">dest_new</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">)&quot;</span>
-            <span class="n">dest_edited</span> <span class="o">=</span> <span class="n">dest_edited</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest_new</span><span class="si">}{</span><span class="n">dest_edited</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">increment</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">update</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="n">dest_edited</span><span class="p">,</span> <span class="n">increment_file_count</span> <span class="o">=</span> <span class="n">increment_filename_with_count</span><span class="p">(</span>
+                <span class="n">dest_edited</span><span class="p">,</span> <span class="n">increment_file_count</span>
+            <span class="p">)</span>
+            <span class="n">dest_edited</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">dest_edited</span><span class="p">)</span>
 
         <span class="c1"># if overwrite==False and #increment==False, export should fail if file exists</span>
         <span class="k">if</span> <span class="n">dest_edited</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">update</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">increment</span><span class="p">:</span>
@@ -839,20 +824,16 @@
                     <span class="p">)</span>
                 <span class="k">if</span> <span class="n">dest_uuid</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">:</span>
                     <span class="c1"># not the right file, find the right one</span>
-                    <span class="n">count</span> <span class="o">=</span> <span class="mi">1</span>
                     <span class="n">glob_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2"> (*</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                     <span class="n">dest_files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">glob_str</span><span class="p">)</span>
-                    <span class="n">found_match</span> <span class="o">=</span> <span class="kc">False</span>
                     <span class="k">for</span> <span class="n">file_</span> <span class="ow">in</span> <span class="n">dest_files</span><span class="p">:</span>
                         <span class="n">dest_uuid</span> <span class="o">=</span> <span class="n">export_db</span><span class="o">.</span><span class="n">get_uuid_for_file</span><span class="p">(</span><span class="n">file_</span><span class="p">)</span>
                         <span class="k">if</span> <span class="n">dest_uuid</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">:</span>
                             <span class="n">dest</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">file_</span><span class="p">)</span>
-                            <span class="n">found_match</span> <span class="o">=</span> <span class="kc">True</span>
                             <span class="k">break</span>
                         <span class="k">elif</span> <span class="n">dest_uuid</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">cmp</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">file_</span><span class="p">):</span>
                             <span class="c1"># files match, update the UUID</span>
                             <span class="n">dest</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">file_</span><span class="p">)</span>
-                            <span class="n">found_match</span> <span class="o">=</span> <span class="kc">True</span>
                             <span class="n">export_db</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span>
                                 <span class="n">filename</span><span class="o">=</span><span class="n">dest</span><span class="p">,</span>
                                 <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
@@ -864,18 +845,9 @@
                                 <span class="n">exif_json</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                             <span class="p">)</span>
                             <span class="k">break</span>
-
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">found_match</span><span class="p">:</span>
+                    <span class="k">else</span><span class="p">:</span>
                         <span class="c1"># increment the destination file</span>
-                        <span class="n">count</span> <span class="o">=</span> <span class="mi">1</span>
-                        <span class="n">glob_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">*&quot;</span><span class="p">)</span>
-                        <span class="n">dest_files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">glob_str</span><span class="p">)</span>
-                        <span class="n">dest_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">normalize_fs_path</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">dest_files</span><span class="p">]</span>
-                        <span class="n">dest_new</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">stem</span>
-                        <span class="k">while</span> <span class="n">normalize_fs_path</span><span class="p">(</span><span class="n">dest_new</span><span class="p">)</span> <span class="ow">in</span> <span class="n">dest_files</span><span class="p">:</span>
-                            <span class="n">dest_new</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">)&quot;</span>
-                            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
-                        <span class="n">dest</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest_new</span><span class="si">}{</span><span class="n">dest</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="n">dest</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">increment_filename</span><span class="p">(</span><span class="n">dest</span><span class="p">))</span>
 
             <span class="k">if</span> <span class="n">export_original</span><span class="p">:</span>
                 <span class="n">dest_original</span> <span class="o">=</span> <span class="n">dest</span>
@@ -973,6 +945,7 @@
             <span class="n">preview_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_derivatives</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">preview_ext</span> <span class="o">=</span> <span class="n">preview_path</span><span class="o">.</span><span class="n">suffix</span>
             <span class="n">preview_name</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}{</span><span class="n">preview_suffix</span><span class="si">}{</span><span class="n">preview_ext</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">preview_name</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">increment_filename</span><span class="p">(</span><span class="n">preview_name</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">preview_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_export_photo</span><span class="p">(</span>
                     <span class="n">preview_path</span><span class="p">,</span>
