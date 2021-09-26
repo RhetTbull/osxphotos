@@ -1199,6 +1199,9 @@ class PhotosDB:
             self._dbphotos[uuid]["import_uuid"] = row[44]
             self._dbphotos[uuid]["fok_import_session"] = None
 
+            # photos 5+ only, for shared photos
+            self._dbphotos[uuid]["cloudownerhashedpersonid"] = None
+
             # compute signatures for finding possible duplicates
             signature = self._duplicate_signature(uuid)
             try:
@@ -1927,7 +1930,8 @@ class PhotosDB:
                 {asset_table}.ZTRASHEDDATE,
                 {asset_table}.ZSAVEDASSETTYPE,
                 {asset_table}.ZADDEDDATE,
-                {asset_table}.Z_PK
+                {asset_table}.Z_PK,
+                {asset_table}.ZCLOUDOWNERHASHEDPERSONID
                 FROM {asset_table} 
                 JOIN ZADDITIONALASSETATTRIBUTES ON ZADDITIONALASSETATTRIBUTES.ZASSET = {asset_table}.Z_PK 
                 ORDER BY {asset_table}.ZUUID  """
@@ -1977,6 +1981,7 @@ class PhotosDB:
         # 40   ZGENERICASSET.ZSAVEDASSETTYPE -- how item imported
         # 41   ZGENERICASSET.ZADDEDDATE -- date item added to the library
         # 42   ZGENERICASSET.Z_PK -- primary key
+        # 43   ZGENERICASSET.ZCLOUDOWNERHASHEDPERSONID -- used to look up owner name (for shared photos)
 
         for row in c:
             uuid = row[0]
@@ -2162,6 +2167,7 @@ class PhotosDB:
                 info["added_date"] = datetime(1970, 1, 1)
 
             info["pk"] = row[42]
+            info["cloudownerhashedpersonid"] = row[43]
 
             # initialize import session info which will be filled in later
             # not every photo has an import session so initialize all records now

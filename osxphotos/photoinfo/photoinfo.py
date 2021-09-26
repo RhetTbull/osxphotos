@@ -1108,11 +1108,15 @@ class PhotoInfo:
         try:
             return self._owner
         except AttributeError:
-            query = get_query(
-                "shared_owner", photos_ver=self._db._photos_ver, uuid=self.uuid
-            )
-            result = self._db.execute(query).fetchone()
-            self._owner = result[0] if result else None
+            try:
+                personid = self._info["cloudownerhashedpersonid"]
+                self._owner = (
+                    self._db._db_hashed_person_id[personid]["full_name"]
+                    if personid
+                    else None
+                )
+            except KeyError:
+                self._owner = None
             return self._owner
 
     def render_template(
