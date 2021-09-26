@@ -13,7 +13,7 @@ COMMENT_UUID_DICT = {
     "4AD7C8EF-2991-4519-9D3A-7F44A6F031BE": [
         CommentInfo(
             datetime=datetime.datetime(2020, 9, 18, 10, 28, 41, 552000),
-            user=None,
+            user="Rhet Turnbull",
             ismine=False,
             text="Nice photo!",
         ),
@@ -39,7 +39,7 @@ LIKE_UUID_DICT = {
     "4AD7C8EF-2991-4519-9D3A-7F44A6F031BE": [
         LikeInfo(
             datetime=datetime.datetime(2020, 9, 18, 10, 28, 43, 335000),
-            user=None,
+            user="Rhet Turnbull",
             ismine=False,
         )
     ],
@@ -47,7 +47,7 @@ LIKE_UUID_DICT = {
     "65BADBD7-A50C-4956-96BA-1BB61155DA17": [
         LikeInfo(
             datetime=datetime.datetime(2020, 9, 18, 10, 28, 52, 570000),
-            user=None,
+            user="Rhet Turnbull",
             ismine=False,
         )
     ],
@@ -65,7 +65,7 @@ COMMENT_UUID_ASDICT = {
 LIKE_UUID_ASDICT = {
     "65BADBD7-A50C-4956-96BA-1BB61155DA17": {
         "datetime": datetime.datetime(2020, 9, 18, 10, 28, 52, 570000),
-        "user": None,
+        "user": "Rhet Turnbull",
         "ismine": False,
     }
 }

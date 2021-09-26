@@ -70,12 +70,24 @@ def _process_comments_5(photosdb):
     results = conn.execute(
         """
         SELECT DISTINCT
-        ZINVITEEHASHEDPERSONID,
-        ZINVITEEFIRSTNAME,
-        ZINVITEELASTNAME,
-        ZINVITEEFULLNAME
-        FROM
-        ZCLOUDSHAREDALBUMINVITATIONRECORD
+        ZINVITEEHASHEDPERSONID AS HASHEDPERSONID,
+        ZINVITEEFIRSTNAME AS FIRSTNAME,
+        ZINVITEELASTNAME AS LASTNAME,
+        ZINVITEEFULLNAME AS FULLNAME
+        FROM ZCLOUDSHAREDALBUMINVITATIONRECORD
+		WHERE HASHEDPERSONID IS NOT NULL 
+		AND HASHEDPERSONID != ""
+		AND NOT (FIRSTNAME IS NULL AND LASTNAME IS NULL)
+	    UNION
+		SELECT DISTINCT
+		ZCLOUDOWNERHASHEDPERSONID AS HASHEDPERSONID,
+		ZCLOUDOWNERFIRSTNAME AS FIRSTNAME,
+		ZCLOUDOWNERLASTNAME AS LASTNAME,
+		ZCLOUDOWNERFULLNAME AS FULLNAME
+		FROM ZGENERICALBUM
+		WHERE HASHEDPERSONID IS NOT NULL 
+		AND HASHEDPERSONID != ""
+		AND NOT (FIRSTNAME IS NULL AND LASTNAME IS NULL) 
         """
     )
 
@@ -148,10 +160,10 @@ def _process_comments_5(photosdb):
             db_comments["comments"].append(CommentInfo(dt, user_name, ismine, text))
 
     # sort results
-    for uuid in photosdb._db_comments_uuid:
+    for uuid, value in photosdb._db_comments_uuid.items():
         if photosdb._db_comments_uuid[uuid]["likes"]:
             photosdb._db_comments_uuid[uuid]["likes"].sort(key=lambda x: x.datetime)
         if photosdb._db_comments_uuid[uuid]["comments"]:
-            photosdb._db_comments_uuid[uuid]["comments"].sort(key=lambda x: x.datetime)
+            value["comments"].sort(key=lambda x: x.datetime)
 
     conn.close()
