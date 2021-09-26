@@ -38,6 +38,7 @@ from ..albuminfo import AlbumInfo, ImportInfo
 from ..personinfo import FaceInfo, PersonInfo
 from ..phototemplate import PhotoTemplate, RenderOptions
 from ..placeinfo import PlaceInfo4, PlaceInfo5
+from ..query_builder import get_query
 from ..text_detection import detect_text
 from ..uti import get_preferred_uti_extension, get_uti_for_extension
 from ..utils import _debug, _get_resource_loc, findfiles
@@ -1097,6 +1098,22 @@ class PhotoInfo:
             # don't expect this to happen as the signature should be in db
             logging.warning(f"Did not find signature for {self.uuid} in _db_signatures")
         return duplicates
+
+    @property
+    def owner(self):
+        """Return name of photo owner for shared photos (Photos 5+ only), or None if not shared"""
+        if self._db._db_version <= _PHOTOS_4_VERSION:
+            return None
+
+        try:
+            return self._owner
+        except AttributeError:
+            query = get_query(
+                "shared_owner", photos_ver=self._db._photos_ver, uuid=self.uuid
+            )
+            result = self._db.execute(query).fetchone()
+            self._owner = result[0] if result else None
+            return self._owner
 
     def render_template(
         self, template_str: str, options: Optional[RenderOptions] = None

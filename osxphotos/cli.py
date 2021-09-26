@@ -4103,7 +4103,11 @@ def repl(ctx, cli_obj, db):
     get_photo = photosdb.get_photo
     show = _show_photo
     get_selected = _get_selected(photosdb)
-    selected = get_selected()
+    try:
+        selected = get_selected()
+    except Exception:
+        # get_selected sometimes fails
+        selected = []
 
     def inspect(obj):
         """inspect object"""

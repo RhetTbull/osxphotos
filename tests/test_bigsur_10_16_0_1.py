@@ -337,7 +337,7 @@ def test_attributes(photosdb):
 
 
 def test_attributes_2(photosdb):
-    """ Test attributes including height, width, etc """
+    """Test attributes including height, width, etc"""
     import datetime
 
     photos = photosdb.photos(uuid=[UUID_DICT["has_adjustments"]])
@@ -517,39 +517,39 @@ def test_count(photosdb):
 
 
 def test_photos_intrash_1(photosdb):
-    """ test PhotosDB.photos(intrash=True) """
+    """test PhotosDB.photos(intrash=True)"""
     photos = photosdb.photos(intrash=True)
     assert len(photos) == PHOTOS_IN_TRASH_LEN
 
 
 def test_photos_intrash_2(photosdb):
-    """ test PhotosDB.photos(intrash=True) """
+    """test PhotosDB.photos(intrash=True)"""
     photos = photosdb.photos(intrash=True)
     for p in photos:
         assert p.intrash
 
 
 def test_photos_intrash_3(photosdb):
-    """ test PhotosDB.photos(intrash=False) """
+    """test PhotosDB.photos(intrash=False)"""
     photos = photosdb.photos(intrash=False)
     for p in photos:
         assert not p.intrash
 
 
 def test_photoinfo_intrash_1(photosdb):
-    """ Test PhotoInfo.intrash """
+    """Test PhotoInfo.intrash"""
     p = photosdb.photos(uuid=[UUID_DICT["intrash"]], intrash=True)[0]
     assert p.intrash
 
 
 def test_photoinfo_intrash_2(photosdb):
-    """ Test PhotoInfo.intrash and intrash=default"""
+    """Test PhotoInfo.intrash and intrash=default"""
     p = photosdb.photos(uuid=[UUID_DICT["intrash"]])
     assert not p
 
 
 def test_photoinfo_intrash_3(photosdb):
-    """ Test PhotoInfo.intrash and photo has keyword and person """
+    """Test PhotoInfo.intrash and photo has keyword and person"""
     p = photosdb.photos(uuid=[UUID_DICT["intrash_person_keywords"]], intrash=True)[0]
     assert p.intrash
     assert "Maria" in p.persons
@@ -557,7 +557,7 @@ def test_photoinfo_intrash_3(photosdb):
 
 
 def test_photoinfo_intrash_4(photosdb):
-    """ Test PhotoInfo.intrash and photo has keyword and person """
+    """Test PhotoInfo.intrash and photo has keyword and person"""
     p = photosdb.photos(persons=["Maria"], intrash=True)[0]
     assert p.intrash
     assert "Maria" in p.persons
@@ -565,7 +565,7 @@ def test_photoinfo_intrash_4(photosdb):
 
 
 def test_photoinfo_intrash_5(photosdb):
-    """ Test PhotoInfo.intrash and photo has keyword and person """
+    """Test PhotoInfo.intrash and photo has keyword and person"""
     p = photosdb.photos(keywords=["wedding"], intrash=True)[0]
     assert p.intrash
     assert "Maria" in p.persons
@@ -573,7 +573,7 @@ def test_photoinfo_intrash_5(photosdb):
 
 
 def test_photoinfo_not_intrash(photosdb):
-    """ Test PhotoInfo.intrash """
+    """Test PhotoInfo.intrash"""
     p = photosdb.photos(uuid=[UUID_DICT["not_intrash"]])[0]
     assert not p.intrash
 
@@ -594,7 +594,7 @@ def test_keyword_not_in_album(photosdb):
 
 
 def test_album_folder_name(photosdb):
-    """Test query with album name same as a folder name """
+    """Test query with album name same as a folder name"""
 
     photos = photosdb.photos(albums=["Pumpkin Farm"])
     assert sorted(p.uuid for p in photos) == sorted(UUID_PUMPKIN_FARM)
@@ -617,7 +617,7 @@ def test_get_library_path(photosdb):
 
 
 def test_get_db_connection(photosdb):
-    """ Test PhotosDB.get_db_connection """
+    """Test PhotosDB.get_db_connection"""
     import sqlite3
 
     conn, cursor = photosdb.get_db_connection()
@@ -926,7 +926,7 @@ def test_export_14(caplog, photosdb):
 
 
 def test_eq(photosdb):
-    """ Test equality of two PhotoInfo objects """
+    """Test equality of two PhotoInfo objects"""
     import osxphotos
 
     photosdb2 = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
@@ -936,7 +936,7 @@ def test_eq(photosdb):
 
 
 def test_eq_2(photosdb):
-    """ Test equality of two PhotoInfo objects when one has memoized property """
+    """Test equality of two PhotoInfo objects when one has memoized property"""
     import osxphotos
 
     photosdb2 = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
@@ -960,7 +960,7 @@ def test_photosdb_repr():
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photosdb2 = eval(repr(photosdb))
 
-    ignore_keys = ["_tmp_db", "_tempdir", "_tempdir_name"]
+    ignore_keys = ["_tmp_db", "_tempdir", "_tempdir_name", "_db_connection"]
     assert {k: v for k, v in photosdb.__dict__.items() if k not in ignore_keys} == {
         k: v for k, v in photosdb2.__dict__.items() if k not in ignore_keys
     }
@@ -999,7 +999,7 @@ def test_from_to_date(photosdb):
 
 
 def test_date_invalid():
-    """ Test date is invalid  """
+    """Test date is invalid"""
     # doesn't run correctly with the module-level fixture
     from datetime import datetime, timedelta, timezone
     import osxphotos
@@ -1016,7 +1016,7 @@ def test_date_invalid():
 
 
 def test_date_modified_invalid(photosdb):
-    """ Test date modified is invalid """
+    """Test date modified is invalid"""
     from datetime import datetime, timedelta, timezone
 
     # UUID_DICT["date_invalid"] has an invalid modified date that's
@@ -1028,7 +1028,7 @@ def test_date_modified_invalid(photosdb):
 
 
 def test_uti(photosdb):
-    """ test uti """
+    """test uti"""
 
     for uuid, uti in UTI_DICT.items():
         photo = photosdb.get_photo(uuid)
@@ -1037,7 +1037,7 @@ def test_uti(photosdb):
 
 
 def test_raw(photosdb):
-    """ Test various raw properties """
+    """Test various raw properties"""
 
     for uuid, rawinfo in RAW_DICT.items():
         photo = photosdb.get_photo(uuid)
@@ -1050,7 +1050,7 @@ def test_raw(photosdb):
 
 
 def test_is_reference(photosdb):
-    """ test isreference """
+    """test isreference"""
 
     photo = photosdb.get_photo(UUID_IS_REFERENCE)
     assert photo.isreference
@@ -1059,7 +1059,7 @@ def test_is_reference(photosdb):
 
 
 def test_adjustments(photosdb):
-    """ test adjustments/AdjustmentsInfo """
+    """test adjustments/AdjustmentsInfo"""
     from osxphotos.adjustmentsinfo import AdjustmentsInfo
 
     photo = photosdb.get_photo(UUID_DICT["adjustments_info"])
@@ -1121,7 +1121,7 @@ def test_adjustments(photosdb):
 
 
 def test_no_adjustments(photosdb):
-    """ test adjustments when photo has no adjusments"""
+    """test adjustments when photo has no adjusments"""
 
     photo = photosdb.get_photo(UUID_DICT["no_adjustments"])
     assert photo.adjustments is None

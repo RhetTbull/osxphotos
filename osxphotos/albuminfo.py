@@ -22,6 +22,7 @@ from ._constants import (
     AlbumSortOrder,
 )
 from .datetime_utils import get_local_tz
+from .query_builder import get_query
 
 
 def sort_list_by_keys(values, sort_keys):
@@ -130,6 +131,22 @@ class AlbumInfoBaseClass:
     @property
     def photos(self):
         return []
+
+    @property
+    def owner(self):
+        """Return name of photo owner for shared album (Photos 5+ only), or None if not shared"""
+        if self._db._db_version <= _PHOTOS_4_VERSION:
+            return None
+
+        try:
+            return self._owner
+        except AttributeError:
+            query = get_query(
+                "cloud_album_owner", photos_ver=self._db._photos_ver, uuid=self.uuid
+            )
+            result = self._db.execute(query).fetchone()
+            self._owner = result[0] if result else None
+            return self._owner
 
     def __len__(self):
         """return number of photos contained in album"""

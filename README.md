@@ -1702,7 +1702,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.42.84'
+{osxphotos_version}             The osxphotos version, e.g. '0.42.85'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified for
@@ -2516,7 +2516,12 @@ Returns a [PlaceInfo](#PlaceInfo) object with reverse geolocation data or None i
 #### `shared`
 Returns True if photo is in a shared album, otherwise False.
 
-**Note**: *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns None instead of True/False.
+**Note**: *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns None.
+
+#### `owner`
+Returns full name of the photo owner (person who shared the photo) for shared photos or None if photo is not shared. Also returns None if you are the person who shared the photo.
+
+**Note**: *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns None.
 
 #### `comments`
 Returns list of [CommentInfo](#commentinfo) objects for comments on shared photos or empty list if no comments.
@@ -2889,6 +2894,11 @@ Photos Library
 
 #### `parent`
 Returns a [FolderInfo](#FolderInfo) object representing the albums parent folder or `None` if album is not a in a folder.
+
+#### `owner`
+Returns full name of the album owner (person who shared the album) for shared albums or None if album is not shared.
+
+**Note**: *Only valid on Photos 5 / MacOS 10.15+; on Photos <= 4, returns None.
 
 ### ImportInfo 
 PhotosDB.import_info returns a list of ImportInfo objects.  Each ImportInfo object represents an import session in the library.  PhotoInfo.import_info returns a single ImportInfo object representing the import session for the photo (or `None` if no associated import session).
@@ -3561,7 +3571,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.42.84'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.42.85'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|

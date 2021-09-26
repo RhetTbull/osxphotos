@@ -330,6 +330,8 @@ class PhotosDB:
         else:
             self._process_database5()
 
+        self._db_connection, _ = self.get_db_connection()
+
     @property
     def keywords_as_dict(self):
         """return keywords as dict of keyword, count in reverse sorted order (descending)"""
@@ -790,8 +792,8 @@ class PhotosDB:
                 "creation_date": album[8],
                 "start_date": None,  # Photos 5 only
                 "end_date": None,  # Photos 5 only
-                "customsortascending": None, # Photos 5 only
-                "customsortkey": None, # Photos 5 only
+                "customsortascending": None,  # Photos 5 only
+                "customsortkey": None,  # Photos 5 only
             }
 
         # get details about folders
@@ -1104,7 +1106,9 @@ class PhotosDB:
             # get info on special types
             self._dbphotos[uuid]["specialType"] = row[25]
             self._dbphotos[uuid]["masterModelID"] = row[26]
-            self._dbphotos[uuid]["pk"] = row[26] # same as masterModelID, to match Photos 5
+            self._dbphotos[uuid]["pk"] = row[
+                26
+            ]  # same as masterModelID, to match Photos 5
             self._dbphotos[uuid]["panorama"] = True if row[25] == 1 else False
             self._dbphotos[uuid]["slow_mo"] = True if row[25] == 2 else False
             self._dbphotos[uuid]["time_lapse"] = True if row[25] == 3 else False
@@ -3354,6 +3358,10 @@ class PhotosDB:
 
         return photos
 
+    def execute(self, sql):
+        """Execute sql statement and return cursor"""
+        return self._db_connection.cursor().execute(sql)
+
     def _duplicate_signature(self, uuid):
         """Compute a signature for finding possible duplicates"""
         return (
@@ -3380,6 +3388,10 @@ class PhotosDB:
         Includes recently deleted photos and non-selected burst images
         """
         return len(self._dbphotos)
+
+    def __del__(self):
+        if getattr(self, "_db_connection", None):
+            self._db_connection.close()
 
 
 def _get_photos_by_attribute(photos, attribute, values, ignore_case):
