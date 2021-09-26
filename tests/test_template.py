@@ -272,7 +272,7 @@ TEMPLATE_VALUES_DETECTED_TEXT = {
 
 COMMENT_UUID_DICT = {
     "4AD7C8EF-2991-4519-9D3A-7F44A6F031BE": [
-        "None: Nice photo!",
+        "Rhet Turnbull: Nice photo!",
         "None: Wish I was back here!",
     ],
     "CCBE0EB9-AE9F-4479-BFFD-107042C75227": ["_"],
