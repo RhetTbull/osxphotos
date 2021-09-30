@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos command line interface (CLI) &#8212; osxphotos 0.42.89 documentation</title>
+    <title>osxphotos command line interface (CLI) &#8212; osxphotos 0.42.90 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
@@ -1561,7 +1561,7 @@ if more than one option is provided, they are treated as “AND”
 </div>
 <div class="section" id="osxphotos-repl">
 <h3>repl<a class="headerlink" href="#osxphotos-repl" title="Permalink to this headline">¶</a></h3>
-<p>Run interactive osxphotos shell</p>
+<p>Run interactive osxphotos REPL shell (useful for debugging, prototyping, and inspecting your Photos library)</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos repl <span class="o">[</span>OPTIONS<span class="o">]</span>
 </pre></div>
 </div>
@@ -1570,6 +1570,12 @@ if more than one option is provided, they are treated as “AND”
 <dt class="sig sig-object std" id="cmdoption-osxphotos-repl-db">
 <span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;Photos</span> <span class="pre">database</span> <span class="pre">path&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-repl-db" title="Permalink to this definition">¶</a></dt>
 <dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-emacs">
+<span class="sig-name descname"><span class="pre">--emacs</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-emacs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Launch REPL with Emacs keybindings (default is vi bindings)</p>
 </dd></dl>
 
 </div>
