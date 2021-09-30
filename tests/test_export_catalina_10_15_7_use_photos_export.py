@@ -12,9 +12,9 @@ pytestmark = pytest.mark.skipif(
 )
 
 UUID_DICT = {
-    "has_adjustments": "C925CFDC-FF2B-4E71-AC9D-C669B6453A8B",
-    "no_adjustments": "16A6AF6B-D8FC-4256-AE33-889733E3EEAB",
-    "live": "8EC216A2-0032-4934-BD3F-04C6259B3304",
+    "has_adjustments": "C925CFDC-FF2B-4E71-AC9D-C669B6453A8B", # IMG_1929.JPG
+    "no_adjustments": "16A6AF6B-D8FC-4256-AE33-889733E3EEAB", # IMG_9847.JPG
+    "live": "8EC216A2-0032-4934-BD3F-04C6259B3304", # IMG_3259.HEIC
 }
 
 UUID_BURSTS = {

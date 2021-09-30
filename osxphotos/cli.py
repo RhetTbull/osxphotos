@@ -55,10 +55,11 @@ from .exiftool import get_exiftool_path
 from .export_db import ExportDB, ExportDBInMemory
 from .fileutil import FileUtil, FileUtilNoOp
 from .path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
-from .photoinfo import ExportResults
+from .photoinfo import ExportResults, PhotoInfo
 from .photokit import check_photokit_authorization, request_photokit_authorization
 from .photosalbum import PhotosAlbum
 from .phototemplate import PhotoTemplate, RenderOptions
+from .pyrepl import embed_repl
 from .queryoptions import QueryOptions
 from .uti import get_preferred_uti_extension
 from .utils import expand_and_validate_filepath, load_function
@@ -4011,6 +4012,32 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+osxphotos uses the following 3rd party software licensed under the BSD-3-Clause License:
+Click (Copyright 2014 Pallets), ptpython (Copyright (c) 2015, Jonathan Slenders)
+
+Redistribution and use in source and binary forms, with or without modification, are 
+permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list 
+of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice, this list 
+of conditions and the following disclaimer in the documentation and/or other materials 
+provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors may be 
+used to endorse or promote products derived from this software without specific prior 
+written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR 
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY 
+AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER 
+OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY 
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
     click.echo(f"osxphotos, version {__version__}")
     click.echo("")
@@ -4032,7 +4059,7 @@ def tutorial(ctx, cli_obj, width):
     click.echo_via_pager(tutorial_help(width=width))
 
 
-def _show_photo(photo):
+def _show_photo(photo: PhotoInfo):
     """open image with default image viewer
 
     Note: This is for debugging only -- it will actually open any filetype which could
@@ -4078,15 +4105,33 @@ def _get_selected(photosdb):
     return get_selected
 
 
+def _spotlight_photo(photo: PhotoInfo):
+    photo_ = photoscript.Photo(photo.uuid)
+    photo_.spotlight()
+
+
 @cli.command()
 @DB_OPTION
 @click.pass_obj
 @click.pass_context
-def repl(ctx, cli_obj, db):
-    """Run interactive osxphotos shell"""
+@click.option(
+    "--emacs",
+    required=False,
+    is_flag=True,
+    default=False,
+    help="Launch REPL with Emacs keybindings (default is vi bindings)",
+)
+def repl(ctx, cli_obj, db, emacs):
+    """Run interactive osxphotos REPL shell (useful for debugging, prototyping, and inspecting your Photos library)"""
 
-    from osxphotos import PhotosDB, PhotoInfo, ExifTool
+    from objexplore import explore
+    from photoscript import Album, Photo, PhotosLibrary
     from rich import inspect as _inspect
+
+    from osxphotos import ExifTool, PhotoInfo, PhotosDB
+    from osxphotos.albuminfo import AlbumInfo
+    from osxphotos.placeinfo import PlaceInfo
+    from osxphotos.queryoptions import QueryOptions
 
     pretty.install()
     print(f"python version: {sys.version}")
@@ -4102,6 +4147,7 @@ def repl(ctx, cli_obj, db):
     # shortcut for helper functions
     get_photo = photosdb.get_photo
     show = _show_photo
+    spotlight = _spotlight_photo
     get_selected = _get_selected(photosdb)
     try:
         selected = get_selected()
@@ -4113,17 +4159,9 @@ def repl(ctx, cli_obj, db):
         """inspect object"""
         return _inspect(obj, methods=True)
 
-    class ReprQuit:
-        def __repr__(self):
-            sys.exit(0)
-
-        def __call__(self):
-            sys.exit(0)
-
-    quit = ReprQuit()
-    q = ReprQuit()
-
-    print(f"Found {len(photos)} photos in {tictoc:0.2f} seconds")
+    print(f"Found {len(photos)} photos in {tictoc:0.2f} seconds\n")
+    print("The following classes have been imported from osxphotos:")
+    print("- AlbumInfo, ExifTool, PhotoInfo, PhotosDB, PlaceInfo, QueryOptions\n")
     print("The following variables are defined:")
     print(f"- photosdb: PhotosDB() instance for {photosdb.library_path}")
     print(
@@ -4133,16 +4171,34 @@ def repl(ctx, cli_obj, db):
         f"- selected: list of PhotoInfo objects for any photos selected in Photos (len={len(selected)})"
     )
     print(f"\nThe following functions may be helpful:")
-    print(f"- get_photo(uuid): return a PhotoInfo object for photo with uuid")
     print(
-        f"- get_selected(): return list of PhotoInfo objects for photos selected in Photos"
-    )
-    print(f"- show(photo): open a photo object in the default viewer")
-    print(
-        f"- help(object): print help text including list of methods for object; for example, help(PhotosDB)"
+        f"- get_photo(uuid): return a PhotoInfo object for photo with uuid; e.g. get_photo('B13F4485-94E0-41CD-AF71-913095D62E31')"
     )
     print(
-        f"- inspect(object): print information about an object; for example inspect(photosdb)"
+        f"- get_selected(); return list of PhotoInfo objects for photos selected in Photos"
     )
-    print(f"- q, quit, or quit(): exit this interactive shell\n")
-    code.interact(banner="", local=locals())
+    print(
+        f"- show(photo): open a photo object in the default viewer; e.g. show(selected[0])"
+    )
+    print(
+        f"- show(path): open a file at path in the default viewer; e.g. show('/path/to/photo.jpg')"
+    )
+    print(f"- spotlight(photo): open a photo and spotlight it in Photos")
+    # print(
+    #     f"- help(object): print help text including list of methods for object; for example, help(PhotosDB)"
+    # )
+    print(
+        f"- inspect(object): print information about an object; e.g. inspect(PhotoInfo)"
+    )
+    print(
+        f"- explore(object): interactively explore an object with objexplore; e.g. explore(PhotoInfo)"
+    )
+    print(f"- q, quit, quit(), exit, exit(): exit this interactive shell\n")
+
+    embed_repl(
+        globals=globals(),
+        locals=locals(),
+        history_filename=str(pathlib.Path.home() / ".osxphotos_repl_history"),
+        quit_words=["q", "quit", "exit"],
+        vi_mode=not emacs,
+    )
