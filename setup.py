@@ -75,6 +75,7 @@ setup(
     ],
     install_requires=[
         "pyobjc-core>=7.2,<8.0",
+        "pyobjc-framework-Cocoa>=7.2,<8.0",
         "pyobjc-framework-AppleScriptKit>=7.2,<8.0",
         "pyobjc-framework-AppleScriptObjC>=7.2,<8.0",
         "pyobjc-framework-Photos>=7.2,<8.0",
