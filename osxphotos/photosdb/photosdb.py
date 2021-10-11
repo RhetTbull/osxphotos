@@ -3296,9 +3296,9 @@ class PhotosDB:
         if options.regex:
             flags = re.IGNORECASE if options.ignore_case else 0
             render_options = RenderOptions(none_str="")
+            photo_list = []
             for regex, template in options.regex:
                 regex = re.compile(regex, flags)
-                photo_list = []
                 for p in photos:
                     rendered, _ = p.render_template(template, render_options)
                     for value in rendered:
