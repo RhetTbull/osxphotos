@@ -6928,6 +6928,36 @@ def test_query_regex_4():
     assert len(json_got) == 2
 
 
+def test_query_regex_multiple():
+    """test query multiple --regex values (#525)"""
+    import json
+    import os
+    import os.path
+
+    import osxphotos
+    from osxphotos.cli import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--regex",
+            "I found",
+            "{title}",
+            "--regex",
+            "carry",
+            "{title}",
+        ],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+
+    assert len(json_got) == 2
+
 def test_query_function():
     """test query --query-function"""
     import json
