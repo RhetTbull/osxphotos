@@ -1483,6 +1483,50 @@ def test_export_preview_if_missing():
         assert sorted(files) == sorted(expected_files)
 
 
+def test_export_preview_overwrite():
+    """test export with --preview and --overwrite (#526)"""
+    import glob
+    import os
+    import os.path
+
+    import osxphotos
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--preview",
+                "--uuid",
+                CLI_EXPORT_UUID,
+            ],
+        )
+        assert result.exit_code == 0
+
+        # export again
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--preview",
+                "--uuid",
+                CLI_EXPORT_UUID,
+                "--overwrite",
+            ],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert len(files) == 2  # preview + original
+
+
 def test_export_as_hardlink():
     import glob
     import os
@@ -6957,6 +7001,7 @@ def test_query_regex_multiple():
     json_got = json.loads(result.output)
 
     assert len(json_got) == 2
+
 
 def test_query_function():
     """test query --query-function"""
