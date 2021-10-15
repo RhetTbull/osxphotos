@@ -1527,6 +1527,50 @@ def test_export_preview_overwrite():
         assert len(files) == 2  # preview + original
 
 
+def test_export_preview_update():
+    """test export with --preview and --update (#526)"""
+    import glob
+    import os
+    import os.path
+
+    import osxphotos
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--preview",
+                "--uuid",
+                CLI_EXPORT_UUID,
+            ],
+        )
+        assert result.exit_code == 0
+
+        # export again
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--preview",
+                "--uuid",
+                CLI_EXPORT_UUID,
+                "--update",
+            ],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert len(files) == 2  # preview + original
+
+
 def test_export_as_hardlink():
     import glob
     import os

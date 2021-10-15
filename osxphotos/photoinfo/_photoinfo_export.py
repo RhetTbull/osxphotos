@@ -912,9 +912,12 @@ def export2(
             preview_path = pathlib.Path(self.path_derivatives[0])
             preview_ext = preview_path.suffix
             preview_name = dest.parent / f"{dest.stem}{preview_suffix}{preview_ext}"
+            # if original is missing, the filename won't have been incremented so
+            # need to check here to make sure there aren't duplicate preview files in
+            # the export directory
             preview_name = (
                 preview_name
-                if overwrite
+                if overwrite or update
                 else pathlib.Path(increment_filename(preview_name))
             )
             if preview_path is not None:
