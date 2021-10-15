@@ -7,7 +7,7 @@ import subprocess
 import sys
 from abc import ABC, abstractmethod
 
-import CoreFoundation
+import Foundation
 
 from .imageconverter import ImageConverter
 
@@ -114,7 +114,7 @@ class FileUtilMacOS(FileUtilABC):
         if dest.is_dir():
             dest /= src.name
 
-        filemgr = CoreFoundation.NSFileManager.defaultManager()
+        filemgr = Foundation.NSFileManager.defaultManager()
         error = filemgr.copyItemAtPath_toPath_error_(str(src), str(dest), None)
         # error is a tuple of (bool, error_string)
         # error[0] is True if copy succeeded
