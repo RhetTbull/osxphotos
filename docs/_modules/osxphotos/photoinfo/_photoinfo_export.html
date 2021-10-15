@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos.photoinfo._photoinfo_export &#8212; osxphotos 0.42.93 documentation</title>
+    <title>osxphotos.photoinfo._photoinfo_export &#8212; osxphotos 0.42.94 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
@@ -945,9 +945,12 @@
             <span class="n">preview_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_derivatives</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">preview_ext</span> <span class="o">=</span> <span class="n">preview_path</span><span class="o">.</span><span class="n">suffix</span>
             <span class="n">preview_name</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}{</span><span class="n">preview_suffix</span><span class="si">}{</span><span class="n">preview_ext</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="c1"># if original is missing, the filename won&#39;t have been incremented so</span>
+            <span class="c1"># need to check here to make sure there aren&#39;t duplicate preview files in</span>
+            <span class="c1"># the export directory</span>
             <span class="n">preview_name</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">preview_name</span>
-                <span class="k">if</span> <span class="n">overwrite</span>
+                <span class="k">if</span> <span class="n">overwrite</span> <span class="ow">or</span> <span class="n">update</span>
                 <span class="k">else</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">increment_filename</span><span class="p">(</span><span class="n">preview_name</span><span class="p">))</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">preview_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
