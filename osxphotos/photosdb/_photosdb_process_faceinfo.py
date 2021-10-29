@@ -146,7 +146,6 @@ def _process_faceinfo_4(photosdb):
 
         # Photos 5 only
         face["agetype"] = None
-        face["baldtype"] = None
         face["eyemakeuptype"] = None
         face["eyestate"] = None
         face["facialhairtype"] = None
@@ -194,7 +193,7 @@ def _process_faceinfo_5(photosdb):
         ZDETECTEDFACE.ZPERSON,
         ZPERSON.ZFULLNAME,
         ZDETECTEDFACE.ZAGETYPE,
-        ZDETECTEDFACE.ZBALDTYPE,
+        NULL, -- ZDETECTEDFACE.ZBALDTYPE (Removed in Monterey)
         ZDETECTEDFACE.ZEYEMAKEUPTYPE,
         ZDETECTEDFACE.ZEYESSTATE,
         ZDETECTEDFACE.ZFACIALHAIRTYPE,
@@ -239,7 +238,7 @@ def _process_faceinfo_5(photosdb):
     # 3    ZDETECTEDFACE.ZPERSON,
     # 4    ZPERSON.ZFULLNAME,
     # 5    ZDETECTEDFACE.ZAGETYPE,
-    # 6    ZDETECTEDFACE.ZBALDTYPE,
+    # 6    ZDETECTEDFACE.ZBALDTYPE,  (Not available on Monterey)
     # 7    ZDETECTEDFACE.ZEYEMAKEUPTYPE,
     # 8    ZDETECTEDFACE.ZEYESSTATE,
     # 9    ZDETECTEDFACE.ZFACIALHAIRTYPE,
@@ -284,7 +283,6 @@ def _process_faceinfo_5(photosdb):
         face["person"] = person_pk
         face["fullname"] = normalize_unicode(row[4])
         face["agetype"] = row[5]
-        face["baldtype"] = row[6]
         face["eyemakeuptype"] = row[7]
         face["eyestate"] = row[8]
         face["facialhairtype"] = row[9]

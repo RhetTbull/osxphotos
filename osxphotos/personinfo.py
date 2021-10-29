@@ -141,7 +141,7 @@ class FaceInfo:
         self.manual = face["manual"]
         self.face_type = face["facetype"]
         self.age_type = face["agetype"]
-        self.bald_type = face["baldtype"]
+        # self.bald_type = face["baldtype"]
         self.eye_makeup_type = face["eyemakeuptype"]
         self.eye_state = face["eyestate"]
         self.facial_hair_type = face["facialhairtype"]
@@ -438,7 +438,7 @@ class FaceInfo:
             "manual": self.manual,
             "face_type": self.face_type,
             "age_type": self.age_type,
-            "bald_type": self.bald_type,
+            # "bald_type": self.bald_type,
             "eye_makeup_type": self.eye_makeup_type,
             "eye_state": self.eye_state,
             "facial_hair_type": self.facial_hair_type,
