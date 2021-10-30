@@ -1,8 +1,9 @@
-sphinx_click
-pytest==6.2.4
-pytest-mock
+build
 m2r2
 pyinstaller==4.4
+pytest-mock
+pytest==6.2.4
+sphinx_click
 sphinx_rtd_theme
-wheel
 twine
+wheel

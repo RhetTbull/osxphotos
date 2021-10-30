@@ -7,5 +7,6 @@
 rm -rf dist; rm -rf build
 python3 utils/update_readme.py
 (cd docsrc && make github && make pdf)
-python3 setup.py sdist bdist_wheel
+# python3 setup.py sdist bdist_wheel
+python3 -m build
 ./make_cli_exe.sh
