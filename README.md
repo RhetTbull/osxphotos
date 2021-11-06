@@ -1260,8 +1260,8 @@ s
 ** Templating System **
 
 The templating system converts one or template statements, written in osxphotos 
-templating language, to one or more rendered values using information from the  
-photo being processed.                                                          
+metadata templating language, to one or more rendered values using information  
+from the photo being processed.                                                 
 
 In its simplest form, a template statement has the form: "{template_field}", for
 example "{title}" which would resolve to the title of the photo.                
@@ -2775,7 +2775,7 @@ If overwrite=False and increment=False, export will fail if destination file alr
 
 Render template string for photo.  none_str is used if template substitution results in None value and no default specified.
 
-- `template_str`: str in osxphotos template language (OTL) format. See also [Template System](#template-system) table. See notes below regarding specific details of the syntax.
+- `template_str`: str in metadata template language (MTL) format. See also [Template System](#template-system) table. See notes below regarding specific details of the syntax.
 - `options`: an optional osxphotos.phototemplate.RenderOptions object specifying the options to pass to the rendering engine.
 
 `RenderOptions` has the following properties:
@@ -3353,7 +3353,7 @@ To get the path of every raw photo, whether it's a single raw photo or a raw+JPE
 ### Template System 
 
 <!-- OSXPHOTOS-TEMPLATE-HELP:START - Do not remove or modify this section -->
-The templating system converts one or template statements, written in osxphotos templating language, to one or more rendered values using information from the photo being processed. 
+The templating system converts one or template statements, written in osxphotos metadata templating language, to one or more rendered values using information from the photo being processed. 
 
 In its simplest form, a template statement has the form: `"{template_field}"`, for example `"{title}"` which would resolve to the title of the photo.
 

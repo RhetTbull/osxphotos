@@ -1,4 +1,4 @@
-The templating system converts one or template statements, written in osxphotos templating language, to one or more rendered values using information from the photo being processed. 
+The templating system converts one or template statements, written in osxphotos metadata templating language, to one or more rendered values using information from the photo being processed. 
 
 In its simplest form, a template statement has the form: `"{template_field}"`, for example `"{title}"` which would resolve to the title of the photo.
 

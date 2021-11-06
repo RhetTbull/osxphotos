@@ -1,4 +1,4 @@
-""" Custom template system for osxphotos, implements osxphotos template language (OTL) """
+""" Custom template system for osxphotos, implements metadata template language (MTL) """
 
 import datetime
 import json
@@ -27,7 +27,7 @@ from .utils import expand_and_validate_filepath, load_function
 # ensure locale set to user's locale
 locale.setlocale(locale.LC_ALL, "")
 
-OTL_GRAMMAR_MODEL = str(pathlib.Path(__file__).parent / "phototemplate.tx")
+MTL_GRAMMAR_MODEL = str(pathlib.Path(__file__).parent / "phototemplate.tx")
 
 """TextX metamodel for osxphotos template language """
 
@@ -324,7 +324,7 @@ class PhotoTemplateParser:
         if hasattr(self, "metamodel"):
             return
 
-        self.metamodel = metamodel_from_file(OTL_GRAMMAR_MODEL, skipws=False)
+        self.metamodel = metamodel_from_file(MTL_GRAMMAR_MODEL, skipws=False)
 
     def parse(self, template_statement):
         """Parse a template_statement string"""

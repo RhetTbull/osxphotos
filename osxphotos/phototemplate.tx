@@ -1,4 +1,4 @@
-// OSXPhotos Template Language (OTL)
+// OSXPhotos Metadata Template Language (MTL)
 // a TemplateString has format:
 // pre{delim+template_field:subfield|filter(path_sep)[find,replace] conditional?bool_value,default}post
 // a TemplateStatement may contain zero or more TemplateStrings
