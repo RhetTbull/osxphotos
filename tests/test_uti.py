@@ -25,7 +25,7 @@ def test_get_uti_for_extension():
         assert get_uti_for_extension(ext) == EXT_DICT[ext]
 
 
-def test_get_preferred_uti_extension_no_obj():
+def test_get_preferred_uti_extension_no_objc():
     """test get_preferred_uti_extension when running on macOS >= 12"""
     OLD_VER = osxphotos.uti.OS_VER
     osxphotos.uti.OS_VER = 12
@@ -34,7 +34,7 @@ def test_get_preferred_uti_extension_no_obj():
     osxphotos.uti.OS_VER = OLD_VER
 
 
-def test_get_uti_for_extension_no_obj():
+def test_get_uti_for_extension_no_objc():
     """get get_uti_for_extension when running on macOS >= 12"""
     OLD_VER = osxphotos.uti.OS_VER
     osxphotos.uti.OS_VER = 12
