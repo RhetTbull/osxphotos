@@ -95,6 +95,7 @@ _TESTED_OS_VERSIONS = [
     ("11", "3"),
     ("11", "4"),
     ("11", "5"),
+    ("11", "6"),
 ]
 
 # Photos 5 has persons who are empty string if unidentified face
@@ -276,12 +277,15 @@ POST_COMMAND_CATEGORIES = {
     # "deleted_directories": "When used with '--cleanup', all directories deleted during the export",
 }
 
+
 class AlbumSortOrder(Enum):
     """Album Sort Order"""
+
     UNKNOWN = 0
     MANUAL = 1
     NEWEST_FIRST = 2
     OLDEST_FIRST = 3
     TITLE = 5
+
 
 TEXT_DETECTION_CONFIDENCE_THRESHOLD = 0.75
