@@ -6,8 +6,6 @@
 """
 
 # NOTES:
-# - This likely leaks memory like a sieve as I need to ensure all the
-#   Objective C objects are cleaned up.
 # - There are several techniques used for handling PhotoKit's various
 #   asynchronous calls used in this code: event loop+notification, threading
 #   event, while loop. I've experimented with each to find the one that works.
@@ -198,16 +196,6 @@ class PHAssetResourceData:
 
     def __init__(self):
         self.data = b""
-
-
-# class LivePhotoData:
-#     """ Simple class to hold the data passed to the handler for
-#         requestLivePhotoForAsset:targetSize:contentMode:options:resultHandler:
-#     """
-
-#     def __init__(self):
-#         self.live_photo = None
-#         self.info = None
 
 
 class PhotoKitNotificationDelegate(NSObject):
@@ -487,6 +475,7 @@ class PhotoAsset:
         version=PHOTOS_VERSION_CURRENT,
         overwrite=False,
         raw=False,
+        **kwargs,
     ):
         """Export image to path
 
@@ -496,6 +485,7 @@ class PhotoAsset:
             version: which version of image (PHOTOS_VERSION_ORIGINAL or PHOTOS_VERSION_CURRENT)
             overwrite: bool, if True, overwrites destination file if it already exists; default is False
             raw: bool, if True, export RAW component of RAW+JPEG pair, default is False
+            **kwargs: used only to avoid issues with each asset type having slightly different export arguments
 
         Returns:
             List of path to exported image(s)
@@ -503,9 +493,6 @@ class PhotoAsset:
         Raises:
             ValueError if dest is not a valid directory
         """
-
-        # if self.live:
-        #     raise NotImplementedError("Live photos not implemented yet")
 
         with objc.autorelease_pool():
             filename = (
@@ -615,9 +602,7 @@ class PhotoAsset:
 
                 nonlocal requestdata
 
-                options = {}
-                # pylint: disable=no-member
-                options[Quartz.kCGImageSourceShouldCache] = Foundation.kCFBooleanFalse
+                options = {Quartz.kCGImageSourceShouldCache: Foundation.kCFBooleanFalse}
                 imgSrc = Quartz.CGImageSourceCreateWithData(imageData, options)
                 requestdata.metadata = Quartz.CGImageSourceCopyPropertiesAtIndex(
                     imgSrc, 0, options
@@ -701,9 +686,7 @@ class PhotoAsset:
 
             nonlocal data
 
-            options = {}
-            # pylint: disable=no-member
-            options[Quartz.kCGImageSourceShouldCache] = Foundation.kCFBooleanFalse
+            options = {Quartz.kCGImageSourceShouldCache: Foundation.kCFBooleanFalse}
             imgSrc = Quartz.CGImageSourceCreateWithData(imageData, options)
             data.metadata = Quartz.CGImageSourceCopyPropertiesAtIndex(
                 imgSrc, 0, options
@@ -789,7 +772,6 @@ class SlowMoVideoExporter(NSObject):
         self.url = None
         self.done = None
         self.nc = None
-        # super(NSObject, self).dealloc()
 
 
 class VideoAsset(PhotoAsset):
@@ -801,7 +783,12 @@ class VideoAsset(PhotoAsset):
     # https://developer.apple.com/documentation/photokit/phimagemanager/1616981-requestexportsessionforvideo?language=objc
     # above 10.15 only
     def export(
-        self, dest, filename=None, version=PHOTOS_VERSION_CURRENT, overwrite=False
+        self,
+        dest,
+        filename=None,
+        version=PHOTOS_VERSION_CURRENT,
+        overwrite=False,
+        **kwargs,
     ):
         """Export video to path
 
@@ -810,6 +797,7 @@ class VideoAsset(PhotoAsset):
             filename: str, optional name of exported file; if not provided, defaults to asset's original filename
             version: which version of image (PHOTOS_VERSION_ORIGINAL or PHOTOS_VERSION_CURRENT)
             overwrite: bool, if True, overwrites destination file if it already exists; default is False
+            **kwargs: used only to avoid issues with each asset type having slightly different export arguments
 
         Returns:
             List of path to exported image(s)
@@ -1043,6 +1031,7 @@ class LivePhotoAsset(PhotoAsset):
         overwrite=False,
         photo=True,
         video=True,
+        **kwargs,
     ):
         """Export image to path
 
@@ -1053,6 +1042,7 @@ class LivePhotoAsset(PhotoAsset):
             overwrite: bool, if True, overwrites destination file if it already exists; default is False
             photo: bool, if True, export photo component of live photo
             video: bool, if True, export live video component of live photo
+            **kwargs: used only to avoid issues with each asset type having slightly different export arguments
 
         Returns:
             list of [path to exported image and/or video]
@@ -1104,39 +1094,6 @@ class LivePhotoAsset(PhotoAsset):
                 photo_output_file = pathlib.Path(increment_filename(photo_output_file))
                 video_output_file = pathlib.Path(increment_filename(video_output_file))
 
-            # def handler(error):
-            #     if error:
-            #         raise PhotoKitExportError(f"writeDataForAssetResource error: {error}")
-
-            # resource_manager = Photos.PHAssetResourceManager.defaultManager()
-            # options = Photos.PHAssetResourceRequestOptions.alloc().init()
-            # options.setNetworkAccessAllowed_(True)
-            # exported = []
-            # Note: Tried writeDataForAssetResource_toFile_options_completionHandler_ which works
-            # but sets quarantine flag and for reasons I can't determine (maybe quarantine flag)
-            # causes pathlib.Path().is_file() to fail in tests
-
-            # if photo:
-            #     photo_output_url = path_to_NSURL(photo_output_file)
-            #     resource_manager.writeDataForAssetResource_toFile_options_completionHandler_(
-            #         photo_resource, photo_output_url, options, handler
-            #     )
-            #     exported.append(str(photo_output_file))
-
-            # if video:
-            #     video_output_url = path_to_NSURL(video_output_file)
-            #     resource_manager.writeDataForAssetResource_toFile_options_completionHandler_(
-            #         video_resource, video_output_url, options, handler
-            #     )
-            #     exported.append(str(video_output_file))
-
-            # def completion_handler(error):
-            #     if error:
-            #         raise PhotoKitExportError(f"writeDataForAssetResource error: {error}")
-
-            # would be nice to be able to usewriteDataForAssetResource_toFile_options_completionHandler_
-            # but it sets quarantine flags that cause issues so instead, request the data and write the files directly
-
             exported = []
             if photo:
                 data = self._request_resource_data(photo_resource)
@@ -1154,41 +1111,6 @@ class LivePhotoAsset(PhotoAsset):
 
             request.dealloc()
             return exported
-
-    # def request_image_data(self, version=PHOTOS_VERSION_CURRENT):
-    #     # Returns an NSImage which isn't overly useful
-    #     # https://developer.apple.com/documentation/photokit/phimagemanager/1616964-requestimageforasset?language=objc
-
-    #     # requestImageForAsset:targetSize:contentMode:options:resultHandler:
-
-    #     options = Photos.PHImageRequestOptions.alloc().init()
-    #     options.setVersion_(version)
-    #     options.setNetworkAccessAllowed_(True)
-    #     options.setSynchronous_(True)
-    #     options.setDeliveryMode_(
-    #         Photos.PHImageRequestOptionsDeliveryModeHighQualityFormat
-    #     )
-
-    #     event = threading.Event()
-    #     image_data = ImageData()
-
-    #     def handler(result, info):
-    #         nonlocal image_data
-    #         if not info["PHImageResultIsDegradedKey"]:
-    #             image_data.image_data = result
-    #             image_data.info = info
-    #             event.set()
-
-    #     self._manager.requestImageForAsset_targetSize_contentMode_options_resultHandler_(
-    #         self._phasset,
-    #         Photos.PHImageManagerMaximumSize,
-    #         Photos.PHImageContentModeDefault,
-    #         options,
-    #         handler,
-    #     )
-    #     event.wait()
-    #     options.dealloc()
-    #     return image_data
 
 
 class PhotoLibrary:

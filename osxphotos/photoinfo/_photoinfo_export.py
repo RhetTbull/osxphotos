@@ -1266,6 +1266,7 @@ def _export_photo_with_photos_export(
                             dest.name,
                             version=PHOTOS_VERSION_CURRENT,
                             overwrite=overwrite,
+                            video=live_photo,
                         )
                         all_results.exported.extend(exported)
                     except Exception as e:
@@ -1313,6 +1314,7 @@ def _export_photo_with_photos_export(
                             dest.name,
                             version=PHOTOS_VERSION_ORIGINAL,
                             overwrite=overwrite,
+                            video=live_photo,
                         )
                         all_results.exported.extend(exported)
                     except Exception as e:

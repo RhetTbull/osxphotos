@@ -40,6 +40,11 @@ UUID_BURST_ALBUM = {
     ],
 }
 
+UUID_SKIP_LIVE_PHOTOKIT = {
+    "54A01B04-16D7-4FDE-8860-19F2A641E433": ["IMG_3203_edited.jpeg"],
+    "1F3DF341-B822-4531-999E-724D642FD8E7": ["IMG_4179.jpeg"],
+}
+
 UUID_DOWNLOAD_MISSING = "C6C712C5-9316-408D-A3C3-125661422DA9"  # IMG_8844.JPG
 
 UUID_FILE = "tests/uuid_from_file.txt"
@@ -6643,6 +6648,43 @@ def test_export_download_missing_file_exists():
         )
         assert result.exit_code == 0
         assert "exported: 1" in result.output
+
+
+@pytest.mark.skipif(
+    "OSXPHOTOS_TEST_EXPORT" not in os.environ,
+    reason="Skip if not running on author's personal library.",
+)
+def test_export_skip_live_photokit():
+    """test that --skip-live works with --use-photokit (issue #537)"""
+    import os
+    import os.path
+    import pathlib
+
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    for uuid in UUID_SKIP_LIVE_PHOTOKIT:
+        with runner.isolated_filesystem():
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_RHET),
+                    ".",
+                    "-V",
+                    "--uuid",
+                    uuid,
+                    "--use-photos-export",
+                    "--use-photokit",
+                    "--skip-live",
+                    "--skip-original-if-edited",
+                    "--convert-to-jpeg",
+                ],
+            )
+            assert result.exit_code == 0
+            files = [str(p) for p in pathlib.Path(".").glob("IMG*")]
+            assert sorted(files) == sorted(UUID_SKIP_LIVE_PHOTOKIT[uuid])
 
 
 def test_query_name():
