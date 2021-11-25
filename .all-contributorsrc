@@ -268,6 +268,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "dgleich",
+      "name": "David Gleich",
+      "avatar_url": "https://avatars.githubusercontent.com/u/33995?v=4",
+      "profile": "https://www.cs.purdue.edu/homes/dgleich",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
