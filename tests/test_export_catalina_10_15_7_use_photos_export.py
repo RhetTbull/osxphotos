@@ -109,8 +109,6 @@ def test_export_edited(photosdb):
     import pathlib
     import tempfile
 
-    import osxphotos
-
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dest = tempdir.name
     photos = photosdb.photos(uuid=[UUID_DICT["has_adjustments"]])
