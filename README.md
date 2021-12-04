@@ -52,13 +52,12 @@ OSXPhotos provides the ability to interact with and query Apple's Photos.app lib
 
 ## Supported operating systems
 
-Only works on macOS (aka Mac OS X). Tested on macOS Sierra (10.12.6) until macOS Big Sur (10.16/11.3).
+Only works on macOS (aka Mac OS X). Tested on macOS Sierra (10.12.6) through macOS Monterey (12.0.1).  Tested on both x86 and Apple silicon (M1).
 
-If you have access to the macOS 12 / Monterey beta and would like to help ensure osxphotos is compatible, please visit the [Discussions](https://github.com/RhetTbull/osxphotos/discussions) page and let me know!
 
 | macOS Version     | macOS name | Photos.app version |
 | ----------------- |------------|:-------------------|
-| 12.0              | Monterey   | ?.0 UNKNOWN        |
+| 12.0              | Monterey   | 7.0 ✅             |
 | 10.16, 11.0-11.4  | Big Sur    | 6.0 ✅             |
 | 10.15.1 - 10.15.7 | Catalina   | 5.0 ✅             |
 | 10.14.5, 10.14.6  | Mojave     | 4.0 ✅             |
