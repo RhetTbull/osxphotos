@@ -35,6 +35,7 @@ from .._constants import (
 )
 from ..adjustmentsinfo import AdjustmentsInfo
 from ..albuminfo import AlbumInfo, ImportInfo
+from ..momentinfo import MomentInfo
 from ..personinfo import FaceInfo, PersonInfo
 from ..phototemplate import PhotoTemplate, RenderOptions
 from ..placeinfo import PlaceInfo4, PlaceInfo5
@@ -493,6 +494,18 @@ class PhotoInfo:
                 # no faces
                 self._faceinfo = []
             return self._faceinfo
+
+    @property
+    def moment(self):
+        """Moment photo belongs to"""
+        try:
+            return self._moment
+        except AttributeError:
+            try:
+                self._moment = MomentInfo(db=self._db, moment_pk=self._info["momentID"])
+            except ValueError:
+                self._moment = None
+            return self._moment
 
     @property
     def albums(self):
