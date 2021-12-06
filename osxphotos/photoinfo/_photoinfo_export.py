@@ -280,7 +280,7 @@ def _export_photo_uuid_applescript(
 
     if not exported_files or not filename:
         # nothing got exported
-        raise ExportError(f"Could not export photo {uuid}")
+        raise ExportError(f"Could not export photo {uuid} ({lineno(__file__)})")
 
     # need to find actual filename as sometimes Photos renames JPG to jpeg on export
     # may be more than one file exported (e.g. if Live Photo, Photos exports both .jpeg and .mov)
@@ -1524,16 +1524,31 @@ def _export_photo(
         edited_stat = fileutil.file_sig(src) if edited else (None, None, None)
         if dest_exists and (update or overwrite):
             # need to remove the destination first
-            fileutil.unlink(dest)
+            try:
+                fileutil.unlink(dest)
+            except Exception as e:
+                raise ExportError(
+                    f"Error removing file {dest}: {e} (({lineno(__file__)})"
+                ) from e
         if export_as_hardlink:
-            fileutil.hardlink(src, dest)
+            try:
+                fileutil.hardlink(src, dest)
+            except Exception as e:
+                raise ExportError(
+                    f"Error hardlinking {src} to {dest}: {e} ({lineno(__file__)})"
+                ) from e
         elif convert_to_jpeg:
             # use convert_to_jpeg to export the file
             fileutil.convert_to_jpeg(src, dest_str, compression_quality=jpeg_quality)
             converted_stat = fileutil.file_sig(dest_str)
             converted_to_jpeg_files.append(dest_str)
         else:
-            fileutil.copy(src, dest_str)
+            try:
+                fileutil.copy(src, dest_str)
+            except Exception as e:
+                raise ExportError(
+                    f"Error copying file {src} to {dest_str}: {e} ({lineno(__file__)})"
+                ) from e
 
         export_db.set_data(
             filename=dest_str,
