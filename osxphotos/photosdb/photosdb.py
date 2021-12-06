@@ -2633,13 +2633,13 @@ class PhotosDB:
                 try:
                     moment_date = datetime.fromtimestamp(date_stamp + TIME_DELTA)
                     # save raw time stamp valu
-                    moment_info[date_name + "_stamp"] = moment_info[date_name]
+                    moment_info[date_name + "_timestamp"] = moment_info[date_name]
                     moment_info[date_name] = moment_date.astimezone(tz=tz)
                 except ValueError:
                     # sometimes imageDate is invalid so use 1 Jan 1970 in UTC as image date
                     moment_date = datetime(1970, 1, 1)
                     tz = timezone(timedelta(0))
-                    moment_info[date_name + "_stamp"] = date_stamp
+                    moment_info[date_name + "_timestamp"] = date_stamp
                     moment_info[date_name] = moment_date.astimezone(tz=tz)
 
             # process title/subtitle
