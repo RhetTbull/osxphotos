@@ -1821,7 +1821,7 @@ COMMAND is an osxphotos template string which will be rendered and passed to the
 shell for execution. CATEGORY is the category of file to pass to COMMAND. The
 following categories are available:
 
-Catgory                   Description
+Category                  Description
 exported                  All exported files
 new                       When used with '--update', all newly exported files
 updated                   When used with '--update', all files which were
