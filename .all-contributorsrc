@@ -277,6 +277,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "hyfen",
+      "name": "Andrew Louis",
+      "avatar_url": "https://avatars.githubusercontent.com/u/6291?v=4",
+      "profile": "https://hyfen.net",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,
