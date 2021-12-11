@@ -286,6 +286,24 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "hyfen",
+      "name": "Andrew Louis",
+      "avatar_url": "https://avatars.githubusercontent.com/u/6291?v=4",
+      "profile": "https://hyfen.net",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "neebah",
+      "name": "neebah",
+      "avatar_url": "https://avatars.githubusercontent.com/u/71442026?v=4",
+      "profile": "https://github.com/neebah",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
