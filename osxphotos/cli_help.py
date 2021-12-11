@@ -207,7 +207,7 @@ The following attributes may be used with '--xattr-template':
             + "The following categories are available: "
         )
         formatter.write("\n")
-        templ_tuples = [("Catgory", "Description")]
+        templ_tuples = [("Category", "Description")]
         templ_tuples.extend((k, v) for k, v in POST_COMMAND_CATEGORIES.items())
         formatter.write_dl(templ_tuples)
         formatter.write("\n")
