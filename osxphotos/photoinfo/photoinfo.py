@@ -856,7 +856,7 @@ class PhotoInfo:
         if self._db._db_version <= _PHOTOS_4_VERSION:
             if self.live_photo and not self.ismissing:
                 live_model_id = self._info["live_model_id"]
-                if live_model_id == None:
+                if live_model_id is None:
                     logging.debug(f"missing live_model_id: {self._uuid}")
                     photopath = None
                 else:
@@ -877,28 +877,20 @@ class PhotoInfo:
                         # photos 4 has "isOnDisk" column we could check
                         # or could do the actual check with "isfile"
                         # TODO: should this be a warning or debug?
-                        logging.debug(
-                            f"MISSING PATH: live photo path for UUID {self._uuid} should be at {photopath} but does not appear to exist"
-                        )
                         photopath = None
             else:
                 photopath = None
-        else:
-            # Photos 5
-            if self.live_photo and not self.ismissing:
-                filename = pathlib.Path(self.path)
-                photopath = filename.parent.joinpath(f"{filename.stem}_3.mov")
-                photopath = str(photopath)
-                if not os.path.isfile(photopath):
-                    # In testing, I've seen occasional missing movie for live photo
-                    # these appear to be valid -- e.g. video component not yet downloaded from iCloud
-                    # TODO: should this be a warning or debug?
-                    logging.debug(
-                        f"MISSING PATH: live photo path for UUID {self._uuid} should be at {photopath} but does not appear to exist"
-                    )
-                    photopath = None
-            else:
+        elif self.live_photo and self.path and not self.ismissing:
+            filename = pathlib.Path(self.path)
+            photopath = filename.parent.joinpath(f"{filename.stem}_3.mov")
+            photopath = str(photopath)
+            if not os.path.isfile(photopath):
+                # In testing, I've seen occasional missing movie for live photo
+                # these appear to be valid -- e.g. video component not yet downloaded from iCloud
+                # TODO: should this be a warning or debug?
                 photopath = None
+        else:
+            photopath = None
 
         return photopath
 
