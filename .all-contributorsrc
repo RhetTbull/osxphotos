@@ -277,6 +277,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "neebah",
+      "name": "neebah",
+      "avatar_url": "https://avatars.githubusercontent.com/u/71442026?v=4",
+      "profile": "https://github.com/neebah",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
