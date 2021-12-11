@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos.photoinfo._photoinfo_export &#8212; osxphotos 0.43.4 documentation</title>
+    <title>osxphotos.photoinfo._photoinfo_export &#8212; osxphotos 0.43.6 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
@@ -313,7 +313,7 @@
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">exported_files</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">filename</span><span class="p">:</span>
         <span class="c1"># nothing got exported</span>
-        <span class="k">raise</span> <span class="n">ExportError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not export photo </span><span class="si">{</span><span class="n">uuid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">ExportError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not export photo </span><span class="si">{</span><span class="n">uuid</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">lineno</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
 
     <span class="c1"># need to find actual filename as sometimes Photos renames JPG to jpeg on export</span>
     <span class="c1"># may be more than one file exported (e.g. if Live Photo, Photos exports both .jpeg and .mov)</span>
@@ -1557,16 +1557,31 @@
         <span class="n">edited_stat</span> <span class="o">=</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">file_sig</span><span class="p">(</span><span class="n">src</span><span class="p">)</span> <span class="k">if</span> <span class="n">edited</span> <span class="k">else</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">dest_exists</span> <span class="ow">and</span> <span class="p">(</span><span class="n">update</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">):</span>
             <span class="c1"># need to remove the destination first</span>
-            <span class="n">fileutil</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">fileutil</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ExportError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Error removing file </span><span class="si">{</span><span class="n">dest</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2"> ((</span><span class="si">{</span><span class="n">lineno</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
         <span class="k">if</span> <span class="n">export_as_hardlink</span><span class="p">:</span>
-            <span class="n">fileutil</span><span class="o">.</span><span class="n">hardlink</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">fileutil</span><span class="o">.</span><span class="n">hardlink</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ExportError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Error hardlinking </span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">dest</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">lineno</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
         <span class="k">elif</span> <span class="n">convert_to_jpeg</span><span class="p">:</span>
             <span class="c1"># use convert_to_jpeg to export the file</span>
             <span class="n">fileutil</span><span class="o">.</span><span class="n">convert_to_jpeg</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest_str</span><span class="p">,</span> <span class="n">compression_quality</span><span class="o">=</span><span class="n">jpeg_quality</span><span class="p">)</span>
             <span class="n">converted_stat</span> <span class="o">=</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">file_sig</span><span class="p">(</span><span class="n">dest_str</span><span class="p">)</span>
             <span class="n">converted_to_jpeg_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dest_str</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">fileutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest_str</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">fileutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest_str</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ExportError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Error copying file </span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">dest_str</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">lineno</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
 
         <span class="n">export_db</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="n">dest_str</span><span class="p">,</span>
