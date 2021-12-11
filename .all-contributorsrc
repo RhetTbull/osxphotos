@@ -286,6 +286,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "alandefreitas",
+      "name": "Alan de Freitas",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5369819?v=4",
+      "profile": "https://alandefreitas.github.io/alandefreitas/",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
