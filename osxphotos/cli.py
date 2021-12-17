@@ -2969,7 +2969,7 @@ def export_photo_to_directory(
                 break
             else:
                 click.echo(
-                    "Retrying export for photo ({photo.uuid}: {photo.original_filename})"
+                    f"Retrying export for photo ({photo.uuid}: {photo.original_filename})"
                 )
         except Exception as e:
             click.echo(
