@@ -528,35 +528,38 @@ def _get_uti_from_mdls(extension):
     # mdls -name kMDItemContentType foo.3fr
     # kMDItemContentType = "com.hasselblad.3fr-raw-image"
 
-    with tempfile.NamedTemporaryFile(suffix="." + extension) as temp:
-        output = subprocess.check_output(
-            [
-                "/usr/bin/mdls",
-                "-name",
-                "kMDItemContentType",
-                temp.name,
-            ]
-        ).splitlines()
-        output = output[0].decode("UTF-8") if output else None
-        if not output:
-            return None
+    try:
+        with tempfile.NamedTemporaryFile(suffix="." + extension) as temp:
+            output = subprocess.check_output(
+                [
+                    "/usr/bin/mdls",
+                    "-name",
+                    "kMDItemContentType",
+                    temp.name,
+                ]
+            ).splitlines()
+            output = output[0].decode("UTF-8") if output else None
+            if not output:
+                return None
 
-        match = re.match(r'kMDItemContentType\s+\=\s+"(.*)"', output)
-        if match:
-            return match.group(1)
+            match = re.match(r'kMDItemContentType\s+\=\s+"(.*)"', output)
+            if match:
+                return match.group(1)
+            return None
+    except Exception:
         return None
 
 
 def _get_uti_from_ext_dict(ext):
     try:
-        return EXT_UTI_DICT[ext]
+        return EXT_UTI_DICT[ext.lower()]
     except KeyError:
         return None
 
 
 def _get_ext_from_uti_dict(uti):
     try:
-        return UTI_EXT_DICT[uti]
+        return UTI_EXT_DICT[uti.lower()]
     except KeyError:
         return None
 
