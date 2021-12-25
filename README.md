@@ -139,20 +139,22 @@ Options:
   -h, --help                   Show this message and exit.
 
 Commands:
-  about     Print information about osxphotos including license.
-  albums    Print out albums found in the Photos library.
-  dump      Print list of all photos & associated info from the Photos...
-  export    Export photos from the Photos database.
-  help      Print help; for help on commands: help <command>.
-  info      Print out descriptive info of the Photos library database.
-  keywords  Print out keywords found in the Photos library.
-  labels    Print out image classification labels found in the Photos...
-  list      Print list of Photos libraries found on the system.
-  persons   Print out persons (faces) found in the Photos library.
-  places    Print out places found in the Photos library.
-  query     Query the Photos database using 1 or more search options; if...
-  repl      Run interactive osxphotos shell
-  tutorial  Display osxphotos tutorial.
+  about      Print information about osxphotos including license.
+  albums     Print out albums found in the Photos library.
+  dump       Print list of all photos & associated info from the Photos...
+  export     Export photos from the Photos database.
+  help       Print help; for help on commands: help <command>.
+  info       Print out descriptive info of the Photos library database.
+  install    Install Python packages into the same environment as osxphotos
+  keywords   Print out keywords found in the Photos library.
+  labels     Print out image classification labels found in the Photos...
+  list       Print list of Photos libraries found on the system.
+  persons    Print out persons (faces) found in the Photos library.
+  places     Print out places found in the Photos library.
+  query      Query the Photos database using 1 or more search options; if...
+  repl       Run interactive osxphotos REPL shell (useful for debugging,...
+  tutorial   Display osxphotos tutorial.
+  uninstall  Uninstall Python packages from the osxphotos environment
 ```
 
 To get help on a specific command, use `osxphotos help <command_name>`
@@ -1703,7 +1705,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.43.7'
+{osxphotos_version}             The osxphotos version, e.g. '0.43.8'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified for
@@ -3573,7 +3575,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.43.7'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.43.8'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|

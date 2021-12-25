@@ -630,8 +630,6 @@
         <li><a href="cli.html#cmdoption-osxphotos-query-no-likes">osxphotos-query command line option</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     --no-location
 
@@ -641,6 +639,8 @@
         <li><a href="cli.html#cmdoption-osxphotos-query-no-location">osxphotos-query command line option</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     --no-place
 
@@ -1121,6 +1121,13 @@
 </li>
       </ul></li>
       <li>
+    --upgrade
+
+      <ul>
+        <li><a href="cli.html#cmdoption-osxphotos-install-U">osxphotos-install command line option</a>
+</li>
+      </ul></li>
+      <li>
     --use-photokit
 
       <ul>
@@ -1183,12 +1190,26 @@
 </li>
       </ul></li>
       <li>
+    --yes
+
+      <ul>
+        <li><a href="cli.html#cmdoption-osxphotos-uninstall-y">osxphotos-uninstall command line option</a>
+</li>
+      </ul></li>
+      <li>
     -i
 
       <ul>
         <li><a href="cli.html#cmdoption-osxphotos-export-i">osxphotos-export command line option</a>
 </li>
         <li><a href="cli.html#cmdoption-osxphotos-query-i">osxphotos-query command line option</a>
+</li>
+      </ul></li>
+      <li>
+    -U
+
+      <ul>
+        <li><a href="cli.html#cmdoption-osxphotos-install-U">osxphotos-install command line option</a>
 </li>
       </ul></li>
       <li>
@@ -1203,6 +1224,13 @@
 
       <ul>
         <li><a href="cli.html#cmdoption-osxphotos-v">osxphotos command line option</a>
+</li>
+      </ul></li>
+      <li>
+    -y
+
+      <ul>
+        <li><a href="cli.html#cmdoption-osxphotos-uninstall-y">osxphotos-uninstall command line option</a>
 </li>
       </ul></li>
   </ul></td>
@@ -1897,6 +1925,17 @@
 </li>
       </ul></li>
       <li>
+    osxphotos-install command line option
+
+      <ul>
+        <li><a href="cli.html#cmdoption-osxphotos-install-U">--upgrade</a>
+</li>
+        <li><a href="cli.html#cmdoption-osxphotos-install-U">-U</a>
+</li>
+        <li><a href="cli.html#cmdoption-osxphotos-install-arg-PACKAGES">PACKAGES</a>
+</li>
+      </ul></li>
+      <li>
     osxphotos-keywords command line option
 
       <ul>
@@ -2124,6 +2163,17 @@
         <li><a href="cli.html#cmdoption-osxphotos-tutorial-arg-WIDTH">WIDTH</a>
 </li>
       </ul></li>
+      <li>
+    osxphotos-uninstall command line option
+
+      <ul>
+        <li><a href="cli.html#cmdoption-osxphotos-uninstall-y">--yes</a>
+</li>
+        <li><a href="cli.html#cmdoption-osxphotos-uninstall-y">-y</a>
+</li>
+        <li><a href="cli.html#cmdoption-osxphotos-uninstall-arg-PACKAGES">PACKAGES</a>
+</li>
+      </ul></li>
       <li><a href="reference.html#osxphotos.PhotoInfo.ScoreInfo.overall">overall (osxphotos.PhotoInfo.ScoreInfo attribute)</a>
 </li>
       <li><a href="reference.html#osxphotos.PhotoInfo.owner">owner (osxphotos.PhotoInfo property)</a>
@@ -2134,6 +2184,15 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    PACKAGES
+
+      <ul>
+        <li><a href="cli.html#cmdoption-osxphotos-install-arg-PACKAGES">osxphotos-install command line option</a>
+</li>
+        <li><a href="cli.html#cmdoption-osxphotos-uninstall-arg-PACKAGES">osxphotos-uninstall command line option</a>
+</li>
+      </ul></li>
       <li><a href="reference.html#osxphotos.PhotoInfo.panorama">panorama (osxphotos.PhotoInfo property)</a>
 </li>
       <li><a href="reference.html#osxphotos.PhotoInfo.path">path (osxphotos.PhotoInfo property)</a>
@@ -2176,6 +2235,8 @@
 </li>
       <li><a href="reference.html#osxphotos.PhotosDB.photos_by_uuid">photos_by_uuid() (osxphotos.PhotosDB method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     PHOTOS_LIBRARY
 
@@ -2199,8 +2260,6 @@
         <li><a href="cli.html#cmdoption-osxphotos-query-arg-PHOTOS_LIBRARY">osxphotos-query command line option</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference.html#osxphotos.PhotosDB">PhotosDB (class in osxphotos)</a>
 </li>
       <li><a href="reference.html#osxphotos.PhotoInfo.place">place (osxphotos.PhotoInfo property)</a>
@@ -2410,7 +2469,7 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -2432,7 +2491,7 @@
       &copy;2021, Rhet Turnbull.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

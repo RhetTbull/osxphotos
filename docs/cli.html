@@ -964,6 +964,27 @@ to modify this behavior.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="osxphotos-install">
+<h3>install<a class="headerlink" href="#osxphotos-install" title="Permalink to this headline">¶</a></h3>
+<p>Install Python packages into the same environment as osxphotos</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos install <span class="o">[</span>OPTIONS<span class="o">]</span> PACKAGES...
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-install-U">
+<span id="cmdoption-osxphotos-install-u"></span><span id="cmdoption-osxphotos-install-upgrade"></span><span class="sig-name descname"><span class="pre">-U</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--upgrade</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-install-U" title="Permalink to this definition">¶</a></dt>
+<dd><p>Upgrade packages to latest version</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-install-arg-PACKAGES">
+<span id="cmdoption-osxphotos-install-arg-packages"></span><span class="sig-name descname"><span class="pre">PACKAGES</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-install-arg-PACKAGES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required argument(s)</p>
+</dd></dl>
+
+</div>
 <div class="section" id="osxphotos-keywords">
 <h3>keywords<a class="headerlink" href="#osxphotos-keywords" title="Permalink to this headline">¶</a></h3>
 <p>Print out keywords found in the Photos library.</p>
@@ -1593,6 +1614,27 @@ if more than one option is provided, they are treated as “AND”
 </dd></dl>
 
 </div>
+<div class="section" id="osxphotos-uninstall">
+<h3>uninstall<a class="headerlink" href="#osxphotos-uninstall" title="Permalink to this headline">¶</a></h3>
+<p>Uninstall Python packages from the osxphotos environment</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos uninstall <span class="o">[</span>OPTIONS<span class="o">]</span> PACKAGES...
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-uninstall-y">
+<span id="cmdoption-osxphotos-uninstall-yes"></span><span class="sig-name descname"><span class="pre">-y</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--yes</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-uninstall-y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Don’t ask for confirmation</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-uninstall-arg-PACKAGES">
+<span id="cmdoption-osxphotos-uninstall-arg-packages"></span><span class="sig-name descname"><span class="pre">PACKAGES</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-uninstall-arg-PACKAGES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required argument(s)</p>
+</dd></dl>
+
+</div>
 </div>
 </div>
 
@@ -1622,6 +1664,7 @@ if more than one option is provided, they are treated as “AND”
 <li class="toctree-l3"><a class="reference internal" href="#osxphotos-export">export</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#osxphotos-help">help</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#osxphotos-info">info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#osxphotos-install">install</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#osxphotos-keywords">keywords</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#osxphotos-labels">labels</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#osxphotos-list">list</a></li>
@@ -1630,6 +1673,7 @@ if more than one option is provided, they are treated as “AND”
 <li class="toctree-l3"><a class="reference internal" href="#osxphotos-query">query</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#osxphotos-repl">repl</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#osxphotos-tutorial">tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#osxphotos-uninstall">uninstall</a></li>
 </ul>
 </li>
 </ul>
@@ -1650,7 +1694,7 @@ if more than one option is provided, they are treated as “AND”
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -1672,7 +1716,7 @@ if more than one option is provided, they are treated as “AND”
       &copy;2021, Rhet Turnbull.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
