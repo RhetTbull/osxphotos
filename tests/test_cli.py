@@ -886,10 +886,12 @@ EXPORT_UNICODE_TITLE_FILENAMES = [
     "Frítest (3).jpg",
 ]
 
+# data for --exif
 QUERY_EXIF_DATA = [("EXIF:Make", "FUJIFILM", ["6191423D-8DB8-4D4C-92BE-9BBBA308AAC4"])]
 QUERY_EXIF_DATA_CASE_INSENSITIVE = [
     ("Make", "Fujifilm", ["6191423D-8DB8-4D4C-92BE-9BBBA308AAC4"])
 ]
+EXPORT_EXIF_DATA = [("EXIF:Make", "FUJIFILM", ["Tulips.jpg", "Tulips_edited.jpeg"])]
 
 
 def modify_file(filename):
@@ -4227,6 +4229,29 @@ def test_export_error(monkeypatch):
         )
         assert result.exit_code == 0
         assert "Error exporting" in result.output
+
+
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+@pytest.mark.parametrize("exiftag,exifvalue,files_expected", EXPORT_EXIF_DATA)
+def test_export_exif(exiftag, exifvalue, files_expected):
+    """Test export --exif query """
+    import glob
+    import os
+    import os.path
+
+    import osxphotos
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--exif", exiftag, exifvalue, "-V"],
+        )
+        files = glob.glob("*")
+        assert sorted(files) == sorted(files_expected)
 
 
 def test_places():
