@@ -224,13 +224,13 @@ The following attributes may be used with '--xattr-template':
         )
         formatter.write("\n")
         formatter.write(
-            '--post-command new "echo {filepath.name|shell_quote} >> {shell_quote,{export_dir}/exported.txt}"'
+            '--post-command new "echo {filepath|shell_quote} >> {shell_quote,{export_dir}/exported.txt}"'
         )
         formatter.write("\n\n")
         formatter.write_text(
-            "In the above command, the 'shell_quote' filter is used to ensure '{filepath.name}' is properly quoted "
+            "In the above command, the 'shell_quote' filter is used to ensure '{filepath}' is properly quoted "
             + "and the '{shell_quote}' template ensures the constructed path of '{exported_dir}/exported.txt' is properly quoted. "
-            "If '{filepath.name}' is 'IMG 1234.jpeg' and '{export_dir}' is '/Volumes/Photo Export', the command "
+            "If '{filepath}' is 'IMG 1234.jpeg' and '{export_dir}' is '/Volumes/Photo Export', the command "
             "thus renders to: "
         )
         formatter.write("\n")
