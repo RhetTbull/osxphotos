@@ -3680,13 +3680,6 @@ Returns path to last opened Photo Library as string.
 
 Returns list of Photos libraries found on the system.  **Note**: On MacOS 10.15, this appears to list all libraries. On older systems, it may not find some libraries if they are not located in ~/Pictures.  Provided for convenience but do not rely on this to find all libraries on the system.
 
-#### `dd_to_dms_str(lat, lon)`
-Convert latitude, longitude in degrees to degrees, minutes, seconds as string.
-- `lat`: latitude in degrees
-- `lon`: longitude in degrees
-returns: string tuple in format ("51 deg 30' 12.86\\" N", "0 deg 7' 54.50\\" W")
-This is the same format used by exiftool's json format.
-
 
 ## Examples
 
