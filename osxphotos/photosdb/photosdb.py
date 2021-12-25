@@ -12,6 +12,7 @@ import re
 import sys
 import tempfile
 from collections import OrderedDict
+from collections.abc import Iterable
 from datetime import datetime, timedelta, timezone
 from pprint import pformat
 from typing import List
@@ -3469,6 +3470,34 @@ class PhotosDB:
                 # no photos selected or a selected photo was "open"
                 # selection only works if photos selected in main media browser
                 photos = []
+
+        if options.exif:
+            matching_photos = []
+            for p in photos:
+                if not p.exiftool:
+                    continue
+                exifdata = p.exiftool.asdict(normalized=True)
+                exifdata.update(p.exiftool.asdict(tag_groups=False, normalized=True))
+                for exiftag, exifvalue in options.exif:
+                    if options.ignore_case:
+                        exifvalue = exifvalue.lower()
+                        exifdata_value = exifdata.get(exiftag.lower(), "")
+                        if isinstance(exifdata_value, str):
+                            exifdata_value = exifdata_value.lower()
+                        elif isinstance(exifdata_value, Iterable):
+                            exifdata_value = [v.lower() for v in exifdata_value]
+                        else:
+                            exifdata_value = str(exifdata_value)
+
+                        if exifvalue in exifdata_value:
+                            matching_photos.append(p)
+                    else:
+                        exifdata_value = exifdata.get(exiftag.lower(), "")
+                        if not isinstance(exifdata_value, (str, Iterable)):
+                            exifdata_value = str(exifdata_value)
+                        if exifvalue in exifdata_value:
+                            matching_photos.append(p)
+            photos = matching_photos
 
         if options.function:
             for function in options.function:

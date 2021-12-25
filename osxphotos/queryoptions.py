@@ -84,6 +84,7 @@ class QueryOptions:
     no_location: Optional[bool] = None
     function: Optional[List[Tuple[callable, str]]] = None
     selected: Optional[bool] = None
+    exif: Optional[Iterable[Tuple[str, str]]] = None
 
     def asdict(self):
         return asdict(self)

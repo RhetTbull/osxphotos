@@ -544,6 +544,17 @@ def QUERY_OPTIONS(f):
             help="Filter for photos that are currently selected in Photos.",
         ),
         o(
+            "--exif",
+            metavar="EXIF_TAG VALUE",
+            nargs=2,
+            multiple=True,
+            help="Search for photos where EXIF_TAG exists in photo's EXIF data and contains VALUE. "
+            "For example, to find photos created by Adobe Photoshop: `--exif Software 'Adobe Photoshop' `"
+            "or to find all photos shot on a Canon camera: `--exif Make Canon`. "
+            "EXIF_TAG can be any valid exiftool tag, with or without group name, e.g. `EXIF:Make` or `Make`. "
+            "To use --exif, exiftool must be installed and in the path.",
+        ),
+        o(
             "--query-eval",
             metavar="CRITERIA",
             multiple=True,
@@ -1190,6 +1201,7 @@ def export(
     max_size,
     regex,
     selected,
+    exif,
     query_eval,
     query_function,
     duplicate,
@@ -1354,6 +1366,7 @@ def export(
         max_size = cfg.max_size
         regex = cfg.regex
         selected = cfg.selected
+        exif = cfg.exif
         query_eval = cfg.query_eval
         query_function = cfg.query_function
         duplicate = cfg.duplicate
@@ -1673,6 +1686,7 @@ def export(
         max_size=max_size,
         regex=regex,
         selected=selected,
+        exif=exif,
         query_eval=query_eval,
         function=query_function,
         duplicate=duplicate,
@@ -2085,6 +2099,7 @@ def query(
     max_size,
     regex,
     selected,
+    exif,
     query_eval,
     query_function,
     add_to_album,
@@ -2120,6 +2135,7 @@ def query(
         max_size,
         regex,
         selected,
+        exif,
         duplicate,
     ]
     exclusive = [
@@ -2251,6 +2267,7 @@ def query(
         function=query_function,
         regex=regex,
         selected=selected,
+        exif=exif,
         duplicate=duplicate,
     )
 
@@ -2790,8 +2807,7 @@ def _render_suffix_template(
         rendered_suffix, unmatched = photo.render_template(suffix_template, options)
     except ValueError as e:
         raise click.BadOptionUsage(
-            var_name,
-            f"Invalid template for {option_name} '{suffix_template}': {e}",
+            var_name, f"Invalid template for {option_name} '{suffix_template}': {e}",
         )
     if not rendered_suffix or unmatched:
         raise click.BadOptionUsage(
@@ -3481,12 +3497,7 @@ def write_finder_tags(
 
 
 def write_extended_attributes(
-    photo,
-    files,
-    xattr_template,
-    strip=False,
-    export_dir=None,
-    export_db=None,
+    photo, files, xattr_template, strip=False, export_dir=None, export_db=None,
 ):
     """Writes extended attributes to exported files
 
@@ -3606,7 +3617,7 @@ def run_post_command(
 @cli.command()
 @click.argument("packages", nargs=-1, required=True)
 @click.option(
-        "-U", "--upgrade", is_flag=True, help="Upgrade packages to latest version"
+    "-U", "--upgrade", is_flag=True, help="Upgrade packages to latest version"
 )
 def install(packages, upgrade):
     """Install Python packages into the same environment as osxphotos"""
@@ -4072,9 +4083,7 @@ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMA
 
 @cli.command(name="tutorial")
 @click.argument(
-    "WIDTH",
-    nargs=-1,
-    type=click.INT,
+    "WIDTH", nargs=-1, type=click.INT,
 )
 @click.pass_obj
 @click.pass_context

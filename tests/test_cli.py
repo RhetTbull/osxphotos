@@ -886,6 +886,11 @@ EXPORT_UNICODE_TITLE_FILENAMES = [
     "Frítest (3).jpg",
 ]
 
+QUERY_EXIF_DATA = [("EXIF:Make", "FUJIFILM", ["6191423D-8DB8-4D4C-92BE-9BBBA308AAC4"])]
+QUERY_EXIF_DATA_CASE_INSENSITIVE = [
+    ("Make", "Fujifilm", ["6191423D-8DB8-4D4C-92BE-9BBBA308AAC4"])
+]
+
 
 def modify_file(filename):
     """appends data to a file to modify it"""
@@ -1251,8 +1256,7 @@ def test_query_duplicate():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        query,
-        ["--json", "--db", os.path.join(cwd, CLI_PHOTOS_DB), "--duplicate"],
+        query, ["--json", "--db", os.path.join(cwd, CLI_PHOTOS_DB), "--duplicate"],
     )
     assert result.exit_code == 0
 
@@ -1273,8 +1277,7 @@ def test_query_location():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        query,
-        ["--json", "--db", os.path.join(cwd, CLI_PHOTOS_DB), "--location"],
+        query, ["--json", "--db", os.path.join(cwd, CLI_PHOTOS_DB), "--location"],
     )
     assert result.exit_code == 0
 
@@ -1296,8 +1299,7 @@ def test_query_no_location():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        query,
-        ["--json", "--db", os.path.join(cwd, CLI_PHOTOS_DB), "--no-location"],
+        query, ["--json", "--db", os.path.join(cwd, CLI_PHOTOS_DB), "--no-location"],
     )
     assert result.exit_code == 0
 
@@ -1306,6 +1308,71 @@ def test_query_no_location():
     uuid_got = [photo["uuid"] for photo in json_got]
     assert UUID_NO_LOCATION in uuid_got
     assert UUID_LOCATION not in uuid_got
+
+
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+@pytest.mark.parametrize("exiftag,exifvalue,uuid_expected", QUERY_EXIF_DATA)
+def test_query_exif(exiftag, exifvalue, uuid_expected):
+    """Test query with --exif"""
+    import json
+    import os
+    import os.path
+
+    from osxphotos.cli import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, CLI_PHOTOS_DB),
+            "--exif",
+            exiftag,
+            exifvalue,
+        ],
+    )
+    assert result.exit_code == 0
+
+    # build list of uuids we got from the output JSON
+    json_got = json.loads(result.output)
+    uuid_got = [photo["uuid"] for photo in json_got]
+    assert sorted(uuid_got) == sorted(uuid_expected)
+
+
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+@pytest.mark.parametrize(
+    "exiftag,exifvalue,uuid_expected", QUERY_EXIF_DATA_CASE_INSENSITIVE
+)
+def test_query_exif_case_insensitive(exiftag, exifvalue, uuid_expected):
+    """Test query with --exif -i"""
+    import json
+    import os
+    import os.path
+
+    from osxphotos.cli import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, CLI_PHOTOS_DB),
+            "--exif",
+            exiftag,
+            exifvalue,
+            "-i",
+        ],
+    )
+    assert result.exit_code == 0
+
+    # build list of uuids we got from the output JSON
+    json_got = json.loads(result.output)
+    uuid_got = [photo["uuid"] for photo in json_got]
+    assert sorted(uuid_got) == sorted(uuid_expected)
 
 
 def test_export():
