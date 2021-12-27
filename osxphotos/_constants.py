@@ -30,6 +30,8 @@ _TESTED_DB_VERSIONS = ["6000", "4025", "4016", "3301", "2622"]
 # Photos 6 (10.16.0 Beta) == 14104
 _TEST_MODEL_VERSIONS = ["13537", "13703", "14104"]
 
+_PHOTOS_2_VERSION = "2622"
+
 # only version 3 - 4 have RKVersion.selfPortrait
 _PHOTOS_3_VERSION = "3301"
 

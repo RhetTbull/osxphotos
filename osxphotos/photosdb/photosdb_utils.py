@@ -4,7 +4,11 @@ import logging
 import plistlib
 
 from .._constants import (
+    _PHOTOS_2_VERSION,
+    _PHOTOS_3_VERSION,
+    _PHOTOS_4_VERSION,
     _PHOTOS_5_MODEL_VERSION,
+    _PHOTOS_5_VERSION,
     _PHOTOS_6_MODEL_VERSION,
     _PHOTOS_7_MODEL_VERSION,
     _TESTED_DB_VERSIONS,
@@ -83,3 +87,32 @@ def get_db_model_version(db_file):
         logging.warning(f"Unknown model version: {model_ver}")
         # cross our fingers and try latest version
         return 7
+
+
+class UnknownLibraryVersion(Exception):
+    pass
+
+
+def get_photos_library_version(library_path):
+    """Return int indicating which Photos version a library was created with """
+    library_path = pathlib.Path(library_path)
+    db_ver = get_db_version(str(library_path / "database" / "photos.db"))
+    db_ver = int(db_ver)
+    if db_ver == int(_PHOTOS_2_VERSION):
+        return 2
+    if db_ver == int(_PHOTOS_3_VERSION):
+        return 3
+    if db_ver == int(_PHOTOS_4_VERSION):
+        return 4
+    if db_ver != int(_PHOTOS_5_VERSION):
+        raise UnknownLibraryVersion(f"db_ver = {db_ver}")
+
+    model_ver = get_model_version(str(library_path / "database" / "Photos.sqlite"))
+    model_ver = int(model_ver)
+    if _PHOTOS_5_MODEL_VERSION[0] <= model_ver <= _PHOTOS_5_MODEL_VERSION[1]:
+        return 5
+    if _PHOTOS_6_MODEL_VERSION[0] <= model_ver <= _PHOTOS_6_MODEL_VERSION[1]:
+        return 6
+    if _PHOTOS_7_MODEL_VERSION[0] <= model_ver <= _PHOTOS_7_MODEL_VERSION[1]:
+        return 7
+    raise UnknownLibraryVersion(f"db_ver = {db_ver}, model_ver = {model_ver}")
