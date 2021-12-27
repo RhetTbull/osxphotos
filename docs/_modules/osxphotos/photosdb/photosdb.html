@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos.photosdb.photosdb &#8212; osxphotos 0.43.6 documentation</title>
+    <title>osxphotos.photosdb.photosdb &#8212; osxphotos 0.43.8 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
@@ -45,6 +45,7 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">timezone</span>
 <span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pformat</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
@@ -3503,6 +3504,34 @@
                 <span class="c1"># selection only works if photos selected in main media browser</span>
                 <span class="n">photos</span> <span class="o">=</span> <span class="p">[]</span>
 
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">exif</span><span class="p">:</span>
+            <span class="n">matching_photos</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">photos</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">exiftool</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">exifdata</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">exiftool</span><span class="o">.</span><span class="n">asdict</span><span class="p">(</span><span class="n">normalized</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">exifdata</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">exiftool</span><span class="o">.</span><span class="n">asdict</span><span class="p">(</span><span class="n">tag_groups</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">normalized</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">exiftag</span><span class="p">,</span> <span class="n">exifvalue</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">exif</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">ignore_case</span><span class="p">:</span>
+                        <span class="n">exifvalue</span> <span class="o">=</span> <span class="n">exifvalue</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                        <span class="n">exifdata_value</span> <span class="o">=</span> <span class="n">exifdata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">exiftag</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exifdata_value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                            <span class="n">exifdata_value</span> <span class="o">=</span> <span class="n">exifdata_value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exifdata_value</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
+                            <span class="n">exifdata_value</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">exifdata_value</span><span class="p">]</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">exifdata_value</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">exifdata_value</span><span class="p">)</span>
+
+                        <span class="k">if</span> <span class="n">exifvalue</span> <span class="ow">in</span> <span class="n">exifdata_value</span><span class="p">:</span>
+                            <span class="n">matching_photos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">exifdata_value</span> <span class="o">=</span> <span class="n">exifdata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">exiftag</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exifdata_value</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">)):</span>
+                            <span class="n">exifdata_value</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">exifdata_value</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">exifvalue</span> <span class="ow">in</span> <span class="n">exifdata_value</span><span class="p">:</span>
+                            <span class="n">matching_photos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+            <span class="n">photos</span> <span class="o">=</span> <span class="n">matching_photos</span>
+
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">function</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">function</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">function</span><span class="p">:</span>
                 <span class="n">photos</span> <span class="o">=</span> <span class="n">function</span><span class="p">[</span><span class="mi">0</span><span class="p">](</span><span class="n">photos</span><span class="p">)</span>
@@ -3630,7 +3659,7 @@
       &copy;2021, Rhet Turnbull.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

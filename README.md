@@ -731,6 +731,15 @@ Options:
                                   repeating '--regex' with different arguments.
   --selected                      Filter for photos that are currently selected
                                   in Photos.
+  --exif EXIF_TAG VALUE           Search for photos where EXIF_TAG exists in
+                                  photo's EXIF data and contains VALUE. For
+                                  example, to find photos created by Adobe
+                                  Photoshop: `--exif Software 'Adobe Photoshop'
+                                  `or to find all photos shot on a Canon camera:
+                                  `--exif Make Canon`. EXIF_TAG can be any valid
+                                  exiftool tag, with or without group name, e.g.
+                                  `EXIF:Make` or `Make`. To use --exif, exiftool
+                                  must be installed and in the path.
   --query-eval CRITERIA           Evaluate CRITERIA to filter photos. CRITERIA
                                   will be evaluated in context of the following
                                   python list comprehension: `photos = [photo
@@ -1864,13 +1873,13 @@ Both the '{shell_quote}' template and the '|shell_quote' template filter are
 available for this purpose.  For example, the following command outputs the full
 path of newly exported files to file 'new.txt':
 
---post-command new "echo {filepath.name|shell_quote} >> {shell_quote,{export_dir}/exported.txt}"
+--post-command new "echo {filepath|shell_quote} >> {shell_quote,{export_dir}/exported.txt}"
 
-In the above command, the 'shell_quote' filter is used to ensure
-'{filepath.name}' is properly quoted and the '{shell_quote}' template ensures
-the constructed path of '{exported_dir}/exported.txt' is properly quoted. If
-'{filepath.name}' is 'IMG 1234.jpeg' and '{export_dir}' is '/Volumes/Photo
-Export', the command thus renders to:
+In the above command, the 'shell_quote' filter is used to ensure '{filepath}' is
+properly quoted and the '{shell_quote}' template ensures the constructed path of
+'{exported_dir}/exported.txt' is properly quoted. If '{filepath}' is 'IMG
+1234.jpeg' and '{export_dir}' is '/Volumes/Photo Export', the command thus
+renders to:
 
 echo 'IMG 1234.jpeg' >> '/Volumes/Photo Export/exported.txt'
 

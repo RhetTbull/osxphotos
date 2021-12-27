@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos command line interface (CLI) &#8212; osxphotos 0.43.7 documentation</title>
+    <title>osxphotos command line interface (CLI) &#8212; osxphotos 0.43.8 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
@@ -535,6 +535,12 @@ to modify this behavior.</p>
 <dt class="sig sig-object std" id="cmdoption-osxphotos-export-selected">
 <span class="sig-name descname"><span class="pre">--selected</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-selected" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter for photos that are currently selected in Photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-exif">
+<span class="sig-name descname"><span class="pre">--exif</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;EXIF_TAG</span> <span class="pre">VALUE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-exif" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos where EXIF_TAG exists in photo’s EXIF data and contains VALUE. For example, to find photos created by Adobe Photoshop: <cite>–exif Software ‘Adobe Photoshop’ `or to find all photos shot on a Canon camera: `–exif Make Canon</cite>. EXIF_TAG can be any valid exiftool tag, with or without group name, e.g. <cite>EXIF:Make</cite> or <cite>Make</cite>. To use –exif, exiftool must be installed and in the path.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -1504,6 +1510,12 @@ if more than one option is provided, they are treated as “AND”
 <dt class="sig sig-object std" id="cmdoption-osxphotos-query-selected">
 <span class="sig-name descname"><span class="pre">--selected</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-selected" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter for photos that are currently selected in Photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-exif">
+<span class="sig-name descname"><span class="pre">--exif</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;EXIF_TAG</span> <span class="pre">VALUE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-exif" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos where EXIF_TAG exists in photo’s EXIF data and contains VALUE. For example, to find photos created by Adobe Photoshop: <cite>–exif Software ‘Adobe Photoshop’ `or to find all photos shot on a Canon camera: `–exif Make Canon</cite>. EXIF_TAG can be any valid exiftool tag, with or without group name, e.g. <cite>EXIF:Make</cite> or <cite>Make</cite>. To use –exif, exiftool must be installed and in the path.</p>
 </dd></dl>
 
 <dl class="std option">
