@@ -1,6 +1,7 @@
 r""" Test the command line interface (CLI) """
 
 import os
+import tempfile
 
 import pytest
 from click.testing import CliRunner
@@ -5907,6 +5908,34 @@ def test_export_cleanup_empty_album():
             )
             assert "Did not find any photos to export" in result.output
             assert "Deleted: 1 file" in result.output
+
+
+def test_export_cleanup_accented_album_name():
+    """test export with --cleanup flag and photos in album with accented unicode characters (#561)"""
+    import pathlib
+
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with tempfile.TemporaryDirectory() as tempdir:
+        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        assert result.exit_code == 0
+
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                tempdir,
+                "-V",
+                "--update",
+                "--cleanup",
+                "--directory",
+                "{folder_album}",
+            ],
+        )
+        assert "Deleted: 0 files, 0 directories" in result.output
 
 
 def test_save_load_config():

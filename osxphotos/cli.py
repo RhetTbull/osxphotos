@@ -63,7 +63,7 @@ from .phototemplate import PhotoTemplate, RenderOptions
 from .pyrepl import embed_repl
 from .queryoptions import QueryOptions
 from .uti import get_preferred_uti_extension
-from .utils import expand_and_validate_filepath, load_function
+from .utils import expand_and_validate_filepath, load_function, normalize_fs_path
 
 # global variable to control verbose output
 # set via --verbose/-V
@@ -3375,11 +3375,13 @@ def cleanup_files(dest_path, files_to_keep, fileutil):
     Returns:
         tuple of (list of files deleted, list of directories deleted)
     """
-    keepers = {str(filename).lower(): 1 for filename in files_to_keep}
+    keepers = {
+        normalize_fs_path(str(filename).lower()): 1 for filename in files_to_keep
+    }
 
     deleted_files = []
     for p in pathlib.Path(dest_path).rglob("*"):
-        path = str(p).lower()
+        path = normalize_fs_path(str(p).lower())
         if p.is_file() and path not in keepers:
             verbose_(f"Deleting {p}")
             fileutil.unlink(p)
