@@ -5920,9 +5920,6 @@ def test_export_cleanup_accented_album_name():
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with tempfile.TemporaryDirectory() as tempdir:
-        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
-        assert result.exit_code == 0
-
         result = runner.invoke(
             export,
             [
