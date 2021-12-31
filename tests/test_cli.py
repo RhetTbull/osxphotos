@@ -49,6 +49,7 @@ UUID_SKIP_LIVE_PHOTOKIT = {
 UUID_DOWNLOAD_MISSING = "C6C712C5-9316-408D-A3C3-125661422DA9"  # IMG_8844.JPG
 
 UUID_FILE = "tests/uuid_from_file.txt"
+SKIP_UUID_FILE = "tests/skip_uuid_from_file.txt"
 
 CLI_OUTPUT_NO_SUBCOMMAND = [
     "Options:",
@@ -767,6 +768,14 @@ CLI_EXPORT_UUID_FROM_FILE_FILENAMES = [
     "wedding_edited.jpeg",
 ]
 
+CLI_EXPORT_SKIP_UUID = ["E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51", "6191423D-8DB8-4D4C-92BE-9BBBA308AAC4"]
+CLI_EXPORT_SKIP_UUID_FILENAMES = [
+    "Tulips.jpg",
+    "Tulips_edited.jpeg",
+    "wedding.jpg",
+    "wedding_edited.jpeg",
+]
+
 UUID_HAS_COMMENTS = [
     "4E4944A0-3E5C-4028-9600-A8709F2FA1DB",
     "4AD7C8EF-2991-4519-9D3A-7F44A6F031BE",
@@ -1422,6 +1431,66 @@ def test_export_uuid_from_file():
         assert result.exit_code == 0
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_UUID_FROM_FILE_FILENAMES)
+
+def test_export_skip_uuid_from_file():
+    """Test export with --skip-uuid-from-file"""
+    import glob
+    import os
+    import os.path
+
+    import osxphotos
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--skip-uuid-from-file",
+                os.path.join(cwd, SKIP_UUID_FILE),
+            ],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        for skipped_file in CLI_EXPORT_SKIP_UUID_FILENAMES:
+            assert skipped_file not in files 
+
+def test_export_skip_uuid():
+    """Test export with --skip-uuid"""
+    import glob
+    import os
+    import os.path
+
+    import osxphotos
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    uuid_option = []
+    for uuid in CLI_EXPORT_SKIP_UUID:
+        uuid_option.append("--skip-uuid")
+        uuid_option.append(uuid)
+
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                *uuid_option,
+            ],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        for skipped_file in CLI_EXPORT_SKIP_UUID_FILENAMES:
+            assert skipped_file not in files
 
 
 def test_export_preview():

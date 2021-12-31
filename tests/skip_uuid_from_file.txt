@@ -1,0 +1,6 @@
+# test file for --skip-uuid-from-file
+# wedding.jpg
+E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51
+
+# Tulips.jpg
+ 6191423D-8DB8-4D4C-92BE-9BBBA308AAC4 

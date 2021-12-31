@@ -298,7 +298,8 @@ def QUERY_OPTIONS(f):
             metavar="UUID",
             default=None,
             multiple=True,
-            help="Search for photos with UUID(s).",
+            help="Search for photos with UUID(s). "
+            "May be repeated to include multiple UUIDs.",
         ),
         o(
             "--uuid-from-file",
@@ -698,6 +699,23 @@ def cli(ctx, db, json_, debug):
     help="Do not export associated RAW image of a RAW+JPEG pair.  "
     "Note: this does not skip RAW photos if the RAW photo does not have an associated JPEG image "
     "(e.g. the RAW file was imported to Photos without a JPEG preview).",
+)
+@click.option(
+    "--skip-uuid",
+    metavar="UUID",
+    default=None,
+    multiple=True,
+    help="Skip photos with UUID(s) during export. "
+    "May be repeated to include multiple UUIDs.",
+)
+@click.option(
+    "--skip-uuid-from-file",
+    metavar="FILE",
+    default=None,
+    multiple=False,
+    help="Skip photos with UUID(s) loaded from FILE. "
+    "Format is a single UUID per line.  Lines preceded with # are ignored.",
+    type=click.Path(exists=True),
 )
 @click.option(
     "--current-name",
@@ -1124,6 +1142,8 @@ def export(
     skip_bursts,
     skip_live,
     skip_raw,
+    skip_uuid,
+    skip_uuid_from_file,
     person_keyword,
     album_keyword,
     keyword_template,
@@ -1292,6 +1312,8 @@ def export(
         skip_bursts = cfg.skip_bursts
         skip_live = cfg.skip_live
         skip_raw = cfg.skip_raw
+        skip_uuid = cfg.skip_uuid
+        skip_uuid_from_file = cfg.skip_uuid_from_file
         person_keyword = cfg.person_keyword
         album_keyword = cfg.album_keyword
         keyword_template = cfg.keyword_template
@@ -1702,6 +1724,13 @@ def export(
             )
         else:
             raise ValueError(e)
+
+    if skip_uuid:
+        photos = [p for p in photos if p.uuid not in skip_uuid]
+
+    if skip_uuid_from_file:
+        skip_uuid_list = load_uuid_from_file(skip_uuid_from_file)
+        photos = [p for p in photos if p.uuid not in skip_uuid_list]
 
     if photos and only_new:
         # ignore previously exported files
@@ -2807,7 +2836,8 @@ def _render_suffix_template(
         rendered_suffix, unmatched = photo.render_template(suffix_template, options)
     except ValueError as e:
         raise click.BadOptionUsage(
-            var_name, f"Invalid template for {option_name} '{suffix_template}': {e}",
+            var_name,
+            f"Invalid template for {option_name} '{suffix_template}': {e}",
         )
     if not rendered_suffix or unmatched:
         raise click.BadOptionUsage(
@@ -3499,7 +3529,12 @@ def write_finder_tags(
 
 
 def write_extended_attributes(
-    photo, files, xattr_template, strip=False, export_dir=None, export_db=None,
+    photo,
+    files,
+    xattr_template,
+    strip=False,
+    export_dir=None,
+    export_db=None,
 ):
     """Writes extended attributes to exported files
 
@@ -3653,7 +3688,8 @@ def uninstall(packages, yes):
 @click.option(
     "--uuid",
     metavar="UUID",
-    help="Use with '--dump photos' to dump only certain UUIDs",
+    help="Use with '--dump photos' to dump only certain UUIDs. "
+    "May be repeated to include multiple UUIDs.",
     multiple=True,
 )
 @click.option("--verbose", "-V", "verbose", is_flag=True, help="Print verbose output.")
@@ -4085,7 +4121,9 @@ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMA
 
 @cli.command(name="tutorial")
 @click.argument(
-    "WIDTH", nargs=-1, type=click.INT,
+    "WIDTH",
+    nargs=-1,
+    type=click.INT,
 )
 @click.pass_obj
 @click.pass_context
@@ -4172,7 +4210,7 @@ def repl(ctx, cli_obj, db, emacs):
 
     logger = logging.getLogger()
     logger.disabled = True
-    
+
     pretty.install()
     print(f"python version: {sys.version}")
     print(f"osxphotos version: {osxphotos._version.__version__}")

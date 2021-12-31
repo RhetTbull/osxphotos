@@ -615,7 +615,8 @@ Options:
                                   FILENAME. If more than one --name options is
                                   specified, they are treated as "OR", e.g. find
                                   photos matching any FILENAME.
-  --uuid UUID                     Search for photos with UUID(s).
+  --uuid UUID                     Search for photos with UUID(s). May be
+                                  repeated to include multiple UUIDs.
   --uuid-from-file FILE           Search for photos with UUID(s) loaded from
                                   FILE. Format is a single UUID per line.  Lines
                                   preceded with # are ignored.
@@ -837,6 +838,11 @@ Options:
                                   photos if the RAW photo does not have an
                                   associated JPEG image (e.g. the RAW file was
                                   imported to Photos without a JPEG preview).
+  --skip-uuid UUID                Skip photos with UUID(s) during export. May be
+                                  repeated to include multiple UUIDs.
+  --skip-uuid-from-file FILE      Skip photos with UUID(s) loaded from FILE.
+                                  Format is a single UUID per line.  Lines
+                                  preceded with # are ignored.
   --current-name                  Use photo's current filename instead of
                                   original filename for export.  Note: Starting
                                   with Photos 5, all photos are renamed upon
@@ -1715,7 +1721,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.44.0'
+{osxphotos_version}             The osxphotos version, e.g. '0.44.1'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified for
@@ -3617,7 +3623,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.44.0'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.44.1'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
