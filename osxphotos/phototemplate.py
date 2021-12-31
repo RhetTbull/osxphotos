@@ -1212,7 +1212,7 @@ class PhotoTemplate:
         # sanitize directory names if needed, folder_album handled differently above
         if self.filename:
             values = [sanitize_pathpart(value) for value in values]
-        elif self.dirname and field != "folder_album":
+        elif self.dirname and field not in ["folder_album", "folder_album_project"]:
             # skip folder_album because it would have been handled above
             values = [sanitize_dirname(value) for value in values]
 
