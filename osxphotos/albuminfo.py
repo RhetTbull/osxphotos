@@ -14,7 +14,7 @@ from datetime import datetime, timedelta, timezone
 
 from ._constants import (
     _PHOTOS_4_ALBUM_KIND,
-    _PHOTOS_4_TOP_LEVEL_ALBUM,
+    _PHOTOS_4_TOP_LEVEL_ALBUMS,
     _PHOTOS_4_VERSION,
     _PHOTOS_5_ALBUM_KIND,
     _PHOTOS_5_FOLDER_KIND,
@@ -161,7 +161,6 @@ class AlbumInfoBaseClass:
 
 class AlbumInfo(AlbumInfoBaseClass):
     """
-    Base class for AlbumInfo, ImportInfo
     Info about a specific Album, contains all the details about the album
     including folders, photos, etc.
     """
@@ -231,7 +230,7 @@ class AlbumInfo(AlbumInfoBaseClass):
                 parent_uuid = self._db._dbalbum_details[self._uuid]["folderUuid"]
                 self._parent = (
                     FolderInfo(db=self._db, uuid=parent_uuid)
-                    if parent_uuid != _PHOTOS_4_TOP_LEVEL_ALBUM
+                    if parent_uuid not in _PHOTOS_4_TOP_LEVEL_ALBUMS
                     else None
                 )
             else:
@@ -266,18 +265,17 @@ class AlbumInfo(AlbumInfoBaseClass):
 
     def photo_index(self, photo):
         """return index of photo in album (based on album sort order)"""
-        index = 0
-        for p in self.photos:
+        for index, p in enumerate(self.photos):
             if p.uuid == photo.uuid:
                 return index
-            index += 1
-        else:
-            raise ValueError(
-                f"Photo with uuid {photo.uuid} does not appear to be in this album"
-            )
+        raise ValueError(
+            f"Photo with uuid {photo.uuid} does not appear to be in this album"
+        )
 
 
 class ImportInfo(AlbumInfoBaseClass):
+    """Information about import sessions"""
+
     @property
     def photos(self):
         """return list of photos contained in import session"""
@@ -294,6 +292,15 @@ class ImportInfo(AlbumInfoBaseClass):
             sorted_uuid = sort_list_by_keys(uuid_list, sort_order)
             self._photos = self._db.photos_by_uuid(sorted_uuid)
             return self._photos
+
+
+class ProjectInfo(AlbumInfo):
+    """
+    ProjectInfo with info about projects
+    Projects are cards, calendars, slideshows, etc.
+    """
+
+    ...
 
 
 class FolderInfo:
@@ -357,7 +364,7 @@ class FolderInfo:
                 parent_uuid = self._db._dbfolder_details[self._uuid]["parentFolderUuid"]
                 self._parent = (
                     FolderInfo(db=self._db, uuid=parent_uuid)
-                    if parent_uuid != _PHOTOS_4_TOP_LEVEL_ALBUM
+                    if parent_uuid not in _PHOTOS_4_TOP_LEVEL_ALBUMS
                     else None
                 )
             else:

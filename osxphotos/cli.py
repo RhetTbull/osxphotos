@@ -4159,6 +4159,7 @@ def _spotlight_photo(photo: PhotoInfo):
 )
 def repl(ctx, cli_obj, db, emacs):
     """Run interactive osxphotos REPL shell (useful for debugging, prototyping, and inspecting your Photos library)"""
+    import logging
 
     from objexplore import explore
     from photoscript import Album, Photo, PhotosLibrary
@@ -4169,6 +4170,9 @@ def repl(ctx, cli_obj, db, emacs):
     from osxphotos.placeinfo import PlaceInfo
     from osxphotos.queryoptions import QueryOptions
 
+    logger = logging.getLogger()
+    logger.disabled = True
+    
     pretty.install()
     print(f"python version: {sys.version}")
     print(f"osxphotos version: {osxphotos._version.__version__}")

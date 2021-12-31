@@ -1,5 +1,4 @@
 """ Test template.py """
-import json
 import os
 import re
 
@@ -28,6 +27,7 @@ PHOTOS_DB_15_7 = "./tests/Test-10.15.7.photoslibrary/database/photos.db"
 PHOTOS_DB_14_6 = "./tests/Test-10.14.6.photoslibrary/database/photos.db"
 PHOTOS_DB_COMMENTS = "tests/Test-Cloud-10.15.6.photoslibrary"
 PHOTOS_DB_CLOUD = "./tests/Test-Cloud-10.15.6.photoslibrary/database/photos.db"
+PHOTOS_DB_PROJECTS = "./tests/Test-iPhoto-Projects-10.15.7.photoslibrary"
 
 UUID_DICT = {
     "place_dc": "128FB4C6-0B16-4E7D-9108-FB2E90DA1546",
@@ -406,6 +406,18 @@ TEMPLATE_VALUES_EMPTY_TITLE_HAS_DESCRIPTION = {
     "{strip,{title,} {descr} }": "Bride Wedding day",
 }
 
+UUID_PROJECT = "96615063-993E-458B-A9E5-7A68C75A04B6"
+TEMPLATE_VALUES_PROJECT = {
+    "{project}": ["Photos Card"],
+    "{album}": ["_"],
+    "{album_project}": ["Photos Card"],
+    "{folder_album}": ["_"],
+    "{folder_album_project}": ["Photos Card"],
+}
+
+UUID_NO_PROJECT = "C4EA300F-50AD-4FCB-9173-D29B57B52BCF"
+TEMPLATE_VALUES_NO_PROJECT = {"{project}": ["_"]}
+
 
 @pytest.fixture(scope="module")
 def photosdb_places():
@@ -430,6 +442,11 @@ def photosdb_comments():
 @pytest.fixture(scope="module")
 def photosdb_cloud():
     return osxphotos.PhotosDB(dbfile=PHOTOS_DB_CLOUD)
+
+
+@pytest.fixture(scope="module")
+def photosdb_project():
+    return osxphotos.PhotosDB(dbfile=PHOTOS_DB_PROJECTS)
 
 
 def test_lookup(photosdb_places):
@@ -1208,3 +1225,19 @@ def test_strip(photosdb):
     for template, value in TEMPLATE_VALUES_EMPTY_TITLE_HAS_DESCRIPTION.items():
         rendered, _ = photo.render_template(template)
         assert value in "".join(rendered)
+
+
+def test_project(photosdb_project):
+    """Test {project} template"""
+    photo = photosdb_project.get_photo(UUID_PROJECT)
+    for template, value in TEMPLATE_VALUES_PROJECT.items():
+        rendered, _ = photo.render_template(template)
+        assert rendered == value
+
+
+def test_no_project(photosdb_project):
+    """Test {project} template with no project"""
+    photo = photosdb_project.get_photo(UUID_NO_PROJECT)
+    for template, value in TEMPLATE_VALUES_NO_PROJECT.items():
+        rendered, _ = photo.render_template(template)
+        assert rendered == value

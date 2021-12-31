@@ -14,7 +14,7 @@ OSXPhotos provides the ability to interact with and query Apple's Photos.app lib
 
 # Table of Contents
 * [Supported operating systems](#supported-operating-systems)
-* [Installation instructions](#installation-instructions)
+* [Installation](#installation)
 * [Command Line Usage](#command-line-usage)
   + [Command line examples](#command-line-examples)
   + [Tutorial](#tutorial)
@@ -25,6 +25,7 @@ OSXPhotos provides the ability to interact with and query Apple's Photos.app lib
   + [ExifInfo](#exifinfo)
   + [AlbumInfo](#albuminfo)
   + [ImportInfo](#importinfo)
+  + [ProjectInfo](#projectinfo)
   + [FolderInfo](#folderinfo)
   + [PlaceInfo](#placeinfo)
   + [ScoreInfo](#scoreinfo)
@@ -1714,7 +1715,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.43.9'
+{osxphotos_version}             The osxphotos version, e.g. '0.44.0'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified for
@@ -1729,6 +1730,13 @@ Substitution             Description
 {folder_album}           Folder path + album photo is contained in. e.g.
                          'Folder/Subfolder/Album' or just 'Album' if no
                          enclosing folder
+{project}                Project(s) photo is contained in (such as greeting
+                         cards, calendars, slideshows)
+{album_project}          Album(s) and project(s) photo is contained in; treats
+                         projects as regular albums
+{folder_album_project}   Folder path + album (includes projects as albums)
+                         photo is contained in. e.g. 'Folder/Subfolder/Album'
+                         or just 'Album' if no enclosing folder
 {keyword}                Keyword(s) assigned to photo
 {person}                 Person(s) / face(s) in a photo
 {label}                  Image categorization label associated with a photo
@@ -2103,7 +2111,7 @@ keywords = photosdb.keywords
 
 Returns a list of the keywords found in the Photos library
 
-#### `album_info`
+#### <a name="photosdbalbuminfo">`album_info`</a>
 ```python
 # assumes photosdb is a PhotosDB object (see above)
 albums = photosdb.album_info
@@ -2132,6 +2140,10 @@ Returns list of shared album names found in photos database (e.g. albums shared 
 #### `import_info`
 
 Returns a list of [ImportInfo](#importinfo) objects representing the import sessions for the database.
+
+#### `project_info`
+
+Returns a list of [ProjectInfo](#projectinfo) objects representing the projects/creations (cards, calendars, etc.) in the database.
 
 #### `folder_info`
 ```python
@@ -2422,10 +2434,14 @@ Returns a list of keywords (e.g. tags) applied to the photo
 Returns a list of albums the photo is contained in. See also [album_info](#album_info).
 
 #### `album_info`
-Returns a list of [AlbumInfo](#AlbumInfo) objects representing the albums the photo is contained in.  See also [albums](#albums).
+Returns a list of [AlbumInfo](#AlbumInfo) objects representing the albums the photo is contained in or empty list of the photo is not in any albums.  See also [albums](#albums).
 
 #### `import_info`
 Returns an [ImportInfo](#importinfo) object representing the import session associated with the photo or `None` if there is no associated import session.
+
+#### `project_info`
+Returns a list of [ProjectInfo](#projectinfo) objects representing projects/creations (cards, calendars, etc.) the photo is contained in or empty list if there are no projects associated with the photo.
+
 
 #### `persons`
 Returns a list of the names of the persons in the photo
@@ -2933,6 +2949,23 @@ Returns the start date as a timezone aware datetime.datetime object for when the
 
 #### `end_date`
 Returns the end date as a timezone aware datetime.datetime object for when the import session completed.
+
+### ProjectInfo 
+PhotosDB.projcet_info returns a list of ProjectInfo objects.  Each ProjectInfo object represents a project in the library.  PhotoInfo.project_info returns a list of ProjectInfo objects for each project the photo is contained in.
+
+Projects (found under "My Projects" in Photos) are projects or creations such as cards, calendars, and slideshows created in Photos.  osxphotos provides only very basic information about projects and projects created with third party plugins may not accessible to osxphotos.
+
+#### `uuid`
+Returns the universally unique identifier (uuid) of the project.  This is how Photos keeps track of individual objects within the database.
+
+#### `title`
+Returns the title or name of the project.
+
+#### <a name="projectphotos">`photos`</a>
+Returns a list of [PhotoInfo](#PhotoInfo) objects representing each photo contained in the project.
+
+#### `creation_date`
+Returns the creation date as a timezone aware datetime.datetime object of the project.
 
 ### FolderInfo 
 PhotosDB.folder_info returns a list of FolderInfo objects representing the top level folders in the library.  Each FolderInfo object represents a single folder in the Photos library.
@@ -3584,10 +3617,13 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.43.9'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.44.0'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
+|{project}|Project(s) photo is contained in (such as greeting cards, calendars, slideshows)|
+|{album_project}|Album(s) and project(s) photo is contained in; treats projects as regular albums|
+|{folder_album_project}|Folder path + album (includes projects as albums) photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
 |{keyword}|Keyword(s) assigned to photo|
 |{person}|Person(s) / face(s) in a photo|
 |{label}|Image categorization label associated with a photo (Photos 5+ only). Labels are added automatically by Photos using machine learning algorithms to categorize images. These are not the same as {keyword} which refers to the user-defined keywords/tags applied in Photos.|

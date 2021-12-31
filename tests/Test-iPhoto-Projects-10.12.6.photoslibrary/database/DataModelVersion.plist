@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>DatabaseMinorVersion</key>
+	<integer>1</integer>
+	<key>DatabaseVersion</key>
+	<integer>112</integer>
+	<key>LastOpenMode</key>
+	<integer>2</integer>
+	<key>LibrarySchemaVersion</key>
+	<integer>2622</integer>
+	<key>MetaSchemaVersion</key>
+	<integer>2</integer>
+	<key>createDate</key>
+	<date>2021-12-29T18:15:21Z</date>
+	<key>databaseUuid</key>
+	<string>Nm7MKBmoSRygMmA9WlEaGw</string>
+</dict>
+</plist>

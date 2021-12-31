@@ -181,6 +181,9 @@ TEMPLATE_SUBSTITUTIONS_PATHLIB = {
 TEMPLATE_SUBSTITUTIONS_MULTI_VALUED = {
     "{album}": "Album(s) photo is contained in",
     "{folder_album}": "Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder",
+    "{project}": "Project(s) photo is contained in (such as greeting cards, calendars, slideshows)",
+    "{album_project}": "Album(s) and project(s) photo is contained in; treats projects as regular albums",
+    "{folder_album_project}": "Folder path + album (includes projects as albums) photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder",
     "{keyword}": "Keyword(s) assigned to photo",
     "{person}": "Person(s) / face(s) in a photo",
     "{label}": "Image categorization label associated with a photo (Photos 5+ only). "
@@ -1116,6 +1119,11 @@ class PhotoTemplate:
         values = []
         if field == "album":
             values = self.photo.burst_albums if self.photo.burst else self.photo.albums
+        elif field == "project":
+            values = [p.title for p in self.photo.project_info]
+        elif field == "album_project":
+            values = self.photo.burst_albums if self.photo.burst else self.photo.albums
+            values += [p.title for p in self.photo.project_info]
         elif field == "keyword":
             values = self.photo.keywords
         elif field == "person":
@@ -1126,13 +1134,15 @@ class PhotoTemplate:
             values = self.photo.labels
         elif field == "label_normalized":
             values = self.photo.labels_normalized
-        elif field == "folder_album":
+        elif field in ["folder_album", "folder_album_project"]:
             values = []
             # photos must be in an album to be in a folder
             if self.photo.burst:
                 album_info = self.photo.burst_album_info
             else:
                 album_info = self.photo.album_info
+            if field == "folder_album_project":
+                album_info += self.photo.project_info
             for album in album_info:
                 if album.folder_names:
                     # album in folder
@@ -1193,7 +1203,7 @@ class PhotoTemplate:
             elif isinstance(obj, (str, int, float)):
                 values = [str(obj)]
             else:
-                values = [val for val in obj]
+                values = list(obj)
         elif field == "detected_text":
             values = _get_detected_text(self.photo, self.exportdb, confidence=subfield)
         else:

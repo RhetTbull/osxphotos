@@ -123,12 +123,20 @@ _XMP_TEMPLATE_NAME_BETA = "xmp_sidecar_beta.mako"
 # Constants used for processing folders and albums
 _PHOTOS_5_ALBUM_KIND = 2  # normal user album
 _PHOTOS_5_SHARED_ALBUM_KIND = 1505  # shared album
+_PHOTOS_5_PROJECT_ALBUM_KIND = 1508  # My Projects (e.g. Calendar, Card, Slideshow)
 _PHOTOS_5_FOLDER_KIND = 4000  # user folder
 _PHOTOS_5_ROOT_FOLDER_KIND = 3999  # root folder
 _PHOTOS_5_IMPORT_SESSION_ALBUM_KIND = 1506  # import session
 
 _PHOTOS_4_ALBUM_KIND = 3  # RKAlbum.albumSubclass
-_PHOTOS_4_TOP_LEVEL_ALBUM = "TopLevelAlbums"
+_PHOTOS_4_ALBUM_TYPE_ALBUM = 1  # RKAlbum.albumType
+_PHOTOS_4_ALBUM_TYPE_PROJECT = 9  # RKAlbum.albumType
+_PHOTOS_4_ALBUM_TYPE_SLIDESHOW = 8  # RKAlbum.albumType
+_PHOTOS_4_TOP_LEVEL_ALBUMS = [
+    "TopLevelAlbums",
+    "TopLevelKeepsakes",
+    "TopLevelSlideshows",
+]
 _PHOTOS_4_ROOT_FOLDER = "LibraryFolder"
 
 # EXIF related constants

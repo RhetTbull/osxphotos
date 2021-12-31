@@ -28,11 +28,15 @@ from .._constants import (
     _PHOTOS_3_VERSION,
     _PHOTOS_4_ALBUM_KIND,
     _PHOTOS_4_ROOT_FOLDER,
-    _PHOTOS_4_TOP_LEVEL_ALBUM,
+    _PHOTOS_4_TOP_LEVEL_ALBUMS,
+    _PHOTOS_4_ALBUM_TYPE_ALBUM,
+    _PHOTOS_4_ALBUM_TYPE_PROJECT,
+    _PHOTOS_4_ALBUM_TYPE_SLIDESHOW,
     _PHOTOS_4_VERSION,
     _PHOTOS_5_ALBUM_KIND,
     _PHOTOS_5_FOLDER_KIND,
     _PHOTOS_5_IMPORT_SESSION_ALBUM_KIND,
+    _PHOTOS_5_PROJECT_ALBUM_KIND,
     _PHOTOS_5_ROOT_FOLDER_KIND,
     _PHOTOS_5_SHARED_ALBUM_KIND,
     _TESTED_OS_VERSIONS,
@@ -42,7 +46,7 @@ from .._constants import (
     TIME_DELTA,
 )
 from .._version import __version__
-from ..albuminfo import AlbumInfo, FolderInfo, ImportInfo
+from ..albuminfo import AlbumInfo, FolderInfo, ImportInfo, ProjectInfo
 from ..datetime_utils import datetime_has_tz, datetime_naive_to_local
 from ..fileutil import FileUtil
 from ..personinfo import PersonInfo
@@ -429,7 +433,7 @@ class PhotosDB:
                 for folder, detail in self._dbfolder_details.items()
                 if not detail["intrash"]
                 and not detail["isMagic"]
-                and detail["parentFolderUuid"] == _PHOTOS_4_TOP_LEVEL_ALBUM
+                and detail["parentFolderUuid"] in _PHOTOS_4_TOP_LEVEL_ALBUMS
             ]
         else:
             folders = [
@@ -450,7 +454,7 @@ class PhotosDB:
                 for folder in self._dbfolder_details.values()
                 if not folder["intrash"]
                 and not folder["isMagic"]
-                and folder["parentFolderUuid"] == _PHOTOS_4_TOP_LEVEL_ALBUM
+                and folder["parentFolderUuid"] in _PHOTOS_4_TOP_LEVEL_ALBUMS
             ]
         else:
             folder_names = [
@@ -528,6 +532,18 @@ class PhotosDB:
                 for album in self._get_album_uuids(import_session=True)
             ]
             return self._import_info
+
+    @property
+    def project_info(self):
+        """return list of AlbumInfo projects for each project in the database"""
+        try:
+            return self._project_info
+        except AttributeError:
+            self._project_info = [
+                ProjectInfo(db=self, uuid=album)
+                for album in self._get_album_uuids(project=True)
+            ]
+            return self._project_info
 
     @property
     def db_version(self):
@@ -848,11 +864,10 @@ class PhotosDB:
         # build folder hierarchy
         for album, details in self._dbalbum_details.items():
             parent_folder = details["folderUuid"]
-            if details[
-                "albumSubclass"
-            ] == _PHOTOS_4_ALBUM_KIND and parent_folder not in [
-                _PHOTOS_4_TOP_LEVEL_ALBUM
-            ]:
+            if (
+                details["albumSubclass"] == _PHOTOS_4_ALBUM_KIND
+                and parent_folder not in _PHOTOS_4_TOP_LEVEL_ALBUMS
+            ):
                 folder_hierarchy = self._build_album_folder_hierarchy_4(parent_folder)
                 self._dbalbum_folders[album] = folder_hierarchy
             else:
@@ -1582,7 +1597,7 @@ class PhotosDB:
         if parent_uuid is None:
             return folders
 
-        if parent_uuid == _PHOTOS_4_TOP_LEVEL_ALBUM:
+        if parent_uuid in _PHOTOS_4_TOP_LEVEL_ALBUMS:
             if not folders:
                 # this is a top-level folder with no sub-folders
                 folders = {uuid: None}
@@ -2825,7 +2840,7 @@ class PhotosDB:
         hierarchy = _recurse_folder_hierarchy(folders)
         return hierarchy
 
-    def _get_album_uuids(self, shared=False, import_session=False):
+    def _get_album_uuids(self, shared=False, import_session=False, project=False):
         """Return list of album UUIDs found in photos database
 
             Filters out albums in the trash and any special album types
@@ -2833,20 +2848,21 @@ class PhotosDB:
         Args:
             shared: boolean; if True, returns shared albums, else normal albums
             import_session: boolean, if True, returns import session albums, else normal or shared albums
+            project: boolean, if True, returns albums that are part of My Projects
             Note: flags (shared, import_session) are mutually exclusive
+
 
         Raises:
             ValueError: raised if mutually exclusive flags passed
 
         Returns: list of album UUIDs
         """
-        if shared and import_session:
+        if sum(bool(x) for x in [shared, import_session, project]) > 1:
             raise ValueError(
-                "flags are mutually exclusive: pass zero or one of shared, import_session"
+                "flags are mutually exclusive: pass zero or one of shared, import_session, projects"
             )
 
         if self._db_version <= _PHOTOS_4_VERSION:
-            version4 = True
             if shared:
                 logging.warning(
                     f"Shared albums not implemented for Photos library version {self._db_version}"
@@ -2857,16 +2873,44 @@ class PhotosDB:
                     f"Import sessions not implemented for Photos library version {self._db_version}"
                 )
                 return []  # not implemented for _PHOTOS_4_VERSION
-            else:
+            elif project:
+                album_type = [
+                    _PHOTOS_4_ALBUM_TYPE_PROJECT,
+                    _PHOTOS_4_ALBUM_TYPE_SLIDESHOW,
+                ]
                 album_kind = _PHOTOS_4_ALBUM_KIND
-        else:
-            version4 = False
-            if shared:
-                album_kind = _PHOTOS_5_SHARED_ALBUM_KIND
-            elif import_session:
-                album_kind = _PHOTOS_5_IMPORT_SESSION_ALBUM_KIND
             else:
-                album_kind = _PHOTOS_5_ALBUM_KIND
+                album_type = [_PHOTOS_4_ALBUM_TYPE_ALBUM]
+                album_kind = _PHOTOS_4_ALBUM_KIND
+
+            album_list = []
+            # look through _dbalbum_details because _dbalbums_album won't have empty albums it
+            for album, detail in self._dbalbum_details.items():
+                if (
+                    detail["kind"] == album_kind
+                    and detail["albumType"] in album_type
+                    and not detail["intrash"]
+                    and (
+                        (shared and detail["cloudownerhashedpersonid"] is not None)
+                        or (not shared and detail["cloudownerhashedpersonid"] is None)
+                    )
+                    and detail["folderUuid"] != _PHOTOS_4_ROOT_FOLDER
+                    # in Photos <= 4, special albums like "printAlbum" have kind _PHOTOS_4_ALBUM_KIND
+                    # but should not be listed here; they can be distinguished by looking
+                    # for folderUuid of _PHOTOS_4_ROOT_FOLDER as opposed to _PHOTOS_4_TOP_LEVEL_ALBUM
+                ):
+                    album_list.append(album)
+            return album_list
+
+        # Photos version 5+
+        if shared:
+            album_kind = _PHOTOS_5_SHARED_ALBUM_KIND
+        elif import_session:
+            album_kind = _PHOTOS_5_IMPORT_SESSION_ALBUM_KIND
+        elif project:
+            album_kind = _PHOTOS_5_PROJECT_ALBUM_KIND
+        else:
+            album_kind = _PHOTOS_5_ALBUM_KIND
 
         album_list = []
         # look through _dbalbum_details because _dbalbums_album won't have empty albums it
@@ -2877,13 +2921,6 @@ class PhotosDB:
                 and (
                     (shared and detail["cloudownerhashedpersonid"] is not None)
                     or (not shared and detail["cloudownerhashedpersonid"] is None)
-                )
-                and (
-                    not version4
-                    # in Photos 4, special albums like "printAlbum" have kind _PHOTOS_4_ALBUM_KIND
-                    # but should not be listed here; they can be distinguished by looking
-                    # for folderUuid of _PHOTOS_4_ROOT_FOLDER as opposed to _PHOTOS_4_TOP_LEVEL_ALBUM
-                    or (version4 and detail["folderUuid"] != _PHOTOS_4_ROOT_FOLDER)
                 )
             ):
                 album_list.append(album)

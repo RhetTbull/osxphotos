@@ -20,10 +20,14 @@ from .._constants import (
     _MOVIE_TYPE,
     _PHOTO_TYPE,
     _PHOTOS_4_ALBUM_KIND,
+    _PHOTOS_4_ALBUM_TYPE_ALBUM,
+    _PHOTOS_4_ALBUM_TYPE_PROJECT,
+    _PHOTOS_4_ALBUM_TYPE_SLIDESHOW,
     _PHOTOS_4_ROOT_FOLDER,
     _PHOTOS_4_VERSION,
     _PHOTOS_5_ALBUM_KIND,
     _PHOTOS_5_IMPORT_SESSION_ALBUM_KIND,
+    _PHOTOS_5_PROJECT_ALBUM_KIND,
     _PHOTOS_5_SHARED_ALBUM_KIND,
     _PHOTOS_5_SHARED_PHOTO_PATH,
     _PHOTOS_5_VERSION,
@@ -34,7 +38,7 @@ from .._constants import (
     TEXT_DETECTION_CONFIDENCE_THRESHOLD,
 )
 from ..adjustmentsinfo import AdjustmentsInfo
-from ..albuminfo import AlbumInfo, ImportInfo
+from ..albuminfo import AlbumInfo, ImportInfo, ProjectInfo
 from ..momentinfo import MomentInfo
 from ..personinfo import FaceInfo, PersonInfo
 from ..phototemplate import PhotoTemplate, RenderOptions
@@ -569,6 +573,18 @@ class PhotoInfo:
                 else None
             )
             return self._import_info
+
+    @property
+    def project_info(self):
+        """list of AlbumInfo objects representing projects for the photo or None if no projects"""
+        try:
+            return self._project_info
+        except AttributeError:
+            project_uuids = self._get_album_uuids(project=True)
+            self._project_info = [
+                ProjectInfo(db=self._db, uuid=album) for album in project_uuids
+            ]
+            return self._project_info
 
     @property
     def keywords(self):
@@ -1197,34 +1213,48 @@ class PhotoInfo:
         """Returns latitude, in degrees"""
         return self._info["latitude"]
 
-    def _get_album_uuids(self):
+    def _get_album_uuids(self, project=False):
         """Return list of album UUIDs this photo is found in
 
             Filters out albums in the trash and any special album types
 
+            if project is True, returns special "My Project" albums (e.g. cards, calendars, slideshows)
+
         Returns: list of album UUIDs
         """
         if self._db._db_version <= _PHOTOS_4_VERSION:
-            version4 = True
             album_kind = [_PHOTOS_4_ALBUM_KIND]
-        else:
-            version4 = False
-            album_kind = [_PHOTOS_5_SHARED_ALBUM_KIND, _PHOTOS_5_ALBUM_KIND]
+            album_type = (
+                [_PHOTOS_4_ALBUM_TYPE_PROJECT, _PHOTOS_4_ALBUM_TYPE_SLIDESHOW]
+                if project
+                else [_PHOTOS_4_ALBUM_TYPE_ALBUM]
+            )
+            album_list = []
+            for album in self._info["albums"]:
+                detail = self._db._dbalbum_details[album]
+                if (
+                    detail["kind"] in album_kind
+                    and detail["albumType"] in album_type
+                    and not detail["intrash"]
+                    and detail["folderUuid"] != _PHOTOS_4_ROOT_FOLDER
+                    # in Photos <= 4, special albums like "printAlbum" have kind _PHOTOS_4_ALBUM_KIND
+                    # but should not be listed here; they can be distinguished by looking
+                    # for folderUuid of _PHOTOS_4_ROOT_FOLDER as opposed to _PHOTOS_4_TOP_LEVEL_ALBUM
+                ):
+                    album_list.append(album)
+            return album_list
+
+        # Photos 5+
+        album_kind = (
+            [_PHOTOS_5_PROJECT_ALBUM_KIND]
+            if project
+            else [_PHOTOS_5_SHARED_ALBUM_KIND, _PHOTOS_5_ALBUM_KIND]
+        )
 
         album_list = []
         for album in self._info["albums"]:
             detail = self._db._dbalbum_details[album]
-            if (
-                detail["kind"] in album_kind
-                and not detail["intrash"]
-                and (
-                    not version4
-                    # in Photos <= 4, special albums like "printAlbum" have kind _PHOTOS_4_ALBUM_KIND
-                    # but should not be listed here; they can be distinguished by looking
-                    # for folderUuid of _PHOTOS_4_ROOT_FOLDER as opposed to _PHOTOS_4_TOP_LEVEL_ALBUM
-                    or (version4 and detail["folderUuid"] != _PHOTOS_4_ROOT_FOLDER)
-                )
-            ):
+            if detail["kind"] in album_kind and not detail["intrash"]:
                 album_list.append(album)
         return album_list
 

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>creationDate</key>
+	<date>2021-12-30T03:56:00Z</date>
+	<key>name</key>
+	<string>Photos</string>
+	<key>previewImageHash</key>
+	<integer>0</integer>
+	<key>previewImageName</key>
+	<string>Calendar</string>
+	<key>themeIdentifier</key>
+	<string>Picture-Calendar</string>
+	<key>type</key>
+	<integer>2</integer>
+</dict>
+</plist>
