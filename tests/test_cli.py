@@ -2393,10 +2393,6 @@ def test_export_original_suffix_template():
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_ORIGINAL_SUFFIX_TEMPLATE)
 
 
-@pytest.mark.skipif(
-    "OSXPHOTOS_TEST_CONVERT" not in os.environ,
-    reason="Skip if running in Github actions, no GPU.",
-)
 def test_export_convert_to_jpeg():
     """test --convert-to-jpeg"""
     import glob
@@ -2420,10 +2416,6 @@ def test_export_convert_to_jpeg():
         assert large_file.stat().st_size > 7000000
 
 
-@pytest.mark.skipif(
-    "OSXPHOTOS_TEST_CONVERT" not in os.environ,
-    reason="Skip if running in Github actions, no GPU.",
-)
 def test_export_convert_to_jpeg_quality():
     """test --convert-to-jpeg --jpeg-quality"""
     import glob
@@ -2455,10 +2447,6 @@ def test_export_convert_to_jpeg_quality():
         assert large_file.stat().st_size < 1000000
 
 
-@pytest.mark.skipif(
-    "OSXPHOTOS_TEST_CONVERT" not in os.environ,
-    reason="Skip if running in Github actions, no GPU.",
-)
 def test_export_convert_to_jpeg_skip_raw():
     """test --convert-to-jpeg"""
     import glob
@@ -6678,10 +6666,6 @@ def test_export_jpeg_ext_edited_movie():
                 assert f"{filename}_edited.{ext}".lower() in files
 
 
-@pytest.mark.skipif(
-    "OSXPHOTOS_TEST_CONVERT" not in os.environ,
-    reason="Skip if running in Github actions, no GPU.",
-)
 def test_export_jpeg_ext_convert_to_jpeg():
     """test --jpeg-ext with --convert-to-jpeg"""
     import glob
@@ -6713,10 +6697,6 @@ def test_export_jpeg_ext_convert_to_jpeg():
             assert f"{filename}.jpg" in files
 
 
-@pytest.mark.skipif(
-    "OSXPHOTOS_TEST_CONVERT" not in os.environ,
-    reason="Skip if running in Github actions, no GPU.",
-)
 def test_export_jpeg_ext_convert_to_jpeg_movie():
     """test --jpeg-ext with --convert-to-jpeg and a movie, shouldn't convert or change extensions, #366"""
     import glob

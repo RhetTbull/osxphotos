@@ -17,25 +17,25 @@ from wurlitzer import pipes
 
 
 class ImageConversionError(Exception):
-    """Base class for exceptions in this module. """
+    """Base class for exceptions in this module."""
 
     pass
 
 
 class ImageConverter:
-    """ Convert images to jpeg.  This class is a singleton
-        which will re-use the Core Image CIContext to avoid
-        creating a new context for every conversion. """
+    """Convert images to jpeg.  This class is a singleton
+    which will re-use the Core Image CIContext to avoid
+    creating a new context for every conversion."""
 
     def __new__(cls, *args, **kwargs):
-        """ create new object or return instance of already created singleton """
+        """create new object or return instance of already created singleton"""
         if not hasattr(cls, "instance") or not cls.instance:
             cls.instance = super().__new__(cls)
 
         return cls.instance
 
     def __init__(self):
-        """ return existing singleton or create a new one """
+        """return existing singleton or create a new one"""
 
         if hasattr(self, "context"):
             return
@@ -47,13 +47,10 @@ class ImageConverter:
                 "workingFormat": Quartz.kCIFormatRGBAh,
             }
         )
-        mtldevice = Metal.MTLCreateSystemDefaultDevice()
-        self.context = Quartz.CIContext.contextWithMTLDevice_options_(
-            mtldevice, context_options
-        )
+        self.context = Quartz.CIContext.contextWithOptions_(context_options)
 
     def write_jpeg(self, input_path, output_path, compression_quality=1.0):
-        """ convert image to jpeg and write image to output_path
+        """convert image to jpeg and write image to output_path
 
         Args:
             input_path: path to input image (e.g. '/path/to/import/file.CR2') as str or pathlib.Path
@@ -104,8 +101,11 @@ class ImageConverter:
             if input_image is None:
                 raise ImageConversionError(f"Could not create CIImage for {input_path}")
 
-            output_colorspace = input_image.colorSpace() or Quartz.CGColorSpaceCreateWithName(
-                Quartz.CoreGraphics.kCGColorSpaceSRGB
+            output_colorspace = (
+                input_image.colorSpace()
+                or Quartz.CGColorSpaceCreateWithName(
+                    Quartz.CoreGraphics.kCGColorSpaceSRGB
+                )
             )
 
             output_options = NSDictionary.dictionaryWithDictionary_(
@@ -123,4 +123,3 @@ class ImageConverter:
                 raise ImageConversionError(
                     f"Error converting file {input_path} to jpeg at {output_path}: {error}"
                 )
-
