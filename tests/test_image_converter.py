@@ -4,6 +4,11 @@ import os
 
 import pytest
 
+skip_test = "OSXPHOTOS_TEST_CONVERT" not in os.environ
+pytestmark = pytest.mark.skipif(
+    skip_test, reason="Skip if running on GitHub actions, no GPU."
+)
+
 
 TEST_HEIC = "tests/test-images/IMG_3092.heic"
 TEST_RAW = "tests/test-images/IMG_0476_2.CR2"
@@ -14,7 +19,7 @@ TEST_IMAGE_DOES_NOT_EXIST = "tests/test-images/NOT-A-FILE.heic"
 
 
 def test_image_converter_singleton():
-    """test that ImageConverter is a singleton"""
+    """ test that ImageConverter is a singleton """
     from osxphotos.imageconverter import ImageConverter
 
     convert1 = ImageConverter()
@@ -24,7 +29,7 @@ def test_image_converter_singleton():
 
 
 def test_image_converter():
-    """test conversion of different image types"""
+    """ test conversion of different image types """
     import pathlib
     import tempfile
     from osxphotos.imageconverter import ImageConverter
@@ -45,7 +50,7 @@ def test_image_converter():
 
 
 def test_image_converter_compression_quality():
-    """test conversion of different image types with custom compression quality"""
+    """ test conversion of different image types with custom compression quality """
     import pathlib
     import tempfile
     from osxphotos.imageconverter import ImageConverter
@@ -64,7 +69,7 @@ def test_image_converter_compression_quality():
 
 
 def test_image_converter_bad_compression_quality():
-    """test illegal compression quality"""
+    """ test illegal compression quality """
     import pathlib
     import tempfile
     from osxphotos.imageconverter import ImageConverter
@@ -81,7 +86,7 @@ def test_image_converter_bad_compression_quality():
 
 
 def test_image_converter_bad_file():
-    """Try to convert a file that's not an image"""
+    """ Try to convert a file that's not an image """
     import pathlib
     import tempfile
     from osxphotos.imageconverter import ImageConverter, ImageConversionError
@@ -96,7 +101,7 @@ def test_image_converter_bad_file():
 
 
 def test_image_converter_missing_file():
-    """Try to convert a file that's not an image"""
+    """ Try to convert a file that's not an image """
     import pathlib
     import tempfile
     from osxphotos.imageconverter import ImageConverter
@@ -108,3 +113,4 @@ def test_image_converter_missing_file():
         outfile = pathlib.Path(tempdir.name) / f"{imgfile.stem}.jpeg"
         with pytest.raises(FileNotFoundError):
             converter.write_jpeg(imgfile, outfile)
+
