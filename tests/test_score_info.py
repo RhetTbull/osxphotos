@@ -3,7 +3,7 @@
 from math import isclose
 import pytest
 
-from osxphotos.photoinfo import ScoreInfo
+from osxphotos.scoreinfo import ScoreInfo
 
 PHOTOS_DB_5 = "tests/Test-10.15.5.photoslibrary"
 PHOTOS_DB_4 = "tests/Test-10.14.6.photoslibrary"

@@ -4291,7 +4291,7 @@ def test_export_error(monkeypatch):
     def throw_error(*args, **kwargs):
         raise ValueError("Argh!")
 
-    monkeypatch.setattr(osxphotos.PhotoInfo, "export2", throw_error)
+    monkeypatch.setattr(osxphotos.PhotoExporter, "export2", throw_error)
     with runner.isolated_filesystem():
         result = runner.invoke(
             export,

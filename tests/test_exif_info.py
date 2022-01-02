@@ -2,7 +2,7 @@
 
 import pytest
 
-from osxphotos.photoinfo import ExifInfo
+from osxphotos.exifinfo import ExifInfo
 
 PHOTOS_DB_5 = "tests/Test-Cloud-10.15.1.photoslibrary"
 PHOTOS_DB_4 = "tests/Test-10.14.6.photoslibrary"
@@ -82,14 +82,14 @@ def photosdb():
 
 
 def test_exif_info_v5(photosdb):
-    """ test exif_info """
+    """test exif_info"""
     for uuid in EXIF_DICT:
         photo = photosdb.photos(uuid=[uuid], movies=True)[0]
         assert photo.exif_info == EXIF_DICT[uuid]
 
 
 def test_exif_info_v4():
-    """ test version 4, exif_info should be None """
+    """test version 4, exif_info should be None"""
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB_4)

@@ -2,6 +2,7 @@ import os
 import pytest
 
 from osxphotos._constants import _UNKNOWN_PERSON
+from osxphotos.photoexporter import PhotoExporter
 
 skip_test = "OSXPHOTOS_TEST_CONVERT" not in os.environ
 pytestmark = pytest.mark.skipif(
@@ -43,7 +44,7 @@ def test_export_convert_raw_to_jpeg(photosdb):
     dest = tempdir.name
     photos = photosdb.photos(uuid=[UUID_DICT["raw"]])
 
-    results = photos[0].export2(dest, convert_to_jpeg=True)
+    results = PhotoExporter(photos[0]).export2(dest, convert_to_jpeg=True)
     got_dest = pathlib.Path(results.exported[0])
 
     assert got_dest.is_file()
@@ -60,7 +61,7 @@ def test_export_convert_heic_to_jpeg(photosdb):
     dest = tempdir.name
     photos = photosdb.photos(uuid=[UUID_DICT["heic"]])
 
-    results = photos[0].export2(dest, convert_to_jpeg=True)
+    results = PhotoExporter(photos[0]).export2(dest, convert_to_jpeg=True)
     got_dest = pathlib.Path(results.exported[0])
 
     assert got_dest.is_file()
@@ -87,7 +88,7 @@ def test_export_convert_live_heic_to_jpeg():
     dest = tempdir.name
     photo = photosdb.get_photo(UUID_LIVE_HEIC)
 
-    results = photo.export2(dest, convert_to_jpeg=True, live_photo=True)
+    results = PhotoExporter(photo).export2(dest, convert_to_jpeg=True, live_photo=True)
 
     for name in NAMES_LIVE_HEIC:
         assert f"{tempdir.name}/{name}" in results.exported

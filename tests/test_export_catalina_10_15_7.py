@@ -8,6 +8,7 @@ import pytest
 import osxphotos
 from osxphotos._constants import _UNKNOWN_PERSON
 from osxphotos.exiftool import get_exiftool_path
+from osxphotos.photoexporter import PhotoExporter
 from osxphotos.utils import dd_to_dms_str
 
 # determine if exiftool installed so exiftool tests can be skipped
@@ -401,7 +402,7 @@ def test_exiftool_json_sidecar(photosdb):
     with open(str(pathlib.Path(SIDECAR_DIR) / f"{uuid}.json"), "r") as fp:
         json_expected = json.load(fp)[0]
 
-    json_got = photo._exiftool_json_sidecar()
+    json_got = PhotoExporter(photo)._exiftool_json_sidecar()
     json_got = json.loads(json_got)[0]
 
     assert json_got == json_expected
@@ -417,7 +418,7 @@ def test_exiftool_json_sidecar_ignore_date_modified(photosdb):
     ) as fp:
         json_expected = json.load(fp)[0]
 
-    json_got = photo._exiftool_json_sidecar(ignore_date_modified=True)
+    json_got = PhotoExporter(photo)._exiftool_json_sidecar(ignore_date_modified=True)
     json_got = json.loads(json_got)[0]
 
     assert json_got == json_expected
@@ -448,7 +449,7 @@ def test_exiftool_json_sidecar_keyword_template_long(capsys, photosdb):
 
     long_str = "x" * (_MAX_IPTC_KEYWORD_LEN + 1)
     photos[0]._verbose = print
-    json_got = photos[0]._exiftool_json_sidecar(keyword_template=[long_str])
+    json_got = PhotoExporter(photos[0])._exiftool_json_sidecar(keyword_template=[long_str])
     json_got = json.loads(json_got)[0]
 
     captured = capsys.readouterr()
@@ -483,7 +484,7 @@ def test_exiftool_json_sidecar_keyword_template(photosdb):
         str(pathlib.Path(SIDECAR_DIR) / f"{uuid}_keyword_template.json"), "r"
     ) as fp:
         json_expected = json.load(fp)
-    json_got = photo._exiftool_json_sidecar(keyword_template=["{folder_album}"])
+    json_got = PhotoExporter(photo)._exiftool_json_sidecar(keyword_template=["{folder_album}"])
     json_got = json.loads(json_got)
 
     assert json_got == json_expected
@@ -499,7 +500,7 @@ def test_exiftool_json_sidecar_use_persons_keyword(photosdb):
     ) as fp:
         json_expected = json.load(fp)[0]
 
-    json_got = photo._exiftool_json_sidecar(use_persons_as_keywords=True)
+    json_got = PhotoExporter(photo)._exiftool_json_sidecar(use_persons_as_keywords=True)
     json_got = json.loads(json_got)[0]
 
     assert json_got == json_expected
@@ -515,7 +516,7 @@ def test_exiftool_json_sidecar_use_albums_keywords(photosdb):
     ) as fp:
         json_expected = json.load(fp)
 
-    json_got = photo._exiftool_json_sidecar(use_albums_as_keywords=True)
+    json_got = PhotoExporter(photo)._exiftool_json_sidecar(use_albums_as_keywords=True)
     json_got = json.loads(json_got)
 
     assert json_got == json_expected
@@ -528,7 +529,7 @@ def test_exiftool_sidecar(photosdb):
     with open(pathlib.Path(SIDECAR_DIR) / f"{uuid}_no_tag_groups.json", "r") as fp:
         json_expected = fp.read()
 
-    json_got = photo._exiftool_json_sidecar(tag_groups=False)
+    json_got = PhotoExporter(photo)._exiftool_json_sidecar(tag_groups=False)
 
     assert json_got == json_expected
 
@@ -554,7 +555,7 @@ def test_xmp_sidecar(photosdb):
 
     with open(f"tests/sidecars/{uuid}.xmp", "r") as file:
         xmp_expected = file.read()
-    xmp_got = photos[0]._xmp_sidecar(extension="jpg")
+    xmp_got = PhotoExporter(photos[0])._xmp_sidecar(extension="jpg")
     assert xmp_got == xmp_expected
 
 
@@ -568,7 +569,7 @@ def test_xmp_sidecar_extension(photosdb):
         xmp_expected = file.read()
         xmp_expected_lines = [line.strip() for line in xmp_expected.split("\n")]
 
-    xmp_got = photos[0]._xmp_sidecar()
+    xmp_got = PhotoExporter(photos[0])._xmp_sidecar()
     assert xmp_got == xmp_expected
 
 
@@ -580,7 +581,7 @@ def test_xmp_sidecar_use_persons_keyword(photosdb):
     with open(pathlib.Path(SIDECAR_DIR) / f"{uuid}_persons_as_keywords.xmp") as fp:
         xmp_expected = fp.read()
 
-    xmp_got = photo._xmp_sidecar(use_persons_as_keywords=True, extension="jpg")
+    xmp_got = PhotoExporter(photo)._xmp_sidecar(use_persons_as_keywords=True, extension="jpg")
     assert xmp_got == xmp_expected
 
 
@@ -592,7 +593,7 @@ def test_xmp_sidecar_use_albums_keyword(photosdb):
     with open(pathlib.Path(SIDECAR_DIR) / f"{uuid}_albums_as_keywords.xmp") as fp:
         xmp_expected = fp.read()
 
-    xmp_got = photo._xmp_sidecar(use_albums_as_keywords=True, extension="jpg")
+    xmp_got = PhotoExporter(photo)._xmp_sidecar(use_albums_as_keywords=True, extension="jpg")
     assert xmp_got == xmp_expected
 
 
@@ -605,7 +606,7 @@ def test_xmp_sidecar_gps(photosdb):
     with open(pathlib.Path(SIDECAR_DIR) / f"{uuid}.xmp") as fp:
         xmp_expected = fp.read()
 
-    xmp_got = photo._xmp_sidecar()
+    xmp_got = PhotoExporter(photo)._xmp_sidecar()
     assert xmp_got == xmp_expected
 
 
@@ -617,7 +618,7 @@ def test_xmp_sidecar_keyword_template(photosdb):
     with open(pathlib.Path(SIDECAR_DIR) / f"{uuid}_keyword_template.xmp") as fp:
         xmp_expected = fp.read()
 
-    xmp_got = photo._xmp_sidecar(
+    xmp_got = PhotoExporter(photo)._xmp_sidecar(
         keyword_template=["{created.year}", "{folder_album}"], extension="jpg"
     )
     assert xmp_got == xmp_expected

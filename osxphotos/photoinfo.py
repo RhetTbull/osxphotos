@@ -16,7 +16,7 @@ from typing import Optional
 import yaml
 from osxmetadata import OSXMetaData
 
-from .._constants import (
+from ._constants import (
     _MOVIE_TYPE,
     _PHOTO_TYPE,
     _PHOTOS_4_ALBUM_KIND,
@@ -37,16 +37,21 @@ from .._constants import (
     BURST_SELECTED,
     TEXT_DETECTION_CONFIDENCE_THRESHOLD,
 )
-from ..adjustmentsinfo import AdjustmentsInfo
-from ..albuminfo import AlbumInfo, ImportInfo, ProjectInfo
-from ..momentinfo import MomentInfo
-from ..personinfo import FaceInfo, PersonInfo
-from ..phototemplate import PhotoTemplate, RenderOptions
-from ..placeinfo import PlaceInfo4, PlaceInfo5
-from ..query_builder import get_query
-from ..text_detection import detect_text
-from ..uti import get_preferred_uti_extension, get_uti_for_extension
-from ..utils import _debug, _get_resource_loc, findfiles
+from .adjustmentsinfo import AdjustmentsInfo
+from .albuminfo import AlbumInfo, ImportInfo, ProjectInfo
+from .exifinfo import ExifInfo
+from .exiftool import ExifToolCaching, get_exiftool_path
+from .momentinfo import MomentInfo
+from .personinfo import FaceInfo, PersonInfo
+from .photoexporter import PhotoExporter
+from .phototemplate import PhotoTemplate, RenderOptions
+from .placeinfo import PlaceInfo4, PlaceInfo5
+from .query_builder import get_query
+from .scoreinfo import ScoreInfo
+from .searchinfo import SearchInfo
+from .text_detection import detect_text
+from .uti import get_preferred_uti_extension, get_uti_for_extension
+from .utils import _debug, _get_resource_loc, findfiles
 
 
 class PhotoInfo:
@@ -55,41 +60,11 @@ class PhotoInfo:
     including keywords, persons, albums, uuid, path, etc.
     """
 
-    # import additional methods
-    from ._photoinfo_comments import comments, likes
-    from ._photoinfo_exifinfo import ExifInfo, exif_info
-    from ._photoinfo_exiftool import exiftool
-    from ._photoinfo_export import (
-        ExportResults,
-        _exiftool_dict,
-        _exiftool_json_sidecar,
-        _export_photo,
-        _export_photo_with_photos_export,
-        _get_exif_keywords,
-        _get_exif_persons,
-        _write_exif_data,
-        _write_sidecar,
-        _xmp_sidecar,
-        export,
-        export2,
-    )
-    from ._photoinfo_scoreinfo import ScoreInfo, score
-    from ._photoinfo_searchinfo import (
-        SearchInfo,
-        labels,
-        labels_normalized,
-        search_info,
-        search_info_normalized,
-    )
-
     def __init__(self, db=None, uuid=None, info=None):
         self._uuid = uuid
         self._info = info
         self._db = db
         self._verbose = self._db._verbose
-
-        # TODO: remove this once refactor of PhotoExporter is done
-        self._render_options = RenderOptions()
 
     @property
     def filename(self):
@@ -1140,21 +1115,239 @@ class PhotoInfo:
                 self._owner = None
             return self._owner
 
-    def render_template(
-        self, template_str: str, options: Optional[RenderOptions] = None
-    ):
-        """Renders a template string for PhotoInfo instance using PhotoTemplate
-
-        Args:
-            template_str: a template string with fields to render
-            options: a RenderOptions instance
+    @property
+    def score(self):
+        """Computed score information for a photo
 
         Returns:
-            ([rendered_strings], [unmatched]): tuple of list of rendered strings and list of unmatched template values
+            ScoreInfo instance
         """
-        options = options or RenderOptions()
-        template = PhotoTemplate(self, exiftool_path=self._db._exiftool_path)
-        return template.render(template_str, options)
+
+        if self._db._db_version <= _PHOTOS_4_VERSION:
+            logging.debug(f"score not implemented for this database version")
+            return None
+
+        try:
+            return self._scoreinfo  # pylint: disable=access-member-before-definition
+        except AttributeError:
+            try:
+                scores = self._db._db_scoreinfo_uuid[self.uuid]
+                self._scoreinfo = ScoreInfo(
+                    overall=scores["overall_aesthetic"],
+                    curation=scores["curation"],
+                    promotion=scores["promotion"],
+                    highlight_visibility=scores["highlight_visibility"],
+                    behavioral=scores["behavioral"],
+                    failure=scores["failure"],
+                    harmonious_color=scores["harmonious_color"],
+                    immersiveness=scores["immersiveness"],
+                    interaction=scores["interaction"],
+                    interesting_subject=scores["interesting_subject"],
+                    intrusive_object_presence=scores["intrusive_object_presence"],
+                    lively_color=scores["lively_color"],
+                    low_light=scores["low_light"],
+                    noise=scores["noise"],
+                    pleasant_camera_tilt=scores["pleasant_camera_tilt"],
+                    pleasant_composition=scores["pleasant_composition"],
+                    pleasant_lighting=scores["pleasant_lighting"],
+                    pleasant_pattern=scores["pleasant_pattern"],
+                    pleasant_perspective=scores["pleasant_perspective"],
+                    pleasant_post_processing=scores["pleasant_post_processing"],
+                    pleasant_reflection=scores["pleasant_reflection"],
+                    pleasant_symmetry=scores["pleasant_symmetry"],
+                    sharply_focused_subject=scores["sharply_focused_subject"],
+                    tastefully_blurred=scores["tastefully_blurred"],
+                    well_chosen_subject=scores["well_chosen_subject"],
+                    well_framed_subject=scores["well_framed_subject"],
+                    well_timed_shot=scores["well_timed_shot"],
+                )
+                return self._scoreinfo
+            except KeyError:
+                self._scoreinfo = ScoreInfo(
+                    overall=0.0,
+                    curation=0.0,
+                    promotion=0.0,
+                    highlight_visibility=0.0,
+                    behavioral=0.0,
+                    failure=0.0,
+                    harmonious_color=0.0,
+                    immersiveness=0.0,
+                    interaction=0.0,
+                    interesting_subject=0.0,
+                    intrusive_object_presence=0.0,
+                    lively_color=0.0,
+                    low_light=0.0,
+                    noise=0.0,
+                    pleasant_camera_tilt=0.0,
+                    pleasant_composition=0.0,
+                    pleasant_lighting=0.0,
+                    pleasant_pattern=0.0,
+                    pleasant_perspective=0.0,
+                    pleasant_post_processing=0.0,
+                    pleasant_reflection=0.0,
+                    pleasant_symmetry=0.0,
+                    sharply_focused_subject=0.0,
+                    tastefully_blurred=0.0,
+                    well_chosen_subject=0.0,
+                    well_framed_subject=0.0,
+                    well_timed_shot=0.0,
+                )
+                return self._scoreinfo
+
+    @property
+    def search_info(self):
+        """returns SearchInfo object for photo
+        only valid on Photos 5, on older libraries, returns None
+        """
+        if self._db._db_version <= _PHOTOS_4_VERSION:
+            return None
+
+        # memoize SearchInfo object
+        try:
+            return self._search_info
+        except AttributeError:
+            self._search_info = SearchInfo(self)
+            return self._search_info
+
+    @property
+    def search_info_normalized(self):
+        """returns SearchInfo object for photo that produces normalized results
+        only valid on Photos 5, on older libraries, returns None
+        """
+        if self._db._db_version <= _PHOTOS_4_VERSION:
+            return None
+
+        # memoize SearchInfo object
+        try:
+            return self._search_info_normalized
+        except AttributeError:
+            self._search_info_normalized = SearchInfo(self, normalized=True)
+            return self._search_info_normalized
+
+    @property
+    def labels(self):
+        """returns list of labels applied to photo by Photos image categorization
+        only valid on Photos 5, on older libraries returns empty list
+        """
+        if self._db._db_version <= _PHOTOS_4_VERSION:
+            return []
+
+        return self.search_info.labels
+
+    @property
+    def labels_normalized(self):
+        """returns normalized list of labels applied to photo by Photos image categorization
+        only valid on Photos 5, on older libraries returns empty list
+        """
+        if self._db._db_version <= _PHOTOS_4_VERSION:
+            return []
+
+        return self.search_info_normalized.labels
+
+    @property
+    def comments(self):
+        """Returns list of Comment objects for any comments on the photo (sorted by date)"""
+        try:
+            return self._db._db_comments_uuid[self.uuid]["comments"]
+        except:
+            return []
+
+    @property
+    def likes(self):
+        """Returns list of Like objects for any likes on the photo (sorted by date)"""
+        try:
+            return self._db._db_comments_uuid[self.uuid]["likes"]
+        except:
+            return []
+
+    @property
+    def exif_info(self):
+        """Returns an ExifInfo object with the EXIF data for photo
+        Note: the returned EXIF data is the data Photos stores in the database on import;
+        ExifInfo does not provide access to the EXIF info in the actual image file
+        Some or all of the fields may be None
+        Only valid for Photos 5; on earlier database returns None
+        """
+
+        if self._db._db_version <= _PHOTOS_4_VERSION:
+            logging.debug(f"exif_info not implemented for this database version")
+            return None
+
+        try:
+            exif = self._db._db_exifinfo_uuid[self.uuid]
+            exif_info = ExifInfo(
+                iso=exif["ZISO"],
+                flash_fired=True if exif["ZFLASHFIRED"] == 1 else False,
+                metering_mode=exif["ZMETERINGMODE"],
+                sample_rate=exif["ZSAMPLERATE"],
+                track_format=exif["ZTRACKFORMAT"],
+                white_balance=exif["ZWHITEBALANCE"],
+                aperture=exif["ZAPERTURE"],
+                bit_rate=exif["ZBITRATE"],
+                duration=exif["ZDURATION"],
+                exposure_bias=exif["ZEXPOSUREBIAS"],
+                focal_length=exif["ZFOCALLENGTH"],
+                fps=exif["ZFPS"],
+                latitude=exif["ZLATITUDE"],
+                longitude=exif["ZLONGITUDE"],
+                shutter_speed=exif["ZSHUTTERSPEED"],
+                camera_make=exif["ZCAMERAMAKE"],
+                camera_model=exif["ZCAMERAMODEL"],
+                codec=exif["ZCODEC"],
+                lens_model=exif["ZLENSMODEL"],
+            )
+        except KeyError:
+            logging.debug(f"Could not find exif record for uuid {self.uuid}")
+            exif_info = ExifInfo(
+                iso=None,
+                flash_fired=None,
+                metering_mode=None,
+                sample_rate=None,
+                track_format=None,
+                white_balance=None,
+                aperture=None,
+                bit_rate=None,
+                duration=None,
+                exposure_bias=None,
+                focal_length=None,
+                fps=None,
+                latitude=None,
+                longitude=None,
+                shutter_speed=None,
+                camera_make=None,
+                camera_model=None,
+                codec=None,
+                lens_model=None,
+            )
+
+        return exif_info
+
+    @property
+    def exiftool(self):
+        """Returns a ExifToolCaching (read-only instance of ExifTool) object for the photo.
+        Requires that exiftool (https://exiftool.org/) be installed
+        If exiftool not installed, logs warning and returns None
+        If photo path is missing, returns None
+        """
+        try:
+            # return the memoized instance if it exists
+            return self._exiftool
+        except AttributeError:
+            try:
+                exiftool_path = self._db._exiftool_path or get_exiftool_path()
+                if self.path is not None and os.path.isfile(self.path):
+                    exiftool = ExifToolCaching(self.path, exiftool=exiftool_path)
+                else:
+                    exiftool = None
+            except FileNotFoundError:
+                # get_exiftool_path raises FileNotFoundError if exiftool not found
+                exiftool = None
+                logging.warning(
+                    "exiftool not in path; download and install from https://exiftool.org/"
+                )
+
+            self._exiftool = exiftool
+            return self._exiftool
 
     def detected_text(self, confidence_threshold=TEXT_DETECTION_CONFIDENCE_THRESHOLD):
         """Detects text in photo and returns lists of results as (detected text, confidence)
@@ -1212,6 +1405,108 @@ class PhotoInfo:
     def _latitude(self):
         """Returns latitude, in degrees"""
         return self._info["latitude"]
+
+    def render_template(
+        self, template_str: str, options: Optional[RenderOptions] = None
+    ):
+        """Renders a template string for PhotoInfo instance using PhotoTemplate
+
+        Args:
+            template_str: a template string with fields to render
+            options: a RenderOptions instance
+
+        Returns:
+            ([rendered_strings], [unmatched]): tuple of list of rendered strings and list of unmatched template values
+        """
+        options = options or RenderOptions()
+        template = PhotoTemplate(self, exiftool_path=self._db._exiftool_path)
+        return template.render(template_str, options)
+
+    def export(
+        self,
+        dest,
+        filename=None,
+        edited=False,
+        live_photo=False,
+        raw_photo=False,
+        export_as_hardlink=False,
+        overwrite=False,
+        increment=True,
+        sidecar_json=False,
+        sidecar_exiftool=False,
+        sidecar_xmp=False,
+        use_photos_export=False,
+        timeout=120,
+        exiftool=False,
+        use_albums_as_keywords=False,
+        use_persons_as_keywords=False,
+        keyword_template=None,
+        description_template=None,
+        render_options: Optional[RenderOptions] = None,
+    ):
+        """export photo
+        dest: must be valid destination path (or exception raised)
+        filename: (optional): name of exported picture; if not provided, will use current filename
+                    **NOTE**: if provided, user must ensure file extension (suffix) is correct.
+                    For example, if photo is .CR2 file, edited image may be .jpeg.
+                    If you provide an extension different than what the actual file is,
+                    export will print a warning but will export the photo using the
+                    incorrect file extension (unless use_photos_export is true, in which case export will
+                    use the extension provided by Photos upon export; in this case, an incorrect extension is
+                    silently ignored).
+                    e.g. to get the extension of the edited photo,
+                    reference PhotoInfo.path_edited
+        edited: (boolean, default=False); if True will export the edited version of the photo, otherwise exports the original version
+                (or raise exception if no edited version)
+        live_photo: (boolean, default=False); if True, will also export the associated .mov for live photos
+        raw_photo: (boolean, default=False); if True, will also export the associated RAW photo
+        export_as_hardlink: (boolean, default=False); if True, will hardlink files instead of copying them
+        overwrite: (boolean, default=False); if True will overwrite files if they already exist
+        increment: (boolean, default=True); if True, will increment file name until a non-existant name is found
+                    if overwrite=False and increment=False, export will fail if destination file already exists
+        sidecar_json: if set will write a json sidecar with data in format readable by exiftool
+                    sidecar filename will be dest/filename.json; includes exiftool tag group names (e.g. `exiftool -G -j`)
+        sidecar_exiftool: if set will write a json sidecar with data in format readable by exiftool
+                    sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. `exiftool -j`)
+        sidecar_xmp: if set will write an XMP sidecar with IPTC data
+                    sidecar filename will be dest/filename.xmp
+        use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos
+        timeout: (int, default=120) timeout in seconds used with use_photos_export
+        exiftool: (boolean, default = False); if True, will use exiftool to write metadata to export file
+        returns list of full paths to the exported files
+        use_albums_as_keywords: (boolean, default = False); if True, will include album names in keywords
+        when exporting metadata with exiftool or sidecar
+        use_persons_as_keywords: (boolean, default = False); if True, will include person names in keywords
+        when exporting metadata with exiftool or sidecar
+        keyword_template: (list of strings); list of template strings that will be rendered as used as keywords
+        description_template: string; optional template string that will be rendered for use as photo description
+        render_options: an optional osxphotos.phototemplate.RenderOptions instance with options to pass to template renderer
+
+        Returns: list of photos exported
+        """
+
+        exporter = PhotoExporter(self)
+        return exporter.export(
+            dest=dest,
+            filename=filename,
+            edited=edited,
+            live_photo=live_photo,
+            raw_photo=raw_photo,
+            export_as_hardlink=export_as_hardlink,
+            overwrite=overwrite,
+            increment=increment,
+            sidecar_json=sidecar_json,
+            sidecar_exiftool=sidecar_exiftool,
+            sidecar_xmp=sidecar_xmp,
+            use_photos_export=use_photos_export,
+            timeout=timeout,
+            exiftool=exiftool,
+            use_albums_as_keywords=use_albums_as_keywords,
+            use_persons_as_keywords=use_persons_as_keywords,
+            keyword_template=keyword_template,
+            description_template=description_template,
+            render_options=render_options,
+        )
 
     def _get_album_uuids(self, project=False):
         """Return list of album UUIDs this photo is found in

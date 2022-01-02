@@ -1,7 +1,7 @@
 """ test ExportResults class """
 
 import pytest
-from osxphotos.photoinfo import ExportResults
+from osxphotos.photoexporter import ExportResults
 
 EXPORT_RESULT_ATTRIBUTES = [
     "exported",

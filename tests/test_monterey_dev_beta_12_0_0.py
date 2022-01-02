@@ -13,6 +13,7 @@ import pytest
 
 import osxphotos
 from osxphotos._constants import _UNKNOWN_PERSON
+from osxphotos.photoexporter import PhotoExporter
 from osxphotos.utils import _get_os_version
 
 OS_VERSION = _get_os_version()
@@ -1109,6 +1110,7 @@ def test_date_invalid():
     """Test date is invalid"""
     # doesn't run correctly with the module-level fixture
     from datetime import datetime, timedelta, timezone
+
     import osxphotos
 
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
@@ -1349,7 +1351,7 @@ def test_exiftool_newlines_in_description(photosdb):
     """Test that exiftool handles newlines embedded in description, issue #393"""
 
     photo = photosdb.get_photo(UUID_DICT["description_newlines"])
-    exif = photo._exiftool_dict()
+    exif = PhotoExporter(photo)._exiftool_dict()
     assert photo.description.find("\n") > 0
     assert exif["EXIF:ImageDescription"].find("\n") > 0
 

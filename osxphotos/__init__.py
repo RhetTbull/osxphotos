@@ -1,7 +1,8 @@
 from ._constants import AlbumSortOrder
 from ._version import __version__
 from .exiftool import ExifTool
-from .photoinfo import ExportResults, PhotoInfo
+from .photoexporter import ExportResults, PhotoExporter
+from .photoinfo import PhotoInfo
 from .photosdb import PhotosDB
 from .photosdb._photosdb_process_comments import CommentInfo, LikeInfo
 from .phototemplate import PhotoTemplate

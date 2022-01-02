@@ -12,6 +12,7 @@ import shlex
 import subprocess
 import sys
 import time
+from runpy import run_module
 
 import bitmath
 import click
@@ -20,7 +21,6 @@ import photoscript
 import rich.traceback
 import yaml
 from rich import pretty
-from runpy import run_module
 
 import osxphotos
 
@@ -56,7 +56,8 @@ from .exiftool import get_exiftool_path
 from .export_db import ExportDB, ExportDBInMemory
 from .fileutil import FileUtil, FileUtilNoOp
 from .path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
-from .photoinfo import ExportResults, PhotoInfo
+from .photoexporter import ExportResults, PhotoExporter
+from .photoinfo import PhotoInfo
 from .photokit import check_photokit_authorization, request_photokit_authorization
 from .photosalbum import PhotosAlbum
 from .phototemplate import PhotoTemplate, RenderOptions
@@ -2954,7 +2955,8 @@ def export_photo_to_directory(
         tries += 1
         error = 0
         try:
-            export_results = photo.export2(
+            exporter = PhotoExporter(photo)
+            export_results = exporter.export2(
                 dest_path,
                 original_filename=filename,
                 edited=edited,
@@ -3466,7 +3468,7 @@ def write_finder_tags(
     skipped = []
     if keywords:
         # match whatever keywords would've been used in --exiftool or --sidecar
-        exif = photo._exiftool_dict(
+        exif = PhotoExporter(photo)._exiftool_dict(
             use_albums_as_keywords=album_keyword,
             use_persons_as_keywords=person_keyword,
             keyword_template=keyword_template,
