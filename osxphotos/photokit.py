@@ -30,6 +30,7 @@ import Photos
 import Quartz
 from Foundation import NSNotificationCenter, NSObject
 from PyObjCTools import AppHelper
+from wurlitzer import pipes
 
 from .fileutil import FileUtil
 from .uti import get_preferred_uti_extension
@@ -495,69 +496,73 @@ class PhotoAsset:
         """
 
         with objc.autorelease_pool():
-            filename = (
-                pathlib.Path(filename)
-                if filename
-                else pathlib.Path(self.original_filename)
-            )
+            with pipes() as (out, err):
+                filename = (
+                    pathlib.Path(filename)
+                    if filename
+                    else pathlib.Path(self.original_filename)
+                )
 
-            dest = pathlib.Path(dest)
-            if not dest.is_dir():
-                raise ValueError("dest must be a valid directory: {dest}")
+                dest = pathlib.Path(dest)
+                if not dest.is_dir():
+                    raise ValueError("dest must be a valid directory: {dest}")
 
-            output_file = None
-            if self.isphoto:
-                # will hold exported image data and needs to be cleaned up at end
-                imagedata = None
-                if raw:
-                    # export the raw component
-                    resources = self._resources()
-                    for resource in resources:
-                        if resource.type() == Photos.PHAssetResourceTypeAlternatePhoto:
-                            data = self._request_resource_data(resource)
-                            ext = pathlib.Path(self.raw_filename).suffix[1:]
-                            break
+                output_file = None
+                if self.isphoto:
+                    # will hold exported image data and needs to be cleaned up at end
+                    imagedata = None
+                    if raw:
+                        # export the raw component
+                        resources = self._resources()
+                        for resource in resources:
+                            if (
+                                resource.type()
+                                == Photos.PHAssetResourceTypeAlternatePhoto
+                            ):
+                                data = self._request_resource_data(resource)
+                                ext = pathlib.Path(self.raw_filename).suffix[1:]
+                                break
+                        else:
+                            raise PhotoKitExportError(
+                                "Could not get image data for RAW photo"
+                            )
                     else:
-                        raise PhotoKitExportError(
-                            "Could not get image data for RAW photo"
-                        )
-                else:
-                    # TODO: if user has selected use RAW as original, this returns the RAW
-                    # can get the jpeg with resource.type() == Photos.PHAssetResourceTypePhoto
-                    imagedata = self._request_image_data(version=version)
-                    if not imagedata.image_data:
-                        raise PhotoKitExportError("Could not get image data")
-                    ext = get_preferred_uti_extension(imagedata.uti)
-                    data = imagedata.image_data
+                        # TODO: if user has selected use RAW as original, this returns the RAW
+                        # can get the jpeg with resource.type() == Photos.PHAssetResourceTypePhoto
+                        imagedata = self._request_image_data(version=version)
+                        if not imagedata.image_data:
+                            raise PhotoKitExportError("Could not get image data")
+                        ext = get_preferred_uti_extension(imagedata.uti)
+                        data = imagedata.image_data
 
-                output_file = dest / f"{filename.stem}.{ext}"
+                    output_file = dest / f"{filename.stem}.{ext}"
 
-                if not overwrite:
-                    output_file = pathlib.Path(increment_filename(output_file))
+                    if not overwrite:
+                        output_file = pathlib.Path(increment_filename(output_file))
 
-                with open(output_file, "wb") as fd:
-                    fd.write(data)
+                    with open(output_file, "wb") as fd:
+                        fd.write(data)
 
-                if imagedata:
-                    del imagedata
-            elif self.ismovie:
-                videodata = self._request_video_data(version=version)
-                if videodata.asset is None:
-                    raise PhotoKitExportError("Could not get video for asset")
+                    if imagedata:
+                        del imagedata
+                elif self.ismovie:
+                    videodata = self._request_video_data(version=version)
+                    if videodata.asset is None:
+                        raise PhotoKitExportError("Could not get video for asset")
 
-                url = videodata.asset.URL()
-                path = pathlib.Path(NSURL_to_path(url))
-                if not path.is_file():
-                    raise FileNotFoundError("Could not get path to video file")
-                ext = path.suffix
-                output_file = dest / f"{filename.stem}{ext}"
+                    url = videodata.asset.URL()
+                    path = pathlib.Path(NSURL_to_path(url))
+                    if not path.is_file():
+                        raise FileNotFoundError("Could not get path to video file")
+                    ext = path.suffix
+                    output_file = dest / f"{filename.stem}{ext}"
 
-                if not overwrite:
-                    output_file = pathlib.Path(increment_filename(output_file))
+                    if not overwrite:
+                        output_file = pathlib.Path(increment_filename(output_file))
 
-                FileUtil.copy(path, output_file)
+                    FileUtil.copy(path, output_file)
 
-            return [str(output_file)]
+                return [str(output_file)]
 
     def _request_image_data(self, version=PHOTOS_VERSION_ORIGINAL):
         """Request image data and metadata for self._phasset
@@ -807,42 +812,46 @@ class VideoAsset(PhotoAsset):
         """
 
         with objc.autorelease_pool():
-            if self.slow_mo and version == PHOTOS_VERSION_CURRENT:
-                return [
-                    self._export_slow_mo(
-                        dest, filename=filename, version=version, overwrite=overwrite
-                    )
-                ]
+            with pipes() as (out, err):
+                if self.slow_mo and version == PHOTOS_VERSION_CURRENT:
+                    return [
+                        self._export_slow_mo(
+                            dest,
+                            filename=filename,
+                            version=version,
+                            overwrite=overwrite,
+                        )
+                    ]
 
-            filename = (
-                pathlib.Path(filename)
-                if filename
-                else pathlib.Path(self.original_filename)
-            )
+                filename = (
+                    pathlib.Path(filename)
+                    if filename
+                    else pathlib.Path(self.original_filename)
+                )
 
-            dest = pathlib.Path(dest)
-            if not dest.is_dir():
-                raise ValueError("dest must be a valid directory: {dest}")
+                dest = pathlib.Path(dest)
+                if not dest.is_dir():
+                    raise ValueError("dest must be a valid directory: {dest}")
 
-            output_file = None
-            videodata = self._request_video_data(version=version)
-            if videodata.asset is None:
-                raise PhotoKitExportError("Could not get video for asset")
+                output_file = None
+                videodata = self._request_video_data(version=version)
+                if videodata.asset is None:
+                    raise PhotoKitExportError("Could not get video for asset")
 
-            url = videodata.asset.URL()
-            path = pathlib.Path(NSURL_to_path(url))
-            del videodata
-            if not path.is_file():
-                raise FileNotFoundError("Could not get path to video file")
-            ext = path.suffix
-            output_file = dest / f"{filename.stem}{ext}"
+                url = videodata.asset.URL()
+                path = pathlib.Path(NSURL_to_path(url))
+                del videodata
+                if not path.is_file():
+                    raise FileNotFoundError("Could not get path to video file")
+                ext = path.suffix
+                output_file = dest / f"{filename.stem}{ext}"
 
-            if not overwrite:
-                output_file = pathlib.Path(increment_filename(output_file))
+                if not overwrite:
+                    output_file = pathlib.Path(increment_filename(output_file))
 
-            FileUtil.copy(path, output_file)
+                FileUtil.copy(path, output_file)
 
-            return [str(output_file)]
+                return [str(output_file)]
 
     def _export_slow_mo(
         self, dest, filename=None, version=PHOTOS_VERSION_CURRENT, overwrite=False
@@ -1053,64 +1062,69 @@ class LivePhotoAsset(PhotoAsset):
         """
 
         with objc.autorelease_pool():
-            filename = (
-                pathlib.Path(filename)
-                if filename
-                else pathlib.Path(self.original_filename)
-            )
-
-            dest = pathlib.Path(dest)
-            if not dest.is_dir():
-                raise ValueError("dest must be a valid directory: {dest}")
-
-            request = LivePhotoRequest.alloc().initWithManager_Asset_(
-                self._manager, self.phasset
-            )
-            resources = request.requestLivePhotoResources(version=version)
-
-            video_resource = None
-            photo_resource = None
-            for resource in resources:
-                if resource.type() == Photos.PHAssetResourceTypePairedVideo:
-                    video_resource = resource
-                elif resource.type() == Photos.PHAssetMediaTypeImage:
-                    photo_resource = resource
-
-            if not video_resource or not photo_resource:
-                raise PhotoKitExportError(
-                    "Did not find photo/video resources for live photo"
+            with pipes() as (out, err):
+                filename = (
+                    pathlib.Path(filename)
+                    if filename
+                    else pathlib.Path(self.original_filename)
                 )
 
-            photo_ext = get_preferred_uti_extension(
-                photo_resource.uniformTypeIdentifier()
-            )
-            photo_output_file = dest / f"{filename.stem}.{photo_ext}"
-            video_ext = get_preferred_uti_extension(
-                video_resource.uniformTypeIdentifier()
-            )
-            video_output_file = dest / f"{filename.stem}.{video_ext}"
+                dest = pathlib.Path(dest)
+                if not dest.is_dir():
+                    raise ValueError("dest must be a valid directory: {dest}")
 
-            if not overwrite:
-                photo_output_file = pathlib.Path(increment_filename(photo_output_file))
-                video_output_file = pathlib.Path(increment_filename(video_output_file))
+                request = LivePhotoRequest.alloc().initWithManager_Asset_(
+                    self._manager, self.phasset
+                )
+                resources = request.requestLivePhotoResources(version=version)
 
-            exported = []
-            if photo:
-                data = self._request_resource_data(photo_resource)
-                # image_data = self.request_image_data(version=version)
-                with open(photo_output_file, "wb") as fd:
-                    fd.write(data)
-                exported.append(str(photo_output_file))
-                del data
-            if video:
-                data = self._request_resource_data(video_resource)
-                with open(video_output_file, "wb") as fd:
-                    fd.write(data)
-                exported.append(str(video_output_file))
-                del data
+                video_resource = None
+                photo_resource = None
+                for resource in resources:
+                    if resource.type() == Photos.PHAssetResourceTypePairedVideo:
+                        video_resource = resource
+                    elif resource.type() == Photos.PHAssetMediaTypeImage:
+                        photo_resource = resource
 
-            request.dealloc()
-            return exported
+                if not video_resource or not photo_resource:
+                    raise PhotoKitExportError(
+                        "Did not find photo/video resources for live photo"
+                    )
+
+                photo_ext = get_preferred_uti_extension(
+                    photo_resource.uniformTypeIdentifier()
+                )
+                photo_output_file = dest / f"{filename.stem}.{photo_ext}"
+                video_ext = get_preferred_uti_extension(
+                    video_resource.uniformTypeIdentifier()
+                )
+                video_output_file = dest / f"{filename.stem}.{video_ext}"
+
+                if not overwrite:
+                    photo_output_file = pathlib.Path(
+                        increment_filename(photo_output_file)
+                    )
+                    video_output_file = pathlib.Path(
+                        increment_filename(video_output_file)
+                    )
+
+                exported = []
+                if photo:
+                    data = self._request_resource_data(photo_resource)
+                    # image_data = self.request_image_data(version=version)
+                    with open(photo_output_file, "wb") as fd:
+                        fd.write(data)
+                    exported.append(str(photo_output_file))
+                    del data
+                if video:
+                    data = self._request_resource_data(video_resource)
+                    with open(video_output_file, "wb") as fd:
+                        fd.write(data)
+                    exported.append(str(video_output_file))
+                    del data
+
+                request.dealloc()
+                return exported
 
 
 class PhotoLibrary:

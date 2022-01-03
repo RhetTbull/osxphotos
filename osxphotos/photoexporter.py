@@ -369,7 +369,7 @@ class PhotoExporter:
                     e.g. to get the extension of the edited photo,
                     reference PhotoInfo.path_edited
         original: (boolean, default=True); if True, will export the original version of the photo
-        edited: (boolean, default=False); if True will export the edited version of the photo
+        edited: (boolean, default=False); if True will export the edited version of the photo (only one of original or edited can be used)
         live_photo: (boolean, default=False); if True, will also export the associated .mov for live photos
         raw_photo: (boolean, default=False); if True, will also export the associated RAW photo
         export_as_hardlink: (boolean, default=False); if True, will hardlink files instead of copying them
@@ -445,7 +445,6 @@ class PhotoExporter:
 
         # NOTE: This function is very complex and does a lot of things.
         # Don't modify this code if you don't fully understand everything it does.
-        # TODO: This is a good candidate for refactoring.
 
         # when called from export(), won't get an export_db, so use no-op version
         if export_db is None:
@@ -461,7 +460,9 @@ class PhotoExporter:
 
         export_original = original
         export_edited = edited
-        if edited and not self.photo.hasadjustments:
+        if export_original and export_edited:
+            raise ValueError("Cannot export both original and edited photos")
+        if export_edited and not self.photo.hasadjustments:
             raise ValueError(
                 "Photo does not have adjustments, cannot export edited version"
             )
@@ -475,24 +476,12 @@ class PhotoExporter:
         original_filename = original_filename or self.photo.original_filename
         dest_original = pathlib.Path(dest) / original_filename
 
-        if not edited_filename:
-            if not edited:
-                edited_filename = self.photo.original_filename
-            else:
-                original_name = pathlib.Path(self.photo.original_filename)
-                if self.photo.path_edited:
-                    ext = pathlib.Path(self.photo.path_edited).suffix
-                else:
-                    uti = (
-                        self.photo.uti_edited
-                        if edited and self.photo.uti_edited
-                        else self.photo.uti
-                    )
-                    ext = get_preferred_uti_extension(uti)
-                    ext = "." + ext
-                edited_filename = original_name.stem + "_edited" + ext
+        edited_filename = edited_filename or self._get_edited_filename(
+            original_filename
+        )
         dest_edited = pathlib.Path(dest) / edited_filename
 
+        # Is there something to convert?
         if convert_to_jpeg and self.photo.isphoto:
             something_to_convert = False
             ext = "." + jpeg_ext if jpeg_ext else ".jpeg"
@@ -508,42 +497,21 @@ class PhotoExporter:
         else:
             convert_to_jpeg = False
 
-        # check to see if file exists and if so, add (1), (2), etc until we find one that works
-        # Photos checks the stem and adds (1), (2), etc which avoids collision with sidecars
-        # e.g. exporting sidecar for file1.png and file1.jpeg
-        # if file1.png exists and exporting file1.jpeg,
-        # dest will be file1 (1).jpeg even though file1.jpeg doesn't exist to prevent sidecar collision
-        increment_file_count = 0
-        if increment and not update and not overwrite:
-            dest_original, increment_file_count = increment_filename_with_count(
-                dest_original
-            )
-            dest_original = pathlib.Path(dest_original)
-
-        # if overwrite==False and #increment==False, export should fail if file exists
-        if (
-            dest_original.exists()
-            and export_original
-            and not update
-            and not overwrite
-            and not increment
-        ):
-            raise FileExistsError(
-                f"destination exists ({dest_original}); overwrite={overwrite}, increment={increment}"
-            )
+        # TODO: need to look at this to see what happens if original not being exported but edited exists and already has an increment
+        dest_original, increment_file_count = self._validate_dest_path(
+            dest_original, increment=increment, update=update, overwrite=overwrite
+        )
+        dest_original = pathlib.Path(dest_original)
 
         if export_edited:
-            if increment and not update and not overwrite:
-                dest_edited, increment_file_count = increment_filename_with_count(
-                    dest_edited, increment_file_count
-                )
-                dest_edited = pathlib.Path(dest_edited)
-
-            # if overwrite==False and #increment==False, export should fail if file exists
-            if dest_edited.exists() and not update and not overwrite and not increment:
-                raise FileExistsError(
-                    f"destination exists ({dest_edited}); overwrite={overwrite}, increment={increment}"
-                )
+            dest_edited, increment_file_count = self._validate_dest_path(
+                dest_edited,
+                increment=increment,
+                update=update,
+                overwrite=overwrite,
+                count=increment_file_count,
+            )
+            dest_edited = pathlib.Path(dest_edited)
 
         self._render_options.filepath = (
             str(dest_original) if export_original else str(dest_edited)
@@ -551,43 +519,23 @@ class PhotoExporter:
         all_results = ExportResults()
 
         if use_photos_export:
-            # TODO: collapse these into a single call (refactor _export_photo_with_photos_export)
-            if original:
-                self._export_photo_with_photos_export(
-                    dest_original,
-                    all_results,
-                    fileutil,
-                    export_db,
-                    use_photokit=use_photokit,
-                    dry_run=dry_run,
-                    timeout=timeout,
-                    jpeg_ext=jpeg_ext,
-                    touch_file=touch_file,
-                    update=update,
-                    overwrite=overwrite,
-                    live_photo=live_photo,
-                    edited=False,
-                    convert_to_jpeg=convert_to_jpeg,
-                    jpeg_quality=jpeg_quality,
-                )
-            if edited:
-                self._export_photo_with_photos_export(
-                    dest_edited,
-                    all_results,
-                    fileutil,
-                    export_db,
-                    use_photokit=use_photokit,
-                    dry_run=dry_run,
-                    timeout=timeout,
-                    jpeg_ext=jpeg_ext,
-                    touch_file=touch_file,
-                    update=update,
-                    overwrite=overwrite,
-                    live_photo=live_photo,
-                    edited=True,
-                    convert_to_jpeg=convert_to_jpeg,
-                    jpeg_quality=jpeg_quality,
-                )
+            self._export_photo_with_photos_export(
+                dest=dest_original if export_original else dest_edited,
+                all_results=all_results,
+                fileutil=fileutil,
+                export_db=export_db,
+                use_photokit=use_photokit,
+                dry_run=dry_run,
+                timeout=timeout,
+                jpeg_ext=jpeg_ext,
+                touch_file=touch_file,
+                update=update,
+                overwrite=overwrite,
+                live_photo=live_photo,
+                edited=export_edited,
+                convert_to_jpeg=convert_to_jpeg,
+                jpeg_quality=jpeg_quality,
+            )
         else:
             # find the source file on disk and export
             # get path to source file and verify it's not None and is valid file
@@ -598,6 +546,7 @@ class PhotoExporter:
             elif not edited and self.photo.path is not None:
                 export_src_dest.append((self.photo.path, dest_original))
 
+            # TODO: this for loop not necessary
             for src, dest in export_src_dest:
                 if not pathlib.Path(src).is_file():
                     raise FileNotFoundError(f"{src} does not appear to exist")
@@ -1043,6 +992,49 @@ class PhotoExporter:
         all_results.sidecar_xmp_skipped = sidecar_xmp_files_skipped
 
         return all_results
+
+    def _get_edited_filename(self, original_filename):
+        """Return the filename for the exported edited photo
+        (used when filename isn't provided in call to export2)"""
+        # need to get the right extension for edited file
+        original_filename = pathlib.Path(original_filename)
+        if self.photo.path_edited:
+            ext = pathlib.Path(self.photo.path_edited).suffix
+        else:
+            uti = self.photo.uti_edited if self.photo.uti_edited else self.photo.uti
+            ext = get_preferred_uti_extension(uti)
+            ext = "." + ext
+        edited_filename = original_filename.stem + "_edited" + ext
+        return edited_filename
+
+    def _validate_dest_path(self, dest, increment, update, overwrite, count=0):
+        """If destination exists, add (1), (2), and so on to filename to get a valid destination
+
+        Args:
+            dest (str): Destination path
+            increment (bool): Whether to increment the filename if it already exists
+            update (bool): Whether running in update mode
+            overwrite (bool): Whether running in overwrite mode
+            count: optional counter to start from (if 0, start from 1)
+
+        Returns:
+            new dest path (pathlib.Path), increment count (int)
+        """
+        # check to see if file exists and if so, add (1), (2), etc until we find one that works
+        # Photos checks the stem and adds (1), (2), etc which avoids collision with sidecars
+        # e.g. exporting sidecar for file1.png and file1.jpeg
+        # if file1.png exists and exporting file1.jpeg,
+        # dest will be file1 (1).jpeg even though file1.jpeg doesn't exist to prevent sidecar collision
+        if increment and not update and not overwrite:
+            dest, count = increment_filename_with_count(dest, count=count)
+            dest = pathlib.Path(dest)
+
+        # if overwrite==False and #increment==False, export should fail if file exists
+        if dest.exists() and all([not x for x in [increment, update, overwrite]]):
+            raise FileExistsError(
+                f"destination exists ({dest}); overwrite={overwrite}, increment={increment}"
+            )
+        return dest, count
 
     def _export_photo_with_photos_export(
         self,

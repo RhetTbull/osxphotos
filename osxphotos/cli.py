@@ -4207,8 +4207,12 @@ def repl(ctx, cli_obj, db, emacs):
 
     from osxphotos import ExifTool, PhotoInfo, PhotosDB
     from osxphotos.albuminfo import AlbumInfo
+    from osxphotos.momentinfo import MomentInfo
+    from osxphotos.photoexporter import ExportResults, PhotoExporter
     from osxphotos.placeinfo import PlaceInfo
     from osxphotos.queryoptions import QueryOptions
+    from osxphotos.scoreinfo import ScoreInfo
+    from osxphotos.searchinfo import SearchInfo
 
     logger = logging.getLogger()
     logger.disabled = True
@@ -4241,7 +4245,9 @@ def repl(ctx, cli_obj, db, emacs):
 
     print(f"Found {len(photos)} photos in {tictoc:0.2f} seconds\n")
     print("The following classes have been imported from osxphotos:")
-    print("- AlbumInfo, ExifTool, PhotoInfo, PhotosDB, PlaceInfo, QueryOptions\n")
+    print(
+        "- AlbumInfo, ExifTool, PhotoInfo, PhotoExporter, ExportResults, PhotosDB, PlaceInfo, QueryOptions, MomentInfo, ScoreInfo, SearchInfo\n"
+    )
     print("The following variables are defined:")
     print(f"- photosdb: PhotosDB() instance for {photosdb.library_path}")
     print(
