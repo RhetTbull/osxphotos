@@ -375,7 +375,9 @@ class PhotoTemplate:
         self.filepath = options.filepath
         self.quote = options.quote
         self.dest_path = options.dest_path
-        self.exportdb = options.exportdb or ExportDBInMemory(None)
+        self.exportdb = options.exportdb or ExportDBInMemory(
+            None, self.export_dir or "."
+        )
 
     def render(
         self,

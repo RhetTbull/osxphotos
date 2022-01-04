@@ -1,5 +1,6 @@
 """ Helper class for managing a database used by PhotoInfo.export for tracking state of exports and updates """
 
+
 import datetime
 import logging
 import os
@@ -14,7 +15,7 @@ from ._constants import OSXPHOTOS_EXPORT_DB
 from ._version import __version__
 
 OSXPHOTOS_EXPORTDB_VERSION = "4.0"
-OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {str(datetime.datetime.now())}"
+OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
 
 
 class ExportDB_ABC(ABC):
@@ -171,7 +172,7 @@ class ExportDBNoOp(ExportDB_ABC):
         return []
 
     def get_detected_text_for_uuid(self, uuid):
-        return None 
+        return None
 
     def set_detected_text_for_uuid(self, uuid, json_text):
         pass
@@ -193,15 +194,14 @@ class ExportDBNoOp(ExportDB_ABC):
 class ExportDB(ExportDB_ABC):
     """Interface to sqlite3 database used to store state information for osxphotos export command"""
 
-    def __init__(self, dbfile):
+    def __init__(self, dbfile, export_dir):
         """dbfile: path to osxphotos export database file"""
         self._dbfile = dbfile
-        # _path is parent of the database
-        # all files referenced by get_/set_uuid_for_file will be converted to
-        # relative paths to this parent _path
+        # export_dir is required as all files referenced by get_/set_uuid_for_file will be converted to
+        # relative paths to this path
         # this allows the entire export tree to be moved to a new disk/location
         # whilst preserving the UUID to filename mapping
-        self._path = pathlib.Path(dbfile).parent
+        self._path = export_dir
         self._conn = self._open_export_db(dbfile)
         self._insert_run_info()
 
@@ -214,14 +214,13 @@ class ExportDB(ExportDB_ABC):
         try:
             c = conn.cursor()
             c.execute(
-                f"SELECT uuid FROM files WHERE filepath_normalized = ?", (filename,)
+                "SELECT uuid FROM files WHERE filepath_normalized = ?", (filename,)
             )
             results = c.fetchone()
             uuid = results[0] if results else None
         except Error as e:
             logging.warning(e)
             uuid = None
-
         return uuid
 
     def set_uuid_for_file(self, filename, uuid):
@@ -232,9 +231,10 @@ class ExportDB(ExportDB_ABC):
         try:
             c = conn.cursor()
             c.execute(
-                f"INSERT OR REPLACE INTO files(filepath, filepath_normalized, uuid) VALUES (?, ?, ?);",
+                "INSERT OR REPLACE INTO files(filepath, filepath_normalized, uuid) VALUES (?, ?, ?);",
                 (filename, filename_normalized, uuid),
             )
+
             conn.commit()
         except Error as e:
             logging.warning(e)
@@ -274,15 +274,14 @@ class ExportDB(ExportDB_ABC):
             )
             results = c.fetchone()
             if results:
-                stats = results[0:3]
+                stats = results[:3]
                 mtime = int(stats[2]) if stats[2] is not None else None
                 stats = (stats[0], stats[1], mtime)
             else:
                 stats = (None, None, None)
         except Error as e:
             logging.warning(e)
-            stats = (None, None, None)
-
+            stats = None, None, None
         return stats
 
     def set_stat_edited_for_file(self, filename, stats):
@@ -332,15 +331,14 @@ class ExportDB(ExportDB_ABC):
             )
             results = c.fetchone()
             if results:
-                stats = results[0:3]
+                stats = results[:3]
                 mtime = int(stats[2]) if stats[2] is not None else None
                 stats = (stats[0], stats[1], mtime)
             else:
                 stats = (None, None, None)
         except Error as e:
             logging.warning(e)
-            stats = (None, None, None)
-
+            stats = None, None, None
         return stats
 
     def set_stat_converted_for_file(self, filename, stats):
@@ -493,7 +491,10 @@ class ExportDB(ExportDB_ABC):
             c = conn.cursor()
             c.execute(
                 "INSERT OR REPLACE INTO detected_text(uuid, text_data) VALUES (?, ?);",
-                (uuid, text_json,),
+                (
+                    uuid,
+                    text_json,
+                ),
             )
             conn.commit()
         except Error as e:
@@ -517,9 +518,10 @@ class ExportDB(ExportDB_ABC):
         try:
             c = conn.cursor()
             c.execute(
-                f"INSERT OR REPLACE INTO files(filepath, filepath_normalized, uuid) VALUES (?, ?, ?);",
+                "INSERT OR REPLACE INTO files(filepath, filepath_normalized, uuid) VALUES (?, ?, ?);",
                 (filename, filename_normalized, uuid),
             )
+
             c.execute(
                 "UPDATE files "
                 + "SET orig_mode = ?, orig_size = ?, orig_mtime = ? "
@@ -582,7 +584,7 @@ class ExportDB(ExportDB_ABC):
         )
         results = c.fetchone()
         if results:
-            stats = results[0:3]
+            stats = results[:3]
             mtime = int(stats[2]) if stats[2] is not None else None
             stats = (stats[0], stats[1], mtime)
         else:
@@ -741,9 +743,10 @@ class ExportDB(ExportDB_ABC):
         try:
             c = conn.cursor()
             c.execute(
-                f"INSERT INTO runs (datetime, python_path, script_name, args, cwd) VALUES (?, ?, ?, ?, ?)",
+                "INSERT INTO runs (datetime, python_path, script_name, args, cwd) VALUES (?, ?, ?, ?, ?)",
                 (dt, python_path, cmd, args, cwd),
             )
+
             conn.commit()
         except Error as e:
             logging.warning(e)
@@ -755,14 +758,13 @@ class ExportDBInMemory(ExportDB):
     modifying the on-disk version
     """
 
-    def __init__(self, dbfile):
+    def __init__(self, dbfile, export_dir):
         self._dbfile = dbfile or f"./{OSXPHOTOS_EXPORT_DB}"
-        # _path is parent of the database
-        # all files referenced by get_/set_uuid_for_file will be converted to
-        # relative paths to this parent _path
+        # export_dir is required as all files referenced by get_/set_uuid_for_file will be converted to
+        # relative paths to this path
         # this allows the entire export tree to be moved to a new disk/location
         # whilst preserving the UUID to filename mapping
-        self._path = pathlib.Path(self._dbfile).parent
+        self._path = export_dir
         self._conn = self._open_export_db(self._dbfile)
         self._insert_run_info()
 

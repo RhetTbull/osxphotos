@@ -1154,14 +1154,13 @@ Options:
                                   You can run more than one function by
                                   repeating the '--post-function' option with
                                   different arguments. See Post Function below.
-  --exportdb EXPORTDB_FILE        Specify alternate name for database file which
+  --exportdb EXPORTDB_FILE        Specify alternate path for database file which
                                   stores state information for export and
                                   --update. If --exportdb is not specified,
                                   export database will be saved to
                                   '.osxphotos_export.db' in the export
-                                  directory.  Must be specified as filename
-                                  only, not a path, as export database will be
-                                  saved in export directory.
+                                  directory.  If --exportdb is specified, it
+                                  will be saved to the specified file.
   --load-config <config file path>
                                   Load options from file as written with --save-
                                   config. This allows you to save a complex
@@ -1721,7 +1720,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.44.3'
+{osxphotos_version}             The osxphotos version, e.g. '0.44.4'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified for
@@ -3623,7 +3622,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.44.3'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.44.4'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|

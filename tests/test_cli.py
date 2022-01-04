@@ -5610,7 +5610,7 @@ def test_export_ignore_signature_sidecar():
 
         # change the sidecar data in export DB
         # should result in a new sidecar being exported but not the image itself
-        exportdb = osxphotos.export_db.ExportDB("./.osxphotos_export.db")
+        exportdb = osxphotos.export_db.ExportDB("./.osxphotos_export.db", ".")
         for filename in CLI_EXPORT_IGNORE_SIGNATURE_FILENAMES:
             exportdb.set_sidecar_for_file(f"{filename}.xmp", "FOO", (0, 1, 2))
 
@@ -6161,16 +6161,6 @@ def test_export_exportdb():
         assert (
             "Warning: export database is 'export.db' but found '.osxphotos_export.db'"
             in result.output
-        )
-
-        # specify a path for exportdb, should generate error
-        result = runner.invoke(
-            export,
-            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--exportdb", "./export.db"],
-        )
-        assert result.exit_code != 0
-        assert (
-            "Error: --exportdb must be specified as filename not path" in result.output
         )
 
 

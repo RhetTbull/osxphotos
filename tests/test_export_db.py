@@ -22,7 +22,7 @@ def test_export_db():
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dbname = os.path.join(tempdir.name, ".osxphotos_export.db")
-    db = ExportDB(dbname)
+    db = ExportDB(dbname, tempdir.name)
     assert os.path.isfile(dbname)
     assert db.was_created
     assert not db.was_upgraded
@@ -76,7 +76,7 @@ def test_export_db():
 
     # close and re-open
     db.close()
-    db = ExportDB(dbname)
+    db = ExportDB(dbname, tempdir.name)
     assert not db.was_created
     assert db.get_uuid_for_file(filepath2) == "BAR-FOO"
     assert db.get_info_for_uuid("BAR-FOO") == INFO_DATA
@@ -131,7 +131,7 @@ def test_export_db_no_op():
 
     db.set_detected_text_for_uuid("FOO-BAR", json.dumps([["foo", 0.5]]))
     assert db.get_detected_text_for_uuid("FOO-BAR") is None
-    
+
     # test set_data which sets all at the same time
     filepath2 = os.path.join(tempdir.name, "test2.jpg")
     db.set_data(
@@ -171,7 +171,7 @@ def test_export_db_in_memory():
 
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
     dbname = os.path.join(tempdir.name, ".osxphotos_export.db")
-    db = ExportDB(dbname)
+    db = ExportDB(dbname, tempdir.name)
     assert os.path.isfile(dbname)
 
     filepath = os.path.join(tempdir.name, "test.JPG")
@@ -190,7 +190,7 @@ def test_export_db_in_memory():
 
     db.close()
 
-    dbram = ExportDBInMemory(dbname)
+    dbram = ExportDBInMemory(dbname, tempdir.name)
     assert not dbram.was_created
     assert not dbram.was_upgraded
     assert dbram.version == OSXPHOTOS_EXPORTDB_VERSION
@@ -232,7 +232,7 @@ def test_export_db_in_memory():
     dbram.close()
 
     # re-open on disk and verify no changes
-    db = ExportDB(dbname)
+    db = ExportDB(dbname, tempdir.name)
     assert db.get_uuid_for_file(filepath_lower) == "FOO-BAR"
     assert db.get_info_for_uuid("FOO-BAR") == INFO_DATA
     assert db.get_exifdata_for_file(filepath) == EXIF_DATA
@@ -258,7 +258,9 @@ def test_export_db_in_memory_nofile():
     filepath = os.path.join(tempdir.name, "test.JPG")
     filepath_lower = os.path.join(tempdir.name, "test.jpg")
 
-    dbram = ExportDBInMemory(os.path.join(tempdir.name, "NOT_A_DATABASE_FILE.db"))
+    dbram = ExportDBInMemory(
+        os.path.join(tempdir.name, "NOT_A_DATABASE_FILE.db"), tempdir.name
+    )
     assert dbram.was_created
     assert not dbram.was_upgraded
     assert dbram.version == OSXPHOTOS_EXPORTDB_VERSION
