@@ -2954,11 +2954,9 @@ def export_photo_to_directory(
         try:
             exporter = PhotoExporter(photo)
             export_results = exporter.export2(
-                dest_path,
-                original_filename=filename,
+                dest=dest_path,
                 edited=edited,
-                original=export_original,
-                edited_filename=filename,
+                filename=filename,
                 sidecar=sidecar_flags,
                 sidecar_drop_ext=sidecar_drop_ext,
                 live_photo=export_live,

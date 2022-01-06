@@ -292,10 +292,8 @@ class PhotoExporter:
 
         results = self.export2(
             dest,
-            original=not edited,
-            original_filename=filename,
+            filename=filename,
             edited=edited,
-            edited_filename=filename,
             live_photo=live_photo,
             raw_photo=raw_photo,
             export_as_hardlink=export_as_hardlink,
@@ -317,10 +315,8 @@ class PhotoExporter:
     def export2(
         self,
         dest,
-        original=True,
-        original_filename=None,
+        filename=None,
         edited=False,
-        edited_filename=None,
         live_photo=False,
         raw_photo=False,
         export_as_hardlink=False,
@@ -368,8 +364,7 @@ class PhotoExporter:
                     in which case export will use the extension provided by Photos upon export.
                     e.g. to get the extension of the edited photo,
                     reference PhotoInfo.path_edited
-        original: (boolean, default=True); if True, will export the original version of the photo
-        edited: (boolean, default=False); if True will export the edited version of the photo (only one of original or edited can be used)
+        edited: (boolean, default=False); if True will export the edited version of the photo otherwise exports the original version
         live_photo: (boolean, default=False); if True, will also export the associated .mov for live photos
         raw_photo: (boolean, default=False); if True, will also export the associated RAW photo
         export_as_hardlink: (boolean, default=False); if True, will hardlink files instead of copying them
@@ -452,16 +447,13 @@ class PhotoExporter:
 
         if verbose and not callable(verbose):
             raise TypeError("verbose must be callable")
-
         if verbose is None:
             verbose = self._verbose
 
         self._render_options = render_options or RenderOptions()
 
-        export_original = original
+        export_original = not edited
         export_edited = edited
-        if export_original and export_edited:
-            raise ValueError("Cannot export both original and edited photos")
         if export_edited and not self.photo.hasadjustments:
             raise ValueError(
                 "Photo does not have adjustments, cannot export edited version"
@@ -473,13 +465,13 @@ class PhotoExporter:
         elif not dry_run and not os.path.isdir(dest):
             raise FileNotFoundError("Invalid path passed to export")
 
-        original_filename = original_filename or self.photo.original_filename
-        dest_original = pathlib.Path(dest) / original_filename
-
-        edited_filename = edited_filename or self._get_edited_filename(
-            original_filename
-        )
-        dest_edited = pathlib.Path(dest) / edited_filename
+        if export_edited:
+            filename = filename or self._get_edited_filename(
+                self.photo.original_filename
+            )
+        else:
+            filename = filename or self.photo.original_filename
+        dest = pathlib.Path(dest) / filename
 
         # Is there something to convert?
         if convert_to_jpeg and self.photo.isphoto:
@@ -488,39 +480,25 @@ class PhotoExporter:
             if export_original and self.photo.uti_original != "public.jpeg":
                 # not a jpeg but will convert to jpeg upon export so fix file extension
                 something_to_convert = True
-                dest_original = dest_original.parent / f"{dest_original.stem}{ext}"
+                dest = dest.parent / f"{dest.stem}{ext}"
             if export_edited and self.photo.uti != "public.jpeg":
                 # in Big Sur+, edited HEICs are HEIC
                 something_to_convert = True
-                dest_edited = dest_edited.parent / f"{dest_edited.stem}{ext}"
+                dest_edited = dest.parent / f"{dest.stem}{ext}"
             convert_to_jpeg = something_to_convert
         else:
             convert_to_jpeg = False
 
-        # TODO: need to look at this to see what happens if original not being exported but edited exists and already has an increment
-        dest_original, increment_file_count = self._validate_dest_path(
-            dest_original, increment=increment, update=update, overwrite=overwrite
+        dest, _ = self._validate_dest_path(
+            dest, increment=increment, update=update, overwrite=overwrite
         )
-        dest_original = pathlib.Path(dest_original)
-
-        if export_edited:
-            dest_edited, increment_file_count = self._validate_dest_path(
-                dest_edited,
-                increment=increment,
-                update=update,
-                overwrite=overwrite,
-                count=increment_file_count,
-            )
-            dest_edited = pathlib.Path(dest_edited)
-
-        self._render_options.filepath = (
-            str(dest_original) if export_original else str(dest_edited)
-        )
+        dest = pathlib.Path(dest)
+        self._render_options.filepath = str(dest)
         all_results = ExportResults()
 
         if use_photos_export:
             self._export_photo_with_photos_export(
-                dest=dest_original if export_original else dest_edited,
+                dest=dest,
                 all_results=all_results,
                 fileutil=fileutil,
                 export_db=export_db,
@@ -540,17 +518,11 @@ class PhotoExporter:
             # find the source file on disk and export
             # get path to source file and verify it's not None and is valid file
             # TODO: how to handle ismissing or not hasadjustments and edited=True cases?
-            export_src_dest = []
-            if edited and self.photo.path_edited is not None:
-                export_src_dest.append((self.photo.path_edited, dest_edited))
-            elif not edited and self.photo.path is not None:
-                export_src_dest.append((self.photo.path, dest_original))
+            src = self.photo.path_edited if edited else self.photo.path
+            if src and not pathlib.Path(src).is_file():
+                raise FileNotFoundError(f"{src} does not appear to exist")
 
-            # TODO: this for loop not necessary
-            for src, dest in export_src_dest:
-                if not pathlib.Path(src).is_file():
-                    raise FileNotFoundError(f"{src} does not appear to exist")
-
+            if src:
                 # found source now try to find right destination
                 if update and dest.exists():
                     # destination exists, check to see if destination is the right UUID
@@ -595,11 +567,6 @@ class PhotoExporter:
                             # increment the destination file
                             dest = pathlib.Path(increment_filename(dest))
 
-                if export_original:
-                    dest_original = dest
-                else:
-                    dest_edited = dest
-
                 # export the dest file
                 results = self._export_photo(
                     src,
@@ -617,8 +584,6 @@ class PhotoExporter:
                     ignore_signature=ignore_signature,
                 )
                 all_results += results
-
-            dest = dest_original if export_original else dest_edited
 
             # copy live photo associated .mov if requested
             if (
@@ -730,7 +695,6 @@ class PhotoExporter:
         sidecar_xmp_files_skipped = []
         sidecar_xmp_files_written = []
 
-        dest = dest_original if export_original else dest_edited
         dest_suffix = "" if sidecar_drop_ext else dest.suffix
         if sidecar & SIDECAR_JSON:
             sidecar_filename = dest.parent / pathlib.Path(
