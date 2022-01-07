@@ -520,7 +520,8 @@ class PhotoAsset:
                                 == Photos.PHAssetResourceTypeAlternatePhoto
                             ):
                                 data = self._request_resource_data(resource)
-                                ext = pathlib.Path(self.raw_filename).suffix[1:]
+                                suffix = pathlib.Path(self.raw_filename).suffix
+                                ext = suffix[1:] if suffix else ""
                                 break
                         else:
                             raise PhotoKitExportError(

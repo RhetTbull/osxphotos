@@ -591,6 +591,9 @@ def get_preferred_uti_extension(uti):
 def get_uti_for_extension(extension):
     """get UTI for a given file extension"""
 
+    if not extension:
+        return None
+
     # accepts extension with or without leading 0
     if extension[0] == ".":
         extension = extension[1:]

@@ -725,8 +725,10 @@ class PhotoInfo:
                 self._uti_original = self.uti
             elif self._db._photos_ver >= 7:
                 # Monterey+
-                self._uti_original = get_uti_for_extension(
-                    pathlib.Path(self.original_filename).suffix
+                # there are some cases with UTI_original is None (photo imported with no extension) so fallback to UTI and hope it's right
+                self._uti_original = (
+                    get_uti_for_extension(pathlib.Path(self.original_filename).suffix)
+                    or self.uti
                 )
             else:
                 self._uti_original = self._info["UTI_original"]
@@ -1025,7 +1027,7 @@ class PhotoInfo:
     @property
     def israw(self):
         """returns True if photo is a raw image. For images with an associated RAW+JPEG pair, see has_raw"""
-        return "raw-image" in self.uti_original
+        return "raw-image" in self.uti_original if self.uti_original else False
 
     @property
     def raw_original(self):
