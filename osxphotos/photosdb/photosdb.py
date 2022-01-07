@@ -27,11 +27,11 @@ from .._constants import (
     _PHOTO_TYPE,
     _PHOTOS_3_VERSION,
     _PHOTOS_4_ALBUM_KIND,
-    _PHOTOS_4_ROOT_FOLDER,
-    _PHOTOS_4_TOP_LEVEL_ALBUMS,
     _PHOTOS_4_ALBUM_TYPE_ALBUM,
     _PHOTOS_4_ALBUM_TYPE_PROJECT,
     _PHOTOS_4_ALBUM_TYPE_SLIDESHOW,
+    _PHOTOS_4_ROOT_FOLDER,
+    _PHOTOS_4_TOP_LEVEL_ALBUMS,
     _PHOTOS_4_VERSION,
     _PHOTOS_5_ALBUM_KIND,
     _PHOTOS_5_FOLDER_KIND,
@@ -42,6 +42,7 @@ from .._constants import (
     _TESTED_OS_VERSIONS,
     _UNKNOWN_PERSON,
     BURST_KEY,
+    BURST_PICK_TYPE_NONE,
     BURST_SELECTED,
     TIME_DELTA,
 )
@@ -3062,6 +3063,7 @@ class PhotosDB:
                 if self._dbphotos[p]["burst"] and not (
                     self._dbphotos[p]["burstPickType"] & BURST_SELECTED
                     or self._dbphotos[p]["burstPickType"] & BURST_KEY
+                    or self._dbphotos[p]["burstPickType"] == BURST_PICK_TYPE_NONE
                 ):
                     # not a key/selected burst photo, don't include in returned results
                     continue

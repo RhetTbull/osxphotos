@@ -258,6 +258,7 @@ EXTENDED_ATTRIBUTE_NAMES_QUOTED = [f"'{x}'" for x in EXTENDED_ATTRIBUTE_NAMES]
 OSXPHOTOS_EXPORT_DB = ".osxphotos_export.db"
 
 # bit flags for burst images ("burstPickType")
+BURST_PICK_TYPE_NONE = 0b0 # 0: sometimes used for single images with a burst UUID
 BURST_NOT_SELECTED = 0b10  # 2: burst image is not selected
 BURST_DEFAULT_PICK = 0b100  # 4: burst image is the one Photos picked to be key image before any selections made
 BURST_SELECTED = 0b1000  # 8: burst image is selected
