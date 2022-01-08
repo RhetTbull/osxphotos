@@ -484,7 +484,7 @@ class PhotoExporter:
             if export_edited and self.photo.uti != "public.jpeg":
                 # in Big Sur+, edited HEICs are HEIC
                 something_to_convert = True
-                dest_edited = dest.parent / f"{dest.stem}{ext}"
+                dest = dest.parent / f"{dest.stem}{ext}"
             convert_to_jpeg = something_to_convert
         else:
             convert_to_jpeg = False
@@ -615,7 +615,7 @@ class PhotoExporter:
                 and self.photo.live_photo
                 and self.photo.path_edited_live_photo
             ):
-                live_name = dest.parent / f"{dest_edited.stem}.mov"
+                live_name = dest.parent / f"{dest.stem}.mov"
                 src_live = self.photo.path_edited_live_photo
                 results = self._export_photo(
                     src_live,
