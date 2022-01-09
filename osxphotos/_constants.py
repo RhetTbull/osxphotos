@@ -37,7 +37,7 @@ _PHOTOS_3_VERSION = "3301"
 
 # versions 5.0 and later have a different database structure
 _PHOTOS_4_VERSION = "4025"  # latest Mojove version on 10.14.6
-_PHOTOS_5_VERSION = "6000"  # seems to be current on 10.15.1 through 10.15.7 (also Big Sur and Monterey which switch to model version)
+_PHOTOS_5_VERSION = "5000"  # seems to be current on 10.15.1 through 10.15.7 (also Big Sur and Monterey which switch to model version)
 
 # Ranges for model version by Photos version
 _PHOTOS_5_MODEL_VERSION = [13000, 13999]
