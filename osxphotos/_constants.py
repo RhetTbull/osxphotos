@@ -20,8 +20,8 @@ UNICODE_FORMAT = "NFC"
 # Photos 3.0 (10.13.6) == 3301
 # Photos 4.0 (10.14.5) == 4016
 # Photos 4.0 (10.14.6) == 4025
-# Photos 5.0 (10.15.0) == 6000
-_TESTED_DB_VERSIONS = ["6000", "4025", "4016", "3301", "2622"]
+# Photos 5.0 (10.15.0) == 6000 or 5001
+_TESTED_DB_VERSIONS = ["6000", "5001", "4025", "4016", "3301", "2622"]
 
 # database model versions (applies to Photos 5, Photos 6)
 # these come from PLModelVersion key in binary plist in Z_METADATA.Z_PLIST
@@ -37,7 +37,7 @@ _PHOTOS_3_VERSION = "3301"
 
 # versions 5.0 and later have a different database structure
 _PHOTOS_4_VERSION = "4025"  # latest Mojove version on 10.14.6
-_PHOTOS_5_VERSION = "5000"  # seems to be current on 10.15.1 through 10.15.7 (also Big Sur and Monterey which switch to model version)
+_PHOTOS_5_VERSION = "5000"  # I've seen both 5001 and 6000.  6000 is most common on Catalina and up but there are some version 5001 database in the wild
 
 # Ranges for model version by Photos version
 _PHOTOS_5_MODEL_VERSION = [13000, 13999]
