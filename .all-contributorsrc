@@ -293,7 +293,8 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/6291?v=4",
       "profile": "https://hyfen.net",
       "contributions": [
-        "doc", "code"
+        "doc",
+        "code"
       ]
     },
     {
@@ -302,6 +303,16 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/71442026?v=4",
       "profile": "https://github.com/neebah",
       "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "ahti123",
+      "name": "Ahti Liin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/22232632?v=4",
+      "profile": "https://github.com/ahti123",
+      "contributions": [
+        "code",
         "bug"
       ]
     }
