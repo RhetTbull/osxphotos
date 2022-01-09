@@ -1,6 +1,7 @@
 """ utility functions used by PhotosDB """
 
 import logging
+import pathlib
 import plistlib
 
 from .._constants import (
@@ -17,7 +18,7 @@ from ..utils import _open_sql_file
 
 
 def get_db_version(db_file):
-    """ Gets the Photos DB version from LiGlobals table
+    """Gets the Photos DB version from LiGlobals table
 
     Args:
         db_file: path to photos.db database file containing LiGlobals table
@@ -44,11 +45,11 @@ def get_db_version(db_file):
 
 
 def get_model_version(db_file):
-    """ Returns the database model version from Z_METADATA
-    
+    """Returns the database model version from Z_METADATA
+
     Args:
         db_file: path to Photos.sqlite database file containing Z_METADATA table
-        
+
     Returns: model version as str
     """
 
@@ -67,11 +68,11 @@ def get_model_version(db_file):
 
 
 def get_db_model_version(db_file):
-    """ Returns Photos version based on model version found in db_file
-    
+    """Returns Photos version based on model version found in db_file
+
     Args:
         db_file: path to Photos.sqlite file
-    
+
     Returns: int of major Photos version number (e.g. 5 or 6).
     If unknown model version found, logs warning and returns most current Photos version.
     """
@@ -94,7 +95,7 @@ class UnknownLibraryVersion(Exception):
 
 
 def get_photos_library_version(library_path):
-    """Return int indicating which Photos version a library was created with """
+    """Return int indicating which Photos version a library was created with"""
     library_path = pathlib.Path(library_path)
     db_ver = get_db_version(str(library_path / "database" / "photos.db"))
     db_ver = int(db_ver)

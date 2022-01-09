@@ -20,7 +20,7 @@ import osxmetadata
 import photoscript
 import rich.traceback
 import yaml
-from rich import pretty
+from rich import pretty, print
 
 import osxphotos
 
@@ -60,9 +60,11 @@ from .photoexporter import ExportResults, PhotoExporter
 from .photoinfo import PhotoInfo
 from .photokit import check_photokit_authorization, request_photokit_authorization
 from .photosalbum import PhotosAlbum
+from .photosdb.photosdb_utils import get_photos_library_version
 from .phototemplate import PhotoTemplate, RenderOptions
 from .pyrepl import embed_repl
 from .queryoptions import QueryOptions
+from .sqlgrep import sqlgrep
 from .uti import get_preferred_uti_extension
 from .utils import expand_and_validate_filepath, load_function, normalize_fs_path
 
@@ -4283,3 +4285,49 @@ def repl(ctx, cli_obj, db, emacs):
         quit_words=["q", "quit", "exit"],
         vi_mode=not emacs,
     )
+
+
+@cli.command(hidden=True)
+@DB_OPTION
+@click.pass_obj
+@click.pass_context
+@click.option(
+    "--ignore-case",
+    "-i",
+    required=False,
+    is_flag=True,
+    default=False,
+    help="Ignore case when searching (default is case-sensitive)",
+)
+@click.option(
+    "--print-filename",
+    "-p",
+    required=False,
+    is_flag=True,
+    default=False,
+    help="Print name of database file when printing results",
+)
+@click.argument("pattern", metavar="PATTERN", required=True)
+def grep(ctx, cli_obj, db, ignore_case, print_filename, pattern):
+    """Search for PATTERN in the Photos sqlite database file"""
+    db = db or get_photos_db()
+    db = pathlib.Path(db)
+    if db.is_file():
+        # if passed the actual database, really want the parent of the database directory
+        db = db.parent.parent
+    photos_ver = get_photos_library_version(str(db))
+    if photos_ver < 5:
+        db_file = db / "database" / "photos.db"
+    else:
+        db_file = db / "database" / "Photos.sqlite"
+
+    if not db_file.is_file():
+        click.secho(f"Could not find database file {db_file}", fg="red")
+        ctx.exit(2)
+
+    db_file = str(db_file)
+
+    for table, column, row_id, value in sqlgrep(
+        db_file, pattern, ignore_case, print_filename, rich_markup=True
+    ):
+        print(", ".join([table, column, row_id, value]))
