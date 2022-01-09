@@ -9,6 +9,7 @@ import os.path
 import pathlib
 import pprint
 import shlex
+import shutil
 import subprocess
 import sys
 import time
@@ -21,6 +22,8 @@ import photoscript
 import rich.traceback
 import yaml
 from rich import pretty, print
+from rich.console import Console
+from rich.syntax import Syntax
 
 import osxphotos
 
@@ -71,6 +74,9 @@ from .utils import expand_and_validate_filepath, load_function, normalize_fs_pat
 # global variable to control verbose output
 # set via --verbose/-V
 VERBOSE = False
+
+# used by snap and diff commands
+OSXPHOTOS_SNAPSHOT_DIR = "/private/tmp/osxphotos_snapshots"
 
 rich.traceback.install()
 
@@ -3674,91 +3680,6 @@ def uninstall(packages, yes):
     run_module("pip", run_name="__main__")
 
 
-@cli.command(hidden=True)
-@DB_OPTION
-@DB_ARGUMENT
-@click.option(
-    "--dump",
-    metavar="ATTR",
-    help="Name of PhotosDB attribute to print; "
-    + "can also use albums, persons, keywords, photos to dump related attributes.",
-    multiple=True,
-)
-@click.option(
-    "--uuid",
-    metavar="UUID",
-    help="Use with '--dump photos' to dump only certain UUIDs. "
-    "May be repeated to include multiple UUIDs.",
-    multiple=True,
-)
-@click.option("--verbose", "-V", "verbose", is_flag=True, help="Print verbose output.")
-@click.pass_obj
-@click.pass_context
-def debug_dump(ctx, cli_obj, db, photos_library, dump, uuid, verbose):
-    """Print out debug info"""
-
-    global VERBOSE
-    VERBOSE = bool(verbose)
-
-    db = get_photos_db(*photos_library, db, cli_obj.db)
-    if db is None:
-        click.echo(cli.commands["debug-dump"].get_help(ctx), err=True)
-        click.echo("\n\nLocated the following Photos library databases: ", err=True)
-        _list_libraries()
-        return
-
-    start_t = time.perf_counter()
-    print(f"Opening database: {db}")
-    photosdb = osxphotos.PhotosDB(dbfile=db, verbose=verbose_)
-    stop_t = time.perf_counter()
-    print(f"Done; took {(stop_t-start_t):.2f} seconds")
-
-    for attr in dump:
-        if attr == "albums":
-            print("_dbalbums_album:")
-            pprint.pprint(photosdb._dbalbums_album)
-            print("_dbalbums_uuid:")
-            pprint.pprint(photosdb._dbalbums_uuid)
-            print("_dbalbum_details:")
-            pprint.pprint(photosdb._dbalbum_details)
-            print("_dbalbum_folders:")
-            pprint.pprint(photosdb._dbalbum_folders)
-            print("_dbfolder_details:")
-            pprint.pprint(photosdb._dbfolder_details)
-        elif attr == "keywords":
-            print("_dbkeywords_keyword:")
-            pprint.pprint(photosdb._dbkeywords_keyword)
-            print("_dbkeywords_uuid:")
-            pprint.pprint(photosdb._dbkeywords_uuid)
-        elif attr == "persons":
-            print("_dbfaces_uuid:")
-            pprint.pprint(photosdb._dbfaces_uuid)
-            print("_dbfaces_pk:")
-            pprint.pprint(photosdb._dbfaces_pk)
-            print("_dbpersons_pk:")
-            pprint.pprint(photosdb._dbpersons_pk)
-            print("_dbpersons_fullname:")
-            pprint.pprint(photosdb._dbpersons_fullname)
-        elif attr == "photos":
-            if uuid:
-                for uuid_ in uuid:
-                    print(f"_dbphotos['{uuid_}']:")
-                    try:
-                        pprint.pprint(photosdb._dbphotos[uuid_])
-                    except KeyError:
-                        print(f"Did not find uuid {uuid_} in _dbphotos")
-            else:
-                print("_dbphotos:")
-                pprint.pprint(photosdb._dbphotos)
-        else:
-            try:
-                val = getattr(photosdb, attr)
-                print(f"{attr}:")
-                pprint.pprint(val)
-            except Exception:
-                print(f"Did not find attribute {attr} in PhotosDB")
-
-
 @cli.command()
 @DB_OPTION
 @JSON_OPTION
@@ -4058,6 +3979,28 @@ def _list_libraries(json_=False, error=True):
             click.echo("(#)\tLast opened Photos Library", err=error)
 
 
+@cli.command(name="uuid")
+@click.pass_obj
+@click.pass_context
+@click.option(
+    "--filename",
+    "-f",
+    required=False,
+    is_flag=True,
+    default=False,
+    help="Include filename of selected photos in output",
+)
+def uuid(ctx, cli_obj, filename):
+    """Print out unique IDs (UUID) of photos selected in Photos
+
+    Prints outs UUIDs in form suitable for --uuid-from-file and --skip-uuid-from-file
+    """
+    for photo in photoscript.PhotosLibrary().selection:
+        if filename:
+            print(f"# {photo.filename}")
+        print(photo.uuid)
+
+
 @cli.command(name="about")
 @click.pass_obj
 @click.pass_context
@@ -4183,7 +4126,7 @@ def _spotlight_photo(photo: PhotoInfo):
     photo_.spotlight()
 
 
-@cli.command()
+@cli.command(name="repl")
 @DB_OPTION
 @click.pass_obj
 @click.pass_context
@@ -4287,7 +4230,7 @@ def repl(ctx, cli_obj, db, emacs):
     )
 
 
-@cli.command(hidden=True)
+@cli.command(name="grep", hidden=True)
 @DB_OPTION
 @click.pass_obj
 @click.pass_context
@@ -4297,7 +4240,7 @@ def repl(ctx, cli_obj, db, emacs):
     required=False,
     is_flag=True,
     default=False,
-    help="Ignore case when searching (default is case-sensitive)",
+    help="Ignore case when searching (default is case-sensitive).",
 )
 @click.option(
     "--print-filename",
@@ -4305,7 +4248,7 @@ def repl(ctx, cli_obj, db, emacs):
     required=False,
     is_flag=True,
     default=False,
-    help="Print name of database file when printing results",
+    help="Print name of database file when printing results.",
 )
 @click.argument("pattern", metavar="PATTERN", required=True)
 def grep(ctx, cli_obj, db, ignore_case, print_filename, pattern):
@@ -4333,23 +4276,217 @@ def grep(ctx, cli_obj, db, ignore_case, print_filename, pattern):
         print(", ".join([table, column, row_id, value]))
 
 
-@cli.command()
+@cli.command(hidden=True)
+@DB_OPTION
+@DB_ARGUMENT
+@click.option(
+    "--dump",
+    metavar="ATTR",
+    help="Name of PhotosDB attribute to print; "
+    + "can also use albums, persons, keywords, photos to dump related attributes.",
+    multiple=True,
+)
+@click.option(
+    "--uuid",
+    metavar="UUID",
+    help="Use with '--dump photos' to dump only certain UUIDs. "
+    "May be repeated to include multiple UUIDs.",
+    multiple=True,
+)
+@click.option("--verbose", "-V", "verbose", is_flag=True, help="Print verbose output.")
 @click.pass_obj
 @click.pass_context
+def debug_dump(ctx, cli_obj, db, photos_library, dump, uuid, verbose):
+    """Print out debug info"""
+
+    global VERBOSE
+    VERBOSE = bool(verbose)
+
+    db = get_photos_db(*photos_library, db, cli_obj.db)
+    if db is None:
+        click.echo(cli.commands["debug-dump"].get_help(ctx), err=True)
+        click.echo("\n\nLocated the following Photos library databases: ", err=True)
+        _list_libraries()
+        return
+
+    start_t = time.perf_counter()
+    print(f"Opening database: {db}")
+    photosdb = osxphotos.PhotosDB(dbfile=db, verbose=verbose_)
+    stop_t = time.perf_counter()
+    print(f"Done; took {(stop_t-start_t):.2f} seconds")
+
+    for attr in dump:
+        if attr == "albums":
+            print("_dbalbums_album:")
+            pprint.pprint(photosdb._dbalbums_album)
+            print("_dbalbums_uuid:")
+            pprint.pprint(photosdb._dbalbums_uuid)
+            print("_dbalbum_details:")
+            pprint.pprint(photosdb._dbalbum_details)
+            print("_dbalbum_folders:")
+            pprint.pprint(photosdb._dbalbum_folders)
+            print("_dbfolder_details:")
+            pprint.pprint(photosdb._dbfolder_details)
+        elif attr == "keywords":
+            print("_dbkeywords_keyword:")
+            pprint.pprint(photosdb._dbkeywords_keyword)
+            print("_dbkeywords_uuid:")
+            pprint.pprint(photosdb._dbkeywords_uuid)
+        elif attr == "persons":
+            print("_dbfaces_uuid:")
+            pprint.pprint(photosdb._dbfaces_uuid)
+            print("_dbfaces_pk:")
+            pprint.pprint(photosdb._dbfaces_pk)
+            print("_dbpersons_pk:")
+            pprint.pprint(photosdb._dbpersons_pk)
+            print("_dbpersons_fullname:")
+            pprint.pprint(photosdb._dbpersons_fullname)
+        elif attr == "photos":
+            if uuid:
+                for uuid_ in uuid:
+                    print(f"_dbphotos['{uuid_}']:")
+                    try:
+                        pprint.pprint(photosdb._dbphotos[uuid_])
+                    except KeyError:
+                        print(f"Did not find uuid {uuid_} in _dbphotos")
+            else:
+                print("_dbphotos:")
+                pprint.pprint(photosdb._dbphotos)
+        else:
+            try:
+                val = getattr(photosdb, attr)
+                print(f"{attr}:")
+                pprint.pprint(val)
+            except Exception:
+                print(f"Did not find attribute {attr} in PhotosDB")
+
+
+@cli.command(name="snap", hidden=True)
+@click.pass_obj
+@click.pass_context
+@DB_OPTION
+def snap(ctx, cli_obj, db):
+    """Create a snapshot of a Photos library database for use with `osxphotos diff`
+
+    Snapshots only the database files, not the entire library. If OSXPHOTOS_SNAPSHOT
+    environment variable is defined, will use that as snapshot directory, otherwise
+    uses '/private/tmp/osxphotos_snapshots'
+
+    Works only on Photos library versions since Catalina (10.15) or newer.
+    """
+
+    db = get_photos_db(db, cli_obj.db)
+    db_path = pathlib.Path(db)
+    if db_path.is_file():
+        # assume it's the sqlite file
+        db_path = db_path.parent.parent
+    db_path = db_path / "database"
+
+    db_folder = os.environ.get("OSXPHOTOS_SNAPSHOT", OSXPHOTOS_SNAPSHOT_DIR)
+    if not os.path.isdir(db_folder):
+        click.echo(f"Creating snapshot folder: '{db_folder}'")
+        os.mkdir(db_folder)
+
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    destination_path = pathlib.Path(db_folder) / timestamp
+
+    # get all the sqlite files including the write ahead log if any
+    files = db_path.glob("*.sqlite*")
+    os.makedirs(destination_path)
+    fu = osxphotos.fileutil.FileUtil()
+    count = 0
+    for file in files:
+        if file.is_file():
+            fu.copy(file, destination_path)
+            count += 1
+
+    print(f"Copied {count} files from {db_path} to {destination_path}")
+
+
+@cli.command(name="diff", hidden=True)
+@click.pass_obj
+@click.pass_context
+@DB_OPTION
 @click.option(
-    "--filename",
-    "-f",
-    required=False,
+    "--raw-output",
+    "-r",
     is_flag=True,
     default=False,
-    help="Include filename of selected photos in output",
+    help="Print raw output (don't use syntax highlighting).",
 )
-def uuid(ctx, cli_obj, filename):
-    """Print out unique IDs (UUID) of photos selected in Photos
+@click.argument("db2", nargs=-1, type=click.Path(exists=True))
+@click.option("--verbose", "-V", "verbose", is_flag=True, help="Print verbose output.")
+def diff(ctx, cli_obj, db, raw_output, db2, verbose):
+    """Compares two Photos libraries and prints out differences
 
-    Prints outs UUIDs in form suitable for --uuid-from-file and --skip-uuid-from-file
+    To use the diff command, you'll need to install sqldiff via homebrew:
+
+     - Install homebrew (https://brew.sh/) if not already installed
+
+     - Install sqldiff: `brew install sqldiff`
+
+    When run with no arguments, compares the current Photos library to the
+    most recent snapshot in the the OSXPHOTOS_SNAPSHOT directory.
+
+    If run with the --db option, compares the library specified by --db to the
+    most recent snapshot in the the OSXPHOTOS_SNAPSHOT directory.
+
+    If run with just the DB2 argument, compares the current Photos library to
+    the database specified by the DB2 argument.
+
+    If run with both the --db option and the DB2 argument, compares the
+    library specified by --db to the database specified by DB2
+
+    See also `osxphotos snap`
+
+    If the OSXPHOTOS_SNAPSHOT environment variable is not set, will use
+    '/private/tmp/osxphotos_snapshots'
+
+    Works only on Photos library versions since Catalina (10.15) or newer.
     """
-    for photo in photoscript.PhotosLibrary().selection:
-        if filename:
-            print(f"# {photo.filename}")
-        print(photo.uuid)
+    
+    global VERBOSE
+    VERBOSE = bool(verbose)
+
+    sqldiff = shutil.which("sqldiff")
+    if not sqldiff:
+        click.echo(
+            "sqldiff not found; install via homebrew (https://brew.sh/): `brew install sqldiff`"
+        )
+        ctx.exit(2)
+    verbose_(f"sqldiff found at '{sqldiff}'")
+
+    db = get_photos_db(db, cli_obj.db)
+    db_path = pathlib.Path(db)
+    if db_path.is_file():
+        # assume it's the sqlite file
+        db_path = db_path.parent.parent
+    db_path = db_path / "database"
+    db_1 = db_path / "photos.sqlite"
+
+    if db2:
+        db_2 = pathlib.Path(db2[0])
+    else:
+        # get most recent snapshot
+        db_folder = os.environ.get("OSXPHOTOS_SNAPSHOT", OSXPHOTOS_SNAPSHOT_DIR)
+        verbose_(f"Using snapshot folder: '{db_folder}'")
+        folders = sorted([f for f in pathlib.Path(db_folder).glob("*") if f.is_dir()])
+        folder_2 = folders[-1]
+        db_2 = folder_2 / "Photos.sqlite"
+
+    if not db_1.exists():
+        print(f"database file {db_1} missing")
+    if not db_2.exists():
+        print(f"database file {db_2} missing")
+
+    verbose_(f"Comparing databases {db_1} and {db_2}")
+
+    output = os.popen(f"{sqldiff} {db_2} {db_1}").read()
+    if raw_output:
+        print(output)
+    else:
+        syntax = Syntax(
+            output, "sql", theme="monokai", line_numbers=False, code_width=1000
+        )
+        console = Console()
+        console.print(syntax)
