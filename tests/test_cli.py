@@ -768,7 +768,10 @@ CLI_EXPORT_UUID_FROM_FILE_FILENAMES = [
     "wedding_edited.jpeg",
 ]
 
-CLI_EXPORT_SKIP_UUID = ["E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51", "6191423D-8DB8-4D4C-92BE-9BBBA308AAC4"]
+CLI_EXPORT_SKIP_UUID = [
+    "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51",
+    "6191423D-8DB8-4D4C-92BE-9BBBA308AAC4",
+]
 CLI_EXPORT_SKIP_UUID_FILENAMES = [
     "Tulips.jpg",
     "Tulips_edited.jpeg",
@@ -902,6 +905,14 @@ QUERY_EXIF_DATA_CASE_INSENSITIVE = [
     ("Make", "Fujifilm", ["6191423D-8DB8-4D4C-92BE-9BBBA308AAC4"])
 ]
 EXPORT_EXIF_DATA = [("EXIF:Make", "FUJIFILM", ["Tulips.jpg", "Tulips_edited.jpeg"])]
+
+UUID_LIVE_EDITED = "136A78FA-1B90-46CC-88A7-CCA3331F0353"  # IMG_4813.HEIC
+CLI_EXPORT_LIVE_EDITED = [
+    "IMG_4813.HEIC",
+    "IMG_4813.mov",
+    "IMG_4813_edited.jpeg",
+    "IMG_4813_edited.mov",
+]
 
 
 def modify_file(filename):
@@ -1268,7 +1279,8 @@ def test_query_duplicate():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        query, ["--json", "--db", os.path.join(cwd, CLI_PHOTOS_DB), "--duplicate"],
+        query,
+        ["--json", "--db", os.path.join(cwd, CLI_PHOTOS_DB), "--duplicate"],
     )
     assert result.exit_code == 0
 
@@ -1289,7 +1301,8 @@ def test_query_location():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        query, ["--json", "--db", os.path.join(cwd, CLI_PHOTOS_DB), "--location"],
+        query,
+        ["--json", "--db", os.path.join(cwd, CLI_PHOTOS_DB), "--location"],
     )
     assert result.exit_code == 0
 
@@ -1311,7 +1324,8 @@ def test_query_no_location():
     runner = CliRunner()
     cwd = os.getcwd()
     result = runner.invoke(
-        query, ["--json", "--db", os.path.join(cwd, CLI_PHOTOS_DB), "--no-location"],
+        query,
+        ["--json", "--db", os.path.join(cwd, CLI_PHOTOS_DB), "--no-location"],
     )
     assert result.exit_code == 0
 
@@ -1432,6 +1446,7 @@ def test_export_uuid_from_file():
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_UUID_FROM_FILE_FILENAMES)
 
+
 def test_export_skip_uuid_from_file():
     """Test export with --skip-uuid-from-file"""
     import glob
@@ -1458,7 +1473,8 @@ def test_export_skip_uuid_from_file():
         assert result.exit_code == 0
         files = glob.glob("*")
         for skipped_file in CLI_EXPORT_SKIP_UUID_FILENAMES:
-            assert skipped_file not in files 
+            assert skipped_file not in files
+
 
 def test_export_skip_uuid():
     """Test export with --skip-uuid"""
@@ -4304,7 +4320,7 @@ def test_export_error(monkeypatch):
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 @pytest.mark.parametrize("exiftag,exifvalue,files_expected", EXPORT_EXIF_DATA)
 def test_export_exif(exiftag, exifvalue, files_expected):
-    """Test export --exif query """
+    """Test export --exif query"""
     import glob
     import os
     import os.path
@@ -4663,6 +4679,32 @@ def test_export_update_basic():
             f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: 0, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, updated EXIF data: 0, missing: 2, error: 0"
             in result.output
         )
+
+
+@pytest.mark.skipif(
+    "OSXPHOTOS_TEST_EXPORT" not in os.environ,
+    reason="Skip if not running on author's personal library.",
+)
+def test_export_live_edited():
+    """test export of edited live image #576"""
+    import glob
+    import os
+    import os.path
+
+    from osxphotos.cli import OSXPHOTOS_EXPORT_DB, export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        # basic export
+        result = runner.invoke(
+            export,
+            [os.path.join(cwd, PHOTOS_DB_RHET), ".", "-V", "--uuid", UUID_LIVE_EDITED],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_LIVE_EDITED)
 
 
 def test_export_update_child_folder():
@@ -7642,6 +7684,7 @@ def test_export_query_function():
 def test_export_album_seq():
     """Test {album_seq} template"""
     import glob
+
     from osxphotos.cli import cli
 
     runner = CliRunner()
@@ -7719,7 +7762,6 @@ def test_export_description_template_conditional():
     import osxphotos
     from osxphotos.cli import cli
     from osxphotos.exiftool import ExifTool
-    import json
 
     runner = CliRunner()
     cwd = os.getcwd()
