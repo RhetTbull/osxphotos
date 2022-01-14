@@ -4361,12 +4361,12 @@ def debug_dump(ctx, cli_obj, db, photos_library, dump, uuid, verbose):
                 print(f"Did not find attribute {attr} in PhotosDB")
 
 
-@cli.command(name="snap", hidden=True)
+@cli.command(name="snap")
 @click.pass_obj
 @click.pass_context
 @DB_OPTION
 def snap(ctx, cli_obj, db):
-    """Create a snapshot of a Photos library database for use with `osxphotos diff`
+    """Create snapshot of Photos database to use with diff command
 
     Snapshots only the database files, not the entire library. If OSXPHOTOS_SNAPSHOT
     environment variable is defined, will use that as snapshot directory, otherwise
@@ -4403,7 +4403,7 @@ def snap(ctx, cli_obj, db):
     print(f"Copied {count} files from {db_path} to {destination_path}")
 
 
-@cli.command(name="diff", hidden=True)
+@cli.command(name="diff")
 @click.pass_obj
 @click.pass_context
 @DB_OPTION
@@ -4414,10 +4414,20 @@ def snap(ctx, cli_obj, db):
     default=False,
     help="Print raw output (don't use syntax highlighting).",
 )
+@click.option(
+    "--style",
+    "-s",
+    metavar="STYLE",
+    nargs=1,
+    default="monokai",
+    help = "Specify style/theme for syntax highlighting. "
+    "Theme may be any valid pygments style (https://pygments.org/styles/). "
+    "Default is 'monokai'.",
+)
 @click.argument("db2", nargs=-1, type=click.Path(exists=True))
 @click.option("--verbose", "-V", "verbose", is_flag=True, help="Print verbose output.")
-def diff(ctx, cli_obj, db, raw_output, db2, verbose):
-    """Compares two Photos libraries and prints out differences
+def diff(ctx, cli_obj, db, raw_output, style, db2, verbose):
+    """Compare two Photos databases and print out differences
 
     To use the diff command, you'll need to install sqldiff via homebrew:
 
@@ -4444,7 +4454,7 @@ def diff(ctx, cli_obj, db, raw_output, db2, verbose):
 
     Works only on Photos library versions since Catalina (10.15) or newer.
     """
-    
+
     global VERBOSE
     VERBOSE = bool(verbose)
 
@@ -4481,12 +4491,14 @@ def diff(ctx, cli_obj, db, raw_output, db2, verbose):
 
     verbose_(f"Comparing databases {db_1} and {db_2}")
 
-    output = os.popen(f"{sqldiff} {db_2} {db_1}").read()
-    if raw_output:
-        print(output)
-    else:
-        syntax = Syntax(
-            output, "sql", theme="monokai", line_numbers=False, code_width=1000
-        )
-        console = Console()
-        console.print(syntax)
+    diff_proc = subprocess.Popen([sqldiff, db_2, db_1], stdout=subprocess.PIPE)
+    console = Console()
+    for line in iter(diff_proc.stdout.readline, b""):
+        line = line.decode("UTF-8").rstrip()
+        if raw_output:
+            print(line)
+        else:
+            syntax = Syntax(
+                line, "sql", theme=style, line_numbers=False, code_width=1000
+            )
+            console.print(syntax)

@@ -42,7 +42,7 @@ _PHOTOS_5_VERSION = "5000"  # I've seen both 5001 and 6000.  6000 is most common
 # Ranges for model version by Photos version
 _PHOTOS_5_MODEL_VERSION = [13000, 13999]
 _PHOTOS_6_MODEL_VERSION = [14000, 14999]
-_PHOTOS_7_MODEL_VERSION = [15000, 15999]  # Monterey developer preview is 15134
+_PHOTOS_7_MODEL_VERSION = [15000, 15999]  # Monterey developer preview is 15134, 12.1 is 15331
 
 # some table names differ between Photos 5 and Photos 6
 _DB_TABLE_NAMES = {
