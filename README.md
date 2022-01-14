@@ -142,6 +142,7 @@ Options:
 Commands:
   about      Print information about osxphotos including license.
   albums     Print out albums found in the Photos library.
+  diff       Compare two Photos databases and print out differences
   dump       Print list of all photos & associated info from the Photos...
   export     Export photos from the Photos database.
   help       Print help; for help on commands: help <command>.
@@ -154,8 +155,10 @@ Commands:
   places     Print out places found in the Photos library.
   query      Query the Photos database using 1 or more search options; if...
   repl       Run interactive osxphotos REPL shell (useful for debugging,...
+  snap       Create snapshot of Photos database to use with diff command
   tutorial   Display osxphotos tutorial.
   uninstall  Uninstall Python packages from the osxphotos environment
+  uuid       Print out unique IDs (UUID) of photos selected in Photos
 ```
 
 To get help on a specific command, use `osxphotos help <command_name>`
