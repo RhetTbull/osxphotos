@@ -714,30 +714,29 @@ class PhotoExporter:
         else:
             exif_files = all_results.exported
 
-        # TODO: remove duplicative code from below
-        for exported_file in exif_files:
-            results = self._write_exif_metadata_to_files(
-                exported_file=exported_file,
-                exiftool=exiftool,
-                update=update,
-                exiftool_flags=exiftool_flags,
-                use_albums_as_keywords=use_albums_as_keywords,
-                use_persons_as_keywords=use_persons_as_keywords,
-                keyword_template=keyword_template,
-                description_template=description_template,
-                ignore_date_modified=ignore_date_modified,
-                merge_exif_keywords=merge_exif_keywords,
-                merge_exif_persons=merge_exif_persons,
-                persons=persons,
-                location=location,
-                replace_keywords=replace_keywords,
-                strip=strip,
-                fileutil=fileutil,
-                export_db=export_db,
-                dry_run=dry_run,
-                verbose=verbose,
-            )
-            all_results += results
+        if exiftool:
+            for exported_file in exif_files:
+                results = self._write_exif_metadata_to_files(
+                    exported_file=exported_file,
+                    update=update,
+                    exiftool_flags=exiftool_flags,
+                    use_albums_as_keywords=use_albums_as_keywords,
+                    use_persons_as_keywords=use_persons_as_keywords,
+                    keyword_template=keyword_template,
+                    description_template=description_template,
+                    ignore_date_modified=ignore_date_modified,
+                    merge_exif_keywords=merge_exif_keywords,
+                    merge_exif_persons=merge_exif_persons,
+                    persons=persons,
+                    location=location,
+                    replace_keywords=replace_keywords,
+                    strip=strip,
+                    fileutil=fileutil,
+                    export_db=export_db,
+                    dry_run=dry_run,
+                    verbose=verbose,
+                )
+                all_results += results
 
         if touch_file:
             for exif_file in all_results.exif_updated:
@@ -1355,7 +1354,6 @@ class PhotoExporter:
     def _write_exif_metadata_to_files(
         self,
         exported_file: str,
-        exiftool: bool,
         update: bool,
         exiftool_flags: Optional[List[str]],
         use_albums_as_keywords: bool,
@@ -1375,80 +1373,32 @@ class PhotoExporter:
         verbose: Optional[Callable],
     ) -> ExportResults:
         results = ExportResults()
-        if exiftool and update and exported_file:
-            for exported_file in [exported_file]:
-                files_are_different = False
-                old_data = export_db.get_exifdata_for_file(exported_file)
-                if old_data is not None:
-                    old_data = json.loads(old_data)[0]
-                    current_data = json.loads(
-                        self._exiftool_json_sidecar(
-                            use_albums_as_keywords=use_albums_as_keywords,
-                            use_persons_as_keywords=use_persons_as_keywords,
-                            keyword_template=keyword_template,
-                            description_template=description_template,
-                            ignore_date_modified=ignore_date_modified,
-                            merge_exif_keywords=merge_exif_keywords,
-                            merge_exif_persons=merge_exif_persons,
-                            persons=persons,
-                            location=location,
-                            replace_keywords=replace_keywords,
-                            strip=strip,
-                        )
-                    )[0]
-                    if old_data != current_data:
-                        files_are_different = True
-
-                if old_data is None or files_are_different:
-                    # didn't have old data, assume we need to write it
-                    # or files were different
-                    verbose(f"Writing metadata with exiftool for {exported_file}")
-                    if not dry_run:
-                        warning_, error_ = self._write_exif_data(
-                            exported_file,
-                            use_albums_as_keywords=use_albums_as_keywords,
-                            use_persons_as_keywords=use_persons_as_keywords,
-                            keyword_template=keyword_template,
-                            description_template=description_template,
-                            ignore_date_modified=ignore_date_modified,
-                            flags=exiftool_flags,
-                            merge_exif_keywords=merge_exif_keywords,
-                            merge_exif_persons=merge_exif_persons,
-                            persons=persons,
-                            location=location,
-                            replace_keywords=replace_keywords,
-                            strip=strip,
-                        )
-                        if warning_:
-                            results.exiftool_warning.append((exported_file, warning_))
-                        if error_:
-                            results.exiftool_error.append((exported_file, error_))
-                            results.error.append((exported_file, error_))
-
-                    export_db.set_exifdata_for_file(
-                        exported_file,
-                        self._exiftool_json_sidecar(
-                            use_albums_as_keywords=use_albums_as_keywords,
-                            use_persons_as_keywords=use_persons_as_keywords,
-                            keyword_template=keyword_template,
-                            description_template=description_template,
-                            ignore_date_modified=ignore_date_modified,
-                            merge_exif_keywords=merge_exif_keywords,
-                            merge_exif_persons=merge_exif_persons,
-                            persons=persons,
-                            location=location,
-                            replace_keywords=replace_keywords,
-                            strip=strip,
-                        ),
+        if update:
+            files_are_different = False
+            old_data = export_db.get_exifdata_for_file(exported_file)
+            if old_data is not None:
+                old_data = json.loads(old_data)[0]
+                current_data = json.loads(
+                    self._exiftool_json_sidecar(
+                        use_albums_as_keywords=use_albums_as_keywords,
+                        use_persons_as_keywords=use_persons_as_keywords,
+                        keyword_template=keyword_template,
+                        description_template=description_template,
+                        ignore_date_modified=ignore_date_modified,
+                        merge_exif_keywords=merge_exif_keywords,
+                        merge_exif_persons=merge_exif_persons,
+                        persons=persons,
+                        location=location,
+                        replace_keywords=replace_keywords,
+                        strip=strip,
                     )
-                    export_db.set_stat_exif_for_file(
-                        exported_file, fileutil.file_sig(exported_file)
-                    )
-                    results.exif_updated.append(exported_file)
-                else:
-                    verbose(f"Skipped up to date exiftool metadata for {exported_file}")
-        elif exiftool and exported_file:
-            for exported_file in [exported_file]:
+                )[0]
+                if old_data != current_data:
+                    files_are_different = True
+
+            if old_data is None or files_are_different:
+                # didn't have old data, assume we need to write it
+                # or files were different
                 verbose(f"Writing metadata with exiftool for {exported_file}")
                 if not dry_run:
                     warning_, error_ = self._write_exif_data(
@@ -1492,6 +1442,52 @@ class PhotoExporter:
                     exported_file, fileutil.file_sig(exported_file)
                 )
                 results.exif_updated.append(exported_file)
+            else:
+                verbose(f"Skipped up to date exiftool metadata for {exported_file}")
+        else:
+            verbose(f"Writing metadata with exiftool for {exported_file}")
+            if not dry_run:
+                warning_, error_ = self._write_exif_data(
+                    exported_file,
+                    use_albums_as_keywords=use_albums_as_keywords,
+                    use_persons_as_keywords=use_persons_as_keywords,
+                    keyword_template=keyword_template,
+                    description_template=description_template,
+                    ignore_date_modified=ignore_date_modified,
+                    flags=exiftool_flags,
+                    merge_exif_keywords=merge_exif_keywords,
+                    merge_exif_persons=merge_exif_persons,
+                    persons=persons,
+                    location=location,
+                    replace_keywords=replace_keywords,
+                    strip=strip,
+                )
+                if warning_:
+                    results.exiftool_warning.append((exported_file, warning_))
+                if error_:
+                    results.exiftool_error.append((exported_file, error_))
+                    results.error.append((exported_file, error_))
+
+            export_db.set_exifdata_for_file(
+                exported_file,
+                self._exiftool_json_sidecar(
+                    use_albums_as_keywords=use_albums_as_keywords,
+                    use_persons_as_keywords=use_persons_as_keywords,
+                    keyword_template=keyword_template,
+                    description_template=description_template,
+                    ignore_date_modified=ignore_date_modified,
+                    merge_exif_keywords=merge_exif_keywords,
+                    merge_exif_persons=merge_exif_persons,
+                    persons=persons,
+                    location=location,
+                    replace_keywords=replace_keywords,
+                    strip=strip,
+                ),
+            )
+            export_db.set_stat_exif_for_file(
+                exported_file, fileutil.file_sig(exported_file)
+            )
+            results.exif_updated.append(exported_file)
         return results
 
     def _write_exif_data(
