@@ -709,12 +709,12 @@ class PhotoExporter:
         all_results += results
 
         # if exiftool, write the metadata
-        if update:
-            exif_files = all_results.new + all_results.updated + all_results.skipped
-        else:
-            exif_files = all_results.exported
-
         if exiftool:
+            exif_files = (
+                all_results.new + all_results.updated + all_results.skipped
+                if update
+                else all_results.exported
+            )
             for exported_file in exif_files:
                 results = self._write_exif_metadata_to_files(
                     exported_file=exported_file,
