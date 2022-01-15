@@ -13,7 +13,7 @@ import pathlib
 import re
 import tempfile
 from collections import namedtuple  # pylint: disable=syntax-error
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Callable
 
 import photoscript
 from mako.template import Template
@@ -34,7 +34,7 @@ from ._constants import (
 from ._version import __version__
 from .datetime_utils import datetime_tz_to_utc
 from .exiftool import ExifTool
-from .export_db import ExportDBNoOp
+from .export_db import ExportDBNoOp, ExportDB_ABC
 from .fileutil import FileUtil
 from .photokit import (
     PHOTOS_VERSION_CURRENT,
@@ -442,8 +442,7 @@ class PhotoExporter:
         # Don't modify this code if you don't fully understand everything it does.
 
         # when called from export(), won't get an export_db, so use no-op version
-        if export_db is None:
-            export_db = ExportDBNoOp()
+        export_db = export_db or ExportDBNoOp()
 
         if verbose and not callable(verbose):
             raise TypeError("verbose must be callable")
@@ -686,131 +685,28 @@ class PhotoExporter:
                     )
                     all_results += results
 
-        # export metadata
-        sidecars = []
-        sidecar_json_files_skipped = []
-        sidecar_json_files_written = []
-        sidecar_exiftool_files_skipped = []
-        sidecar_exiftool_files_written = []
-        sidecar_xmp_files_skipped = []
-        sidecar_xmp_files_written = []
-
-        dest_suffix = "" if sidecar_drop_ext else dest.suffix
-        if sidecar & SIDECAR_JSON:
-            sidecar_filename = dest.parent / pathlib.Path(
-                f"{dest.stem}{dest_suffix}.json"
-            )
-            sidecar_str = self._exiftool_json_sidecar(
-                use_albums_as_keywords=use_albums_as_keywords,
-                use_persons_as_keywords=use_persons_as_keywords,
-                keyword_template=keyword_template,
-                description_template=description_template,
-                ignore_date_modified=ignore_date_modified,
-                merge_exif_keywords=merge_exif_keywords,
-                merge_exif_persons=merge_exif_persons,
-                filename=dest.name,
-                persons=persons,
-                location=location,
-                replace_keywords=replace_keywords,
-                strip=strip,
-            )
-            sidecars.append(
-                (
-                    sidecar_filename,
-                    sidecar_str,
-                    sidecar_json_files_written,
-                    sidecar_json_files_skipped,
-                    "JSON",
-                )
-            )
-
-        if sidecar & SIDECAR_EXIFTOOL:
-            sidecar_filename = dest.parent / pathlib.Path(
-                f"{dest.stem}{dest_suffix}.json"
-            )
-            sidecar_str = self._exiftool_json_sidecar(
-                use_albums_as_keywords=use_albums_as_keywords,
-                use_persons_as_keywords=use_persons_as_keywords,
-                keyword_template=keyword_template,
-                description_template=description_template,
-                ignore_date_modified=ignore_date_modified,
-                tag_groups=False,
-                merge_exif_keywords=merge_exif_keywords,
-                merge_exif_persons=merge_exif_persons,
-                filename=dest.name,
-                persons=persons,
-                location=location,
-                replace_keywords=replace_keywords,
-                strip=strip,
-            )
-            sidecars.append(
-                (
-                    sidecar_filename,
-                    sidecar_str,
-                    sidecar_exiftool_files_written,
-                    sidecar_exiftool_files_skipped,
-                    "exiftool",
-                )
-            )
-
-        if sidecar & SIDECAR_XMP:
-            sidecar_filename = dest.parent / pathlib.Path(
-                f"{dest.stem}{dest_suffix}.xmp"
-            )
-            sidecar_str = self._xmp_sidecar(
-                use_albums_as_keywords=use_albums_as_keywords,
-                use_persons_as_keywords=use_persons_as_keywords,
-                keyword_template=keyword_template,
-                description_template=description_template,
-                extension=dest.suffix[1:] if dest.suffix else None,
-                persons=persons,
-                location=location,
-                replace_keywords=replace_keywords,
-                strip=strip,
-            )
-            sidecars.append(
-                (
-                    sidecar_filename,
-                    sidecar_str,
-                    sidecar_xmp_files_written,
-                    sidecar_xmp_files_skipped,
-                    "XMP",
-                )
-            )
-
-        for data in sidecars:
-            sidecar_filename = data[0]
-            sidecar_str = data[1]
-            files_written = data[2]
-            files_skipped = data[3]
-            sidecar_type = data[4]
-
-            sidecar_digest = hexdigest(sidecar_str)
-            old_sidecar_digest, sidecar_sig = export_db.get_sidecar_for_file(
-                sidecar_filename
-            )
-            write_sidecar = (
-                not update
-                or (update and not sidecar_filename.exists())
-                or (
-                    update
-                    and (sidecar_digest != old_sidecar_digest)
-                    or not fileutil.cmp_file_sig(sidecar_filename, sidecar_sig)
-                )
-            )
-            if write_sidecar:
-                verbose(f"Writing {sidecar_type} sidecar {sidecar_filename}")
-                files_written.append(str(sidecar_filename))
-                if not dry_run:
-                    self._write_sidecar(sidecar_filename, sidecar_str)
-                    export_db.set_sidecar_for_file(
-                        sidecar_filename,
-                        sidecar_digest,
-                        fileutil.file_sig(sidecar_filename),
-                    )
-            else:
-                verbose(f"Skipped up to date {sidecar_type} sidecar {sidecar_filename}")
-                files_skipped.append(str(sidecar_filename))
+        results = self._write_sidecar_files(
+            dest=dest,
+            sidecar=sidecar,
+            sidecar_drop_ext=sidecar_drop_ext,
+            use_albums_as_keywords=use_albums_as_keywords,
+            use_persons_as_keywords=use_persons_as_keywords,
+            keyword_template=keyword_template,
+            description_template=description_template,
+            ignore_date_modified=ignore_date_modified,
+            merge_exif_keywords=merge_exif_keywords,
+            merge_exif_persons=merge_exif_persons,
+            persons=persons,
+            location=location,
+            replace_keywords=replace_keywords,
+            strip=strip,
+            update=update,
+            fileutil=fileutil,
+            export_db=export_db,
+            dry_run=dry_run,
+            verbose=verbose,
+        )
+        all_results += results
 
         # if exiftool, write the metadata
         if update:
@@ -947,13 +843,6 @@ class PhotoExporter:
                 fileutil.utime(exif_file, (ts, ts))
 
         all_results.touched = list(set(all_results.touched))
-
-        all_results.sidecar_json_written = sidecar_json_files_written
-        all_results.sidecar_json_skipped = sidecar_json_files_skipped
-        all_results.sidecar_exiftool_written = sidecar_exiftool_files_written
-        all_results.sidecar_exiftool_skipped = sidecar_exiftool_files_skipped
-        all_results.sidecar_xmp_written = sidecar_xmp_files_written
-        all_results.sidecar_xmp_skipped = sidecar_xmp_files_skipped
 
         return all_results
 
@@ -1398,6 +1287,165 @@ class PhotoExporter:
             sidecar_xmp_skipped=[],
             missing=[],
             error=[],
+        )
+
+    def _write_sidecar_files(
+        self,
+        dest: pathlib.Path,
+        sidecar: int,
+        sidecar_drop_ext: bool,
+        use_albums_as_keywords: bool,
+        use_persons_as_keywords: bool,
+        keyword_template: Optional[str],
+        description_template: Optional[str],
+        ignore_date_modified: bool,
+        merge_exif_keywords: bool,
+        merge_exif_persons: bool,
+        persons: bool,
+        location: bool,
+        replace_keywords: bool,
+        strip: bool,
+        update: bool,
+        fileutil: FileUtil,
+        export_db: ExportDB_ABC,
+        dry_run: bool,
+        verbose: Optional[Callable],
+    ) -> ExportResults:
+        """Write sidecar files for the photo."""
+
+        # export metadata
+        sidecars = []
+        sidecar_json_files_skipped = []
+        sidecar_json_files_written = []
+        sidecar_exiftool_files_skipped = []
+        sidecar_exiftool_files_written = []
+        sidecar_xmp_files_skipped = []
+        sidecar_xmp_files_written = []
+
+        dest_suffix = "" if sidecar_drop_ext else dest.suffix
+        if sidecar & SIDECAR_JSON:
+            sidecar_filename = dest.parent / pathlib.Path(
+                f"{dest.stem}{dest_suffix}.json"
+            )
+            sidecar_str = self._exiftool_json_sidecar(
+                use_albums_as_keywords=use_albums_as_keywords,
+                use_persons_as_keywords=use_persons_as_keywords,
+                keyword_template=keyword_template,
+                description_template=description_template,
+                ignore_date_modified=ignore_date_modified,
+                merge_exif_keywords=merge_exif_keywords,
+                merge_exif_persons=merge_exif_persons,
+                filename=dest.name,
+                persons=persons,
+                location=location,
+                replace_keywords=replace_keywords,
+                strip=strip,
+            )
+            sidecars.append(
+                (
+                    sidecar_filename,
+                    sidecar_str,
+                    sidecar_json_files_written,
+                    sidecar_json_files_skipped,
+                    "JSON",
+                )
+            )
+
+        if sidecar & SIDECAR_EXIFTOOL:
+            sidecar_filename = dest.parent / pathlib.Path(
+                f"{dest.stem}{dest_suffix}.json"
+            )
+            sidecar_str = self._exiftool_json_sidecar(
+                use_albums_as_keywords=use_albums_as_keywords,
+                use_persons_as_keywords=use_persons_as_keywords,
+                keyword_template=keyword_template,
+                description_template=description_template,
+                ignore_date_modified=ignore_date_modified,
+                tag_groups=False,
+                merge_exif_keywords=merge_exif_keywords,
+                merge_exif_persons=merge_exif_persons,
+                filename=dest.name,
+                persons=persons,
+                location=location,
+                replace_keywords=replace_keywords,
+                strip=strip,
+            )
+            sidecars.append(
+                (
+                    sidecar_filename,
+                    sidecar_str,
+                    sidecar_exiftool_files_written,
+                    sidecar_exiftool_files_skipped,
+                    "exiftool",
+                )
+            )
+
+        if sidecar & SIDECAR_XMP:
+            sidecar_filename = dest.parent / pathlib.Path(
+                f"{dest.stem}{dest_suffix}.xmp"
+            )
+            sidecar_str = self._xmp_sidecar(
+                use_albums_as_keywords=use_albums_as_keywords,
+                use_persons_as_keywords=use_persons_as_keywords,
+                keyword_template=keyword_template,
+                description_template=description_template,
+                extension=dest.suffix[1:] if dest.suffix else None,
+                persons=persons,
+                location=location,
+                replace_keywords=replace_keywords,
+                strip=strip,
+            )
+            sidecars.append(
+                (
+                    sidecar_filename,
+                    sidecar_str,
+                    sidecar_xmp_files_written,
+                    sidecar_xmp_files_skipped,
+                    "XMP",
+                )
+            )
+
+        for data in sidecars:
+            sidecar_filename = data[0]
+            sidecar_str = data[1]
+            files_written = data[2]
+            files_skipped = data[3]
+            sidecar_type = data[4]
+
+            sidecar_digest = hexdigest(sidecar_str)
+            old_sidecar_digest, sidecar_sig = export_db.get_sidecar_for_file(
+                sidecar_filename
+            )
+            write_sidecar = (
+                not update
+                or (update and not sidecar_filename.exists())
+                or (
+                    update
+                    and (sidecar_digest != old_sidecar_digest)
+                    or not fileutil.cmp_file_sig(sidecar_filename, sidecar_sig)
+                )
+            )
+            if write_sidecar:
+                verbose(f"Writing {sidecar_type} sidecar {sidecar_filename}")
+                files_written.append(str(sidecar_filename))
+                if not dry_run:
+                    self._write_sidecar(sidecar_filename, sidecar_str)
+                    export_db.set_sidecar_for_file(
+                        sidecar_filename,
+                        sidecar_digest,
+                        fileutil.file_sig(sidecar_filename),
+                    )
+            else:
+                verbose(f"Skipped up to date {sidecar_type} sidecar {sidecar_filename}")
+                files_skipped.append(str(sidecar_filename))
+
+        return ExportResults(
+            sidecar_json_written=sidecar_json_files_written,
+            sidecar_json_skipped=sidecar_json_files_skipped,
+            sidecar_exiftool_written=sidecar_exiftool_files_written,
+            sidecar_exiftool_skipped=sidecar_exiftool_files_skipped,
+            sidecar_xmp_written=sidecar_xmp_files_written,
+            sidecar_xmp_skipped=sidecar_xmp_files_skipped,
         )
 
     def _write_exif_data(
