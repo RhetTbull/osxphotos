@@ -59,7 +59,7 @@ from .exiftool import get_exiftool_path
 from .export_db import ExportDB, ExportDBInMemory
 from .fileutil import FileUtil, FileUtilNoOp
 from .path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
-from .photoexporter import ExportResults, PhotoExporter
+from .photoexporter import ExportOptions, ExportResults, PhotoExporter
 from .photoinfo import PhotoInfo
 from .photokit import check_photokit_authorization, request_photokit_authorization
 from .photosalbum import PhotosAlbum
@@ -2960,11 +2960,8 @@ def export_photo_to_directory(
         tries += 1
         error = 0
         try:
-            exporter = PhotoExporter(photo)
-            export_results = exporter.export2(
-                dest=dest_path,
+            export_options = ExportOptions(
                 edited=edited,
-                filename=filename,
                 sidecar=sidecar_flags,
                 sidecar_drop_ext=sidecar_drop_ext,
                 live_photo=export_live,
@@ -2996,6 +2993,10 @@ def export_photo_to_directory(
                 render_options=render_options,
                 preview=export_preview or (missing and preview_if_missing),
                 preview_suffix=preview_suffix,
+            )
+            exporter = PhotoExporter(photo)
+            export_results = exporter.export2(
+                dest=dest_path, filename=filename, options=export_options
             )
             for warning_ in export_results.exiftool_warning:
                 verbose_(f"exiftool warning for file {warning_[0]}: {warning_[1]}")
@@ -3471,12 +3472,13 @@ def write_finder_tags(
     skipped = []
     if keywords:
         # match whatever keywords would've been used in --exiftool or --sidecar
-        exif = PhotoExporter(photo)._exiftool_dict(
+        export_options = ExportOptions(
             use_albums_as_keywords=album_keyword,
             use_persons_as_keywords=person_keyword,
             keyword_template=keyword_template,
             merge_exif_keywords=exiftool_merge_keywords,
         )
+        exif = PhotoExporter(photo)._exiftool_dict(options=export_options)
         try:
             if exif["IPTC:Keywords"]:
                 tags.extend(exif["IPTC:Keywords"])
@@ -4148,7 +4150,7 @@ def repl(ctx, cli_obj, db, emacs):
     from osxphotos import ExifTool, PhotoInfo, PhotosDB
     from osxphotos.albuminfo import AlbumInfo
     from osxphotos.momentinfo import MomentInfo
-    from osxphotos.photoexporter import ExportResults, PhotoExporter
+    from osxphotos.photoexporter import ExportOptions, ExportResults, PhotoExporter
     from osxphotos.placeinfo import PlaceInfo
     from osxphotos.queryoptions import QueryOptions
     from osxphotos.scoreinfo import ScoreInfo
@@ -4186,7 +4188,7 @@ def repl(ctx, cli_obj, db, emacs):
     print(f"Found {len(photos)} photos in {tictoc:0.2f} seconds\n")
     print("The following classes have been imported from osxphotos:")
     print(
-        "- AlbumInfo, ExifTool, PhotoInfo, PhotoExporter, ExportResults, PhotosDB, PlaceInfo, QueryOptions, MomentInfo, ScoreInfo, SearchInfo\n"
+        "- AlbumInfo, ExifTool, PhotoInfo, PhotoExporter, ExportOptions, ExportResults, PhotosDB, PlaceInfo, QueryOptions, MomentInfo, ScoreInfo, SearchInfo\n"
     )
     print("The following variables are defined:")
     print(f"- photosdb: PhotosDB() instance for {photosdb.library_path}")
@@ -4420,7 +4422,7 @@ def snap(ctx, cli_obj, db):
     metavar="STYLE",
     nargs=1,
     default="monokai",
-    help = "Specify style/theme for syntax highlighting. "
+    help="Specify style/theme for syntax highlighting. "
     "Theme may be any valid pygments style (https://pygments.org/styles/). "
     "Default is 'monokai'.",
 )

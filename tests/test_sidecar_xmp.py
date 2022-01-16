@@ -9,7 +9,7 @@ import osxphotos
 from osxphotos._constants import SIDECAR_XMP
 from osxphotos.exiftool import ExifTool, get_exiftool_path
 from osxphotos.fileutil import FileUtil
-from osxphotos.photoexporter import PhotoExporter
+from osxphotos.photoexporter import ExportOptions, PhotoExporter
 
 PHOTOS_DB_15_7 = "tests/Test-10.15.7.photoslibrary"
 
@@ -40,7 +40,10 @@ def test_sidecar_xmp(photosdb):
         tempdir = tempfile.TemporaryDirectory(prefix="osxphotos")
         dest = tempdir.name
         photo = photosdb.get_photo(uuid)
-        PhotoExporter(photo).export2(dest, photo.original_filename, sidecar=SIDECAR_XMP)
+        export_options = ExportOptions(sidecar=SIDECAR_XMP)
+        PhotoExporter(photo).export2(
+            dest, photo.original_filename, options=export_options
+        )
         filepath = str(pathlib.Path(dest) / photo.original_filename)
         xmppath = filepath + ".xmp"
 

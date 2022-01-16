@@ -1,8 +1,9 @@
 import os
+
 import pytest
 
 from osxphotos._constants import _UNKNOWN_PERSON
-from osxphotos.photoexporter import PhotoExporter
+from osxphotos.photoexporter import ExportOptions, PhotoExporter
 
 skip_test = "OSXPHOTOS_TEST_CONVERT" not in os.environ
 pytestmark = pytest.mark.skipif(
@@ -16,16 +17,10 @@ UUID_DICT = {
     "heic": "7783E8E6-9CAC-40F3-BE22-81FB7051C266",
 }
 
-NAMES_DICT = {
-    "raw": "DSC03584.jpeg",
-    "heic": "IMG_3092.jpeg"
-}
+NAMES_DICT = {"raw": "DSC03584.jpeg", "heic": "IMG_3092.jpeg"}
 
 UUID_LIVE_HEIC = "8EC216A2-0032-4934-BD3F-04C6259B3304"
-NAMES_LIVE_HEIC = [
-    "IMG_3259.jpeg",
-    "IMG_3259.mov"
-]
+NAMES_LIVE_HEIC = ["IMG_3259.jpeg", "IMG_3259.mov"]
 
 
 @pytest.fixture(scope="module")
@@ -44,7 +39,8 @@ def test_export_convert_raw_to_jpeg(photosdb):
     dest = tempdir.name
     photos = photosdb.photos(uuid=[UUID_DICT["raw"]])
 
-    results = PhotoExporter(photos[0]).export2(dest, convert_to_jpeg=True)
+    export_options = ExportOptions(convert_to_jpeg=True)
+    results = PhotoExporter(photos[0]).export2(dest, options=export_options)
     got_dest = pathlib.Path(results.exported[0])
 
     assert got_dest.is_file()
@@ -61,7 +57,8 @@ def test_export_convert_heic_to_jpeg(photosdb):
     dest = tempdir.name
     photos = photosdb.photos(uuid=[UUID_DICT["heic"]])
 
-    results = PhotoExporter(photos[0]).export2(dest, convert_to_jpeg=True)
+    export_options = ExportOptions(convert_to_jpeg=True)
+    results = PhotoExporter(photos[0]).export2(dest, options=export_options)
     got_dest = pathlib.Path(results.exported[0])
 
     assert got_dest.is_file()
@@ -88,7 +85,8 @@ def test_export_convert_live_heic_to_jpeg():
     dest = tempdir.name
     photo = photosdb.get_photo(UUID_LIVE_HEIC)
 
-    results = PhotoExporter(photo).export2(dest, convert_to_jpeg=True, live_photo=True)
+    export_options = ExportOptions(convert_to_jpeg=True, live_photo=True)
+    results = PhotoExporter(photo).export2(dest, options=export_options)
 
     for name in NAMES_LIVE_HEIC:
         assert f"{tempdir.name}/{name}" in results.exported
@@ -96,4 +94,3 @@ def test_export_convert_live_heic_to_jpeg():
     for file_ in results.exported:
         dest = pathlib.Path(file_)
         assert dest.is_file()
-

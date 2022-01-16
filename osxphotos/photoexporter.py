@@ -13,6 +13,7 @@ import pathlib
 import re
 import tempfile
 from collections import namedtuple  # pylint: disable=syntax-error
+from dataclasses import asdict, dataclass
 from typing import TYPE_CHECKING, Callable, List, Optional
 
 import photoscript
@@ -59,8 +60,54 @@ class ExportError(Exception):
     pass
 
 
+@dataclass
+class ExportOptions:
+    """Options class for exporting photos with export2"""
+
+    convert_to_jpeg: bool = False
+    description_template: Optional[str] = None
+    dry_run: bool = False
+    edited: bool = False
+    exiftool_flags: Optional[List] = None
+    exiftool: bool = False
+    export_as_hardlink: bool = False
+    export_db: Optional[ExportDB_ABC] = None
+    fileutil: Optional[FileUtil] = None
+    ignore_date_modified: bool = False
+    ignore_signature: bool = False
+    increment: bool = True
+    jpeg_ext: Optional[str] = None
+    jpeg_quality: float = 1.0
+    keyword_template: Optional[List[str]] = None
+    live_photo: bool = False
+    location: bool = True
+    merge_exif_keywords: bool = False
+    merge_exif_persons: bool = False
+    overwrite: bool = False
+    persons: bool = True
+    preview_suffix: str = DEFAULT_PREVIEW_SUFFIX
+    preview: bool = False
+    raw_photo: bool = False
+    render_options: Optional[RenderOptions] = None
+    replace_keywords: bool = False
+    sidecar_drop_ext: bool = False
+    sidecar: int = 0
+    strip: bool = False
+    timeout: int = 120
+    touch_file: bool = False
+    update: bool = False
+    use_albums_as_keywords: bool = False
+    use_persons_as_keywords: bool = False
+    use_photokit: bool = False
+    use_photos_export: bool = False
+    verbose: Optional[Callable] = None
+
+    def asdict(self):
+        return asdict(self)
+
+
 class ExportResults:
-    """holds export results for export2"""
+    """Results class which holds export results for export2"""
 
     def __init__(
         self,
@@ -290,24 +337,28 @@ class PhotoExporter:
                     ext = "." + ext
                 filename = original_name.stem + "_edited" + ext
 
+        options = ExportOptions(
+            description_template=description_template,
+            edited=edited,
+            exiftool=exiftool,
+            export_as_hardlink=export_as_hardlink,
+            increment=increment,
+            keyword_template=keyword_template,
+            live_photo=live_photo,
+            overwrite=overwrite,
+            raw_photo=raw_photo,
+            render_options=render_options,
+            sidecar=sidecar,
+            timeout=timeout,
+            use_albums_as_keywords=use_albums_as_keywords,
+            use_persons_as_keywords=use_persons_as_keywords,
+            use_photos_export=use_photos_export,
+        )
+
         results = self.export2(
             dest,
             filename=filename,
-            edited=edited,
-            live_photo=live_photo,
-            raw_photo=raw_photo,
-            export_as_hardlink=export_as_hardlink,
-            overwrite=overwrite,
-            increment=increment,
-            sidecar=sidecar,
-            use_photos_export=use_photos_export,
-            timeout=timeout,
-            exiftool=exiftool,
-            use_albums_as_keywords=use_albums_as_keywords,
-            use_persons_as_keywords=use_persons_as_keywords,
-            keyword_template=keyword_template,
-            description_template=description_template,
-            render_options=render_options,
+            options=options,
         )
 
         return results.exported
@@ -316,43 +367,7 @@ class PhotoExporter:
         self,
         dest,
         filename=None,
-        edited=False,
-        live_photo=False,
-        raw_photo=False,
-        export_as_hardlink=False,
-        overwrite=False,
-        increment=True,
-        sidecar=0,
-        sidecar_drop_ext=False,
-        use_photos_export=False,
-        timeout=120,
-        exiftool=False,
-        use_albums_as_keywords=False,
-        use_persons_as_keywords=False,
-        keyword_template=None,
-        description_template=None,
-        update=False,
-        ignore_signature=False,
-        export_db=None,
-        fileutil=FileUtil,
-        dry_run=False,
-        touch_file=False,
-        convert_to_jpeg=False,
-        jpeg_quality=1.0,
-        ignore_date_modified=False,
-        use_photokit=False,
-        verbose=None,
-        exiftool_flags=None,
-        merge_exif_keywords=False,
-        merge_exif_persons=False,
-        jpeg_ext=None,
-        persons=True,
-        location=True,
-        replace_keywords=False,
-        preview=False,
-        preview_suffix=DEFAULT_PREVIEW_SUFFIX,
-        render_options: Optional[RenderOptions] = None,
-        strip=False,
+        options: Optional[ExportOptions] = None,
     ):
         """export photo, like export but with update and dry_run options
         dest: must be valid destination path or exception raised
@@ -441,18 +456,25 @@ class PhotoExporter:
         # NOTE: This function is very complex and does a lot of things.
         # Don't modify this code if you don't fully understand everything it does.
 
-        # when called from export(), won't get an export_db, so use no-op version
-        export_db = export_db or ExportDBNoOp()
+        options = options or ExportOptions()
 
+        # when called from export(), won't get an export_db, so use no-op version
+        options.export_db = options.export_db or ExportDBNoOp()
+        export_db = options.export_db
+
+        # ensure there's a FileUtil class to use
+        options.fileutil = options.fileutil or FileUtil
+        fileutil = options.fileutil
+
+        verbose = options.verbose or self._verbose
         if verbose and not callable(verbose):
             raise TypeError("verbose must be callable")
-        if verbose is None:
-            verbose = self._verbose
 
-        self._render_options = render_options or RenderOptions()
+        self._render_options = options.render_options or RenderOptions()
 
-        export_original = not edited
-        export_edited = edited
+        # export_original, and export_edited are just used for clarity in the code
+        export_original = not options.edited
+        export_edited = options.edited
         if export_edited and not self.photo.hasadjustments:
             raise ValueError(
                 "Photo does not have adjustments, cannot export edited version"
@@ -461,7 +483,7 @@ class PhotoExporter:
         # verify destination is a valid path
         if dest is None:
             raise ValueError("dest must not be None")
-        elif not dry_run and not os.path.isdir(dest):
+        elif not options.dry_run and not os.path.isdir(dest):
             raise FileNotFoundError("Invalid path passed to export")
 
         if export_edited:
@@ -472,10 +494,10 @@ class PhotoExporter:
             filename = filename or self.photo.original_filename
         dest = pathlib.Path(dest) / filename
 
-        # Is there something to convert?
-        if convert_to_jpeg and self.photo.isphoto:
+        # Is there something to convert with convert_to_jpeg?
+        if options.convert_to_jpeg and self.photo.isphoto:
             something_to_convert = False
-            ext = "." + jpeg_ext if jpeg_ext else ".jpeg"
+            ext = "." + options.jpeg_ext if options.jpeg_ext else ".jpeg"
             if export_original and self.photo.uti_original != "public.jpeg":
                 # not a jpeg but will convert to jpeg upon export so fix file extension
                 something_to_convert = True
@@ -487,43 +509,33 @@ class PhotoExporter:
             convert_to_jpeg = something_to_convert
         else:
             convert_to_jpeg = False
+        options = dataclasses.replace(options, convert_to_jpeg=convert_to_jpeg)
 
         dest, _ = self._validate_dest_path(
-            dest, increment=increment, update=update, overwrite=overwrite
+            dest,
+            increment=options.increment,
+            update=options.update,
+            overwrite=options.overwrite,
         )
         dest = pathlib.Path(dest)
         self._render_options.filepath = str(dest)
         all_results = ExportResults()
 
-        if use_photos_export:
+        if options.use_photos_export:
             self._export_photo_with_photos_export(
-                dest=dest,
-                all_results=all_results,
-                fileutil=fileutil,
-                export_db=export_db,
-                use_photokit=use_photokit,
-                dry_run=dry_run,
-                timeout=timeout,
-                jpeg_ext=jpeg_ext,
-                touch_file=touch_file,
-                update=update,
-                overwrite=overwrite,
-                live_photo=live_photo,
-                edited=export_edited,
-                convert_to_jpeg=convert_to_jpeg,
-                jpeg_quality=jpeg_quality,
+                dest=dest, all_results=all_results, options=options
             )
         else:
             # find the source file on disk and export
             # get path to source file and verify it's not None and is valid file
             # TODO: how to handle ismissing or not hasadjustments and edited=True cases?
-            src = self.photo.path_edited if edited else self.photo.path
+            src = self.photo.path_edited if options.edited else self.photo.path
             if src and not pathlib.Path(src).is_file():
                 raise FileNotFoundError(f"{src} does not appear to exist")
 
             if src:
                 # found source now try to find right destination
-                if update and dest.exists():
+                if options.update and dest.exists():
                     # destination exists, check to see if destination is the right UUID
                     dest_uuid = export_db.get_uuid_for_file(dest)
                     if dest_uuid is None and fileutil.cmp(src, dest):
@@ -570,24 +582,14 @@ class PhotoExporter:
                 results = self._export_photo(
                     src,
                     dest,
-                    update,
-                    export_db,
-                    overwrite,
-                    export_as_hardlink,
-                    exiftool,
-                    touch_file,
-                    convert_to_jpeg,
-                    fileutil=fileutil,
-                    edited=edited,
-                    jpeg_quality=jpeg_quality,
-                    ignore_signature=ignore_signature,
+                    options=options,
                 )
                 all_results += results
 
             # copy live photo associated .mov if requested
             if (
                 export_original
-                and live_photo
+                and options.live_photo
                 and self.photo.live_photo
                 and self.photo.path_live_photo
             ):
@@ -596,21 +598,14 @@ class PhotoExporter:
                 results = self._export_photo(
                     src_live,
                     live_name,
-                    update,
-                    export_db,
-                    overwrite,
-                    export_as_hardlink,
-                    exiftool,
-                    touch_file,
-                    False,
-                    fileutil=fileutil,
-                    ignore_signature=ignore_signature,
+                    # don't try to convert the live photo
+                    options=dataclasses.replace(options, convert_to_jpeg=False),
                 )
                 all_results += results
 
             if (
                 export_edited
-                and live_photo
+                and options.live_photo
                 and self.photo.live_photo
                 and self.photo.path_edited_live_photo
             ):
@@ -619,20 +614,13 @@ class PhotoExporter:
                 results = self._export_photo(
                     src_live,
                     live_name,
-                    update,
-                    export_db,
-                    overwrite,
-                    export_as_hardlink,
-                    exiftool,
-                    touch_file,
-                    False,
-                    fileutil=fileutil,
-                    ignore_signature=ignore_signature,
+                    # don't try to convert the live photo
+                    options=dataclasses.replace(options, convert_to_jpeg=False),
                 )
                 all_results += results
 
             # copy associated RAW image if requested
-            if raw_photo and self.photo.has_raw and self.photo.path_raw:
+            if options.raw_photo and self.photo.has_raw and self.photo.path_raw:
                 raw_path = pathlib.Path(self.photo.path_raw)
                 raw_ext = raw_path.suffix
                 raw_name = dest.parent / f"{dest.stem}{raw_ext}"
@@ -640,105 +628,52 @@ class PhotoExporter:
                     results = self._export_photo(
                         raw_path,
                         raw_name,
-                        update,
-                        export_db,
-                        overwrite,
-                        export_as_hardlink,
-                        exiftool,
-                        touch_file,
-                        convert_to_jpeg,
-                        fileutil=fileutil,
-                        jpeg_quality=jpeg_quality,
-                        ignore_signature=ignore_signature,
+                        options=options,
                     )
                     all_results += results
 
             # copy preview image if requested
-            if preview and self.photo.path_derivatives:
+            if options.preview and self.photo.path_derivatives:
                 # Photos keeps multiple different derivatives and path_derivatives returns list of them
                 # first derivative is the largest so export that one
                 preview_path = pathlib.Path(self.photo.path_derivatives[0])
                 preview_ext = preview_path.suffix
-                preview_name = dest.parent / f"{dest.stem}{preview_suffix}{preview_ext}"
+                preview_name = (
+                    dest.parent / f"{dest.stem}{options.preview_suffix}{preview_ext}"
+                )
                 # if original is missing, the filename won't have been incremented so
                 # need to check here to make sure there aren't duplicate preview files in
                 # the export directory
                 preview_name = (
                     preview_name
-                    if overwrite or update
+                    if options.overwrite or options.update
                     else pathlib.Path(increment_filename(preview_name))
                 )
                 if preview_path is not None:
                     results = self._export_photo(
                         preview_path,
                         preview_name,
-                        update,
-                        export_db,
-                        overwrite,
-                        export_as_hardlink,
-                        exiftool,
-                        touch_file,
-                        convert_to_jpeg,
-                        fileutil=fileutil,
-                        jpeg_quality=jpeg_quality,
-                        ignore_signature=ignore_signature,
+                        options=options,
                     )
                     all_results += results
 
-        results = self._write_sidecar_files(
-            dest=dest,
-            sidecar=sidecar,
-            sidecar_drop_ext=sidecar_drop_ext,
-            use_albums_as_keywords=use_albums_as_keywords,
-            use_persons_as_keywords=use_persons_as_keywords,
-            keyword_template=keyword_template,
-            description_template=description_template,
-            ignore_date_modified=ignore_date_modified,
-            merge_exif_keywords=merge_exif_keywords,
-            merge_exif_persons=merge_exif_persons,
-            persons=persons,
-            location=location,
-            replace_keywords=replace_keywords,
-            strip=strip,
-            update=update,
-            fileutil=fileutil,
-            export_db=export_db,
-            dry_run=dry_run,
-            verbose=verbose,
-        )
+        results = self._write_sidecar_files(dest=dest, options=options)
         all_results += results
 
         # if exiftool, write the metadata
-        if exiftool:
+        if options.exiftool:
             exif_files = (
                 all_results.new + all_results.updated + all_results.skipped
-                if update
+                if options.update
                 else all_results.exported
             )
             for exported_file in exif_files:
                 results = self._write_exif_metadata_to_files(
-                    exported_file=exported_file,
-                    update=update,
-                    exiftool_flags=exiftool_flags,
-                    use_albums_as_keywords=use_albums_as_keywords,
-                    use_persons_as_keywords=use_persons_as_keywords,
-                    keyword_template=keyword_template,
-                    description_template=description_template,
-                    ignore_date_modified=ignore_date_modified,
-                    merge_exif_keywords=merge_exif_keywords,
-                    merge_exif_persons=merge_exif_persons,
-                    persons=persons,
-                    location=location,
-                    replace_keywords=replace_keywords,
-                    strip=strip,
-                    fileutil=fileutil,
-                    export_db=export_db,
-                    dry_run=dry_run,
-                    verbose=verbose,
+                    exported_file=exported_file, options=options
                 )
                 all_results += results
 
-        if touch_file:
+        if options.touch_file:
             for exif_file in all_results.exif_updated:
                 verbose(f"Updating file modification time for {exif_file}")
                 all_results.touched.append(exif_file)
@@ -794,27 +729,18 @@ class PhotoExporter:
 
     def _export_photo_with_photos_export(
         self,
-        dest,
-        all_results,
-        fileutil,
-        export_db,
-        use_photokit=None,
-        dry_run=None,
-        timeout=None,
-        jpeg_ext=None,
-        touch_file=None,
-        update=None,
-        overwrite=None,
-        live_photo=None,
-        edited=None,
-        convert_to_jpeg=None,
-        jpeg_quality=1.0,
+        dest: str,
+        all_results: ExportResults,
+        options: ExportOptions,
     ):
         # TODO: duplicative code with the if edited/else--remove it
+        fileutil = options.fileutil
+        export_db = options.export_db
+
         # export live_photo .mov file?
-        live_photo = bool(live_photo and self.photo.live_photo)
-        overwrite = overwrite or update
-        if edited or self.photo.shared:
+        live_photo = bool(options.live_photo and self.photo.live_photo)
+        overwrite = options.overwrite or options.update
+        if options.edited or self.photo.shared:
             # exported edited version and not original
             # shared photos (in shared albums) show up as not having adjustments (not edited)
             # but Photos is unable to export the "original" as only a jpeg copy is shared in iCloud
@@ -822,13 +748,13 @@ class PhotoExporter:
             # didn't get passed a filename, add _edited
             uti = (
                 self.photo.uti_edited
-                if edited and self.photo.uti_edited
+                if options.edited and self.photo.uti_edited
                 else self.photo.uti
             )
             ext = get_preferred_uti_extension(uti)
             dest = dest.parent / f"{dest.stem}.{ext}"
 
-            if use_photokit:
+            if options.use_photokit:
                 photolib = PhotoLibrary()
                 photo = None
                 try:
@@ -852,7 +778,7 @@ class PhotoExporter:
                             )
                         )
                 if photo:
-                    if dry_run:
+                    if options.dry_run:
                         # dry_run, don't actually export
                         all_results.exported.append(str(dest))
                     else:
@@ -878,9 +804,9 @@ class PhotoExporter:
                         original=False,
                         edited=True,
                         live_photo=live_photo,
-                        timeout=timeout,
+                        timeout=options.timeout,
                         burst=self.photo.burst,
-                        dry_run=dry_run,
+                        dry_run=options.dry_run,
                         overwrite=overwrite,
                     )
                     all_results.exported.extend(exported)
@@ -888,7 +814,7 @@ class PhotoExporter:
                     all_results.error.append((str(dest), f"{e} ({lineno(__file__)})"))
         else:
             # export original version and not edited
-            if use_photokit:
+            if options.use_photokit:
                 photolib = PhotoLibrary()
                 photo = None
                 try:
@@ -905,7 +831,7 @@ class PhotoExporter:
                         ]
                         photo = photo[0] if photo else None
                 if photo:
-                    if not dry_run:
+                    if not options.dry_run:
                         try:
                             exported = photo.export(
                                 dest.parent,
@@ -931,9 +857,9 @@ class PhotoExporter:
                         original=True,
                         edited=False,
                         live_photo=live_photo,
-                        timeout=timeout,
+                        timeout=options.timeout,
                         burst=self.photo.burst,
-                        dry_run=dry_run,
+                        dry_run=options.dry_run,
                         overwrite=overwrite,
                     )
                     all_results.exported.extend(exported)
@@ -943,18 +869,22 @@ class PhotoExporter:
             for idx, photopath in enumerate(all_results.exported):
                 converted_stat = (None, None, None)
                 photopath = pathlib.Path(photopath)
-                if convert_to_jpeg and self.photo.isphoto:
-                    # if passed convert_to_jpeg=True, will assume the photo is a photo and not already a jpeg
-                    if photopath.suffix.lower() not in LIVE_VIDEO_EXTENSIONS:
-                        dest_str = photopath.parent / f"{photopath.stem}.jpeg"
-                        fileutil.convert_to_jpeg(
-                            photopath, dest_str, compression_quality=jpeg_quality
-                        )
-                        converted_stat = fileutil.file_sig(dest_str)
-                        fileutil.unlink(photopath)
-                        all_results.exported[idx] = dest_str
-                        all_results.converted_to_jpeg.append(dest_str)
-                        photopath = dest_str
+                if (
+                    options.convert_to_jpeg
+                    and self.photo.isphoto
+                    and photopath.suffix.lower() not in LIVE_VIDEO_EXTENSIONS
+                ):
+                    dest_str = photopath.parent / f"{photopath.stem}.jpeg"
+                    fileutil.convert_to_jpeg(
+                        photopath,
+                        dest_str,
+                        compression_quality=options.jpeg_quality,
+                    )
+                    converted_stat = fileutil.file_sig(dest_str)
+                    fileutil.unlink(photopath)
+                    all_results.exported[idx] = dest_str
+                    all_results.converted_to_jpeg.append(dest_str)
+                    photopath = dest_str
 
                 photopath = str(photopath)
                 export_db.set_data(
@@ -969,36 +899,26 @@ class PhotoExporter:
                 )
 
                 # todo: handle signatures
-            if jpeg_ext:
+            if options.jpeg_ext:
                 # use_photos_export (both PhotoKit and AppleScript) don't use the
                 # file extension provided (instead they use extension for UTI)
                 # so if jpeg_ext is set, rename any non-conforming jpegs
                 all_results.exported = rename_jpeg_files(
-                    all_results.exported, jpeg_ext, fileutil
+                    all_results.exported, options.jpeg_ext, fileutil
                 )
-            if touch_file:
+            if options.touch_file:
                 for exported_file in all_results.exported:
                     all_results.touched.append(exported_file)
                     ts = int(self.photo.date.timestamp())
                     fileutil.utime(exported_file, (ts, ts))
-            if update:
+            if options.update:
                 all_results.new.extend(all_results.exported)
 
     def _export_photo(
         self,
         src,
         dest,
-        update,
-        export_db,
-        overwrite,
-        export_as_hardlink,
-        exiftool,
-        touch_file,
-        convert_to_jpeg,
-        fileutil=FileUtil,
-        edited=False,
-        jpeg_quality=1.0,
-        ignore_signature=None,
+        options,
     ):
         """Helper function for export()
             Does the actual copy or hardlink taking the appropriate
@@ -1028,7 +948,7 @@ class PhotoExporter:
             ValueError if export_as_hardlink and convert_to_jpeg both True
         """
 
-        if export_as_hardlink and convert_to_jpeg:
+        if options.export_as_hardlink and options.convert_to_jpeg:
             raise ValueError(
                 "export_as_hardlink and convert_to_jpeg cannot both be True"
             )
@@ -1043,16 +963,19 @@ class PhotoExporter:
         dest_str = str(dest)
         dest_exists = dest.exists()
 
-        if update:  # updating
+        fileutil = options.fileutil
+        export_db = options.export_db
+
+        if options.update:  # updating
             cmp_touch, cmp_orig = False, False
             if dest_exists:
                 # update, destination exists, but we might not need to replace it...
-                if ignore_signature:
+                if options.ignore_signature:
                     cmp_orig = True
                     cmp_touch = fileutil.cmp(
                         src, dest, mtime1=int(self.photo.date.timestamp())
                     )
-                elif exiftool:
+                elif options.exiftool:
                     sig_exif = export_db.get_stat_exif_for_file(dest_str)
                     cmp_orig = fileutil.cmp_file_sig(dest_str, sig_exif)
                     sig_exif = (
@@ -1061,7 +984,7 @@ class PhotoExporter:
                         int(self.photo.date.timestamp()),
                     )
                     cmp_touch = fileutil.cmp_file_sig(dest_str, sig_exif)
-                elif convert_to_jpeg:
+                elif options.convert_to_jpeg:
                     sig_converted = export_db.get_stat_converted_for_file(dest_str)
                     cmp_orig = fileutil.cmp_file_sig(dest_str, sig_converted)
                     sig_converted = (
@@ -1076,9 +999,9 @@ class PhotoExporter:
                         src, dest, mtime1=int(self.photo.date.timestamp())
                     )
 
-                sig_cmp = cmp_touch if touch_file else cmp_orig
+                sig_cmp = cmp_touch if options.touch_file else cmp_orig
 
-                if edited:
+                if options.edited:
                     # requested edited version of photo
                     # need to see if edited version in Photos library has changed
                     # (e.g. it's been edited again)
@@ -1090,19 +1013,21 @@ class PhotoExporter:
                     )
                     sig_cmp = sig_cmp and cmp_edited
 
-                if (export_as_hardlink and dest.samefile(src)) or (
-                    not export_as_hardlink and not dest.samefile(src) and sig_cmp
+                if (options.export_as_hardlink and dest.samefile(src)) or (
+                    not options.export_as_hardlink
+                    and not dest.samefile(src)
+                    and sig_cmp
                 ):
                     # destination exists and signatures match, skip it
                     update_skipped_files.append(dest_str)
                 else:
                     # destination exists but signature is different
-                    if touch_file and cmp_orig and not cmp_touch:
+                    if options.touch_file and cmp_orig and not cmp_touch:
                         # destination exists, signature matches original but does not match expected touch time
                         # skip exporting but update touch time
                         update_skipped_files.append(dest_str)
                         touched_files.append(dest_str)
-                    elif not touch_file and cmp_touch and not cmp_orig:
+                    elif not options.touch_file and cmp_touch and not cmp_orig:
                         # destination exists, signature matches expected touch but not original
                         # user likely exported with touch_file and is now exporting without touch_file
                         # don't update the file because it's same but leave touch time
@@ -1110,26 +1035,28 @@ class PhotoExporter:
                     else:
                         # destination exists but is different
                         update_updated_files.append(dest_str)
-                        if touch_file:
+                        if options.touch_file:
                             touched_files.append(dest_str)
 
             else:
                 # update, destination doesn't exist (new file)
                 update_new_files.append(dest_str)
-                if touch_file:
+                if options.touch_file:
                     touched_files.append(dest_str)
         else:
             # not update, export the file
             exported_files.append(dest_str)
-            if touch_file:
+            if options.touch_file:
                 sig = fileutil.file_sig(src)
                 sig = (sig[0], sig[1], int(self.photo.date.timestamp()))
                 if not fileutil.cmp_file_sig(src, sig):
                     touched_files.append(dest_str)
         if not update_skipped_files:
             converted_stat = (None, None, None)
-            edited_stat = fileutil.file_sig(src) if edited else (None, None, None)
-            if dest_exists and (update or overwrite):
+            edited_stat = (
+                fileutil.file_sig(src) if options.edited else (None, None, None)
+            )
+            if dest_exists and (options.update or options.overwrite):
                 # need to remove the destination first
                 try:
                     fileutil.unlink(dest)
@@ -1137,17 +1064,17 @@ class PhotoExporter:
                     raise ExportError(
                         f"Error removing file {dest}: {e} (({lineno(__file__)})"
                     ) from e
-            if export_as_hardlink:
+            if options.export_as_hardlink:
                 try:
                     fileutil.hardlink(src, dest)
                 except Exception as e:
                     raise ExportError(
                         f"Error hardlinking {src} to {dest}: {e} ({lineno(__file__)})"
                     ) from e
-            elif convert_to_jpeg:
+            elif options.convert_to_jpeg:
                 # use convert_to_jpeg to export the file
                 fileutil.convert_to_jpeg(
-                    src, dest_str, compression_quality=jpeg_quality
+                    src, dest_str, compression_quality=options.jpeg_quality
                 )
                 converted_stat = fileutil.file_sig(dest_str)
                 converted_to_jpeg_files.append(dest_str)
@@ -1179,42 +1106,20 @@ class PhotoExporter:
             new=update_new_files,
             updated=update_updated_files,
             skipped=update_skipped_files,
-            exif_updated=[],
             touched=touched_files,
             converted_to_jpeg=converted_to_jpeg_files,
-            sidecar_json_written=[],
-            sidecar_json_skipped=[],
-            sidecar_exiftool_written=[],
-            sidecar_exiftool_skipped=[],
-            sidecar_xmp_written=[],
-            sidecar_xmp_skipped=[],
-            missing=[],
-            error=[],
         )
 
     def _write_sidecar_files(
         self,
         dest: pathlib.Path,
-        sidecar: int,
-        sidecar_drop_ext: bool,
-        use_albums_as_keywords: bool,
-        use_persons_as_keywords: bool,
-        keyword_template: Optional[str],
-        description_template: Optional[str],
-        ignore_date_modified: bool,
-        merge_exif_keywords: bool,
-        merge_exif_persons: bool,
-        persons: bool,
-        location: bool,
-        replace_keywords: bool,
-        strip: bool,
-        update: bool,
-        fileutil: FileUtil,
-        export_db: ExportDB_ABC,
-        dry_run: bool,
-        verbose: Optional[Callable],
+        options: ExportOptions,
     ) -> ExportResults:
         """Write sidecar files for the photo."""
+
+        export_db = options.export_db
+        fileutil = options.fileutil
+        verbose = options.verbose or self._verbose
 
         # export metadata
         sidecars = []
@@ -1225,24 +1130,13 @@ class PhotoExporter:
         sidecar_xmp_files_skipped = []
         sidecar_xmp_files_written = []
 
-        dest_suffix = "" if sidecar_drop_ext else dest.suffix
-        if sidecar & SIDECAR_JSON:
+        dest_suffix = "" if options.sidecar_drop_ext else dest.suffix
+        if options.sidecar & SIDECAR_JSON:
             sidecar_filename = dest.parent / pathlib.Path(
                 f"{dest.stem}{dest_suffix}.json"
             )
             sidecar_str = self._exiftool_json_sidecar(
-                use_albums_as_keywords=use_albums_as_keywords,
-                use_persons_as_keywords=use_persons_as_keywords,
-                keyword_template=keyword_template,
-                description_template=description_template,
-                ignore_date_modified=ignore_date_modified,
-                merge_exif_keywords=merge_exif_keywords,
-                merge_exif_persons=merge_exif_persons,
-                filename=dest.name,
-                persons=persons,
-                location=location,
-                replace_keywords=replace_keywords,
-                strip=strip,
+                filename=dest.name, options=options
             )
             sidecars.append(
                 (
@@ -1254,24 +1148,12 @@ class PhotoExporter:
                 )
             )
 
-        if sidecar & SIDECAR_EXIFTOOL:
+        if options.sidecar & SIDECAR_EXIFTOOL:
             sidecar_filename = dest.parent / pathlib.Path(
                 f"{dest.stem}{dest_suffix}.json"
             )
             sidecar_str = self._exiftool_json_sidecar(
-                use_albums_as_keywords=use_albums_as_keywords,
-                use_persons_as_keywords=use_persons_as_keywords,
-                keyword_template=keyword_template,
-                description_template=description_template,
-                ignore_date_modified=ignore_date_modified,
-                tag_groups=False,
-                merge_exif_keywords=merge_exif_keywords,
-                merge_exif_persons=merge_exif_persons,
-                filename=dest.name,
-                persons=persons,
-                location=location,
-                replace_keywords=replace_keywords,
-                strip=strip,
+                tag_groups=False, filename=dest.name, options=options
             )
             sidecars.append(
                 (
@@ -1283,20 +1165,12 @@ class PhotoExporter:
                 )
             )
 
-        if sidecar & SIDECAR_XMP:
+        if options.sidecar & SIDECAR_XMP:
             sidecar_filename = dest.parent / pathlib.Path(
                 f"{dest.stem}{dest_suffix}.xmp"
             )
             sidecar_str = self._xmp_sidecar(
-                use_albums_as_keywords=use_albums_as_keywords,
-                use_persons_as_keywords=use_persons_as_keywords,
-                keyword_template=keyword_template,
-                description_template=description_template,
-                extension=dest.suffix[1:] if dest.suffix else None,
-                persons=persons,
-                location=location,
-                replace_keywords=replace_keywords,
-                strip=strip,
+                extension=dest.suffix[1:] if dest.suffix else None, options=options
             )
             sidecars.append(
                 (
@@ -1320,10 +1194,10 @@ class PhotoExporter:
                 sidecar_filename
             )
             write_sidecar = (
-                not update
-                or (update and not sidecar_filename.exists())
+                not options.update
+                or (options.update and not sidecar_filename.exists())
                 or (
-                    update
+                    options.update
                     and (sidecar_digest != old_sidecar_digest)
                     or not fileutil.cmp_file_sig(sidecar_filename, sidecar_sig)
                 )
@@ -1331,7 +1205,7 @@ class PhotoExporter:
             if write_sidecar:
                 verbose(f"Writing {sidecar_type} sidecar {sidecar_filename}")
                 files_written.append(str(sidecar_filename))
-                if not dry_run:
+                if not options.dry_run:
                     self._write_sidecar(sidecar_filename, sidecar_str)
                     export_db.set_sidecar_for_file(
                         sidecar_filename,
@@ -1354,45 +1228,23 @@ class PhotoExporter:
     def _write_exif_metadata_to_files(
         self,
         exported_file: str,
-        update: bool,
-        exiftool_flags: Optional[List[str]],
-        use_albums_as_keywords: bool,
-        use_persons_as_keywords: bool,
-        keyword_template: Optional[str],
-        description_template: Optional[str],
-        ignore_date_modified: bool,
-        merge_exif_keywords: bool,
-        merge_exif_persons: bool,
-        persons: bool,
-        location: bool,
-        replace_keywords: bool,
-        strip: bool,
-        fileutil: FileUtil,
-        export_db: ExportDB_ABC,
-        dry_run: bool,
-        verbose: Optional[Callable],
+        options: ExportOptions,
     ) -> ExportResults:
+        """Write exif metadata to files using exiftool."""
+
+        export_db = options.export_db
+        fileutil = options.fileutil
+        verbose = options.verbose or self._verbose
+
         results = ExportResults()
-        if update:
+        if options.update:
             files_are_different = False
             old_data = export_db.get_exifdata_for_file(exported_file)
             if old_data is not None:
                 old_data = json.loads(old_data)[0]
-                current_data = json.loads(
-                    self._exiftool_json_sidecar(
-                        use_albums_as_keywords=use_albums_as_keywords,
-                        use_persons_as_keywords=use_persons_as_keywords,
-                        keyword_template=keyword_template,
-                        description_template=description_template,
-                        ignore_date_modified=ignore_date_modified,
-                        merge_exif_keywords=merge_exif_keywords,
-                        merge_exif_persons=merge_exif_persons,
-                        persons=persons,
-                        location=location,
-                        replace_keywords=replace_keywords,
-                        strip=strip,
-                    )
-                )[0]
+                current_data = json.loads(self._exiftool_json_sidecar(options=options))[
+                    0
+                ]
                 if old_data != current_data:
                     files_are_different = True
 
@@ -1400,21 +1252,9 @@ class PhotoExporter:
                 # didn't have old data, assume we need to write it
                 # or files were different
                 verbose(f"Writing metadata with exiftool for {exported_file}")
-                if not dry_run:
+                if not options.dry_run:
                     warning_, error_ = self._write_exif_data(
-                        exported_file,
-                        use_albums_as_keywords=use_albums_as_keywords,
-                        use_persons_as_keywords=use_persons_as_keywords,
-                        keyword_template=keyword_template,
-                        description_template=description_template,
-                        ignore_date_modified=ignore_date_modified,
-                        flags=exiftool_flags,
-                        merge_exif_keywords=merge_exif_keywords,
-                        merge_exif_persons=merge_exif_persons,
-                        persons=persons,
-                        location=location,
-                        replace_keywords=replace_keywords,
-                        strip=strip,
+                        exported_file, options=options
                     )
                     if warning_:
                         results.exiftool_warning.append((exported_file, warning_))
@@ -1423,20 +1263,7 @@ class PhotoExporter:
                         results.error.append((exported_file, error_))
 
                 export_db.set_exifdata_for_file(
-                    exported_file,
-                    self._exiftool_json_sidecar(
-                        use_albums_as_keywords=use_albums_as_keywords,
-                        use_persons_as_keywords=use_persons_as_keywords,
-                        keyword_template=keyword_template,
-                        description_template=description_template,
-                        ignore_date_modified=ignore_date_modified,
-                        merge_exif_keywords=merge_exif_keywords,
-                        merge_exif_persons=merge_exif_persons,
-                        persons=persons,
-                        location=location,
-                        replace_keywords=replace_keywords,
-                        strip=strip,
-                    ),
+                    exported_file, self._exiftool_json_sidecar(options=options)
                 )
                 export_db.set_stat_exif_for_file(
                     exported_file, fileutil.file_sig(exported_file)
@@ -1446,22 +1273,8 @@ class PhotoExporter:
                 verbose(f"Skipped up to date exiftool metadata for {exported_file}")
         else:
             verbose(f"Writing metadata with exiftool for {exported_file}")
-            if not dry_run:
-                warning_, error_ = self._write_exif_data(
-                    exported_file,
-                    use_albums_as_keywords=use_albums_as_keywords,
-                    use_persons_as_keywords=use_persons_as_keywords,
-                    keyword_template=keyword_template,
-                    description_template=description_template,
-                    ignore_date_modified=ignore_date_modified,
-                    flags=exiftool_flags,
-                    merge_exif_keywords=merge_exif_keywords,
-                    merge_exif_persons=merge_exif_persons,
-                    persons=persons,
-                    location=location,
-                    replace_keywords=replace_keywords,
-                    strip=strip,
-                )
+            if not options.dry_run:
+                warning_, error_ = self._write_exif_data(exported_file, options=options)
                 if warning_:
                     results.exiftool_warning.append((exported_file, warning_))
                 if error_:
@@ -1469,20 +1282,7 @@ class PhotoExporter:
                     results.error.append((exported_file, error_))
 
             export_db.set_exifdata_for_file(
-                exported_file,
-                self._exiftool_json_sidecar(
-                    use_albums_as_keywords=use_albums_as_keywords,
-                    use_persons_as_keywords=use_persons_as_keywords,
-                    keyword_template=keyword_template,
-                    description_template=description_template,
-                    ignore_date_modified=ignore_date_modified,
-                    merge_exif_keywords=merge_exif_keywords,
-                    merge_exif_persons=merge_exif_persons,
-                    persons=persons,
-                    location=location,
-                    replace_keywords=replace_keywords,
-                    strip=strip,
-                ),
+                exported_file, self._exiftool_json_sidecar(options=options)
             )
             export_db.set_stat_exif_for_file(
                 exported_file, fileutil.file_sig(exported_file)
@@ -1490,22 +1290,7 @@ class PhotoExporter:
             results.exif_updated.append(exported_file)
         return results
 
-    def _write_exif_data(
-        self,
-        filepath,
-        use_albums_as_keywords=False,
-        use_persons_as_keywords=False,
-        keyword_template=None,
-        description_template=None,
-        ignore_date_modified=False,
-        flags=None,
-        merge_exif_keywords=False,
-        merge_exif_persons=False,
-        persons=True,
-        location=True,
-        replace_keywords=False,
-        strip=False,
-    ):
+    def _write_exif_data(self, filepath: str, options: ExportOptions):
         """write exif data to image file at filepath
 
         Args:
@@ -1525,22 +1310,12 @@ class PhotoExporter:
         """
         if not os.path.exists(filepath):
             raise FileNotFoundError(f"Could not find file {filepath}")
-        exif_info = self._exiftool_dict(
-            use_albums_as_keywords=use_albums_as_keywords,
-            use_persons_as_keywords=use_persons_as_keywords,
-            keyword_template=keyword_template,
-            description_template=description_template,
-            ignore_date_modified=ignore_date_modified,
-            merge_exif_keywords=merge_exif_keywords,
-            merge_exif_persons=merge_exif_persons,
-            persons=persons,
-            location=location,
-            replace_keywords=replace_keywords,
-            strip=strip,
-        )
+        exif_info = self._exiftool_dict(options=options)
 
         with ExifTool(
-            filepath, flags=flags, exiftool=self.photo._db._exiftool_path
+            filepath,
+            flags=options.exiftool_flags,
+            exiftool=self.photo._db._exiftool_path,
         ) as exiftool:
             for exiftag, val in exif_info.items():
                 if type(val) == list:
@@ -1551,19 +1326,7 @@ class PhotoExporter:
         return exiftool.warning, exiftool.error
 
     def _exiftool_dict(
-        self,
-        use_albums_as_keywords=False,
-        use_persons_as_keywords=False,
-        keyword_template=None,
-        description_template=None,
-        ignore_date_modified=False,
-        merge_exif_keywords=False,
-        merge_exif_persons=False,
-        filename=None,
-        persons=True,
-        location=True,
-        replace_keywords=False,
-        strip=False,
+        self, options: Optional[ExportOptions] = None, filename: Optional[str] = None
     ):
         """Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
             Does not include all the EXIF fields as those are likely already in the image.
@@ -1612,6 +1375,8 @@ class PhotoExporter:
             https://iptc.org/std/photometadata/specification/IPTC-PhotoMetadata-201610_1.pdf
         """
 
+        options = options or ExportOptions()
+
         exif = (
             {
                 "SourceFile": filename,
@@ -1622,13 +1387,15 @@ class PhotoExporter:
             else {}
         )
 
-        if description_template is not None:
-            options = dataclasses.replace(
+        if options.description_template is not None:
+            render_options = dataclasses.replace(
                 self._render_options, expand_inplace=True, inplace_sep=", "
             )
-            rendered = self.photo.render_template(description_template, options)[0]
+            rendered = self.photo.render_template(
+                options.description_template, render_options
+            )[0]
             description = " ".join(rendered) if rendered else ""
-            if strip:
+            if options.strip:
                 description = description.strip()
             exif["EXIF:ImageDescription"] = description
             exif["XMP:Description"] = description
@@ -1643,15 +1410,15 @@ class PhotoExporter:
             exif["IPTC:ObjectName"] = self.photo.title
 
         keyword_list = []
-        if merge_exif_keywords:
+        if options.merge_exif_keywords:
             keyword_list.extend(self._get_exif_keywords())
 
-        if self.photo.keywords and not replace_keywords:
+        if self.photo.keywords and not options.replace_keywords:
             keyword_list.extend(self.photo.keywords)
 
         person_list = []
-        if persons:
-            if merge_exif_persons:
+        if options.persons:
+            if options.merge_exif_persons:
                 person_list.extend(self._get_exif_persons())
 
             if self.photo.persons:
@@ -1660,26 +1427,28 @@ class PhotoExporter:
                     [p for p in self.photo.persons if p != _UNKNOWN_PERSON]
                 )
 
-            if use_persons_as_keywords and person_list:
+            if options.use_persons_as_keywords and person_list:
                 keyword_list.extend(person_list)
 
-        if use_albums_as_keywords and self.photo.albums:
+        if options.use_albums_as_keywords and self.photo.albums:
             keyword_list.extend(self.photo.albums)
 
-        if keyword_template:
+        if options.keyword_template:
             rendered_keywords = []
-            options = dataclasses.replace(
+            render_options = dataclasses.replace(
                 self._render_options, none_str=_OSXPHOTOS_NONE_SENTINEL, path_sep="/"
             )
-            for template_str in keyword_template:
-                rendered, unmatched = self.photo.render_template(template_str, options)
+            for template_str in options.keyword_template:
+                rendered, unmatched = self.photo.render_template(
+                    template_str, render_options
+                )
                 if unmatched:
                     logging.warning(
                         f"Unmatched template substitution for template: {template_str} {unmatched}"
                     )
                 rendered_keywords.extend(rendered)
 
-            if strip:
+            if options.strip:
                 rendered_keywords = [keyword.strip() for keyword in rendered_keywords]
 
             # filter out any template values that didn't match by looking for sentinel
@@ -1704,19 +1473,19 @@ class PhotoExporter:
 
         if keyword_list:
             # remove duplicates
-            keyword_list = sorted(list(set([str(keyword) for keyword in keyword_list])))
+            keyword_list = sorted(list(set(str(keyword) for keyword in keyword_list)))
             exif["IPTC:Keywords"] = keyword_list.copy()
             exif["XMP:Subject"] = keyword_list.copy()
             exif["XMP:TagsList"] = keyword_list.copy()
 
-        if persons and person_list:
+        if options.persons and person_list:
             person_list = sorted(list(set(person_list)))
             exif["XMP:PersonInImage"] = person_list.copy()
 
         # if self.favorite():
         #     exif["Rating"] = 5
 
-        if location:
+        if options.location:
             (lat, lon) = self.photo.location
             if lat is not None and lon is not None:
                 if self.photo.isphoto:
@@ -1766,7 +1535,10 @@ class PhotoExporter:
             timeoriginal = date.strftime(f"%H:%M:%S{offsettime}")
             exif["IPTC:TimeCreated"] = timeoriginal
 
-            if self.photo.date_modified is not None and not ignore_date_modified:
+            if (
+                self.photo.date_modified is not None
+                and not options.ignore_date_modified
+            ):
                 exif["EXIF:ModifyDate"] = self.photo.date_modified.strftime(
                     "%Y:%m:%d %H:%M:%S"
                 )
@@ -1783,7 +1555,7 @@ class PhotoExporter:
             date_utc = datetime_tz_to_utc(date)
             creationdate = date_utc.strftime("%Y:%m:%d %H:%M:%S")
             exif["QuickTime:CreateDate"] = creationdate
-            if self.photo.date_modified is None or ignore_date_modified:
+            if self.photo.date_modified is None or options.ignore_date_modified:
                 exif["QuickTime:ModifyDate"] = creationdate
             else:
                 exif["QuickTime:ModifyDate"] = datetime_tz_to_utc(
@@ -1827,19 +1599,9 @@ class PhotoExporter:
 
     def _exiftool_json_sidecar(
         self,
-        use_albums_as_keywords=False,
-        use_persons_as_keywords=False,
-        keyword_template=None,
-        description_template=None,
-        ignore_date_modified=False,
-        tag_groups=True,
-        merge_exif_keywords=False,
-        merge_exif_persons=False,
-        filename=None,
-        persons=True,
-        location=True,
-        replace_keywords=False,
-        strip=False,
+        options: Optional[ExportOptions] = None,
+        tag_groups: bool = True,
+        filename: Optional[str] = None,
     ):
         """Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
             Does not include all the EXIF fields as those are likely already in the image.
@@ -1885,20 +1647,9 @@ class PhotoExporter:
             QuickTime:GPSCoordinates
             UserData:GPSCoordinates
         """
-        exif = self._exiftool_dict(
-            use_albums_as_keywords=use_albums_as_keywords,
-            use_persons_as_keywords=use_persons_as_keywords,
-            keyword_template=keyword_template,
-            description_template=description_template,
-            ignore_date_modified=ignore_date_modified,
-            merge_exif_keywords=merge_exif_keywords,
-            merge_exif_persons=merge_exif_persons,
-            filename=filename,
-            persons=persons,
-            location=location,
-            replace_keywords=replace_keywords,
-            strip=strip,
-        )
+
+        options = options or ExportOptions()
+        exif = self._exiftool_dict(filename=filename, options=options)
 
         if not tag_groups:
             # strip tag groups
@@ -1911,18 +1662,7 @@ class PhotoExporter:
         return json.dumps([exif])
 
     def _xmp_sidecar(
-        self,
-        use_albums_as_keywords=False,
-        use_persons_as_keywords=False,
-        keyword_template=None,
-        description_template=None,
-        extension=None,
-        merge_exif_keywords=False,
-        merge_exif_persons=False,
-        persons=True,
-        location=True,
-        replace_keywords=False,
-        strip=False,
+        self, options: Optional[ExportOptions] = None, extension: Optional[str] = None
     ):
         """returns string for XMP sidecar
         use_albums_as_keywords: treat album names as keywords
@@ -1938,6 +1678,8 @@ class PhotoExporter:
         strip: if True, strip whitespace from rendered templates
         """
 
+        options = options or ExportOptions()
+
         xmp_template_file = (
             _XMP_TEMPLATE_NAME if not self.photo._db._beta else _XMP_TEMPLATE_NAME_BETA
         )
@@ -1947,13 +1689,15 @@ class PhotoExporter:
             extension = pathlib.Path(self.photo.original_filename)
             extension = extension.suffix[1:] if extension.suffix else None
 
-        if description_template is not None:
-            options = dataclasses.replace(
+        if options.description_template is not None:
+            render_options = dataclasses.replace(
                 self._render_options, expand_inplace=True, inplace_sep=", "
             )
-            rendered = self.photo.render_template(description_template, options)[0]
+            rendered = self.photo.render_template(
+                options.description_template, render_options
+            )[0]
             description = " ".join(rendered) if rendered else ""
-            if strip:
+            if options.strip:
                 description = description.strip()
         else:
             description = (
@@ -1961,18 +1705,18 @@ class PhotoExporter:
             )
 
         keyword_list = []
-        if merge_exif_keywords:
+        if options.merge_exif_keywords:
             keyword_list.extend(self._get_exif_keywords())
 
-        if self.photo.keywords and not replace_keywords:
+        if self.photo.keywords and not options.replace_keywords:
             keyword_list.extend(self.photo.keywords)
 
         # TODO: keyword handling in this and _exiftool_json_sidecar is
         # good candidate for pulling out in a function
 
         person_list = []
-        if persons:
-            if merge_exif_persons:
+        if options.persons:
+            if options.merge_exif_persons:
                 person_list.extend(self._get_exif_persons())
 
             if self.photo.persons:
@@ -1981,26 +1725,28 @@ class PhotoExporter:
                     [p for p in self.photo.persons if p != _UNKNOWN_PERSON]
                 )
 
-            if use_persons_as_keywords and person_list:
+            if options.use_persons_as_keywords and person_list:
                 keyword_list.extend(person_list)
 
-        if use_albums_as_keywords and self.photo.albums:
+        if options.use_albums_as_keywords and self.photo.albums:
             keyword_list.extend(self.photo.albums)
 
-        if keyword_template:
+        if options.keyword_template:
             rendered_keywords = []
-            options = dataclasses.replace(
+            render_options = dataclasses.replace(
                 self._render_options, none_str=_OSXPHOTOS_NONE_SENTINEL, path_sep="/"
             )
-            for template_str in keyword_template:
-                rendered, unmatched = self.photo.render_template(template_str, options)
+            for template_str in options.keyword_template:
+                rendered, unmatched = self.photo.render_template(
+                    template_str, render_options
+                )
                 if unmatched:
                     logging.warning(
                         f"Unmatched template substitution for template: {template_str} {unmatched}"
                     )
                 rendered_keywords.extend(rendered)
 
-            if strip:
+            if options.strip:
                 rendered_keywords = [keyword.strip() for keyword in rendered_keywords]
 
             # filter out any template values that didn't match by looking for sentinel
@@ -2016,13 +1762,12 @@ class PhotoExporter:
         # sorted mainly to make testing the XMP file easier
         if keyword_list:
             keyword_list = sorted(list(set(keyword_list)))
-        if persons and person_list:
+        if options.persons and person_list:
             person_list = sorted(list(set(person_list)))
 
         subject_list = keyword_list
 
-        if location:
-            latlon = self.photo.location
+        latlon = self.photo.location if options.location else (None, None)
 
         xmp_str = xmp_template.render(
             photo=self.photo,

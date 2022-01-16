@@ -5,7 +5,7 @@ import pytest
 
 import osxphotos
 from osxphotos._constants import _UNKNOWN_PERSON
-from osxphotos.photoexporter import PhotoExporter
+from osxphotos.photoexporter import ExportOptions, PhotoExporter
 
 PHOTOS_DB = "./tests/Test-10.14.6.photoslibrary/database/photos.db"
 PHOTOS_DB_PATH = "/Test-10.14.6.photoslibrary/database/photos.db"
@@ -365,7 +365,8 @@ def test_xmp_sidecar_keyword_template(photosdb):
         xmp_expected = fp.read()
 
     xmp_got = PhotoExporter(photo)._xmp_sidecar(
-        keyword_template=["{created.year}", "{folder_album}"], extension="jpg"
+        ExportOptions(keyword_template=["{created.year}", "{folder_album}"]),
+        extension="jpg",
     )
 
     assert xmp_got == xmp_expected
