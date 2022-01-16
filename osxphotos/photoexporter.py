@@ -62,7 +62,51 @@ class ExportError(Exception):
 
 @dataclass
 class ExportOptions:
-    """Options class for exporting photos with export2"""
+    """Options class for exporting photos with export2
+
+    Attributes:
+        convert_to_jpeg (bool): if True, converts non-jpeg images to jpeg
+        description_template (str): optional template string that will be rendered for use as photo description
+        dry_run: (bool, default=False): set to True to run in "dry run" mode
+        edited: (bool, default=False): if True will export the edited version of the photo otherwise exports the original version
+        exiftool_flags (list of str): optional list of flags to pass to exiftool when using exiftool option, e.g ["-m", "-F"]
+        exiftool: (bool, default = False): if True, will use exiftool to write metadata to export file
+        export_as_hardlink: (bool, default=False): if True, will hardlink files instead of copying them
+        export_db: (ExportDB_ABC): instance of a class that conforms to ExportDB_ABC with methods for getting/setting data related to exported files to compare update state
+        fileutil: (FileUtilABC): class that conforms to FileUtilABC with various file utilities
+        ignore_date_modified (bool): for use with sidecar and exiftool; if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
+        ignore_signature (bool, default=False): ignore file signature when used with update (look only at filename)
+        increment (bool, default=True): if True, will increment file name until a non-existant name is found if overwrite=False and increment=False, export will fail if destination file already exists
+        jpeg_ext (str): if set, will use this value for extension on jpegs converted to jpeg with convert_to_jpeg; if not set, uses jpeg; do not include the leading "."
+        jpeg_quality (float in range 0.0 <= jpeg_quality <= 1.0): a value of 1.0 specifies use best quality, a value of 0.0 specifies use maximum compression.
+        keyword_template (list of str): list of template strings that will be rendered as used as keywords
+        live_photo (bool, default=False): if True, will also export the associated .mov for live photos
+        location (bool): if True, include location in exported metadata
+        merge_exif_keywords (bool): if True, merged keywords found in file's exif data (requires exiftool)
+        merge_exif_persons (bool): if True, merged persons found in file's exif data (requires exiftool)
+        overwrite (bool, default=False): if True will overwrite files if they already exist
+        persons (bool): if True, include persons in exported metadata
+        preview_suffix (str): optional string to append to end of filename for preview images
+        preview (bool): if True, also exports preview image
+        raw_photo (bool, default=False): if True, will also export the associated RAW photo
+        render_options (RenderOptions): optional osxphotos.phototemplate.RenderOptions instance to specify options for rendering templates
+        replace_keywords (bool): if True, keyword_template replaces any keywords, otherwise it's additive
+        sidecar_drop_ext (bool, default=False): if True, drops the photo's extension from sidecar filename (e.g. 'IMG_1234.json' instead of 'IMG_1234.JPG.json')
+        sidecar: bit field (int): set to one or more of SIDECAR_XMP, SIDECAR_JSON, SIDECAR_EXIFTOOL
+            - SIDECAR_JSON: if set will write a json sidecar with data in format readable by exiftool sidecar filename will be dest/filename.json;
+              includes exiftool tag group names (e.g. `exiftool -G -j`)
+            - SIDECAR_EXIFTOOL: if set will write a json sidecar with data in format readable by exiftool sidecar filename will be dest/filename.json;
+              does not include exiftool tag group names (e.g. `exiftool -j`)
+            - SIDECAR_XMP: if set will write an XMP sidecar with IPTC data sidecar filename will be dest/filename.xmp
+        strip (bool): if True, strip whitespace from rendered templates
+        timeout (int, default=120): timeout in seconds used with use_photos_export
+        touch_file (bool, default=False): if True, sets file's modification time upon photo date
+        update (bool, default=False): if True export will run in update mode, that is, it will not export the photo if the current version already exists in the destination
+        use_albums_as_keywords (bool, default = False): if True, will include album names in keywords when exporting metadata with exiftool or sidecar
+        use_persons_as_keywords (bool, default = False): if True, will include person names in keywords when exporting metadata with exiftool or sidecar
+        use_photos_export (bool, default=False): if True will attempt to export photo via applescript interaction with Photos
+        verbose (Callable): optional callable function to use for printing verbose text during processing; if None (default), does not print output.
+    """
 
     convert_to_jpeg: bool = False
     description_template: Optional[str] = None
@@ -379,53 +423,6 @@ class PhotoExporter:
                     in which case export will use the extension provided by Photos upon export.
                     e.g. to get the extension of the edited photo,
                     reference PhotoInfo.path_edited
-        edited: (boolean, default=False); if True will export the edited version of the photo otherwise exports the original version
-        live_photo: (boolean, default=False); if True, will also export the associated .mov for live photos
-        raw_photo: (boolean, default=False); if True, will also export the associated RAW photo
-        export_as_hardlink: (boolean, default=False); if True, will hardlink files instead of copying them
-        overwrite: (boolean, default=False); if True will overwrite files if they already exist
-        increment: (boolean, default=True); if True, will increment file name until a non-existant name is found
-                    if overwrite=False and increment=False, export will fail if destination file already exists
-        sidecar: bit field: set to one or more of SIDECAR_XMP, SIDECAR_JSON, SIDECAR_EXIFTOOL
-                SIDECAR_JSON: if set will write a json sidecar with data in format readable by exiftool
-                    sidecar filename will be dest/filename.json; includes exiftool tag group names (e.g. `exiftool -G -j`)
-                SIDECAR_EXIFTOOL: if set will write a json sidecar with data in format readable by exiftool
-                    sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. `exiftool -j`)
-                SIDECAR_XMP: if set will write an XMP sidecar with IPTC data
-                    sidecar filename will be dest/filename.xmp
-        sidecar_drop_ext: (boolean, default=False); if True, drops the photo's extension from sidecar filename (e.g. 'IMG_1234.json' instead of 'IMG_1234.JPG.json')
-        use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos
-        timeout: (int, default=120) timeout in seconds used with use_photos_export
-        exiftool: (boolean, default = False); if True, will use exiftool to write metadata to export file
-        use_albums_as_keywords: (boolean, default = False); if True, will include album names in keywords
-        when exporting metadata with exiftool or sidecar
-        use_persons_as_keywords: (boolean, default = False); if True, will include person names in keywords
-        when exporting metadata with exiftool or sidecar
-        keyword_template: (list of strings); list of template strings that will be rendered as used as keywords
-        description_template: string; optional template string that will be rendered for use as photo description
-        update: (boolean, default=False); if True export will run in update mode, that is, it will
-                not export the photo if the current version already exists in the destination
-        ignore_signature: (bool, default=False), ignore file signature when used with update (look only at filename)
-        export_db: (ExportDB_ABC); instance of a class that conforms to ExportDB_ABC with methods
-                for getting/setting data related to exported files to compare update state
-        fileutil: (FileUtilABC); class that conforms to FileUtilABC with various file utilities
-        dry_run: (boolean, default=False); set to True to run in "dry run" mode
-        touch_file: (boolean, default=False); if True, sets file's modification time upon photo date
-        convert_to_jpeg: boolean; if True, converts non-jpeg images to jpeg
-        jpeg_quality: float in range 0.0 <= jpeg_quality <= 1.0.  A value of 1.0 specifies use best quality, a value of 0.0 specifies use maximum compression.
-        ignore_date_modified: for use with sidecar and exiftool; if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
-        verbose: optional callable function to use for printing verbose text during processing; if None (default), does not print output.
-        exiftool_flags: optional list of flags to pass to exiftool when using exiftool option, e.g ["-m", "-F"]
-        merge_exif_keywords: boolean; if True, merged keywords found in file's exif data (requires exiftool)
-        merge_exif_persons: boolean; if True, merged persons found in file's exif data (requires exiftool)
-        jpeg_ext: if set, will use this value for extension on jpegs converted to jpeg with convert_to_jpeg; if not set, uses jpeg; do not include the leading "."
-        persons: if True, include persons in exported metadata
-        location: if True, include location in exported metadata
-        replace_keywords: if True, keyword_template replaces any keywords, otherwise it's additive
-        preview: if True, also exports preview image
-        preview_suffix: optional string to append to end of filename for preview images
-        render_options: optional osxphotos.phototemplate.RenderOptions instance to specify options for rendering templates
-        strip: if True, strip whitespace from rendered templates
 
         Returns: ExportResults class
             ExportResults has attributes:
@@ -449,12 +446,9 @@ class PhotoExporter:
             "exiftool_error",
 
 
-        Note: to use dry run mode, you must set dry_run=True and also pass in memory version of export_db,
-            and no-op fileutil (e.g. ExportDBInMemory and FileUtilNoOp)
+        Note: to use dry run mode, you must set options.dry_run=True and also pass in memory version of export_db,
+            and no-op fileutil (e.g. ExportDBInMemory and FileUtilNoOp) in options.export_db and options.fileutil respectively
         """
-
-        # NOTE: This function is very complex and does a lot of things.
-        # Don't modify this code if you don't fully understand everything it does.
 
         options = options or ExportOptions()
 
@@ -924,22 +918,12 @@ class PhotoExporter:
             Does the actual copy or hardlink taking the appropriate
             action depending on update, overwrite, export_as_hardlink
             Assumes destination is the right destination (e.g. UUID matches)
-            sets UUID and JSON info foo exported file using set_uuid_for_file, set_inf_for_uuido
+            sets UUID and JSON info foo exported file using set_uuid_for_file, set_info_for_uuid
 
         Args:
-            src: src path (string)
-            dest: dest path (pathlib.Path)
-            update: bool
-            export_db: instance of ExportDB that conforms to ExportDB_ABC interface
-            overwrite: bool
-            export_as_hardlink: bool
-            exiftool: bool
-            touch_file: bool
-            convert_to_jpeg: bool; if True, convert file to jpeg on export
-            fileutil: FileUtil class that conforms to fileutil.FileUtilABC
-            edited: bool; set to True if exporting edited version of photo
-            jpeg_quality: float in range 0.0 <= jpeg_quality <= 1.0.  A value of 1.0 specifies use best quality, a value of 0.0 specifies use maximum compression.
-            ignore_signature: bool, ignore file signature when used with update (look only at filename)
+            src (str): src path
+            dest (pathlib.Path): dest path
+            options (ExportOptions): options for export
 
         Returns:
             ExportResults
@@ -1020,24 +1004,21 @@ class PhotoExporter:
                 ):
                     # destination exists and signatures match, skip it
                     update_skipped_files.append(dest_str)
+                elif options.touch_file and cmp_orig and not cmp_touch:
+                    # destination exists, signature matches original but does not match expected touch time
+                    # skip exporting but update touch time
+                    update_skipped_files.append(dest_str)
+                    touched_files.append(dest_str)
+                elif not options.touch_file and cmp_touch and not cmp_orig:
+                    # destination exists, signature matches expected touch but not original
+                    # user likely exported with touch_file and is now exporting without touch_file
+                    # don't update the file because it's same but leave touch time
+                    update_skipped_files.append(dest_str)
                 else:
-                    # destination exists but signature is different
-                    if options.touch_file and cmp_orig and not cmp_touch:
-                        # destination exists, signature matches original but does not match expected touch time
-                        # skip exporting but update touch time
-                        update_skipped_files.append(dest_str)
+                    # destination exists but is different
+                    update_updated_files.append(dest_str)
+                    if options.touch_file:
                         touched_files.append(dest_str)
-                    elif not options.touch_file and cmp_touch and not cmp_orig:
-                        # destination exists, signature matches expected touch but not original
-                        # user likely exported with touch_file and is now exporting without touch_file
-                        # don't update the file because it's same but leave touch time
-                        update_skipped_files.append(dest_str)
-                    else:
-                        # destination exists but is different
-                        update_updated_files.append(dest_str)
-                        if options.touch_file:
-                            touched_files.append(dest_str)
-
             else:
                 # update, destination doesn't exist (new file)
                 update_new_files.append(dest_str)
@@ -1295,15 +1276,6 @@ class PhotoExporter:
 
         Args:
             filepath: full path to the image file
-            use_albums_as_keywords: treat album names as keywords
-            use_persons_as_keywords: treat person names as keywords
-            keyword_template: (list of strings); list of template strings to render as keywords
-            ignore_date_modified: if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
-            flags: optional list of exiftool flags to prepend to exiftool command when writing metadata (e.g. -m or -F)
-            persons: if True, write person data to metadata
-            location: if True, write location data to metadata
-            replace_keywords: if True, keyword_template replaces any keywords, otherwise it's additive
-            strip: if True, strip any leading or trailing whitespace from rendered templates
 
         Returns:
             (warning, error) of warning and error strings if exiftool produces warnings or errors
@@ -1332,18 +1304,8 @@ class PhotoExporter:
             Does not include all the EXIF fields as those are likely already in the image.
 
         Args:
-            filename: name of source image file (without path); if not None, exiftool JSON signature will be included; if None, signature will not be included
-            use_albums_as_keywords: treat album names as keywords
-            use_persons_as_keywords: treat person names as keywords
-            keyword_template: (list of strings); list of template strings to render as keywords
-            description_template: (list of strings); list of template strings to render for the description
-            ignore_date_modified: if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
-            merge_exif_keywords: merge keywords in the file's exif metadata (requires exiftool)
-            merge_exif_persons: merge persons in the file's exif metadata (requires exiftool)
-            persons: if True, include person data
-            location: if True, include location data
-            replace_keywords: if True, keyword_template replaces any keywords, otherwise it's additive
-            strip: if True, strip any rendered templates
+            options (ExportOptions): options for export
+            filename (str): name of source image file (without path); if not None, exiftool JSON signature will be included; if None, signature will not be included
 
         Returns: dict with exiftool tags / values
 
@@ -1607,19 +1569,9 @@ class PhotoExporter:
             Does not include all the EXIF fields as those are likely already in the image.
 
         Args:
-            use_albums_as_keywords: treat album names as keywords
-            use_persons_as_keywords: treat person names as keywords
-            keyword_template: (list of strings); list of template strings to render as keywords
-            description_template: (list of strings); list of template strings to render for the description
-            ignore_date_modified: if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
-            tag_groups: if True, tags are in form Group:TagName, e.g. IPTC:Keywords, otherwise group name is omitted, e.g. Keywords
-            merge_exif_keywords: boolean; if True, merged keywords found in file's exif data (requires exiftool)
-            merge_exif_persons: boolean; if True, merged persons found in file's exif data (requires exiftool)
-            filename: filename of the destination image file for including in exiftool signature in JSON sidecar
-            persons: if True, include person data
-            location: if True, include location data
-            replace_keywords: if True, keyword_template replaces any keywords, otherwise it's additive
-            strip: if True, strip whitespace from rendered templates
+            options (ExportOptions): options for export
+            tag_groups (bool, default=True): if True, include tag groups in the output
+            filename (str): name of source image file (without path); if not None, exiftool JSON signature will be included; if None, signature will not be included
 
         Returns: dict with exiftool tags / values
 
@@ -1665,17 +1617,10 @@ class PhotoExporter:
         self, options: Optional[ExportOptions] = None, extension: Optional[str] = None
     ):
         """returns string for XMP sidecar
-        use_albums_as_keywords: treat album names as keywords
-        use_persons_as_keywords: treat person names as keywords
-        keyword_template: (list of strings); list of template strings to render as keywords
-        description_template: string; optional template string that will be rendered for use as photo description
-        extension: which extension to use for SidecarForExtension property
-        merge_exif_keywords: boolean; if True, merged keywords found in file's exif data (requires exiftool)
-        merge_exif_persons: boolean; if True, merged persons found in file's exif data (requires exiftool)
-        persons: if True, include person data
-        location: if True, include location data
-        replace_keywords: if True, keyword_template replaces any keywords, otherwise it's additive
-        strip: if True, strip whitespace from rendered templates
+
+        Args:
+            options (ExportOptions): options for export
+            extension (Optional[str]): which extension to use for SidecarForExtension property
         """
 
         options = options or ExportOptions()
