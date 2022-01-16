@@ -16,6 +16,8 @@ import zlib
 
 from .datetime_utils import datetime_naive_to_utc
 
+__all__ = ["AdjustmentsDecodeError", "AdjustmentsInfo"]
+
 
 class AdjustmentsDecodeError(Exception):
     """Could not decode adjustments plist file"""
