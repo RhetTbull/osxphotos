@@ -5,7 +5,7 @@
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/osxphotos)
 [![Downloads](https://static.pepy.tech/personalized-badge/osxphotos?period=month&units=international_system&left_color=black&right_color=brightgreen&left_text=downloads/month)](https://pepy.tech/project/osxphotos)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-33-orange.svg?style=flat)](#contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-34-orange.svg?style=flat)](#contributors)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 OSXPhotos provides the ability to interact with and query Apple's Photos.app library on macOS. You can query the Photos library database — for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos.
@@ -3854,6 +3854,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://hyfen.net"><img src="https://avatars.githubusercontent.com/u/6291?v=4?s=75" width="75px;" alt=""/><br /><sub><b>Andrew Louis</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=hyfen" title="Documentation">📖</a> <a href="https://github.com/RhetTbull/osxphotos/commits?author=hyfen" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/neebah"><img src="https://avatars.githubusercontent.com/u/71442026?v=4?s=75" width="75px;" alt=""/><br /><sub><b>neebah</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Aneebah" title="Bug reports">🐛</a></td>
     <td align="center"><a href="https://github.com/ahti123"><img src="https://avatars.githubusercontent.com/u/22232632?v=4?s=75" width="75px;" alt=""/><br /><sub><b>Ahti Liin</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=ahti123" title="Code">💻</a> <a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Aahti123" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://github.com/xwu64"><img src="https://avatars.githubusercontent.com/u/10580396?v=4?s=75" width="75px;" alt=""/><br /><sub><b>Xiaoliang Wu</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=xwu64" title="Code">💻</a></td>
   </tr>
 </table>
 
