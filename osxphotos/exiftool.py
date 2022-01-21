@@ -17,6 +17,13 @@ import subprocess
 from abc import ABC, abstractmethod
 from functools import lru_cache  # pylint: disable=syntax-error
 
+__all__ = ["escape_str",
+           "unescape_str",
+           "terminate_exiftool",
+           "get_exiftool_path",
+           "ExifTool",
+           "ExifToolCaching"]
+
 # exiftool -stay_open commands outputs this EOF marker after command is run
 EXIFTOOL_STAYOPEN_EOF = "{ready}"
 EXIFTOOL_STAYOPEN_EOF_LEN = len(EXIFTOOL_STAYOPEN_EOF)

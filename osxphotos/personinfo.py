@@ -6,6 +6,8 @@ import math
 
 from collections import namedtuple
 
+__all__ = ["PersonInfo", "FaceInfo", "rotate_image_point"]
+
 MWG_RS_Area = namedtuple("MWG_RS_Area", ["x", "y", "h", "w"])
 MPRI_Reg_Rect = namedtuple("MPRI_Reg_Rect", ["x", "y", "h", "w"])
 

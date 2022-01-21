@@ -1,6 +1,11 @@
 """ ConfigOptions class to load/save config settings for osxphotos CLI """
 import toml
 
+__all__ = ["ConfigOptionsException",
+           "ConfigOptionsInvalidError",
+           "ConfigOptionsLoadError",
+           "ConfigOptions"]
+
 
 class ConfigOptionsException(Exception):
     """ Invalid combination of options. """

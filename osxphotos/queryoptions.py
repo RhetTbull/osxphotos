@@ -6,6 +6,8 @@ from typing import Iterable, List, Optional, Tuple
 
 import bitmath
 
+__all__ = ["QueryOptions"]
+
 
 @dataclass
 class QueryOptions:

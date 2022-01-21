@@ -8,6 +8,8 @@ from more_itertools import chunked
 from .photoinfo import PhotoInfo
 from .utils import noop
 
+__all__ = ["PhotosAlbum"]
+
 
 class PhotosAlbum:
     def __init__(self, name: str, verbose: Optional[callable] = None):

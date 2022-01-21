@@ -4,6 +4,8 @@ from dataclasses import dataclass
 
 from ._constants import _PHOTOS_4_VERSION
 
+__all__ = ["ScoreInfo"]
+
 
 @dataclass(frozen=True)
 class ScoreInfo:

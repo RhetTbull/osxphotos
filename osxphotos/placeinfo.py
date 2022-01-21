@@ -14,6 +14,14 @@ from bpylist import archiver
 from ._constants import UNICODE_FORMAT
 from .utils import normalize_unicode
 
+__all__ = ["PLRevGeoLocationInfo",
+           "PLRevGeoMapItem",
+           "PLRevGeoMapItemAdditionalPlaceInfo",
+           "CNPostalAddress",
+           "PlaceInfo",
+           "PlaceInfo4",
+           "PlaceInfo5"]
+
 # postal address information, returned by PlaceInfo.address
 PostalAddress = namedtuple(
     "PostalAddress",

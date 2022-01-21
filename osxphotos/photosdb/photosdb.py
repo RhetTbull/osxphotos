@@ -66,6 +66,8 @@ from ..utils import (
 )
 from .photosdb_utils import get_db_model_version, get_db_version
 
+__all__ = ["PhotosDB"]
+
 # TODO: Add test for imageTimeZoneOffsetSeconds = None
 # TODO: Add test for __str__
 # TODO: Add special albums and magic albums

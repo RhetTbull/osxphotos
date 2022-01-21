@@ -23,6 +23,8 @@ from ._constants import (
     SEARCH_CATEGORY_YEAR,
 )
 
+__all__ = ["SearchInfo"]
+
 
 class SearchInfo:
     """Info about search terms such as machine learning labels that Photos knows about a photo"""

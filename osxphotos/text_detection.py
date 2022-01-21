@@ -13,6 +13,8 @@ from wurlitzer import pipes
 
 from .utils import _get_os_version
 
+__all__ = ["detect_text", "make_request_handler"]
+
 ver, major, minor = _get_os_version()
 if ver == "10" and int(major) < 15:
     vision = False

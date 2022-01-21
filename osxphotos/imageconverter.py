@@ -15,6 +15,8 @@ from Foundation import NSDictionary
 # needed to capture system-level stderr
 from wurlitzer import pipes
 
+__all__ = ["ImageConversionError", "ImageConverter"]
+
 
 class ImageConversionError(Exception):
     """Base class for exceptions in this module."""

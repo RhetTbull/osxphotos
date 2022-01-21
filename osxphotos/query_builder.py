@@ -8,6 +8,8 @@ from mako.template import Template
 
 from ._constants import _DB_TABLE_NAMES
 
+__all__ = ["get_query"]
+
 QUERY_DIR = os.path.join(os.path.dirname(__file__), "queries")
 
 
