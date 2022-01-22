@@ -53,6 +53,8 @@ from .text_detection import detect_text
 from .uti import get_preferred_uti_extension, get_uti_for_extension
 from .utils import _debug, _get_resource_loc, findfiles
 
+__all__ = ["PhotoInfo", "PhotoInfoNone"]
+
 
 class PhotoInfo:
     """

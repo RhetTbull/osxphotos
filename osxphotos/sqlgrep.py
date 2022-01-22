@@ -4,6 +4,8 @@ import re
 import sqlite3
 from typing import Generator, List
 
+__all__ = ["sqlgrep"]
+
 
 def sqlgrep(
     filename: str,

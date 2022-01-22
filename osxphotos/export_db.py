@@ -14,6 +14,8 @@ from sqlite3 import Error
 from ._constants import OSXPHOTOS_EXPORT_DB
 from ._version import __version__
 
+__all__ = ["ExportDB_ABC", "ExportDBNoOp", "ExportDB", "ExportDBInMemory"]
+
 OSXPHOTOS_EXPORTDB_VERSION = "4.0"
 OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
 

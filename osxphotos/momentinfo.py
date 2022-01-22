@@ -1,3 +1,5 @@
+
+__all__ = ["MomentInfo"]
 """MomentInfo class with details about photo moments."""
 
 

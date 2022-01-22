@@ -1,3 +1,5 @@
+
+__all__ = ["get_preferred_uti_extension", "get_uti_for_extension"]
 """ get UTI for a given file extension and the preferred extension for a given UTI """
 
 """ Implementation note: runs only on macOS

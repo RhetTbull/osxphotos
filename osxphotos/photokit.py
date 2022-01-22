@@ -36,6 +36,26 @@ from .fileutil import FileUtil
 from .uti import get_preferred_uti_extension
 from .utils import _get_os_version, increment_filename
 
+__all__ = ["NSURL_to_path",
+           "path_to_NSURL",
+           "check_photokit_authorization",
+           "request_photokit_authorization",
+           "PhotoKitError",
+           "PhotoKitFetchFailed",
+           "PhotoKitAuthError",
+           "PhotoKitExportError",
+           "PhotoKitMediaTypeError",
+           "ImageData",
+           "AVAssetData",
+           "PHAssetResourceData",
+           "PhotoKitNotificationDelegate",
+           "PhotoAsset",
+           "SlowMoVideoExporter",
+           "VideoAsset",
+           "LivePhotoRequest",
+           "LivePhotoAsset",
+           "PhotoLibrary"]
+
 # NOTE: This requires user have granted access to the terminal (e.g. Terminal.app or iTerm)
 # to access Photos.  This should happen automatically the first time it's called. I've
 # not figured out how to get the call to requestAuthorization_ to actually work in the case
