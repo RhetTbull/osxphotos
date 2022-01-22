@@ -60,7 +60,7 @@ __all__ = [
 if TYPE_CHECKING:
     from .photoinfo import PhotoInfo
 
-# retry if use_photos_export fails the first time (which sometimes it does)
+# retry if download_missing/use_photos_export fails the first time (which sometimes it does)
 MAX_PHOTOSCRIPT_RETRIES = 3
 
 
@@ -77,6 +77,7 @@ class ExportOptions:
     Attributes:
         convert_to_jpeg (bool): if True, converts non-jpeg images to jpeg
         description_template (str): optional template string that will be rendered for use as photo description
+        download_missing: (bool, default=False): if True will attempt to export photo via applescript interaction with Photos if missing (see also use_photokit, use_photos_export)
         dry_run: (bool, default=False): set to True to run in "dry run" mode
         edited: (bool, default=False): if True will export the edited version of the photo otherwise exports the original version
         exiftool_flags (list of str): optional list of flags to pass to exiftool when using exiftool option, e.g ["-m", "-F"]
@@ -114,13 +115,14 @@ class ExportOptions:
         update (bool, default=False): if True export will run in update mode, that is, it will not export the photo if the current version already exists in the destination
         use_albums_as_keywords (bool, default = False): if True, will include album names in keywords when exporting metadata with exiftool or sidecar
         use_persons_as_keywords (bool, default = False): if True, will include person names in keywords when exporting metadata with exiftool or sidecar
-        use_photos_export (bool, default=False): if True will attempt to export photo via applescript interaction with Photos (see also use_photokit)
+        use_photos_export (bool, default=False): if True will attempt to export photo via applescript interaction with Photos even if not missing (see also use_photokit, download_missing)
         use_photokit (bool, default=False): if True, will use photokit to export photos when use_photos_export is True
         verbose (Callable): optional callable function to use for printing verbose text during processing; if None (default), does not print output.
     """
 
     convert_to_jpeg: bool = False
     description_template: Optional[str] = None
+    download_missing: bool = False
     dry_run: bool = False
     edited: bool = False
     exiftool_flags: Optional[List] = None
@@ -369,7 +371,9 @@ class PhotoExporter:
         sidecar_json=False,
         sidecar_exiftool=False,
         sidecar_xmp=False,
+        download_missing=False,
         use_photos_export=False,
+        use_photokit=True,
         timeout=120,
         exiftool=False,
         use_albums_as_keywords=False,
@@ -404,7 +408,9 @@ class PhotoExporter:
                     sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. `exiftool -j`)
         sidecar_xmp: if set will write an XMP sidecar with IPTC data
                     sidecar filename will be dest/filename.xmp
-        use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos
+        use_photos_export: (boolean, default=False); if True will attempt to export photo via AppleScript or PhotoKit interaction with Photos
+        download_missing: (boolean, default=False); if True will attempt to export photo via AppleScript or PhotoKit interaction with Photos if missing
+        use_photokit: (boolean, default=True); if True will attempt to export photo via photokit instead of AppleScript when used with use_photos_export or download_missing
         timeout: (int, default=120) timeout in seconds used with use_photos_export
         exiftool: (boolean, default = False); if True, will use exiftool to write metadata to export file
         returns list of full paths to the exported files
@@ -448,6 +454,7 @@ class PhotoExporter:
 
         options = ExportOptions(
             description_template=description_template,
+            download_missing=download_missing,
             edited=edited,
             exiftool=exiftool,
             export_as_hardlink=export_as_hardlink,
@@ -461,6 +468,7 @@ class PhotoExporter:
             timeout=timeout,
             use_albums_as_keywords=use_albums_as_keywords,
             use_persons_as_keywords=use_persons_as_keywords,
+            use_photokit=use_photokit,
             use_photos_export=use_photos_export,
         )
 
@@ -504,9 +512,11 @@ class PhotoExporter:
         if verbose and not callable(verbose):
             raise TypeError("verbose must be callable")
 
-        # can't use export_as_hardlink with use_photos_export as can't hardlink the temporary files downloaded
-        if options.export_as_hardlink and options.use_photos_export:
-            raise ValueError("Cannot use export_as_hardlink with use_photos_export")
+        # can't use export_as_hardlink with download_missing, use_photos_export as can't hardlink the temporary files downloaded
+        if options.export_as_hardlink and options.download_missing:
+            raise ValueError(
+                "Cannot use export_as_hardlink with download_missing or use_photos_export"
+            )
 
         # when called from export(), won't get an export_db, so use no-op version
         options.export_db = options.export_db or ExportDBNoOp()
@@ -768,13 +778,18 @@ class PhotoExporter:
         """Stages photos for export
 
         If photo is present on disk in the library, uses path to the photo on disk.
-        If photo is missing and use_photos_export is true, downloads the photo from iCloud to temporary location.
+        If photo is missing and download_missing is true, downloads the photo from iCloud to temporary location.
         """
 
-        # TODO: this changes behavior in that Photos download is only called if file is actually missing
-        # Need an option to force download if user wants to only use Photos export
-
         staged = StagedFiles()
+
+        if options.use_photos_export:
+            # use Photos AppleScript or PhotoKit to do the export
+            return (
+                self._stage_photo_for_export_with_photokit(options=options)
+                if options.use_photokit
+                else self._stage_photo_for_export_with_applescript(options=options)
+            )
 
         if options.raw_photo and self.photo.has_raw:
             staged.raw = self.photo.path_raw
@@ -796,7 +811,7 @@ class PhotoExporter:
                 staged.edited_live = self.photo.path_edited_live_photo
 
         # download any missing files
-        if options.use_photos_export:
+        if options.download_missing:
             live_photo = staged.edited_live if options.edited else staged.original_live
             missing_options = ExportOptions(
                 edited=options.edited,
@@ -815,195 +830,6 @@ class PhotoExporter:
                 )
             staged |= missing_staged
         return staged
-
-    # def _export_photo_with_photos_export(
-    #     self,
-    #     dest: pathlib.Path,
-    #     all_results: ExportResults,
-    #     options: ExportOptions,
-    # ):
-    #     # TODO: if using applescript and exporting edited with live_photo doesn't seem to export the edited live photo
-    #     # this does work with photokit, but not with applescript
-    #     # TODO: duplicative code with the if edited/else--remove it
-    #     fileutil = options.fileutil
-    #     export_db = options.export_db
-
-    #     # export live_photo .mov file?
-    #     live_photo = bool(options.live_photo and self.photo.live_photo)
-    #     overwrite = options.overwrite or options.update
-    #     if options.edited or self.photo.shared:
-    #         # exported edited version and not original
-    #         # shared photos (in shared albums) show up as not having adjustments (not edited)
-    #         # but Photos is unable to export the "original" as only a jpeg copy is shared in iCloud
-    #         # so tell Photos to export the current version in this case
-    #         # didn't get passed a filename, add _edited
-    #         uti = (
-    #             self.photo.uti_edited
-    #             if options.edited and self.photo.uti_edited
-    #             else self.photo.uti
-    #         )
-    #         ext = get_preferred_uti_extension(uti)
-    #         dest = dest.parent / f"{dest.stem}.{ext}"
-
-    #         if options.use_photokit:
-    #             photolib = PhotoLibrary()
-    #             photo = None
-    #             try:
-    #                 photo = photolib.fetch_uuid(self.photo.uuid)
-    #             except PhotoKitFetchFailed as e:
-    #                 # if failed to find UUID, might be a burst photo
-    #                 if self.photo.burst and self.photo._info["burstUUID"]:
-    #                     bursts = photolib.fetch_burst_uuid(
-    #                         self.photo._info["burstUUID"], all=True
-    #                     )
-    #                     # PhotoKit UUIDs may contain "/L0/001" so only look at beginning
-    #                     photo = [
-    #                         p for p in bursts if p.uuid.startswith(self.photo.uuid)
-    #                     ]
-    #                     photo = photo[0] if photo else None
-    #                 if not photo:
-    #                     all_results.error.append(
-    #                         (
-    #                             str(dest),
-    #                             f"PhotoKitFetchFailed exception exporting photo {self.photo.uuid}: {e} ({lineno(__file__)})",
-    #                         )
-    #                     )
-    #             if photo:
-    #                 if options.dry_run:
-    #                     # dry_run, don't actually export
-    #                     all_results.exported.append(str(dest))
-    #                 else:
-    #                     try:
-    #                         exported = photo.export(
-    #                             dest.parent,
-    #                             dest.name,
-    #                             version=PHOTOS_VERSION_CURRENT,
-    #                             overwrite=overwrite,
-    #                             video=live_photo,
-    #                         )
-    #                         all_results.exported.extend(exported)
-    #                     except Exception as e:
-    #                         all_results.error.append(
-    #                             (str(dest), f"{e} ({lineno(__file__)})")
-    #                         )
-    #         else:
-    #             try:
-    #                 exported = _export_photo_uuid_applescript(
-    #                     self.photo.uuid,
-    #                     dest.parent,
-    #                     filestem=dest.stem,
-    #                     original=False,
-    #                     edited=True,
-    #                     live_photo=live_photo,
-    #                     timeout=options.timeout,
-    #                     burst=self.photo.burst,
-    #                     dry_run=options.dry_run,
-    #                     overwrite=overwrite,
-    #                 )
-    #                 all_results.exported.extend(exported)
-    #             except ExportError as e:
-    #                 all_results.error.append((str(dest), f"{e} ({lineno(__file__)})"))
-    #     else:
-    #         # export original version and not edited
-    #         if options.use_photokit:
-    #             photolib = PhotoLibrary()
-    #             photo = None
-    #             try:
-    #                 photo = photolib.fetch_uuid(self.photo.uuid)
-    #             except PhotoKitFetchFailed:
-    #                 # if failed to find UUID, might be a burst photo
-    #                 if self.photo.burst and self.photo._info["burstUUID"]:
-    #                     bursts = photolib.fetch_burst_uuid(
-    #                         self.photo._info["burstUUID"], all=True
-    #                     )
-    #                     # PhotoKit UUIDs may contain "/L0/001" so only look at beginning
-    #                     photo = [
-    #                         p for p in bursts if p.uuid.startswith(self.photo.uuid)
-    #                     ]
-    #                     photo = photo[0] if photo else None
-    #             if photo:
-    #                 if not options.dry_run:
-    #                     try:
-    #                         exported = photo.export(
-    #                             dest.parent,
-    #                             dest.name,
-    #                             version=PHOTOS_VERSION_ORIGINAL,
-    #                             overwrite=overwrite,
-    #                             video=live_photo,
-    #                         )
-    #                         all_results.exported.extend(exported)
-    #                     except Exception as e:
-    #                         all_results.error.append(
-    #                             (str(dest), f"{e} ({lineno(__file__)})")
-    #                         )
-    #                 else:
-    #                     # dry_run, don't actually export
-    #                     all_results.exported.append(str(dest))
-    #         else:
-    #             try:
-    #                 exported = _export_photo_uuid_applescript(
-    #                     self.photo.uuid,
-    #                     dest.parent,
-    #                     filestem=dest.stem,
-    #                     original=True,
-    #                     edited=False,
-    #                     live_photo=live_photo,
-    #                     timeout=options.timeout,
-    #                     burst=self.photo.burst,
-    #                     dry_run=options.dry_run,
-    #                     overwrite=overwrite,
-    #                 )
-    #                 all_results.exported.extend(exported)
-    #             except ExportError as e:
-    #                 all_results.error.append((str(dest), f"{e} ({lineno(__file__)})"))
-    #     if all_results.exported:
-    #         for idx, photopath in enumerate(all_results.exported):
-    #             converted_stat = (None, None, None)
-    #             photopath = pathlib.Path(photopath)
-    #             if (
-    #                 options.convert_to_jpeg
-    #                 and self.photo.isphoto
-    #                 and photopath.suffix.lower() not in LIVE_VIDEO_EXTENSIONS
-    #             ):
-    #                 dest_str = photopath.parent / f"{photopath.stem}.jpeg"
-    #                 fileutil.convert_to_jpeg(
-    #                     photopath,
-    #                     dest_str,
-    #                     compression_quality=options.jpeg_quality,
-    #                 )
-    #                 converted_stat = fileutil.file_sig(dest_str)
-    #                 fileutil.unlink(photopath)
-    #                 all_results.exported[idx] = dest_str
-    #                 all_results.converted_to_jpeg.append(dest_str)
-    #                 photopath = dest_str
-
-    #             photopath = str(photopath)
-    #             export_db.set_data(
-    #                 filename=photopath,
-    #                 uuid=self.photo.uuid,
-    #                 orig_stat=fileutil.file_sig(photopath),
-    #                 exif_stat=(None, None, None),
-    #                 converted_stat=converted_stat,
-    #                 edited_stat=(None, None, None),
-    #                 info_json=self.photo.json(),
-    #                 exif_json=None,
-    #             )
-
-    #             # todo: handle signatures
-    #         if options.jpeg_ext:
-    #             # use_photos_export (both PhotoKit and AppleScript) don't use the
-    #             # file extension provided (instead they use extension for UTI)
-    #             # so if jpeg_ext is set, rename any non-conforming jpegs
-    #             all_results.exported = rename_jpeg_files(
-    #                 all_results.exported, options.jpeg_ext, fileutil
-    #             )
-    #         if options.touch_file:
-    #             for exported_file in all_results.exported:
-    #                 all_results.touched.append(exported_file)
-    #                 ts = int(self.photo.date.timestamp())
-    #                 fileutil.utime(exported_file, (ts, ts))
-    #         if options.update:
-    #             all_results.new.extend(all_results.exported)
 
     def _stage_photo_for_export_with_photokit(
         self,

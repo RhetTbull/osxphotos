@@ -73,7 +73,6 @@ def test_export_default_name(photosdb):
 
     filename = photos[0].original_filename
     expected_dest = pathlib.Path(dest) / filename
-    expected_dest = expected_dest.parent / f"{expected_dest.stem}.jpeg"
     got_dest = photos[0].export(dest, use_photos_export=True)[0]
 
     assert got_dest == str(expected_dest)

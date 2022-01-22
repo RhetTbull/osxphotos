@@ -482,7 +482,7 @@ Explanation of the template string:
                                          (or nothing if no description)
 ```
 
-In this example, `title?` demonstrates use of the boolean (True/False) feature of the template system.  `title?` is read as "Is the title True (or not blank/empty)?  If so, then the value immediately following the `?` is used in place of `title`.  If `title` is blank, then the value immediately following the comma is used instead.  The format for boolean fields is `field?value if true,value if false`.  Either `value if true` or `value if false` may be blank, in which case a blank string ("") is used for the value and both may also be an entirely new template string as seen in the above example.  Using this format, template strings may be nested inside each other to form complex `if-then-else` statements.
+In this example, `title?` demonstrates use of the bool (True/False) feature of the template system.  `title?` is read as "Is the title True (or not blank/empty)?  If so, then the value immediately following the `?` is used in place of `title`.  If `title` is blank, then the value immediately following the comma is used instead.  The format for bool fields is `field?value if true,value if false`.  Either `value if true` or `value if false` may be blank, in which case a blank string ("") is used for the value and both may also be an entirely new template string as seen in the above example.  Using this format, template strings may be nested inside each other to form complex `if-then-else` statements.
 
 The above example, while complex to read, shows how flexible the osxphotos template system is.  If you invest a little time learning how to use the template system you can easily handle almost any use case you have.
 
@@ -1366,7 +1366,7 @@ another find|replace pair.  e.g. to replace both "/" and ":" in album name:
 "{album[/,-|:,-]}".  find/replace pairs are not limited to single characters.   
 The "|" character cannot be used in a find/replace pair.                        
 
-conditional: optional conditional expression that is evaluated as boolean       
+conditional: optional conditional expression that is evaluated as bool       
 (True/False) for use with the ?bool_value modifier.  Conditional expressions    
 take the form ' not operator value' where not is an optional modifier that      
 negates the operator.  Note: the space before the conditional expression is     
@@ -1420,7 +1420,7 @@ This renames any photo that is a favorite as 'Favorite-ImageName.jpg' (where
 'ImageName.jpg' is the original name of the photo) and all other photos with the
 unmodified original name.                                                       
 
-?bool_value: Template fields may be evaluated as boolean (True/False) by        
+?bool_value: Template fields may be evaluated as bool (True/False) by        
 appending "?" after the field name (and following "(path_sep)" or               
 "[find/replace]".  If a field is True (e.g. photo is HDR and field is "{hdr}")  
 or has any value, the value following the "?" will be used to render the        
@@ -1438,7 +1438,7 @@ and if it is not an HDR image,
  • "{hdr?ISHDR,NOTHDR}" renders to "NOTHDR"                                     
 
 ,default: optional default value to use if the template name has no value.  This
-modifier is also used for the value if False for boolean-type fields (see above)
+modifier is also used for the value if False for bool-type fields (see above)
 as well as to hold a sub-template for values like {created.strftime}.  If no    
 default value provided, "_" is used.                                            
 
@@ -2766,25 +2766,27 @@ Returns a JSON representation of all photo info.
 Returns a dictionary representation of all photo info.
 
 #### `export()`
-`export(dest, filename=None, edited=False, live_photo=False, export_as_hardlink=False, overwrite=False, increment=True, sidecar_json=False, sidecar_exiftool=False, sidecar_xmp=False, use_photos_export=False, timeout=120, exiftool=False, use_albums_as_keywords=False, use_persons_as_keywords=False)`
+`export(dest, filename=None, edited=False, live_photo=False, export_as_hardlink=False, overwrite=False, increment=True, sidecar_json=False, sidecar_exiftool=False, sidecar_xmp=False, download_missing=False, use_photos_export=False, use_photokit=True, timeout=120, exiftool=False, use_albums_as_keywords=False, use_persons_as_keywords=False)`
 
 Export photo from the Photos library to another destination on disk.  
 - dest: must be valid destination path as str (or exception raised).
 - filename (optional): name of picture as str; if not provided, will use current filename.  **NOTE**: if provided, user must ensure file extension (suffix) is correct. For example, if photo is .CR2 file, edited image may be .jpeg.  If you provide an extension different than what the actual file is, export will print a warning but will happily export the photo using the incorrect file extension.  e.g. to get the extension of the edited photo, look at [PhotoInfo.path_edited](#path_edited).
-- edited: boolean; if True (default=False), will export the edited version of the photo (or raise exception if no edited version)
-- export_as_hardlink: boolean; if True (default=False), will hardlink files instead of copying them
-- overwrite: boolean; if True (default=False), will overwrite files if they alreay exist
-- live_photo: boolean; if True (default=False), will also export the associted .mov for live photos; exported live photo will be named filename.mov
-- increment: boolean; if True (default=True), will increment file name until a non-existent name is found
-- sidecar_json: (boolean, default = False); if True will also write a json sidecar with metadata in format readable by exiftool; sidecar filename will be dest/filename.json where filename is the stem of the photo name
-- sidecar_json: (boolean, default = False); if True will also write a json sidecar with metadata in format readable by exiftool; sidecar filename will be dest/filename.json where filename is the stem of the photo name; resulting json file will include tag group names (e.g. `exiftool -G -j`)
-- sidecar_exiftool: (boolean, default = False); if True will also write a json sidecar with metadata in format readable by exiftool; sidecar filename will be dest/filename.json where filename is the stem of the photo name; resulting json file will not include tag group names (e.g. `exiftool -j`)
-- sidecar_xmp: (boolean, default = False); if True will also write a XMP sidecar with metadata; sidecar filename will be dest/filename.xmp where filename is the stem of the photo name
-- use_photos_export: boolean; (default=False), if True will attempt to export photo via applescript interaction with Photos; useful for forcing download of missing photos.  This only works if the Photos library being used is the default library (last opened by Photos) as applescript will directly interact with whichever library Photos is currently using.
+- edited: bool; if True (default=False), will export the edited version of the photo (or raise exception if no edited version)
+- export_as_hardlink: bool; if True (default=False), will hardlink files instead of copying them
+- overwrite: bool; if True (default=False), will overwrite files if they alreay exist
+- live_photo: bool; if True (default=False), will also export the associted .mov for live photos; exported live photo will be named filename.mov
+- increment: bool; if True (default=True), will increment file name until a non-existent name is found
+- sidecar_json: (bool, default = False); if True will also write a json sidecar with metadata in format readable by exiftool; sidecar filename will be dest/filename.json where filename is the stem of the photo name
+- sidecar_json: (bool, default = False); if True will also write a json sidecar with metadata in format readable by exiftool; sidecar filename will be dest/filename.json where filename is the stem of the photo name; resulting json file will include tag group names (e.g. `exiftool -G -j`)
+- sidecar_exiftool: (bool, default = False); if True will also write a json sidecar with metadata in format readable by exiftool; sidecar filename will be dest/filename.json where filename is the stem of the photo name; resulting json file will not include tag group names (e.g. `exiftool -j`)
+- sidecar_xmp: (bool, default = False); if True will also write a XMP sidecar with metadata; sidecar filename will be dest/filename.xmp where filename is the stem of the photo name
+- use_photos_export: (bool, default=False); if True will attempt to export photo via AppleScript or PhotoKit interaction with Photos
+- download_missing: (bool, default=False); if True will attempt to export photo via AppleScript or PhotoKit interaction with Photos if missing
+- use_photokit: (bool, default=True); if True will attempt to export photo via photokit instead of AppleScript when used with use_photos_export or download_missing
 - timeout: (int, default=120) timeout in seconds used with use_photos_export
-- exiftool: (boolean, default = False) if True, will use [exiftool](https://exiftool.org/) to write metadata directly to the exported photo; exiftool must be installed and in the system path
-- use_albums_as_keywords: (boolean, default = False); if True, will use album names as keywords when exporting metadata with exiftool or sidecar
-- use_persons_as_keywords: (boolean, default = False); if True, will use person names as keywords when exporting metadata with exiftool or sidecar
+- exiftool: (bool, default = False) if True, will use [exiftool](https://exiftool.org/) to write metadata directly to the exported photo; exiftool must be installed and in the system path
+- use_albums_as_keywords: (bool, default = False); if True, will use album names as keywords when exporting metadata with exiftool or sidecar
+- use_persons_as_keywords: (bool, default = False); if True, will use person names as keywords when exporting metadata with exiftool or sidecar
 
 Returns: list of paths to exported files. More than one file could be exported, for example if live_photo=True, both the original image and the associated .mov file will be exported
 
@@ -3470,7 +3472,7 @@ e.g. If Photo is in `Album1` in `Folder1`:
 
 `[find,replace]`: optional text replacement to perform on rendered template value.  For example, to replace "/" in an album name, you could use the template `"{album[/,-]}"`.  Multiple replacements can be made by appending "|" and adding another find|replace pair.  e.g. to replace both "/" and ":" in album name: `"{album[/,-|:,-]}"`.  find/replace pairs are not limited to single characters.  The "|" character cannot be used in a find/replace pair.
 
-`conditional`: optional conditional expression that is evaluated as boolean (True/False) for use with the `?bool_value` modifier.  Conditional expressions take the form '` not operator value`' where `not` is an optional modifier that negates the `operator`.  Note: the space before the conditional expression is required if you use a conditional expression.  Valid comparison operators are:
+`conditional`: optional conditional expression that is evaluated as bool (True/False) for use with the `?bool_value` modifier.  Conditional expressions take the form '` not operator value`' where `not` is an optional modifier that negates the `operator`.  Note: the space before the conditional expression is required if you use a conditional expression.  Valid comparison operators are:
 
 - `contains`: template field contains value, similar to python's `in`
 - `matches`: template field contains exactly value, unlike `contains`: does not match partial matches
@@ -3504,7 +3506,7 @@ This can be used to rename files as well, for example:
 
 This renames any photo that is a favorite as 'Favorite-ImageName.jpg' (where 'ImageName.jpg' is the original name of the photo) and all other photos with the unmodified original name.
 
-`?bool_value`: Template fields may be evaluated as boolean (True/False) by appending "?" after the field name (and following "(path_sep)" or "[find/replace]".  If a field is True (e.g. photo is HDR and field is `"{hdr}"`) or has any value, the value following the "?" will be used to render the template instead of the actual field value.  If the template field evaluates to False (e.g. in above example, photo is not HDR) or has no value (e.g. photo has no title and field is `"{title}"`) then the default value following a "," will be used.  
+`?bool_value`: Template fields may be evaluated as bool (True/False) by appending "?" after the field name (and following "(path_sep)" or "[find/replace]".  If a field is True (e.g. photo is HDR and field is `"{hdr}"`) or has any value, the value following the "?" will be used to render the template instead of the actual field value.  If the template field evaluates to False (e.g. in above example, photo is not HDR) or has no value (e.g. photo has no title and field is `"{title}"`) then the default value following a "," will be used.  
 
 e.g. if photo is an HDR image,
 
@@ -3514,7 +3516,7 @@ and if it is not an HDR image,
 
 - `"{hdr?ISHDR,NOTHDR}"` renders to `"NOTHDR"`
 
-`,default`: optional default value to use if the template name has no value.  This modifier is also used for the value if False for boolean-type fields (see above) as well as to hold a sub-template for values like `{created.strftime}`.  If no default value provided, "_" is used. 
+`,default`: optional default value to use if the template name has no value.  This modifier is also used for the value if False for bool-type fields (see above) as well as to hold a sub-template for values like `{created.strftime}`.  If no default value provided, "_" is used. 
 
 e.g., if photo has no title set,
 

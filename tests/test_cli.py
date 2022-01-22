@@ -6868,7 +6868,7 @@ def test_export_download_missing_file_exists():
             ],
         )
         assert result.exit_code == 0
-        assert "exported: 1" in result.output
+        assert "skipped: 1" in result.output
 
 
 @pytest.mark.skipif(
