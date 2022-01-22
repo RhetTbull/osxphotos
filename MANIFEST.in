@@ -3,4 +3,5 @@ include README.rst
 include osxphotos/templates/*
 include osxphotos/phototemplate.tx
 include osxphotos/phototemplate.md
+include osxphotos/tutorial.md
 include osxphotos/queries/*
