@@ -16,11 +16,13 @@ from .._constants import (
 )
 from ..utils import _open_sql_file
 
-__all__ = ["get_db_version",
-           "get_model_version",
-           "get_db_model_version",
-           "UnknownLibraryVersion",
-           "get_photos_library_version"]
+__all__ = [
+    "get_db_version",
+    "get_model_version",
+    "get_db_model_version",
+    "UnknownLibraryVersion",
+    "get_photos_library_version",
+]
 
 
 def get_db_version(db_file):

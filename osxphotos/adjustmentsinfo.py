@@ -75,37 +75,37 @@ class AdjustmentsInfo:
 
     @property
     def plist(self):
-        """The actual adjustments plist content as a dict """
+        """The actual adjustments plist content as a dict"""
         return self._plist
 
     @property
     def data(self):
-        """The raw adjustments data as a binary blob """
+        """The raw adjustments data as a binary blob"""
         return self._data
 
     @property
     def editor(self):
-        """The editor bundle ID for app/plug-in which made the adjustments """
+        """The editor bundle ID for app/plug-in which made the adjustments"""
         return self._editor_bundle_id
 
     @property
     def format_id(self):
-        """The value of the adjustmentFormatIdentifier field in the plist """
+        """The value of the adjustmentFormatIdentifier field in the plist"""
         return self._format_identifier
 
     @property
     def base_version(self):
-        """Value of adjustmentBaseVersion field """
+        """Value of adjustmentBaseVersion field"""
         return self._base_version
 
     @property
     def format_version(self):
-        """The value of the adjustmentFormatVersion in the plist """
+        """The value of the adjustmentFormatVersion in the plist"""
         return self._format_version
 
     @property
     def timestamp(self):
-        """The time stamp of the adjustment as timezone aware datetime.datetime object or None if no timestamp """
+        """The time stamp of the adjustment as timezone aware datetime.datetime object or None if no timestamp"""
         return self._timestamp
 
     @property

@@ -53,7 +53,7 @@ class PersonInfo:
 
     @property
     def photos(self):
-        """ Returns list of PhotoInfo objects associated with this person """
+        """Returns list of PhotoInfo objects associated with this person"""
         return self._db.photos_by_uuid(self._db._dbfaces_pk[self._pk])
 
     @property
@@ -73,7 +73,7 @@ class PersonInfo:
             return []
 
     def asdict(self):
-        """ Returns dictionary representation of class instance """
+        """Returns dictionary representation of class instance"""
         keyphoto = self.keyphoto.uuid if self.keyphoto is not None else None
         return {
             "uuid": self.uuid,
@@ -85,7 +85,7 @@ class PersonInfo:
         }
 
     def json(self):
-        """ Returns JSON representation of class instance """
+        """Returns JSON representation of class instance"""
         return json.dumps(self.asdict())
 
     def __str__(self):
@@ -203,7 +203,7 @@ class FaceInfo:
 
     @property
     def person_info(self):
-        """ PersonInfo instance for person associated with this face """
+        """PersonInfo instance for person associated with this face"""
         try:
             return self._person
         except AttributeError:
@@ -212,7 +212,7 @@ class FaceInfo:
 
     @property
     def photo(self):
-        """ PhotoInfo instance associated with this face """
+        """PhotoInfo instance associated with this face"""
         try:
             return self._photo
         except AttributeError:
@@ -294,7 +294,7 @@ class FaceInfo:
         return [(x0, y0), (x1, y1)]
 
     def roll_pitch_yaw(self):
-        """ Roll, pitch, yaw of face in radians as tuple """
+        """Roll, pitch, yaw of face in radians as tuple"""
         info = self._info
         roll = 0 if info["roll"] is None else info["roll"]
         pitch = 0 if info["pitch"] is None else info["pitch"]
@@ -304,19 +304,19 @@ class FaceInfo:
 
     @property
     def roll(self):
-        """ Return roll angle in radians of the face region """
+        """Return roll angle in radians of the face region"""
         roll, _, _ = self.roll_pitch_yaw()
         return roll
 
     @property
     def pitch(self):
-        """ Return pitch angle in radians of the face region """
+        """Return pitch angle in radians of the face region"""
         _, pitch, _ = self.roll_pitch_yaw()
         return pitch
 
     @property
     def yaw(self):
-        """ Return yaw angle in radians of the face region """
+        """Return yaw angle in radians of the face region"""
         _, _, yaw = self.roll_pitch_yaw()
         return yaw
 
@@ -404,7 +404,7 @@ class FaceInfo:
         return (int(xr), int(yr))
 
     def asdict(self):
-        """ Returns dict representation of class instance """
+        """Returns dict representation of class instance"""
         roll, pitch, yaw = self.roll_pitch_yaw()
         return {
             "_pk": self._pk,
@@ -453,7 +453,7 @@ class FaceInfo:
         }
 
     def json(self):
-        """ Return JSON representation of FaceInfo instance """
+        """Return JSON representation of FaceInfo instance"""
         return json.dumps(self.asdict())
 
     def __str__(self):

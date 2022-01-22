@@ -9,7 +9,7 @@ __all__ = ["ScoreInfo"]
 
 @dataclass(frozen=True)
 class ScoreInfo:
-    """ Computed photo score info associated with a photo from the Photos library """
+    """Computed photo score info associated with a photo from the Photos library"""
 
     overall: float
     curation: float
@@ -38,4 +38,3 @@ class ScoreInfo:
     well_chosen_subject: float
     well_framed_subject: float
     well_timed_shot: float
-

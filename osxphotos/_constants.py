@@ -42,7 +42,10 @@ _PHOTOS_5_VERSION = "5000"  # I've seen both 5001 and 6000.  6000 is most common
 # Ranges for model version by Photos version
 _PHOTOS_5_MODEL_VERSION = [13000, 13999]
 _PHOTOS_6_MODEL_VERSION = [14000, 14999]
-_PHOTOS_7_MODEL_VERSION = [15000, 15999]  # Monterey developer preview is 15134, 12.1 is 15331
+_PHOTOS_7_MODEL_VERSION = [
+    15000,
+    15999,
+]  # Monterey developer preview is 15134, 12.1 is 15331
 
 # some table names differ between Photos 5 and Photos 6
 _DB_TABLE_NAMES = {
@@ -260,7 +263,7 @@ EXTENDED_ATTRIBUTE_NAMES_QUOTED = [f"'{x}'" for x in EXTENDED_ATTRIBUTE_NAMES]
 OSXPHOTOS_EXPORT_DB = ".osxphotos_export.db"
 
 # bit flags for burst images ("burstPickType")
-BURST_PICK_TYPE_NONE = 0b0 # 0: sometimes used for single images with a burst UUID
+BURST_PICK_TYPE_NONE = 0b0  # 0: sometimes used for single images with a burst UUID
 BURST_NOT_SELECTED = 0b10  # 2: burst image is not selected
 BURST_DEFAULT_PICK = 0b100  # 4: burst image is the one Photos picked to be key image before any selections made
 BURST_SELECTED = 0b1000  # 8: burst image is selected

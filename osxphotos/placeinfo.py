@@ -14,13 +14,15 @@ from bpylist import archiver
 from ._constants import UNICODE_FORMAT
 from .utils import normalize_unicode
 
-__all__ = ["PLRevGeoLocationInfo",
-           "PLRevGeoMapItem",
-           "PLRevGeoMapItemAdditionalPlaceInfo",
-           "CNPostalAddress",
-           "PlaceInfo",
-           "PlaceInfo4",
-           "PlaceInfo5"]
+__all__ = [
+    "PLRevGeoLocationInfo",
+    "PLRevGeoMapItem",
+    "PLRevGeoMapItemAdditionalPlaceInfo",
+    "CNPostalAddress",
+    "PlaceInfo",
+    "PlaceInfo4",
+    "PlaceInfo5",
+]
 
 # postal address information, returned by PlaceInfo.address
 PostalAddress = namedtuple(
@@ -73,7 +75,7 @@ PlaceNames = namedtuple(
 # in ZADDITIONALASSETATTRIBUTES.ZREVERSELOCATIONDATA
 # These classes are used by bpylist.archiver to unarchive the serialized objects
 class PLRevGeoLocationInfo:
-    """ The top level reverse geolocation object """
+    """The top level reverse geolocation object"""
 
     def __init__(
         self,
@@ -155,7 +157,7 @@ class PLRevGeoLocationInfo:
 
 
 class PLRevGeoMapItem:
-    """ Stores the list of place names, organized by area """
+    """Stores the list of place names, organized by area"""
 
     def __init__(self, sortedPlaceInfos, finalPlaceInfos):
         self.sortedPlaceInfos = sortedPlaceInfos
@@ -190,7 +192,7 @@ class PLRevGeoMapItem:
 
 
 class PLRevGeoMapItemAdditionalPlaceInfo:
-    """ Additional info about individual places """
+    """Additional info about individual places"""
 
     def __init__(self, area, name, placeType, dominantOrderType):
         self.area = area
@@ -229,7 +231,7 @@ class PLRevGeoMapItemAdditionalPlaceInfo:
 
 
 class CNPostalAddress:
-    """ postal address for the reverse geolocation info """
+    """postal address for the reverse geolocation info"""
 
     def __init__(
         self,
@@ -362,17 +364,17 @@ class PlaceInfo(ABC):
 
 
 class PlaceInfo4(PlaceInfo):
-    """ Reverse geolocation place info for a photo (Photos <= 4) """
+    """Reverse geolocation place info for a photo (Photos <= 4)"""
 
     def __init__(self, place_names, country_code):
-        """ place_names: list of place name tuples in ascending order by area 
-            tuple fields are: modelID, place name, place type, area, e.g.
-            [(5, "St James's Park", 45, 0), 
-            (4, 'Westminster', 16, 22097376), 
-            (3, 'London', 4, 1596146816), 
-            (2, 'England', 2, 180406091776), 
-            (1, 'United Kingdom', 1, 414681432064)] 
-            country_code: two letter country code for the country
+        """place_names: list of place name tuples in ascending order by area
+        tuple fields are: modelID, place name, place type, area, e.g.
+        [(5, "St James's Park", 45, 0),
+        (4, 'Westminster', 16, 22097376),
+        (3, 'London', 4, 1596146816),
+        (2, 'England', 2, 180406091776),
+        (1, 'United Kingdom', 1, 414681432064)]
+        country_code: two letter country code for the country
         """
         self._place_names = place_names
         self._country_code = country_code
@@ -412,7 +414,7 @@ class PlaceInfo4(PlaceInfo):
             )
 
     def _process_place_info(self):
-        """ Process place_names to set self._name and self._names """
+        """Process place_names to set self._name and self._names"""
         places = self._place_names
 
         # build a dictionary where key is placetype
@@ -508,38 +510,38 @@ class PlaceInfo4(PlaceInfo):
 
 
 class PlaceInfo5(PlaceInfo):
-    """ Reverse geolocation place info for a photo (Photos >= 5) """
+    """Reverse geolocation place info for a photo (Photos >= 5)"""
 
     def __init__(self, revgeoloc_bplist):
-        """ revgeoloc_bplist: a binary plist blob containing 
-                a serialized PLRevGeoLocationInfo object """
+        """revgeoloc_bplist: a binary plist blob containing
+        a serialized PLRevGeoLocationInfo object"""
         self._bplist = revgeoloc_bplist
         self._plrevgeoloc = archiver.unarchive(revgeoloc_bplist)
         self._process_place_info()
 
     @property
     def address_str(self):
-        """ returns the postal address as a string """
+        """returns the postal address as a string"""
         return self._plrevgeoloc.addressString
 
     @property
     def country_code(self):
-        """ returns the country code """
+        """returns the country code"""
         return self._plrevgeoloc.countryCode
 
     @property
     def ishome(self):
-        """ returns True if place is user's home address """
+        """returns True if place is user's home address"""
         return self._plrevgeoloc.isHome
 
     @property
     def name(self):
-        """ returns local place name """
+        """returns local place name"""
         return self._name
 
     @property
     def names(self):
-        """ returns PlaceNames tuple with detailed reverse geolocation place names """
+        """returns PlaceNames tuple with detailed reverse geolocation place names"""
         return self._names
 
     @property
@@ -564,7 +566,7 @@ class PlaceInfo5(PlaceInfo):
         return postal_address
 
     def _process_place_info(self):
-        """ Process sortedPlaceInfos to set self._name and self._names """
+        """Process sortedPlaceInfos to set self._name and self._names"""
         places = self._plrevgeoloc.mapItem.sortedPlaceInfos
 
         # build a dictionary where key is placetype

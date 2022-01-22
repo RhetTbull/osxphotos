@@ -22,14 +22,16 @@ from .phototemplate import (
     get_template_help,
 )
 
-__all__ = ["ExportCommand",
-           "template_help",
-           "tutorial_help",
-           "rich_text",
-           "strip_md_header_and_links",
-           "strip_md_links",
-           "strip_html_comments",
-           "get_tutorial_text"]
+__all__ = [
+    "ExportCommand",
+    "template_help",
+    "tutorial_help",
+    "rich_text",
+    "strip_md_header_and_links",
+    "strip_md_links",
+    "strip_html_comments",
+    "get_tutorial_text",
+]
 
 
 # TODO: The following help text could probably be done as mako template

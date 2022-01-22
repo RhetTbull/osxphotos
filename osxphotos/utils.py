@@ -24,19 +24,21 @@ from Foundation import NSString
 
 from ._constants import UNICODE_FORMAT
 
-__all__ = ["noop",
-           "lineno",
-           "dd_to_dms_str",
-           "get_system_library_path",
-           "get_last_library_path",
-           "list_photo_libraries",
-           "normalize_fs_path",
-           "findfiles",
-           "normalize_unicode",
-           "increment_filename_with_count",
-           "increment_filename",
-           "expand_and_validate_filepath",
-           "load_function"]
+__all__ = [
+    "noop",
+    "lineno",
+    "dd_to_dms_str",
+    "get_system_library_path",
+    "get_last_library_path",
+    "list_photo_libraries",
+    "normalize_fs_path",
+    "findfiles",
+    "normalize_unicode",
+    "increment_filename_with_count",
+    "increment_filename",
+    "expand_and_validate_filepath",
+    "load_function",
+]
 
 _DEBUG = False
 
@@ -379,7 +381,9 @@ def normalize_unicode(value):
         return None
 
 
-def increment_filename_with_count(filepath: Union[str,pathlib.Path], count: int = 0) -> str:
+def increment_filename_with_count(
+    filepath: Union[str, pathlib.Path], count: int = 0
+) -> str:
     """Return filename (1).ext, etc if filename.ext exists
 
         If file exists in filename's parent folder with same stem as filename,

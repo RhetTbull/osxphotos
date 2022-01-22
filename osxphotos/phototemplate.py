@@ -22,12 +22,14 @@ from .path_utils import sanitize_dirname, sanitize_filename, sanitize_pathpart
 from .text_detection import detect_text
 from .utils import expand_and_validate_filepath, load_function
 
-__all__ = ["RenderOptions",
-           "PhotoTemplateParser",
-           "PhotoTemplate",
-           "parse_default_kv",
-           "get_template_help",
-           "format_str_value"]
+__all__ = [
+    "RenderOptions",
+    "PhotoTemplateParser",
+    "PhotoTemplate",
+    "parse_default_kv",
+    "get_template_help",
+    "format_str_value",
+]
 
 # TODO: a lot of values are passed from function to function like path_sep--make these all class properties
 

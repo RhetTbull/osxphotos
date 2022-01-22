@@ -1,14 +1,16 @@
 """ ConfigOptions class to load/save config settings for osxphotos CLI """
 import toml
 
-__all__ = ["ConfigOptionsException",
-           "ConfigOptionsInvalidError",
-           "ConfigOptionsLoadError",
-           "ConfigOptions"]
+__all__ = [
+    "ConfigOptionsException",
+    "ConfigOptionsInvalidError",
+    "ConfigOptionsLoadError",
+    "ConfigOptions",
+]
 
 
 class ConfigOptionsException(Exception):
-    """ Invalid combination of options. """
+    """Invalid combination of options."""
 
     def __init__(self, message):
         self.message = message
@@ -24,10 +26,10 @@ class ConfigOptionsLoadError(ConfigOptionsException):
 
 
 class ConfigOptions:
-    """ data class to store and load options for osxphotos commands """
+    """data class to store and load options for osxphotos commands"""
 
     def __init__(self, name, attrs, ignore=None):
-        """ init ConfigOptions class
+        """init ConfigOptions class
 
         Args:
             name: name for these options, will be used for section heading in TOML file when saving/loading from file
@@ -58,21 +60,21 @@ class ConfigOptions:
                 raise KeyError(f"Missing argument: {attr}")
 
     def validate(self, exclusive=None, inclusive=None, dependent=None, cli=False):
-        """ validate combinations of otions
-        
+        """validate combinations of otions
+
         Args:
-            exclusive: list of tuples in form [("option_1", "option_2")...] which are exclusive; 
-                       ie. either option_1 can be set or option_2 but not both; 
-            inclusive: list of tuples in form [("option_1", "option_2")...] which are inclusive; 
+            exclusive: list of tuples in form [("option_1", "option_2")...] which are exclusive;
+                       ie. either option_1 can be set or option_2 but not both;
+            inclusive: list of tuples in form [("option_1", "option_2")...] which are inclusive;
                        ie. if either option_1 or option_2 is set, the other must be set
-            dependent: list of tuples in form [("option_1", ("option_2", "option_3"))...] 
+            dependent: list of tuples in form [("option_1", ("option_2", "option_3"))...]
                        where if option_1 is set, then at least one of the options in the second tuple must also be set
-            cli: bool, set to True if called to validate CLI options; 
+            cli: bool, set to True if called to validate CLI options;
                        will prepend '--' to option names in InvalidOptions.message and change _ to - in option names
-        
+
         Returns:
             True if all options valid
-            
+
         Raises:
             InvalidOption if any combination of options is invalid
             InvalidOption.message will be descriptive message of invalid options
@@ -126,7 +128,7 @@ class ConfigOptions:
         return True
 
     def write_to_file(self, filename):
-        """ Write self to TOML file
+        """Write self to TOML file
 
         Args:
             filename: full path to TOML file to write; filename will be overwritten if it exists
@@ -146,7 +148,7 @@ class ConfigOptions:
             toml.dump({self._name: data}, fd)
 
     def load_from_file(self, filename, override=False):
-        """ Load options from a TOML file.
+        """Load options from a TOML file.
 
         Args:
             filename: full path to TOML file

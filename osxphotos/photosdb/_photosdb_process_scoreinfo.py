@@ -22,8 +22,8 @@ from .photosdb_utils import get_db_version
 
 
 def _process_scoreinfo(self):
-    """ Process computed photo scores
-        Note: Only works on Photos version == 5.0
+    """Process computed photo scores
+    Note: Only works on Photos version == 5.0
     """
 
     # _db_scoreinfo_uuid is dict in form {uuid: {score values}}
@@ -38,7 +38,7 @@ def _process_scoreinfo(self):
 
 
 def _process_scoreinfo_5(photosdb):
-    """ Process computed photo scores for Photos 5 databases
+    """Process computed photo scores for Photos 5 databases
 
     Args:
         photosdb: an OSXPhotosDB instance

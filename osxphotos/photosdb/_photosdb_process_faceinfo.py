@@ -22,8 +22,7 @@ from .photosdb_utils import get_db_version
 
 
 def _process_faceinfo(self):
-    """ Process face information
-    """
+    """Process face information"""
 
     self._db_faceinfo_pk = {}
     self._db_faceinfo_uuid = {}
@@ -36,7 +35,7 @@ def _process_faceinfo(self):
 
 
 def _process_faceinfo_4(photosdb):
-    """ Process face information for Photos 4 databases
+    """Process face information for Photos 4 databases
 
     Args:
         photosdb: an OSXPhotosDB instance
@@ -172,7 +171,7 @@ def _process_faceinfo_4(photosdb):
 
 
 def _process_faceinfo_5(photosdb):
-    """ Process face information for Photos 5 databases
+    """Process face information for Photos 5 databases
 
     Args:
         photosdb: an OSXPhotosDB instance

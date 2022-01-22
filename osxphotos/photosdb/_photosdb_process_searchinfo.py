@@ -35,10 +35,10 @@ from ..utils import _db_is_locked, _debug, _open_sql_file, normalize_unicode
 
 
 def _process_searchinfo(self):
-    """ load machine learning/search term label info from a Photos library
-        db_connection: a connection to the SQLite database file containing the 
-        search terms.  In Photos 5, this is called psi.sqlite
-        Note: Only works on Photos version == 5.0 """
+    """load machine learning/search term label info from a Photos library
+    db_connection: a connection to the SQLite database file containing the
+    search terms.  In Photos 5, this is called psi.sqlite
+    Note: Only works on Photos version == 5.0"""
 
     # _db_searchinfo_uuid is dict in form {uuid : [list of associated search info records]
     self._db_searchinfo_uuid = _db_searchinfo_uuid = {}
@@ -155,7 +155,7 @@ def _process_searchinfo(self):
 
 @property
 def labels(self):
-    """ return list of all search info labels found in the library """
+    """return list of all search info labels found in the library"""
     if self._db_version <= _PHOTOS_4_VERSION:
         logging.warning(f"SearchInfo not implemented for this library version")
         return []
@@ -165,7 +165,7 @@ def labels(self):
 
 @property
 def labels_normalized(self):
-    """ return list of all normalized search info labels found in the library """
+    """return list of all normalized search info labels found in the library"""
     if self._db_version <= _PHOTOS_4_VERSION:
         logging.warning(f"SearchInfo not implemented for this library version")
         return []
@@ -175,7 +175,7 @@ def labels_normalized(self):
 
 @property
 def labels_as_dict(self):
-    """ return labels as dict of label: count in reverse sorted order (descending) """
+    """return labels as dict of label: count in reverse sorted order (descending)"""
     if self._db_version <= _PHOTOS_4_VERSION:
         logging.warning(f"SearchInfo not implemented for this library version")
         return dict()
@@ -187,7 +187,7 @@ def labels_as_dict(self):
 
 @property
 def labels_normalized_as_dict(self):
-    """ return normalized labels as dict of label: count in reverse sorted order (descending) """
+    """return normalized labels as dict of label: count in reverse sorted order (descending)"""
     if self._db_version <= _PHOTOS_4_VERSION:
         logging.warning(f"SearchInfo not implemented for this library version")
         return dict()
@@ -201,8 +201,8 @@ def labels_normalized_as_dict(self):
 
 @lru_cache(maxsize=128)
 def ints_to_uuid(uuid_0, uuid_1):
-    """ convert two signed ints into a UUID strings
-        uuid_0, uuid_1: the two int components of an RFC 4122 UUID """
+    """convert two signed ints into a UUID strings
+    uuid_0, uuid_1: the two int components of an RFC 4122 UUID"""
 
     # assumes uuid imported as uuidlib (to avoid namespace conflict with other uses of uuid)
 

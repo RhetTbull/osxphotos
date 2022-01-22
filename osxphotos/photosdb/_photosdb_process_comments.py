@@ -10,9 +10,9 @@ from ..utils import _open_sql_file, normalize_unicode
 
 
 def _process_comments(self):
-    """ load the comments and likes data from the database 
-        this is a PhotosDB method that should be imported in 
-        the PhotosDB class definition in photosdb.py
+    """load the comments and likes data from the database
+    this is a PhotosDB method that should be imported in
+    the PhotosDB class definition in photosdb.py
     """
     self._db_hashed_person_id = {}
     self._db_comments_uuid = {}
@@ -24,7 +24,7 @@ def _process_comments(self):
 
 @dataclass
 class CommentInfo:
-    """ Class for shared photo comments """
+    """Class for shared photo comments"""
 
     datetime: datetime.datetime
     user: str
@@ -37,7 +37,7 @@ class CommentInfo:
 
 @dataclass
 class LikeInfo:
-    """ Class for shared photo likes """
+    """Class for shared photo likes"""
 
     datetime: datetime.datetime
     user: str
@@ -50,16 +50,16 @@ class LikeInfo:
 # The following methods do not get imported into PhotosDB
 # but will get called by _process_comments
 def _process_comments_4(photosdb):
-    """ process comments and likes info for Photos <= 4 
-        photosdb: PhotosDB instance """
+    """process comments and likes info for Photos <= 4
+    photosdb: PhotosDB instance"""
     raise NotImplementedError(
         f"Not implemented for database version {photosdb._db_version}."
     )
 
 
 def _process_comments_5(photosdb):
-    """ process comments and likes info for Photos >= 5 
-        photosdb: PhotosDB instance """
+    """process comments and likes info for Photos >= 5
+    photosdb: PhotosDB instance"""
 
     db = photosdb._tmp_db
 

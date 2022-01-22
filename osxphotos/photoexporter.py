@@ -48,12 +48,14 @@ from .phototemplate import RenderOptions
 from .uti import get_preferred_uti_extension
 from .utils import increment_filename, increment_filename_with_count, lineno
 
-__all__ = ["ExportError",
-           "ExportOptions",
-           "ExportResults",
-           "PhotoExporter",
-           "hexdigest",
-           "rename_jpeg_files"]
+__all__ = [
+    "ExportError",
+    "ExportOptions",
+    "ExportResults",
+    "PhotoExporter",
+    "hexdigest",
+    "rename_jpeg_files",
+]
 
 if TYPE_CHECKING:
     from .photoinfo import PhotoInfo

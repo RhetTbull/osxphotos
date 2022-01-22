@@ -1,4 +1,3 @@
-
 __all__ = ["PyReplQuitter", "embed_repl"]
 """ Custom Python REPL based on ptpython that allows quitting with custom keywords instead of `quit()` """
 

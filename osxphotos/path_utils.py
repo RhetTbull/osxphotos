@@ -4,11 +4,13 @@ import pathvalidate
 
 from ._constants import MAX_DIRNAME_LEN, MAX_FILENAME_LEN
 
-__all__ = ["sanitize_filepath",
-           "is_valid_filepath",
-           "sanitize_filename",
-           "sanitize_dirname",
-           "sanitize_pathpart"]
+__all__ = [
+    "sanitize_filepath",
+    "is_valid_filepath",
+    "sanitize_filename",
+    "sanitize_dirname",
+    "sanitize_pathpart",
+]
 
 
 def sanitize_filepath(filepath):
