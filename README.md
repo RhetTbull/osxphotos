@@ -482,7 +482,7 @@ Explanation of the template string:
                                          (or nothing if no description)
 ```
 
-In this example, `title?` demonstrates use of the bool (True/False) feature of the template system.  `title?` is read as "Is the title True (or not blank/empty)?  If so, then the value immediately following the `?` is used in place of `title`.  If `title` is blank, then the value immediately following the comma is used instead.  The format for bool fields is `field?value if true,value if false`.  Either `value if true` or `value if false` may be blank, in which case a blank string ("") is used for the value and both may also be an entirely new template string as seen in the above example.  Using this format, template strings may be nested inside each other to form complex `if-then-else` statements.
+In this example, `title?` demonstrates use of the boolean (True/False) feature of the template system.  `title?` is read as "Is the title True (or not blank/empty)?  If so, then the value immediately following the `?` is used in place of `title`.  If `title` is blank, then the value immediately following the comma is used instead.  The format for boolean fields is `field?value if true,value if false`.  Either `value if true` or `value if false` may be blank, in which case a blank string ("") is used for the value and both may also be an entirely new template string as seen in the above example.  Using this format, template strings may be nested inside each other to form complex `if-then-else` statements.
 
 The above example, while complex to read, shows how flexible the osxphotos template system is.  If you invest a little time learning how to use the template system you can easily handle almost any use case you have.
 
@@ -1366,7 +1366,7 @@ another find|replace pair.  e.g. to replace both "/" and ":" in album name:
 "{album[/,-|:,-]}".  find/replace pairs are not limited to single characters.   
 The "|" character cannot be used in a find/replace pair.                        
 
-conditional: optional conditional expression that is evaluated as bool       
+conditional: optional conditional expression that is evaluated as boolean       
 (True/False) for use with the ?bool_value modifier.  Conditional expressions    
 take the form ' not operator value' where not is an optional modifier that      
 negates the operator.  Note: the space before the conditional expression is     
@@ -1420,7 +1420,7 @@ This renames any photo that is a favorite as 'Favorite-ImageName.jpg' (where
 'ImageName.jpg' is the original name of the photo) and all other photos with the
 unmodified original name.                                                       
 
-?bool_value: Template fields may be evaluated as bool (True/False) by        
+?bool_value: Template fields may be evaluated as boolean (True/False) by        
 appending "?" after the field name (and following "(path_sep)" or               
 "[find/replace]".  If a field is True (e.g. photo is HDR and field is "{hdr}")  
 or has any value, the value following the "?" will be used to render the        
@@ -1438,7 +1438,7 @@ and if it is not an HDR image,
  • "{hdr?ISHDR,NOTHDR}" renders to "NOTHDR"                                     
 
 ,default: optional default value to use if the template name has no value.  This
-modifier is also used for the value if False for bool-type fields (see above)
+modifier is also used for the value if False for boolean-type fields (see above)
 as well as to hold a sub-template for values like {created.strftime}.  If no    
 default value provided, "_" is used.                                            
 
@@ -1723,7 +1723,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.44.9'
+{osxphotos_version}             The osxphotos version, e.g. '0.44.10'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified for
@@ -3472,7 +3472,7 @@ e.g. If Photo is in `Album1` in `Folder1`:
 
 `[find,replace]`: optional text replacement to perform on rendered template value.  For example, to replace "/" in an album name, you could use the template `"{album[/,-]}"`.  Multiple replacements can be made by appending "|" and adding another find|replace pair.  e.g. to replace both "/" and ":" in album name: `"{album[/,-|:,-]}"`.  find/replace pairs are not limited to single characters.  The "|" character cannot be used in a find/replace pair.
 
-`conditional`: optional conditional expression that is evaluated as bool (True/False) for use with the `?bool_value` modifier.  Conditional expressions take the form '` not operator value`' where `not` is an optional modifier that negates the `operator`.  Note: the space before the conditional expression is required if you use a conditional expression.  Valid comparison operators are:
+`conditional`: optional conditional expression that is evaluated as boolean (True/False) for use with the `?bool_value` modifier.  Conditional expressions take the form '` not operator value`' where `not` is an optional modifier that negates the `operator`.  Note: the space before the conditional expression is required if you use a conditional expression.  Valid comparison operators are:
 
 - `contains`: template field contains value, similar to python's `in`
 - `matches`: template field contains exactly value, unlike `contains`: does not match partial matches
@@ -3506,7 +3506,7 @@ This can be used to rename files as well, for example:
 
 This renames any photo that is a favorite as 'Favorite-ImageName.jpg' (where 'ImageName.jpg' is the original name of the photo) and all other photos with the unmodified original name.
 
-`?bool_value`: Template fields may be evaluated as bool (True/False) by appending "?" after the field name (and following "(path_sep)" or "[find/replace]".  If a field is True (e.g. photo is HDR and field is `"{hdr}"`) or has any value, the value following the "?" will be used to render the template instead of the actual field value.  If the template field evaluates to False (e.g. in above example, photo is not HDR) or has no value (e.g. photo has no title and field is `"{title}"`) then the default value following a "," will be used.  
+`?bool_value`: Template fields may be evaluated as boolean (True/False) by appending "?" after the field name (and following "(path_sep)" or "[find/replace]".  If a field is True (e.g. photo is HDR and field is `"{hdr}"`) or has any value, the value following the "?" will be used to render the template instead of the actual field value.  If the template field evaluates to False (e.g. in above example, photo is not HDR) or has no value (e.g. photo has no title and field is `"{title}"`) then the default value following a "," will be used.  
 
 e.g. if photo is an HDR image,
 
@@ -3516,7 +3516,7 @@ and if it is not an HDR image,
 
 - `"{hdr?ISHDR,NOTHDR}"` renders to `"NOTHDR"`
 
-`,default`: optional default value to use if the template name has no value.  This modifier is also used for the value if False for bool-type fields (see above) as well as to hold a sub-template for values like `{created.strftime}`.  If no default value provided, "_" is used. 
+`,default`: optional default value to use if the template name has no value.  This modifier is also used for the value if False for boolean-type fields (see above) as well as to hold a sub-template for values like `{created.strftime}`.  If no default value provided, "_" is used. 
 
 e.g., if photo has no title set,
 
@@ -3627,7 +3627,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.44.9'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.44.10'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
