@@ -113,9 +113,8 @@ def get_photos_library_version(library_path):
         return 3
     if db_ver == int(_PHOTOS_4_VERSION):
         return 4
-    if db_ver != int(_PHOTOS_5_VERSION):
-        raise UnknownLibraryVersion(f"db_ver = {db_ver}")
 
+    # assume it's a Photos 5+ library, get the model version to determine which version
     model_ver = get_model_version(str(library_path / "database" / "Photos.sqlite"))
     model_ver = int(model_ver)
     if _PHOTOS_5_MODEL_VERSION[0] <= model_ver <= _PHOTOS_5_MODEL_VERSION[1]:
