@@ -17,7 +17,7 @@ import shutil
 import subprocess
 import sys
 import time
-from runpy import run_module
+from runpy import run_module, run_path
 from typing import Dict
 
 import bitmath
@@ -4616,3 +4616,10 @@ def diff(ctx, cli_obj, db, raw_output, style, db2, verbose):
                 line, "sql", theme=style, line_numbers=False, code_width=1000
             )
             console.print(syntax)
+
+
+@cli.command(name="run")
+@click.argument("python_file", nargs=1, type=click.Path(exists=True))
+def run(python_file):
+    """Run a python file using same environment as osxphotos"""
+    run_path(python_file, run_name="__main__")
