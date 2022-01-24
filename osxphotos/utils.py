@@ -16,28 +16,29 @@ import sys
 import unicodedata
 import urllib.parse
 from plistlib import load as plistload
-from typing import Callable, Union
+from typing import Callable, List, Union
 
 import CoreFoundation
 import objc
-from Foundation import NSString
+from Foundation import NSFileManager, NSString
 
 from ._constants import UNICODE_FORMAT
 
 __all__ = [
-    "noop",
-    "lineno",
     "dd_to_dms_str",
-    "get_system_library_path",
-    "get_last_library_path",
-    "list_photo_libraries",
-    "normalize_fs_path",
+    "expand_and_validate_filepath",
     "findfiles",
-    "normalize_unicode",
+    "get_last_library_path",
+    "get_system_library_path",
     "increment_filename_with_count",
     "increment_filename",
-    "expand_and_validate_filepath",
+    "lineno",
+    "list_directory",
+    "list_photo_libraries",
     "load_function",
+    "noop",
+    "normalize_fs_path",
+    "normalize_unicode",
 ]
 
 _DEBUG = False
@@ -299,8 +300,19 @@ def findfiles(pattern, path_):
     # paths need to be normalized for unicode as filesystem returns unicode in NFD form
     pattern = normalize_fs_path(pattern)
     rule = re.compile(fnmatch.translate(pattern), re.IGNORECASE)
-    files = [normalize_fs_path(p) for p in os.listdir(path_)]
+    files = list_directory(path_)
     return [name for name in files if rule.match(name)]
+
+
+def list_directory(directory_path: str) -> List[str]:
+    """List directory contents using NSFileManager"""
+    """[[NSFileManager defaultManager] contentsOfDirectoryAtPath:@"directoryName" error:nil]"""
+    with objc.autorelease_pool():
+        manager = NSFileManager.defaultManager()
+        contents, error = manager.contentsOfDirectoryAtPath_error_(directory_path, None)
+        if error:
+            raise OSError(f"Error listing directory {directory_path}: {error}")
+        return [str(path) for path in contents]
 
 
 def _open_sql_file(dbname):
@@ -400,15 +412,15 @@ def increment_filename_with_count(
     """
     dest = filepath if isinstance(filepath, pathlib.Path) else pathlib.Path(filepath)
     dest_files = findfiles(f"{dest.stem}*", str(dest.parent))
-    dest_files = [normalize_fs_path(pathlib.Path(f).stem.lower()) for f in dest_files]
-    dest_new = dest.stem
-    if count:
-        dest_new = f"{dest.stem} ({count})"
-    while normalize_fs_path(dest_new.lower()) in dest_files:
+    dest_files = [pathlib.Path(f).stem.lower() for f in dest_files]
+    dest_new = f"{dest.stem} ({count})" if count else dest.stem
+    dest_new = normalize_fs_path(dest_new)
+
+    while dest_new.lower() in dest_files:
         count += 1
-        dest_new = f"{dest.stem} ({count})"
+        dest_new = normalize_fs_path(f"{dest.stem} ({count})")
     dest = dest.parent / f"{dest_new}{dest.suffix}"
-    return str(dest), count
+    return normalize_fs_path(str(dest)), count
 
 
 def increment_filename(filepath: Union[str, pathlib.Path]) -> str:

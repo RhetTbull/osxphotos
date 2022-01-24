@@ -1,19 +1,24 @@
 """Command line interface for osxphotos """
 
+import atexit
 import code
+import cProfile
 import csv
 import datetime
+import io
 import json
 import os
 import os.path
 import pathlib
 import pprint
+import pstats
 import shlex
 import shutil
 import subprocess
 import sys
 import time
 from runpy import run_module
+from typing import Dict
 
 import bitmath
 import click
@@ -43,6 +48,7 @@ from ._constants import (
     OSXPHOTOS_EXPORT_DB,
     OSXPHOTOS_URL,
     POST_COMMAND_CATEGORIES,
+    PROFILE_SORT_KEYS,
     SIDECAR_EXIFTOOL,
     SIDECAR_JSON,
     SIDECAR_XMP,
@@ -69,7 +75,12 @@ from .pyrepl import embed_repl
 from .queryoptions import QueryOptions
 from .sqlgrep import sqlgrep
 from .uti import get_preferred_uti_extension
-from .utils import expand_and_validate_filepath, load_function, normalize_fs_path
+from .utils import (
+    expand_and_validate_filepath,
+    list_directory,
+    load_function,
+    normalize_fs_path,
+)
 
 __all__ = [
     "verbose_",
@@ -120,6 +131,9 @@ __all__ = [
 # global variable to control verbose output
 # set via --verbose/-V
 VERBOSE = False
+
+# used to show/hide hidden commands
+OSXPHOTOS_HIDDEN = not bool(os.getenv("OSXPHOTOS_SHOW_HIDDEN", default=False))
 
 # used by snap and diff commands
 OSXPHOTOS_SNAPSHOT_DIR = "/private/tmp/osxphotos_snapshots"
@@ -645,7 +659,9 @@ def QUERY_OPTIONS(f):
 @click.group(context_settings=CTX_SETTINGS)
 @DB_OPTION
 @JSON_OPTION
-@click.option("--debug", required=False, is_flag=True, default=False, hidden=True)
+@click.option(
+    "--debug", required=False, is_flag=True, default=False, hidden=OSXPHOTOS_HIDDEN
+)
 @click.version_option(__version__, "--version", "-v")
 @click.pass_context
 def cli(ctx, db, json_, debug):
@@ -1144,7 +1160,32 @@ def cli(ctx, db, json_, debug):
     type=click.Path(),
 )
 @click.option(
-    "--beta", is_flag=True, default=False, hidden=True, help="Enable beta options."
+    "--beta",
+    is_flag=True,
+    default=False,
+    hidden=OSXPHOTOS_HIDDEN,
+    help="Enable beta options.",
+)
+@click.option(
+    "--profile",
+    is_flag=True,
+    default=False,
+    hidden=OSXPHOTOS_HIDDEN,
+    help="Run export with code profiler.",
+)
+@click.option(
+    "--profile-sort",
+    default=None,
+    hidden=OSXPHOTOS_HIDDEN,
+    multiple=True,
+    metavar="SORT_KEY",
+    type=click.Choice(
+        PROFILE_SORT_KEYS,
+        case_sensitive=True,
+    ),
+    help="Sort profiler output by SORT_KEY as specified at https://docs.python.org/3/library/profile.html#pstats.Stats.sort_stats. "
+    f"Can be specified multiple times. Valid options are: {PROFILE_SORT_KEYS}. "
+    "Default = 'cumulative'.",
 )
 @DB_ARGUMENT
 @click.argument("dest", nargs=1, type=click.Path(exists=True))
@@ -1284,6 +1325,8 @@ def export(
     preview,
     preview_suffix,
     preview_if_missing,
+    profile,
+    profile_sort,
 ):
     """Export photos from the Photos database.
     Export path DEST is required.
@@ -1296,6 +1339,24 @@ def export(
     See --skip-edited, --skip-live, --skip-bursts, and --skip-raw options
     to modify this behavior.
     """
+
+    if profile:
+        click.echo("Profiling...")
+        profile_sort = profile_sort or ["cumulative"]
+        click.echo(f"Profile sort_stats order: {profile_sort}")
+        pr = cProfile.Profile()
+        pr.enable()
+
+        def at_exit():
+            pr.disable()
+            click.echo("Profiling completed")
+            s = io.StringIO()
+            pstats.Stats(pr, stream=s).strip_dirs().sort_stats(
+                *profile_sort
+            ).print_stats()
+            click.echo(s.getvalue())
+
+        atexit.register(at_exit)
 
     # NOTE: because of the way ConfigOptions works, Click options must not
     # set defaults which are not None or False. If defaults need to be set
@@ -2044,6 +2105,18 @@ def export(
         write_export_report(report, results)
 
     export_db.close()
+
+
+def _export_with_profiler(args: Dict):
+    """ "Run export with cProfile"""
+    try:
+        args.pop("profile")
+    except KeyError:
+        pass
+
+    cProfile.runctx(
+        "_export(**args)", globals=globals(), locals=locals(), sort="tottime"
+    )
 
 
 @cli.command()
@@ -3457,8 +3530,7 @@ def cleanup_files(dest_path, files_to_keep, fileutil):
 
     deleted_files = []
     for p in pathlib.Path(dest_path).rglob("*"):
-        path = normalize_fs_path(str(p).lower())
-        if p.is_file() and path not in keepers:
+        if p.is_file() and normalize_fs_path(str(p).lower()) not in keepers:
             verbose_(f"Deleting {p}")
             fileutil.unlink(p)
             deleted_files.append(str(p))
@@ -4272,7 +4344,7 @@ def repl(ctx, cli_obj, db, emacs):
     )
 
 
-@cli.command(name="grep", hidden=True)
+@cli.command(name="grep", hidden=OSXPHOTOS_HIDDEN)
 @DB_OPTION
 @click.pass_obj
 @click.pass_context
@@ -4318,7 +4390,7 @@ def grep(ctx, cli_obj, db, ignore_case, print_filename, pattern):
         print(", ".join([table, column, row_id, value]))
 
 
-@cli.command(hidden=True)
+@cli.command(hidden=OSXPHOTOS_HIDDEN)
 @DB_OPTION
 @DB_ARGUMENT
 @click.option(

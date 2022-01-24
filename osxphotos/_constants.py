@@ -305,3 +305,21 @@ class AlbumSortOrder(Enum):
 
 
 TEXT_DETECTION_CONFIDENCE_THRESHOLD = 0.75
+
+# stat sort order for cProfile: https://docs.python.org/3/library/profile.html#pstats.Stats.sort_stats
+PROFILE_SORT_KEYS = [
+    "calls",
+    "cumulative",
+    "cumtime",
+    "file",
+    "filename",
+    "module",
+    "ncalls",
+    "pcalls",
+    "line",
+    "name",
+    "nfl",
+    "stdname",
+    "time",
+    "tottime",
+]
