@@ -17,7 +17,6 @@ from ._constants import _UNKNOWN_PERSON, TEXT_DETECTION_CONFIDENCE_THRESHOLD
 from ._version import __version__
 from .datetime_formatter import DateTimeFormatter
 from .exiftool import ExifToolCaching
-from .export_db import ExportDB_ABC, ExportDBInMemory
 from .path_utils import sanitize_dirname, sanitize_filename, sanitize_pathpart
 from .text_detection import detect_text
 from .utils import expand_and_validate_filepath, load_function
@@ -300,7 +299,6 @@ class RenderOptions:
     dest_path: set to the destination path of the photo (for use by {function} template), only valid with --filename
     filepath: set to value for filepath of the exported photo if you want to evaluate {filepath} template
     quote: quote path templates for execution in the shell
-    exportdb: ExportDB object
     """
 
     none_str: str = "_"
@@ -315,7 +313,6 @@ class RenderOptions:
     dest_path: Optional[str] = None
     filepath: Optional[str] = None
     quote: bool = False
-    exportdb: Optional[ExportDB_ABC] = None
 
 
 class PhotoTemplateParser:
@@ -384,9 +381,6 @@ class PhotoTemplate:
         self.filepath = options.filepath
         self.quote = options.quote
         self.dest_path = options.dest_path
-        self.exportdb = options.exportdb or ExportDBInMemory(
-            None, self.export_dir or "."
-        )
 
     def render(
         self,
@@ -420,7 +414,6 @@ class PhotoTemplate:
         self.filepath = options.filepath
         self.quote = options.quote
         self.dest_path = options.dest_path
-        self.exportdb = options.exportdb or self.exportdb
 
         try:
             model = self.parser.parse(template)
@@ -1216,7 +1209,7 @@ class PhotoTemplate:
             else:
                 values = list(obj)
         elif field == "detected_text":
-            values = _get_detected_text(self.photo, self.exportdb, confidence=subfield)
+            values = _get_detected_text(self.photo, confidence=subfield)
         else:
             raise ValueError(f"Unhandled template value: {field}")
 
@@ -1459,7 +1452,7 @@ def _get_album_by_path(photo, folder_album_path):
     return None
 
 
-def _get_detected_text(photo, exportdb, confidence=TEXT_DETECTION_CONFIDENCE_THRESHOLD):
+def _get_detected_text(photo, confidence=TEXT_DETECTION_CONFIDENCE_THRESHOLD):
     """Returns the detected text for a photo
     {detected_text} uses this instead of PhotoInfo.detected_text() to cache the text for all confidence values
     """
@@ -1475,5 +1468,4 @@ def _get_detected_text(photo, exportdb, confidence=TEXT_DETECTION_CONFIDENCE_THR
     # _detected_text caches the text detection results in an extended attribute
     # so the first time this gets called is slow but repeated accesses are fast
     detected_text = photo._detected_text()
-    exportdb.set_detected_text_for_uuid(photo.uuid, json.dumps(detected_text))
     return [text for text, conf in detected_text if conf >= confidence]

@@ -2032,7 +2032,6 @@ def export(
                         finder_tag_template=finder_tag_template,
                         strip=strip,
                         export_dir=dest,
-                        export_db=export_db,
                     )
                     results.xattr_written.extend(tags_written)
                     results.xattr_skipped.extend(tags_skipped)
@@ -2044,7 +2043,6 @@ def export(
                         xattr_template,
                         strip=strip,
                         export_dir=dest,
-                        export_db=export_db,
                     )
                     results.xattr_written.extend(xattr_written)
                     results.xattr_skipped.extend(xattr_skipped)
@@ -2958,7 +2956,7 @@ def _render_suffix_template(
         return ""
 
     try:
-        options = RenderOptions(filename=True, export_dir=dest, exportdb=export_db)
+        options = RenderOptions(filename=True, export_dir=dest)
         rendered_suffix, unmatched = photo.render_template(suffix_template, options)
     except ValueError as e:
         raise click.BadOptionUsage(
@@ -3074,8 +3072,7 @@ def export_photo_to_directory(
             return results
 
     render_options = RenderOptions(
-        export_dir=export_dir, dest_path=dest_path, exportdb=export_db
-    )
+        export_dir=export_dir, dest_path=dest_path)
 
     tries = 0
     while tries <= retry:
@@ -3214,8 +3211,7 @@ def get_filenames_from_template(
                 filename=True,
                 edited_version=edited,
                 export_dir=export_dir,
-                dest_path=dest_path,
-                exportdb=export_db,
+                dest_path=dest_path
             )
             filenames, unmatched = photo.render_template(filename_template, options)
         except ValueError as e:
@@ -3282,8 +3278,7 @@ def get_dirnames_from_template(
         # got a directory template, render it and check results are valid
         try:
             options = RenderOptions(
-                dirname=True, edited_version=edited, exportdb=export_db
-            )
+                dirname=True, edited_version=edited)
             dirnames, unmatched = photo.render_template(directory, options)
         except ValueError as e:
             raise click.BadOptionUsage(
@@ -3569,7 +3564,6 @@ def write_finder_tags(
     finder_tag_template=None,
     strip=False,
     export_dir=None,
-    export_db=None,
 ):
     """Write Finder tags (extended attributes) to files; only writes attributes if attributes on file differ from what would be written
 
@@ -3583,7 +3577,6 @@ def write_finder_tags(
         exiftool_merge_keywords: if True, include any keywords in the exif data of the source image as keywords
         finder_tag_template: list of templates to evaluate for determining Finder tags
         export_dir: value to use for {export_dir} template
-        export_db: an ExportDB object
 
     Returns:
         (list of file paths that were updated with new Finder tags, list of file paths skipped because Finder tags didn't need updating)
@@ -3614,8 +3607,7 @@ def write_finder_tags(
                 options = RenderOptions(
                     none_str=_OSXPHOTOS_NONE_SENTINEL,
                     path_sep="/",
-                    export_dir=export_dir,
-                    exportdb=export_db,
+                    export_dir=export_dir
                 )
                 rendered, unmatched = photo.render_template(template_str, options)
             except ValueError as e:
@@ -3663,7 +3655,6 @@ def write_extended_attributes(
     xattr_template,
     strip=False,
     export_dir=None,
-    export_db=None,
 ):
     """Writes extended attributes to exported files
 
@@ -3671,7 +3662,6 @@ def write_extended_attributes(
         photo: a PhotoInfo object
         strip:   xattr_template: list of tuples: (attribute name, attribute template)
         export_dir: value to use for {export_dir} template
-        exportdb: an ExportDB object
 
     Returns:
         tuple(list of file paths that were updated with new attributes, list of file paths skipped because attributes didn't need updating)
@@ -3683,8 +3673,7 @@ def write_extended_attributes(
             options = RenderOptions(
                 none_str=_OSXPHOTOS_NONE_SENTINEL,
                 path_sep="/",
-                export_dir=export_dir,
-                exportdb=export_db,
+                export_dir=export_dir
             )
             rendered, unmatched = photo.render_template(template_str, options)
         except ValueError as e:
@@ -3752,8 +3741,7 @@ def run_post_command(
             if isinstance(f, tuple):
                 f = f[0]
             render_options = RenderOptions(
-                export_dir=export_dir, filepath=f, exportdb=export_db
-            )
+                export_dir=export_dir, filepath=f)
             template = PhotoTemplate(photo, exiftool_path=exiftool_path)
             command, _ = template.render(command_template, options=render_options)
             command = command[0] if command else None
