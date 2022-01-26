@@ -79,7 +79,6 @@ from .sqlgrep import sqlgrep
 from .uti import get_preferred_uti_extension
 from .utils import (
     expand_and_validate_filepath,
-    list_directory,
     load_function,
     normalize_fs_path,
 )
@@ -3071,8 +3070,7 @@ def export_photo_to_directory(
             results.missing.append(str(pathlib.Path(dest_path) / filename))
             return results
 
-    render_options = RenderOptions(
-        export_dir=export_dir, dest_path=dest_path)
+    render_options = RenderOptions(export_dir=export_dir, dest_path=dest_path)
 
     tries = 0
     while tries <= retry:
@@ -3211,7 +3209,7 @@ def get_filenames_from_template(
                 filename=True,
                 edited_version=edited,
                 export_dir=export_dir,
-                dest_path=dest_path
+                dest_path=dest_path,
             )
             filenames, unmatched = photo.render_template(filename_template, options)
         except ValueError as e:
@@ -3277,8 +3275,7 @@ def get_dirnames_from_template(
     elif directory:
         # got a directory template, render it and check results are valid
         try:
-            options = RenderOptions(
-                dirname=True, edited_version=edited)
+            options = RenderOptions(dirname=True, edited_version=edited)
             dirnames, unmatched = photo.render_template(directory, options)
         except ValueError as e:
             raise click.BadOptionUsage(
@@ -3607,7 +3604,7 @@ def write_finder_tags(
                 options = RenderOptions(
                     none_str=_OSXPHOTOS_NONE_SENTINEL,
                     path_sep="/",
-                    export_dir=export_dir
+                    export_dir=export_dir,
                 )
                 rendered, unmatched = photo.render_template(template_str, options)
             except ValueError as e:
@@ -3671,9 +3668,7 @@ def write_extended_attributes(
     for xattr, template_str in xattr_template:
         try:
             options = RenderOptions(
-                none_str=_OSXPHOTOS_NONE_SENTINEL,
-                path_sep="/",
-                export_dir=export_dir
+                none_str=_OSXPHOTOS_NONE_SENTINEL, path_sep="/", export_dir=export_dir
             )
             rendered, unmatched = photo.render_template(template_str, options)
         except ValueError as e:
@@ -3740,8 +3735,7 @@ def run_post_command(
             # some categories, like error, return a tuple of (file, error str)
             if isinstance(f, tuple):
                 f = f[0]
-            render_options = RenderOptions(
-                export_dir=export_dir, filepath=f)
+            render_options = RenderOptions(export_dir=export_dir, filepath=f)
             template = PhotoTemplate(photo, exiftool_path=exiftool_path)
             command, _ = template.render(command_template, options=render_options)
             command = command[0] if command else None

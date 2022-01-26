@@ -601,6 +601,7 @@ class PhotoExporter:
                 if dest_uuid != self.photo.uuid:
                     # not the right file, find the right one
                     glob_str = str(dest.parent / f"{dest.stem} (*{dest.suffix}")
+                    # TODO: use the normalized code in utils
                     dest_files = glob.glob(glob_str)
                     for file_ in dest_files:
                         dest_uuid = export_db.get_uuid_for_file(file_)

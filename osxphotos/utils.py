@@ -20,7 +20,7 @@ from typing import Callable, List, Union
 
 import CoreFoundation
 import objc
-from Foundation import NSFileManager, NSString
+from Foundation import NSFileManager, NSPredicate, NSString
 
 from ._constants import UNICODE_FORMAT
 
@@ -265,7 +265,7 @@ def list_photo_libraries():
     # On older MacOS versions, mdfind appears to ignore some libraries
     # glob to find libraries in ~/Pictures then mdfind to find all the others
     # TODO: make this more robust
-    lib_list = glob.glob(f"{str(pathlib.Path.home())}/Pictures/*.photoslibrary")
+    lib_list = glob.glob(f"{pathlib.Path.home()}/Pictures/*.photoslibrary")
 
     # On older OS, may not get all libraries so make sure we get the last one
     last_lib = get_last_library_path()
@@ -284,35 +284,32 @@ def list_photo_libraries():
 
 def normalize_fs_path(path: str) -> str:
     """Normalize filesystem paths with unicode in them"""
-    with objc.autorelease_pool():
-        normalized_path = NSString.fileSystemRepresentation(path)
-        return normalized_path.decode("utf8")
+    # macOS HFS+ uses NFD, APFS doesn't normalize but stick with NFD
+    # ref: https://eclecticlight.co/2021/05/08/explainer-unicode-normalization-and-apfs/
+    return unicodedata.normalize("NFD", path)
 
 
-def findfiles(pattern, path_):
-    """Returns list of filenames from path_ matched by pattern
+def findfiles(pattern, path):
+    """Returns list of filenames from path matched by pattern
     shell pattern. Matching is case-insensitive.
     If 'path_' is invalid/doesn't exist, returns []."""
-    if not os.path.isdir(path_):
+    if not os.path.isdir(path):
         return []
-    # See: https://gist.github.com/techtonik/5694830
 
     # paths need to be normalized for unicode as filesystem returns unicode in NFD form
     pattern = normalize_fs_path(pattern)
     rule = re.compile(fnmatch.translate(pattern), re.IGNORECASE)
-    files = list_directory(path_)
+    files = os.listdir(path)
     return [name for name in files if rule.match(name)]
 
 
-def list_directory(directory_path: str) -> List[str]:
-    """List directory contents using NSFileManager"""
-    """[[NSFileManager defaultManager] contentsOfDirectoryAtPath:@"directoryName" error:nil]"""
-    with objc.autorelease_pool():
-        manager = NSFileManager.defaultManager()
-        contents, error = manager.contentsOfDirectoryAtPath_error_(directory_path, None)
-        if error:
-            raise OSError(f"Error listing directory {directory_path}: {error}")
-        return [str(path) for path in contents]
+def list_directory_startswith(directory_path: str, startswith: str) -> List[str]:
+    """List directory contents and return list of files starting with startswith; returns [] if directory doesn't exist"""
+    if not os.path.isdir(directory_path):
+        return []
+    startswith = normalize_fs_path(startswith)
+    files = [normalize_fs_path(f) for f in os.listdir(directory_path)]
+    return [f for f in files if f.startswith(startswith)]
 
 
 def _open_sql_file(dbname):
@@ -353,44 +350,16 @@ def _db_is_locked(dbname):
     return locked
 
 
-# OSXPHOTOS_XATTR_UUID = "com.osxphotos.uuid"
-
-# def get_uuid_for_file(filepath):
-#     """ returns UUID associated with an exported file
-#         filepath: path to exported photo
-#     """
-#     attr = xattr.xattr(filepath)
-#     try:
-#         uuid_bytes = attr[OSXPHOTOS_XATTR_UUID]
-#         uuid_str = uuid_bytes.decode('utf-8')
-#     except KeyError:
-#         uuid_str = None
-#     return uuid_str
-
-# def set_uuid_for_file(filepath, uuid):
-#     """ sets the UUID associated with an exported file
-#         filepath: path to exported photo
-#         uuid: uuid string for photo
-#     """
-#     if not os.path.exists(filepath):
-#         raise FileNotFoundError(f"Missing file: {filepath}")
-
-#     attr = xattr.xattr(filepath)
-#     uuid_bytes = bytes(uuid, 'utf-8')
-#     attr.set(OSXPHOTOS_XATTR_UUID, uuid_bytes)
-
-
 def normalize_unicode(value):
     """normalize unicode data"""
-    if value is not None:
-        if isinstance(value, (tuple, list)):
-            return tuple(unicodedata.normalize(UNICODE_FORMAT, v) for v in value)
-        elif isinstance(value, str):
-            return unicodedata.normalize(UNICODE_FORMAT, value)
-        else:
-            return value
-    else:
+    if value is None:
         return None
+    if isinstance(value, (tuple, list)):
+        return tuple(unicodedata.normalize(UNICODE_FORMAT, v) for v in value)
+    elif isinstance(value, str):
+        return unicodedata.normalize(UNICODE_FORMAT, value)
+    else:
+        return value
 
 
 def increment_filename_with_count(
@@ -411,7 +380,7 @@ def increment_filename_with_count(
     Note: This obviously is subject to race condition so using with caution.
     """
     dest = filepath if isinstance(filepath, pathlib.Path) else pathlib.Path(filepath)
-    dest_files = findfiles(f"{dest.stem}*", str(dest.parent))
+    dest_files = list_directory_startswith(str(dest.parent), dest.stem)
     dest_files = [pathlib.Path(f).stem.lower() for f in dest_files]
     dest_new = f"{dest.stem} ({count})" if count else dest.stem
     dest_new = normalize_fs_path(dest_new)
