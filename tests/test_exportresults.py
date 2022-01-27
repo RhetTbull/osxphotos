@@ -93,7 +93,7 @@ def test_exportresults_iadd():
 
 
 def test_all_files():
-    """ test ExportResults.all_files() """
+    """test ExportResults.all_files()"""
     results = ExportResults()
     for x in EXPORT_RESULT_ATTRIBUTES:
         setattr(results, x, [f"{x}1"])
@@ -106,13 +106,3 @@ def test_all_files():
     assert sorted(
         results.all_files() + results.deleted_files + results.deleted_directories
     ) == sorted([f"{x}1" for x in EXPORT_RESULT_ATTRIBUTES])
-
-
-def test_str():
-    """ test ExportResults.__str__ """
-    results = ExportResults()
-    assert (
-        str(results)
-        == "ExportResults(exported=[],new=[],updated=[],skipped=[],exif_updated=[],touched=[],converted_to_jpeg=[],sidecar_json_written=[],sidecar_json_skipped=[],sidecar_exiftool_written=[],sidecar_exiftool_skipped=[],sidecar_xmp_written=[],sidecar_xmp_skipped=[],missing=[],error=[],exiftool_warning=[],exiftool_error=[],deleted_files=[],deleted_directories=[],exported_album=[],skipped_album=[],missing_album=[])"
-    )
-
