@@ -360,6 +360,7 @@ class PhotoExporter:
             prefix=f"osxphotos_photo_exporter_{self.photo.uuid}_"
         )
         self._temp_dir_path = pathlib.Path(self._temp_dir.name)
+        self.fileutil = FileUtil
 
     def export(
         self,
@@ -526,6 +527,7 @@ class PhotoExporter:
 
         # ensure there's a FileUtil class to use
         options.fileutil = options.fileutil or FileUtil
+        self.fileutil = options.fileutil
 
         self._render_options = options.render_options or RenderOptions()
 
@@ -653,12 +655,10 @@ class PhotoExporter:
         self, results: ExportResults, options: ExportOptions
     ) -> ExportResults:
         """touch file date/time to match photo creation date/time"""
-        # verbose = options.verbose or self._verbose
         fileutil = options.fileutil
         touch_files = set(results.to_touch)
         touch_results = ExportResults()
         for touch_file in touch_files:
-            # verbose(f"Updating file modification time for {touch_file}")
             ts = int(self.photo.date.timestamp())
             fileutil.utime(touch_file, (ts, ts))
             touch_results.touched.append(touch_file)
@@ -794,6 +794,21 @@ class PhotoExporter:
             staged.edited = self.photo.path_edited
             if options.live_photo and self.photo.live_photo:
                 staged.edited_live = self.photo.path_edited_live_photo
+
+        if options.exiftool and not options.dry_run:
+            # copy files to temp dir for exiftool to process before export
+            # not needed for download_missing or use_photokit as those files already staged to temp dir
+            for file_type in [
+                "raw",
+                "preview",
+                "original",
+                "original_live",
+                "edited",
+                "edited_live",
+            ]:
+                staged_file = getattr(staged, file_type)
+                if staged_file:
+                    setattr(staged, file_type, self._copy_to_temp_file(staged_file))
 
         # download any missing files
         if options.download_missing:
@@ -1023,6 +1038,14 @@ class PhotoExporter:
         """Returns True if file is in the PhotosExporter temp directory otherwise False"""
         filepath = pathlib.Path(filepath)
         return filepath.parent == self._temp_dir_path
+
+    def _copy_to_temp_file(self, filepath: str) -> str:
+        """Copies filepath to a temp file"""
+        filepath = pathlib.Path(filepath)
+        dest = self._temp_dir_path / filepath.name
+        dest = increment_filename(dest)
+        self.fileutil.copy(filepath, dest)
+        return str(dest)
 
     def _export_photo(
         self,
