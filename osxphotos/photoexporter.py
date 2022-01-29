@@ -801,7 +801,6 @@ class PhotoExporter:
             live_photo = staged.edited_live if options.edited else staged.original_live
             missing_options = ExportOptions(
                 edited=options.edited,
-                # TODO: missing previews are not generated/downloaded
                 preview=options.preview and not staged.preview,
                 raw_photo=options.raw_photo and not staged.raw,
                 live_photo=options.live_photo and not live_photo,
@@ -917,6 +916,9 @@ class PhotoExporter:
             except Exception as e:
                 results.error.append((str(dest), f"{e} ({lineno(__file__)})"))
 
+        if options.preview and self.photo.path_derivatives:
+            results.preview = self.photo.path_derivatives[0]
+
         return results
 
     def _stage_photo_for_export_with_applescript(
@@ -995,6 +997,9 @@ class PhotoExporter:
                     results_attr = "edited" if options.edited else "original"
                 if results_attr:
                     setattr(results, results_attr, exported_file)
+
+        if options.preview and self.photo.path_derivatives:
+            results.preview = self.photo.path_derivatives[0]
 
         return results
 
@@ -1416,88 +1421,6 @@ class PhotoExporter:
             )
             exiftool_results.exif_updated.append(dest)
             exiftool_results.to_touch.append(dest)
-        return exiftool_results
-
-    def _write_exif_metadata_to_files_zzz(
-        self,
-        results: ExportResults,
-        options: ExportOptions,
-    ) -> ExportResults:
-        """Write exif metadata to files using exiftool."""
-
-        export_db = options.export_db
-        fileutil = options.fileutil
-        verbose = options.verbose or self._verbose
-
-        exif_files = (
-            results.new + results.updated + results.skipped
-            if options.update
-            else results.exported
-        )
-
-        exiftool_results = ExportResults()
-        for exported_file in exif_files:
-            if options.update:
-                files_are_different = False
-                old_data = export_db.get_exifdata_for_file(exported_file)
-                if old_data is not None:
-                    old_data = json.loads(old_data)[0]
-                    current_data = json.loads(
-                        self._exiftool_json_sidecar(options=options)
-                    )[0]
-                    if old_data != current_data:
-                        files_are_different = True
-
-                if old_data is None or files_are_different:
-                    # didn't have old data, assume we need to write it
-                    # or files were different
-                    verbose(f"Writing metadata with exiftool for {exported_file}")
-                    if not options.dry_run:
-                        warning_, error_ = self._write_exif_data(
-                            exported_file, options=options
-                        )
-                        if warning_:
-                            exiftool_results.exiftool_warning.append(
-                                (exported_file, warning_)
-                            )
-                        if error_:
-                            exiftool_results.exiftool_error.append(
-                                (exported_file, error_)
-                            )
-                            exiftool_results.error.append((exported_file, error_))
-
-                    export_db.set_exifdata_for_file(
-                        exported_file, self._exiftool_json_sidecar(options=options)
-                    )
-                    export_db.set_stat_exif_for_file(
-                        exported_file, fileutil.file_sig(exported_file)
-                    )
-                    exiftool_results.exif_updated.append(exported_file)
-                    exiftool_results.to_touch.append(exported_file)
-                else:
-                    verbose(f"Skipped up to date exiftool metadata for {exported_file}")
-            else:
-                verbose(f"Writing metadata with exiftool for {exported_file}")
-                if not options.dry_run:
-                    warning_, error_ = self._write_exif_data(
-                        exported_file, options=options
-                    )
-                    if warning_:
-                        exiftool_results.exiftool_warning.append(
-                            (exported_file, warning_)
-                        )
-                    if error_:
-                        exiftool_results.exiftool_error.append((exported_file, error_))
-                        exiftool_results.error.append((exported_file, error_))
-
-                export_db.set_exifdata_for_file(
-                    exported_file, self._exiftool_json_sidecar(options=options)
-                )
-                export_db.set_stat_exif_for_file(
-                    exported_file, fileutil.file_sig(exported_file)
-                )
-                exiftool_results.exif_updated.append(exported_file)
-                exiftool_results.to_touch.append(exported_file)
         return exiftool_results
 
     def _write_exif_data(self, filepath: str, options: ExportOptions):

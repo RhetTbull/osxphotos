@@ -6875,6 +6875,77 @@ def test_export_download_missing_file_exists():
     "OSXPHOTOS_TEST_EXPORT" not in os.environ,
     reason="Skip if not running on author's personal library.",
 )
+def test_export_download_missing_preview():
+    """test --download-missing --preview, #564"""
+    import glob
+    import os
+    import os.path
+    import pathlib
+
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_RHET),
+                ".",
+                "-V",
+                "--uuid",
+                UUID_DOWNLOAD_MISSING,
+                "--download-missing",
+                "--use-photos-export",
+                "--use-photokit",
+                "--preview",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "exported: 2" in result.output
+
+
+@pytest.mark.skipif(
+    "OSXPHOTOS_TEST_EXPORT" not in os.environ,
+    reason="Skip if not running on author's personal library.",
+)
+def test_export_download_missing_preview_applesccript():
+    """test --download-missing --preview and applescript download, #564"""
+    import glob
+    import os
+    import os.path
+    import pathlib
+
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_RHET),
+                ".",
+                "-V",
+                "--uuid",
+                UUID_DOWNLOAD_MISSING,
+                "--download-missing",
+                "--use-photos-export",
+                "--preview",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "exported: 2" in result.output
+
+
+@pytest.mark.skipif(
+    "OSXPHOTOS_TEST_EXPORT" not in os.environ,
+    reason="Skip if not running on author's personal library.",
+)
 def test_export_skip_live_photokit():
     """test that --skip-live works with --use-photokit (issue #537)"""
     import os
