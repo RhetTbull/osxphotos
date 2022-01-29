@@ -1,5 +1,6 @@
 """ Utility functions used in osxphotos """
 
+import datetime
 import fnmatch
 import glob
 import importlib
@@ -447,3 +448,9 @@ def load_function(pyfile: str, function_name: str) -> Callable:
         sys.path = syspath
 
     return func
+
+
+def format_sec_to_hhmmss(sec: float) -> str:
+    """Format seconds to hh:mm:ss"""
+    delta = datetime.timedelta(seconds=sec)
+    return str(delta).split(".")[0]

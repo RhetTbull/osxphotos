@@ -81,6 +81,7 @@ from .utils import (
     expand_and_validate_filepath,
     load_function,
     normalize_fs_path,
+    format_sec_to_hhmmss,
 )
 
 __all__ = [
@@ -2069,7 +2070,7 @@ def export(
             summary += f", touched date: {len(results.touched)}"
         click.echo(summary)
         stop_time = time.perf_counter()
-        click.echo(f"Elapsed time: {(stop_time-start_time):.3f} seconds")
+        click.echo(f"Elapsed time: {format_sec_to_hhmmss(stop_time-start_time)}")
     else:
         click.echo("Did not find any photos to export")
 
