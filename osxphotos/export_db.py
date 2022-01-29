@@ -16,7 +16,7 @@ from ._version import __version__
 
 __all__ = ["ExportDB_ABC", "ExportDBNoOp", "ExportDB", "ExportDBInMemory"]
 
-OSXPHOTOS_EXPORTDB_VERSION = "4.0"
+OSXPHOTOS_EXPORTDB_VERSION = "4.2"
 OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
 
 
@@ -104,12 +104,12 @@ class ExportDB_ABC(ABC):
         self,
         filename,
         uuid,
-        orig_stat,
-        exif_stat,
-        converted_stat,
-        edited_stat,
-        info_json,
-        exif_json,
+        orig_stat=None,
+        exif_stat=None,
+        converted_stat=None,
+        edited_stat=None,
+        info_json=None,
+        exif_json=None,
     ):
         pass
 
@@ -183,12 +183,12 @@ class ExportDBNoOp(ExportDB_ABC):
         self,
         filename,
         uuid,
-        orig_stat,
-        exif_stat,
-        converted_stat,
-        edited_stat,
-        info_json,
-        exif_json,
+        orig_stat=None,
+        exif_stat=None,
+        converted_stat=None,
+        edited_stat=None,
+        info_json=None,
+        exif_json=None,
     ):
         pass
 
@@ -506,52 +506,65 @@ class ExportDB(ExportDB_ABC):
         self,
         filename,
         uuid,
-        orig_stat,
-        exif_stat,
-        converted_stat,
-        edited_stat,
-        info_json,
-        exif_json,
+        orig_stat=None,
+        exif_stat=None,
+        converted_stat=None,
+        edited_stat=None,
+        info_json=None,
+        exif_json=None,
     ):
-        """sets all the data for file and uuid at once"""
+        """sets all the data for file and uuid at once; if any value is None, does not set it"""
         filename = str(pathlib.Path(filename).relative_to(self._path))
         filename_normalized = filename.lower()
         conn = self._conn
         try:
             c = conn.cursor()
+            # update files table (if needed);
+            # this statement works around fact that there was no unique constraint on files.filepath_normalized
             c.execute(
-                "INSERT OR REPLACE INTO files(filepath, filepath_normalized, uuid) VALUES (?, ?, ?);",
+                """INSERT OR IGNORE INTO files(filepath, filepath_normalized, uuid) VALUES (?, ?, ?);""",
                 (filename, filename_normalized, uuid),
             )
 
-            c.execute(
-                "UPDATE files "
-                + "SET orig_mode = ?, orig_size = ?, orig_mtime = ? "
-                + "WHERE filepath_normalized = ?;",
-                (*orig_stat, filename_normalized),
-            )
-            c.execute(
-                "UPDATE files "
-                + "SET exif_mode = ?, exif_size = ?, exif_mtime = ? "
-                + "WHERE filepath_normalized = ?;",
-                (*exif_stat, filename_normalized),
-            )
-            c.execute(
-                "INSERT OR REPLACE INTO converted(filepath_normalized, mode, size, mtime) VALUES (?, ?, ?, ?);",
-                (filename_normalized, *converted_stat),
-            )
-            c.execute(
-                "INSERT OR REPLACE INTO edited(filepath_normalized, mode, size, mtime) VALUES (?, ?, ?, ?);",
-                (filename_normalized, *edited_stat),
-            )
-            c.execute(
-                "INSERT OR REPLACE INTO info(uuid, json_info) VALUES (?, ?);",
-                (uuid, info_json),
-            )
-            c.execute(
-                "INSERT OR REPLACE INTO exifdata(filepath_normalized, json_exifdata) VALUES (?, ?);",
-                (filename_normalized, exif_json),
-            )
+            if orig_stat is not None:
+                c.execute(
+                    "UPDATE files "
+                    + "SET orig_mode = ?, orig_size = ?, orig_mtime = ? "
+                    + "WHERE filepath_normalized = ?;",
+                    (*orig_stat, filename_normalized),
+                )
+
+            if exif_stat is not None:
+                c.execute(
+                    "UPDATE files "
+                    + "SET exif_mode = ?, exif_size = ?, exif_mtime = ? "
+                    + "WHERE filepath_normalized = ?;",
+                    (*exif_stat, filename_normalized),
+                )
+
+            if converted_stat is not None:
+                c.execute(
+                    "INSERT OR REPLACE INTO converted(filepath_normalized, mode, size, mtime) VALUES (?, ?, ?, ?);",
+                    (filename_normalized, *converted_stat),
+                )
+
+            if edited_stat is not None:
+                c.execute(
+                    "INSERT OR REPLACE INTO edited(filepath_normalized, mode, size, mtime) VALUES (?, ?, ?, ?);",
+                    (filename_normalized, *edited_stat),
+                )
+
+            if info_json is not None:
+                c.execute(
+                    "INSERT OR REPLACE INTO info(uuid, json_info) VALUES (?, ?);",
+                    (uuid, info_json),
+                )
+
+            if exif_json is not None:
+                c.execute(
+                    "INSERT OR REPLACE INTO exifdata(filepath_normalized, json_exifdata) VALUES (?, ?);",
+                    (filename_normalized, exif_json),
+                )
             conn.commit()
         except Error as e:
             logging.warning(e)
@@ -662,6 +675,22 @@ class ExportDB(ExportDB_ABC):
                               exif_size INTEGER,
                               exif_mtime REAL
                               ); """,
+            "sql_files_table_migrate": """ CREATE TABLE IF NOT EXISTS files_migrate (
+                              id INTEGER PRIMARY KEY,
+                              filepath TEXT NOT NULL,
+                              filepath_normalized TEXT NOT NULL,
+                              uuid TEXT,
+                              orig_mode INTEGER,
+                              orig_size INTEGER,
+                              orig_mtime REAL,
+                              exif_mode INTEGER,
+                              exif_size INTEGER,
+                              exif_mtime REAL,
+                              UNIQUE(filepath_normalized)
+                              ); """,
+            "sql_files_migrate": """ INSERT INTO files_migrate SELECT * FROM files;""",
+            "sql_files_drop_tables": """ DROP TABLE files;""",
+            "sql_files_alter": """ ALTER TABLE files_migrate RENAME TO files;""",
             "sql_runs_table": """ CREATE TABLE IF NOT EXISTS runs (
                              id INTEGER PRIMARY KEY,
                              datetime TEXT,

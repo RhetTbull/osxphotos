@@ -640,12 +640,6 @@ class PhotoExporter:
 
         all_results += self._write_sidecar_files(dest=dest, options=options)
 
-        # if exiftool, write the metadata
-        if options.exiftool:
-            all_results += self._write_exif_metadata_to_files(
-                all_results, options=options
-            )
-
         if options.touch_file:
             all_results += self._touch_files(all_results, options)
 
@@ -722,11 +716,7 @@ class PhotoExporter:
                     filename=dest,
                     uuid=self.photo.uuid,
                     orig_stat=fileutil.file_sig(dest),
-                    exif_stat=(None, None, None),
-                    converted_stat=(None, None, None),
-                    edited_stat=(None, None, None),
                     info_json=self.photo.json(),
-                    exif_json=None,
                 )
             if dest_uuid != self.photo.uuid:
                 # not the right file, find the right one
@@ -745,11 +735,7 @@ class PhotoExporter:
                             filename=dest,
                             uuid=self.photo.uuid,
                             orig_stat=fileutil.file_sig(dest),
-                            exif_stat=(None, None, None),
-                            converted_stat=(None, None, None),
-                            edited_stat=(None, None, None),
                             info_json=self.photo.json(),
-                            exif_json=None,
                         )
                         break
                 else:
@@ -795,7 +781,7 @@ class PhotoExporter:
             if options.live_photo and self.photo.live_photo:
                 staged.edited_live = self.photo.path_edited_live_photo
 
-        if options.exiftool and not options.dry_run:
+        if options.exiftool and not options.dry_run and not options.export_as_hardlink:
             # copy files to temp dir for exiftool to process before export
             # not needed for download_missing or use_photokit as those files already staged to temp dir
             for file_type in [
@@ -1040,11 +1026,13 @@ class PhotoExporter:
         return filepath.parent == self._temp_dir_path
 
     def _copy_to_temp_file(self, filepath: str) -> str:
-        """Copies filepath to a temp file"""
+        """Copies filepath to a temp file preserving access and modification times"""
         filepath = pathlib.Path(filepath)
         dest = self._temp_dir_path / filepath.name
         dest = increment_filename(dest)
         self.fileutil.copy(filepath, dest)
+        stat = os.stat(filepath)
+        self.fileutil.utime(dest, (stat.st_atime, stat.st_mtime))
         return str(dest)
 
     def _export_photo(
@@ -1057,7 +1045,9 @@ class PhotoExporter:
             Does the actual copy or hardlink taking the appropriate
             action depending on update, overwrite, export_as_hardlink
             Assumes destination is the right destination (e.g. UUID matches)
-            sets UUID and JSON info for exported file using set_uuid_for_file, set_info_for_uuid
+            Sets UUID and JSON info for exported file using set_uuid_for_file, set_info_for_uuid
+            Expects that src is a temporary file (as set by _stage_photos_for_export) and
+            may modify the src (e.g. for convert_to_jpeg or exiftool)
 
         Args:
             src (str): src path
@@ -1082,9 +1072,12 @@ class PhotoExporter:
         exported_files = []
         update_updated_files = []
         update_new_files = []
-        update_skipped_files = []
+        update_skipped_files = []  # skip files that are already up to date
         touched_files = []
         converted_to_jpeg_files = []
+        exif_results = ExportResults()
+        converted_stat = None
+        edited_stat = None
 
         dest_str = str(dest)
         dest_exists = dest.exists()
@@ -1174,8 +1167,9 @@ class PhotoExporter:
                 sig = (sig[0], sig[1], int(self.photo.date.timestamp()))
                 if not fileutil.cmp_file_sig(src, sig):
                     touched_files.append(dest_str)
+
         if not update_skipped_files:
-            converted_stat = (None, None, None)
+            # have file to export
             edited_stat = (
                 fileutil.file_sig(src) if options.edited else (None, None, None)
             )
@@ -1194,14 +1188,27 @@ class PhotoExporter:
                     raise ExportError(
                         f"Error hardlinking {src} to {dest}: {e} ({lineno(__file__)})"
                     ) from e
-            elif options.convert_to_jpeg:
-                # use convert_to_jpeg to export the file
-                fileutil.convert_to_jpeg(
-                    src, dest_str, compression_quality=options.jpeg_quality
-                )
-                converted_stat = fileutil.file_sig(dest_str)
-                converted_to_jpeg_files.append(dest_str)
             else:
+                if options.convert_to_jpeg:
+                    # use convert_to_jpeg to export the file
+                    # convert to a temp file before copying
+                    tmp_file = increment_filename(
+                        self._temp_dir_path
+                        / f"{pathlib.Path(src).stem}_converted_to_jpeg.jpeg"
+                    )
+                    fileutil.convert_to_jpeg(
+                        src, tmp_file, compression_quality=options.jpeg_quality
+                    )
+                    src = tmp_file
+                    converted_stat = fileutil.file_sig(tmp_file)
+                    converted_to_jpeg_files.append(dest_str)
+
+                if options.exiftool:
+                    # if exiftool, write the metadata
+                    exif_results = self._write_exif_metadata_to_file(
+                        src, dest, options=options
+                    )
+
                 try:
                     fileutil.copy(src, dest_str)
                 except Exception as e:
@@ -1209,24 +1216,26 @@ class PhotoExporter:
                         f"Error copying file {src} to {dest_str}: {e} ({lineno(__file__)})"
                     ) from e
 
-            export_db.set_data(
-                filename=dest_str,
-                uuid=self.photo.uuid,
-                orig_stat=fileutil.file_sig(dest_str),
-                exif_stat=(None, None, None),
-                converted_stat=converted_stat,
-                edited_stat=edited_stat,
-                info_json=self.photo.json(),
-                exif_json=None,
-            )
+        export_db.set_data(
+            filename=dest_str,
+            uuid=self.photo.uuid,
+            orig_stat=fileutil.file_sig(dest_str),
+            converted_stat=converted_stat,
+            edited_stat=edited_stat,
+            info_json=self.photo.json(),
+        )
 
         return ExportResults(
+            converted_to_jpeg=converted_to_jpeg_files,
+            error=exif_results.error,
+            exif_updated=exif_results.exif_updated,
+            exiftool_error=exif_results.exiftool_error,
+            exiftool_warning=exif_results.exiftool_warning,
             exported=exported_files + update_new_files + update_updated_files,
             new=update_new_files,
-            updated=update_updated_files,
             skipped=update_skipped_files,
             to_touch=touched_files,
-            converted_to_jpeg=converted_to_jpeg_files,
+            updated=update_updated_files,
         )
 
     def _write_sidecar_files(
@@ -1344,7 +1353,72 @@ class PhotoExporter:
             sidecar_xmp_skipped=sidecar_xmp_files_skipped,
         )
 
-    def _write_exif_metadata_to_files(
+    def _write_exif_metadata_to_file(
+        self,
+        src,
+        dest,
+        options: ExportOptions,
+    ) -> ExportResults:
+        """Write exif metadata to file using exiftool
+
+        Note: this method modifies src so src must be a copy of the original file;
+        it also does not write to dest (dest is the intended destination for purposes of
+        referencing the export database. This allows the exiftool update to be done on the
+        local machine prior to being copied to the export destination which may be on a
+        network drive or other slower external storage."""
+
+        export_db = options.export_db
+        fileutil = options.fileutil
+        verbose = options.verbose or self._verbose
+
+        exiftool_results = ExportResults()
+
+        # determine if we need to write the exif metadata
+        # if we are not updating, we always write
+        # else, need to check the database to determine if we need to write
+        run_exiftool = not options.update
+        current_data = "foo"
+        if options.update:
+            files_are_different = False
+            old_data = export_db.get_exifdata_for_file(dest)
+            if old_data is not None:
+                old_data = json.loads(old_data)[0]
+                current_data = json.loads(self._exiftool_json_sidecar(options=options))[
+                    0
+                ]
+                if old_data != current_data:
+                    files_are_different = True
+
+            if old_data is None or files_are_different:
+                # didn't have old data, assume we need to write it
+                # or files were different
+                run_exiftool = True
+            else:
+                verbose(
+                    f"Skipped up to date exiftool metadata for {pathlib.Path(dest).name}"
+                )
+
+        if run_exiftool:
+            verbose(f"Writing metadata with exiftool for {pathlib.Path(dest).name}")
+            if not options.dry_run:
+                warning_, error_ = self._write_exif_data(src, options=options)
+                if warning_:
+                    exiftool_results.exiftool_warning.append((dest, warning_))
+                if error_:
+                    exiftool_results.exiftool_error.append((dest, error_))
+                    exiftool_results.error.append((dest, error_))
+
+            export_db.set_data(
+                dest,
+                uuid=self.photo.uuid,
+                exif_stat=fileutil.file_sig(src),
+                exif_json=self._exiftool_json_sidecar(options=options),
+            )
+            exiftool_results.exif_updated.append(dest)
+            exiftool_results.to_touch.append(dest)
+        return exiftool_results
+
+    def _write_exif_metadata_to_files_zzz(
         self,
         results: ExportResults,
         options: ExportOptions,

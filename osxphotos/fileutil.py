@@ -181,7 +181,6 @@ class FileUtilMacOS(FileUtilABC):
             return False
 
         s1 = cls._sig(os.stat(f1))
-
         if s1[0] != stat.S_IFREG or s2[0] != stat.S_IFREG:
             return False
         return s1 == s2

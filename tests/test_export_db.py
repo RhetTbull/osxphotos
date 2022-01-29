@@ -74,6 +74,26 @@ def test_export_db():
     assert db.get_stat_edited_for_file(filepath2) == (10, 11, 12)
     assert sorted(db.get_previous_uuids()) == (["BAR-FOO", "FOO-BAR"])
 
+    # test set_data value=None doesn't overwrite existing data
+    db.set_data(
+        filepath2,
+        "BAR-FOO",
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+    assert db.get_uuid_for_file(filepath2) == "BAR-FOO"
+    assert db.get_info_for_uuid("BAR-FOO") == INFO_DATA
+    assert db.get_exifdata_for_file(filepath2) == EXIF_DATA
+    assert db.get_stat_orig_for_file(filepath2) == (1, 2, 3)
+    assert db.get_stat_exif_for_file(filepath2) == (4, 5, 6)
+    assert db.get_stat_converted_for_file(filepath2) == (7, 8, 9)
+    assert db.get_stat_edited_for_file(filepath2) == (10, 11, 12)
+    assert sorted(db.get_previous_uuids()) == (["BAR-FOO", "FOO-BAR"])
+
     # close and re-open
     db.close()
     db = ExportDB(dbname, tempdir.name)
