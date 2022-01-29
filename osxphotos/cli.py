@@ -79,9 +79,9 @@ from .sqlgrep import sqlgrep
 from .uti import get_preferred_uti_extension
 from .utils import (
     expand_and_validate_filepath,
+    format_sec_to_hhmmss,
     load_function,
     normalize_fs_path,
-    format_sec_to_hhmmss,
 )
 
 __all__ = [
@@ -133,6 +133,7 @@ __all__ = [
 # global variable to control verbose output
 # set via --verbose/-V
 VERBOSE = False
+VERBOSE_TIMESTAMP = False
 
 # used to show/hide hidden commands
 OSXPHOTOS_HIDDEN = not bool(os.getenv("OSXPHOTOS_SHOW_HIDDEN", default=False))
@@ -147,8 +148,10 @@ def verbose_(*args, **kwargs):
     """print output if verbose flag set"""
     if VERBOSE:
         styled_args = []
+        timestamp = str(datetime.datetime.now()) + " -- " if VERBOSE_TIMESTAMP else ""
         for arg in args:
             if type(arg) == str:
+                arg = timestamp + arg
                 if "error" in arg.lower():
                     arg = click.style(arg, fg=CLI_COLOR_ERROR)
                 elif "warning" in arg.lower():
@@ -677,6 +680,7 @@ def cli(ctx, db, json_, debug):
 @cli.command(cls=ExportCommand)
 @DB_OPTION
 @click.option("--verbose", "-V", "verbose", is_flag=True, help="Print verbose output.")
+@click.option("--timestamp", is_flag=True, help="Add time stamp to verbose output")
 @QUERY_OPTIONS
 @click.option(
     "--missing",
@@ -1228,6 +1232,7 @@ def export(
     from_time,
     to_time,
     verbose,
+    timestamp,
     missing,
     update,
     ignore_signature,
@@ -1374,7 +1379,9 @@ def export(
     )
 
     global VERBOSE
+    global VERBOSE_TIMESTAMP
     VERBOSE = bool(verbose)
+    VERBOSE_TIMESTAMP = timestamp
 
     if load_config:
         try:
