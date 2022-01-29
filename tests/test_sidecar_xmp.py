@@ -41,7 +41,7 @@ def test_sidecar_xmp(photosdb):
         dest = tempdir.name
         photo = photosdb.get_photo(uuid)
         export_options = ExportOptions(sidecar=SIDECAR_XMP)
-        PhotoExporter(photo).export2(
+        PhotoExporter(photo).export(
             dest, photo.original_filename, options=export_options
         )
         filepath = str(pathlib.Path(dest) / photo.original_filename)

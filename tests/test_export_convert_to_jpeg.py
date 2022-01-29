@@ -40,7 +40,7 @@ def test_export_convert_raw_to_jpeg(photosdb):
     photos = photosdb.photos(uuid=[UUID_DICT["raw"]])
 
     export_options = ExportOptions(convert_to_jpeg=True)
-    results = PhotoExporter(photos[0]).export2(dest, options=export_options)
+    results = PhotoExporter(photos[0]).export(dest, options=export_options)
     got_dest = pathlib.Path(results.exported[0])
 
     assert got_dest.is_file()
@@ -58,7 +58,7 @@ def test_export_convert_heic_to_jpeg(photosdb):
     photos = photosdb.photos(uuid=[UUID_DICT["heic"]])
 
     export_options = ExportOptions(convert_to_jpeg=True)
-    results = PhotoExporter(photos[0]).export2(dest, options=export_options)
+    results = PhotoExporter(photos[0]).export(dest, options=export_options)
     got_dest = pathlib.Path(results.exported[0])
 
     assert got_dest.is_file()
@@ -86,7 +86,7 @@ def test_export_convert_live_heic_to_jpeg():
     photo = photosdb.get_photo(UUID_LIVE_HEIC)
 
     export_options = ExportOptions(convert_to_jpeg=True, live_photo=True)
-    results = PhotoExporter(photo).export2(dest, options=export_options)
+    results = PhotoExporter(photo).export(dest, options=export_options)
 
     for name in NAMES_LIVE_HEIC:
         assert f"{tempdir.name}/{name}" in results.exported

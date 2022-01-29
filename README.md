@@ -38,6 +38,7 @@ OSXPhotos provides the ability to interact with and query Apple's Photos.app lib
   + [Raw Photos](#raw-photos)
   + [Template System](#template-system)
   + [ExifTool](#exiftoolExifTool)
+  + [PhotoExporter](#photoexporter)
   + [Text Detection](#textdetection)
   + [Utility Functions](#utility-functions)
 * [Examples](#examples)
@@ -3710,6 +3711,105 @@ osxphotos.exiftool also provides an `ExifToolCaching` class which caches all met
 #### Implementation Note
 
 `ExifTool()` runs `exiftool` as a subprocess using the `-stay_open True` flag to keep the process running in the background.  The subprocess will be cleaned up when your main script terminates.  `ExifTool()` uses a singleton pattern to ensure that only one instance of `exiftool` is created.  Multiple instances of `ExifTool()` will all use the same `exiftool` subprocess.
+
+### <a name="photoexporter">PhotoExporter</a>
+
+[PhotoInfo.export()](#photoinfo) provides a simple method to export a photo.  This method actually calls `PhotoExporter.export()` to do the export.  `PhotoExporter` provides many more options to configure the export and report results and this is what the osxphotos command line export tools uses.
+
+#### `export(dest, filename=None, options: Optional[ExportOptions]=None) -> ExportResults`
+
+Export a photo.
+
+Args:
+
+- dest: must be valid destination path or exception raised
+- filename: (optional): name of exported picture; if not provided, will use current filename
+- options (ExportOptions): optional ExportOptions instance
+
+Returns: ExportResults instance
+
+*Note*: to use dry run mode, you must set options.dry_run=True and also pass in memory version of export_db, and no-op fileutil (e.g. ExportDBInMemory and FileUtilNoOp) in options.export_db and options.fileutil respectively.
+
+#### `ExportOptions`
+
+Options class for exporting photos with `export`
+
+Attributes:
+
+- convert_to_jpeg (bool): if True, converts non-jpeg images to jpeg
+- description_template (str): optional template string that will be rendered for use as photo description
+- download_missing: (bool, default=False): if True will attempt to export photo via applescript interaction with Photos if missing (see also use_photokit, use_photos_export)
+- dry_run: (bool, default=False): set to True to run in "dry run" mode
+- edited: (bool, default=False): if True will export the edited version of the photo otherwise exports the original version
+- exiftool_flags (list of str): optional list of flags to pass to exiftool when using exiftool option, e.g ["-m", "-F"]
+- exiftool: (bool, default = False): if True, will use exiftool to write metadata to export file
+- export_as_hardlink: (bool, default=False): if True, will hardlink files instead of copying them
+- export_db: (ExportDB_ABC): instance of a class that conforms to ExportDB_ABC with methods for getting/setting data related to exported files to compare update state
+- fileutil: (FileUtilABC): class that conforms to FileUtilABC with various file utilities
+- ignore_date_modified (bool): for use with sidecar and exiftool; if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
+- ignore_signature (bool, default=False): ignore file signature when used with update (look only at filename)
+- increment (bool, default=True): if True, will increment file name until a non-existant name is found if overwrite=False and increment=False, export will fail if destination file already exists
+- jpeg_ext (str): if set, will use this value for extension on jpegs converted to jpeg with convert_to_jpeg; if not set, uses jpeg; do not include the leading "."
+- jpeg_quality (float in range 0.0 <= jpeg_quality <= 1.0): a value of 1.0 specifies use best quality, a value of 0.0 specifies use maximum compression.
+- keyword_template (list of str): list of template strings that will be rendered as used as keywords
+- live_photo (bool, default=False): if True, will also export the associated .mov for live photos
+- location (bool): if True, include location in exported metadata
+- merge_exif_keywords (bool): if True, merged keywords found in file's exif data (requires exiftool)
+- merge_exif_persons (bool): if True, merged persons found in file's exif data (requires exiftool)
+- overwrite (bool, default=False): if True will overwrite files if they already exist
+- persons (bool): if True, include persons in exported metadata
+- preview_suffix (str): optional string to append to end of filename for preview images
+- preview (bool): if True, also exports preview image
+- raw_photo (bool, default=False): if True, will also export the associated RAW photo
+- render_options (RenderOptions): optional osxphotos.phototemplate.RenderOptions instance to specify options for rendering templates
+- replace_keywords (bool): if True, keyword_template replaces any keywords, otherwise it's additive
+- sidecar_drop_ext (bool, default=False): if True, drops the photo's extension from sidecar filename (e.g. 'IMG_1234.json' instead of 'IMG_1234.JPG.json')
+- sidecar: bit field (int): set to one or more of SIDECAR_XMP, SIDECAR_JSON, SIDECAR_EXIFTOOL
+  - SIDECAR_JSON: if set will write a json sidecar with data in format readable by exiftool sidecar filename will be dest/filename.json; includes exiftool tag group names (e.g. `exiftool -G -j`)
+  - SIDECAR_EXIFTOOL: if set will write a json sidecar with data in format readable by exiftool sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. `exiftool -j`)
+  - SIDECAR_XMP: if set will write an XMP sidecar with IPTC data sidecar filename will be dest/filename.xmp
+- strip (bool): if True, strip whitespace from rendered templates
+- timeout (int, default=120): timeout in seconds used with use_photos_export
+- touch_file (bool, default=False): if True, sets file's modification time upon photo date
+- update (bool, default=False): if True export will run in update mode, that is, it will not export the photo if the current version already exists in the destination
+- use_albums_as_keywords (bool, default = False): if True, will include album names in keywords when exporting metadata with exiftool or sidecar
+- use_persons_as_keywords (bool, default = False): if True, will include person names in keywords when exporting metadata with exiftool or sidecar
+- use_photos_export (bool, default=False): if True will attempt to export photo via applescript interaction with Photos even if not missing (see also use_photokit, download_missing)
+- use_photokit (bool, default=False): if True, will use photokit to export photos when use_photos_export is True
+- verbose (Callable): optional callable function to use for printing verbose text during processing; if None (default), does not print output.
+
+#### `ExportResults`
+
+`PhotoExporter().export()` returns an instance of this class.
+
+`ExportResults` has the following properties:
+
+- exported: list of all exported files (A single call to export could export more than one file, e.g. original file, preview, live video, raw, etc.)
+- new: list of new files exported when used with update=True
+- updated: list of updated files when used with update=True
+- skipped: list of skipped files when used with update=True
+- exif_updated: list of updated files when used with update=True and exiftool
+- touched: list of files touched during export (e.g. file date/time updated with touch_file=True)
+- to_touch: Reserved for internal use of export
+- converted_to_jpeg: list of files converted to jpeg when convert_to_jpeg=True
+- sidecar_json_written: list of JSON sidecars written
+- sidecar_json_skipped: list of JSON sidecars skipped when update=True
+- sidecar_exiftool_written: list of exiftool sidecars written
+- sidecar_exiftool_skipped: list of exiftool sidecars skipped when update=True
+- sidecar_xmp_written: list of XMP sidecars written
+- sidecar_xmp_skipped: list of XMP sidecars skipped when update=True
+- missing: list of missing files
+- error: list of tuples containing (filename, error) if error generated during export
+- exiftool_warning: list of warnings generated by exiftool during export
+- exiftool_error: list of errors generated by exiftool during export
+- xattr_written: list of files with extended attributes written during export
+- xattr_skipped: list of files where extended attributes were skipped when update=True
+- deleted_files: reserved for use by osxphotos CLI
+- deleted_directories: reserved for use by osxphotos CLI
+- exported_album: reserved for use by osxphotos CLI
+- skipped_album: reserved for use by osxphotos CLI
+- missing_album: reserved for use by osxphotos CLI 
+
 
 ### <a name="textdetection">Text Detection</a>
 

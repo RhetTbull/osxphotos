@@ -71,7 +71,7 @@ class ExportError(Exception):
 
 @dataclass
 class ExportOptions:
-    """Options class for exporting photos with export2
+    """Options class for exporting photos with export
 
     Attributes:
         convert_to_jpeg (bool): if True, converts non-jpeg images to jpeg
@@ -211,7 +211,7 @@ class StagedFiles:
 
 
 class ExportResults:
-    """Results class which holds export results for export2"""
+    """Results class which holds export results for export"""
 
     def __init__(
         self,
@@ -366,131 +366,9 @@ class PhotoExporter:
         self,
         dest,
         filename=None,
-        edited=False,
-        live_photo=False,
-        raw_photo=False,
-        export_as_hardlink=False,
-        overwrite=False,
-        increment=True,
-        sidecar_json=False,
-        sidecar_exiftool=False,
-        sidecar_xmp=False,
-        download_missing=False,
-        use_photos_export=False,
-        use_photokit=True,
-        timeout=120,
-        exiftool=False,
-        use_albums_as_keywords=False,
-        use_persons_as_keywords=False,
-        keyword_template=None,
-        description_template=None,
-        render_options: Optional[RenderOptions] = None,
-    ):
-        """export photo
-        dest: must be valid destination path (or exception raised)
-        filename: (optional): name of exported picture; if not provided, will use current filename
-                    **NOTE**: if provided, user must ensure file extension (suffix) is correct.
-                    For example, if photo is .CR2 file, edited image may be .jpeg.
-                    If you provide an extension different than what the actual file is,
-                    export will print a warning but will export the photo using the
-                    incorrect file extension (unless use_photos_export is true, in which case export will
-                    use the extension provided by Photos upon export; in this case, an incorrect extension is
-                    silently ignored).
-                    e.g. to get the extension of the edited photo,
-                    reference PhotoInfo.path_edited
-        edited: (boolean, default=False); if True will export the edited version of the photo, otherwise exports the original version
-                (or raise exception if no edited version)
-        live_photo: (boolean, default=False); if True, will also export the associated .mov for live photos
-        raw_photo: (boolean, default=False); if True, will also export the associated RAW photo
-        export_as_hardlink: (boolean, default=False); if True, will hardlink files instead of copying them
-        overwrite: (boolean, default=False); if True will overwrite files if they already exist
-        increment: (boolean, default=True); if True, will increment file name until a non-existant name is found
-                    if overwrite=False and increment=False, export will fail if destination file already exists
-        sidecar_json: if set will write a json sidecar with data in format readable by exiftool
-                    sidecar filename will be dest/filename.json; includes exiftool tag group names (e.g. `exiftool -G -j`)
-        sidecar_exiftool: if set will write a json sidecar with data in format readable by exiftool
-                    sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. `exiftool -j`)
-        sidecar_xmp: if set will write an XMP sidecar with IPTC data
-                    sidecar filename will be dest/filename.xmp
-        use_photos_export: (boolean, default=False); if True will attempt to export photo via AppleScript or PhotoKit interaction with Photos
-        download_missing: (boolean, default=False); if True will attempt to export photo via AppleScript or PhotoKit interaction with Photos if missing
-        use_photokit: (boolean, default=True); if True will attempt to export photo via photokit instead of AppleScript when used with use_photos_export or download_missing
-        timeout: (int, default=120) timeout in seconds used with use_photos_export
-        exiftool: (boolean, default = False); if True, will use exiftool to write metadata to export file
-        returns list of full paths to the exported files
-        use_albums_as_keywords: (boolean, default = False); if True, will include album names in keywords
-        when exporting metadata with exiftool or sidecar
-        use_persons_as_keywords: (boolean, default = False); if True, will include person names in keywords
-        when exporting metadata with exiftool or sidecar
-        keyword_template: (list of strings); list of template strings that will be rendered as used as keywords
-        description_template: string; optional template string that will be rendered for use as photo description
-        render_options: an optional osxphotos.phototemplate.RenderOptions instance with options to pass to template renderer
-
-        Returns: list of photos exported
-        """
-
-        # Implementation note: calls export2 to actually do the work
-
-        sidecar = 0
-        if sidecar_json:
-            sidecar |= SIDECAR_JSON
-        if sidecar_exiftool:
-            sidecar |= SIDECAR_EXIFTOOL
-        if sidecar_xmp:
-            sidecar |= SIDECAR_XMP
-
-        if not filename:
-            if not edited:
-                filename = self.photo.original_filename
-            else:
-                original_name = pathlib.Path(self.photo.original_filename)
-                if self.photo.path_edited:
-                    ext = pathlib.Path(self.photo.path_edited).suffix
-                else:
-                    uti = (
-                        self.photo.uti_edited
-                        if edited and self.photo.uti_edited
-                        else self.photo.uti
-                    )
-                    ext = get_preferred_uti_extension(uti)
-                    ext = "." + ext
-                filename = original_name.stem + "_edited" + ext
-
-        options = ExportOptions(
-            description_template=description_template,
-            download_missing=download_missing,
-            edited=edited,
-            exiftool=exiftool,
-            export_as_hardlink=export_as_hardlink,
-            increment=increment,
-            keyword_template=keyword_template,
-            live_photo=live_photo,
-            overwrite=overwrite,
-            raw_photo=raw_photo,
-            render_options=render_options,
-            sidecar=sidecar,
-            timeout=timeout,
-            use_albums_as_keywords=use_albums_as_keywords,
-            use_persons_as_keywords=use_persons_as_keywords,
-            use_photokit=use_photokit,
-            use_photos_export=use_photos_export,
-        )
-
-        results = self.export2(
-            dest,
-            filename=filename,
-            options=options,
-        )
-
-        return results.exported
-
-    def export2(
-        self,
-        dest,
-        filename=None,
         options: Optional[ExportOptions] = None,
-    ):
-        """export photo, like export but with update and dry_run options
+    ) -> ExportResults:
+        """export photo
 
         Args:
             dest: must be valid destination path or exception raised
@@ -660,7 +538,7 @@ class PhotoExporter:
 
     def _get_edited_filename(self, original_filename):
         """Return the filename for the exported edited photo
-        (used when filename isn't provided in call to export2)"""
+        (used when filename isn't provided in call to export)"""
         # need to get the right extension for edited file
         original_filename = pathlib.Path(original_filename)
         if self.photo.path_edited:

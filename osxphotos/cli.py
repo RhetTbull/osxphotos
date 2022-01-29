@@ -3025,7 +3025,7 @@ def export_photo_to_directory(
     """Export photo to directory dest_path"""
 
     results = ExportResults()
-    # TODO: can be updated to let export2 do all the missing logic
+    # TODO: can be updated to let export do all the missing logic
     if export_original:
         if missing and not preview_if_missing:
             space = " " if not verbose else ""
@@ -3113,7 +3113,7 @@ def export_photo_to_directory(
                 verbose=verbose_,
             )
             exporter = PhotoExporter(photo)
-            export_results = exporter.export2(
+            export_results = exporter.export(
                 dest=dest_path, filename=filename, options=export_options
             )
             for warning_ in export_results.exiftool_warning:

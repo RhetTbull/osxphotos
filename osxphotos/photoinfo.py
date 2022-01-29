@@ -35,6 +35,9 @@ from ._constants import (
     BURST_KEY,
     BURST_NOT_SELECTED,
     BURST_SELECTED,
+    SIDECAR_EXIFTOOL,
+    SIDECAR_JSON,
+    SIDECAR_XMP,
     TEXT_DETECTION_CONFIDENCE_THRESHOLD,
 )
 from .adjustmentsinfo import AdjustmentsInfo
@@ -43,7 +46,7 @@ from .exifinfo import ExifInfo
 from .exiftool import ExifToolCaching, get_exiftool_path
 from .momentinfo import MomentInfo
 from .personinfo import FaceInfo, PersonInfo
-from .photoexporter import PhotoExporter
+from .photoexporter import ExportOptions, PhotoExporter
 from .phototemplate import PhotoTemplate, RenderOptions
 from .placeinfo import PlaceInfo4, PlaceInfo5
 from .query_builder import get_query
@@ -1490,27 +1493,47 @@ class PhotoInfo:
         """
 
         exporter = PhotoExporter(self)
-        return exporter.export(
-            dest=dest,
-            filename=filename,
+        sidecar = 0
+        if sidecar_json:
+            sidecar |= SIDECAR_JSON
+        if sidecar_exiftool:
+            sidecar |= SIDECAR_EXIFTOOL
+        if sidecar_xmp:
+            sidecar |= SIDECAR_XMP
+
+        if not filename:
+            if not edited:
+                filename = self.original_filename
+            else:
+                original_name = pathlib.Path(self.original_filename)
+                if self.path_edited:
+                    ext = pathlib.Path(self.path_edited).suffix
+                else:
+                    uti = self.uti_edited if edited and self.uti_edited else self.uti
+                    ext = get_preferred_uti_extension(uti)
+                    ext = "." + ext
+                filename = original_name.stem + "_edited" + ext
+
+        options = ExportOptions(
+            description_template=description_template,
             edited=edited,
-            live_photo=live_photo,
-            raw_photo=raw_photo,
-            export_as_hardlink=export_as_hardlink,
-            overwrite=overwrite,
-            increment=increment,
-            sidecar_json=sidecar_json,
-            sidecar_exiftool=sidecar_exiftool,
-            sidecar_xmp=sidecar_xmp,
-            use_photos_export=use_photos_export,
-            timeout=timeout,
             exiftool=exiftool,
+            export_as_hardlink=export_as_hardlink,
+            increment=increment,
+            keyword_template=keyword_template,
+            live_photo=live_photo,
+            overwrite=overwrite,
+            raw_photo=raw_photo,
+            render_options=render_options,
+            sidecar=sidecar,
+            timeout=timeout,
             use_albums_as_keywords=use_albums_as_keywords,
             use_persons_as_keywords=use_persons_as_keywords,
-            keyword_template=keyword_template,
-            description_template=description_template,
-            render_options=render_options,
+            use_photos_export=use_photos_export,
         )
+
+        results = exporter.export(dest, filename=filename, options=options)
+        return results.exported
 
     def _get_album_uuids(self, project=False):
         """Return list of album UUIDs this photo is found in

@@ -4293,7 +4293,7 @@ def test_export_deleted_only_2():
 
 
 def test_export_error(monkeypatch):
-    """Test that export catches errors thrown by export2"""
+    """Test that export catches errors thrown by export"""
     # Note: I often comment out the try/except block in cli.py::export_photo_with_template when
     # debugging to see exactly where the error is
     # this test verifies I've re-enabled that code
@@ -4307,7 +4307,7 @@ def test_export_error(monkeypatch):
     def throw_error(*args, **kwargs):
         raise ValueError("Argh!")
 
-    monkeypatch.setattr(osxphotos.PhotoExporter, "export2", throw_error)
+    monkeypatch.setattr(osxphotos.PhotoExporter, "export", throw_error)
     with runner.isolated_filesystem():
         result = runner.invoke(
             export,
