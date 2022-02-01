@@ -3974,7 +3974,6 @@ My goal is make osxphotos as reliable and comprehensive as possible.  The test s
 
 - Audio-only files are not handled.  It is possible to store audio-only files in Photos.  osxphotos currently only handles images and videos. See [Issue #436](https://github.com/RhetTbull/osxphotos/issues/436)
 - Face coordinates (mouth, left eye, right eye) may not be correct for images where the head is tilted.  See [Issue #196](https://github.com/RhetTbull/osxphotos/issues/196).
-- Raw images imported to Photos with an associated jpeg preview are not handled correctly by osxphotos.  osxphotos query and export will operate on the jpeg preview instead of the raw image as will `PhotoInfo.path`.  If the user selects "Use RAW as original" in Photos, the raw image will be exported or operated on but the jpeg will be ignored.  See [Issue #101](https://github.com/RhetTbull/osxphotos/issues/101). Note: Beta version of fix for this bug is implemented in the current version of osxphotos.
 - The `--download-missing` option for `osxphotos export` does not work correctly with burst images.  It will download the primary image but not the other burst images.  See [Issue #75](https://github.com/RhetTbull/osxphotos/issues/75).
 
 ## Implementation Notes
