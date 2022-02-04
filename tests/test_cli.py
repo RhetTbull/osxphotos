@@ -4700,7 +4700,14 @@ def test_export_live_edited():
         # basic export
         result = runner.invoke(
             export,
-            [os.path.join(cwd, PHOTOS_DB_RHET), ".", "-V", "--uuid", UUID_LIVE_EDITED],
+            [
+                os.path.join(cwd, PHOTOS_DB_RHET),
+                ".",
+                "-V",
+                "--uuid",
+                UUID_LIVE_EDITED,
+                "--download-missing",
+            ],
         )
         assert result.exit_code == 0
         files = glob.glob("*")

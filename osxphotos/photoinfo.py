@@ -54,7 +54,7 @@ from .scoreinfo import ScoreInfo
 from .searchinfo import SearchInfo
 from .text_detection import detect_text
 from .uti import get_preferred_uti_extension, get_uti_for_extension
-from .utils import _debug, _get_resource_loc, findfiles
+from .utils import _debug, _get_resource_loc, list_directory
 
 __all__ = ["PhotoInfo", "PhotoInfoNone"]
 
@@ -369,7 +369,7 @@ class PhotoInfo:
         # In Photos 5, raw is in same folder as original but with _4.ext
         # Unless "Copy Items to the Photos Library" is not checked
         # then RAW image is not renamed but has same name is jpeg buth with raw extension
-        # Current implementation uses findfiles to find images with the correct raw UTI extension
+        # Current implementation finds images with the correct raw UTI extension
         # in same folder as the original and with same stem as original in form: original_stem*.raw_ext
         # TODO: I don't like this -- would prefer a more deterministic approach but until I have more
         # data on how Photos stores and retrieves RAW images, this seems to be working
@@ -405,8 +405,7 @@ class PhotoInfo:
             # raw files have same name as original but with _4.raw_ext appended
             # I believe the _4 maps to PHAssetResourceTypeAlternatePhoto = 4
             # see: https://developer.apple.com/documentation/photokit/phassetresourcetype/phassetresourcetypealternatephoto?language=objc
-            glob_str = f"{filestem}_4*"
-            raw_file = findfiles(glob_str, filepath)
+            raw_file = list_directory(filepath, startswith=f"{filestem}_4")
             if not raw_file:
                 photopath = None
             else:

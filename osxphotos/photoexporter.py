@@ -45,7 +45,7 @@ from .photokit import (
 )
 from .phototemplate import RenderOptions
 from .uti import get_preferred_uti_extension
-from .utils import increment_filename, increment_filename_with_count, lineno
+from .utils import increment_filename, lineno, list_directory
 
 __all__ = [
     "ExportError",
@@ -598,9 +598,13 @@ class PhotoExporter:
                 )
             if dest_uuid != self.photo.uuid:
                 # not the right file, find the right one
-                glob_str = str(dest.parent / f"{dest.stem} (*{dest.suffix}")
-                # TODO: use the normalized code in utils
-                dest_files = glob.glob(glob_str)
+                # find files that match "dest_name (*.ext" (e.g. "dest_name (1).jpg", "dest_name (2).jpg)", ...)
+                dest_files = list_directory(
+                    dest.parent,
+                    startswith=f"{dest.stem} (",
+                    endswith=dest.suffix,
+                    include_path=True,
+                )
                 for file_ in dest_files:
                     dest_uuid = export_db.get_uuid_for_file(file_)
                     if dest_uuid == self.photo.uuid:
@@ -1828,7 +1832,7 @@ def _export_photo_uuid_applescript(
         raise ValueError(f"dest {dest} must be a directory")
 
     if not original ^ edited:
-        raise ValueError(f"edited or original must be True but not both")
+        raise ValueError("edited or original must be True but not both")
 
     tmpdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
 
@@ -1851,7 +1855,6 @@ def _export_photo_uuid_applescript(
     if not exported_files or not filename:
         # nothing got exported
         raise ExportError(f"Could not export photo {uuid} ({lineno(__file__)})")
-
     # need to find actual filename as sometimes Photos renames JPG to jpeg on export
     # may be more than one file exported (e.g. if Live Photo, Photos exports both .jpeg and .mov)
     # TemporaryDirectory will cleanup on return
