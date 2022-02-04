@@ -6029,7 +6029,7 @@ def test_export_cleanup_empty_album():
 
 
 def test_export_cleanup_accented_album_name():
-    """test export with --cleanup flag and photos in album with accented unicode characters (#561)"""
+    """test export with --cleanup flag and photos in album with accented unicode characters (#561, #618)"""
     import pathlib
 
     from osxphotos.cli import export
@@ -6050,6 +6050,23 @@ def test_export_cleanup_accented_album_name():
                 "{folder_album}",
             ],
         )
+        assert "Deleted: 0 files, 0 directories" in result.output
+
+        # do it again
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                tempdir,
+                "-V",
+                "--update",
+                "--cleanup",
+                "--directory",
+                "{folder_album}",
+                "--update",
+            ],
+        )
+        assert "exported: 0, updated: 0" in result.output
         assert "Deleted: 0 files, 0 directories" in result.output
 
 
