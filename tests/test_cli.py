@@ -6125,57 +6125,60 @@ def test_export_cleanup_exiftool_accented_album_name_same_filenames():
     runner = CliRunner()
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
-    with tempfile.TemporaryDirectory() as tempdir:
-        result = runner.invoke(
-            export,
-            [
-                os.path.join(cwd, CLI_PHOTOS_DB),
-                tempdir,
-                "-V",
-                "--cleanup",
-                "--directory",
-                "{album[/,.|:,.]}",
-                "--exiftool",
-                "--exiftool-merge-keywords",
-                "--exiftool-merge-persons",
-                "--keyword-template",
-                "{keyword}",
-                "--report",
-                "test.csv",
-                "--skip-original-if-edited",
-                "--update",
-                "--touch-file",
-                "--not-hidden",
-            ],
-        )
-        assert "Deleted: 0 files, 0 directories" in result.output
+    with tempfile.TemporaryDirectory() as report_dir:
+        # keep report file out of of expor dir for --cleanup
+        report_file = os.path.join(report_dir, "test.csv")
+        with tempfile.TemporaryDirectory() as tempdir:
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, CLI_PHOTOS_DB),
+                    tempdir,
+                    "-V",
+                    "--cleanup",
+                    "--directory",
+                    "{album[/,.|:,.]}",
+                    "--exiftool",
+                    "--exiftool-merge-keywords",
+                    "--exiftool-merge-persons",
+                    "--keyword-template",
+                    "{keyword}",
+                    "--report",
+                    report_file,
+                    "--skip-original-if-edited",
+                    "--update",
+                    "--touch-file",
+                    "--not-hidden",
+                ],
+            )
+            assert "Deleted: 0 files, 0 directories" in result.output
 
-        # do it again
-        result = runner.invoke(
-            export,
-            [
-                os.path.join(cwd, CLI_PHOTOS_DB),
-                tempdir,
-                "-V",
-                "--cleanup",
-                "--directory",
-                "{album[/,.|:,.]}",
-                "--exiftool",
-                "--exiftool-merge-keywords",
-                "--exiftool-merge-persons",
-                "--keyword-template",
-                "{keyword}",
-                "--report",
-                "test.csv",
-                "--skip-original-if-edited",
-                "--update",
-                "--touch-file",
-                "--not-hidden",
-            ],
-        )
-        assert "exported: 0, updated: 0" in result.output
-        assert "updated EXIF data: 0" in result.output
-        assert "Deleted: 0 files, 0 directories" in result.output
+            # do it again
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, CLI_PHOTOS_DB),
+                    tempdir,
+                    "-V",
+                    "--cleanup",
+                    "--directory",
+                    "{album[/,.|:,.]}",
+                    "--exiftool",
+                    "--exiftool-merge-keywords",
+                    "--exiftool-merge-persons",
+                    "--keyword-template",
+                    "{keyword}",
+                    "--report",
+                    report_file,
+                    "--skip-original-if-edited",
+                    "--update",
+                    "--touch-file",
+                    "--not-hidden",
+                ],
+            )
+            assert "exported: 0, updated: 0" in result.output
+            assert "updated EXIF data: 0" in result.output
+            assert "Deleted: 0 files, 0 directories" in result.output
 
 
 def test_save_load_config():
