@@ -8,6 +8,7 @@ from click.testing import CliRunner
 
 import osxphotos
 from osxphotos.exiftool import get_exiftool_path
+from osxphotos.utils import normalize_unicode
 
 CLI_PHOTOS_DB = "tests/Test-10.15.7.photoslibrary"
 LIVE_PHOTOS_DB = "tests/Test-Cloud-10.15.1.photoslibrary"
@@ -7130,6 +7131,30 @@ def test_query_name():
 
     assert len(json_got) == 1
     assert json_got[0]["original_filename"] == "DSC03584.dng"
+
+
+def test_query_name_unicode():
+    """test query --name with a unicode name"""
+    import json
+    import os
+    import os.path
+
+    import osxphotos
+    from osxphotos.cli import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--name", "Frítest"],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+
+    assert len(json_got) == 4
+    assert normalize_unicode(json_got[0]["original_filename"]).startswith(
+        normalize_unicode("Frítest.jpg")
+    )
 
 
 def test_query_name_i():

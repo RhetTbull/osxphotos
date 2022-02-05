@@ -659,14 +659,18 @@ class PhotosDB:
 
         for person in c:
             pk = person[0]
-            fullname = person[2] if person[2] is not None else _UNKNOWN_PERSON
+            fullname = (
+                normalize_unicode(person[2])
+                if person[2] is not None
+                else _UNKNOWN_PERSON
+            )
             self._dbpersons_pk[pk] = {
                 "pk": pk,
                 "uuid": person[1],
                 "fullname": fullname,
                 "facecount": person[3],
                 "keyface": person[5],
-                "displayname": person[4],
+                "displayname": normalize_unicode(person[4]),
                 "photo_uuid": None,
                 "keyface_uuid": None,
             }
@@ -732,13 +736,6 @@ class PhotosDB:
                 self._dbfaces_pk[pk].append(uuid)
             except KeyError:
                 self._dbfaces_pk[pk] = [uuid]
-
-        if _debug():
-            logging.debug(f"Finished walking through persons")
-            logging.debug(pformat(self._dbpersons_pk))
-            logging.debug(pformat(self._dbpersons_fullname))
-            logging.debug(pformat(self._dbfaces_pk))
-            logging.debug(pformat(self._dbfaces_uuid))
 
         # Get info on albums
         verbose("Processing albums.")
@@ -876,14 +873,6 @@ class PhotosDB:
             else:
                 self._dbalbum_folders[album] = {}
 
-        if _debug():
-            logging.debug(f"Finished walking through albums")
-            logging.debug(pformat(self._dbalbums_album))
-            logging.debug(pformat(self._dbalbums_uuid))
-            logging.debug(pformat(self._dbalbum_details))
-            logging.debug(pformat(self._dbalbum_folders))
-            logging.debug(pformat(self._dbfolder_details))
-
         # Get info on keywords
         verbose("Processing keywords.")
         c.execute(
@@ -899,13 +888,16 @@ class PhotosDB:
                 RKMaster.uuid = RKVersion.masterUuid
             """
         )
-        for keyword in c:
-            if not keyword[1] in self._dbkeywords_uuid:
-                self._dbkeywords_uuid[keyword[1]] = []
-            if not keyword[0] in self._dbkeywords_keyword:
-                self._dbkeywords_keyword[keyword[0]] = []
-            self._dbkeywords_uuid[keyword[1]].append(keyword[0])
-            self._dbkeywords_keyword[keyword[0]].append(keyword[1])
+        for keyword_title, keyword_uuid, _ in c:
+            keyword_title = normalize_unicode(keyword_title)
+            try:
+                self._dbkeywords_uuid[keyword_uuid].append(keyword_title)
+            except KeyError:
+                self._dbkeywords_uuid[keyword_uuid] = [keyword_title]
+            try:
+                self._dbkeywords_keyword[keyword_title].append(keyword_uuid)
+            except KeyError:
+                self._dbkeywords_keyword[keyword_title] = [keyword_uuid]
 
         # Get info on disk volumes
         c.execute("select RKVolume.modelId, RKVolume.name from RKVolume")
@@ -1027,13 +1019,11 @@ class PhotosDB:
 
         for row in c:
             uuid = row[0]
-            if _debug():
-                logging.debug(f"uuid = '{uuid}, master = '{row[2]}")
             self._dbphotos[uuid] = {}
             self._dbphotos[uuid]["_uuid"] = uuid  # stored here for easier debugging
             self._dbphotos[uuid]["modelID"] = row[1]
             self._dbphotos[uuid]["masterUuid"] = row[2]
-            self._dbphotos[uuid]["filename"] = row[3]
+            self._dbphotos[uuid]["filename"] = normalize_unicode(row[3])
 
             # There are sometimes negative values for lastmodifieddate in the database
             # I don't know what these mean but they will raise exception in datetime if
@@ -1272,13 +1262,13 @@ class PhotosDB:
             info["volumeId"] = row[1]
             info["imagePath"] = row[2]
             info["isMissing"] = row[3]
-            info["originalFilename"] = row[4]
+            info["originalFilename"] = normalize_unicode(row[4])
             info["UTI"] = row[5]
             info["modelID"] = row[6]
             info["fileSize"] = row[7]
             info["isTrulyRAW"] = row[8]
             info["alternateMasterUuid"] = row[9]
-            info["filename"] = row[10]
+            info["filename"] = normalize_unicode(row[10])
             self._dbphotos_master[uuid] = info
 
         # get details needed to find path of the edited photos
@@ -1550,39 +1540,6 @@ class PhotosDB:
 
         # done processing, dump debug data if requested
         verbose("Done processing details from Photos library.")
-        if _debug():
-            logging.debug("Faces (_dbfaces_uuid):")
-            logging.debug(pformat(self._dbfaces_uuid))
-
-            logging.debug("Persons (_dbpersons_pk):")
-            logging.debug(pformat(self._dbpersons_pk))
-
-            logging.debug("Keywords by uuid (_dbkeywords_uuid):")
-            logging.debug(pformat(self._dbkeywords_uuid))
-
-            logging.debug("Keywords by keyword (_dbkeywords_keywords):")
-            logging.debug(pformat(self._dbkeywords_keyword))
-
-            logging.debug("Albums by uuid (_dbalbums_uuid):")
-            logging.debug(pformat(self._dbalbums_uuid))
-
-            logging.debug("Albums by album (_dbalbums_albums):")
-            logging.debug(pformat(self._dbalbums_album))
-
-            logging.debug("Album details (_dbalbum_details):")
-            logging.debug(pformat(self._dbalbum_details))
-
-            logging.debug("Album titles (_dbalbum_titles):")
-            logging.debug(pformat(self._dbalbum_titles))
-
-            logging.debug("Volumes (_dbvolumes):")
-            logging.debug(pformat(self._dbvolumes))
-
-            logging.debug("Photos (_dbphotos):")
-            logging.debug(pformat(self._dbphotos))
-
-            logging.debug("Burst Photos (dbphotos_burst:")
-            logging.debug(pformat(self._dbphotos_burst))
 
     def _build_album_folder_hierarchy_4(self, uuid, folders=None):
         """recursively build folder/album hierarchy
@@ -1673,7 +1630,7 @@ class PhotosDB:
         for person in c:
             pk = person[0]
             fullname = (
-                person[2]
+                normalize_unicode(person[2])
                 if (person[2] != "" and person[2] is not None)
                 else _UNKNOWN_PERSON
             )
@@ -1683,7 +1640,7 @@ class PhotosDB:
                 "fullname": fullname,
                 "facecount": person[3],
                 "keyface": person[4],
-                "displayname": person[5],
+                "displayname": normalize_unicode(person[5]),
                 "photo_uuid": None,
                 "keyface_uuid": None,
             }
@@ -1746,13 +1703,6 @@ class PhotosDB:
                 self._dbfaces_pk[pk].append(uuid)
             except KeyError:
                 self._dbfaces_pk[pk] = [uuid]
-
-        if _debug():
-            logging.debug(f"Finished walking through persons")
-            logging.debug(pformat(self._dbpersons_pk))
-            logging.debug(pformat(self._dbpersons_fullname))
-            logging.debug(pformat(self._dbfaces_pk))
-            logging.debug(pformat(self._dbfaces_uuid))
 
         # get details about albums
         verbose("Processing albums.")
@@ -1870,13 +1820,6 @@ class PhotosDB:
                 # shared albums can't be in folders
                 self._dbalbum_folders[album] = []
 
-        if _debug():
-            logging.debug(f"Finished walking through albums")
-            logging.debug(pformat(self._dbalbums_album))
-            logging.debug(pformat(self._dbalbums_uuid))
-            logging.debug(pformat(self._dbalbum_details))
-            logging.debug(pformat(self._dbalbum_folders))
-
         # get details on keywords
         verbose("Processing keywords.")
         c.execute(
@@ -1886,28 +1829,21 @@ class PhotosDB:
                 JOIN Z_1KEYWORDS ON Z_1KEYWORDS.Z_1ASSETATTRIBUTES = ZADDITIONALASSETATTRIBUTES.Z_PK 
                 JOIN ZKEYWORD ON ZKEYWORD.Z_PK = {keyword_join} """
         )
-        for keyword in c:
-            keyword_title = normalize_unicode(keyword[0])
-            if not keyword[1] in self._dbkeywords_uuid:
-                self._dbkeywords_uuid[keyword[1]] = []
-            if not keyword_title in self._dbkeywords_keyword:
-                self._dbkeywords_keyword[keyword_title] = []
-            self._dbkeywords_uuid[keyword[1]].append(keyword[0])
-            self._dbkeywords_keyword[keyword_title].append(keyword[1])
-
-        if _debug():
-            logging.debug(f"Finished walking through keywords")
-            logging.debug(pformat(self._dbkeywords_keyword))
-            logging.debug(pformat(self._dbkeywords_uuid))
+        for keyword_title, keyword_uuid in c:
+            keyword_title = normalize_unicode(keyword_title)
+            try:
+                self._dbkeywords_uuid[keyword_uuid].append(keyword_title)
+            except KeyError:
+                self._dbkeywords_uuid[keyword_uuid] = [keyword_title]
+            try:
+                self._dbkeywords_keyword[keyword_title].append(keyword_uuid)
+            except KeyError:
+                self._dbkeywords_keyword[keyword_title] = [keyword_uuid]
 
         # get details on disk volumes
         c.execute("SELECT ZUUID, ZNAME from ZFILESYSTEMVOLUME")
         for vol in c:
             self._dbvolumes[vol[0]] = vol[1]
-
-        if _debug():
-            logging.debug(f"Finished walking through volumes")
-            logging.debug(self._dbvolumes)
 
         # get details about photos
         verbose("Processing photo details.")
@@ -2042,8 +1978,8 @@ class PhotosDB:
 
             info["hidden"] = row[9]
             info["favorite"] = row[10]
-            info["originalFilename"] = row[3]
-            info["filename"] = row[12]
+            info["originalFilename"] = normalize_unicode(row[3])
+            info["filename"] = normalize_unicode(row[12])
             info["directory"] = row[11]
 
             # set latitude and longitude
@@ -2521,48 +2457,6 @@ class PhotosDB:
 
         # done processing, dump debug data if requested
         verbose("Done processing details from Photos library.")
-        if _debug():
-            logging.debug("Faces (_dbfaces_uuid):")
-            logging.debug(pformat(self._dbfaces_uuid))
-
-            logging.debug("Persons (_dbpersons_pk):")
-            logging.debug(pformat(self._dbpersons_pk))
-
-            logging.debug("Keywords by uuid (_dbkeywords_uuid):")
-            logging.debug(pformat(self._dbkeywords_uuid))
-
-            logging.debug("Keywords by keyword (_dbkeywords_keywords):")
-            logging.debug(pformat(self._dbkeywords_keyword))
-
-            logging.debug("Albums by uuid (_dbalbums_uuid):")
-            logging.debug(pformat(self._dbalbums_uuid))
-
-            logging.debug("Albums by album (_dbalbums_albums):")
-            logging.debug(pformat(self._dbalbums_album))
-
-            logging.debug("Album details (_dbalbum_details):")
-            logging.debug(pformat(self._dbalbum_details))
-
-            logging.debug("Album titles (_dbalbum_titles):")
-            logging.debug(pformat(self._dbalbum_titles))
-
-            logging.debug("Album folders (_dbalbum_folders):")
-            logging.debug(pformat(self._dbalbum_folders))
-
-            logging.debug("Album parent folders (_dbalbum_parent_folders):")
-            logging.debug(pformat(self._dbalbum_parent_folders))
-
-            logging.debug("Albums pk (_dbalbums_pk):")
-            logging.debug(pformat(self._dbalbums_pk))
-
-            logging.debug("Volumes (_dbvolumes):")
-            logging.debug(pformat(self._dbvolumes))
-
-            logging.debug("Photos (_dbphotos):")
-            logging.debug(pformat(self._dbphotos))
-
-            logging.debug("Burst Photos (dbphotos_burst:")
-            logging.debug(pformat(self._dbphotos_burst))
 
     def _process_moments(self):
         """Process data from ZMOMENT table"""
@@ -2623,8 +2517,8 @@ class PhotosDB:
             moment_info["modificationDate"] = row[6]
             moment_info["representativeDate"] = row[7]
             moment_info["startDate"] = row[8]
-            moment_info["subtitle"] = row[9]
-            moment_info["title"] = row[10]
+            moment_info["subtitle"] = normalize_unicode(row[9])
+            moment_info["title"] = normalize_unicode(row[10])
             moment_info["uuid"] = row[11]
 
             # if both lat/lon == -180, then it means location undefined
@@ -3027,6 +2921,7 @@ class PhotosDB:
             if keywords:
                 keyword_set = set()
                 for keyword in keywords:
+                    keyword = normalize_unicode(keyword)
                     if keyword in self._dbkeywords_keyword:
                         keyword_set.update(self._dbkeywords_keyword[keyword])
                 photos_sets.append(keyword_set)
@@ -3034,6 +2929,7 @@ class PhotosDB:
             if persons:
                 person_set = set()
                 for person in persons:
+                    person = normalize_unicode(person)
                     if person in self._dbpersons_fullname:
                         for pk in self._dbpersons_fullname[person]:
                             try:
@@ -3076,8 +2972,6 @@ class PhotosDB:
                 ):
                     info = PhotoInfo(db=self, uuid=p, info=self._dbphotos[p])
                     photoinfo.append(info)
-        if _debug:
-            logging.debug(f"photoinfo: {pformat(photoinfo)}")
 
         return photoinfo
 
