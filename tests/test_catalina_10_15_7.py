@@ -24,10 +24,10 @@ PHOTOS_DB = "tests/Test-10.15.7.photoslibrary/database/photos.db"
 PHOTOS_DB_PATH = "/Test-10.15.7.photoslibrary/database/photos.db"
 PHOTOS_LIBRARY_PATH = "/Test-10.15.7.photoslibrary"
 
-PHOTOS_DB_LEN = 25
-PHOTOS_NOT_IN_TRASH_LEN = 23
+PHOTOS_DB_LEN = 29
+PHOTOS_NOT_IN_TRASH_LEN = 27
 PHOTOS_IN_TRASH_LEN = 2
-PHOTOS_DB_IMPORT_SESSIONS = 17
+PHOTOS_DB_IMPORT_SESSIONS = 21
 
 KEYWORDS = [
     "Kids",
@@ -72,6 +72,7 @@ ALBUMS = [
     "Sorted Oldest First",
     "Sorted Title",
     "Test Album",  # there are 2 albums named "Test Album" for testing duplicate album names
+    "Água",
 ]
 KEYWORDS_DICT = {
     "Drink": 2,
@@ -115,6 +116,7 @@ ALBUM_DICT = {
     "Sorted Oldest First": 3,
     "Sorted Title": 3,
     "Test Album": 2,
+    "Água": 3,
 }  # Note: there are 2 albums named "Test Album" for testing duplicate album names
 
 UUID_DICT = {
@@ -1091,7 +1093,7 @@ def test_from_to_date(photosdb):
     time.tzset()
 
     photos = photosdb.photos(from_date=datetime.datetime(2018, 10, 28))
-    assert len(photos) == 16
+    assert len(photos) == 20
 
     photos = photosdb.photos(to_date=datetime.datetime(2018, 10, 28))
     assert len(photos) == 7

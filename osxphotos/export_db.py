@@ -10,13 +10,17 @@ import sys
 from abc import ABC, abstractmethod
 from io import StringIO
 from sqlite3 import Error
+from typing import Union
 
 from ._constants import OSXPHOTOS_EXPORT_DB
 from ._version import __version__
+from .utils import normalize_fs_path
 
 __all__ = ["ExportDB_ABC", "ExportDBNoOp", "ExportDB", "ExportDBInMemory"]
 
-OSXPHOTOS_EXPORTDB_VERSION = "4.2"
+OSXPHOTOS_EXPORTDB_VERSION = "4.3"
+OSXPHOTOS_EXPORTDB_VERSION_MIGRATE_FILEPATH = "4.3"
+
 OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
 
 
@@ -211,12 +215,13 @@ class ExportDB(ExportDB_ABC):
         """query database for filename and return UUID
         returns None if filename not found in database
         """
-        filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
+        filepath_normalized = self._normalize_filepath_relative(filename)
         conn = self._conn
         try:
             c = conn.cursor()
             c.execute(
-                "SELECT uuid FROM files WHERE filepath_normalized = ?", (filename,)
+                "SELECT uuid FROM files WHERE filepath_normalized = ?",
+                (filepath_normalized,),
             )
             results = c.fetchone()
             uuid = results[0] if results else None
@@ -228,7 +233,7 @@ class ExportDB(ExportDB_ABC):
     def set_uuid_for_file(self, filename, uuid):
         """set UUID of filename to uuid in the database"""
         filename = str(pathlib.Path(filename).relative_to(self._path))
-        filename_normalized = filename.lower()
+        filename_normalized = self._normalize_filepath(filename)
         conn = self._conn
         try:
             c = conn.cursor()
@@ -245,7 +250,7 @@ class ExportDB(ExportDB_ABC):
         """set stat info for filename
         filename: filename to set the stat info for
         stat: a tuple of length 3: mode, size, mtime"""
-        filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
+        filename = self._normalize_filepath_relative(filename)
         if len(stats) != 3:
             raise ValueError(f"expected 3 elements for stat, got {len(stats)}")
 
@@ -266,7 +271,7 @@ class ExportDB(ExportDB_ABC):
         """get stat info for filename
         returns: tuple of (mode, size, mtime)
         """
-        filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
+        filename = self._normalize_filepath_relative(filename)
         conn = self._conn
         try:
             c = conn.cursor()
@@ -302,7 +307,7 @@ class ExportDB(ExportDB_ABC):
         """set stat info for filename (after exiftool has updated it)
         filename: filename to set the stat info for
         stat: a tuple of length 3: mode, size, mtime"""
-        filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
+        filename = self._normalize_filepath_relative(filename)
         if len(stats) != 3:
             raise ValueError(f"expected 3 elements for stat, got {len(stats)}")
 
@@ -323,7 +328,7 @@ class ExportDB(ExportDB_ABC):
         """get stat info for filename (after exiftool has updated it)
         returns: tuple of (mode, size, mtime)
         """
-        filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
+        filename = self._normalize_filepath_relative(filename)
         conn = self._conn
         try:
             c = conn.cursor()
@@ -384,7 +389,7 @@ class ExportDB(ExportDB_ABC):
 
     def get_exifdata_for_file(self, filename):
         """returns the exifdata JSON struct for a file"""
-        filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
+        filename = self._normalize_filepath_relative(filename)
         conn = self._conn
         try:
             c = conn.cursor()
@@ -402,7 +407,7 @@ class ExportDB(ExportDB_ABC):
 
     def set_exifdata_for_file(self, filename, exifdata):
         """sets the exifdata JSON struct for a file"""
-        filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
+        filename = self._normalize_filepath_relative(filename)
         conn = self._conn
         try:
             c = conn.cursor()
@@ -416,7 +421,7 @@ class ExportDB(ExportDB_ABC):
 
     def get_sidecar_for_file(self, filename):
         """returns the sidecar data and signature for a file"""
-        filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
+        filename = self._normalize_filepath_relative(filename)
         conn = self._conn
         try:
             c = conn.cursor()
@@ -444,7 +449,7 @@ class ExportDB(ExportDB_ABC):
 
     def set_sidecar_for_file(self, filename, sidecar_data, sidecar_sig):
         """sets the sidecar data and signature for a file"""
-        filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
+        filename = self._normalize_filepath_relative(filename)
         conn = self._conn
         try:
             c = conn.cursor()
@@ -515,7 +520,7 @@ class ExportDB(ExportDB_ABC):
     ):
         """sets all the data for file and uuid at once; if any value is None, does not set it"""
         filename = str(pathlib.Path(filename).relative_to(self._path))
-        filename_normalized = filename.lower()
+        filename_normalized = self._normalize_filepath(filename)
         conn = self._conn
         try:
             c = conn.cursor()
@@ -577,7 +582,7 @@ class ExportDB(ExportDB_ABC):
             logging.warning(e)
 
     def _set_stat_for_file(self, table, filename, stats):
-        filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
+        filename = self._normalize_filepath_relative(filename)
         if len(stats) != 3:
             raise ValueError(f"expected 3 elements for stat, got {len(stats)}")
 
@@ -590,7 +595,7 @@ class ExportDB(ExportDB_ABC):
         conn.commit()
 
     def _get_stat_for_file(self, table, filename):
-        filename = str(pathlib.Path(filename).relative_to(self._path)).lower()
+        filename = self._normalize_filepath_relative(filename)
         conn = self._conn
         c = conn.cursor()
         c.execute(
@@ -626,6 +631,8 @@ class ExportDB(ExportDB_ABC):
             version_info = self._get_database_version(conn)
             if version_info[1] < OSXPHOTOS_EXPORTDB_VERSION:
                 self._create_db_tables(conn)
+                if version_info[1] < OSXPHOTOS_EXPORTDB_VERSION_MIGRATE_FILEPATH:
+                    self._migrate_normalized_filepath(conn)
                 self.was_upgraded = (version_info[1], OSXPHOTOS_EXPORTDB_VERSION)
             else:
                 self.was_upgraded = ()
@@ -781,6 +788,32 @@ class ExportDB(ExportDB_ABC):
             conn.commit()
         except Error as e:
             logging.warning(e)
+
+    def _normalize_filepath(self, filepath: Union[str, pathlib.Path]) -> str:
+        """normalize filepath for unicode, lower case"""
+        return normalize_fs_path(str(filepath)).lower()
+
+    def _normalize_filepath_relative(self, filepath: Union[str, pathlib.Path]) -> str:
+        """normalize filepath for unicode, relative path (to export dir), lower case"""
+        filepath = str(pathlib.Path(filepath).relative_to(self._path))
+        return normalize_fs_path(str(filepath)).lower()
+
+    def _migrate_normalized_filepath(self, conn):
+        """Fix all filepath_normalized columns for unicode normalization"""
+        # Prior to database version 4.3, filepath_normalized was not normalized for unicode
+        c = conn.cursor()
+        for table in ["converted", "edited", "exifdata", "files", "sidecar"]:
+            old_values = c.execute(
+                f"SELECT filepath_normalized, id FROM {table}"
+            ).fetchall()
+            new_values = [
+                (self._normalize_filepath(filepath_normalized), id_)
+                for filepath_normalized, id_ in old_values
+            ]
+            c.executemany(
+                f"UPDATE {table} SET filepath_normalized=? WHERE id=?", new_values
+            )
+        conn.commit()
 
 
 class ExportDBInMemory(ExportDB):

@@ -21,6 +21,7 @@ FOLDER_ALBUM_DICT = {
 ALBUM_NAMES = [
     "2018-10 - Sponsion, Museum, Frühstück, Römermuseum",
     "2019-10/11 Paris Clermont",
+    "Água",
     "AlbumInFolder",
     "EmptyAlbum",
     "I have a deleted twin",
@@ -38,6 +39,7 @@ ALBUM_NAMES = [
 ALBUM_PARENT_DICT = {
     "2018-10 - Sponsion, Museum, Frühstück, Römermuseum": None,
     "2019-10/11 Paris Clermont": None,
+    "Água": None,
     "AlbumInFolder": "SubFolder2",
     "EmptyAlbum": None,
     "I have a deleted twin": None,
@@ -54,6 +56,7 @@ ALBUM_PARENT_DICT = {
 ALBUM_FOLDER_NAMES_DICT = {
     "2018-10 - Sponsion, Museum, Frühstück, Römermuseum": [],
     "2019-10/11 Paris Clermont": [],
+    "Água": [],
     "AlbumInFolder": ["Folder1", "SubFolder2"],
     "EmptyAlbum": [],
     "I have a deleted twin": [],
@@ -70,6 +73,7 @@ ALBUM_FOLDER_NAMES_DICT = {
 ALBUM_LEN_DICT = {
     "2018-10 - Sponsion, Museum, Frühstück, Römermuseum": 1,
     "2019-10/11 Paris Clermont": 1,
+    "Água": 3,
     "AlbumInFolder": 2,
     "EmptyAlbum": 0,
     "I have a deleted twin": 1,
@@ -102,6 +106,11 @@ ALBUM_PHOTO_UUID_DICT = {
         "A92D9C26-3A50-4197-9388-CB5F7DB9FA91",
         "4D521201-92AC-43E5-8F7C-59BC41C37A96",
         "8E1D7BC9-9321-44F9-8CFB-4083F6B9232A",
+    ],
+    "Água": [
+        "7FD37B5F-6FAA-4DB1-8A29-BF9C37E38091",
+        "2DFD33F1-A5D8-486F-A3A9-98C07995535A",
+        "54E76FCB-D353-4557-9997-0A457BCB4D48",
     ],
 }
 
