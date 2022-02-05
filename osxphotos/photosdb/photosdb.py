@@ -39,6 +39,7 @@ from .._constants import (
     _PHOTOS_5_PROJECT_ALBUM_KIND,
     _PHOTOS_5_ROOT_FOLDER_KIND,
     _PHOTOS_5_SHARED_ALBUM_KIND,
+    _PHOTOS_5_VERSION,
     _TESTED_OS_VERSIONS,
     _UNKNOWN_PERSON,
     BURST_KEY,
@@ -3308,23 +3309,35 @@ class PhotosDB:
                 # case-insensitive
                 for n in name:
                     n = n.lower()
-                    photo_list.extend(
-                        [
-                            p
-                            for p in photos
-                            if n in p.filename.lower()
-                            or n in p.original_filename.lower()
-                        ]
-                    )
+                    if self._db_version >= _PHOTOS_5_VERSION:
+                        # search only original_filename (#594)
+                        photo_list.extend(
+                            [p for p in photos if n in p.original_filename.lower()]
+                        )
+                    else:
+                        photo_list.extend(
+                            [
+                                p
+                                for p in photos
+                                if n in p.filename.lower()
+                                or n in p.original_filename.lower()
+                            ]
+                        )
             else:
                 for n in name:
-                    photo_list.extend(
-                        [
-                            p
-                            for p in photos
-                            if n in p.filename or n in p.original_filename
-                        ]
-                    )
+                    if self._db_version >= _PHOTOS_5_VERSION:
+                        # search only original_filename (#594)
+                        photo_list.extend(
+                            [p for p in photos if n in p.original_filename]
+                        )
+                    else:
+                        photo_list.extend(
+                            [
+                                p
+                                for p in photos
+                                if n in p.filename or n in p.original_filename
+                            ]
+                        )
             photos = photo_list
 
         if options.min_size:

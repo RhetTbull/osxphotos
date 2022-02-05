@@ -7186,6 +7186,46 @@ def test_query_name_i():
     assert json_got[0]["original_filename"] == "DSC03584.dng"
 
 
+def test_query_name_original_filename():
+    """test query --name only searches original filename on Photos 5+"""
+    import json
+    import os
+    import os.path
+
+    from osxphotos.cli import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--name", "AA"],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+
+    assert len(json_got) == 4
+
+
+def test_query_name_original_filename_i():
+    """test query --name only searches original filename on Photos 5+ with -i"""
+    import json
+    import os
+    import os.path
+
+    from osxphotos.cli import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        ["--json", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--name", "aa", "-i"],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+
+    assert len(json_got) == 4
+
+
 def test_export_name():
     """test export --name"""
     import glob
