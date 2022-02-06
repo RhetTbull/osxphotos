@@ -14,6 +14,7 @@ datas = [
     ("osxphotos/phototemplate.tx", "osxphotos"),
     ("osxphotos/phototemplate.md", "osxphotos"),
     ("osxphotos/tutorial.md", "osxphotos"),
+    ("osxphotos/exiftool_filetypes.json", "osxphotos"),
 ]
 package_imports = [["photoscript", ["photoscript.applescript"]]]
 for package, files in package_imports:
