@@ -1,7 +1,7 @@
+include osxphotos/*.json
+include osxphotos/*.md
+include osxphotos/phototemplate.tx
+include osxphotos/queries/*
+include osxphotos/templates/*
 include README.md
 include README.rst
-include osxphotos/templates/*
-include osxphotos/phototemplate.tx
-include osxphotos/phototemplate.md
-include osxphotos/tutorial.md
-include osxphotos/queries/*

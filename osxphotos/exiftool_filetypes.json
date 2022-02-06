@@ -1,0 +1,4976 @@
+{
+    "360": {
+        "extension": "360",
+        "file type": [
+            "360"
+        ],
+        "support": "R/W",
+        "description": "GoPro 360 video (QuickTime-based)",
+        "exif": "R/W",
+        "iptc": "R/W",
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W/C QuickTime, R GoPro",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "3fr": {
+        "extension": "3fr",
+        "file type": [
+            "3FR"
+        ],
+        "support": "R",
+        "description": "Hasselblad RAW (TIFF-based)",
+        "exif": "R",
+        "iptc": "R",
+        "xmp": "R",
+        "icc": "R",
+        "other": null,
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "3g2": {
+        "extension": "3g2",
+        "file type": [
+            "3G2",
+            "3GP2"
+        ],
+        "support": "R/W",
+        "description": "3rd Gen. Partnership Project 2 a/v (QuickTime-based)",
+        "exif": "R/W",
+        "iptc": "R/W",
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W/C QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "3gp2": {
+        "extension": "3gp2",
+        "file type": [
+            "3G2",
+            "3GP2"
+        ],
+        "support": "R/W",
+        "description": "3rd Gen. Partnership Project 2 a/v (QuickTime-based)",
+        "exif": "R/W",
+        "iptc": "R/W",
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W/C QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "3gp": {
+        "extension": "3gp",
+        "file type": [
+            "3GP",
+            "3GPP"
+        ],
+        "support": "R/W",
+        "description": "3rd Gen. Partnership Project a/v (QuickTime-based)",
+        "exif": "R/W",
+        "iptc": "R/W",
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W/C QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "3gpp": {
+        "extension": "3gpp",
+        "file type": [
+            "3GP",
+            "3GPP"
+        ],
+        "support": "R/W",
+        "description": "3rd Gen. Partnership Project a/v (QuickTime-based)",
+        "exif": "R/W",
+        "iptc": "R/W",
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W/C QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "a": {
+        "extension": "a",
+        "file type": [
+            "A"
+        ],
+        "support": "R",
+        "description": "Unix static library code Archive",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R EXE",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "aa": {
+        "extension": "aa",
+        "file type": [
+            "AA"
+        ],
+        "support": "R",
+        "description": "Audible Audiobook",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Audible",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "aae": {
+        "extension": "aae",
+        "file type": [
+            "AAE"
+        ],
+        "support": "R",
+        "description": "Apple edit information (XML PLIST-based)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R PLIST",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "aax": {
+        "extension": "aax",
+        "file type": [
+            "AAX"
+        ],
+        "support": "R/W",
+        "description": "Audible Enhanced Audiobook (QuickTime-based)",
+        "exif": "R/W",
+        "iptc": "R/W",
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W/C QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "acr": {
+        "extension": "acr",
+        "file type": [
+            "ACR"
+        ],
+        "support": "R",
+        "description": "American College of Radiology ACR-NEMA (DICOM-like)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R DICOM",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "afm": {
+        "extension": "afm",
+        "file type": [
+            "AFM",
+            "ACFM",
+            "AMFM"
+        ],
+        "support": "R",
+        "description": "Adobe [Composite/Multiple Master] Font Metrics",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Font",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "acfm": {
+        "extension": "acfm",
+        "file type": [
+            "AFM",
+            "ACFM",
+            "AMFM"
+        ],
+        "support": "R",
+        "description": "Adobe [Composite/Multiple Master] Font Metrics",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Font",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "amfm": {
+        "extension": "amfm",
+        "file type": [
+            "AFM",
+            "ACFM",
+            "AMFM"
+        ],
+        "support": "R",
+        "description": "Adobe [Composite/Multiple Master] Font Metrics",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Font",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "ai": {
+        "extension": "ai",
+        "file type": [
+            "AI",
+            "AIT"
+        ],
+        "support": "R/W",
+        "description": "Adobe Illustrator [Template] (PS or PDF)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W/C PDF PostScript, R Photoshop",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "ait": {
+        "extension": "ait",
+        "file type": [
+            "AI",
+            "AIT"
+        ],
+        "support": "R/W",
+        "description": "Adobe Illustrator [Template] (PS or PDF)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W/C PDF PostScript, R Photoshop",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "aiff": {
+        "extension": "aiff",
+        "file type": [
+            "AIFF",
+            "AIF",
+            "AIFC"
+        ],
+        "support": "R",
+        "description": "Audio Interchange File Format [Compressed]",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R AIFF ID3 Lyrics3",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "aif": {
+        "extension": "aif",
+        "file type": [
+            "AIFF",
+            "AIF",
+            "AIFC"
+        ],
+        "support": "R",
+        "description": "Audio Interchange File Format [Compressed]",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R AIFF ID3 Lyrics3",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "aifc": {
+        "extension": "aifc",
+        "file type": [
+            "AIFF",
+            "AIF",
+            "AIFC"
+        ],
+        "support": "R",
+        "description": "Audio Interchange File Format [Compressed]",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R AIFF ID3 Lyrics3",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "ape": {
+        "extension": "ape",
+        "file type": [
+            "APE"
+        ],
+        "support": "R",
+        "description": "Monkey's Audio",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R APE ID3 Lyrics3",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "arq": {
+        "extension": "arq",
+        "file type": [
+            "ARQ"
+        ],
+        "support": "R/W",
+        "description": "Sony Alpha Pixel-Shift RAW (TIFF-based)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W Sony SonyIDC",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "arw": {
+        "extension": "arw",
+        "file type": [
+            "ARW"
+        ],
+        "support": "R/W",
+        "description": "Sony Alpha RAW (TIFF-based)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W Sony SonyIDC",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "asf": {
+        "extension": "asf",
+        "file type": [
+            "ASF"
+        ],
+        "support": "R",
+        "description": "Microsoft Advanced Systems Format",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R",
+        "icc": null,
+        "other": "R ASF",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "avi": {
+        "extension": "avi",
+        "file type": [
+            "AVI"
+        ],
+        "support": "R",
+        "description": "Audio Video Interleaved (RIFF-based)",
+        "exif": "R",
+        "iptc": null,
+        "xmp": "R",
+        "icc": null,
+        "other": "R RIFF",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "avif": {
+        "extension": "avif",
+        "file type": [
+            "AVIF"
+        ],
+        "support": "R/W",
+        "description": "AV1 Image File Format (QuickTime-based)",
+        "exif": "R/W/C",
+        "iptc": null,
+        "xmp": "R/W/C",
+        "icc": "R/W",
+        "other": "R/W QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "bmp": {
+        "extension": "bmp",
+        "file type": [
+            "BMP",
+            "DIB"
+        ],
+        "support": "R",
+        "description": "Windows BitMaP / Device Independent Bitmap",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R BMP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "dib": {
+        "extension": "dib",
+        "file type": [
+            "BMP",
+            "DIB"
+        ],
+        "support": "R",
+        "description": "Windows BitMaP / Device Independent Bitmap",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R BMP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "bpg": {
+        "extension": "bpg",
+        "file type": [
+            "BPG"
+        ],
+        "support": "R",
+        "description": "Better Portable Graphics",
+        "exif": "R",
+        "iptc": null,
+        "xmp": "R",
+        "icc": "R",
+        "other": "R BPG",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "btf": {
+        "extension": "btf",
+        "file type": [
+            "BTF"
+        ],
+        "support": "R",
+        "description": "BigTIFF (64-bit Tagged Image File Format)",
+        "exif": "R",
+        "iptc": "R",
+        "xmp": "R",
+        "icc": "R",
+        "other": null,
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "chm": {
+        "extension": "chm",
+        "file type": [
+            "CHM"
+        ],
+        "support": "R",
+        "description": "Microsoft Compiled HTML format",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R EXE",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "cos": {
+        "extension": "cos",
+        "file type": [
+            "COS"
+        ],
+        "support": "R",
+        "description": "Capture One Settings (XML-based)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "cr2": {
+        "extension": "cr2",
+        "file type": [
+            "CR2"
+        ],
+        "support": "R/W",
+        "description": "Canon RAW 2 (TIFF-based) (CR2 spec)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W Canon, R/W/C CanonVRD",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "cr3": {
+        "extension": "cr3",
+        "file type": [
+            "CR3"
+        ],
+        "support": "R/W",
+        "description": "Canon RAW 3 (QuickTime-based) (CR3 spec)",
+        "exif": "R/W/C",
+        "iptc": null,
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W Canon QuickTime, R/W/C CanonVRD",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "crm": {
+        "extension": "crm",
+        "file type": [
+            "CRM"
+        ],
+        "support": "R/W",
+        "description": "Canon RAW Movie (QuickTime-based)",
+        "exif": "R/W/C",
+        "iptc": null,
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W Canon QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "crw": {
+        "extension": "crw",
+        "file type": [
+            "CRW",
+            "CIFF"
+        ],
+        "support": "R/W",
+        "description": "Canon RAW Camera Image File Format (CRW spec)",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W CanonRaw, R/W/C CanonVRD",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "ciff": {
+        "extension": "ciff",
+        "file type": [
+            "CRW",
+            "CIFF"
+        ],
+        "support": "R/W",
+        "description": "Canon RAW Camera Image File Format (CRW spec)",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W CanonRaw, R/W/C CanonVRD",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "cs1": {
+        "extension": "cs1",
+        "file type": [
+            "CS1"
+        ],
+        "support": "R/W",
+        "description": "Sinar CaptureShop 1-shot RAW (PSD-based)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R Photoshop",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "csv": {
+        "extension": "csv",
+        "file type": [
+            "CSV"
+        ],
+        "support": "R",
+        "description": "Comma-Separated Values",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Text",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "czi": {
+        "extension": "czi",
+        "file type": [
+            "CZI"
+        ],
+        "support": "R",
+        "description": "Zeiss Integrated Software RAW (ZISRAW)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R ZISRAW, R XML",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "dcm": {
+        "extension": "dcm",
+        "file type": [
+            "DCM",
+            "DC3",
+            "DIC",
+            "DICM"
+        ],
+        "support": "R",
+        "description": "DICOM - Digital Imaging and Communications in Medicine",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R DICOM",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "dc3": {
+        "extension": "dc3",
+        "file type": [
+            "DCM",
+            "DC3",
+            "DIC",
+            "DICM"
+        ],
+        "support": "R",
+        "description": "DICOM - Digital Imaging and Communications in Medicine",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R DICOM",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "dic": {
+        "extension": "dic",
+        "file type": [
+            "DCM",
+            "DC3",
+            "DIC",
+            "DICM"
+        ],
+        "support": "R",
+        "description": "DICOM - Digital Imaging and Communications in Medicine",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R DICOM",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "dicm": {
+        "extension": "dicm",
+        "file type": [
+            "DCM",
+            "DC3",
+            "DIC",
+            "DICM"
+        ],
+        "support": "R",
+        "description": "DICOM - Digital Imaging and Communications in Medicine",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R DICOM",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "dcp": {
+        "extension": "dcp",
+        "file type": [
+            "DCP"
+        ],
+        "support": "R/W",
+        "description": "DNG Camera Profile (DNG-like)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": null,
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "dcr": {
+        "extension": "dcr",
+        "file type": [
+            "DCR"
+        ],
+        "support": "R",
+        "description": "Kodak Digital Camera RAW (TIFF-based)",
+        "exif": "R",
+        "iptc": "R",
+        "xmp": "R",
+        "icc": "R",
+        "other": null,
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "dfont": {
+        "extension": "dfont",
+        "file type": [
+            "DFONT"
+        ],
+        "support": "R",
+        "description": "Macintosh Data Fork Font",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Font",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "divx": {
+        "extension": "divx",
+        "file type": [
+            "DIVX"
+        ],
+        "support": "R",
+        "description": "DivX media format (ASF-based)",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R",
+        "icc": null,
+        "other": "R ASF",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "djvu": {
+        "extension": "djvu",
+        "file type": [
+            "DJVU",
+            "DJV"
+        ],
+        "support": "R",
+        "description": "DjVu image (AIFF-like)",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R",
+        "icc": null,
+        "other": "R DJVU",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "djv": {
+        "extension": "djv",
+        "file type": [
+            "DJVU",
+            "DJV"
+        ],
+        "support": "R",
+        "description": "DjVu image (AIFF-like)",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R",
+        "icc": null,
+        "other": "R DJVU",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "dng": {
+        "extension": "dng",
+        "file type": [
+            "DNG"
+        ],
+        "support": "R/W",
+        "description": "Digital Negative (TIFF-based)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": null,
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "doc": {
+        "extension": "doc",
+        "file type": [
+            "DOC",
+            "DOT"
+        ],
+        "support": "R",
+        "description": "Microsoft Word Document/Template (FPX-like)",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R",
+        "icc": "R",
+        "other": "R FlashPix",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "dot": {
+        "extension": "dot",
+        "file type": [
+            "DOC",
+            "DOT"
+        ],
+        "support": "R",
+        "description": "Microsoft Word Document/Template (FPX-like)",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R",
+        "icc": "R",
+        "other": "R FlashPix",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "docx": {
+        "extension": "docx",
+        "file type": [
+            "DOCX",
+            "DOCM"
+        ],
+        "support": "R",
+        "description": "Office Open XML Document [Macro-enabled]",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "docm": {
+        "extension": "docm",
+        "file type": [
+            "DOCX",
+            "DOCM"
+        ],
+        "support": "R",
+        "description": "Office Open XML Document [Macro-enabled]",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "dotx": {
+        "extension": "dotx",
+        "file type": [
+            "DOTX",
+            "DOTM"
+        ],
+        "support": "R",
+        "description": "Office Open XML Document Template [Macro-enabled]",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "dotm": {
+        "extension": "dotm",
+        "file type": [
+            "DOTX",
+            "DOTM"
+        ],
+        "support": "R",
+        "description": "Office Open XML Document Template [Macro-enabled]",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "dpx": {
+        "extension": "dpx",
+        "file type": [
+            "DPX"
+        ],
+        "support": "R",
+        "description": "Digital Picture Exchange",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R DPX",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "dr4": {
+        "extension": "dr4",
+        "file type": [
+            "DR4"
+        ],
+        "support": "R/W/C",
+        "description": "Canon DPP version 4 Recipe",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R/W/C CanonVRD",
+        "read": true,
+        "write": true,
+        "create": true
+    },
+    "dss": {
+        "extension": "dss",
+        "file type": [
+            "DSS",
+            "DS2"
+        ],
+        "support": "R",
+        "description": "Digital Speech Standard [2]",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Olympus",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "ds2": {
+        "extension": "ds2",
+        "file type": [
+            "DSS",
+            "DS2"
+        ],
+        "support": "R",
+        "description": "Digital Speech Standard [2]",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Olympus",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "dylib": {
+        "extension": "dylib",
+        "file type": [
+            "DYLIB"
+        ],
+        "support": "R",
+        "description": "MacOS Mach-O executable and library files",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R EXE",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "dv": {
+        "extension": "dv",
+        "file type": [
+            "DV"
+        ],
+        "support": "R",
+        "description": "Digital Video",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R DV",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "dvb": {
+        "extension": "dvb",
+        "file type": [
+            "DVB"
+        ],
+        "support": "R/W",
+        "description": "Digital Video Broadcasting (QuickTime-based)",
+        "exif": "R/W",
+        "iptc": "R/W",
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W/C QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "dvr-ms": {
+        "extension": "dvr-ms",
+        "file type": [
+            "DVR-MS"
+        ],
+        "support": "R",
+        "description": "Microsoft Digital Video Recording (ASF-based)",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R",
+        "icc": null,
+        "other": "R ASF",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "eip": {
+        "extension": "eip",
+        "file type": [
+            "EIP"
+        ],
+        "support": "R",
+        "description": "Capture One Enhanced Image Package (ZIP-based)",
+        "exif": "R",
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "eps": {
+        "extension": "eps",
+        "file type": [
+            "EPS",
+            "EPSF",
+            "PS"
+        ],
+        "support": "R/W",
+        "description": "[Encapsulated] PostScript Format",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W/C PostScript, R Photoshop",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "epsf": {
+        "extension": "epsf",
+        "file type": [
+            "EPS",
+            "EPSF",
+            "PS"
+        ],
+        "support": "R/W",
+        "description": "[Encapsulated] PostScript Format",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W/C PostScript, R Photoshop",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "ps": {
+        "extension": "ps",
+        "file type": [
+            "EPS",
+            "EPSF",
+            "PS"
+        ],
+        "support": "R/W",
+        "description": "[Encapsulated] PostScript Format",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W/C PostScript, R Photoshop",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "epub": {
+        "extension": "epub",
+        "file type": [
+            "EPUB"
+        ],
+        "support": "R",
+        "description": "Electronic Publication (ZIP/XML-based)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "erf": {
+        "extension": "erf",
+        "file type": [
+            "ERF"
+        ],
+        "support": "R/W",
+        "description": "Epson RAW Format (TIFF-based)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W Olympus",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "exe": {
+        "extension": "exe",
+        "file type": [
+            "EXE",
+            "DLL"
+        ],
+        "support": "R",
+        "description": "DOS/Windows executable and library files",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R EXE",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "dll": {
+        "extension": "dll",
+        "file type": [
+            "EXE",
+            "DLL"
+        ],
+        "support": "R",
+        "description": "DOS/Windows executable and library files",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R EXE",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "exif": {
+        "extension": "exif",
+        "file type": [
+            "EXIF"
+        ],
+        "support": "R/W/C",
+        "description": "Exchangeable Image File Format metadata (TIFF-based)",
+        "exif": "R/W/C",
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": null,
+        "read": true,
+        "write": true,
+        "create": true
+    },
+    "exr": {
+        "extension": "exr",
+        "file type": [
+            "EXR"
+        ],
+        "support": "R",
+        "description": "Open EXR (Extended Range)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R OpenEXR",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "exv": {
+        "extension": "exv",
+        "file type": [
+            "EXV"
+        ],
+        "support": "R/W/C",
+        "description": "Exiv2 metadata file (JPEG-based)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "Supported JPEG Meta Information",
+        "read": true,
+        "write": true,
+        "create": true
+    },
+    "f4a": {
+        "extension": "f4a",
+        "file type": [
+            "F4A",
+            "F4B",
+            "F4P",
+            "F4V"
+        ],
+        "support": "R/W",
+        "description": "Adobe Flash Player 9+ Audio/Video (QuickTime-based)",
+        "exif": "R/W",
+        "iptc": "R/W",
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W/C QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "f4b": {
+        "extension": "f4b",
+        "file type": [
+            "F4A",
+            "F4B",
+            "F4P",
+            "F4V"
+        ],
+        "support": "R/W",
+        "description": "Adobe Flash Player 9+ Audio/Video (QuickTime-based)",
+        "exif": "R/W",
+        "iptc": "R/W",
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W/C QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "f4p": {
+        "extension": "f4p",
+        "file type": [
+            "F4A",
+            "F4B",
+            "F4P",
+            "F4V"
+        ],
+        "support": "R/W",
+        "description": "Adobe Flash Player 9+ Audio/Video (QuickTime-based)",
+        "exif": "R/W",
+        "iptc": "R/W",
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W/C QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "f4v": {
+        "extension": "f4v",
+        "file type": [
+            "F4A",
+            "F4B",
+            "F4P",
+            "F4V"
+        ],
+        "support": "R/W",
+        "description": "Adobe Flash Player 9+ Audio/Video (QuickTime-based)",
+        "exif": "R/W",
+        "iptc": "R/W",
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W/C QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "fff": {
+        "extension": "fff",
+        "file type": [
+            "FFF"
+        ],
+        "support": "R",
+        "description": "FLIR Systems thermal image File Format",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R FLIR",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "fits": {
+        "extension": "fits",
+        "file type": [
+            "FITS"
+        ],
+        "support": "R",
+        "description": "Flexible Image Transport System",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R FITS",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "fla": {
+        "extension": "fla",
+        "file type": [
+            "FLA"
+        ],
+        "support": "R",
+        "description": "Macromedia/Adobe Flash project (FPX-like)",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R",
+        "icc": "R",
+        "other": "R FlashPix",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "flac": {
+        "extension": "flac",
+        "file type": [
+            "FLAC"
+        ],
+        "support": "R",
+        "description": "Free Lossless Audio Codec",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R FLAC ID3 Lyrics3",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "flif": {
+        "extension": "flif",
+        "file type": [
+            "FLIF"
+        ],
+        "support": "R/W",
+        "description": "Free Lossless Image Format",
+        "exif": "R/W/C",
+        "iptc": null,
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R FLIF",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "flv": {
+        "extension": "flv",
+        "file type": [
+            "FLV"
+        ],
+        "support": "R",
+        "description": "Flash Video",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R",
+        "icc": null,
+        "other": "R Flash",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "fpf": {
+        "extension": "fpf",
+        "file type": [
+            "FPF"
+        ],
+        "support": "R",
+        "description": "FLIR Public image Format",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R FLIR",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "fpx": {
+        "extension": "fpx",
+        "file type": [
+            "FPX"
+        ],
+        "support": "R",
+        "description": "FlashPix image",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R",
+        "icc": "R",
+        "other": "R FlashPix",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "gif": {
+        "extension": "gif",
+        "file type": [
+            "GIF"
+        ],
+        "support": "R/W",
+        "description": "Compuserve Graphics Interchange Format",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W/C GIF",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "gpr": {
+        "extension": "gpr",
+        "file type": [
+            "GPR"
+        ],
+        "support": "R/W",
+        "description": "GoPro RAW (DNG-based)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": null,
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "gz": {
+        "extension": "gz",
+        "file type": [
+            "GZ",
+            "GZIP"
+        ],
+        "support": "R",
+        "description": "GNU ZIP compressed archive",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "gzip": {
+        "extension": "gzip",
+        "file type": [
+            "GZ",
+            "GZIP"
+        ],
+        "support": "R",
+        "description": "GNU ZIP compressed archive",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "hdp": {
+        "extension": "hdp",
+        "file type": [
+            "HDP",
+            "WDP",
+            "JXR"
+        ],
+        "support": "R/W",
+        "description": "Windows HD Photo / Media Photo / JPEG XR (TIFF-based)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": null,
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "wdp": {
+        "extension": "wdp",
+        "file type": [
+            "HDP",
+            "WDP",
+            "JXR"
+        ],
+        "support": "R/W",
+        "description": "Windows HD Photo / Media Photo / JPEG XR (TIFF-based)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": null,
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "jxr": {
+        "extension": "jxr",
+        "file type": [
+            "HDP",
+            "WDP",
+            "JXR"
+        ],
+        "support": "R/W",
+        "description": "Windows HD Photo / Media Photo / JPEG XR (TIFF-based)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": null,
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "hdr": {
+        "extension": "hdr",
+        "file type": [
+            "HDR"
+        ],
+        "support": "R",
+        "description": "Radiance RGBE High Dynamic-Range",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Radiance",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "heic": {
+        "extension": "heic",
+        "file type": [
+            "HEIC",
+            "HEIF",
+            "HIF"
+        ],
+        "support": "R/W",
+        "description": "High Efficiency Image Format (QuickTime-based)",
+        "exif": "R/W/C",
+        "iptc": null,
+        "xmp": "R/W/C",
+        "icc": "R/W",
+        "other": "R/W QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "heif": {
+        "extension": "heif",
+        "file type": [
+            "HEIC",
+            "HEIF",
+            "HIF"
+        ],
+        "support": "R/W",
+        "description": "High Efficiency Image Format (QuickTime-based)",
+        "exif": "R/W/C",
+        "iptc": null,
+        "xmp": "R/W/C",
+        "icc": "R/W",
+        "other": "R/W QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "hif": {
+        "extension": "hif",
+        "file type": [
+            "HEIC",
+            "HEIF",
+            "HIF"
+        ],
+        "support": "R/W",
+        "description": "High Efficiency Image Format (QuickTime-based)",
+        "exif": "R/W/C",
+        "iptc": null,
+        "xmp": "R/W/C",
+        "icc": "R/W",
+        "other": "R/W QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "html": {
+        "extension": "html",
+        "file type": [
+            "HTML",
+            "HTM",
+            "XHTML"
+        ],
+        "support": "R",
+        "description": "[Extensible] HyperText Markup Language",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R HTML",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "htm": {
+        "extension": "htm",
+        "file type": [
+            "HTML",
+            "HTM",
+            "XHTML"
+        ],
+        "support": "R",
+        "description": "[Extensible] HyperText Markup Language",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R HTML",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "xhtml": {
+        "extension": "xhtml",
+        "file type": [
+            "HTML",
+            "HTM",
+            "XHTML"
+        ],
+        "support": "R",
+        "description": "[Extensible] HyperText Markup Language",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R HTML",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "icc": {
+        "extension": "icc",
+        "file type": [
+            "ICC",
+            "ICM"
+        ],
+        "support": "R/W/C",
+        "description": "International Color Consortium color profile",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": "R/W/C",
+        "other": null,
+        "read": true,
+        "write": true,
+        "create": true
+    },
+    "icm": {
+        "extension": "icm",
+        "file type": [
+            "ICC",
+            "ICM"
+        ],
+        "support": "R/W/C",
+        "description": "International Color Consortium color profile",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": "R/W/C",
+        "other": null,
+        "read": true,
+        "write": true,
+        "create": true
+    },
+    "ics": {
+        "extension": "ics",
+        "file type": [
+            "ICS",
+            "ICAL"
+        ],
+        "support": "R",
+        "description": "iCalendar Schedule",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R VCalendar",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "ical": {
+        "extension": "ical",
+        "file type": [
+            "ICS",
+            "ICAL"
+        ],
+        "support": "R",
+        "description": "iCalendar Schedule",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R VCalendar",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "idml": {
+        "extension": "idml",
+        "file type": [
+            "IDML"
+        ],
+        "support": "R",
+        "description": "Adobe InDesign Markup Language (ZIP/XML-based)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "iiq": {
+        "extension": "iiq",
+        "file type": [
+            "IIQ"
+        ],
+        "support": "R/W",
+        "description": "Phase One Intelligent Image Quality RAW (TIFF-based)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W PhaseOne",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "ind": {
+        "extension": "ind",
+        "file type": [
+            "IND",
+            "INDD",
+            "INDT"
+        ],
+        "support": "R/W",
+        "description": "Adobe InDesign Document/Template",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": null,
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "indd": {
+        "extension": "indd",
+        "file type": [
+            "IND",
+            "INDD",
+            "INDT"
+        ],
+        "support": "R/W",
+        "description": "Adobe InDesign Document/Template",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": null,
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "indt": {
+        "extension": "indt",
+        "file type": [
+            "IND",
+            "INDD",
+            "INDT"
+        ],
+        "support": "R/W",
+        "description": "Adobe InDesign Document/Template",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": null,
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "insp": {
+        "extension": "insp",
+        "file type": [
+            "INSP"
+        ],
+        "support": "R/W",
+        "description": "Insta360 Picture (JPEG-based)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "Supported JPEG Meta Information",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "insv": {
+        "extension": "insv",
+        "file type": [
+            "INSV"
+        ],
+        "support": "R",
+        "description": "Insta360 Video (QuickTime-based)",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R",
+        "icc": null,
+        "other": "R QuickTime",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "inx": {
+        "extension": "inx",
+        "file type": [
+            "INX"
+        ],
+        "support": "R",
+        "description": "Adobe InDesign Interchange (XML-based)",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R",
+        "icc": null,
+        "other": null,
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "iso": {
+        "extension": "iso",
+        "file type": [
+            "ISO"
+        ],
+        "support": "R",
+        "description": "ISO 9660 disk image",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R ISO",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "itc": {
+        "extension": "itc",
+        "file type": [
+            "ITC"
+        ],
+        "support": "R",
+        "description": "iTunes Cover Flow artwork",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R ITC",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "j2c": {
+        "extension": "j2c",
+        "file type": [
+            "J2C",
+            "J2K",
+            "JPC"
+        ],
+        "support": "R",
+        "description": "JPEG 2000 codestream",
+        "exif": "R",
+        "iptc": "R",
+        "xmp": "R",
+        "icc": "R",
+        "other": "R Jpeg2000 Photoshop",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "j2k": {
+        "extension": "j2k",
+        "file type": [
+            "J2C",
+            "J2K",
+            "JPC"
+        ],
+        "support": "R",
+        "description": "JPEG 2000 codestream",
+        "exif": "R",
+        "iptc": "R",
+        "xmp": "R",
+        "icc": "R",
+        "other": "R Jpeg2000 Photoshop",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "jpc": {
+        "extension": "jpc",
+        "file type": [
+            "J2C",
+            "J2K",
+            "JPC"
+        ],
+        "support": "R",
+        "description": "JPEG 2000 codestream",
+        "exif": "R",
+        "iptc": "R",
+        "xmp": "R",
+        "icc": "R",
+        "other": "R Jpeg2000 Photoshop",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "jp2": {
+        "extension": "jp2",
+        "file type": [
+            "JP2",
+            "JPF",
+            "JPM",
+            "JPX"
+        ],
+        "support": "R/W",
+        "description": "JPEG 2000 image [Compound/Extended]",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R",
+        "other": "R/W/C Jpeg2000, R Photoshop",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "jpf": {
+        "extension": "jpf",
+        "file type": [
+            "JP2",
+            "JPF",
+            "JPM",
+            "JPX"
+        ],
+        "support": "R/W",
+        "description": "JPEG 2000 image [Compound/Extended]",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R",
+        "other": "R/W/C Jpeg2000, R Photoshop",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "jpm": {
+        "extension": "jpm",
+        "file type": [
+            "JP2",
+            "JPF",
+            "JPM",
+            "JPX"
+        ],
+        "support": "R/W",
+        "description": "JPEG 2000 image [Compound/Extended]",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R",
+        "other": "R/W/C Jpeg2000, R Photoshop",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "jpx": {
+        "extension": "jpx",
+        "file type": [
+            "JP2",
+            "JPF",
+            "JPM",
+            "JPX"
+        ],
+        "support": "R/W",
+        "description": "JPEG 2000 image [Compound/Extended]",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R",
+        "other": "R/W/C Jpeg2000, R Photoshop",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "jpeg": {
+        "extension": "jpeg",
+        "file type": [
+            "JPEG",
+            "JPG",
+            "JPE"
+        ],
+        "support": "R/W",
+        "description": "Joint Photographic Experts Group image",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "Supported JPEG Meta Information",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "jpg": {
+        "extension": "jpg",
+        "file type": [
+            "JPEG",
+            "JPG",
+            "JPE"
+        ],
+        "support": "R/W",
+        "description": "Joint Photographic Experts Group image",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "Supported JPEG Meta Information",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "jpe": {
+        "extension": "jpe",
+        "file type": [
+            "JPEG",
+            "JPG",
+            "JPE"
+        ],
+        "support": "R/W",
+        "description": "Joint Photographic Experts Group image",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "Supported JPEG Meta Information",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "json": {
+        "extension": "json",
+        "file type": [
+            "JSON"
+        ],
+        "support": "R",
+        "description": "JavaScript Object Notation",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R JSON",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "jxl": {
+        "extension": "jxl",
+        "file type": [
+            "JXL"
+        ],
+        "support": "R/W",
+        "description": "JPEG XL (codestream and ISO BMFF)",
+        "exif": "R/W/C",
+        "iptc": null,
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": null,
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "k25": {
+        "extension": "k25",
+        "file type": [
+            "K25"
+        ],
+        "support": "R",
+        "description": "Kodak DC25 RAW (TIFF-based)",
+        "exif": "R",
+        "iptc": "R",
+        "xmp": "R",
+        "icc": "R",
+        "other": null,
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "kdc": {
+        "extension": "kdc",
+        "file type": [
+            "KDC"
+        ],
+        "support": "R",
+        "description": "Kodak Digital Camera RAW (TIFF-based)",
+        "exif": "R",
+        "iptc": "R",
+        "xmp": "R",
+        "icc": "R",
+        "other": "R Kodak",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "key": {
+        "extension": "key",
+        "file type": [
+            "KEY",
+            "KTH"
+        ],
+        "support": "R",
+        "description": "Apple iWork '09 Keynote presentation/Theme",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "kth": {
+        "extension": "kth",
+        "file type": [
+            "KEY",
+            "KTH"
+        ],
+        "support": "R",
+        "description": "Apple iWork '09 Keynote presentation/Theme",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "la": {
+        "extension": "la",
+        "file type": [
+            "LA"
+        ],
+        "support": "R",
+        "description": "Lossless Audio (RIFF-based)",
+        "exif": "R",
+        "iptc": null,
+        "xmp": "R",
+        "icc": null,
+        "other": "R RIFF",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "lfp": {
+        "extension": "lfp",
+        "file type": [
+            "LFP",
+            "LFR"
+        ],
+        "support": "R",
+        "description": "Lytro Light Field Picture",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Lytro",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "lfr": {
+        "extension": "lfr",
+        "file type": [
+            "LFP",
+            "LFR"
+        ],
+        "support": "R",
+        "description": "Lytro Light Field Picture",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Lytro",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "lif": {
+        "extension": "lif",
+        "file type": [
+            "LIF"
+        ],
+        "support": "R",
+        "description": "Leica Image File",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R LIF",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "lnk": {
+        "extension": "lnk",
+        "file type": [
+            "LNK"
+        ],
+        "support": "R",
+        "description": "Microsoft Shell Link (Windows shortcut)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R LNK",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "lrv": {
+        "extension": "lrv",
+        "file type": [
+            "LRV"
+        ],
+        "support": "R/W",
+        "description": "Low-Resolution Video (QuickTime-based)",
+        "exif": "R/W",
+        "iptc": "R/W",
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W/C QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "m2ts": {
+        "extension": "m2ts",
+        "file type": [
+            "M2TS",
+            "MTS",
+            "M2T",
+            "TS"
+        ],
+        "support": "R",
+        "description": "MPEG-2 Transport Stream (used for AVCHD video)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R M2TS H264",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "mts": {
+        "extension": "mts",
+        "file type": [
+            "M2TS",
+            "MTS",
+            "M2T",
+            "TS"
+        ],
+        "support": "R",
+        "description": "MPEG-2 Transport Stream (used for AVCHD video)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R M2TS H264",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "m2t": {
+        "extension": "m2t",
+        "file type": [
+            "M2TS",
+            "MTS",
+            "M2T",
+            "TS"
+        ],
+        "support": "R",
+        "description": "MPEG-2 Transport Stream (used for AVCHD video)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R M2TS H264",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "ts": {
+        "extension": "ts",
+        "file type": [
+            "M2TS",
+            "MTS",
+            "M2T",
+            "TS"
+        ],
+        "support": "R",
+        "description": "MPEG-2 Transport Stream (used for AVCHD video)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R M2TS H264",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "m4a": {
+        "extension": "m4a",
+        "file type": [
+            "M4A",
+            "M4B",
+            "M4P",
+            "M4V"
+        ],
+        "support": "R/W",
+        "description": "MPEG-4 Audio/Video (QuickTime-based)",
+        "exif": "R/W",
+        "iptc": "R/W",
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W/C QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "m4b": {
+        "extension": "m4b",
+        "file type": [
+            "M4A",
+            "M4B",
+            "M4P",
+            "M4V"
+        ],
+        "support": "R/W",
+        "description": "MPEG-4 Audio/Video (QuickTime-based)",
+        "exif": "R/W",
+        "iptc": "R/W",
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W/C QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "m4p": {
+        "extension": "m4p",
+        "file type": [
+            "M4A",
+            "M4B",
+            "M4P",
+            "M4V"
+        ],
+        "support": "R/W",
+        "description": "MPEG-4 Audio/Video (QuickTime-based)",
+        "exif": "R/W",
+        "iptc": "R/W",
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W/C QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "m4v": {
+        "extension": "m4v",
+        "file type": [
+            "M4A",
+            "M4B",
+            "M4P",
+            "M4V"
+        ],
+        "support": "R/W",
+        "description": "MPEG-4 Audio/Video (QuickTime-based)",
+        "exif": "R/W",
+        "iptc": "R/W",
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W/C QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "macos": {
+        "extension": "macos",
+        "file type": [
+            "MACOS"
+        ],
+        "support": "R",
+        "description": "MacOS \"._\" sidecar file (may have any extension)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XAttr RSRC",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "max": {
+        "extension": "max",
+        "file type": [
+            "MAX"
+        ],
+        "support": "R",
+        "description": "3D Studio MAX (FPX-like)",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R",
+        "icc": "R",
+        "other": "R FlashPix",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "mef": {
+        "extension": "mef",
+        "file type": [
+            "MEF"
+        ],
+        "support": "R/W",
+        "description": "Mamiya (RAW) Electronic Format (TIFF-based)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": null,
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "mie": {
+        "extension": "mie",
+        "file type": [
+            "MIE"
+        ],
+        "support": "R/W/C",
+        "description": "Meta Information Encapsulation (MIE specification)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W/C MIE",
+        "read": true,
+        "write": true,
+        "create": true
+    },
+    "miff": {
+        "extension": "miff",
+        "file type": [
+            "MIFF",
+            "MIF"
+        ],
+        "support": "R",
+        "description": "Magick Image File Format",
+        "exif": "R",
+        "iptc": "R",
+        "xmp": "R",
+        "icc": "R",
+        "other": "R MIFF Photoshop",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "mif": {
+        "extension": "mif",
+        "file type": [
+            "MIFF",
+            "MIF"
+        ],
+        "support": "R",
+        "description": "Magick Image File Format",
+        "exif": "R",
+        "iptc": "R",
+        "xmp": "R",
+        "icc": "R",
+        "other": "R MIFF Photoshop",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "mka": {
+        "extension": "mka",
+        "file type": [
+            "MKA",
+            "MKV",
+            "MKS"
+        ],
+        "support": "R",
+        "description": "Matroska Audio/Video/Subtitle",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Matroska",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "mkv": {
+        "extension": "mkv",
+        "file type": [
+            "MKA",
+            "MKV",
+            "MKS"
+        ],
+        "support": "R",
+        "description": "Matroska Audio/Video/Subtitle",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Matroska",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "mks": {
+        "extension": "mks",
+        "file type": [
+            "MKA",
+            "MKV",
+            "MKS"
+        ],
+        "support": "R",
+        "description": "Matroska Audio/Video/Subtitle",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Matroska",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "mobi": {
+        "extension": "mobi",
+        "file type": [
+            "MOBI",
+            "AZW",
+            "AZW3"
+        ],
+        "support": "R",
+        "description": "Mobipocket electronic book (Palm-based)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Palm MOBI",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "azw": {
+        "extension": "azw",
+        "file type": [
+            "MOBI",
+            "AZW",
+            "AZW3"
+        ],
+        "support": "R",
+        "description": "Mobipocket electronic book (Palm-based)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Palm MOBI",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "azw3": {
+        "extension": "azw3",
+        "file type": [
+            "MOBI",
+            "AZW",
+            "AZW3"
+        ],
+        "support": "R",
+        "description": "Mobipocket electronic book (Palm-based)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Palm MOBI",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "modd": {
+        "extension": "modd",
+        "file type": [
+            "MODD"
+        ],
+        "support": "R",
+        "description": "Sony Picture Motion metadata (XML PLIST-based)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R PLIST",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "moi": {
+        "extension": "moi",
+        "file type": [
+            "MOI"
+        ],
+        "support": "R",
+        "description": "MOD Information file",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R MOI",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "mos": {
+        "extension": "mos",
+        "file type": [
+            "MOS"
+        ],
+        "support": "R/W",
+        "description": "Creo Leaf Mosaic (TIFF-based)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R Leaf",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "mov": {
+        "extension": "mov",
+        "file type": [
+            "MOV",
+            "QT"
+        ],
+        "support": "R/W",
+        "description": "Apple QuickTime Movie",
+        "exif": "R/W",
+        "iptc": "R/W",
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W/C QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "qt": {
+        "extension": "qt",
+        "file type": [
+            "MOV",
+            "QT"
+        ],
+        "support": "R/W",
+        "description": "Apple QuickTime Movie",
+        "exif": "R/W",
+        "iptc": "R/W",
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W/C QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "mp3": {
+        "extension": "mp3",
+        "file type": [
+            "MP3"
+        ],
+        "support": "R",
+        "description": "MPEG-1 layer 3 audio",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R MPEG ID3 Lyrics3 APE",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "mp4": {
+        "extension": "mp4",
+        "file type": [
+            "MP4"
+        ],
+        "support": "R/W",
+        "description": "Motion Picture Experts Group version 4 (QuickTime-based)",
+        "exif": "R/W",
+        "iptc": "R/W",
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W/C QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "mpc": {
+        "extension": "mpc",
+        "file type": [
+            "MPC"
+        ],
+        "support": "R",
+        "description": "Musepack Audio",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R MPC ID3 Lyrics3 APE",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "mpeg": {
+        "extension": "mpeg",
+        "file type": [
+            "MPEG",
+            "MPG",
+            "M2V"
+        ],
+        "support": "R",
+        "description": "Motion Picture Experts Group version 1 or 2",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R MPEG ID3 Lyrics3",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "mpg": {
+        "extension": "mpg",
+        "file type": [
+            "MPEG",
+            "MPG",
+            "M2V"
+        ],
+        "support": "R",
+        "description": "Motion Picture Experts Group version 1 or 2",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R MPEG ID3 Lyrics3",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "m2v": {
+        "extension": "m2v",
+        "file type": [
+            "MPEG",
+            "MPG",
+            "M2V"
+        ],
+        "support": "R",
+        "description": "Motion Picture Experts Group version 1 or 2",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R MPEG ID3 Lyrics3",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "mpo": {
+        "extension": "mpo",
+        "file type": [
+            "MPO"
+        ],
+        "support": "R/W",
+        "description": "Extended Multi-Picture format (JPEG with MPF extensions)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "Supported JPEG Meta Information",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "mqv": {
+        "extension": "mqv",
+        "file type": [
+            "MQV"
+        ],
+        "support": "R/W",
+        "description": "Sony Mobile QuickTime Video",
+        "exif": "R/W",
+        "iptc": "R/W",
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W/C QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "mrw": {
+        "extension": "mrw",
+        "file type": [
+            "MRW"
+        ],
+        "support": "R/W",
+        "description": "Minolta RAW",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W MinoltaRaw Minolta",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "mrc": {
+        "extension": "mrc",
+        "file type": [
+            "MRC"
+        ],
+        "support": "R",
+        "description": "Medical Research Council",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R MRC",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "mxf": {
+        "extension": "mxf",
+        "file type": [
+            "MXF"
+        ],
+        "support": "R",
+        "description": "Material Exchange Format",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R MXF",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "nef": {
+        "extension": "nef",
+        "file type": [
+            "NEF"
+        ],
+        "support": "R/W",
+        "description": "Nikon (RAW) Electronic Format (TIFF-based)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W Nikon NikonCapture",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "nksc": {
+        "extension": "nksc",
+        "file type": [
+            "NKSC"
+        ],
+        "support": "R/W",
+        "description": "Nikon Sidecar (XMP-based)",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": null,
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "nmbtemplate": {
+        "extension": "nmbtemplate",
+        "file type": [
+            "NMBTEMPLATE"
+        ],
+        "support": "R",
+        "description": "Apple iWork '09 Numbers Template",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "nrw": {
+        "extension": "nrw",
+        "file type": [
+            "NRW"
+        ],
+        "support": "R/W",
+        "description": "Nikon RAW (2) (TIFF-based)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W Nikon NikonCapture",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "numbers": {
+        "extension": "numbers",
+        "file type": [
+            "NUMBERS"
+        ],
+        "support": "R",
+        "description": "Apple iWork '09 Numbers spreadsheet",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "o": {
+        "extension": "o",
+        "file type": [
+            "O"
+        ],
+        "support": "R",
+        "description": "Unix compiled code Object",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R EXE",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "odb": {
+        "extension": "odb",
+        "file type": [
+            "ODB",
+            "ODC",
+            "ODF",
+            "ODG",
+            "ODI",
+            "ODP",
+            "ODS",
+            "ODT"
+        ],
+        "support": "R",
+        "description": "Open Document Database/Chart/Formula/Graphics/Image/Presentation/Spreadsheet/Text (ZIP/XML-based)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "odc": {
+        "extension": "odc",
+        "file type": [
+            "ODB",
+            "ODC",
+            "ODF",
+            "ODG",
+            "ODI",
+            "ODP",
+            "ODS",
+            "ODT"
+        ],
+        "support": "R",
+        "description": "Open Document Database/Chart/Formula/Graphics/Image/Presentation/Spreadsheet/Text (ZIP/XML-based)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "odf": {
+        "extension": "odf",
+        "file type": [
+            "ODB",
+            "ODC",
+            "ODF",
+            "ODG",
+            "ODI",
+            "ODP",
+            "ODS",
+            "ODT"
+        ],
+        "support": "R",
+        "description": "Open Document Database/Chart/Formula/Graphics/Image/Presentation/Spreadsheet/Text (ZIP/XML-based)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "odg": {
+        "extension": "odg",
+        "file type": [
+            "ODB",
+            "ODC",
+            "ODF",
+            "ODG",
+            "ODI",
+            "ODP",
+            "ODS",
+            "ODT"
+        ],
+        "support": "R",
+        "description": "Open Document Database/Chart/Formula/Graphics/Image/Presentation/Spreadsheet/Text (ZIP/XML-based)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "odi": {
+        "extension": "odi",
+        "file type": [
+            "ODB",
+            "ODC",
+            "ODF",
+            "ODG",
+            "ODI",
+            "ODP",
+            "ODS",
+            "ODT"
+        ],
+        "support": "R",
+        "description": "Open Document Database/Chart/Formula/Graphics/Image/Presentation/Spreadsheet/Text (ZIP/XML-based)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "odp": {
+        "extension": "odp",
+        "file type": [
+            "ODB",
+            "ODC",
+            "ODF",
+            "ODG",
+            "ODI",
+            "ODP",
+            "ODS",
+            "ODT"
+        ],
+        "support": "R",
+        "description": "Open Document Database/Chart/Formula/Graphics/Image/Presentation/Spreadsheet/Text (ZIP/XML-based)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "ods": {
+        "extension": "ods",
+        "file type": [
+            "ODB",
+            "ODC",
+            "ODF",
+            "ODG",
+            "ODI",
+            "ODP",
+            "ODS",
+            "ODT"
+        ],
+        "support": "R",
+        "description": "Open Document Database/Chart/Formula/Graphics/Image/Presentation/Spreadsheet/Text (ZIP/XML-based)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "odt": {
+        "extension": "odt",
+        "file type": [
+            "ODB",
+            "ODC",
+            "ODF",
+            "ODG",
+            "ODI",
+            "ODP",
+            "ODS",
+            "ODT"
+        ],
+        "support": "R",
+        "description": "Open Document Database/Chart/Formula/Graphics/Image/Presentation/Spreadsheet/Text (ZIP/XML-based)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "ofr": {
+        "extension": "ofr",
+        "file type": [
+            "OFR"
+        ],
+        "support": "R",
+        "description": "OptimFROG audio (RIFF-based)",
+        "exif": "R",
+        "iptc": null,
+        "xmp": "R",
+        "icc": null,
+        "other": "R RIFF",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "ogg": {
+        "extension": "ogg",
+        "file type": [
+            "OGG",
+            "OGV"
+        ],
+        "support": "R",
+        "description": "Ogg bitstream container",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R FLAC ID3 Lyrics3 Theora Vorbis",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "ogv": {
+        "extension": "ogv",
+        "file type": [
+            "OGG",
+            "OGV"
+        ],
+        "support": "R",
+        "description": "Ogg bitstream container",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R FLAC ID3 Lyrics3 Theora Vorbis",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "onp": {
+        "extension": "onp",
+        "file type": [
+            "ONP"
+        ],
+        "support": "R",
+        "description": "ON1 Presets",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R JSON PLIST",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "opus": {
+        "extension": "opus",
+        "file type": [
+            "OPUS"
+        ],
+        "support": "R",
+        "description": "Ogg Opus audio",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R FLAC ID3 Lyrics3 Opus Vorbis",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "orf": {
+        "extension": "orf",
+        "file type": [
+            "ORF",
+            "ORI"
+        ],
+        "support": "R/W",
+        "description": "Olympus RAW Format (TIFF-based)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W Olympus",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "ori": {
+        "extension": "ori",
+        "file type": [
+            "ORF",
+            "ORI"
+        ],
+        "support": "R/W",
+        "description": "Olympus RAW Format (TIFF-based)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W Olympus",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "otf": {
+        "extension": "otf",
+        "file type": [
+            "OTF"
+        ],
+        "support": "R",
+        "description": "Open Type Font",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Font",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "pac": {
+        "extension": "pac",
+        "file type": [
+            "PAC"
+        ],
+        "support": "R",
+        "description": "Lossless Predictive Audio Compression (RIFF-based)",
+        "exif": "R",
+        "iptc": null,
+        "xmp": "R",
+        "icc": null,
+        "other": "R RIFF",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "pages": {
+        "extension": "pages",
+        "file type": [
+            "PAGES"
+        ],
+        "support": "R",
+        "description": "Apple iWork '09 Pages document",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "pcd": {
+        "extension": "pcd",
+        "file type": [
+            "PCD"
+        ],
+        "support": "R",
+        "description": "Kodak Photo CD Image Pac",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R PhotoCD",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "pcx": {
+        "extension": "pcx",
+        "file type": [
+            "PCX"
+        ],
+        "support": "R",
+        "description": "PC Paintbrush",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R PCX",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "pdb": {
+        "extension": "pdb",
+        "file type": [
+            "PDB",
+            "PRC"
+        ],
+        "support": "R",
+        "description": "Palm Database",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Palm",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "prc": {
+        "extension": "prc",
+        "file type": [
+            "PDB",
+            "PRC"
+        ],
+        "support": "R",
+        "description": "Palm Database",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Palm",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "pdf": {
+        "extension": "pdf",
+        "file type": [
+            "PDF"
+        ],
+        "support": "R/W",
+        "description": "Adobe Portable Document Format",
+        "exif": "R",
+        "iptc": "R",
+        "xmp": "R/W/C",
+        "icc": "R",
+        "other": "R/W/C PDF, R Photoshop",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "pef": {
+        "extension": "pef",
+        "file type": [
+            "PEF"
+        ],
+        "support": "R/W",
+        "description": "Pentax (RAW) Electronic Format (TIFF-based)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W Pentax",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "pfa": {
+        "extension": "pfa",
+        "file type": [
+            "PFA",
+            "PFB"
+        ],
+        "support": "R",
+        "description": "PostScript Font ASCII/Binary",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Font",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "pfb": {
+        "extension": "pfb",
+        "file type": [
+            "PFA",
+            "PFB"
+        ],
+        "support": "R",
+        "description": "PostScript Font ASCII/Binary",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Font",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "pfm": {
+        "extension": "pfm",
+        "file type": [
+            "PFM"
+        ],
+        "support": "R",
+        "description": "Portable FloatMap",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R PFM",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "pgf": {
+        "extension": "pgf",
+        "file type": [
+            "PGF"
+        ],
+        "support": "R",
+        "description": "Progressive Graphics File",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R PGF PNG",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "pict": {
+        "extension": "pict",
+        "file type": [
+            "PICT",
+            "PCT"
+        ],
+        "support": "R",
+        "description": "Apple Picture file",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": "R",
+        "other": "R PICT Photoshop",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "pct": {
+        "extension": "pct",
+        "file type": [
+            "PICT",
+            "PCT"
+        ],
+        "support": "R",
+        "description": "Apple Picture file",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": "R",
+        "other": "R PICT Photoshop",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "plist": {
+        "extension": "plist",
+        "file type": [
+            "PLIST"
+        ],
+        "support": "R",
+        "description": "Apple Property List (binary and XML formats)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R PLIST",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "pmp": {
+        "extension": "pmp",
+        "file type": [
+            "PMP"
+        ],
+        "support": "R",
+        "description": "Sony DSC-F1 Cyber-Shot image",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Sony",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "png": {
+        "extension": "png",
+        "file type": [
+            "PNG",
+            "JNG",
+            "MNG"
+        ],
+        "support": "R/W",
+        "description": "Portable/JPEG/Multiple-image Network Graphics",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W/C PNG",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "jng": {
+        "extension": "jng",
+        "file type": [
+            "PNG",
+            "JNG",
+            "MNG"
+        ],
+        "support": "R/W",
+        "description": "Portable/JPEG/Multiple-image Network Graphics",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W/C PNG",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "mng": {
+        "extension": "mng",
+        "file type": [
+            "PNG",
+            "JNG",
+            "MNG"
+        ],
+        "support": "R/W",
+        "description": "Portable/JPEG/Multiple-image Network Graphics",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W/C PNG",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "ppm": {
+        "extension": "ppm",
+        "file type": [
+            "PPM",
+            "PBM",
+            "PGM"
+        ],
+        "support": "R/W",
+        "description": "Portable Pixel/Bit/Gray Map",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R PPM, R/W/C Comment",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "pbm": {
+        "extension": "pbm",
+        "file type": [
+            "PPM",
+            "PBM",
+            "PGM"
+        ],
+        "support": "R/W",
+        "description": "Portable Pixel/Bit/Gray Map",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R PPM, R/W/C Comment",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "pgm": {
+        "extension": "pgm",
+        "file type": [
+            "PPM",
+            "PBM",
+            "PGM"
+        ],
+        "support": "R/W",
+        "description": "Portable Pixel/Bit/Gray Map",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R PPM, R/W/C Comment",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "ppt": {
+        "extension": "ppt",
+        "file type": [
+            "PPT",
+            "PPS",
+            "POT"
+        ],
+        "support": "R",
+        "description": "PowerPoint Presentation/Slideshow/Template (FPX-like)",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R",
+        "icc": "R",
+        "other": "R FlashPix",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "pps": {
+        "extension": "pps",
+        "file type": [
+            "PPT",
+            "PPS",
+            "POT"
+        ],
+        "support": "R",
+        "description": "PowerPoint Presentation/Slideshow/Template (FPX-like)",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R",
+        "icc": "R",
+        "other": "R FlashPix",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "pot": {
+        "extension": "pot",
+        "file type": [
+            "PPT",
+            "PPS",
+            "POT"
+        ],
+        "support": "R",
+        "description": "PowerPoint Presentation/Slideshow/Template (FPX-like)",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R",
+        "icc": "R",
+        "other": "R FlashPix",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "potx": {
+        "extension": "potx",
+        "file type": [
+            "POTX",
+            "POTM"
+        ],
+        "support": "R",
+        "description": "Office Open XML Presentation Template [Macro-enabled]",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "potm": {
+        "extension": "potm",
+        "file type": [
+            "POTX",
+            "POTM"
+        ],
+        "support": "R",
+        "description": "Office Open XML Presentation Template [Macro-enabled]",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "ppax": {
+        "extension": "ppax",
+        "file type": [
+            "PPAX",
+            "PPAM"
+        ],
+        "support": "R",
+        "description": "Office Open XML Presentation Addin [Macro-enabled]",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "ppam": {
+        "extension": "ppam",
+        "file type": [
+            "PPAX",
+            "PPAM"
+        ],
+        "support": "R",
+        "description": "Office Open XML Presentation Addin [Macro-enabled]",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "ppsx": {
+        "extension": "ppsx",
+        "file type": [
+            "PPSX",
+            "PPSM"
+        ],
+        "support": "R",
+        "description": "Office Open XML Presentation Slideshow [Macro-enabled]",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "ppsm": {
+        "extension": "ppsm",
+        "file type": [
+            "PPSX",
+            "PPSM"
+        ],
+        "support": "R",
+        "description": "Office Open XML Presentation Slideshow [Macro-enabled]",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "pptx": {
+        "extension": "pptx",
+        "file type": [
+            "PPTX",
+            "PPTM"
+        ],
+        "support": "R",
+        "description": "Office Open XML Presentation [Macro-enabled]",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "pptm": {
+        "extension": "pptm",
+        "file type": [
+            "PPTX",
+            "PPTM"
+        ],
+        "support": "R",
+        "description": "Office Open XML Presentation [Macro-enabled]",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "psd": {
+        "extension": "psd",
+        "file type": [
+            "PSD",
+            "PSB",
+            "PSDT"
+        ],
+        "support": "R/W",
+        "description": "PhotoShop Document / Large Document / Template",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R Photoshop",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "psb": {
+        "extension": "psb",
+        "file type": [
+            "PSD",
+            "PSB",
+            "PSDT"
+        ],
+        "support": "R/W",
+        "description": "PhotoShop Document / Large Document / Template",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R Photoshop",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "psdt": {
+        "extension": "psdt",
+        "file type": [
+            "PSD",
+            "PSB",
+            "PSDT"
+        ],
+        "support": "R/W",
+        "description": "PhotoShop Document / Large Document / Template",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R Photoshop",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "psp": {
+        "extension": "psp",
+        "file type": [
+            "PSP",
+            "PSPIMAGE"
+        ],
+        "support": "R",
+        "description": "Paint Shop Pro",
+        "exif": "R",
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R PSP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "pspimage": {
+        "extension": "pspimage",
+        "file type": [
+            "PSP",
+            "PSPIMAGE"
+        ],
+        "support": "R",
+        "description": "Paint Shop Pro",
+        "exif": "R",
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R PSP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "qtif": {
+        "extension": "qtif",
+        "file type": [
+            "QTIF",
+            "QTI",
+            "QIF"
+        ],
+        "support": "R/W",
+        "description": "QuickTime Image File",
+        "exif": "R/W",
+        "iptc": "R/W",
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W/C QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "qti": {
+        "extension": "qti",
+        "file type": [
+            "QTIF",
+            "QTI",
+            "QIF"
+        ],
+        "support": "R/W",
+        "description": "QuickTime Image File",
+        "exif": "R/W",
+        "iptc": "R/W",
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W/C QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "qif": {
+        "extension": "qif",
+        "file type": [
+            "QTIF",
+            "QTI",
+            "QIF"
+        ],
+        "support": "R/W",
+        "description": "QuickTime Image File",
+        "exif": "R/W",
+        "iptc": "R/W",
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W/C QuickTime",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "r3d": {
+        "extension": "r3d",
+        "file type": [
+            "R3D"
+        ],
+        "support": "R",
+        "description": "Redcode RAW video",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Red",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "ra": {
+        "extension": "ra",
+        "file type": [
+            "RA"
+        ],
+        "support": "R",
+        "description": "Real Audio",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Real ID3 Lyrics3",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "raf": {
+        "extension": "raf",
+        "file type": [
+            "RAF"
+        ],
+        "support": "R/W",
+        "description": "FujiFilm RAW Format",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W FujiFilm",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "ram": {
+        "extension": "ram",
+        "file type": [
+            "RAM",
+            "RPM"
+        ],
+        "support": "R",
+        "description": "Real Audio/Plug-in Metafile",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Real",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "rpm": {
+        "extension": "rpm",
+        "file type": [
+            "RAM",
+            "RPM"
+        ],
+        "support": "R",
+        "description": "Real Audio/Plug-in Metafile",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Real",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "rar": {
+        "extension": "rar",
+        "file type": [
+            "RAR"
+        ],
+        "support": "R",
+        "description": "RAR Archive",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "raw": {
+        "extension": "raw",
+        "file type": [
+            "RAW"
+        ],
+        "support": "R/W",
+        "description": "Panasonic RAW (TIFF-based)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W PanasonicRaw Panasonic",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "riff": {
+        "extension": "riff",
+        "file type": [
+            "RIFF",
+            "RIF"
+        ],
+        "support": "R",
+        "description": "Resource Interchange File Format",
+        "exif": "R",
+        "iptc": null,
+        "xmp": "R",
+        "icc": null,
+        "other": "R RIFF",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "rif": {
+        "extension": "rif",
+        "file type": [
+            "RIFF",
+            "RIF"
+        ],
+        "support": "R",
+        "description": "Resource Interchange File Format",
+        "exif": "R",
+        "iptc": null,
+        "xmp": "R",
+        "icc": null,
+        "other": "R RIFF",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "rm": {
+        "extension": "rm",
+        "file type": [
+            "RM",
+            "RV",
+            "RMVB"
+        ],
+        "support": "R",
+        "description": "Real Media/Video [Variable Bitrate]",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Real",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "rv": {
+        "extension": "rv",
+        "file type": [
+            "RM",
+            "RV",
+            "RMVB"
+        ],
+        "support": "R",
+        "description": "Real Media/Video [Variable Bitrate]",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Real",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "rmvb": {
+        "extension": "rmvb",
+        "file type": [
+            "RM",
+            "RV",
+            "RMVB"
+        ],
+        "support": "R",
+        "description": "Real Media/Video [Variable Bitrate]",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Real",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "rsrc": {
+        "extension": "rsrc",
+        "file type": [
+            "RSRC"
+        ],
+        "support": "R",
+        "description": "Mac OS Resource",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R RSRC Photoshop PostScript Font",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "rtf": {
+        "extension": "rtf",
+        "file type": [
+            "RTF"
+        ],
+        "support": "R",
+        "description": "Rich Text Format",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R RTF",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "rw2": {
+        "extension": "rw2",
+        "file type": [
+            "RW2"
+        ],
+        "support": "R/W",
+        "description": "Panasonic RAW 2 (TIFF-based)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W PanasonicRaw Panasonic",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "rwl": {
+        "extension": "rwl",
+        "file type": [
+            "RWL"
+        ],
+        "support": "R/W",
+        "description": "Leica RAW (TIFF-based)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W PanasonicRaw Panasonic",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "rwz": {
+        "extension": "rwz",
+        "file type": [
+            "RWZ"
+        ],
+        "support": "R",
+        "description": "Rawzor compressed image",
+        "exif": "R",
+        "iptc": "R",
+        "xmp": "R",
+        "icc": "R",
+        "other": "R Rawzor",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "seq": {
+        "extension": "seq",
+        "file type": [
+            "SEQ"
+        ],
+        "support": "R",
+        "description": "FLIR Systems image Sequence",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R FLIR",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "sketch": {
+        "extension": "sketch",
+        "file type": [
+            "SKETCH"
+        ],
+        "support": "R",
+        "description": "Sketch design file",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R JSON ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "so": {
+        "extension": "so",
+        "file type": [
+            "SO"
+        ],
+        "support": "R",
+        "description": "Unix ELF executable and Shared Object files",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R EXE",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "sr2": {
+        "extension": "sr2",
+        "file type": [
+            "SR2"
+        ],
+        "support": "R/W",
+        "description": "Sony RAW 2 (TIFF-based)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W Sony",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "srf": {
+        "extension": "srf",
+        "file type": [
+            "SRF"
+        ],
+        "support": "R",
+        "description": "Sony RAW Format (TIFF-based)",
+        "exif": "R",
+        "iptc": "R",
+        "xmp": "R",
+        "icc": "R",
+        "other": "R Sony",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "srw": {
+        "extension": "srw",
+        "file type": [
+            "SRW"
+        ],
+        "support": "R/W",
+        "description": "Samsung RAW format (TIFF-based)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W Samsung",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "svg": {
+        "extension": "svg",
+        "file type": [
+            "SVG"
+        ],
+        "support": "R",
+        "description": "Scalable Vector Graphics (XML-based)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R SVG",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "swf": {
+        "extension": "swf",
+        "file type": [
+            "SWF"
+        ],
+        "support": "R",
+        "description": "Shockwave Flash",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R",
+        "icc": null,
+        "other": "R Flash",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "thm": {
+        "extension": "thm",
+        "file type": [
+            "THM"
+        ],
+        "support": "R/W",
+        "description": "Thumbnail image (JPEG)",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "Supported JPEG Meta Information",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "thmx": {
+        "extension": "thmx",
+        "file type": [
+            "THMX"
+        ],
+        "support": "R",
+        "description": "Office Open XML Theme",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "tiff": {
+        "extension": "tiff",
+        "file type": [
+            "TIFF",
+            "TIF"
+        ],
+        "support": "R/W",
+        "description": "Tagged Image File Format",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W/C GeoTIFF, R/W Trailers",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "tif": {
+        "extension": "tif",
+        "file type": [
+            "TIFF",
+            "TIF"
+        ],
+        "support": "R/W",
+        "description": "Tagged Image File Format",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W/C GeoTIFF, R/W Trailers",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "ttf": {
+        "extension": "ttf",
+        "file type": [
+            "TTF",
+            "TTC"
+        ],
+        "support": "R",
+        "description": "True Type Font/Collection",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Font",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "ttc": {
+        "extension": "ttc",
+        "file type": [
+            "TTF",
+            "TTC"
+        ],
+        "support": "R",
+        "description": "True Type Font/Collection",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Font",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "torrent": {
+        "extension": "torrent",
+        "file type": [
+            "TORRENT"
+        ],
+        "support": "R",
+        "description": "BitTorrent description file",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Torrent",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "txt": {
+        "extension": "txt",
+        "file type": [
+            "TXT"
+        ],
+        "support": "R",
+        "description": "Text files",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Text",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "vcf": {
+        "extension": "vcf",
+        "file type": [
+            "VCF",
+            "VCARD"
+        ],
+        "support": "R",
+        "description": "Virtual Card",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R VCard",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "vcard": {
+        "extension": "vcard",
+        "file type": [
+            "VCF",
+            "VCARD"
+        ],
+        "support": "R",
+        "description": "Virtual Card",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R VCard",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "vob": {
+        "extension": "vob",
+        "file type": [
+            "VOB"
+        ],
+        "support": "R",
+        "description": "Video Object (MPEG-based)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R MPEG",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "vrd": {
+        "extension": "vrd",
+        "file type": [
+            "VRD"
+        ],
+        "support": "R/W/C",
+        "description": "Canon DPP Recipe Data",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": "R/W/C CanonVRD",
+        "read": true,
+        "write": true,
+        "create": true
+    },
+    "vsd": {
+        "extension": "vsd",
+        "file type": [
+            "VSD"
+        ],
+        "support": "R",
+        "description": "Microsoft Visio Drawing (FPX-like)",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R",
+        "icc": "R",
+        "other": "R FlashPix",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "wav": {
+        "extension": "wav",
+        "file type": [
+            "WAV"
+        ],
+        "support": "R",
+        "description": "Windows digital audio WAVeform (RIFF-based)",
+        "exif": "R",
+        "iptc": null,
+        "xmp": "R",
+        "icc": null,
+        "other": "R RIFF",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "webm": {
+        "extension": "webm",
+        "file type": [
+            "WEBM"
+        ],
+        "support": "R",
+        "description": "Google Web Movie (Matroska-based)",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R Matroska",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "webp": {
+        "extension": "webp",
+        "file type": [
+            "WEBP"
+        ],
+        "support": "R",
+        "description": "Google Web Picture (RIFF-based)",
+        "exif": "R",
+        "iptc": null,
+        "xmp": "R",
+        "icc": null,
+        "other": "R RIFF",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "wma": {
+        "extension": "wma",
+        "file type": [
+            "WMA",
+            "WMV"
+        ],
+        "support": "R",
+        "description": "Windows Media Audio/Video (ASF-based)",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R",
+        "icc": null,
+        "other": "R ASF",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "wmv": {
+        "extension": "wmv",
+        "file type": [
+            "WMA",
+            "WMV"
+        ],
+        "support": "R",
+        "description": "Windows Media Audio/Video (ASF-based)",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R",
+        "icc": null,
+        "other": "R ASF",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "wtv": {
+        "extension": "wtv",
+        "file type": [
+            "WTV"
+        ],
+        "support": "R",
+        "description": "Windows recorded TV show",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R WTV",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "wv": {
+        "extension": "wv",
+        "file type": [
+            "WV"
+        ],
+        "support": "R",
+        "description": "WavePack lossless audio (RIFF-based)",
+        "exif": "R",
+        "iptc": null,
+        "xmp": "R",
+        "icc": null,
+        "other": "R RIFF",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "x3f": {
+        "extension": "x3f",
+        "file type": [
+            "X3F"
+        ],
+        "support": "R/W",
+        "description": "Sigma/Foveon RAW",
+        "exif": "R/W/C",
+        "iptc": "R/W/C",
+        "xmp": "R/W/C",
+        "icc": "R/W/C",
+        "other": "R/W Sigma, R SigmaRaw",
+        "read": true,
+        "write": true,
+        "create": false
+    },
+    "xcf": {
+        "extension": "xcf",
+        "file type": [
+            "XCF"
+        ],
+        "support": "R",
+        "description": "GIMP native image format",
+        "exif": "R",
+        "iptc": "R",
+        "xmp": "R",
+        "icc": "R",
+        "other": "R GIMP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "xls": {
+        "extension": "xls",
+        "file type": [
+            "XLS",
+            "XLT"
+        ],
+        "support": "R",
+        "description": "Microsoft Excel Spreadsheet/Template (FPX-like)",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R",
+        "icc": "R",
+        "other": "R FlashPix",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "xlt": {
+        "extension": "xlt",
+        "file type": [
+            "XLS",
+            "XLT"
+        ],
+        "support": "R",
+        "description": "Microsoft Excel Spreadsheet/Template (FPX-like)",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R",
+        "icc": "R",
+        "other": "R FlashPix",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "xlsx": {
+        "extension": "xlsx",
+        "file type": [
+            "XLSX",
+            "XLSM",
+            "XLSB"
+        ],
+        "support": "R",
+        "description": "Office Open XML Spreadsheet [Macro-enabled/Binary]",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "xlsm": {
+        "extension": "xlsm",
+        "file type": [
+            "XLSX",
+            "XLSM",
+            "XLSB"
+        ],
+        "support": "R",
+        "description": "Office Open XML Spreadsheet [Macro-enabled/Binary]",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "xlsb": {
+        "extension": "xlsb",
+        "file type": [
+            "XLSX",
+            "XLSM",
+            "XLSB"
+        ],
+        "support": "R",
+        "description": "Office Open XML Spreadsheet [Macro-enabled/Binary]",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "xltx": {
+        "extension": "xltx",
+        "file type": [
+            "XLTX",
+            "XLTM"
+        ],
+        "support": "R",
+        "description": "Office Open XML Spreadsheet Template [Macro-enabled]",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "xltm": {
+        "extension": "xltm",
+        "file type": [
+            "XLTX",
+            "XLTM"
+        ],
+        "support": "R",
+        "description": "Office Open XML Spreadsheet Template [Macro-enabled]",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R XML ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    },
+    "xmp": {
+        "extension": "xmp",
+        "file type": [
+            "XMP"
+        ],
+        "support": "R/W/C",
+        "description": "Extensible Metadata Platform sidecar file",
+        "exif": null,
+        "iptc": null,
+        "xmp": "R/W/C",
+        "icc": null,
+        "other": null,
+        "read": true,
+        "write": true,
+        "create": true
+    },
+    "zip": {
+        "extension": "zip",
+        "file type": [
+            "ZIP"
+        ],
+        "support": "R",
+        "description": "ZIP archive",
+        "exif": null,
+        "iptc": null,
+        "xmp": null,
+        "icc": null,
+        "other": "R ZIP",
+        "read": true,
+        "write": false,
+        "create": false
+    }
+}

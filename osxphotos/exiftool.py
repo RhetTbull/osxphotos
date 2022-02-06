@@ -11,6 +11,7 @@ import html
 import json
 import logging
 import os
+import pathlib
 import re
 import shutil
 import subprocess
@@ -19,11 +20,12 @@ from functools import lru_cache  # pylint: disable=syntax-error
 
 __all__ = [
     "escape_str",
-    "unescape_str",
-    "terminate_exiftool",
-    "get_exiftool_path",
+    "exiftool_can_write",
     "ExifTool",
     "ExifToolCaching",
+    "get_exiftool_path",
+    "terminate_exiftool",
+    "unescape_str",
 ]
 
 # exiftool -stay_open commands outputs this EOF marker after command is run
@@ -32,6 +34,24 @@ EXIFTOOL_STAYOPEN_EOF_LEN = len(EXIFTOOL_STAYOPEN_EOF)
 
 # list of exiftool processes to cleanup when exiting or when terminate is called
 EXIFTOOL_PROCESSES = []
+
+# exiftool supported file types, created by utils/exiftool_supported_types.py
+EXIFTOOL_FILETYPES_JSON = "exiftool_filetypes.json"
+with (pathlib.Path(__file__).parent / EXIFTOOL_FILETYPES_JSON).open("r") as f:
+    EXIFTOOL_SUPPORTED_FILETYPES = json.load(f)
+
+
+def exiftool_can_write(suffix: str) -> bool:
+    """Return True if exiftool supports writing to a file with the given suffix, otherwise False"""
+    if not suffix:
+        return False
+    suffix = suffix.lower()
+    if suffix[0] == ".":
+        suffix = suffix[1:]
+    return (
+        suffix in EXIFTOOL_SUPPORTED_FILETYPES
+        and EXIFTOOL_SUPPORTED_FILETYPES[suffix]["write"]
+    )
 
 
 def escape_str(s):

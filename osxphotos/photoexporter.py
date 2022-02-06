@@ -3,7 +3,6 @@
 
 
 import dataclasses
-import glob
 import hashlib
 import json
 import logging
@@ -33,7 +32,7 @@ from ._constants import (
 )
 from ._version import __version__
 from .datetime_utils import datetime_tz_to_utc
-from .exiftool import ExifTool
+from .exiftool import ExifTool, exiftool_can_write
 from .export_db import ExportDB_ABC, ExportDBNoOp
 from .fileutil import FileUtil
 from .photokit import (
@@ -1260,11 +1259,20 @@ class PhotoExporter:
 
         exiftool_results = ExportResults()
 
+        # don't try to write if unsupported file type for exiftool
+        if not exiftool_can_write(os.path.splitext(src)[-1]):
+            exiftool_results.exiftool_warning.append(
+                (
+                    dest,
+                    f"Unsupported file type for exiftool, skipping exiftool for {dest}",
+                )
+            )
+            return exiftool_results
+
         # determine if we need to write the exif metadata
         # if we are not updating, we always write
         # else, need to check the database to determine if we need to write
         run_exiftool = not options.update
-        current_data = "foo"
         if options.update:
             files_are_different = False
             old_data = export_db.get_exifdata_for_file(dest)
