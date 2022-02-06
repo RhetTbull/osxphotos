@@ -1267,6 +1267,13 @@ class PhotoExporter:
                     f"Unsupported file type for exiftool, skipping exiftool for {dest}",
                 )
             )
+            # set file signature so the file doesn't get re-exported with --update
+            export_db.set_data(
+                dest,
+                uuid=self.photo.uuid,
+                exif_stat=fileutil.file_sig(src),
+                exif_json=self._exiftool_json_sidecar(options=options),
+            )
             return exiftool_results
 
         # determine if we need to write the exif metadata
