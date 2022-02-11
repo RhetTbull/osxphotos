@@ -637,6 +637,14 @@ class ExportDB(ExportDB_ABC):
             else:
                 self.was_upgraded = ()
         self.version = OSXPHOTOS_EXPORTDB_VERSION
+
+        # turn on performance optimizations
+        c = conn.cursor()
+        c.execute("PRAGMA journal_mode=WAL;")
+        c.execute("PRAGMA synchronous=NORMAL;")
+        c.execute("PRAGMA cache_size=-100000;")
+        c.execute("PRAGMA temp_store=MEMORY;")
+
         return conn
 
     def _get_db_connection(self, dbfile):
