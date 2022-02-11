@@ -2087,6 +2087,8 @@ def export(
 
     # cleanup files and do report if needed
     if cleanup:
+        db_file = str(pathlib.Path(export_db_path).resolve())
+        db_files = [db_file, db_file + "-wal", db_file + "-shm"]
         all_files = (
             results.exported
             + results.skipped
@@ -2105,7 +2107,7 @@ def export(
             + results.missing
             # include files that have error in case they exist from previous export
             + [r[0] for r in results.error]
-            + [str(pathlib.Path(export_db_path).resolve())]
+            + db_files
         )
         click.echo(f"Cleaning up {dest}")
         cleaned_files, cleaned_dirs = cleanup_files(dest, all_files, fileutil)
