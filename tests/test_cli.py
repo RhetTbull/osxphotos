@@ -1972,6 +1972,89 @@ def test_export_exiftool():
 
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+def test_export_exiftool_template_change():
+    """Test --exiftool when template changes with --update, #630"""
+    import glob
+    import os
+    import os.path
+
+    from osxphotos.cli import export
+    from osxphotos.exiftool import ExifTool
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        for uuid in CLI_EXIFTOOL:
+            # export with --exiftool
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--exiftool",
+                    "--uuid",
+                    f"{uuid}",
+                ],
+            )
+            assert result.exit_code == 0
+
+            # export with --update, should be no change
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--exiftool",
+                    "--update",
+                    "--uuid",
+                    f"{uuid}",
+                ],
+            )
+            assert result.exit_code == 0
+            assert "exported: 0" in result.output
+
+            # export with --update and template change, should export
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--exiftool",
+                    "--keyword-template",
+                    "FOO",
+                    "--update",
+                    "--uuid",
+                    f"{uuid}",
+                ],
+            )
+            assert result.exit_code == 0
+            assert "updated EXIF data: 1" in result.output
+
+
+            # export with --update, nothing should export
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--exiftool",
+                    "--keyword-template",
+                    "FOO",
+                    "--update",
+                    "--uuid",
+                    f"{uuid}",
+                ],
+            )
+            assert result.exit_code == 0
+            assert "exported: 0" in result.output
+            assert "updated EXIF data: 0" in result.output
+
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool_path():
     """test --exiftool with --exiftool-path"""
     import glob
@@ -4721,7 +4804,7 @@ def test_export_update_basic():
         )
         assert result.exit_code == 0
         assert (
-            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: 0, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, updated EXIF data: 0, missing: 2, error: 0"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: 0, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, updated EXIF data: 0, missing: 3, error: 0"
             in result.output
         )
 
@@ -4838,7 +4921,7 @@ def test_export_update_exiftool():
         )
         assert result.exit_code == 0
         assert (
-            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, skipped: 0, updated EXIF data: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, missing: 2, error: 1"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, skipped: 0, updated EXIF data: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, missing: 3, error: 1"
             in result.output
         )
 
@@ -4885,7 +4968,7 @@ def test_export_update_hardlink():
         )
         assert result.exit_code == 0
         assert (
-            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, skipped: 0, updated EXIF data: 0, missing: 2, error: 0"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, skipped: 0, updated EXIF data: 0, missing: 3, error: 0"
             in result.output
         )
         assert not os.path.samefile(CLI_EXPORT_UUID_FILENAME, photo.path)
@@ -4924,7 +5007,7 @@ def test_export_update_hardlink_exiftool():
         )
         assert result.exit_code == 0
         assert (
-            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, skipped: 0, updated EXIF data: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, missing: 2, error: 1"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, skipped: 0, updated EXIF data: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, missing: 3, error: 1"
             in result.output
         )
         assert not os.path.samefile(CLI_EXPORT_UUID_FILENAME, photo.path)
@@ -4962,7 +5045,7 @@ def test_export_update_edits():
         )
         assert result.exit_code == 0
         assert (
-            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 1, updated: 1, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7-2}, updated EXIF data: 0, missing: 2, error: 0"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 1, updated: 1, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7-2}, updated EXIF data: 0, missing: 3, error: 0"
             in result.output
         )
 
@@ -5060,7 +5143,7 @@ def test_export_update_no_db():
         # edited files will be re-exported because there won't be an edited signature
         # in the database
         assert (
-            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: {PHOTOS_EDITED_15_7}, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7}, updated EXIF data: 0, missing: 2, error: 0"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: {PHOTOS_EDITED_15_7}, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7}, updated EXIF data: 0, missing: 3, error: 0"
             in result.output
         )
         assert os.path.isfile(OSXPHOTOS_EXPORT_DB)
@@ -5100,7 +5183,7 @@ def test_export_then_hardlink():
         )
         assert result.exit_code == 0
         assert (
-            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, missing: 2, error: 0"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, missing: 3, error: 0"
             in result.output
         )
         assert os.path.samefile(CLI_EXPORT_UUID_FILENAME, photo.path)
@@ -5125,7 +5208,7 @@ def test_export_dry_run():
         )
         assert result.exit_code == 0
         assert (
-            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, missing: 2, error: 0"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, missing: 3, error: 0"
             in result.output
         )
         for filepath in CLI_EXPORT_FILENAMES_DRY_RUN:
@@ -5171,7 +5254,7 @@ def test_export_update_edits_dry_run():
         )
         assert result.exit_code == 0
         assert (
-            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 1, updated: 1, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7-2}, updated EXIF data: 0, missing: 2, error: 0"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 1, updated: 1, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7-2}, updated EXIF data: 0, missing: 3, error: 0"
             in result.output
         )
 

@@ -1007,6 +1007,9 @@ class PhotoExporter:
                 elif options.exiftool:
                     sig_exif = export_db.get_stat_exif_for_file(dest_str)
                     cmp_orig = fileutil.cmp_file_sig(dest_str, sig_exif)
+                    if cmp_orig:
+                        # if signatures match also need to compare exifdata to see if metadata changed
+                        cmp_orig = not self._should_run_exiftool(dest_str, options)
                     sig_exif = (
                         sig_exif[0],
                         sig_exif[1],
@@ -1303,27 +1306,7 @@ class PhotoExporter:
         # determine if we need to write the exif metadata
         # if we are not updating, we always write
         # else, need to check the database to determine if we need to write
-        run_exiftool = not options.update
-        if options.update:
-            files_are_different = False
-            old_data = export_db.get_exifdata_for_file(dest)
-            if old_data is not None:
-                old_data = json.loads(old_data)[0]
-                current_data = json.loads(self._exiftool_json_sidecar(options=options))[
-                    0
-                ]
-                if old_data != current_data:
-                    files_are_different = True
-
-            if old_data is None or files_are_different:
-                # didn't have old data, assume we need to write it
-                # or files were different
-                run_exiftool = True
-            else:
-                verbose(
-                    f"Skipped up to date exiftool metadata for {pathlib.Path(dest).name}"
-                )
-
+        run_exiftool = self._should_run_exiftool(dest, options)
         if run_exiftool:
             verbose(f"Writing metadata with exiftool for {pathlib.Path(dest).name}")
             if not options.dry_run:
@@ -1342,7 +1325,31 @@ class PhotoExporter:
             )
             exiftool_results.exif_updated.append(dest)
             exiftool_results.to_touch.append(dest)
+        else:
+            verbose(
+                f"Skipped up to date exiftool metadata for {pathlib.Path(dest).name}"
+            )
         return exiftool_results
+
+    def _should_run_exiftool(self, dest, options: ExportOptions) -> bool:
+        """Return True if exiftool should be run to update metadata"""
+        run_exiftool = not options.update
+        if options.update:
+            files_are_different = False
+            old_data = options.export_db.get_exifdata_for_file(dest)
+            if old_data is not None:
+                old_data = json.loads(old_data)[0]
+                current_data = json.loads(self._exiftool_json_sidecar(options=options))[
+                    0
+                ]
+                if old_data != current_data:
+                    files_are_different = True
+
+            if old_data is None or files_are_different:
+                # didn't have old data, assume we need to write it
+                # or files were different
+                run_exiftool = True
+        return run_exiftool
 
     def _write_exif_data(self, filepath: str, options: ExportOptions):
         """write exif data to image file at filepath
