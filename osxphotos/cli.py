@@ -3043,52 +3043,23 @@ def export_photo_to_directory(
     """Export photo to directory dest_path"""
 
     results = ExportResults()
-    # TODO: can be updated to let export do all the missing logic
-    if export_original:
-        if missing and not preview_if_missing:
-            space = " " if not verbose else ""
-            verbose_(
-                f"{space}Skipping missing photo {photo.original_filename} ({photo.uuid})"
-            )
-            results.missing.append(str(pathlib.Path(dest_path) / filename))
-        elif (
-            photo.intrash
-            and (not photo.path or (download_missing or use_photos_export))
-            and not preview_if_missing
-        ):
-            # skip deleted files if they're missing or using use_photos_export
-            # as AppleScript/PhotoKit cannot export deleted photos
-            space = " " if not verbose else ""
-            verbose_(
-                f"{space}Skipping missing deleted photo {photo.original_filename} ({photo.uuid})"
-            )
-            results.missing.append(str(pathlib.Path(dest_path) / filename))
-            return results
-    elif not edited:
-        verbose_(f"Skipping original version of {photo.original_filename}")
+
+    # don't try to export photos in the trash if they're missing
+    photo_path = photo.path if export_original else photo.path_edited
+    if photo.intrash and not photo_path and not preview_if_missing:
+        # skip deleted files if they're missing
+        # as AppleScript/PhotoKit cannot export deleted photos
+        verbose_(
+            f"Skipping missing deleted photo {photo.original_filename} ({photo.uuid})"
+        )
+        results.missing.append(str(pathlib.Path(dest_path) / filename))
         return results
-    else:
-        # exporting the edited version
-        if missing and not preview_if_missing:
-            space = " " if not verbose else ""
-            verbose_(f"{space}Skipping missing edited photo for {filename}")
-            results.missing.append(str(pathlib.Path(dest_path) / filename))
-            return results
-        elif (
-            photo.intrash
-            and (not photo.path_edited or (download_missing or use_photos_export))
-            and not preview_if_missing
-        ):
-            # skip deleted files if they're missing or using use_photos_export
-            # as AppleScript/PhotoKit cannot export deleted photos
-            space = " " if not verbose else ""
-            verbose_(
-                f"{space}Skipping missing deleted photo {photo.original_filename} ({photo.uuid})"
-            )
-            results.missing.append(str(pathlib.Path(dest_path) / filename))
-            return results
 
     render_options = RenderOptions(export_dir=export_dir, dest_path=dest_path)
+
+    if not export_original and not edited:
+        verbose_(f"Skipping original version of {photo.original_filename}")
+        return results
 
     tries = 0
     while tries <= retry:

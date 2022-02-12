@@ -449,71 +449,95 @@ class PhotoExporter:
                 dest,
                 options=options,
             )
+        else:
+            verbose(
+                f"Skipping missing {'edited' if options.edited else 'original'} photo {self.photo.original_filename} ({self.photo.uuid})"
+            )
+            all_results.missing.append(dest)
 
         # copy live photo associated .mov if requested
-        if (
-            export_original
-            and options.live_photo
-            and self.photo.live_photo
-            and staged_files.original_live
-        ):
+        if export_original and options.live_photo and self.photo.live_photo:
             live_name = dest.parent / f"{dest.stem}.mov"
-            src_live = staged_files.original_live
-            all_results += self._export_photo(
-                src_live,
-                live_name,
-                # don't try to convert the live photo
-                options=dataclasses.replace(options, convert_to_jpeg=False),
-            )
+            if staged_files.original_live:
+                src_live = staged_files.original_live
+                all_results += self._export_photo(
+                    src_live,
+                    live_name,
+                    # don't try to convert the live photo
+                    options=dataclasses.replace(options, convert_to_jpeg=False),
+                )
+            else:
+                verbose(
+                    f"Skipping missing live photo for {self.photo.original_filename} ({self.photo.uuid})"
+                )
+                all_results.missing.append(live_name)
 
-        if (
-            export_edited
-            and options.live_photo
-            and self.photo.live_photo
-            and staged_files.edited_live
-        ):
+        if export_edited and options.live_photo and self.photo.live_photo:
             live_name = dest.parent / f"{dest.stem}.mov"
-            src_live = staged_files.edited_live
-            all_results += self._export_photo(
-                src_live,
-                live_name,
-                # don't try to convert the live photo
-                options=dataclasses.replace(options, convert_to_jpeg=False),
-            )
+            if staged_files.edited_live:
+                src_live = staged_files.edited_live
+                all_results += self._export_photo(
+                    src_live,
+                    live_name,
+                    # don't try to convert the live photo
+                    options=dataclasses.replace(options, convert_to_jpeg=False),
+                )
+            else:
+                verbose(
+                    f"Skipping missing edited live photo for {self.photo.original_filename} ({self.photo.uuid})"
+                )
+                all_results.missing.append(live_name)
 
         # copy associated RAW image if requested
-        if options.raw_photo and self.photo.has_raw and staged_files.raw:
-            raw_path = pathlib.Path(staged_files.raw)
-            raw_ext = raw_path.suffix
-            raw_name = dest.parent / f"{dest.stem}{raw_ext}"
-            all_results += self._export_photo(
-                raw_path,
-                raw_name,
-                options=options,
-            )
+        if options.raw_photo and self.photo.has_raw:
+            if staged_files.raw:
+                raw_path = pathlib.Path(staged_files.raw)
+                raw_ext = raw_path.suffix
+                raw_name = dest.parent / f"{dest.stem}{raw_ext}"
+                all_results += self._export_photo(
+                    raw_path,
+                    raw_name,
+                    options=options,
+                )
+            else:
+                # guess at most likely raw name
+                raw_ext = get_preferred_uti_extension(self.photo.uti_raw) or "raw"
+                raw_name = dest.parent / f"{dest.stem}.{raw_ext}"
+                all_results.missing.append(raw_name)
+                verbose(
+                    f"Skipping missing raw photo for {self.photo.original_filename} ({self.photo.uuid})"
+                )
 
         # copy preview image if requested
-        if options.preview and staged_files.preview:
-            # Photos keeps multiple different derivatives and path_derivatives returns list of them
-            # first derivative is the largest so export that one
-            preview_path = pathlib.Path(staged_files.preview)
-            preview_ext = preview_path.suffix
-            preview_name = (
-                dest.parent / f"{dest.stem}{options.preview_suffix}{preview_ext}"
-            )
-            # if original is missing, the filename won't have been incremented so
-            # need to check here to make sure there aren't duplicate preview files in
-            # the export directory
-            preview_name = (
-                preview_name
-                if options.overwrite or options.update
-                else pathlib.Path(increment_filename(preview_name))
-            )
-            all_results += self._export_photo(
-                preview_path,
-                preview_name,
-                options=options,
-            )
+        if options.preview:
+            if staged_files.preview:
+                # Photos keeps multiple different derivatives and path_derivatives returns list of them
+                # first derivative is the largest so export that one
+                preview_path = pathlib.Path(staged_files.preview)
+                preview_ext = preview_path.suffix
+                preview_name = (
+                    dest.parent / f"{dest.stem}{options.preview_suffix}{preview_ext}"
+                )
+                # if original is missing, the filename won't have been incremented so
+                # need to check here to make sure there aren't duplicate preview files in
+                # the export directory
+                preview_name = (
+                    preview_name
+                    if options.overwrite or options.update
+                    else pathlib.Path(increment_filename(preview_name))
+                )
+                all_results += self._export_photo(
+                    preview_path,
+                    preview_name,
+                    options=options,
+                )
+            else:
+                # don't know what actual preview suffix would be but most likely jpeg
+                preview_name = dest.parent / f"{dest.stem}{options.preview_suffix}.jpeg"
+                all_results.missing.append(preview_name)
+                verbose(
+                    f"Skipping missing preview photo for {self.photo.original_filename} ({self.photo.uuid})"
+                )
 
         all_results += self._write_sidecar_files(dest=dest, options=options)
 
