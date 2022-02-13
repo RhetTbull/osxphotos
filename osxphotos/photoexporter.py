@@ -82,6 +82,7 @@ class ExportOptions:
         exiftool: (bool, default = False): if True, will use exiftool to write metadata to export file
         export_as_hardlink: (bool, default=False): if True, will hardlink files instead of copying them
         export_db: (ExportDB_ABC): instance of a class that conforms to ExportDB_ABC with methods for getting/setting data related to exported files to compare update state
+        face_regions: (bool, default=True): if True, will export face regions
         fileutil: (FileUtilABC): class that conforms to FileUtilABC with various file utilities
         force_update: (bool, default=False): if True, will export photo if any metadata has changed but export otherwise would not be triggered (e.g. metadata changed but not using exiftool)
         ignore_date_modified (bool): for use with sidecar and exiftool; if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
@@ -128,6 +129,7 @@ class ExportOptions:
     exiftool: bool = False
     export_as_hardlink: bool = False
     export_db: Optional[ExportDB_ABC] = None
+    face_regions: bool = True
     fileutil: Optional[FileUtil] = None
     force_update: bool = False
     ignore_date_modified: bool = False
@@ -1539,6 +1541,9 @@ class PhotoExporter:
             person_list = sorted(list(set(person_list)))
             exif["XMP:PersonInImage"] = person_list.copy()
 
+        if options.face_regions and self.photo.face_info and self.photo._db._beta:
+            exif.update(self._get_mwg_face_regions_exiftool())
+
         # if self.favorite():
         #     exif["Rating"] = 5
 
@@ -1619,6 +1624,42 @@ class PhotoExporter:
                     self.photo.date_modified
                 ).strftime("%Y:%m:%d %H:%M:%S")
 
+        return exif
+
+    def _get_mwg_face_regions_exiftool(self):
+        """Return a dict with MWG face regions for use by exiftool"""
+        if self.photo.orientation in [5, 6, 7, 8]:
+            w = self.photo.height
+            h = self.photo.width
+        else:
+            w = self.photo.width
+            h = self.photo.height
+        exif = {}
+        exif["XMP:RegionAppliedToDimensionsW"] = w
+        exif["XMP:RegionAppliedToDimensionsH"] = h
+        exif["XMP:RegionAppliedToDimensionsUnit"] = "pixel"
+        exif["XMP:RegionName"] = []
+        exif["XMP:RegionType"] = []
+        exif["XMP:RegionAreaX"] = []
+        exif["XMP:RegionAreaY"] = []
+        exif["XMP:RegionAreaW"] = []
+        exif["XMP:RegionAreaH"] = []
+        exif["XMP:RegionAreaUnit"] = []
+        exif["XMP:RegionPersonDisplayName"] = []
+        # exif["XMP:RegionRectangle"] = []
+        for face in self.photo.face_info:
+            if not face.name:
+                continue
+            area = face.mwg_rs_area
+            exif["XMP:RegionName"].append(face.name)
+            exif["XMP:RegionType"].append("Face")
+            exif["XMP:RegionAreaX"].append(area.x)
+            exif["XMP:RegionAreaY"].append(area.y)
+            exif["XMP:RegionAreaW"].append(area.w)
+            exif["XMP:RegionAreaH"].append(area.h)
+            exif["XMP:RegionAreaUnit"].append("normalized")
+            exif["XMP:RegionPersonDisplayName"].append(face.name)
+            # exif["XMP:RegionRectangle"].append(f"{area.x},{area.y},{area.h},{area.w}")
         return exif
 
     def _get_exif_keywords(self):

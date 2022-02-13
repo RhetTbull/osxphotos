@@ -103,6 +103,8 @@
     % if photo.face_info:
     <mwg-rs:Regions rdf:parseType="Resource">
     <mwg-rs:AppliedToDimensions rdf:parseType="Resource">
+    <stDim:h>${photo.width if photo.orientation in [5, 6, 7, 8] else photo.height}</stDim:h>
+    <stDim:w>${photo.height if photo.orientation in [5, 6, 7, 8] else photo.width}</stDim:w>
     <stDim:unit>pixel</stDim:unit>
     </mwg-rs:AppliedToDimensions>
     <mwg-rs:RegionList>
