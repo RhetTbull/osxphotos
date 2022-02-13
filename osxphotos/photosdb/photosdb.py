@@ -2456,7 +2456,6 @@ class PhotosDB:
         verbose("Processing moments.")
         self._process_moments()
 
-        # done processing, dump debug data if requested
         verbose("Done processing details from Photos library.")
 
     def _process_moments(self):

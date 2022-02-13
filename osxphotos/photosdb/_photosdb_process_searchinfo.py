@@ -10,7 +10,7 @@ import uuid as uuidlib
 from pprint import pformat
 
 from .._constants import _PHOTOS_4_VERSION, SEARCH_CATEGORY_LABEL
-from ..utils import _db_is_locked, _debug, _open_sql_file, normalize_unicode
+from ..utils import _db_is_locked, _open_sql_file, normalize_unicode
 
 """
     This module should be imported in the class defintion of PhotosDB in photosdb.py
@@ -138,17 +138,6 @@ def _process_searchinfo(self):
             except KeyError:
                 _db_searchinfo_labels[label] = [uuid]
                 _db_searchinfo_labels_normalized[label_norm] = [uuid]
-
-    if _debug():
-        logging.debug(
-            "_db_searchinfo_categories: \n" + pformat(self._db_searchinfo_categories)
-        )
-        logging.debug("_db_searchinfo_uuid: \n" + pformat(self._db_searchinfo_uuid))
-        logging.debug("_db_searchinfo_labels: \n" + pformat(self._db_searchinfo_labels))
-        logging.debug(
-            "_db_searchinfo_labels_normalized: \n"
-            + pformat(self._db_searchinfo_labels_normalized)
-        )
 
     conn.close()
 

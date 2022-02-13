@@ -61,6 +61,7 @@ from .configoptions import (
     ConfigOptionsInvalidError,
     ConfigOptionsLoadError,
 )
+from .crash_reporter import crash_reporter
 from .datetime_formatter import DateTimeFormatter
 from .exiftool import get_exiftool_path
 from .export_db import ExportDB, ExportDBInMemory
@@ -135,11 +136,18 @@ __all__ = [
 VERBOSE = False
 VERBOSE_TIMESTAMP = False
 
+# global variable to control debug output
+# set via --debug
+DEBUG = False
+
 # used to show/hide hidden commands
 OSXPHOTOS_HIDDEN = not bool(os.getenv("OSXPHOTOS_SHOW_HIDDEN", default=False))
 
 # used by snap and diff commands
 OSXPHOTOS_SNAPSHOT_DIR = "/private/tmp/osxphotos_snapshots"
+
+# where to write the crash report if osxphotos crashes
+OSXPHOTOS_CRASH_LOG = os.getcwd() + "/osxphotos_crash.log"
 
 rich.traceback.install()
 
@@ -674,7 +682,7 @@ def QUERY_OPTIONS(f):
 @click.version_option(__version__, "--version", "-v")
 @click.pass_context
 def cli(ctx, db, json_, debug):
-    ctx.obj = CLI_Obj(db=db, json=json_, debug=debug)
+    ctx.obj = CLI_Obj(db=db, json=json_)
 
 
 @cli.command(cls=ExportCommand)
@@ -1205,10 +1213,25 @@ def cli(ctx, db, json_, debug):
     f"Can be specified multiple times. Valid options are: {PROFILE_SORT_KEYS}. "
     "Default = 'cumulative'.",
 )
+@click.option(
+    "--debug",
+    required=False,
+    is_flag=True,
+    default=False,
+    hidden=OSXPHOTOS_HIDDEN,
+    help="Enable debug output.",
+)
 @DB_ARGUMENT
 @click.argument("dest", nargs=1, type=click.Path(exists=True))
 @click.pass_obj
 @click.pass_context
+@crash_reporter(
+    OSXPHOTOS_CRASH_LOG,
+    "[red]Something went wrong and osxphotos encountered an error:[/red]",
+    "osxphotos crash log",
+    "Please file a bug report at https://github.com/RhetTbull/osxphotos/issues with the crash log attached.",
+    f"osxphotos version: {__version__}",
+)
 def export(
     ctx,
     cli_obj,
@@ -1347,6 +1370,7 @@ def export(
     preview_if_missing,
     profile,
     profile_sort,
+    debug,
 ):
     """Export photos from the Photos database.
     Export path DEST is required.
@@ -1359,6 +1383,11 @@ def export(
     See --skip-edited, --skip-live, --skip-bursts, and --skip-raw options
     to modify this behavior.
     """
+
+    global DEBUG
+    if debug:
+        DEBUG = True
+        osxphotos._set_debug(True)
 
     if profile:
         click.echo("Profiling...")
@@ -1403,7 +1432,7 @@ def export(
                 ),
                 err=True,
             )
-            raise click.Abort()
+            sys.exit(1)
 
         # re-set the local vars to the corresponding config value
         # this isn't elegant but avoids having to rewrite this function to use cfg.varname for every parameter
@@ -1589,7 +1618,7 @@ def export(
             ),
             err=True,
         )
-        raise click.Abort()
+        sys.exit(1)
 
     if all(x in [s.lower() for s in sidecar] for x in ["json", "exiftool"]):
         click.echo(
@@ -1599,7 +1628,7 @@ def export(
             ),
             err=True,
         )
-        raise click.Abort()
+        sys.exit(1)
 
     if xattr_template:
         for attr, _ in xattr_template:
@@ -1612,7 +1641,7 @@ def export(
                     ),
                     err=True,
                 )
-                raise click.Abort()
+                sys.exit(1)
 
     if save_config:
         verbose_(f"Saving options to file {save_config}")
@@ -1633,7 +1662,7 @@ def export(
         click.echo(
             click.style(f"DEST {dest} must be valid path", fg=CLI_COLOR_ERROR), err=True
         )
-        raise click.Abort()
+        sys.exit(1)
 
     dest = str(pathlib.Path(dest).resolve())
 
@@ -1644,7 +1673,7 @@ def export(
             ),
             err=True,
         )
-        raise click.Abort()
+        sys.exit(1)
 
     # if use_photokit and not check_photokit_authorization():
     #     click.echo(
@@ -3148,6 +3177,9 @@ def export_photo_to_directory(
                     f"Retrying export for photo ({photo.uuid}: {photo.original_filename})"
                 )
         except Exception as e:
+            if DEBUG:
+                # if debug mode, don't swallow the exceptions
+                raise e
             click.echo(
                 click.style(
                     f"Error exporting photo ({photo.uuid}: {photo.original_filename}) as {filename}: {e}",
@@ -3516,7 +3548,7 @@ def write_export_report(report_file, results):
             click.style("Could not open output file for writing", fg=CLI_COLOR_ERROR),
             err=True,
         )
-        raise click.Abort()
+        sys.exit(1)
 
 
 def cleanup_files(dest_path, files_to_keep, fileutil):

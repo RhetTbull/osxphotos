@@ -3883,8 +3883,8 @@ def test_export_directory_template_3():
                 "{created.year}/{foo}",
             ],
         )
-        assert result.exit_code == 2
-        assert "Error: Invalid template" in result.output
+        assert result.exit_code != 0
+        assert "Invalid template" in result.output
 
 
 def test_export_directory_template_album_1():
@@ -4203,8 +4203,8 @@ def test_export_filename_template_3():
                 "{foo}-{original_filename}",
             ],
         )
-        assert result.exit_code == 2
-        assert "Error: Invalid template" in result.output
+        assert result.exit_code != 0
+        assert "Invalid template" in result.output
 
 
 def test_export_album():
@@ -4895,6 +4895,7 @@ def test_export_force_update():
             f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: 0, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, updated EXIF data: 0, missing: 3, error: 0"
             in result.output
         )
+
 
 @pytest.mark.skipif(
     "OSXPHOTOS_TEST_EXPORT" not in os.environ,
@@ -6073,7 +6074,7 @@ def test_export_report_not_a_file():
             export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--report", "."]
         )
         assert result.exit_code != 0
-        assert "Aborted!" in result.output
+        assert "report is a directory, must be file name" in result.output
 
 
 def test_export_as_hardlink_download_missing():
@@ -6101,7 +6102,7 @@ def test_export_as_hardlink_download_missing():
             ],
         )
         assert result.exit_code != 0
-        assert "Aborted!" in result.output
+        assert "Incompatible export options" in result.output
 
 
 def test_export_missing():
@@ -6149,7 +6150,7 @@ def test_export_missing_not_download_missing():
             export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--missing", "."]
         )
         assert result.exit_code != 0
-        assert "Aborted!" in result.output
+        assert "Incompatible export options" in result.output
 
 
 def test_export_cleanup():
@@ -7466,7 +7467,7 @@ def test_bad_query_eval():
             ],
         )
         assert result.exit_code != 0
-        assert "Error: Invalid query-eval CRITERIA" in result.output
+        assert "Invalid query-eval CRITERIA" in result.output
 
 
 def test_query_min_size_1():
