@@ -83,6 +83,7 @@ class ExportOptions:
         export_as_hardlink: (bool, default=False): if True, will hardlink files instead of copying them
         export_db: (ExportDB_ABC): instance of a class that conforms to ExportDB_ABC with methods for getting/setting data related to exported files to compare update state
         fileutil: (FileUtilABC): class that conforms to FileUtilABC with various file utilities
+        force_update: (bool, default=False): if True, will export photo if any metadata has changed but export otherwise would not be triggered (e.g. metadata changed but not using exiftool)
         ignore_date_modified (bool): for use with sidecar and exiftool; if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
         ignore_signature (bool, default=False): ignore file signature when used with update (look only at filename)
         increment (bool, default=True): if True, will increment file name until a non-existant name is found if overwrite=False and increment=False, export will fail if destination file already exists
@@ -128,6 +129,7 @@ class ExportOptions:
     export_as_hardlink: bool = False
     export_db: Optional[ExportDB_ABC] = None
     fileutil: Optional[FileUtil] = None
+    force_update: bool = False
     ignore_date_modified: bool = False
     ignore_signature: bool = False
     increment: bool = True
@@ -523,7 +525,7 @@ class PhotoExporter:
                 # the export directory
                 preview_name = (
                     preview_name
-                    if options.overwrite or options.update
+                    if any([options.overwrite, options.update, options.force_update])
                     else pathlib.Path(increment_filename(preview_name))
                 )
                 all_results += self._export_photo(
@@ -589,7 +591,7 @@ class PhotoExporter:
 
         # if overwrite==False and #increment==False, export should fail if file exists
         if dest.exists() and not any(
-            [options.increment, options.update, options.overwrite]
+            [options.increment, options.update, options.force_update, options.overwrite]
         ):
             raise FileExistsError(
                 f"destination exists ({dest}); overwrite={options.overwrite}, increment={options.increment}"
@@ -601,11 +603,13 @@ class PhotoExporter:
         # e.g. exporting sidecar for file1.png and file1.jpeg
         # if file1.png exists and exporting file1.jpeg,
         # dest will be file1 (1).jpeg even though file1.jpeg doesn't exist to prevent sidecar collision
-        if options.increment and not options.update and not options.overwrite:
+        if options.increment and not any(
+            [options.update, options.force_update, options.overwrite]
+        ):
             return pathlib.Path(increment_filename(dest))
 
         # if update and file exists, need to check to see if it's the write file by checking export db
-        if options.update and dest.exists() and src:
+        if (options.update or options.force_update) and dest.exists() and src:
             export_db = options.export_db
             fileutil = options.fileutil
             # destination exists, check to see if destination is the right UUID
@@ -735,7 +739,7 @@ class PhotoExporter:
         # export live_photo .mov file?
         live_photo = bool(options.live_photo and self.photo.live_photo)
 
-        overwrite = options.overwrite or options.update
+        overwrite = any([options.overwrite, options.update, options.force_update])
 
         # figure out which photo version to request
         if options.edited or self.photo.shared:
@@ -843,7 +847,7 @@ class PhotoExporter:
 
         # export live_photo .mov file?
         live_photo = bool(options.live_photo and self.photo.live_photo)
-        overwrite = options.overwrite or options.update
+        overwrite = any([options.overwrite, options.update, options.force_update])
         edited_version = options.edited or self.photo.shared
         # shared photos (in shared albums) show up as not having adjustments (not edited)
         # but Photos is unable to export the "original" as only a jpeg copy is shared in iCloud
@@ -995,16 +999,11 @@ class PhotoExporter:
         fileutil = options.fileutil
         export_db = options.export_db
 
-        if options.update:  # updating
+        if options.update or options.force_update:  # updating
             cmp_touch, cmp_orig = False, False
             if dest_exists:
                 # update, destination exists, but we might not need to replace it...
-                if options.ignore_signature:
-                    cmp_orig = True
-                    cmp_touch = fileutil.cmp(
-                        src, dest, mtime1=int(self.photo.date.timestamp())
-                    )
-                elif options.exiftool:
+                if options.exiftool:
                     sig_exif = export_db.get_stat_exif_for_file(dest_str)
                     cmp_orig = fileutil.cmp_file_sig(dest_str, sig_exif)
                     if cmp_orig:
@@ -1026,10 +1025,17 @@ class PhotoExporter:
                     )
                     cmp_touch = fileutil.cmp_file_sig(dest_str, sig_converted)
                 else:
-                    cmp_orig = fileutil.cmp(src, dest)
+                    cmp_orig = options.ignore_signature or fileutil.cmp(src, dest)
                     cmp_touch = fileutil.cmp(
                         src, dest, mtime1=int(self.photo.date.timestamp())
                     )
+                    if options.force_update:
+                        # need to also check the photo's metadata to that in the database
+                        # and if anything changed, we need to update the file
+                        # ony the hex digest of the metadata is stored in the database
+                        cmp_orig = hexdigest(
+                            self.photo.json()
+                        ) == export_db.get_metadata_for_file(dest_str)
 
                 sig_cmp = cmp_touch if options.touch_file else cmp_orig
 
@@ -1043,7 +1049,7 @@ class PhotoExporter:
                         if sig_edited != (None, None, None)
                         else False
                     )
-                    sig_cmp = sig_cmp and cmp_edited
+                    sig_cmp = sig_cmp and (options.force_update or cmp_edited)
 
                 if (options.export_as_hardlink and dest.samefile(src)) or (
                     not options.export_as_hardlink
@@ -1086,7 +1092,9 @@ class PhotoExporter:
             edited_stat = (
                 fileutil.file_sig(src) if options.edited else (None, None, None)
             )
-            if dest_exists and (options.update or options.overwrite):
+            if dest_exists and any(
+                [options.overwrite, options.update, options.force_update]
+            ):
                 # need to remove the destination first
                 try:
                     fileutil.unlink(dest)
@@ -1129,13 +1137,15 @@ class PhotoExporter:
                         f"Error copying file {src} to {dest_str}: {e} ({lineno(__file__)})"
                     ) from e
 
+        json_info = self.photo.json()
         export_db.set_data(
             filename=dest_str,
             uuid=self.photo.uuid,
             orig_stat=fileutil.file_sig(dest_str),
             converted_stat=converted_stat,
             edited_stat=edited_stat,
-            info_json=self.photo.json(),
+            info_json=json_info,
+            metadata=hexdigest(json_info),
         )
 
         return ExportResults(
@@ -1235,10 +1245,13 @@ class PhotoExporter:
                 sidecar_filename
             )
             write_sidecar = (
-                not options.update
-                or (options.update and not sidecar_filename.exists())
+                not (options.update or options.force_update)
                 or (
-                    options.update
+                    (options.update or options.force_update)
+                    and not sidecar_filename.exists()
+                )
+                or (
+                    (options.update or options.force_update)
                     and (sidecar_digest != old_sidecar_digest)
                     or not fileutil.cmp_file_sig(sidecar_filename, sidecar_sig)
                 )
@@ -1333,8 +1346,8 @@ class PhotoExporter:
 
     def _should_run_exiftool(self, dest, options: ExportOptions) -> bool:
         """Return True if exiftool should be run to update metadata"""
-        run_exiftool = not options.update
-        if options.update:
+        run_exiftool = not (options.update or options.force_update)
+        if options.update or options.force_update:
             files_are_different = False
             old_data = options.export_db.get_exifdata_for_file(dest)
             if old_data is not None:

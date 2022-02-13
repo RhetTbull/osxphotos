@@ -18,8 +18,9 @@ from .utils import normalize_fs_path
 
 __all__ = ["ExportDB_ABC", "ExportDBNoOp", "ExportDB", "ExportDBInMemory"]
 
-OSXPHOTOS_EXPORTDB_VERSION = "4.3"
+OSXPHOTOS_EXPORTDB_VERSION = "5.0"
 OSXPHOTOS_EXPORTDB_VERSION_MIGRATE_FILEPATH = "4.3"
+OSXPHOTOS_EXPORTDB_VERSION_MIGRATE_TABLES = "4.3"
 
 OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
 
@@ -104,6 +105,14 @@ class ExportDB_ABC(ABC):
         pass
 
     @abstractmethod
+    def set_metadata_for_file(self, filename, metadata):
+        pass
+
+    @abstractmethod
+    def get_metadata_for_file(self, filename):
+        pass
+
+    @abstractmethod
     def set_data(
         self,
         filename,
@@ -114,6 +123,7 @@ class ExportDB_ABC(ABC):
         edited_stat=None,
         info_json=None,
         exif_json=None,
+        metadata=None,
     ):
         pass
 
@@ -183,6 +193,12 @@ class ExportDBNoOp(ExportDB_ABC):
     def set_detected_text_for_uuid(self, uuid, json_text):
         pass
 
+    def set_metadata_for_file(self, filename, metadata):
+        pass
+
+    def get_metadata_for_file(self, filename):
+        pass
+
     def set_data(
         self,
         filename,
@@ -193,6 +209,7 @@ class ExportDBNoOp(ExportDB_ABC):
         edited_stat=None,
         info_json=None,
         exif_json=None,
+        metadata=None,
     ):
         pass
 
@@ -507,6 +524,39 @@ class ExportDB(ExportDB_ABC):
         except Error as e:
             logging.warning(e)
 
+    def set_metadata_for_file(self, filename, metadata):
+        """set metadata of filename in the database"""
+        filename = str(pathlib.Path(filename).relative_to(self._path))
+        filename_normalized = self._normalize_filepath(filename)
+        conn = self._conn
+        try:
+            c = conn.cursor()
+            c.execute(
+                "UPDATE files SET metadata = ? WHERE filepath_normalized = ?;",
+                (metadata, filename_normalized),
+            )
+            conn.commit()
+        except Error as e:
+            logging.warning(e)
+
+    def get_metadata_for_file(self, filename):
+        """get metadata value for file"""
+        filename = self._normalize_filepath_relative(filename)
+        conn = self._conn
+        try:
+            c = conn.cursor()
+            c.execute(
+                "SELECT metadata FROM files WHERE filepath_normalized = ?",
+                (filename,),
+            )
+            results = c.fetchone()
+            metadata = results[0] if results else None
+        except Error as e:
+            logging.warning(e)
+            metadata = None
+
+        return metadata
+
     def set_data(
         self,
         filename,
@@ -517,6 +567,7 @@ class ExportDB(ExportDB_ABC):
         edited_stat=None,
         info_json=None,
         exif_json=None,
+        metadata=None,
     ):
         """sets all the data for file and uuid at once; if any value is None, does not set it"""
         filename = str(pathlib.Path(filename).relative_to(self._path))
@@ -570,6 +621,15 @@ class ExportDB(ExportDB_ABC):
                     "INSERT OR REPLACE INTO exifdata(filepath_normalized, json_exifdata) VALUES (?, ?);",
                     (filename_normalized, exif_json),
                 )
+
+            if metadata is not None:
+                c.execute(
+                    "UPDATE files "
+                    + "SET metadata = ? "
+                    + "WHERE filepath_normalized = ?;",
+                    (metadata, filename_normalized),
+                )
+
             conn.commit()
         except Error as e:
             logging.warning(e)
@@ -622,7 +682,7 @@ class ExportDB(ExportDB_ABC):
             conn = self._get_db_connection(dbfile)
             if not conn:
                 raise Exception("Error getting connection to database {dbfile}")
-            self._create_db_tables(conn)
+            self._create_or_migrate_db_tables(conn)
             self.was_created = True
             self.was_upgraded = ()
         else:
@@ -630,9 +690,7 @@ class ExportDB(ExportDB_ABC):
             self.was_created = False
             version_info = self._get_database_version(conn)
             if version_info[1] < OSXPHOTOS_EXPORTDB_VERSION:
-                self._create_db_tables(conn)
-                if version_info[1] < OSXPHOTOS_EXPORTDB_VERSION_MIGRATE_FILEPATH:
-                    self._migrate_normalized_filepath(conn)
+                self._create_or_migrate_db_tables(conn)
                 self.was_upgraded = (version_info[1], OSXPHOTOS_EXPORTDB_VERSION)
             else:
                 self.was_upgraded = ()
@@ -664,104 +722,97 @@ class ExportDB(ExportDB_ABC):
         ).fetchone()
         return (version_info[0], version_info[1])
 
-    def _create_db_tables(self, conn):
-        """create (if not already created) the necessary db tables for the export database
-        conn: sqlite3 db connection
+    def _create_or_migrate_db_tables(self, conn):
+        """create (if not already created) the necessary db tables for the export database and apply any needed migrations
+
+        Args:
+            conn: sqlite3 db connection
         """
-        sql_commands = {
-            "sql_version_table": """ CREATE TABLE IF NOT EXISTS version (
-                                id INTEGER PRIMARY KEY,
-                                osxphotos TEXT,
-                                exportdb TEXT 
-                                ); """,
-            "sql_about_table": """ CREATE TABLE IF NOT EXISTS about (
-                                id INTEGER PRIMARY KEY,
-                                about TEXT
-                                );""",
-            "sql_files_table": """ CREATE TABLE IF NOT EXISTS files (
-                              id INTEGER PRIMARY KEY,
-                              filepath TEXT NOT NULL,
-                              filepath_normalized TEXT NOT NULL,
-                              uuid TEXT,
-                              orig_mode INTEGER,
-                              orig_size INTEGER,
-                              orig_mtime REAL,
-                              exif_mode INTEGER,
-                              exif_size INTEGER,
-                              exif_mtime REAL
-                              ); """,
-            "sql_files_table_migrate": """ CREATE TABLE IF NOT EXISTS files_migrate (
-                              id INTEGER PRIMARY KEY,
-                              filepath TEXT NOT NULL,
-                              filepath_normalized TEXT NOT NULL,
-                              uuid TEXT,
-                              orig_mode INTEGER,
-                              orig_size INTEGER,
-                              orig_mtime REAL,
-                              exif_mode INTEGER,
-                              exif_size INTEGER,
-                              exif_mtime REAL,
-                              UNIQUE(filepath_normalized)
-                              ); """,
-            "sql_files_migrate": """ INSERT INTO files_migrate SELECT * FROM files;""",
-            "sql_files_drop_tables": """ DROP TABLE files;""",
-            "sql_files_alter": """ ALTER TABLE files_migrate RENAME TO files;""",
-            "sql_runs_table": """ CREATE TABLE IF NOT EXISTS runs (
-                             id INTEGER PRIMARY KEY,
-                             datetime TEXT,
-                             python_path TEXT,
-                             script_name TEXT,
-                             args TEXT,
-                             cwd TEXT 
-                             ); """,
-            "sql_info_table": """ CREATE TABLE IF NOT EXISTS info (
-                             id INTEGER PRIMARY KEY,
-                             uuid text NOT NULL,
-                             json_info JSON 
-                             ); """,
-            "sql_exifdata_table": """ CREATE TABLE IF NOT EXISTS exifdata (
-                             id INTEGER PRIMARY KEY,
-                             filepath_normalized TEXT NOT NULL,
-                             json_exifdata JSON 
-                             ); """,
-            "sql_edited_table": """ CREATE TABLE IF NOT EXISTS edited (
-                              id INTEGER PRIMARY KEY,
-                              filepath_normalized TEXT NOT NULL,
-                              mode INTEGER,
-                              size INTEGER,
-                              mtime REAL
-                              ); """,
-            "sql_converted_table": """ CREATE TABLE IF NOT EXISTS converted (
-                              id INTEGER PRIMARY KEY,
-                              filepath_normalized TEXT NOT NULL,
-                              mode INTEGER,
-                              size INTEGER,
-                              mtime REAL
-                              ); """,
-            "sql_sidecar_table": """ CREATE TABLE IF NOT EXISTS sidecar (
-                              id INTEGER PRIMARY KEY,
-                              filepath_normalized TEXT NOT NULL,
-                              sidecar_data TEXT,
-                              mode INTEGER,
-                              size INTEGER,
-                              mtime REAL
-                              ); """,
-            "sql_detected_text_table": """ CREATE TABLE IF NOT EXISTS detected_text (
-                              id INTEGER PRIMARY KEY,
-                              uuid TEXT NOT NULL,
-                              text_data JSON
-                              ); """,
-            "sql_files_idx": """ CREATE UNIQUE INDEX IF NOT EXISTS idx_files_filepath_normalized on files (filepath_normalized); """,
-            "sql_info_idx": """ CREATE UNIQUE INDEX IF NOT EXISTS idx_info_uuid on info (uuid); """,
-            "sql_exifdata_idx": """ CREATE UNIQUE INDEX IF NOT EXISTS idx_exifdata_filename on exifdata (filepath_normalized); """,
-            "sql_edited_idx": """ CREATE UNIQUE INDEX IF NOT EXISTS idx_edited_filename on edited (filepath_normalized);""",
-            "sql_converted_idx": """ CREATE UNIQUE INDEX IF NOT EXISTS idx_converted_filename on converted (filepath_normalized);""",
-            "sql_sidecar_idx": """ CREATE UNIQUE INDEX IF NOT EXISTS idx_sidecar_filename on sidecar (filepath_normalized);""",
-            "sql_detected_text_idx": """ CREATE UNIQUE INDEX IF NOT EXISTS idx_detected_text on detected_text (uuid);""",
-        }
+        try:
+            version = self._get_database_version(conn)
+        except Exception as e:
+            version = (__version__, OSXPHOTOS_EXPORTDB_VERSION_MIGRATE_TABLES)
+
+        # Current for version 4.3, for anything greater, do a migration after creation
+        sql_commands = [
+            """ CREATE TABLE IF NOT EXISTS version (
+                    id INTEGER PRIMARY KEY,
+                    osxphotos TEXT,
+                    exportdb TEXT 
+                    ); """,
+            """ CREATE TABLE IF NOT EXISTS about (
+                    id INTEGER PRIMARY KEY,
+                    about TEXT
+                    );""",
+            """ CREATE TABLE IF NOT EXISTS files (
+                    id INTEGER PRIMARY KEY,
+                    filepath TEXT NOT NULL,
+                    filepath_normalized TEXT NOT NULL,
+                    uuid TEXT,
+                    orig_mode INTEGER,
+                    orig_size INTEGER,
+                    orig_mtime REAL,
+                    exif_mode INTEGER,
+                    exif_size INTEGER,
+                    exif_mtime REAL
+                    ); """,
+            """ CREATE TABLE IF NOT EXISTS runs (
+                    id INTEGER PRIMARY KEY,
+                    datetime TEXT,
+                    python_path TEXT,
+                    script_name TEXT,
+                    args TEXT,
+                    cwd TEXT 
+                    ); """,
+            """ CREATE TABLE IF NOT EXISTS info (
+                    id INTEGER PRIMARY KEY,
+                    uuid text NOT NULL,
+                    json_info JSON 
+                    ); """,
+            """ CREATE TABLE IF NOT EXISTS exifdata (
+                    id INTEGER PRIMARY KEY,
+                    filepath_normalized TEXT NOT NULL,
+                    json_exifdata JSON 
+                    ); """,
+            """ CREATE TABLE IF NOT EXISTS edited (
+                    id INTEGER PRIMARY KEY,
+                    filepath_normalized TEXT NOT NULL,
+                    mode INTEGER,
+                    size INTEGER,
+                    mtime REAL
+                    ); """,
+            """ CREATE TABLE IF NOT EXISTS converted (
+                    id INTEGER PRIMARY KEY,
+                    filepath_normalized TEXT NOT NULL,
+                    mode INTEGER,
+                    size INTEGER,
+                    mtime REAL
+                    ); """,
+            """ CREATE TABLE IF NOT EXISTS sidecar (
+                    id INTEGER PRIMARY KEY,
+                    filepath_normalized TEXT NOT NULL,
+                    sidecar_data TEXT,
+                    mode INTEGER,
+                    size INTEGER,
+                    mtime REAL
+                    ); """,
+            """ CREATE TABLE IF NOT EXISTS detected_text (
+                    id INTEGER PRIMARY KEY,
+                    uuid TEXT NOT NULL,
+                    text_data JSON
+                    ); """,
+            """ CREATE UNIQUE INDEX IF NOT EXISTS idx_files_filepath_normalized on files (filepath_normalized); """,
+            """ CREATE UNIQUE INDEX IF NOT EXISTS idx_info_uuid on info (uuid); """,
+            """ CREATE UNIQUE INDEX IF NOT EXISTS idx_exifdata_filename on exifdata (filepath_normalized); """,
+            """ CREATE UNIQUE INDEX IF NOT EXISTS idx_edited_filename on edited (filepath_normalized);""",
+            """ CREATE UNIQUE INDEX IF NOT EXISTS idx_converted_filename on converted (filepath_normalized);""",
+            """ CREATE UNIQUE INDEX IF NOT EXISTS idx_sidecar_filename on sidecar (filepath_normalized);""",
+            """ CREATE UNIQUE INDEX IF NOT EXISTS idx_detected_text on detected_text (uuid);""",
+        ]
+        # create the tables if needed
         try:
             c = conn.cursor()
-            for cmd in sql_commands.values():
+            for cmd in sql_commands:
                 c.execute(cmd)
             c.execute(
                 "INSERT INTO version(osxphotos, exportdb) VALUES (?, ?);",
@@ -771,6 +822,19 @@ class ExportDB(ExportDB_ABC):
             conn.commit()
         except Error as e:
             logging.warning(e)
+
+        # perform needed migrations
+        if version[1] < OSXPHOTOS_EXPORTDB_VERSION_MIGRATE_FILEPATH:
+            self._migrate_normalized_filepath(conn)
+
+        if version[1] < OSXPHOTOS_EXPORTDB_VERSION:
+            try:
+                c = conn.cursor()
+                # add metadata column to files to support --force-update
+                c.execute("ALTER TABLE files ADD COLUMN metadata TEXT;")
+                conn.commit()
+            except Error as e:
+                logging.warning(e)
 
     def __del__(self):
         """ensure the database connection is closed"""
@@ -810,6 +874,28 @@ class ExportDB(ExportDB_ABC):
         """Fix all filepath_normalized columns for unicode normalization"""
         # Prior to database version 4.3, filepath_normalized was not normalized for unicode
         c = conn.cursor()
+        migration_sql = [
+            """ CREATE TABLE IF NOT EXISTS files_migrate (
+                    id INTEGER PRIMARY KEY,
+                    filepath TEXT NOT NULL,
+                    filepath_normalized TEXT NOT NULL,
+                    uuid TEXT,
+                    orig_mode INTEGER,
+                    orig_size INTEGER,
+                    orig_mtime REAL,
+                    exif_mode INTEGER,
+                    exif_size INTEGER,
+                    exif_mtime REAL,
+                    UNIQUE(filepath_normalized)
+                    ); """,
+            """ INSERT INTO files_migrate SELECT * FROM files;""",
+            """ DROP TABLE files;""",
+            """ ALTER TABLE files_migrate RENAME TO files;""",
+        ]
+        for sql in migration_sql:
+            c.execute(sql)
+        conn.commit()
+
         for table in ["converted", "edited", "exifdata", "files", "sidecar"]:
             old_values = c.execute(
                 f"SELECT filepath_normalized, id FROM {table}"
@@ -848,7 +934,7 @@ class ExportDBInMemory(ExportDB):
             conn = self._get_db_connection()
             if not conn:
                 raise Exception("Error getting connection to in-memory database")
-            self._create_db_tables(conn)
+            self._create_or_migrate_db_tables(conn)
             self.was_created = True
             self.was_upgraded = ()
         else:
@@ -871,7 +957,7 @@ class ExportDBInMemory(ExportDB):
             self.was_created = False
             _, exportdb_ver = self._get_database_version(conn)
             if exportdb_ver < OSXPHOTOS_EXPORTDB_VERSION:
-                self._create_db_tables(conn)
+                self._create_or_migrate_db_tables(conn)
                 self.was_upgraded = (exportdb_ver, OSXPHOTOS_EXPORTDB_VERSION)
             else:
                 self.was_upgraded = ()

@@ -783,8 +783,15 @@ Options:
                                   folder.
   --deleted-only                  Include only photos from the 'Recently
                                   Deleted' folder.
-  --update                        Only export new or updated files. See notes
-                                  below on export and --update.
+  --update                        Only export new or updated files. See also
+                                  --force-update and notes below on export and
+                                  --update.
+  --force-update                  Only export new or updated files. Unlike
+                                  --update, --force-update will re-export photos
+                                  if their metadata has changed even if this
+                                  would not otherwise trigger an export. See
+                                  also --update and notes below on export and
+                                  --update.
   --ignore-signature              When used with '--update', ignores file
                                   signature when updating files. This is useful
                                   if you have processed or edited exported
@@ -1725,7 +1732,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.45.8'
+{osxphotos_version}             The osxphotos version, e.g. '0.45.9'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified for
@@ -3629,7 +3636,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.45.8'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.45.9'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|

@@ -1,10 +1,12 @@
-r""" Test the command line interface (CLI) """
+""" Test the command line interface (CLI) """
 
 import os
+import sqlite3
 import tempfile
 
 import pytest
 from click.testing import CliRunner
+from conftest import copy_photos_library_to_path
 
 import osxphotos
 from osxphotos.exiftool import get_exiftool_path
@@ -2034,7 +2036,6 @@ def test_export_exiftool_template_change():
             assert result.exit_code == 0
             assert "updated EXIF data: 1" in result.output
 
-
             # export with --update, nothing should export
             result = runner.invoke(
                 export,
@@ -2053,6 +2054,7 @@ def test_export_exiftool_template_change():
             assert result.exit_code == 0
             assert "exported: 0" in result.output
             assert "updated EXIF data: 0" in result.output
+
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool_path():
@@ -4809,6 +4811,75 @@ def test_export_update_basic():
         )
 
 
+def test_export_force_update():
+    """test export with --force-update"""
+    import glob
+    import os
+    import os.path
+
+    import osxphotos
+    from osxphotos.cli import OSXPHOTOS_EXPORT_DB, export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        # basic export
+        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
+        assert os.path.isfile(OSXPHOTOS_EXPORT_DB)
+
+        src = os.path.join(cwd, CLI_PHOTOS_DB)
+        dest = os.path.join(os.getcwd(), "export_force_update.photoslibrary")
+        photos_db_path = copy_photos_library_to_path(src, dest)
+
+        # update
+        result = runner.invoke(
+            export, [os.path.join(cwd, photos_db_path), ".", "--update"]
+        )
+        assert result.exit_code == 0
+        assert (
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: 0, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, updated EXIF data: 0, missing: 3, error: 0"
+            in result.output
+        )
+
+        # force update
+        result = runner.invoke(
+            export, [os.path.join(cwd, photos_db_path), ".", "--force-update"]
+        )
+        assert result.exit_code == 0
+        assert (
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: 0, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, updated EXIF data: 0, missing: 3, error: 0"
+            in result.output
+        )
+
+        # update a file
+        dbpath = os.path.join(photos_db_path, "database/Photos.sqlite")
+        try:
+            conn = sqlite3.connect(dbpath)
+            c = conn.cursor()
+        except sqlite3.Error as e:
+            pytest.exit(f"An error occurred opening sqlite file")
+
+        # photo is IMG_4547.jpg
+        c.execute(
+            "UPDATE ZADDITIONALASSETATTRIBUTES SET Z_OPT=9, ZTITLE='My Updated Title' WHERE Z_PK=8;"
+        )
+        conn.commit()
+
+        # run again to see if updated metadata forced update
+        result = runner.invoke(
+            export, [os.path.join(cwd, photos_db_path), ".", "--force-update"]
+        )
+        assert result.exit_code == 0
+        assert (
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: 1, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7-1}, updated EXIF data: 0, missing: 3, error: 0"
+            in result.output
+        )
+
+
 @pytest.mark.skipif(
     "OSXPHOTOS_TEST_EXPORT" not in os.environ,
     reason="Skip if not running on author's personal library.",
@@ -4931,7 +5002,7 @@ def test_export_update_exiftool():
         )
         assert result.exit_code == 0
         assert (
-            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: 0, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, updated EXIF data: 0, missing: 2, error: 0"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: 0, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, updated EXIF data: 0, missing: 3, error: 0"
             in result.output
         )
 

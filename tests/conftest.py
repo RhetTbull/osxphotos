@@ -40,7 +40,7 @@ else:
 
 @pytest.fixture(autouse=True)
 def reset_singletons():
-    """ Need to clean up any ExifTool singletons between tests """
+    """Need to clean up any ExifTool singletons between tests"""
     _ExifToolProc.instance = None
 
 
@@ -73,7 +73,7 @@ def pytest_collection_modifyitems(config, items):
 
 
 def copy_photos_library(photos_library=TEST_LIBRARY, delay=0):
-    """ copy the test library and open Photos, returns path to copied library """
+    """copy the test library and open Photos, returns path to copied library"""
     script = AppleScript(
         """
         tell application "Photos"
@@ -118,3 +118,9 @@ def copy_photos_library(photos_library=TEST_LIBRARY, delay=0):
 @pytest.fixture
 def addalbum_library():
     copy_photos_library(delay=10)
+
+
+def copy_photos_library_to_path(photos_library_path: str, dest_path: str) -> str:
+    """Copy a photos library to a folder"""
+    ditto(photos_library_path, dest_path)
+    return dest_path

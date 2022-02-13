@@ -1728,7 +1728,8 @@ class PhotoInfo:
             if isinstance(o, (datetime.date, datetime.datetime)):
                 return o.isoformat()
 
-        return json.dumps(self.asdict(), sort_keys=True, default=default)
+        dict_data = self.asdict()
+        return json.dumps(dict_data, sort_keys=True, default=default)
 
     def __eq__(self, other):
         """Compare two PhotoInfo objects for equality"""

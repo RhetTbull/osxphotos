@@ -691,7 +691,15 @@ def cli(ctx, db, json_, debug):
 @click.option(
     "--update",
     is_flag=True,
-    help="Only export new or updated files. See notes below on export and --update.",
+    help="Only export new or updated files. "
+    "See also --force-update and notes below on export and --update.",
+)
+@click.option(
+    "--force-update",
+    is_flag=True,
+    help="Only export new or updated files. Unlike --update, --force-update will re-export photos "
+    "if their metadata has changed even if this would not otherwise trigger an export. "
+    "See also --update and notes below on export and --update.",
 )
 @click.option(
     "--ignore-signature",
@@ -1235,6 +1243,7 @@ def export(
     timestamp,
     missing,
     update,
+    force_update,
     ignore_signature,
     only_new,
     dry_run,
@@ -1398,133 +1407,134 @@ def export(
 
         # re-set the local vars to the corresponding config value
         # this isn't elegant but avoids having to rewrite this function to use cfg.varname for every parameter
-        db = cfg.db
-        photos_library = cfg.photos_library
-        keyword = cfg.keyword
-        person = cfg.person
+        add_exported_to_album = cfg.add_exported_to_album
+        add_missing_to_album = cfg.add_missing_to_album
+        add_skipped_to_album = cfg.add_skipped_to_album
         album = cfg.album
-        folder = cfg.folder
-        name = cfg.name
-        uuid = cfg.uuid
-        uuid_from_file = cfg.uuid_from_file
-        title = cfg.title
-        no_title = cfg.no_title
-        description = cfg.description
-        no_description = cfg.no_description
-        uti = cfg.uti
-        ignore_case = cfg.ignore_case
-        edited = cfg.edited
-        external_edit = cfg.external_edit
-        favorite = cfg.favorite
-        not_favorite = cfg.not_favorite
-        hidden = cfg.hidden
-        not_hidden = cfg.not_hidden
-        shared = cfg.shared
-        not_shared = cfg.not_shared
-        from_date = cfg.from_date
-        to_date = cfg.to_date
-        from_time = cfg.from_time
-        to_time = cfg.to_time
-        verbose = cfg.verbose
-        missing = cfg.missing
-        update = cfg.update
-        ignore_signature = cfg.ignore_signature
-        dry_run = cfg.dry_run
-        export_as_hardlink = cfg.export_as_hardlink
-        touch_file = cfg.touch_file
-        overwrite = cfg.overwrite
-        retry = cfg.retry
-        export_by_date = cfg.export_by_date
-        skip_edited = cfg.skip_edited
-        skip_original_if_edited = cfg.skip_original_if_edited
-        skip_bursts = cfg.skip_bursts
-        skip_live = cfg.skip_live
-        skip_raw = cfg.skip_raw
-        skip_uuid = cfg.skip_uuid
-        skip_uuid_from_file = cfg.skip_uuid_from_file
-        person_keyword = cfg.person_keyword
         album_keyword = cfg.album_keyword
-        keyword_template = cfg.keyword_template
-        replace_keywords = cfg.replace_keywords
-        description_template = cfg.description_template
-        finder_tag_template = cfg.finder_tag_template
-        finder_tag_keywords = cfg.finder_tag_keywords
-        xattr_template = cfg.xattr_template
-        current_name = cfg.current_name
-        convert_to_jpeg = cfg.convert_to_jpeg
-        jpeg_quality = cfg.jpeg_quality
-        sidecar = cfg.sidecar
-        sidecar_drop_ext = cfg.sidecar_drop_ext
-        only_photos = cfg.only_photos
-        only_movies = cfg.only_movies
+        beta = cfg.beta
         burst = cfg.burst
-        not_burst = cfg.not_burst
-        live = cfg.live
-        not_live = cfg.not_live
-        download_missing = cfg.download_missing
-        exiftool = cfg.exiftool
-        exiftool_path = cfg.exiftool_path
-        exiftool_option = cfg.exiftool_option
-        exiftool_merge_keywords = cfg.exiftool_merge_keywords
-        exiftool_merge_persons = cfg.exiftool_merge_persons
-        ignore_date_modified = cfg.ignore_date_modified
-        portrait = cfg.portrait
-        not_portrait = cfg.not_portrait
-        screenshot = cfg.screenshot
-        not_screenshot = cfg.not_screenshot
-        slow_mo = cfg.slow_mo
-        not_slow_mo = cfg.not_slow_mo
-        time_lapse = cfg.time_lapse
-        not_time_lapse = cfg.not_time_lapse
-        hdr = cfg.hdr
-        not_hdr = cfg.not_hdr
-        selfie = cfg.selfie
-        not_selfie = cfg.not_selfie
-        panorama = cfg.panorama
-        not_panorama = cfg.not_panorama
-        has_raw = cfg.has_raw
-        directory = cfg.directory
-        filename_template = cfg.filename_template
-        jpeg_ext = cfg.jpeg_ext
-        strip = cfg.strip
-        edited_suffix = cfg.edited_suffix
-        original_suffix = cfg.original_suffix
-        place = cfg.place
-        no_place = cfg.no_place
-        location = cfg.location
-        no_location = cfg.no_location
-        has_comment = cfg.has_comment
-        no_comment = cfg.no_comment
-        has_likes = cfg.has_likes
-        no_likes = cfg.no_likes
-        label = cfg.label
+        cleanup = cfg.cleanup
+        convert_to_jpeg = cfg.convert_to_jpeg
+        current_name = cfg.current_name
+        db = cfg.db
         deleted = cfg.deleted
         deleted_only = cfg.deleted_only
-        use_photos_export = cfg.use_photos_export
-        use_photokit = cfg.use_photokit
-        report = cfg.report
-        cleanup = cfg.cleanup
-        add_exported_to_album = cfg.add_exported_to_album
-        add_skipped_to_album = cfg.add_skipped_to_album
-        add_missing_to_album = cfg.add_missing_to_album
-        exportdb = cfg.exportdb
-        beta = cfg.beta
-        only_new = cfg.only_new
-        in_album = cfg.in_album
-        not_in_album = cfg.not_in_album
-        min_size = cfg.min_size
-        max_size = cfg.max_size
-        regex = cfg.regex
-        selected = cfg.selected
-        exif = cfg.exif
-        query_eval = cfg.query_eval
-        query_function = cfg.query_function
+        description = cfg.description
+        description_template = cfg.description_template
+        directory = cfg.directory
+        download_missing = cfg.download_missing
+        dry_run = cfg.dry_run
         duplicate = cfg.duplicate
+        edited = cfg.edited
+        edited_suffix = cfg.edited_suffix
+        exif = cfg.exif
+        exiftool = cfg.exiftool
+        exiftool_merge_keywords = cfg.exiftool_merge_keywords
+        exiftool_merge_persons = cfg.exiftool_merge_persons
+        exiftool_option = cfg.exiftool_option
+        exiftool_path = cfg.exiftool_path
+        export_as_hardlink = cfg.export_as_hardlink
+        export_by_date = cfg.export_by_date
+        exportdb = cfg.exportdb
+        external_edit = cfg.external_edit
+        favorite = cfg.favorite
+        filename_template = cfg.filename_template
+        finder_tag_keywords = cfg.finder_tag_keywords
+        finder_tag_template = cfg.finder_tag_template
+        folder = cfg.folder
+        force_update = cfg.force_update
+        from_date = cfg.from_date
+        from_time = cfg.from_time
+        has_comment = cfg.has_comment
+        has_likes = cfg.has_likes
+        has_raw = cfg.has_raw
+        hdr = cfg.hdr
+        hidden = cfg.hidden
+        ignore_case = cfg.ignore_case
+        ignore_date_modified = cfg.ignore_date_modified
+        ignore_signature = cfg.ignore_signature
+        in_album = cfg.in_album
+        jpeg_ext = cfg.jpeg_ext
+        jpeg_quality = cfg.jpeg_quality
+        keyword = cfg.keyword
+        keyword_template = cfg.keyword_template
+        label = cfg.label
+        live = cfg.live
+        location = cfg.location
+        max_size = cfg.max_size
+        min_size = cfg.min_size
+        missing = cfg.missing
+        name = cfg.name
+        no_comment = cfg.no_comment
+        no_description = cfg.no_description
+        no_likes = cfg.no_likes
+        no_location = cfg.no_location
+        no_place = cfg.no_place
+        no_title = cfg.no_title
+        not_burst = cfg.not_burst
+        not_favorite = cfg.not_favorite
+        not_hdr = cfg.not_hdr
+        not_hidden = cfg.not_hidden
+        not_in_album = cfg.not_in_album
+        not_live = cfg.not_live
+        not_panorama = cfg.not_panorama
+        not_portrait = cfg.not_portrait
+        not_screenshot = cfg.not_screenshot
+        not_selfie = cfg.not_selfie
+        not_shared = cfg.not_shared
+        not_slow_mo = cfg.not_slow_mo
+        not_time_lapse = cfg.not_time_lapse
+        only_movies = cfg.only_movies
+        only_new = cfg.only_new
+        only_photos = cfg.only_photos
+        original_suffix = cfg.original_suffix
+        overwrite = cfg.overwrite
+        panorama = cfg.panorama
+        person = cfg.person
+        person_keyword = cfg.person_keyword
+        photos_library = cfg.photos_library
+        place = cfg.place
+        portrait = cfg.portrait
         post_command = cfg.post_command
         post_function = cfg.post_function
         preview = cfg.preview
-        preview_suffix = cfg.preview_suffix
         preview_if_missing = cfg.preview_if_missing
+        preview_suffix = cfg.preview_suffix
+        query_eval = cfg.query_eval
+        query_function = cfg.query_function
+        regex = cfg.regex
+        replace_keywords = cfg.replace_keywords
+        report = cfg.report
+        retry = cfg.retry
+        screenshot = cfg.screenshot
+        selected = cfg.selected
+        selfie = cfg.selfie
+        shared = cfg.shared
+        sidecar = cfg.sidecar
+        sidecar_drop_ext = cfg.sidecar_drop_ext
+        skip_bursts = cfg.skip_bursts
+        skip_edited = cfg.skip_edited
+        skip_live = cfg.skip_live
+        skip_original_if_edited = cfg.skip_original_if_edited
+        skip_raw = cfg.skip_raw
+        skip_uuid = cfg.skip_uuid
+        skip_uuid_from_file = cfg.skip_uuid_from_file
+        slow_mo = cfg.slow_mo
+        strip = cfg.strip
+        time_lapse = cfg.time_lapse
+        title = cfg.title
+        to_date = cfg.to_date
+        to_time = cfg.to_time
+        touch_file = cfg.touch_file
+        update = cfg.update
+        use_photokit = cfg.use_photokit
+        use_photos_export = cfg.use_photos_export
+        uti = cfg.uti
+        uuid = cfg.uuid
+        uuid_from_file = cfg.uuid_from_file
+        verbose = cfg.verbose
+        xattr_template = cfg.xattr_template
 
         # config file might have changed verbose
         VERBOSE = bool(verbose)
@@ -1564,8 +1574,8 @@ def export(
     dependent_options = [
         ("missing", ("download_missing", "use_photos_export")),
         ("jpeg_quality", ("convert_to_jpeg")),
-        ("ignore_signature", ("update")),
-        ("only_new", ("update")),
+        ("ignore_signature", ("update", "force_update")),
+        ("only_new", ("update", "force_update")),
         ("exiftool_option", ("exiftool")),
         ("exiftool_merge_keywords", ("exiftool", "sidecar")),
         ("exiftool_merge_persons", ("exiftool", "sidecar")),
@@ -1905,51 +1915,52 @@ def export(
                 export_results = export_photo(
                     photo=p,
                     dest=dest,
-                    verbose=verbose,
-                    export_by_date=export_by_date,
-                    sidecar=sidecar,
-                    sidecar_drop_ext=sidecar_drop_ext,
-                    update=update,
-                    ignore_signature=ignore_signature,
-                    export_as_hardlink=export_as_hardlink,
-                    overwrite=overwrite,
-                    export_edited=export_edited,
-                    skip_original_if_edited=skip_original_if_edited,
-                    original_name=original_name,
-                    export_live=export_live,
+                    album_keyword=album_keyword,
+                    convert_to_jpeg=convert_to_jpeg,
+                    description_template=description_template,
+                    directory=directory,
                     download_missing=download_missing,
-                    exiftool=exiftool,
+                    dry_run=dry_run,
+                    edited_suffix=edited_suffix,
                     exiftool_merge_keywords=exiftool_merge_keywords,
                     exiftool_merge_persons=exiftool_merge_persons,
-                    directory=directory,
-                    filename_template=filename_template,
-                    export_raw=export_raw,
-                    album_keyword=album_keyword,
-                    person_keyword=person_keyword,
-                    keyword_template=keyword_template,
-                    description_template=description_template,
-                    export_db=export_db,
-                    fileutil=fileutil,
-                    dry_run=dry_run,
-                    touch_file=touch_file,
-                    edited_suffix=edited_suffix,
-                    original_suffix=original_suffix,
-                    use_photos_export=use_photos_export,
-                    convert_to_jpeg=convert_to_jpeg,
-                    jpeg_quality=jpeg_quality,
-                    ignore_date_modified=ignore_date_modified,
-                    use_photokit=use_photokit,
                     exiftool_option=exiftool_option,
-                    strip=strip,
+                    exiftool=exiftool,
+                    export_as_hardlink=export_as_hardlink,
+                    export_by_date=export_by_date,
+                    export_db=export_db,
+                    export_dir=dest,
+                    export_edited=export_edited,
+                    export_live=export_live,
+                    export_preview=preview,
+                    export_raw=export_raw,
+                    filename_template=filename_template,
+                    fileutil=fileutil,
+                    force_update=force_update,
+                    ignore_date_modified=ignore_date_modified,
+                    ignore_signature=ignore_signature,
                     jpeg_ext=jpeg_ext,
+                    jpeg_quality=jpeg_quality,
+                    keyword_template=keyword_template,
+                    num_photos=num_photos,
+                    original_name=original_name,
+                    original_suffix=original_suffix,
+                    overwrite=overwrite,
+                    person_keyword=person_keyword,
+                    photo_num=photo_num,
+                    preview_if_missing=preview_if_missing,
+                    preview_suffix=preview_suffix,
                     replace_keywords=replace_keywords,
                     retry=retry,
-                    export_dir=dest,
-                    export_preview=preview,
-                    preview_suffix=preview_suffix,
-                    preview_if_missing=preview_if_missing,
-                    photo_num=photo_num,
-                    num_photos=num_photos,
+                    sidecar_drop_ext=sidecar_drop_ext,
+                    sidecar=sidecar,
+                    skip_original_if_edited=skip_original_if_edited,
+                    strip=strip,
+                    touch_file=touch_file,
+                    update=update,
+                    use_photokit=use_photokit,
+                    use_photos_export=use_photos_export,
+                    verbose=verbose,
                 )
 
                 if post_function:
@@ -2062,7 +2073,7 @@ def export(
             fp.close()
 
         photo_str_total = "photos" if len(photos) != 1 else "photo"
-        if update:
+        if update or force_update:
             summary = (
                 f"Processed: {len(photos)} {photo_str_total}, "
                 f"exported: {len(results.new)}, "
@@ -2592,6 +2603,7 @@ def export_photo(
     sidecar=None,
     sidecar_drop_ext=False,
     update=None,
+    force_update=None,
     ignore_signature=None,
     export_as_hardlink=None,
     overwrite=None,
@@ -2638,47 +2650,47 @@ def export_photo(
     Args:
         photo: PhotoInfo object
         dest: destination path as string
-        verbose: boolean; print verbose output
-        export_by_date: boolean; create export folder in form dest/YYYY/MM/DD
-        sidecar: list zero, 1 or 2 of ["json","xmp"] of sidecar variety to export
-        sidecar_drop_ext: boolean; if True, drops photo extension from sidecar name
-        export_as_hardlink: boolean; hardlink files instead of copying them
-        overwrite: boolean; overwrite dest file if it already exists
-        original_name: boolean; use original filename instead of current filename
-        export_live: boolean; also export live video component if photo is a live photo
-                     live video will have same name as photo but with .mov extension
-        download_missing: attempt download of missing iCloud photos
-        exiftool: use exiftool to write EXIF metadata directly to exported photo
+        album_keyword: bool; if True, exports album names as keywords in metadata
+        convert_to_jpeg: bool; if True, converts non-jpeg images to jpeg
+        description_template: str; optional template string that will be rendered for use as photo description
         directory: template used to determine output directory
-        filename_template: template use to determine output file
-        export_raw: boolean; if True exports raw image associate with the photo
-        export_edited: boolean; if True exports edited version of photo if there is one
-        skip_original_if_edited: boolean; if True does not export original if photo has been edited
-        album_keyword: boolean; if True, exports album names as keywords in metadata
-        person_keyword: boolean; if True, exports person names as keywords in metadata
-        keyword_template: list of strings; if provided use rendered template strings as keywords
-        description_template: string; optional template string that will be rendered for use as photo description
-        export_db: export database instance compatible with ExportDB_ABC
-        fileutil: file util class compatible with FileUtilABC
-        dry_run: boolean; if True, doesn't actually export or update any files
-        touch_file: boolean; sets file's modification time to match photo date
-        use_photos_export: boolean; if True forces the use of AppleScript to export even if photo not missing
-        convert_to_jpeg: boolean; if True, converts non-jpeg images to jpeg
-        jpeg_quality: float in range 0.0 <= jpeg_quality <= 1.0.  A value of 1.0 specifies use best quality, a value of 0.0 specifies use maximum compression.
-        ignore_date_modified: if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
+        download_missing: attempt download of missing iCloud photos
+        dry_run: bool; if True, doesn't actually export or update any files
+        exiftool_merge_keywords: bool; if True, merged keywords found in file's exif data (requires exiftool)
+        exiftool_merge_persons: bool; if True, merged persons found in file's exif data (requires exiftool)
         exiftool_option: optional list flags (e.g. ["-m", "-F"]) to pass to exiftool
-        exiftool_merge_keywords: boolean; if True, merged keywords found in file's exif data (requires exiftool)
-        exiftool_merge_persons: boolean; if True, merged persons found in file's exif data (requires exiftool)
+        exiftool: bool; use exiftool to write EXIF metadata directly to exported photo
+        export_as_hardlink: bool; hardlink files instead of copying them
+        export_by_date: bool; create export folder in form dest/YYYY/MM/DD
+        export_db: export database instance compatible with ExportDB_ABC
+        export_dir: top-level export directory for {export_dir} template
+        export_edited: bool; if True exports edited version of photo if there is one
+        export_live: bool; also export live video component if photo is a live photo; live video will have same name as photo but with .mov extension
+        export_preview: export the preview image generated by Photos
+        export_raw: bool; if True exports raw image associate with the photo
+        filename_template: template use to determine output file
+        fileutil: file util class compatible with FileUtilABC
+        force_update: bool, only export updated photos but trigger export even if only metadata has changed
+        ignore_date_modified: if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
         jpeg_ext: if not None, specify the extension to use for all JPEG images on export
+        jpeg_quality: float in range 0.0 <= jpeg_quality <= 1.0.  A value of 1.0 specifies use best quality, a value of 0.0 specifies use maximum compression.
+        keyword_template: list of strings; if provided use rendered template strings as keywords
+        num_photos: int, total number of photos that will be exported
+        original_name: bool; use original filename instead of current filename
+        overwrite: bool; overwrite dest file if it already exists
+        person_keyword: bool; if True, exports person names as keywords in metadata
+        photo_num: int, which number photo in total of num_photos is being exported
+        preview_if_missing: bool, export preview if original is missing
+        preview_suffix: str, template to use as suffix for preview images
         replace_keywords: if True, --keyword-template replaces keywords instead of adding keywords
         retry: retry up to retry # of times if there's an error
-        export_dir: top-level export directory for {export_dir} template
-        export_preview: export the preview image generated by Photos
-        preview_suffix: str, template to use as suffix for preview images
-        preview_if_missing: bool, export preview if original is missing
-        photo_num: int, which number photo in total of num_photos is being exported
-        num_photos: int, total number of photos that will be exported
-
+        sidecar_drop_ext: bool; if True, drops photo extension from sidecar name
+        sidecar: list zero, 1 or 2 of ["json","xmp"] of sidecar variety to export
+        skip_original_if_edited: bool; if True does not export original if photo has been edited
+        touch_file: bool; sets file's modification time to match photo date
+        update: bool, only export updated photos
+        use_photos_export: bool; if True forces the use of AppleScript to export even if photo not missing
+        verbose: bool; print verbose output
     Returns:
         list of path(s) of exported photo or None if photo was missing
 
@@ -2824,6 +2836,7 @@ def export_photo(
                 export_raw=export_raw,
                 filename=original_filename,
                 fileutil=fileutil,
+                force_update=force_update,
                 ignore_date_modified=ignore_date_modified,
                 ignore_signature=ignore_signature,
                 jpeg_ext=jpeg_ext,
@@ -2936,6 +2949,7 @@ def export_photo(
                     export_raw=not export_original and export_raw,
                     filename=edited_filename,
                     fileutil=fileutil,
+                    force_update=force_update,
                     ignore_date_modified=ignore_date_modified,
                     ignore_signature=ignore_signature,
                     jpeg_ext=jpeg_ext,
@@ -3019,6 +3033,7 @@ def export_photo_to_directory(
     export_raw,
     filename,
     fileutil,
+    force_update,
     ignore_date_modified,
     ignore_signature,
     jpeg_ext,
@@ -3077,6 +3092,7 @@ def export_photo_to_directory(
                 export_as_hardlink=export_as_hardlink,
                 export_db=export_db,
                 fileutil=fileutil,
+                force_update=force_update,
                 ignore_date_modified=ignore_date_modified,
                 ignore_signature=ignore_signature,
                 jpeg_ext=jpeg_ext,
@@ -3179,7 +3195,7 @@ def get_filenames_from_template(
     Args:
         photo: a PhotoInfo instance
         filename_template: a PhotoTemplate template string, may be None
-        original_name: boolean; if True, use photo's original filename instead of current filename
+        original_name: bool; if True, use photo's original filename instead of current filename
         dest_path: the path the photo will be exported to
         strip: if True, strips leading/trailing white space from resulting template
         edited: if True, sets {edited_version} field to True, otherwise it gets set to False; set if you want template evaluated for edited version
@@ -3240,9 +3256,9 @@ def get_dirnames_from_template(
     Args:
         photo: a PhotoInstance object
         directory: a PhotoTemplate template string, may be None
-        export_by_date: boolean; if True, creates output directories in form YYYY-MM-DD
+        export_by_date: bool; if True, creates output directories in form YYYY-MM-DD
         dest: top-level destination directory
-        dry_run: boolean; if True, runs in dry-run mode and does not create output directories
+        dry_run: bool; if True, runs in dry-run mode and does not create output directories
         strip: if True, strips leading/trailing white space from resulting template
         edited: if True, sets {edited_version} field to True, otherwise it gets set to False; set if you want template evaluated for edited version
 
