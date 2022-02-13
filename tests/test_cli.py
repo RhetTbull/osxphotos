@@ -4845,15 +4845,12 @@ def test_export_force_update():
             in result.output
         )
 
-        # force update
+        # force update must be run once to set the metadata digest info
+        # in practice, this means that first time user uses --force-update, most files will likely be re-exported
         result = runner.invoke(
             export, [os.path.join(cwd, photos_db_path), ".", "--force-update"]
         )
         assert result.exit_code == 0
-        assert (
-            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: 0, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, updated EXIF data: 0, missing: 3, error: 0"
-            in result.output
-        )
 
         # update a file
         dbpath = os.path.join(photos_db_path, "database/Photos.sqlite")
@@ -4869,7 +4866,7 @@ def test_export_force_update():
         )
         conn.commit()
 
-        # run again to see if updated metadata forced update
+        # run --force-update to see if updated metadata forced update
         result = runner.invoke(
             export, [os.path.join(cwd, photos_db_path), ".", "--force-update"]
         )
@@ -4879,6 +4876,25 @@ def test_export_force_update():
             in result.output
         )
 
+        # update, nothing should export
+        result = runner.invoke(
+            export, [os.path.join(cwd, photos_db_path), ".", "--update"]
+        )
+        assert result.exit_code == 0
+        assert (
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: 0, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, updated EXIF data: 0, missing: 3, error: 0"
+            in result.output
+        )
+
+        # run --force-update, nothing should export
+        result = runner.invoke(
+            export, [os.path.join(cwd, photos_db_path), ".", "--force-update"]
+        )
+        assert result.exit_code == 0
+        assert (
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: 0, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, updated EXIF data: 0, missing: 3, error: 0"
+            in result.output
+        )
 
 @pytest.mark.skipif(
     "OSXPHOTOS_TEST_EXPORT" not in os.environ,

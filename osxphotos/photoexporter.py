@@ -1033,9 +1033,9 @@ class PhotoExporter:
                         # need to also check the photo's metadata to that in the database
                         # and if anything changed, we need to update the file
                         # ony the hex digest of the metadata is stored in the database
-                        cmp_orig = hexdigest(
-                            self.photo.json()
-                        ) == export_db.get_metadata_for_file(dest_str)
+                        photo_digest = hexdigest(self.photo.json())
+                        db_digest = export_db.get_metadata_for_file(dest_str)
+                        cmp_orig = photo_digest == db_digest
 
                 sig_cmp = cmp_touch if options.touch_file else cmp_orig
 
@@ -1138,6 +1138,8 @@ class PhotoExporter:
                     ) from e
 
         json_info = self.photo.json()
+        # don't set the metadata digest if not force_update so that future use of force_update catches metadata change
+        metadata_digest = hexdigest(json_info) if options.force_update else None
         export_db.set_data(
             filename=dest_str,
             uuid=self.photo.uuid,
@@ -1145,7 +1147,7 @@ class PhotoExporter:
             converted_stat=converted_stat,
             edited_stat=edited_stat,
             info_json=json_info,
-            metadata=hexdigest(json_info),
+            metadata=metadata_digest,
         )
 
         return ExportResults(

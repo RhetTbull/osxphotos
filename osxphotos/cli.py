@@ -3164,7 +3164,7 @@ def export_photo_to_directory(
                 )
 
     if verbose:
-        if update:
+        if update or force_update:
             for new in results.new:
                 verbose_(f"Exported new file {new}")
             for updated in results.updated:

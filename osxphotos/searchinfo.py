@@ -211,10 +211,12 @@ class SearchInfo:
         """return list of text for a specified category ID"""
         if self._db_searchinfo:
             content = "normalized_string" if self._normalized else "content_string"
-            return [
-                rec[content]
-                for rec in self._db_searchinfo
-                if rec["category"] == category
-            ]
+            return sorted(
+                [
+                    rec[content]
+                    for rec in self._db_searchinfo
+                    if rec["category"] == category
+                ]
+            )
         else:
             return []

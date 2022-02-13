@@ -1729,6 +1729,9 @@ class PhotoInfo:
                 return o.isoformat()
 
         dict_data = self.asdict()
+        for k, v in dict_data.items():
+            if v and isinstance(v, (list, tuple)) and not isinstance(v[0], dict):
+                dict_data[k] = sorted(v)
         return json.dumps(dict_data, sort_keys=True, default=default)
 
     def __eq__(self, other):
