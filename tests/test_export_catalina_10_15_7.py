@@ -462,23 +462,12 @@ def test_exiftool_json_sidecar_keyword_template_long(capsys, photosdb):
     assert "some keywords exceed max IPTC Keyword length" in captured.out
 
     # some gymnastics to account for different sort order in different pythons
-    for k, v in json_got.items():
-        if type(v) in (list, tuple):
-            assert sorted(json_expected[k]) == sorted(v)
-        else:
-            assert json_expected[k] == v
-
     for k, v in json_expected.items():
         if type(v) in (list, tuple):
             assert sorted(json_got[k]) == sorted(v)
         else:
             assert json_got[k] == v
 
-    for k, v in json_expected.items():
-        if type(v) in (list, tuple):
-            assert sorted(json_got[k]) == sorted(v)
-        else:
-            assert json_got[k] == v
 
 
 def test_exiftool_json_sidecar_keyword_template(photosdb):

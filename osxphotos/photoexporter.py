@@ -1541,7 +1541,7 @@ class PhotoExporter:
             person_list = sorted(list(set(person_list)))
             exif["XMP:PersonInImage"] = person_list.copy()
 
-        if options.face_regions and self.photo.face_info and self.photo._db._beta:
+        if options.face_regions and self.photo.face_info:
             exif.update(self._get_mwg_face_regions_exiftool())
 
         # if self.favorite():

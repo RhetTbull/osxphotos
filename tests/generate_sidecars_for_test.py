@@ -7,6 +7,7 @@
 import pathlib
 
 import osxphotos
+from osxphotos.photoexporter import PhotoExporter, ExportOptions
 
 PHOTOS_DB_15_7 = "./tests/Test-10.15.7.photoslibrary/database/photos.db"
 PHOTOS_DB_14_6 = "./tests/Test-10.14.6.photoslibrary/database/photos.db"
@@ -31,7 +32,7 @@ SIDECAR_DIR = "tests/sidecars"
 
 
 def generate_sidecars(dbname, uuid_dict):
-    """ generate XMP and JSON sidecars for testing """
+    """generate XMP and JSON sidecars for testing"""
     photosdb = osxphotos.PhotosDB(dbname)
 
     for _, uuid in uuid_dict.items():
@@ -39,7 +40,8 @@ def generate_sidecars(dbname, uuid_dict):
 
         # plain xmp
         sidecar = str(pathlib.Path(SIDECAR_DIR) / f"{uuid}.xmp")
-        xmp = photo._xmp_sidecar()
+        exporter = PhotoExporter(photo)
+        xmp = exporter._xmp_sidecar()
         with open(sidecar, "w") as file:
             file.write(xmp)
 
@@ -47,63 +49,76 @@ def generate_sidecars(dbname, uuid_dict):
         ext = osxphotos.uti.get_preferred_uti_extension(photo.uti)
         ext = "jpg" if ext == "jpeg" else ext
         sidecar = str(pathlib.Path(SIDECAR_DIR) / f"{uuid}_ext.xmp")
-        xmp = photo._xmp_sidecar(extension=ext)
+        xmp = exporter._xmp_sidecar(extension=ext)
         with open(sidecar, "w") as file:
             file.write(xmp)
 
         # persons_as_keywords
         sidecar = str(pathlib.Path(SIDECAR_DIR) / f"{uuid}_persons_as_keywords.xmp")
-        xmp = photo._xmp_sidecar(use_persons_as_keywords=True, extension=ext)
+        xmp = exporter._xmp_sidecar(
+            ExportOptions(use_persons_as_keywords=True), extension=ext
+        )
         with open(sidecar, "w") as file:
             file.write(xmp)
 
         # albums_as_keywords
         sidecar = str(pathlib.Path(SIDECAR_DIR) / f"{uuid}_albums_as_keywords.xmp")
-        xmp = photo._xmp_sidecar(use_albums_as_keywords=True, extension=ext)
+        xmp = exporter._xmp_sidecar(
+            ExportOptions(use_albums_as_keywords=True), extension=ext
+        )
         with open(sidecar, "w") as file:
             file.write(xmp)
 
         # keyword_template
         sidecar = str(pathlib.Path(SIDECAR_DIR) / f"{uuid}_keyword_template.xmp")
-        xmp = photo._xmp_sidecar(
-            keyword_template=["{created.year}", "{folder_album}"], extension=ext
+        xmp = exporter._xmp_sidecar(
+            ExportOptions(keyword_template=["{created.year}", "{folder_album}"]),
+            extension=ext,
         )
         with open(sidecar, "w") as file:
             file.write(xmp)
 
         # generate JSON files
         sidecar = str(pathlib.Path(SIDECAR_DIR) / f"{uuid}.json")
-        json_ = photo._exiftool_json_sidecar()
+        json_ = exporter._exiftool_json_sidecar()
         with open(sidecar, "w") as file:
             file.write(json_)
 
         # no tag groups
         sidecar = str(pathlib.Path(SIDECAR_DIR) / f"{uuid}_no_tag_groups.json")
-        json_ = photo._exiftool_json_sidecar(tag_groups=False)
+        json_ = exporter._exiftool_json_sidecar(tag_groups=False)
         with open(sidecar, "w") as file:
             file.write(json_)
 
         # ignore_date_modified
         sidecar = str(pathlib.Path(SIDECAR_DIR) / f"{uuid}_ignore_date_modified.json")
-        json_ = photo._exiftool_json_sidecar(ignore_date_modified=True)
+        json_ = exporter._exiftool_json_sidecar(
+            ExportOptions(ignore_date_modified=True)
+        )
         with open(sidecar, "w") as file:
             file.write(json_)
 
         # keyword_template
         sidecar = str(pathlib.Path(SIDECAR_DIR) / f"{uuid}_keyword_template.json")
-        json_ = photo._exiftool_json_sidecar(keyword_template=["{folder_album}"])
+        json_ = exporter._exiftool_json_sidecar(
+            ExportOptions(keyword_template=["{folder_album}"])
+        )
         with open(sidecar, "w") as file:
             file.write(json_)
 
         # persons_as_keywords
         sidecar = str(pathlib.Path(SIDECAR_DIR) / f"{uuid}_persons_as_keywords.json")
-        json_ = photo._exiftool_json_sidecar(use_persons_as_keywords=True)
+        json_ = exporter._exiftool_json_sidecar(
+            ExportOptions(use_persons_as_keywords=True)
+        )
         with open(sidecar, "w") as file:
             file.write(json_)
 
         # albums_as_keywords
         sidecar = str(pathlib.Path(SIDECAR_DIR) / f"{uuid}_albums_as_keywords.json")
-        json_ = photo._exiftool_json_sidecar(use_albums_as_keywords=True)
+        json_ = exporter._exiftool_json_sidecar(
+            ExportOptions(use_albums_as_keywords=True)
+        )
         with open(sidecar, "w") as file:
             file.write(json_)
 

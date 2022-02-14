@@ -332,6 +332,7 @@ UUID_CONDITIONAL = {
         "{photo.score.overall >= 0.7?YES,NO}": ["NO"],
         "{photo.score.overall not < 0.7?YES,NO}": ["NO"],
         "{folder_album(-) contains Folder1-SubFolder2-AlbumInFolder?YES,NO}": ["YES"],
+        "{folder_album( - ) contains Folder1 - SubFolder2 - AlbumInFolder?YES,NO}": ["YES"],
         "{folder_album(-)[In,] contains Folder1-SubFolder2-AlbumFolder?YES,NO}": [
             "YES"
         ],

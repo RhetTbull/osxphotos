@@ -53,6 +53,8 @@
  xmlns:stDim="http://ns.adobe.com/xap/1.0/sType/Dimensions#">
     <mwg-rs:Regions rdf:parseType="Resource">
     <mwg-rs:AppliedToDimensions rdf:parseType="Resource">
+    <stDim:h>1365</stDim:h>
+    <stDim:w>2048</stDim:w>
     <stDim:unit>pixel</stDim:unit>
     </mwg-rs:AppliedToDimensions>
     <mwg-rs:RegionList>

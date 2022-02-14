@@ -4738,29 +4738,74 @@ def test_export_sidecar_keyword_template():
 
         json_expected = json.loads(
             """
-            [{"SourceFile": "Pumkins2.jpg",
-            "ExifTool:ExifToolVersion": "12.00",
-            "File:FileName": "Pumkins2.jpg",
-            "EXIF:ImageDescription": "Girl holding pumpkin",
-            "IPTC:Caption-Abstract": "Girl holding pumpkin",
-            "XMP:Description": "Girl holding pumpkin", 
-            "XMP:Title": "I found one!",
-            "IPTC:ObjectName": "I found one!",
-            "XMP:TagsList": ["Kids", "Multi Keyword", "Pumpkin Farm", "Test Album"], 
-            "IPTC:Keywords": ["Kids", "Multi Keyword", "Pumpkin Farm", "Test Album"], 
-            "XMP:PersonInImage": ["Katie"], 
-            "XMP:Subject": ["Kids", "Multi Keyword", "Pumpkin Farm", "Test Album"], 
-            "EXIF:DateTimeOriginal": "2018:09:28 16:07:07", 
-            "EXIF:CreateDate": "2018:09:28 16:07:07", 
-            "EXIF:OffsetTimeOriginal": "-04:00", 
-            "IPTC:DateCreated": "2018:09:28",
-            "IPTC:TimeCreated": "16:07:07-04:00",
-            "EXIF:ModifyDate": "2018:09:28 16:07:07",
-            "EXIF:GPSLatitude": 41.256566,
-            "EXIF:GPSLongitude": -95.940257,
-            "EXIF:GPSLatitudeRef": "N",
-            "EXIF:GPSLongitudeRef": "W"}]
-            """
+            [{
+                "SourceFile": "Pumkins2.jpg",
+                "ExifTool:ExifToolVersion": "12.00",
+                "File:FileName": "Pumkins2.jpg",
+                "EXIF:ImageDescription": "Girl holding pumpkin",
+                "XMP:Description": "Girl holding pumpkin",
+                "IPTC:Caption-Abstract": "Girl holding pumpkin",
+                "XMP:Title": "I found one!",
+                "IPTC:ObjectName": "I found one!",
+                "IPTC:Keywords": [
+                    "Kids",
+                    "Multi Keyword",
+                    "Pumpkin Farm",
+                    "Test Album"
+                ],
+                "XMP:Subject": [
+                    "Kids",
+                    "Multi Keyword",
+                    "Pumpkin Farm",
+                    "Test Album"
+                ],
+                "XMP:TagsList": [
+                    "Kids",
+                    "Multi Keyword",
+                    "Pumpkin Farm",
+                    "Test Album"
+                ],
+                "XMP:PersonInImage": [
+                    "Katie"
+                ],
+                "XMP:RegionAppliedToDimensionsW": 1365,
+                "XMP:RegionAppliedToDimensionsH": 2048,
+                "XMP:RegionAppliedToDimensionsUnit": "pixel",
+                "XMP:RegionName": [
+                    "Katie"
+                ],
+                "XMP:RegionType": [
+                    "Face"
+                ],
+                "XMP:RegionAreaX": [
+                    0.5898191407322884
+                ],
+                "XMP:RegionAreaY": [
+                    0.28164292871952057
+                ],
+                "XMP:RegionAreaW": [
+                    0.22411711513996124
+                ],
+                "XMP:RegionAreaH": [
+                    0.14937493269826518
+                ],
+                "XMP:RegionAreaUnit": [
+                    "normalized"
+                ],
+                "XMP:RegionPersonDisplayName": [
+                    "Katie"
+                ],
+                "EXIF:GPSLatitude": 41.256566,
+                "EXIF:GPSLongitude": -95.940257,
+                "EXIF:GPSLatitudeRef": "N",
+                "EXIF:GPSLongitudeRef": "W",
+                "EXIF:DateTimeOriginal": "2018:09:28 16:07:07",
+                "EXIF:CreateDate": "2018:09:28 16:07:07",
+                "EXIF:OffsetTimeOriginal": "-04:00",
+                "IPTC:DateCreated": "2018:09:28",
+                "IPTC:TimeCreated": "16:07:07-04:00",
+                "EXIF:ModifyDate": "2018:09:28 16:07:07"
+        }]"""
         )[0]
 
         with open("Pumkins2.jpg.json", "r") as json_file:
