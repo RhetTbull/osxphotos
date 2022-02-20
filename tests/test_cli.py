@@ -5058,6 +5058,7 @@ def test_export_update_complex():
             in result.output
         )
 
+
 @pytest.mark.skipif(
     "OSXPHOTOS_TEST_EXPORT" not in os.environ,
     reason="Skip if not running on author's personal library.",
@@ -5382,14 +5383,14 @@ def test_export_update_no_db():
         assert os.path.isfile(OSXPHOTOS_EXPORT_DB)
         os.unlink(OSXPHOTOS_EXPORT_DB)
 
-        # update
+        # update, will re-export all files with different names
         result = runner.invoke(
             export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--update"]
         )
         assert result.exit_code == 0
 
         assert (
-            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: {PHOTOS_EDITED_15_7}, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7}, updated EXIF data: 0, missing: 3, error: 0"
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, updated: 0"
             in result.output
         )
         assert os.path.isfile(OSXPHOTOS_EXPORT_DB)
@@ -6036,7 +6037,9 @@ def test_export_ignore_signature_sidecar():
         exportdb = osxphotos.export_db.ExportDB("./.osxphotos_export.db", ".")
         for filename in CLI_EXPORT_IGNORE_SIGNATURE_FILENAMES:
             record = exportdb.get_file_record(filename)
-            sidecar_record = exportdb.create_or_get_file_record(f"{filename}.xmp", record.uuid)
+            sidecar_record = exportdb.create_or_get_file_record(
+                f"{filename}.xmp", record.uuid
+            )
             sidecar_record.dest_sig = (0, 1, 2)
             sidecar_record.digest = "FOO"
 

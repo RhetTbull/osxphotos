@@ -471,16 +471,6 @@ class PhotoExporter:
             live_name = dest.parent / f"{dest.stem}.mov"
             if staged_files.original_live:
                 src_live = staged_files.original_live
-                export_rec = options.export_db.get_file_record(live_name)
-                if not export_rec and live_name.exists():
-                    print("1")
-                    # might be case where ExportDB was deleted as the destination exists but not in the export_db
-                    # initialize the export_db for this file
-                    export_rec = options.export_db.create_file_record(
-                        live_name, self.photo.uuid
-                    )
-                    export_rec.src_sig = options.fileutil.file_sig(src_live)
-                    export_rec.dest_sig = options.fileutil.file_sig(live_name)
                 all_results += self._export_photo(
                     src_live,
                     live_name,
@@ -497,16 +487,6 @@ class PhotoExporter:
             live_name = dest.parent / f"{dest.stem}.mov"
             if staged_files.edited_live:
                 src_live = staged_files.edited_live
-                export_rec = options.export_db.get_file_record(live_name)
-                if not export_rec and live_name.exists():
-                    print("2")
-                    # might be case where ExportDB was deleted as the destination exists but not in the export_db
-                    # initialize the export_db for this file
-                    export_rec = options.export_db.create_file_record(
-                        live_name, self.photo.uuid
-                    )
-                    export_rec.src_sig = options.fileutil.file_sig(src_live)
-                    export_rec.dest_sig = options.fileutil.file_sig(live_name)
                 all_results += self._export_photo(
                     src_live,
                     live_name,
@@ -525,16 +505,6 @@ class PhotoExporter:
                 raw_path = pathlib.Path(staged_files.raw)
                 raw_ext = raw_path.suffix
                 raw_name = dest.parent / f"{dest.stem}{raw_ext}"
-                export_rec = options.export_db.get_file_record(raw_name)
-                if not export_rec and raw_name.exists():
-                    print("3")
-                    # might be case where ExportDB was deleted as the destination exists but not in the export_db
-                    # initialize the export_db for this file
-                    export_rec = options.export_db.create_file_record(
-                        raw_name, self.photo.uuid
-                    )
-                    export_rec.src_sig = options.fileutil.file_sig(raw_path)
-                    export_rec.dest_sig = options.fileutil.file_sig(raw_name)
                 all_results += self._export_photo(
                     raw_path,
                     raw_name,
@@ -567,16 +537,6 @@ class PhotoExporter:
                     if any([options.overwrite, options.update, options.force_update])
                     else pathlib.Path(increment_filename(preview_name))
                 )
-                export_rec = options.export_db.get_file_record(preview_name)
-                if not export_rec and preview_name.exists():
-                    print("4")
-                    # might be case where ExportDB was deleted as the destination exists but not in the export_db
-                    # initialize the export_db for this file
-                    export_rec = options.export_db.create_file_record(
-                        preview_name, self.photo.uuid
-                    )
-                    export_rec.src_sig = options.fileutil.file_sig(preview_path)
-                    export_rec.dest_sig = options.fileutil.file_sig(preview_name)
                 all_results += self._export_photo(
                     preview_path,
                     preview_name,
@@ -601,7 +561,6 @@ class PhotoExporter:
         for touch_file in set(touch_files):
             ts = int(self.photo.date.timestamp())
             stat = os.stat(touch_file)
-            import datetime
             if stat.st_mtime != ts:
                 if not options.dry_run:
                     fileutil.utime(touch_file, (ts, ts))
@@ -658,19 +617,8 @@ class PhotoExporter:
         # if update and file exists, need to check to see if it's the right file by checking export db
         if (options.update or options.force_update) and dest.exists() and src:
             export_db = options.export_db
-            fileutil = options.fileutil
             # destination exists, check to see if destination is the right UUID
             dest_uuid = export_db.get_uuid_for_file(dest)
-            if dest_uuid is None and fileutil.cmp(src, dest):
-                # might be exporting into a pre-ExportDB folder or the DB got deleted
-                # src and dest match so likely this is the right file
-                # however, if exporting with exiftool or convert_to_jpeg, the signatures won't match and
-                # this will get picked up in _should_export_photo()
-                dest_uuid = self.photo.uuid
-                with export_db.create_file_record(dest, self.photo.uuid) as rec:
-                    rec.src_sig = fileutil.file_sig(src)
-                    rec.dest_sig = fileutil.file_sig(dest)
-                    rec.photoinfo = self.photo.json()
             if dest_uuid != self.photo.uuid:
                 # not the right file, find the right one
                 # find files that match "dest_name (*.ext" (e.g. "dest_name (1).jpg", "dest_name (2).jpg)", ...)
@@ -684,18 +632,6 @@ class PhotoExporter:
                     dest_uuid = export_db.get_uuid_for_file(file_)
                     if dest_uuid == self.photo.uuid:
                         dest = pathlib.Path(file_)
-                        break
-                    elif dest_uuid is None and fileutil.cmp(src, file_):
-                        # Z should do this?
-                        # files match, update the UUID
-                        # src and dest match so likely this is the right file
-                        # however, if exporting with exiftool or convert_to_jpeg, the signatures won't match and
-                        # this will get picked up in _should_export_photo()
-                        dest = pathlib.Path(file_)
-                        with export_db.create_file_record(dest, self.photo.uuid) as rec:
-                            rec.src_sig = fileutil.file_sig(src)
-                            rec.dest_sig = fileutil.file_sig(dest)
-                            rec.photoinfo = self.photo.json()
                         break
                 else:
                     # increment the destination file

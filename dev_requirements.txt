@@ -8,3 +8,4 @@ sphinx_rtd_theme
 twine
 wheel
 Sphinx
+pdbpp

@@ -65,6 +65,15 @@ from .crash_reporter import crash_reporter
 from .datetime_formatter import DateTimeFormatter
 from .exiftool import get_exiftool_path
 from .export_db import ExportDB, ExportDBInMemory
+from .export_db_utils import (
+    export_db_check_signatures,
+    export_db_get_last_run,
+    export_db_get_version,
+    export_db_save_config_to_file,
+    export_db_touch_files,
+    export_db_update_signatures,
+    export_db_vacuum,
+)
 from .fileutil import FileUtil, FileUtilNoOp
 from .path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
 from .photoexporter import ExportOptions, ExportResults, PhotoExporter
@@ -4704,6 +4713,171 @@ def diff(ctx, cli_obj, db, raw_output, style, db2, verbose):
 def run(python_file):
     """Run a python file using same environment as osxphotos"""
     run_path(python_file, run_name="__main__")
+
+
+@cli.command(name="exportdb", hidden=OSXPHOTOS_HIDDEN)
+@click.option("--version", is_flag=True, help="Print export database version and exit.")
+@click.option("--vacuum", is_flag=True, help="Run VACUUM to defragment the database.")
+@click.option(
+    "--check-signatures",
+    is_flag=True,
+    help="Check signatures for all exported photos in the database to find signatures that don't match.",
+)
+@click.option(
+    "--update-signatures",
+    is_flag=True,
+    help="Update signatures for all exported photos in the database to match on-disk signatures.",
+)
+@click.option(
+    "--touch-file",
+    is_flag=True,
+    help="Touch files on disk to match created date in Photos library and update export database signatures",
+)
+@click.option(
+    "--last-run",
+    is_flag=True,
+    help="Show last run osxphotos commands used with this database.",
+)
+@click.option(
+    "--save-config",
+    metavar="CONFIG_FILE",
+    help="Save last run configuration to TOML file for use by --load-config.",
+)
+@click.option(
+    "--export-dir",
+    help="Optional path to export directory (if not parent of export database).",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True),
+)
+@click.option("--verbose", "-V", is_flag=True, help="Print verbose output.")
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    help="Run in dry-run mode (don't actually update files), e.g. for use with --update-signatures.",
+)
+@click.argument("export_db", metavar="EXPORT_DATABASE", type=click.Path(exists=True))
+def exportdb(
+    version,
+    vacuum,
+    check_signatures,
+    update_signatures,
+    touch_file,
+    last_run,
+    save_config,
+    export_dir,
+    verbose,
+    dry_run,
+    export_db,
+):
+    """Utilities for working with the osxphotos export database"""
+    export_db = pathlib.Path(export_db)
+    if export_db.is_dir():
+        # assume it's the export folder
+        export_db = export_db / OSXPHOTOS_EXPORT_DB
+        if not export_db.is_file():
+            print(
+                f"[red]Error: {OSXPHOTOS_EXPORT_DB} missing from {export_db.parent}[/red]"
+            )
+            sys.exit(1)
+
+    export_dir = export_dir or export_db.parent
+
+    sub_commands = [
+        version,
+        check_signatures,
+        update_signatures,
+        touch_file,
+        last_run,
+        bool(save_config),
+    ]
+    if sum(sub_commands) > 1:
+        print(f"[red]Only a single sub-command may be specified at a time[/red]")
+        sys.exit(1)
+
+    if version:
+        try:
+            osxphotos_ver, export_db_ver = export_db_get_version(export_db)
+        except Exception as e:
+            print(f"[red]Error: could not read version from {export_db}: {e}[/red]")
+            sys.exit(1)
+        else:
+            print(
+                f"osxphotos version: {osxphotos_ver}, export database version: {export_db_ver}"
+            )
+        sys.exit(0)
+
+    if vacuum:
+        try:
+            start_size = pathlib.Path(export_db).stat().st_size
+            export_db_vacuum(export_db)
+        except Exception as e:
+            print(f"[red]Error: {e}[/red]")
+            sys.exit(1)
+        else:
+            print(
+                f"Vacuumed {export_db}! {start_size} bytes -> {pathlib.Path(export_db).stat().st_size} bytes"
+            )
+            sys.exit(0)
+
+    if update_signatures:
+        try:
+            updated, skipped = export_db_update_signatures(
+                export_db, export_dir, verbose, dry_run
+            )
+        except Exception as e:
+            print(f"[red]Error: {e}[/red]")
+            sys.exit(1)
+        else:
+            print(f"Done. Updated {updated} files, skipped {skipped} files.")
+            sys.exit(0)
+
+    if last_run:
+        try:
+            last_run_info = export_db_get_last_run(export_db)
+        except Exception as e:
+            print(f"[red]Error: {e}[/red]")
+            sys.exit(1)
+        else:
+            print(f"last run at {last_run_info[0]}:")
+            print(f"osxphotos {last_run_info[1]}")
+            sys.exit(0)
+
+    if save_config:
+        try:
+            export_db_save_config_to_file(export_db, save_config)
+        except Exception as e:
+            print(f"[red]Error: {e}[/red]")
+            sys.exit(1)
+        else:
+            print(f"Saved configuration to {save_config}")
+            sys.exit(0)
+
+    if check_signatures:
+        try:
+            matched, notmatched, skipped = export_db_check_signatures(
+                export_db, export_dir, verbose=verbose
+            )
+        except Exception as e:
+            print(f"[red]Error: {e}[/red]")
+            sys.exit(1)
+        else:
+            print(
+                f"Done. Found {matched} matching signatures and {notmatched} signatures that don't match. Skipped {skipped} missing files."
+            )
+            sys.exit(0)
+
+    if touch_file:
+        try:
+            touched, not_touched, skipped = export_db_touch_files(
+                export_db, export_dir, verbose=verbose, dry_run=dry_run
+            )
+        except Exception as e:
+            print(f"[red]Error: {e}[/red]")
+            sys.exit(1)
+        else:
+            print(
+                f"Done. Touched {touched} files, skipped {not_touched} up to date files, skipped {skipped} missing files."
+            )
+            sys.exit(0)
 
 
 def _query_options_from_kwargs(**kwargs) -> QueryOptions:

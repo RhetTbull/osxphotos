@@ -7,12 +7,14 @@ import tempfile
 
 import pytest
 
+from osxphotos._version import __version__
 from osxphotos.export_db import (
     OSXPHOTOS_EXPORTDB_VERSION,
     ExportDB,
     ExportDBInMemory,
     ExportDBTemp,
     ExportRecord,
+    export_db_get_version,
 )
 
 EXIF_DATA = """[{"_CreatedBy": "osxphotos, https://github.com/RhetTbull/osxphotos", "EXIF:ImageDescription": "\u2068Elder Park\u2069, \u2068Adelaide\u2069, \u2068Australia\u2069", "XMP:Description": "\u2068Elder Park\u2069, \u2068Adelaide\u2069, \u2068Australia\u2069", "XMP:Title": "Elder Park", "EXIF:GPSLatitude": "34 deg 55' 8.01\" S", "EXIF:GPSLongitude": "138 deg 35' 48.70\" E", "Composite:GPSPosition": "34 deg 55' 8.01\" S, 138 deg 35' 48.70\" E", "EXIF:GPSLatitudeRef": "South", "EXIF:GPSLongitudeRef": "East", "EXIF:DateTimeOriginal": "2017:06:20 17:18:56", "EXIF:OffsetTimeOriginal": "+09:30", "EXIF:ModifyDate": "2020:05:18 14:42:04"}]"""
@@ -361,3 +363,14 @@ def test_export_record_context_manager_error():
     assert record.digest is None
     assert record.exifdata is None
     assert record.photoinfo is None
+
+
+def test_get_export_db_version():
+    """Test export_db_get_version"""
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    dbname = os.path.join(tempdir.name, ".osxphotos_export.db")
+    db = ExportDB(dbname, tempdir.name)
+
+    osxphotos_ver, export_db_ver = export_db_get_version(dbname)
+    assert osxphotos_ver == __version__
+    assert export_db_ver == OSXPHOTOS_EXPORTDB_VERSION

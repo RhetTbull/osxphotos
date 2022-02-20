@@ -187,7 +187,7 @@ class FileUtilMacOS(FileUtilABC):
 
     @classmethod
     def file_sig(cls, f1):
-        """return os.stat signature for file f1"""
+        """return os.stat signature for file f1 as tuple of (mode, size, mtime)"""
         return cls._sig(os.stat(f1))
 
     @classmethod

@@ -7,18 +7,21 @@ import os
 import pathlib
 import sqlite3
 import sys
-
-# from abc import ABC, abstractmethod
 from io import StringIO
 from sqlite3 import Error
 from tempfile import TemporaryDirectory
-from typing import Union
+from typing import Optional, Tuple, Union
 
 from ._constants import OSXPHOTOS_EXPORT_DB
 from ._version import __version__
+from .fileutil import FileUtil
 from .utils import normalize_fs_path
 
-__all__ = ["ExportDB", "ExportDBInMemory", "ExportDBTemp"]
+__all__ = [
+    "ExportDB",
+    "ExportDBInMemory",
+    "ExportDBTemp",
+]
 
 OSXPHOTOS_EXPORTDB_VERSION = "6.0"
 OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
