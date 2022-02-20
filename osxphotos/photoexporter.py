@@ -33,7 +33,7 @@ from ._constants import (
 from ._version import __version__
 from .datetime_utils import datetime_tz_to_utc
 from .exiftool import ExifTool, exiftool_can_write
-from .export_db import ExportDB_ABC, ExportDBNoOp
+from .export_db import ExportDB, ExportDBTemp
 from .fileutil import FileUtil
 from .photokit import (
     PHOTOS_VERSION_CURRENT,
@@ -81,7 +81,7 @@ class ExportOptions:
         exiftool_flags (list of str): optional list of flags to pass to exiftool when using exiftool option, e.g ["-m", "-F"]
         exiftool: (bool, default = False): if True, will use exiftool to write metadata to export file
         export_as_hardlink: (bool, default=False): if True, will hardlink files instead of copying them
-        export_db: (ExportDB_ABC): instance of a class that conforms to ExportDB_ABC with methods for getting/setting data related to exported files to compare update state
+        export_db: (ExportDB): instance of a class that conforms to ExportDB with methods for getting/setting data related to exported files to compare update state
         face_regions: (bool, default=True): if True, will export face regions
         fileutil: (FileUtilABC): class that conforms to FileUtilABC with various file utilities
         force_update: (bool, default=False): if True, will export photo if any metadata has changed but export otherwise would not be triggered (e.g. metadata changed but not using exiftool)
@@ -128,7 +128,7 @@ class ExportOptions:
     exiftool_flags: Optional[List] = None
     exiftool: bool = False
     export_as_hardlink: bool = False
-    export_db: Optional[ExportDB_ABC] = None
+    export_db: Optional[ExportDB] = None
     face_regions: bool = True
     fileutil: Optional[FileUtil] = None
     force_update: bool = False
@@ -163,6 +163,12 @@ class ExportOptions:
 
     def asdict(self):
         return asdict(self)
+
+    @property
+    def bit_flags(self):
+        """Return bit flags representing options that affect export"""
+        # currently only exiftool makes a difference
+        return self.exiftool << 1
 
 
 class StagedFiles:
@@ -403,8 +409,8 @@ class PhotoExporter:
                 "Cannot use export_as_hardlink with download_missing or use_photos_export"
             )
 
-        # when called from export(), won't get an export_db, so use no-op version
-        options.export_db = options.export_db or ExportDBNoOp()
+        # when called from export(), won't get an export_db, so use temp version
+        options.export_db = options.export_db or ExportDBTemp()
 
         # ensure there's a FileUtil class to use
         options.fileutil = options.fileutil or FileUtil
@@ -443,6 +449,7 @@ class PhotoExporter:
 
         # get the right destination path depending on options.update, etc.
         dest = self._get_dest_path(src, dest, options)
+
         self._render_options.filepath = str(dest)
         all_results = ExportResults()
 
@@ -464,6 +471,16 @@ class PhotoExporter:
             live_name = dest.parent / f"{dest.stem}.mov"
             if staged_files.original_live:
                 src_live = staged_files.original_live
+                export_rec = options.export_db.get_file_record(live_name)
+                if not export_rec and live_name.exists():
+                    print("1")
+                    # might be case where ExportDB was deleted as the destination exists but not in the export_db
+                    # initialize the export_db for this file
+                    export_rec = options.export_db.create_file_record(
+                        live_name, self.photo.uuid
+                    )
+                    export_rec.src_sig = options.fileutil.file_sig(src_live)
+                    export_rec.dest_sig = options.fileutil.file_sig(live_name)
                 all_results += self._export_photo(
                     src_live,
                     live_name,
@@ -480,6 +497,16 @@ class PhotoExporter:
             live_name = dest.parent / f"{dest.stem}.mov"
             if staged_files.edited_live:
                 src_live = staged_files.edited_live
+                export_rec = options.export_db.get_file_record(live_name)
+                if not export_rec and live_name.exists():
+                    print("2")
+                    # might be case where ExportDB was deleted as the destination exists but not in the export_db
+                    # initialize the export_db for this file
+                    export_rec = options.export_db.create_file_record(
+                        live_name, self.photo.uuid
+                    )
+                    export_rec.src_sig = options.fileutil.file_sig(src_live)
+                    export_rec.dest_sig = options.fileutil.file_sig(live_name)
                 all_results += self._export_photo(
                     src_live,
                     live_name,
@@ -498,6 +525,16 @@ class PhotoExporter:
                 raw_path = pathlib.Path(staged_files.raw)
                 raw_ext = raw_path.suffix
                 raw_name = dest.parent / f"{dest.stem}{raw_ext}"
+                export_rec = options.export_db.get_file_record(raw_name)
+                if not export_rec and raw_name.exists():
+                    print("3")
+                    # might be case where ExportDB was deleted as the destination exists but not in the export_db
+                    # initialize the export_db for this file
+                    export_rec = options.export_db.create_file_record(
+                        raw_name, self.photo.uuid
+                    )
+                    export_rec.src_sig = options.fileutil.file_sig(raw_path)
+                    export_rec.dest_sig = options.fileutil.file_sig(raw_name)
                 all_results += self._export_photo(
                     raw_path,
                     raw_name,
@@ -530,6 +567,16 @@ class PhotoExporter:
                     if any([options.overwrite, options.update, options.force_update])
                     else pathlib.Path(increment_filename(preview_name))
                 )
+                export_rec = options.export_db.get_file_record(preview_name)
+                if not export_rec and preview_name.exists():
+                    print("4")
+                    # might be case where ExportDB was deleted as the destination exists but not in the export_db
+                    # initialize the export_db for this file
+                    export_rec = options.export_db.create_file_record(
+                        preview_name, self.photo.uuid
+                    )
+                    export_rec.src_sig = options.fileutil.file_sig(preview_path)
+                    export_rec.dest_sig = options.fileutil.file_sig(preview_name)
                 all_results += self._export_photo(
                     preview_path,
                     preview_name,
@@ -545,23 +592,21 @@ class PhotoExporter:
 
         all_results += self._write_sidecar_files(dest=dest, options=options)
 
-        if options.touch_file:
-            all_results += self._touch_files(all_results, options)
-
         return all_results
 
-    def _touch_files(
-        self, results: ExportResults, options: ExportOptions
-    ) -> ExportResults:
-        """touch file date/time to match photo creation date/time"""
+    def _touch_files(self, touch_files: List, options: ExportOptions) -> ExportResults:
+        """touch file date/time to match photo creation date/time; only touches files if needed"""
         fileutil = options.fileutil
-        touch_files = set(results.to_touch)
-        touch_results = ExportResults()
-        for touch_file in touch_files:
+        touch_results = []
+        for touch_file in set(touch_files):
             ts = int(self.photo.date.timestamp())
-            fileutil.utime(touch_file, (ts, ts))
-            touch_results.touched.append(touch_file)
-        return touch_results
+            stat = os.stat(touch_file)
+            import datetime
+            if stat.st_mtime != ts:
+                if not options.dry_run:
+                    fileutil.utime(touch_file, (ts, ts))
+                touch_results.append(touch_file)
+        return ExportResults(touched=touch_results)
 
     def _get_edited_filename(self, original_filename):
         """Return the filename for the exported edited photo
@@ -610,7 +655,7 @@ class PhotoExporter:
         ):
             return pathlib.Path(increment_filename(dest))
 
-        # if update and file exists, need to check to see if it's the write file by checking export db
+        # if update and file exists, need to check to see if it's the right file by checking export db
         if (options.update or options.force_update) and dest.exists() and src:
             export_db = options.export_db
             fileutil = options.fileutil
@@ -618,13 +663,14 @@ class PhotoExporter:
             dest_uuid = export_db.get_uuid_for_file(dest)
             if dest_uuid is None and fileutil.cmp(src, dest):
                 # might be exporting into a pre-ExportDB folder or the DB got deleted
+                # src and dest match so likely this is the right file
+                # however, if exporting with exiftool or convert_to_jpeg, the signatures won't match and
+                # this will get picked up in _should_export_photo()
                 dest_uuid = self.photo.uuid
-                export_db.set_data(
-                    filename=dest,
-                    uuid=self.photo.uuid,
-                    orig_stat=fileutil.file_sig(dest),
-                    info_json=self.photo.json(),
-                )
+                with export_db.create_file_record(dest, self.photo.uuid) as rec:
+                    rec.src_sig = fileutil.file_sig(src)
+                    rec.dest_sig = fileutil.file_sig(dest)
+                    rec.photoinfo = self.photo.json()
             if dest_uuid != self.photo.uuid:
                 # not the right file, find the right one
                 # find files that match "dest_name (*.ext" (e.g. "dest_name (1).jpg", "dest_name (2).jpg)", ...)
@@ -640,14 +686,16 @@ class PhotoExporter:
                         dest = pathlib.Path(file_)
                         break
                     elif dest_uuid is None and fileutil.cmp(src, file_):
+                        # Z should do this?
                         # files match, update the UUID
+                        # src and dest match so likely this is the right file
+                        # however, if exporting with exiftool or convert_to_jpeg, the signatures won't match and
+                        # this will get picked up in _should_export_photo()
                         dest = pathlib.Path(file_)
-                        export_db.set_data(
-                            filename=dest,
-                            uuid=self.photo.uuid,
-                            orig_stat=fileutil.file_sig(dest),
-                            info_json=self.photo.json(),
-                        )
+                        with export_db.create_file_record(dest, self.photo.uuid) as rec:
+                            rec.src_sig = fileutil.file_sig(src)
+                            rec.dest_sig = fileutil.file_sig(dest)
+                            rec.photoinfo = self.photo.json()
                         break
                 else:
                     # increment the destination file
@@ -655,6 +703,57 @@ class PhotoExporter:
 
         # either dest was updated in the if clause above or not updated at all
         return dest
+
+    def _should_update_photo(
+        self, src: pathlib.Path, dest: pathlib.Path, options: ExportOptions
+    ) -> bool:
+        """Return True if photo should be updated, else False"""
+        export_db = options.export_db
+        fileutil = options.fileutil
+
+        file_record = export_db.get_file_record(dest)
+
+        if not file_record:
+            # photo doesn't exist in database, should update
+            return True
+
+        if options.export_as_hardlink and not dest.samefile(src):
+            # different files, should update
+            return True
+
+        if not options.export_as_hardlink and dest.samefile(src):
+            # same file but not exporting as hardlink, should update
+            return True
+
+        if not options.ignore_signature and not fileutil.cmp_file_sig(
+            dest, file_record.dest_sig
+        ):
+            # destination file doesn't match what was last exported
+            return True
+
+        if file_record.export_options != options.bit_flags:
+            # exporting with different set of options (e.g. exiftool), should update
+            # need to check this before exiftool in case exiftool options are different 
+            # and export database is missing; this will always be True if database is missing 
+            # as it'll be None and bit_flags will be an int
+            return True
+
+        if options.exiftool:
+            current_exifdata = self._exiftool_json_sidecar(options=options)
+            return current_exifdata != file_record.exifdata
+
+        if options.edited and not fileutil.cmp_file_sig(src, file_record.src_sig):
+            # edited file in Photos doesn't match what was last exported
+            return True
+
+        if options.force_update:
+            current_digest = hexdigest(self.photo.json())
+            if current_digest != file_record.digest:
+                # metadata in Photos changed, force update
+                return True
+
+        # photo should not be updated
+        return False
 
     def _stage_photos_for_export(self, options: ExportOptions) -> StagedFiles:
         """Stages photos for export
@@ -989,11 +1088,8 @@ class PhotoExporter:
         update_updated_files = []
         update_new_files = []
         update_skipped_files = []  # skip files that are already up to date
-        touched_files = []
         converted_to_jpeg_files = []
         exif_results = ExportResults()
-        converted_stat = None
-        edited_stat = None
 
         dest_str = str(dest)
         dest_exists = dest.exists()
@@ -1002,98 +1098,25 @@ class PhotoExporter:
         export_db = options.export_db
 
         if options.update or options.force_update:  # updating
-            cmp_touch, cmp_orig = False, False
             if dest_exists:
-                # update, destination exists, but we might not need to replace it...
-                if options.exiftool:
-                    sig_exif = export_db.get_stat_exif_for_file(dest_str)
-                    cmp_orig = fileutil.cmp_file_sig(dest_str, sig_exif)
-                    if cmp_orig:
-                        # if signatures match also need to compare exifdata to see if metadata changed
-                        cmp_orig = not self._should_run_exiftool(dest_str, options)
-                    sig_exif = (
-                        sig_exif[0],
-                        sig_exif[1],
-                        int(self.photo.date.timestamp()),
-                    )
-                    cmp_touch = fileutil.cmp_file_sig(dest_str, sig_exif)
-                elif options.convert_to_jpeg:
-                    sig_converted = export_db.get_stat_converted_for_file(dest_str)
-                    cmp_orig = fileutil.cmp_file_sig(dest_str, sig_converted)
-                    sig_converted = (
-                        sig_converted[0],
-                        sig_converted[1],
-                        int(self.photo.date.timestamp()),
-                    )
-                    cmp_touch = fileutil.cmp_file_sig(dest_str, sig_converted)
-                else:
-                    cmp_orig = options.ignore_signature or fileutil.cmp(src, dest)
-                    cmp_touch = fileutil.cmp(
-                        src, dest, mtime1=int(self.photo.date.timestamp())
-                    )
-                    if options.force_update:
-                        # need to also check the photo's metadata to that in the database
-                        # and if anything changed, we need to update the file
-                        # ony the hex digest of the metadata is stored in the database
-                        photo_digest = hexdigest(self.photo.json())
-                        db_digest = export_db.get_metadata_for_file(dest_str)
-                        cmp_orig = photo_digest == db_digest
-
-                sig_cmp = cmp_touch if options.touch_file else cmp_orig
-
-                if options.edited:
-                    # requested edited version of photo
-                    # need to see if edited version in Photos library has changed
-                    # (e.g. it's been edited again)
-                    sig_edited = export_db.get_stat_edited_for_file(dest_str)
-                    cmp_edited = (
-                        fileutil.cmp_file_sig(src, sig_edited)
-                        if sig_edited != (None, None, None)
-                        else False
-                    )
-                    sig_cmp = sig_cmp and (options.force_update or cmp_edited)
-
-                if (options.export_as_hardlink and dest.samefile(src)) or (
-                    not options.export_as_hardlink
-                    and not dest.samefile(src)
-                    and sig_cmp
-                ):
-                    # destination exists and signatures match, skip it
-                    update_skipped_files.append(dest_str)
-                elif options.touch_file and cmp_orig and not cmp_touch:
-                    # destination exists, signature matches original but does not match expected touch time
-                    # skip exporting but update touch time
-                    update_skipped_files.append(dest_str)
-                    touched_files.append(dest_str)
-                elif not options.touch_file and cmp_touch and not cmp_orig:
-                    # destination exists, signature matches expected touch but not original
-                    # user likely exported with touch_file and is now exporting without touch_file
-                    # don't update the file because it's same but leave touch time
-                    update_skipped_files.append(dest_str)
-                else:
-                    # destination exists but is different
+                if self._should_update_photo(src, dest, options):
                     update_updated_files.append(dest_str)
-                    if options.touch_file:
-                        touched_files.append(dest_str)
+                else:
+                    update_skipped_files.append(dest_str)
             else:
                 # update, destination doesn't exist (new file)
                 update_new_files.append(dest_str)
-                if options.touch_file:
-                    touched_files.append(dest_str)
         else:
             # not update, export the file
             exported_files.append(dest_str)
-            if options.touch_file:
-                sig = fileutil.file_sig(src)
-                sig = (sig[0], sig[1], int(self.photo.date.timestamp()))
-                if not fileutil.cmp_file_sig(src, sig):
-                    touched_files.append(dest_str)
 
-        if not update_skipped_files:
-            # have file to export
-            edited_stat = (
-                fileutil.file_sig(src) if options.edited else (None, None, None)
+        export_files = update_new_files + update_updated_files + exported_files
+        for export_dest in export_files:
+            # set src_sig before any modifications by convert_to_jpeg or exiftool
+            export_record = export_db.create_or_get_file_record(
+                export_dest, self.photo.uuid
             )
+            export_record.src_sig = fileutil.file_sig(src)
             if dest_exists and any(
                 [options.overwrite, options.update, options.force_update]
             ):
@@ -1123,7 +1146,6 @@ class PhotoExporter:
                         src, tmp_file, compression_quality=options.jpeg_quality
                     )
                     src = tmp_file
-                    converted_stat = fileutil.file_sig(tmp_file)
                     converted_to_jpeg_files.append(dest_str)
 
                 if options.exiftool:
@@ -1139,20 +1161,7 @@ class PhotoExporter:
                         f"Error copying file {src} to {dest_str}: {e} ({lineno(__file__)})"
                     ) from e
 
-        json_info = self.photo.json()
-        # don't set the metadata digest if not force_update so that future use of force_update catches metadata change
-        metadata_digest = hexdigest(json_info) if options.force_update else None
-        export_db.set_data(
-            filename=dest_str,
-            uuid=self.photo.uuid,
-            orig_stat=fileutil.file_sig(dest_str),
-            converted_stat=converted_stat,
-            edited_stat=edited_stat,
-            info_json=json_info,
-            metadata=metadata_digest,
-        )
-
-        return ExportResults(
+        results = ExportResults(
             converted_to_jpeg=converted_to_jpeg_files,
             error=exif_results.error,
             exif_updated=exif_results.exif_updated,
@@ -1161,9 +1170,33 @@ class PhotoExporter:
             exported=exported_files + update_new_files + update_updated_files,
             new=update_new_files,
             skipped=update_skipped_files,
-            to_touch=touched_files,
             updated=update_updated_files,
         )
+
+        # touch files if needed
+        if options.touch_file:
+            results += self._touch_files(
+                exported_files
+                + update_new_files
+                + update_updated_files
+                + update_skipped_files,
+                options,
+            )
+
+        # set data in the database
+        with export_db.create_or_get_file_record(dest_str, self.photo.uuid) as rec:
+            photoinfo = self.photo.json()
+            rec.photoinfo = photoinfo
+            rec.export_options = options.bit_flags
+            # don't set src_sig as that is set above before any modifications by convert_to_jpeg or exiftool
+            if not options.ignore_signature:
+                rec.dest_sig = fileutil.file_sig(dest)
+            if options.exiftool:
+                rec.exifdata = self._exiftool_json_sidecar(options)
+            if options.force_update:
+                rec.digest = hexdigest(photoinfo)
+
+        return results
 
     def _write_sidecar_files(
         self,
@@ -1245,8 +1278,8 @@ class PhotoExporter:
             sidecar_type = data[4]
 
             sidecar_digest = hexdigest(sidecar_str)
-            old_sidecar_digest, sidecar_sig = export_db.get_sidecar_for_file(
-                sidecar_filename
+            sidecar_record = export_db.create_or_get_file_record(
+                sidecar_filename, self.photo.uuid
             )
             write_sidecar = (
                 not (options.update or options.force_update)
@@ -1256,8 +1289,10 @@ class PhotoExporter:
                 )
                 or (
                     (options.update or options.force_update)
-                    and (sidecar_digest != old_sidecar_digest)
-                    or not fileutil.cmp_file_sig(sidecar_filename, sidecar_sig)
+                    and (sidecar_digest != sidecar_record.digest)
+                    or not fileutil.cmp_file_sig(
+                        sidecar_filename, sidecar_record.dest_sig
+                    )
                 )
             )
             if write_sidecar:
@@ -1265,16 +1300,13 @@ class PhotoExporter:
                 files_written.append(str(sidecar_filename))
                 if not options.dry_run:
                     self._write_sidecar(sidecar_filename, sidecar_str)
-                    export_db.set_sidecar_for_file(
-                        sidecar_filename,
-                        sidecar_digest,
-                        fileutil.file_sig(sidecar_filename),
-                    )
+                    sidecar_record.digest = sidecar_digest
+                    sidecar_record.dest_sig = fileutil.file_sig(sidecar_filename)
             else:
                 verbose(f"Skipped up to date {sidecar_type} sidecar {sidecar_filename}")
                 files_skipped.append(str(sidecar_filename))
 
-        return ExportResults(
+        results = ExportResults(
             sidecar_json_written=sidecar_json_files_written,
             sidecar_json_skipped=sidecar_json_files_skipped,
             sidecar_exiftool_written=sidecar_exiftool_files_written,
@@ -1282,6 +1314,26 @@ class PhotoExporter:
             sidecar_xmp_written=sidecar_xmp_files_written,
             sidecar_xmp_skipped=sidecar_xmp_files_skipped,
         )
+
+        if options.touch_file:
+            all_sidecars = (
+                sidecar_json_files_written
+                + sidecar_exiftool_files_written
+                + sidecar_xmp_files_written
+                + sidecar_json_files_skipped
+                + sidecar_exiftool_files_skipped
+                + sidecar_xmp_files_skipped
+            )
+            results += self._touch_files(all_sidecars, options)
+
+            # update destination signatures in database
+            for sidecar_filename in all_sidecars:
+                sidecar_record = export_db.create_or_get_file_record(
+                    sidecar_filename, self.photo.uuid
+                )
+                sidecar_record.dest_sig = fileutil.file_sig(sidecar_filename)
+
+        return results
 
     def _write_exif_metadata_to_file(
         self,
@@ -1297,10 +1349,7 @@ class PhotoExporter:
         local machine prior to being copied to the export destination which may be on a
         network drive or other slower external storage."""
 
-        export_db = options.export_db
-        fileutil = options.fileutil
         verbose = options.verbose or self._verbose
-
         exiftool_results = ExportResults()
 
         # don't try to write if unsupported file type for exiftool
@@ -1312,53 +1361,35 @@ class PhotoExporter:
                 )
             )
             # set file signature so the file doesn't get re-exported with --update
-            export_db.set_data(
-                dest,
-                uuid=self.photo.uuid,
-                exif_stat=fileutil.file_sig(src),
-                exif_json=self._exiftool_json_sidecar(options=options),
-            )
             return exiftool_results
 
         # determine if we need to write the exif metadata
         # if we are not updating, we always write
         # else, need to check the database to determine if we need to write
-        run_exiftool = self._should_run_exiftool(dest, options)
-        if run_exiftool:
-            verbose(f"Writing metadata with exiftool for {pathlib.Path(dest).name}")
-            if not options.dry_run:
-                warning_, error_ = self._write_exif_data(src, options=options)
-                if warning_:
-                    exiftool_results.exiftool_warning.append((dest, warning_))
-                if error_:
-                    exiftool_results.exiftool_error.append((dest, error_))
-                    exiftool_results.error.append((dest, error_))
+        verbose(f"Writing metadata with exiftool for {pathlib.Path(dest).name}")
+        if not options.dry_run:
+            warning_, error_ = self._write_exif_data(src, options=options)
+            if warning_:
+                exiftool_results.exiftool_warning.append((dest, warning_))
+            if error_:
+                exiftool_results.exiftool_error.append((dest, error_))
+                exiftool_results.error.append((dest, error_))
 
-            export_db.set_data(
-                dest,
-                uuid=self.photo.uuid,
-                exif_stat=fileutil.file_sig(src),
-                exif_json=self._exiftool_json_sidecar(options=options),
-            )
-            exiftool_results.exif_updated.append(dest)
-            exiftool_results.to_touch.append(dest)
-        else:
-            verbose(
-                f"Skipped up to date exiftool metadata for {pathlib.Path(dest).name}"
-            )
+        exiftool_results.exif_updated.append(dest)
+        exiftool_results.to_touch.append(dest)
         return exiftool_results
 
     def _should_run_exiftool(self, dest, options: ExportOptions) -> bool:
         """Return True if exiftool should be run to update metadata"""
-        run_exiftool = not (options.update or options.force_update)
+        run_exiftool = not options.update and not options.force_update
         if options.update or options.force_update:
             files_are_different = False
-            old_data = options.export_db.get_exifdata_for_file(dest)
+            exif_record = options.export_db.get_file_record(dest)
+            old_data = exif_record.exifdata if exif_record else None
             if old_data is not None:
                 old_data = json.loads(old_data)[0]
-                current_data = json.loads(self._exiftool_json_sidecar(options=options))[
-                    0
-                ]
+                current_data = json.loads(self._exiftool_json_sidecar(options=options))
+                current_data = current_data[0]
                 if old_data != current_data:
                     files_are_different = True
 

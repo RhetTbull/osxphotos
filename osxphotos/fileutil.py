@@ -143,7 +143,7 @@ class FileUtilMacOS(FileUtilABC):
     @classmethod
     def utime(cls, path, times):
         """Set the access and modified time of path."""
-        os.utime(path, times)
+        os.utime(path, times=times)
 
     @classmethod
     def cmp(cls, f1, f2, mtime1=None):

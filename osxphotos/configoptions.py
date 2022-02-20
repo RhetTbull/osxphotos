@@ -134,18 +134,12 @@ class ConfigOptions:
             filename: full path to TOML file to write; filename will be overwritten if it exists
         """
         # todo: add overwrite and option to merge contents already in TOML file (under different [section] with new content)
-        data = {}
-        for attr in sorted(self._attrs.keys()):
-            val = getattr(self, attr)
-            if val in [False, ()]:
-                val = None
-            else:
-                val = list(val) if type(val) == tuple else val
-
-            data[attr] = val
-
         with open(filename, "w") as fd:
-            toml.dump({self._name: data}, fd)
+            toml.dump(self._get_toml_dict(), fd)
+
+    def write_to_str(self) -> str:
+        """Write self to TOML str"""
+        return toml.dumps(self._get_toml_dict())
 
     def load_from_file(self, filename, override=False):
         """Load options from a TOML file.
@@ -178,3 +172,17 @@ class ConfigOptions:
 
     def asdict(self):
         return {attr: getattr(self, attr) for attr in sorted(self._attrs.keys())}
+
+    def _get_toml_dict(self):
+        """Return dict for writing to TOML file"""
+        data = {}
+        for attr in sorted(self._attrs.keys()):
+            val = getattr(self, attr)
+            if val in [False, ()]:
+                val = None
+            else:
+                val = list(val) if type(val) == tuple else val
+
+            data[attr] = val
+
+        return {self._name: data}

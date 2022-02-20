@@ -1797,6 +1797,9 @@ def export(
                 f"Upgraded export database {export_db_path} from version {upgraded[0]} to {upgraded[1]}"
             )
 
+    # save config to export_db
+    export_db.set_config(cfg.write_to_str())
+
     photosdb = osxphotos.PhotosDB(dbfile=db, verbose=verbose_, exiftool=exiftool_path)
 
     # enable beta features if requested

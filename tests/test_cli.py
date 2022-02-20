@@ -3,6 +3,7 @@
 import os
 import sqlite3
 import tempfile
+from tempfile import TemporaryDirectory
 
 import pytest
 from click.testing import CliRunner
@@ -674,6 +675,8 @@ CLI_EXIFTOOL_IGNORE_DATE_MODIFIED = {
 }
 
 CLI_EXIFTOOL_ERROR = ["E2078879-A29C-4D6F-BACB-E3BBE6C3EB91"]
+
+CLI_NOT_REALLY_A_JPEG = "E2078879-A29C-4D6F-BACB-E3BBE6C3EB91"
 
 CLI_EXIFTOOL_DUPLICATE_KEYWORDS = {
     "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51": "wedding.jpg"
@@ -4936,11 +4939,124 @@ def test_export_force_update():
             export, [os.path.join(cwd, photos_db_path), ".", "--force-update"]
         )
         assert result.exit_code == 0
+        print(result.output)
         assert (
             f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: 0, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, updated EXIF data: 0, missing: 3, error: 0"
             in result.output
         )
 
+
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+def test_export_update_complex():
+    """test complex --update scenario, #630"""
+    import glob
+    import os
+    import os.path
+
+    import osxphotos
+    from osxphotos.cli import OSXPHOTOS_EXPORT_DB, export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        # basic export
+        result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
+        assert os.path.isfile(OSXPHOTOS_EXPORT_DB)
+
+        src = os.path.join(cwd, CLI_PHOTOS_DB)
+        dest = os.path.join(os.getcwd(), "export_complex_update.photoslibrary")
+        photos_db_path = copy_photos_library_to_path(src, dest)
+
+        tempdir = TemporaryDirectory()
+
+        options = [
+            "--verbose",
+            "--update",
+            "--cleanup",
+            "--directory",
+            "{created.year}/{created.month}",
+            "--description-template",
+            "Album:{album,}{newline}Description:{descr,}",
+            "--exiftool",
+            "--exiftool-merge-keywords",
+            "--exiftool-merge-persons",
+            "--keyword-template",
+            "{keyword}",
+            "--not-hidden",
+            "--retry",
+            "2",
+            "--skip-original-if-edited",
+            "--timestamp",
+            "--strip",
+            "--skip-uuid",
+            CLI_NOT_REALLY_A_JPEG,
+        ]
+        # update
+        result = runner.invoke(
+            export, [os.path.join(cwd, photos_db_path), tempdir.name, *options]
+        )
+        assert result.exit_code == 0
+        assert (
+            f"exported: {PHOTOS_NOT_IN_TRASH_LEN_15_7-1}, updated: 0, skipped: 0, updated EXIF data: {PHOTOS_NOT_IN_TRASH_LEN_15_7-1}"
+            in result.output
+        )
+
+        result = runner.invoke(
+            export, [os.path.join(cwd, photos_db_path), tempdir.name, *options]
+        )
+        assert result.exit_code == 0
+        assert "exported: 0" in result.output
+
+        # update a file
+        dbpath = os.path.join(photos_db_path, "database/Photos.sqlite")
+        try:
+            conn = sqlite3.connect(dbpath)
+            c = conn.cursor()
+        except sqlite3.Error as e:
+            pytest.exit(f"An error occurred opening sqlite file")
+
+        # photo is IMG_4547.jpg
+        c.execute(
+            "UPDATE ZADDITIONALASSETATTRIBUTES SET Z_OPT=9, ZTITLE='My Updated Title' WHERE Z_PK=8;"
+        )
+        conn.commit()
+
+        # run --update to see if updated metadata forced update
+        result = runner.invoke(
+            export, [os.path.join(cwd, photos_db_path), tempdir.name, *options]
+        )
+        assert result.exit_code == 0
+        assert (
+            f"exported: 0, updated: 1, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7-2}, updated EXIF data: 1"
+            in result.output
+        )
+
+        # update, nothing should export
+        result = runner.invoke(
+            export, [os.path.join(cwd, photos_db_path), tempdir.name, *options]
+        )
+        assert result.exit_code == 0
+        assert (
+            f"exported: 0, updated: 0, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7-1}, updated EXIF data: 0"
+            in result.output
+        )
+
+        # change the template and run again
+        options.extend(["--keyword-template", "FOO"])
+
+        # run update and all photos should be updated
+        result = runner.invoke(
+            export, [os.path.join(cwd, photos_db_path), tempdir.name, *options]
+        )
+        assert result.exit_code == 0
+        assert (
+            f"exported: 0, updated: {PHOTOS_NOT_IN_TRASH_LEN_15_7-1}, skipped: 0, updated EXIF data: {PHOTOS_NOT_IN_TRASH_LEN_15_7-1}"
+            in result.output
+        )
 
 @pytest.mark.skipif(
     "OSXPHOTOS_TEST_EXPORT" not in os.environ,
@@ -5272,9 +5388,6 @@ def test_export_update_no_db():
         )
         assert result.exit_code == 0
 
-        # unedited files will be skipped because their signatures will compare but
-        # edited files will be re-exported because there won't be an edited signature
-        # in the database
         assert (
             f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: 0, updated: {PHOTOS_EDITED_15_7}, skipped: {PHOTOS_NOT_IN_TRASH_LEN_15_7}, updated EXIF data: 0, missing: 3, error: 0"
             in result.output
@@ -5590,7 +5703,7 @@ def test_export_touch_files_update():
 
         # touch one file and run update again
         ts = time.time()
-        os.utime(CLI_EXPORT_BY_DATE[0], (ts, ts))
+        os.utime(CLI_EXPORT_BY_DATE_NEED_TOUCH[1], (ts, ts))
 
         result = runner.invoke(
             export,
@@ -5922,7 +6035,10 @@ def test_export_ignore_signature_sidecar():
         # should result in a new sidecar being exported but not the image itself
         exportdb = osxphotos.export_db.ExportDB("./.osxphotos_export.db", ".")
         for filename in CLI_EXPORT_IGNORE_SIGNATURE_FILENAMES:
-            exportdb.set_sidecar_for_file(f"{filename}.xmp", "FOO", (0, 1, 2))
+            record = exportdb.get_file_record(filename)
+            sidecar_record = exportdb.create_or_get_file_record(f"{filename}.xmp", record.uuid)
+            sidecar_record.dest_sig = (0, 1, 2)
+            sidecar_record.digest = "FOO"
 
         result = runner.invoke(
             export,
