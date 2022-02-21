@@ -66,6 +66,7 @@ from .datetime_formatter import DateTimeFormatter
 from .exiftool import get_exiftool_path
 from .export_db import ExportDB, ExportDBInMemory
 from .export_db_utils import (
+    OSXPHOTOS_EXPORTDB_VERSION,
     export_db_check_signatures,
     export_db_get_last_run,
     export_db_get_version,
@@ -4786,6 +4787,11 @@ def run(python_file):
     help="Print information about FILE_PATH contained in the database.",
 )
 @click.option(
+    "--migrate",
+    is_flag=True,
+    help="Migrate (if needed) export database to current version."
+)
+@click.option(
     "--export-dir",
     help="Optional path to export directory (if not parent of export database).",
     type=click.Path(exists=True, file_okay=False, dir_okay=True),
@@ -4806,6 +4812,7 @@ def exportdb(
     last_run,
     save_config,
     info,
+    migrate,
     export_dir,
     verbose,
     dry_run,
@@ -4831,6 +4838,8 @@ def exportdb(
         touch_file,
         last_run,
         bool(save_config),
+        bool(info),
+        migrate,
     ]
     if sum(sub_commands) > 1:
         print(f"[red]Only a single sub-command may be specified at a time[/red]")
@@ -4936,6 +4945,16 @@ def exportdb(
                 print(f"[red]File '{info}' not found in export database[/red]")
             sys.exit(0)
 
+    if migrate:
+        exportdb = ExportDB(export_db, export_dir)
+        upgraded = exportdb.was_upgraded
+        if upgraded:
+            print(
+                f"Migrated export database {export_db} from version {upgraded[0]} to {upgraded[1]}"
+            )
+        else:
+            print(f"Export database {export_db} is already at latest version {OSXPHOTOS_EXPORTDB_VERSION}")
+        sys.exit(0)
 
 def _query_options_from_kwargs(**kwargs) -> QueryOptions:
     """Validate query options and create a QueryOptions instance"""
