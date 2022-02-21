@@ -179,17 +179,29 @@ def export_db_touch_files(
     Returns: tuple of (touched, not_touched, skipped)
     """
     export_dir = pathlib.Path(export_dir)
-    fileutil = FileUtil
+
+    # open and close exportdb to ensure it gets migrated
+    exportdb = ExportDB(dbfile, export_dir)
+    upgraded = exportdb.was_upgraded
+    if upgraded and verbose:
+        print(
+            f"Upgraded export database {dbfile} from version {upgraded[0]} to {upgraded[1]}"
+        )
+    exportdb.close()
+
     conn = sqlite3.connect(str(dbfile))
     c = conn.cursor()
     # get most recent config
     row = c.execute("SELECT config FROM config ORDER BY id DESC LIMIT 1;").fetchone()
-    if not row:
-        raise ValueError("No config found in export_db")
-    config = toml.loads(row[0])
-    try:
-        photos_db_path = config["export"].get("db", None)
-    except KeyError:
+    if row:
+        config = toml.loads(row[0])
+        try:
+            photos_db_path = config["export"].get("db", None)
+        except KeyError:
+            photos_db_path = None
+    else:
+        # TODO: parse the runs table to get the last --db
+        # in the mean time, photos_db_path = None will use the default library
         photos_db_path = None
 
     verbose_ = print if verbose else lambda *args, **kwargs: None
