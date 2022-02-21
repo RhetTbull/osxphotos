@@ -1,224 +1,45 @@
-""" Helper class for managing a database used by PhotoInfo.export for tracking state of exports and updates """
+""" Helper class for managing database used by PhotoExporter for tracking state of exports and updates """
 
 
 import datetime
+import json
 import logging
 import os
 import pathlib
 import sqlite3
 import sys
-from abc import ABC, abstractmethod
 from io import StringIO
 from sqlite3 import Error
-from typing import Union
+from tempfile import TemporaryDirectory
+from typing import Optional, Tuple, Union
 
 from ._constants import OSXPHOTOS_EXPORT_DB
 from ._version import __version__
+from .fileutil import FileUtil
 from .utils import normalize_fs_path
 
-__all__ = ["ExportDB_ABC", "ExportDBNoOp", "ExportDB", "ExportDBInMemory"]
+__all__ = [
+    "ExportDB",
+    "ExportDBInMemory",
+    "ExportDBTemp",
+]
 
-OSXPHOTOS_EXPORTDB_VERSION = "5.0"
-OSXPHOTOS_EXPORTDB_VERSION_MIGRATE_FILEPATH = "4.3"
-OSXPHOTOS_EXPORTDB_VERSION_MIGRATE_TABLES = "4.3"
-
+OSXPHOTOS_EXPORTDB_VERSION = "6.0"
 OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
 
 
-class ExportDB_ABC(ABC):
-    """abstract base class for ExportDB"""
-
-    @abstractmethod
-    def get_uuid_for_file(self, filename):
-        pass
-
-    @abstractmethod
-    def set_uuid_for_file(self, filename, uuid):
-        pass
-
-    @abstractmethod
-    def set_stat_orig_for_file(self, filename, stats):
-        pass
-
-    @abstractmethod
-    def get_stat_orig_for_file(self, filename):
-        pass
-
-    @abstractmethod
-    def set_stat_edited_for_file(self, filename, stats):
-        pass
-
-    @abstractmethod
-    def get_stat_edited_for_file(self, filename):
-        pass
-
-    @abstractmethod
-    def set_stat_converted_for_file(self, filename, stats):
-        pass
-
-    @abstractmethod
-    def get_stat_converted_for_file(self, filename):
-        pass
-
-    @abstractmethod
-    def set_stat_exif_for_file(self, filename, stats):
-        pass
-
-    @abstractmethod
-    def get_stat_exif_for_file(self, filename):
-        pass
-
-    @abstractmethod
-    def get_info_for_uuid(self, uuid):
-        pass
-
-    @abstractmethod
-    def set_info_for_uuid(self, uuid, info):
-        pass
-
-    @abstractmethod
-    def get_exifdata_for_file(self, uuid):
-        pass
-
-    @abstractmethod
-    def set_exifdata_for_file(self, uuid, exifdata):
-        pass
-
-    @abstractmethod
-    def set_sidecar_for_file(self, filename, sidecar_data, sidecar_sig):
-        pass
-
-    @abstractmethod
-    def get_sidecar_for_file(self, filename):
-        pass
-
-    @abstractmethod
-    def get_previous_uuids(self):
-        pass
-
-    @abstractmethod
-    def get_detected_text_for_uuid(self, uuid):
-        pass
-
-    @abstractmethod
-    def set_detected_text_for_uuid(self, uuid, json_text):
-        pass
-
-    @abstractmethod
-    def set_metadata_for_file(self, filename, metadata):
-        pass
-
-    @abstractmethod
-    def get_metadata_for_file(self, filename):
-        pass
-
-    @abstractmethod
-    def set_data(
-        self,
-        filename,
-        uuid,
-        orig_stat=None,
-        exif_stat=None,
-        converted_stat=None,
-        edited_stat=None,
-        info_json=None,
-        exif_json=None,
-        metadata=None,
-    ):
-        pass
-
-
-class ExportDBNoOp(ExportDB_ABC):
-    """An ExportDB with NoOp methods"""
-
-    def __init__(self):
-        self.was_created = True
-        self.was_upgraded = False
-        self.version = OSXPHOTOS_EXPORTDB_VERSION
-
-    def get_uuid_for_file(self, filename):
-        pass
-
-    def set_uuid_for_file(self, filename, uuid):
-        pass
-
-    def set_stat_orig_for_file(self, filename, stats):
-        pass
-
-    def get_stat_orig_for_file(self, filename):
-        pass
-
-    def set_stat_edited_for_file(self, filename, stats):
-        pass
-
-    def get_stat_edited_for_file(self, filename):
-        pass
-
-    def set_stat_converted_for_file(self, filename, stats):
-        pass
-
-    def get_stat_converted_for_file(self, filename):
-        pass
-
-    def set_stat_exif_for_file(self, filename, stats):
-        pass
-
-    def get_stat_exif_for_file(self, filename):
-        pass
-
-    def get_info_for_uuid(self, uuid):
-        pass
-
-    def set_info_for_uuid(self, uuid, info):
-        pass
-
-    def get_exifdata_for_file(self, uuid):
-        pass
-
-    def set_exifdata_for_file(self, uuid, exifdata):
-        pass
-
-    def set_sidecar_for_file(self, filename, sidecar_data, sidecar_sig):
-        pass
-
-    def get_sidecar_for_file(self, filename):
-        return None, (None, None, None)
-
-    def get_previous_uuids(self):
-        return []
-
-    def get_detected_text_for_uuid(self, uuid):
-        return None
-
-    def set_detected_text_for_uuid(self, uuid, json_text):
-        pass
-
-    def set_metadata_for_file(self, filename, metadata):
-        pass
-
-    def get_metadata_for_file(self, filename):
-        pass
-
-    def set_data(
-        self,
-        filename,
-        uuid,
-        orig_stat=None,
-        exif_stat=None,
-        converted_stat=None,
-        edited_stat=None,
-        info_json=None,
-        exif_json=None,
-        metadata=None,
-    ):
-        pass
-
-
-class ExportDB(ExportDB_ABC):
+class ExportDB:
     """Interface to sqlite3 database used to store state information for osxphotos export command"""
 
     def __init__(self, dbfile, export_dir):
-        """dbfile: path to osxphotos export database file"""
+        """create a new ExportDB object
+
+        Args:
+            dbfile: path to osxphotos export database file
+            export_dir: path to directory where exported files are stored
+            memory: if True, use in-memory database
+        """
+
         self._dbfile = dbfile
         # export_dir is required as all files referenced by get_/set_uuid_for_file will be converted to
         # relative paths to this path
@@ -226,7 +47,62 @@ class ExportDB(ExportDB_ABC):
         # whilst preserving the UUID to filename mapping
         self._path = export_dir
         self._conn = self._open_export_db(dbfile)
+        self._perform_db_maintenace(self._conn)
         self._insert_run_info()
+
+    def get_file_record(self, filename: Union[pathlib.Path, str]) -> "ExportRecord":
+        """get info for filename and uuid
+
+        Returns: an ExportRecord object
+        """
+        filename = self._relative_filepath(filename)
+        filename_normalized = self._normalize_filepath(filename)
+        conn = self._conn
+        c = conn.cursor()
+        row = c.execute(
+            "SELECT uuid FROM export_data WHERE filepath_normalized = ?;",
+            (filename_normalized,),
+        ).fetchone()
+
+        if not row:
+            return None
+        return ExportRecord(conn, filename_normalized)
+
+    def create_file_record(
+        self, filename: Union[pathlib.Path, str], uuid: str
+    ) -> "ExportRecord":
+        """create a new record for filename and uuid
+
+        Returns: an ExportRecord object
+        """
+        filename = self._relative_filepath(filename)
+        filename_normalized = self._normalize_filepath(filename)
+        conn = self._conn
+        c = conn.cursor()
+        c.execute(
+            "INSERT INTO export_data (filepath, filepath_normalized, uuid) VALUES (?, ?, ?);",
+            (filename, filename_normalized, uuid),
+        )
+        conn.commit()
+        return ExportRecord(conn, filename_normalized)
+
+    def create_or_get_file_record(
+        self, filename: Union[pathlib.Path, str], uuid: str
+    ) -> "ExportRecord":
+        """create a new record for filename and uuid or return existing record
+
+        Returns: an ExportRecord object
+        """
+        filename = self._relative_filepath(filename)
+        filename_normalized = self._normalize_filepath(filename)
+        conn = self._conn
+        c = conn.cursor()
+        c.execute(
+            "INSERT OR IGNORE INTO export_data (filepath, filepath_normalized, uuid) VALUES (?, ?, ?);",
+            (filename, filename_normalized, uuid),
+        )
+        conn.commit()
+        return ExportRecord(conn, filename_normalized)
 
     def get_uuid_for_file(self, filename):
         """query database for filename and return UUID
@@ -237,7 +113,7 @@ class ExportDB(ExportDB_ABC):
         try:
             c = conn.cursor()
             c.execute(
-                "SELECT uuid FROM files WHERE filepath_normalized = ?",
+                "SELECT uuid FROM export_data WHERE filepath_normalized = ?",
                 (filepath_normalized,),
             )
             results = c.fetchone()
@@ -247,142 +123,12 @@ class ExportDB(ExportDB_ABC):
             uuid = None
         return uuid
 
-    def set_uuid_for_file(self, filename, uuid):
-        """set UUID of filename to uuid in the database"""
-        filename = str(pathlib.Path(filename).relative_to(self._path))
-        filename_normalized = self._normalize_filepath(filename)
+    def get_photoinfo_for_uuid(self, uuid):
+        """returns the photoinfo JSON struct for a UUID"""
         conn = self._conn
         try:
             c = conn.cursor()
-            c.execute(
-                "INSERT OR REPLACE INTO files(filepath, filepath_normalized, uuid) VALUES (?, ?, ?);",
-                (filename, filename_normalized, uuid),
-            )
-
-            conn.commit()
-        except Error as e:
-            logging.warning(e)
-
-    def set_stat_orig_for_file(self, filename, stats):
-        """set stat info for filename
-        filename: filename to set the stat info for
-        stat: a tuple of length 3: mode, size, mtime"""
-        filename = self._normalize_filepath_relative(filename)
-        if len(stats) != 3:
-            raise ValueError(f"expected 3 elements for stat, got {len(stats)}")
-
-        conn = self._conn
-        try:
-            c = conn.cursor()
-            c.execute(
-                "UPDATE files "
-                + "SET orig_mode = ?, orig_size = ?, orig_mtime = ? "
-                + "WHERE filepath_normalized = ?;",
-                (*stats, filename),
-            )
-            conn.commit()
-        except Error as e:
-            logging.warning(e)
-
-    def get_stat_orig_for_file(self, filename):
-        """get stat info for filename
-        returns: tuple of (mode, size, mtime)
-        """
-        filename = self._normalize_filepath_relative(filename)
-        conn = self._conn
-        try:
-            c = conn.cursor()
-            c.execute(
-                "SELECT orig_mode, orig_size, orig_mtime FROM files WHERE filepath_normalized = ?",
-                (filename,),
-            )
-            results = c.fetchone()
-            if results:
-                stats = results[:3]
-                mtime = int(stats[2]) if stats[2] is not None else None
-                stats = (stats[0], stats[1], mtime)
-            else:
-                stats = (None, None, None)
-        except Error as e:
-            logging.warning(e)
-            stats = None, None, None
-        return stats
-
-    def set_stat_edited_for_file(self, filename, stats):
-        """set stat info for edited version of image (in Photos' library)
-        filename: filename to set the stat info for
-        stat: a tuple of length 3: mode, size, mtime"""
-        return self._set_stat_for_file("edited", filename, stats)
-
-    def get_stat_edited_for_file(self, filename):
-        """get stat info for edited version of image (in Photos' library)
-        filename: filename to set the stat info for
-        stat: a tuple of length 3: mode, size, mtime"""
-        return self._get_stat_for_file("edited", filename)
-
-    def set_stat_exif_for_file(self, filename, stats):
-        """set stat info for filename (after exiftool has updated it)
-        filename: filename to set the stat info for
-        stat: a tuple of length 3: mode, size, mtime"""
-        filename = self._normalize_filepath_relative(filename)
-        if len(stats) != 3:
-            raise ValueError(f"expected 3 elements for stat, got {len(stats)}")
-
-        conn = self._conn
-        try:
-            c = conn.cursor()
-            c.execute(
-                "UPDATE files "
-                + "SET exif_mode = ?, exif_size = ?, exif_mtime = ? "
-                + "WHERE filepath_normalized = ?;",
-                (*stats, filename),
-            )
-            conn.commit()
-        except Error as e:
-            logging.warning(e)
-
-    def get_stat_exif_for_file(self, filename):
-        """get stat info for filename (after exiftool has updated it)
-        returns: tuple of (mode, size, mtime)
-        """
-        filename = self._normalize_filepath_relative(filename)
-        conn = self._conn
-        try:
-            c = conn.cursor()
-            c.execute(
-                "SELECT exif_mode, exif_size, exif_mtime FROM files WHERE filepath_normalized = ?",
-                (filename,),
-            )
-            results = c.fetchone()
-            if results:
-                stats = results[:3]
-                mtime = int(stats[2]) if stats[2] is not None else None
-                stats = (stats[0], stats[1], mtime)
-            else:
-                stats = (None, None, None)
-        except Error as e:
-            logging.warning(e)
-            stats = None, None, None
-        return stats
-
-    def set_stat_converted_for_file(self, filename, stats):
-        """set stat info for filename (after image converted to jpeg)
-        filename: filename to set the stat info for
-        stat: a tuple of length 3: mode, size, mtime"""
-        return self._set_stat_for_file("converted", filename, stats)
-
-    def get_stat_converted_for_file(self, filename):
-        """get stat info for filename (after jpeg conversion)
-        returns: tuple of (mode, size, mtime)
-        """
-        return self._get_stat_for_file("converted", filename)
-
-    def get_info_for_uuid(self, uuid):
-        """returns the info JSON struct for a UUID"""
-        conn = self._conn
-        try:
-            c = conn.cursor()
-            c.execute("SELECT json_info FROM info WHERE uuid = ?", (uuid,))
+            c.execute("SELECT photoinfo FROM photoinfo WHERE uuid = ?", (uuid,))
             results = c.fetchone()
             info = results[0] if results else None
         except Error as e:
@@ -391,88 +137,14 @@ class ExportDB(ExportDB_ABC):
 
         return info
 
-    def set_info_for_uuid(self, uuid, info):
-        """sets the info JSON struct for a UUID"""
+    def set_photoinfo_for_uuid(self, uuid, info):
+        """sets the photoinfo JSON struct for a UUID"""
         conn = self._conn
         try:
             c = conn.cursor()
             c.execute(
-                "INSERT OR REPLACE INTO info(uuid, json_info) VALUES (?, ?);",
+                "INSERT OR REPLACE INTO photoinfo(uuid, photoinfo) VALUES (?, ?);",
                 (uuid, info),
-            )
-            conn.commit()
-        except Error as e:
-            logging.warning(e)
-
-    def get_exifdata_for_file(self, filename):
-        """returns the exifdata JSON struct for a file"""
-        filename = self._normalize_filepath_relative(filename)
-        conn = self._conn
-        try:
-            c = conn.cursor()
-            c.execute(
-                "SELECT json_exifdata FROM exifdata WHERE filepath_normalized = ?",
-                (filename,),
-            )
-            results = c.fetchone()
-            exifdata = results[0] if results else None
-        except Error as e:
-            logging.warning(e)
-            exifdata = None
-
-        return exifdata
-
-    def set_exifdata_for_file(self, filename, exifdata):
-        """sets the exifdata JSON struct for a file"""
-        filename = self._normalize_filepath_relative(filename)
-        conn = self._conn
-        try:
-            c = conn.cursor()
-            c.execute(
-                "INSERT OR REPLACE INTO exifdata(filepath_normalized, json_exifdata) VALUES (?, ?);",
-                (filename, exifdata),
-            )
-            conn.commit()
-        except Error as e:
-            logging.warning(e)
-
-    def get_sidecar_for_file(self, filename):
-        """returns the sidecar data and signature for a file"""
-        filename = self._normalize_filepath_relative(filename)
-        conn = self._conn
-        try:
-            c = conn.cursor()
-            c.execute(
-                "SELECT sidecar_data, mode, size, mtime FROM sidecar WHERE filepath_normalized = ?",
-                (filename,),
-            )
-            results = c.fetchone()
-            if results:
-                sidecar_data = results[0]
-                sidecar_sig = (
-                    results[1],
-                    results[2],
-                    int(results[3]) if results[3] is not None else None,
-                )
-            else:
-                sidecar_data = None
-                sidecar_sig = (None, None, None)
-        except Error as e:
-            logging.warning(e)
-            sidecar_data = None
-            sidecar_sig = (None, None, None)
-
-        return sidecar_data, sidecar_sig
-
-    def set_sidecar_for_file(self, filename, sidecar_data, sidecar_sig):
-        """sets the sidecar data and signature for a file"""
-        filename = self._normalize_filepath_relative(filename)
-        conn = self._conn
-        try:
-            c = conn.cursor()
-            c.execute(
-                "INSERT OR REPLACE INTO sidecar(filepath_normalized, sidecar_data, mode, size, mtime) VALUES (?, ?, ?, ?, ?);",
-                (filename, sidecar_data, *sidecar_sig),
             )
             conn.commit()
         except Error as e:
@@ -484,152 +156,23 @@ class ExportDB(ExportDB_ABC):
         previous_uuids = []
         try:
             c = conn.cursor()
-            c.execute("SELECT DISTINCT uuid FROM files")
+            c.execute("SELECT DISTINCT uuid FROM export_data")
             results = c.fetchall()
             previous_uuids = [row[0] for row in results]
         except Error as e:
             logging.warning(e)
         return previous_uuids
 
-    def get_detected_text_for_uuid(self, uuid):
-        """Get the detected_text for a uuid"""
+    def set_config(self, config_data):
+        """set config in the database"""
         conn = self._conn
         try:
+            dt = datetime.datetime.now().isoformat()
             c = conn.cursor()
             c.execute(
-                "SELECT text_data FROM detected_text WHERE uuid = ?",
-                (uuid,),
+                "INSERT OR REPLACE INTO config(datetime, config) VALUES (?, ?);",
+                (dt, config_data),
             )
-            results = c.fetchone()
-            detected_text = results[0] if results else None
-        except Error as e:
-            logging.warning(e)
-            detected_text = None
-
-        return detected_text
-
-    def set_detected_text_for_uuid(self, uuid, text_json):
-        """Set the detected text for uuid"""
-        conn = self._conn
-        try:
-            c = conn.cursor()
-            c.execute(
-                "INSERT OR REPLACE INTO detected_text(uuid, text_data) VALUES (?, ?);",
-                (
-                    uuid,
-                    text_json,
-                ),
-            )
-            conn.commit()
-        except Error as e:
-            logging.warning(e)
-
-    def set_metadata_for_file(self, filename, metadata):
-        """set metadata of filename in the database"""
-        filename = str(pathlib.Path(filename).relative_to(self._path))
-        filename_normalized = self._normalize_filepath(filename)
-        conn = self._conn
-        try:
-            c = conn.cursor()
-            c.execute(
-                "UPDATE files SET metadata = ? WHERE filepath_normalized = ?;",
-                (metadata, filename_normalized),
-            )
-            conn.commit()
-        except Error as e:
-            logging.warning(e)
-
-    def get_metadata_for_file(self, filename):
-        """get metadata value for file"""
-        filename = self._normalize_filepath_relative(filename)
-        conn = self._conn
-        try:
-            c = conn.cursor()
-            c.execute(
-                "SELECT metadata FROM files WHERE filepath_normalized = ?",
-                (filename,),
-            )
-            results = c.fetchone()
-            metadata = results[0] if results else None
-        except Error as e:
-            logging.warning(e)
-            metadata = None
-
-        return metadata
-
-    def set_data(
-        self,
-        filename,
-        uuid,
-        orig_stat=None,
-        exif_stat=None,
-        converted_stat=None,
-        edited_stat=None,
-        info_json=None,
-        exif_json=None,
-        metadata=None,
-    ):
-        """sets all the data for file and uuid at once; if any value is None, does not set it"""
-        filename = str(pathlib.Path(filename).relative_to(self._path))
-        filename_normalized = self._normalize_filepath(filename)
-        conn = self._conn
-        try:
-            c = conn.cursor()
-            # update files table (if needed);
-            # this statement works around fact that there was no unique constraint on files.filepath_normalized
-            c.execute(
-                """INSERT OR IGNORE INTO files(filepath, filepath_normalized, uuid) VALUES (?, ?, ?);""",
-                (filename, filename_normalized, uuid),
-            )
-
-            if orig_stat is not None:
-                c.execute(
-                    "UPDATE files "
-                    + "SET orig_mode = ?, orig_size = ?, orig_mtime = ? "
-                    + "WHERE filepath_normalized = ?;",
-                    (*orig_stat, filename_normalized),
-                )
-
-            if exif_stat is not None:
-                c.execute(
-                    "UPDATE files "
-                    + "SET exif_mode = ?, exif_size = ?, exif_mtime = ? "
-                    + "WHERE filepath_normalized = ?;",
-                    (*exif_stat, filename_normalized),
-                )
-
-            if converted_stat is not None:
-                c.execute(
-                    "INSERT OR REPLACE INTO converted(filepath_normalized, mode, size, mtime) VALUES (?, ?, ?, ?);",
-                    (filename_normalized, *converted_stat),
-                )
-
-            if edited_stat is not None:
-                c.execute(
-                    "INSERT OR REPLACE INTO edited(filepath_normalized, mode, size, mtime) VALUES (?, ?, ?, ?);",
-                    (filename_normalized, *edited_stat),
-                )
-
-            if info_json is not None:
-                c.execute(
-                    "INSERT OR REPLACE INTO info(uuid, json_info) VALUES (?, ?);",
-                    (uuid, info_json),
-                )
-
-            if exif_json is not None:
-                c.execute(
-                    "INSERT OR REPLACE INTO exifdata(filepath_normalized, json_exifdata) VALUES (?, ?);",
-                    (filename_normalized, exif_json),
-                )
-
-            if metadata is not None:
-                c.execute(
-                    "UPDATE files "
-                    + "SET metadata = ? "
-                    + "WHERE filepath_normalized = ?;",
-                    (metadata, filename_normalized),
-                )
-
             conn.commit()
         except Error as e:
             logging.warning(e)
@@ -641,40 +184,10 @@ class ExportDB(ExportDB_ABC):
         except Error as e:
             logging.warning(e)
 
-    def _set_stat_for_file(self, table, filename, stats):
-        filename = self._normalize_filepath_relative(filename)
-        if len(stats) != 3:
-            raise ValueError(f"expected 3 elements for stat, got {len(stats)}")
-
-        conn = self._conn
-        c = conn.cursor()
-        c.execute(
-            f"INSERT OR REPLACE INTO {table}(filepath_normalized, mode, size, mtime) VALUES (?, ?, ?, ?);",
-            (filename, *stats),
-        )
-        conn.commit()
-
-    def _get_stat_for_file(self, table, filename):
-        filename = self._normalize_filepath_relative(filename)
-        conn = self._conn
-        c = conn.cursor()
-        c.execute(
-            f"SELECT mode, size, mtime FROM {table} WHERE filepath_normalized = ?",
-            (filename,),
-        )
-        results = c.fetchone()
-        if results:
-            stats = results[:3]
-            mtime = int(stats[2]) if stats[2] is not None else None
-            stats = (stats[0], stats[1], mtime)
-        else:
-            stats = (None, None, None)
-
-        return stats
-
     def _open_export_db(self, dbfile):
         """open export database and return a db connection
         if dbfile does not exist, will create and initialize the database
+        if dbfile needs to be upgraded, will perform needed migrations
         returns: connection to the database
         """
 
@@ -731,7 +244,7 @@ class ExportDB(ExportDB_ABC):
         try:
             version = self._get_database_version(conn)
         except Exception as e:
-            version = (__version__, OSXPHOTOS_EXPORTDB_VERSION_MIGRATE_TABLES)
+            version = (__version__, "4.3")
 
         # Current for version 4.3, for anything greater, do a migration after creation
         sql_commands = [
@@ -824,17 +337,18 @@ class ExportDB(ExportDB_ABC):
             logging.warning(e)
 
         # perform needed migrations
-        if version[1] < OSXPHOTOS_EXPORTDB_VERSION_MIGRATE_FILEPATH:
+        if version[1] < "4.3":
             self._migrate_normalized_filepath(conn)
 
-        if version[1] < OSXPHOTOS_EXPORTDB_VERSION:
-            try:
-                c = conn.cursor()
-                # add metadata column to files to support --force-update
-                c.execute("ALTER TABLE files ADD COLUMN metadata TEXT;")
-                conn.commit()
-            except Error as e:
-                logging.warning(e)
+        if version[1] < "5.0":
+            self._migrate_4_3_to_5_0(conn)
+
+        if version[1] < "6.0":
+            # create export_data table
+            self._migrate_5_0_to_6_0(conn)
+
+        conn.execute("VACUUM;")
+        conn.commit()
 
     def __del__(self):
         """ensure the database connection is closed"""
@@ -861,13 +375,17 @@ class ExportDB(ExportDB_ABC):
         except Error as e:
             logging.warning(e)
 
+    def _relative_filepath(self, filepath: Union[str, pathlib.Path]) -> str:
+        """return filepath relative to self._path"""
+        return str(pathlib.Path(filepath).relative_to(self._path))
+
     def _normalize_filepath(self, filepath: Union[str, pathlib.Path]) -> str:
         """normalize filepath for unicode, lower case"""
         return normalize_fs_path(str(filepath)).lower()
 
     def _normalize_filepath_relative(self, filepath: Union[str, pathlib.Path]) -> str:
         """normalize filepath for unicode, relative path (to export dir), lower case"""
-        filepath = str(pathlib.Path(filepath).relative_to(self._path))
+        filepath = self._relative_filepath(filepath)
         return normalize_fs_path(str(filepath)).lower()
 
     def _migrate_normalized_filepath(self, conn):
@@ -909,6 +427,138 @@ class ExportDB(ExportDB_ABC):
             )
         conn.commit()
 
+    def _migrate_4_3_to_5_0(self, conn):
+        """Migrate database from version 4.3 to 5.0"""
+        try:
+            c = conn.cursor()
+            # add metadata column to files to support --force-update
+            c.execute("ALTER TABLE files ADD COLUMN metadata TEXT;")
+            conn.commit()
+        except Error as e:
+            logging.warning(e)
+
+    def _migrate_5_0_to_6_0(self, conn):
+        try:
+            c = conn.cursor()
+
+            # add export_data table
+            c.execute(
+                """ CREATE TABLE IF NOT EXISTS export_data(
+                        id INTEGER PRIMARY KEY,
+                        filepath_normalized TEXT NOT NULL,
+                        filepath TEXT NOT NULL,
+                        uuid TEXT NOT NULL,
+                        src_mode INTEGER,
+                        src_size INTEGER,
+                        src_mtime REAL,
+                        dest_mode INTEGER,
+                        dest_size INTEGER,
+                        dest_mtime REAL,
+                        digest TEXT,
+                        exifdata JSON,
+                        export_options INTEGER,
+                        UNIQUE(filepath_normalized)
+                    ); """,
+            )
+            c.execute(
+                """ CREATE UNIQUE INDEX IF NOT EXISTS idx_export_data_filepath_normalized on export_data (filepath_normalized); """,
+            )
+
+            # migrate data
+            c.execute(
+                """ INSERT INTO export_data (filepath_normalized, filepath, uuid) SELECT filepath_normalized, filepath, uuid FROM files;""",
+            )
+            c.execute(
+                """ UPDATE export_data 
+                    SET (src_mode, src_size, src_mtime) = 
+                    (SELECT mode, size, mtime 
+                    FROM edited 
+                    WHERE export_data.filepath_normalized = edited.filepath_normalized);
+               """,
+            )
+            c.execute(
+                """ UPDATE export_data 
+                    SET (dest_mode, dest_size, dest_mtime) = 
+                    (SELECT orig_mode, orig_size, orig_mtime 
+                    FROM files 
+                    WHERE export_data.filepath_normalized = files.filepath_normalized);
+               """,
+            )
+            c.execute(
+                """ UPDATE export_data SET digest = 
+                          (SELECT metadata FROM files 
+                          WHERE files.filepath_normalized = export_data.filepath_normalized
+                          ); """
+            )
+            c.execute(
+                """ UPDATE export_data SET exifdata = 
+                          (SELECT json_exifdata FROM exifdata 
+                          WHERE exifdata.filepath_normalized = export_data.filepath_normalized
+                          ); """
+            )
+
+            # create config table
+            c.execute(
+                """ CREATE TABLE IF NOT EXISTS config (
+                        id INTEGER PRIMARY KEY,
+                        datetime TEXT,
+                        config TEXT 
+                ); """
+            )
+
+            # create photoinfo table
+            c.execute(
+                """ CREATE TABLE IF NOT EXISTS photoinfo (
+                        id INTEGER PRIMARY KEY,
+                        uuid TEXT NOT NULL,
+                        photoinfo JSON,
+                        UNIQUE(uuid)
+                ); """
+            )
+            c.execute(
+                """CREATE UNIQUE INDEX IF NOT EXISTS idx_photoinfo_uuid on photoinfo (uuid);"""
+            )
+            c.execute(
+                """ INSERT INTO photoinfo (uuid, photoinfo) SELECT uuid, json_info FROM info;"""
+            )
+
+            # drop indexes no longer needed
+            c.execute("DROP INDEX IF EXISTS idx_files_filepath_normalized;")
+            c.execute("DROP INDEX IF EXISTS idx_exifdata_filename;")
+            c.execute("DROP INDEX IF EXISTS idx_edited_filename;")
+            c.execute("DROP INDEX IF EXISTS idx_converted_filename;")
+            c.execute("DROP INDEX IF EXISTS idx_sidecar_filename;")
+            c.execute("DROP INDEX IF EXISTS idx_detected_text;")
+
+            # drop tables no longer needed
+            c.execute("DROP TABLE IF EXISTS files;")
+            c.execute("DROP TABLE IF EXISTS info;")
+            c.execute("DROP TABLE IF EXISTS exifdata;")
+            c.execute("DROP TABLE IF EXISTS edited;")
+            c.execute("DROP TABLE IF EXISTS converted;")
+            c.execute("DROP TABLE IF EXISTS sidecar;")
+            c.execute("DROP TABLE IF EXISTS detected_text;")
+
+            conn.commit()
+        except Error as e:
+            logging.warning(e)
+
+    def _perform_db_maintenace(self, conn):
+        """Perform database maintenance"""
+        try:
+            c = conn.cursor()
+            c.execute(
+                """DELETE FROM config
+                    WHERE id < (
+                        SELECT MIN(id)
+                        FROM (SELECT id FROM config ORDER BY id DESC LIMIT 9)
+                    );
+                """
+            )
+            conn.commit()
+        except Error as e:
+            logging.warning(e)
+
 
 class ExportDBInMemory(ExportDB):
     """In memory version of ExportDB
@@ -942,7 +592,7 @@ class ExportDBInMemory(ExportDB):
                 conn = sqlite3.connect(dbfile)
             except Error as e:
                 logging.warning(e)
-                raise e
+                raise e from e
 
             tempfile = StringIO()
             for line in conn.iterdump():
@@ -955,13 +605,14 @@ class ExportDBInMemory(ExportDB):
             conn.cursor().executescript(tempfile.read())
             conn.commit()
             self.was_created = False
-            _, exportdb_ver = self._get_database_version(conn)
-            if exportdb_ver < OSXPHOTOS_EXPORTDB_VERSION:
+            version_info = self._get_database_version(conn)
+            if version_info[1] < OSXPHOTOS_EXPORTDB_VERSION:
                 self._create_or_migrate_db_tables(conn)
-                self.was_upgraded = (exportdb_ver, OSXPHOTOS_EXPORTDB_VERSION)
+                self.was_upgraded = (version_info[1], OSXPHOTOS_EXPORTDB_VERSION)
             else:
                 self.was_upgraded = ()
         self.version = OSXPHOTOS_EXPORTDB_VERSION
+
         return conn
 
     def _get_db_connection(self):
@@ -973,3 +624,269 @@ class ExportDBInMemory(ExportDB):
             conn = None
 
         return conn
+
+
+class ExportDBTemp(ExportDBInMemory):
+    """Temporary in-memory version of ExportDB"""
+
+    def __init__(self):
+        self._temp_dir = TemporaryDirectory()
+        self._dbfile = f"{self._temp_dir.name}/{OSXPHOTOS_EXPORT_DB}"
+        self._path = self._temp_dir.name
+        self._conn = self._open_export_db(self._dbfile)
+        self._insert_run_info()
+
+    def _relative_filepath(self, filepath: Union[str, pathlib.Path]) -> str:
+        """Overrides _relative_filepath to return a path for use in the temp db"""
+        filepath = str(filepath)
+        if filepath[0] == "/":
+            return filepath[1:]
+        return filepath
+
+
+class ExportRecord:
+    """ExportRecord class"""
+
+    __slots__ = [
+        "_conn",
+        "_context_manager",
+        "_filepath_normalized",
+    ]
+
+    def __init__(self, conn, filepath_normalized):
+        self._conn = conn
+        self._filepath_normalized = filepath_normalized
+        self._context_manager = False
+
+    @property
+    def filepath(self):
+        """return filepath"""
+        conn = self._conn
+        c = conn.cursor()
+        row = c.execute(
+            "SELECT filepath FROM export_data WHERE filepath_normalized = ?;",
+            (self._filepath_normalized,),
+        ).fetchone()
+        if row:
+            return row[0]
+
+        raise ValueError(
+            f"No filepath found in database for {self._filepath_normalized}"
+        )
+
+    @property
+    def filepath_normalized(self):
+        """return filepath_normalized"""
+        return self._filepath_normalized
+
+    @property
+    def uuid(self):
+        """return uuid"""
+        conn = self._conn
+        c = conn.cursor()
+        row = c.execute(
+            "SELECT uuid FROM export_data WHERE filepath_normalized = ?;",
+            (self._filepath_normalized,),
+        ).fetchone()
+        if row:
+            return row[0]
+
+        raise ValueError(f"No uuid found in database for {self._filepath_normalized}")
+
+    @property
+    def digest(self):
+        """returns the digest value"""
+        conn = self._conn
+        c = conn.cursor()
+        row = c.execute(
+            "SELECT digest FROM export_data WHERE filepath_normalized = ?;",
+            (self._filepath_normalized,),
+        ).fetchone()
+        if row:
+            return row[0]
+
+        raise ValueError(f"No digest found in database for {self._filepath_normalized}")
+
+    @digest.setter
+    def digest(self, value):
+        """set digest value"""
+        conn = self._conn
+        c = conn.cursor()
+        c.execute(
+            "UPDATE export_data SET digest = ? WHERE filepath_normalized = ?;",
+            (value, self._filepath_normalized),
+        )
+        if not self._context_manager:
+            conn.commit()
+
+    @property
+    def exifdata(self):
+        """returns exifdata value for record"""
+        conn = self._conn
+        c = conn.cursor()
+        row = c.execute(
+            "SELECT exifdata FROM export_data WHERE filepath_normalized = ?;",
+            (self._filepath_normalized,),
+        ).fetchone()
+        if row:
+            return row[0]
+
+        raise ValueError(
+            f"No exifdata found in database for {self._filepath_normalized}"
+        )
+
+    @exifdata.setter
+    def exifdata(self, value):
+        """set exifdata value"""
+        conn = self._conn
+        c = conn.cursor()
+        c.execute(
+            "UPDATE export_data SET exifdata = ? WHERE filepath_normalized = ?;",
+            (
+                value,
+                self._filepath_normalized,
+            ),
+        )
+        if not self._context_manager:
+            conn.commit()
+
+    @property
+    def src_sig(self):
+        """return source file signature value"""
+        conn = self._conn
+        c = conn.cursor()
+        row = c.execute(
+            "SELECT src_mode, src_size, src_mtime FROM export_data WHERE filepath_normalized = ?;",
+            (self._filepath_normalized,),
+        ).fetchone()
+        if row:
+            mtime = int(row[2]) if row[2] is not None else None
+            return (row[0], row[1], mtime)
+
+        raise ValueError(
+            f"No src_sig found in database for {self._filepath_normalized}"
+        )
+
+    @src_sig.setter
+    def src_sig(self, value):
+        """set source file signature value"""
+        conn = self._conn
+        c = conn.cursor()
+        c.execute(
+            "UPDATE export_data SET src_mode = ?, src_size = ?, src_mtime = ? WHERE filepath_normalized = ?;",
+            (
+                value[0],
+                value[1],
+                value[2],
+                self._filepath_normalized,
+            ),
+        )
+        if not self._context_manager:
+            conn.commit()
+
+    @property
+    def dest_sig(self):
+        """return destination file signature"""
+        conn = self._conn
+        c = conn.cursor()
+        row = c.execute(
+            "SELECT dest_mode, dest_size, dest_mtime FROM export_data WHERE filepath_normalized = ?;",
+            (self._filepath_normalized,),
+        ).fetchone()
+        if row:
+            mtime = int(row[2]) if row[2] is not None else None
+            return (row[0], row[1], mtime)
+
+        raise ValueError(
+            f"No dest_sig found in database for {self._filepath_normalized}"
+        )
+
+    @dest_sig.setter
+    def dest_sig(self, value):
+        """set destination file signature"""
+        conn = self._conn
+        c = conn.cursor()
+        c.execute(
+            "UPDATE export_data SET dest_mode = ?, dest_size = ?, dest_mtime = ? WHERE filepath_normalized = ?;",
+            (
+                value[0],
+                value[1],
+                value[2],
+                self._filepath_normalized,
+            ),
+        )
+        if not self._context_manager:
+            conn.commit()
+
+    @property
+    def photoinfo(self):
+        """Returns info value"""
+        conn = self._conn
+        c = conn.cursor()
+        row = c.execute(
+            "SELECT photoinfo from photoinfo where uuid = ?;",
+            (self.uuid,),
+        ).fetchone()
+        return row[0] if row else None
+
+    @photoinfo.setter
+    def photoinfo(self, value):
+        """Sets info value"""
+        conn = self._conn
+        c = conn.cursor()
+        c.execute(
+            "INSERT OR REPLACE INTO photoinfo (uuid, photoinfo) VALUES (?, ?);",
+            (self.uuid, value),
+        )
+        if not self._context_manager:
+            conn.commit()
+
+    @property
+    def export_options(self):
+        """Get export_options value"""
+        conn = self._conn
+        c = conn.cursor()
+        row = c.execute(
+            "SELECT export_options from export_data where filepath_normalized = ?;",
+            (self._filepath_normalized,),
+        ).fetchone()
+        return row[0] if row else None
+
+    @export_options.setter
+    def export_options(self, value):
+        """Set export_options value"""
+        conn = self._conn
+        c = conn.cursor()
+        c.execute(
+            "UPDATE export_data SET export_options = ? WHERE filepath_normalized = ?;",
+            (value, self._filepath_normalized),
+        )
+        if not self._context_manager:
+            conn.commit()
+
+    def asdict(self):
+        """Return dict of self"""
+        exifdata = json.loads(self.exifdata) if self.exifdata else None
+        photoinfo = json.loads(self.photoinfo) if self.photoinfo else None
+        return {
+            "filepath": self.filepath,
+            "filepath_normalized": self.filepath_normalized,
+            "uuid": self.uuid,
+            "digest": self.digest,
+            "src_sig": self.src_sig,
+            "dest_sig": self.dest_sig,
+            "export_options": self.export_options,
+            "exifdata": exifdata,
+            "photoinfo": photoinfo,
+        }
+
+    def __enter__(self):
+        self._context_manager = True
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type:
+            self._conn.rollback()
+        else:
+            self._conn.commit()
+        self._context_manager = False

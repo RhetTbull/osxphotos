@@ -143,7 +143,7 @@ class FileUtilMacOS(FileUtilABC):
     @classmethod
     def utime(cls, path, times):
         """Set the access and modified time of path."""
-        os.utime(path, times)
+        os.utime(path, times=times)
 
     @classmethod
     def cmp(cls, f1, f2, mtime1=None):
@@ -187,7 +187,7 @@ class FileUtilMacOS(FileUtilABC):
 
     @classmethod
     def file_sig(cls, f1):
-        """return os.stat signature for file f1"""
+        """return os.stat signature for file f1 as tuple of (mode, size, mtime)"""
         return cls._sig(os.stat(f1))
 
     @classmethod

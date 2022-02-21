@@ -65,6 +65,16 @@ from .crash_reporter import crash_reporter
 from .datetime_formatter import DateTimeFormatter
 from .exiftool import get_exiftool_path
 from .export_db import ExportDB, ExportDBInMemory
+from .export_db_utils import (
+    OSXPHOTOS_EXPORTDB_VERSION,
+    export_db_check_signatures,
+    export_db_get_last_run,
+    export_db_get_version,
+    export_db_save_config_to_file,
+    export_db_touch_files,
+    export_db_update_signatures,
+    export_db_vacuum,
+)
 from .fileutil import FileUtil, FileUtilNoOp
 from .path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
 from .photoexporter import ExportOptions, ExportResults, PhotoExporter
@@ -272,6 +282,24 @@ class FunctionCall(click.ParamType):
             self.fail(f"Could not load function {funcname} from {filename_validated}")
 
         return (function, value)
+
+
+class ExportDBType(click.ParamType):
+
+    name = "EXPORTDB"
+
+    def convert(self, value, param, ctx):
+        try:
+            export_db_name = pathlib.Path(value)
+            if export_db_name.is_dir():
+                raise click.BadParameter(f"{value} is a directory")
+            if export_db_name.is_file():
+                # verify it's actually an osxphotos export_db
+                # export_db_get_version will raise an error if it's not valid
+                osxphotos_ver, export_db_ver = export_db_get_version(value)
+            return value
+        except Exception:
+            self.fail(f"{value} exists but is not a valid osxphotos export database. ")
 
 
 class IncompatibleQueryOptions(Exception):
@@ -1160,7 +1188,7 @@ def cli(ctx, db, json_, debug):
         f"If --exportdb is not specified, export database will be saved to '{OSXPHOTOS_EXPORT_DB}' "
         "in the export directory.  If --exportdb is specified, it will be saved to the specified file. "
     ),
-    type=click.Path(),
+    type=ExportDBType(),
 )
 @click.option(
     "--load-config",
@@ -1182,8 +1210,14 @@ def cli(ctx, db, json_, debug):
     required=False,
     metavar="<config file path>",
     default=None,
-    help=("Save options to file for use with --load-config. File format is TOML."),
+    help="Save options to file for use with --load-config. File format is TOML. "
+    "See also --config-only.",
     type=click.Path(),
+)
+@click.option(
+    "--config-only",
+    is_flag=True,
+    help="If specified, saves the config file but does not export any files; must be used with --save-config.",
 )
 @click.option(
     "--beta",
@@ -1351,6 +1385,7 @@ def export(
     exportdb,
     load_config,
     save_config,
+    config_only,
     is_reference,
     beta,
     in_album,
@@ -1413,7 +1448,7 @@ def export(
     cfg = ConfigOptions(
         "export",
         locals(),
-        ignore=["ctx", "cli_obj", "dest", "load_config", "save_config"],
+        ignore=["ctx", "cli_obj", "dest", "load_config", "save_config", "config_only"],
     )
 
     global VERBOSE
@@ -1620,6 +1655,14 @@ def export(
         )
         sys.exit(1)
 
+    if config_only and not save_config:
+        click.secho(
+            "--config-only must be used with --save-config",
+            fg=CLI_COLOR_ERROR,
+            err=True,
+        )
+        sys.exit(1)
+
     if all(x in [s.lower() for s in sidecar] for x in ["json", "exiftool"]):
         click.echo(
             click.style(
@@ -1644,8 +1687,11 @@ def export(
                 sys.exit(1)
 
     if save_config:
-        verbose_(f"Saving options to file {save_config}")
+        verbose_(f"Saving options to config file '{save_config}'")
         cfg.write_to_file(save_config)
+        if config_only:
+            click.echo(f"Saved config file to '{save_config}'")
+            sys.exit(0)
 
     # set defaults for options that need them
     jpeg_quality = DEFAULT_JPEG_QUALITY if jpeg_quality is None else jpeg_quality
@@ -1796,6 +1842,9 @@ def export(
             verbose_(
                 f"Upgraded export database {export_db_path} from version {upgraded[0]} to {upgraded[1]}"
             )
+
+    # save config to export_db
+    export_db.set_config(cfg.write_to_str())
 
     photosdb = osxphotos.PhotosDB(dbfile=db, verbose=verbose_, exiftool=exiftool_path)
 
@@ -4702,6 +4751,210 @@ def run(python_file):
     """Run a python file using same environment as osxphotos"""
     run_path(python_file, run_name="__main__")
 
+
+@cli.command(name="exportdb", hidden=OSXPHOTOS_HIDDEN)
+@click.option("--version", is_flag=True, help="Print export database version and exit.")
+@click.option("--vacuum", is_flag=True, help="Run VACUUM to defragment the database.")
+@click.option(
+    "--check-signatures",
+    is_flag=True,
+    help="Check signatures for all exported photos in the database to find signatures that don't match.",
+)
+@click.option(
+    "--update-signatures",
+    is_flag=True,
+    help="Update signatures for all exported photos in the database to match on-disk signatures.",
+)
+@click.option(
+    "--touch-file",
+    is_flag=True,
+    help="Touch files on disk to match created date in Photos library and update export database signatures",
+)
+@click.option(
+    "--last-run",
+    is_flag=True,
+    help="Show last run osxphotos commands used with this database.",
+)
+@click.option(
+    "--save-config",
+    metavar="CONFIG_FILE",
+    help="Save last run configuration to TOML file for use by --load-config.",
+)
+@click.option(
+    "--info",
+    metavar="FILE_PATH",
+    nargs=1,
+    help="Print information about FILE_PATH contained in the database.",
+)
+@click.option(
+    "--migrate",
+    is_flag=True,
+    help="Migrate (if needed) export database to current version."
+)
+@click.option(
+    "--export-dir",
+    help="Optional path to export directory (if not parent of export database).",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True),
+)
+@click.option("--verbose", "-V", is_flag=True, help="Print verbose output.")
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    help="Run in dry-run mode (don't actually update files), e.g. for use with --update-signatures.",
+)
+@click.argument("export_db", metavar="EXPORT_DATABASE", type=click.Path(exists=True))
+def exportdb(
+    version,
+    vacuum,
+    check_signatures,
+    update_signatures,
+    touch_file,
+    last_run,
+    save_config,
+    info,
+    migrate,
+    export_dir,
+    verbose,
+    dry_run,
+    export_db,
+):
+    """Utilities for working with the osxphotos export database"""
+    export_db = pathlib.Path(export_db)
+    if export_db.is_dir():
+        # assume it's the export folder
+        export_db = export_db / OSXPHOTOS_EXPORT_DB
+        if not export_db.is_file():
+            print(
+                f"[red]Error: {OSXPHOTOS_EXPORT_DB} missing from {export_db.parent}[/red]"
+            )
+            sys.exit(1)
+
+    export_dir = export_dir or export_db.parent
+
+    sub_commands = [
+        version,
+        check_signatures,
+        update_signatures,
+        touch_file,
+        last_run,
+        bool(save_config),
+        bool(info),
+        migrate,
+    ]
+    if sum(sub_commands) > 1:
+        print(f"[red]Only a single sub-command may be specified at a time[/red]")
+        sys.exit(1)
+
+    if version:
+        try:
+            osxphotos_ver, export_db_ver = export_db_get_version(export_db)
+        except Exception as e:
+            print(f"[red]Error: could not read version from {export_db}: {e}[/red]")
+            sys.exit(1)
+        else:
+            print(
+                f"osxphotos version: {osxphotos_ver}, export database version: {export_db_ver}"
+            )
+        sys.exit(0)
+
+    if vacuum:
+        try:
+            start_size = pathlib.Path(export_db).stat().st_size
+            export_db_vacuum(export_db)
+        except Exception as e:
+            print(f"[red]Error: {e}[/red]")
+            sys.exit(1)
+        else:
+            print(
+                f"Vacuumed {export_db}! {start_size} bytes -> {pathlib.Path(export_db).stat().st_size} bytes"
+            )
+            sys.exit(0)
+
+    if update_signatures:
+        try:
+            updated, skipped = export_db_update_signatures(
+                export_db, export_dir, verbose, dry_run
+            )
+        except Exception as e:
+            print(f"[red]Error: {e}[/red]")
+            sys.exit(1)
+        else:
+            print(f"Done. Updated {updated} files, skipped {skipped} files.")
+            sys.exit(0)
+
+    if last_run:
+        try:
+            last_run_info = export_db_get_last_run(export_db)
+        except Exception as e:
+            print(f"[red]Error: {e}[/red]")
+            sys.exit(1)
+        else:
+            print(f"last run at {last_run_info[0]}:")
+            print(f"osxphotos {last_run_info[1]}")
+            sys.exit(0)
+
+    if save_config:
+        try:
+            export_db_save_config_to_file(export_db, save_config)
+        except Exception as e:
+            print(f"[red]Error: {e}[/red]")
+            sys.exit(1)
+        else:
+            print(f"Saved configuration to {save_config}")
+            sys.exit(0)
+
+    if check_signatures:
+        try:
+            matched, notmatched, skipped = export_db_check_signatures(
+                export_db, export_dir, verbose=verbose
+            )
+        except Exception as e:
+            print(f"[red]Error: {e}[/red]")
+            sys.exit(1)
+        else:
+            print(
+                f"Done. Found {matched} matching signatures and {notmatched} signatures that don't match. Skipped {skipped} missing files."
+            )
+            sys.exit(0)
+
+    if touch_file:
+        try:
+            touched, not_touched, skipped = export_db_touch_files(
+                export_db, export_dir, verbose=verbose, dry_run=dry_run
+            )
+        except Exception as e:
+            print(f"[red]Error: {e}[/red]")
+            sys.exit(1)
+        else:
+            print(
+                f"Done. Touched {touched} files, skipped {not_touched} up to date files, skipped {skipped} missing files."
+            )
+            sys.exit(0)
+
+    if info:
+        exportdb = ExportDB(export_db, export_dir)
+        try:
+            info_rec = exportdb.get_file_record(info)
+        except Exception as e:
+            print(f"[red]Error: {e}[/red]")
+            sys.exit(1)
+        else:
+            if info_rec:
+                print(info_rec.asdict())
+            else:
+                print(f"[red]File '{info}' not found in export database[/red]")
+            sys.exit(0)
+
+    if migrate:
+        exportdb = ExportDB(export_db, export_dir)
+        upgraded = exportdb.was_upgraded
+        if upgraded:
+            print(
+                f"Migrated export database {export_db} from version {upgraded[0]} to {upgraded[1]}"
+            )
+        else:
+            print(f"Export database {export_db} is already at latest version {OSXPHOTOS_EXPORTDB_VERSION}")
+        sys.exit(0)
 
 def _query_options_from_kwargs(**kwargs) -> QueryOptions:
     """Validate query options and create a QueryOptions instance"""

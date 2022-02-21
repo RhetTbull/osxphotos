@@ -1,7 +1,7 @@
 from ._constants import AlbumSortOrder
 from ._version import __version__
 from .exiftool import ExifTool
-from .export_db import ExportDB, ExportDBInMemory, ExportDBNoOp
+from .export_db import ExportDB
 from .fileutil import FileUtil, FileUtilNoOp
 from .momentinfo import MomentInfo
 from .personinfo import PersonInfo
@@ -25,8 +25,7 @@ __all__ = [
     "CommentInfo",
     "ExifTool",
     "ExportDB",
-    "ExportDBInMemory",
-    "ExportDBNoOp",
+    "ExportDBTemp",
     "ExportOptions",
     "ExportResults",
     "FileUtil",
