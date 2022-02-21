@@ -2,6 +2,7 @@
 
 
 import datetime
+import json
 import logging
 import os
 import pathlib
@@ -865,16 +866,18 @@ class ExportRecord:
 
     def asdict(self):
         """Return dict of self"""
+        exifdata = json.loads(self.exifdata) if self.exifdata else None
+        photoinfo = json.loads(self.photoinfo) if self.photoinfo else None
         return {
             "filepath": self.filepath,
             "filepath_normalized": self.filepath_normalized,
             "uuid": self.uuid,
             "digest": self.digest,
-            "exifdata": self.exifdata,
             "src_sig": self.src_sig,
             "dest_sig": self.dest_sig,
-            "photoinfo": self.photoinfo,
             "export_options": self.export_options,
+            "exifdata": exifdata,
+            "photoinfo": photoinfo,
         }
 
     def __enter__(self):

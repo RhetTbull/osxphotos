@@ -282,6 +282,7 @@ class FunctionCall(click.ParamType):
 
         return (function, value)
 
+
 class ExportDBType(click.ParamType):
 
     name = "EXPORTDB"
@@ -297,9 +298,8 @@ class ExportDBType(click.ParamType):
                 osxphotos_ver, export_db_ver = export_db_get_version(value)
             return value
         except Exception:
-            self.fail(
-                f"{value} exists but is not a valid osxphotos export database. "
-            )
+            self.fail(f"{value} exists but is not a valid osxphotos export database. ")
+
 
 class IncompatibleQueryOptions(Exception):
     pass
@@ -4780,6 +4780,12 @@ def run(python_file):
     help="Save last run configuration to TOML file for use by --load-config.",
 )
 @click.option(
+    "--info",
+    metavar="FILE_PATH",
+    nargs=1,
+    help="Print information about FILE_PATH contained in the database.",
+)
+@click.option(
     "--export-dir",
     help="Optional path to export directory (if not parent of export database).",
     type=click.Path(exists=True, file_okay=False, dir_okay=True),
@@ -4799,6 +4805,7 @@ def exportdb(
     touch_file,
     last_run,
     save_config,
+    info,
     export_dir,
     verbose,
     dry_run,
@@ -4913,6 +4920,20 @@ def exportdb(
             print(
                 f"Done. Touched {touched} files, skipped {not_touched} up to date files, skipped {skipped} missing files."
             )
+            sys.exit(0)
+
+    if info:
+        exportdb = ExportDB(export_db, export_dir)
+        try:
+            info_rec = exportdb.get_file_record(info)
+        except Exception as e:
+            print(f"[red]Error: {e}[/red]")
+            sys.exit(1)
+        else:
+            if info_rec:
+                print(info_rec.asdict())
+            else:
+                print(f"[red]File '{info}' not found in export database[/red]")
             sys.exit(0)
 
 
