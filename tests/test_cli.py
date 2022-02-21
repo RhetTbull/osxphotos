@@ -6710,6 +6710,93 @@ def test_export_exportdb():
             in result.output
         )
 
+def test_export_exportdb_ramdb():
+    """test --exportdb --ramdb"""
+    import glob
+    import os
+    import os.path
+    import re
+
+    import osxphotos
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--exportdb", "export.db", "--ramdb"],
+        )
+        assert result.exit_code == 0
+        assert re.search(r"Created export database.*export\.db", result.output)
+        files = glob.glob("*")
+        assert "export.db" in files
+
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--exportdb",
+                "export.db",
+                "--update",
+                "--ramdb"
+            ],
+        )
+        assert result.exit_code == 0
+        assert re.search(r"Using export database.*export\.db", result.output)
+        assert "exported: 0" in result.output
+
+
+def test_export_ramdb():
+    """test --ramdb"""
+    import glob
+    import os
+    import os.path
+    import re
+
+    import osxphotos
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--ramdb"],
+        )
+        assert result.exit_code == 0
+
+        # run again, update should update no files if db written back to disk
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--update",
+                "--ramdb"
+            ],
+        )
+        assert result.exit_code == 0
+        assert "exported: 0" in result.output
+
+        # run again without --ramdb, update should update no files if db written back to disk
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--update",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "exported: 0" in result.output
+
 
 def test_export_finder_tag_keywords():
     """test --finder-tag-keywords"""

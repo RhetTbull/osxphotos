@@ -50,6 +50,16 @@ class ExportDB:
         self._perform_db_maintenace(self._conn)
         self._insert_run_info()
 
+    @property
+    def path(self):
+        """returns path to export database"""
+        return self._dbfile
+
+    @property
+    def export_dir(self):
+        """returns path to export directory"""
+        return self._path
+
     def get_file_record(self, filename: Union[pathlib.Path, str]) -> "ExportRecord":
         """get info for filename and uuid
 
@@ -566,7 +576,14 @@ class ExportDBInMemory(ExportDB):
     modifying the on-disk version
     """
 
-    def __init__(self, dbfile, export_dir):
+    def __init__(self, dbfile: str, export_dir: str):
+        """ "Initialize ExportDBInMemory
+
+        Args:
+            dbfile (str): path to database file
+            export_dir (str): path to export directory
+            write_back (bool): whether to write changes back to disk when closing; if False (default), changes are not written to disk
+        """
         self._dbfile = dbfile or f"./{OSXPHOTOS_EXPORT_DB}"
         # export_dir is required as all files referenced by get_/set_uuid_for_file will be converted to
         # relative paths to this path
@@ -575,6 +592,39 @@ class ExportDBInMemory(ExportDB):
         self._path = export_dir
         self._conn = self._open_export_db(self._dbfile)
         self._insert_run_info()
+
+    def write_to_disk(self):
+        """Write changes from in-memory database back to disk"""
+
+        # dump the database
+        conn = self._conn
+        conn.commit()
+        dbdump = self._dump_db(conn)
+
+        # cleanup the old on-disk database
+        # also unlink the wal and shm files if needed
+        dbfile = pathlib.Path(self._dbfile)
+        if dbfile.exists():
+            dbfile.unlink()
+        wal = dbfile.with_suffix(".db-wal")
+        if wal.exists():
+            wal.unlink()
+        shm = dbfile.with_suffix(".db-shm")
+        if shm.exists():
+            shm.unlink()
+
+        conn_on_disk = sqlite3.connect(str(dbfile))
+        conn_on_disk.cursor().executescript(dbdump.read())
+        conn_on_disk.commit()
+        conn_on_disk.close()
+
+    def close(self):
+        """close the database connection"""
+        try:
+            if self._conn:
+                self._conn.close()
+        except Error as e:
+            logging.warning(e)
 
     def _open_export_db(self, dbfile):
         """open export database and return a db connection
@@ -588,21 +638,13 @@ class ExportDBInMemory(ExportDB):
             self.was_created = True
             self.was_upgraded = ()
         else:
-            try:
-                conn = sqlite3.connect(dbfile)
-            except Error as e:
-                logging.warning(e)
-                raise e from e
-
-            tempfile = StringIO()
-            for line in conn.iterdump():
-                tempfile.write("%s\n" % line)
+            conn = sqlite3.connect(dbfile)
+            dbdump = self._dump_db(conn)
             conn.close()
-            tempfile.seek(0)
 
-            # Create a database in memory and import from tempfile
+            # Create a database in memory and import from the dump
             conn = sqlite3.connect(":memory:")
-            conn.cursor().executescript(tempfile.read())
+            conn.cursor().executescript(dbdump.read())
             conn.commit()
             self.was_created = False
             version_info = self._get_database_version(conn)
@@ -624,6 +666,21 @@ class ExportDBInMemory(ExportDB):
             conn = None
 
         return conn
+
+    def _dump_db(self, conn: sqlite3.Connection) -> StringIO:
+        """dump sqlite db to a string buffer"""
+        dbdump = StringIO()
+        for line in conn.iterdump():
+            dbdump.write("%s\n" % line)
+        dbdump.seek(0)
+        return dbdump
+
+    def __del__(self):
+        """close the database connection"""
+        try:
+            self.close()
+        except Error as e:
+            pass
 
 
 class ExportDBTemp(ExportDBInMemory):
