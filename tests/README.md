@@ -1,14 +1,18 @@
 # Tests for osxphotos #
 
 ## Running Tests ##
-Tests require pytest and pytest-mock:
-`pip install pytest`
-`pip install pytest-mock`
+To set up a dev environment to work on osxphotos code or run tests follow these steps.  This assumes you have python 3.7 or later installed.  If you need to install python, you can do so with the XCode command lines tools (`xcode-select --install`) or from [python.org](https://www.python.org/downloads/macos/).
+
+- `git clone git@github.com:RhetTbull/osxphotos.git`
+- `cd osxphotos`
+- `python3 -m venv venv`
+- `source venv/bin/activate`
+- `python3 -m pip install -r dev_requirements.txt`
+- `python3 -m pip install -e .`
 
 To run the tests, do the following from the main source folder:
-`python -m pytest tests/`
+`python3 -m pytest tests/`
 
-Running the tests this way allows the library to be tested without installing it.
 
 ## Skipped Tests ##
 A few tests will look for certain environment variables to determine if they should run.
