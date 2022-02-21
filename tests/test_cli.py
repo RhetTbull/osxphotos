@@ -6545,7 +6545,7 @@ def test_save_load_config():
             ],
         )
         assert result.exit_code == 0
-        assert "Saving options to file" in result.output
+        assert "Saving options to config file" in result.output
         files = glob.glob("*")
         assert "config.toml" in files
 
@@ -6581,7 +6581,7 @@ def test_save_load_config():
             ],
         )
         assert result.exit_code == 0
-        assert "Saving options to file" in result.output
+        assert "Saving options to config file" in result.output
         files = glob.glob("*")
         assert "config.toml" in files
 
@@ -6616,6 +6616,41 @@ def test_save_load_config():
         assert result.exit_code == 0
         assert "Writing JSON sidecar" in result.output
         assert "Writing XMP sidecar" not in result.output
+
+
+def test_config_only():
+    """test --save-config, --config-only"""
+    import glob
+    import os
+    import os.path
+
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        # test save config file
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--sidecar",
+                "XMP",
+                "--touch-file",
+                "--update",
+                "--save-config",
+                "config.toml",
+                "--config-only",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Saved config file" in result.output
+        assert "Processed:" not in result.output
+        files = glob.glob("*")
+        assert "config.toml" in files
 
 
 def test_export_exportdb():

@@ -1191,8 +1191,14 @@ def cli(ctx, db, json_, debug):
     required=False,
     metavar="<config file path>",
     default=None,
-    help=("Save options to file for use with --load-config. File format is TOML."),
+    help="Save options to file for use with --load-config. File format is TOML. "
+    "See also --config-only.",
     type=click.Path(),
+)
+@click.option(
+    "--config-only",
+    is_flag=True,
+    help="If specified, saves the config file but does not export any files; must be used with --save-config.",
 )
 @click.option(
     "--beta",
@@ -1360,6 +1366,7 @@ def export(
     exportdb,
     load_config,
     save_config,
+    config_only,
     is_reference,
     beta,
     in_album,
@@ -1422,7 +1429,7 @@ def export(
     cfg = ConfigOptions(
         "export",
         locals(),
-        ignore=["ctx", "cli_obj", "dest", "load_config", "save_config"],
+        ignore=["ctx", "cli_obj", "dest", "load_config", "save_config", "config_only"],
     )
 
     global VERBOSE
@@ -1629,6 +1636,14 @@ def export(
         )
         sys.exit(1)
 
+    if config_only and not save_config:
+        click.secho(
+            "--config-only must be used with --save-config",
+            fg=CLI_COLOR_ERROR,
+            err=True,
+        )
+        sys.exit(1)
+
     if all(x in [s.lower() for s in sidecar] for x in ["json", "exiftool"]):
         click.echo(
             click.style(
@@ -1653,8 +1668,11 @@ def export(
                 sys.exit(1)
 
     if save_config:
-        verbose_(f"Saving options to file {save_config}")
+        verbose_(f"Saving options to config file '{save_config}'")
         cfg.write_to_file(save_config)
+        if config_only:
+            click.echo(f"Saved config file to '{save_config}'")
+            sys.exit(0)
 
     # set defaults for options that need them
     jpeg_quality = DEFAULT_JPEG_QUALITY if jpeg_quality is None else jpeg_quality
