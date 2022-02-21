@@ -282,6 +282,24 @@ class FunctionCall(click.ParamType):
 
         return (function, value)
 
+class ExportDBType(click.ParamType):
+
+    name = "EXPORTDB"
+
+    def convert(self, value, param, ctx):
+        try:
+            export_db_name = pathlib.Path(value)
+            if export_db_name.is_dir():
+                raise click.BadParameter(f"{value} is a directory")
+            if export_db_name.is_file():
+                # verify it's actually an osxphotos export_db
+                # export_db_get_version will raise an error if it's not valid
+                osxphotos_ver, export_db_ver = export_db_get_version(value)
+            return value
+        except Exception:
+            self.fail(
+                f"{value} exists but is not a valid osxphotos export database. "
+            )
 
 class IncompatibleQueryOptions(Exception):
     pass
@@ -1169,7 +1187,7 @@ def cli(ctx, db, json_, debug):
         f"If --exportdb is not specified, export database will be saved to '{OSXPHOTOS_EXPORT_DB}' "
         "in the export directory.  If --exportdb is specified, it will be saved to the specified file. "
     ),
-    type=click.Path(),
+    type=ExportDBType(),
 )
 @click.option(
     "--load-config",
