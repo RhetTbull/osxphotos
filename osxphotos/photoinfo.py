@@ -588,6 +588,7 @@ class PhotoInfo:
     @property
     def ismissing(self):
         """returns true if photo is missing from disk (which means it's not been downloaded from iCloud)
+        
         NOTE:   the photos.db database uses an asynchrounous write-ahead log so changes in Photos
                 do not immediately get written to disk. In particular, I've noticed that downloading
                 an image from the cloud does not force the database to be updated until something else
@@ -1488,7 +1489,8 @@ class PhotoInfo:
         description_template: string; optional template string that will be rendered for use as photo description
         render_options: an optional osxphotos.phototemplate.RenderOptions instance with options to pass to template renderer
 
-        Returns: list of photos exported
+        Returns:
+            list of photos exported
         """
 
         exporter = PhotoExporter(self)

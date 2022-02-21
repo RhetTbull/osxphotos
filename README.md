@@ -1186,7 +1186,11 @@ Options:
                                   corresponding values in the config file.
   --save-config <config file path>
                                   Save options to file for use with --load-
-                                  config. File format is TOML.
+                                  config. File format is TOML. See also
+                                  --config-only.
+  --config-only                   If specified, saves the config file but does
+                                  not export any files; must be used with
+                                  --save-config.
   --help                          Show this message and exit.
 
 ** Export **
