@@ -177,6 +177,69 @@ def test_export_db_in_memory():
     assert uuids == [uuid]
 
 
+def test_export_db_in_memory_write_to_disk():
+    """test ExportDBInMemory with write back to disk"""
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    dbname = os.path.join(tempdir.name, ".osxphotos_export.db")
+    db = ExportDB(dbname, tempdir.name)
+    assert os.path.isfile(dbname)
+
+    filepath = os.path.join(tempdir.name, "test.JPG")
+
+    uuid = "FOOBAR"
+    record = db.create_file_record(filepath, uuid)
+    record.photoinfo = INFO_DATA
+    record.exifdata = EXIF_DATA
+    record.digest = DIGEST_DATA
+    record.src_sig = (7, 8, 9)
+    record.dest_sig = (10, 11, 12)
+    db.close()
+
+    # create in memory version
+    dbram = ExportDBInMemory(dbname, tempdir.name)
+    record2 = dbram.get_file_record(filepath)
+    assert record2.uuid == uuid
+    assert record2.photoinfo == INFO_DATA
+    assert record2.exifdata == EXIF_DATA
+    assert record2.digest == DIGEST_DATA
+    assert record2.src_sig == (7, 8, 9)
+    assert record2.dest_sig == (10, 11, 12)
+
+    # change some values
+    record2.photoinfo = INFO_DATA2
+    record2.exifdata = EXIF_DATA2
+    record2.digest = DIGEST_DATA2
+    record2.src_sig = (13, 14, 15)
+    record2.dest_sig = (16, 17, 18)
+
+    assert record2.photoinfo == INFO_DATA2
+    assert record2.exifdata == EXIF_DATA2
+    assert record2.digest == DIGEST_DATA2
+    assert record2.src_sig == (13, 14, 15)
+    assert record2.dest_sig == (16, 17, 18)
+
+    # all uuids
+    uuids = dbram.get_previous_uuids()
+    assert uuids == [uuid]
+
+    # write to disk
+    dbram.write_to_disk()
+    dbram.close()
+
+    # re-open original, assert changes are written back
+    db = ExportDB(dbname, tempdir.name)
+    record = db.get_file_record(filepath)
+    assert record.photoinfo == INFO_DATA2
+    assert record.exifdata == EXIF_DATA2
+    assert record.digest == DIGEST_DATA2
+    assert record.src_sig == (13, 14, 15)
+    assert record.dest_sig == (16, 17, 18)
+
+    # all uuids
+    uuids = db.get_previous_uuids()
+    assert uuids == [uuid]
+
+
 def test_export_db_in_memory_nofile():
     """test ExportDBInMemory with no dbfile"""
     tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")

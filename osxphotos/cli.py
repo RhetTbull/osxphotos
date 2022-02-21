@@ -1191,6 +1191,13 @@ def cli(ctx, db, json_, debug):
     type=ExportDBType(),
 )
 @click.option(
+    "--ramdb",
+    is_flag=True,
+    help="Copy export database to memory during export; "
+    "may improve performance when exporting over a network or slow disk but could result in "
+    "losing update state information if the program is interrupted or crashes.",
+)
+@click.option(
     "--load-config",
     required=False,
     metavar="<config file path>",
@@ -1383,6 +1390,7 @@ def export(
     add_skipped_to_album,
     add_missing_to_album,
     exportdb,
+    ramdb,
     load_config,
     save_config,
     config_only,
@@ -1501,6 +1509,7 @@ def export(
         export_as_hardlink = cfg.export_as_hardlink
         export_by_date = cfg.export_by_date
         exportdb = cfg.exportdb
+        ramdb = cfg.ramdb
         external_edit = cfg.external_edit
         favorite = cfg.favorite
         filename_template = cfg.filename_template
@@ -1802,7 +1811,7 @@ def export(
                 )
             )
 
-    # open export database and assign copy/link/unlink functions
+    # open export database
     export_db_path = exportdb or os.path.join(dest, OSXPHOTOS_EXPORT_DB)
 
     # check that export isn't in the parent or child of a previously exported library
@@ -1829,7 +1838,11 @@ def export(
         export_db = ExportDBInMemory(dbfile=export_db_path, export_dir=dest)
         fileutil = FileUtilNoOp
     else:
-        export_db = ExportDB(dbfile=export_db_path, export_dir=dest)
+        export_db = (
+            ExportDBInMemory(dbfile=export_db_path, export_dir=dest)
+            if ramdb
+            else ExportDB(dbfile=export_db_path, export_dir=dest)
+        )
         fileutil = FileUtil
 
     if verbose_:
@@ -2212,6 +2225,10 @@ def export(
         verbose_(f"Writing export report to {report}")
         write_export_report(report, results)
 
+    # close export_db and write changes if needed
+    if ramdb and not dry_run:
+        verbose_(f"Writing export database changes back to {export_db.path}")
+        export_db.write_to_disk()
     export_db.close()
 
 
@@ -4789,7 +4806,7 @@ def run(python_file):
 @click.option(
     "--migrate",
     is_flag=True,
-    help="Migrate (if needed) export database to current version."
+    help="Migrate (if needed) export database to current version.",
 )
 @click.option(
     "--export-dir",
@@ -4953,8 +4970,11 @@ def exportdb(
                 f"Migrated export database {export_db} from version {upgraded[0]} to {upgraded[1]}"
             )
         else:
-            print(f"Export database {export_db} is already at latest version {OSXPHOTOS_EXPORTDB_VERSION}")
+            print(
+                f"Export database {export_db} is already at latest version {OSXPHOTOS_EXPORTDB_VERSION}"
+            )
         sys.exit(0)
+
 
 def _query_options_from_kwargs(**kwargs) -> QueryOptions:
     """Validate query options and create a QueryOptions instance"""
