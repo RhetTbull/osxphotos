@@ -4809,6 +4809,11 @@ def run(python_file):
     help="Migrate (if needed) export database to current version.",
 )
 @click.option(
+    "--sql",
+    metavar="SQL_STATEMENT",
+    help="Execute SQL_STATEMENT against export database and print results.",
+)
+@click.option(
     "--export-dir",
     help="Optional path to export directory (if not parent of export database).",
     type=click.Path(exists=True, file_okay=False, dir_okay=True),
@@ -4830,6 +4835,7 @@ def exportdb(
     save_config,
     info,
     migrate,
+    sql,
     export_dir,
     verbose,
     dry_run,
@@ -4857,6 +4863,7 @@ def exportdb(
         bool(save_config),
         bool(info),
         migrate,
+        bool(sql),
     ]
     if sum(sub_commands) > 1:
         print(f"[red]Only a single sub-command may be specified at a time[/red]")
@@ -4974,6 +4981,19 @@ def exportdb(
                 f"Export database {export_db} is already at latest version {OSXPHOTOS_EXPORTDB_VERSION}"
             )
         sys.exit(0)
+
+    if sql:
+        exportdb = ExportDB(export_db, export_dir)
+        try:
+            c = exportdb._conn.cursor()
+            results = c.execute(sql)
+        except Exception as e:
+            print(f"[red]Error: {e}[/red]")
+            sys.exit(1)
+        else:
+            for row in results:
+                print(row)
+            sys.exit(0)
 
 
 def _query_options_from_kwargs(**kwargs) -> QueryOptions:
