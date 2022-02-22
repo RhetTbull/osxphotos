@@ -6710,6 +6710,7 @@ def test_export_exportdb():
             in result.output
         )
 
+
 def test_export_exportdb_ramdb():
     """test --exportdb --ramdb"""
     import glob
@@ -6726,7 +6727,14 @@ def test_export_exportdb_ramdb():
     with runner.isolated_filesystem():
         result = runner.invoke(
             export,
-            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--exportdb", "export.db", "--ramdb"],
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--exportdb",
+                "export.db",
+                "--ramdb",
+            ],
         )
         assert result.exit_code == 0
         assert re.search(r"Created export database.*export\.db", result.output)
@@ -6742,7 +6750,7 @@ def test_export_exportdb_ramdb():
                 "--exportdb",
                 "export.db",
                 "--update",
-                "--ramdb"
+                "--ramdb",
             ],
         )
         assert result.exit_code == 0
@@ -6773,13 +6781,7 @@ def test_export_ramdb():
         # run again, update should update no files if db written back to disk
         result = runner.invoke(
             export,
-            [
-                os.path.join(cwd, CLI_PHOTOS_DB),
-                ".",
-                "-V",
-                "--update",
-                "--ramdb"
-            ],
+            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--update", "--ramdb"],
         )
         assert result.exit_code == 0
         assert "exported: 0" in result.output
@@ -7411,6 +7413,54 @@ def test_export_burst_folder_album():
             assert result.exit_code == 0
             files = [str(p) for p in pathlib.Path(".").glob("**/*.JPG")]
             assert sorted(files) == sorted(UUID_BURST_ALBUM[uuid])
+
+
+@pytest.mark.skipif(
+    "OSXPHOTOS_TEST_EXPORT" not in os.environ,
+    reason="Skip if not running on author's personal library.",
+)
+def test_export_burst_uuid():
+    """test non-selected burst photos are exported when image is specified by --uuid, #640"""
+    import glob
+    import os
+    import os.path
+    import pathlib
+
+    from osxphotos.cli import export
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    for uuid in UUID_BURST_ALBUM:
+        with runner.isolated_filesystem():
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_RHET),
+                    ".",
+                    "-V",
+                    "--uuid",
+                    uuid,
+                ],
+            )
+            assert result.exit_code == 0
+            # subtract 1 from len because one photo in two albums so shows up twice in the list
+            assert f"exported: {len(UUID_BURST_ALBUM[uuid]) - 1}" in result.output
+
+            # export again with --skip-bursts
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_RHET),
+                    ".",
+                    "-V",
+                    "--uuid",
+                    uuid,
+                    "--skip-bursts",
+                ],
+            )
+            assert result.exit_code == 0
+            assert f"exported: 1" in result.output
 
 
 @pytest.mark.skipif(

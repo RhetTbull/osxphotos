@@ -3279,27 +3279,6 @@ class PhotosDB:
         if options.to_time:
             photos = [p for p in photos if p.date.time() <= options.to_time]
 
-        if options.burst_photos:
-            # add the burst_photos to the export set
-            photos_burst = [p for p in photos if p.burst]
-            for burst in photos_burst:
-                if options.missing_bursts:
-                    # include burst photos that are missing
-                    photos.extend(burst.burst_photos)
-                else:
-                    # don't include missing burst images (these can't be downloaded with AppleScript)
-                    photos.extend([p for p in burst.burst_photos if not p.ismissing])
-
-            # remove duplicates as each burst photo in the set that's selected would
-            # result in the entire set being added above
-            # can't use set() because PhotoInfo not hashable
-            seen_uuids = {}
-            for p in photos:
-                if p.uuid in seen_uuids:
-                    continue
-                seen_uuids[p.uuid] = p
-            photos = list(seen_uuids.values())
-
         if name:
             # search filename fields for text
             # if more than one, find photos with all title values in filename
@@ -3449,6 +3428,28 @@ class PhotosDB:
         if options.function:
             for function in options.function:
                 photos = function[0](photos)
+
+        # burst should be checked last, ref #640
+        if options.burst_photos:
+            # add the burst_photos to the export set
+            photos_burst = [p for p in photos if p.burst]
+            for burst in photos_burst:
+                if options.missing_bursts:
+                    # include burst photos that are missing
+                    photos.extend(burst.burst_photos)
+                else:
+                    # don't include missing burst images (these can't be downloaded with AppleScript)
+                    photos.extend([p for p in burst.burst_photos if not p.ismissing])
+
+            # remove duplicates as each burst photo in the set that's selected would
+            # result in the entire set being added above
+            # can't use set() because PhotoInfo not hashable
+            seen_uuids = {}
+            for p in photos:
+                if p.uuid in seen_uuids:
+                    continue
+                seen_uuids[p.uuid] = p
+            photos = list(seen_uuids.values())
 
         return photos
 
