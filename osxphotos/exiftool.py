@@ -232,7 +232,7 @@ class ExifTool:
         self.error = None
         # if running as a context manager, self._context_mgr will be True
         self._context_mgr = False
-        self._exiftoolproc = _ExifToolProc(exiftool=exiftool)
+        self._exiftoolproc = _ExifToolProc(exiftool=exiftool, debug=debug)
         self._read_exif()
 
     @property
@@ -411,6 +411,8 @@ class ExifTool:
         """
         json_str, _, _ = self.run_commands("-json")
         if not json_str:
+            if self.debug:
+                logging.debug(f"empty json_str")
             return dict()
         json_str = unescape_str(json_str.decode("utf-8"))
 
@@ -419,6 +421,8 @@ class ExifTool:
         except Exception as e:
             # will fail with some commands, e.g --ext AVI which produces
             # 'No file with specified extension' instead of json
+            if self.debug:
+                logging.debug(f"json.loads error {e}")
             return dict()
         exifdict = exifdict[0]
         if not tag_groups:
