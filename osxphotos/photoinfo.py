@@ -54,7 +54,7 @@ from .scoreinfo import ScoreInfo
 from .searchinfo import SearchInfo
 from .text_detection import detect_text
 from .uti import get_preferred_uti_extension, get_uti_for_extension
-from .utils import _debug, _get_resource_loc, list_directory
+from .utils import _debug, _get_resource_loc, list_directory, _debug
 
 __all__ = ["PhotoInfo", "PhotoInfoNone"]
 
@@ -1343,7 +1343,7 @@ class PhotoInfo:
             try:
                 exiftool_path = self._db._exiftool_path or get_exiftool_path()
                 if self.path is not None and os.path.isfile(self.path):
-                    exiftool = ExifToolCaching(self.path, exiftool=exiftool_path)
+                    exiftool = ExifToolCaching(self.path, exiftool=exiftool_path, debug=_debug())
                 else:
                     exiftool = None
             except FileNotFoundError:

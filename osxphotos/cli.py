@@ -2298,6 +2298,9 @@ def help(ctx, topic, **kw):
     "This only works if the Photos library being queried is the last-opened (default) library in Photos. "
     "This feature is currently experimental.  I don't know how well it will work on large query sets.",
 )
+@click.option(
+    "--debug", required=False, is_flag=True, default=False, hidden=OSXPHOTOS_HIDDEN
+)
 @DB_ARGUMENT
 @click.pass_obj
 @click.pass_context
@@ -2382,11 +2385,17 @@ def query(
     query_eval,
     query_function,
     add_to_album,
+    debug,
 ):
     """Query the Photos database using 1 or more search options;
     if more than one option is provided, they are treated as "AND"
     (e.g. search for photos matching all options).
     """
+
+    global DEBUG
+    if debug:
+        DEBUG = True
+        osxphotos._set_debug(True)
 
     # if no query terms, show help and return
     # sanity check input args
