@@ -69,6 +69,7 @@ def unescape_str(s):
     """unescape an HTML string returned by exiftool -E"""
     if type(s) != str:
         return s
+    # avoid " in values which result in json.loads() throwing an exception, #636
     s = s.replace("&quot;", '\\"')
     return html.unescape(s)
 
