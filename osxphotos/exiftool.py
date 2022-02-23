@@ -69,6 +69,7 @@ def unescape_str(s):
     """unescape an HTML string returned by exiftool -E"""
     if type(s) != str:
         return s
+    s = s.replace("&quot;", '\\"')
     return html.unescape(s)
 
 
@@ -151,6 +152,9 @@ class _ExifToolProc:
             return
 
         # open exiftool process
+        # make sure /usr/bin at start of path so exiftool can find xattr (see #636)
+        env = os.environ.copy()
+        env["PATH"] = f'/usr/bin/:{env["PATH"]}'
         self._process = subprocess.Popen(
             [
                 self._exiftool,
@@ -167,6 +171,7 @@ class _ExifToolProc:
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
+            env=env,
         )
         self._process_running = True
 
