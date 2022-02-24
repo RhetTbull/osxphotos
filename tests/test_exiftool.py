@@ -1,5 +1,8 @@
+import json
+
 import pytest
-from osxphotos.exiftool import get_exiftool_path
+
+from osxphotos.exiftool import get_exiftool_path, unescape_str
 
 TEST_FILE_ONE_KEYWORD = "tests/test-images/wedding.jpg"
 TEST_FILE_BAD_IMAGE = "tests/test-images/badimage.jpeg"
@@ -89,6 +92,20 @@ EXIF_UUID_NO_GROUPS = {
 }
 EXIF_UUID_NONE = ["A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C"]
 
+QUOTED_JSON_BYTES = b'[{"ExifTool:ExifToolVersion": 12.37,"ExifTool:Now": "2022:02:22 18:14:31+00:00","ExifTool:NewGUID": "20220222181431005A76C1A4B4D508A2","ExifTool:FileSequence": 0,"ExifTool:Warning": "Error running &quot;xattr&quot; to extract XAttr tags","ExifTool:ProcessingTime": 0.157028}]'
+QUOTED_JSON_STRING_UNESCAPED = '[{"ExifTool:ExifToolVersion": 12.37,"ExifTool:Now": "2022:02:22 18:14:31+00:00","ExifTool:NewGUID": "20220222181431005A76C1A4B4D508A2","ExifTool:FileSequence": 0,"ExifTool:Warning": "Error running \\"xattr\\" to extract XAttr tags","ExifTool:ProcessingTime": 0.157028}]'
+QUOTED_JSON_LOADED = [
+    {
+        "ExifTool:ExifToolVersion": 12.37,
+        "ExifTool:Now": "2022:02:22 18:14:31+00:00",
+        "ExifTool:NewGUID": "20220222181431005A76C1A4B4D508A2",
+        "ExifTool:FileSequence": 0,
+        "ExifTool:Warning": 'Error running "xattr" to extract XAttr tags',
+        "ExifTool:ProcessingTime": 0.157028,
+    }
+]
+
+
 try:
     exiftool = get_exiftool_path()
 except:
@@ -126,6 +143,7 @@ def test_setvalue_1():
     # test setting a tag value
     import os.path
     import tempfile
+
     import osxphotos.exiftool
     from osxphotos.fileutil import FileUtil
 
@@ -145,6 +163,7 @@ def test_setvalue_multiline():
     # test setting a tag value with embedded newline
     import os.path
     import tempfile
+
     import osxphotos.exiftool
     from osxphotos.fileutil import FileUtil
 
@@ -164,6 +183,7 @@ def test_setvalue_non_alphanumeric_chars():
     # test setting a tag value non-alphanumeric characters
     import os.path
     import tempfile
+
     import osxphotos.exiftool
     from osxphotos.fileutil import FileUtil
 
@@ -183,6 +203,7 @@ def test_setvalue_warning():
     # test setting illegal tag value generates warning
     import os.path
     import tempfile
+
     import osxphotos.exiftool
     from osxphotos.fileutil import FileUtil
 
@@ -199,6 +220,7 @@ def test_setvalue_error():
     # test setting tag on bad image generates error
     import os.path
     import tempfile
+
     import osxphotos.exiftool
     from osxphotos.fileutil import FileUtil
 
@@ -215,6 +237,7 @@ def test_setvalue_context_manager():
     # test setting a tag value as context manager
     import os.path
     import tempfile
+
     import osxphotos.exiftool
     from osxphotos.fileutil import FileUtil
 
@@ -241,6 +264,7 @@ def test_setvalue_context_manager_warning():
     # test setting a tag value as context manager when warning generated
     import os.path
     import tempfile
+
     import osxphotos.exiftool
     from osxphotos.fileutil import FileUtil
 
@@ -257,6 +281,7 @@ def test_setvalue_context_manager_error():
     # test setting a tag value as context manager when error generated
     import os.path
     import tempfile
+
     import osxphotos.exiftool
     from osxphotos.fileutil import FileUtil
 
@@ -273,6 +298,7 @@ def test_flags():
     # test that flags work
     import os.path
     import tempfile
+
     import osxphotos.exiftool
     from osxphotos.fileutil import FileUtil
 
@@ -296,6 +322,7 @@ def test_clear_value():
     # test clearing a tag value
     import os.path
     import tempfile
+
     import osxphotos.exiftool
     from osxphotos.fileutil import FileUtil
 
@@ -315,6 +342,7 @@ def test_addvalues_1():
     # test setting a tag value
     import os.path
     import tempfile
+
     import osxphotos.exiftool
     from osxphotos.fileutil import FileUtil
 
@@ -332,6 +360,7 @@ def test_addvalues_2():
     # test setting a tag value where multiple values already exist
     import os.path
     import tempfile
+
     import osxphotos.exiftool
     from osxphotos.fileutil import FileUtil
 
@@ -353,6 +382,7 @@ def test_addvalues_non_alphanumeric_multiline():
     # test setting a tag value
     import os.path
     import tempfile
+
     import osxphotos.exiftool
     from osxphotos.fileutil import FileUtil
 
@@ -373,6 +403,7 @@ def test_addvalues_unicode():
     # test setting a tag value with unicode
     import os.path
     import tempfile
+
     import osxphotos.exiftool
     from osxphotos.fileutil import FileUtil
 
@@ -444,8 +475,9 @@ def test_as_dict_no_tag_groups():
 
 
 def test_json():
-    import osxphotos.exiftool
     import json
+
+    import osxphotos.exiftool
 
     exif1 = osxphotos.exiftool.ExifTool(TEST_FILE_ONE_KEYWORD)
     exifdata = json.loads(exif1.json())
@@ -498,8 +530,9 @@ def test_photoinfo_exiftool_none():
 
 def test_exiftool_terminate():
     """Test that exiftool process is terminated when exiftool.terminate() is called"""
-    import osxphotos.exiftool
     import subprocess
+
+    import osxphotos.exiftool
 
     exif1 = osxphotos.exiftool.ExifTool(TEST_FILE_ONE_KEYWORD)
 
@@ -516,3 +549,11 @@ def test_exiftool_terminate():
     # verify we can create a new instance after termination
     exif2 = osxphotos.exiftool.ExifTool(TEST_FILE_ONE_KEYWORD)
     assert exif2.asdict()["IPTC:Keywords"] == "wedding"
+
+
+def test_unescape_str():
+    """Test unescape_str, #636"""
+    quoted_str = unescape_str(QUOTED_JSON_BYTES.decode("utf-8"))
+    assert quoted_str == QUOTED_JSON_STRING_UNESCAPED
+    quoted_json = json.loads(quoted_str)
+    assert quoted_json == QUOTED_JSON_LOADED

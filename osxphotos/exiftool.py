@@ -105,10 +105,9 @@ class _ExifToolProc:
 
         return cls.instance
 
-    def __init__(self, exiftool=None, debug=False):
+    def __init__(self, exiftool=None):
         """construct _ExifToolProc singleton object or return instance of already created object
         exiftool: optional path to exiftool binary (if not provided, will search path to find it)
-        debug: optional bool to enable debugging output
         """
 
         if hasattr(self, "_process_running") and self._process_running:
@@ -119,11 +118,8 @@ class _ExifToolProc:
                     f"ignoring exiftool={exiftool}"
                 )
             return
-        self.debug = debug
         self._process_running = False
         self._exiftool = exiftool or get_exiftool_path()
-        if self.debug:
-            logging.debug(f"exiftool={self._exiftool}")
         self._start_proc()
 
     @property
@@ -177,16 +173,9 @@ class _ExifToolProc:
         self._process_running = True
 
         EXIFTOOL_PROCESSES.append(self)
-        if self.debug:
-            logging.debug(
-                "exiftool process started: {self._process} {self._process_running}"
-            )
 
     def _stop_proc(self):
         """stop the exiftool process if it's running, otherwise, do nothing"""
-
-        if self.debug:
-            logging.debug(f"exiftool process stopping: {self._process}")
 
         if not self._process_running:
             return
@@ -207,16 +196,11 @@ class _ExifToolProc:
         del self._process
         self._process_running = False
 
-        if self.debug:
-            logging.debug(f"exiftool process stopped: {self._process}")
-
 
 class ExifTool:
     """Basic exiftool interface for reading and writing EXIF tags"""
 
-    def __init__(
-        self, filepath, exiftool=None, overwrite=True, flags=None, debug=False
-    ):
+    def __init__(self, filepath, exiftool=None, overwrite=True, flags=None):
         """Create ExifTool object
 
         Args:
@@ -224,7 +208,6 @@ class ExifTool:
             exiftool: path to exiftool, if not specified will look in path
             overwrite: if True, will overwrite image file without creating backup, default=False
             flags: optional list of exiftool flags to prepend to exiftool command when writing metadata (e.g. -m or -F)
-            debug: if True, enables debug output
 
         Returns:
             ExifTool instance
@@ -232,13 +215,12 @@ class ExifTool:
         self.file = filepath
         self.overwrite = overwrite
         self.flags = flags or []
-        self.debug = debug
         self.data = {}
         self.warning = None
         self.error = None
         # if running as a context manager, self._context_mgr will be True
         self._context_mgr = False
-        self._exiftoolproc = _ExifToolProc(exiftool=exiftool, debug=debug)
+        self._exiftoolproc = _ExifToolProc(exiftool=exiftool)
         self._read_exif()
 
     @property
@@ -366,9 +348,6 @@ class ExifTool:
             + b"-execute\n"
         )
 
-        if self.debug:
-            logging.debug(f"running exiftool command: {command_str}")
-
         # send the command
         self._process.stdin.write(command_str)
         self._process.stdin.flush()
@@ -389,10 +368,6 @@ class ExifTool:
         error = "" if error == b"" else error.decode("utf-8")
         self.warning = warning
         self.error = error
-        if self.debug:
-            logging.debug(
-                f"run_commands: output={output[:-EXIFTOOL_STAYOPEN_EOF_LEN]}, warning={warning}, error={error}"
-            )
 
         return output[:-EXIFTOOL_STAYOPEN_EOF_LEN], warning, error
 
@@ -417,8 +392,6 @@ class ExifTool:
         """
         json_str, _, _ = self.run_commands("-json")
         if not json_str:
-            if self.debug:
-                logging.debug(f"empty json_str")
             return dict()
         json_str = unescape_str(json_str.decode("utf-8"))
 
@@ -427,8 +400,7 @@ class ExifTool:
         except Exception as e:
             # will fail with some commands, e.g --ext AVI which produces
             # 'No file with specified extension' instead of json
-            if self.debug:
-                logging.debug(f"json.loads error {e}")
+            logging.warning(f"error loading json returned by exiftool: {e} {json_str}")
             return dict()
         exifdict = exifdict[0]
         if not tag_groups:
@@ -442,25 +414,18 @@ class ExifTool:
         if normalized:
             exifdict = {k.lower(): v for (k, v) in exifdict.items()}
 
-        if self.debug:
-            logging.debug(f"asdict: {exifdict}")
-
         return exifdict
 
     def json(self):
         """returns JSON string containing all EXIF tags and values from exiftool"""
         json, _, _ = self.run_commands("-json")
         json = unescape_str(json.decode("utf-8"))
-        if self.debug:
-            logging.debug(f"json: {json}")
         return json
 
     def _read_exif(self):
         """read exif data from file"""
         data = self.asdict()
         self.data = {k: v for k, v in data.items()}
-        if self.debug:
-            logging.debug(f"_read_exif: {self.data}")
 
     def __str__(self):
         return f"file: {self.file}\nexiftool: {self._exiftoolproc._exiftool}"
@@ -486,17 +451,15 @@ class ExifToolCaching(ExifTool):
 
     _singletons = {}
 
-    def __new__(cls, filepath, exiftool=None, debug=False):
+    def __new__(cls, filepath, exiftool=None):
         """create new object or return instance of already created singleton"""
         if filepath not in cls._singletons:
-            cls._singletons[filepath] = _ExifToolCaching(
-                filepath, exiftool=exiftool, debug=debug
-            )
+            cls._singletons[filepath] = _ExifToolCaching(filepath, exiftool=exiftool)
         return cls._singletons[filepath]
 
 
 class _ExifToolCaching(ExifTool):
-    def __init__(self, filepath, exiftool=None, debug=False):
+    def __init__(self, filepath, exiftool=None):
         """Create read-only ExifTool object that caches values
 
         Args:
@@ -506,12 +469,9 @@ class _ExifToolCaching(ExifTool):
         Returns:
             ExifTool instance
         """
-        self.debug = debug
         self._json_cache = None
         self._asdict_cache = {}
-        super().__init__(
-            filepath, exiftool=exiftool, overwrite=False, flags=None, debug=debug
-        )
+        super().__init__(filepath, exiftool=exiftool, overwrite=False, flags=None)
 
     def run_commands(self, *commands, no_file=False):
         if commands[0] not in ["-json", "-ver"]:

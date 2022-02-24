@@ -560,11 +560,15 @@ class PhotoExporter:
         touch_results = []
         for touch_file in set(touch_files):
             ts = int(self.photo.date.timestamp())
-            stat = os.stat(touch_file)
-            if stat.st_mtime != ts:
-                if not options.dry_run:
+            try:
+                stat = os.stat(touch_file)
+                if stat.st_mtime != ts:
                     fileutil.utime(touch_file, (ts, ts))
-                touch_results.append(touch_file)
+                    touch_results.append(touch_file)
+            except FileNotFoundError as e:
+                # ignore errors if in dry_run as file may not be present
+                if not options.dry_run:
+                    raise e from e
         return ExportResults(touched=touch_results)
 
     def _get_edited_filename(self, original_filename):
@@ -669,8 +673,8 @@ class PhotoExporter:
 
         if file_record.export_options != options.bit_flags:
             # exporting with different set of options (e.g. exiftool), should update
-            # need to check this before exiftool in case exiftool options are different 
-            # and export database is missing; this will always be True if database is missing 
+            # need to check this before exiftool in case exiftool options are different
+            # and export database is missing; this will always be True if database is missing
             # as it'll be None and bit_flags will be an int
             return True
 

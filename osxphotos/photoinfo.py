@@ -588,7 +588,7 @@ class PhotoInfo:
     @property
     def ismissing(self):
         """returns true if photo is missing from disk (which means it's not been downloaded from iCloud)
-        
+
         NOTE:   the photos.db database uses an asynchrounous write-ahead log so changes in Photos
                 do not immediately get written to disk. In particular, I've noticed that downloading
                 an image from the cloud does not force the database to be updated until something else
@@ -1343,7 +1343,7 @@ class PhotoInfo:
             try:
                 exiftool_path = self._db._exiftool_path or get_exiftool_path()
                 if self.path is not None and os.path.isfile(self.path):
-                    exiftool = ExifToolCaching(self.path, exiftool=exiftool_path, debug=_debug())
+                    exiftool = ExifToolCaching(self.path, exiftool=exiftool_path)
                 else:
                     exiftool = None
             except FileNotFoundError:
