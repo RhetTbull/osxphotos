@@ -93,7 +93,7 @@ from osxphotos.utils import (
     normalize_fs_path,
 )
 
-from .cli_help import ExportCommand, tutorial_help
+from .help import ExportCommand, tutorial_help
 from .common import (
     DEBUG,
     OSXPHOTOS_CRASH_LOG,
