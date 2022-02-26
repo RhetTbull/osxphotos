@@ -3,10 +3,9 @@ import os
 import pathlib
 
 import pytest
+from applescript import AppleScript
 from photoscript.utils import ditto
 
-import osxphotos
-from applescript import AppleScript
 from osxphotos.exiftool import _ExifToolProc
 
 
@@ -124,3 +123,12 @@ def copy_photos_library_to_path(photos_library_path: str, dest_path: str) -> str
     """Copy a photos library to a folder"""
     ditto(photos_library_path, dest_path)
     return dest_path
+
+
+@pytest.fixture(scope="session", autouse=True)
+def delete_crash_logs():
+    """Delete left over crash logs from tests that were supposed to crash"""
+    yield
+    path = pathlib.Path(os.getcwd()) / "osxphotos_crash.log"
+    if path.is_file():
+        path.unlink()

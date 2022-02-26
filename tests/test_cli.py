@@ -1,17 +1,41 @@
 """ Test the command line interface (CLI) """
 
+import datetime
+import glob
+import json
+import locale
 import os
+import os.path
+import pathlib
+import re
+import shutil
 import sqlite3
+import sys
 import tempfile
+import time
 from tempfile import TemporaryDirectory
 
 import pytest
 from click.testing import CliRunner
 from conftest import copy_photos_library_to_path
+from osxmetadata import OSXMetaData, Tag
 
 import osxphotos
-from osxphotos.exiftool import get_exiftool_path
-from osxphotos.utils import normalize_unicode
+from osxphotos._constants import OSXPHOTOS_EXPORT_DB
+from osxphotos.cli import (
+    about,
+    albums,
+    cli,
+    export,
+    keywords,
+    labels,
+    persons,
+    places,
+    query,
+)
+from osxphotos.exiftool import ExifTool, get_exiftool_path
+from osxphotos.fileutil import FileUtil
+from osxphotos.utils import noop, normalize_fs_path, normalize_unicode
 
 CLI_PHOTOS_DB = "tests/Test-10.15.7.photoslibrary"
 LIVE_PHOTOS_DB = "tests/Test-Cloud-10.15.1.photoslibrary"
@@ -991,11 +1015,6 @@ def touch_all_photos_in_db(dbpath):
     Args:
         dbpath: path to photos library to touch
     """
-    import os
-    import time
-
-    import osxphotos
-
     ts = int(time.time())
     for photo in osxphotos.PhotosDB(dbpath).photos():
         if photo.path is not None:
@@ -1010,11 +1029,6 @@ def touch_all_photos_in_db(dbpath):
 
 def setup_touch_tests():
     """perform setup needed for --touch-file tests"""
-    import logging
-    import os
-    import time
-
-    import osxphotos
 
     # touch all photos so they do not match PhotoInfo.date
     touch_all_photos_in_db(PHOTOS_DB_TOUCH)
@@ -1036,8 +1050,6 @@ def setup_touch_tests():
 
 
 def test_osxphotos():
-    import osxphotos
-    from osxphotos.cli import cli
 
     runner = CliRunner()
     result = runner.invoke(cli, [])
@@ -1050,8 +1062,6 @@ def test_osxphotos():
 
 def test_osxphotos_help_1():
     # test help command no topic
-    import osxphotos
-    from osxphotos.cli import cli
 
     runner = CliRunner()
     result = runner.invoke(cli, ["help"])
@@ -1063,8 +1073,6 @@ def test_osxphotos_help_1():
 
 def test_osxphotos_help_2():
     # test help command valid topic
-    import osxphotos
-    from osxphotos.cli import cli
 
     runner = CliRunner()
     result = runner.invoke(cli, ["help", "persons"])
@@ -1074,8 +1082,6 @@ def test_osxphotos_help_2():
 
 def test_osxphotos_help_3():
     # test help command invalid topic
-    import osxphotos
-    from osxphotos.cli import cli
 
     runner = CliRunner()
     result = runner.invoke(cli, ["help", "foo"])
@@ -1085,7 +1091,6 @@ def test_osxphotos_help_3():
 
 def test_about():
     """Test about"""
-    from osxphotos.cli import about
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1095,12 +1100,6 @@ def test_about():
 
 
 def test_query_uuid():
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1136,12 +1135,6 @@ def test_query_uuid():
 
 def test_query_uuid_from_file_1():
     """Test query with --uuid-from-file"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1165,11 +1158,6 @@ def test_query_uuid_from_file_1():
 
 def test_query_has_comment():
     """Test query with --has-comment"""
-    import json
-    import os
-    import os.path
-
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1187,11 +1175,6 @@ def test_query_has_comment():
 
 def test_query_no_comment():
     """Test query with --no-comment"""
-    import json
-    import os
-    import os.path
-
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1211,11 +1194,6 @@ def test_query_no_comment():
 
 def test_query_has_likes():
     """Test query with --has-likes"""
-    import json
-    import os
-    import os.path
-
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1232,11 +1210,6 @@ def test_query_has_likes():
 
 def test_query_no_likes():
     """Test query with --no-likes"""
-    import json
-    import os
-    import os.path
-
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1256,11 +1229,6 @@ def test_query_no_likes():
 
 def test_query_is_reference():
     """Test query with --is-reference"""
-    import json
-    import os
-    import os.path
-
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1277,11 +1245,6 @@ def test_query_is_reference():
 
 def test_query_in_album():
     """Test query with --in-album"""
-    import json
-    import os
-    import os.path
-
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1298,11 +1261,6 @@ def test_query_in_album():
 
 def test_query_not_in_album():
     """Test query with --not-in-album"""
-    import json
-    import os
-    import os.path
-
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1319,11 +1277,6 @@ def test_query_not_in_album():
 
 def test_query_duplicate():
     """Test query with --duplicate"""
-    import json
-    import os
-    import os.path
-
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1341,11 +1294,6 @@ def test_query_duplicate():
 
 def test_query_location():
     """Test query with --location"""
-    import json
-    import os
-    import os.path
-
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1364,11 +1312,6 @@ def test_query_location():
 
 def test_query_no_location():
     """Test query with --no-location"""
-    import json
-    import os
-    import os.path
-
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1389,11 +1332,6 @@ def test_query_no_location():
 @pytest.mark.parametrize("exiftag,exifvalue,uuid_expected", QUERY_EXIF_DATA)
 def test_query_exif(exiftag, exifvalue, uuid_expected):
     """Test query with --exif"""
-    import json
-    import os
-    import os.path
-
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1422,11 +1360,6 @@ def test_query_exif(exiftag, exifvalue, uuid_expected):
 )
 def test_query_exif_case_insensitive(exiftag, exifvalue, uuid_expected):
     """Test query with --exif -i"""
-    import json
-    import os
-    import os.path
-
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1451,12 +1384,6 @@ def test_query_exif_case_insensitive(exiftag, exifvalue, uuid_expected):
 
 
 def test_export():
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1470,12 +1397,6 @@ def test_export():
 
 def test_export_uuid_from_file():
     """Test export with --uuid-from-file"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1498,12 +1419,6 @@ def test_export_uuid_from_file():
 
 def test_export_skip_uuid_from_file():
     """Test export with --skip-uuid-from-file"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1527,12 +1442,6 @@ def test_export_skip_uuid_from_file():
 
 def test_export_skip_uuid():
     """Test export with --skip-uuid"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1560,12 +1469,6 @@ def test_export_skip_uuid():
 
 def test_export_preview():
     """test export with --preview"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1589,12 +1492,6 @@ def test_export_preview():
 
 def test_export_preview_file_exists():
     """test export with --preview when preview images already exist, issue #516"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1631,12 +1528,6 @@ def test_export_preview_file_exists():
 
 def test_export_preview_suffix():
     """test export with --preview and --preview-suffix"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1662,12 +1553,6 @@ def test_export_preview_suffix():
 
 def test_export_preview_if_missing():
     """test export with --preview_if_missing"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1696,12 +1581,6 @@ def test_export_preview_if_missing():
 
 def test_export_preview_overwrite():
     """test export with --preview and --overwrite (#526)"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1740,12 +1619,6 @@ def test_export_preview_overwrite():
 
 def test_export_preview_update():
     """test export with --preview and --update (#526)"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1783,12 +1656,6 @@ def test_export_preview_update():
 
 
 def test_export_as_hardlink():
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1806,10 +1673,6 @@ def test_export_as_hardlink():
 def test_export_as_hardlink_samefile():
     # test that --export-as-hardlink actually creates a hardlink
     # src and dest should be same file
-    import os
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1835,10 +1698,6 @@ def test_export_as_hardlink_samefile():
 
 def test_export_using_hardlinks_incompat_options():
     # test that error shown if --export-as-hardlink used with --exiftool
-    import os
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1863,12 +1722,6 @@ def test_export_using_hardlinks_incompat_options():
 
 
 def test_export_current_name():
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1883,12 +1736,6 @@ def test_export_current_name():
 
 
 def test_export_skip_edited():
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1904,12 +1751,6 @@ def test_export_skip_edited():
 
 def test_export_skip_original_if_edited():
     """test export with --skip-original-if-edited"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1941,12 +1782,6 @@ def test_export_skip_original_if_edited():
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool():
-    import glob
-    import os
-    import os.path
-
-    from osxphotos.cli import export
-    from osxphotos.exiftool import ExifTool
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -1979,12 +1814,6 @@ def test_export_exiftool():
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool_template_change():
     """Test --exiftool when template changes with --update, #630"""
-    import glob
-    import os
-    import os.path
-
-    from osxphotos.cli import export
-    from osxphotos.exiftool import ExifTool
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2062,14 +1891,6 @@ def test_export_exiftool_template_change():
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool_path():
     """test --exiftool with --exiftool-path"""
-    import glob
-    import os
-    import os.path
-    import shutil
-    import tempfile
-
-    from osxphotos.cli import export
-    from osxphotos.exiftool import ExifTool
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2105,17 +1926,6 @@ def test_export_exiftool_path():
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool_path_render_template():
     """test --exiftool-path with {exiftool:} template rendering"""
-    import glob
-    import os
-    import os.path
-    import re
-    import shutil
-    import sys
-    import tempfile
-
-    from osxphotos.cli import export
-    from osxphotos.exiftool import ExifTool
-    from osxphotos.utils import noop
 
     exiftool_source = osxphotos.exiftool.get_exiftool_path()
 
@@ -2150,12 +1960,6 @@ def test_export_exiftool_path_render_template():
 
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool_ignore_date_modified():
-    import glob
-    import os
-    import os.path
-
-    from osxphotos.cli import export
-    from osxphotos.exiftool import ExifTool
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2191,12 +1995,6 @@ def test_export_exiftool_ignore_date_modified():
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool_quicktime():
     """test --exiftol correctly writes QuickTime tags"""
-    import glob
-    import os
-    import os.path
-
-    from osxphotos.cli import export
-    from osxphotos.exiftool import ExifTool
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2232,12 +2030,6 @@ def test_export_exiftool_quicktime():
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool_duplicate_keywords():
     """ensure duplicate keywords are removed"""
-    import glob
-    import os
-    import os.path
-
-    from osxphotos.cli import export
-    from osxphotos.exiftool import ExifTool
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2264,12 +2056,6 @@ def test_export_exiftool_duplicate_keywords():
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool_error():
     """ " test --exiftool catching error"""
-    import glob
-    import os
-    import os.path
-
-    from osxphotos.cli import export
-    from osxphotos.exiftool import ExifTool
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2302,12 +2088,6 @@ def test_export_exiftool_error():
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool_option():
     """test --exiftool-option"""
-    import glob
-    import os
-    import os.path
-
-    from osxphotos.cli import export
-    from osxphotos.exiftool import ExifTool
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2340,12 +2120,6 @@ def test_export_exiftool_option():
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool_merge():
     """test --exiftool-merge-keywords and --exiftool-merge-persons"""
-    import glob
-    import os
-    import os.path
-
-    from osxphotos.cli import export
-    from osxphotos.exiftool import ExifTool
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2380,13 +2154,6 @@ def test_export_exiftool_merge():
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_exiftool_merge_sidecar():
     """test --exiftool-merge-keywords and --exiftool-merge-persons with --sidecar"""
-    import glob
-    import json
-    import os
-    import os.path
-
-    from osxphotos.cli import export
-    from osxphotos.exiftool import ExifTool
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2431,12 +2198,6 @@ def test_export_exiftool_merge_sidecar():
 
 def test_export_edited_suffix():
     """test export with --edited-suffix"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2459,12 +2220,6 @@ def test_export_edited_suffix():
 
 def test_export_edited_suffix_template():
     """test export with --edited-suffix template"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2487,12 +2242,6 @@ def test_export_edited_suffix_template():
 
 def test_export_original_suffix():
     """test export with --original-suffix"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2515,12 +2264,6 @@ def test_export_original_suffix():
 
 def test_export_original_suffix_template():
     """test export with --original-suffix template"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2547,12 +2290,6 @@ def test_export_original_suffix_template():
 )
 def test_export_convert_to_jpeg():
     """test --convert-to-jpeg"""
-    import glob
-    import os
-    import os.path
-    import pathlib
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2574,12 +2311,6 @@ def test_export_convert_to_jpeg():
 )
 def test_export_convert_to_jpeg_quality():
     """test --convert-to-jpeg --jpeg-quality"""
-    import glob
-    import os
-    import os.path
-    import pathlib
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2609,12 +2340,6 @@ def test_export_convert_to_jpeg_quality():
 )
 def test_export_convert_to_jpeg_skip_raw():
     """test --convert-to-jpeg"""
-    import glob
-    import os
-    import os.path
-    import pathlib
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2637,12 +2362,6 @@ def test_export_convert_to_jpeg_skip_raw():
 
 def test_export_duplicate():
     """Test export with --duplicate"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2659,12 +2378,6 @@ def test_export_duplicate():
 
 def test_export_duplicate_unicode_filenames():
     # test issue #515
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2704,13 +2417,6 @@ def test_export_duplicate_unicode_filenames():
 
 def test_query_date_1():
     """Test --from-date and --to-date"""
-    import json
-    import os
-    import os.path
-    import time
-
-    import osxphotos
-    from osxphotos.cli import query
 
     os.environ["TZ"] = "US/Pacific"
     time.tzset()
@@ -2735,13 +2441,6 @@ def test_query_date_1():
 
 def test_query_date_2():
     """Test --from-date and --to-date"""
-    import json
-    import os
-    import os.path
-    import time
-
-    import osxphotos
-    from osxphotos.cli import query
 
     os.environ["TZ"] = "Asia/Jerusalem"
     time.tzset()
@@ -2766,13 +2465,6 @@ def test_query_date_2():
 
 def test_query_date_timezone():
     """Test --from-date, --to-date with ISO 8601 timezone"""
-    import json
-    import os
-    import os.path
-    import time
-
-    import osxphotos
-    from osxphotos.cli import query
 
     os.environ["TZ"] = "US/Pacific"
     time.tzset()
@@ -2797,13 +2489,6 @@ def test_query_date_timezone():
 
 def test_query_time():
     """Test --from-time, --to-time"""
-    import json
-    import os
-    import os.path
-    import time
-
-    import osxphotos
-    from osxphotos.cli import query
 
     os.environ["TZ"] = "US/Pacific"
     time.tzset()
@@ -2828,12 +2513,6 @@ def test_query_time():
 
 def test_query_keyword_1():
     """Test query --keyword"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2848,12 +2527,6 @@ def test_query_keyword_1():
 
 def test_query_keyword_2():
     """Test query --keyword with lower case keyword"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2868,12 +2541,6 @@ def test_query_keyword_2():
 
 def test_query_keyword_3():
     """Test query --keyword with lower case keyword and --ignore-case"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2895,12 +2562,6 @@ def test_query_keyword_3():
 
 def test_query_keyword_4():
     """Test query with more than one --keyword"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2923,12 +2584,6 @@ def test_query_keyword_4():
 
 def test_query_person_1():
     """Test query --person"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2943,12 +2598,6 @@ def test_query_person_1():
 
 def test_query_person_2():
     """Test query --person with lower case person"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2963,12 +2612,6 @@ def test_query_person_2():
 
 def test_query_person_3():
     """Test query --person with lower case person and --ignore-case"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -2990,12 +2633,6 @@ def test_query_person_3():
 
 def test_query_person_4():
     """Test query with multiple --person"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3018,12 +2655,6 @@ def test_query_person_4():
 
 def test_query_album_1():
     """Test query --album"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3044,12 +2675,6 @@ def test_query_album_1():
 
 def test_query_album_2():
     """Test query --album with lower case album"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3070,12 +2695,6 @@ def test_query_album_2():
 
 def test_query_album_3():
     """Test query --album with lower case album and --ignore-case"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3097,12 +2716,6 @@ def test_query_album_3():
 
 def test_query_album_4():
     """Test query with multipl --album"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3125,12 +2738,6 @@ def test_query_album_4():
 
 def test_query_label_1():
     """Test query --label"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3145,12 +2752,6 @@ def test_query_label_1():
 
 def test_query_label_2():
     """Test query --label with lower case label"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3165,12 +2766,6 @@ def test_query_label_2():
 
 def test_query_label_3():
     """Test query --label with lower case label and --ignore-case"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3192,12 +2787,6 @@ def test_query_label_3():
 
 def test_query_label_4():
     """Test query with more than one --label"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3220,12 +2809,6 @@ def test_query_label_4():
 
 def test_query_deleted_deleted_only():
     """Test query with --deleted and --deleted-only"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3244,12 +2827,6 @@ def test_query_deleted_deleted_only():
 
 def test_query_deleted_1():
     """Test query with --deleted"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3263,12 +2840,6 @@ def test_query_deleted_1():
 
 def test_query_deleted_2():
     """Test query with --deleted"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3282,12 +2853,6 @@ def test_query_deleted_2():
 
 def test_query_deleted_3():
     """Test query with --deleted-only"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3302,12 +2867,6 @@ def test_query_deleted_3():
 
 def test_query_deleted_4():
     """Test query with --deleted-only"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3322,12 +2881,6 @@ def test_query_deleted_4():
 
 def test_export_sidecar():
     """test --sidecar"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import cli
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3353,12 +2906,6 @@ def test_export_sidecar():
 
 def test_export_sidecar_drop_ext():
     """test --sidecar with --sidecar-drop-ext option"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import cli
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3385,12 +2932,6 @@ def test_export_sidecar_drop_ext():
 
 def test_export_sidecar_exiftool():
     """test --sidecar exiftool"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import cli
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3416,12 +2957,6 @@ def test_export_sidecar_exiftool():
 
 
 def test_export_sidecar_templates():
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import cli
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3459,12 +2994,6 @@ def test_export_sidecar_templates():
 
 def test_export_sidecar_templates_exiftool():
     """test --sidecar exiftool with templates"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import cli
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3502,14 +3031,6 @@ def test_export_sidecar_templates_exiftool():
 
 def test_export_sidecar_update():
     """test sidecar don't update if not changed and do update if changed"""
-    import datetime
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import cli
-    from osxphotos.fileutil import FileUtil
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3638,9 +3159,6 @@ def test_export_sidecar_update():
 
 def test_export_sidecar_invalid():
     """test invalid combination of sidecars"""
-    import os
-
-    from osxphotos.cli import cli
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3664,12 +3182,6 @@ def test_export_sidecar_invalid():
 
 
 def test_export_live():
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3683,12 +3195,6 @@ def test_export_live():
 
 
 def test_export_skip_live():
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3702,12 +3208,6 @@ def test_export_skip_live():
 
 
 def test_export_raw():
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3729,12 +3229,6 @@ def test_export_raw():
 
 # TODO: Update this once RAW db is added
 # def test_skip_raw():
-#     import glob
-#     import os
-#     import os.path
-#     import osxphotos
-#     from osxphotos.cli import export
-
 #     runner = CliRunner()
 #     cwd = os.getcwd()
 #     # pylint: disable=not-context-manager
@@ -3748,12 +3242,6 @@ def test_export_raw():
 
 
 def test_export_raw_original():
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3767,12 +3255,6 @@ def test_export_raw_original():
 
 
 def test_export_raw_edited():
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3786,12 +3268,6 @@ def test_export_raw_edited():
 
 
 def test_export_raw_edited_original():
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3804,13 +3280,6 @@ def test_export_raw_edited_original():
 
 def test_export_directory_template_1():
     # test export using directory template
-    import glob
-    import locale
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     locale.setlocale(locale.LC_ALL, "en_US")
 
@@ -3836,12 +3305,6 @@ def test_export_directory_template_1():
 
 def test_export_directory_template_2():
     # test export using directory template with missing substitution value
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3865,12 +3328,6 @@ def test_export_directory_template_2():
 
 def test_export_directory_template_3():
     # test export using directory template with unmatched substitution value
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3892,12 +3349,6 @@ def test_export_directory_template_3():
 
 def test_export_directory_template_album_1():
     # test export using directory template with multiple albums
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3916,12 +3367,6 @@ def test_export_directory_template_album_1():
 def test_export_directory_template_album_2():
     # test export using directory template with multiple albums
     # specify default value
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3949,13 +3394,6 @@ def test_export_directory_template_album_2():
 )
 def test_export_directory_template_locale():
     # test export using directory template in user locale non-US
-    import glob
-    import locale
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -3988,13 +3426,6 @@ def test_export_directory_template_locale():
 
 def test_export_filename_template_1():
     """export photos using filename template"""
-    import glob
-    import locale
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     locale.setlocale(locale.LC_ALL, "en_US")
 
@@ -4020,13 +3451,6 @@ def test_export_filename_template_1():
 
 def test_export_filename_template_2():
     """export photos using filename template with folder_album and path_sep"""
-    import glob
-    import locale
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     locale.setlocale(locale.LC_ALL, "en_US")
 
@@ -4052,13 +3476,6 @@ def test_export_filename_template_2():
 
 def test_export_filename_template_strip():
     """export photos using filename template with --strip"""
-    import glob
-    import locale
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     locale.setlocale(locale.LC_ALL, "en_US")
 
@@ -4085,12 +3502,6 @@ def test_export_filename_template_strip():
 
 def test_export_filename_template_pathsep_in_name_1():
     """export photos using filename template with folder_album and "/" in album name"""
-    import locale
-    import os
-    import os.path
-    import pathlib
-
-    from osxphotos.cli import export
 
     locale.setlocale(locale.LC_ALL, "en_US")
 
@@ -4118,12 +3529,6 @@ def test_export_filename_template_pathsep_in_name_1():
 
 def test_export_filename_template_pathsep_in_name_2():
     """export photos using filename template with keyword and "/" in keyword"""
-    import locale
-    import os
-    import os.path
-    import pathlib
-
-    from osxphotos.cli import export
 
     locale.setlocale(locale.LC_ALL, "en_US")
 
@@ -4152,13 +3557,6 @@ def test_export_filename_template_pathsep_in_name_2():
 
 def test_export_filename_template_long_description():
     """export photos using filename template with description that exceeds max length"""
-    import locale
-    import os
-    import os.path
-    import pathlib
-
-    import osxphotos
-    from osxphotos.cli import export
 
     locale.setlocale(locale.LC_ALL, "en_US")
 
@@ -4185,12 +3583,6 @@ def test_export_filename_template_long_description():
 
 def test_export_filename_template_3():
     """test --filename with invalid template"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -4212,12 +3604,6 @@ def test_export_filename_template_3():
 
 def test_export_album():
     """Test export of an album"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -4234,11 +3620,6 @@ def test_export_album():
 
 def test_export_album_unicode_name():
     """Test export of an album with non-English characters in name"""
-    import glob
-    import os
-    import os.path
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -4261,12 +3642,6 @@ def test_export_album_unicode_name():
 
 def test_export_album_deleted_twin():
     """Test export of an album where album of same name has been deleted"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -4289,12 +3664,6 @@ def test_export_album_deleted_twin():
 
 def test_export_deleted_1():
     """Test export with --deleted"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -4316,12 +3685,6 @@ def test_export_deleted_1():
 
 def test_export_deleted_2():
     """Test export with --deleted"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -4343,12 +3706,6 @@ def test_export_deleted_2():
 
 def test_export_not_deleted_1():
     """Test export does not find intrash files without --deleted flag"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -4363,12 +3720,6 @@ def test_export_not_deleted_1():
 
 def test_export_not_deleted_2():
     """Test export does not find intrash files without --deleted flag"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -4383,12 +3734,6 @@ def test_export_not_deleted_2():
 
 def test_export_deleted_only_1():
     """Test export with --deleted-only"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -4405,12 +3750,6 @@ def test_export_deleted_only_1():
 
 def test_export_deleted_only_2():
     """Test export with --deleted-only"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -4430,8 +3769,6 @@ def test_export_error(monkeypatch):
     # Note: I often comment out the try/except block in cli.py::export_photo_with_template when
     # debugging to see exactly where the error is
     # this test verifies I've re-enabled that code
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -4454,12 +3791,6 @@ def test_export_error(monkeypatch):
 @pytest.mark.parametrize("exiftag,exifvalue,files_expected", EXPORT_EXIF_DATA)
 def test_export_exif(exiftag, exifvalue, files_expected):
     """Test export --exif query"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -4474,12 +3805,6 @@ def test_export_exif(exiftag, exifvalue, files_expected):
 
 
 def test_places():
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import places
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -4493,12 +3818,6 @@ def test_places():
 
 def test_place_13():
     # test --place on 10.13
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -4517,12 +3836,6 @@ def test_place_13():
 
 def test_no_place_13():
     # test --no-place on 10.13
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -4540,12 +3853,6 @@ def test_no_place_13():
 
 def test_place_15_1():
     # test --place on 10.15
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -4564,12 +3871,6 @@ def test_place_15_1():
 
 def test_place_15_2():
     # test --place on 10.15
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -4590,12 +3891,6 @@ def test_place_15_2():
 
 def test_no_place_15():
     # test --no-place on 10.15
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -4613,12 +3908,6 @@ def test_no_place_15():
 
 def test_no_folder_1_15():
     # test --folder on 10.15
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -4652,12 +3941,6 @@ def test_no_folder_1_15():
 
 def test_no_folder_2_15():
     # test --folder with --uuid on 10.15
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -4687,12 +3970,6 @@ def test_no_folder_2_15():
 
 def test_no_folder_1_14():
     # test --folder on 10.14
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -4708,13 +3985,6 @@ def test_no_folder_1_14():
 
 
 def test_export_sidecar_keyword_template():
-    import glob
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import cli
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -4830,12 +4100,6 @@ def test_export_sidecar_keyword_template():
 
 def test_export_update_basic():
     """test export then update"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import OSXPHOTOS_EXPORT_DB, export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -4861,12 +4125,6 @@ def test_export_update_basic():
 
 def test_export_force_update():
     """test export with --force-update"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import OSXPHOTOS_EXPORT_DB, export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -4949,12 +4207,6 @@ def test_export_force_update():
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_update_complex():
     """test complex --update scenario, #630"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import OSXPHOTOS_EXPORT_DB, export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -5065,11 +4317,6 @@ def test_export_update_complex():
 )
 def test_export_live_edited():
     """test export of edited live image #576"""
-    import glob
-    import os
-    import os.path
-
-    from osxphotos.cli import OSXPHOTOS_EXPORT_DB, export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -5094,12 +4341,6 @@ def test_export_live_edited():
 
 def test_export_update_child_folder():
     """test export then update into a child folder of previous export"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import OSXPHOTOS_EXPORT_DB, export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -5121,12 +4362,6 @@ def test_export_update_child_folder():
 
 def test_export_update_parent_folder():
     """test export then update into a parent folder of previous export"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import OSXPHOTOS_EXPORT_DB, export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -5148,12 +4383,6 @@ def test_export_update_parent_folder():
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_update_exiftool():
     """test export then update with exiftool"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -5188,12 +4417,6 @@ def test_export_update_exiftool():
 
 def test_export_update_hardlink():
     """test export with hardlink then update"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     photosdb = osxphotos.PhotosDB(dbfile=CLI_PHOTOS_DB)
     photo = photosdb.photos(uuid=[CLI_EXPORT_UUID])[0]
@@ -5227,12 +4450,6 @@ def test_export_update_hardlink():
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_update_hardlink_exiftool():
     """test export with hardlink then update with exiftool"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     photosdb = osxphotos.PhotosDB(dbfile=CLI_PHOTOS_DB)
     photo = photosdb.photos(uuid=[CLI_EXPORT_UUID])[0]
@@ -5265,13 +4482,6 @@ def test_export_update_hardlink_exiftool():
 
 def test_export_update_edits():
     """test export then update after removing and editing files"""
-    import glob
-    import os
-    import os.path
-    import shutil
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -5302,13 +4512,6 @@ def test_export_update_edits():
 
 def test_export_update_only_new():
     """test --update --only-new"""
-    import glob
-    import os
-    import os.path
-    import time
-
-    import osxphotos
-    from osxphotos.cli import OSXPHOTOS_EXPORT_DB, export
 
     os.environ["TZ"] = "US/Pacific"
     time.tzset()
@@ -5364,12 +4567,6 @@ def test_export_update_only_new():
 
 def test_export_update_no_db():
     """test export then update after db has been deleted"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import OSXPHOTOS_EXPORT_DB, export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -5398,12 +4595,6 @@ def test_export_update_no_db():
 
 def test_export_then_hardlink():
     """test export then hardlink"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     photosdb = osxphotos.PhotosDB(dbfile=CLI_PHOTOS_DB)
     photo = photosdb.photos(uuid=[CLI_EXPORT_UUID])[0]
@@ -5438,13 +4629,6 @@ def test_export_then_hardlink():
 
 def test_export_dry_run():
     """test export with dry-run flag"""
-    import os
-    import os.path
-    import re
-
-    import osxphotos
-    from osxphotos.cli import export
-    from osxphotos.utils import normalize_fs_path
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -5465,13 +4649,6 @@ def test_export_dry_run():
 
 def test_export_update_edits_dry_run():
     """test export then update after removing and editing files with dry-run flag"""
-    import glob
-    import os
-    import os.path
-    import shutil
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -5511,13 +4688,6 @@ def test_export_update_edits_dry_run():
 
 def test_export_directory_template_1_dry_run():
     """test export using directory template with dry-run flag"""
-    import locale
-    import os
-    import os.path
-    import re
-
-    import osxphotos
-    from osxphotos.cli import export
 
     locale.setlocale(locale.LC_ALL, "en_US")
 
@@ -5549,11 +4719,6 @@ def test_export_directory_template_1_dry_run():
 
 def test_export_touch_files():
     """test export with --touch-files"""
-    import os
-    import time
-
-    import osxphotos
-    from osxphotos.cli import export
 
     os.environ["TZ"] = "US/Pacific"
     time.tzset()
@@ -5592,12 +4757,6 @@ def test_export_touch_files():
 
 def test_export_touch_files_update():
     """test complex export scenario with --update and --touch-files"""
-    import os
-    import pathlib
-    import time
-
-    import osxphotos
-    from osxphotos.cli import export
 
     os.environ["TZ"] = "US/Pacific"
     time.tzset()
@@ -5744,12 +4903,6 @@ def test_export_touch_files_update():
 # @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_touch_files_exiftool_update():
     """test complex export scenario with --update, --exiftool, and --touch-files"""
-    import os
-    import pathlib
-    import time
-
-    import osxphotos
-    from osxphotos.cli import export
 
     os.environ["TZ"] = "US/Pacific"
     time.tzset()
@@ -5919,9 +5072,6 @@ def test_export_touch_files_exiftool_update():
 
 def test_export_ignore_signature():
     """test export with --ignore-signature"""
-    import os
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -5975,11 +5125,6 @@ def test_export_ignore_signature_sidecar():
     If the metadata (in Photos) that went into the sidecar did change, a new sidecar is written but a new image file is not
     If a sidecar does not exist for the photo, a sidecar will be written whether or not the photo file was written
     """
-
-    import os
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -6103,12 +5248,6 @@ def test_export_ignore_signature_sidecar():
 
 def test_labels():
     """Test osxphotos labels"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import labels
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -6123,12 +5262,6 @@ def test_labels():
 
 def test_keywords():
     """Test osxphotos keywords"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import keywords
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -6145,11 +5278,6 @@ def test_keywords():
 # do with how pytest is invoking the command
 # def test_albums_str():
 #     """Test osxphotos albums string output """
-#     import json
-#     import osxphotos
-#     import os
-#     import os.path
-#     from osxphotos.cli import albums
 
 #     runner = CliRunner()
 #     cwd = os.getcwd()
@@ -6161,12 +5289,6 @@ def test_keywords():
 
 def test_albums_json():
     """Test osxphotos albums json output"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import albums
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -6181,12 +5303,6 @@ def test_albums_json():
 
 def test_persons():
     """Test osxphotos persons"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import persons
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -6201,12 +5317,6 @@ def test_persons():
 
 def test_export_report():
     """test export with --report option"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -6223,12 +5333,6 @@ def test_export_report():
 
 def test_export_report_not_a_file():
     """test export with --report option and bad report value"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -6243,12 +5347,6 @@ def test_export_report_not_a_file():
 
 def test_export_as_hardlink_download_missing():
     """test export with incompatible export options"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -6271,12 +5369,6 @@ def test_export_as_hardlink_download_missing():
 
 def test_export_missing():
     """test export with --missing"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -6299,12 +5391,6 @@ def test_export_missing():
 
 def test_export_missing_not_download_missing():
     """test export with incompatible export options"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -6319,9 +5405,6 @@ def test_export_missing_not_download_missing():
 
 def test_export_cleanup():
     """test export with --cleanup flag"""
-    import pathlib
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -6366,10 +5449,6 @@ def test_export_cleanup():
 
 def test_export_cleanup_empty_album():
     """test export with --cleanup flag with an empty album (#481)"""
-    import pathlib
-    import tempfile
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -6410,9 +5489,6 @@ def test_export_cleanup_empty_album():
 
 def test_export_cleanup_accented_album_name():
     """test export with --cleanup flag and photos in album with accented unicode characters (#561, #618)"""
-    import pathlib
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -6453,9 +5529,6 @@ def test_export_cleanup_accented_album_name():
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_cleanup_exiftool_accented_album_name_same_filenames():
     """test export with --cleanup flag and photos in album with accented unicode characters (#561, #618)"""
-    import pathlib
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -6518,12 +5591,6 @@ def test_export_cleanup_exiftool_accented_album_name_same_filenames():
 
 def test_save_load_config():
     """test --save-config, --load-config"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -6620,11 +5687,6 @@ def test_save_load_config():
 
 def test_config_only():
     """test --save-config, --config-only"""
-    import glob
-    import os
-    import os.path
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -6655,13 +5717,6 @@ def test_config_only():
 
 def test_export_exportdb():
     """test --exportdb"""
-    import glob
-    import os
-    import os.path
-    import re
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -6713,13 +5768,6 @@ def test_export_exportdb():
 
 def test_export_exportdb_ramdb():
     """test --exportdb --ramdb"""
-    import glob
-    import os
-    import os.path
-    import re
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -6760,13 +5808,6 @@ def test_export_exportdb_ramdb():
 
 def test_export_ramdb():
     """test --ramdb"""
-    import glob
-    import os
-    import os.path
-    import re
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -6802,13 +5843,6 @@ def test_export_ramdb():
 
 def test_export_finder_tag_keywords():
     """test --finder-tag-keywords"""
-    import glob
-    import os
-    import os.path
-
-    from osxmetadata import OSXMetaData, Tag
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -6883,13 +5917,6 @@ def test_export_finder_tag_keywords():
 
 def test_export_finder_tag_template():
     """test --finder-tag-template"""
-    import glob
-    import os
-    import os.path
-
-    from osxmetadata import OSXMetaData, Tag
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -6967,13 +5994,6 @@ def test_export_finder_tag_template():
 
 def test_export_finder_tag_template_multiple():
     """test --finder-tag-template used more than once"""
-    import glob
-    import os
-    import os.path
-
-    from osxmetadata import OSXMetaData, Tag
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7007,13 +6027,6 @@ def test_export_finder_tag_template_multiple():
 
 def test_export_finder_tag_template_keywords():
     """test --finder-tag-template with --finder-tag-keywords"""
-    import glob
-    import os
-    import os.path
-
-    from osxmetadata import OSXMetaData, Tag
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7046,13 +6059,6 @@ def test_export_finder_tag_template_keywords():
 
 def test_export_finder_tag_template_multi_field():
     """test --finder-tag-template with multiple fields (issue #422)"""
-    import glob
-    import os
-    import os.path
-
-    from osxmetadata import OSXMetaData, Tag
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7082,13 +6088,6 @@ def test_export_finder_tag_template_multi_field():
 
 def test_export_xattr_template():
     """test --xattr template"""
-    import glob
-    import os
-    import os.path
-
-    from osxmetadata import OSXMetaData
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7177,11 +6176,6 @@ def test_export_xattr_template():
 
 def test_export_jpeg_ext():
     """test --jpeg-ext"""
-    import glob
-    import os
-    import os.path
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7219,11 +6213,6 @@ def test_export_jpeg_ext():
 
 def test_export_jpeg_ext_not_jpeg():
     """test --jpeg-ext with non-jpeg files"""
-    import glob
-    import os
-    import os.path
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7261,11 +6250,6 @@ def test_export_jpeg_ext_not_jpeg():
 
 def test_export_jpeg_ext_edited_movie():
     """test --jpeg-ext doesn't change extension on edited movie (issue #366)"""
-    import glob
-    import os
-    import os.path
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7310,11 +6294,6 @@ def test_export_jpeg_ext_edited_movie():
 )
 def test_export_jpeg_ext_convert_to_jpeg():
     """test --jpeg-ext with --convert-to-jpeg"""
-    import glob
-    import os
-    import os.path
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7345,11 +6324,6 @@ def test_export_jpeg_ext_convert_to_jpeg():
 )
 def test_export_jpeg_ext_convert_to_jpeg_movie():
     """test --jpeg-ext with --convert-to-jpeg and a movie, shouldn't convert or change extensions, #366"""
-    import glob
-    import os
-    import os.path
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7384,12 +6358,6 @@ def test_export_jpeg_ext_convert_to_jpeg_movie():
 )
 def test_export_burst_folder_album():
     """test non-selected burst photos are exported with the album their key photo is in, issue #401"""
-    import glob
-    import os
-    import os.path
-    import pathlib
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7421,12 +6389,6 @@ def test_export_burst_folder_album():
 )
 def test_export_burst_uuid():
     """test non-selected burst photos are exported when image is specified by --uuid, #640"""
-    import glob
-    import os
-    import os.path
-    import pathlib
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7469,12 +6431,6 @@ def test_export_burst_uuid():
 )
 def test_export_download_missing_file_exists():
     """test --download-missing with file exists and --update, issue #456"""
-    import glob
-    import os
-    import os.path
-    import pathlib
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7519,12 +6475,6 @@ def test_export_download_missing_file_exists():
 )
 def test_export_download_missing_preview():
     """test --download-missing --preview, #564"""
-    import glob
-    import os
-    import os.path
-    import pathlib
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7555,12 +6505,6 @@ def test_export_download_missing_preview():
 )
 def test_export_download_missing_preview_applesccript():
     """test --download-missing --preview and applescript download, #564"""
-    import glob
-    import os
-    import os.path
-    import pathlib
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7590,11 +6534,6 @@ def test_export_download_missing_preview_applesccript():
 )
 def test_export_skip_live_photokit():
     """test that --skip-live works with --use-photokit (issue #537)"""
-    import os
-    import os.path
-    import pathlib
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7623,12 +6562,6 @@ def test_export_skip_live_photokit():
 
 def test_query_name():
     """test query --name"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7645,12 +6578,6 @@ def test_query_name():
 
 def test_query_name_unicode():
     """test query --name with a unicode name"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7669,12 +6596,6 @@ def test_query_name_unicode():
 
 def test_query_name_i():
     """test query --name -i"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7698,11 +6619,6 @@ def test_query_name_i():
 
 def test_query_name_original_filename():
     """test query --name only searches original filename on Photos 5+"""
-    import json
-    import os
-    import os.path
-
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7718,11 +6634,6 @@ def test_query_name_original_filename():
 
 def test_query_name_original_filename_i():
     """test query --name only searches original filename on Photos 5+ with -i"""
-    import json
-    import os
-    import os.path
-
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7738,12 +6649,6 @@ def test_query_name_original_filename_i():
 
 def test_export_name():
     """test export --name"""
-    import glob
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7759,9 +6664,6 @@ def test_export_name():
 
 def test_query_eval():
     """test export --query-eval"""
-    import glob
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7784,9 +6686,6 @@ def test_query_eval():
 
 def test_bad_query_eval():
     """test export --query-eval with bad input"""
-    import glob
-
-    from osxphotos.cli import export
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7808,12 +6707,6 @@ def test_bad_query_eval():
 
 def test_query_min_size_1():
     """test query --min-size"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7829,12 +6722,6 @@ def test_query_min_size_1():
 
 def test_query_min_size_2():
     """test query --min-size"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7856,12 +6743,6 @@ def test_query_min_size_2():
 
 def test_query_max_size_1():
     """test query --max-size"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7877,12 +6758,6 @@ def test_query_max_size_1():
 
 def test_query_max_size_2():
     """test query --max-size"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7898,12 +6773,6 @@ def test_query_max_size_2():
 
 def test_query_min_max_size():
     """test query --max-size with --min-size"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7927,12 +6796,6 @@ def test_query_min_max_size():
 
 def test_query_min_size_error():
     """test query --max-size with invalid size"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7945,12 +6808,6 @@ def test_query_min_size_error():
 
 def test_query_regex_1():
     """test query --regex against title"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -7973,12 +6830,6 @@ def test_query_regex_1():
 
 def test_query_regex_2():
     """test query --regex with no match"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -8001,12 +6852,6 @@ def test_query_regex_2():
 
 def test_query_regex_3():
     """test query --regex with --ignore-case"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -8030,12 +6875,6 @@ def test_query_regex_3():
 
 def test_query_regex_4():
     """test query --regex against album"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -8058,12 +6897,6 @@ def test_query_regex_4():
 
 def test_query_regex_multiple():
     """test query multiple --regex values (#525)"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -8089,9 +6922,6 @@ def test_query_regex_multiple():
 
 def test_query_function():
     """test query --query-function"""
-    import json
-
-    from osxphotos.cli import query
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -8122,12 +6952,6 @@ def test_query_function():
 
 def test_export_export_dir_template():
     """Test {export_dir} template"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import cli
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -8159,12 +6983,6 @@ def test_export_export_dir_template():
 
 def test_export_filepath_template():
     """Test {filepath} template"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import cli
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -8198,9 +7016,6 @@ def test_export_filepath_template():
 
 def test_export_post_command():
     """Test --post-command"""
-    import os.path
-
-    from osxphotos.cli import cli
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -8251,9 +7066,6 @@ def test_export_post_command():
 
 def test_export_post_command_bad_command():
     """Test --post-command with bad command"""
-    import os.path
-
-    from osxphotos.cli import cli
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -8280,9 +7092,6 @@ def test_export_post_command_bad_command():
 
 def test_export_post_function():
     """Test --post-function"""
-    import os.path
-
-    from osxphotos.cli import cli
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -8315,9 +7124,6 @@ def test_export_post_function():
 
 def test_export_post_function_exception():
     """Test --post-function that generates an exception"""
-    import os.path
-
-    from osxphotos.cli import cli
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -8353,9 +7159,6 @@ def test_export_post_function_exception():
 
 def test_export_post_function_bad_value():
     """Test --post-function option validation"""
-    import os.path
-
-    from osxphotos.cli import cli
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -8391,10 +7194,6 @@ def test_export_post_function_bad_value():
 
 def test_export_directory_template_function():
     """Test --directory with template function"""
-    import os.path
-    import pathlib
-
-    from osxphotos.cli import cli
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -8424,9 +7223,6 @@ def test_export_directory_template_function():
 
 def test_export_query_function():
     """Test --query-function"""
-    import os.path
-
-    from osxphotos.cli import cli
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -8460,9 +7256,6 @@ def test_export_query_function():
 
 def test_export_album_seq():
     """Test {album_seq} template"""
-    import glob
-
-    from osxphotos.cli import cli
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -8498,13 +7291,6 @@ def test_export_album_seq():
 @pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
 def test_export_description_template():
     """Test for issue #506"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import cli
-    from osxphotos.exiftool import ExifTool
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -8532,13 +7318,6 @@ def test_export_description_template():
 
 def test_export_description_template_conditional():
     """Test for issue #506"""
-    import json
-    import os
-    import os.path
-
-    import osxphotos
-    from osxphotos.cli import cli
-    from osxphotos.exiftool import ExifTool
 
     runner = CliRunner()
     cwd = os.getcwd()

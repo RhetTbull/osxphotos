@@ -9,13 +9,13 @@ import osxmetadata
 from rich.console import Console
 from rich.markdown import Markdown
 
-from ._constants import (
+from osxphotos._constants import (
     EXTENDED_ATTRIBUTE_NAMES,
     EXTENDED_ATTRIBUTE_NAMES_QUOTED,
     OSXPHOTOS_EXPORT_DB,
     POST_COMMAND_CATEGORIES,
 )
-from .phototemplate import (
+from osxphotos.phototemplate import (
     TEMPLATE_SUBSTITUTIONS,
     TEMPLATE_SUBSTITUTIONS_MULTI_VALUED,
     TEMPLATE_SUBSTITUTIONS_PATHLIB,
@@ -353,7 +353,7 @@ def strip_html_comments(text):
 def get_tutorial_text():
     """Load tutorial text from file"""
     # TODO: would be better to use importlib.abc.ResourceReader but I can't find a single example of how to do this
-    help_file = pathlib.Path(__file__).parent / "tutorial.md"
+    help_file = pathlib.Path(__file__).parent / "../tutorial.md"
     with open(help_file, "r") as fd:
         md = fd.read()
     return md

@@ -32,14 +32,11 @@ from rich.console import Console
 from rich.syntax import Syntax
 
 import osxphotos
-
-from ._constants import (
+from osxphotos._constants import (
     _EXIF_TOOL_URL,
     _OSXPHOTOS_NONE_SENTINEL,
     _PHOTOS_4_VERSION,
     _UNKNOWN_PLACE,
-    CLI_COLOR_ERROR,
-    CLI_COLOR_WARNING,
     DEFAULT_EDITED_SUFFIX,
     DEFAULT_JPEG_QUALITY,
     DEFAULT_ORIGINAL_SUFFIX,
@@ -54,19 +51,17 @@ from ._constants import (
     SIDECAR_JSON,
     SIDECAR_XMP,
 )
-from ._version import __version__
-from .cli_help import ExportCommand, tutorial_help
-from .configoptions import (
+from osxphotos._version import __version__
+from osxphotos.configoptions import (
     ConfigOptions,
     ConfigOptionsInvalidError,
     ConfigOptionsLoadError,
 )
-from .crash_reporter import crash_reporter
-from .datetime_formatter import DateTimeFormatter
-from .exiftool import get_exiftool_path
-from .export_db import ExportDB, ExportDBInMemory
-from .export_db_utils import (
-    OSXPHOTOS_EXPORTDB_VERSION,
+from osxphotos.crash_reporter import crash_reporter
+from osxphotos.datetime_formatter import DateTimeFormatter
+from osxphotos.exiftool import get_exiftool_path
+from osxphotos.export_db import OSXPHOTOS_EXPORTDB_VERSION, ExportDB, ExportDBInMemory
+from osxphotos.export_db_utils import (
     export_db_check_signatures,
     export_db_get_last_run,
     export_db_get_version,
@@ -75,24 +70,38 @@ from .export_db_utils import (
     export_db_update_signatures,
     export_db_vacuum,
 )
-from .fileutil import FileUtil, FileUtilNoOp
-from .path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
-from .photoexporter import ExportOptions, ExportResults, PhotoExporter
-from .photoinfo import PhotoInfo
-from .photokit import check_photokit_authorization, request_photokit_authorization
-from .photosalbum import PhotosAlbum
-from .photosdb import PhotosDB
-from .photosdb.photosdb_utils import get_photos_library_version
-from .phototemplate import PhotoTemplate, RenderOptions
-from .pyrepl import embed_repl
-from .queryoptions import QueryOptions
-from .sqlgrep import sqlgrep
-from .uti import get_preferred_uti_extension
-from .utils import (
+from osxphotos.fileutil import FileUtil, FileUtilNoOp
+from osxphotos.path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
+from osxphotos.photoexporter import ExportOptions, ExportResults, PhotoExporter
+from osxphotos.photoinfo import PhotoInfo
+from osxphotos.photokit import (
+    check_photokit_authorization,
+    request_photokit_authorization,
+)
+from osxphotos.photosalbum import PhotosAlbum
+from osxphotos.photosdb import PhotosDB
+from osxphotos.photosdb.photosdb_utils import get_photos_library_version
+from osxphotos.phototemplate import PhotoTemplate, RenderOptions
+from osxphotos.pyrepl import embed_repl
+from osxphotos.queryoptions import QueryOptions
+from osxphotos.sqlgrep import sqlgrep
+from osxphotos.uti import get_preferred_uti_extension
+from osxphotos.utils import (
     expand_and_validate_filepath,
     format_sec_to_hhmmss,
     load_function,
     normalize_fs_path,
+)
+
+from .cli_help import ExportCommand, tutorial_help
+from .common import (
+    DEBUG,
+    OSXPHOTOS_CRASH_LOG,
+    OSXPHOTOS_HIDDEN,
+    OSXPHOTOS_SNAPSHOT_DIR,
+    set_debug,
+    verbose_print,
+    noop,
 )
 
 __all__ = [
@@ -141,41 +150,8 @@ __all__ = [
     "diff",
 ]
 
-# global variable to control verbose output
-# set via --verbose/-V
-VERBOSE = False
-VERBOSE_TIMESTAMP = False
-
-# global variable to control debug output
-# set via --debug
-DEBUG = False
-
-# used to show/hide hidden commands
-OSXPHOTOS_HIDDEN = not bool(os.getenv("OSXPHOTOS_SHOW_HIDDEN", default=False))
-
-# used by snap and diff commands
-OSXPHOTOS_SNAPSHOT_DIR = "/private/tmp/osxphotos_snapshots"
-
-# where to write the crash report if osxphotos crashes
-OSXPHOTOS_CRASH_LOG = os.getcwd() + "/osxphotos_crash.log"
-
-rich.traceback.install()
-
-
-def verbose_(*args, **kwargs):
-    """print output if verbose flag set"""
-    if VERBOSE:
-        styled_args = []
-        timestamp = str(datetime.datetime.now()) + " -- " if VERBOSE_TIMESTAMP else ""
-        for arg in args:
-            if type(arg) == str:
-                arg = timestamp + arg
-                if "error" in arg.lower():
-                    arg = click.style(arg, fg=CLI_COLOR_ERROR)
-                elif "warning" in arg.lower():
-                    arg = click.style(arg, fg=CLI_COLOR_WARNING)
-            styled_args.append(arg)
-        click.echo(*styled_args, **kwargs)
+CLI_COLOR_ERROR = "red"
+CLI_COLOR_WARNING = "yellow"
 
 
 def get_photos_db(*db_options):
@@ -1427,9 +1403,8 @@ def export(
     to modify this behavior.
     """
 
-    global DEBUG
     if debug:
-        DEBUG = True
+        set_debug(True)
         osxphotos._set_debug(True)
 
     if profile:
@@ -1459,10 +1434,7 @@ def export(
         ignore=["ctx", "cli_obj", "dest", "load_config", "save_config", "config_only"],
     )
 
-    global VERBOSE
-    global VERBOSE_TIMESTAMP
-    VERBOSE = bool(verbose)
-    VERBOSE_TIMESTAMP = timestamp
+    verbose_ = verbose_print(verbose, timestamp)
 
     if load_config:
         try:
@@ -2051,7 +2023,7 @@ def export(
                     update=update,
                     use_photokit=use_photokit,
                     use_photos_export=use_photos_export,
-                    verbose=verbose,
+                    verbose_=verbose_,
                 )
 
                 if post_function:
@@ -2076,6 +2048,7 @@ def export(
                     dry_run=dry_run,
                     exiftool_path=exiftool_path,
                     export_db=export_db,
+                    verbose_=verbose_,
                 )
 
                 if album_export and export_results.exported:
@@ -2145,6 +2118,7 @@ def export(
                         finder_tag_template=finder_tag_template,
                         strip=strip,
                         export_dir=dest,
+                        verbose_=verbose_,
                     )
                     results.xattr_written.extend(tags_written)
                     results.xattr_skipped.extend(tags_skipped)
@@ -2156,6 +2130,7 @@ def export(
                         xattr_template,
                         strip=strip,
                         export_dir=dest,
+                        verbose_=verbose_,
                     )
                     results.xattr_written.extend(xattr_written)
                     results.xattr_skipped.extend(xattr_skipped)
@@ -2212,7 +2187,9 @@ def export(
             + db_files
         )
         click.echo(f"Cleaning up {dest}")
-        cleaned_files, cleaned_dirs = cleanup_files(dest, all_files, fileutil)
+        cleaned_files, cleaned_dirs = cleanup_files(
+            dest, all_files, fileutil, verbose_=verbose_
+        )
         file_str = "files" if len(cleaned_files) != 1 else "file"
         dir_str = "directories" if len(cleaned_dirs) != 1 else "directory"
         click.echo(
@@ -2392,9 +2369,8 @@ def query(
     (e.g. search for photos matching all options).
     """
 
-    global DEBUG
     if debug:
-        DEBUG = True
+        set_debug(True)
         osxphotos._set_debug(True)
 
     # if no query terms, show help and return
@@ -2484,7 +2460,7 @@ def query(
         _list_libraries()
         return
 
-    photosdb = osxphotos.PhotosDB(dbfile=db, verbose=verbose_)
+    photosdb = osxphotos.PhotosDB(dbfile=db)
     query_options = QueryOptions(
         keyword=keyword,
         person=person,
@@ -2702,7 +2678,7 @@ def print_photo_info(photos, json=False):
 def export_photo(
     photo=None,
     dest=None,
-    verbose=None,
+    verbose_=None,
     export_by_date=None,
     sidecar=None,
     sidecar_drop_ext=False,
@@ -2794,15 +2770,13 @@ def export_photo(
         touch_file: bool; sets file's modification time to match photo date
         update: bool, only export updated photos
         use_photos_export: bool; if True forces the use of AppleScript to export even if photo not missing
-        verbose: bool; print verbose output
+        verbose_: callable for verbose output
     Returns:
         list of path(s) of exported photo or None if photo was missing
 
     Raises:
         ValueError on invalid filename_template
     """
-    global VERBOSE
-    VERBOSE = bool(verbose)
 
     export_original = not (skip_original_if_edited and photo.hasadjustments)
 
@@ -2960,7 +2934,7 @@ def export_photo(
                 update=update,
                 use_photos_export=use_photos_export,
                 use_photokit=use_photokit,
-                verbose=verbose,
+                verbose_=verbose_,
             )
 
     if export_edited and photo.hasadjustments:
@@ -3073,7 +3047,7 @@ def export_photo(
                     update=update,
                     use_photos_export=use_photos_export,
                     use_photokit=use_photokit,
-                    verbose=verbose,
+                    verbose_=verbose_,
                 )
 
     return results
@@ -3157,7 +3131,7 @@ def export_photo_to_directory(
     update,
     use_photos_export,
     use_photokit,
-    verbose,
+    verbose_,
 ):
     """Export photo to directory dest_path"""
 
@@ -3270,7 +3244,7 @@ def export_photo_to_directory(
                     f"Retrying export for photo ({photo.uuid}: {photo.original_filename})"
                 )
 
-    if verbose:
+    if verbose_:
         if update or force_update:
             for new in results.new:
                 verbose_(f"Exported new file {new}")
@@ -3626,7 +3600,7 @@ def write_export_report(report_file, results):
         sys.exit(1)
 
 
-def cleanup_files(dest_path, files_to_keep, fileutil):
+def cleanup_files(dest_path, files_to_keep, fileutil, verbose_):
     """cleanup dest_path by deleting and files and empty directories
         not in files_to_keep
 
@@ -3673,6 +3647,7 @@ def write_finder_tags(
     finder_tag_template=None,
     strip=False,
     export_dir=None,
+    verbose_=noop,
 ):
     """Write Finder tags (extended attributes) to files; only writes attributes if attributes on file differ from what would be written
 
@@ -3686,6 +3661,7 @@ def write_finder_tags(
         exiftool_merge_keywords: if True, include any keywords in the exif data of the source image as keywords
         finder_tag_template: list of templates to evaluate for determining Finder tags
         export_dir: value to use for {export_dir} template
+        verbose_: function to call to print verbose messages
 
     Returns:
         (list of file paths that were updated with new Finder tags, list of file paths skipped because Finder tags didn't need updating)
@@ -3764,6 +3740,7 @@ def write_extended_attributes(
     xattr_template,
     strip=False,
     export_dir=None,
+    verbose_=noop,
 ):
     """Writes extended attributes to exported files
 
@@ -3835,7 +3812,14 @@ def write_extended_attributes(
 
 
 def run_post_command(
-    photo, post_command, export_results, export_dir, dry_run, exiftool_path, export_db
+    photo,
+    post_command,
+    export_results,
+    export_dir,
+    dry_run,
+    exiftool_path,
+    export_db,
+    verbose_,
 ):
     # todo: pass in RenderOptions from export? (e.g. so it contains strip, etc?)
     # todo: need a shell_quote template type:
@@ -4566,9 +4550,7 @@ def grep(ctx, cli_obj, db, ignore_case, print_filename, pattern):
 def debug_dump(ctx, cli_obj, db, photos_library, dump, uuid, verbose):
     """Print out debug info"""
 
-    global VERBOSE
-    VERBOSE = bool(verbose)
-
+    verbose_ = verbose_print(verbose)
     db = get_photos_db(*photos_library, db, cli_obj.db)
     if db is None:
         click.echo(cli.commands["debug-dump"].get_help(ctx), err=True)
@@ -4722,8 +4704,7 @@ def diff(ctx, cli_obj, db, raw_output, style, db2, verbose):
     Works only on Photos library versions since Catalina (10.15) or newer.
     """
 
-    global VERBOSE
-    VERBOSE = bool(verbose)
+    verbose_ = verbose_print(verbose_)
 
     sqldiff = shutil.which("sqldiff")
     if not sqldiff:
@@ -4851,6 +4832,9 @@ def exportdb(
     export_db,
 ):
     """Utilities for working with the osxphotos export database"""
+
+    verbose_ = verbose_print(verbose)
+
     export_db = pathlib.Path(export_db)
     if export_db.is_dir():
         # assume it's the export folder
@@ -4906,7 +4890,7 @@ def exportdb(
     if update_signatures:
         try:
             updated, skipped = export_db_update_signatures(
-                export_db, export_dir, verbose, dry_run
+                export_db, export_dir, verbose_, dry_run
             )
         except Exception as e:
             print(f"[red]Error: {e}[/red]")
@@ -4939,7 +4923,7 @@ def exportdb(
     if check_signatures:
         try:
             matched, notmatched, skipped = export_db_check_signatures(
-                export_db, export_dir, verbose=verbose
+                export_db, export_dir, verbose_=verbose_
             )
         except Exception as e:
             print(f"[red]Error: {e}[/red]")
@@ -4953,7 +4937,7 @@ def exportdb(
     if touch_file:
         try:
             touched, not_touched, skipped = export_db_touch_files(
-                export_db, export_dir, verbose=verbose, dry_run=dry_run
+                export_db, export_dir, verbose_=verbose, dry_run=dry_run
             )
         except Exception as e:
             print(f"[red]Error: {e}[/red]")
