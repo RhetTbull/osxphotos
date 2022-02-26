@@ -1356,7 +1356,7 @@ def test_exiftool_newlines_in_description(photosdb):
     assert exif["EXIF:ImageDescription"].find("\n") > 0
 
 
-@pytest.mark.skip(SKIP_TEST, reason="Not yet implemented")
+@pytest.mark.skip(reason="Test not yet implemented")
 def test_duplicates_1(photosdb):
     # test photo has duplicates
 
