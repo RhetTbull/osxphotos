@@ -25,7 +25,7 @@ from osxphotos._constants import OSXPHOTOS_EXPORT_DB
 from osxphotos.cli import (
     about,
     albums,
-    cli,
+    cli_main,
     export,
     keywords,
     labels,
@@ -1052,7 +1052,7 @@ def setup_touch_tests():
 def test_osxphotos():
 
     runner = CliRunner()
-    result = runner.invoke(cli, [])
+    result = runner.invoke(cli_main, [])
     output = result.output
 
     assert result.exit_code == 0
@@ -1064,7 +1064,7 @@ def test_osxphotos_help_1():
     # test help command no topic
 
     runner = CliRunner()
-    result = runner.invoke(cli, ["help"])
+    result = runner.invoke(cli_main, ["help"])
     output = result.output
     assert result.exit_code == 0
     for line in CLI_OUTPUT_NO_SUBCOMMAND:
@@ -1075,7 +1075,7 @@ def test_osxphotos_help_2():
     # test help command valid topic
 
     runner = CliRunner()
-    result = runner.invoke(cli, ["help", "persons"])
+    result = runner.invoke(cli_main, ["help", "persons"])
     assert result.exit_code == 0
     assert "Print out persons (faces) found in the Photos library." in result.output
 
@@ -1084,7 +1084,7 @@ def test_osxphotos_help_3():
     # test help command invalid topic
 
     runner = CliRunner()
-    result = runner.invoke(cli, ["help", "foo"])
+    result = runner.invoke(cli_main, ["help", "foo"])
     assert result.exit_code == 0
     assert "Invalid command: foo" in result.output
 
@@ -2887,7 +2887,7 @@ def test_export_sidecar():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            cli,
+            cli_main,
             [
                 "export",
                 "--db",
@@ -2912,7 +2912,7 @@ def test_export_sidecar_drop_ext():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            cli,
+            cli_main,
             [
                 "export",
                 "--db",
@@ -2938,7 +2938,7 @@ def test_export_sidecar_exiftool():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            cli,
+            cli_main,
             [
                 "export",
                 "--db",
@@ -2963,7 +2963,7 @@ def test_export_sidecar_templates():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            cli,
+            cli_main,
             [
                 "export",
                 "--db",
@@ -3000,7 +3000,7 @@ def test_export_sidecar_templates_exiftool():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            cli,
+            cli_main,
             [
                 "export",
                 "--db",
@@ -3037,7 +3037,7 @@ def test_export_sidecar_update():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            cli,
+            cli_main,
             [
                 "export",
                 "--db",
@@ -3058,7 +3058,7 @@ def test_export_sidecar_update():
         fileutil.unlink(CLI_EXPORT_SIDECAR_FILENAMES[1])
 
         result = runner.invoke(
-            cli,
+            cli_main,
             [
                 "export",
                 "--db",
@@ -3077,7 +3077,7 @@ def test_export_sidecar_update():
 
         # run update again, no sidecar files should update
         result = runner.invoke(
-            cli,
+            cli_main,
             [
                 "export",
                 "--db",
@@ -3099,7 +3099,7 @@ def test_export_sidecar_update():
         fileutil.utime(CLI_EXPORT_SIDECAR_FILENAMES[2], (ts, ts))
 
         result = runner.invoke(
-            cli,
+            cli_main,
             [
                 "export",
                 "--db",
@@ -3118,7 +3118,7 @@ def test_export_sidecar_update():
 
         # run update again, no sidecar files should update
         result = runner.invoke(
-            cli,
+            cli_main,
             [
                 "export",
                 "--db",
@@ -3137,7 +3137,7 @@ def test_export_sidecar_update():
 
         # run update again with updated metadata, forcing update
         result = runner.invoke(
-            cli,
+            cli_main,
             [
                 "export",
                 "--db",
@@ -3165,7 +3165,7 @@ def test_export_sidecar_invalid():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            cli,
+            cli_main,
             [
                 "export",
                 "--db",
@@ -3991,7 +3991,7 @@ def test_export_sidecar_keyword_template():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            cli,
+            cli_main,
             [
                 "export",
                 "--db",
@@ -6959,7 +6959,7 @@ def test_export_export_dir_template():
     with runner.isolated_filesystem():
         isolated_cwd = os.getcwd()
         result = runner.invoke(
-            cli,
+            cli_main,
             [
                 "export",
                 "--db",
@@ -6990,7 +6990,7 @@ def test_export_filepath_template():
     with runner.isolated_filesystem():
         isolated_cwd = os.getcwd()
         result = runner.invoke(
-            cli,
+            cli_main,
             [
                 "export",
                 "--db",
@@ -7022,7 +7022,7 @@ def test_export_post_command():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            cli,
+            cli_main,
             [
                 "export",
                 "--db",
@@ -7043,7 +7043,7 @@ def test_export_post_command():
 
         # run again with --update to test skipped
         result = runner.invoke(
-            cli,
+            cli_main,
             [
                 "export",
                 "--db",
@@ -7072,7 +7072,7 @@ def test_export_post_command_bad_command():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            cli,
+            cli_main,
             [
                 "export",
                 "--db",
@@ -7104,7 +7104,7 @@ def test_export_post_function():
 
         tempdir = os.getcwd()
         result = runner.invoke(
-            cli,
+            cli_main,
             [
                 "export",
                 "--db",
@@ -7139,7 +7139,7 @@ def test_export_post_function_exception():
 
         tempdir = os.getcwd()
         result = runner.invoke(
-            cli,
+            cli_main,
             [
                 "export",
                 "--db",
@@ -7174,7 +7174,7 @@ def test_export_post_function_bad_value():
 
         tempdir = os.getcwd()
         result = runner.invoke(
-            cli,
+            cli_main,
             [
                 "export",
                 "--db",
@@ -7204,7 +7204,7 @@ def test_export_directory_template_function():
 
         tempdir = os.getcwd()
         result = runner.invoke(
-            cli,
+            cli_main,
             [
                 "export",
                 "--db",
@@ -7238,7 +7238,7 @@ def test_export_query_function():
 
         tempdir = os.getcwd()
         result = runner.invoke(
-            cli,
+            cli_main,
             [
                 "export",
                 "--db",
@@ -7263,7 +7263,7 @@ def test_export_album_seq():
     with runner.isolated_filesystem():
         for uuid in UUID_DICT_FOLDER_ALBUM_SEQ:
             result = runner.invoke(
-                cli,
+                cli_main,
                 [
                     "export",
                     "--db",
@@ -7297,7 +7297,7 @@ def test_export_description_template():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            cli,
+            cli_main,
             [
                 "export",
                 "--db",
@@ -7324,7 +7324,7 @@ def test_export_description_template_conditional():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            cli,
+            cli_main,
             [
                 "export",
                 "--db",
