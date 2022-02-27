@@ -45,7 +45,11 @@ CTX_SETTINGS = dict(help_option_names=["-h", "--help"])
 @DB_OPTION
 @JSON_OPTION
 @click.option(
-    "--debug", required=False, is_flag=True, default=False, hidden=OSXPHOTOS_HIDDEN
+    "--debug",
+    required=False,
+    is_flag=True,
+    help="Enable debug output",
+    hidden=OSXPHOTOS_HIDDEN,
 )
 @click.version_option(__version__, "--version", "-v")
 @click.pass_context
