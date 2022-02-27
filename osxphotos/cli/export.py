@@ -870,7 +870,6 @@ def export(
         export_as_hardlink = cfg.export_as_hardlink
         export_by_date = cfg.export_by_date
         exportdb = cfg.exportdb
-        ramdb = cfg.ramdb
         external_edit = cfg.external_edit
         favorite = cfg.favorite
         filename_template = cfg.filename_template
@@ -937,6 +936,7 @@ def export(
         preview_suffix = cfg.preview_suffix
         query_eval = cfg.query_eval
         query_function = cfg.query_function
+        ramdb = cfg.ramdb
         regex = cfg.regex
         replace_keywords = cfg.replace_keywords
         report = cfg.report
@@ -957,6 +957,7 @@ def export(
         slow_mo = cfg.slow_mo
         strip = cfg.strip
         time_lapse = cfg.time_lapse
+        timestamp = cfg.timestamp
         title = cfg.title
         to_date = cfg.to_date
         to_time = cfg.to_time
@@ -971,7 +972,7 @@ def export(
         xattr_template = cfg.xattr_template
 
         # config file might have changed verbose
-        VERBOSE = bool(verbose)
+        verbose_ = verbose_print(verbose, timestamp)
         verbose_(f"Loaded options from file {load_config}")
 
     verbose_(f"osxphotos version {__version__}")
