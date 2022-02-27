@@ -99,6 +99,6 @@ setup(
         "toml>=0.10.2,<0.11.0",
         "wurlitzer>=2.1.0,<3.0.0",
     ],
-    entry_points={"console_scripts": ["osxphotos=osxphotos.__main__:cli"]},
+    entry_points={"console_scripts": ["osxphotos=osxphotos.__main__:cli_main"]},
     include_package_data=True,
 )
