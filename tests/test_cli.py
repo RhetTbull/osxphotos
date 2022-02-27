@@ -7345,3 +7345,17 @@ def test_export_description_template_conditional():
             assert (
                 json_got["EXIF:ImageDescription"] == DESCRIPTION_VALUE_TITLE_CONDITIONAL
             )
+
+
+def test_export_min_size_1():
+    """test export --min-size"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [".", "--db", os.path.join(cwd, PHOTOS_DB_15_7), "--min-size", "10MB"],
+        )
+        assert result.exit_code == 0
+        assert "Exporting 4 photos" in result.output
