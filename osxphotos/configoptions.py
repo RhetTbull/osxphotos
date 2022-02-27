@@ -1,4 +1,5 @@
 """ ConfigOptions class to load/save config settings for osxphotos CLI """
+import bitmath
 import toml
 
 __all__ = [
@@ -178,6 +179,10 @@ class ConfigOptions:
         data = {}
         for attr in sorted(self._attrs.keys()):
             val = getattr(self, attr)
+
+            if isinstance(val, bitmath.Bitmath):
+                val = int(val.to_Byte())
+
             if val in [False, ()]:
                 val = None
             else:
