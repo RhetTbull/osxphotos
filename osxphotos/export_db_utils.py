@@ -1,17 +1,18 @@
 """ Utility functions for working with export_db """
 
 
-import pathlib
-import sqlite3
-from typing import Optional, Tuple, Union
 import datetime
 import os
+import pathlib
+import sqlite3
+from typing import Callable, Optional, Tuple, Union
 
 import toml
 from rich import print
 
 from ._constants import OSXPHOTOS_EXPORT_DB
 from ._version import __version__
+from .utils import noop
 from .export_db import OSXPHOTOS_EXPORTDB_VERSION, ExportDB
 from .fileutil import FileUtil
 from .photosdb import PhotosDB
@@ -57,7 +58,7 @@ def export_db_vacuum(dbfile: Union[str, pathlib.Path]) -> None:
 def export_db_update_signatures(
     dbfile: Union[str, pathlib.Path],
     export_dir: Union[str, pathlib.Path],
-    verbose: bool = False,
+    verbose_: Callable = noop,
     dry_run: bool = False,
 ) -> Tuple[int, int]:
     """Update signatures for all files found in the export database to match what's on disk
@@ -78,13 +79,11 @@ def export_db_update_signatures(
         filepath = export_dir / filepath
         if not os.path.exists(filepath):
             skipped += 1
-            if verbose:
-                print(f"[dark_orange]Skipping missing file[/dark_orange]: '{filepath}'")
+            verbose_(f"[dark_orange]Skipping missing file[/dark_orange]: '{filepath}'")
             continue
         updated += 1
         file_sig = fileutil.file_sig(filepath)
-        if verbose:
-            print(f"[green]Updating signature for[/green]: '{filepath}'")
+        verbose_(f"[green]Updating signature for[/green]: '{filepath}'")
         if not dry_run:
             c.execute(
                 "UPDATE export_data SET dest_mode = ?, dest_size = ?, dest_mtime = ? WHERE filepath_normalized = ?;",
@@ -129,7 +128,7 @@ def export_db_save_config_to_file(
 def export_db_check_signatures(
     dbfile: Union[str, pathlib.Path],
     export_dir: Union[str, pathlib.Path],
-    verbose: bool = False,
+    verbose_: Callable = noop,
 ) -> Tuple[int, int, int]:
     """Check signatures for all files found in the export database to verify what matches the on disk files
 
@@ -151,19 +150,16 @@ def export_db_check_signatures(
         filepath = export_dir / filepath
         if not filepath.exists():
             skipped += 1
-            if verbose:
-                print(f"[dark_orange]Skipping missing file[/dark_orange]: '{filepath}'")
+            verbose_(f"[dark_orange]Skipping missing file[/dark_orange]: '{filepath}'")
             continue
         file_sig = fileutil.file_sig(filepath)
         file_rec = exportdb.get_file_record(filepath)
         if file_rec.dest_sig == file_sig:
             matched += 1
-            if verbose:
-                print(f"[green]Signatures matched[/green]: '{filepath}'")
+            verbose_(f"[green]Signatures matched[/green]: '{filepath}'")
         else:
             notmatched += 1
-            if verbose:
-                print(f"[deep_pink3]Signatures do not match[/deep_pink3]: '{filepath}'")
+            verbose_(f"[deep_pink3]Signatures do not match[/deep_pink3]: '{filepath}'")
 
     return (matched, notmatched, skipped)
 
@@ -171,7 +167,7 @@ def export_db_check_signatures(
 def export_db_touch_files(
     dbfile: Union[str, pathlib.Path],
     export_dir: Union[str, pathlib.Path],
-    verbose: bool = False,
+    verbose_: Callable = noop,
     dry_run: bool = False,
 ) -> Tuple[int, int, int]:
     """Touch files on disk to match the Photos library created date
@@ -183,8 +179,8 @@ def export_db_touch_files(
     # open and close exportdb to ensure it gets migrated
     exportdb = ExportDB(dbfile, export_dir)
     upgraded = exportdb.was_upgraded
-    if upgraded and verbose:
-        print(
+    if upgraded:
+        verbose_(
             f"Upgraded export database {dbfile} from version {upgraded[0]} to {upgraded[1]}"
         )
     exportdb.close()
@@ -204,7 +200,6 @@ def export_db_touch_files(
         # in the mean time, photos_db_path = None will use the default library
         photos_db_path = None
 
-    verbose_ = print if verbose else lambda *args, **kwargs: None
     photosdb = PhotosDB(dbfile=photos_db_path, verbose=verbose_)
     exportdb = ExportDB(dbfile, export_dir)
     c.execute(
@@ -223,19 +218,17 @@ def export_db_touch_files(
         dest_size = row[4]
         if not filepath.exists():
             skipped += 1
-            if verbose:
-                print(
-                    f"[dark_orange]Skipping missing file (not in export directory)[/dark_orange]: '{filepath}'"
-                )
+            verbose_(
+                f"[dark_orange]Skipping missing file (not in export directory)[/dark_orange]: '{filepath}'"
+            )
             continue
 
         photo = photosdb.get_photo(uuid)
         if not photo:
             skipped += 1
-            if verbose:
-                print(
-                    f"[dark_orange]Skipping missing photo (did not find in Photos Library)[/dark_orange]: '{filepath}' ({uuid})"
-                )
+            verbose_(
+                f"[dark_orange]Skipping missing photo (did not find in Photos Library)[/dark_orange]: '{filepath}' ({uuid})"
+            )
             continue
 
         ts = int(photo.date.timestamp())
@@ -243,18 +236,16 @@ def export_db_touch_files(
         mtime = stat.st_mtime
         if mtime == ts:
             not_touched += 1
-            if verbose:
-                print(
-                    f"[green]Skipping file (timestamp matches)[/green]: '{filepath}' [dodger_blue1]{isotime_from_ts(ts)} ({ts})[/dodger_blue1]"
-                )
+            verbose_(
+                f"[green]Skipping file (timestamp matches)[/green]: '{filepath}' [dodger_blue1]{isotime_from_ts(ts)} ({ts})[/dodger_blue1]"
+            )
             continue
 
         touched += 1
-        if verbose:
-            print(
-                f"[deep_pink3]Touching file[/deep_pink3]: '{filepath}' "
-                f"[dodger_blue1]{isotime_from_ts(mtime)} ({mtime}) -> {isotime_from_ts(ts)} ({ts})[/dodger_blue1]"
-            )
+        verbose_(
+            f"[deep_pink3]Touching file[/deep_pink3]: '{filepath}' "
+            f"[dodger_blue1]{isotime_from_ts(mtime)} ({mtime}) -> {isotime_from_ts(ts)} ({ts})[/dodger_blue1]"
+        )
 
         if not dry_run:
             os.utime(str(filepath), (ts, ts))

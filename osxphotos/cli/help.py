@@ -1,7 +1,6 @@
 """Help text helper class for osxphotos CLI """
 
 import io
-import pathlib
 import re
 
 import click
@@ -9,13 +8,13 @@ import osxmetadata
 from rich.console import Console
 from rich.markdown import Markdown
 
-from ._constants import (
+from osxphotos._constants import (
     EXTENDED_ATTRIBUTE_NAMES,
     EXTENDED_ATTRIBUTE_NAMES_QUOTED,
     OSXPHOTOS_EXPORT_DB,
     POST_COMMAND_CATEGORIES,
 )
-from .phototemplate import (
+from osxphotos.phototemplate import (
     TEMPLATE_SUBSTITUTIONS,
     TEMPLATE_SUBSTITUTIONS_MULTI_VALUED,
     TEMPLATE_SUBSTITUTIONS_PATHLIB,
@@ -25,13 +24,35 @@ from .phototemplate import (
 __all__ = [
     "ExportCommand",
     "template_help",
-    "tutorial_help",
     "rich_text",
     "strip_md_header_and_links",
     "strip_md_links",
     "strip_html_comments",
-    "get_tutorial_text",
+    "help",
+    "get_help_msg",
 ]
+
+
+def get_help_msg(command):
+    """get help message for a Click command"""
+    with click.Context(command) as ctx:
+        return command.get_help(ctx)
+
+
+@click.command()
+@click.argument("topic", default=None, required=False, nargs=1)
+@click.pass_context
+def help(ctx, topic, **kw):
+    """Print help; for help on commands: help <command>."""
+    if topic is None:
+        click.echo(ctx.parent.get_help())
+        return
+    elif topic in ctx.obj.group.commands:
+        ctx.info_name = topic
+        click.echo_via_pager(ctx.obj.group.commands[topic].get_help(ctx))
+    else:
+        click.echo(f"Invalid command: {topic}", err=True)
+        click.echo(ctx.parent.get_help())
 
 
 # TODO: The following help text could probably be done as mako template
@@ -282,19 +303,6 @@ def template_help(width=78):
     return help_str
 
 
-def tutorial_help(width=78):
-    """Return formatted string for tutorial"""
-    sio = io.StringIO()
-    console = Console(file=sio, force_terminal=True, width=width)
-    help_md = get_tutorial_text()
-    help_md = strip_html_comments(help_md)
-    help_md = strip_md_links(help_md)
-    console.print(Markdown(help_md))
-    help_str = sio.getvalue()
-    sio.close()
-    return help_str
-
-
 def rich_text(text, width=78):
     """Return rich formatted text"""
     sio = io.StringIO()
@@ -348,12 +356,3 @@ def strip_md_links(md):
 def strip_html_comments(text):
     """Strip html comments from text (which doesn't need to be valid HTML)"""
     return re.sub(r"<!--(.|\s|\n)*?-->", "", text)
-
-
-def get_tutorial_text():
-    """Load tutorial text from file"""
-    # TODO: would be better to use importlib.abc.ResourceReader but I can't find a single example of how to do this
-    help_file = pathlib.Path(__file__).parent / "tutorial.md"
-    with open(help_file, "r") as fd:
-        md = fd.read()
-    return md

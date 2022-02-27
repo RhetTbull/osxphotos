@@ -29,7 +29,7 @@ def sqlgrep(
     flags = re.IGNORECASE if ignore_case else 0
     try:
         with sqlite3.connect(f"file:{filename}?mode=ro", uri=True) as conn:
-            regex = re.compile(r"(" + pattern + r")", flags=flags)
+            regex = re.compile(f'({pattern})', flags=flags)
             filename_header = f"{filename}: " if print_filename else ""
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
@@ -54,4 +54,4 @@ def sqlgrep(
                                 field_value,
                             ]
     except sqlite3.DatabaseError as e:
-        raise sqlite3.DatabaseError(f"{filename}: {e}")
+        raise sqlite3.DatabaseError(f"{filename}: {e}") from e

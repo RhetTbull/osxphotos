@@ -68,7 +68,7 @@ Only works on macOS (aka Mac OS X). Tested on macOS Sierra (10.12.6) through mac
 
 This package will read Photos databases for any supported version on any supported macOS version.  E.g. you can read a database created with Photos 5.0 on MacOS 10.15 on a machine running macOS 10.12 and vice versa.
 
-Requires python >= `3.7`. 
+Requires python >= `3.8`. 
 
 
 ## Installation 

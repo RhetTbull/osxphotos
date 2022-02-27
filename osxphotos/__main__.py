@@ -1,6 +1,6 @@
 """Command line interface for osxphotos """
 
-from .cli import cli
+from .cli.cli import cli_main
 
 if __name__ == "__main__":
-    cli()  # pylint: disable=no-value-for-parameter
+    cli_main()

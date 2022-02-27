@@ -1408,7 +1408,6 @@ def test_exiftool_newlines_in_description(photosdb):
 @pytest.mark.skip(reason="Test not yet implemented")
 def test_duplicates_1(photosdb):
     # test photo has duplicates
-
     photo = photosdb.get_photo(uuid=UUID_DICT["duplicates"])
     assert len(photo.duplicates) == 1
     assert photo.duplicates[0].uuid == UUID_DUPLICATE

@@ -233,10 +233,6 @@ DEFAULT_ORIGINAL_SUFFIX = ""
 # Default suffix to add to preview images
 DEFAULT_PREVIEW_SUFFIX = "_preview"
 
-# Colors for print CLI messages
-CLI_COLOR_ERROR = "red"
-CLI_COLOR_WARNING = "yellow"
-
 # Bit masks for --sidecar
 SIDECAR_JSON = 0x1
 SIDECAR_EXIFTOOL = 0x2
@@ -260,6 +256,7 @@ EXTENDED_ATTRIBUTE_NAMES = [
     "version",
 ]
 EXTENDED_ATTRIBUTE_NAMES_QUOTED = [f"'{x}'" for x in EXTENDED_ATTRIBUTE_NAMES]
+
 
 # name of export DB
 OSXPHOTOS_EXPORT_DB = ".osxphotos_export.db"
