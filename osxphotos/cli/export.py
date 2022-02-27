@@ -823,7 +823,7 @@ def export(
         ignore=["ctx", "cli_obj", "dest", "load_config", "save_config", "config_only"],
     )
 
-    verbose_ = verbose_print(verbose, timestamp)
+    verbose_ = verbose_print(verbose, timestamp, rich=True, highlight=False)
 
     if load_config:
         try:
@@ -972,7 +972,7 @@ def export(
         xattr_template = cfg.xattr_template
 
         # config file might have changed verbose
-        verbose_ = verbose_print(verbose, timestamp)
+        verbose_ = verbose_print(verbose, timestamp, rich=True, highlight=False)
         verbose_(f"Loaded options from file {load_config}")
 
     verbose_(f"osxphotos version {__version__}")

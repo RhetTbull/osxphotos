@@ -10,6 +10,8 @@ import osxmetadata
 from rich.console import Console
 from rich.markdown import Markdown
 
+from .click_rich_echo import rich_echo
+
 from osxphotos._constants import (
     EXTENDED_ATTRIBUTE_NAMES,
     EXTENDED_ATTRIBUTE_NAMES_QUOTED,
@@ -55,16 +57,19 @@ def help(ctx, topic, subtopic, **kw):
 
     if subtopic:
         cmd = ctx.obj.group.commands[topic]
-        console = Console(width=click.HelpFormatter().width)
-        console.print(get_subtopic_help(cmd, ctx, subtopic))
+        rich_echo(
+            get_subtopic_help(cmd, ctx, subtopic), width=click.HelpFormatter().width
+        )
         return
 
     if topic in ctx.obj.group.commands:
         ctx.info_name = topic
         click.echo_via_pager(ctx.obj.group.commands[topic].get_help(ctx))
-    else:
-        click.echo(f"Invalid command: {topic}", err=True)
-        click.echo(ctx.parent.get_help())
+        return
+
+    # didn't find any valid help topics
+    click.echo(f"Invalid command: {topic}", err=True)
+    click.echo(ctx.parent.get_help())
 
 
 def get_subtopic_help(cmd: click.Command, ctx: click.Context, subtopic: str):
@@ -75,24 +80,28 @@ def get_subtopic_help(cmd: click.Command, ctx: click.Context, subtopic: str):
     usage_str = cmd.get_help(ctx)
     usage_str = usage_str.partition("\n")[0]
 
-    # help text
     info = cmd.to_info_dict(ctx)
     help_str = info.get("help", "")
 
-    # matching options
     options = get_matching_options(cmd, ctx, subtopic)
-    option_str = format_options_help(options, ctx, highlight=subtopic)
 
+    # format help text and options
     formatter = click.HelpFormatter()
     formatter.write(usage_str)
     formatter.write_paragraph()
     format_help_text(help_str, formatter)
     formatter.write_paragraph()
-    formatter.write(
-        f"Options that match '[{HIGHLIGHT_COLOR}]{subtopic}[/{HIGHLIGHT_COLOR}]':\n"
-    )
-    formatter.write_paragraph()
-    formatter.write(option_str)
+    if options:
+        option_str = format_options_help(options, ctx, highlight=subtopic)
+        formatter.write(
+            f"Options that match '[{HIGHLIGHT_COLOR}]{subtopic}[/{HIGHLIGHT_COLOR}]':\n"
+        )
+        formatter.write_paragraph()
+        formatter.write(option_str)
+    else:
+        formatter.write(
+            f"No options match '[{HIGHLIGHT_COLOR}]{subtopic}[/{HIGHLIGHT_COLOR}]'"
+        )
     return formatter.getvalue()
 
 

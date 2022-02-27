@@ -162,7 +162,41 @@ Commands:
   uuid       Print out unique IDs (UUID) of photos selected in Photos
 ```
 
-To get help on a specific command, use `osxphotos help <command_name>`
+To get help on a specific command, use `osxphotos help command_name`, for example, `osxphotos help export` to get help on the `export` command.
+
+Some of the commands such as `export` and `query` have a large number of options.  To search for options related to a specific topic, you can use `osxphotos help command_name topic_name`.  For example, `osxphotos help export raw` finds the options related to RAW files (search is case-insensitive):
+
+```
+Usage: osxphotos export [OPTIONS] [PHOTOS_LIBRARY]... DEST
+
+  Export photos from the Photos database. Export path DEST is required.
+  Optionally, query the Photos database using 1 or more search options; if
+  more than one option is provided, they are treated as "AND" (e.g. search for
+  photos matching all options). If no query options are provided, all photos
+  will be exported. By default, all versions of all photos will be exported
+  including edited versions, live photo movies, burst photos, and associated
+  raw images. See --skip-edited, --skip-live, --skip-bursts, and --skip-raw
+  options to modify this behavior.
+
+Options that match 'raw':
+
+--has-raw                    Search for photos with both a jpeg and
+                             raw version
+--skip-raw                   Do not export associated RAW image of a
+                             RAW+JPEG pair.  Note: this does not skip RAW
+                             photos if the RAW photo does not have an
+                             associated JPEG image (e.g. the RAW file was
+                             imported to Photos without a JPEG preview).
+--convert-to-jpeg            Convert all non-JPEG images (e.g. RAW, HEIC,
+                             PNG, etc) to JPEG upon export. Note: does not
+                             convert the RAW component of a RAW+JPEG pair as
+                             the associated JPEG image will be exported. You
+                             can use --skip-raw to skip
+                             exporting the associated RAW image of a
+                             RAW+JPEG pair. See also --jpeg-quality and
+                             --jpeg-ext. Only works if your Mac has a GPU
+                             (thus may not work on virtual machines).
+```
 
 ### Command line examples
 

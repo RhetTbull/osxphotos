@@ -3,16 +3,15 @@
 import datetime
 import os
 import pathlib
-from typing import Callable
+import typing as t
 
 import click
 
 import osxphotos
 from osxphotos._version import __version__
 
+from .click_rich_echo import rich_echo
 from .param_types import *
-
-from rich import print as rprint
 
 # global variable to control debug output
 # set via --debug
@@ -48,14 +47,15 @@ def noop(*args, **kwargs):
 
 
 def verbose_print(
-    verbose: bool = True, timestamp: bool = False, rich=False
-) -> Callable:
+    verbose: bool = True, timestamp: bool = False, rich=False, **kwargs: t.Any
+) -> t.Callable:
     """Create verbose function to print output
 
     Args:
         verbose: if True, returns verbose print function otherwise returns no-op function
         timestamp: if True, includes timestamp in verbose output
         rich: use rich.print instead of click.echo
+        kwargs: any extra arguments to pass to click.echo or rich.print depending on whether rich==True
 
     Returns:
         function to print output
@@ -64,10 +64,10 @@ def verbose_print(
         return noop
 
     # closure to capture timestamp
-    def verbose_(*args, **kwargs):
+    def verbose_(*args):
         """print output if verbose flag set"""
         styled_args = []
-        timestamp_str = str(datetime.datetime.now()) + " -- " if timestamp else ""
+        timestamp_str = f"{str(datetime.datetime.now())} -- " if timestamp else ""
         for arg in args:
             if type(arg) == str:
                 arg = timestamp_str + arg
@@ -78,9 +78,10 @@ def verbose_print(
             styled_args.append(arg)
         click.echo(*styled_args, **kwargs)
 
-    def rich_verbose_(*args, **kwargs):
+    def rich_verbose_(*args):
         """print output if verbose flag set using rich.print"""
-        timestamp_str = str(datetime.datetime.now()) + " -- " if timestamp else ""
+        timestamp_str = f"{str(datetime.datetime.now())} -- " if timestamp else ""
+        new_args = []
         for arg in args:
             if type(arg) == str:
                 arg = timestamp_str + arg
@@ -88,7 +89,8 @@ def verbose_print(
                     arg = f"[{CLI_COLOR_ERROR}]{arg}[/{CLI_COLOR_ERROR}]"
                 elif "warning" in arg.lower():
                     arg = f"[{CLI_COLOR_WARNING}]{arg}[/{CLI_COLOR_WARNING}]"
-            rprint(arg, **kwargs)
+            new_args.append(arg)
+        rich_echo(*new_args, **kwargs)
 
     return rich_verbose_ if rich else verbose_
 
