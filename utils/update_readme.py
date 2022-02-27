@@ -14,7 +14,7 @@ import re
 
 from click.testing import CliRunner
 
-from osxphotos.cli import help
+from osxphotos.cli import cli_main
 from osxphotos.phototemplate import (
     FILTER_VALUES,
     TEMPLATE_SUBSTITUTIONS,
@@ -55,7 +55,7 @@ TEMPLATE_SYSTEM_LINK_STOP = "<!-- OSXPHOTOS-TEMPLATE-SYSTEM-LINK:END -->"
 
 
 def generate_template_table():
-    """ generate template substitution table for README.md """
+    """generate template substitution table for README.md"""
 
     template_table = "| Substitution | Description |"
     template_table += "\n|--------------|-------------|"
@@ -68,21 +68,21 @@ def generate_template_table():
 
 
 def generate_help_text(command):
-    """ generate output of `osxphotos help command` """
+    """generate output of `osxphotos help command`"""
     runner = CliRunner()
 
     # get current help text
     with runner.isolated_filesystem():
-        result = runner.invoke(help, [command])
+        result = runner.invoke(cli_main, ["help", command])
         help_txt = result.output
 
     # running the help command above doesn't output the full "Usage" line
-    help_txt = help_txt.replace(f"Usage: {command}", f"Usage: osxphotos {command}")
+    help_txt = help_txt.replace(f"Usage: cli-main", f"Usage: osxphotos")
     return help_txt
 
 
 def replace_text(text, start_tag, stop_tag, replacement_text, prefix="", postfix=""):
-    """ replace text between start/stop tags with new text
+    """replace text between start/stop tags with new text
 
     Args:
         text: str, original text
@@ -108,13 +108,13 @@ def replace_text(text, start_tag, stop_tag, replacement_text, prefix="", postfix
         end = text.split(stop_tag)[1]
     except IndexError as e:
         # didn't find one of the delimiters
-        raise ValueError(f"Unable to parse input: {e}")
+        raise ValueError(f"Unable to parse input: {e}") from e
 
     return begin + start_tag + prefix + replacement_text + postfix + stop_tag + end
 
 
 def main():
-    """ update README.md """
+    """update README.md"""
     # update phototemplate.md with info on filters
     print(f"Updating {TEMPLATE_HELP}")
     filter_help = "\n".join(f"- {f}: {descr}" for f, descr in FILTER_VALUES.items())
