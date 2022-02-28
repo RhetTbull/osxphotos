@@ -1,12 +1,16 @@
 """Help text helper class for osxphotos CLI """
 
+import inspect
 import io
 import re
+import typing as t
 
 import click
 import osxmetadata
 from rich.console import Console
 from rich.markdown import Markdown
+
+from .click_rich_echo import rich_echo
 
 from osxphotos._constants import (
     EXTENDED_ATTRIBUTE_NAMES,
@@ -32,6 +36,8 @@ __all__ = [
     "get_help_msg",
 ]
 
+HIGHLIGHT_COLOR = "yellow"
+
 
 def get_help_msg(command):
     """get help message for a Click command"""
@@ -41,18 +47,131 @@ def get_help_msg(command):
 
 @click.command()
 @click.argument("topic", default=None, required=False, nargs=1)
+@click.argument("subtopic", default=None, required=False, nargs=1)
 @click.pass_context
-def help(ctx, topic, **kw):
+def help(ctx, topic, subtopic, **kw):
     """Print help; for help on commands: help <command>."""
     if topic is None:
         click.echo(ctx.parent.get_help())
         return
-    elif topic in ctx.obj.group.commands:
+
+    if subtopic:
+        cmd = ctx.obj.group.commands[topic]
+        rich_echo(
+            get_subtopic_help(cmd, ctx, subtopic), width=click.HelpFormatter().width
+        )
+        return
+
+    if topic in ctx.obj.group.commands:
         ctx.info_name = topic
         click.echo_via_pager(ctx.obj.group.commands[topic].get_help(ctx))
+        return
+
+    # didn't find any valid help topics
+    click.echo(f"Invalid command: {topic}", err=True)
+    click.echo(ctx.parent.get_help())
+
+
+def get_subtopic_help(cmd: click.Command, ctx: click.Context, subtopic: str):
+    """Get help for a command including only options that match a subtopic"""
+
+    # set ctx.info_name or click prints the wrong usage str (usage for help instead of cmd)
+    ctx.info_name = cmd.name
+    usage_str = cmd.get_help(ctx)
+    usage_str = usage_str.partition("\n")[0]
+
+    info = cmd.to_info_dict(ctx)
+    help_str = info.get("help", "")
+
+    options = get_matching_options(cmd, ctx, subtopic)
+
+    # format help text and options
+    formatter = click.HelpFormatter()
+    formatter.write(usage_str)
+    formatter.write_paragraph()
+    format_help_text(help_str, formatter)
+    formatter.write_paragraph()
+    if options:
+        option_str = format_options_help(options, ctx, highlight=subtopic)
+        formatter.write(
+            f"Options that match '[{HIGHLIGHT_COLOR}]{subtopic}[/{HIGHLIGHT_COLOR}]':\n"
+        )
+        formatter.write_paragraph()
+        formatter.write(option_str)
     else:
-        click.echo(f"Invalid command: {topic}", err=True)
-        click.echo(ctx.parent.get_help())
+        formatter.write(
+            f"No options match '[{HIGHLIGHT_COLOR}]{subtopic}[/{HIGHLIGHT_COLOR}]'"
+        )
+    return formatter.getvalue()
+
+
+def get_matching_options(
+    command: click.Command, ctx: click.Context, topic: str
+) -> t.List:
+    """Get matching options for a command that contain a topic
+
+    Args:
+        command: click.Command
+        ctx: click.Context
+        topic: str, topic to match
+
+    Returns:
+        list of matching click.Option objects
+
+    """
+    options = []
+    topic = topic.lower()
+    for option in command.params:
+        help_record = option.get_help_record(ctx)
+        if help_record and (topic in help_record[0] or topic in help_record[1]):
+            options.append(option)
+    return options
+
+
+def format_options_help(
+    options: t.List[click.Option], ctx: click.Context, highlight: t.Optional[str] = None
+) -> str:
+    """Format options help for display
+
+    Args:
+        options: list of click.Option objects
+        ctx: click.Context
+        highlight: str, if set, add rich highlighting to options that match highlight str
+
+    Returns:
+        str with formatted help
+
+    """
+    formatter = click.HelpFormatter()
+    opt_help = [opt.get_help_record(ctx) for opt in options]
+    if highlight:
+        # convert list of tuples to list of lists
+        opt_help = [list(opt) for opt in opt_help]
+        for record in opt_help:
+            record[0] = re.sub(
+                f"({highlight})",
+                f"[{HIGHLIGHT_COLOR}]\\1" + f"[/{HIGHLIGHT_COLOR}]",
+                record[0],
+                re.IGNORECASE,
+            )
+            record[1] = re.sub(
+                f"({highlight})",
+                f"[{HIGHLIGHT_COLOR}]\\1" + f"[/{HIGHLIGHT_COLOR}]",
+                record[1],
+                re.IGNORECASE,
+            )
+        # convert back to list of tuples as that's what write_dl expects
+        opt_help = [tuple(opt) for opt in opt_help]
+    formatter.write_dl(opt_help)
+    return formatter.getvalue()
+
+
+def format_help_text(text: str, formatter: click.HelpFormatter):
+    text = inspect.cleandoc(text).partition("\f")[0]
+    formatter.write_paragraph()
+
+    with formatter.indentation():
+        formatter.write_text(text)
 
 
 # TODO: The following help text could probably be done as mako template
