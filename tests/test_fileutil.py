@@ -1,7 +1,11 @@
 """ test FileUtil """
 
 import os
+import pathlib
+
 import pytest
+
+from osxphotos.fileutil import FileUtil
 
 TEST_HEIC = "tests/test-images/IMG_3092.heic"
 TEST_RAW = "tests/test-images/DSC03584.dng"
@@ -11,6 +15,7 @@ def test_copy_file_valid():
     # copy file with valid src, dest
     import os.path
     import tempfile
+
     from osxphotos.fileutil import FileUtil
 
     temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
@@ -23,6 +28,7 @@ def test_copy_file_valid():
 def test_copy_file_invalid():
     # copy file with invalid src
     import tempfile
+
     from osxphotos.fileutil import FileUtil
 
     temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
@@ -36,6 +42,7 @@ def test_hardlink_file_valid():
     # hardlink file with valid src, dest
     import os.path
     import tempfile
+
     from osxphotos.fileutil import FileUtil
 
     temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
@@ -49,6 +56,7 @@ def test_hardlink_file_valid():
 def test_unlink_file():
     import os.path
     import tempfile
+
     from osxphotos.fileutil import FileUtil
 
     temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
@@ -63,6 +71,7 @@ def test_unlink_file():
 def test_rmdir():
     import os.path
     import tempfile
+
     from osxphotos.fileutil import FileUtil
 
     temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
@@ -77,9 +86,10 @@ def test_rmdir():
     reason="Skip if running in Github actions, no GPU.",
 )
 def test_convert_to_jpeg():
-    """ test convert_to_jpeg """
+    """test convert_to_jpeg"""
     import pathlib
     import tempfile
+
     from osxphotos.fileutil import FileUtil
 
     temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
@@ -95,9 +105,10 @@ def test_convert_to_jpeg():
     reason="Skip if running in Github actions, no GPU.",
 )
 def test_convert_to_jpeg_quality():
-    """ test convert_to_jpeg with compression_quality """
+    """test convert_to_jpeg with compression_quality"""
     import pathlib
     import tempfile
+
     from osxphotos.fileutil import FileUtil
 
     temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
@@ -113,6 +124,7 @@ def test_rename_file():
     # rename file with valid src, dest
     import pathlib
     import tempfile
+
     from osxphotos.fileutil import FileUtil
 
     temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
@@ -125,3 +137,15 @@ def test_rename_file():
     assert pathlib.Path(dest2).exists()
     assert not pathlib.Path(dest).exists()
 
+
+def test_tempdir():
+    """Test FileUtil.tmpdir"""
+    tmpdir = FileUtil.tmpdir()
+    assert pathlib.Path(tmpdir.name).is_dir()
+
+
+def test_tempdir_context_mgr():
+    """Test Fileutil.tmpdir as context manager"""
+    with FileUtil.tmpdir() as tmpdir_name:
+        assert pathlib.Path(tmpdir_name).is_dir()
+    assert not pathlib.Path(tmpdir_name).is_dir()
