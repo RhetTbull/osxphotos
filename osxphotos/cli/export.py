@@ -563,6 +563,16 @@ from .param_types import ExportDBType, FunctionCall
     "losing update state information if the program is interrupted or crashes.",
 )
 @click.option(
+    "--tmpdir",
+    metavar="DIR",
+    help="Specify alternate temporary directory. Default is system temporary directory. "
+    "osxphotos needs to create a number of temporary files during export. In some cases, "
+    "particularly if the Photos library is on an APFS volume that is not the system volume, "
+    "osxphotos may run faster if you specify a temporary directory on the same volume as "
+    "the Photos library.",
+    type=click.Path(dir_okay=True, file_okay=False, exists=True),
+)
+@click.option(
     "--load-config",
     required=False,
     metavar="<config file path>",
@@ -756,6 +766,7 @@ def export(
     add_missing_to_album,
     exportdb,
     ramdb,
+    tmpdir,
     load_config,
     save_config,
     config_only,
@@ -792,7 +803,10 @@ def export(
     to modify this behavior.
     """
 
-    if is_debug():
+    # capture locals for use with ConfigOptions before changing any of them
+    locals_ = locals()
+
+    if debug:
         set_debug(True)
         osxphotos._set_debug(True)
 
@@ -819,7 +833,7 @@ def export(
     # do so below after load_config and save_config are handled.
     cfg = ConfigOptions(
         "export",
-        locals(),
+        locals_,
         ignore=["ctx", "cli_obj", "dest", "load_config", "save_config", "config_only"],
     )
 
@@ -956,6 +970,7 @@ def export(
         skip_uuid_from_file = cfg.skip_uuid_from_file
         slow_mo = cfg.slow_mo
         strip = cfg.strip
+        tmpdir = cfg.tmpdir
         time_lapse = cfg.time_lapse
         timestamp = cfg.timestamp
         title = cfg.title
@@ -1414,6 +1429,7 @@ def export(
                     use_photokit=use_photokit,
                     use_photos_export=use_photos_export,
                     verbose_=verbose_,
+                    tmpdir=tmpdir,
                 )
 
                 if post_function:
@@ -1660,6 +1676,7 @@ def export_photo(
     preview_if_missing=False,
     photo_num=1,
     num_photos=1,
+    tmpdir=None,
 ):
     """Helper function for export that does the actual export
 
@@ -1707,6 +1724,7 @@ def export_photo(
         update: bool, only export updated photos
         use_photos_export: bool; if True forces the use of AppleScript to export even if photo not missing
         verbose_: callable for verbose output
+        tmpdir: optional str; temporary directory to use for export
     Returns:
         list of path(s) of exported photo or None if photo was missing
 
@@ -1871,6 +1889,7 @@ def export_photo(
                 use_photos_export=use_photos_export,
                 use_photokit=use_photokit,
                 verbose_=verbose_,
+                tmpdir=tmpdir,
             )
 
     if export_edited and photo.hasadjustments:
@@ -1984,6 +2003,7 @@ def export_photo(
                     use_photos_export=use_photos_export,
                     use_photokit=use_photokit,
                     verbose_=verbose_,
+                    tmpdir=tmpdir,
                 )
 
     return results
@@ -2068,6 +2088,7 @@ def export_photo_to_directory(
     use_photos_export,
     use_photokit,
     verbose_,
+    tmpdir,
 ):
     """Export photo to directory dest_path"""
 
@@ -2130,6 +2151,7 @@ def export_photo_to_directory(
                 use_photokit=use_photokit,
                 use_photos_export=use_photos_export,
                 verbose=verbose_,
+                tmpdir=tmpdir,
             )
             exporter = PhotoExporter(photo)
             export_results = exporter.export(

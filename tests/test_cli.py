@@ -1384,12 +1384,28 @@ def test_query_exif_case_insensitive(exiftag, exifvalue, uuid_expected):
 
 
 def test_export():
-
+    """test basic export"""
     runner = CliRunner()
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V"])
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
+
+
+def test_export_tmpdir():
+    """test basic export with --tmpdir"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    tmpdir = TemporaryDirectory()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--tmpdir", tmpdir.name],
+        )
         assert result.exit_code == 0
         files = glob.glob("*")
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
@@ -1797,6 +1813,40 @@ def test_export_exiftool():
                     "--exiftool",
                     "--uuid",
                     f"{uuid}",
+                ],
+            )
+            assert result.exit_code == 0
+            files = glob.glob("*")
+            assert sorted(files) == sorted([CLI_EXIFTOOL[uuid]["File:FileName"]])
+
+            exif = ExifTool(CLI_EXIFTOOL[uuid]["File:FileName"]).asdict()
+            for key in CLI_EXIFTOOL[uuid]:
+                if type(exif[key]) == list:
+                    assert sorted(exif[key]) == sorted(CLI_EXIFTOOL[uuid][key])
+                else:
+                    assert exif[key] == CLI_EXIFTOOL[uuid][key]
+
+
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+def test_export_exiftool_tmpdir():
+    """test --exiftool with --tmpdir"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    tmpdir = TemporaryDirectory()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        for uuid in CLI_EXIFTOOL:
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--exiftool",
+                    "--uuid",
+                    f"{uuid}",
+                    "--tmpdir",
+                    tmpdir.name,
                 ],
             )
             assert result.exit_code == 0
@@ -6503,7 +6553,7 @@ def test_export_download_missing_preview():
     "OSXPHOTOS_TEST_EXPORT" not in os.environ,
     reason="Skip if not running on author's personal library.",
 )
-def test_export_download_missing_preview_applesccript():
+def test_export_download_missing_preview_applescript():
     """test --download-missing --preview and applescript download, #564"""
 
     runner = CliRunner()

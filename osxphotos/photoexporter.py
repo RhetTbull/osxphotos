@@ -10,9 +10,9 @@ import os
 import pathlib
 import re
 import tempfile
+import typing as t
 from collections import namedtuple  # pylint: disable=syntax-error
 from dataclasses import asdict, dataclass
-from typing import TYPE_CHECKING, Callable, List, Optional, Tuple
 
 import photoscript
 from mako.template import Template
@@ -55,7 +55,7 @@ __all__ = [
     "rename_jpeg_files",
 ]
 
-if TYPE_CHECKING:
+if t.TYPE_CHECKING:
     from .photoinfo import PhotoInfo
 
 # retry if download_missing/use_photos_export fails the first time (which sometimes it does)
@@ -74,11 +74,11 @@ class ExportOptions:
 
     Attributes:
         convert_to_jpeg (bool): if True, converts non-jpeg images to jpeg
-        description_template (str): optional template string that will be rendered for use as photo description
+        description_template (str): t.Optional template string that will be rendered for use as photo description
         download_missing: (bool, default=False): if True will attempt to export photo via applescript interaction with Photos if missing (see also use_photokit, use_photos_export)
         dry_run: (bool, default=False): set to True to run in "dry run" mode
         edited: (bool, default=False): if True will export the edited version of the photo otherwise exports the original version
-        exiftool_flags (list of str): optional list of flags to pass to exiftool when using exiftool option, e.g ["-m", "-F"]
+        exiftool_flags (list of str): t.Optional list of flags to pass to exiftool when using exiftool option, e.g ["-m", "-F"]
         exiftool: (bool, default = False): if True, will use exiftool to write metadata to export file
         export_as_hardlink: (bool, default=False): if True, will hardlink files instead of copying them
         export_db: (ExportDB): instance of a class that conforms to ExportDB with methods for getting/setting data related to exported files to compare update state
@@ -97,10 +97,10 @@ class ExportOptions:
         merge_exif_persons (bool): if True, merged persons found in file's exif data (requires exiftool)
         overwrite (bool, default=False): if True will overwrite files if they already exist
         persons (bool): if True, include persons in exported metadata
-        preview_suffix (str): optional string to append to end of filename for preview images
+        preview_suffix (str): t.Optional string to append to end of filename for preview images
         preview (bool): if True, also exports preview image
         raw_photo (bool, default=False): if True, will also export the associated RAW photo
-        render_options (RenderOptions): optional osxphotos.phototemplate.RenderOptions instance to specify options for rendering templates
+        render_options (RenderOptions): t.Optional osxphotos.phototemplate.RenderOptions instance to specify options for rendering templates
         replace_keywords (bool): if True, keyword_template replaces any keywords, otherwise it's additive
         sidecar_drop_ext (bool, default=False): if True, drops the photo's extension from sidecar filename (e.g. 'IMG_1234.json' instead of 'IMG_1234.JPG.json')
         sidecar: bit field (int): set to one or more of SIDECAR_XMP, SIDECAR_JSON, SIDECAR_EXIFTOOL
@@ -117,27 +117,28 @@ class ExportOptions:
         use_persons_as_keywords (bool, default = False): if True, will include person names in keywords when exporting metadata with exiftool or sidecar
         use_photos_export (bool, default=False): if True will attempt to export photo via applescript interaction with Photos even if not missing (see also use_photokit, download_missing)
         use_photokit (bool, default=False): if True, will use photokit to export photos when use_photos_export is True
-        verbose (Callable): optional callable function to use for printing verbose text during processing; if None (default), does not print output.
+        verbose (callable): optional callable function to use for printing verbose text during processing; if None (default), does not print output.
+        tmpdir: (str, default=None): Optional directory to use for temporary files, if None (default) uses system tmp directory
     """
 
     convert_to_jpeg: bool = False
-    description_template: Optional[str] = None
+    description_template: t.Optional[str] = None
     download_missing: bool = False
     dry_run: bool = False
     edited: bool = False
-    exiftool_flags: Optional[List] = None
+    exiftool_flags: t.Optional[t.List] = None
     exiftool: bool = False
     export_as_hardlink: bool = False
-    export_db: Optional[ExportDB] = None
+    export_db: t.Optional[ExportDB] = None
     face_regions: bool = True
-    fileutil: Optional[FileUtil] = None
+    fileutil: t.Optional[FileUtil] = None
     force_update: bool = False
     ignore_date_modified: bool = False
     ignore_signature: bool = False
     increment: bool = True
-    jpeg_ext: Optional[str] = None
+    jpeg_ext: t.Optional[str] = None
     jpeg_quality: float = 1.0
-    keyword_template: Optional[List[str]] = None
+    keyword_template: t.Optional[t.List[str]] = None
     live_photo: bool = False
     location: bool = True
     merge_exif_keywords: bool = False
@@ -147,7 +148,7 @@ class ExportOptions:
     preview_suffix: str = DEFAULT_PREVIEW_SUFFIX
     preview: bool = False
     raw_photo: bool = False
-    render_options: Optional[RenderOptions] = None
+    render_options: t.Optional[RenderOptions] = None
     replace_keywords: bool = False
     sidecar_drop_ext: bool = False
     sidecar: int = 0
@@ -159,7 +160,8 @@ class ExportOptions:
     use_persons_as_keywords: bool = False
     use_photokit: bool = False
     use_photos_export: bool = False
-    verbose: Optional[Callable] = None
+    verbose: t.Optional[t.Callable] = None
+    tmpdir: t.Optional[str] = None
 
     def asdict(self):
         return asdict(self)
@@ -176,13 +178,13 @@ class StagedFiles:
 
     def __init__(
         self,
-        original: Optional[str] = None,
-        original_live: Optional[str] = None,
-        edited: Optional[str] = None,
-        edited_live: Optional[str] = None,
-        preview: Optional[str] = None,
-        raw: Optional[str] = None,
-        error: Optional[List[str]] = None,
+        original: t.Optional[str] = None,
+        original_live: t.Optional[str] = None,
+        edited: t.Optional[str] = None,
+        edited_live: t.Optional[str] = None,
+        preview: t.Optional[str] = None,
+        raw: t.Optional[str] = None,
+        error: t.Optional[t.List[str]] = None,
     ):
         self.original = original
         self.original_live = original_live
@@ -359,23 +361,21 @@ class ExportResults:
 
 
 class PhotoExporter:
-    def __init__(self, photo: "PhotoInfo"):
+    def __init__(self, photo: "PhotoInfo", tmpdir: t.Optional[str] = None):
         self.photo = photo
         self._render_options = RenderOptions()
         self._verbose = self.photo._verbose
 
         # temp directory for staging downloaded missing files
-        self._temp_dir = tempfile.TemporaryDirectory(
-            prefix=f"osxphotos_photo_exporter_{self.photo.uuid}_"
-        )
-        self._temp_dir_path = pathlib.Path(self._temp_dir.name)
+        self._temp_dir = None
+        self._temp_dir_path = None
         self.fileutil = FileUtil
 
     def export(
         self,
         dest,
         filename=None,
-        options: Optional[ExportOptions] = None,
+        options: t.Optional[ExportOptions] = None,
     ) -> ExportResults:
         """export photo
 
@@ -389,7 +389,7 @@ class PhotoExporter:
                     in which case export will use the extension provided by Photos upon export.
                     e.g. to get the extension of the edited photo,
                     reference PhotoInfo.path_edited
-            options (ExportOptions): optional ExportOptions instance
+            options (ExportOptions): t.Optional ExportOptions instance
 
         Returns: ExportResults instance
 
@@ -398,6 +398,9 @@ class PhotoExporter:
         """
 
         options = options or ExportOptions()
+
+        # temp dir must be initialized before any of the methods called by export() are called
+        self._init_temp_dir(options)
 
         verbose = options.verbose or self._verbose
         if verbose and not callable(verbose):
@@ -554,7 +557,23 @@ class PhotoExporter:
 
         return all_results
 
-    def _touch_files(self, touch_files: List, options: ExportOptions) -> ExportResults:
+    def _init_temp_dir(self, options: ExportOptions):
+        """Initialize (if necessary) the object's temporary directory.
+
+        Args:
+            options: ExportOptions object
+        """
+        if self._temp_dir is not None:
+            return
+
+        fileutil = options.fileutil or FileUtil
+        self._temp_dir = fileutil.tmpdir(prefix="osxphotos_export_", dir=options.tmpdir)
+        self._temp_dir_path = pathlib.Path(self._temp_dir.name)
+        return
+
+    def _touch_files(
+        self, touch_files: t.List, options: ExportOptions
+    ) -> ExportResults:
         """touch file date/time to match photo creation date/time; only touches files if needed"""
         fileutil = options.fileutil
         touch_results = []
@@ -731,21 +750,6 @@ class PhotoExporter:
             if options.live_photo and self.photo.live_photo:
                 staged.edited_live = self.photo.path_edited_live_photo
 
-        if options.exiftool and not options.dry_run and not options.export_as_hardlink:
-            # copy files to temp dir for exiftool to process before export
-            # not needed for download_missing or use_photokit as those files already staged to temp dir
-            for file_type in [
-                "raw",
-                "preview",
-                "original",
-                "original_live",
-                "edited",
-                "edited_live",
-            ]:
-                staged_file = getattr(staged, file_type)
-                if staged_file:
-                    setattr(staged, file_type, self._copy_to_temp_file(staged_file))
-
         # download any missing files
         if options.download_missing:
             live_photo = staged.edited_live if options.edited else staged.original_live
@@ -904,7 +908,7 @@ class PhotoExporter:
         results = StagedFiles()
 
         try:
-            exported = _export_photo_uuid_applescript(
+            exported = self._export_photo_uuid_applescript(
                 self.photo.uuid,
                 dest.parent,
                 filestem=dest.stem,
@@ -955,7 +959,7 @@ class PhotoExporter:
 
     def _should_convert_to_jpeg(
         self, dest: pathlib.Path, options: ExportOptions
-    ) -> Tuple[pathlib.Path, ExportOptions]:
+    ) -> t.Tuple[pathlib.Path, ExportOptions]:
         """Determine if a file really should be converted to jpeg or not
         and return the new destination and ExportOptions instance with the convert_to_jpeg flag set appropriately
         """
@@ -1090,6 +1094,15 @@ class PhotoExporter:
 
                 if options.exiftool:
                     # if exiftool, write the metadata
+                    # need to copy the file to a temp file before writing metadata
+                    src = pathlib.Path(src)
+                    tmp_file = increment_filename(
+                        self._temp_dir_path / f"{src.stem}_exiftool{src.suffix}"
+                    )
+                    fileutil.copy(src, tmp_file)
+                    # point src to the tmp_file so that the original source is not modified
+                    # and the export grabs the new file
+                    src = tmp_file
                     exif_results = self._write_exif_metadata_to_file(
                         src, dest, options=options
                     )
@@ -1137,6 +1150,105 @@ class PhotoExporter:
                 rec.digest = hexdigest(photoinfo)
 
         return results
+
+    def _export_photo_uuid_applescript(
+        self,
+        uuid: str,
+        dest: str,
+        filestem=None,
+        original=True,
+        edited=False,
+        live_photo=False,
+        timeout=120,
+        burst=False,
+        dry_run=False,
+        overwrite=False,
+    ):
+        """Export photo to dest path using applescript to control Photos
+        If photo is a live photo, exports both the photo and associated .mov file
+
+        Args:
+            uuid: UUID of photo to export
+            dest: destination path to export to
+            filestem: (string) if provided, exported filename will be named stem.ext
+                    where ext is extension of the file exported by photos (e.g. .jpeg, .mov, etc)
+                    If not provided, file will be named with whatever name Photos uses
+                    If filestem.ext exists, it wil be overwritten
+            original: (boolean) if True, export original image; default = True
+            edited: (boolean) if True, export edited photo; default = False
+                    If photo not edited and edited=True, will still export the original image
+                    caller must verify image has been edited
+            *Note*: must be called with either edited or original but not both,
+                    will raise error if called with both edited and original = True
+            live_photo: (boolean) if True, export associated .mov live photo; default = False
+            timeout: timeout value in seconds; export will fail if applescript run time exceeds timeout
+            burst: (boolean) set to True if file is a burst image to avoid Photos export error
+            dry_run: (boolean) set to True to run in "dry run" mode which will download file but not actually copy to destination
+
+        Returns: list of paths to exported file(s) or None if export failed
+
+        Raises: ExportError if error during export
+
+        Note: For Live Photos, if edited=True, will export a jpeg but not the movie, even if photo
+            has not been edited. This is due to how Photos Applescript interface works.
+        """
+
+        dest = pathlib.Path(dest)
+        if not dest.is_dir():
+            raise ValueError(f"dest {dest} must be a directory")
+
+        if not original ^ edited:
+            raise ValueError("edited or original must be True but not both")
+
+        # export to a subdirectory of tmpdir
+        tmpdir = self.fileutil.tmpdir("osxphotos_applescript_export_", dir=self._temp_dir_path)
+
+        exported_files = []
+        filename = None
+        try:
+            # I've seen intermittent failures with the PhotoScript export so retry if
+            # export doesn't return anything
+            retries = 0
+            while not exported_files and retries < MAX_PHOTOSCRIPT_RETRIES:
+                photo = photoscript.Photo(uuid)
+                filename = photo.filename
+                exported_files = photo.export(
+                    tmpdir.name, original=original, timeout=timeout
+                )
+                retries += 1
+        except Exception as e:
+            raise ExportError(e)
+
+        if not exported_files or not filename:
+            # nothing got exported
+            raise ExportError(f"Could not export photo {uuid} ({lineno(__file__)})")
+        # need to find actual filename as sometimes Photos renames JPG to jpeg on export
+        # may be more than one file exported (e.g. if Live Photo, Photos exports both .jpeg and .mov)
+        # TemporaryDirectory will cleanup on return
+        filename_stem = pathlib.Path(filename).stem
+        exported_paths = []
+        for fname in exported_files:
+            path = pathlib.Path(tmpdir.name) / fname
+            if len(exported_files) > 1 and not live_photo and path.suffix.lower() == ".mov":
+                # it's the .mov part of live photo but not requested, so don't export
+                continue
+            if len(exported_files) > 1 and burst and path.stem != filename_stem:
+                # skip any burst photo that's not the one we asked for
+                continue
+            if filestem:
+                # rename the file based on filestem, keeping original extension
+                dest_new = dest / f"{filestem}{path.suffix}"
+            else:
+                # use the name Photos provided
+                dest_new = dest / path.name
+            if not dry_run:
+                if overwrite and dest_new.exists():
+                    FileUtil.unlink(dest_new)
+                FileUtil.copy(str(path), str(dest_new))
+            exported_paths.append(str(dest_new))
+        return exported_paths
+
+
 
     def _write_sidecar_files(
         self,
@@ -1366,7 +1478,9 @@ class PhotoExporter:
         return exiftool.warning, exiftool.error
 
     def _exiftool_dict(
-        self, options: Optional[ExportOptions] = None, filename: Optional[str] = None
+        self,
+        options: t.Optional[ExportOptions] = None,
+        filename: t.Optional[str] = None,
     ):
         """Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
             Does not include all the EXIF fields as those are likely already in the image.
@@ -1668,9 +1782,9 @@ class PhotoExporter:
 
     def _exiftool_json_sidecar(
         self,
-        options: Optional[ExportOptions] = None,
+        options: t.Optional[ExportOptions] = None,
         tag_groups: bool = True,
-        filename: Optional[str] = None,
+        filename: t.Optional[str] = None,
     ):
         """Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.
             Does not include all the EXIF fields as those are likely already in the image.
@@ -1721,13 +1835,15 @@ class PhotoExporter:
         return json.dumps([exif])
 
     def _xmp_sidecar(
-        self, options: Optional[ExportOptions] = None, extension: Optional[str] = None
+        self,
+        options: t.Optional[ExportOptions] = None,
+        extension: t.Optional[str] = None,
     ):
         """returns string for XMP sidecar
 
         Args:
             options (ExportOptions): options for export
-            extension (Optional[str]): which extension to use for SidecarForExtension property
+            extension (t.Optional[str]): which extension to use for SidecarForExtension property
         """
 
         options = options or ExportOptions()
@@ -1858,101 +1974,6 @@ def hexdigest(strval):
     h.update(bytes(strval, "utf-8"))
     return h.hexdigest()
 
-
-def _export_photo_uuid_applescript(
-    uuid,
-    dest,
-    filestem=None,
-    original=True,
-    edited=False,
-    live_photo=False,
-    timeout=120,
-    burst=False,
-    dry_run=False,
-    overwrite=False,
-):
-    """Export photo to dest path using applescript to control Photos
-    If photo is a live photo, exports both the photo and associated .mov file
-
-    Args:
-        uuid: UUID of photo to export
-        dest: destination path to export to
-        filestem: (string) if provided, exported filename will be named stem.ext
-                where ext is extension of the file exported by photos (e.g. .jpeg, .mov, etc)
-                If not provided, file will be named with whatever name Photos uses
-                If filestem.ext exists, it wil be overwritten
-        original: (boolean) if True, export original image; default = True
-        edited: (boolean) if True, export edited photo; default = False
-                If photo not edited and edited=True, will still export the original image
-                caller must verify image has been edited
-        *Note*: must be called with either edited or original but not both,
-                will raise error if called with both edited and original = True
-        live_photo: (boolean) if True, export associated .mov live photo; default = False
-        timeout: timeout value in seconds; export will fail if applescript run time exceeds timeout
-        burst: (boolean) set to True if file is a burst image to avoid Photos export error
-        dry_run: (boolean) set to True to run in "dry run" mode which will download file but not actually copy to destination
-
-    Returns: list of paths to exported file(s) or None if export failed
-
-    Raises: ExportError if error during export
-
-    Note: For Live Photos, if edited=True, will export a jpeg but not the movie, even if photo
-          has not been edited. This is due to how Photos Applescript interface works.
-    """
-
-    dest = pathlib.Path(dest)
-    if not dest.is_dir():
-        raise ValueError(f"dest {dest} must be a directory")
-
-    if not original ^ edited:
-        raise ValueError("edited or original must be True but not both")
-
-    tmpdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
-
-    exported_files = []
-    filename = None
-    try:
-        # I've seen intermittent failures with the PhotoScript export so retry if
-        # export doesn't return anything
-        retries = 0
-        while not exported_files and retries < MAX_PHOTOSCRIPT_RETRIES:
-            photo = photoscript.Photo(uuid)
-            filename = photo.filename
-            exported_files = photo.export(
-                tmpdir.name, original=original, timeout=timeout
-            )
-            retries += 1
-    except Exception as e:
-        raise ExportError(e)
-
-    if not exported_files or not filename:
-        # nothing got exported
-        raise ExportError(f"Could not export photo {uuid} ({lineno(__file__)})")
-    # need to find actual filename as sometimes Photos renames JPG to jpeg on export
-    # may be more than one file exported (e.g. if Live Photo, Photos exports both .jpeg and .mov)
-    # TemporaryDirectory will cleanup on return
-    filename_stem = pathlib.Path(filename).stem
-    exported_paths = []
-    for fname in exported_files:
-        path = pathlib.Path(tmpdir.name) / fname
-        if len(exported_files) > 1 and not live_photo and path.suffix.lower() == ".mov":
-            # it's the .mov part of live photo but not requested, so don't export
-            continue
-        if len(exported_files) > 1 and burst and path.stem != filename_stem:
-            # skip any burst photo that's not the one we asked for
-            continue
-        if filestem:
-            # rename the file based on filestem, keeping original extension
-            dest_new = dest / f"{filestem}{path.suffix}"
-        else:
-            # use the name Photos provided
-            dest_new = dest / path.name
-        if not dry_run:
-            if overwrite and dest_new.exists():
-                FileUtil.unlink(dest_new)
-            FileUtil.copy(str(path), str(dest_new))
-        exported_paths.append(str(dest_new))
-    return exported_paths
 
 
 def _check_export_suffix(src, dest, edited):

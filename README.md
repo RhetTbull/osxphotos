@@ -1212,6 +1212,14 @@ Options:
                                   network or slow disk but could result in
                                   losing update state information if the program
                                   is interrupted or crashes.
+  --tmpdir DIR                    Specify alternate temporary directory. Default
+                                  is system temporary directory. osxphotos needs
+                                  to create a number of temporary files during
+                                  export. In some cases, particularly if the
+                                  Photos library is on an APFS volume that is
+                                  not the system volume, osxphotos may run
+                                  faster if you specify a temporary directory on
+                                  the same volume as the Photos library.
   --load-config <config file path>
                                   Load options from file as written with --save-
                                   config. This allows you to save a complex
@@ -1775,7 +1783,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.47.3'
+{osxphotos_version}             The osxphotos version, e.g. '0.47.4'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified for
@@ -3679,7 +3687,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.47.3'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.47.4'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
@@ -3828,6 +3836,7 @@ Attributes:
 - use_photos_export (bool, default=False): if True will attempt to export photo via applescript interaction with Photos even if not missing (see also use_photokit, download_missing)
 - use_photokit (bool, default=False): if True, will use photokit to export photos when use_photos_export is True
 - verbose (Callable): optional callable function to use for printing verbose text during processing; if None (default), does not print output.
+- tmpfile (str): optional path to use for temporary files
 
 #### `ExportResults`
 

@@ -3,9 +3,10 @@
 import os
 import pathlib
 import stat
-import subprocess
-import sys
+import tempfile
+import typing as t
 from abc import ABC, abstractmethod
+from tempfile import TemporaryDirectory
 
 import Foundation
 
@@ -67,6 +68,13 @@ class FileUtilABC(ABC):
     def rename(cls, src, dest):
         pass
 
+    @classmethod
+    @abstractmethod
+    def tmpdir(
+        cls, prefix: t.Optional[str] = None, dir: t.Optional[str] = None
+    ) -> tempfile.TemporaryDirectory:
+        pass
+
 
 class FileUtilMacOS(FileUtilABC):
     """Various file utilities"""
@@ -84,11 +92,10 @@ class FileUtilMacOS(FileUtilABC):
         if not os.path.isfile(src):
             raise FileNotFoundError("src file does not appear to exist", src)
 
-        # if error on copy, subprocess will raise CalledProcessError
         try:
             os.link(src, dest)
         except Exception as e:
-            raise e
+            raise e from e
 
     @classmethod
     def copy(cls, src, dest):
@@ -222,6 +229,17 @@ class FileUtilMacOS(FileUtilABC):
         os.rename(str(src), str(dest))
         return dest
 
+    @classmethod
+    def tmpdir(
+        cls, prefix: t.Optional[str] = None, dir: t.Optional[str] = None
+    ) -> tempfile.TemporaryDirectory:
+        """Securely creates a temporary directory using the same rules as mkdtemp().
+        The resulting object can be used as a context manager.
+        On completion of the context or destruction of the temporary directory object,
+        the newly created temporary directory and all its contents are removed from the filesystem.
+        """
+        return TemporaryDirectory(prefix=prefix, dir=dir)
+
     @staticmethod
     def _sig(st):
         """return tuple of (mode, size, mtime) of file based on os.stat
@@ -240,7 +258,7 @@ class FileUtil(FileUtilMacOS):
 
 class FileUtilNoOp(FileUtil):
     """No-Op implementation of FileUtil for testing / dry-run mode
-    all methods with exception of cmp, cmp_file_sig and file_cmp are no-op
+    all methods with exception of tmpdir, cmp, cmp_file_sig and file_cmp are no-op
     cmp and cmp_file_sig functions as FileUtil methods do
     file_cmp returns mock data
     """
@@ -291,3 +309,15 @@ class FileUtilNoOp(FileUtil):
     @classmethod
     def rename(cls, src, dest):
         cls.verbose(f"rename: {src}, {dest}")
+
+    @classmethod
+    def tmpdir(
+        cls, prefix: t.Optional[str] = None, dir: t.Optional[str] = None
+    ) -> tempfile.TemporaryDirectory:
+        """Securely creates a temporary directory using the same rules as mkdtemp().
+        The resulting object can be used as a context manager.
+        On completion of the context or destruction of the temporary directory object,
+        the newly created temporary directory and all its contents are removed from the filesystem.
+        """
+        cls.verbose(f"tmpdir: {dir}")
+        return TemporaryDirectory(prefix=prefix, dir=dir)
