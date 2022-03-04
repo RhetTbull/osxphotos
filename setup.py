@@ -97,6 +97,7 @@ setup(
         "rich>=11.2.0,<12.0.0",
         "textx>=2.3.0,<3.0.0",
         "toml>=0.10.2,<0.11.0",
+        "wrapt>=1.13.3,<1.14.0",
         "wurlitzer>=2.1.0,<3.0.0",
     ],
     entry_points={"console_scripts": ["osxphotos=osxphotos.__main__:cli_main"]},

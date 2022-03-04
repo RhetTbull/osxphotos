@@ -1,11 +1,46 @@
 """cli package for osxphotos"""
+import sys
 
+from rich import print
 from rich.traceback import install as install_traceback
+
+from osxphotos.debug import (
+    debug_breakpoint,
+    debug_watch,
+    get_debug_args,
+    set_debug,
+    wrap_function,
+)
+
+# apply any debug functions
+# need to do this before importing anything else so that the debug functions
+# wrap the right function references
+# if a module does something like "from exiftool import ExifTool" and the user tries
+# to wrap 'osxphotos.exiftool.ExifTool.asdict', the original ExifTool.asdict will be
+# wrapped but the caller will have a reference to the function before it was wrapped
+# reference: https://github.com/GrahamDumpleton/wrapt/blob/develop/blog/13-ordering-issues-when-monkey-patching-in-python.md
+args = get_debug_args(["--watch", "--breakpoint"], sys.argv)
+for func_name in args.get("--watch", []):
+    try:
+        wrap_function(func_name, debug_watch)
+        print(f"Watching {func_name}")
+    except AttributeError:
+        print(f"{func_name} does not exist")
+        sys.exit(1)
+
+for func_name in args.get("--breakpoint", []):
+    try:
+        wrap_function(func_name, debug_breakpoint)
+        print(f"Breakpoint added for {func_name}")
+    except AttributeError:
+        print(f"{func_name} does not exist")
+        sys.exit(1)
+
 
 from .about import about
 from .albums import albums
 from .cli import cli_main
-from .common import get_photos_db, load_uuid_from_file, set_debug
+from .common import get_photos_db, load_uuid_from_file
 from .debug_dump import debug_dump
 from .dump import dump
 from .export import export
@@ -50,6 +85,7 @@ __all__ = [
     "query",
     "repl",
     "run",
+    "set_debug",
     "snap",
     "tutorial",
     "uuid",
