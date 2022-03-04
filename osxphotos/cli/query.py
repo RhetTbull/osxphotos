@@ -3,6 +3,7 @@
 import click
 
 import osxphotos
+from osxphotos.debug import set_debug
 from osxphotos.photosalbum import PhotosAlbum
 from osxphotos.queryoptions import QueryOptions
 
@@ -17,7 +18,6 @@ from .common import (
     QUERY_OPTIONS,
     get_photos_db,
     load_uuid_from_file,
-    set_debug,
 )
 from .list import _list_libraries
 from .print_photo_info import print_photo_info

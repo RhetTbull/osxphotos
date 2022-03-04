@@ -13,9 +13,6 @@ from osxphotos._version import __version__
 from .click_rich_echo import rich_echo
 from .param_types import *
 
-# global variable to control debug output
-# set via --debug
-DEBUG = False
 
 # used to show/hide hidden commands
 OSXPHOTOS_HIDDEN = not bool(os.getenv("OSXPHOTOS_SHOW_HIDDEN", default=False))
@@ -28,17 +25,6 @@ OSXPHOTOS_CRASH_LOG = os.getcwd() + "/osxphotos_crash.log"
 
 CLI_COLOR_ERROR = "red"
 CLI_COLOR_WARNING = "yellow"
-
-
-def set_debug(debug: bool):
-    """set debug flag"""
-    global DEBUG
-    DEBUG = debug
-
-
-def is_debug():
-    """return debug flag"""
-    return DEBUG
 
 
 def noop(*args, **kwargs):
@@ -506,6 +492,37 @@ def QUERY_OPTIONS(f):
             + "You may use more than one function by repeating the --query-function option with a different value. "
             + "Your query function will be called after all other query options have been evaluated. "
             + "See https://github.com/RhetTbull/osxphotos/blob/master/examples/query_function.py for example of how to use this option.",
+        ),
+    ]
+    for o in options[::-1]:
+        f = o(f)
+    return f
+
+
+def DEBUG_OPTIONS(f):
+    o = click.option
+    options = [
+        o(
+            "--debug",
+            is_flag=True,
+            help="Enable debug output.",
+            hidden=OSXPHOTOS_HIDDEN,
+        ),
+        o(
+            "--watch",
+            metavar="FUNCTION_PATH",
+            multiple=True,
+            help="Watch function calls.  For example, to watch all calls to FileUtil.copy: "
+            "'--watch osxphotos.fileutil.FileUtil.copy'.  More than one --watch option can be specified.",
+            hidden=OSXPHOTOS_HIDDEN,
+        ),
+        o(
+            "--breakpoint",
+            metavar="FUNCTION_PATH",
+            multiple=True,
+            help="Add breakpoint to function calls.  For example, to add breakpoint to FileUtil.copy: "
+            "'--breakpoint osxphotos.fileutil.FileUtil.copy'.  More than one --breakpoint option can be specified.",
+            hidden=OSXPHOTOS_HIDDEN,
         ),
     ]
     for o in options[::-1]:

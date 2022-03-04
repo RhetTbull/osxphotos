@@ -41,6 +41,7 @@ from osxphotos.configoptions import (
 )
 from osxphotos.crash_reporter import crash_reporter
 from osxphotos.datetime_formatter import DateTimeFormatter
+from osxphotos.debug import is_debug, set_debug
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.export_db import ExportDB, ExportDBInMemory
 from osxphotos.fileutil import FileUtil, FileUtilNoOp
@@ -55,22 +56,20 @@ from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.queryoptions import QueryOptions
 from osxphotos.uti import get_preferred_uti_extension
 from osxphotos.utils import format_sec_to_hhmmss, normalize_fs_path
-
 from .common import (
     CLI_COLOR_ERROR,
     CLI_COLOR_WARNING,
     DB_ARGUMENT,
     DB_OPTION,
+    DEBUG_OPTIONS,
     DELETED_OPTIONS,
+    get_photos_db,
     JSON_OPTION,
+    load_uuid_from_file,
+    noop,
     OSXPHOTOS_CRASH_LOG,
     OSXPHOTOS_HIDDEN,
     QUERY_OPTIONS,
-    get_photos_db,
-    is_debug,
-    load_uuid_from_file,
-    noop,
-    set_debug,
     verbose_print,
 )
 from .help import ExportCommand, get_help_msg
@@ -629,14 +628,7 @@ from .param_types import ExportDBType, FunctionCall
     f"Can be specified multiple times. Valid options are: {PROFILE_SORT_KEYS}. "
     "Default = 'cumulative'.",
 )
-@click.option(
-    "--debug",
-    required=False,
-    is_flag=True,
-    default=False,
-    hidden=OSXPHOTOS_HIDDEN,
-    help="Enable debug output.",
-)
+@DEBUG_OPTIONS
 @DB_ARGUMENT
 @click.argument("dest", nargs=1, type=click.Path(exists=True))
 @click.pass_obj
@@ -790,6 +782,8 @@ def export(
     profile,
     profile_sort,
     debug,
+    watch,
+    breakpoint,
 ):
     """Export photos from the Photos database.
     Export path DEST is required.
