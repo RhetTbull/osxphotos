@@ -50,6 +50,7 @@ from .._constants import (
 from .._version import __version__
 from ..albuminfo import AlbumInfo, FolderInfo, ImportInfo, ProjectInfo
 from ..datetime_utils import datetime_has_tz, datetime_naive_to_local
+from ..debug import is_debug
 from ..fileutil import FileUtil
 from ..personinfo import PersonInfo
 from ..photoinfo import PhotoInfo
@@ -58,7 +59,6 @@ from ..queryoptions import QueryOptions
 from ..utils import (
     _check_file_exists,
     _db_is_locked,
-    _debug,
     _get_os_version,
     _open_sql_file,
     get_last_library_path,
@@ -264,7 +264,7 @@ class PhotosDB:
         # key is Z_PK of ZMOMENT table and values are the moment info
         self._db_moment_pk = {}
 
-        if _debug():
+        if is_debug():
             logging.debug(f"dbfile = {dbfile}")
 
         if dbfile is None:
@@ -281,7 +281,7 @@ class PhotosDB:
         if not _check_file_exists(dbfile):
             raise FileNotFoundError(f"dbfile {dbfile} does not exist", dbfile)
 
-        if _debug():
+        if is_debug():
             logging.debug(f"dbfile = {dbfile}")
 
         # init database names
@@ -321,7 +321,7 @@ class PhotosDB:
                     verbose(f"Database locked, creating temporary copy.")
                     self._tmp_db = self._copy_db_file(self._dbfile_actual)
 
-            if _debug():
+            if is_debug():
                 logging.debug(
                     f"_dbfile = {self._dbfile}, _dbfile_actual = {self._dbfile_actual}"
                 )
@@ -336,7 +336,7 @@ class PhotosDB:
             masters_path = os.path.join(library_path, "originals")
             self._masters_path = masters_path
 
-        if _debug():
+        if is_debug():
             logging.debug(f"library = {library_path}, masters = {masters_path}")
 
         if int(self._db_version) <= int(_PHOTOS_4_VERSION):
@@ -592,7 +592,7 @@ class PhotosDB:
             print(f"Error copying{fname} to {dest_path}", file=sys.stderr)
             raise Exception
 
-        if _debug():
+        if is_debug():
             logging.debug(dest_path)
 
         return dest_path
@@ -619,7 +619,7 @@ class PhotosDB:
     #         print("Error linking " + fname + " to " + dest_path, file=sys.stderr)
     #         raise Exception
 
-    #     if _debug():
+    #     if is_debug():
     #         logging.debug(dest_path)
 
     #     return dest_path
@@ -1079,7 +1079,7 @@ class PhotosDB:
                 self._dbphotos[uuid]["type"] = _MOVIE_TYPE
             else:
                 # unknown
-                if _debug():
+                if is_debug():
                     logging.debug(f"WARNING: {uuid} found unknown type {row[21]}")
                 self._dbphotos[uuid]["type"] = None
 
@@ -1302,7 +1302,7 @@ class PhotosDB:
                         and row[6] == 2
                     ):
                         if "edit_resource_id" in self._dbphotos[uuid]:
-                            if _debug():
+                            if is_debug():
                                 logging.debug(
                                     f"WARNING: found more than one edit_resource_id for "
                                     f"UUID {row[0]},adjustmentUUID {row[1]}, modelID {row[2]}"
@@ -1581,7 +1581,7 @@ class PhotosDB:
         but it works so don't touch it.
         """
 
-        if _debug():
+        if is_debug():
             logging.debug(f"_process_database5")
         verbose = self._verbose
         verbose(f"Processing database.")
@@ -1603,7 +1603,7 @@ class PhotosDB:
         hdr_type_column = _DB_TABLE_NAMES[photos_ver]["HDR_TYPE"]
 
         # Look for all combinations of persons and pictures
-        if _debug():
+        if is_debug():
             logging.debug(f"Getting information about persons")
 
         # get info to associate persons with photos
@@ -2012,7 +2012,7 @@ class PhotosDB:
             elif row[17] == 1:
                 info["type"] = _MOVIE_TYPE
             else:
-                if _debug():
+                if is_debug():
                     logging.debug(f"WARNING: {uuid} found unknown type {row[17]}")
                 info["type"] = None
 
@@ -2211,7 +2211,7 @@ class PhotosDB:
             if uuid in self._dbphotos:
                 self._dbphotos[uuid]["extendedDescription"] = normalize_unicode(row[1])
             else:
-                if _debug():
+                if is_debug():
                     logging.debug(
                         f"WARNING: found description {row[1]} but no photo for {uuid}"
                     )
@@ -2230,7 +2230,7 @@ class PhotosDB:
             if uuid in self._dbphotos:
                 self._dbphotos[uuid]["adjustmentFormatID"] = row[2]
             else:
-                if _debug():
+                if is_debug():
                     logging.debug(
                         f"WARNING: found adjustmentformatidentifier {row[2]} but no photo for uuid {row[0]}"
                     )

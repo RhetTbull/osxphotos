@@ -21,18 +21,6 @@ from osxphotos.utils import (
 )
 
 
-def test_debug_enable():
-    osxphotos._set_debug(True)
-    logger = osxphotos._get_logger()
-    assert logger.isEnabledFor(logging.DEBUG)
-
-
-def test_debug_disable():
-    osxphotos._set_debug(False)
-    logger = osxphotos._get_logger()
-    assert not logger.isEnabledFor(logging.DEBUG)
-
-
 def test_dd_to_dms():
     # expands coverage for edge case in _dd_to_dms
 

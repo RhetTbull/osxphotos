@@ -20,8 +20,6 @@ from plistlib import load as plistload
 from typing import Callable, List, Union, Optional
 
 import CoreFoundation
-import objc
-from Foundation import NSFileManager, NSPredicate, NSString
 
 from ._constants import UNICODE_FORMAT
 
@@ -41,16 +39,11 @@ __all__ = [
     "normalize_unicode",
 ]
 
-_DEBUG = False
-
 
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d - %(message)s",
 )
-
-if not _DEBUG:
-    logging.disable(logging.DEBUG)
 
 
 def _get_logger():
@@ -60,21 +53,6 @@ def _get_logger():
         logging.Logger object -- logging.Logger object for osxphotos
     """
     return logging.Logger(__name__)
-
-
-def _set_debug(debug):
-    """Enable or disable debug logging"""
-    global _DEBUG
-    _DEBUG = debug
-    if debug:
-        logging.disable(logging.NOTSET)
-    else:
-        logging.disable(logging.DEBUG)
-
-
-def _debug():
-    """returns True if debugging turned on (via _set_debug), otherwise, false"""
-    return _DEBUG
 
 
 def noop(*args, **kwargs):
@@ -270,8 +248,7 @@ def list_photo_libraries():
     )
 
     # On older OS, may not get all libraries so make sure we get the last one
-    last_lib = get_last_library_path()
-    if last_lib:
+    if last_lib := get_last_library_path():
         lib_list.append(last_lib)
 
     output = subprocess.check_output(
@@ -279,8 +256,7 @@ def list_photo_libraries():
     ).splitlines()
     for lib in output:
         lib_list.append(lib.decode("utf-8"))
-    lib_list = list(set(lib_list))
-    lib_list.sort()
+    lib_list = sorted(set(lib_list))
     return lib_list
 
 
@@ -505,8 +481,11 @@ def load_function(pyfile: str, function_name: str) -> Callable:
 
     try:
         func = getattr(module, function_name)
-    except AttributeError:
-        raise ValueError(f"'{function_name}' not found in module '{module_name}'")
+    except AttributeError as e:
+        raise ValueError(
+            f"'{function_name}' not found in module '{module_name}'"
+        ) from e
+
     finally:
         # restore sys.path
         sys.path = syspath

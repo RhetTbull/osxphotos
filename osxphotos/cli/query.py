@@ -149,16 +149,12 @@ def query(
     query_eval,
     query_function,
     add_to_album,
-    debug,
+    debug,  # handled in cli/__init__.py
 ):
     """Query the Photos database using 1 or more search options;
     if more than one option is provided, they are treated as "AND"
     (e.g. search for photos matching all options).
     """
-
-    if debug:
-        set_debug(True)
-        osxphotos._set_debug(True)
 
     # if no query terms, show help and return
     # sanity check input args

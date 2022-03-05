@@ -31,8 +31,6 @@ from .uuid import uuid
 # Click CLI object & context settings
 class CLI_Obj:
     def __init__(self, db=None, json=False, debug=False, group=None):
-        if debug:
-            osxphotos._set_debug(True)
         self.db = db
         self.json = json
         self.group = group

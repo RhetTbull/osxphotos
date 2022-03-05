@@ -1,5 +1,8 @@
+import logging
+
 from ._constants import AlbumSortOrder
 from ._version import __version__
+from .debug import is_debug, set_debug
 from .exiftool import ExifTool
 from .export_db import ExportDB
 from .fileutil import FileUtil, FileUtilNoOp
@@ -14,13 +17,14 @@ from .placeinfo import PlaceInfo
 from .queryoptions import QueryOptions
 from .scoreinfo import ScoreInfo
 from .searchinfo import SearchInfo
-from .utils import _debug, _get_logger, _set_debug
+from .utils import _get_logger
+
+if not is_debug():
+    logging.disable(logging.DEBUG)
 
 __all__ = [
     "__version__",
-    "_debug",
     "_get_logger",
-    "_set_debug",
     "AlbumSortOrder",
     "CommentInfo",
     "ExifTool",
@@ -30,6 +34,7 @@ __all__ = [
     "ExportResults",
     "FileUtil",
     "FileUtilNoOp",
+    "is_debug",
     "LikeInfo",
     "MomentInfo",
     "PersonInfo",
@@ -41,4 +46,5 @@ __all__ = [
     "QueryOptions",
     "ScoreInfo",
     "SearchInfo",
+    "set_debug",
 ]

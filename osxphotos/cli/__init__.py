@@ -7,7 +7,8 @@ from rich.traceback import install as install_traceback
 from osxphotos.debug import (
     debug_breakpoint,
     debug_watch,
-    get_debug_args,
+    get_debug_flags,
+    get_debug_options,
     set_debug,
     wrap_function,
 )
@@ -19,7 +20,7 @@ from osxphotos.debug import (
 # to wrap 'osxphotos.exiftool.ExifTool.asdict', the original ExifTool.asdict will be
 # wrapped but the caller will have a reference to the function before it was wrapped
 # reference: https://github.com/GrahamDumpleton/wrapt/blob/develop/blog/13-ordering-issues-when-monkey-patching-in-python.md
-args = get_debug_args(["--watch", "--breakpoint"], sys.argv)
+args = get_debug_options(["--watch", "--breakpoint"], sys.argv)
 for func_name in args.get("--watch", []):
     try:
         wrap_function(func_name, debug_watch)
@@ -36,6 +37,10 @@ for func_name in args.get("--breakpoint", []):
         print(f"{func_name} does not exist")
         sys.exit(1)
 
+args = get_debug_flags(["--debug"], sys.argv)
+if args.get("--debug", False):
+    set_debug(True)
+    print("Debugging enabled")
 
 from .about import about
 from .albums import albums

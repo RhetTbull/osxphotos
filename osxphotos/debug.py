@@ -1,7 +1,9 @@
 """Utilities for debugging"""
 
+import logging
 import pdb
 import sys
+import time
 from datetime import datetime
 from typing import Dict, List
 
@@ -17,6 +19,7 @@ def set_debug(debug: bool):
     """set debug flag"""
     global DEBUG
     DEBUG = debug
+    logging.disable(logging.NOTSET if debug else logging.DEBUG)
 
 
 def is_debug():
@@ -32,8 +35,10 @@ def debug_watch(wrapped, instance, args, kwargs):
     print(
         f"{timestamp} {name} called from {caller} with args: {args} and kwargs: {kwargs}"
     )
+    start_t = time.perf_counter()
     rv = wrapped(*args, **kwargs)
-    print(f"{timestamp} {name} returned: {rv}")
+    stop_t = time.perf_counter()
+    print(f"{timestamp} {name} returned: {rv}, elapsed time: {stop_t - start_t} sec")
     return rv
 
 
@@ -52,12 +57,12 @@ def wrap_function(function_path, wrapper):
         raise AttributeError(f"{module}.{name} does not exist") from e
 
 
-def get_debug_args(arg_names: List, argv: List) -> Dict:
-    """Get the arguments for the debug options; 
+def get_debug_options(arg_names: List, argv: List) -> Dict:
+    """Get the options for the debug options;
     Some of the debug options like --watch and --breakpoint need to be processed before any other packages are loaded
     so they can't be handled in the normal click argument processing, thus this function is called
     from osxphotos/cli/__init__.py
-    
+
     Assumes multi-valued options are OK and that all options take form of --option VALUE or --option=VALUE
     """
     # argv[0] is the program name
@@ -82,4 +87,18 @@ def get_debug_args(arg_names: List, argv: List) -> Dict:
                         raise ValueError(f"Missing value for {arg}") from e
                 except IndexError as e:
                     raise ValueError(f"Missing value for {arg}") from e
+    return args
+
+
+def get_debug_flags(arg_names: List, argv: List) -> Dict:
+    """Get the flags for the debug options;
+    Processes flags like --debug that resolve to True or False
+    """
+    # argv[0] is the program name
+    # argv[1] is the command
+    # argv[2:] are the arguments
+    args = {arg_name: False for arg_name in arg_names}
+    for arg_name in arg_names:
+        if arg_name in argv[1:]:
+            args[arg_name] = True
     return args

@@ -54,7 +54,7 @@ from .scoreinfo import ScoreInfo
 from .searchinfo import SearchInfo
 from .text_detection import detect_text
 from .uti import get_preferred_uti_extension, get_uti_for_extension
-from .utils import _debug, _get_resource_loc, list_directory, _debug
+from .utils import _get_resource_loc, list_directory
 
 __all__ = ["PhotoInfo", "PhotoInfoNone"]
 

@@ -802,7 +802,6 @@ def export(
 
     if debug:
         set_debug(True)
-        osxphotos._set_debug(True)
 
     if profile:
         click.echo("Profiling...")
