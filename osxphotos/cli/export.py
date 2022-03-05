@@ -39,7 +39,7 @@ from osxphotos.configoptions import (
     ConfigOptionsInvalidError,
     ConfigOptionsLoadError,
 )
-from osxphotos.crash_reporter import crash_reporter
+from osxphotos.crash_reporter import crash_reporter, set_crash_data
 from osxphotos.datetime_formatter import DateTimeFormatter
 from osxphotos.debug import is_debug, set_debug
 from osxphotos.exiftool import get_exiftool_path
@@ -56,6 +56,7 @@ from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.queryoptions import QueryOptions
 from osxphotos.uti import get_preferred_uti_extension
 from osxphotos.utils import format_sec_to_hhmmss, normalize_fs_path
+
 from .common import (
     CLI_COLOR_ERROR,
     CLI_COLOR_WARNING,
@@ -63,13 +64,13 @@ from .common import (
     DB_OPTION,
     DEBUG_OPTIONS,
     DELETED_OPTIONS,
-    get_photos_db,
     JSON_OPTION,
-    load_uuid_from_file,
-    noop,
     OSXPHOTOS_CRASH_LOG,
     OSXPHOTOS_HIDDEN,
     QUERY_OPTIONS,
+    get_photos_db,
+    load_uuid_from_file,
+    noop,
     verbose_print,
 )
 from .help import ExportCommand, get_help_msg
@@ -781,7 +782,7 @@ def export(
     preview_if_missing,
     profile,
     profile_sort,
-    debug,
+    debug,  # debug, watch, breakpoint handled in cli/__init__.py
     watch,
     breakpoint,
 ):
@@ -800,8 +801,7 @@ def export(
     # capture locals for use with ConfigOptions before changing any of them
     locals_ = locals()
 
-    if debug:
-        set_debug(True)
+    set_crash_data("locals", locals_)
 
     if profile:
         click.echo("Profiling...")
@@ -982,6 +982,8 @@ def export(
         # config file might have changed verbose
         verbose_ = verbose_print(verbose, timestamp, rich=True, highlight=False)
         verbose_(f"Loaded options from file {load_config}")
+
+        set_crash_data("cfg", cfg.asdict())
 
     verbose_(f"osxphotos version {__version__}")
 

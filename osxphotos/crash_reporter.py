@@ -8,6 +8,16 @@ import traceback
 
 from rich import print
 
+from ._version import __version__
+
+# store data to print out in crash log, set by set_crash_data
+CRASH_DATA = {}
+
+
+def set_crash_data(key_, data):
+    """Set data to be printed in crash log"""
+    CRASH_DATA[key_] = data
+
 
 def crash_reporter(filename, message, title, postamble, *extra_args):
     """Create a crash dump file on error named filename
@@ -30,9 +40,13 @@ def crash_reporter(filename, message, title, postamble, *extra_args):
                 with open(filename, "w") as f:
                     f.write(f"{title}\n")
                     f.write(f"Created: {datetime.datetime.now()}\n")
-                    f.write(f"Python version: {sys.version}\n")
+                    f.write(f"osxphotos version: {__version__}\n")
                     f.write(f"Platform: {platform.platform()}\n")
+                    f.write(f"Python version: {sys.version}\n")
                     f.write(f"sys.argv: {sys.argv}\n")
+                    f.write("CRASH_DATA: \\n")
+                    for k, v in CRASH_DATA.items():
+                        f.write(f"{k}: {v}\n")
                     for arg in extra_args:
                         f.write(f"{arg}\n")
                     f.write(f"Error: {e}\n")
