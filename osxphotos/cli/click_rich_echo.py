@@ -1,14 +1,17 @@
 """click.echo replacement that supports rich text formatting"""
 
+import inspect
 import typing as t
 from io import StringIO
 
 import click
 from rich.console import Console
+from rich.markdown import Markdown
 
 
 def rich_echo(
     message: t.Optional[t.Any] = None,
+    markdown=False,
     **kwargs: t.Any,
 ) -> None:
     """
@@ -33,10 +36,49 @@ def rich_echo(
     # click.echo will include "\n" so don't add it here unless specified
     end = kwargs.pop("end", "")
 
-    # rich.console.Console defaults to 80 chars if it can't auto-detect, which in this case it won't
-    # so we need to set the width manually to a ridiculously large number
-    width = kwargs.pop("width", 10000)
+    if width := kwargs.pop("width", None) is None:
+        width = Console().width
     output = StringIO()
     console = Console(force_terminal=True, file=output, width=width)
+    if markdown:
+        message = Markdown(message)
+        # Markdown always adds a new line so disable unless explicitly specified
+        echo_args["nl"] = echo_args.get("nl") is True
     console.print(message, end=end, **kwargs)
     click.echo(output.getvalue(), **echo_args)
+
+
+def rich_echo_via_pager(
+    text_or_generator: t.Union[t.Iterable[str], t.Callable[[], t.Iterable[str]], str],
+    markdown: bool = False,
+    **kwargs,
+) -> None:
+    """This function takes a text and shows it via an environment specific
+    pager on stdout.
+
+    Args:
+        text_or_generator: the text to page, or alternatively, a generator emitting the text to page.
+        **kwargs: if "color" in kwargs, works the same as click.echo_via_pager(color=color)
+        otherwise any kwargs are passed to rich.Console.print()
+    """
+    if inspect.isgeneratorfunction(text_or_generator):
+        text_or_generator = t.cast(t.Callable[[], t.Iterable[str]], text_or_generator)()
+    elif isinstance(text_or_generator, str):
+        text_or_generator = [text_or_generator]
+    else:
+        try:
+            text_or_generator = iter(text_or_generator)
+        except TypeError:
+            text_or_generator = [text_or_generator]
+
+    console = Console()
+
+    color = kwargs.pop("color", None)
+    if color is None:
+        color = bool(console.color_system)
+
+    with console.pager(styles=color):
+        for x in text_or_generator:
+            if isinstance(x, str) and markdown:
+                x = Markdown(x)
+            console.print(x, **kwargs)
