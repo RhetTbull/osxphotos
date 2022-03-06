@@ -1238,6 +1238,10 @@ Options:
   --config-only                   If specified, saves the config file but does
                                   not export any files; must be used with
                                   --save-config.
+  --theme THEME                   Specify the color theme to use for --verbose
+                                  output. Valid themes are 'dark', 'light',
+                                  'mono', and 'plain'. Defaults to 'dark' or
+                                  'light' depending on system dark mode setting.
   -h, --help                      Show this message and exit.
 
 ** Export **
@@ -1783,7 +1787,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.47.4'
+{osxphotos_version}             The osxphotos version, e.g. '0.47.5'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified for
@@ -3687,7 +3691,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.47.4'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.47.5'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
