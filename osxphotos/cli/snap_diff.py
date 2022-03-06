@@ -12,7 +12,8 @@ from rich.syntax import Syntax
 
 import osxphotos
 
-from .common import DB_OPTION, OSXPHOTOS_SNAPSHOT_DIR, get_photos_db, verbose_print
+from .common import DB_OPTION, OSXPHOTOS_SNAPSHOT_DIR, get_photos_db
+from .verbose import verbose_print
 
 
 @click.command(name="snap")

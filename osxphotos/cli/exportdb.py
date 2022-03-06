@@ -19,7 +19,8 @@ from osxphotos.export_db_utils import (
     export_db_vacuum,
 )
 
-from .common import OSXPHOTOS_HIDDEN, verbose_print
+from .common import OSXPHOTOS_HIDDEN
+from .verbose import verbose_print
 
 
 @click.command(name="exportdb", hidden=OSXPHOTOS_HIDDEN)

@@ -57,6 +57,15 @@ from osxphotos.queryoptions import QueryOptions
 from osxphotos.uti import get_preferred_uti_extension
 from osxphotos.utils import format_sec_to_hhmmss, normalize_fs_path
 
+from .click_rich_echo import (
+    rich_click_echo,
+    rich_echo,
+    rich_echo_error,
+    set_rich_console,
+    set_rich_theme,
+    set_rich_timestamp,
+)
+from .color_themes import get_theme
 from .common import (
     CLI_COLOR_ERROR,
     CLI_COLOR_WARNING,
@@ -71,11 +80,12 @@ from .common import (
     get_photos_db,
     load_uuid_from_file,
     noop,
-    verbose_print,
 )
 from .help import ExportCommand, get_help_msg
 from .list import _list_libraries
 from .param_types import ExportDBType, FunctionCall
+from .rich_progress import rich_progress
+from .verbose import get_verbose_console, time_stamp, verbose_print
 
 
 @click.command(cls=ExportCommand)
@@ -629,6 +639,14 @@ from .param_types import ExportDBType, FunctionCall
     f"Can be specified multiple times. Valid options are: {PROFILE_SORT_KEYS}. "
     "Default = 'cumulative'.",
 )
+@click.option(
+    "--theme",
+    metavar="THEME",
+    type=click.Choice(["dark", "light", "mono", "plain"], case_sensitive=False),
+    help="Specify the color theme to use for --verbose output. "
+    "Valid themes are 'dark', 'light', 'mono', and 'plain'. "
+    "Defaults to 'dark' or 'light' depending on system dark mode setting.",
+)
 @DEBUG_OPTIONS
 @DB_ARGUMENT
 @click.argument("dest", nargs=1, type=click.Path(exists=True))
@@ -782,6 +800,7 @@ def export(
     preview_if_missing,
     profile,
     profile_sort,
+    theme,
     debug,  # debug, watch, breakpoint handled in cli/__init__.py
     watch,
     breakpoint,
@@ -830,18 +849,28 @@ def export(
         ignore=["ctx", "cli_obj", "dest", "load_config", "save_config", "config_only"],
     )
 
-    verbose_ = verbose_print(verbose, timestamp, rich=True, highlight=False)
+    color_theme = get_theme(theme)
+    verbose_ = verbose_print(
+        verbose, timestamp, rich=True, theme=color_theme, highlight=False
+    )
+    # set console for rich_echo to be same as for verbose_
+    set_rich_console(get_verbose_console())
+    set_rich_theme(color_theme)
+    set_rich_timestamp(timestamp)
 
     if load_config:
         try:
             cfg.load_from_file(load_config)
         except ConfigOptionsLoadError as e:
-            click.echo(
-                click.style(
-                    f"Error parsing {load_config} config file: {e.message}",
-                    fg=CLI_COLOR_ERROR,
-                ),
-                err=True,
+            # click.echo(
+            #     click.style(
+            #         f"Error parsing {load_config} config file: {e.message}",
+            #         fg=CLI_COLOR_ERROR,
+            #     ),
+            #     err=True,
+            # )
+            rich_click_echo(
+                f"[error]Error parsing {load_config} config file: {e.message}", err=True
             )
             sys.exit(1)
 
@@ -963,10 +992,11 @@ def export(
         skip_uuid_from_file = cfg.skip_uuid_from_file
         slow_mo = cfg.slow_mo
         strip = cfg.strip
-        tmpdir = cfg.tmpdir
+        theme = cfg.theme
         time_lapse = cfg.time_lapse
         timestamp = cfg.timestamp
         title = cfg.title
+        tmpdir = cfg.tmpdir
         to_date = cfg.to_date
         to_time = cfg.to_time
         touch_file = cfg.touch_file
@@ -980,8 +1010,15 @@ def export(
         xattr_template = cfg.xattr_template
 
         # config file might have changed verbose
-        verbose_ = verbose_print(verbose, timestamp, rich=True, highlight=False)
-        verbose_(f"Loaded options from file {load_config}")
+        color_theme = get_theme(theme)
+        verbose_ = verbose_print(
+            verbose, timestamp, rich=True, theme=color_theme, highlight=False
+        )
+        # set console for rich_echo to be same as for verbose_
+        set_rich_console(get_verbose_console())
+        set_rich_timestamp(timestamp)
+
+        verbose_(f"Loaded options from file [filepath]{load_config}")
 
         set_crash_data("cfg", cfg.asdict())
 
@@ -1028,28 +1065,22 @@ def export(
     try:
         cfg.validate(exclusive=exclusive_options, dependent=dependent_options, cli=True)
     except ConfigOptionsInvalidError as e:
-        click.echo(
-            click.style(
-                f"Incompatible export options: {e.message}", fg=CLI_COLOR_ERROR
-            ),
+        rich_click_echo(
+            f"[error]Incompatible export options: {e.message}",
             err=True,
         )
         sys.exit(1)
 
     if config_only and not save_config:
-        click.secho(
-            "--config-only must be used with --save-config",
-            fg=CLI_COLOR_ERROR,
+        rich_click_echo(
+            "[error]--config-only must be used with --save-config",
             err=True,
         )
         sys.exit(1)
 
     if all(x in [s.lower() for s in sidecar] for x in ["json", "exiftool"]):
-        click.echo(
-            click.style(
-                "Cannot use --sidecar json with --sidecar exiftool due to name collisions",
-                fg=CLI_COLOR_ERROR,
-            ),
+        rich_click_echo(
+            "[error]Cannot use --sidecar json with --sidecar exiftool due to name collisions",
             err=True,
         )
         sys.exit(1)
@@ -1057,21 +1088,18 @@ def export(
     if xattr_template:
         for attr, _ in xattr_template:
             if attr not in EXTENDED_ATTRIBUTE_NAMES:
-                click.echo(
-                    click.style(
-                        f"Invalid attribute '{attr}' for --xattr-template; "
-                        f"valid values are {', '.join(EXTENDED_ATTRIBUTE_NAMES_QUOTED)}",
-                        fg=CLI_COLOR_ERROR,
-                    ),
+                rich_click_echo(
+                    f"[error]Invalid attribute '{attr}' for --xattr-template; "
+                    f"valid values are {', '.join(EXTENDED_ATTRIBUTE_NAMES_QUOTED)}",
                     err=True,
                 )
                 sys.exit(1)
 
     if save_config:
-        verbose_(f"Saving options to config file '{save_config}'")
+        verbose_(f"Saving options to config file '[filepath]{save_config}'")
         cfg.write_to_file(save_config)
         if config_only:
-            click.echo(f"Saved config file to '{save_config}'")
+            rich_echo(f"Saved config file to '[filepath]{save_config}'")
             sys.exit(0)
 
     # set defaults for options that need them
@@ -1086,18 +1114,14 @@ def export(
     retry = 0 if not retry else retry
 
     if not os.path.isdir(dest):
-        click.echo(
-            click.style(f"DEST {dest} must be valid path", fg=CLI_COLOR_ERROR), err=True
-        )
+        rich_click_echo(f"[error]DEST {dest} must be valid path", err=True)
         sys.exit(1)
 
     dest = str(pathlib.Path(dest).resolve())
 
     if report and os.path.isdir(report):
-        click.echo(
-            click.style(
-                f"report is a directory, must be file name", fg=CLI_COLOR_ERROR
-            ),
+        rich_click_echo(
+            f"[error]report is a directory, must be file name",
             err=True,
         )
         sys.exit(1)
@@ -1130,18 +1154,15 @@ def export(
         try:
             exiftool_path = get_exiftool_path()
         except FileNotFoundError:
-            click.echo(
-                click.style(
-                    "Could not find exiftool. Please download and install"
-                    " from https://exiftool.org/",
-                    fg=CLI_COLOR_ERROR,
-                ),
+            rich_click_echo(
+                "[error]Could not find exiftool. Please download and install"
+                " from https://exiftool.org/",
                 err=True,
             )
-            ctx.exit(2)
+            ctx.exit(1)
 
     if any([exiftool, exiftool_merge_keywords, exiftool_merge_persons]):
-        verbose_(f"exiftool path: {exiftool_path}")
+        verbose_(f"exiftool path: [filepath]{exiftool_path}")
 
     # default searches for everything
     photos = True
@@ -1161,26 +1182,24 @@ def export(
     cli_db = cli_obj.db if cli_obj is not None else None
     db = get_photos_db(*photos_library, db, cli_db)
     if not db:
-        click.echo(get_help_msg(export), err=True)
-        click.echo("\n\nLocated the following Photos library databases: ", err=True)
+        rich_click_echo(get_help_msg(export), err=True)
+        rich_click_echo(
+            "\n\nLocated the following Photos library databases: ", err=True
+        )
         _list_libraries()
         return
 
     # sanity check exportdb
     if exportdb and exportdb != OSXPHOTOS_EXPORT_DB:
         if pathlib.Path(pathlib.Path(dest) / OSXPHOTOS_EXPORT_DB).exists():
-            click.echo(
-                click.style(
-                    f"Warning: export database is '{exportdb}' but found '{OSXPHOTOS_EXPORT_DB}' in {dest}; using '{exportdb}'",
-                    fg=CLI_COLOR_WARNING,
-                )
+            rich_click_echo(
+                f"[warning]Warning: export database is '{exportdb}' but found '{OSXPHOTOS_EXPORT_DB}' in {dest}; using '{exportdb}'",
+                err=True,
             )
         if pathlib.Path(exportdb).resolve().parent != pathlib.Path(dest):
-            click.echo(
-                click.style(
-                    f"Warning: export database '{pathlib.Path(exportdb).resolve()}' is in a different directory than export destination '{dest}'",
-                    fg=CLI_COLOR_WARNING,
-                )
+            rich_click_echo(
+                f"[warning]Warning: export database '{pathlib.Path(exportdb).resolve()}' is in a different directory than export destination '{dest}'",
+                err=True,
             )
 
     # open export database
@@ -1189,21 +1208,18 @@ def export(
     # check that export isn't in the parent or child of a previously exported library
     other_db_files = find_files_in_branch(dest, OSXPHOTOS_EXPORT_DB)
     if other_db_files:
-        click.echo(
-            click.style(
-                "WARNING: found other export database files in this destination directory branch.  "
-                + "This likely means you are attempting to export files into a directory "
-                + "that is either the parent or a child directory of a previous export. "
-                + "Proceeding may cause your exported files to be overwritten.",
-                fg=CLI_COLOR_WARNING,
-            ),
+        rich_click_echo(
+            "[warning]WARNING: found other export database files in this destination directory branch.  "
+            + "This likely means you are attempting to export files into a directory "
+            + "that is either the parent or a child directory of a previous export. "
+            + "Proceeding may cause your exported files to be overwritten.",
             err=True,
         )
-        click.echo(
+        rich_click_echo(
             f"You are exporting to {dest}, found {OSXPHOTOS_EXPORT_DB} files in:"
         )
         for other_db in other_db_files:
-            click.echo(f"{other_db}")
+            rich_click_echo(f"{other_db}")
         click.confirm("Do you want to continue?", abort=True)
 
     if dry_run:
@@ -1219,19 +1235,21 @@ def export(
 
     if verbose_:
         if export_db.was_created:
-            verbose_(f"Created export database {export_db_path}")
+            verbose_(f"Created export database [filepath]{export_db_path}")
         else:
-            verbose_(f"Using export database {export_db_path}")
+            verbose_(f"Using export database [filepath]{export_db_path}")
         upgraded = export_db.was_upgraded
         if upgraded:
             verbose_(
-                f"Upgraded export database {export_db_path} from version {upgraded[0]} to {upgraded[1]}"
+                f"Upgraded export database [filepath]{export_db_path}[/] from version [num]{upgraded[0]}[/] to [num]{upgraded[1]}[/]"
             )
 
     # save config to export_db
     export_db.set_config(cfg.write_to_str())
 
-    photosdb = osxphotos.PhotosDB(dbfile=db, verbose=verbose_, exiftool=exiftool_path)
+    photosdb = osxphotos.PhotosDB(
+        dbfile=db, verbose=verbose_, exiftool=exiftool_path, rich=True
+    )
 
     # enable beta features if requested
     photosdb._beta = beta
@@ -1345,7 +1363,9 @@ def export(
         num_photos = len(photos)
         # TODO: photos or photo appears several times, pull into a separate function
         photo_str = "photos" if num_photos > 1 else "photo"
-        click.echo(f"Exporting {num_photos} {photo_str} to {dest}...")
+        rich_echo(
+            f"Exporting [num]{num_photos}[/num] {photo_str} to [filepath]{dest}[/]..."
+        )
         start_time = time.perf_counter()
         # though the command line option is current_name, internally all processing
         # logic uses original_name which is the boolean inverse of current_name
@@ -1370,10 +1390,11 @@ def export(
         )
 
         photo_num = 0
-        # send progress bar output to /dev/null if verbose to hide the progress bar
-        fp = open(os.devnull, "w") if verbose else None
-        with click.progressbar(photos, show_pos=True, file=fp) as bar:
-            for p in bar:
+        with rich_progress(console=get_verbose_console()) as progress:
+            task = progress.add_task(
+                f"Exporting [num]{num_photos}[/] photos", total=num_photos
+            )
+            for p in photos:
                 photo_num += 1
                 export_results = export_photo(
                     photo=p,
@@ -1430,15 +1451,13 @@ def export(
                 if post_function:
                     for function in post_function:
                         # post function is tuple of (function, filename.py::function_name)
-                        verbose_(f"Calling post-function {function[1]}")
+                        verbose_(f"Calling post-function [bold]{function[1]}")
                         if not dry_run:
                             try:
                                 function[0](p, export_results, verbose_)
                             except Exception as e:
-                                click.secho(
-                                    f"Error running post-function {function[1]}: {e}",
-                                    fg=CLI_COLOR_ERROR,
-                                    err=True,
+                                rich_echo_error(
+                                    f"[error]Error running post-function [italic]{function[1]}[/italic]: {e}"
                                 )
 
                 run_post_command(
@@ -1536,32 +1555,31 @@ def export(
                     results.xattr_written.extend(xattr_written)
                     results.xattr_skipped.extend(xattr_skipped)
 
-        if fp is not None:
-            fp.close()
+                progress.advance(task)
 
         photo_str_total = "photos" if len(photos) != 1 else "photo"
         if update or force_update:
             summary = (
-                f"Processed: {len(photos)} {photo_str_total}, "
-                f"exported: {len(results.new)}, "
-                f"updated: {len(results.updated)}, "
-                f"skipped: {len(results.skipped)}, "
-                f"updated EXIF data: {len(results.exif_updated)}, "
+                f"Processed: [num]{len(photos)}[/] {photo_str_total}, "
+                f"exported: [num]{len(results.new)}[/], "
+                f"updated: [num]{len(results.updated)}[/], "
+                f"skipped: [num]{len(results.skipped)}[/], "
+                f"updated EXIF data: [num]{len(results.exif_updated)}[/], "
             )
         else:
             summary = (
-                f"Processed: {len(photos)} {photo_str_total}, "
-                f"exported: {len(results.exported)}, "
+                f"Processed: [num]{len(photos)}[/] {photo_str_total}, "
+                f"exported: [num]{len(results.exported)}[/], "
             )
-        summary += f"missing: {len(results.missing)}, "
-        summary += f"error: {len(results.error)}"
+        summary += f"missing: [num]{len(results.missing)}[/], "
+        summary += f"error: [num]{len(results.error)}[/]"
         if touch_file:
-            summary += f", touched date: {len(results.touched)}"
-        click.echo(summary)
+            summary += f", touched date: [num]{len(results.touched)}[/]"
+        rich_echo(summary)
         stop_time = time.perf_counter()
-        click.echo(f"Elapsed time: {format_sec_to_hhmmss(stop_time-start_time)}")
+        rich_echo(f"Elapsed time: [time]{format_sec_to_hhmmss(stop_time-start_time)}")
     else:
-        click.echo("Did not find any photos to export")
+        rich_echo("Did not find any photos to export")
 
     # cleanup files and do report if needed
     if cleanup:
@@ -1587,25 +1605,25 @@ def export(
             + [r[0] for r in results.error]
             + db_files
         )
-        click.echo(f"Cleaning up {dest}")
+        rich_echo(f"Cleaning up [filepath]{dest}")
         cleaned_files, cleaned_dirs = cleanup_files(
             dest, all_files, fileutil, verbose_=verbose_
         )
         file_str = "files" if len(cleaned_files) != 1 else "file"
         dir_str = "directories" if len(cleaned_dirs) != 1 else "directory"
-        click.echo(
-            f"Deleted: {len(cleaned_files)} {file_str}, {len(cleaned_dirs)} {dir_str}"
+        rich_echo(
+            f"Deleted: [num]{len(cleaned_files)}[/num] {file_str}, [num]{len(cleaned_dirs)}[/num] {dir_str}"
         )
         results.deleted_files = cleaned_files
         results.deleted_directories = cleaned_dirs
 
     if report:
-        verbose_(f"Writing export report to {report}")
+        verbose_(f"Writing export report to [filepath]{report}")
         write_export_report(report, results)
 
     # close export_db and write changes if needed
     if ramdb and not dry_run:
-        verbose_(f"Writing export database changes back to {export_db.path}")
+        verbose_(f"Writing export database changes back to [filepath]{export_db.path}")
         export_db.write_to_disk()
     export_db.close()
 
@@ -1742,7 +1760,7 @@ def export_photo(
             export_original = True
             export_edited = False
             verbose_(
-                f"Edited file for {photo.original_filename} is missing, exporting original"
+                f"Edited file for [filename]{photo.original_filename}[/] is missing, exporting original"
             )
 
     # check for missing photos before downloading
@@ -1838,7 +1856,7 @@ def export_photo(
             original_filename = str(original_filename)
 
             verbose_(
-                f"Exporting {photo.original_filename} ({photo.filename}) as {original_filename} ({photo_num}/{num_photos})"
+                f"Exporting [filename]{photo.original_filename}[/] ([filename]{photo.filename}[/]) as [filepath]{original_filename}[/] ([count]{photo_num}/{num_photos}[/])"
             )
 
             results += export_photo_to_directory(
@@ -1952,7 +1970,7 @@ def export_photo(
                 )
 
                 verbose_(
-                    f"Exporting edited version of {photo.original_filename} ({photo.filename}) as {edited_filename}"
+                    f"Exporting edited version of [filename]{photo.original_filename}[/filename] ([filename]{photo.filename}[/filename]) as [filepath]{edited_filename}[/filepath]"
                 )
 
                 results += export_photo_to_directory(
@@ -2103,7 +2121,7 @@ def export_photo_to_directory(
     render_options = RenderOptions(export_dir=export_dir, dest_path=dest_path)
 
     if not export_original and not edited:
-        verbose_(f"Skipping original version of {photo.original_filename}")
+        verbose_(f"Skipping original version of [filename]{photo.original_filename}")
         return results
 
     tries = 0
@@ -2147,69 +2165,61 @@ def export_photo_to_directory(
                 use_photos_export=use_photos_export,
                 verbose=verbose_,
                 tmpdir=tmpdir,
+                rich=True,
             )
             exporter = PhotoExporter(photo)
             export_results = exporter.export(
                 dest=dest_path, filename=filename, options=export_options
             )
             for warning_ in export_results.exiftool_warning:
-                verbose_(f"exiftool warning for file {warning_[0]}: {warning_[1]}")
+                verbose_(
+                    f"[warning]exiftool warning for file {warning_[0]}: {warning_[1]}"
+                )
             for error_ in export_results.exiftool_error:
-                click.echo(
-                    click.style(
-                        f"exiftool error for file {error_[0]}: {error_[1]}",
-                        fg=CLI_COLOR_ERROR,
-                    ),
-                    err=True,
+                rich_echo_error(
+                    f"[error]exiftool error for file {error_[0]}: {error_[1]}"
                 )
             for error_ in export_results.error:
-                click.echo(
-                    click.style(
-                        f"Error exporting photo ({photo.uuid}: {photo.original_filename}) as {error_[0]}: {error_[1]}",
-                        fg=CLI_COLOR_ERROR,
-                    ),
-                    err=True,
+                rich_echo_error(
+                    f"[error]Error exporting photo ({photo.uuid}: {photo.original_filename}) as {error_[0]}: {error_[1]}"
                 )
                 error += 1
             if not error or tries > retry:
                 results += export_results
                 break
             else:
-                click.echo(
-                    f"Retrying export for photo ({photo.uuid}: {photo.original_filename})"
+                rich_echo(
+                    f"Retrying export for photo ([uuid]{photo.uuid}[/uuid]: [filename]{photo.original_filename}[/filename])"
                 )
         except Exception as e:
             if is_debug():
                 # if debug mode, don't swallow the exceptions
                 raise e
-            click.echo(
-                click.style(
-                    f"Error exporting photo ({photo.uuid}: {photo.original_filename}) as {filename}: {e}",
-                    fg=CLI_COLOR_ERROR,
-                ),
+            rich_echo(
+                f"[error]Error exporting photo ([uuid]{photo.uuid}[/uuid]: [filename]{photo.original_filename}[/filename]) as [filepath]{filename}[/filepath]: {e}",
                 err=True,
             )
             if tries > retry:
                 results.error.append((str(pathlib.Path(dest) / filename), e))
                 break
             else:
-                click.echo(
-                    f"Retrying export for photo ({photo.uuid}: {photo.original_filename})"
+                rich_echo(
+                    f"Retrying export for photo ([uuid]{photo.uuid}[/uuid]: [filename]{photo.original_filename}[/filename])"
                 )
 
     if verbose_:
         if update or force_update:
             for new in results.new:
-                verbose_(f"Exported new file {new}")
+                verbose_(f"Exported new file [filepath]{new}")
             for updated in results.updated:
-                verbose_(f"Exported updated file {updated}")
+                verbose_(f"Exported updated file [filepath]{updated}")
             for skipped in results.skipped:
-                verbose_(f"Skipped up to date file {skipped}")
+                verbose_(f"Skipped up to date file [filepath]{skipped}")
         else:
             for exported in results.exported:
-                verbose_(f"Exported {exported}")
+                verbose_(f"Exported [filepath]{exported}")
         for touched in results.touched:
-            verbose_(f"Touched date on file {touched}")
+            verbose_(f"Touched date on file [filepath]{touched}")
 
     return results
 
@@ -2519,10 +2529,7 @@ def write_export_report(report_file, results):
             for data in [result for result in all_results.values()]:
                 writer.writerow(data)
     except IOError:
-        click.echo(
-            click.style("Could not open output file for writing", fg=CLI_COLOR_ERROR),
-            err=True,
-        )
+        rich_echo_error("[error]Could not open output file for writing"),
         sys.exit(1)
 
 
@@ -2545,7 +2552,7 @@ def cleanup_files(dest_path, files_to_keep, fileutil, verbose_):
     deleted_files = []
     for p in pathlib.Path(dest_path).rglob("*"):
         if p.is_file() and normalize_fs_path(str(p).lower()) not in keepers:
-            verbose_(f"Deleting {p}")
+            verbose_(f"Deleting [filepath]{p}")
             fileutil.unlink(p)
             deleted_files.append(str(p))
 
@@ -2603,6 +2610,7 @@ def write_finder_tags(
             use_persons_as_keywords=person_keyword,
             keyword_template=keyword_template,
             merge_exif_keywords=exiftool_merge_keywords,
+            rich=True,
         )
         exif = PhotoExporter(photo)._exiftool_dict(options=export_options)
         try:
@@ -2628,12 +2636,8 @@ def write_finder_tags(
                 )
 
             if unmatched:
-                click.echo(
-                    click.style(
-                        f"Warning: unknown field for template: {template_str} unknown field = {unmatched}",
-                        fg=CLI_COLOR_WARNING,
-                    ),
-                    err=True,
+                rich_echo(
+                    f"[warning]Warning: unknown field for template: {template_str} unknown field = {unmatched}"
                 )
             rendered_tags.extend(rendered)
 
@@ -2692,12 +2696,8 @@ def write_extended_attributes(
                 f"Invalid template for --xattr-template '{template_str}': {e}",
             )
         if unmatched:
-            click.echo(
-                click.style(
-                    f"Warning: unmatched template substitution for template: {template_str} unknown field={unmatched}",
-                    fg=CLI_COLOR_WARNING,
-                ),
-                err=True,
+            rich_echo(
+                f"[warning]Warning: unmatched template substitution for template: {template_str} unknown field={unmatched}"
             )
 
         # filter out any template values that didn't match by looking for sentinel
@@ -2775,10 +2775,6 @@ def run_post_command(
                     finally:
                         run_error = run_error or run_results.returncode
                         if run_error:
-                            click.echo(
-                                click.style(
-                                    f'Error running command "{command}": {run_error}',
-                                    fg=CLI_COLOR_ERROR,
-                                ),
-                                err=True,
+                            rich_echo_error(
+                                f'[error]Error running command "{command}": {run_error}'
                             )
