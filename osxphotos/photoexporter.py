@@ -43,6 +43,7 @@ from .photokit import (
     PhotoLibrary,
 )
 from .phototemplate import RenderOptions
+from .rich_utils import add_rich_markup_tag
 from .uti import get_preferred_uti_extension
 from .utils import increment_filename, lineno, list_directory
 
@@ -102,6 +103,7 @@ class ExportOptions:
         raw_photo (bool, default=False): if True, will also export the associated RAW photo
         render_options (RenderOptions): t.Optional osxphotos.phototemplate.RenderOptions instance to specify options for rendering templates
         replace_keywords (bool): if True, keyword_template replaces any keywords, otherwise it's additive
+        rich (bool): if True, will use rich markup with verbose output
         sidecar_drop_ext (bool, default=False): if True, drops the photo's extension from sidecar filename (e.g. 'IMG_1234.json' instead of 'IMG_1234.JPG.json')
         sidecar: bit field (int): set to one or more of SIDECAR_XMP, SIDECAR_JSON, SIDECAR_EXIFTOOL
             - SIDECAR_JSON: if set will write a json sidecar with data in format readable by exiftool sidecar filename will be dest/filename.json;
@@ -150,6 +152,7 @@ class ExportOptions:
     raw_photo: bool = False
     render_options: t.Optional[RenderOptions] = None
     replace_keywords: bool = False
+    rich: bool = False
     sidecar_drop_ext: bool = False
     sidecar: int = 0
     strip: bool = False
@@ -366,6 +369,12 @@ class PhotoExporter:
         self._render_options = RenderOptions()
         self._verbose = self.photo._verbose
 
+        # define functions for adding markup
+        self._filepath = add_rich_markup_tag("filepath", rich=False)
+        self._filename = add_rich_markup_tag("filename", rich=False)
+        self._uuid = add_rich_markup_tag("uuid", rich=False)
+        self._num = add_rich_markup_tag("num", rich=False)
+
         # temp directory for staging downloaded missing files
         self._temp_dir = None
         self._temp_dir_path = None
@@ -405,6 +414,12 @@ class PhotoExporter:
         verbose = options.verbose or self._verbose
         if verbose and not callable(verbose):
             raise TypeError("verbose must be callable")
+
+        # define functions for adding markup
+        self._filepath = add_rich_markup_tag("filepath", rich=options.rich)
+        self._filename = add_rich_markup_tag("filename", rich=options.rich)
+        self._uuid = add_rich_markup_tag("uuid", rich=options.rich)
+        self._num = add_rich_markup_tag("num", rich=options.rich)
 
         # can't use export_as_hardlink with download_missing, use_photos_export as can't hardlink the temporary files downloaded
         if options.export_as_hardlink and options.download_missing:
@@ -465,7 +480,7 @@ class PhotoExporter:
             )
         else:
             verbose(
-                f"Skipping missing {'edited' if options.edited else 'original'} photo {self.photo.original_filename} ({self.photo.uuid})"
+                f"Skipping missing {'edited' if options.edited else 'original'} photo {self._filename(self.photo.original_filename)} ({self._uuid(self.photo.uuid)})"
             )
             all_results.missing.append(dest)
 
@@ -482,7 +497,7 @@ class PhotoExporter:
                 )
             else:
                 verbose(
-                    f"Skipping missing live photo for {self.photo.original_filename} ({self.photo.uuid})"
+                    f"Skipping missing live photo for {self._filename(self.photo.original_filename)} ({self._uuid(self.photo.uuid)})"
                 )
                 all_results.missing.append(live_name)
 
@@ -498,7 +513,7 @@ class PhotoExporter:
                 )
             else:
                 verbose(
-                    f"Skipping missing edited live photo for {self.photo.original_filename} ({self.photo.uuid})"
+                    f"Skipping missing edited live photo for {self._filename(self.photo.original_filename)} ({self._uuid(self.photo.uuid)})"
                 )
                 all_results.missing.append(live_name)
 
@@ -519,7 +534,7 @@ class PhotoExporter:
                 raw_name = dest.parent / f"{dest.stem}.{raw_ext}"
                 all_results.missing.append(raw_name)
                 verbose(
-                    f"Skipping missing raw photo for {self.photo.original_filename} ({self.photo.uuid})"
+                    f"Skipping missing raw photo for {self._filename(self.photo.original_filename)} ({self._uuid(self.photo.uuid)})"
                 )
 
         # copy preview image if requested
@@ -550,7 +565,7 @@ class PhotoExporter:
                 preview_name = dest.parent / f"{dest.stem}{options.preview_suffix}.jpeg"
                 all_results.missing.append(preview_name)
                 verbose(
-                    f"Skipping missing preview photo for {self.photo.original_filename} ({self.photo.uuid})"
+                    f"Skipping missing preview photo for {self._filename(self.photo.original_filename)} ({self._uuid(self.photo.uuid)})"
                 )
 
         all_results += self._write_sidecar_files(dest=dest, options=options)
@@ -1201,7 +1216,9 @@ class PhotoExporter:
             raise ValueError("edited or original must be True but not both")
 
         # export to a subdirectory of tmpdir
-        tmpdir = self.fileutil.tmpdir("osxphotos_applescript_export_", dir=self._temp_dir_path)
+        tmpdir = self.fileutil.tmpdir(
+            "osxphotos_applescript_export_", dir=self._temp_dir_path
+        )
 
         exported_files = []
         filename = None
@@ -1229,7 +1246,11 @@ class PhotoExporter:
         exported_paths = []
         for fname in exported_files:
             path = pathlib.Path(tmpdir.name) / fname
-            if len(exported_files) > 1 and not live_photo and path.suffix.lower() == ".mov":
+            if (
+                len(exported_files) > 1
+                and not live_photo
+                and path.suffix.lower() == ".mov"
+            ):
                 # it's the .mov part of live photo but not requested, so don't export
                 continue
             if len(exported_files) > 1 and burst and path.stem != filename_stem:
@@ -1247,8 +1268,6 @@ class PhotoExporter:
                 FileUtil.copy(str(path), str(dest_new))
             exported_paths.append(str(dest_new))
         return exported_paths
-
-
 
     def _write_sidecar_files(
         self,
@@ -1348,14 +1367,18 @@ class PhotoExporter:
                 )
             )
             if write_sidecar:
-                verbose(f"Writing {sidecar_type} sidecar {sidecar_filename}")
+                verbose(
+                    f"Writing {sidecar_type} sidecar {self._filepath(sidecar_filename)}"
+                )
                 files_written.append(str(sidecar_filename))
                 if not options.dry_run:
                     self._write_sidecar(sidecar_filename, sidecar_str)
                     sidecar_record.digest = sidecar_digest
                     sidecar_record.dest_sig = fileutil.file_sig(sidecar_filename)
             else:
-                verbose(f"Skipped up to date {sidecar_type} sidecar {sidecar_filename}")
+                verbose(
+                    f"Skipped up to date {sidecar_type} sidecar {self._filepath(sidecar_filename)}"
+                )
                 files_skipped.append(str(sidecar_filename))
 
         results = ExportResults(
@@ -1418,7 +1441,9 @@ class PhotoExporter:
         # determine if we need to write the exif metadata
         # if we are not updating, we always write
         # else, need to check the database to determine if we need to write
-        verbose(f"Writing metadata with exiftool for {pathlib.Path(dest).name}")
+        verbose(
+            f"Writing metadata with exiftool for {self._filepath(pathlib.Path(dest).name)}"
+        )
         if not options.dry_run:
             warning_, error_ = self._write_exif_data(src, options=options)
             if warning_:
@@ -1973,7 +1998,6 @@ def hexdigest(strval):
     h = hashlib.blake2b(digest_size=20)
     h.update(bytes(strval, "utf-8"))
     return h.hexdigest()
-
 
 
 def _check_export_suffix(src, dest, edited):

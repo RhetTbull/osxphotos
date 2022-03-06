@@ -1,18 +1,16 @@
 """Globals and constants use by the CLI commands"""
 
-import datetime
+
 import os
 import pathlib
-import typing as t
+from datetime import datetime
 
 import click
 
 import osxphotos
 from osxphotos._version import __version__
 
-from .click_rich_echo import rich_echo
 from .param_types import *
-
 
 # used to show/hide hidden commands
 OSXPHOTOS_HIDDEN = not bool(os.getenv("OSXPHOTOS_SHOW_HIDDEN", default=False))
@@ -21,10 +19,25 @@ OSXPHOTOS_HIDDEN = not bool(os.getenv("OSXPHOTOS_SHOW_HIDDEN", default=False))
 OSXPHOTOS_SNAPSHOT_DIR = "/private/tmp/osxphotos_snapshots"
 
 # where to write the crash report if osxphotos crashes
-OSXPHOTOS_CRASH_LOG = os.getcwd() + "/osxphotos_crash.log"
+OSXPHOTOS_CRASH_LOG = f"{os.getcwd()}/osxphotos_crash.log"
 
 CLI_COLOR_ERROR = "red"
 CLI_COLOR_WARNING = "yellow"
+
+__all__ = [
+    "CLI_COLOR_ERROR",
+    "CLI_COLOR_WARNING",
+    "DB_ARGUMENT",
+    "DB_OPTION",
+    "DEBUG_OPTIONS",
+    "DELETED_OPTIONS",
+    "JSON_OPTION",
+    "QUERY_OPTIONS",
+    "get_photos_db",
+    "load_uuid_from_file",
+    "noop",
+    "time_stamp",
+]
 
 
 def noop(*args, **kwargs):
@@ -32,53 +45,9 @@ def noop(*args, **kwargs):
     pass
 
 
-def verbose_print(
-    verbose: bool = True, timestamp: bool = False, rich=False, **kwargs: t.Any
-) -> t.Callable:
-    """Create verbose function to print output
-
-    Args:
-        verbose: if True, returns verbose print function otherwise returns no-op function
-        timestamp: if True, includes timestamp in verbose output
-        rich: use rich.print instead of click.echo
-        kwargs: any extra arguments to pass to click.echo or rich.print depending on whether rich==True
-
-    Returns:
-        function to print output
-    """
-    if not verbose:
-        return noop
-
-    # closure to capture timestamp
-    def verbose_(*args):
-        """print output if verbose flag set"""
-        styled_args = []
-        timestamp_str = f"{str(datetime.datetime.now())} -- " if timestamp else ""
-        for arg in args:
-            if type(arg) == str:
-                arg = timestamp_str + arg
-                if "error" in arg.lower():
-                    arg = click.style(arg, fg=CLI_COLOR_ERROR)
-                elif "warning" in arg.lower():
-                    arg = click.style(arg, fg=CLI_COLOR_WARNING)
-            styled_args.append(arg)
-        click.echo(*styled_args, **kwargs)
-
-    def rich_verbose_(*args):
-        """print output if verbose flag set using rich.print"""
-        timestamp_str = f"{str(datetime.datetime.now())} -- " if timestamp else ""
-        new_args = []
-        for arg in args:
-            if type(arg) == str:
-                arg = timestamp_str + arg
-                if "error" in arg.lower():
-                    arg = f"[{CLI_COLOR_ERROR}]{arg}[/{CLI_COLOR_ERROR}]"
-                elif "warning" in arg.lower():
-                    arg = f"[{CLI_COLOR_WARNING}]{arg}[/{CLI_COLOR_WARNING}]"
-            new_args.append(arg)
-        rich_echo(*new_args, **kwargs)
-
-    return rich_verbose_ if rich else verbose_
+def time_stamp() -> str:
+    """return timestamp"""
+    return f"[time]{str(datetime.now())}[/time] -- "
 
 
 def get_photos_db(*db_options):

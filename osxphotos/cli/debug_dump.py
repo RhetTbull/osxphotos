@@ -9,15 +9,9 @@ from rich import print
 import osxphotos
 from osxphotos._constants import _PHOTOS_4_VERSION, _UNKNOWN_PLACE
 
-from .common import (
-    DB_ARGUMENT,
-    DB_OPTION,
-    JSON_OPTION,
-    OSXPHOTOS_HIDDEN,
-    get_photos_db,
-    verbose_print,
-)
+from .common import DB_ARGUMENT, DB_OPTION, JSON_OPTION, OSXPHOTOS_HIDDEN, get_photos_db
 from .list import _list_libraries
+from .verbose import verbose_print
 
 
 @click.command(hidden=OSXPHOTOS_HIDDEN)

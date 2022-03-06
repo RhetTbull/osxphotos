@@ -10,8 +10,6 @@ import osxmetadata
 from rich.console import Console
 from rich.markdown import Markdown
 
-from .click_rich_echo import rich_echo
-
 from osxphotos._constants import (
     EXTENDED_ATTRIBUTE_NAMES,
     EXTENDED_ATTRIBUTE_NAMES_QUOTED,
@@ -24,6 +22,9 @@ from osxphotos.phototemplate import (
     TEMPLATE_SUBSTITUTIONS_PATHLIB,
     get_template_help,
 )
+
+from .click_rich_echo import rich_echo
+from .color_themes import get_theme
 
 __all__ = [
     "ExportCommand",
@@ -57,8 +58,11 @@ def help(ctx, topic, subtopic, **kw):
 
     if subtopic:
         cmd = ctx.obj.group.commands[topic]
+        theme = get_theme("light")
         rich_echo(
-            get_subtopic_help(cmd, ctx, subtopic), width=click.HelpFormatter().width
+            get_subtopic_help(cmd, ctx, subtopic),
+            theme=theme,
+            width=click.HelpFormatter().width,
         )
         return
 
@@ -93,15 +97,11 @@ def get_subtopic_help(cmd: click.Command, ctx: click.Context, subtopic: str):
     formatter.write_paragraph()
     if options:
         option_str = format_options_help(options, ctx, highlight=subtopic)
-        formatter.write(
-            f"Options that match '[{HIGHLIGHT_COLOR}]{subtopic}[/{HIGHLIGHT_COLOR}]':\n"
-        )
+        formatter.write(f"Options that match '[highlight]{subtopic}[/highlight]':\n")
         formatter.write_paragraph()
         formatter.write(option_str)
     else:
-        formatter.write(
-            f"No options match '[{HIGHLIGHT_COLOR}]{subtopic}[/{HIGHLIGHT_COLOR}]'"
-        )
+        formatter.write(f"No options match '[highlight]{subtopic}[/highlight]'")
     return formatter.getvalue()
 
 
@@ -150,16 +150,18 @@ def format_options_help(
         for record in opt_help:
             record[0] = re.sub(
                 f"({highlight})",
-                f"[{HIGHLIGHT_COLOR}]\\1" + f"[/{HIGHLIGHT_COLOR}]",
+                "[highlight]\\1[/highlight]",
                 record[0],
                 re.IGNORECASE,
             )
+
             record[1] = re.sub(
                 f"({highlight})",
-                f"[{HIGHLIGHT_COLOR}]\\1" + f"[/{HIGHLIGHT_COLOR}]",
+                "[highlight]\\1[/highlight]",
                 record[1],
                 re.IGNORECASE,
             )
+
         # convert back to list of tuples as that's what write_dl expects
         opt_help = [tuple(opt) for opt in opt_help]
     formatter.write_dl(opt_help)

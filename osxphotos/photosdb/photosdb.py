@@ -56,6 +56,7 @@ from ..personinfo import PersonInfo
 from ..photoinfo import PhotoInfo
 from ..phototemplate import RenderOptions
 from ..queryoptions import QueryOptions
+from ..rich_utils import add_rich_markup_tag
 from ..utils import (
     _check_file_exists,
     _db_is_locked,
@@ -90,13 +91,14 @@ class PhotosDB:
         labels_normalized_as_dict,
     )
 
-    def __init__(self, dbfile=None, verbose=None, exiftool=None):
+    def __init__(self, dbfile=None, verbose=None, exiftool=None, rich=None):
         """Create a new PhotosDB object.
 
         Args:
             dbfile: specify full path to photos library or photos.db; if None, will attempt to locate last library opened by Photos.
             verbose: optional callable function to use for printing verbose text during processing; if None (default), does not print output.
             exiftool: optional path to exiftool for methods that require this (e.g. PhotoInfo.exiftool); if not provided, will search PATH
+            rich: use rich with verbose output
 
         Raises:
             FileNotFoundError if dbfile is not a valid Photos library.
@@ -118,6 +120,12 @@ class PhotosDB:
         elif not callable(verbose):
             raise TypeError("verbose must be callable")
         self._verbose = verbose
+
+        # define functions for adding markup
+        self._filepath = add_rich_markup_tag("filepath", rich=rich)
+        self._filename = add_rich_markup_tag("filename", rich=rich)
+        self._uuid = add_rich_markup_tag("uuid", rich=rich)
+        self._num = add_rich_markup_tag("num", rich=rich)
 
         # enable beta features
         self._beta = False
@@ -295,7 +303,7 @@ class PhotosDB:
         # or photosanalysisd
         self._dbfile = self._dbfile_actual = self._tmp_db = os.path.abspath(dbfile)
 
-        verbose(f"Processing database {self._dbfile}")
+        verbose(f"Processing database {self._filepath(self._dbfile)}")
 
         # if database is exclusively locked, make a copy of it and use the copy
         # Photos maintains an exclusive lock on the database file while Photos is open
@@ -315,7 +323,7 @@ class PhotosDB:
                 raise FileNotFoundError(f"dbfile {dbfile} does not exist", dbfile)
             else:
                 self._dbfile_actual = self._tmp_db = dbfile
-                verbose(f"Processing database {self._dbfile_actual}")
+                verbose(f"Processing database {self._filepath(self._dbfile_actual)}")
                 # if database is exclusively locked, make a copy of it and use the copy
                 if _db_is_locked(self._dbfile_actual):
                     verbose(f"Database locked, creating temporary copy.")
@@ -630,7 +638,7 @@ class PhotosDB:
 
         verbose = self._verbose
         verbose("Processing database.")
-        verbose(f"Database version: {self._db_version}.")
+        verbose(f"Database version: {self._num(self._db_version)}.")
 
         self._photos_ver = 4  # only used in Photos 5+
 
@@ -1590,7 +1598,9 @@ class PhotosDB:
         # some of the tables/columns have different names in different versions of Photos
         photos_ver = get_db_model_version(self._tmp_db)
         self._photos_ver = photos_ver
-        verbose(f"Database version: {self._db_version}, {photos_ver}.")
+        verbose(
+            f"Database version: {self._num(self._db_version)}, {self._num(photos_ver)}."
+        )
         asset_table = _DB_TABLE_NAMES[photos_ver]["ASSET"]
         keyword_join = _DB_TABLE_NAMES[photos_ver]["KEYWORD_JOIN"]
         asset_album_table = _DB_TABLE_NAMES[photos_ver]["ASSET_ALBUM_TABLE"]
