@@ -1,7 +1,6 @@
 """ PhotoExport class to export photos
 """
 
-
 import dataclasses
 import hashlib
 import json
@@ -13,6 +12,7 @@ import tempfile
 import typing as t
 from collections import namedtuple  # pylint: disable=syntax-error
 from dataclasses import asdict, dataclass
+from enum import Enum
 
 import photoscript
 from mako.template import Template
@@ -61,6 +61,17 @@ if t.TYPE_CHECKING:
 
 # retry if download_missing/use_photos_export fails the first time (which sometimes it does)
 MAX_PHOTOSCRIPT_RETRIES = 3
+
+# return values for _should_update_photo
+class ShouldUpdate(Enum):
+    NOT_IN_DATABASE = 1
+    HARDLINK_DIFFERENT_FILES = 2
+    NOT_HARDLINK_SAME_FILES = 3
+    DEST_SIG_DIFFERENT = 4
+    EXPORT_OPTIONS_DIFFERENT = 5
+    EXIFTOOL_DIFFERENT = 6
+    EDITED_SIG_DIFFERENT = 7
+    DIGEST_DIFFERENT = 8
 
 
 class ExportError(Exception):
@@ -680,7 +691,7 @@ class PhotoExporter:
 
     def _should_update_photo(
         self, src: pathlib.Path, dest: pathlib.Path, options: ExportOptions
-    ) -> bool:
+    ) -> t.Literal[True, False]:
         """Return True if photo should be updated, else False"""
         export_db = options.export_db
         fileutil = options.fileutil
@@ -689,42 +700,45 @@ class PhotoExporter:
 
         if not file_record:
             # photo doesn't exist in database, should update
-            return True
+            return ShouldUpdate.NOT_IN_DATABASE
 
         if options.export_as_hardlink and not dest.samefile(src):
             # different files, should update
-            return True
+            return ShouldUpdate.HARDLINK_DIFFERENT_FILES
 
         if not options.export_as_hardlink and dest.samefile(src):
             # same file but not exporting as hardlink, should update
-            return True
+            return ShouldUpdate.NOT_HARDLINK_SAME_FILES
 
         if not options.ignore_signature and not fileutil.cmp_file_sig(
             dest, file_record.dest_sig
         ):
             # destination file doesn't match what was last exported
-            return True
+            return ShouldUpdate.DEST_SIG_DIFFERENT
 
         if file_record.export_options != options.bit_flags:
             # exporting with different set of options (e.g. exiftool), should update
             # need to check this before exiftool in case exiftool options are different
             # and export database is missing; this will always be True if database is missing
             # as it'll be None and bit_flags will be an int
-            return True
+            return ShouldUpdate.EXPORT_OPTIONS_DIFFERENT
 
         if options.exiftool:
             current_exifdata = self._exiftool_json_sidecar(options=options)
-            return current_exifdata != file_record.exifdata
+            rv = current_exifdata != file_record.exifdata
+            # if using exiftool, don't need to continue checking edited below
+            # as exiftool will be used to update edited file
+            return ShouldUpdate.EXIFTOOL_DIFFERENT if rv else False
 
         if options.edited and not fileutil.cmp_file_sig(src, file_record.src_sig):
             # edited file in Photos doesn't match what was last exported
-            return True
+            return ShouldUpdate.EDITED_SIG_DIFFERENT
 
         if options.force_update:
             current_digest = hexdigest(self.photo.json())
             if current_digest != file_record.digest:
                 # metadata in Photos changed, force update
-                return True
+                return ShouldUpdate.DIGEST_DIFFERENT
 
         # photo should not be updated
         return False
