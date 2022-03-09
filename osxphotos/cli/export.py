@@ -92,6 +92,9 @@ from .verbose import get_verbose_console, time_stamp, verbose_print
 @DB_OPTION
 @click.option("--verbose", "-V", "verbose", is_flag=True, help="Print verbose output.")
 @click.option("--timestamp", is_flag=True, help="Add time stamp to verbose output")
+@click.option(
+    "--no-progress", is_flag=True, help="Do not display progress bar during export."
+)
 @QUERY_OPTIONS
 @click.option(
     "--missing",
@@ -691,6 +694,7 @@ def export(
     to_time,
     verbose,
     timestamp,
+    no_progress,
     missing,
     update,
     force_update,
@@ -940,6 +944,7 @@ def export(
         no_likes = cfg.no_likes
         no_location = cfg.no_location
         no_place = cfg.no_place
+        no_progress = cfg.no_progress
         no_title = cfg.no_title
         not_burst = cfg.not_burst
         not_favorite = cfg.not_favorite
@@ -1390,7 +1395,7 @@ def export(
         )
 
         photo_num = 0
-        with rich_progress(console=get_verbose_console()) as progress:
+        with rich_progress(console=get_verbose_console(), mock=no_progress) as progress:
             task = progress.add_task(
                 f"Exporting [num]{num_photos}[/] photos", total=num_photos
             )
