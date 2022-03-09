@@ -75,6 +75,7 @@ for command in [
     places,
     query,
     repl,
+    run,
     snap,
     tutorial,
     uninstall,
