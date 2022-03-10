@@ -3,9 +3,11 @@
 import os
 import pathlib
 import stat
+import subprocess
 import tempfile
 import typing as t
 from abc import ABC, abstractmethod
+from datetime import datetime
 from tempfile import TemporaryDirectory
 
 import Foundation
@@ -151,6 +153,15 @@ class FileUtilMacOS(FileUtilABC):
     def utime(cls, path, times):
         """Set the access and modified time of path."""
         os.utime(path, times=times)
+        # verify the times were set correctly
+        # on some NAS devices, utime() may fail, see #654
+        stat_ = os.stat(path)
+        if int(stat_.st_atime) != int(times[0]) or int(stat_.st_mtime) != int(times[1]):
+            # try to use touch to set the times
+            # touch format for -t is [[CC]YY]MMDDhhmm[.SS]
+            # use the first time in times provides, this assumes both atime and mtime are the same
+            touch_time = datetime.fromtimestamp(times[0]).strftime("%Y%m%d%H%M.%S")
+            subprocess.run(["/usr/bin/touch", "-t", touch_time, path])
 
     @classmethod
     def cmp(cls, f1, f2, mtime1=None):
