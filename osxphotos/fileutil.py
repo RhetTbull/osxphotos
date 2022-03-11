@@ -278,8 +278,6 @@ class FileUtilNoOp(FileUtil):
     def noop(*args):
         pass
 
-    verbose = noop
-
     def __new__(cls, verbose=None):
         if verbose:
             if callable(verbose):
@@ -290,36 +288,35 @@ class FileUtilNoOp(FileUtil):
 
     @classmethod
     def hardlink(cls, src, dest):
-        cls.verbose(f"hardlink: {src} {dest}")
+        pass
 
     @classmethod
     def copy(cls, src, dest, norsrc=False):
-        cls.verbose(f"copy: {src} {dest}")
+        pass
 
     @classmethod
     def unlink(cls, dest):
-        cls.verbose(f"unlink: {dest}")
+        pass
 
     @classmethod
     def rmdir(cls, dest):
-        cls.verbose(f"rmdir: {dest}")
+        pass
 
     @classmethod
     def utime(cls, path, times):
-        cls.verbose(f"utime: {path}, {times}")
+        pass
 
     @classmethod
     def file_sig(cls, file1):
-        cls.verbose(f"file_sig: {file1}")
         return (42, 42, 42)
 
     @classmethod
     def convert_to_jpeg(cls, src_file, dest_file, compression_quality=1.0):
-        cls.verbose(f"convert_to_jpeg: {src_file}, {dest_file}, {compression_quality}")
+        pass
 
     @classmethod
     def rename(cls, src, dest):
-        cls.verbose(f"rename: {src}, {dest}")
+        pass
 
     @classmethod
     def tmpdir(
@@ -330,5 +327,4 @@ class FileUtilNoOp(FileUtil):
         On completion of the context or destruction of the temporary directory object,
         the newly created temporary directory and all its contents are removed from the filesystem.
         """
-        cls.verbose(f"tmpdir: {dir}")
         return TemporaryDirectory(prefix=prefix, dir=dir)
