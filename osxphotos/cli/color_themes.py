@@ -1,6 +1,6 @@
 """Support for colorized output for photos_time_warp"""
 
-from typing import Optional
+from typing import Optional, List
 
 from rich.style import Style
 from rich.themes import Theme
@@ -8,12 +8,36 @@ from rich.themes import Theme
 from .common import noop
 from .darkmode import is_dark_mode
 
-__all__ = ["get_theme"]
+from .rich_theme_manager.theme import Theme
 
+__all__ = ["get_theme", "get_default_theme_name"]
+
+THEME_STYLES = [
+    "color",
+    "count",
+    "error",
+    "filename",
+    "filepath",
+    "highlight",
+    "num",
+    "time",
+    "uuid",
+    "warning",
+    "bar.back",
+    "bar.complete",
+    "bar.finished",
+    "bar.pulse",
+    "progress.elapsed",
+    "progress.percentage",
+    "progress.remaining",
+]
 
 COLOR_THEMES = {
     "dark": Theme(
-        {
+        name="dark",
+        description="Dark mode theme",
+        tags=["dark"],
+        styles={
             # color pallette from https://github.com/dracula/dracula-theme
             "color": Style(color="rgb(248,248,242)"),
             "count": Style(color="rgb(139,233,253)"),
@@ -32,10 +56,12 @@ COLOR_THEMES = {
             "progress.elapsed": Style(color="rgb(139,233,253)"),
             "progress.percentage": Style(color="rgb(255,121,198)"),
             "progress.remaining": Style(color="rgb(139,233,253)"),
-        }
+        },
     ),
     "light": Theme(
-        {
+        name="light",
+        description="Light mode theme",
+        styles={
             "color": Style(color="#000000"),
             "count": Style(color="#005cc5", bold=True),
             "error": Style(color="#b31d28", bold=True, underline=True, italic=True),
@@ -53,10 +79,13 @@ COLOR_THEMES = {
             "progress.elapsed": Style(color="#032f62", bold=True),
             "progress.percentage": Style(color="#6f42c1", bold=True),
             "progress.remaining": Style(color="#032f62", bold=True),
-        }
+        },
     ),
     "mono": Theme(
-        {
+        name="mono",
+        description="Monochromatic theme",
+        tags=["mono", "colorblind"],
+        styles={
             "count": "bold",
             "error": "reverse italic",
             "filename": "bold",
@@ -73,10 +102,13 @@ COLOR_THEMES = {
             "progress.elapsed": "",
             "progress.percentage": "bold",
             "progress.remaining": "bold",
-        }
+        },
     ),
     "plain": Theme(
-        {
+        name="plain",
+        description="Plain theme with no colors",
+        tags=["colorblind"],
+        styles={
             "color": "",
             "count": "",
             "error": "",
@@ -94,7 +126,7 @@ COLOR_THEMES = {
             "progress.elapsed": "",
             "progress.percentage": "",
             "progress.remaining": "",
-        }
+        },
     ),
 }
 
@@ -122,3 +154,27 @@ def get_theme(
     else:
         theme = COLOR_THEMES[theme_name]
     return theme
+
+
+def get_default_theme(themes: List[Theme]) -> Theme:
+    """Get the default theme from the list of themes"""
+    if not themes:
+        raise ValueError("No themes provided")
+    # return custom theme if it exists
+    for theme in themes:
+        if theme.name == "custom":
+            return theme
+
+    # return dark or light depending on mode
+    theme_name = "dark" if is_dark_mode() else "light"
+    for theme in themes:
+        if theme.name == theme_name:
+            return theme
+
+    # return first theme
+    return themes[0]
+
+
+def get_default_theme_name():
+    """Get the default color theme name"""
+    return "dark" if is_dark_mode() else "light"

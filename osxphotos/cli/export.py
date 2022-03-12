@@ -77,6 +77,7 @@ from .common import (
     OSXPHOTOS_CRASH_LOG,
     OSXPHOTOS_HIDDEN,
     QUERY_OPTIONS,
+    THEME_OPTION,
     get_photos_db,
     load_uuid_from_file,
     noop,
@@ -642,14 +643,7 @@ from .verbose import get_verbose_console, time_stamp, verbose_print
     f"Can be specified multiple times. Valid options are: {PROFILE_SORT_KEYS}. "
     "Default = 'cumulative'.",
 )
-@click.option(
-    "--theme",
-    metavar="THEME",
-    type=click.Choice(["dark", "light", "mono", "plain"], case_sensitive=False),
-    help="Specify the color theme to use for --verbose output. "
-    "Valid themes are 'dark', 'light', 'mono', and 'plain'. "
-    "Defaults to 'dark' or 'light' depending on system dark mode setting.",
-)
+@THEME_OPTION
 @DEBUG_OPTIONS
 @DB_ARGUMENT
 @click.argument("dest", nargs=1, type=click.Path(exists=True))

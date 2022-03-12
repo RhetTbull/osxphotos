@@ -6,6 +6,8 @@ import os.path
 from datetime import datetime
 from enum import Enum
 
+APP_NAME = "osxphotos"
+
 OSXPHOTOS_URL = "https://github.com/RhetTbull/osxphotos"
 
 # Time delta: add this to Photos times to get unix time

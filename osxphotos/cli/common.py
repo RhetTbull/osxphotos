@@ -33,6 +33,7 @@ __all__ = [
     "DELETED_OPTIONS",
     "JSON_OPTION",
     "QUERY_OPTIONS",
+    "THEME_OPTION",
     "get_photos_db",
     "load_uuid_from_file",
     "noop",
@@ -497,6 +498,16 @@ def DEBUG_OPTIONS(f):
     for o in options[::-1]:
         f = o(f)
     return f
+
+
+THEME_OPTION = click.option(
+    "--theme",
+    metavar="THEME",
+    type=click.Choice(["dark", "light", "mono", "plain"], case_sensitive=False),
+    help="Specify the color theme to use for --verbose output. "
+    "Valid themes are 'dark', 'light', 'mono', and 'plain'. "
+    "Defaults to 'dark' or 'light' depending on system dark mode setting.",
+)
 
 
 def load_uuid_from_file(filename):
