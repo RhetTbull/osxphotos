@@ -1,7 +1,7 @@
 build
 m2r2
 pdbpp
-pyinstaller==4.4
+pyinstaller==4.10
 pytest-mock
 pytest==7.0.1
 Sphinx

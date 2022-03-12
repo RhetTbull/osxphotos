@@ -2,20 +2,27 @@
 # spec file for pyinstaller
 # run `pyinstaller osxphotos.spec`
 
+
 import os
 import importlib
 
 pathex = os.getcwd()
 
+from PyInstaller.utils.hooks import collect_data_files
+
 # include necessary data files
-datas = [
-    ("osxphotos/templates/xmp_sidecar.mako", "osxphotos/templates"),
-    ("osxphotos/templates/xmp_sidecar_beta.mako", "osxphotos/templates"),
-    ("osxphotos/phototemplate.tx", "osxphotos"),
-    ("osxphotos/phototemplate.md", "osxphotos"),
-    ("osxphotos/tutorial.md", "osxphotos"),
-    ("osxphotos/exiftool_filetypes.json", "osxphotos"),
-]
+datas = collect_data_files("osxphotos")
+datas.extend(
+    [
+        ("osxphotos/templates/xmp_sidecar.mako", "osxphotos/templates"),
+        ("osxphotos/templates/xmp_sidecar_beta.mako", "osxphotos/templates"),
+        ("osxphotos/phototemplate.tx", "osxphotos"),
+        ("osxphotos/phototemplate.md", "osxphotos"),
+        ("osxphotos/tutorial.md", "osxphotos"),
+        ("osxphotos/exiftool_filetypes.json", "osxphotos"),
+    ]
+)
+
 package_imports = [["photoscript", ["photoscript.applescript"]]]
 for package, files in package_imports:
     proot = os.path.dirname(importlib.import_module(package).__file__)
