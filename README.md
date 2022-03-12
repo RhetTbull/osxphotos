@@ -636,6 +636,7 @@ Options:
                                   ~/Pictures/Photos Library.photoslibrary
   -V, --verbose                   Print verbose output.
   --timestamp                     Add time stamp to verbose output
+  --no-progress                   Do not display progress bar during export.
   --keyword KEYWORD               Search for photos with keyword KEYWORD. If
                                   more than one keyword, treated as "OR", e.g.
                                   find photos matching any keyword

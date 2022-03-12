@@ -1,7 +1,6 @@
 """Utilities for debugging"""
 
 import logging
-import pdb
 import sys
 import time
 from datetime import datetime
@@ -44,7 +43,7 @@ def debug_watch(wrapped, instance, args, kwargs):
 
 def debug_breakpoint(wrapped, instance, args, kwargs):
     """For use with wrapt.wrap_function_wrapper to set breakpoint on a function"""
-    pdb.set_trace()
+    breakpoint()
     return wrapped(*args, **kwargs)
 
 
