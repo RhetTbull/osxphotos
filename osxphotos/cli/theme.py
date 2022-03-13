@@ -5,6 +5,7 @@ from typing import List, Optional
 
 import click
 from rich import print as rprint
+from rich_theme_manager import Theme, ThemeManager
 
 from .._constants import APP_NAME
 from .color_themes import (
@@ -15,7 +16,6 @@ from .color_themes import (
     get_theme,
 )
 from .common import THEME_OPTION
-from .rich_theme_manager import ThemeManager, Theme
 
 SAMPLE_TEXT = "The quick brown fox..."
 

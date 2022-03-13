@@ -1,14 +1,12 @@
 """Support for colorized output for photos_time_warp"""
 
-from typing import Optional, List
+from typing import List, Optional
 
 from rich.style import Style
-from rich.themes import Theme
+from rich_theme_manager.theme import Theme
 
 from .common import noop
 from .darkmode import is_dark_mode
-
-from .rich_theme_manager.theme import Theme
 
 __all__ = ["get_theme", "get_default_theme_name"]
 
