@@ -224,7 +224,7 @@ You can use the `--report` option to create a report, in comma-separated values 
 
 ### Exporting only certain photos
 
-By default, osxphotos will export your entire Photos library.  If you want to export only certain photos, osxphotos provides a rich set of "query options" that allow you to query the Photos database to filter out only certain photos that match your query criteria.  The tutorial does not cover all the query options as there are over 50 of them--read the help text (`osxphotos help export`) to better understand the available query options.  No matter which subset of photos you would like to export, there is almost certainly a way for osxphotos to filter these.  For example, you can filter for only images that contain certain keywords or images without a title, images from a specific time of day or specific date range, images contained in specific albums, etc. 
+By default, osxphotos will export your entire Photos library.  If you want to export only certain photos, osxphotos provides a rich set of "query options" that allow you to query the Photos database to filter out only certain photos that match your query criteria.  The tutorial does not cover all the query options as there are over 50 of them--read the help text (`osxphotos help export`) to better understand the available query options.  No matter which subset of photos you would like to export, there is almost certainly a way for osxphotos to filter these.  For example, you can filter for only images that contain certain keywords or images without a title, images from a specific time of day or specific date range, images contained in specific albums, etc.
 
 For example, to export only photos with keyword `Travel`:
 
@@ -266,13 +266,13 @@ osxphotos can, for example, write any keywords in the image to Finder tags so th
 
 `osxphotos export /path/to/export --finder-tag-keywords`
 
-`--finder-tag-keywords` also works with `--keyword-template` as described above in the section on `exiftool`: 
+`--finder-tag-keywords` also works with `--keyword-template` as described above in the section on `exiftool`:
 
 `osxphotos export /path/to/export --finder-tag-keywords --keyword-template "{label}"`
 
-The `--xattr-template` option allows you to set a variety of other extended attributes.  It is used in the format `--xattr-template ATTRIBUTE TEMPLATE` where ATTRIBUTE is one of 'authors','comment', 'copyright', 'description', 'findercomment', 'headline', 'keywords'. 
+The `--xattr-template` option allows you to set a variety of other extended attributes.  It is used in the format `--xattr-template ATTRIBUTE TEMPLATE` where ATTRIBUTE is one of 'authors','comment', 'copyright', 'description', 'findercomment', 'headline', 'keywords'.
 
-For example, to set Finder comment to the photo's title and description: 
+For example, to set Finder comment to the photo's title and description:
 
 `osxphotos export /path/to/export --xattr-template findercomment "{title}{newline}{descr}"`
 
@@ -310,7 +310,7 @@ See Extended Attributes section in the help for `osxphotos export` for additiona
 
 ### Saving and loading options
 
-If you repeatedly run a complex osxphotos export command (for example, to regularly back-up your Photos library), you can save all the options to a configuration file for future use (`--save-config FILE`) and then load them (`--load-config FILE`) instead of repeating each option on the command line. 
+If you repeatedly run a complex osxphotos export command (for example, to regularly back-up your Photos library), you can save all the options to a configuration file for future use (`--save-config FILE`) and then load them (`--load-config FILE`) instead of repeating each option on the command line.
 
 To save the configuration:
 
@@ -320,7 +320,7 @@ Then the next to you run osxphotos, you can simply do this:
 
 `osxphotos export /path/to/export --load-config osxphotos.toml`
 
-The configuration file is a plain text file in [TOML](https://toml.io/en/) format so the `.toml` extension is standard but you can name the file anything you like. 
+The configuration file is a plain text file in [TOML](https://toml.io/en/) format so the `.toml` extension is standard but you can name the file anything you like.
 
 ### Run commands on exported photos for post-processing
 
@@ -353,8 +353,7 @@ Another example: if you had `exiftool` installed and wanted to wipe all metadata
 
 `osxphotos export /path/to/export --post-command exported "/usr/local/bin/exiftool -all= {filepath|shell_quote}"`
 
-This command uses the `|shell_quote` template filter instead of the `{shell_quote}` template because the only thing that needs to be quoted is the path to the exported file. Template filters filter the value of the rendered template field.  A number of other filters are available and are described in the help text. 
-
+This command uses the `|shell_quote` template filter instead of the `{shell_quote}` template because the only thing that needs to be quoted is the path to the exported file. Template filters filter the value of the rendered template field.  A number of other filters are available and are described in the help text.
 
 ### An example from an actual osxphotos user
 
@@ -389,6 +388,10 @@ Here's a comprehensive use case from an actual osxphotos user that integrates ma
     template fields.
 
 `osxphotos export ~/Desktop/folder for exported videos/ --keyword Quik --only-movies --db /path to my.photoslibrary --touch-file --finder-tag-keywords --person-keyword --xattr-template findercomment "{title}{title?{descr?{newline},},}{descr}" --exiftool-merge-keywords --exiftool-merge-persons --exiftool --strip`
+
+### Color Themes
+
+Some osxphotos commands such as export use color themes to colorize the output to make it more legible. The theme may be specified with the `--theme` option. For example: `osxphotos export /path/to/export --verbose --theme dark` uses a theme suited for dark terminals. If you don't specify the color theme, osxphotos will select a default theme based on the current terminal settings. You can also specify your own default theme. See `osxphotos help theme` for more information on themes and for commands to help manage themes.  Themes are defined in `.theme` files in the `~/.osxphotos/themes` directory and use style specifications compatible with the [rich](https://rich.readthedocs.io/en/stable/style.html) library.
 
 ### Conclusion
 

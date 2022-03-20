@@ -1,99 +1,129 @@
 """theme command for osxphotos for managing color themes"""
 
 import pathlib
-from typing import List, Optional
 
 import click
-from rich import print as rprint
-from rich_theme_manager import Theme, ThemeManager
+from rich.console import Console
+from rich_theme_manager import Theme
 
-from .._constants import APP_NAME
-from .color_themes import (
-    COLOR_THEMES,
-    THEME_STYLES,
-    get_default_theme,
-    get_default_theme_name,
-    get_theme,
-)
-from .common import THEME_OPTION
-
-SAMPLE_TEXT = "The quick brown fox..."
-
-
-def get_theme_dir() -> str:
-    """Return the theme config dir, creating it if necessary"""
-    theme_dir = pathlib.Path(click.get_app_dir(APP_NAME, force_posix=True)) / "themes"
-    theme_dir.mkdir(parents=True, exist_ok=True)
-    return str(theme_dir)
-
-
-THEME_DIR = get_theme_dir()
-DEFAULT_THEME = "default"
+from .click_rich_echo import rich_click_echo
+from .color_themes import get_default_theme, get_theme, get_theme_dir, get_theme_manager
+from .help import get_help_msg
 
 
 @click.command(name="theme")
 @click.pass_obj
 @click.pass_context
-@THEME_OPTION
-@click.argument(
-    "subcommand",
-    required=False,
-    type=click.Choice(["list", "edit", "config", "preview", "delete", "default"]),
+@click.option("--default", is_flag=True, help="Show default theme.")
+@click.option("--list", "list_", is_flag=True, help="List all themes.")
+@click.option(
+    "--config",
+    metavar="[THEME]",
+    is_flag=False,
+    flag_value="_DEFAULT_",
+    default=None,
+    help="Print configuration for THEME (or default theme if not specified).",
 )
-def theme(ctx, cli_obj, theme, subcommand):
-    """Manage osxphotos color themes.
+@click.option(
+    "--preview",
+    metavar="[THEME]",
+    is_flag=False,
+    flag_value="_DEFAULT_",
+    default=None,
+    help="Preview THEME (or default theme if not specified).",
+)
+@click.option(
+    "--edit",
+    metavar="[THEME]",
+    is_flag=False,
+    flag_value="_DEFAULT_",
+    default=None,
+    help="Edit THEME (or default theme if not specified).",
+)
+@click.option(
+    "--clone",
+    metavar="THEME NEW_THEME",
+    nargs=2,
+    type=str,
+    help="Clone THEME to NEW_THEME.",
+)
+@click.option("--delete", metavar="THEME", help="Delete THEME.")
+def theme(ctx, cli_obj, default, list_, config, preview, edit, clone, delete):
+    """Manage osxphotos color themes."""
 
-    One of the following subcommands must be specified:
+    subcommands = [default, list_, config, preview, edit, clone, delete]
+    subcommand_names = (
+        "--default, --list, --config, --preview, --edit, --clone, --delete"
+    )
+    if not any(subcommands):
+        click.echo(
+            f"Must specify exactly one of: {subcommand_names}\n",
+            err=True,
+        )
+        rich_click_echo(get_help_msg(theme), err=True)
+        return
 
-    list: list available themes
+    if sum(bool(cmd) for cmd in subcommands) != 1:
+        # only a single subcommand may be specified
+        raise click.ClickException(f"Must specify exactly one of: {subcommand_names}")
 
-    config: print config file for theme to stdout
+    theme_manager = get_theme_manager()
+    console = Console(theme=get_default_theme())
 
-    preview: preview theme
-
-    delete: delete theme
-
-    default: set default theme
-    """
-
-    theme_manager = ThemeManager(theme_dir=THEME_DIR, themes=COLOR_THEMES.values())
-
-    if subcommand == "default":
-        default = get_default_theme(theme_manager)
+    if default:
+        default = get_default_theme()
         theme_manager.list_themes(theme_names=[default.name])
         return
 
-    if subcommand == "list":
+    if list_:
         theme_manager.list_themes()
         return
 
-    if subcommand == "config":
-        if theme:
-            print(theme_manager.get(theme).config)
+    if config:
+        if config == "_DEFAULT_":
+            print(get_default_theme().config)
         else:
-            print(get_default_theme(theme_manager).config)
+            print(get_theme(config).config)
         return
 
-    if subcommand == "preview":
-        theme_ = get_theme(theme)
-        theme_manager.preview_theme(theme_, sample_text=SAMPLE_TEXT)
+    if preview:
+        theme_ = get_default_theme() if preview == "_DEFAULT_" else get_theme(preview)
+        theme_manager.preview_theme(theme_)
         return
 
-    if subcommand == "edit":
-        if not config_file.exists():
-            rprint(f"No config file found for theme {theme}, creating '{config_file}'.")
-            config_file.write_text(get_theme(theme).config, THEME_STYLES)
-        rprint(f"Opening {config_file} in $EDITOR")
+    if edit:
+        theme_ = get_default_theme() if edit == "_DEFAULT_" else get_theme(edit)
+        config_file = pathlib.Path(theme_.path)
+        console.print(f"Opening [filepath]{config_file}[/] in $EDITOR")
         click.edit(filename=str(config_file))
+        return
 
-    if subcommand == "delete":
-        raise NotImplementedError("delete")
+    if clone:
+        src_theme = get_theme(clone[0])
+        dest_path = pathlib.Path(get_theme_dir()) / f"{clone[1]}.theme"
+        if dest_path.exists():
+            raise click.ClickException(
+                f"Theme '{clone[1]}' already exists at {dest_path}"
+            )
+        dest_theme = Theme(
+            name=clone[1],
+            description=src_theme.description,
+            inherit=src_theme.inherit,
+            tags=src_theme.tags,
+            styles=src_theme.styles,
+        )
+        theme_manager = get_theme_manager()
+        theme_manager.add(dest_theme)
+        theme_ = get_theme(dest_theme.name)
+        console.print(
+            f"Cloned theme '[filename]{clone[0]}[/]' to '[filename]{clone[1]}[/]' "
+            f"at [filepath]{theme_.path}[/]"
+        )
+        return
 
-
-def get_default_theme(theme_manager: ThemeManager) -> Theme:
-    """Return the default theme"""
-    try:
-        return theme_manager.get("default")
-    except ValueError:
-        theme_name = get_default_theme_name()
-        return theme_manager.get(theme_name)
+    if delete:
+        theme_ = get_theme(delete)
+        click.confirm(f"Are you sure you want to delete theme {delete}?", abort=True)
+        theme_manager.remove(theme_)
+        console.print(f"Deleted theme [filepath]{theme_.path}[/]")
+        return

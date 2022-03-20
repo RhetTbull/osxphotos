@@ -1,14 +1,26 @@
-"""Support for colorized output for photos_time_warp"""
+"""Support for colorized output for osxphotos cli using rich"""
 
+import pathlib
 from typing import List, Optional
 
+import click
 from rich.style import Style
-from rich_theme_manager.theme import Theme
+from rich_theme_manager import Theme, ThemeManager
 
+from .._constants import APP_NAME
 from .common import noop
 from .darkmode import is_dark_mode
 
-__all__ = ["get_theme", "get_default_theme_name"]
+DEFAULT_THEME_NAME = "default"
+
+__all__ = [
+    "get_default_theme",
+    "get_theme",
+    "get_theme_dir",
+    "get_theme_manager",
+    DEFAULT_THEME_NAME,
+]
+
 
 THEME_STYLES = [
     "color",
@@ -129,50 +141,42 @@ COLOR_THEMES = {
 }
 
 
+def get_theme_dir() -> str:
+    """Return the theme config dir, creating it if necessary"""
+    theme_dir = pathlib.Path(click.get_app_dir(APP_NAME, force_posix=True)) / "themes"
+    theme_dir.mkdir(parents=True, exist_ok=True)
+    return str(theme_dir)
+
+
+def get_theme_manager() -> ThemeManager:
+    """Return theme manager instance"""
+    return ThemeManager(theme_dir=get_theme_dir(), themes=COLOR_THEMES.values())
+
+
 def get_theme(
     theme_name: Optional[str] = None,
-    theme_file: Optional[str] = None,
-    verbose=None,
 ):
-    """Get the color theme based on the color flags or load from config file"""
-    if not verbose:
-        verbose = noop
-    # figure out which color theme to use
-    theme_name = theme_name or "default"
-    if theme_name == "default" and theme_file and theme_file.is_file():
-        # load theme from file
-        verbose(f"Loading color theme from {theme_file}")
-        try:
-            theme = Theme.read(theme_file)
-        except Exception as e:
-            raise ValueError(f"Error reading theme file {theme_file}: {e}")
-    elif theme_name == "default":
-        # try to auto-detect dark/light mode
-        theme = COLOR_THEMES["dark"] if is_dark_mode() else COLOR_THEMES["light"]
-    else:
-        theme = COLOR_THEMES[theme_name]
-    return theme
+    """Get theme by name, or default theme if no name is provided"""
+
+    if theme_name is None:
+        return get_default_theme()
+
+    theme_manager = get_theme_manager()
+    try:
+        return theme_manager.get(theme_name)
+    except ValueError as e:
+        raise click.ClickException(
+            f"Theme '{theme_name}' not found. "
+            f"Available themes: {', '.join(t.name for t in theme_manager.themes)}"
+        ) from e
 
 
-def get_default_theme(themes: List[Theme]) -> Theme:
-    """Get the default theme from the list of themes"""
-    if not themes:
-        raise ValueError("No themes provided")
-    # return custom theme if it exists
-    for theme in themes:
-        if theme.name == "custom":
-            return theme
-
-    # return dark or light depending on mode
-    theme_name = "dark" if is_dark_mode() else "light"
-    for theme in themes:
-        if theme.name == theme_name:
-            return theme
-
-    # return first theme
-    return themes[0]
-
-
-def get_default_theme_name():
-    """Get the default color theme name"""
-    return "dark" if is_dark_mode() else "light"
+def get_default_theme():
+    """Get the default color theme"""
+    theme_manager = get_theme_manager()
+    try:
+        return theme_manager.get(DEFAULT_THEME_NAME)
+    except ValueError:
+        return (
+            theme_manager.get("dark") if is_dark_mode() else theme_manager.get("light")
+        )
