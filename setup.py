@@ -95,7 +95,7 @@ setup(
         "pyobjc-framework-Quartz>=7.3,<9.0",
         "pyobjc-framework-Vision>=7.3,<9.0",
         "rich>=11.2.0,<12.0.0",
-        "rich_theme_manager>=0.6.0",
+        "rich_theme_manager>=0.7.0",
         "textx>=2.3.0,<3.0.0",
         "toml>=0.10.2,<0.11.0",
         "wrapt>=1.13.3,<1.14.0",
