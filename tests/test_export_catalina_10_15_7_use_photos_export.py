@@ -12,40 +12,40 @@ pytestmark = pytest.mark.skipif(
 )
 
 UUID_DICT = {
-    "has_adjustments": "C925CFDC-FF2B-4E71-AC9D-C669B6453A8B", # IMG_1929.JPG
-    "no_adjustments": "16A6AF6B-D8FC-4256-AE33-889733E3EEAB", # IMG_9847.JPG
-    "live": "8EC216A2-0032-4934-BD3F-04C6259B3304", # IMG_3259.HEIC
+    "has_adjustments": "C925CFDC-FF2B-4E71-AC9D-C669B6453A8B",  # IMG_1929.JPG
+    "no_adjustments": "16A6AF6B-D8FC-4256-AE33-889733E3EEAB",  # IMG_9847.JPG
+    "live": "8EC216A2-0032-4934-BD3F-04C6259B3304",  # IMG_3259.HEIC
 }
 
 UUID_BURSTS = {
     "9A5B4CE6-6A9F-4917-95D4-1C98D14FCE4F": {
         "selected": False,
         "filename": "IMG_9812.JPG",
-        "burst_albums": ["TestBurst"],
-        "albums": ["TestBurst"],
+        "burst_albums": ["TestBurst", "osxphotos"],
+        "albums": ["TestBurst", "osxphotos"],
     },
     "89E235DD-B9AC-4E8D-BDA2-986981CA7582": {
         "selected": False,
         "filename": "IMG_9813.JPG",
-        "burst_albums": ["TestBurst"],
+        "burst_albums": ["TestBurst", "osxphotos"],
         "albums": [],
     },
     "75154738-83AA-4DCD-A913-632D5D1C0FEE": {
         "selected": True,
         "filename": "IMG_9814.JPG",
-        "burst_albums": ["TestBurst", "TestBurst2"],
+        "burst_albums": ["TestBurst", "TestBurst2", "osxphotos"],
         "albums": ["TestBurst2"],
     },
     "4A836160-51B2-4E32-907D-ECDDB2CEC657": {
         "selected": False,
         "filename": "IMG_9815.JPG",
-        "burst_albums": ["TestBurst"],
+        "burst_albums": ["TestBurst", "osxphotos"],
         "albums": [],
     },
     "F5E6BD24-B493-44E9-BDA2-7AD9D2CC8C9D": {
         "selected": True,
         "filename": "IMG_9816.JPG",
-        "burst_albums": ["TestBurst"],
+        "burst_albums": ["TestBurst", "osxphotos"],
         "albums": [],
     },
 }

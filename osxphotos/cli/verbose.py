@@ -80,8 +80,7 @@ def verbose_print(
         return noop
 
     global _console
-    width = 10_000 if OSXPHOTOS_IS_TESTING else None
-    _console.console = Console(theme=theme, width=width)
+    _console.console = Console(theme=theme, width=10_000)
 
     # closure to capture timestamp
     def verbose_(*args):
