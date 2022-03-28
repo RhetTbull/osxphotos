@@ -8,6 +8,8 @@ from photoscript.utils import ditto
 
 from osxphotos.exiftool import _ExifToolProc
 
+from .test_catalina_10_15_7 import UUID_DICT_LOCAL
+
 
 def get_os_version():
     import platform

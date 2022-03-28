@@ -3,7 +3,6 @@ import os
 import re
 
 import pytest
-from photoinfo_mock import PhotoInfoMock
 
 import osxphotos
 from osxphotos.exiftool import get_exiftool_path
@@ -14,6 +13,8 @@ from osxphotos.phototemplate import (
     PhotoTemplate,
     RenderOptions,
 )
+
+from .photoinfo_mock import PhotoInfoMock
 
 try:
     exiftool = get_exiftool_path()

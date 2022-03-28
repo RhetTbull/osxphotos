@@ -17,7 +17,6 @@ from tempfile import TemporaryDirectory
 
 import pytest
 from click.testing import CliRunner
-from conftest import copy_photos_library_to_path
 from osxmetadata import OSXMetaData, Tag
 
 import osxphotos
@@ -36,6 +35,8 @@ from osxphotos.cli import (
 from osxphotos.exiftool import ExifTool, get_exiftool_path
 from osxphotos.fileutil import FileUtil
 from osxphotos.utils import noop, normalize_fs_path, normalize_unicode
+
+from .conftest import copy_photos_library_to_path
 
 CLI_PHOTOS_DB = "tests/Test-10.15.7.photoslibrary"
 LIVE_PHOTOS_DB = "tests/Test-Cloud-10.15.1.photoslibrary"
@@ -58,6 +59,11 @@ UUID_BURST_ALBUM = {
         "TestBurst/IMG_9815.JPG",
         "TestBurst/IMG_9816.JPG",
         "TestBurst2/IMG_9814.JPG",
+        "osxphotos/IMG_9812.JPG",  # in my personal library, IMG_9812.JPG == "9A5B4CE6-6A9F-4917-95D4-1C98D14FCE4F"
+        "osxphotos/IMG_9813.JPG",
+        "osxphotos/IMG_9814.JPG",
+        "osxphotos/IMG_9815.JPG",
+        "osxphotos/IMG_9816.JPG",
     ],
     "75154738-83AA-4DCD-A913-632D5D1C0FEE": [
         "TestBurst/IMG_9812.JPG",
@@ -66,6 +72,11 @@ UUID_BURST_ALBUM = {
         "TestBurst/IMG_9815.JPG",
         "TestBurst/IMG_9816.JPG",
         "TestBurst2/IMG_9814.JPG",
+        "osxphotos/IMG_9812.JPG",  # in my personal library, IMG_9812.JPG == "9A5B4CE6-6A9F-4917-95D4-1C98D14FCE4F"
+        "osxphotos/IMG_9813.JPG",
+        "osxphotos/IMG_9814.JPG",
+        "osxphotos/IMG_9815.JPG",
+        "osxphotos/IMG_9816.JPG",
     ],
 }
 
@@ -6456,8 +6467,7 @@ def test_export_burst_uuid():
                 ],
             )
             assert result.exit_code == 0
-            # subtract 1 from len because one photo in two albums so shows up twice in the list
-            assert f"exported: {len(UUID_BURST_ALBUM[uuid]) - 1}" in result.output
+            assert f"exported: 5" in result.output
 
             # export again with --skip-bursts
             result = runner.invoke(
