@@ -142,7 +142,7 @@ def repl(ctx, cli_obj, db, emacs, beta, **kwargs):
         "- AlbumInfo, ExifTool, PhotoInfo, PhotoExporter, ExportOptions, ExportResults, PhotosDB, PlaceInfo, QueryOptions, MomentInfo, ScoreInfo, SearchInfo\n"
     )
     print("The following variables are defined:")
-    print(f"- photosdb: PhotosDB() instance for {photosdb.library_path}")
+    print(f"- photosdb: PhotosDB() instance for '{photosdb.library_path}'")
     print(
         f"- photos: list of PhotoInfo objects for all photos filtered with any query options passed on command line (len={len(photos)})"
     )
