@@ -110,7 +110,10 @@ def theme(ctx, cli_obj, default, list_, config, preview, edit, clone, delete):
             description=src_theme.description,
             inherit=src_theme.inherit,
             tags=src_theme.tags,
-            styles=src_theme.styles,
+            styles={
+                style_name: src_theme.styles[style_name]
+                for style_name in src_theme.style_names
+            },
         )
         theme_manager = get_theme_manager()
         theme_manager.add(dest_theme)
