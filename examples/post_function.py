@@ -1,10 +1,12 @@
 """ Example function for use with osxphotos export --post-function option """
 
-from osxphotos import PhotoInfo, ExportResults
+from typing import Callable
+
+from osxphotos import ExportResults, PhotoInfo
 
 
 def post_function(
-    photo: PhotoInfo, results: ExportResults, verbose: callable, **kwargs
+    photo: PhotoInfo, results: ExportResults, verbose: Callable, **kwargs
 ):
     """Call this with osxphotos export /path/to/export --post-function post_function.py::post_function
         This will get called immediately after the photo has been exported
