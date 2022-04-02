@@ -3,7 +3,6 @@
 import inspect
 import os
 import typing as t
-from io import StringIO
 
 import click
 from rich.console import Console
@@ -213,11 +212,9 @@ def rich_click_echo(
         # otherwise tests fail
         temp_console = Console()
         width = temp_console.width if temp_console.is_terminal else 10_000
-    output = StringIO()
     console = Console(
         force_terminal=True,
         theme=theme or get_rich_theme(),
-        file=output,
         width=width,
     )
     if markdown:
@@ -227,8 +224,9 @@ def rich_click_echo(
     global _timestamp
     if _timestamp:
         message = time_stamp() + message
-    console.print(message, end=end, highlight=highlight, **kwargs)
-    click.echo(output.getvalue(), **echo_args)
+    with console.capture() as capture:
+        console.print(message, end=end, highlight=highlight, **kwargs)
+    click.echo(capture.get(), **echo_args)
 
 
 def rich_echo_via_pager(
@@ -259,11 +257,9 @@ def rich_echo_via_pager(
         except TypeError:
             text_or_generator = [text_or_generator]
 
-    console = _console or Console(theme=theme)
+    console = _console.console or Console(theme=theme)
 
-    color = kwargs.pop("color", None)
-    if color is None:
-        color = bool(console.color_system)
+    color = kwargs.pop("color", True)
 
     with console.pager(styles=color):
         for x in text_or_generator:

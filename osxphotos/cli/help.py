@@ -23,7 +23,7 @@ from osxphotos.phototemplate import (
     get_template_help,
 )
 
-from .click_rich_echo import rich_echo
+from .click_rich_echo import rich_echo_via_pager
 from .color_themes import get_theme
 
 __all__ = [
@@ -58,10 +58,9 @@ def help(ctx, topic, subtopic, **kw):
 
     if subtopic:
         cmd = ctx.obj.group.commands[topic]
-        theme = get_theme("light")
-        rich_echo(
+        rich_echo_via_pager(
             get_subtopic_help(cmd, ctx, subtopic),
-            theme=theme,
+            theme=get_theme(),
             width=click.HelpFormatter().width,
         )
         return
@@ -69,6 +68,7 @@ def help(ctx, topic, subtopic, **kw):
     if topic in ctx.obj.group.commands:
         ctx.info_name = topic
         click.echo_via_pager(ctx.obj.group.commands[topic].get_help(ctx))
+        # rich_echo_via_pager(ctx.obj.group.commands[topic].get_help(ctx))
         return
 
     # didn't find any valid help topics
