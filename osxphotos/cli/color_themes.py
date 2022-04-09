@@ -66,6 +66,9 @@ COLOR_THEMES = {
             "progress.elapsed": Style(color="rgb(139,233,253)"),
             "progress.percentage": Style(color="rgb(255,121,198)"),
             "progress.remaining": Style(color="rgb(139,233,253)"),
+            # "headers": Style(color="rgb(165,194,97)"),
+            # "options": Style(color="rgb(255,198,109)"),
+            # "metavar": Style(color="rgb(12,125,157)"),
         },
     ),
     "light": Theme(
@@ -89,6 +92,9 @@ COLOR_THEMES = {
             "progress.elapsed": Style(color="#032f62", bold=True),
             "progress.percentage": Style(color="#6f42c1", bold=True),
             "progress.remaining": Style(color="#032f62", bold=True),
+            # "headers": Style(color="rgb(254,212,66)"),
+            # "options": Style(color="rgb(227,98,9)"),
+            # "metavar": Style(color="rgb(111,66,193)"),
         },
     ),
     "mono": Theme(
@@ -112,6 +118,9 @@ COLOR_THEMES = {
             "progress.elapsed": "",
             "progress.percentage": "bold",
             "progress.remaining": "bold",
+            # "headers": "bold",
+            # "options": "bold",
+            # "metavar": "bold",
         },
     ),
     "plain": Theme(
@@ -136,6 +145,9 @@ COLOR_THEMES = {
             "progress.elapsed": "",
             "progress.percentage": "",
             "progress.remaining": "",
+            # "headers": "",
+            # "options": "",
+            # "metavar": "",
         },
     ),
 }
