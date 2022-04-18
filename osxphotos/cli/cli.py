@@ -24,6 +24,7 @@ from .places import places
 from .query import query
 from .repl import repl
 from .snap_diff import diff, snap
+from .theme import theme
 from .tutorial import tutorial
 from .uuid import uuid
 
@@ -77,6 +78,7 @@ for command in [
     repl,
     run,
     snap,
+    theme,
     tutorial,
     uninstall,
     uuid,

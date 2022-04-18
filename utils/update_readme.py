@@ -73,11 +73,11 @@ def generate_help_text(command):
 
     # get current help text
     with runner.isolated_filesystem():
-        result = runner.invoke(cli_main, ["help", command])
+        result = runner.invoke(cli_main, ["help", command, "--width", 78])
         help_txt = result.output
 
     # running the help command above doesn't output the full "Usage" line
-    help_txt = help_txt.replace(f"Usage: cli-main", f"Usage: osxphotos")
+    help_txt = help_txt.replace("Usage: cli-main", "Usage: osxphotos")
     return help_txt
 
 

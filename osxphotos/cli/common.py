@@ -8,6 +8,7 @@ from datetime import datetime
 import click
 
 import osxphotos
+from osxphotos._constants import APP_NAME
 from osxphotos._version import __version__
 
 from .param_types import *
@@ -33,6 +34,7 @@ __all__ = [
     "DELETED_OPTIONS",
     "JSON_OPTION",
     "QUERY_OPTIONS",
+    "THEME_OPTION",
     "get_photos_db",
     "load_uuid_from_file",
     "noop",
@@ -499,6 +501,16 @@ def DEBUG_OPTIONS(f):
     return f
 
 
+THEME_OPTION = click.option(
+    "--theme",
+    metavar="THEME",
+    type=click.Choice(["dark", "light", "mono", "plain"], case_sensitive=False),
+    help="Specify the color theme to use for --verbose output. "
+    "Valid themes are 'dark', 'light', 'mono', and 'plain'. "
+    "Defaults to 'dark' or 'light' depending on system dark mode setting.",
+)
+
+
 def load_uuid_from_file(filename):
     """Load UUIDs from file.  Does not validate UUIDs.
         Format is 1 UUID per line, any line beginning with # is ignored.
@@ -524,3 +536,11 @@ def load_uuid_from_file(filename):
             if len(line) and line[0] != "#":
                 uuid.append(line)
     return uuid
+
+
+def get_config_dir() -> pathlib.Path:
+    """Get the directory where config files are stored."""
+    config_dir = pathlib.Path.home() / ".config" / APP_NAME
+    if not config_dir.is_dir():
+        config_dir.mkdir(parents=True)
+    return config_dir
