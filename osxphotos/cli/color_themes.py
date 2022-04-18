@@ -7,8 +7,7 @@ import click
 from rich.style import Style
 from rich_theme_manager import Theme, ThemeManager
 
-from .._constants import APP_NAME
-from .common import noop
+from .common import get_config_dir, noop
 from .darkmode import is_dark_mode
 
 DEFAULT_THEME_NAME = "default"
@@ -153,16 +152,17 @@ COLOR_THEMES = {
 }
 
 
-def get_theme_dir() -> str:
+def get_theme_dir() -> pathlib.Path:
     """Return the theme config dir, creating it if necessary"""
-    theme_dir = pathlib.Path(click.get_app_dir(APP_NAME, force_posix=True)) / "themes"
-    theme_dir.mkdir(parents=True, exist_ok=True)
-    return str(theme_dir)
+    theme_dir = get_config_dir() / "themes"
+    if not theme_dir.exists():
+        theme_dir.mkdir()
+    return theme_dir
 
 
 def get_theme_manager() -> ThemeManager:
     """Return theme manager instance"""
-    return ThemeManager(theme_dir=get_theme_dir(), themes=COLOR_THEMES.values())
+    return ThemeManager(theme_dir=str(get_theme_dir()), themes=COLOR_THEMES.values())
 
 
 def get_theme(

@@ -1,7 +1,6 @@
 """Help text helper class for osxphotos CLI """
 
 import inspect
-import io
 import re
 import typing as t
 
@@ -25,6 +24,10 @@ from osxphotos.phototemplate import (
 
 from .click_rich_echo import rich_echo_via_pager
 from .color_themes import get_theme
+from .common import OSXPHOTOS_HIDDEN
+
+HELP_WIDTH = 110
+HIGHLIGHT_COLOR = "yellow"
 
 __all__ = [
     "ExportCommand",
@@ -37,8 +40,6 @@ __all__ = [
     "get_help_msg",
 ]
 
-HIGHLIGHT_COLOR = "yellow"
-
 
 def get_help_msg(command):
     """get help message for a Click command"""
@@ -47,28 +48,56 @@ def get_help_msg(command):
 
 
 @click.command()
+@click.option(
+    "--width",
+    default=HELP_WIDTH,
+    help="Width of help text",
+    hidden=OSXPHOTOS_HIDDEN,
+)
 @click.argument("topic", default=None, required=False, nargs=1)
 @click.argument("subtopic", default=None, required=False, nargs=1)
 @click.pass_context
-def help(ctx, topic, subtopic, **kw):
+def help(ctx, topic, subtopic, width, **kw):
     """Print help; for help on commands: help <command>."""
     if topic is None:
         click.echo(ctx.parent.get_help())
         return
+
+    global HELP_WIDTH
+    HELP_WIDTH = width
+
+    wrap_text_original = click.formatting.wrap_text
+
+    def wrap_text(
+        text: str,
+        width: int = HELP_WIDTH,
+        initial_indent: str = "",
+        subsequent_indent: str = "",
+        preserve_paragraphs: bool = False,
+    ) -> str:
+        return wrap_text_original(
+            text,
+            width=width,
+            initial_indent=initial_indent,
+            subsequent_indent=subsequent_indent,
+            preserve_paragraphs=preserve_paragraphs,
+        )
+
+    click.formatting.wrap_text = wrap_text
+    click.wrap_text = wrap_text
 
     if subtopic:
         cmd = ctx.obj.group.commands[topic]
         rich_echo_via_pager(
             get_subtopic_help(cmd, ctx, subtopic),
             theme=get_theme(),
-            width=click.HelpFormatter().width,
+            width=HELP_WIDTH,
         )
         return
 
     if topic in ctx.obj.group.commands:
         ctx.info_name = topic
         click.echo_via_pager(ctx.obj.group.commands[topic].get_help(ctx))
-        # rich_echo_via_pager(ctx.obj.group.commands[topic].get_help(ctx))
         return
 
     # didn't find any valid help topics
@@ -90,7 +119,7 @@ def get_subtopic_help(cmd: click.Command, ctx: click.Context, subtopic: str):
     options = get_matching_options(cmd, ctx, subtopic)
 
     # format help text and options
-    formatter = click.HelpFormatter()
+    formatter = click.HelpFormatter(width=HELP_WIDTH)
     formatter.write(usage_str)
     formatter.write_paragraph()
     format_help_text(help_str, formatter)
@@ -142,7 +171,7 @@ def format_options_help(
         str with formatted help
 
     """
-    formatter = click.HelpFormatter()
+    formatter = click.HelpFormatter(width=HELP_WIDTH)
     opt_help = [opt.get_help_record(ctx) for opt in options]
     if highlight:
         # convert list of tuples to list of lists
@@ -182,11 +211,9 @@ class ExportCommand(click.Command):
 
     def get_help(self, ctx):
         help_text = super().get_help(ctx)
-        formatter = click.HelpFormatter()
-        # passed to click.HelpFormatter.write_dl for formatting
-
-        formatter.write("\n\n")
-        formatter.write(rich_text("[bold]** Export **[/bold]", width=formatter.width))
+        formatter = click.HelpFormatter(width=HELP_WIDTH)
+        formatter.write("\n")
+        formatter.write(rich_text("## Export", width=formatter.width, markdown=True))
         formatter.write("\n")
         formatter.write_text(
             "When exporting photos, osxphotos creates a database in the top-level "
@@ -221,9 +248,9 @@ class ExportCommand(click.Command):
             + "You can always run export without the --update option to re-export the entire library thus "
             + f"rebuilding the '{OSXPHOTOS_EXPORT_DB}' database."
         )
-        formatter.write("\n\n")
+        formatter.write("\n")
         formatter.write(
-            rich_text("[bold]** Extended Attributes **[/bold]", width=formatter.width)
+            rich_text("## Extended Attributes", width=formatter.width, markdown=True)
         )
         formatter.write("\n")
         formatter.write_text(
@@ -244,25 +271,33 @@ The following attributes may be used with '--xattr-template':
 
             """
         )
-        formatter.write_dl(
-            [
+        attr_tuples = [
+            (
+                rich_text("[bold]Attribute[/bold]", width=formatter.width),
+                rich_text("[bold]Description[/bold]", width=formatter.width),
+            ),
+            *[
                 (
                     attr,
                     f"{osxmetadata.ATTRIBUTES[attr].help} ({osxmetadata.ATTRIBUTES[attr].constant})",
                 )
                 for attr in EXTENDED_ATTRIBUTE_NAMES
-            ]
-        )
+            ],
+        ]
+        formatter.write_dl(attr_tuples)
         formatter.write("\n")
         formatter.write_text(
             "For additional information on extended attributes see: https://developer.apple.com/documentation/coreservices/file_metadata/mditem/common_metadata_attribute_keys"
         )
-        formatter.write("\n\n")
+        formatter.write("\n")
         formatter.write(
-            rich_text("[bold]** Templating System **[/bold]", width=formatter.width)
+            rich_text("## Templating System", width=formatter.width, markdown=True)
         )
         formatter.write("\n")
-        formatter.write(template_help(width=formatter.width))
+        help_text += formatter.getvalue()
+        help_text += template_help(width=formatter.width)
+        formatter = click.HelpFormatter(width=HELP_WIDTH)
+
         formatter.write("\n")
         formatter.write_text(
             "With the --directory and --filename options you may specify a template for the "
@@ -290,12 +325,15 @@ The following attributes may be used with '--xattr-template':
         )
         formatter.write("\n")
         formatter.write(
-            rich_text(
-                "[bold]** Template Substitutions **[/bold]", width=formatter.width
-            )
+            rich_text("## Template Substitutions", width=formatter.width, markdown=True)
         )
         formatter.write("\n")
-        templ_tuples = [("Substitution", "Description")]
+        templ_tuples = [
+            (
+                rich_text("[bold]Substitution[/bold]", width=formatter.width),
+                rich_text("[bold]Description[/bold]", width=formatter.width),
+            )
+        ]
         templ_tuples.extend((k, v) for k, v in TEMPLATE_SUBSTITUTIONS.items())
         formatter.write_dl(templ_tuples)
 
@@ -310,7 +348,12 @@ The following attributes may be used with '--xattr-template':
             + "2019/Vacation, 2019/Family"
         )
         formatter.write("\n")
-        templ_tuples = [("Substitution", "Description")]
+        templ_tuples = [
+            (
+                rich_text("[bold]Substitution[/bold]", width=formatter.width),
+                rich_text("[bold]Description[/bold]", width=formatter.width),
+            )
+        ]
         templ_tuples.extend(
             (k, v) for k, v in TEMPLATE_SUBSTITUTIONS_MULTI_VALUED.items()
         )
@@ -348,10 +391,11 @@ The following attributes may be used with '--xattr-template':
 
         formatter.write_dl(templ_tuples)
 
-        formatter.write("\n\n")
+        formatter.write("\n")
         formatter.write(
-            rich_text("[bold]** Post Command **[/bold]", width=formatter.width)
+            rich_text("## Post Command", width=formatter.width, markdown=True)
         )
+        formatter.write("\n")
         formatter.write_text(
             "You can run commands on the exported photos for post-processing "
             + "using the '--post-command' option. '--post-command' is passed a CATEGORY and a COMMAND. "
@@ -394,10 +438,11 @@ The following attributes may be used with '--xattr-template':
             + "first to ensure your commands are as expected. This will not actually run the commands but will "
             + "print out the exact command string which would be executed."
         )
-        formatter.write("\n\n")
+        formatter.write("\n")
         formatter.write(
-            rich_text("[bold]** Post Function **[/bold]", width=formatter.width)
+            rich_text("## Post Function", width=formatter.width, markdown=True)
         )
+        formatter.write("\n")
         formatter.write_text(
             "You can run your own python functions on the exported photos for post-processing "
             + "using the '--post-function' option. '--post-function' is passed the name a python file "
@@ -415,23 +460,19 @@ The following attributes may be used with '--xattr-template':
 
 def template_help(width=78):
     """Return formatted string for template system"""
-    sio = io.StringIO()
-    console = Console(file=sio, force_terminal=True, width=width)
     template_help_md = strip_md_header_and_links(get_template_help())
-    console.print(Markdown(template_help_md))
-    help_str = sio.getvalue()
-    sio.close()
-    return help_str
+    console = Console(force_terminal=True, width=width)
+    with console.capture() as capture:
+        console.print(Markdown(template_help_md))
+    return capture.get()
 
 
-def rich_text(text, width=78):
+def rich_text(text, width=78, markdown=False):
     """Return rich formatted text"""
-    sio = io.StringIO()
-    console = Console(file=sio, force_terminal=True, width=width)
-    console.print(text)
-    rich_text = sio.getvalue()
-    sio.close()
-    return rich_text
+    console = Console(force_terminal=True, width=width)
+    with console.capture() as capture:
+        console.print(Markdown(text) if markdown else text, end="")
+    return capture.get()
 
 
 def strip_md_header_and_links(md):

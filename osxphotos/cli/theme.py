@@ -100,7 +100,7 @@ def theme(ctx, cli_obj, default, list_, config, preview, edit, clone, delete):
 
     if clone:
         src_theme = get_theme(clone[0])
-        dest_path = pathlib.Path(get_theme_dir()) / f"{clone[1]}.theme"
+        dest_path = get_theme_dir() / f"{clone[1]}.theme"
         if dest_path.exists():
             raise click.ClickException(
                 f"Theme '{clone[1]}' already exists at {dest_path}"

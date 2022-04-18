@@ -8,7 +8,7 @@ Template statements may contain one or more modifiers.  The full syntax is:
 
 Template statements are white-space sensitive meaning that white space (spaces, tabs) changes the meaning of the template statement.
 
-`pretext` and `posttext` are free form text.  For example, if a photo has title "My Photo Title". the template statement `"The title of the photo is {title}"`, resolves to `"The title of the photo is My Photo Title"`.  The `pretext` in this example is `"The title if the photo is "` and the template_field is `{title}`.  
+`pretext` and `posttext` are free form text.  For example, if a photo has title "My Photo Title" the template statement `"The title of the photo is {title}"`, resolves to `"The title of the photo is My Photo Title"`.  The `pretext` in this example is `"The title if the photo is "` and the template_field is `{title}`.
 
 
 `delim`: optional delimiter string to use when expanding multi-valued template values in-place

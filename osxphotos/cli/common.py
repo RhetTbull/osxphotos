@@ -8,6 +8,7 @@ from datetime import datetime
 import click
 
 import osxphotos
+from osxphotos._constants import APP_NAME
 from osxphotos._version import __version__
 
 from .param_types import *
@@ -535,3 +536,11 @@ def load_uuid_from_file(filename):
             if len(line) and line[0] != "#":
                 uuid.append(line)
     return uuid
+
+
+def get_config_dir() -> pathlib.Path:
+    """Get the directory where config files are stored."""
+    config_dir = pathlib.Path.home() / ".config" / APP_NAME
+    if not config_dir.is_dir():
+        config_dir.mkdir(parents=True)
+    return config_dir

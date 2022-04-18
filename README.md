@@ -439,7 +439,7 @@ You can use the `--report` option to create a report, in comma-separated values 
 
 #### Exporting only certain photos
 
-By default, osxphotos will export your entire Photos library.  If you want to export only certain photos, osxphotos provides a rich set of "query options" that allow you to query the Photos database to filter out only certain photos that match your query criteria.  The tutorial does not cover all the query options as there are over 50 of them--read the help text (`osxphotos help export`) to better understand the available query options.  No matter which subset of photos you would like to export, there is almost certainly a way for osxphotos to filter these.  For example, you can filter for only images that contain certain keywords or images without a title, images from a specific time of day or specific date range, images contained in specific albums, etc. 
+By default, osxphotos will export your entire Photos library.  If you want to export only certain photos, osxphotos provides a rich set of "query options" that allow you to query the Photos database to filter out only certain photos that match your query criteria.  The tutorial does not cover all the query options as there are over 50 of them--read the help text (`osxphotos help export`) to better understand the available query options.  No matter which subset of photos you would like to export, there is almost certainly a way for osxphotos to filter these.  For example, you can filter for only images that contain certain keywords or images without a title, images from a specific time of day or specific date range, images contained in specific albums, etc.
 
 For example, to export only photos with keyword `Travel`:
 
@@ -481,13 +481,13 @@ osxphotos can, for example, write any keywords in the image to Finder tags so th
 
 `osxphotos export /path/to/export --finder-tag-keywords`
 
-`--finder-tag-keywords` also works with `--keyword-template` as described above in the section on `exiftool`: 
+`--finder-tag-keywords` also works with `--keyword-template` as described above in the section on `exiftool`:
 
 `osxphotos export /path/to/export --finder-tag-keywords --keyword-template "{label}"`
 
-The `--xattr-template` option allows you to set a variety of other extended attributes.  It is used in the format `--xattr-template ATTRIBUTE TEMPLATE` where ATTRIBUTE is one of 'authors','comment', 'copyright', 'description', 'findercomment', 'headline', 'keywords'. 
+The `--xattr-template` option allows you to set a variety of other extended attributes.  It is used in the format `--xattr-template ATTRIBUTE TEMPLATE` where ATTRIBUTE is one of 'authors','comment', 'copyright', 'description', 'findercomment', 'headline', 'keywords'.
 
-For example, to set Finder comment to the photo's title and description: 
+For example, to set Finder comment to the photo's title and description:
 
 `osxphotos export /path/to/export --xattr-template findercomment "{title}{newline}{descr}"`
 
@@ -525,7 +525,7 @@ See Extended Attributes section in the help for `osxphotos export` for additiona
 
 #### Saving and loading options
 
-If you repeatedly run a complex osxphotos export command (for example, to regularly back-up your Photos library), you can save all the options to a configuration file for future use (`--save-config FILE`) and then load them (`--load-config FILE`) instead of repeating each option on the command line. 
+If you repeatedly run a complex osxphotos export command (for example, to regularly back-up your Photos library), you can save all the options to a configuration file for future use (`--save-config FILE`) and then load them (`--load-config FILE`) instead of repeating each option on the command line.
 
 To save the configuration:
 
@@ -535,7 +535,7 @@ Then the next to you run osxphotos, you can simply do this:
 
 `osxphotos export /path/to/export --load-config osxphotos.toml`
 
-The configuration file is a plain text file in [TOML](https://toml.io/en/) format so the `.toml` extension is standard but you can name the file anything you like. 
+The configuration file is a plain text file in [TOML](https://toml.io/en/) format so the `.toml` extension is standard but you can name the file anything you like.
 
 #### Run commands on exported photos for post-processing
 
@@ -568,8 +568,7 @@ Another example: if you had `exiftool` installed and wanted to wipe all metadata
 
 `osxphotos export /path/to/export --post-command exported "/usr/local/bin/exiftool -all= {filepath|shell_quote}"`
 
-This command uses the `|shell_quote` template filter instead of the `{shell_quote}` template because the only thing that needs to be quoted is the path to the exported file. Template filters filter the value of the rendered template field.  A number of other filters are available and are described in the help text. 
-
+This command uses the `|shell_quote` template filter instead of the `{shell_quote}` template because the only thing that needs to be quoted is the path to the exported file. Template filters filter the value of the rendered template field.  A number of other filters are available and are described in the help text.
 
 #### An example from an actual osxphotos user
 
@@ -605,9 +604,14 @@ Here's a comprehensive use case from an actual osxphotos user that integrates ma
 
 `osxphotos export ~/Desktop/folder for exported videos/ --keyword Quik --only-movies --db /path to my.photoslibrary --touch-file --finder-tag-keywords --person-keyword --xattr-template findercomment "{title}{title?{descr?{newline},},}{descr}" --exiftool-merge-keywords --exiftool-merge-persons --exiftool --strip`
 
+#### Color Themes
+
+Some osxphotos commands such as export use color themes to colorize the output to make it more legible. The theme may be specified with the `--theme` option. For example: `osxphotos export /path/to/export --verbose --theme dark` uses a theme suited for dark terminals. If you don't specify the color theme, osxphotos will select a default theme based on the current terminal settings. You can also specify your own default theme. See `osxphotos help theme` for more information on themes and for commands to help manage themes.  Themes are defined in `.theme` files in the `~/.osxphotos/themes` directory and use style specifications compatible with the [rich](https://rich.readthedocs.io/en/stable/style.html) library.
+
 #### Conclusion
 
-osxphotos is very flexible.  If you merely want to backup your Photos library, then spending a few minutes to understand the `--directory` option is likely all you need and you can be up and running in minutes.  However, if you have a more complex workflow, osxphotos likely provides options to implement your workflow.  This tutorial does not attempt to cover every option offered by osxphotos but hopefully it provides a good understanding of what kinds of things are possible and where to explore if you want to learn more.<!-- OSXPHOTOS-TUTORIAL:END -->
+osxphotos is very flexible.  If you merely want to backup your Photos library, then spending a few minutes to understand the `--directory` option is likely all you need and you can be up and running in minutes.  However, if you have a more complex workflow, osxphotos likely provides options to implement your workflow.  This tutorial does not attempt to cover every option offered by osxphotos but hopefully it provides a good understanding of what kinds of things are possible and where to explore if you want to learn more.
+<!-- OSXPHOTOS-TUTORIAL:END -->
 
 ### Command line reference: export
 
@@ -1245,19 +1249,19 @@ Options:
                                   'light' depending on system dark mode setting.
   -h, --help                      Show this message and exit.
 
-** Export **
+                                    Export                                    
 
 When exporting photos, osxphotos creates a database in the top-level export
-folder called '.osxphotos_export.db'.  This database preserves state information
-used for determining which files need to be updated when run with --update.  It
-is recommended that if you later move the export folder tree you also move the
-database file.
+folder called '.osxphotos_export.db'.  This database preserves state
+information used for determining which files need to be updated when run with
+--update.  It is recommended that if you later move the export folder tree you
+also move the database file.
 
-The --update option will only copy new or updated files from the library to the
-export folder.  If a file is changed in the export folder (for example, you
-edited the exported image), osxphotos will detect this as a difference and re-
-export the original image from the library thus overwriting the changes.  If
-using --update, the exported library should be treated as a backup, not a
+The --update option will only copy new or updated files from the library to
+the export folder.  If a file is changed in the export folder (for example,
+you edited the exported image), osxphotos will detect this as a difference and
+re-export the original image from the library thus overwriting the changes.
+If using --update, the exported library should be treated as a backup, not a
 working copy where you intend to make changes. If you do edit or process the
 exported files and do not want them to be overwritten withsubsequent --update,
 use --ignore-signature which will match filename but not file signature when
@@ -1269,34 +1273,37 @@ are reported in the total photos exported.
 
 Implementation note: To determine which files need to be updated, osxphotos
 stores file signature information in the '.osxphotos_export.db' database. The
-signature includes size, modification time, and filename.  In order to minimize
-run time, --update does not do a full comparison (diff) of the files nor does it
-compare hashes of the files.  In normal usage, this is sufficient for updating
-the library. You can always run export without the --update option to re-export
-the entire library thus rebuilding the '.osxphotos_export.db' database.
+signature includes size, modification time, and filename.  In order to
+minimize run time, --update does not do a full comparison (diff) of the files
+nor does it compare hashes of the files.  In normal usage, this is sufficient
+for updating the library. You can always run export without the --update
+option to re-export the entire library thus rebuilding the
+'.osxphotos_export.db' database.
 
 
-** Extended Attributes **
+                             Extended Attributes                              
 
 Some options (currently '--finder-tag-template', '--finder-tag-keywords',
-'-xattr-template') write additional metadata to extended attributes in the file.
-These options will only work if the destination filesystem supports extended
-attributes (most do). For example, --finder-tag-keyword writes all keywords
-(including any specified by '--keyword-template' or other options) to Finder
-tags that are searchable in Spotlight using the syntax: 'tag:tagname'. For
-example, if you have images with keyword "Travel" then using '--finder-tag-
-keywords' you could quickly find those images in the Finder by typing
+'-xattr-template') write additional metadata to extended attributes in the
+file. These options will only work if the destination filesystem supports
+extended attributes (most do). For example, --finder-tag-keyword writes all
+keywords (including any specified by '--keyword-template' or other options) to
+Finder tags that are searchable in Spotlight using the syntax: 'tag:tagname'.
+For example, if you have images with keyword "Travel" then using '--finder-
+tag-keywords' you could quickly find those images in the Finder by typing
 'tag:Travel' in the Spotlight search bar. Finder tags are written to the
-'com.apple.metadata:_kMDItemUserTags' extended attribute. Unlike EXIF metadata,
-extended attributes do not modify the actual file. Most cloud storage services
-do not synch extended attributes. Dropbox does sync them and any changes to a
-file's extended attributes will cause Dropbox to re-sync the files.
+'com.apple.metadata:_kMDItemUserTags' extended attribute. Unlike EXIF
+metadata, extended attributes do not modify the actual file. Most cloud
+storage services do not synch extended attributes. Dropbox does sync them and
+any changes to a file's extended attributes will cause Dropbox to re-sync the
+files.
 
 The following attributes may be used with '--xattr-template':
 
 
-authors        The author, or authors, of the contents of the file.  A list of
-               strings. (com.apple.metadata:kMDItemAuthors)
+Attribute      Description
+authors        The author, or authors, of the contents of the file.  A list
+               of strings. (com.apple.metadata:kMDItemAuthors)
 comment        A comment related to the file.  This differs from the Finder
                comment, kMDItemFinderComment.  A string.
                (com.apple.metadata:kMDItemComment)
@@ -1305,257 +1312,260 @@ copyright      The copyright owner of the file contents.  A string.
 creator        Application used to create the document content (for example
                “Word”, “Pages”, and so on).  A string.
                (com.apple.metadata:kMDItemCreator)
-description    A description of the content of the resource.  The description
-               may include an abstract, table of contents, reference to a
-               graphical representation of content or a free-text account of
-               the content.  A string. (com.apple.metadata:kMDItemDescription)
+description    A description of the content of the resource.  The
+               description may include an abstract, table of contents,
+               reference to a graphical representation of content or a free-
+               text account of the content.  A string.
+               (com.apple.metadata:kMDItemDescription)
 findercomment  Finder comments for this file.  A string.
                (com.apple.metadata:kMDItemFinderComment)
-headline       A publishable entry providing a synopsis of the contents of the
-               file.  A string. (com.apple.metadata:kMDItemHeadline)
+headline       A publishable entry providing a synopsis of the contents of
+               the file.  A string. (com.apple.metadata:kMDItemHeadline)
 keywords       Keywords associated with this file. For example, “Birthday”,
                “Important”, etc. This differs from Finder tags
-               (_kMDItemUserTags) which are keywords/tags shown in the Finder
-               and searchable in Spotlight using "tag:tag_name".  A list of
-               strings. (com.apple.metadata:kMDItemKeywords)
+               (_kMDItemUserTags) which are keywords/tags shown in the
+               Finder and searchable in Spotlight using "tag:tag_name".  A
+               list of strings. (com.apple.metadata:kMDItemKeywords)
 participants   The list of people who are visible in an image or movie or
                written about in a document. A list of strings.
                (com.apple.metadata:kMDItemParticipants)
-projects       The list of projects that this file is part of. For example, if
-               you were working on a movie all of the files could be marked as
-               belonging to the project “My Movie”. A list of strings.
-               (com.apple.metadata:kMDItemProjects)
+projects       The list of projects that this file is part of. For example,
+               if you were working on a movie all of the files could be
+               marked as belonging to the project “My Movie”. A list of
+               strings. (com.apple.metadata:kMDItemProjects)
 rating         User rating of this item. For example, the stars rating of an
                iTunes track. An integer.
                (com.apple.metadata:kMDItemStarRating)
 subject        Subject of the this item. A string.
                (com.apple.metadata:kMDItemSubject)
-title          The title of the file. For example, this could be the title of
-               a document, the name of a song, or the subject of an email
+title          The title of the file. For example, this could be the title
+               of a document, the name of a song, or the subject of an email
                message. A string. (com.apple.metadata:kMDItemTitle)
 version        The version number of this file. A string.
                (com.apple.metadata:kMDItemVersion)
 
-For additional information on extended attributes see: https://developer.apple.c
-om/documentation/coreservices/file_metadata/mditem/common_metadata_attribute_key
-s
+For additional information on extended attributes see: https://developer.apple
+.com/documentation/coreservices/file_metadata/mditem/common_metadata_attribute
+_keys
 
 
-** Templating System **
+                              Templating System                               
 
-The templating system converts one or template statements, written in osxphotos 
-metadata templating language, to one or more rendered values using information  
-from the photo being processed.                                                 
+The templating system converts one or template statements, written in         
+osxphotos metadata templating language, to one or more rendered values using  
+information from the photo being processed.                                   
 
-In its simplest form, a template statement has the form: "{template_field}", for
-example "{title}" which would resolve to the title of the photo.                
+In its simplest form, a template statement has the form: "{template_field}",  
+for example "{title}" which would resolve to the title of the photo.          
 
-Template statements may contain one or more modifiers.  The full syntax is:     
+Template statements may contain one or more modifiers.  The full syntax is:   
 
-"pretext{delim+template_field:subfield|filter(path_sep)[find,replace]           
-conditional?bool_value,default}posttext"                                        
+"pretext{delim+template_field:subfield|filter(path_sep)[find,replace]         
+conditional?bool_value,default}posttext"                                      
 
-Template statements are white-space sensitive meaning that white space (spaces, 
-tabs) changes the meaning of the template statement.                            
+Template statements are white-space sensitive meaning that white space        
+(spaces, tabs) changes the meaning of the template statement.                 
 
-pretext and posttext are free form text.  For example, if a photo has title "My 
-Photo Title". the template statement "The title of the photo is {title}",       
-resolves to "The title of the photo is My Photo Title".  The pretext in this    
-example is "The title if the photo is " and the template_field is {title}.      
+pretext and posttext are free form text.  For example, if a photo has title   
+"My Photo Title" the template statement "The title of the photo is {title}",  
+resolves to "The title of the photo is My Photo Title".  The pretext in this  
+example is "The title if the photo is " and the template_field is {title}.    
 
-delim: optional delimiter string to use when expanding multi-valued template    
-values in-place                                                                 
+delim: optional delimiter string to use when expanding multi-valued template  
+values in-place                                                               
 
-+: If present before template name, expands the template in place.  If delim not
-provided, values are joined with no delimiter.                                  
++: If present before template name, expands the template in place.  If delim  
+not provided, values are joined with no delimiter.                            
 
-e.g. if Photo keywords are ["foo","bar"]:                                       
+e.g. if Photo keywords are ["foo","bar"]:                                     
 
- • "{keyword}" renders to "foo", "bar"                                          
- • "{,+keyword}" renders to: "foo,bar"                                          
- • "{; +keyword}" renders to: "foo; bar"                                        
- • "{+keyword}" renders to "foobar"                                             
+ • "{keyword}" renders to "foo", "bar"                                        
+ • "{,+keyword}" renders to: "foo,bar"                                        
+ • "{; +keyword}" renders to: "foo; bar"                                      
+ • "{+keyword}" renders to "foobar"                                           
 
-template_field: The template field to resolve.  See Template Substitutions for  
-full list of template fields.                                                   
+template_field: The template field to resolve.  See Template Substitutions for
+full list of template fields.                                                 
 
-:subfield: Some templates have sub-fields, For example, {exiftool:IPTC:Make};   
-the template_field is exiftool and the sub-field is IPTC:Make.                  
+:subfield: Some templates have sub-fields, For example, {exiftool:IPTC:Make}; 
+the template_field is exiftool and the sub-field is IPTC:Make.                
 
-|filter: You may optionally append one or more filter commands to the end of the
-template field using the vertical pipe ('|') symbol.  Filters may be combined,  
-separated by '|' as in: {keyword|capitalize|parens}.                            
+|filter: You may optionally append one or more filter commands to the end of  
+the template field using the vertical pipe ('|') symbol.  Filters may be      
+combined, separated by '|' as in: {keyword|capitalize|parens}.                
 
-Valid filters are:                                                              
+Valid filters are:                                                            
 
- • lower: Convert value to lower case, e.g. 'Value' => 'value'.                 
- • upper: Convert value to upper case, e.g. 'Value' => 'VALUE'.                 
- • strip: Strip whitespace from beginning/end of value, e.g. ' Value ' =>       
-   'Value'.                                                                     
- • titlecase: Convert value to title case, e.g. 'my value' => 'My Value'.       
- • capitalize: Capitalize first word of value and convert other words to lower  
-   case, e.g. 'MY VALUE' => 'My value'.                                         
- • braces: Enclose value in curly braces, e.g. 'value => '{value}'.             
- • parens: Enclose value in parentheses, e.g. 'value' => '(value')              
- • brackets: Enclose value in brackets, e.g. 'value' => '[value]'               
- • shell_quote: Quotes the value for safe usage in the shell, e.g. My file.jpeg 
-   => 'My file.jpeg'; only adds quotes if needed.                               
- • function: Run custom python function to filter value; use in format          
-   'function:/path/to/file.py::function_name'. See example at https://github.com
-   /RhetTbull/osxphotos/blob/master/examples/template_filter.py                 
+ • lower: Convert value to lower case, e.g. 'Value' => 'value'.               
+ • upper: Convert value to upper case, e.g. 'Value' => 'VALUE'.               
+ • strip: Strip whitespace from beginning/end of value, e.g. ' Value ' =>     
+   'Value'.                                                                   
+ • titlecase: Convert value to title case, e.g. 'my value' => 'My Value'.     
+ • capitalize: Capitalize first word of value and convert other words to lower
+   case, e.g. 'MY VALUE' => 'My value'.                                       
+ • braces: Enclose value in curly braces, e.g. 'value => '{value}'.           
+ • parens: Enclose value in parentheses, e.g. 'value' => '(value')            
+ • brackets: Enclose value in brackets, e.g. 'value' => '[value]'             
+ • shell_quote: Quotes the value for safe usage in the shell, e.g. My         
+   file.jpeg => 'My file.jpeg'; only adds quotes if needed.                   
+ • function: Run custom python function to filter value; use in format        
+   'function:/path/to/file.py::function_name'. See example at https://github.c
+   om/RhetTbull/osxphotos/blob/master/examples/template_filter.py             
 
-e.g. if Photo keywords are ["FOO","bar"]:                                       
+e.g. if Photo keywords are ["FOO","bar"]:                                     
 
- • "{keyword|lower}" renders to "foo", "bar"                                    
- • "{keyword|upper}" renders to: "FOO", "BAR"                                   
- • "{keyword|capitalize}" renders to: "Foo", "Bar"                              
- • "{keyword|lower|parens}" renders to: "(foo)", "(bar)"                        
+ • "{keyword|lower}" renders to "foo", "bar"                                  
+ • "{keyword|upper}" renders to: "FOO", "BAR"                                 
+ • "{keyword|capitalize}" renders to: "Foo", "Bar"                            
+ • "{keyword|lower|parens}" renders to: "(foo)", "(bar)"                      
 
-e.g. if Photo description is "my description":                                  
+e.g. if Photo description is "my description":                                
 
- • "{descr|titlecase}" renders to: "My Description"                             
+ • "{descr|titlecase}" renders to: "My Description"                           
 
-(path_sep): optional path separator to use when joining path-like fields, for   
-example {folder_album}.  Default is "/".                                        
+(path_sep): optional path separator to use when joining path-like fields, for 
+example {folder_album}.  Default is "/".                                      
 
-e.g. If Photo is in Album1 in Folder1:                                          
+e.g. If Photo is in Album1 in Folder1:                                        
 
- • "{folder_album}" renders to ["Folder1/Album1"]                               
- • "{folder_album(>)}" renders to ["Folder1>Album1"]                            
- • "{folder_album()}" renders to ["Folder1Album1"]                              
+ • "{folder_album}" renders to ["Folder1/Album1"]                             
+ • "{folder_album(>)}" renders to ["Folder1>Album1"]                          
+ • "{folder_album()}" renders to ["Folder1Album1"]                            
 
-[find,replace]: optional text replacement to perform on rendered template value.
-For example, to replace "/" in an album name, you could use the template        
-"{album[/,-]}".  Multiple replacements can be made by appending "|" and adding  
-another find|replace pair.  e.g. to replace both "/" and ":" in album name:     
-"{album[/,-|:,-]}".  find/replace pairs are not limited to single characters.   
-The "|" character cannot be used in a find/replace pair.                        
+[find,replace]: optional text replacement to perform on rendered template     
+value.  For example, to replace "/" in an album name, you could use the       
+template "{album[/,-]}".  Multiple replacements can be made by appending "|"  
+and adding another find|replace pair.  e.g. to replace both "/" and ":" in    
+album name: "{album[/,-|:,-]}".  find/replace pairs are not limited to single 
+characters.  The "|" character cannot be used in a find/replace pair.         
 
-conditional: optional conditional expression that is evaluated as boolean       
-(True/False) for use with the ?bool_value modifier.  Conditional expressions    
-take the form ' not operator value' where not is an optional modifier that      
-negates the operator.  Note: the space before the conditional expression is     
-required if you use a conditional expression.  Valid comparison operators are:  
+conditional: optional conditional expression that is evaluated as boolean     
+(True/False) for use with the ?bool_value modifier.  Conditional expressions  
+take the form ' not operator value' where not is an optional modifier that    
+negates the operator.  Note: the space before the conditional expression is   
+required if you use a conditional expression.  Valid comparison operators are:
 
- • contains: template field contains value, similar to python's in              
- • matches: template field contains exactly value, unlike contains: does not    
-   match partial matches                                                        
- • startswith: template field starts with value                                 
- • endswith: template field ends with value                                     
- • <=: template field is less than or equal to value                            
- • >=: template field is greater than or equal to value                         
- • <: template field is less than value                                         
- • >: template field is greater than value                                      
- • ==: template field equals value                                              
- • !=: template field does not equal value                                      
+ • contains: template field contains value, similar to python's in            
+ • matches: template field contains exactly value, unlike contains: does not  
+   match partial matches                                                      
+ • startswith: template field starts with value                               
+ • endswith: template field ends with value                                   
+ • <=: template field is less than or equal to value                          
+ • >=: template field is greater than or equal to value                       
+ • <: template field is less than value                                       
+ • >: template field is greater than value                                    
+ • ==: template field equals value                                            
+ • !=: template field does not equal value                                    
 
-The value part of the conditional expression is treated as a bare (unquoted)    
-word/phrase.  Multiple values may be separated by '|' (the pipe symbol).  value 
-is itself a template statement so you can use one or more template fields in    
-value which will be resolved before the comparison occurs.                      
+The value part of the conditional expression is treated as a bare (unquoted)  
+word/phrase.  Multiple values may be separated by '|' (the pipe symbol).      
+value is itself a template statement so you can use one or more template      
+fields in value which will be resolved before the comparison occurs.          
 
-For example:                                                                    
+For example:                                                                  
 
- • {keyword matches Beach} resolves to True if 'Beach' is a keyword. It would   
-   not match keyword 'BeachDay'.                                                
- • {keyword contains Beach} resolves to True if any keyword contains the word   
-   'Beach' so it would match both 'Beach' and 'BeachDay'.                       
- • {photo.score.overall > 0.7} resolves to True if the photo's overall aesthetic
-   score is greater than 0.7.                                                   
- • {keyword|lower contains beach} uses the lower case filter to do              
-   case-insensitive matching to match any keyword that contains the word        
-   'beach'.                                                                     
- • {keyword|lower not contains beach} uses the not modifier to negate the       
-   comparison so this resolves to True if there is no keyword that matches      
-   'beach'.                                                                     
+ • {keyword matches Beach} resolves to True if 'Beach' is a keyword. It would 
+   not match keyword 'BeachDay'.                                              
+ • {keyword contains Beach} resolves to True if any keyword contains the word 
+   'Beach' so it would match both 'Beach' and 'BeachDay'.                     
+ • {photo.score.overall > 0.7} resolves to True if the photo's overall        
+   aesthetic score is greater than 0.7.                                       
+ • {keyword|lower contains beach} uses the lower case filter to do            
+   case-insensitive matching to match any keyword that contains the word      
+   'beach'.                                                                   
+ • {keyword|lower not contains beach} uses the not modifier to negate the     
+   comparison so this resolves to True if there is no keyword that matches    
+   'beach'.                                                                   
 
-Examples: to export photos that contain certain keywords with the osxphotos     
-export command's --directory option:                                            
+Examples: to export photos that contain certain keywords with the osxphotos   
+export command's --directory option:                                          
 
---directory "{keyword|lower matches                                             
-travel|vacation?Travel-Photos,Not-Travel-Photos}"                               
+--directory "{keyword|lower matches                                           
+travel|vacation?Travel-Photos,Not-Travel-Photos}"                             
 
-This exports any photo that has keywords 'travel' or 'vacation' into a directory
-'Travel-Photos' and all other photos into directory 'Not-Travel-Photos'.        
+This exports any photo that has keywords 'travel' or 'vacation' into a        
+directory 'Travel-Photos' and all other photos into directory                 
+'Not-Travel-Photos'.                                                          
 
-This can be used to rename files as well, for example: --filename               
-"{favorite?Favorite-{original_name},{original_name}}"                           
+This can be used to rename files as well, for example: --filename             
+"{favorite?Favorite-{original_name},{original_name}}"                         
 
-This renames any photo that is a favorite as 'Favorite-ImageName.jpg' (where    
-'ImageName.jpg' is the original name of the photo) and all other photos with the
-unmodified original name.                                                       
+This renames any photo that is a favorite as 'Favorite-ImageName.jpg' (where  
+'ImageName.jpg' is the original name of the photo) and all other photos with  
+the unmodified original name.                                                 
 
-?bool_value: Template fields may be evaluated as boolean (True/False) by        
-appending "?" after the field name (and following "(path_sep)" or               
-"[find/replace]".  If a field is True (e.g. photo is HDR and field is "{hdr}")  
-or has any value, the value following the "?" will be used to render the        
-template instead of the actual field value.  If the template field evaluates to 
-False (e.g. in above example, photo is not HDR) or has no value (e.g. photo has 
-no title and field is "{title}") then the default value following a "," will be 
-used.                                                                           
+?bool_value: Template fields may be evaluated as boolean (True/False) by      
+appending "?" after the field name (and following "(path_sep)" or             
+"[find/replace]".  If a field is True (e.g. photo is HDR and field is "{hdr}")
+or has any value, the value following the "?" will be used to render the      
+template instead of the actual field value.  If the template field evaluates  
+to False (e.g. in above example, photo is not HDR) or has no value (e.g. photo
+has no title and field is "{title}") then the default value following a ","   
+will be used.                                                                 
 
-e.g. if photo is an HDR image,                                                  
+e.g. if photo is an HDR image,                                                
 
- • "{hdr?ISHDR,NOTHDR}" renders to "ISHDR"                                      
+ • "{hdr?ISHDR,NOTHDR}" renders to "ISHDR"                                    
 
-and if it is not an HDR image,                                                  
+and if it is not an HDR image,                                                
 
- • "{hdr?ISHDR,NOTHDR}" renders to "NOTHDR"                                     
+ • "{hdr?ISHDR,NOTHDR}" renders to "NOTHDR"                                   
 
-,default: optional default value to use if the template name has no value.  This
-modifier is also used for the value if False for boolean-type fields (see above)
-as well as to hold a sub-template for values like {created.strftime}.  If no    
-default value provided, "_" is used.                                            
+,default: optional default value to use if the template name has no value.    
+This modifier is also used for the value if False for boolean-type fields (see
+above) as well as to hold a sub-template for values like {created.strftime}.  
+If no default value provided, "_" is used.                                    
 
-e.g., if photo has no title set,                                                
+e.g., if photo has no title set,                                              
 
- • "{title}" renders to "_"                                                     
- • "{title,I have no title}" renders to "I have no title"                       
+ • "{title}" renders to "_"                                                   
+ • "{title,I have no title}" renders to "I have no title"                     
 
-Template fields such as created.strftime use the default value to pass the      
-template to use for strftime.                                                   
+Template fields such as created.strftime use the default value to pass the    
+template to use for strftime.                                                 
 
-e.g., if photo date is 4 February 2020, 19:07:38,                               
+e.g., if photo date is 4 February 2020, 19:07:38,                             
 
- • "{created.strftime,%Y-%m-%d-%H%M%S}" renders to "2020-02-04-190738"          
+ • "{created.strftime,%Y-%m-%d-%H%M%S}" renders to "2020-02-04-190738"        
 
-Some template fields such as "{media_type}" use the default value to allow      
-customization of the output. For example, "{media_type}" resolves to the special
-media type of the photo such as panorama or selfie.  You may use the default    
-value to override these in form:                                                
-"{media_type,video=vidéo;time_lapse=vidéo_accélérée}". In this example, if photo
-was a time_lapse photo, media_type would resolve to vidéo_accélérée instead of  
-time_lapse.                                                                     
+Some template fields such as "{media_type}" use the default value to allow    
+customization of the output. For example, "{media_type}" resolves to the      
+special media type of the photo such as panorama or selfie.  You may use the  
+default value to override these in form:                                      
+"{media_type,video=vidéo;time_lapse=vidéo_accélérée}". In this example, if    
+photo was a time_lapse photo, media_type would resolve to vidéo_accélérée     
+instead of time_lapse.                                                        
 
-Either or both bool_value or default (False value) may be empty which would     
-result in empty string "" when rendered.                                        
+Either or both bool_value or default (False value) may be empty which would   
+result in empty string "" when rendered.                                      
 
-If you want to include "{" or "}" in the output, use "{openbrace}" or           
-"{closebrace}" template substitution.                                           
+If you want to include "{" or "}" in the output, use "{openbrace}" or         
+"{closebrace}" template substitution.                                         
 
-e.g. "{created.year}/{openbrace}{title}{closebrace}" would result in            
-"2020/{Photo Title}".                                                           
+e.g. "{created.year}/{openbrace}{title}{closebrace}" would result in          
+"2020/{Photo Title}".                                                         
 
 With the --directory and --filename options you may specify a template for the
 export directory or filename, respectively. The directory will be appended to
 the export path specified in the export DEST argument to export.  For example,
-if template is '{created.year}/{created.month}', and export destination DEST is
-'/Users/maria/Pictures/export', the actual export directory for a photo would be
-'/Users/maria/Pictures/export/2020/March' if the photo was created in March
-2020.
+if template is '{created.year}/{created.month}', and export destination DEST
+is '/Users/maria/Pictures/export', the actual export directory for a photo
+would be '/Users/maria/Pictures/export/2020/March' if the photo was created in
+March 2020.
 
-The templating system may also be used with the --keyword-template option to set
-keywords on export (with --exiftool or --sidecar), for example, to set a new
-keyword in format 'folder/subfolder/album' to preserve the folder/album
+The templating system may also be used with the --keyword-template option to
+set keywords on export (with --exiftool or --sidecar), for example, to set a
+new keyword in format 'folder/subfolder/album' to preserve the folder/album
 structure, you can use --keyword-template "{folder_album}" or in the
 'folder>subfolder>album' format used in Lightroom Classic, --keyword-template
 "{folder_album(>)}".
 
 In the template, valid template substitutions will be replaced by the
-corresponding value from the table below.  Invalid substitutions will result in
-a an error and the script will abort.
+corresponding value from the table below.  Invalid substitutions will result
+in a an error and the script will abort.
 
-** Template Substitutions **
+
+                            Template Substitutions                            
 
 Substitution                    Description
 {name}                          Current filename of the photo
@@ -1568,100 +1578,105 @@ Substitution                    Description
                                 slow_mo, screenshot, portrait, live_photo,
                                 burst, photo, video. Defaults to 'photo' or
                                 'video' if no special type. Customize one or
-                                more media types using format: '{media_type,vi
-                                deo=vidéo;time_lapse=vidéo_accélérée}'
-{photo_or_video}                'photo' or 'video' depending on what type the
-                                image is. To customize, use default value as
-                                in '{photo_or_video,photo=fotos;video=videos}'
-{hdr}                           Photo is HDR?; True/False value, use in format
-                                '{hdr?VALUE_IF_TRUE,VALUE_IF_FALSE}'
+                                more media types using format: '{media_type,
+                                video=vidéo;time_lapse=vidéo_accélérée}'
+{photo_or_video}                'photo' or 'video' depending on what type
+                                the image is. To customize, use default
+                                value as in
+                                '{photo_or_video,photo=fotos;video=videos}'
+{hdr}                           Photo is HDR?; True/False value, use in
+                                format '{hdr?VALUE_IF_TRUE,VALUE_IF_FALSE}'
 {edited}                        True if photo has been edited (has
                                 adjustments), otherwise False; use in format
                                 '{edited?VALUE_IF_TRUE,VALUE_IF_FALSE}'
 {edited_version}                True if template is being rendered for the
                                 edited version of a photo, otherwise False.
-{favorite}                      Photo has been marked as favorite?; True/False
-                                value, use in format
+{favorite}                      Photo has been marked as favorite?;
+                                True/False value, use in format
                                 '{favorite?VALUE_IF_TRUE,VALUE_IF_FALSE}'
 {created.date}                  Photo's creation date in ISO format, e.g.
                                 '2020-03-22'
 {created.year}                  4-digit year of photo creation time
 {created.yy}                    2-digit year of photo creation time
-{created.mm}                    2-digit month of the photo creation time (zero
-                                padded)
+{created.mm}                    2-digit month of the photo creation time
+                                (zero padded)
 {created.month}                 Month name in user's locale of the photo
                                 creation time
-{created.mon}                   Month abbreviation in the user's locale of the
-                                photo creation time
+{created.mon}                   Month abbreviation in the user's locale of
+                                the photo creation time
 {created.dd}                    2-digit day of the month (zero padded) of
                                 photo creation time
 {created.dow}                   Day of week in user's locale of the photo
                                 creation time
-{created.doy}                   3-digit day of year (e.g Julian day) of photo
-                                creation time, starting from 1 (zero padded)
+{created.doy}                   3-digit day of year (e.g Julian day) of
+                                photo creation time, starting from 1 (zero
+                                padded)
 {created.hour}                  2-digit hour of the photo creation time
 {created.min}                   2-digit minute of the photo creation time
 {created.sec}                   2-digit second of the photo creation time
 {created.strftime}              Apply strftime template to file creation
                                 date/time. Should be used in form
-                                {created.strftime,TEMPLATE} where TEMPLATE is
-                                a valid strftime template, e.g.
-                                {created.strftime,%Y-%U} would result in year-
-                                week number of year: '2020-23'. If used with
-                                no template will return null value. See
+                                {created.strftime,TEMPLATE} where TEMPLATE
+                                is a valid strftime template, e.g.
+                                {created.strftime,%Y-%U} would result in
+                                year-week number of year: '2020-23'. If used
+                                with no template will return null value. See
                                 https://strftime.org/ for help on strftime
                                 templates.
-{modified.date}                 Photo's modification date in ISO format, e.g.
-                                '2020-03-22'; uses creation date if photo is
-                                not modified
-{modified.year}                 4-digit year of photo modification time; uses
-                                creation date if photo is not modified
-{modified.yy}                   2-digit year of photo modification time; uses
-                                creation date if photo is not modified
+{modified.date}                 Photo's modification date in ISO format,
+                                e.g. '2020-03-22'; uses creation date if
+                                photo is not modified
+{modified.year}                 4-digit year of photo modification time;
+                                uses creation date if photo is not modified
+{modified.yy}                   2-digit year of photo modification time;
+                                uses creation date if photo is not modified
 {modified.mm}                   2-digit month of the photo modification time
-                                (zero padded); uses creation date if photo is
-                                not modified
+                                (zero padded); uses creation date if photo
+                                is not modified
 {modified.month}                Month name in user's locale of the photo
-                                modification time; uses creation date if photo
-                                is not modified
-{modified.mon}                  Month abbreviation in the user's locale of the
-                                photo modification time; uses creation date if
+                                modification time; uses creation date if
                                 photo is not modified
-{modified.dd}                   2-digit day of the month (zero padded) of the
-                                photo modification time; uses creation date if
-                                photo is not modified
+{modified.mon}                  Month abbreviation in the user's locale of
+                                the photo modification time; uses creation
+                                date if photo is not modified
+{modified.dd}                   2-digit day of the month (zero padded) of
+                                the photo modification time; uses creation
+                                date if photo is not modified
 {modified.dow}                  Day of week in user's locale of the photo
-                                modification time; uses creation date if photo
+                                modification time; uses creation date if
+                                photo is not modified
+{modified.doy}                  3-digit day of year (e.g Julian day) of
+                                photo modification time, starting from 1
+                                (zero padded); uses creation date if photo
                                 is not modified
-{modified.doy}                  3-digit day of year (e.g Julian day) of photo
-                                modification time, starting from 1 (zero
-                                padded); uses creation date if photo is not
-                                modified
 {modified.hour}                 2-digit hour of the photo modification time;
                                 uses creation date if photo is not modified
-{modified.min}                  2-digit minute of the photo modification time;
-                                uses creation date if photo is not modified
-{modified.sec}                  2-digit second of the photo modification time;
-                                uses creation date if photo is not modified
+{modified.min}                  2-digit minute of the photo modification
+                                time; uses creation date if photo is not
+                                modified
+{modified.sec}                  2-digit second of the photo modification
+                                time; uses creation date if photo is not
+                                modified
 {modified.strftime}             Apply strftime template to file modification
                                 date/time. Should be used in form
-                                {modified.strftime,TEMPLATE} where TEMPLATE is
-                                a valid strftime template, e.g.
+                                {modified.strftime,TEMPLATE} where TEMPLATE
+                                is a valid strftime template, e.g.
                                 {modified.strftime,%Y-%U} would result in
                                 year-week number of year: '2020-23'. If used
-                                with no template will return null value. Uses
-                                creation date if photo is not modified. See
-                                https://strftime.org/ for help on strftime
-                                templates.
-{today.date}                    Current date in iso format, e.g. '2020-03-22'
+                                with no template will return null value.
+                                Uses creation date if photo is not modified.
+                                See https://strftime.org/ for help on
+                                strftime templates.
+{today.date}                    Current date in iso format, e.g.
+                                '2020-03-22'
 {today.year}                    4-digit year of current date
 {today.yy}                      2-digit year of current date
 {today.mm}                      2-digit month of the current date (zero
                                 padded)
 {today.month}                   Month name in user's locale of the current
                                 date
-{today.mon}                     Month abbreviation in the user's locale of the
-                                current date
+{today.mon}                     Month abbreviation in the user's locale of
+                                the current date
 {today.dd}                      2-digit day of the month (zero padded) of
                                 current date
 {today.dow}                     Day of week in user's locale of the current
@@ -1671,10 +1686,10 @@ Substitution                    Description
 {today.hour}                    2-digit hour of the current date
 {today.min}                     2-digit minute of the current date
 {today.sec}                     2-digit second of the current date
-{today.strftime}                Apply strftime template to current date/time.
-                                Should be used in form
-                                {today.strftime,TEMPLATE} where TEMPLATE is a
-                                valid strftime template, e.g.
+{today.strftime}                Apply strftime template to current
+                                date/time. Should be used in form
+                                {today.strftime,TEMPLATE} where TEMPLATE is
+                                a valid strftime template, e.g.
                                 {today.strftime,%Y-%U} would result in year-
                                 week number of year: '2020-23'. If used with
                                 no template will return null value. See
@@ -1682,22 +1697,22 @@ Substitution                    Description
                                 templates.
 {place.name}                    Place name from the photo's reverse
                                 geolocation data, as displayed in Photos
-{place.country_code}            The ISO country code from the photo's reverse
-                                geolocation data
+{place.country_code}            The ISO country code from the photo's
+                                reverse geolocation data
 {place.name.country}            Country name from the photo's reverse
                                 geolocation data
 {place.name.state_province}     State or province name from the photo's
                                 reverse geolocation data
-{place.name.city}               City or locality name from the photo's reverse
+{place.name.city}               City or locality name from the photo's
+                                reverse geolocation data
+{place.name.area_of_interest}   Area of interest name (e.g. landmark or
+                                public place) from the photo's reverse
                                 geolocation data
-{place.name.area_of_interest}   Area of interest name (e.g. landmark or public
-                                place) from the photo's reverse geolocation
-                                data
 {place.address}                 Postal address from the photo's reverse
                                 geolocation data, e.g. '2007 18th St NW,
                                 Washington, DC 20009, United States'
-{place.address.street}          Street part of the postal address, e.g. '2007
-                                18th St NW'
+{place.address.street}          Street part of the postal address, e.g.
+                                '2007 18th St NW'
 {place.address.city}            City part of the postal address, e.g.
                                 'Washington'
 {place.address.state_province}  State/province part of the postal address,
@@ -1710,8 +1725,8 @@ Substitution                    Description
                                 'US'
 {searchinfo.season}             Season of the year associated with a photo,
                                 e.g. 'Summer'; (Photos 5+ only, applied
-                                automatically by Photos' image categorization
-                                algorithms).
+                                automatically by Photos' image
+                                categorization algorithms).
 {exif.camera_make}              Camera make from original photo's EXIF
                                 information as imported by Photos, e.g.
                                 'Apple'
@@ -1721,59 +1736,60 @@ Substitution                    Description
 {exif.lens_model}               Lens model from original photo's EXIF
                                 information as imported by Photos, e.g.
                                 'iPhone 6s back camera 4.15mm f/2.2'
-{uuid}                          Photo's internal universally unique identifier
-                                (UUID) for the photo, a 36-character string
-                                unique to the photo, e.g.
-                                '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'
+{uuid}                          Photo's internal universally unique
+                                identifier (UUID) for the photo, a
+                                36-character string unique to the photo,
+                                e.g. '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'
 {id}                            A unique number for the photo based on its
                                 primary key in the Photos database. A
-                                sequential integer, e.g. 1, 2, 3...etc.  Each
-                                asset associated with a photo (e.g. an image
-                                and Live Photo preview) will share the same
-                                id. May be formatted using a python string
-                                format code. For example, to format as a
-                                5-digit integer and pad with zeros, use
+                                sequential integer, e.g. 1, 2, 3...etc.
+                                Each asset associated with a photo (e.g. an
+                                image and Live Photo preview) will share the
+                                same id. May be formatted using a python
+                                string format code. For example, to format
+                                as a 5-digit integer and pad with zeros, use
                                 '{id:05d}' which results in 00001, 00002,
                                 00003...etc.
 {album_seq}                     An integer, starting at 0, indicating the
                                 photo's index (sequence) in the containing
-                                album. Only valid when used in a '--filename'
-                                template and only when '{album}' or
-                                '{folder_album}' is used in the '--directory'
-                                template. For example '--directory
-                                "{folder_album}" --filename
+                                album. Only valid when used in a '--
+                                filename' template and only when '{album}'
+                                or '{folder_album}' is used in the '--
+                                directory' template. For example '--
+                                directory "{folder_album}" --filename
                                 "{album_seq}_{original_name}"'. To start
                                 counting at a value other than 0, append
-                                append a period and the starting value to the
-                                field name.  For example, to start counting at
-                                1 instead of 0: '{album_seq.1}'. May be
-                                formatted using a python string format code.
-                                For example, to format as a 5-digit integer
-                                and pad with zeros, use '{album_seq:05d}'
-                                which results in 00000, 00001, 00002...etc.
-                                This may result in incorrect sequences if you
-                                have duplicate albums with the same name; see
-                                also '{folder_album_seq}'.
+                                append a period and the starting value to
+                                the field name.  For example, to start
+                                counting at 1 instead of 0: '{album_seq.1}'.
+                                May be formatted using a python string
+                                format code. For example, to format as a
+                                5-digit integer and pad with zeros, use
+                                '{album_seq:05d}' which results in 00000,
+                                00001, 00002...etc. This may result in
+                                incorrect sequences if you have duplicate
+                                albums with the same name; see also
+                                '{folder_album_seq}'.
 {folder_album_seq}              An integer, starting at 0, indicating the
                                 photo's index (sequence) in the containing
-                                album and folder path. Only valid when used in
-                                a '--filename' template and only when
-                                '{folder_album}' is used in the '--directory'
-                                template. For example '--directory
-                                "{folder_album}" --filename
+                                album and folder path. Only valid when used
+                                in a '--filename' template and only when
+                                '{folder_album}' is used in the '--
+                                directory' template. For example '--
+                                directory "{folder_album}" --filename
                                 "{folder_album_seq}_{original_name}"'. To
-                                start counting at a value other than 0, append
-                                append a period and the starting value to the
-                                field name.  For example, to start counting at
-                                1 instead of 0: '{folder_album_seq.1}' May be
-                                formatted using a python string format code.
-                                For example, to format as a 5-digit integer
-                                and pad with zeros, use
-                                '{folder_album_seq:05d}' which results in
-                                00000, 00001, 00002...etc. This may result in
-                                incorrect sequences if you have duplicate
-                                albums with the same name in the same folder;
-                                see also '{album_seq}'.
+                                start counting at a value other than 0,
+                                append append a period and the starting
+                                value to the field name.  For example, to
+                                start counting at 1 instead of 0:
+                                '{folder_album_seq.1}' May be formatted
+                                using a python string format code. For
+                                example, to format as a 5-digit integer and
+                                pad with zeros, use '{folder_album_seq:05d}'
+                                which results in 00000, 00001, 00002...etc.
+                                This may result in incorrect sequences if
+                                you have duplicate albums with the same name
+                                in the same folder; see also '{album_seq}'.
 {comma}                         A comma: ','
 {semicolon}                     A semicolon: ';'
 {questionmark}                  A question mark: '?'
@@ -1791,8 +1807,8 @@ Substitution                    Description
 {osxphotos_version}             The osxphotos version, e.g. '0.47.6'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
-The following substitutions may result in multiple values. Thus if specified for
---directory these could result in multiple copies of a photo being being
+The following substitutions may result in multiple values. Thus if specified
+for --directory these could result in multiple copies of a photo being being
 exported, one to each directory.  For example: --directory
 '{created.year}/{album}' could result in the same photo being exported to each
 of the following directories if the photos were created in 2019 and were in
@@ -1805,11 +1821,12 @@ Substitution             Description
                          enclosing folder
 {project}                Project(s) photo is contained in (such as greeting
                          cards, calendars, slideshows)
-{album_project}          Album(s) and project(s) photo is contained in; treats
-                         projects as regular albums
+{album_project}          Album(s) and project(s) photo is contained in;
+                         treats projects as regular albums
 {folder_album_project}   Folder path + album (includes projects as albums)
-                         photo is contained in. e.g. 'Folder/Subfolder/Album'
-                         or just 'Album' if no enclosing folder
+                         photo is contained in. e.g.
+                         'Folder/Subfolder/Album' or just 'Album' if no
+                         enclosing folder
 {keyword}                Keyword(s) assigned to photo
 {person}                 Person(s) / face(s) in a photo
 {label}                  Image categorization label associated with a photo
@@ -1819,17 +1836,17 @@ Substitution             Description
                          {keyword} which refers to the user-defined
                          keywords/tags applied in Photos.
 {label_normalized}       All lower case version of 'label' (Photos 5+ only)
-{comment}                Comment(s) on shared Photos; format is 'Person name:
-                         comment text' (Photos 5+ only)
+{comment}                Comment(s) on shared Photos; format is 'Person
+                         name: comment text' (Photos 5+ only)
 {exiftool}               Format: '{exiftool:GROUP:TAGNAME}'; use exiftool
                          (https://exiftool.org) to extract metadata, in form
                          GROUP:TAGNAME, from image.  E.g.
                          '{exiftool:EXIF:Make}' to get camera make, or
                          {exiftool:IPTC:Keywords} to extract keywords. See
-                         https://exiftool.org/TagNames/ for list of valid tag
-                         names.  You must specify group (e.g. EXIF, IPTC, etc)
-                         as used in `exiftool -G`. exiftool must be installed
-                         in the path to use this template.
+                         https://exiftool.org/TagNames/ for list of valid
+                         tag names.  You must specify group (e.g. EXIF,
+                         IPTC, etc) as used in `exiftool -G`. exiftool must
+                         be installed in the path to use this template.
 {searchinfo.holiday}     Holiday names associated with a photo, e.g.
                          'Christmas Day'; (Photos 5+ only, applied
                          automatically by Photos' image categorization
@@ -1838,22 +1855,24 @@ Substitution             Description
                          Event'; (Photos 5+ only, applied automatically by
                          Photos' image categorization algorithms).
 {searchinfo.venue}       Venues associated with a photo, e.g. name of
-                         restaurant; (Photos 5+ only, applied automatically by
-                         Photos' image categorization algorithms).
-{searchinfo.venue_type}  Venue types associated with a photo, e.g.
-                         'Restaurant'; (Photos 5+ only, applied automatically
+                         restaurant; (Photos 5+ only, applied automatically
                          by Photos' image categorization algorithms).
+{searchinfo.venue_type}  Venue types associated with a photo, e.g.
+                         'Restaurant'; (Photos 5+ only, applied
+                         automatically by Photos' image categorization
+                         algorithms).
 {photo}                  Provides direct access to the PhotoInfo object for
-                         the photo. Must be used in format '{photo.property}'
-                         where 'property' represents a PhotoInfo property. For
-                         example: '{photo.favorite}' is the same as
-                         '{favorite}' and '{photo.place.name}' is the same as
-                         '{place.name}'. '{photo}' provides access to
-                         properties that are not available as separate
-                         template fields but it assumes some knowledge of the
-                         underlying PhotoInfo class.  See
-                         https://rhettbull.github.io/osxphotos/ for additional
-                         documentation on the PhotoInfo class.
+                         the photo. Must be used in format
+                         '{photo.property}' where 'property' represents a
+                         PhotoInfo property. For example: '{photo.favorite}'
+                         is the same as '{favorite}' and
+                         '{photo.place.name}' is the same as '{place.name}'.
+                         '{photo}' provides access to properties that are
+                         not available as separate template fields but it
+                         assumes some knowledge of the underlying PhotoInfo
+                         class.  See https://rhettbull.github.io/osxphotos/
+                         for additional documentation on the PhotoInfo
+                         class.
 {detected_text}          List of text strings found in the image after
                          performing text detection. Using '{detected_text}'
                          will cause osxphotos to perform text detection on
@@ -1862,30 +1881,33 @@ Substitution             Description
                          results for each photo will be cached in the export
                          database so that future exports with '--update' do
                          not need to reprocess each photo. You may pass a
-                         confidence threshold value between 0.0 and 1.0 after
-                         a colon as in '{detected_text:0.5}'; The default
-                         confidence threshold is 0.75. '{detected_text}' works
-                         only on macOS Catalina (10.15) or later. Note: this
-                         feature is not the same thing as Live Text in macOS
-                         Monterey, which osxphotos does not yet support.
+                         confidence threshold value between 0.0 and 1.0
+                         after a colon as in '{detected_text:0.5}'; The
+                         default confidence threshold is 0.75.
+                         '{detected_text}' works only on macOS Catalina
+                         (10.15) or later. Note: this feature is not the
+                         same thing as Live Text in macOS Monterey, which
+                         osxphotos does not yet support.
 {shell_quote}            Use in form '{shell_quote,TEMPLATE}'; quotes the
                          rendered TEMPLATE value(s) for safe usage in the
-                         shell, e.g. My file.jpeg => 'My file.jpeg'; only adds
-                         quotes if needed.
+                         shell, e.g. My file.jpeg => 'My file.jpeg'; only
+                         adds quotes if needed.
 {strip}                  Use in form '{strip,TEMPLATE}'; strips whitespace
-                         from begining and end of rendered TEMPLATE value(s).
+                         from begining and end of rendered TEMPLATE
+                         value(s).
 {function}               Execute a python function from an external file and
                          use return value as template substitution. Use in
                          format: {function:file.py::function_name} where
                          'file.py' is the name of the python file and
-                         'function_name' is the name of the function to call.
-                         The function will be passed the PhotoInfo object for
-                         the photo. See https://github.com/RhetTbull/osxphotos
-                         /blob/master/examples/template_function.py for an
-                         example of how to implement a template function.
+                         'function_name' is the name of the function to
+                         call. The function will be passed the PhotoInfo
+                         object for the photo. See https://github.com/RhetTb
+                         ull/osxphotos/blob/master/examples/template_functio
+                         n.py for an example of how to implement a template
+                         function.
 
-The following substitutions are file or directory paths. You can access various
-parts of the path using the following modifiers:
+The following substitutions are file or directory paths. You can access
+various parts of the path using the following modifiers:
 
 {path.parent}: the parent directory
 {path.name}: the name of the file or final sub-directory
@@ -1906,33 +1928,35 @@ Substitution  Description
 {filepath}    The full path to the exported file
 
 
-** Post Command **
+                                 Post Command                                 
+
 You can run commands on the exported photos for post-processing using the '--
 post-command' option. '--post-command' is passed a CATEGORY and a COMMAND.
-COMMAND is an osxphotos template string which will be rendered and passed to the
-shell for execution. CATEGORY is the category of file to pass to COMMAND. The
-following categories are available:
+COMMAND is an osxphotos template string which will be rendered and passed to
+the shell for execution. CATEGORY is the category of file to pass to COMMAND.
+The following categories are available:
 
 Category                  Description
 exported                  All exported files
-new                       When used with '--update', all newly exported files
+new                       When used with '--update', all newly exported
+                          files
 updated                   When used with '--update', all files which were
                           previously exported but updated this time
 skipped                   When used with '--update', all files which were
                           skipped (because they were previously exported and
                           didn't change)
-missing                   All files which were not exported because they were
-                          missing from the Photos library
+missing                   All files which were not exported because they
+                          were missing from the Photos library
 exif_updated              When used with '--exiftool', all files on which
                           exiftool updated the metadata
 touched                   When used with '--touch-file', all files where the
                           date was touched
-converted_to_jpeg         When used with '--convert-to-jpeg', all files which
-                          were converted to jpeg
+converted_to_jpeg         When used with '--convert-to-jpeg', all files
+                          which were converted to jpeg
 sidecar_json_written      When used with '--sidecar json', all JSON sidecar
                           files which were written
-sidecar_json_skipped      When used with '--sidecar json' and '--update', all
-                          JSON sidecar files which were skipped
+sidecar_json_skipped      When used with '--sidecar json' and '--update',
+                          all JSON sidecar files which were skipped
 sidecar_exiftool_written  When used with '--sidecar exiftool', all exiftool
                           sidecar files which were written
 sidecar_exiftool_skipped  When used with '--sidecar exiftool' and '--update,
@@ -1943,42 +1967,43 @@ sidecar_xmp_skipped       When used with '--sidecar xmp' and '--update', all
                           XMP sidecar files which were skipped
 error                     All files which produced an error during export
 
-In addition to all normal template fields, the template fields '{filepath}' and
-'{export_dir}' will be available to your command template. Both of these are
-path-type templates which means their various parts can be accessed using the
-available properties, e.g. '{filepath.name}' provides just the file name without
-path and '{filepath.suffix}' is the file extension (suffix) of the file. When
-using paths in your command template, it is important to properly quote the
-paths as they will be passed to the shell and path names may contain spaces.
-Both the '{shell_quote}' template and the '|shell_quote' template filter are
-available for this purpose.  For example, the following command outputs the full
-path of newly exported files to file 'new.txt':
+In addition to all normal template fields, the template fields '{filepath}'
+and '{export_dir}' will be available to your command template. Both of these
+are path-type templates which means their various parts can be accessed using
+the available properties, e.g. '{filepath.name}' provides just the file name
+without path and '{filepath.suffix}' is the file extension (suffix) of the
+file. When using paths in your command template, it is important to properly
+quote the paths as they will be passed to the shell and path names may contain
+spaces. Both the '{shell_quote}' template and the '|shell_quote' template
+filter are available for this purpose.  For example, the following command
+outputs the full path of newly exported files to file 'new.txt':
 
 --post-command new "echo {filepath|shell_quote} >> {shell_quote,{export_dir}/exported.txt}"
 
-In the above command, the 'shell_quote' filter is used to ensure '{filepath}' is
-properly quoted and the '{shell_quote}' template ensures the constructed path of
-'{exported_dir}/exported.txt' is properly quoted. If '{filepath}' is 'IMG
-1234.jpeg' and '{export_dir}' is '/Volumes/Photo Export', the command thus
-renders to:
+In the above command, the 'shell_quote' filter is used to ensure '{filepath}'
+is properly quoted and the '{shell_quote}' template ensures the constructed
+path of '{exported_dir}/exported.txt' is properly quoted. If '{filepath}' is
+'IMG 1234.jpeg' and '{export_dir}' is '/Volumes/Photo Export', the command
+thus renders to:
 
 echo 'IMG 1234.jpeg' >> '/Volumes/Photo Export/exported.txt'
 
-It is highly recommended that you run osxphotos with '--dry-run --verbose' first
-to ensure your commands are as expected. This will not actually run the commands
-but will print out the exact command string which would be executed.
+It is highly recommended that you run osxphotos with '--dry-run --verbose'
+first to ensure your commands are as expected. This will not actually run the
+commands but will print out the exact command string which would be executed.
 
 
-** Post Function **
-You can run your own python functions on the exported photos for post-processing
-using the '--post-function' option. '--post-function' is passed the name a
-python file and the name of the function in the file to call using format
-'filename.py::function_name'. See the example function at
-https://github.com/RhetTbull/osxphotos/blob/master/examples/post_function.py You
-may specify multiple functions to run by repeating the --post-function option.
-All post functions will be called immediately after export of each photo and
-immediately before any --post-command commands. Post functions will not be
-called if the --dry-run flag is set.
+                                Post Function                                 
+
+You can run your own python functions on the exported photos for post-
+processing using the '--post-function' option. '--post-function' is passed the
+name a python file and the name of the function in the file to call using
+format 'filename.py::function_name'. See the example function at
+https://github.com/RhetTbull/osxphotos/blob/master/examples/post_function.py
+You may specify multiple functions to run by repeating the --post-function
+option. All post functions will be called immediately after export of each
+photo and immediately before any --post-command commands. Post functions will
+not be called if the --dry-run flag is set.
 
 
 
@@ -3481,7 +3506,7 @@ Template statements may contain one or more modifiers.  The full syntax is:
 
 Template statements are white-space sensitive meaning that white space (spaces, tabs) changes the meaning of the template statement.
 
-`pretext` and `posttext` are free form text.  For example, if a photo has title "My Photo Title". the template statement `"The title of the photo is {title}"`, resolves to `"The title of the photo is My Photo Title"`.  The `pretext` in this example is `"The title if the photo is "` and the template_field is `{title}`.  
+`pretext` and `posttext` are free form text.  For example, if a photo has title "My Photo Title" the template statement `"The title of the photo is {title}"`, resolves to `"The title of the photo is My Photo Title"`.  The `pretext` in this example is `"The title if the photo is "` and the template_field is `{title}`.
 
 
 `delim`: optional delimiter string to use when expanding multi-valued template values in-place
