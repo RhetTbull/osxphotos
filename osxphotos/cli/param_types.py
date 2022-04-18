@@ -1,11 +1,14 @@
 """Click parameter types for osxphotos CLI"""
 import datetime
+import os
 import pathlib
 
 import bitmath
 import click
 
 from osxphotos.export_db_utils import export_db_get_version
+from osxphotos.photoinfo import PhotoInfoNone
+from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.utils import expand_and_validate_filepath, load_function
 
 __all__ = [
@@ -14,6 +17,7 @@ __all__ = [
     "ExportDBType",
     "FunctionCall",
     "TimeISO8601",
+    "TemplateString",
 ]
 
 
@@ -106,3 +110,22 @@ class ExportDBType(click.ParamType):
             return value
         except Exception:
             self.fail(f"{value} exists but is not a valid osxphotos export database. ")
+
+
+class TemplateString(click.ParamType):
+    """Validate an osxphotos template language (OTL) template string"""
+
+    name = "OTL_TEMPLATE"
+
+    def convert(self, value, param, ctx):
+        try:
+            cwd = os.getcwd()
+            _, unmatched = PhotoTemplate(photo=PhotoInfoNone()).render(
+                value,
+                options=RenderOptions(export_dir=cwd, dest_path=cwd, filepath=cwd),
+            )
+            if unmatched:
+                self.fail(f"Template '{value}' contains unknown field(s): {unmatched}")
+            return value
+        except ValueError as e:
+            self.fail(e)

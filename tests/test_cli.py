@@ -3405,7 +3405,7 @@ def test_export_directory_template_3():
             ],
         )
         assert result.exit_code != 0
-        assert "Invalid template" in result.output
+        assert "Invalid value" in result.output
 
 
 def test_export_directory_template_album_1():
@@ -3660,7 +3660,7 @@ def test_export_filename_template_3():
             ],
         )
         assert result.exit_code != 0
-        assert "Invalid template" in result.output
+        assert "Invalid value" in result.output
 
 
 def test_export_album():
@@ -7150,6 +7150,59 @@ def test_export_post_command_bad_command():
         assert 'Error running command "foobar' in result.output
 
 
+def test_export_post_command_bad_option_1():
+    """Test --post-command with bad options"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli_main,
+            [
+                "export",
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "--post-command",
+                "export",  # should be "exported"
+                "foobar {filepath.name|shell_quote} >> {export_dir}/exported.txt",
+                "--name",
+                "Park",
+                "--skip-original-if-edited",
+            ],
+        )
+        assert result.exit_code != 0
+        assert "Invalid value" in result.output
+
+
+def test_export_post_command_bad_option_2():
+    """Test --post-command with bad options"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli_main,
+            [
+                "export",
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "--post-command",
+                "exported",
+                # error in template for command (missing closing curly brace)
+                "foobar {filepath.name|shell_quote >> {export_dir}/exported.txt",
+                "--name",
+                "Park",
+                "--skip-original-if-edited",
+            ],
+        )
+        assert result.exit_code != 0
+        assert "Invalid value" in result.output
+
+
 def test_export_post_function():
     """Test --post-function"""
 
@@ -7419,3 +7472,54 @@ def test_export_min_size_1():
         )
         assert result.exit_code == 0
         assert "Exporting 4 photos" in result.output
+
+
+def test_export_validate_template_1():
+    """ "Test CLI validation of template arguments"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                "--filename",
+                "{original_names}",
+            ],
+        )
+        assert result.exit_code != 0
+        assert "Invalid value" in result.output
+
+
+def test_export_validate_template_2():
+    """ "Test CLI validation of template arguments"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                "--filename",
+                "{original_name",
+            ],
+        )
+        assert result.exit_code != 0
+        assert "Invalid value" in result.output
+
+
+def test_theme_list():
+    """Test theme --list command"""
+
+    runner = CliRunner()
+    temp_file = tempfile.TemporaryFile()
+    with runner.isolated_filesystem():
+        result = runner.invoke(cli_main, ["theme", "--list"])
+        assert result.exit_code == 0
+        assert "Dark" in result.output

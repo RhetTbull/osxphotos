@@ -84,7 +84,7 @@ from .common import (
 )
 from .help import ExportCommand, get_help_msg
 from .list import _list_libraries
-from .param_types import ExportDBType, FunctionCall
+from .param_types import ExportDBType, FunctionCall, TemplateString
 from .rich_progress import rich_progress
 from .verbose import get_verbose_console, time_stamp, verbose_print
 
@@ -267,6 +267,7 @@ from .verbose import get_verbose_console, time_stamp, verbose_print
     f"would be named 'photoname_low_res.ext'.  The default suffix is '{DEFAULT_PREVIEW_SUFFIX}'. "
     "Multi-value templates (see Templating System) are not permitted with --preview-suffix. "
     "See also --preview and --preview-if-missing.",
+    type=TemplateString(),
 )
 @click.option(
     "--download-missing",
@@ -384,6 +385,7 @@ from .verbose import get_verbose_console, time_stamp, verbose_print
     'You may specify more than one template, for example --keyword-template "{folder_album}" '
     '--keyword-template "{created.year}". '
     "See '--replace-keywords' and Templating System below.",
+    type=TemplateString(),
 )
 @click.option(
     "--replace-keywords",
@@ -404,6 +406,7 @@ from .verbose import get_verbose_console, time_stamp, verbose_print
     "'exported with osxphotos on [today's date]' to the description, you could specify "
     '--description-template "{descr} exported with osxphotos on {today.date}" '
     "See Templating System below.",
+    type=TemplateString(),
 )
 @click.option(
     "--finder-tag-template",
@@ -414,6 +417,7 @@ from .verbose import get_verbose_console, time_stamp, verbose_print
     "'tag:tagname' format. For example, '--finder-tag-template \"{label}\"' to set Finder tags to photo labels. "
     "You may specify multiple TEMPLATE values by using '--finder-tag-template' multiple times. "
     "See also '--finder-tag-keywords and Extended Attributes below.'.",
+    type=TemplateString(),
 )
 @click.option(
     "--finder-tag-keywords",
@@ -431,6 +435,7 @@ from .verbose import get_verbose_console, time_stamp, verbose_print
     "For example, to set Finder comment to the photo's title and description: "
     '\'--xattr-template findercomment "{title}; {descr}" '
     "See Extended Attributes below for additional details on this option.",
+    type=TemplateString(),
 )
 @click.option(
     "--directory",
@@ -438,6 +443,7 @@ from .verbose import get_verbose_console, time_stamp, verbose_print
     default=None,
     help="Optional template for specifying name of output directory in the form '{name,DEFAULT}'. "
     "See below for additional details on templating system.",
+    type=TemplateString(),
 )
 @click.option(
     "--filename",
@@ -447,6 +453,7 @@ from .verbose import get_verbose_console, time_stamp, verbose_print
     help="Optional template for specifying name of output file in the form '{name,DEFAULT}'. "
     "File extension will be added automatically--do not include an extension in the FILENAME template. "
     "See below for additional details on templating system.",
+    type=TemplateString(),
 )
 @click.option(
     "--jpeg-ext",
@@ -473,6 +480,7 @@ from .verbose import get_verbose_console, time_stamp, verbose_print
     "'photoname_edited.ext'. For example, with '--edited-suffix _bearbeiten', the edited photo "
     f"would be named 'photoname_bearbeiten.ext'.  The default suffix is '{DEFAULT_EDITED_SUFFIX}'. "
     "Multi-value templates (see Templating System) are not permitted with --edited-suffix.",
+    type=TemplateString(),
 )
 @click.option(
     "--original-suffix",
@@ -481,6 +489,7 @@ from .verbose import get_verbose_console, time_stamp, verbose_print
     "'filename.ext'. For example, with '--original-suffix _original', the original photo "
     "would be named 'filename_original.ext'.  The default suffix is '' (no suffix). "
     "Multi-value templates (see Templating System) are not permitted with --original-suffix.",
+    type=TemplateString(),
 )
 @click.option(
     "--use-photos-export",
@@ -537,7 +546,6 @@ from .verbose import get_verbose_console, time_stamp, verbose_print
     "--post-command",
     metavar="CATEGORY COMMAND",
     nargs=2,
-    type=(click.Choice(POST_COMMAND_CATEGORIES, case_sensitive=False), str),
     multiple=True,
     help="Run COMMAND on exported files of category CATEGORY.  CATEGORY can be one of: "
     f"{', '.join(list(POST_COMMAND_CATEGORIES.keys()))}. "
@@ -545,6 +553,9 @@ from .verbose import get_verbose_console, time_stamp, verbose_print
     "which appends the full path of all exported files to the file 'exported.txt'. "
     "You can run more than one command by repeating the '--post-command' option with different arguments. "
     "See Post Command below.",
+    type=click.Tuple(
+        [click.Choice(POST_COMMAND_CATEGORIES, case_sensitive=False), TemplateString()]
+    ),
 )
 @click.option(
     "--post-function",
