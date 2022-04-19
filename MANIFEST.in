@@ -5,4 +5,4 @@ include osxphotos/queries/*
 include osxphotos/templates/*
 include README.md
 include README.rst
-include osxphotos/docs
+recursive-include osxphotos/docs *
