@@ -145,6 +145,7 @@ Commands:
   albums     Print out albums found in the Photos library.
   diff       Compare two Photos databases and print out differences
   dump       Print list of all photos & associated info from the Photos...
+  docs       Open osxphotos documentation in your browser.
   export     Export photos from the Photos database.
   help       Print help; for help on commands: help <command>.
   info       Print out descriptive info of the Photos library database.

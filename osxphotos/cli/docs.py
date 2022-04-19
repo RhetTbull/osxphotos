@@ -11,7 +11,7 @@ from osxphotos._version import __version__
 from .common import get_config_dir
 
 
-@click.command(hidden=True)
+@click.command()
 @click.pass_obj
 @click.pass_context
 def docs(ctx, cli_obj):

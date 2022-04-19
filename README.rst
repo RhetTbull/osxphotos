@@ -101,6 +101,7 @@ Alternatively, you can also run the command line utility like this: ``python3 -m
      about      Print information about osxphotos including license.
      albums     Print out albums found in the Photos library.
      diff       Compare two Photos databases and print out differences
+     docs       Open osxphotos documentation in your browser.
      dump       Print list of all photos & associated info from the Photos...
      export     Export photos from the Photos database.
      help       Print help; for help on commands: help <command>.
