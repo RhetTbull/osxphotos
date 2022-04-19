@@ -26,11 +26,10 @@ def docs(ctx, cli_obj):
         click.echo(f"Copying docs for osxphotos version {__version__}")
         shutil.rmtree(str(docs_dir), ignore_errors=True)
         copy_docs(docs_dir)
-        set_docs_version(docs_dir, __version__)
 
-    index = docs_dir / "index.html"
-    click.echo(f"Opening {index}")
-    click.launch(str(index))
+    cli_docs = docs_dir / "cli.html"
+    click.echo(f"Opening {cli_docs}")
+    click.launch(str(cli_docs))
 
 
 def get_docs_version(docs_dir: pathlib.Path) -> Optional[str]:
@@ -53,6 +52,7 @@ def copy_docs(docs_dir: pathlib.Path):
     # docs are in osxphotos/docs and this file is in osxphotos/cli
     src_dir = pathlib.Path(__file__).parent.parent / "docs"
     shutil.copytree(str(src_dir), str(docs_dir))
+    set_docs_version(docs_dir, __version__)
 
 
 def set_docs_version(docs_dir: pathlib.Path, version: str):
