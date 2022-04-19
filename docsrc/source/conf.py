@@ -30,9 +30,7 @@ about = {}
 this_directory = pathlib.Path(__file__).parent
 version_file = this_directory.parent.parent / "osxphotos" / "_version.py"
 # get version info from _version
-with open(
-   version_file, mode="r", encoding="utf-8"
-) as f:
+with open(version_file, mode="r", encoding="utf-8") as f:
     exec(f.read(), about)
 
 # The full version, including alpha/beta/rc tags
@@ -44,7 +42,15 @@ release = about["__version__"]
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["sphinx_click", "sphinx.ext.autodoc", "sphinx.ext.napoleon", "sphinx.ext.viewcode", "sphinx.ext.intersphinx", "m2r2"] 
+extensions = [
+    "sphinx_click",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.intersphinx",
+    "m2r2",
+    "sphinxcontrib.programoutput",
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -66,4 +72,3 @@ html_theme = "alabaster"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
-

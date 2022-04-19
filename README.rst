@@ -86,32 +86,39 @@ Alternatively, you can also run the command line utility like this: ``python3 -m
 
    Options:
      --db <Photos database path>  Specify Photos database path. Path to Photos
-                                  library/database can be specified using either
-                                  --db or directly as PHOTOS_LIBRARY positional
-                                  argument. If neither --db or PHOTOS_LIBRARY
-                                  provided, will attempt to find the library to
-                                  use in the following order: 1. last opened
-                                  library, 2. system library, 3.
-                                  ~/Pictures/Photos Library.photoslibrary
-     --json                       Print output in JSON format.
+                                 library/database can be specified using either
+                                 --db or directly as PHOTOS_LIBRARY positional
+                                 argument. If neither --db or PHOTOS_LIBRARY
+                                 provided, will attempt to find the library to
+                                 use in the following order: 1. last opened
+                                 library, 2. system library, 3.
+                                 ~/Pictures/Photos Library.photoslibrary
+     --json                      Print output in JSON format.
      -v, --version                Show the version and exit.
      -h, --help                   Show this message and exit.
 
    Commands:
-     about     Print information about osxphotos including license.
-     albums    Print out albums found in the Photos library.
-     dump      Print list of all photos & associated info from the Photos...
-     export    Export photos from the Photos database.
-     help      Print help; for help on commands: help <command>.
-     info      Print out descriptive info of the Photos library database.
-     keywords  Print out keywords found in the Photos library.
-     labels    Print out image classification labels found in the Photos...
-     list      Print list of Photos libraries found on the system.
-     persons   Print out persons (faces) found in the Photos library.
-     places    Print out places found in the Photos library.
-     query     Query the Photos database using 1 or more search options; if...
-     repl      Run interactive osxphotos shell
-     tutorial  Display osxphotos tutorial.
+     about      Print information about osxphotos including license.
+     albums     Print out albums found in the Photos library.
+     diff       Compare two Photos databases and print out differences
+     dump       Print list of all photos & associated info from the Photos...
+     export     Export photos from the Photos database.
+     help       Print help; for help on commands: help <command>.
+     info       Print out descriptive info of the Photos library database.
+     install    Install Python packages into the same environment as osxphotos
+     keywords   Print out keywords found in the Photos library.
+     labels     Print out image classification labels found in the Photos...
+     list       Print list of Photos libraries found on the system.
+     persons    Print out persons (faces) found in the Photos library.
+     places     Print out places found in the Photos library.
+     query      Query the Photos database using 1 or more search options; if...
+     repl       Run interactive osxphotos REPL shell (useful for debugging,...
+     run        Run a python file using same environment as osxphotos
+     snap       Create snapshot of Photos database to use with diff command
+     theme      Manage osxphotos color themes.
+     tutorial   Display osxphotos tutorial.
+     uninstall  Uninstall Python packages from the osxphotos environment
+     uuid       Print out unique IDs (UUID) of photos selected in Photos
 
 To get help on a specific command, use ``osxphotos help <command_name>``
 
