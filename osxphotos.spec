@@ -20,6 +20,7 @@ datas.extend(
         ("osxphotos/phototemplate.md", "osxphotos"),
         ("osxphotos/tutorial.md", "osxphotos"),
         ("osxphotos/exiftool_filetypes.json", "osxphotos"),
+        ("osxphotos/docs", "osxphotos/docs"),
     ]
 )
 

@@ -16,6 +16,10 @@ github:
 	@make html
 	@cp -a _build/html/. ../docs
 
+docs:
+	@make html
+	@cp -a _build/html/. ../osxphotos/docs
+
 pdf:
 	@make latexpdf
 	@cp -a _build/latex/osxphotos.pdf ../docs

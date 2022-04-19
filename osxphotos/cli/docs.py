@@ -50,7 +50,8 @@ def get_docs_version(docs_dir: pathlib.Path) -> Optional[str]:
 def copy_docs(docs_dir: pathlib.Path):
     """Copy the latest docs to the docs directory"""
     # there must be a better way to do this
-    src_dir = pathlib.Path(__file__).parent.parent.parent / "docs"
+    # docs are in osxphotos/docs and this file is in osxphotos/cli
+    src_dir = pathlib.Path(__file__).parent.parent / "docs"
     shutil.copytree(str(src_dir), str(docs_dir))
 
 

@@ -1,0 +1,2452 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>osxphotos command line interface (CLI) &#8212; osxphotos 0.47.8 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="osxphotos package" href="reference.html" />
+    <link rel="prev" title="Welcome to osxphotos’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="osxphotos-command-line-interface-cli">
+<h1>osxphotos command line interface (CLI)<a class="headerlink" href="#osxphotos-command-line-interface-cli" title="Permalink to this headline">¶</a></h1>
+<section id="osxphotos">
+<h2>osxphotos<a class="headerlink" href="#osxphotos" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos <span class="o">[</span>OPTIONS<span class="o">]</span> COMMAND <span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-db">
+<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;Photos</span> <span class="pre">database</span> <span class="pre">path&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print output in JSON format.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-v">
+<span id="cmdoption-osxphotos-version"></span><span class="sig-name descname"><span class="pre">-v</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--version</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-v" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show the version and exit.</p>
+</dd></dl>
+
+<section id="osxphotos-about">
+<h3>about<a class="headerlink" href="#osxphotos-about" title="Permalink to this headline">¶</a></h3>
+<p>Print information about osxphotos including license.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos about <span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+</section>
+<section id="osxphotos-albums">
+<h3>albums<a class="headerlink" href="#osxphotos-albums" title="Permalink to this headline">¶</a></h3>
+<p>Print out albums found in the Photos library.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos albums <span class="o">[</span>OPTIONS<span class="o">]</span> <span class="o">[</span>PHOTOS_LIBRARY<span class="o">]</span>...
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-albums-db">
+<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;Photos</span> <span class="pre">database</span> <span class="pre">path&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-albums-db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-albums-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-albums-json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print output in JSON format.</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-albums-arg-PHOTOS_LIBRARY">
+<span id="cmdoption-osxphotos-albums-arg-photos-library"></span><span class="sig-name descname"><span class="pre">PHOTOS_LIBRARY</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-albums-arg-PHOTOS_LIBRARY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional argument(s)</p>
+</dd></dl>
+
+</section>
+<section id="osxphotos-diff">
+<h3>diff<a class="headerlink" href="#osxphotos-diff" title="Permalink to this headline">¶</a></h3>
+<p>Compare two Photos databases and print out differences</p>
+<p>To use the diff command, you’ll need to install sqldiff via homebrew:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Install homebrew (<a class="reference external" href="https://brew.sh/">https://brew.sh/</a>) if not already installed</p></li>
+<li><p>Install sqldiff: <cite>brew install sqldiff</cite></p></li>
+</ul>
+</div></blockquote>
+<p>When run with no arguments, compares the current Photos library to the
+most recent snapshot in the the OSXPHOTOS_SNAPSHOT directory.</p>
+<p>If run with the –db option, compares the library specified by –db to the
+most recent snapshot in the the OSXPHOTOS_SNAPSHOT directory.</p>
+<p>If run with just the DB2 argument, compares the current Photos library to
+the database specified by the DB2 argument.</p>
+<p>If run with both the –db option and the DB2 argument, compares the
+library specified by –db to the database specified by DB2</p>
+<p>See also <cite>osxphotos snap</cite></p>
+<p>If the OSXPHOTOS_SNAPSHOT environment variable is not set, will use
+‘/private/tmp/osxphotos_snapshots’</p>
+<p>Works only on Photos library versions since Catalina (10.15) or newer.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos diff <span class="o">[</span>OPTIONS<span class="o">]</span> <span class="o">[</span>DB2<span class="o">]</span>...
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-diff-db">
+<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;Photos</span> <span class="pre">database</span> <span class="pre">path&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-diff-db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-diff-r">
+<span id="cmdoption-osxphotos-diff-raw-output"></span><span class="sig-name descname"><span class="pre">-r</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--raw-output</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-diff-r" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print raw output (don’t use syntax highlighting).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-diff-s">
+<span id="cmdoption-osxphotos-diff-style"></span><span class="sig-name descname"><span class="pre">-s</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--style</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;STYLE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-diff-s" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify style/theme for syntax highlighting. Theme may be any valid pygments style (<a class="reference external" href="https://pygments.org/styles/">https://pygments.org/styles/</a>). Default is ‘monokai’.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-diff-V">
+<span id="cmdoption-osxphotos-diff-v"></span><span id="cmdoption-osxphotos-diff-verbose"></span><span class="sig-name descname"><span class="pre">-V</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-diff-V" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print verbose output.</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-diff-arg-DB2">
+<span id="cmdoption-osxphotos-diff-arg-db2"></span><span class="sig-name descname"><span class="pre">DB2</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-diff-arg-DB2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional argument(s)</p>
+</dd></dl>
+
+</section>
+<section id="osxphotos-dump">
+<h3>dump<a class="headerlink" href="#osxphotos-dump" title="Permalink to this headline">¶</a></h3>
+<p>Print list of all photos &amp; associated info from the Photos library.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos dump <span class="o">[</span>OPTIONS<span class="o">]</span> <span class="o">[</span>PHOTOS_LIBRARY<span class="o">]</span>...
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-dump-db">
+<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;Photos</span> <span class="pre">database</span> <span class="pre">path&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-dump-db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-dump-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-dump-json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print output in JSON format.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-dump-deleted">
+<span class="sig-name descname"><span class="pre">--deleted</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-dump-deleted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Include photos from the ‘Recently Deleted’ folder.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-dump-deleted-only">
+<span class="sig-name descname"><span class="pre">--deleted-only</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-dump-deleted-only" title="Permalink to this definition">¶</a></dt>
+<dd><p>Include only photos from the ‘Recently Deleted’ folder.</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-dump-arg-PHOTOS_LIBRARY">
+<span id="cmdoption-osxphotos-dump-arg-photos-library"></span><span class="sig-name descname"><span class="pre">PHOTOS_LIBRARY</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-dump-arg-PHOTOS_LIBRARY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional argument(s)</p>
+</dd></dl>
+
+</section>
+<section id="osxphotos-export">
+<h3>export<a class="headerlink" href="#osxphotos-export" title="Permalink to this headline">¶</a></h3>
+<p>Export photos from the Photos database.
+Export path DEST is required.
+Optionally, query the Photos database using 1 or more search options;
+if more than one option is provided, they are treated as “AND”
+(e.g. search for photos matching all options).
+If no query options are provided, all photos will be exported.
+By default, all versions of all photos will be exported including edited
+versions, live photo movies, burst photos, and associated raw images.
+See –skip-edited, –skip-live, –skip-bursts, and –skip-raw options
+to modify this behavior.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos <span class="nb">export</span> <span class="o">[</span>OPTIONS<span class="o">]</span> <span class="o">[</span>PHOTOS_LIBRARY<span class="o">]</span>... DEST
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-db">
+<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;Photos</span> <span class="pre">database</span> <span class="pre">path&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-V">
+<span id="cmdoption-osxphotos-export-v"></span><span id="cmdoption-osxphotos-export-verbose"></span><span class="sig-name descname"><span class="pre">-V</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-V" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print verbose output.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-timestamp">
+<span class="sig-name descname"><span class="pre">--timestamp</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-timestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add time stamp to verbose output</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-no-progress">
+<span class="sig-name descname"><span class="pre">--no-progress</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-no-progress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do not display progress bar during export.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-keyword">
+<span class="sig-name descname"><span class="pre">--keyword</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;KEYWORD&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-keyword" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with keyword KEYWORD. If more than one keyword, treated as “OR”, e.g. find photos matching any keyword</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-person">
+<span class="sig-name descname"><span class="pre">--person</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PERSON&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-person" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with person PERSON. If more than one person, treated as “OR”, e.g. find photos matching any person</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-album">
+<span class="sig-name descname"><span class="pre">--album</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;ALBUM&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-album" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos in album ALBUM. If more than one album, treated as “OR”, e.g. find photos matching any album</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-folder">
+<span class="sig-name descname"><span class="pre">--folder</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;FOLDER&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos in an album in folder FOLDER. If more than one folder, treated as “OR”, e.g. find photos in any FOLDER.  Only searches top level folders (e.g. does not look at subfolders)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-name">
+<span class="sig-name descname"><span class="pre">--name</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;FILENAME&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with filename matching FILENAME. If more than one –name options is specified, they are treated as “OR”, e.g. find photos matching any FILENAME.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-uuid">
+<span class="sig-name descname"><span class="pre">--uuid</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;UUID&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-uuid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with UUID(s). May be repeated to include multiple UUIDs.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-uuid-from-file">
+<span class="sig-name descname"><span class="pre">--uuid-from-file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;FILE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-uuid-from-file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with UUID(s) loaded from FILE. Format is a single UUID per line.  Lines preceded with # are ignored.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-title">
+<span class="sig-name descname"><span class="pre">--title</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;TITLE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for TITLE in title of photo.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-no-title">
+<span class="sig-name descname"><span class="pre">--no-title</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-no-title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with no title.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-description">
+<span class="sig-name descname"><span class="pre">--description</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;DESC&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-description" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for DESC in description of photo.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-no-description">
+<span class="sig-name descname"><span class="pre">--no-description</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-no-description" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with no description.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-place">
+<span class="sig-name descname"><span class="pre">--place</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PLACE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-place" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for PLACE in photo’s reverse geolocation info</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-no-place">
+<span class="sig-name descname"><span class="pre">--no-place</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-no-place" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with no associated place name info (no reverse geolocation info)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-location">
+<span class="sig-name descname"><span class="pre">--location</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-location" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with associated location info (e.g. GPS coordinates)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-no-location">
+<span class="sig-name descname"><span class="pre">--no-location</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-no-location" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with no associated location info (e.g. no GPS coordinates)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-label">
+<span class="sig-name descname"><span class="pre">--label</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;LABEL&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with image classification label LABEL (Photos 5 only). If more than one label, treated as “OR”, e.g. find photos matching any label</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-uti">
+<span class="sig-name descname"><span class="pre">--uti</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;UTI&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-uti" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos whose uniform type identifier (UTI) matches UTI</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-i">
+<span id="cmdoption-osxphotos-export-ignore-case"></span><span class="sig-name descname"><span class="pre">-i</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--ignore-case</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Case insensitive search for title, description, place, keyword, person, or album.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-edited">
+<span class="sig-name descname"><span class="pre">--edited</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-edited" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that have been edited.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-external-edit">
+<span class="sig-name descname"><span class="pre">--external-edit</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-external-edit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos edited in external editor.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-favorite">
+<span class="sig-name descname"><span class="pre">--favorite</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-favorite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos marked favorite.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-not-favorite">
+<span class="sig-name descname"><span class="pre">--not-favorite</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-not-favorite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos not marked favorite.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-hidden">
+<span class="sig-name descname"><span class="pre">--hidden</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-hidden" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos marked hidden.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-not-hidden">
+<span class="sig-name descname"><span class="pre">--not-hidden</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-not-hidden" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos not marked hidden.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-shared">
+<span class="sig-name descname"><span class="pre">--shared</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-shared" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos in shared iCloud album (Photos 5 only).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-not-shared">
+<span class="sig-name descname"><span class="pre">--not-shared</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-not-shared" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos not in shared iCloud album (Photos 5 only).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-burst">
+<span class="sig-name descname"><span class="pre">--burst</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-burst" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that were taken in a burst.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-not-burst">
+<span class="sig-name descname"><span class="pre">--not-burst</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-not-burst" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not part of a burst.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-live">
+<span class="sig-name descname"><span class="pre">--live</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-live" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for Apple live photos</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-not-live">
+<span class="sig-name descname"><span class="pre">--not-live</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-not-live" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not Apple live photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-portrait">
+<span class="sig-name descname"><span class="pre">--portrait</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-portrait" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for Apple portrait mode photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-not-portrait">
+<span class="sig-name descname"><span class="pre">--not-portrait</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-not-portrait" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not Apple portrait mode photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-screenshot">
+<span class="sig-name descname"><span class="pre">--screenshot</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-screenshot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for screenshot photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-not-screenshot">
+<span class="sig-name descname"><span class="pre">--not-screenshot</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-not-screenshot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not screenshot photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-slow-mo">
+<span class="sig-name descname"><span class="pre">--slow-mo</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-slow-mo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for slow motion videos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-not-slow-mo">
+<span class="sig-name descname"><span class="pre">--not-slow-mo</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-not-slow-mo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not slow motion videos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-time-lapse">
+<span class="sig-name descname"><span class="pre">--time-lapse</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-time-lapse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for time lapse videos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-not-time-lapse">
+<span class="sig-name descname"><span class="pre">--not-time-lapse</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-not-time-lapse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not time lapse videos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-hdr">
+<span class="sig-name descname"><span class="pre">--hdr</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-hdr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for high dynamic range (HDR) photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-not-hdr">
+<span class="sig-name descname"><span class="pre">--not-hdr</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-not-hdr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not HDR photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-selfie">
+<span class="sig-name descname"><span class="pre">--selfie</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-selfie" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for selfies (photos taken with front-facing cameras).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-not-selfie">
+<span class="sig-name descname"><span class="pre">--not-selfie</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-not-selfie" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not selfies.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-panorama">
+<span class="sig-name descname"><span class="pre">--panorama</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-panorama" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for panorama photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-not-panorama">
+<span class="sig-name descname"><span class="pre">--not-panorama</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-not-panorama" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not panoramas.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-has-raw">
+<span class="sig-name descname"><span class="pre">--has-raw</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-has-raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with both a jpeg and raw version</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-only-movies">
+<span class="sig-name descname"><span class="pre">--only-movies</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-only-movies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search only for movies (default searches both images and movies).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-only-photos">
+<span class="sig-name descname"><span class="pre">--only-photos</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-only-photos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search only for photos/images (default searches both images and movies).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-from-date">
+<span class="sig-name descname"><span class="pre">--from-date</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;from_date&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-from-date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search by item start date, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-to-date">
+<span class="sig-name descname"><span class="pre">--to-date</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;to_date&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-to-date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search by item end date, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-from-time">
+<span class="sig-name descname"><span class="pre">--from-time</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;from_time&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-from-time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search by item start time of day, e.g. 12:00, or 12:00:00.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-to-time">
+<span class="sig-name descname"><span class="pre">--to-time</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;to_time&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-to-time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search by item end time of day, e.g. 12:00 or 12:00:00.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-has-comment">
+<span class="sig-name descname"><span class="pre">--has-comment</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-has-comment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that have comments.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-no-comment">
+<span class="sig-name descname"><span class="pre">--no-comment</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-no-comment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with no comments.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-has-likes">
+<span class="sig-name descname"><span class="pre">--has-likes</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-has-likes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that have likes.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-no-likes">
+<span class="sig-name descname"><span class="pre">--no-likes</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-no-likes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with no likes.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-is-reference">
+<span class="sig-name descname"><span class="pre">--is-reference</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-is-reference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that were imported as referenced files (not copied into Photos library).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-in-album">
+<span class="sig-name descname"><span class="pre">--in-album</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-in-album" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are in one or more albums.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-not-in-album">
+<span class="sig-name descname"><span class="pre">--not-in-album</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-not-in-album" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not in any albums.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-duplicate">
+<span class="sig-name descname"><span class="pre">--duplicate</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-duplicate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with possible duplicates. osxphotos will compare signatures of photos, evaluating date created, size, height, width, and edited status to find <em>possible</em> duplicates. This does not compare images byte-for-byte nor compare hashes but should find photos imported multiple times or duplicated within Photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-min-size">
+<span class="sig-name descname"><span class="pre">--min-size</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;SIZE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-min-size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with size &gt;= SIZE bytes. The size evaluated is the photo’s original size (when imported to Photos). Size may be specified as integer bytes or using SI or NIST units. For example, the following are all valid and equivalent sizes: ‘1048576’ ‘1.048576MB’, ‘1 MiB’.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-max-size">
+<span class="sig-name descname"><span class="pre">--max-size</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;SIZE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-max-size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with size &lt;= SIZE bytes. The size evaluated is the photo’s original size (when imported to Photos). Size may be specified as integer bytes or using SI or NIST units. For example, the following are all valid and equivalent sizes: ‘1048576’ ‘1.048576MB’, ‘1 MiB’.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-regex">
+<span class="sig-name descname"><span class="pre">--regex</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;REGEX</span> <span class="pre">TEMPLATE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-regex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos where TEMPLATE matches regular expression REGEX. For example, to find photos in an album that begins with ‘Beach’: ‘–regex “^Beach” “{album}”’. You may specify more than one regular expression match by repeating ‘–regex’ with different arguments.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-selected">
+<span class="sig-name descname"><span class="pre">--selected</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-selected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter for photos that are currently selected in Photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-exif">
+<span class="sig-name descname"><span class="pre">--exif</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;EXIF_TAG</span> <span class="pre">VALUE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-exif" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos where EXIF_TAG exists in photo’s EXIF data and contains VALUE. For example, to find photos created by Adobe Photoshop: <cite>–exif Software ‘Adobe Photoshop’ `or to find all photos shot on a Canon camera: `–exif Make Canon</cite>. EXIF_TAG can be any valid exiftool tag, with or without group name, e.g. <cite>EXIF:Make</cite> or <cite>Make</cite>. To use –exif, exiftool must be installed and in the path.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-query-eval">
+<span class="sig-name descname"><span class="pre">--query-eval</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;CRITERIA&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-query-eval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate CRITERIA to filter photos. CRITERIA will be evaluated in context of the following python list comprehension: <cite>photos = [photo for photo in photos if CRITERIA]</cite> where photo represents a PhotoInfo object. For example: <cite>–query-eval photo.favorite</cite> returns all photos that have been favorited and is equivalent to –favorite. You may specify more than one CRITERIA by using –query-eval multiple times. CRITERIA must be a valid python expression. See <a class="reference external" href="https://rhettbull.github.io/osxphotos/">https://rhettbull.github.io/osxphotos/</a> for additional documentation on the PhotoInfo class.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-query-function">
+<span class="sig-name descname"><span class="pre">--query-function</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;filename.py::function&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-query-function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run function to filter photos. Use this in format: –query-function filename.py::function where filename.py is a python file you’ve created and function is the name of the function in the python file you want to call. Your function will be passed a list of PhotoInfo objects and is expected to return a filtered list of PhotoInfo objects. You may use more than one function by repeating the –query-function option with a different value. Your query function will be called after all other query options have been evaluated. See https://github.com/RhetTbull/osxphotos/blob/master/examples/query_function.py for example of how to use this option.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-missing">
+<span class="sig-name descname"><span class="pre">--missing</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-missing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export only photos missing from the Photos library; must be used with –download-missing.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-deleted">
+<span class="sig-name descname"><span class="pre">--deleted</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-deleted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Include photos from the ‘Recently Deleted’ folder.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-deleted-only">
+<span class="sig-name descname"><span class="pre">--deleted-only</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-deleted-only" title="Permalink to this definition">¶</a></dt>
+<dd><p>Include only photos from the ‘Recently Deleted’ folder.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-update">
+<span class="sig-name descname"><span class="pre">--update</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only export new or updated files. See also –force-update and notes below on export and –update.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-force-update">
+<span class="sig-name descname"><span class="pre">--force-update</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-force-update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only export new or updated files. Unlike –update, –force-update will re-export photos if their metadata has changed even if this would not otherwise trigger an export. See also –update and notes below on export and –update.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-ignore-signature">
+<span class="sig-name descname"><span class="pre">--ignore-signature</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-ignore-signature" title="Permalink to this definition">¶</a></dt>
+<dd><p>When used with ‘–update’, ignores file signature when updating files. This is useful if you have processed or edited exported photos changing the file signature (size &amp; modification date). In this case, ‘–update’ would normally re-export the processed files but with ‘–ignore-signature’, files which exist in the export directory will not be re-exported. If used with ‘–sidecar’, ‘–ignore-signature’ has the following behavior: 1) if the metadata (in Photos) that went into the sidecar did not change, the sidecar will not be updated; 2) if the metadata (in Photos) that went into the sidecar did change, a new sidecar is written but a new image file is not; 3) if a sidecar does not exist for the photo, a sidecar will be written whether or not the photo file was written or updated.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-only-new">
+<span class="sig-name descname"><span class="pre">--only-new</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-only-new" title="Permalink to this definition">¶</a></dt>
+<dd><p>If used with –update, ignores any previously exported files, even if missing from the export folder and only exports new files that haven’t previously been exported.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-dry-run">
+<span class="sig-name descname"><span class="pre">--dry-run</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-dry-run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dry run (test) the export but don’t actually export any files; most useful with –verbose.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-export-as-hardlink">
+<span class="sig-name descname"><span class="pre">--export-as-hardlink</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-export-as-hardlink" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hardlink files instead of copying them. Cannot be used with –exiftool which creates copies of the files with embedded EXIF data. Note: on APFS volumes, files are cloned when exporting giving many of the same advantages as hardlinks without having to use –export-as-hardlink.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-touch-file">
+<span class="sig-name descname"><span class="pre">--touch-file</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-touch-file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the file’s modification time to match photo date.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-overwrite">
+<span class="sig-name descname"><span class="pre">--overwrite</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-overwrite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite existing files. Default behavior is to add (1), (2), etc to filename if file already exists. Use this with caution as it may create name collisions on export. (e.g. if two files happen to have the same name)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-retry">
+<span class="sig-name descname"><span class="pre">--retry</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;RETRY&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-retry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Automatically retry export up to RETRY times if an error occurs during export.  This may be useful with network drives that experience intermittent errors.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-export-by-date">
+<span class="sig-name descname"><span class="pre">--export-by-date</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-export-by-date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Automatically create output folders to organize photos by date created (e.g. DEST/2019/12/20/photoname.jpg).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-skip-edited">
+<span class="sig-name descname"><span class="pre">--skip-edited</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-skip-edited" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do not export edited version of photo if an edited version exists.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-skip-original-if-edited">
+<span class="sig-name descname"><span class="pre">--skip-original-if-edited</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-skip-original-if-edited" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do not export original if there is an edited version (exports only the edited version).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-skip-bursts">
+<span class="sig-name descname"><span class="pre">--skip-bursts</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-skip-bursts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do not export all associated burst images in the library if a photo is a burst photo.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-skip-live">
+<span class="sig-name descname"><span class="pre">--skip-live</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-skip-live" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do not export the associated live video component of a live photo.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-skip-raw">
+<span class="sig-name descname"><span class="pre">--skip-raw</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-skip-raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do not export associated RAW image of a RAW+JPEG pair.  Note: this does not skip RAW photos if the RAW photo does not have an associated JPEG image (e.g. the RAW file was imported to Photos without a JPEG preview).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-skip-uuid">
+<span class="sig-name descname"><span class="pre">--skip-uuid</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;UUID&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-skip-uuid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Skip photos with UUID(s) during export. May be repeated to include multiple UUIDs.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-skip-uuid-from-file">
+<span class="sig-name descname"><span class="pre">--skip-uuid-from-file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;FILE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-skip-uuid-from-file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Skip photos with UUID(s) loaded from FILE. Format is a single UUID per line.  Lines preceded with # are ignored.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-current-name">
+<span class="sig-name descname"><span class="pre">--current-name</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-current-name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use photo’s current filename instead of original filename for export.  Note: Starting with Photos 5, all photos are renamed upon import.  By default, photos are exported with the the original name they had before import.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-convert-to-jpeg">
+<span class="sig-name descname"><span class="pre">--convert-to-jpeg</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-convert-to-jpeg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert all non-JPEG images (e.g. RAW, HEIC, PNG, etc) to JPEG upon export. Note: does not convert the RAW component of a RAW+JPEG pair as the associated JPEG image will be exported. You can use –skip-raw to skip exporting the associated RAW image of a RAW+JPEG pair. See also –jpeg-quality and –jpeg-ext. Only works if your Mac has a GPU (thus may not work on virtual machines).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-jpeg-quality">
+<span class="sig-name descname"><span class="pre">--jpeg-quality</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;jpeg_quality&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-jpeg-quality" title="Permalink to this definition">¶</a></dt>
+<dd><p>Value in range 0.0 to 1.0 to use with –convert-to-jpeg. A value of 1.0 specifies best quality, a value of 0.0 specifies maximum compression. Defaults to 1.0</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-preview">
+<span class="sig-name descname"><span class="pre">--preview</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-preview" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export preview image generated by Photos. This is a lower-resolution image used by Photos to quickly preview the image. See also –preview-suffix and –preview-if-missing.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-preview-if-missing">
+<span class="sig-name descname"><span class="pre">--preview-if-missing</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-preview-if-missing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export preview image generated by Photos if the actual photo file is missing from the library. This may be helpful if photos were not copied to the Photos library and the original photo is missing. See also –preview-suffix and –preview.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-preview-suffix">
+<span class="sig-name descname"><span class="pre">--preview-suffix</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;SUFFIX&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-preview-suffix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional suffix template for naming preview photos.  Default name for preview photos is in form ‘photoname_preview.ext’. For example, with ‘–preview-suffix _low_res’, the preview photo would be named ‘photoname_low_res.ext’.  The default suffix is ‘_preview’. Multi-value templates (see Templating System) are not permitted with –preview-suffix. See also –preview and –preview-if-missing.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-download-missing">
+<span class="sig-name descname"><span class="pre">--download-missing</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-download-missing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attempt to download missing photos from iCloud. The current implementation uses Applescript to interact with Photos to export the photo which will force Photos to download from iCloud if the photo does not exist on disk.  This will be slow and will require internet connection. This obviously only works if the Photos library is synched to iCloud.  Note: –download-missing does not currently export all burst images; only the primary photo will be exported–associated burst images will be skipped.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-sidecar">
+<span class="sig-name descname"><span class="pre">--sidecar</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;FORMAT&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-sidecar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create sidecar for each photo exported; valid FORMAT values: xmp, json, exiftool; –sidecar xmp: create XMP sidecar used by Digikam, Adobe Lightroom, etc. The sidecar file is named in format photoname.ext.xmp The XMP sidecar exports the following tags: Description, Title, Keywords/Tags, Subject (set to Keywords + PersonInImage), PersonInImage, CreateDate, ModifyDate, GPSLongitude, Face Regions (Metadata Working Group and Microsoft Photo).
+–sidecar json: create JSON sidecar useable by exiftool (<a class="reference external" href="https://exiftool.org/">https://exiftool.org/</a>) The sidecar file can be used to apply metadata to the file with exiftool, for example: “exiftool -j=photoname.jpg.json photoname.jpg” The sidecar file is named in format photoname.ext.json; format includes tag groups (equivalent to running ‘exiftool -G -j’).
+–sidecar exiftool: create JSON sidecar compatible with output of ‘exiftool -j’. Unlike ‘–sidecar json’, ‘–sidecar exiftool’ does not export tag groups. Sidecar filename is in format photoname.ext.json; For a list of tags exported in the JSON and exiftool sidecar, see ‘–exiftool’. See also ‘–ignore-signature’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Options</dt>
+<dd class="field-odd"><p>xmp | json | exiftool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-sidecar-drop-ext">
+<span class="sig-name descname"><span class="pre">--sidecar-drop-ext</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-sidecar-drop-ext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Drop the photo’s extension when naming sidecar files. By default, sidecar files are named in format ‘photo_filename.photo_ext.sidecar_ext’, e.g. ‘IMG_1234.JPG.xmp’. Use ‘–sidecar-drop-ext’ to ignore the photo extension. Resulting sidecar files will have name in format ‘IMG_1234.xmp’. Warning: this may result in sidecar filename collisions if there are files of different types but the same name in the output directory, e.g. ‘IMG_1234.JPG’ and ‘IMG_1234.MOV’.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-exiftool">
+<span class="sig-name descname"><span class="pre">--exiftool</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-exiftool" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use exiftool to write metadata directly to exported photos. To use this option, exiftool must be installed and in the path.  exiftool may be installed from <a class="reference external" href="https://exiftool.org/">https://exiftool.org/</a>.  Cannot be used with –export-as-hardlink.  Writes the following metadata: EXIF:ImageDescription, XMP:Description (see also –description-template); XMP:Title; XMP:TagsList, IPTC:Keywords, XMP:Subject (see also –keyword-template, –person-keyword, –album-keyword); XMP:PersonInImage; EXIF:GPSLatitudeRef; EXIF:GPSLongitudeRef; EXIF:GPSLatitude; EXIF:GPSLongitude; EXIF:GPSPosition; EXIF:DateTimeOriginal; EXIF:OffsetTimeOriginal; EXIF:ModifyDate (see –ignore-date-modified); IPTC:DateCreated; IPTC:TimeCreated; (video files only): QuickTime:CreationDate; QuickTime:CreateDate; QuickTime:ModifyDate (see also –ignore-date-modified); QuickTime:GPSCoordinates; UserData:GPSCoordinates.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-exiftool-path">
+<span class="sig-name descname"><span class="pre">--exiftool-path</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;EXIFTOOL_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-exiftool-path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optionally specify path to exiftool; if not provided, will look for exiftool in $PATH.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-exiftool-option">
+<span class="sig-name descname"><span class="pre">--exiftool-option</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;OPTION&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-exiftool-option" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional flag/option to pass to exiftool when using –exiftool. For example, –exiftool-option ‘-m’ to ignore minor warnings. Specify these as you would on the exiftool command line. See exiftool docs at <a class="reference external" href="https://exiftool.org/exiftool_pod.html">https://exiftool.org/exiftool_pod.html</a> for full list of options. More than one option may be specified by repeating the option, e.g. –exiftool-option ‘-m’ –exiftool-option ‘-F’.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-exiftool-merge-keywords">
+<span class="sig-name descname"><span class="pre">--exiftool-merge-keywords</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-exiftool-merge-keywords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge any keywords found in the original file with keywords used for ‘–exiftool’ and ‘–sidecar’.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-exiftool-merge-persons">
+<span class="sig-name descname"><span class="pre">--exiftool-merge-persons</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-exiftool-merge-persons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge any persons found in the original file with persons used for ‘–exiftool’ and ‘–sidecar’.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-ignore-date-modified">
+<span class="sig-name descname"><span class="pre">--ignore-date-modified</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-ignore-date-modified" title="Permalink to this definition">¶</a></dt>
+<dd><p>If used with –exiftool or –sidecar, will ignore the photo modification date and set EXIF:ModifyDate to EXIF:DateTimeOriginal; this is consistent with how Photos handles the EXIF:ModifyDate tag.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-person-keyword">
+<span class="sig-name descname"><span class="pre">--person-keyword</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-person-keyword" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use person in image as keyword/tag when exporting metadata.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-album-keyword">
+<span class="sig-name descname"><span class="pre">--album-keyword</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-album-keyword" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use album name as keyword/tag when exporting metadata.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-keyword-template">
+<span class="sig-name descname"><span class="pre">--keyword-template</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;TEMPLATE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-keyword-template" title="Permalink to this definition">¶</a></dt>
+<dd><p>For use with –exiftool, –sidecar; specify a template string to use as keyword in the form ‘{name,DEFAULT}’ This is the same format as –directory.  For example, if you wanted to add the full path to the folder and album photo is contained in as a keyword when exporting you could specify –keyword-template “{folder_album}” You may specify more than one template, for example –keyword-template “{folder_album}” –keyword-template “{created.year}”. See ‘–replace-keywords’ and Templating System below.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-replace-keywords">
+<span class="sig-name descname"><span class="pre">--replace-keywords</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-replace-keywords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace keywords with any values specified with –keyword-template. By default, –keyword-template will add keywords to any keywords already associated with the photo.  If –replace-keywords is specified, values from –keyword-template will replace any existing keywords instead of adding additional keywords.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-description-template">
+<span class="sig-name descname"><span class="pre">--description-template</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;TEMPLATE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-description-template" title="Permalink to this definition">¶</a></dt>
+<dd><p>For use with –exiftool, –sidecar; specify a template string to use as description in the form ‘{name,DEFAULT}’ This is the same format as –directory.  For example, if you wanted to append ‘exported with osxphotos on [today’s date]’ to the description, you could specify –description-template “{descr} exported with osxphotos on {today.date}” See Templating System below.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-finder-tag-template">
+<span class="sig-name descname"><span class="pre">--finder-tag-template</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;TEMPLATE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-finder-tag-template" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set MacOS Finder tags to TEMPLATE. These tags can be searched in the Finder or Spotlight with ‘<a class="reference external" href="tag:tagname">tag:tagname</a>’ format. For example, ‘–finder-tag-template “{label}”’ to set Finder tags to photo labels. You may specify multiple TEMPLATE values by using ‘–finder-tag-template’ multiple times. See also ‘–finder-tag-keywords and Extended Attributes below.’.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-finder-tag-keywords">
+<span class="sig-name descname"><span class="pre">--finder-tag-keywords</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-finder-tag-keywords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set MacOS Finder tags to keywords; any keywords specified via ‘–keyword-template’, ‘–person-keyword’, etc. will also be used as Finder tags. See also ‘–finder-tag-template and Extended Attributes below.’.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-xattr-template">
+<span class="sig-name descname"><span class="pre">--xattr-template</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;ATTRIBUTE</span> <span class="pre">TEMPLATE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-xattr-template" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set extended attribute ATTRIBUTE to TEMPLATE value. Valid attributes are: ‘authors’, ‘comment’, ‘copyright’, ‘creator’, ‘description’, ‘findercomment’, ‘headline’, ‘keywords’, ‘participants’, ‘projects’, ‘rating’, ‘subject’, ‘title’, ‘version’. For example, to set Finder comment to the photo’s title and description: ‘–xattr-template findercomment “{title}; {descr}” See Extended Attributes below for additional details on this option.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-directory">
+<span class="sig-name descname"><span class="pre">--directory</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;DIRECTORY&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-directory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional template for specifying name of output directory in the form ‘{name,DEFAULT}’. See below for additional details on templating system.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-filename">
+<span class="sig-name descname"><span class="pre">--filename</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;FILENAME&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional template for specifying name of output file in the form ‘{name,DEFAULT}’. File extension will be added automatically–do not include an extension in the FILENAME template. See below for additional details on templating system.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-jpeg-ext">
+<span class="sig-name descname"><span class="pre">--jpeg-ext</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;EXTENSION&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-jpeg-ext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify file extension for JPEG files. Photos uses .jpeg for edited images but many images are imported with .jpg or .JPG which can result in multiple different extensions used for JPEG files upon export.  Use –jpeg-ext to specify a single extension to use for all exported JPEG images. Valid values are jpeg, jpg, JPEG, JPG; e.g. ‘–jpeg-ext jpg’ to use ‘.jpg’ for all JPEGs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Options</dt>
+<dd class="field-odd"><p>jpeg | jpg | JPEG | JPG</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-strip">
+<span class="sig-name descname"><span class="pre">--strip</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-strip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optionally strip leading and trailing whitespace from any rendered templates. For example, if –filename template is “{title,} {original_name}” and image has no title, resulting file would have a leading space but if used with –strip, this will be removed.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-edited-suffix">
+<span class="sig-name descname"><span class="pre">--edited-suffix</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;SUFFIX&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-edited-suffix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional suffix template for naming edited photos.  Default name for edited photos is in form ‘photoname_edited.ext’. For example, with ‘–edited-suffix _bearbeiten’, the edited photo would be named ‘photoname_bearbeiten.ext’.  The default suffix is ‘_edited’. Multi-value templates (see Templating System) are not permitted with –edited-suffix.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-original-suffix">
+<span class="sig-name descname"><span class="pre">--original-suffix</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;SUFFIX&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-original-suffix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional suffix template for naming original photos.  Default name for original photos is in form ‘filename.ext’. For example, with ‘–original-suffix _original’, the original photo would be named ‘filename_original.ext’.  The default suffix is ‘’ (no suffix). Multi-value templates (see Templating System) are not permitted with –original-suffix.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-use-photos-export">
+<span class="sig-name descname"><span class="pre">--use-photos-export</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-use-photos-export" title="Permalink to this definition">¶</a></dt>
+<dd><p>Force the use of AppleScript or PhotoKit to export even if not missing (see also ‘–download-missing’ and ‘–use-photokit’).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-use-photokit">
+<span class="sig-name descname"><span class="pre">--use-photokit</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-use-photokit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use with ‘–download-missing’ or ‘–use-photos-export’ to use direct Photos interface instead of AppleScript to export. Highly experimental alpha feature; does not work with iTerm2 (use with Terminal.app). This is faster and more reliable than the default AppleScript interface.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-report">
+<span class="sig-name descname"><span class="pre">--report</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;path</span> <span class="pre">to</span> <span class="pre">export</span> <span class="pre">report&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a CSV formatted report of all files that were exported.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-cleanup">
+<span class="sig-name descname"><span class="pre">--cleanup</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-cleanup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cleanup export directory by deleting any files which were not included in this export set. For example, photos which had previously been exported and were subsequently deleted in Photos. WARNING: –cleanup will delete <em>any</em> files in the export directory that were not exported by osxphotos, for example, your own scripts or other files.  Be sure this is what you intend before using –cleanup.  Use –dry-run with –cleanup first if you’re not certain.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-add-exported-to-album">
+<span class="sig-name descname"><span class="pre">--add-exported-to-album</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;ALBUM&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-add-exported-to-album" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add all exported photos to album ALBUM in Photos. Album ALBUM will be created if it doesn’t exist.  All exported photos will be added to this album. This only works if the Photos library being exported is the last-opened (default) library in Photos. This feature is currently experimental.  I don’t know how well it will work on large export sets.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-add-skipped-to-album">
+<span class="sig-name descname"><span class="pre">--add-skipped-to-album</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;ALBUM&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-add-skipped-to-album" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add all skipped photos to album ALBUM in Photos. Album ALBUM will be created if it doesn’t exist.  All skipped photos will be added to this album. This only works if the Photos library being exported is the last-opened (default) library in Photos. This feature is currently experimental.  I don’t know how well it will work on large export sets.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-add-missing-to-album">
+<span class="sig-name descname"><span class="pre">--add-missing-to-album</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;ALBUM&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-add-missing-to-album" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add all missing photos to album ALBUM in Photos. Album ALBUM will be created if it doesn’t exist.  All missing photos will be added to this album. This only works if the Photos library being exported is the last-opened (default) library in Photos. This feature is currently experimental.  I don’t know how well it will work on large export sets.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-post-command">
+<span class="sig-name descname"><span class="pre">--post-command</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;CATEGORY</span> <span class="pre">COMMAND&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-post-command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run COMMAND on exported files of category CATEGORY.  CATEGORY can be one of: exported, new, updated, skipped, missing, exif_updated, touched, converted_to_jpeg, sidecar_json_written, sidecar_json_skipped, sidecar_exiftool_written, sidecar_exiftool_skipped, sidecar_xmp_written, sidecar_xmp_skipped, error. COMMAND is an osxphotos template string, for example: ‘–post-command exported “echo {filepath|shell_quote} &gt;&gt; {export_dir}/exported.txt”’, which appends the full path of all exported files to the file ‘exported.txt’. You can run more than one command by repeating the ‘–post-command’ option with different arguments. See Post Command below.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-post-function">
+<span class="sig-name descname"><span class="pre">--post-function</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;filename.py::function&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-post-function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run function on exported files. Use this in format: –post-function filename.py::function where filename.py is a python file you’ve created and function is the name of the function in the python file you want to call.  The function will be passed information about the photo that’s been exported and a list of all exported files associated with the photo. You can run more than one function by repeating the ‘–post-function’ option with different arguments. See Post Function below.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-exportdb">
+<span class="sig-name descname"><span class="pre">--exportdb</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;EXPORTDB_FILE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-exportdb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify alternate path for database file which stores state information for export and –update. If –exportdb is not specified, export database will be saved to ‘.osxphotos_export.db’ in the export directory.  If –exportdb is specified, it will be saved to the specified file.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-ramdb">
+<span class="sig-name descname"><span class="pre">--ramdb</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-ramdb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy export database to memory during export; may improve performance when exporting over a network or slow disk but could result in losing update state information if the program is interrupted or crashes.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-tmpdir">
+<span class="sig-name descname"><span class="pre">--tmpdir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;DIR&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-tmpdir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify alternate temporary directory. Default is system temporary directory. osxphotos needs to create a number of temporary files during export. In some cases, particularly if the Photos library is on an APFS volume that is not the system volume, osxphotos may run faster if you specify a temporary directory on the same volume as the Photos library.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-load-config">
+<span class="sig-name descname"><span class="pre">--load-config</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;config</span> <span class="pre">file</span> <span class="pre">path&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-load-config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load options from file as written with –save-config. This allows you to save a complex export command to file for later reuse. For example: ‘osxphotos export &lt;lots of options here&gt; –save-config osxphotos.toml’ then  ‘osxphotos export /path/to/export –load-config osxphotos.toml’. If any other command line options are used in conjunction with –load-config, they will override the corresponding values in the config file.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-save-config">
+<span class="sig-name descname"><span class="pre">--save-config</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;config</span> <span class="pre">file</span> <span class="pre">path&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-save-config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save options to file for use with –load-config. File format is TOML. See also –config-only.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-config-only">
+<span class="sig-name descname"><span class="pre">--config-only</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-config-only" title="Permalink to this definition">¶</a></dt>
+<dd><p>If specified, saves the config file but does not export any files; must be used with –save-config.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-theme">
+<span class="sig-name descname"><span class="pre">--theme</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;THEME&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-theme" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify the color theme to use for –verbose output. Valid themes are ‘dark’, ‘light’, ‘mono’, and ‘plain’. Defaults to ‘dark’ or ‘light’ depending on system dark mode setting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Options</dt>
+<dd class="field-odd"><p>dark | light | mono | plain</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-arg-PHOTOS_LIBRARY">
+<span id="cmdoption-osxphotos-export-arg-photos-library"></span><span class="sig-name descname"><span class="pre">PHOTOS_LIBRARY</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-arg-PHOTOS_LIBRARY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional argument(s)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-arg-DEST">
+<span id="cmdoption-osxphotos-export-arg-dest"></span><span class="sig-name descname"><span class="pre">DEST</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-arg-DEST" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</section>
+<section id="osxphotos-help">
+<h3>help<a class="headerlink" href="#osxphotos-help" title="Permalink to this headline">¶</a></h3>
+<p>Print help; for help on commands: help &lt;command&gt;.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos <span class="nb">help</span> <span class="o">[</span>OPTIONS<span class="o">]</span> <span class="o">[</span>TOPIC<span class="o">]</span> <span class="o">[</span>SUBTOPIC<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-help-arg-TOPIC">
+<span id="cmdoption-osxphotos-help-arg-topic"></span><span class="sig-name descname"><span class="pre">TOPIC</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-help-arg-TOPIC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional argument</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-help-arg-SUBTOPIC">
+<span id="cmdoption-osxphotos-help-arg-subtopic"></span><span class="sig-name descname"><span class="pre">SUBTOPIC</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-help-arg-SUBTOPIC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional argument</p>
+</dd></dl>
+
+</section>
+<section id="osxphotos-info">
+<h3>info<a class="headerlink" href="#osxphotos-info" title="Permalink to this headline">¶</a></h3>
+<p>Print out descriptive info of the Photos library database.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos info <span class="o">[</span>OPTIONS<span class="o">]</span> <span class="o">[</span>PHOTOS_LIBRARY<span class="o">]</span>...
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-info-db">
+<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;Photos</span> <span class="pre">database</span> <span class="pre">path&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-info-db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-info-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-info-json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print output in JSON format.</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-info-arg-PHOTOS_LIBRARY">
+<span id="cmdoption-osxphotos-info-arg-photos-library"></span><span class="sig-name descname"><span class="pre">PHOTOS_LIBRARY</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-info-arg-PHOTOS_LIBRARY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional argument(s)</p>
+</dd></dl>
+
+</section>
+<section id="osxphotos-install">
+<h3>install<a class="headerlink" href="#osxphotos-install" title="Permalink to this headline">¶</a></h3>
+<p>Install Python packages into the same environment as osxphotos</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos install <span class="o">[</span>OPTIONS<span class="o">]</span> PACKAGES...
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-install-U">
+<span id="cmdoption-osxphotos-install-u"></span><span id="cmdoption-osxphotos-install-upgrade"></span><span class="sig-name descname"><span class="pre">-U</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--upgrade</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-install-U" title="Permalink to this definition">¶</a></dt>
+<dd><p>Upgrade packages to latest version</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-install-arg-PACKAGES">
+<span id="cmdoption-osxphotos-install-arg-packages"></span><span class="sig-name descname"><span class="pre">PACKAGES</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-install-arg-PACKAGES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required argument(s)</p>
+</dd></dl>
+
+</section>
+<section id="osxphotos-keywords">
+<h3>keywords<a class="headerlink" href="#osxphotos-keywords" title="Permalink to this headline">¶</a></h3>
+<p>Print out keywords found in the Photos library.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos keywords <span class="o">[</span>OPTIONS<span class="o">]</span> <span class="o">[</span>PHOTOS_LIBRARY<span class="o">]</span>...
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-keywords-db">
+<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;Photos</span> <span class="pre">database</span> <span class="pre">path&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-keywords-db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-keywords-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-keywords-json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print output in JSON format.</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-keywords-arg-PHOTOS_LIBRARY">
+<span id="cmdoption-osxphotos-keywords-arg-photos-library"></span><span class="sig-name descname"><span class="pre">PHOTOS_LIBRARY</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-keywords-arg-PHOTOS_LIBRARY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional argument(s)</p>
+</dd></dl>
+
+</section>
+<section id="osxphotos-labels">
+<h3>labels<a class="headerlink" href="#osxphotos-labels" title="Permalink to this headline">¶</a></h3>
+<p>Print out image classification labels found in the Photos library.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos labels <span class="o">[</span>OPTIONS<span class="o">]</span> <span class="o">[</span>PHOTOS_LIBRARY<span class="o">]</span>...
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-labels-db">
+<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;Photos</span> <span class="pre">database</span> <span class="pre">path&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-labels-db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-labels-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-labels-json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print output in JSON format.</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-labels-arg-PHOTOS_LIBRARY">
+<span id="cmdoption-osxphotos-labels-arg-photos-library"></span><span class="sig-name descname"><span class="pre">PHOTOS_LIBRARY</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-labels-arg-PHOTOS_LIBRARY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional argument(s)</p>
+</dd></dl>
+
+</section>
+<section id="osxphotos-list">
+<h3>list<a class="headerlink" href="#osxphotos-list" title="Permalink to this headline">¶</a></h3>
+<p>Print list of Photos libraries found on the system.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos list <span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-list-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-list-json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print output in JSON format.</p>
+</dd></dl>
+
+</section>
+<section id="osxphotos-persons">
+<h3>persons<a class="headerlink" href="#osxphotos-persons" title="Permalink to this headline">¶</a></h3>
+<p>Print out persons (faces) found in the Photos library.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos persons <span class="o">[</span>OPTIONS<span class="o">]</span> <span class="o">[</span>PHOTOS_LIBRARY<span class="o">]</span>...
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-persons-db">
+<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;Photos</span> <span class="pre">database</span> <span class="pre">path&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-persons-db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-persons-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-persons-json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print output in JSON format.</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-persons-arg-PHOTOS_LIBRARY">
+<span id="cmdoption-osxphotos-persons-arg-photos-library"></span><span class="sig-name descname"><span class="pre">PHOTOS_LIBRARY</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-persons-arg-PHOTOS_LIBRARY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional argument(s)</p>
+</dd></dl>
+
+</section>
+<section id="osxphotos-places">
+<h3>places<a class="headerlink" href="#osxphotos-places" title="Permalink to this headline">¶</a></h3>
+<p>Print out places found in the Photos library.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos places <span class="o">[</span>OPTIONS<span class="o">]</span> <span class="o">[</span>PHOTOS_LIBRARY<span class="o">]</span>...
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-places-db">
+<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;Photos</span> <span class="pre">database</span> <span class="pre">path&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-places-db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-places-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-places-json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print output in JSON format.</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-places-arg-PHOTOS_LIBRARY">
+<span id="cmdoption-osxphotos-places-arg-photos-library"></span><span class="sig-name descname"><span class="pre">PHOTOS_LIBRARY</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-places-arg-PHOTOS_LIBRARY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional argument(s)</p>
+</dd></dl>
+
+</section>
+<section id="osxphotos-query">
+<h3>query<a class="headerlink" href="#osxphotos-query" title="Permalink to this headline">¶</a></h3>
+<p>Query the Photos database using 1 or more search options;
+if more than one option is provided, they are treated as “AND”
+(e.g. search for photos matching all options).</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos query <span class="o">[</span>OPTIONS<span class="o">]</span> <span class="o">[</span>PHOTOS_LIBRARY<span class="o">]</span>...
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-db">
+<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;Photos</span> <span class="pre">database</span> <span class="pre">path&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-json">
+<span class="sig-name descname"><span class="pre">--json</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print output in JSON format.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-keyword">
+<span class="sig-name descname"><span class="pre">--keyword</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;KEYWORD&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-keyword" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with keyword KEYWORD. If more than one keyword, treated as “OR”, e.g. find photos matching any keyword</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-person">
+<span class="sig-name descname"><span class="pre">--person</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PERSON&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-person" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with person PERSON. If more than one person, treated as “OR”, e.g. find photos matching any person</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-album">
+<span class="sig-name descname"><span class="pre">--album</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;ALBUM&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-album" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos in album ALBUM. If more than one album, treated as “OR”, e.g. find photos matching any album</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-folder">
+<span class="sig-name descname"><span class="pre">--folder</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;FOLDER&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos in an album in folder FOLDER. If more than one folder, treated as “OR”, e.g. find photos in any FOLDER.  Only searches top level folders (e.g. does not look at subfolders)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-name">
+<span class="sig-name descname"><span class="pre">--name</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;FILENAME&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with filename matching FILENAME. If more than one –name options is specified, they are treated as “OR”, e.g. find photos matching any FILENAME.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-uuid">
+<span class="sig-name descname"><span class="pre">--uuid</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;UUID&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-uuid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with UUID(s). May be repeated to include multiple UUIDs.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-uuid-from-file">
+<span class="sig-name descname"><span class="pre">--uuid-from-file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;FILE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-uuid-from-file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with UUID(s) loaded from FILE. Format is a single UUID per line.  Lines preceded with # are ignored.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-title">
+<span class="sig-name descname"><span class="pre">--title</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;TITLE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for TITLE in title of photo.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-no-title">
+<span class="sig-name descname"><span class="pre">--no-title</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-no-title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with no title.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-description">
+<span class="sig-name descname"><span class="pre">--description</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;DESC&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-description" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for DESC in description of photo.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-no-description">
+<span class="sig-name descname"><span class="pre">--no-description</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-no-description" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with no description.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-place">
+<span class="sig-name descname"><span class="pre">--place</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PLACE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-place" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for PLACE in photo’s reverse geolocation info</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-no-place">
+<span class="sig-name descname"><span class="pre">--no-place</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-no-place" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with no associated place name info (no reverse geolocation info)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-location">
+<span class="sig-name descname"><span class="pre">--location</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-location" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with associated location info (e.g. GPS coordinates)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-no-location">
+<span class="sig-name descname"><span class="pre">--no-location</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-no-location" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with no associated location info (e.g. no GPS coordinates)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-label">
+<span class="sig-name descname"><span class="pre">--label</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;LABEL&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with image classification label LABEL (Photos 5 only). If more than one label, treated as “OR”, e.g. find photos matching any label</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-uti">
+<span class="sig-name descname"><span class="pre">--uti</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;UTI&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-uti" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos whose uniform type identifier (UTI) matches UTI</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-i">
+<span id="cmdoption-osxphotos-query-ignore-case"></span><span class="sig-name descname"><span class="pre">-i</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--ignore-case</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Case insensitive search for title, description, place, keyword, person, or album.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-edited">
+<span class="sig-name descname"><span class="pre">--edited</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-edited" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that have been edited.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-external-edit">
+<span class="sig-name descname"><span class="pre">--external-edit</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-external-edit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos edited in external editor.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-favorite">
+<span class="sig-name descname"><span class="pre">--favorite</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-favorite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos marked favorite.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-not-favorite">
+<span class="sig-name descname"><span class="pre">--not-favorite</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-not-favorite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos not marked favorite.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-hidden">
+<span class="sig-name descname"><span class="pre">--hidden</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-hidden" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos marked hidden.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-not-hidden">
+<span class="sig-name descname"><span class="pre">--not-hidden</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-not-hidden" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos not marked hidden.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-shared">
+<span class="sig-name descname"><span class="pre">--shared</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-shared" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos in shared iCloud album (Photos 5 only).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-not-shared">
+<span class="sig-name descname"><span class="pre">--not-shared</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-not-shared" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos not in shared iCloud album (Photos 5 only).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-burst">
+<span class="sig-name descname"><span class="pre">--burst</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-burst" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that were taken in a burst.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-not-burst">
+<span class="sig-name descname"><span class="pre">--not-burst</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-not-burst" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not part of a burst.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-live">
+<span class="sig-name descname"><span class="pre">--live</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-live" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for Apple live photos</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-not-live">
+<span class="sig-name descname"><span class="pre">--not-live</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-not-live" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not Apple live photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-portrait">
+<span class="sig-name descname"><span class="pre">--portrait</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-portrait" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for Apple portrait mode photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-not-portrait">
+<span class="sig-name descname"><span class="pre">--not-portrait</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-not-portrait" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not Apple portrait mode photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-screenshot">
+<span class="sig-name descname"><span class="pre">--screenshot</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-screenshot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for screenshot photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-not-screenshot">
+<span class="sig-name descname"><span class="pre">--not-screenshot</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-not-screenshot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not screenshot photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-slow-mo">
+<span class="sig-name descname"><span class="pre">--slow-mo</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-slow-mo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for slow motion videos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-not-slow-mo">
+<span class="sig-name descname"><span class="pre">--not-slow-mo</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-not-slow-mo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not slow motion videos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-time-lapse">
+<span class="sig-name descname"><span class="pre">--time-lapse</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-time-lapse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for time lapse videos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-not-time-lapse">
+<span class="sig-name descname"><span class="pre">--not-time-lapse</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-not-time-lapse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not time lapse videos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-hdr">
+<span class="sig-name descname"><span class="pre">--hdr</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-hdr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for high dynamic range (HDR) photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-not-hdr">
+<span class="sig-name descname"><span class="pre">--not-hdr</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-not-hdr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not HDR photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-selfie">
+<span class="sig-name descname"><span class="pre">--selfie</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-selfie" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for selfies (photos taken with front-facing cameras).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-not-selfie">
+<span class="sig-name descname"><span class="pre">--not-selfie</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-not-selfie" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not selfies.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-panorama">
+<span class="sig-name descname"><span class="pre">--panorama</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-panorama" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for panorama photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-not-panorama">
+<span class="sig-name descname"><span class="pre">--not-panorama</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-not-panorama" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not panoramas.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-has-raw">
+<span class="sig-name descname"><span class="pre">--has-raw</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-has-raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with both a jpeg and raw version</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-only-movies">
+<span class="sig-name descname"><span class="pre">--only-movies</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-only-movies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search only for movies (default searches both images and movies).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-only-photos">
+<span class="sig-name descname"><span class="pre">--only-photos</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-only-photos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search only for photos/images (default searches both images and movies).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-from-date">
+<span class="sig-name descname"><span class="pre">--from-date</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;from_date&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-from-date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search by item start date, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-to-date">
+<span class="sig-name descname"><span class="pre">--to-date</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;to_date&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-to-date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search by item end date, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-from-time">
+<span class="sig-name descname"><span class="pre">--from-time</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;from_time&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-from-time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search by item start time of day, e.g. 12:00, or 12:00:00.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-to-time">
+<span class="sig-name descname"><span class="pre">--to-time</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;to_time&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-to-time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search by item end time of day, e.g. 12:00 or 12:00:00.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-has-comment">
+<span class="sig-name descname"><span class="pre">--has-comment</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-has-comment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that have comments.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-no-comment">
+<span class="sig-name descname"><span class="pre">--no-comment</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-no-comment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with no comments.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-has-likes">
+<span class="sig-name descname"><span class="pre">--has-likes</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-has-likes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that have likes.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-no-likes">
+<span class="sig-name descname"><span class="pre">--no-likes</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-no-likes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with no likes.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-is-reference">
+<span class="sig-name descname"><span class="pre">--is-reference</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-is-reference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that were imported as referenced files (not copied into Photos library).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-in-album">
+<span class="sig-name descname"><span class="pre">--in-album</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-in-album" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are in one or more albums.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-not-in-album">
+<span class="sig-name descname"><span class="pre">--not-in-album</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-not-in-album" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not in any albums.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-duplicate">
+<span class="sig-name descname"><span class="pre">--duplicate</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-duplicate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with possible duplicates. osxphotos will compare signatures of photos, evaluating date created, size, height, width, and edited status to find <em>possible</em> duplicates. This does not compare images byte-for-byte nor compare hashes but should find photos imported multiple times or duplicated within Photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-min-size">
+<span class="sig-name descname"><span class="pre">--min-size</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;SIZE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-min-size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with size &gt;= SIZE bytes. The size evaluated is the photo’s original size (when imported to Photos). Size may be specified as integer bytes or using SI or NIST units. For example, the following are all valid and equivalent sizes: ‘1048576’ ‘1.048576MB’, ‘1 MiB’.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-max-size">
+<span class="sig-name descname"><span class="pre">--max-size</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;SIZE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-max-size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with size &lt;= SIZE bytes. The size evaluated is the photo’s original size (when imported to Photos). Size may be specified as integer bytes or using SI or NIST units. For example, the following are all valid and equivalent sizes: ‘1048576’ ‘1.048576MB’, ‘1 MiB’.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-regex">
+<span class="sig-name descname"><span class="pre">--regex</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;REGEX</span> <span class="pre">TEMPLATE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-regex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos where TEMPLATE matches regular expression REGEX. For example, to find photos in an album that begins with ‘Beach’: ‘–regex “^Beach” “{album}”’. You may specify more than one regular expression match by repeating ‘–regex’ with different arguments.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-selected">
+<span class="sig-name descname"><span class="pre">--selected</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-selected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter for photos that are currently selected in Photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-exif">
+<span class="sig-name descname"><span class="pre">--exif</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;EXIF_TAG</span> <span class="pre">VALUE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-exif" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos where EXIF_TAG exists in photo’s EXIF data and contains VALUE. For example, to find photos created by Adobe Photoshop: <cite>–exif Software ‘Adobe Photoshop’ `or to find all photos shot on a Canon camera: `–exif Make Canon</cite>. EXIF_TAG can be any valid exiftool tag, with or without group name, e.g. <cite>EXIF:Make</cite> or <cite>Make</cite>. To use –exif, exiftool must be installed and in the path.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-query-eval">
+<span class="sig-name descname"><span class="pre">--query-eval</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;CRITERIA&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-query-eval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate CRITERIA to filter photos. CRITERIA will be evaluated in context of the following python list comprehension: <cite>photos = [photo for photo in photos if CRITERIA]</cite> where photo represents a PhotoInfo object. For example: <cite>–query-eval photo.favorite</cite> returns all photos that have been favorited and is equivalent to –favorite. You may specify more than one CRITERIA by using –query-eval multiple times. CRITERIA must be a valid python expression. See <a class="reference external" href="https://rhettbull.github.io/osxphotos/">https://rhettbull.github.io/osxphotos/</a> for additional documentation on the PhotoInfo class.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-query-function">
+<span class="sig-name descname"><span class="pre">--query-function</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;filename.py::function&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-query-function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run function to filter photos. Use this in format: –query-function filename.py::function where filename.py is a python file you’ve created and function is the name of the function in the python file you want to call. Your function will be passed a list of PhotoInfo objects and is expected to return a filtered list of PhotoInfo objects. You may use more than one function by repeating the –query-function option with a different value. Your query function will be called after all other query options have been evaluated. See https://github.com/RhetTbull/osxphotos/blob/master/examples/query_function.py for example of how to use this option.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-deleted">
+<span class="sig-name descname"><span class="pre">--deleted</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-deleted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Include photos from the ‘Recently Deleted’ folder.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-deleted-only">
+<span class="sig-name descname"><span class="pre">--deleted-only</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-deleted-only" title="Permalink to this definition">¶</a></dt>
+<dd><p>Include only photos from the ‘Recently Deleted’ folder.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-missing">
+<span class="sig-name descname"><span class="pre">--missing</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-missing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos missing from disk.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-not-missing">
+<span class="sig-name descname"><span class="pre">--not-missing</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-not-missing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos present on disk (e.g. not missing).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-cloudasset">
+<span class="sig-name descname"><span class="pre">--cloudasset</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-cloudasset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are part of an iCloud library</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-not-cloudasset">
+<span class="sig-name descname"><span class="pre">--not-cloudasset</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-not-cloudasset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not part of an iCloud library</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-incloud">
+<span class="sig-name descname"><span class="pre">--incloud</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-incloud" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are in iCloud (have been synched)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-not-incloud">
+<span class="sig-name descname"><span class="pre">--not-incloud</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-not-incloud" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not in iCloud (have not been synched)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-add-to-album">
+<span class="sig-name descname"><span class="pre">--add-to-album</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;ALBUM&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-add-to-album" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add all photos from query to album ALBUM in Photos. Album ALBUM will be created if it doesn’t exist.  All photos in the query results will be added to this album. This only works if the Photos library being queried is the last-opened (default) library in Photos. This feature is currently experimental.  I don’t know how well it will work on large query sets.</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-arg-PHOTOS_LIBRARY">
+<span id="cmdoption-osxphotos-query-arg-photos-library"></span><span class="sig-name descname"><span class="pre">PHOTOS_LIBRARY</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-arg-PHOTOS_LIBRARY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional argument(s)</p>
+</dd></dl>
+
+</section>
+<section id="osxphotos-repl">
+<h3>repl<a class="headerlink" href="#osxphotos-repl" title="Permalink to this headline">¶</a></h3>
+<p>Run interactive osxphotos REPL shell (useful for debugging, prototyping, and inspecting your Photos library)</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos repl <span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-db">
+<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;Photos</span> <span class="pre">database</span> <span class="pre">path&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-repl-db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-emacs">
+<span class="sig-name descname"><span class="pre">--emacs</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-emacs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Launch REPL with Emacs keybindings (default is vi bindings)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-keyword">
+<span class="sig-name descname"><span class="pre">--keyword</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;KEYWORD&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-repl-keyword" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with keyword KEYWORD. If more than one keyword, treated as “OR”, e.g. find photos matching any keyword</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-person">
+<span class="sig-name descname"><span class="pre">--person</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PERSON&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-repl-person" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with person PERSON. If more than one person, treated as “OR”, e.g. find photos matching any person</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-album">
+<span class="sig-name descname"><span class="pre">--album</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;ALBUM&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-repl-album" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos in album ALBUM. If more than one album, treated as “OR”, e.g. find photos matching any album</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-folder">
+<span class="sig-name descname"><span class="pre">--folder</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;FOLDER&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-repl-folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos in an album in folder FOLDER. If more than one folder, treated as “OR”, e.g. find photos in any FOLDER.  Only searches top level folders (e.g. does not look at subfolders)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-name">
+<span class="sig-name descname"><span class="pre">--name</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;FILENAME&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-repl-name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with filename matching FILENAME. If more than one –name options is specified, they are treated as “OR”, e.g. find photos matching any FILENAME.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-uuid">
+<span class="sig-name descname"><span class="pre">--uuid</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;UUID&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-repl-uuid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with UUID(s). May be repeated to include multiple UUIDs.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-uuid-from-file">
+<span class="sig-name descname"><span class="pre">--uuid-from-file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;FILE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-repl-uuid-from-file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with UUID(s) loaded from FILE. Format is a single UUID per line.  Lines preceded with # are ignored.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-title">
+<span class="sig-name descname"><span class="pre">--title</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;TITLE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-repl-title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for TITLE in title of photo.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-no-title">
+<span class="sig-name descname"><span class="pre">--no-title</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-no-title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with no title.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-description">
+<span class="sig-name descname"><span class="pre">--description</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;DESC&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-repl-description" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for DESC in description of photo.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-no-description">
+<span class="sig-name descname"><span class="pre">--no-description</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-no-description" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with no description.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-place">
+<span class="sig-name descname"><span class="pre">--place</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PLACE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-repl-place" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for PLACE in photo’s reverse geolocation info</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-no-place">
+<span class="sig-name descname"><span class="pre">--no-place</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-no-place" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with no associated place name info (no reverse geolocation info)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-location">
+<span class="sig-name descname"><span class="pre">--location</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-location" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with associated location info (e.g. GPS coordinates)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-no-location">
+<span class="sig-name descname"><span class="pre">--no-location</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-no-location" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with no associated location info (e.g. no GPS coordinates)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-label">
+<span class="sig-name descname"><span class="pre">--label</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;LABEL&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-repl-label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with image classification label LABEL (Photos 5 only). If more than one label, treated as “OR”, e.g. find photos matching any label</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-uti">
+<span class="sig-name descname"><span class="pre">--uti</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;UTI&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-repl-uti" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos whose uniform type identifier (UTI) matches UTI</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-i">
+<span id="cmdoption-osxphotos-repl-ignore-case"></span><span class="sig-name descname"><span class="pre">-i</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--ignore-case</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Case insensitive search for title, description, place, keyword, person, or album.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-edited">
+<span class="sig-name descname"><span class="pre">--edited</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-edited" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that have been edited.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-external-edit">
+<span class="sig-name descname"><span class="pre">--external-edit</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-external-edit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos edited in external editor.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-favorite">
+<span class="sig-name descname"><span class="pre">--favorite</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-favorite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos marked favorite.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-not-favorite">
+<span class="sig-name descname"><span class="pre">--not-favorite</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-not-favorite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos not marked favorite.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-hidden">
+<span class="sig-name descname"><span class="pre">--hidden</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-hidden" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos marked hidden.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-not-hidden">
+<span class="sig-name descname"><span class="pre">--not-hidden</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-not-hidden" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos not marked hidden.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-shared">
+<span class="sig-name descname"><span class="pre">--shared</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-shared" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos in shared iCloud album (Photos 5 only).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-not-shared">
+<span class="sig-name descname"><span class="pre">--not-shared</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-not-shared" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos not in shared iCloud album (Photos 5 only).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-burst">
+<span class="sig-name descname"><span class="pre">--burst</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-burst" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that were taken in a burst.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-not-burst">
+<span class="sig-name descname"><span class="pre">--not-burst</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-not-burst" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not part of a burst.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-live">
+<span class="sig-name descname"><span class="pre">--live</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-live" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for Apple live photos</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-not-live">
+<span class="sig-name descname"><span class="pre">--not-live</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-not-live" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not Apple live photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-portrait">
+<span class="sig-name descname"><span class="pre">--portrait</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-portrait" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for Apple portrait mode photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-not-portrait">
+<span class="sig-name descname"><span class="pre">--not-portrait</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-not-portrait" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not Apple portrait mode photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-screenshot">
+<span class="sig-name descname"><span class="pre">--screenshot</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-screenshot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for screenshot photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-not-screenshot">
+<span class="sig-name descname"><span class="pre">--not-screenshot</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-not-screenshot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not screenshot photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-slow-mo">
+<span class="sig-name descname"><span class="pre">--slow-mo</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-slow-mo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for slow motion videos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-not-slow-mo">
+<span class="sig-name descname"><span class="pre">--not-slow-mo</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-not-slow-mo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not slow motion videos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-time-lapse">
+<span class="sig-name descname"><span class="pre">--time-lapse</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-time-lapse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for time lapse videos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-not-time-lapse">
+<span class="sig-name descname"><span class="pre">--not-time-lapse</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-not-time-lapse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not time lapse videos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-hdr">
+<span class="sig-name descname"><span class="pre">--hdr</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-hdr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for high dynamic range (HDR) photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-not-hdr">
+<span class="sig-name descname"><span class="pre">--not-hdr</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-not-hdr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not HDR photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-selfie">
+<span class="sig-name descname"><span class="pre">--selfie</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-selfie" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for selfies (photos taken with front-facing cameras).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-not-selfie">
+<span class="sig-name descname"><span class="pre">--not-selfie</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-not-selfie" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not selfies.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-panorama">
+<span class="sig-name descname"><span class="pre">--panorama</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-panorama" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for panorama photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-not-panorama">
+<span class="sig-name descname"><span class="pre">--not-panorama</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-not-panorama" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not panoramas.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-has-raw">
+<span class="sig-name descname"><span class="pre">--has-raw</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-has-raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with both a jpeg and raw version</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-only-movies">
+<span class="sig-name descname"><span class="pre">--only-movies</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-only-movies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search only for movies (default searches both images and movies).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-only-photos">
+<span class="sig-name descname"><span class="pre">--only-photos</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-only-photos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search only for photos/images (default searches both images and movies).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-from-date">
+<span class="sig-name descname"><span class="pre">--from-date</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;from_date&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-repl-from-date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search by item start date, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-to-date">
+<span class="sig-name descname"><span class="pre">--to-date</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;to_date&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-repl-to-date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search by item end date, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-from-time">
+<span class="sig-name descname"><span class="pre">--from-time</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;from_time&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-repl-from-time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search by item start time of day, e.g. 12:00, or 12:00:00.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-to-time">
+<span class="sig-name descname"><span class="pre">--to-time</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;to_time&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-repl-to-time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search by item end time of day, e.g. 12:00 or 12:00:00.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-has-comment">
+<span class="sig-name descname"><span class="pre">--has-comment</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-has-comment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that have comments.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-no-comment">
+<span class="sig-name descname"><span class="pre">--no-comment</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-no-comment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with no comments.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-has-likes">
+<span class="sig-name descname"><span class="pre">--has-likes</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-has-likes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that have likes.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-no-likes">
+<span class="sig-name descname"><span class="pre">--no-likes</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-no-likes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with no likes.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-is-reference">
+<span class="sig-name descname"><span class="pre">--is-reference</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-is-reference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that were imported as referenced files (not copied into Photos library).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-in-album">
+<span class="sig-name descname"><span class="pre">--in-album</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-in-album" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are in one or more albums.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-not-in-album">
+<span class="sig-name descname"><span class="pre">--not-in-album</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-not-in-album" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not in any albums.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-duplicate">
+<span class="sig-name descname"><span class="pre">--duplicate</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-duplicate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with possible duplicates. osxphotos will compare signatures of photos, evaluating date created, size, height, width, and edited status to find <em>possible</em> duplicates. This does not compare images byte-for-byte nor compare hashes but should find photos imported multiple times or duplicated within Photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-min-size">
+<span class="sig-name descname"><span class="pre">--min-size</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;SIZE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-repl-min-size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with size &gt;= SIZE bytes. The size evaluated is the photo’s original size (when imported to Photos). Size may be specified as integer bytes or using SI or NIST units. For example, the following are all valid and equivalent sizes: ‘1048576’ ‘1.048576MB’, ‘1 MiB’.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-max-size">
+<span class="sig-name descname"><span class="pre">--max-size</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;SIZE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-repl-max-size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos with size &lt;= SIZE bytes. The size evaluated is the photo’s original size (when imported to Photos). Size may be specified as integer bytes or using SI or NIST units. For example, the following are all valid and equivalent sizes: ‘1048576’ ‘1.048576MB’, ‘1 MiB’.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-regex">
+<span class="sig-name descname"><span class="pre">--regex</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;REGEX</span> <span class="pre">TEMPLATE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-repl-regex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos where TEMPLATE matches regular expression REGEX. For example, to find photos in an album that begins with ‘Beach’: ‘–regex “^Beach” “{album}”’. You may specify more than one regular expression match by repeating ‘–regex’ with different arguments.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-selected">
+<span class="sig-name descname"><span class="pre">--selected</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-selected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter for photos that are currently selected in Photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-exif">
+<span class="sig-name descname"><span class="pre">--exif</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;EXIF_TAG</span> <span class="pre">VALUE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-repl-exif" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos where EXIF_TAG exists in photo’s EXIF data and contains VALUE. For example, to find photos created by Adobe Photoshop: <cite>–exif Software ‘Adobe Photoshop’ `or to find all photos shot on a Canon camera: `–exif Make Canon</cite>. EXIF_TAG can be any valid exiftool tag, with or without group name, e.g. <cite>EXIF:Make</cite> or <cite>Make</cite>. To use –exif, exiftool must be installed and in the path.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-query-eval">
+<span class="sig-name descname"><span class="pre">--query-eval</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;CRITERIA&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-repl-query-eval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate CRITERIA to filter photos. CRITERIA will be evaluated in context of the following python list comprehension: <cite>photos = [photo for photo in photos if CRITERIA]</cite> where photo represents a PhotoInfo object. For example: <cite>–query-eval photo.favorite</cite> returns all photos that have been favorited and is equivalent to –favorite. You may specify more than one CRITERIA by using –query-eval multiple times. CRITERIA must be a valid python expression. See <a class="reference external" href="https://rhettbull.github.io/osxphotos/">https://rhettbull.github.io/osxphotos/</a> for additional documentation on the PhotoInfo class.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-query-function">
+<span class="sig-name descname"><span class="pre">--query-function</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;filename.py::function&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-repl-query-function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run function to filter photos. Use this in format: –query-function filename.py::function where filename.py is a python file you’ve created and function is the name of the function in the python file you want to call. Your function will be passed a list of PhotoInfo objects and is expected to return a filtered list of PhotoInfo objects. You may use more than one function by repeating the –query-function option with a different value. Your query function will be called after all other query options have been evaluated. See https://github.com/RhetTbull/osxphotos/blob/master/examples/query_function.py for example of how to use this option.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-deleted">
+<span class="sig-name descname"><span class="pre">--deleted</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-deleted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Include photos from the ‘Recently Deleted’ folder.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-deleted-only">
+<span class="sig-name descname"><span class="pre">--deleted-only</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-deleted-only" title="Permalink to this definition">¶</a></dt>
+<dd><p>Include only photos from the ‘Recently Deleted’ folder.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-missing">
+<span class="sig-name descname"><span class="pre">--missing</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-missing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos missing from disk.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-not-missing">
+<span class="sig-name descname"><span class="pre">--not-missing</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-not-missing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos present on disk (e.g. not missing).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-cloudasset">
+<span class="sig-name descname"><span class="pre">--cloudasset</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-cloudasset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are part of an iCloud library</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-not-cloudasset">
+<span class="sig-name descname"><span class="pre">--not-cloudasset</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-not-cloudasset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not part of an iCloud library</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-incloud">
+<span class="sig-name descname"><span class="pre">--incloud</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-incloud" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are in iCloud (have been synched)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-not-incloud">
+<span class="sig-name descname"><span class="pre">--not-incloud</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-not-incloud" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for photos that are not in iCloud (have not been synched)</p>
+</dd></dl>
+
+</section>
+<section id="osxphotos-run">
+<h3>run<a class="headerlink" href="#osxphotos-run" title="Permalink to this headline">¶</a></h3>
+<p>Run a python file using same environment as osxphotos</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos run <span class="o">[</span>OPTIONS<span class="o">]</span> PYTHON_FILE
+</pre></div>
+</div>
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-run-arg-PYTHON_FILE">
+<span id="cmdoption-osxphotos-run-arg-python-file"></span><span class="sig-name descname"><span class="pre">PYTHON_FILE</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-run-arg-PYTHON_FILE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</section>
+<section id="osxphotos-snap">
+<h3>snap<a class="headerlink" href="#osxphotos-snap" title="Permalink to this headline">¶</a></h3>
+<p>Create snapshot of Photos database to use with diff command</p>
+<p>Snapshots only the database files, not the entire library. If OSXPHOTOS_SNAPSHOT
+environment variable is defined, will use that as snapshot directory, otherwise
+uses ‘/private/tmp/osxphotos_snapshots’</p>
+<p>Works only on Photos library versions since Catalina (10.15) or newer.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos snap <span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-snap-db">
+<span class="sig-name descname"><span class="pre">--db</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;Photos</span> <span class="pre">database</span> <span class="pre">path&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-snap-db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify Photos database path. Path to Photos library/database can be specified using either –db or directly as PHOTOS_LIBRARY positional argument. If neither –db or PHOTOS_LIBRARY provided, will attempt to find the library to use in the following order: 1. last opened library, 2. system library, 3. ~/Pictures/Photos Library.photoslibrary</p>
+</dd></dl>
+
+</section>
+<section id="osxphotos-theme">
+<h3>theme<a class="headerlink" href="#osxphotos-theme" title="Permalink to this headline">¶</a></h3>
+<p>Manage osxphotos color themes.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos theme <span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-theme-default">
+<span class="sig-name descname"><span class="pre">--default</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-theme-default" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show default theme.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-theme-list">
+<span class="sig-name descname"><span class="pre">--list</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-theme-list" title="Permalink to this definition">¶</a></dt>
+<dd><p>List all themes.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-theme-config">
+<span class="sig-name descname"><span class="pre">--config</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;THEME&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-theme-config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print configuration for THEME (or default theme if not specified).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-theme-preview">
+<span class="sig-name descname"><span class="pre">--preview</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;THEME&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-theme-preview" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preview THEME (or default theme if not specified).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-theme-edit">
+<span class="sig-name descname"><span class="pre">--edit</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;THEME&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-theme-edit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Edit THEME (or default theme if not specified).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-theme-clone">
+<span class="sig-name descname"><span class="pre">--clone</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;THEME</span> <span class="pre">NEW_THEME&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-theme-clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clone THEME to NEW_THEME.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-theme-delete">
+<span class="sig-name descname"><span class="pre">--delete</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;THEME&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-theme-delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete THEME.</p>
+</dd></dl>
+
+</section>
+<section id="osxphotos-tutorial">
+<h3>tutorial<a class="headerlink" href="#osxphotos-tutorial" title="Permalink to this headline">¶</a></h3>
+<p>Display osxphotos tutorial.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos tutorial <span class="o">[</span>OPTIONS<span class="o">]</span> <span class="o">[</span>WIDTH<span class="o">]</span>...
+</pre></div>
+</div>
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-tutorial-arg-WIDTH">
+<span id="cmdoption-osxphotos-tutorial-arg-width"></span><span class="sig-name descname"><span class="pre">WIDTH</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-tutorial-arg-WIDTH" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional argument(s)</p>
+</dd></dl>
+
+</section>
+<section id="osxphotos-uninstall">
+<h3>uninstall<a class="headerlink" href="#osxphotos-uninstall" title="Permalink to this headline">¶</a></h3>
+<p>Uninstall Python packages from the osxphotos environment</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos uninstall <span class="o">[</span>OPTIONS<span class="o">]</span> PACKAGES...
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-uninstall-y">
+<span id="cmdoption-osxphotos-uninstall-yes"></span><span class="sig-name descname"><span class="pre">-y</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--yes</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-uninstall-y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Don’t ask for confirmation</p>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-uninstall-arg-PACKAGES">
+<span id="cmdoption-osxphotos-uninstall-arg-packages"></span><span class="sig-name descname"><span class="pre">PACKAGES</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-uninstall-arg-PACKAGES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required argument(s)</p>
+</dd></dl>
+
+</section>
+<section id="osxphotos-uuid">
+<h3>uuid<a class="headerlink" href="#osxphotos-uuid" title="Permalink to this headline">¶</a></h3>
+<p>Print out unique IDs (UUID) of photos selected in Photos</p>
+<p>Prints outs UUIDs in form suitable for –uuid-from-file and –skip-uuid-from-file</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos uuid <span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-uuid-f">
+<span id="cmdoption-osxphotos-uuid-filename"></span><span class="sig-name descname"><span class="pre">-f</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--filename</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-uuid-f" title="Permalink to this definition">¶</a></dt>
+<dd><p>Include filename of selected photos in output</p>
+</dd></dl>
+
+</section>
+</section>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Usage: python -m osxphotos [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --db &lt;Photos database path&gt;  Specify Photos database path. Path to Photos
+                               library/database can be specified using either
+                               --db or directly as PHOTOS_LIBRARY positional
+                               argument. If neither --db or PHOTOS_LIBRARY
+                               provided, will attempt to find the library to
+                               use in the following order: 1. last opened
+                               library, 2. system library, 3.
+                               ~/Pictures/Photos Library.photoslibrary
+  --json                       Print output in JSON format.
+  -v, --version                Show the version and exit.
+  -h, --help                   Show this message and exit.
+
+Commands:
+  about      Print information about osxphotos including license.
+  albums     Print out albums found in the Photos library.
+  diff       Compare two Photos databases and print out differences
+  dump       Print list of all photos &amp; associated info from the Photos...
+  export     Export photos from the Photos database.
+  help       Print help; for help on commands: help &lt;command&gt;.
+  info       Print out descriptive info of the Photos library database.
+  install    Install Python packages into the same environment as osxphotos
+  keywords   Print out keywords found in the Photos library.
+  labels     Print out image classification labels found in the Photos...
+  list       Print list of Photos libraries found on the system.
+  persons    Print out persons (faces) found in the Photos library.
+  places     Print out places found in the Photos library.
+  query      Query the Photos database using 1 or more search options; if...
+  repl       Run interactive osxphotos REPL shell (useful for debugging,...
+  run        Run a python file using same environment as osxphotos
+  snap       Create snapshot of Photos database to use with diff command
+  theme      Manage osxphotos color themes.
+  tutorial   Display osxphotos tutorial.
+  uninstall  Uninstall Python packages from the osxphotos environment
+  uuid       Print out unique IDs (UUID) of photos selected in Photos
+</pre></div>
+</div>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">osxphotos</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">osxphotos command line interface (CLI)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#osxphotos">osxphotos</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#osxphotos-about">about</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#osxphotos-albums">albums</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#osxphotos-diff">diff</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#osxphotos-dump">dump</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#osxphotos-export">export</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#osxphotos-help">help</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#osxphotos-info">info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#osxphotos-install">install</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#osxphotos-keywords">keywords</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#osxphotos-labels">labels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#osxphotos-list">list</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#osxphotos-persons">persons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#osxphotos-places">places</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#osxphotos-query">query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#osxphotos-repl">repl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#osxphotos-run">run</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#osxphotos-snap">snap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#osxphotos-theme">theme</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#osxphotos-tutorial">tutorial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#osxphotos-uninstall">uninstall</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#osxphotos-uuid">uuid</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">osxphotos package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to osxphotos’s documentation!</a></li>
+      <li>Next: <a href="reference.html" title="next chapter">osxphotos package</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Rhet Turnbull.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/cli.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
