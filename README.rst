@@ -82,7 +82,7 @@ Alternatively, you can also run the command line utility like this: ``python3 -m
 .. code-block::
 
    > osxphotos
-   Usage: python -m osxphotos [OPTIONS] COMMAND [ARGS]...
+   Usage: osxphotos [OPTIONS] COMMAND [ARGS]...
 
    Options:
      --db <Photos database path>  Specify Photos database path. Path to Photos
