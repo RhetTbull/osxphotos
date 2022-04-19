@@ -1,12 +1,13 @@
+Sphinx
 build
 m2r2
 pdbpp
 pyinstaller==4.10
 pytest-mock
 pytest==7.0.1
-Sphinx
 sphinx_click
 sphinx_rtd_theme
+sphinxcontrib-programoutput
 sphinxcontrib-programoutput
 twine
 wheel

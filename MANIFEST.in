@@ -5,3 +5,4 @@ include osxphotos/queries/*
 include osxphotos/templates/*
 include README.md
 include README.rst
+include docs/

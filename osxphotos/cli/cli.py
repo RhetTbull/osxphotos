@@ -9,6 +9,7 @@ from .about import about
 from .albums import albums
 from .common import DB_OPTION, JSON_OPTION, OSXPHOTOS_HIDDEN
 from .debug_dump import debug_dump
+from .docs import docs
 from .dump import dump
 from .export import export
 from .exportdb import exportdb
@@ -62,6 +63,7 @@ for command in [
     albums,
     debug_dump,
     diff,
+    docs,
     dump,
     export,
     exportdb,

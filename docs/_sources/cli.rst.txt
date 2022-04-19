@@ -1,7 +1,7 @@
 osxphotos command line interface (CLI)
 ======================================
 
-.. click:: osxphotos.cli:cli
+.. click:: osxphotos.cli:cli_main
    :prog: osxphotos
    :nested: full
 
