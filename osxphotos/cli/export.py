@@ -697,6 +697,7 @@ def export(
     to_date,
     from_time,
     to_time,
+    year,
     verbose,
     timestamp,
     no_progress,
@@ -1018,6 +1019,7 @@ def export(
         uuid_from_file = cfg.uuid_from_file
         verbose = cfg.verbose
         xattr_template = cfg.xattr_template
+        year = cfg.year
 
         # config file might have changed verbose
         color_theme = get_theme(theme)
@@ -1300,6 +1302,7 @@ def export(
         to_date=to_date,
         from_time=from_time,
         to_time=to_time,
+        year=year,
         portrait=portrait,
         not_portrait=not_portrait,
         screenshot=screenshot,

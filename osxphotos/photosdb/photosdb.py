@@ -3289,6 +3289,9 @@ class PhotosDB:
         if options.to_time:
             photos = [p for p in photos if p.date.time() <= options.to_time]
 
+        if options.year:
+            photos = [p for p in photos if p.date.year in options.year]
+
         if name:
             # search filename fields for text
             # if more than one, find photos with all title values in filename

@@ -87,6 +87,7 @@ class QueryOptions:
     function: Optional[List[Tuple[callable, str]]] = None
     selected: Optional[bool] = None
     exif: Optional[Iterable[Tuple[str, str]]] = None
+    year: Optional[int] = None
 
     def asdict(self):
         return asdict(self)
