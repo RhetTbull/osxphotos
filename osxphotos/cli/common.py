@@ -368,6 +368,13 @@ def QUERY_OPTIONS(f):
             help="Search by item end time of day, e.g. 12:00 or 12:00:00.",
             type=TimeISO8601(),
         ),
+        o(
+            "--year",
+            help="Search for items from a specific year, e.g. --year 2022 to find all photos from the year 2022. "
+            "May be repeated to search multiple years.",
+            multiple=True,
+            type=int,
+        ),
         o("--has-comment", is_flag=True, help="Search for photos that have comments."),
         o("--no-comment", is_flag=True, help="Search for photos with no comments."),
         o("--has-likes", is_flag=True, help="Search for photos that have likes."),

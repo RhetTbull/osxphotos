@@ -256,6 +256,7 @@ def _query_options_from_kwargs(**kwargs) -> QueryOptions:
         "to_date",
         "from_time",
         "to_time",
+        "year",
         "label",
         "is_reference",
         "query_eval",

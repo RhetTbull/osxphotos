@@ -740,6 +740,8 @@ CLI_FINDER_TAGS = {
     },
 }
 
+CLI_EXPORT_YEAR_2017 = ["IMG_4547.jpg"]
+
 LABELS_JSON = {
     "labels": {
         "Water": 2,
@@ -1492,6 +1494,28 @@ def test_export_skip_uuid():
         files = glob.glob("*")
         for skipped_file in CLI_EXPORT_SKIP_UUID_FILENAMES:
             assert skipped_file not in files
+
+
+def test_export_year():
+    """test export with --year"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--year",
+                "2017",
+                "--skip-edited",
+            ],
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_YEAR_2017)
 
 
 def test_export_preview():
@@ -2570,6 +2594,80 @@ def test_query_time():
 
     json_got = json.loads(result.output)
     assert len(json_got) == 3
+
+
+def test_query_year_1():
+    """Test --year"""
+
+    os.environ["TZ"] = "US/Pacific"
+    time.tzset()
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, CLI_PHOTOS_DB),
+            "--year",
+            2017,
+        ],
+    )
+    assert result.exit_code == 0
+
+    json_got = json.loads(result.output)
+    assert len(json_got) == 1
+
+
+def test_query_year_2():
+    """Test --year with multiple years"""
+
+    os.environ["TZ"] = "US/Pacific"
+    time.tzset()
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, CLI_PHOTOS_DB),
+            "--year",
+            2017,
+            "--year",
+            2018,
+        ],
+    )
+    assert result.exit_code == 0
+
+    json_got = json.loads(result.output)
+    assert len(json_got) == 6
+
+
+def test_query_year_3():
+    """Test --year with invalid year"""
+
+    os.environ["TZ"] = "US/Pacific"
+    time.tzset()
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, CLI_PHOTOS_DB),
+            "--year",
+            3000,
+        ],
+    )
+    assert result.exit_code == 0
+
+    json_got = json.loads(result.output)
+    assert len(json_got) == 0
 
 
 def test_query_keyword_1():

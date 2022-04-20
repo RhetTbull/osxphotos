@@ -738,6 +738,10 @@ Options:
                                   or 12:00:00.
   --to-time TIME                  Search by item end time of day, e.g. 12:00 or
                                   12:00:00.
+  --year INTEGER                  Search for items from a specific year, e.g.
+                                  --year 2022 to find all photos from the year
+                                  2022. May be repeated to search multiple
+                                  years.
   --has-comment                   Search for photos that have comments.
   --no-comment                    Search for photos with no comments.
   --has-likes                     Search for photos that have likes.
