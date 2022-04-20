@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>osxphotos command line interface (CLI) &#8212; osxphotos 0.47.8 documentation</title>
+    <title>osxphotos command line interface (CLI) &#8212; osxphotos 0.47.9 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
@@ -150,6 +150,13 @@ library specified by –db to the database specified by DB2</p>
 <dd><p>Optional argument(s)</p>
 </dd></dl>
 
+</section>
+<section id="osxphotos-docs">
+<h3>docs<a class="headerlink" href="#osxphotos-docs" title="Permalink to this headline">¶</a></h3>
+<p>Open osxphotos documentation in your browser.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos docs <span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
 </section>
 <section id="osxphotos-dump">
 <h3>dump<a class="headerlink" href="#osxphotos-dump" title="Permalink to this headline">¶</a></h3>
@@ -534,6 +541,12 @@ to modify this behavior.</p>
 <dt class="sig sig-object std" id="cmdoption-osxphotos-export-to-time">
 <span class="sig-name descname"><span class="pre">--to-time</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;to_time&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-to-time" title="Permalink to this definition">¶</a></dt>
 <dd><p>Search by item end time of day, e.g. 12:00 or 12:00:00.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-year">
+<span class="sig-name descname"><span class="pre">--year</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;year&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-year" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for items from a specific year, e.g. –year 2022 to find all photos from the year 2022. May be repeated to search multiple years.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -1565,6 +1578,12 @@ if more than one option is provided, they are treated as “AND”
 </dd></dl>
 
 <dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-year">
+<span class="sig-name descname"><span class="pre">--year</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;year&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-year" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for items from a specific year, e.g. –year 2022 to find all photos from the year 2022. May be repeated to search multiple years.</p>
+</dd></dl>
+
+<dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-query-has-comment">
 <span class="sig-name descname"><span class="pre">--has-comment</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-has-comment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Search for photos that have comments.</p>
@@ -2042,6 +2061,12 @@ if more than one option is provided, they are treated as “AND”
 </dd></dl>
 
 <dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-repl-year">
+<span class="sig-name descname"><span class="pre">--year</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;year&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-repl-year" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for items from a specific year, e.g. –year 2022 to find all photos from the year 2022. May be repeated to search multiple years.</p>
+</dd></dl>
+
+<dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-repl-has-comment">
 <span class="sig-name descname"><span class="pre">--has-comment</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-repl-has-comment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Search for photos that have comments.</p>
@@ -2377,6 +2402,7 @@ Commands:
 <li class="toctree-l3"><a class="reference internal" href="#osxphotos-about">about</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#osxphotos-albums">albums</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#osxphotos-diff">diff</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#osxphotos-docs">docs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#osxphotos-dump">dump</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#osxphotos-export">export</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#osxphotos-help">help</a></li>

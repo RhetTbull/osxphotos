@@ -370,6 +370,7 @@ def QUERY_OPTIONS(f):
         ),
         o(
             "--year",
+            metavar="YEAR",
             help="Search for items from a specific year, e.g. --year 2022 to find all photos from the year 2022. "
             "May be repeated to search multiple years.",
             multiple=True,

@@ -738,7 +738,7 @@ Options:
                                   or 12:00:00.
   --to-time TIME                  Search by item end time of day, e.g. 12:00 or
                                   12:00:00.
-  --year INTEGER                  Search for items from a specific year, e.g.
+  --year YEAR                     Search for items from a specific year, e.g.
                                   --year 2022 to find all photos from the year
                                   2022. May be repeated to search multiple
                                   years.
@@ -1809,7 +1809,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.47.8'
+{osxphotos_version}             The osxphotos version, e.g. '0.47.9'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -3722,7 +3722,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.47.8'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.47.9'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
