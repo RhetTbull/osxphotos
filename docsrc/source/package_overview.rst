@@ -1,6 +1,8 @@
+OSXPhotos Python Package Overview
+=================================
 
 Example uses of the OSXPhotos python package
-----------------------------------
+--------------------------------------------
 
 .. code-block:: python
 
@@ -117,3 +119,75 @@ Example uses of the OSXPhotos python package
 
    if __name__ == "__main__":
        export()
+
+
+OSXPhotos REPL
+--------------
+
+The osxphotos command line interface includes a REPL (Run-Evaluate-Print Loop) for testing and development.
+
+The REPL is started with the command: ``osxphotos repl``::
+
+   $ osxphotos repl
+   python version: 3.10.2 (main, Feb  2 2022, 07:36:01) [Clang 12.0.0 (clang-1200.0.32.29)]
+   osxphotos version: 0.47.10
+   Using last opened Photos library: /Users/user/Pictures/Photos Library.photoslibrary
+   Loading database
+   Processing database /Users/user/Pictures/Photos Library.photoslibrary/database/photos.db
+   Processing database /Users/user/Pictures/Photos Library.photoslibrary/database/Photos.sqlite
+   Database locked, creating temporary copy.
+   Processing database.
+   Database version: 6000, 5.
+   Processing persons in photos.
+   Processing detected faces in photos.
+   Processing albums.
+   Processing keywords.
+   Processing photo details.
+   Processing import sessions.
+   Processing additional photo details.
+   Processing face details.
+   Processing photo labels.
+   Processing EXIF details.
+   Processing computed aesthetic scores.
+   Processing comments and likes for shared photos.
+   Processing moments.
+   Done processing details from Photos library.
+   Done: took 18.54 seconds
+   Getting photos
+   Found 31581 photos in 0.77 seconds
+
+   The following classes have been imported from osxphotos:
+   - AlbumInfo, ExifTool, PhotoInfo, PhotoExporter, ExportOptions, ExportResults, PhotosDB, PlaceInfo, QueryOptions, MomentInfo, ScoreInfo, SearchInfo
+
+   The following variables are defined:
+   - photosdb: PhotosDB() instance for '/Users/user/Pictures/Photos Library.photoslibrary'
+   - photos: list of PhotoInfo objects for all photos filtered with any query options passed on command line (len=31581)
+   - all_photos: list of PhotoInfo objects for all photos in photosdb, including those in the trash (len=31581)
+   - selected: list of PhotoInfo objects for any photos selected in Photos (len=0)
+
+   The following functions may be helpful:
+   - get_photo(uuid): return a PhotoInfo object for photo with uuid; e.g. get_photo('B13F4485-94E0-41CD-AF71-913095D62E31')
+   - get_selected(); return list of PhotoInfo objects for photos selected in Photos
+   - show(photo): open a photo object in the default viewer; e.g. show(selected[0])
+   - show(path): open a file at path in the default viewer; e.g. show('/path/to/photo.jpg')
+   - spotlight(photo): open a photo and spotlight it in Photos
+   - inspect(object): print information about an object; e.g. inspect(PhotoInfo)
+   - explore(object): interactively explore an object with objexplore; e.g. explore(PhotoInfo)
+   - q, quit, quit(), exit, exit(): exit this interactive shell
+
+   >>>
+
+Using the osxphotos CLI to run python code
+------------------------------------------
+
+The osxphotos CLI can also be used to run your own python code using the ``osxphotos run`` command.
+
+This is useful if you have installed the CLI using ``pipx`` but want to use the osxphotos programmatic interface in your own scripts.
+
+If you need to install any additional python packages to use in your own scripts, you can use the ``osxphotos install`` command 
+which installs python packages just as ``pip`` does but into the same virtual environment that osxphotos is installed in.
+
+Likewise, you can use ``osxphotos uninstall`` to uninstall any installed python packages.
+
+These features are also useful for developing custom functions to use with ``--query-function`` and ``--post-function`` 
+as well as ``{function}`` templates and ``function:`` filters.

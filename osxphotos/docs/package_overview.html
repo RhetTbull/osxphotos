@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos python API" href="reference.html" /><link rel="prev" title="OSXPhotos Template System" href="template_help.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>Example uses of the OSXPhotos python package - osxphotos 0.47.10 documentation</title>
+        <title>OSXPhotos Python Package Overview - osxphotos 0.47.10 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -135,7 +135,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -156,11 +156,11 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="overview.html">osxphotos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">OSXPhotos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">OSXPhotos Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">OSXPhotos Command Line Interface (CLI)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="template_help.html">OSXPhotos Template System</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Example uses of the OSXPhotos python package</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">OSXPhotos Python Package Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference.html">OSXPhotos python API</a></li>
 </ul>
 
@@ -188,14 +188,16 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main">
-          <section id="example-uses-of-the-osxphotos-python-package">
-<h1>Example uses of the OSXPhotos python package<a class="headerlink" href="#example-uses-of-the-osxphotos-python-package" title="Permalink to this headline">#</a></h1>
+          <section id="osxphotos-python-package-overview">
+<h1>OSXPhotos Python Package Overview<a class="headerlink" href="#osxphotos-python-package-overview" title="Permalink to this headline">#</a></h1>
+<section id="example-uses-of-the-osxphotos-python-package">
+<h2>Example uses of the OSXPhotos python package<a class="headerlink" href="#example-uses-of-the-osxphotos-python-package" title="Permalink to this headline">#</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">""" Simple usage of the package """</span>
 <span class="kn">import</span> <span class="nn">osxphotos</span>
 
@@ -311,6 +313,72 @@
 </pre></div>
 </div>
 </section>
+<section id="osxphotos-repl">
+<h2>OSXPhotos REPL<a class="headerlink" href="#osxphotos-repl" title="Permalink to this headline">#</a></h2>
+<p>The osxphotos command line interface includes a REPL (Run-Evaluate-Print Loop) for testing and development.</p>
+<p>The REPL is started with the command: <code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">repl</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ osxphotos repl
+python version: 3.10.2 (main, Feb  2 2022, 07:36:01) [Clang 12.0.0 (clang-1200.0.32.29)]
+osxphotos version: 0.47.10
+Using last opened Photos library: /Users/user/Pictures/Photos Library.photoslibrary
+Loading database
+Processing database /Users/user/Pictures/Photos Library.photoslibrary/database/photos.db
+Processing database /Users/user/Pictures/Photos Library.photoslibrary/database/Photos.sqlite
+Database locked, creating temporary copy.
+Processing database.
+Database version: 6000, 5.
+Processing persons in photos.
+Processing detected faces in photos.
+Processing albums.
+Processing keywords.
+Processing photo details.
+Processing import sessions.
+Processing additional photo details.
+Processing face details.
+Processing photo labels.
+Processing EXIF details.
+Processing computed aesthetic scores.
+Processing comments and likes for shared photos.
+Processing moments.
+Done processing details from Photos library.
+Done: took 18.54 seconds
+Getting photos
+Found 31581 photos in 0.77 seconds
+
+The following classes have been imported from osxphotos:
+- AlbumInfo, ExifTool, PhotoInfo, PhotoExporter, ExportOptions, ExportResults, PhotosDB, PlaceInfo, QueryOptions, MomentInfo, ScoreInfo, SearchInfo
+
+The following variables are defined:
+- photosdb: PhotosDB() instance for '/Users/user/Pictures/Photos Library.photoslibrary'
+- photos: list of PhotoInfo objects for all photos filtered with any query options passed on command line (len=31581)
+- all_photos: list of PhotoInfo objects for all photos in photosdb, including those in the trash (len=31581)
+- selected: list of PhotoInfo objects for any photos selected in Photos (len=0)
+
+The following functions may be helpful:
+- get_photo(uuid): return a PhotoInfo object for photo with uuid; e.g. get_photo('B13F4485-94E0-41CD-AF71-913095D62E31')
+- get_selected(); return list of PhotoInfo objects for photos selected in Photos
+- show(photo): open a photo object in the default viewer; e.g. show(selected[0])
+- show(path): open a file at path in the default viewer; e.g. show('/path/to/photo.jpg')
+- spotlight(photo): open a photo and spotlight it in Photos
+- inspect(object): print information about an object; e.g. inspect(PhotoInfo)
+- explore(object): interactively explore an object with objexplore; e.g. explore(PhotoInfo)
+- q, quit, quit(), exit, exit(): exit this interactive shell
+
+&gt;&gt;&gt;
+</pre></div>
+</div>
+</section>
+<section id="using-the-osxphotos-cli-to-run-python-code">
+<h2>Using the osxphotos CLI to run python code<a class="headerlink" href="#using-the-osxphotos-cli-to-run-python-code" title="Permalink to this headline">#</a></h2>
+<p>The osxphotos CLI can also be used to run your own python code using the <code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">run</span></code> command.</p>
+<p>This is useful if you have installed the CLI using <code class="docutils literal notranslate"><span class="pre">pipx</span></code> but want to use the osxphotos programmatic interface in your own scripts.</p>
+<p>If you need to install any additional python packages to use in your own scripts, you can use the <code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">install</span></code> command
+which installs python packages just as <code class="docutils literal notranslate"><span class="pre">pip</span></code> does but into the same virtual environment that osxphotos is installed in.</p>
+<p>Likewise, you can use <code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">uninstall</span></code> to uninstall any installed python packages.</p>
+<p>These features are also useful for developing custom functions to use with <code class="docutils literal notranslate"><span class="pre">--query-function</span></code> and <code class="docutils literal notranslate"><span class="pre">--post-function</span></code>
+as well as <code class="docutils literal notranslate"><span class="pre">{function}</span></code> templates and <code class="docutils literal notranslate"><span class="pre">function:</span></code> filters.</p>
+</section>
+</section>
 
         </article>
       </div>
@@ -357,8 +425,29 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">OSXPhotos Python Package Overview</a><ul>
+<li><a class="reference internal" href="#example-uses-of-the-osxphotos-python-package">Example uses of the OSXPhotos python package</a></li>
+<li><a class="reference internal" href="#osxphotos-repl">OSXPhotos REPL</a></li>
+<li><a class="reference internal" href="#using-the-osxphotos-cli-to-run-python-code">Using the osxphotos CLI to run python code</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
