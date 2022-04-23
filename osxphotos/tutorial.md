@@ -1,6 +1,6 @@
 <!-- OSXPHOTOS-TUTORIAL-HEADER:START -->
 
-# osxphotos Tutorial
+# OSXPhotos Tutorial
 
 ## Overview
 
@@ -90,7 +90,7 @@ The osxphotos template system also allows for limited conditional logic of the t
                   Value immediately following comma will be used if <──────┘
                   template field is False or blank (null); in this case
                   no value is specified so a blank string "" will be used
-    
+
 Like with `--directory`, using a multi-valued template field such as `{keyword}` may result in more than one copy of a photo being exported.  For example, if `IMG_1234.JPG` has keywords `Travel`, and `Vacation` and you run the following command:
 
 `osxphotos export /path/to/export --filename "{keyword}-{original_name}"`
@@ -171,7 +171,7 @@ This will write basic metadata such as keywords, persons, and GPS location to th
                            if photo is in Folder1/Folder2/Album, (>) produces
                            "Folder1>Folder2>Album" which some programs, such as
                            Lightroom Classic, treat as hierarchal keywords
-    
+
 The above command will write all the regular metadata that `--exiftool` normally writes to the file upon export but will also add an additional keyword in the exported metadata in the form "Folder1>Folder2>Album".  If you did not include the `(>)` in the template string (e.g. `{folder_album}`), folder_album would render in form "Folder1/Folder2/Album".
 
 A powerful feature of Photos is that it uses machine learning algorithms to automatically classify or label photos.  These labels are used when you search for images in Photos but are not otherwise available to the user.  osxphotos is able to read all the labels associated with a photo and makes those available through the template system via the `{label}`.  Think of these as automatic keywords as opposed to the keywords you assign manually in Photos.  One common use case is to use the automatic labels to create new keywords when exporting images so that these labels are embedded in the image's metadata:

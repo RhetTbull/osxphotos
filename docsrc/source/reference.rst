@@ -1,4 +1,4 @@
-osxphotos python API 
+OSXPhotos python API 
 ====================
 
 .. automodule:: osxphotos

@@ -1,8 +1,8 @@
 
-osxphotos Template System
+OSXPhotos Template System
 =========================
 
-The templating system converts one or template statements, written in osxphotos metadata templating language, to one or more rendered values using information from the photo being processed. 
+The templating system converts one or template statements, written in osxphotos metadata templating language, to one or more rendered values using information from the photo being processed.
 
 In its simplest form, a template statement has the form: ``"{template_field}"``\ , for example ``"{title}"`` which would resolve to the title of the photo.
 
@@ -26,7 +26,7 @@ e.g. if Photo keywords are ``["foo","bar"]``\ :
 * ``"{; +keyword}"`` renders to: ``"foo; bar"``
 * ``"{+keyword}"`` renders to ``"foobar"``
 
-``template_field``\ : The template field to resolve.  See `Template Substitutions <#template-substitutions>`_ for full list of template fields. 
+``template_field``\ : The template field to resolve.  See `Template Substitutions <#template-substitutions>`_ for full list of template fields.
 
 `:subfield`: Some templates have sub-fields, For example, `{exiftool:IPTC:Make}\ ``; the template_field is``\ exiftool\ ``and the sub-field is``\ IPTC:Make`.
 
@@ -70,7 +70,7 @@ e.g. If Photo is in ``Album1`` in ``Folder1``\ :
 
 `[find,replace]`: optional text replacement to perform on rendered template value.  For example, to replace "/" in an album name, you could use the template `"{album[/,-]}"`.  Multiple replacements can be made by appending "|" and adding another find|replace pair.  e.g. to replace both "/" and ":" in album name: ``"{album[/,-|:,-]}"``.  find/replace pairs are not limited to single characters.  The "|" character cannot be used in a find/replace pair.
 
-`conditional`: optional conditional expression that is evaluated as boolean (True/False) for use with the `?bool_value` modifier.  Conditional expressions take the form '` not operator value`' where `not` is an optional modifier that negates the `operator`.  Note: the space before the conditional expression is required if you use a conditional expression.  Valid comparison operators are:
+`conditional`: optional conditional expression that is evaluated as boolean (True/False) for use with the `?bool_value` modifier.  Conditional expressions take the form '`not operator value`' where `not` is an optional modifier that negates the `operator`.  Note: the space before the conditional expression is required if you use a conditional expression.  Valid comparison operators are:
 
 
 * ``contains``\ : template field contains value, similar to python's ``in``
@@ -118,7 +118,7 @@ and if it is not an HDR image,
 
 * ``"{hdr?ISHDR,NOTHDR}"`` renders to ``"NOTHDR"``
 
-``,default``\ : optional default value to use if the template name has no value.  This modifier is also used for the value if False for boolean-type fields (see above) as well as to hold a sub-template for values like ``{created.strftime}``.  If no default value provided, "_" is used. 
+``,default``\ : optional default value to use if the template name has no value.  This modifier is also used for the value if False for boolean-type fields (see above) as well as to hold a sub-template for values like ``{created.strftime}``.  If no default value provided, "_" is used.
 
 e.g., if photo has no title set,
 
@@ -133,7 +133,7 @@ e.g., if photo date is 4 February 2020, 19:07:38,
 
 * ``"{created.strftime,%Y-%m-%d-%H%M%S}"`` renders to ``"2020-02-04-190738"``
 
-Some template fields such as ``"{media_type}"`` use the default value to allow customization of the output. For example, ``"{media_type}"`` resolves to the special media type of the photo such as ``panorama`` or ``selfie``.  You may use the default value to override these in form: ``"{media_type,video=vidéo;time_lapse=vidéo_accélérée}"``. In this example, if photo was a time_lapse photo, ``media_type`` would resolve to ``vidéo_accélérée`` instead of ``time_lapse``. 
+Some template fields such as ``"{media_type}"`` use the default value to allow customization of the output. For example, ``"{media_type}"`` resolves to the special media type of the photo such as ``panorama`` or ``selfie``.  You may use the default value to override these in form: ``"{media_type,video=vidéo;time_lapse=vidéo_accélérée}"``. In this example, if photo was a time_lapse photo, ``media_type`` would resolve to ``vidéo_accélérée`` instead of ``time_lapse``.
 
 Either or both bool_value or default (False value) may be empty which would result in empty string ``""`` when rendered.
 
@@ -147,7 +147,7 @@ Template Substitutions
 .. list-table::
    :header-rows: 1
 
-   * - Substitution
+   * - Field
      - Description
    * - {name}
      - Current filename of the photo

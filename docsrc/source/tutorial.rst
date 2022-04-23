@@ -9,7 +9,7 @@
 
 
 
-osxphotos Tutorial
+OSXPhotos Tutorial
 ==================
 
 Overview

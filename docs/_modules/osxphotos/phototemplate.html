@@ -158,6 +158,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../overview.html">osxphotos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">osxphotos Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">osxphotos Command Line Interface (CLI)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../template_help.html">osxphotos Template System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../package_overview.html">Example uses of the python package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../reference.html">osxphotos python API</a></li>
 </ul>
@@ -1588,6 +1589,19 @@
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">help_file</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fd</span><span class="p">:</span>
         <span class="n">md</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">md</span>
+
+
+<span class="k">def</span> <span class="nf">get_template_field_table</span><span class="p">():</span>
+    <span class="sd">"""Return markdown table of template field substitutions"""</span>
+    <span class="n">template_table</span> <span class="o">=</span> <span class="s2">"| Field | Description |"</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">|--------------|-------------|"</span>
+    <span class="k">for</span> <span class="n">subst</span><span class="p">,</span> <span class="n">descr</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="o">*</span><span class="n">TEMPLATE_SUBSTITUTIONS</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span>
+        <span class="o">*</span><span class="n">TEMPLATE_SUBSTITUTIONS_MULTI_VALUED</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span>
+    <span class="p">]:</span>
+        <span class="c1"># replace '|' with '\|' to avoid markdown parsing issues (e.g. in {pipe} description)</span>
+        <span class="n">descr</span> <span class="o">=</span> <span class="n">descr</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"'|'"</span><span class="p">,</span> <span class="s2">"'\|'"</span><span class="p">)</span>
+        <span class="n">template_table</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">|</span><span class="si">{</span><span class="n">subst</span><span class="si">}</span><span class="s2">|</span><span class="si">{</span><span class="n">descr</span><span class="si">}</span><span class="s2">|"</span>
+    <span class="k">return</span> <span class="n">template_table</span>
 
 
 <span class="k">def</span> <span class="nf">_get_pathlib_value</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">quote</span><span class="p">):</span>

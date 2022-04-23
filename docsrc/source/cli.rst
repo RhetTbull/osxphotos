@@ -1,4 +1,4 @@
-osxphotos Command Line Interface (CLI)
+OSXPhotos Command Line Interface (CLI)
 ======================================
 
 .. click:: osxphotos.cli:cli_main

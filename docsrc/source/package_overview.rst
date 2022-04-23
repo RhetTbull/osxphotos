@@ -1,5 +1,5 @@
 
-Example uses of the python package
+Example uses of the OSXPhotos python package
 ----------------------------------
 
 .. code-block:: python

@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Example uses of the python package" href="package_overview.html" /><link rel="prev" title="osxphotos Command Line Interface (CLI)" href="cli.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Example uses of the OSXPhotos python package" href="package_overview.html" /><link rel="prev" title="OSXPhotos Command Line Interface (CLI)" href="cli.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>osxphotos Template System - osxphotos 0.47.10 documentation</title>
+        <title>OSXPhotos Template System - osxphotos 0.47.10 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -156,12 +156,12 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="overview.html">osxphotos</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial.html">osxphotos Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cli.html">osxphotos Command Line Interface (CLI)</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">osxphotos Template System</a></li>
-<li class="toctree-l1"><a class="reference internal" href="package_overview.html">Example uses of the python package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reference.html">osxphotos python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">OSXPhotos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">OSXPhotos Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">OSXPhotos Command Line Interface (CLI)</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">OSXPhotos Template System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package_overview.html">Example uses of the OSXPhotos python package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">OSXPhotos python API</a></li>
 </ul>
 
 </div>
@@ -195,7 +195,7 @@
         </div>
         <article role="main">
           <section id="osxphotos-template-system">
-<h1>osxphotos Template System<a class="headerlink" href="#osxphotos-template-system" title="Permalink to this headline">#</a></h1>
+<h1>OSXPhotos Template System<a class="headerlink" href="#osxphotos-template-system" title="Permalink to this headline">#</a></h1>
 <p>The templating system converts one or template statements, written in osxphotos metadata templating language, to one or more rendered values using information from the photo being processed.</p>
 <p>In its simplest form, a template statement has the form: <code class="docutils literal notranslate"><span class="pre">"{template_field}"</span></code>, for example <code class="docutils literal notranslate"><span class="pre">"{title}"</span></code> which would resolve to the title of the photo.</p>
 <p>Template statements may contain one or more modifiers.  The full syntax is:</p>
@@ -246,7 +246,7 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">"{folder_album()}"</span></code> renders to <code class="docutils literal notranslate"><span class="pre">["Folder1Album1"]</span></code></p></li>
 </ul>
 <p><cite>[find,replace]</cite>: optional text replacement to perform on rendered template value.  For example, to replace “/” in an album name, you could use the template <cite>“{album[/,-]}”</cite>.  Multiple replacements can be made by appending “|” and adding another find|replace pair.  e.g. to replace both “/” and “:” in album name: <code class="docutils literal notranslate"><span class="pre">"{album[/,-|:,-]}"</span></code>.  find/replace pairs are not limited to single characters.  The “|” character cannot be used in a find/replace pair.</p>
-<p><cite>conditional</cite>: optional conditional expression that is evaluated as boolean (True/False) for use with the <cite>?bool_value</cite> modifier.  Conditional expressions take the form ‘` not operator value`’ where <cite>not</cite> is an optional modifier that negates the <cite>operator</cite>.  Note: the space before the conditional expression is required if you use a conditional expression.  Valid comparison operators are:</p>
+<p><cite>conditional</cite>: optional conditional expression that is evaluated as boolean (True/False) for use with the <cite>?bool_value</cite> modifier.  Conditional expressions take the form ‘<cite>not operator value</cite>’ where <cite>not</cite> is an optional modifier that negates the <cite>operator</cite>.  Note: the space before the conditional expression is required if you use a conditional expression.  Valid comparison operators are:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">contains</span></code>: template field contains value, similar to python’s <code class="docutils literal notranslate"><span class="pre">in</span></code></p></li>
 <li><p><cite>matches</cite>: template field contains exactly value, unlike <cite>contains</cite>: does not match partial matches</p></li>
@@ -306,7 +306,7 @@
 <col style="width: 50%"/>
 </colgroup>
 <thead>
-<tr class="row-odd"><th class="head"><p>Substitution</p></th>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
 <th class="head"><p>Description</p></th>
 </tr>
 </thead>
@@ -644,7 +644,7 @@
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Example uses of the python package</div>
+                <div class="title">Example uses of the OSXPhotos python package</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -655,7 +655,7 @@
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">osxphotos Command Line Interface (CLI)</div>
+                <div class="title">OSXPhotos Command Line Interface (CLI)</div>
                 
               </div>
             </a>
@@ -691,7 +691,7 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">osxphotos Template System</a><ul>
+<li><a class="reference internal" href="#">OSXPhotos Template System</a><ul>
 <li><a class="reference internal" href="#id1">Template Substitutions</a></li>
 </ul>
 </li>

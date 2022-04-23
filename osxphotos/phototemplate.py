@@ -1395,6 +1395,19 @@ def get_template_help():
     return md
 
 
+def get_template_field_table():
+    """Return markdown table of template field substitutions"""
+    template_table = "| Field | Description |" + "\n|--------------|-------------|"
+    for subst, descr in [
+        *TEMPLATE_SUBSTITUTIONS.items(),
+        *TEMPLATE_SUBSTITUTIONS_MULTI_VALUED.items(),
+    ]:
+        # replace '|' with '\|' to avoid markdown parsing issues (e.g. in {pipe} description)
+        descr = descr.replace("'|'", "'\|'")
+        template_table += f"\n|{subst}|{descr}|"
+    return template_table
+
+
 def _get_pathlib_value(field, value, quote):
     """Get the value for a pathlib.Path type template
 

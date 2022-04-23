@@ -1,10 +1,10 @@
-osxphotos
+OSXPhotos
 =========
 
-What is osxphotos?
+What is OSXPhotos?
 ------------------
 
-osxphotos provides both the ability to interact with and query Apple's Photos.app library on macOS directly from your python code 
+OSXPhotos provides both the ability to interact with and query Apple's Photos.app library on macOS directly from your python code 
 as well as a very flexible command line interface (CLI) app for exporting photos. 
 You can query the Photos library database -- for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. 
 You can also easily export both the original and edited photos. 

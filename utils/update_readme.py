@@ -15,13 +15,8 @@ import re
 from click.testing import CliRunner
 
 from osxphotos.cli import cli_main
-from osxphotos.phototemplate import (
-    FILTER_VALUES,
-    TEMPLATE_SUBSTITUTIONS,
-    TEMPLATE_SUBSTITUTIONS_MULTI_VALUED,
-)
+from osxphotos.phototemplate import get_template_field_table, get_template_help
 
-TEMPLATE_HELP = "osxphotos/phototemplate.md"
 TUTORIAL_HELP = "osxphotos/tutorial.md"
 
 USAGE_START = (
@@ -39,11 +34,6 @@ TEMPLATE_HELP_START = (
 )
 TEMPLATE_HELP_STOP = "<!-- OSXPHOTOS-TEMPLATE-HELP:END -->"
 
-TEMPLATE_FILTER_TABLE_START = (
-    "!-- OSXPHOTOS-FILTER-TABLE:START - Do not remove or modify this section -->"
-)
-TEMPLATE_FILTER_TABLE_STOP = "<!-- OSXPHOTOS-FILTER-TABLE:END -->"
-
 TUTORIAL_START = "<!-- OSXPHOTOS-TUTORIAL:START -->"
 TUTORIAL_STOP = "<!-- OSXPHOTOS-TUTORIAL:END -->"
 
@@ -53,20 +43,7 @@ TUTORIAL_HEADER_STOP = "<!-- OSXPHOTOS-TUTORIAL-HEADER:END -->"
 TEMPLATE_SYSTEM_LINK_START = "<!-- OSXPHOTOS-TEMPLATE-SYSTEM-LINK:START -->"
 TEMPLATE_SYSTEM_LINK_STOP = "<!-- OSXPHOTOS-TEMPLATE-SYSTEM-LINK:END -->"
 
-
-def generate_template_table():
-    """generate template substitution table for README.md"""
-
-    template_table = "| Substitution | Description |"
-    template_table += "\n|--------------|-------------|"
-    for subst, descr in [
-        *TEMPLATE_SUBSTITUTIONS.items(),
-        *TEMPLATE_SUBSTITUTIONS_MULTI_VALUED.items(),
-    ]:
-        # replace '|' with '\|' to avoid markdown parsing issues (e.g. in {pipe} description)
-        descr = descr.replace("'|'", "'\|'")
-        template_table += f"\n|{subst}|{descr}|"
-    return template_table
+API_README = "API_README.md"
 
 
 def generate_help_text(command):
@@ -117,23 +94,6 @@ def replace_text(text, start_tag, stop_tag, replacement_text, prefix="", postfix
 
 def main():
     """update README.md"""
-    # update phototemplate.md with info on filters
-    print(f"Updating {TEMPLATE_HELP}")
-    filter_help = "\n".join(f"- `{f}`: {descr}" for f, descr in FILTER_VALUES.items())
-    with open(TEMPLATE_HELP) as file:
-        template_help = file.read()
-
-    template_help = replace_text(
-        template_help,
-        TEMPLATE_FILTER_TABLE_START,
-        TEMPLATE_FILTER_TABLE_STOP,
-        filter_help,
-        prefix="\n",
-        postfix="\n",
-    )
-
-    with open(TEMPLATE_HELP, "w") as file:
-        file.write(template_help)
 
     # update the help text for `osxphotos help export`
     print("Updating help for `osxphotos help export`")
@@ -146,7 +106,7 @@ def main():
 
     # update the template substitution table
     print("Updating template substitution table")
-    template_table = generate_template_table()
+    template_table = get_template_field_table()
     new_readme = replace_text(
         new_readme,
         TEMPLATE_TABLE_START,
@@ -157,9 +117,7 @@ def main():
     )
 
     # update the template system docs
-    print("Updating template system help")
-    with open(TEMPLATE_HELP) as fd:
-        template_help = fd.read()
+    template_help = get_template_help()
 
     new_readme = replace_text(
         new_readme,

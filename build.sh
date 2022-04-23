@@ -3,8 +3,18 @@
 # script to help build osxphotos release
 # this is unique to my own dev setup
 
-rm -rf dist; rm -rf build
+echo "Cleaning old build and dist directories"
+rm -rf dist
+rm -rf build
+
+echo "Updated phototemplate.md"
+cog -d -o osxphotos/phototemplate.md osxphotos/phototemplate.cog.md 
+
+echo "Updating README.md"
 python3 utils/update_readme.py
+
+echo "Updating API_README.md"
+cog -r API_README.md
 
 # stage and convert markdown to rst
 echo "Copying osxphotos/tutorial.md to docsrc/source/tutorial.md"
@@ -20,10 +30,13 @@ m2r2 docsrc/source/template_help.md
 rm docsrc/source/template_help.md
 
 # build docs
+echo "Building docs"
 (cd docsrc && make github && make docs && make pdf)
 
 # build the package
+echo "Building package"
 python3 -m build
 
 # build CLI executable
+echo "Building CLI executable"
 ./make_cli_exe.sh
