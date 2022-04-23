@@ -2,7 +2,6 @@
 
 import click
 
-import osxphotos
 from osxphotos._version import __version__
 
 from .about import about
@@ -19,7 +18,7 @@ from .info import info
 from .install_uninstall_run import install, run, uninstall
 from .keywords import keywords
 from .labels import labels
-from .list import _list_libraries, list_libraries
+from .list import list_libraries
 from .persons import persons
 from .places import places
 from .query import query
@@ -28,6 +27,7 @@ from .snap_diff import diff, snap
 from .theme import theme
 from .tutorial import tutorial
 from .uuid import uuid
+from .version import version
 
 
 # Click CLI object & context settings
@@ -54,6 +54,7 @@ CTX_SETTINGS = dict(help_option_names=["-h", "--help"])
 @click.version_option(__version__, "--version", "-v")
 @click.pass_context
 def cli_main(ctx, db, json_, debug):
+    """osxphotos: query and export your Photos library"""
     ctx.obj = CLI_Obj(db=db, json=json_, group=cli_main)
 
 
@@ -84,5 +85,6 @@ for command in [
     tutorial,
     uninstall,
     uuid,
+    version,
 ]:
     cli_main.add_command(command)

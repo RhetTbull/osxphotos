@@ -17,9 +17,10 @@ import sys
 import unicodedata
 import urllib.parse
 from plistlib import load as plistload
-from typing import Callable, List, Union, Optional
+from typing import Callable, List, Optional, Tuple, Union
 
 import CoreFoundation
+import requests
 
 from ._constants import UNICODE_FORMAT
 
@@ -44,6 +45,8 @@ logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d - %(message)s",
 )
+
+VERSION_INFO_URL = "https://pypi.org/pypi/osxphotos/json"
 
 
 def _get_logger():
@@ -497,3 +500,14 @@ def format_sec_to_hhmmss(sec: float) -> str:
     """Format seconds to hh:mm:ss"""
     delta = datetime.timedelta(seconds=sec)
     return str(delta).split(".")[0]
+
+
+def get_latest_version() -> Tuple[Optional[str], str]:
+    """Get latest version of osxphotos or None if version can't be retrieved"""
+    try:
+        url = VERSION_INFO_URL
+        response = requests.get(url)
+        data = response.json()
+        return data["info"]["version"], ""
+    except Exception as e:
+        return None, e

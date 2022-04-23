@@ -318,7 +318,7 @@ Template Substitutions
    * - {crlf}
      - a carriage return + line feed: '\r\n'
    * - {osxphotos_version}
-     - The osxphotos version, e.g. '0.47.10'
+     - The osxphotos version, e.g. '0.47.11'
    * - {osxphotos_cmd_line}
      - The full command line used to run osxphotos
    * - {album}
