@@ -27,7 +27,7 @@ def docs(ctx, cli_obj):
         shutil.rmtree(str(docs_dir), ignore_errors=True)
         copy_docs(docs_dir)
 
-    cli_docs = docs_dir / "cli.html"
+    cli_docs = docs_dir / "index.html"
     click.echo(f"Opening {cli_docs}")
     click.launch(str(cli_docs))
 

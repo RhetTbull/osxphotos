@@ -1,0 +1,7 @@
+osxphotos export
+======================================
+
+.. click:: osxphotos.cli:cli_main
+   :prog: osxphotos
+   :commands: export
+   :nested: full

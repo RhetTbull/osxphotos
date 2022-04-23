@@ -2,7 +2,7 @@
    :format: html
 
 
-OSXPhotos
+osxphotos
 =========
 
 What is osxphotos?
@@ -16,9 +16,7 @@ You can also easily export both the original and edited photos.
 Supported operating systems
 ---------------------------
 
-Only works on macOS (aka Mac OS X). Tested on macOS Sierra (10.12.6) through macOS Big Sur (11.3).
-
-If you have access to macOS 12 / Monterey beta and would like to help ensure osxphotos is compatible, please contact me via GitHub.
+Only works on macOS (aka Mac OS X). Tested on macOS Sierra (10.12.6) through macOS Monterey (12.3).
 
 This package will read Photos databases for any supported version on any supported macOS version.  
 E.g. you can read a database created with Photos 5.0 on MacOS 10.15 on a machine running macOS 10.12 and vice versa.
@@ -28,7 +26,7 @@ Requires python >= ``3.8``.
 Installation
 ------------
 
-If you are new to python and just want to use the command line application, I recommend you to install using pipx. See other advanced options below. 
+If you just want to use the command line application, I recommend you to install using pipx. See other advanced options below. 
 
 Installation using pipx
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -55,7 +53,7 @@ You can also install directly from `pypi <https://pypi.org/project/osxphotos/>`_
 Installation from git repository
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-OSXPhotos uses setuptools, thus simply run:
+osxphotos uses setuptools, thus simply run:
 
 .. code-block::
 

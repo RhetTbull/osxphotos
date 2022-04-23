@@ -1,13 +1,5 @@
-osxphotos package
-===================
+osxphotos python API 
+====================
 
-osxphotos module
-------------------------------
-
-.. autoclass:: osxphotos.PhotosDB
+.. automodule:: osxphotos
    :members:
-   :undoc-members:
-
-.. autoclass:: osxphotos.PhotoInfo 
-   :members:
-   :undoc-members:

@@ -2,7 +2,9 @@ import logging
 
 from ._constants import AlbumSortOrder
 from ._version import __version__
+from .albuminfo import AlbumInfo, ImportInfo, ProjectInfo, FolderInfo
 from .debug import is_debug, set_debug
+from .exifinfo import ExifInfo
 from .exiftool import ExifTool
 from .export_db import ExportDB
 from .fileutil import FileUtil, FileUtilNoOp
@@ -23,10 +25,10 @@ if not is_debug():
     logging.disable(logging.DEBUG)
 
 __all__ = [
-    "__version__",
-    "_get_logger",
+    "AlbumInfo",
     "AlbumSortOrder",
     "CommentInfo",
+    "ExifInfo",
     "ExifTool",
     "ExportDB",
     "ExportDBTemp",
@@ -34,17 +36,22 @@ __all__ = [
     "ExportResults",
     "FileUtil",
     "FileUtilNoOp",
-    "is_debug",
+    "ImportInfo",
     "LikeInfo",
     "MomentInfo",
     "PersonInfo",
     "PhotoExporter",
     "PhotoInfo",
-    "PhotosDB",
     "PhotoTemplate",
+    "PhotosDB",
     "PlaceInfo",
+    "ProjectInfo",
     "QueryOptions",
     "ScoreInfo",
     "SearchInfo",
+    "__version__",
+    "_get_logger",
+    "is_debug",
     "set_debug",
+    "FolderInfo",
 ]

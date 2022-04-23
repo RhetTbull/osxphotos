@@ -1451,43 +1451,45 @@ class PhotoInfo:
         description_template=None,
         render_options: Optional[RenderOptions] = None,
     ):
-        """export photo
-        dest: must be valid destination path (or exception raised)
-        filename: (optional): name of exported picture; if not provided, will use current filename
-                    **NOTE**: if provided, user must ensure file extension (suffix) is correct.
-                    For example, if photo is .CR2 file, edited image may be .jpeg.
-                    If you provide an extension different than what the actual file is,
-                    export will print a warning but will export the photo using the
-                    incorrect file extension (unless use_photos_export is true, in which case export will
-                    use the extension provided by Photos upon export; in this case, an incorrect extension is
-                    silently ignored).
-                    e.g. to get the extension of the edited photo,
-                    reference PhotoInfo.path_edited
-        edited: (boolean, default=False); if True will export the edited version of the photo, otherwise exports the original version
-                (or raise exception if no edited version)
-        live_photo: (boolean, default=False); if True, will also export the associated .mov for live photos
-        raw_photo: (boolean, default=False); if True, will also export the associated RAW photo
-        export_as_hardlink: (boolean, default=False); if True, will hardlink files instead of copying them
-        overwrite: (boolean, default=False); if True will overwrite files if they already exist
-        increment: (boolean, default=True); if True, will increment file name until a non-existant name is found
-                    if overwrite=False and increment=False, export will fail if destination file already exists
-        sidecar_json: if set will write a json sidecar with data in format readable by exiftool
-                    sidecar filename will be dest/filename.json; includes exiftool tag group names (e.g. `exiftool -G -j`)
-        sidecar_exiftool: if set will write a json sidecar with data in format readable by exiftool
-                    sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. `exiftool -j`)
-        sidecar_xmp: if set will write an XMP sidecar with IPTC data
-                    sidecar filename will be dest/filename.xmp
-        use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos
-        timeout: (int, default=120) timeout in seconds used with use_photos_export
-        exiftool: (boolean, default = False); if True, will use exiftool to write metadata to export file
-        returns list of full paths to the exported files
-        use_albums_as_keywords: (boolean, default = False); if True, will include album names in keywords
-        when exporting metadata with exiftool or sidecar
-        use_persons_as_keywords: (boolean, default = False); if True, will include person names in keywords
-        when exporting metadata with exiftool or sidecar
-        keyword_template: (list of strings); list of template strings that will be rendered as used as keywords
-        description_template: string; optional template string that will be rendered for use as photo description
-        render_options: an optional osxphotos.phototemplate.RenderOptions instance with options to pass to template renderer
+        """Export a photo
+
+        Args:
+            dest: must be valid destination path (or exception raised)
+            filename: (optional): name of exported picture; if not provided, will use current filename
+              **NOTE**: if provided, user must ensure file extension (suffix) is correct.
+              For example, if photo is .CR2 file, edited image may be .jpeg.
+              If you provide an extension different than what the actual file is,
+              export will print a warning but will export the photo using the
+              incorrect file extension (unless use_photos_export is true, in which case export will
+              use the extension provided by Photos upon export; in this case, an incorrect extension is
+              silently ignored).
+              e.g. to get the extension of the edited photo,
+              reference PhotoInfo.path_edited
+            edited: (boolean, default=False); if True will export the edited version of the photo, otherwise exports the original version
+              (or raise exception if no edited version)
+            live_photo: (boolean, default=False); if True, will also export the associated .mov for live photos
+            raw_photo: (boolean, default=False); if True, will also export the associated RAW photo
+            export_as_hardlink: (boolean, default=False); if True, will hardlink files instead of copying them
+            overwrite: (boolean, default=False); if True will overwrite files if they already exist
+            increment: (boolean, default=True); if True, will increment file name until a non-existant name is found
+              if overwrite=False and increment=False, export will fail if destination file already exists
+            sidecar_json: if set will write a json sidecar with data in format readable by exiftool
+              sidecar filename will be dest/filename.json; includes exiftool tag group names (e.g. `exiftool -G -j`)
+            sidecar_exiftool: if set will write a json sidecar with data in format readable by exiftool
+              sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. `exiftool -j`)
+            sidecar_xmp: if set will write an XMP sidecar with IPTC data
+              sidecar filename will be dest/filename.xmp
+            use_photos_export: (boolean, default=False); if True will attempt to export photo via applescript interaction with Photos
+            timeout: (int, default=120) timeout in seconds used with use_photos_export
+            exiftool: (boolean, default = False); if True, will use exiftool to write metadata to export file
+            returns list of full paths to the exported files
+            use_albums_as_keywords: (boolean, default = False); if True, will include album names in keywords
+            when exporting metadata with exiftool or sidecar
+            use_persons_as_keywords: (boolean, default = False); if True, will include person names in keywords
+            when exporting metadata with exiftool or sidecar
+            keyword_template: (list of strings); list of template strings that will be rendered as used as keywords
+            description_template: string; optional template string that will be rendered for use as photo description
+            render_options: an optional osxphotos.phototemplate.RenderOptions instance with options to pass to template renderer
 
         Returns:
             list of photos exported
@@ -1512,8 +1514,8 @@ class PhotoInfo:
                 else:
                     uti = self.uti_edited if edited and self.uti_edited else self.uti
                     ext = get_preferred_uti_extension(uti)
-                    ext = "." + ext
-                filename = original_name.stem + "_edited" + ext
+                    ext = f".{ext}"
+                filename = f"{original_name.stem}_edited{ext}"
 
         options = ExportOptions(
             description_template=description_template,

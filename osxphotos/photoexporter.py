@@ -116,12 +116,12 @@ class ExportOptions:
         replace_keywords (bool): if True, keyword_template replaces any keywords, otherwise it's additive
         rich (bool): if True, will use rich markup with verbose output
         sidecar_drop_ext (bool, default=False): if True, drops the photo's extension from sidecar filename (e.g. 'IMG_1234.json' instead of 'IMG_1234.JPG.json')
-        sidecar: bit field (int): set to one or more of SIDECAR_XMP, SIDECAR_JSON, SIDECAR_EXIFTOOL
-            - SIDECAR_JSON: if set will write a json sidecar with data in format readable by exiftool sidecar filename will be dest/filename.json;
-              includes exiftool tag group names (e.g. `exiftool -G -j`)
-            - SIDECAR_EXIFTOOL: if set will write a json sidecar with data in format readable by exiftool sidecar filename will be dest/filename.json;
-              does not include exiftool tag group names (e.g. `exiftool -j`)
-            - SIDECAR_XMP: if set will write an XMP sidecar with IPTC data sidecar filename will be dest/filename.xmp
+        sidecar: bit field (int): set to one or more of `SIDECAR_XMP`, `SIDECAR_JSON`, `SIDECAR_EXIFTOOL`
+          - SIDECAR_JSON: if set will write a json sidecar with data in format readable by exiftool sidecar filename will be dest/filename.json;
+          includes exiftool tag group names (e.g. `exiftool -G -j`)
+          - SIDECAR_EXIFTOOL: if set will write a json sidecar with data in format readable by exiftool sidecar filename will be dest/filename.json;
+          does not include exiftool tag group names (e.g. `exiftool -j`)
+          - SIDECAR_XMP: if set will write an XMP sidecar with IPTC data sidecar filename will be dest/filename.xmp
         strip (bool): if True, strip whitespace from rendered templates
         timeout (int, default=120): timeout in seconds used with use_photos_export
         touch_file (bool, default=False): if True, sets file's modification time upon photo date
@@ -132,6 +132,7 @@ class ExportOptions:
         use_photokit (bool, default=False): if True, will use photokit to export photos when use_photos_export is True
         verbose (callable): optional callable function to use for printing verbose text during processing; if None (default), does not print output.
         tmpdir: (str, default=None): Optional directory to use for temporary files, if None (default) uses system tmp directory
+
     """
 
     convert_to_jpeg: bool = False
@@ -375,6 +376,7 @@ class ExportResults:
 
 
 class PhotoExporter:
+    """Export a photo"""
     def __init__(self, photo: "PhotoInfo", tmpdir: t.Optional[str] = None):
         self.photo = photo
         self._render_options = RenderOptions()
@@ -397,24 +399,26 @@ class PhotoExporter:
         filename=None,
         options: t.Optional[ExportOptions] = None,
     ) -> ExportResults:
-        """export photo
+        """Export photo
 
         Args:
             dest: must be valid destination path or exception raised
             filename: (optional): name of exported picture; if not provided, will use current filename
-                    **NOTE**: if provided, user must ensure file extension (suffix) is correct.
-                    For example, if photo is .CR2 file, edited image may be .jpeg.
-                    If you provide an extension different than what the actual file is,
-                    will export the photo using the incorrect file extension (unless use_photos_export is true,
-                    in which case export will use the extension provided by Photos upon export.
-                    e.g. to get the extension of the edited photo,
-                    reference PhotoInfo.path_edited
-            options (ExportOptions): t.Optional ExportOptions instance
+              **NOTE**: if provided, user must ensure file extension (suffix) is correct.
+              For example, if photo is .CR2 file, edited image may be .jpeg.
+              If you provide an extension different than what the actual file is,
+              will export the photo using the incorrect file extension (unless use_photos_export is true,
+              in which case export will use the extension provided by Photos upon export.
+              e.g. to get the extension of the edited photo,
+              reference PhotoInfo.path_edited
+            options (`ExportOptions`): t.Optional ExportOptions instance
 
-        Returns: ExportResults instance
+        Returns:
+            ExportResults instance
 
-        Note: to use dry run mode, you must set options.dry_run=True and also pass in memory version of export_db,
-            and no-op fileutil (e.g. ExportDBInMemory and FileUtilNoOp) in options.export_db and options.fileutil respectively
+        Note:
+            To use dry run mode, you must set options.dry_run=True and also pass in memory version of export_db,
+              and no-op fileutil (e.g. `ExportDBInMemory` and `FileUtilNoOp`) in options.export_db and options.fileutil respectively
         """
 
         options = options or ExportOptions()

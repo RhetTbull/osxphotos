@@ -63,6 +63,8 @@ def generate_template_table():
         *TEMPLATE_SUBSTITUTIONS.items(),
         *TEMPLATE_SUBSTITUTIONS_MULTI_VALUED.items(),
     ]:
+        # replace '|' with '\|' to avoid markdown parsing issues (e.g. in {pipe} description)
+        descr = descr.replace("'|'", "'\|'")
         template_table += f"\n|{subst}|{descr}|"
     return template_table
 
@@ -117,7 +119,7 @@ def main():
     """update README.md"""
     # update phototemplate.md with info on filters
     print(f"Updating {TEMPLATE_HELP}")
-    filter_help = "\n".join(f"- {f}: {descr}" for f, descr in FILTER_VALUES.items())
+    filter_help = "\n".join(f"- `{f}`: {descr}" for f, descr in FILTER_VALUES.items())
     with open(TEMPLATE_HELP) as file:
         template_help = file.read()
 
@@ -173,8 +175,8 @@ def main():
     with open(TUTORIAL_HELP) as fd:
         tutorial_help = fd.read()
 
-    # indent all Markdown headers one more level
-    tutorial_help = re.sub(r"^([#]+)", r"\1#", tutorial_help, flags=re.MULTILINE)
+    # indent all Markdown headers two more levels
+    tutorial_help = re.sub(r"^([#]+)", r"\1##", tutorial_help, flags=re.MULTILINE)
 
     # insert link for Template System
     tutorial_help = replace_text(

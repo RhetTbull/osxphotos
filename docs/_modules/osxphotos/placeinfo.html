@@ -1,0 +1,758 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>osxphotos.placeinfo &#8212; osxphotos 0.47.9 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for osxphotos.placeinfo</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    PlaceInfo class</span>
+<span class="sd">    Provides reverse geolocation info for photos </span>
+<span class="sd">    </span>
+<span class="sd">    See https://developer.apple.com/documentation/corelocation/clplacemark</span>
+<span class="sd">    for additional documentation on reverse geolocation data</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>  <span class="c1"># pylint: disable=syntax-error</span>
+
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">from</span> <span class="nn">bpylist</span> <span class="kn">import</span> <span class="n">archiver</span>
+
+<span class="kn">from</span> <span class="nn">._constants</span> <span class="kn">import</span> <span class="n">UNICODE_FORMAT</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">normalize_unicode</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;PLRevGeoLocationInfo&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PLRevGeoMapItem&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PLRevGeoMapItemAdditionalPlaceInfo&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CNPostalAddress&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PlaceInfo&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PlaceInfo4&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PlaceInfo5&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># postal address information, returned by PlaceInfo.address</span>
+<span class="n">PostalAddress</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span>
+    <span class="s2">&quot;PostalAddress&quot;</span><span class="p">,</span>
+    <span class="p">[</span>
+        <span class="s2">&quot;street&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sub_locality&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;city&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sub_administrative_area&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_province&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;postal_code&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;country&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;iso_country_code&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+<span class="c1"># PlaceNames tuple returned by PlaceInfo.names</span>
+<span class="c1"># order of fields 0 - 17 is mapped to placeType value in</span>
+<span class="c1"># PLRevGeoLocationInfo.mapInfo.sortedPlaceInfos</span>
+<span class="c1"># field 18 is combined bodies of water (ocean + inland_water)</span>
+<span class="c1"># and maps to Photos &lt;= 4, RKPlace.type == 44</span>
+<span class="c1"># (Photos &lt;= 4 doesn&#39;t have ocean or inland_water types)</span>
+<span class="c1"># The fields named &quot;field0&quot;, etc. appear to be unused</span>
+<span class="n">PlaceNames</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span>
+    <span class="s2">&quot;PlaceNames&quot;</span><span class="p">,</span>
+    <span class="p">[</span>
+        <span class="s2">&quot;field0&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;country&quot;</span><span class="p">,</span>  <span class="c1"># The name of the country associated with the placemark.</span>
+        <span class="s2">&quot;state_province&quot;</span><span class="p">,</span>  <span class="c1"># administrativeArea, The state or province associated with the placemark.</span>
+        <span class="s2">&quot;sub_administrative_area&quot;</span><span class="p">,</span>  <span class="c1"># Additional administrative area information for the placemark.</span>
+        <span class="s2">&quot;city&quot;</span><span class="p">,</span>  <span class="c1"># locality, The city associated with the placemark.</span>
+        <span class="s2">&quot;field5&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;additional_city_info&quot;</span><span class="p">,</span>  <span class="c1"># subLocality, Additional city-level information for the placemark.</span>
+        <span class="s2">&quot;ocean&quot;</span><span class="p">,</span>  <span class="c1"># The name of the ocean associated with the placemark.</span>
+        <span class="s2">&quot;area_of_interest&quot;</span><span class="p">,</span>  <span class="c1"># areasOfInterest, The relevant areas of interest associated with the placemark.</span>
+        <span class="s2">&quot;inland_water&quot;</span><span class="p">,</span>  <span class="c1"># The name of the inland water body associated with the placemark.</span>
+        <span class="s2">&quot;field10&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;region&quot;</span><span class="p">,</span>  <span class="c1"># The geographic region associated with the placemark.</span>
+        <span class="s2">&quot;sub_throughfare&quot;</span><span class="p">,</span>  <span class="c1"># Additional street-level information for the placemark.</span>
+        <span class="s2">&quot;field13&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;postal_code&quot;</span><span class="p">,</span>  <span class="c1"># The postal code associated with the placemark.</span>
+        <span class="s2">&quot;field15&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;field16&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;street_address&quot;</span><span class="p">,</span>  <span class="c1"># throughfare, The street address associated with the placemark.</span>
+        <span class="s2">&quot;body_of_water&quot;</span><span class="p">,</span>  <span class="c1"># RKPlace.type == 44, appears to be any body of water (ocean or inland)</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+<span class="c1"># The following classes represent Photo Library Reverse Geolocation Info as stored</span>
+<span class="c1"># in ZADDITIONALASSETATTRIBUTES.ZREVERSELOCATIONDATA</span>
+<span class="c1"># These classes are used by bpylist.archiver to unarchive the serialized objects</span>
+<span class="k">class</span> <span class="nc">PLRevGeoLocationInfo</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;The top level reverse geolocation object&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">addressString</span><span class="p">,</span>
+        <span class="n">countryCode</span><span class="p">,</span>
+        <span class="n">mapItem</span><span class="p">,</span>
+        <span class="n">isHome</span><span class="p">,</span>
+        <span class="n">compoundNames</span><span class="p">,</span>
+        <span class="n">compoundSecondaryNames</span><span class="p">,</span>
+        <span class="n">version</span><span class="p">,</span>
+        <span class="n">geoServiceProvider</span><span class="p">,</span>
+        <span class="n">postalAddress</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addressString</span> <span class="o">=</span> <span class="n">normalize_unicode</span><span class="p">(</span><span class="n">addressString</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">countryCode</span> <span class="o">=</span> <span class="n">countryCode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mapItem</span> <span class="o">=</span> <span class="n">mapItem</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isHome</span> <span class="o">=</span> <span class="n">isHome</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compoundNames</span> <span class="o">=</span> <span class="n">normalize_unicode</span><span class="p">(</span><span class="n">compoundNames</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compoundSecondaryNames</span> <span class="o">=</span> <span class="n">normalize_unicode</span><span class="p">(</span><span class="n">compoundSecondaryNames</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geoServiceProvider</span> <span class="o">=</span> <span class="n">geoServiceProvider</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">postalAddress</span> <span class="o">=</span> <span class="n">postalAddress</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span> <span class="o">==</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="s2">&quot;addressString&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;countryCode&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;isHome&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;compoundNames&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;compoundSecondaryNames&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;version&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;geoServiceProvider&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;postalAddress&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;addressString: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">addressString</span><span class="si">}</span><span class="s2">, countryCode: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">countryCode</span><span class="si">}</span><span class="s2">, isHome: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">isHome</span><span class="si">}</span><span class="s2">, mapItem: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mapItem</span><span class="si">}</span><span class="s2">, postalAddress: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">postalAddress</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">encode_archive</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">archive</span><span class="p">):</span>
+        <span class="n">archive</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;addressString&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">addressString</span><span class="p">)</span>
+        <span class="n">archive</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;countryCode&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">countryCode</span><span class="p">)</span>
+        <span class="n">archive</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;mapItem&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">mapItem</span><span class="p">)</span>
+        <span class="n">archive</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;isHome&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">isHome</span><span class="p">)</span>
+        <span class="n">archive</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;compoundNames&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">compoundNames</span><span class="p">)</span>
+        <span class="n">archive</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;compoundSecondaryNames&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">compoundSecondaryNames</span><span class="p">)</span>
+        <span class="n">archive</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;version&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+        <span class="n">archive</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;geoServiceProvider&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">geoServiceProvider</span><span class="p">)</span>
+        <span class="n">archive</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;postalAddress&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">postalAddress</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">decode_archive</span><span class="p">(</span><span class="n">archive</span><span class="p">):</span>
+        <span class="n">addressString</span> <span class="o">=</span> <span class="n">archive</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;addressString&quot;</span><span class="p">)</span>
+        <span class="n">countryCode</span> <span class="o">=</span> <span class="n">archive</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;countryCode&quot;</span><span class="p">)</span>
+        <span class="n">mapItem</span> <span class="o">=</span> <span class="n">archive</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;mapItem&quot;</span><span class="p">)</span>
+        <span class="n">isHome</span> <span class="o">=</span> <span class="n">archive</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;isHome&quot;</span><span class="p">)</span>
+        <span class="n">compoundNames</span> <span class="o">=</span> <span class="n">archive</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;compoundNames&quot;</span><span class="p">)</span>
+        <span class="n">compoundSecondaryNames</span> <span class="o">=</span> <span class="n">archive</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;compoundSecondaryNames&quot;</span><span class="p">)</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="n">archive</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;version&quot;</span><span class="p">)</span>
+        <span class="n">geoServiceProvider</span> <span class="o">=</span> <span class="n">archive</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;geoServiceProvider&quot;</span><span class="p">)</span>
+        <span class="n">postalAddress</span> <span class="o">=</span> <span class="n">archive</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;postalAddress&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PLRevGeoLocationInfo</span><span class="p">(</span>
+            <span class="n">addressString</span><span class="p">,</span>
+            <span class="n">countryCode</span><span class="p">,</span>
+            <span class="n">mapItem</span><span class="p">,</span>
+            <span class="n">isHome</span><span class="p">,</span>
+            <span class="n">compoundNames</span><span class="p">,</span>
+            <span class="n">compoundSecondaryNames</span><span class="p">,</span>
+            <span class="n">version</span><span class="p">,</span>
+            <span class="n">geoServiceProvider</span><span class="p">,</span>
+            <span class="n">postalAddress</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">PLRevGeoMapItem</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Stores the list of place names, organized by area&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sortedPlaceInfos</span><span class="p">,</span> <span class="n">finalPlaceInfos</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sortedPlaceInfos</span> <span class="o">=</span> <span class="n">sortedPlaceInfos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">finalPlaceInfos</span> <span class="o">=</span> <span class="n">finalPlaceInfos</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span> <span class="o">==</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;sortedPlaceInfos&quot;</span><span class="p">,</span> <span class="s2">&quot;finalPlaceInfos&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">sortedPlaceInfos</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">place</span><span class="p">)</span> <span class="k">for</span> <span class="n">place</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sortedPlaceInfos</span><span class="p">]</span>
+        <span class="n">finalPlaceInfos</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">place</span><span class="p">)</span> <span class="k">for</span> <span class="n">place</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">finalPlaceInfos</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;finalPlaceInfos: </span><span class="si">{</span><span class="n">finalPlaceInfos</span><span class="si">}</span><span class="s2">, sortedPlaceInfos: </span><span class="si">{</span><span class="n">sortedPlaceInfos</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">encode_archive</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">archive</span><span class="p">):</span>
+        <span class="n">archive</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;sortedPlaceInfos&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">sortedPlaceInfos</span><span class="p">)</span>
+        <span class="n">archive</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;finalPlaceInfos&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">finalPlaceInfos</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">decode_archive</span><span class="p">(</span><span class="n">archive</span><span class="p">):</span>
+        <span class="n">sortedPlaceInfos</span> <span class="o">=</span> <span class="n">archive</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;sortedPlaceInfos&quot;</span><span class="p">)</span>
+        <span class="n">finalPlaceInfos</span> <span class="o">=</span> <span class="n">archive</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;finalPlaceInfos&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PLRevGeoMapItem</span><span class="p">(</span><span class="n">sortedPlaceInfos</span><span class="p">,</span> <span class="n">finalPlaceInfos</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">PLRevGeoMapItemAdditionalPlaceInfo</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Additional info about individual places&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">area</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">placeType</span><span class="p">,</span> <span class="n">dominantOrderType</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">area</span> <span class="o">=</span> <span class="n">area</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">normalize_unicode</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">placeType</span> <span class="o">=</span> <span class="n">placeType</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dominantOrderType</span> <span class="o">=</span> <span class="n">dominantOrderType</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span> <span class="o">==</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;placeType&quot;</span><span class="p">,</span> <span class="s2">&quot;dominantOrderType&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;area: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">area</span><span class="si">}</span><span class="s2">, name: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, placeType: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">placeType</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">encode_archive</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">archive</span><span class="p">):</span>
+        <span class="n">archive</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;area&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">area</span><span class="p">)</span>
+        <span class="n">archive</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">archive</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;placeType&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">placeType</span><span class="p">)</span>
+        <span class="n">archive</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;dominantOrderType&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">dominantOrderType</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">decode_archive</span><span class="p">(</span><span class="n">archive</span><span class="p">):</span>
+        <span class="n">area</span> <span class="o">=</span> <span class="n">archive</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;area&quot;</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">archive</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+        <span class="n">placeType</span> <span class="o">=</span> <span class="n">archive</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;placeType&quot;</span><span class="p">)</span>
+        <span class="n">dominantOrderType</span> <span class="o">=</span> <span class="n">archive</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;dominantOrderType&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PLRevGeoMapItemAdditionalPlaceInfo</span><span class="p">(</span>
+            <span class="n">area</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">placeType</span><span class="p">,</span> <span class="n">dominantOrderType</span>
+        <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">CNPostalAddress</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;postal address for the reverse geolocation info&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">_ISOCountryCode</span><span class="p">,</span>
+        <span class="n">_city</span><span class="p">,</span>
+        <span class="n">_country</span><span class="p">,</span>
+        <span class="n">_postalCode</span><span class="p">,</span>
+        <span class="n">_state</span><span class="p">,</span>
+        <span class="n">_street</span><span class="p">,</span>
+        <span class="n">_subAdministrativeArea</span><span class="p">,</span>
+        <span class="n">_subLocality</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ISOCountryCode</span> <span class="o">=</span> <span class="n">_ISOCountryCode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_city</span> <span class="o">=</span> <span class="n">normalize_unicode</span><span class="p">(</span><span class="n">_city</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_country</span> <span class="o">=</span> <span class="n">normalize_unicode</span><span class="p">(</span><span class="n">_country</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_postalCode</span> <span class="o">=</span> <span class="n">normalize_unicode</span><span class="p">(</span><span class="n">_postalCode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="n">normalize_unicode</span><span class="p">(</span><span class="n">_state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_street</span> <span class="o">=</span> <span class="n">normalize_unicode</span><span class="p">(</span><span class="n">_street</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_subAdministrativeArea</span> <span class="o">=</span> <span class="n">normalize_unicode</span><span class="p">(</span><span class="n">_subAdministrativeArea</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_subLocality</span> <span class="o">=</span> <span class="n">normalize_unicode</span><span class="p">(</span><span class="n">_subLocality</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span> <span class="o">==</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="s2">&quot;_ISOCountryCode&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;_city&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;_country&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;_postalCode&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;_state&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;_street&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;_subAdministrativeArea&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;_subLocality&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="nb">map</span><span class="p">(</span>
+                <span class="nb">str</span><span class="p">,</span>
+                <span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_street</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_city</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_subLocality</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_subAdministrativeArea</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_postalCode</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_country</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_ISOCountryCode</span><span class="p">,</span>
+                <span class="p">],</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">encode_archive</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">archive</span><span class="p">):</span>
+        <span class="n">archive</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;_ISOCountryCode&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">_ISOCountryCode</span><span class="p">)</span>
+        <span class="n">archive</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;_country&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">_country</span><span class="p">)</span>
+        <span class="n">archive</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;_city&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">_city</span><span class="p">)</span>
+        <span class="n">archive</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;_postalCode&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">_postalCode</span><span class="p">)</span>
+        <span class="n">archive</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;_state&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">_state</span><span class="p">)</span>
+        <span class="n">archive</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;_street&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">_street</span><span class="p">)</span>
+        <span class="n">archive</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;_subAdministrativeArea&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">_subAdministrativeArea</span><span class="p">)</span>
+        <span class="n">archive</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;_subLocality&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">_subLocality</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">decode_archive</span><span class="p">(</span><span class="n">archive</span><span class="p">):</span>
+        <span class="n">_ISOCountryCode</span> <span class="o">=</span> <span class="n">archive</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;_ISOCountryCode&quot;</span><span class="p">)</span>
+        <span class="n">_country</span> <span class="o">=</span> <span class="n">archive</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;_country&quot;</span><span class="p">)</span>
+        <span class="n">_city</span> <span class="o">=</span> <span class="n">archive</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;_city&quot;</span><span class="p">)</span>
+        <span class="n">_postalCode</span> <span class="o">=</span> <span class="n">archive</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;_postalCode&quot;</span><span class="p">)</span>
+        <span class="n">_state</span> <span class="o">=</span> <span class="n">archive</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;_state&quot;</span><span class="p">)</span>
+        <span class="n">_street</span> <span class="o">=</span> <span class="n">archive</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;_street&quot;</span><span class="p">)</span>
+        <span class="n">_subAdministrativeArea</span> <span class="o">=</span> <span class="n">archive</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;_subAdministrativeArea&quot;</span><span class="p">)</span>
+        <span class="n">_subLocality</span> <span class="o">=</span> <span class="n">archive</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;_subLocality&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">CNPostalAddress</span><span class="p">(</span>
+            <span class="n">_ISOCountryCode</span><span class="p">,</span>
+            <span class="n">_city</span><span class="p">,</span>
+            <span class="n">_country</span><span class="p">,</span>
+            <span class="n">_postalCode</span><span class="p">,</span>
+            <span class="n">_state</span><span class="p">,</span>
+            <span class="n">_street</span><span class="p">,</span>
+            <span class="n">_subAdministrativeArea</span><span class="p">,</span>
+            <span class="n">_subLocality</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<span class="c1"># register the classes with bpylist.archiver</span>
+<span class="n">archiver</span><span class="o">.</span><span class="n">update_class_map</span><span class="p">({</span><span class="s2">&quot;CNPostalAddress&quot;</span><span class="p">:</span> <span class="n">CNPostalAddress</span><span class="p">})</span>
+<span class="n">archiver</span><span class="o">.</span><span class="n">update_class_map</span><span class="p">(</span>
+    <span class="p">{</span><span class="s2">&quot;PLRevGeoMapItemAdditionalPlaceInfo&quot;</span><span class="p">:</span> <span class="n">PLRevGeoMapItemAdditionalPlaceInfo</span><span class="p">}</span>
+<span class="p">)</span>
+<span class="n">archiver</span><span class="o">.</span><span class="n">update_class_map</span><span class="p">({</span><span class="s2">&quot;PLRevGeoMapItem&quot;</span><span class="p">:</span> <span class="n">PLRevGeoMapItem</span><span class="p">})</span>
+<span class="n">archiver</span><span class="o">.</span><span class="n">update_class_map</span><span class="p">({</span><span class="s2">&quot;PLRevGeoLocationInfo&quot;</span><span class="p">:</span> <span class="n">PLRevGeoLocationInfo</span><span class="p">})</span>
+
+
+<div class="viewcode-block" id="PlaceInfo"><a class="viewcode-back" href="../../reference.html#osxphotos.PlaceInfo">[docs]</a><span class="k">class</span> <span class="nc">PlaceInfo</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">address_str</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">country_code</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">ishome</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">address</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+
+<span class="k">class</span> <span class="nc">PlaceInfo4</span><span class="p">(</span><span class="n">PlaceInfo</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Reverse geolocation place info for a photo (Photos &lt;= 4)&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">place_names</span><span class="p">,</span> <span class="n">country_code</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;place_names: list of place name tuples in ascending order by area</span>
+<span class="sd">        tuple fields are: modelID, place name, place type, area, e.g.</span>
+<span class="sd">        [(5, &quot;St James&#39;s Park&quot;, 45, 0),</span>
+<span class="sd">        (4, &#39;Westminster&#39;, 16, 22097376),</span>
+<span class="sd">        (3, &#39;London&#39;, 4, 1596146816),</span>
+<span class="sd">        (2, &#39;England&#39;, 2, 180406091776),</span>
+<span class="sd">        (1, &#39;United Kingdom&#39;, 1, 414681432064)]</span>
+<span class="sd">        country_code: two letter country code for the country</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_place_names</span> <span class="o">=</span> <span class="n">place_names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_country_code</span> <span class="o">=</span> <span class="n">country_code</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_place_info</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">address_str</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">country_code</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_country_code</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ishome</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">address</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">PostalAddress</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_place_names</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_place_names</span>
+                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_country_code</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_country_code</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_process_place_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Process place_names to set self._name and self._names&quot;&quot;&quot;</span>
+        <span class="n">places</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_place_names</span>
+
+        <span class="c1"># build a dictionary where key is placetype</span>
+        <span class="n">places_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">places</span><span class="p">:</span>
+            <span class="c1"># places in format:</span>
+            <span class="c1"># [(5, &quot;St James&#39;s Park&quot;, 45, 0), ]</span>
+            <span class="c1">#   0: modelID</span>
+            <span class="c1">#   1: name</span>
+            <span class="c1">#   2: type</span>
+            <span class="c1">#   3: area</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">places_dict</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">normalize_unicode</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">p</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">places_dict</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">normalize_unicode</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">p</span><span class="p">[</span><span class="mi">3</span><span class="p">])]</span>
+
+        <span class="c1"># build list to populate PlaceNames tuple</span>
+        <span class="c1"># initialize with empty lists for each field in PlaceNames</span>
+        <span class="n">place_info</span> <span class="o">=</span> <span class="p">[[]]</span> <span class="o">*</span> <span class="mi">19</span>
+
+        <span class="c1"># add the place names sorted by area (ascending)</span>
+        <span class="c1"># in Photos &lt;=4, possible place type values are:</span>
+        <span class="c1"># 45: areasOfInterest (The relevant areas of interest associated with the placemark.)</span>
+        <span class="c1"># 44: body of water (includes both inlandWater and ocean)</span>
+        <span class="c1"># 43: subLocality (Additional city-level information for the placemark.</span>
+        <span class="c1"># 16: locality (The city associated with the placemark.)</span>
+        <span class="c1"># 4: subAdministrativeArea (Additional administrative area information for the placemark.)</span>
+        <span class="c1"># 2: administrativeArea (The state or province associated with the placemark.)</span>
+        <span class="c1"># 1: country</span>
+        <span class="c1"># mapping = mapping from PlaceNames to field in places_dict</span>
+        <span class="c1"># PlaceNames fields map to the placeType value in Photos5 (0..17)</span>
+        <span class="c1"># but place type in Photos &lt;=4 has different values</span>
+        <span class="c1"># hence (3, 4) means PlaceNames[3] = places_dict[4] (sub_administrative_area)</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">44</span><span class="p">),</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">45</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">field5</span><span class="p">,</span> <span class="n">field4</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">place_info</span><span class="p">[</span><span class="n">field5</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">places_dict</span><span class="p">[</span><span class="n">field4</span><span class="p">],</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">place</span><span class="p">:</span> <span class="n">place</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+        <span class="n">place_names</span> <span class="o">=</span> <span class="n">PlaceNames</span><span class="p">(</span><span class="o">*</span><span class="n">place_info</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_names</span> <span class="o">=</span> <span class="n">place_names</span>
+
+        <span class="c1"># build the name as it appears in Photos</span>
+        <span class="c1"># the length of the name is at most 3 fields and appears to be based on available</span>
+        <span class="c1"># reverse geolocation data in the following order (left to right, joined by &#39;,&#39;)</span>
+        <span class="c1"># always has country if available then either area of interest and city OR</span>
+        <span class="c1"># city and state</span>
+        <span class="c1"># e.g. 4, 2, 1 OR 8, 4, 1</span>
+        <span class="c1"># 8 (45): area_of_interest</span>
+        <span class="c1"># 4 (16): locality / city</span>
+        <span class="c1"># 2 (2): administrative area (state/province)</span>
+        <span class="c1"># 1 (1): country</span>
+        <span class="n">name_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">place_names</span><span class="p">[</span><span class="mi">8</span><span class="p">]:</span>
+            <span class="n">name_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">place_names</span><span class="p">[</span><span class="mi">8</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">place_names</span><span class="p">[</span><span class="mi">4</span><span class="p">]:</span>
+                <span class="n">name_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">place_names</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">place_names</span><span class="p">[</span><span class="mi">4</span><span class="p">]:</span>
+            <span class="n">name_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">place_names</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">place_names</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+                <span class="n">name_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">place_names</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">place_names</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+            <span class="n">name_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">place_names</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="c1"># add country</span>
+        <span class="k">if</span> <span class="n">place_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">name_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">place_names</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span> <span class="k">if</span> <span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;names&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">,</span>
+            <span class="s2">&quot;country_code&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">country_code</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="s2">&quot;PlaceInfo(&quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=&#39;</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&#39;&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">info</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
+
+    <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;names&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">_asdict</span><span class="p">(),</span>
+            <span class="s2">&quot;country_code&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">country_code</span><span class="p">,</span>
+        <span class="p">}</span>
+
+
+<span class="k">class</span> <span class="nc">PlaceInfo5</span><span class="p">(</span><span class="n">PlaceInfo</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Reverse geolocation place info for a photo (Photos &gt;= 5)&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">revgeoloc_bplist</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;revgeoloc_bplist: a binary plist blob containing</span>
+<span class="sd">        a serialized PLRevGeoLocationInfo object&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bplist</span> <span class="o">=</span> <span class="n">revgeoloc_bplist</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plrevgeoloc</span> <span class="o">=</span> <span class="n">archiver</span><span class="o">.</span><span class="n">unarchive</span><span class="p">(</span><span class="n">revgeoloc_bplist</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_place_info</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">address_str</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;returns the postal address as a string&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plrevgeoloc</span><span class="o">.</span><span class="n">addressString</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">country_code</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;returns the country code&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plrevgeoloc</span><span class="o">.</span><span class="n">countryCode</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ishome</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;returns True if place is user&#39;s home address&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plrevgeoloc</span><span class="o">.</span><span class="n">isHome</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;returns local place name&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;returns PlaceNames tuple with detailed reverse geolocation place names&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">address</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">addr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plrevgeoloc</span><span class="o">.</span><span class="n">postalAddress</span>
+        <span class="k">if</span> <span class="n">addr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">postal_address</span> <span class="o">=</span> <span class="n">PostalAddress</span><span class="p">(</span>
+                <span class="n">street</span><span class="o">=</span><span class="n">addr</span><span class="o">.</span><span class="n">_street</span><span class="p">,</span>
+                <span class="n">sub_locality</span><span class="o">=</span><span class="n">addr</span><span class="o">.</span><span class="n">_subLocality</span><span class="p">,</span>
+                <span class="n">city</span><span class="o">=</span><span class="n">addr</span><span class="o">.</span><span class="n">_city</span><span class="p">,</span>
+                <span class="n">sub_administrative_area</span><span class="o">=</span><span class="n">addr</span><span class="o">.</span><span class="n">_subAdministrativeArea</span><span class="p">,</span>
+                <span class="n">state_province</span><span class="o">=</span><span class="n">addr</span><span class="o">.</span><span class="n">_state</span><span class="p">,</span>
+                <span class="n">postal_code</span><span class="o">=</span><span class="n">addr</span><span class="o">.</span><span class="n">_postalCode</span><span class="p">,</span>
+                <span class="n">country</span><span class="o">=</span><span class="n">addr</span><span class="o">.</span><span class="n">_country</span><span class="p">,</span>
+                <span class="n">iso_country_code</span><span class="o">=</span><span class="n">addr</span><span class="o">.</span><span class="n">_ISOCountryCode</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">postal_address</span> <span class="o">=</span> <span class="n">PostalAddress</span><span class="p">(</span>
+                <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">postal_address</span>
+
+    <span class="k">def</span> <span class="nf">_process_place_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Process sortedPlaceInfos to set self._name and self._names&quot;&quot;&quot;</span>
+        <span class="n">places</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plrevgeoloc</span><span class="o">.</span><span class="n">mapItem</span><span class="o">.</span><span class="n">sortedPlaceInfos</span>
+
+        <span class="c1"># build a dictionary where key is placetype</span>
+        <span class="n">places_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">places</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">places_dict</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">placeType</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">area</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">places_dict</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">placeType</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">area</span><span class="p">)]</span>
+
+        <span class="c1"># build list to populate PlaceNames tuple</span>
+        <span class="n">place_info</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">18</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># add the place names sorted by area (ascending)</span>
+                <span class="n">place_info</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">places_dict</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">place</span><span class="p">:</span> <span class="n">place</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">place_info</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+
+        <span class="c1"># fill in body_of_water for compatibility with Photos &lt;= 4</span>
+        <span class="n">place_info</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">place_info</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">+</span> <span class="n">place_info</span><span class="p">[</span><span class="mi">9</span><span class="p">])</span>
+
+        <span class="n">place_names</span> <span class="o">=</span> <span class="n">PlaceNames</span><span class="p">(</span><span class="o">*</span><span class="n">place_info</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_names</span> <span class="o">=</span> <span class="n">place_names</span>
+
+        <span class="c1"># build the name as it appears in Photos</span>
+        <span class="c1"># the length of the name is variable and appears to be based on available</span>
+        <span class="c1"># reverse geolocation data in the following order (left to right, joined by &#39;,&#39;)</span>
+        <span class="c1"># 8: area_of_interest</span>
+        <span class="c1"># 11: region (I&#39;ve only seen this applied to islands)</span>
+        <span class="c1"># 4: locality / city</span>
+        <span class="c1"># 2: administrative area (state/province)</span>
+        <span class="c1"># 1: country</span>
+        <span class="c1"># 9: inland_water</span>
+        <span class="c1"># 7: ocean</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">[</span>
+                    <span class="n">place_names</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span>  <span class="c1"># area of interest</span>
+                    <span class="n">place_names</span><span class="p">[</span><span class="mi">11</span><span class="p">],</span>  <span class="c1"># region (I&#39;ve only seen this applied to islands)</span>
+                    <span class="n">place_names</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span>  <span class="c1"># locality / city</span>
+                    <span class="n">place_names</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>  <span class="c1"># administrative area (state/province)</span>
+                    <span class="n">place_names</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>  <span class="c1"># country</span>
+                    <span class="n">place_names</span><span class="p">[</span><span class="mi">9</span><span class="p">],</span>  <span class="c1"># inland_water</span>
+                    <span class="n">place_names</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span>  <span class="c1"># ocean</span>
+                <span class="p">]</span>
+                <span class="k">if</span> <span class="n">p</span> <span class="ow">and</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span> <span class="k">if</span> <span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plrevgeoloc</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_plrevgeoloc</span>
+
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;names&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">,</span>
+            <span class="s2">&quot;country_code&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">country_code</span><span class="p">,</span>
+            <span class="s2">&quot;ishome&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ishome</span><span class="p">,</span>
+            <span class="s2">&quot;address_str&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">address_str</span><span class="p">,</span>
+            <span class="s2">&quot;address&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="s2">&quot;PlaceInfo(&quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=&#39;</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&#39;&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">info</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
+
+    <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;names&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">_asdict</span><span class="p">(),</span>
+            <span class="s2">&quot;country_code&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">country_code</span><span class="p">,</span>
+            <span class="s2">&quot;ishome&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ishome</span><span class="p">,</span>
+            <span class="s2">&quot;address_str&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">address_str</span><span class="p">,</span>
+            <span class="s2">&quot;address&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="o">.</span><span class="n">_asdict</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">address</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">}</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">osxphotos</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">osxphotos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cli.html">osxphotos command line interface (CLI)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference.html">osxphotos package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Rhet Turnbull.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

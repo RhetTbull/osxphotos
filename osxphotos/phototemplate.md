@@ -31,16 +31,16 @@ e.g. if Photo keywords are `["foo","bar"]`:
 Valid filters are:
 
 <!-- OSXPHOTOS-FILTER-TABLE:START - Do not remove or modify this section -->
-- lower: Convert value to lower case, e.g. 'Value' => 'value'.
-- upper: Convert value to upper case, e.g. 'Value' => 'VALUE'.
-- strip: Strip whitespace from beginning/end of value, e.g. ' Value ' => 'Value'.
-- titlecase: Convert value to title case, e.g. 'my value' => 'My Value'.
-- capitalize: Capitalize first word of value and convert other words to lower case, e.g. 'MY VALUE' => 'My value'.
-- braces: Enclose value in curly braces, e.g. 'value => '{value}'.
-- parens: Enclose value in parentheses, e.g. 'value' => '(value')
-- brackets: Enclose value in brackets, e.g. 'value' => '[value]'
-- shell_quote: Quotes the value for safe usage in the shell, e.g. My file.jpeg => 'My file.jpeg'; only adds quotes if needed.
-- function: Run custom python function to filter value; use in format 'function:/path/to/file.py::function_name'. See example at https://github.com/RhetTbull/osxphotos/blob/master/examples/template_filter.py
+- `lower`: Convert value to lower case, e.g. 'Value' => 'value'.
+- `upper`: Convert value to upper case, e.g. 'Value' => 'VALUE'.
+- `strip`: Strip whitespace from beginning/end of value, e.g. ' Value ' => 'Value'.
+- `titlecase`: Convert value to title case, e.g. 'my value' => 'My Value'.
+- `capitalize`: Capitalize first word of value and convert other words to lower case, e.g. 'MY VALUE' => 'My value'.
+- `braces`: Enclose value in curly braces, e.g. 'value => '{value}'.
+- `parens`: Enclose value in parentheses, e.g. 'value' => '(value')
+- `brackets`: Enclose value in brackets, e.g. 'value' => '[value]'
+- `shell_quote`: Quotes the value for safe usage in the shell, e.g. My file.jpeg => 'My file.jpeg'; only adds quotes if needed.
+- `function`: Run custom python function to filter value; use in format 'function:/path/to/file.py::function_name'. See example at https://github.com/RhetTbull/osxphotos/blob/master/examples/template_filter.py
 <!-- OSXPHOTOS-FILTER-TABLE:END -->
 
 e.g. if Photo keywords are `["FOO","bar"]`:

@@ -273,42 +273,38 @@ By default, osxphotos will use the original filename of the photo when exporting
 
 The above command will export photos using the title.  Note that you don't need to specify the extension as part of the `--filename` template as osxphotos will automatically add the correct file extension.  Some photos might not have a title so in this case, you could use the default value feature to specify a different name for these photos.  For example, to use the title as the filename, but if no title is specified, use the original filename instead:
 
-```txt
-osxphotos export /path/to/export --filename "{title,{original_name}}"
-                                              │    ││  │ 
-                                              │    ││  │ 
-     Use photo's title as the filename <──────┘    ││  │
-                                                   ││  │
-            Value after comma will be used <───────┘│  │
-            if title is blank                       │  │
-                                                    │  │
-                      The default value can be <────┘  │
-                      another template field           │
-                                                       │
-          Use photo's original name if no title <──────┘
-```
+    osxphotos export /path/to/export --filename "{title,{original_name}}"
+                                                  │    ││  │ 
+                                                  │    ││  │ 
+         Use photo's title as the filename <──────┘    ││  │
+                                                       ││  │
+                Value after comma will be used <───────┘│  │
+                if title is blank                       │  │
+                                                        │  │
+                          The default value can be <────┘  │
+                          another template field           │
+                                                           │
+              Use photo's original name if no title <──────┘
 
 The osxphotos template system also allows for limited conditional logic of the type "If a condition is true then do one thing, otherwise, do a different thing". For example, you can use the `--filename` option to name files that are marked as "Favorites" in Photos differently than other files. For example, to add a "#" to the name of every photo that's a favorite:
 
-```txt
-osxphotos export /path/to/export --filename "{original_name}{favorite?#,}"
-                                              │              │       │││ 
-                                              │              │       │││ 
-     Use photo's original name as filename <──┘              │       │││
-                                                             │       │││
-          'favorite' is True if photo is a Favorite, <───────┘       │││
-          otherwise, False                                           │││
-                                                                     │││
-                           '?' specifies a conditional <─────────────┘││
-                                                                      ││
-                 Value immediately following ? will be used if <──────┘│
-                 preceding template field is True or non-blank         │
-                                                                       │
-              Value immediately following comma will be used if <──────┘
-              template field is False or blank (null); in this case
-              no value is specified so a blank string "" will be used
-```
-
+    osxphotos export /path/to/export --filename "{original_name}{favorite?#,}"
+                                                  │              │       │││ 
+                                                  │              │       │││ 
+         Use photo's original name as filename <──┘              │       │││
+                                                                 │       │││
+              'favorite' is True if photo is a Favorite, <───────┘       │││
+              otherwise, False                                           │││
+                                                                         │││
+                               '?' specifies a conditional <─────────────┘││
+                                                                          ││
+                     Value immediately following ? will be used if <──────┘│
+                     preceding template field is True or non-blank         │
+                                                                           │
+                  Value immediately following comma will be used if <──────┘
+                  template field is False or blank (null); in this case
+                  no value is specified so a blank string "" will be used
+    
 Like with `--directory`, using a multi-valued template field such as `{keyword}` may result in more than one copy of a photo being exported.  For example, if `IMG_1234.JPG` has keywords `Travel`, and `Vacation` and you run the following command:
 
 `osxphotos export /path/to/export --filename "{keyword}-{original_name}"`
@@ -366,6 +362,10 @@ If you are exporting to an external network attached storage (NAS) device, you m
 
 In this example, osxphotos will attempt to export a photo up to 3 times if it encounters an error.
 
+In addition to `--retry`, the `--exportdb` and `--ramdb` may improve performance when exporting to an external disk or a NAS. When osxphotos exports photos, it creates an export database file named `.osxphotos_export.db` in the export folder which osxphotos uses to keep track of which photos have been exported.  This allows you to restart and export and to use `--update` to update an existing export. If the connection to the export location is slow or flaky, having the export database located on the export disk may decrease performance.  In this case, you can use `--exportdb DBPATH` to instruct osxphotos to store the export database at DBPATH. If using this option, I recommend putting the export database on your Mac system disk (for example, in your home directory). If you intend to use `--update` to update the export in the future, you must remember where the export database is and use the `--exportdb` option every time you update the export.
+
+Another alternative to using `--exportdb` is to use `--ramdb`.  This option instructs osxphotos to use a RAM database instead of a file on disk.  The RAM database is much faster than the file on disk and doesn't require osxphotos to access the network drive to query or write to the database.  When osxphotos completes the export it will write the RAM database to the export location. This can offer a significant performance boost but you will lose state information if osxphotos crashes or is interrupted during export.
+
 #### Exporting metadata with exported photos
 
 Photos tracks a tremendous amount of metadata associated with photos in the library such as keywords, faces and persons, reverse geolocation data, and image classification labels.  Photos' native export capability does not preserve most of this metadata.  osxphotos can, however, access and preserve almost all the metadata associated with photos.  Using the free [`exiftool`](https://exiftool.org/) app, osxphotos can write metadata to exported photos.  Follow the instructions on the exiftool website to install exiftool then you can use the `--exiftool` option to write metadata to exported photos:
@@ -374,20 +374,18 @@ Photos tracks a tremendous amount of metadata associated with photos in the libr
 
 This will write basic metadata such as keywords, persons, and GPS location to the exported files.  osxphotos includes several additional options that can be used in conjunction with `--exiftool` to modify the metadata that is written by `exiftool`. For example, you can use the `--keyword-template` option to specify custom keywords (again, via the osxphotos template system).  For example, to use the folder and album a photo is in to create hierarchal keywords in the format used by Lightroom Classic:
 
-```txt
-osxphotos export /path/to/export --exiftool --keyword-template "{folder_album(>)}"
-                                                                 │            │
-                                                                 │            │ 
-                       folder_album results in the folder(s)  <──┘            │    
-                       and album a photo is contained in                      │  
-                                                                              │     
-                       The value in () is used as the path separator  <───────┘     
-                       for joining the folders and albums.  For example, 
-                       if photo is in Folder1/Folder2/Album, (>) produces
-                       "Folder1>Folder2>Album" which some programs, such as
-                       Lightroom Classic, treat as hierarchal keywords
-```
-
+    osxphotos export /path/to/export --exiftool --keyword-template "{folder_album(>)}"
+                                                                     │            │
+                                                                     │            │ 
+                           folder_album results in the folder(s)  <──┘            │    
+                           and album a photo is contained in                      │  
+                                                                                  │     
+                           The value in () is used as the path separator  <───────┘     
+                           for joining the folders and albums.  For example, 
+                           if photo is in Folder1/Folder2/Album, (>) produces
+                           "Folder1>Folder2>Album" which some programs, such as
+                           Lightroom Classic, treat as hierarchal keywords
+    
 The above command will write all the regular metadata that `--exiftool` normally writes to the file upon export but will also add an additional keyword in the exported metadata in the form "Folder1>Folder2>Album".  If you did not include the `(>)` in the template string (e.g. `{folder_album}`), folder_album would render in form "Folder1/Folder2/Album".
 
 A powerful feature of Photos is that it uses machine learning algorithms to automatically classify or label photos.  These labels are used when you search for images in Photos but are not otherwise available to the user.  osxphotos is able to read all the labels associated with a photo and makes those available through the template system via the `{label}`.  Think of these as automatic keywords as opposed to the keywords you assign manually in Photos.  One common use case is to use the automatic labels to create new keywords when exporting images so that these labels are embedded in the image's metadata:
@@ -498,25 +496,23 @@ In the template string above, `{newline}` instructs osxphotos to insert a new li
 
 Explanation of the template string:
 
-```txt
-{title,}{title?{descr?{newline},},}{descr,}
- │           │      │ │       │ │  │ 
- │           │      │ │       │ │  │ 
- └──> insert title (or nothing if no title) 
-             │      │ │       │ │  │
-             └───> is there a title?
-                    │ │       │ │  │
-                    └───> if so, is there a description? 
-                      │       │ │  │
-                      └───> if so, insert new line 
-                              │ │  │
-                              └───> if descr is blank, insert nothing
-                                │  │ 
-                                └───> if title is blank, insert nothing
-                                   │
-                                   └───> finally, insert description 
-                                         (or nothing if no description)
-```
+    {title,}{title?{descr?{newline},},}{descr,}
+     │           │      │ │       │ │  │ 
+     │           │      │ │       │ │  │ 
+     └──> insert title (or nothing if no title) 
+                 │      │ │       │ │  │
+                 └───> is there a title?
+                        │ │       │ │  │
+                        └───> if so, is there a description? 
+                          │       │ │  │
+                          └───> if so, insert new line 
+                                  │ │  │
+                                  └───> if descr is blank, insert nothing
+                                    │  │ 
+                                    └───> if title is blank, insert nothing
+                                       │
+                                       └───> finally, insert description 
+                                             (or nothing if no description)
 
 In this example, `title?` demonstrates use of the boolean (True/False) feature of the template system.  `title?` is read as "Is the title True (or not blank/empty)?  If so, then the value immediately following the `?` is used in place of `title`.  If `title` is blank, then the value immediately following the comma is used instead.  The format for boolean fields is `field?value if true,value if false`.  Either `value if true` or `value if false` may be blank, in which case a blank string ("") is used for the value and both may also be an entirely new template string as seen in the above example.  Using this format, template strings may be nested inside each other to form complex `if-then-else` statements.
 
@@ -550,20 +546,18 @@ The special template field `{shell_quote}` ensures a string is properly quoted f
 
 Explanation of the template string:
 
-```txt
-{shell_quote,{filepath}{comma}{,+keyword,}}
- │            │         │      │        │
- │            │         │      |        │
- └──> quote everything after comma for proper execution in the shell
-              │         │      │        │
-              └───> filepath of the exported file
-                       │       │        │
-                       └───> insert a comma 
-                               │        │
-                               └───> join the list of keywords together with a ","
-                                        │
-                                        └───> if no keywords, insert nothing (empty string: "")
-```
+    {shell_quote,{filepath}{comma}{,+keyword,}}
+     │            │         │      │        │
+     │            │         │      |        │
+     └──> quote everything after comma for proper execution in the shell
+                  │         │      │        │
+                  └───> filepath of the exported file
+                           │       │        │
+                           └───> insert a comma 
+                                   │        │
+                                   └───> join the list of keywords together with a ","
+                                            │
+                                            └───> if no keywords, insert nothing (empty string: "")
 
 Another example: if you had `exiftool` installed and wanted to wipe all metadata from all exported files, you could use the following:
 
@@ -1809,7 +1803,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.47.9'
+{osxphotos_version}             The osxphotos version, e.g. '0.47.10'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -3534,16 +3528,16 @@ e.g. if Photo keywords are `["foo","bar"]`:
 Valid filters are:
 
 <!-- OSXPHOTOS-FILTER-TABLE:START - Do not remove or modify this section -->
-- lower: Convert value to lower case, e.g. 'Value' => 'value'.
-- upper: Convert value to upper case, e.g. 'Value' => 'VALUE'.
-- strip: Strip whitespace from beginning/end of value, e.g. ' Value ' => 'Value'.
-- titlecase: Convert value to title case, e.g. 'my value' => 'My Value'.
-- capitalize: Capitalize first word of value and convert other words to lower case, e.g. 'MY VALUE' => 'My value'.
-- braces: Enclose value in curly braces, e.g. 'value => '{value}'.
-- parens: Enclose value in parentheses, e.g. 'value' => '(value')
-- brackets: Enclose value in brackets, e.g. 'value' => '[value]'
-- shell_quote: Quotes the value for safe usage in the shell, e.g. My file.jpeg => 'My file.jpeg'; only adds quotes if needed.
-- function: Run custom python function to filter value; use in format 'function:/path/to/file.py::function_name'. See example at https://github.com/RhetTbull/osxphotos/blob/master/examples/template_filter.py
+- `lower`: Convert value to lower case, e.g. 'Value' => 'value'.
+- `upper`: Convert value to upper case, e.g. 'Value' => 'VALUE'.
+- `strip`: Strip whitespace from beginning/end of value, e.g. ' Value ' => 'Value'.
+- `titlecase`: Convert value to title case, e.g. 'my value' => 'My Value'.
+- `capitalize`: Capitalize first word of value and convert other words to lower case, e.g. 'MY VALUE' => 'My value'.
+- `braces`: Enclose value in curly braces, e.g. 'value => '{value}'.
+- `parens`: Enclose value in parentheses, e.g. 'value' => '(value')
+- `brackets`: Enclose value in brackets, e.g. 'value' => '[value]'
+- `shell_quote`: Quotes the value for safe usage in the shell, e.g. My file.jpeg => 'My file.jpeg'; only adds quotes if needed.
+- `function`: Run custom python function to filter value; use in format 'function:/path/to/file.py::function_name'. See example at https://github.com/RhetTbull/osxphotos/blob/master/examples/template_filter.py
 <!-- OSXPHOTOS-FILTER-TABLE:END -->
 
 e.g. if Photo keywords are `["FOO","bar"]`:
@@ -3711,7 +3705,7 @@ The following template field substitutions are availabe for use the templating s
 |{comma}|A comma: ','|
 |{semicolon}|A semicolon: ';'|
 |{questionmark}|A question mark: '?'|
-|{pipe}|A vertical pipe: '|'|
+|{pipe}|A vertical pipe: '\|'|
 |{openbrace}|An open brace: '{'|
 |{closebrace}|A close brace: '}'|
 |{openparens}|An open parentheses: '('|
@@ -3722,7 +3716,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.47.9'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.47.10'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|

@@ -1,0 +1,143 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>osxphotos.scoreinfo &#8212; osxphotos 0.47.9 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for osxphotos.scoreinfo</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot; ScoreInfo class to expose computed score info from the library &quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="kn">from</span> <span class="nn">._constants</span> <span class="kn">import</span> <span class="n">_PHOTOS_4_VERSION</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ScoreInfo&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="ScoreInfo"><a class="viewcode-back" href="../../reference.html#osxphotos.ScoreInfo">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">ScoreInfo</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Computed photo score info associated with a photo from the Photos library&quot;&quot;&quot;</span>
+
+    <span class="n">overall</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">curation</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">promotion</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">highlight_visibility</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">behavioral</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">failure</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">harmonious_color</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">immersiveness</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">interaction</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">interesting_subject</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">intrusive_object_presence</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">lively_color</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">low_light</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">noise</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">pleasant_camera_tilt</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">pleasant_composition</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">pleasant_lighting</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">pleasant_pattern</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">pleasant_perspective</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">pleasant_post_processing</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">pleasant_reflection</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">pleasant_symmetry</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">sharply_focused_subject</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">tastefully_blurred</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">well_chosen_subject</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">well_framed_subject</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">well_timed_shot</span><span class="p">:</span> <span class="nb">float</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">osxphotos</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">osxphotos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cli.html">osxphotos command line interface (CLI)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference.html">osxphotos package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Rhet Turnbull.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
