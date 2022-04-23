@@ -118,6 +118,7 @@ Alternatively, you can also run the command line utility like this: ``python3 -m
      tutorial   Display osxphotos tutorial.
      uninstall  Uninstall Python packages from the osxphotos environment
      uuid       Print out unique IDs (UUID) of photos selected in Photos
+     version    Check for new version of osxphotos.
 
 To get help on a specific command, use ``osxphotos help <command_name>``
 
