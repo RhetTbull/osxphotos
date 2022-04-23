@@ -6,10 +6,12 @@ import pathlib
 from datetime import datetime
 
 import click
+from packaging import version
 
 import osxphotos
 from osxphotos._constants import APP_NAME
 from osxphotos._version import __version__
+from osxphotos.utils import get_latest_version
 
 from .param_types import *
 
@@ -84,6 +86,8 @@ def get_photos_db(*db_options):
     else:
         return None
 
+
+VERSION_CHECK_OPTION = click.option("--no-version-check", required=False, is_flag=True)
 
 DB_OPTION = click.option(
     "--db",
@@ -552,3 +556,16 @@ def get_config_dir() -> pathlib.Path:
     if not config_dir.is_dir():
         config_dir.mkdir(parents=True)
     return config_dir
+
+
+def check_version():
+    """Check for updates"""
+    latest_version, _ = get_latest_version()
+    if latest_version and version.parse(latest_version) > version.parse(__version__):
+        click.echo(
+            f"New version {latest_version} available; you are running {__version__}\n"
+            "Run `pipx upgrade osxphotos` to upgrade.\n"
+            "Use --no-version-check or set environment variable OSXPHOTOS_NO_VERSION_CHECK=1 "
+            "to suppress this message and prevent osxphotos from checking for latest version.",
+            err=True,
+        )
