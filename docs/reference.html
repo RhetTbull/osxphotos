@@ -396,7 +396,7 @@ If called in context manager, returns True (execution is delayed until exiting c
 <dt class="sig sig-object py" id="osxphotos.ExportDB.get_file_record">
 <span class="sig-name descname"><span class="pre">get_file_record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">osxphotos.export_db.ExportRecord</span></span></span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.get_file_record"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.get_file_record" title="Permalink to this definition">#</a></dt>
 <dd><p>get info for filename and uuid</p>
-<p>Returns: an ExportRecord object</p>
+<p>Returns: an ExportRecord object or None if filename not found</p>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.ExportDB.get_photoinfo_for_uuid">

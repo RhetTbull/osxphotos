@@ -1,6 +1,7 @@
 """ Helper class for managing database used by PhotoExporter for tracking state of exports and updates """
 
 
+import contextlib
 import datetime
 import json
 import logging
@@ -12,6 +13,8 @@ from io import StringIO
 from sqlite3 import Error
 from tempfile import TemporaryDirectory
 from typing import Optional, Tuple, Union
+
+from tenacity import retry, stop_after_attempt
 
 from ._constants import OSXPHOTOS_EXPORT_DB
 from ._version import __version__
@@ -26,6 +29,9 @@ __all__ = [
 
 OSXPHOTOS_EXPORTDB_VERSION = "6.0"
 OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
+
+# max retry attempts for methods which use tenacity.retry
+MAX_RETRY_ATTEMPTS = 5
 
 
 class ExportDB:
@@ -63,20 +69,19 @@ class ExportDB:
     def get_file_record(self, filename: Union[pathlib.Path, str]) -> "ExportRecord":
         """get info for filename and uuid
 
-        Returns: an ExportRecord object
+        Returns: an ExportRecord object or None if filename not found
         """
         filename = self._relative_filepath(filename)
         filename_normalized = self._normalize_filepath(filename)
         conn = self._conn
         c = conn.cursor()
-        row = c.execute(
+
+        if _ := c.execute(
             "SELECT uuid FROM export_data WHERE filepath_normalized = ?;",
             (filename_normalized,),
-        ).fetchone()
-
-        if not row:
-            return None
-        return ExportRecord(conn, filename_normalized)
+        ).fetchone():
+            return ExportRecord(conn, filename_normalized)
+        return None
 
     def create_file_record(
         self, filename: Union[pathlib.Path, str], uuid: str
@@ -362,13 +367,11 @@ class ExportDB:
 
     def __del__(self):
         """ensure the database connection is closed"""
-        try:
+        with contextlib.suppress(Exception):
             self._conn.close()
-        except:
-            pass
 
     def _insert_run_info(self):
-        dt = datetime.datetime.utcnow().isoformat()
+        dt = datetime.datetime.now(datetime.timezone.utc).isoformat()
         python_path = sys.executable
         cmd = sys.argv[0]
         args = " ".join(sys.argv[1:]) if len(sys.argv) > 1 else ""
@@ -593,6 +596,7 @@ class ExportDBInMemory(ExportDB):
         self._conn = self._open_export_db(self._dbfile)
         self._insert_run_info()
 
+    @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def write_to_disk(self):
         """Write changes from in-memory database back to disk"""
 
@@ -677,10 +681,8 @@ class ExportDBInMemory(ExportDB):
 
     def __del__(self):
         """close the database connection"""
-        try:
+        with contextlib.suppress(Error):
             self.close()
-        except Error as e:
-            pass
 
 
 class ExportDBTemp(ExportDBInMemory):
@@ -720,11 +722,10 @@ class ExportRecord:
         """return filepath"""
         conn = self._conn
         c = conn.cursor()
-        row = c.execute(
+        if row := c.execute(
             "SELECT filepath FROM export_data WHERE filepath_normalized = ?;",
             (self._filepath_normalized,),
-        ).fetchone()
-        if row:
+        ).fetchone():
             return row[0]
 
         raise ValueError(
@@ -741,11 +742,10 @@ class ExportRecord:
         """return uuid"""
         conn = self._conn
         c = conn.cursor()
-        row = c.execute(
+        if row := c.execute(
             "SELECT uuid FROM export_data WHERE filepath_normalized = ?;",
             (self._filepath_normalized,),
-        ).fetchone()
-        if row:
+        ).fetchone():
             return row[0]
 
         raise ValueError(f"No uuid found in database for {self._filepath_normalized}")
@@ -755,11 +755,10 @@ class ExportRecord:
         """returns the digest value"""
         conn = self._conn
         c = conn.cursor()
-        row = c.execute(
+        if row := c.execute(
             "SELECT digest FROM export_data WHERE filepath_normalized = ?;",
             (self._filepath_normalized,),
-        ).fetchone()
-        if row:
+        ).fetchone():
             return row[0]
 
         raise ValueError(f"No digest found in database for {self._filepath_normalized}")
@@ -781,11 +780,10 @@ class ExportRecord:
         """returns exifdata value for record"""
         conn = self._conn
         c = conn.cursor()
-        row = c.execute(
+        if row := c.execute(
             "SELECT exifdata FROM export_data WHERE filepath_normalized = ?;",
             (self._filepath_normalized,),
-        ).fetchone()
-        if row:
+        ).fetchone():
             return row[0]
 
         raise ValueError(
@@ -812,11 +810,10 @@ class ExportRecord:
         """return source file signature value"""
         conn = self._conn
         c = conn.cursor()
-        row = c.execute(
+        if row := c.execute(
             "SELECT src_mode, src_size, src_mtime FROM export_data WHERE filepath_normalized = ?;",
             (self._filepath_normalized,),
-        ).fetchone()
-        if row:
+        ).fetchone():
             mtime = int(row[2]) if row[2] is not None else None
             return (row[0], row[1], mtime)
 
@@ -846,11 +843,10 @@ class ExportRecord:
         """return destination file signature"""
         conn = self._conn
         c = conn.cursor()
-        row = c.execute(
+        if row := c.execute(
             "SELECT dest_mode, dest_size, dest_mtime FROM export_data WHERE filepath_normalized = ?;",
             (self._filepath_normalized,),
-        ).fetchone()
-        if row:
+        ).fetchone():
             mtime = int(row[2]) if row[2] is not None else None
             return (row[0], row[1], mtime)
 
