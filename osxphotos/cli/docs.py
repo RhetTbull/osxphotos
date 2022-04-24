@@ -2,6 +2,7 @@
 
 import pathlib
 import shutil
+import zipfile
 from typing import Optional
 
 import click
@@ -18,14 +19,11 @@ def docs(ctx, cli_obj):
     """Open osxphotos documentation in your browser."""
 
     docs_dir = get_config_dir() / "docs"
-    if not docs_dir.exists():
-        docs_dir.mkdir(parents=True)
-
     docs_version = get_docs_version(docs_dir)
     if not docs_version or docs_version != __version__:
         click.echo(f"Copying docs for osxphotos version {__version__}")
         shutil.rmtree(str(docs_dir), ignore_errors=True)
-        copy_docs(docs_dir)
+        copy_docs()
 
     cli_docs = docs_dir / "index.html"
     click.echo(f"Opening {cli_docs}")
@@ -46,17 +44,22 @@ def get_docs_version(docs_dir: pathlib.Path) -> Optional[str]:
         return f.read().strip()
 
 
-def copy_docs(docs_dir: pathlib.Path):
-    """Copy the latest docs to the docs directory"""
+def copy_docs():
+    """Copy the latest docs to the config directory"""
     # there must be a better way to do this
     # docs are in osxphotos/docs and this file is in osxphotos/cli
     src_dir = pathlib.Path(__file__).parent.parent / "docs"
-    shutil.copytree(str(src_dir), str(docs_dir))
-    set_docs_version(docs_dir, __version__)
+    docs_zip = src_dir / "docs.zip"
+    config_dir = get_config_dir()
+    with zipfile.ZipFile(str(docs_zip), "r") as zf:
+        zf.extractall(path=str(config_dir))
+    set_docs_version(config_dir / "docs", __version__)
 
 
 def set_docs_version(docs_dir: pathlib.Path, version: str):
     """Set the version of the docs directory"""
+    if not docs_dir.exists():
+        docs_dir.mkdir(parents=True)
     version_file = docs_dir / ".version"
     if version_file.exists():
         version_file.unlink()

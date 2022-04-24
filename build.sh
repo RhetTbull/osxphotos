@@ -8,7 +8,7 @@ rm -rf dist
 rm -rf build
 
 echo "Updated phototemplate.md"
-cog -d -o osxphotos/phototemplate.md osxphotos/phototemplate.cog.md 
+cog -d -o osxphotos/phototemplate.md osxphotos/phototemplate.cog.md
 
 echo "Updating README.md"
 python3 utils/update_readme.py
@@ -31,7 +31,11 @@ rm docsrc/source/template_help.md
 
 # build docs
 echo "Building docs"
-(cd docsrc && make github && make docs && make pdf)
+(cd docsrc && make github && make pdf)
+
+# copy docs to osxphotos/docs/docs.zip for use with `osxphotos docs` command
+echo "Zipping docs to osxphotos/docs/docs.zip"
+zip -r osxphotos/docs/docs.zip docs/*
 
 # build the package
 echo "Building package"

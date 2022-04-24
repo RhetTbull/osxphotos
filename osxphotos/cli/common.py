@@ -551,7 +551,7 @@ def load_uuid_from_file(filename):
 
 
 def get_config_dir() -> pathlib.Path:
-    """Get the directory where config files are stored."""
+    """Get the directory where config files are stored; create it if necessary."""
     config_dir = pathlib.Path.home() / ".config" / APP_NAME
     if not config_dir.is_dir():
         config_dir.mkdir(parents=True)
