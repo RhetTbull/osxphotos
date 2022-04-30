@@ -97,7 +97,7 @@ setup(
         "pyobjc-framework-Vision>=7.3,<9.0",
         "requests>=2.27.1,<3.0.0",
         "rich>=11.2.0,<13.0.0",
-        "rich_theme_manager>=0.7.0",
+        "rich_theme_manager>=0.9.0",
         "tenacity>=8.0.1,<9.0.0",
         "textx>=2.3.0,<3.0.0",
         "toml>=0.10.2,<0.11.0",
