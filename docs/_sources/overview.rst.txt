@@ -74,6 +74,7 @@ This package will install a command line utility called ``osxphotos`` that allow
      run        Run a python file using same environment as osxphotos
      snap       Create snapshot of Photos database to use with diff command
      theme      Manage osxphotos color themes.
+     timewarp   Adjust date/time/timezone of photos in Apple Photos.
      tutorial   Display osxphotos tutorial.
      uninstall  Uninstall Python packages from the osxphotos environment
      uuid       Print out unique IDs (UUID) of photos selected in Photos

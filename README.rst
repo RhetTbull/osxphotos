@@ -95,6 +95,7 @@ Alternatively, you can also run the command line utility like this: ``python3 -m
      -v, --version                Show the version and exit.
      -h, --help                   Show this message and exit.
 
+
    Commands:
      about      Print information about osxphotos including license.
      albums     Print out albums found in the Photos library.
@@ -115,6 +116,7 @@ Alternatively, you can also run the command line utility like this: ``python3 -m
      run        Run a python file using same environment as osxphotos
      snap       Create snapshot of Photos database to use with diff command
      theme      Manage osxphotos color themes.
+     timewarp   Adjust date/time/timezone of photos in Apple Photos.
      tutorial   Display osxphotos tutorial.
      uninstall  Uninstall Python packages from the osxphotos environment
      uuid       Print out unique IDs (UUID) of photos selected in Photos

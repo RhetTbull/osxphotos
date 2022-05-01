@@ -359,9 +359,11 @@ def timewarp(
     timestamp,
 ):
     """Adjust date/time/timezone of photos in Apple Photos.
+
     Changes will be applied to all photos currently selected in Photos.
     timewarp cannot operate on photos selected in a Smart Album;
-    select photos in a regular album or in the 'All Photos' view.
+    select photos in a regular album or in the 'All Photos' view. 
+    See Timewarp Overview below for additional information.
     """
 
     color_theme = get_theme(theme)
