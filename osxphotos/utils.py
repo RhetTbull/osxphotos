@@ -38,6 +38,7 @@ __all__ = [
     "noop",
     "normalize_fs_path",
     "normalize_unicode",
+    "pluralize",
 ]
 
 
@@ -511,3 +512,8 @@ def get_latest_version() -> Tuple[Optional[str], str]:
         return data["info"]["version"], ""
     except Exception as e:
         return None, e
+
+
+def pluralize(count, singular, plural):
+    """Return singular or plural based on count"""
+    return singular if count == 1 else plural

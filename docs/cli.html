@@ -2110,6 +2110,118 @@ uses ‘/private/tmp/osxphotos_snapshots’</p>
 <dd><p>Delete THEME.</p>
 </dd></dl>
 </section>
+<section id="osxphotos-timewarp">
+<h3>timewarp<a class="headerlink" href="#osxphotos-timewarp" title="Permalink to this headline">#</a></h3>
+<p>Adjust date/time/timezone of photos in Apple Photos.</p>
+<p>Changes will be applied to all photos currently selected in Photos.
+timewarp cannot operate on photos selected in a Smart Album;
+select photos in a regular album or in the ‘All Photos’ view.
+See Timewarp Overview below for additional information.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos timewarp <span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-d">
+<span id="cmdoption-osxphotos-timewarp-date"></span><span class="sig-name descname"><span class="pre">-d</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--date</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;DATE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-d" title="Permalink to this definition">#</a></dt>
+<dd><p>Set date for selected photos. Format is ‘YYYY-MM-DD’.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-D">
+<span id="cmdoption-osxphotos-timewarp-date-delta"></span><span class="sig-name descname"><span class="pre">-D</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--date-delta</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;DELTA&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-D" title="Permalink to this definition">#</a></dt>
+<dd><p>Adjust date for selected photos by DELTA. Format is one of: ‘±D days’, ‘±W weeks’, ‘±D’ where D is days</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-t">
+<span id="cmdoption-osxphotos-timewarp-time"></span><span class="sig-name descname"><span class="pre">-t</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--time</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;TIME&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-t" title="Permalink to this definition">#</a></dt>
+<dd><p>Set time for selected photos. Format is one of ‘HH:MM:SS’, ‘HH:MM:SS.fff’, ‘HH:MM’.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-T">
+<span id="cmdoption-osxphotos-timewarp-time-delta"></span><span class="sig-name descname"><span class="pre">-T</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--time-delta</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;DELTA&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-T" title="Permalink to this definition">#</a></dt>
+<dd><p>Adjust time for selected photos by DELTA time. Format is one of ‘±HH:MM:SS’, ‘±H hours’ (or hr), ‘±M minutes’ (or min), ‘±S seconds’ (or sec), ‘±S’ (where S is seconds)</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-z">
+<span id="cmdoption-osxphotos-timewarp-timezone"></span><span class="sig-name descname"><span class="pre">-z</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--timezone</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;TIMEZONE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-z" title="Permalink to this definition">#</a></dt>
+<dd><p>Set timezone for selected photos as offset from UTC. Format is one of ‘±HH:MM’, ‘±H:MM’, or ‘±HHMM’. The actual time of the photo is not adjusted which means, somewhat counterintuitively, that the time in the new timezone will be different. For example, if photo has time of 12:00 and timezone of GMT+01:00 and new timezone is specified as ‘–timezone +02:00’ (one hour ahead of current GMT+01:00 timezone), the photo’s new time will be 13:00 GMT+02:00, which is equivalent to the old time of 12:00+01:00. This is the same behavior exhibited by Photos when manually adjusting timezone in the Get Info window. See also –match-time.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-i">
+<span id="cmdoption-osxphotos-timewarp-inspect"></span><span class="sig-name descname"><span class="pre">-i</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--inspect</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-i" title="Permalink to this definition">#</a></dt>
+<dd><p>Print out the date/time/timezone for each selected photo without changing any information.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-c">
+<span id="cmdoption-osxphotos-timewarp-compare-exif"></span><span class="sig-name descname"><span class="pre">-c</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--compare-exif</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-c" title="Permalink to this definition">#</a></dt>
+<dd><p>Compare the EXIF date/time/timezone for each selected photo to the same data in Photos. Requires the third-party exiftool utility be installed (see <a class="reference external" href="https://exiftool.org/">https://exiftool.org/</a>). See also –add-to-album.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-p">
+<span id="cmdoption-osxphotos-timewarp-push-exif"></span><span class="sig-name descname"><span class="pre">-p</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--push-exif</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-p" title="Permalink to this definition">#</a></dt>
+<dd><p>Push date/time and timezone for selected photos from Photos to the EXIF metadata in the original file in the Photos library. Requires the third-party exiftool utility be installed (see <a class="reference external" href="https://exiftool.org/">https://exiftool.org/</a>). Using this option modifies the <em>original</em> file of the image in your Photos library. –push-exif will be executed after any other updates are performed on the photo. See also –pull-exif.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-P">
+<span id="cmdoption-osxphotos-timewarp-pull-exif"></span><span class="sig-name descname"><span class="pre">-P</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--pull-exif</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-P" title="Permalink to this definition">#</a></dt>
+<dd><p>Pull date/time and timezone for selected photos from EXIF metadata in the original file into Photos and update the associated data in Photos to match the EXIF data. –pull-exif will be executed before any other updates are performed on the photo. It is possible for images to have missing EXIF data, for example the date/time could be set but there might be no timezone set in the EXIF metadata. Missing data will be handled thusly: if date/time/timezone are all present in the EXIF data, the photo’s date/time/timezone will be updated. If timezone is missing but date/time is present, only the photo’s date/time will be updated.  If date/time is missing but the timezone is present, only the photo’s timezone will be updated unless –use-file-time is set in which case, the photo’s file modification date/time will be used in place of EXIF date/time. If the date is present but the time is missing, the time will be set to 00:00:00. Requires the third-party exiftool utility be installed (see <a class="reference external" href="https://exiftool.org/">https://exiftool.org/</a>). See also –push-exif.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-m">
+<span id="cmdoption-osxphotos-timewarp-match-time"></span><span class="sig-name descname"><span class="pre">-m</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--match-time</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-m" title="Permalink to this definition">#</a></dt>
+<dd><p>When used with –timezone, adjusts the photo time so that the timestamp in the new timezone matches the timestamp in the old timezone. For example, if photo has time of 12:00 and timezone of GMT+01:00 and new timezone is specified as ‘–timezone +02:00’ (one hour ahead of current GMT+01:00 timezone), the photo’s new time will be 12:00 GMT+02:00. That is, the timezone will have changed but the timestamp of the photo will match the previous timestamp. Use –match-time when the camera’s time was correct for the time the photo was taken but the timezone was missing or wrong and you want to adjust the timezone while preserving the photo’s time. See also –timezone.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-f">
+<span id="cmdoption-osxphotos-timewarp-use-file-time"></span><span class="sig-name descname"><span class="pre">-f</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--use-file-time</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-f" title="Permalink to this definition">#</a></dt>
+<dd><p>When used with –pull-exif, the file modification date/time will be used if date/time is missing from the EXIF data.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-a">
+<span id="cmdoption-osxphotos-timewarp-add-to-album"></span><span class="sig-name descname"><span class="pre">-a</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--add-to-album</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;ALBUM&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-a" title="Permalink to this definition">#</a></dt>
+<dd><p>When used with –compare-exif, adds any photos with date/time/timezone differences between Photos/EXIF to album ALBUM.  If ALBUM does not exist, it will be created.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-V">
+<span id="cmdoption-osxphotos-timewarp-v"></span><span id="cmdoption-osxphotos-timewarp-verbose"></span><span class="sig-name descname"><span class="pre">-V</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-V" title="Permalink to this definition">#</a></dt>
+<dd><p>Show verbose output.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-L">
+<span id="cmdoption-osxphotos-timewarp-l"></span><span id="cmdoption-osxphotos-timewarp-library"></span><span class="sig-name descname"><span class="pre">-L</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--library</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PHOTOS_LIBRARY_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-L" title="Permalink to this definition">#</a></dt>
+<dd><p>Path to Photos library (e.g. ‘~/Pictures/PhotosLibrary.photoslibrary’). This is not likely needed as osxphotos will usually be able to locate the path to the open Photos library. Use –library only if you get an error that the Photos library cannot be located.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-e">
+<span id="cmdoption-osxphotos-timewarp-exiftool-path"></span><span class="sig-name descname"><span class="pre">-e</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--exiftool-path</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;exiftool_path&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-e" title="Permalink to this definition">#</a></dt>
+<dd><p>Optional path to exiftool executable (will look in $PATH if not specified) for those options which require exiftool.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-o">
+<span id="cmdoption-osxphotos-timewarp-output-file"></span><span class="sig-name descname"><span class="pre">-o</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output-file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output_file&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-o" title="Permalink to this definition">#</a></dt>
+<dd><p>Output file. If not specified, output is written to stdout.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-timestamp">
+<span class="sig-name descname"><span class="pre">--timestamp</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-timestamp" title="Permalink to this definition">#</a></dt>
+<dd><p>Add time stamp to verbose output</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-theme">
+<span class="sig-name descname"><span class="pre">--theme</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;THEME&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-theme" title="Permalink to this definition">#</a></dt>
+<dd><p>Specify the color theme to use for –verbose output. Valid themes are ‘dark’, ‘light’, ‘mono’, and ‘plain’. Defaults to ‘dark’ or ‘light’ depending on system dark mode setting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Options</dt>
+<dd class="field-odd"><p>dark | light | mono | plain</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-plain">
+<span class="sig-name descname"><span class="pre">--plain</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-plain" title="Permalink to this definition">#</a></dt>
+<dd><p>Plain text mode.  Do not use rich output.</p>
+</dd></dl>
+</section>
 <section id="osxphotos-tutorial">
 <h3>tutorial<a class="headerlink" href="#osxphotos-tutorial" title="Permalink to this headline">#</a></h3>
 <p>Display osxphotos tutorial.</p>
@@ -2289,6 +2401,7 @@ Commands:
 <li><a class="reference internal" href="#osxphotos-run">run</a></li>
 <li><a class="reference internal" href="#osxphotos-snap">snap</a></li>
 <li><a class="reference internal" href="#osxphotos-theme">theme</a></li>
+<li><a class="reference internal" href="#osxphotos-timewarp">timewarp</a></li>
 <li><a class="reference internal" href="#osxphotos-tutorial">tutorial</a></li>
 <li><a class="reference internal" href="#osxphotos-uninstall">uninstall</a></li>
 <li><a class="reference internal" href="#osxphotos-uuid">uuid</a></li>

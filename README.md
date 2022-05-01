@@ -124,8 +124,9 @@ This package will install a command line utility called `osxphotos` that allows 
 
 ```
 > osxphotos
-
 Usage: osxphotos [OPTIONS] COMMAND [ARGS]...
+
+  osxphotos: query and export your Photos library
 
 Options:
   --db <Photos database path>  Specify Photos database path. Path to Photos
@@ -144,8 +145,8 @@ Commands:
   about      Print information about osxphotos including license.
   albums     Print out albums found in the Photos library.
   diff       Compare two Photos databases and print out differences
-  dump       Print list of all photos & associated info from the Photos...
   docs       Open osxphotos documentation in your browser.
+  dump       Print list of all photos & associated info from the Photos...
   export     Export photos from the Photos database.
   help       Print help; for help on commands: help <command>.
   info       Print out descriptive info of the Photos library database.
@@ -157,7 +158,10 @@ Commands:
   places     Print out places found in the Photos library.
   query      Query the Photos database using 1 or more search options; if...
   repl       Run interactive osxphotos REPL shell (useful for debugging,...
+  run        Run a python file using same environment as osxphotos
   snap       Create snapshot of Photos database to use with diff command
+  theme      Manage osxphotos color themes.
+  timewarp   Adjust date/time/timezone of photos in Apple Photos.
   tutorial   Display osxphotos tutorial.
   uninstall  Uninstall Python packages from the osxphotos environment
   uuid       Print out unique IDs (UUID) of photos selected in Photos
