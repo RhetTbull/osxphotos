@@ -610,6 +610,7 @@ def test_pull_exif_no_data(photoslib, suspend_capture, output_file):
     assert output_values[0] == post_test
 
 
+@pytest.mark.timewarp
 def test_pull_exif_no_data_use_file_time(photoslib, suspend_capture, output_file):
     """Test --pull-exif when photo has no data in EXIF with --use-file-time"""
     pre_test = TEST_DATA["pull_exif_no_data_use_file_time"]["pre"]
