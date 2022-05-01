@@ -61,6 +61,7 @@ def verbose_print(
     rich: bool = False,
     highlight: bool = False,
     theme: t.Optional[Theme] = None,
+    file: t.Optional[t.IO] = None,
     **kwargs: t.Any,
 ) -> t.Callable:
     """Create verbose function to print output
@@ -71,6 +72,7 @@ def verbose_print(
         rich: use rich.print instead of click.echo
         highlight: if True, use automatic rich.print highlighting
         theme: optional rich.theme.Theme object to use for formatting
+        file: optional file handle to write to instead of stdout
         kwargs: any extra arguments to pass to click.echo or rich.print depending on whether rich==True
 
     Returns:
@@ -80,7 +82,10 @@ def verbose_print(
         return noop
 
     global _console
-    _console.console = Console(theme=theme, width=10_000)
+    if file:
+        _console.console = Console(theme=theme, file=file)
+    else:
+        _console.console = Console(theme=theme, width=10_000)
 
     # closure to capture timestamp
     def verbose_(*args):

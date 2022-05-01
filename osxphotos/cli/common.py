@@ -569,3 +569,4 @@ def check_version():
             "to suppress this message and prevent osxphotos from checking for latest version.",
             err=True,
         )
+

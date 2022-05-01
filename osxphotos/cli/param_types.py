@@ -5,19 +5,26 @@ import pathlib
 
 import bitmath
 import click
+import pytimeparse
 
 from osxphotos.export_db_utils import export_db_get_version
 from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
+from osxphotos.timeutils import time_string_to_datetime, utc_offset_string_to_seconds
+from osxphotos.timezones import Timezone
 from osxphotos.utils import expand_and_validate_filepath, load_function
 
 __all__ = [
     "BitMathSize",
+    "DateOffset",
     "DateTimeISO8601",
     "ExportDBType",
     "FunctionCall",
-    "TimeISO8601",
     "TemplateString",
+    "TimeISO8601",
+    "TimeOffset",
+    "TimeString",
+    "UTCOffset",
 ]
 
 
@@ -129,3 +136,75 @@ class TemplateString(click.ParamType):
             return value
         except ValueError as e:
             self.fail(e)
+
+
+class TimeString(click.ParamType):
+    """A timestring in format HH:MM:SS, HH:MM:SS.fff, HH:MM"""
+
+    name = "TIMESTRING"
+
+    def convert(self, value, param, ctx):
+        try:
+            return time_string_to_datetime(value)
+        except ValueError:
+            self.fail(
+                f"Invalid time format: {value}. "
+                "Valid format for time: 'HH:MM:SS', 'HH:MM:SS.fff', 'HH:MM'"
+            )
+
+
+class DateOffset(click.ParamType):
+    """A date offset string in the format ±D days, ±W weeks, ±Y years, ±D where D is days"""
+
+    name = "DATEOFFSET"
+
+    def convert(self, value, param, ctx):
+        offset = pytimeparse.parse(value)
+        if offset is not None:
+            offset = offset / 86400
+            return datetime.timedelta(days=offset)
+
+        # could be in format "-1" (negative offset) or "+1" (positive offset)
+        try:
+            return datetime.timedelta(days=int(value))
+        except ValueError:
+            self.fail(
+                f"Invalid date offset format: {value}. "
+                "Valid format for date/time offset: '±D days', '±W weeks', '±D' where D is days "
+            )
+
+
+class TimeOffset(click.ParamType):
+    """A time offset string in the format [+-]HH:MM[:SS[.fff[fff]]] or +1 days, -2 hours, -18000, etc"""
+
+    name = "TIMEOFFSET"
+
+    def convert(self, value, param, ctx):
+        offset = pytimeparse.parse(value)
+        if offset is not None:
+            return datetime.timedelta(seconds=offset)
+
+        # could be in format "-18000" (negative offset) or "+18000" (positive offset)
+        try:
+            return datetime.timedelta(seconds=int(value))
+        except ValueError:
+            self.fail(
+                f"Invalid time offset format: {value}. "
+                "Valid format for date/time offset: '±HH:MM:SS', '±H hours' (or hr), '±M minutes' (or min), '±S seconds' (or sec), '±S' (where S is seconds)"
+            )
+
+
+class UTCOffset(click.ParamType):
+    """A UTC offset timezone in format ±[hh]:[mm], ±[h]:[mm], or ±[hh][mm]"""
+
+    name = "UTC_OFFSET"
+
+    def convert(self, value, param, ctx):
+        try:
+            offset_seconds = utc_offset_string_to_seconds(value)
+            return Timezone(offset_seconds)
+        except Exception:
+            self.fail(
+                f"Invalid timezone format: {value}. "
+                "Valid format for timezone offset: '±HH:MM', '±H:MM', or '±HHMM'"
+            )

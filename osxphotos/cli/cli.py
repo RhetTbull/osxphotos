@@ -25,6 +25,7 @@ from .query import query
 from .repl import repl
 from .snap_diff import diff, snap
 from .theme import theme
+from .timewarp import timewarp
 from .tutorial import tutorial
 from .uuid import uuid
 from .version import version
@@ -82,6 +83,7 @@ for command in [
     run,
     snap,
     theme,
+    timewarp,
     tutorial,
     uninstall,
     uuid,
