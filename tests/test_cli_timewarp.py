@@ -46,7 +46,7 @@ def ask_user_to_make_selection(
         video: set to True if asking for a video instead of a photo
     """
     # needs to be called with a suspend_capture fixture
-    photo_or_video = "photo" if not video else "video"
+    photo_or_video = "video" if video else "photo"
     tries = 0
     while tries < retry:
         with suspend_capture:
@@ -935,3 +935,35 @@ def test_video_pull_exif(photoslib, suspend_capture, output_file):
     )
     output_values = parse_compare_exif(output_file)
     assert output_values[0] == post_test
+
+
+@pytest.mark.timewarp
+def test_select_pears_3(photoslib, suspend_capture):
+    """Force user to select the right photo for following tests"""
+    assert ask_user_to_make_selection(photoslib, suspend_capture, "pears")
+
+
+@pytest.mark.timewarp
+def test_function(photoslib, suspend_capture, output_file):
+    """Test timewarp function"""
+    from osxphotos.cli.timewarp import timewarp
+
+    expected = TEST_DATA["function"]["expected"]
+
+    runner = CliRunner()
+    result = runner.invoke(
+        timewarp,
+        [
+            "--function",
+            "tests/timewarp_function_example.py::get_date_time_timezone",
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    result = runner.invoke(
+        timewarp,
+        ["--inspect", "--plain", "-o", output_file],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    output_values = parse_inspect_output(output_file)
+    assert output_values[0] == expected

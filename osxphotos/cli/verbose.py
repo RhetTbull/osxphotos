@@ -43,15 +43,18 @@ def noop(*args, **kwargs):
     pass
 
 
-def get_verbose_console() -> Console:
-    """Get console object
+def get_verbose_console(theme: t.Optional[Theme] = None) -> Console:
+    """Get console object or create one if not already created
+
+    Args:
+        theme: optional rich.theme.Theme object to use for formatting
 
     Returns:
         Console object
     """
     global _console
     if _console.console is None:
-        _console.console = Console(force_terminal=True)
+        _console.console = Console(force_terminal=True, theme=theme)
     return _console.console
 
 

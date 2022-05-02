@@ -5,7 +5,7 @@ import os
 import sys
 from functools import partial
 from textwrap import dedent
-from typing import Callable
+from typing import Callable, Optional
 
 import click
 from photoscript import Photo, PhotosLibrary
@@ -20,7 +20,7 @@ from osxphotos.photosalbum import PhotosAlbumPhotoScript
 from osxphotos.phototz import PhotoTimeZone, PhotoTimeZoneUpdater
 from osxphotos.timeutils import update_datetime
 from osxphotos.timezones import Timezone
-from osxphotos.utils import pluralize
+from osxphotos.utils import noop, pluralize
 
 from .click_rich_echo import (
     rich_click_echo,
@@ -34,7 +34,15 @@ from .color_themes import get_theme
 from .common import THEME_OPTION
 from .darkmode import is_dark_mode
 from .help import HELP_WIDTH, rich_text
-from .param_types import DateOffset, DateTimeISO8601, TimeOffset, TimeString, UTCOffset
+from .param_types import (
+    DateOffset,
+    DateTimeISO8601,
+    FunctionCall,
+    TimeOffset,
+    TimeString,
+    UTCOffset,
+)
+from .rich_progress import rich_progress
 from .verbose import get_verbose_console, verbose_print
 
 # format for pretty printing date/times
@@ -100,6 +108,48 @@ def update_photo_time_for_new_timezone(
         verbose_print(
             f"Skipping date/time update for photo [filename]{filename}[/filename] ([uuid]{photo.uuid}[/uuid]), "
             f"already matches new timezone [tz]{new_timezone}[/tz]"
+        )
+
+
+def update_photo_from_function(
+    library_path: str,
+    function: Callable,
+    verbose_print: Callable,
+    photo: Photo,
+    path: Optional[str],
+):
+    """Update photo from function call"""
+    photo_tz_sec, _, photo_tz_name = PhotoTimeZone(
+        library_path=library_path
+    ).get_timezone(photo)
+    dt_new, tz_new = function(
+        photo=photo,
+        path=path,
+        tz_sec=photo_tz_sec,
+        tz_name=photo_tz_name,
+        verbose=verbose_print,
+    )
+    if dt_new != photo.date:
+        old_date = photo.date
+        photo.date = dt_new
+        verbose_print(
+            f"Updated date/time for photo [filename]{photo.filename}[/filename] "
+            f"([uuid]{photo.uuid}[/uuid]) from: [time]{old_date}[/time] to [time]{dt_new}[/time]"
+        )
+    else:
+        verbose_print(
+            f"Skipped date/time update for photo [filename]{photo.filename}[/filename] "
+            f"([uuid]{photo.uuid}[/uuid]): nothing to do"
+        )
+    if tz_new != photo_tz_sec:
+        tz_updater = PhotoTimeZoneUpdater(
+            timezone=Timezone(tz_new), verbose=verbose_print, library_path=library_path
+        )
+        tz_updater.update_photo(photo)
+    else:
+        verbose_print(
+            f"Skipped timezone update for photo [filename]{photo.filename}[/filename] "
+            f"([uuid]{photo.uuid}[/uuid]): nothing to do"
         )
 
 
@@ -267,9 +317,19 @@ For this to work, you'll need to install the third-party exiftool (https://exift
     "Requires the third-party exiftool utility be installed (see https://exiftool.org/). "
     "See also --push-exif.",
 )
-# constraint=RequireAtLeast(1),
-# @constraint(mutually_exclusive, ["date", "date_delta"])
-# @constraint(mutually_exclusive, ["time", "time_delta"])
+@click.option(
+    "--function",
+    "-F",
+    metavar="filename.py::function",
+    nargs=1,
+    type=FunctionCall(),
+    multiple=False,
+    help="Run python function to determine the date/time/timezone to apply to a photo. "
+    "Use this in format: --function filename.py::function where filename.py is a python "
+    "file you've created and function is the name of the function in the python file you want to call.  The function will be "
+    "passed information about the photo being processed and is expected to return "
+    "a naive datetime.datetime object with time in local time and UTC timezone offset in seconds. "
+)
 @click.option(
     "--match-time",
     "-m",
@@ -326,9 +386,6 @@ For this to work, you'll need to install the third-party exiftool (https://exift
     help="Terminal width in characters.",
     hidden=True,
 )
-# @constraint(mutually_exclusive, ["plain", "mono", "dark", "light"])
-# @constraint(If("match_time", then=requires_one), ["timezone"])
-# @constraint(If("add_to_album", then=requires_one), ["compare_exif"])
 @click.option("--timestamp", is_flag=True, help="Add time stamp to verbose output")
 @THEME_OPTION
 @click.option(
@@ -346,6 +403,7 @@ def timewarp(
     compare_exif,
     push_exif,
     pull_exif,
+    function,
     match_time,
     use_file_time,
     add_to_album,
@@ -362,9 +420,42 @@ def timewarp(
 
     Changes will be applied to all photos currently selected in Photos.
     timewarp cannot operate on photos selected in a Smart Album;
-    select photos in a regular album or in the 'All Photos' view. 
+    select photos in a regular album or in the 'All Photos' view.
     See Timewarp Overview below for additional information.
     """
+
+    # check constraints
+    if not any(
+        [
+            date,
+            date_delta,
+            time,
+            time_delta,
+            timezone,
+            inspect,
+            compare_exif,
+            push_exif,
+            pull_exif,
+            function,
+        ]
+    ):
+        raise click.UsageError(
+            "At least one of --date, --date-delta, --time, --time-delta, "
+            "--timezone, --inspect, --compare-exif, --push-exif, --pull-exif, --function "
+            "must be specified."
+        )
+
+    if date and date_delta:
+        raise click.UsageError("--date and --date-delta are mutually exclusive.")
+
+    if time and time_delta:
+        raise click.UsageError("--time and --time-delta are mutually exclusive.")
+
+    if match_time and not timezone:
+        raise click.UsageError("--match-time must be used with --timezone.")
+
+    if add_to_album and not compare_exif:
+        raise click.UsageError("--add-to-album must be used with --compare-exif.")
 
     color_theme = get_theme(theme)
     verbose_ = verbose_print(
@@ -376,15 +467,21 @@ def timewarp(
         file=output_file,
     )
     # set console for rich_echo to be same as for verbose_
+    # TODO: this is a hack, find a better way to do this
     terminal_width = terminal_width or (1000 if output_file else None)
     if output_file:
         set_rich_console(Console(file=output_file, width=terminal_width))
     elif terminal_width:
         set_rich_console(
-            Console(file=sys.stdout, force_terminal=True, width=terminal_width)
+            Console(
+                file=sys.stdout,
+                theme=color_theme,
+                force_terminal=True,
+                width=terminal_width,
+            )
         )
     else:
-        set_rich_console(get_verbose_console())
+        set_rich_console(get_verbose_console(theme=color_theme))
     set_rich_theme(color_theme)
 
     if any([compare_exif, push_exif, pull_exif]):
@@ -426,6 +523,16 @@ def timewarp(
         verbose_print=verbose_,
     )
 
+    if function:
+        update_photo_from_function_ = partial(
+            update_photo_from_function,
+            library_path=library,
+            function=function[0],
+            verbose_print=verbose_,
+        )
+    else:
+        update_photo_from_function_ = noop
+
     if inspect:
         tzinfo = PhotoTimeZone(library_path=library)
         if photos:
@@ -456,10 +563,11 @@ def timewarp(
                 )
         for photo in photos:
             diff_results = (
-                photocomp.compare_exif_with_markup(photo)
-                if not plain
-                else photocomp.compare_exif_no_markup(photo)
+                photocomp.compare_exif_no_markup(photo)
+                if plain
+                else photocomp.compare_exif_with_markup(photo)
             )
+
             if not plain:
                 filename = (
                     f"[change]{photo.filename}[/change]"
@@ -497,7 +605,8 @@ def timewarp(
             timezone, verbose=verbose_, library_path=library
         )
 
-    if any([push_exif, pull_exif]):
+    if any([push_exif, pull_exif, function]):
+        # ExifDateTimeUpdater used to get photo path for --function
         exif_updater = ExifDateTimeUpdater(
             library_path=library,
             verbose=verbose_,
@@ -505,11 +614,13 @@ def timewarp(
             plain=plain,
         )
 
-    rich_echo(f"Processing {len(photos)} {pluralize(len(photos), 'photo', 'photos')}")
-    # send progress bar output to /dev/null if verbose to hide the progress bar
-    fp = open(os.devnull, "w") if verbose else None
-    with click.progressbar(photos, file=fp) as bar:
-        for p in bar:
+    num_photos = len(photos)
+    with rich_progress(console=get_verbose_console(), mock=verbose) as progress:
+        task = progress.add_task(
+            f"Processing [num]{num_photos}[/] {pluralize(len(photos), 'photo', 'photos')}",
+            total=num_photos,
+        )
+        for p in photos:
             if pull_exif:
                 exif_updater.update_photos_from_exif(
                     p, use_file_modify_date=use_file_time
@@ -522,6 +633,10 @@ def timewarp(
                 update_photo_time_for_new_timezone_(photo=p, new_timezone=timezone)
             if timezone:
                 tz_updater.update_photo(p)
+            if function:
+                verbose_(f"Calling function [bold]{function[1]}")
+                photo_path = exif_updater.get_photo_path(p)
+                update_photo_from_function_(photo=p, path=photo_path)
             if push_exif:
                 # this should be the last step in the if chain to ensure all Photos data is updated
                 # before exiftool is run
@@ -533,8 +648,7 @@ def timewarp(
                 if exif_error:
                     rich_echo_error(f"[error]Error running exiftool: {exif_error}[/]")
 
-    if fp is not None:
-        fp.close()
+            progress.advance(task)
 
     rich_echo("Done.")
 
