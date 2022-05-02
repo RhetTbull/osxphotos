@@ -218,6 +218,11 @@ For this to work, you'll need to install the third-party exiftool (https://exift
 
 `osxphotos timewarp --compare-exif`
 
+**Read the date/time/timezone from the photos' original EXIF metadata to update the photos' date/time/timezone; 
+if the EXIF data is missing, use the file modification date/time; show verbose output**
+
+`osxphotos timewarp --pull-exif --use-file-time --verbose`
+
 """
                 ),
                 width=formatter.width,
@@ -458,6 +463,8 @@ def timewarp(
     if add_to_album and not compare_exif:
         raise click.UsageError("--add-to-album must be used with --compare-exif.")
 
+    # configure colored rich output
+    # TODO: this is all a little hacky, find a better way to do this
     color_theme = get_theme(theme)
     verbose_ = verbose_print(
         verbose,
@@ -468,7 +475,6 @@ def timewarp(
         file=output_file,
     )
     # set console for rich_echo to be same as for verbose_
-    # TODO: this is a hack, find a better way to do this
     terminal_width = terminal_width or (1000 if output_file else None)
     if output_file:
         set_rich_console(Console(file=output_file, width=terminal_width))
@@ -508,6 +514,20 @@ def timewarp(
                 f"[error]Could not get selected photos. Ensure Photos is open and photos to process are selected. {e}[/]",
             )
         sys.exit(1)
+
+    # confirm with user before proceeding
+    click.confirm(
+        rich_text(
+            f":warning-emoji:  About to process [num]{len(photos)}[/] {pluralize(len(photos), 'photo', 'photos')} with timewarp. "
+            "This will directly modify your Photos library database using undocumented features. "
+            "While this feature has been well tested, it is possible this may "
+            "corrupt, damage, or destroy your Photos library. Use at your own caution. "
+            "It is strongly recommended you make a backup of your Photos library before using the timewarp command "
+            "(for example, using Time Machine).\n\n"
+            "Proceed with timewarp?"
+        ),
+        abort=True,
+    )
 
     update_photo_date_time_ = partial(
         update_photo_date_time,
