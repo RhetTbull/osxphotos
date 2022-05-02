@@ -267,9 +267,6 @@ For this to work, you'll need to install the third-party exiftool (https://exift
     "Requires the third-party exiftool utility be installed (see https://exiftool.org/). "
     "See also --push-exif.",
 )
-# constraint=RequireAtLeast(1),
-# @constraint(mutually_exclusive, ["date", "date_delta"])
-# @constraint(mutually_exclusive, ["time", "time_delta"])
 @click.option(
     "--match-time",
     "-m",
@@ -326,9 +323,6 @@ For this to work, you'll need to install the third-party exiftool (https://exift
     help="Terminal width in characters.",
     hidden=True,
 )
-# @constraint(mutually_exclusive, ["plain", "mono", "dark", "light"])
-# @constraint(If("match_time", then=requires_one), ["timezone"])
-# @constraint(If("add_to_album", then=requires_one), ["compare_exif"])
 @click.option("--timestamp", is_flag=True, help="Add time stamp to verbose output")
 @THEME_OPTION
 @click.option(
@@ -362,9 +356,40 @@ def timewarp(
 
     Changes will be applied to all photos currently selected in Photos.
     timewarp cannot operate on photos selected in a Smart Album;
-    select photos in a regular album or in the 'All Photos' view. 
+    select photos in a regular album or in the 'All Photos' view.
     See Timewarp Overview below for additional information.
     """
+
+    # check constraints
+    if not any(
+        [
+            date,
+            date_delta,
+            time,
+            time_delta,
+            timezone,
+            inspect,
+            compare_exif,
+            push_exif,
+            pull_exif,
+        ]
+    ):
+        raise click.UsageError(
+            "At least one of --date, --date-delta, --time, --time-delta, "
+            "--timezone, --inspect, --compare-exif, --push-exif, --pull-exif must be specified."
+        )
+
+    if date and date_delta:
+        raise click.UsageError("--date and --date-delta are mutually exclusive.")
+
+    if time and time_delta:
+        raise click.UsageError("--time and --time-delta are mutually exclusive.")
+
+    if match_time and not timezone:
+        raise click.UsageError("--match-time must be used with --timezone.")
+
+    if add_to_album and not compare_exif:
+        raise click.UsageError("--add-to-album must be used with --compare-exif.")
 
     color_theme = get_theme(theme)
     verbose_ = verbose_print(
@@ -376,15 +401,21 @@ def timewarp(
         file=output_file,
     )
     # set console for rich_echo to be same as for verbose_
+    # TODO: this is a hack, find a better way to do this
     terminal_width = terminal_width or (1000 if output_file else None)
     if output_file:
         set_rich_console(Console(file=output_file, width=terminal_width))
     elif terminal_width:
         set_rich_console(
-            Console(file=sys.stdout, force_terminal=True, width=terminal_width)
+            Console(
+                file=sys.stdout,
+                theme=color_theme,
+                force_terminal=True,
+                width=terminal_width,
+            )
         )
     else:
-        set_rich_console(get_verbose_console())
+        set_rich_console(get_verbose_console(theme=color_theme))
     set_rich_theme(color_theme)
 
     if any([compare_exif, push_exif, pull_exif]):
