@@ -247,6 +247,18 @@ class ExifDateTimeUpdater:
             exif, use_file_modify_date=use_file_modify_date
         )
 
+    def get_photo_path(self, photo: Photo) -> Optional[str]:
+        """Get the path to a photo
+
+        Args:
+            photo: photoscript.Photo object to act on
+
+        Returns:
+            str: path to photo or None if not found
+        """
+        _photo = self.db.get_photo(photo.uuid)
+        return _photo.path if _photo else None
+
 
 def get_exif_date_time_offset(
     exif: Dict, use_file_modify_date: bool = False

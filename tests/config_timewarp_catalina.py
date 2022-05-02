@@ -1,10 +1,19 @@
 """ Test data for timewarp command on Catalina/Photos 5 """
 
 import datetime
+import pathlib
 
 from tests.parse_timewarp_output import CompareValues, InspectValues
 
 TEST_LIBRARY_TIMEWARP = "tests/TestTimeWarp-10.15.7.photoslibrary"
+
+
+def get_file_timestamp(file: str) -> str:
+    """Get timestamp of file"""
+    return datetime.datetime.fromtimestamp(pathlib.Path(file).stat().st_mtime).strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
+
 
 CATALINA_PHOTOS_5 = {
     "filenames": {
@@ -258,7 +267,9 @@ CATALINA_PHOTOS_5 = {
         "post": CompareValues(
             "IMG_6506.jpeg",
             "7E9DF2EE-A5B0-4077-80EC-30565221A3B9",
-            "2021-10-08 16:11:09",
+            get_file_timestamp(
+                f"{TEST_LIBRARY_TIMEWARP}/originals/7/7E9DF2EE-A5B0-4077-80EC-30565221A3B9.jpeg"
+            ),
             "",
             "-0700",
             "",
@@ -302,7 +313,7 @@ CATALINA_PHOTOS_5 = {
         "parameters": [("-0200", "2021-10-04 23:00:00-0200")]
     },
     "video_push_exif": {
-        # IMG_6501.jpeg
+        # IMG_6551.mov
         "pre": CompareValues(
             "IMG_6551.mov",
             "16BEC0BE-4188-44F1-A8F1-7250E978AD12",
@@ -321,7 +332,7 @@ CATALINA_PHOTOS_5 = {
         ),
     },
     "video_pull_exif": {
-        # IMG_6501.jpeg
+        # IMG_6551.jpeg
         "pre": CompareValues(
             "IMG_6551.mov",
             "16BEC0BE-4188-44F1-A8F1-7250E978AD12",
@@ -337,6 +348,18 @@ CATALINA_PHOTOS_5 = {
             "2021-10-04 23:00:00",
             "-0200",
             "-0200",
+        ),
+    },
+    "function": {
+        # IMG_6501.jpeg
+        "uuid": "2F00448D-3C0D-477A-9B10-5F21DCAB405A",
+        "expected": InspectValues(
+            "IMG_6501.jpeg",
+            "2F00448D-3C0D-477A-9B10-5F21DCAB405A",
+            "2020-09-01 18:53:02-0700",
+            "2020-09-01 18:53:02-0700",
+            "-0700",
+            "GMT-0700",
         ),
     },
 }

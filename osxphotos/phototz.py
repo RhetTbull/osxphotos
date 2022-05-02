@@ -149,7 +149,7 @@ class PhotoTimeZoneUpdater:
                 conn.commit()
             self.verbose(
                 f"Updated timezone for photo [filename]{photo.filename}[/filename] ([uuid]{photo.uuid}[/uuid]) "
-                + f"from [tz]{[tz_name]}[/tz], offset=[tz]{tz_offset}[/tz] "
+                + f"from [tz]{tz_name}[/tz], offset=[tz]{tz_offset}[/tz] "
                 + f"to [tz]{self.tz_name}[/tz], offset=[tz]{self.tz_offset}[/tz]"
             )
         except Exception as e:
