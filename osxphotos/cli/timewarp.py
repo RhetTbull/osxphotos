@@ -399,6 +399,11 @@ if the EXIF data is missing, use the file modification date/time; show verbose o
     is_flag=True,
     help="Plain text mode.  Do not use rich output.",
 )
+@click.option(
+    "--force",
+    is_flag=True,
+    help="Bypass confirmation prompt.  Use with caution.",
+)
 def timewarp(
     date,
     date_delta,
@@ -421,6 +426,7 @@ def timewarp(
     output_file,
     terminal_width,
     timestamp,
+    force,
 ):
     """Adjust date/time/timezone of photos in Apple Photos.
 
@@ -516,18 +522,33 @@ def timewarp(
         sys.exit(1)
 
     # confirm with user before proceeding
-    click.confirm(
-        rich_text(
-            f":warning-emoji:  About to process [num]{len(photos)}[/] {pluralize(len(photos), 'photo', 'photos')} with timewarp. "
-            "This will directly modify your Photos library database using undocumented features. "
-            "While this feature has been well tested, it is possible this may "
-            "corrupt, damage, or destroy your Photos library. Use at your own caution. "
-            "It is strongly recommended you make a backup of your Photos library before using the timewarp command "
-            "(for example, using Time Machine).\n\n"
-            "Proceed with timewarp?"
-        ),
-        abort=True,
-    )
+    if (
+        any(
+            [
+                date,
+                date_delta,
+                time,
+                time_delta,
+                timezone,
+                push_exif,
+                pull_exif,
+                function,
+            ]
+        )
+        and not force
+    ):
+        click.confirm(
+            rich_text(
+                f":warning-emoji:  About to process [num]{len(photos)}[/] {pluralize(len(photos), 'photo', 'photos')} with timewarp. "
+                "This will directly modify your Photos library database using undocumented features. "
+                "While this functionality has been well tested, it is possible this may "
+                "corrupt, damage, or destroy your Photos library. [bold]Use at your own caution. No warranty is implied or provided.[/] "
+                "It is strongly recommended you make a backup of your Photos library before using the timewarp command "
+                "(for example, using Time Machine).\n\n"
+                "Proceed with timewarp?"
+            ),
+            abort=True,
+        )
 
     update_photo_date_time_ = partial(
         update_photo_date_time,
@@ -672,6 +693,3 @@ def timewarp(
             progress.advance(task)
 
     rich_echo("Done.")
-
-    # if output_file:
-    #     output_file.close()
