@@ -35,6 +35,7 @@ from .common import THEME_OPTION
 from .darkmode import is_dark_mode
 from .help import HELP_WIDTH, rich_text
 from .param_types import DateOffset, DateTimeISO8601, TimeOffset, TimeString, UTCOffset
+from .rich_progress import rich_progress
 from .verbose import get_verbose_console, verbose_print
 
 # format for pretty printing date/times
@@ -487,10 +488,11 @@ def timewarp(
                 )
         for photo in photos:
             diff_results = (
-                photocomp.compare_exif_with_markup(photo)
-                if not plain
-                else photocomp.compare_exif_no_markup(photo)
+                photocomp.compare_exif_no_markup(photo)
+                if plain
+                else photocomp.compare_exif_with_markup(photo)
             )
+
             if not plain:
                 filename = (
                     f"[change]{photo.filename}[/change]"
@@ -536,11 +538,13 @@ def timewarp(
             plain=plain,
         )
 
-    rich_echo(f"Processing {len(photos)} {pluralize(len(photos), 'photo', 'photos')}")
-    # send progress bar output to /dev/null if verbose to hide the progress bar
-    fp = open(os.devnull, "w") if verbose else None
-    with click.progressbar(photos, file=fp) as bar:
-        for p in bar:
+    num_photos = len(photos)
+    with rich_progress(console=get_verbose_console(), mock=verbose) as progress:
+        task = progress.add_task(
+            f"Processing [num]{num_photos}[/] {pluralize(len(photos), 'photo', 'photos')}",
+            total=num_photos,
+        )
+        for p in photos:
             if pull_exif:
                 exif_updater.update_photos_from_exif(
                     p, use_file_modify_date=use_file_time
@@ -564,8 +568,7 @@ def timewarp(
                 if exif_error:
                     rich_echo_error(f"[error]Error running exiftool: {exif_error}[/]")
 
-    if fp is not None:
-        fp.close()
+            progress.advance(task)
 
     rich_echo("Done.")
 
