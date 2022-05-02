@@ -329,6 +329,7 @@ For this to work, you'll need to install the third-party exiftool (https://exift
     "file you've created and function is the name of the function in the python file you want to call.  The function will be "
     "passed information about the photo being processed and is expected to return "
     "a naive datetime.datetime object with time in local time and UTC timezone offset in seconds. "
+    "See example function at https://github.com/RhetTbull/osxphotos/blob/master/examples/timewarp_function_example.py",
 )
 @click.option(
     "--match-time",
