@@ -505,7 +505,7 @@ from .verbose import get_verbose_console, time_stamp, verbose_print
 )
 @click.option(
     "--report",
-    metavar="<path to export report>",
+    metavar="REPORT_FILE",
     help="Write a CSV formatted report of all files that were exported.",
     type=click.Path(),
 )
@@ -600,7 +600,7 @@ from .verbose import get_verbose_console, time_stamp, verbose_print
 @click.option(
     "--load-config",
     required=False,
-    metavar="<config file path>",
+    metavar="CONFIG_FILE",
     default=None,
     help=(
         "Load options from file as written with --save-config. "
@@ -615,7 +615,7 @@ from .verbose import get_verbose_console, time_stamp, verbose_print
 @click.option(
     "--save-config",
     required=False,
-    metavar="<config file path>",
+    metavar="CONFIG_FILE",
     default=None,
     help="Save options to file for use with --load-config. File format is TOML. "
     "See also --config-only.",

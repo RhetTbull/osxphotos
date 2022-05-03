@@ -630,7 +630,7 @@ Usage: osxphotos export [OPTIONS] [PHOTOS_LIBRARY]... DEST
   modify this behavior.
 
 Options:
-  --db <Photos database path>     Specify Photos database path. Path to Photos
+  --db PHOTOS_LIBRARY_PATH        Specify Photos database path. Path to Photos
                                   library/database can be specified using either
                                   --db or directly as PHOTOS_LIBRARY positional
                                   argument. If neither --db or PHOTOS_LIBRARY
@@ -1138,8 +1138,7 @@ Options:
                                   iTerm2 (use with Terminal.app). This is faster
                                   and more reliable than the default AppleScript
                                   interface.
-  --report <path to export report>
-                                  Write a CSV formatted report of all files that
+  --report REPORT_FILE            Write a CSV formatted report of all files that
                                   were exported.
   --cleanup                       Cleanup export directory by deleting any files
                                   which were not included in this export set.
@@ -1229,8 +1228,7 @@ Options:
                                   not the system volume, osxphotos may run
                                   faster if you specify a temporary directory on
                                   the same volume as the Photos library.
-  --load-config <config file path>
-                                  Load options from file as written with --save-
+  --load-config CONFIG_FILE       Load options from file as written with --save-
                                   config. This allows you to save a complex
                                   export command to file for later reuse. For
                                   example: 'osxphotos export <lots of options
@@ -1240,8 +1238,7 @@ Options:
                                   line options are used in conjunction with
                                   --load-config, they will override the
                                   corresponding values in the config file.
-  --save-config <config file path>
-                                  Save options to file for use with --load-
+  --save-config CONFIG_FILE       Save options to file for use with --load-
                                   config. File format is TOML. See also
                                   --config-only.
   --config-only                   If specified, saves the config file but does

@@ -92,7 +92,7 @@ VERSION_CHECK_OPTION = click.option("--no-version-check", required=False, is_fla
 DB_OPTION = click.option(
     "--db",
     required=False,
-    metavar="<Photos database path>",
+    metavar="PHOTOS_LIBRARY_PATH",
     default=None,
     help=(
         "Specify Photos database path. "
