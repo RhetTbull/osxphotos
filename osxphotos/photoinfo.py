@@ -479,7 +479,7 @@ class PhotoInfo:
             return self._faceinfo
 
     @property
-    def moment(self):
+    def moment_info(self):
         """Moment photo belongs to"""
         try:
             return self._moment

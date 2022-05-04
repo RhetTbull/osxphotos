@@ -259,6 +259,19 @@ UUID_DETECTED_TEXT = {
     "A92D9C26-3A50-4197-9388-CB5F7DB9FA91": None,
 }
 
+UUID_MOMENT = {
+    "7FD37B5F-6FAA-4DB1-8A29-BF9C37E38091": {
+        "uuid": "7FD37B5F-6FAA-4DB1-8A29-BF9C37E38091",
+        "location": (20.687278329999998, -156.44366333),
+        "title": "Hawaiian Islands",
+        "subtitle": "",
+        "start_date": "2019-09-15T18:37:17.287000-10:00",
+        "end_date": "2019-09-15T18:37:17.287000-10:00",
+        "date": "2019-09-15T18:37:17.287000-10:00",
+        "modification_date": "2022-02-04T03:51:25.161460-10:00",
+    }
+}
+
 
 @pytest.fixture(scope="module")
 def photosdb():
@@ -1459,3 +1472,17 @@ def test_detected_text(photosdb):
             assert expected_text in detected_text
         else:
             assert not detected_text
+
+
+@pytest.mark.parametrize("info", UUID_MOMENT.values())
+def test_moment(photosdb, info):
+    """test PhotoInfo.moment"""
+    photo = photosdb.get_photo(uuid=info["uuid"])
+    assert photo.moment_info.title == info["title"]
+    assert photo.moment_info.asdict()["title"] == info["title"]
+    assert photo.moment_info.subtitle == info["subtitle"]
+    assert photo.moment_info.location == info["location"]
+    assert photo.moment_info.start_date.isoformat() == info["start_date"]
+    assert photo.moment_info.end_date.isoformat() == info["end_date"]
+    assert photo.moment_info.date.isoformat() == info["date"]
+    assert photo.moment_info.modification_date.isoformat() == info["modification_date"]

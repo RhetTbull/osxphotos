@@ -90,31 +90,6 @@ UUID_DOWNLOAD_MISSING = "C6C712C5-9316-408D-A3C3-125661422DA9"  # IMG_8844.JPG
 UUID_FILE = "tests/uuid_from_file.txt"
 SKIP_UUID_FILE = "tests/skip_uuid_from_file.txt"
 
-CLI_OUTPUT_NO_SUBCOMMAND = [
-    "Options:",
-    "--db <Photos database path>  Specify Photos database path. Path to Photos",
-    "library/database can be specified using either",
-    "--db or directly as PHOTOS_LIBRARY positional",
-    "argument.",
-    "--json                       Print output in JSON format.",
-    "-v, --version                Show the version and exit.",
-    "-h, --help                   Show this message and exit.",
-    "Commands:",
-    "  albums     Print out albums found in the Photos library.",
-    "  dump       Print list of all photos & associated info from the Photos",
-    "  export     Export photos from the Photos database.",
-    "  help       Print help; for help on commands: help <command>.",
-    "  info       Print out descriptive info of the Photos library database.",
-    "  install    Install Python packages into the same environment as osxphotos",
-    "  keywords   Print out keywords found in the Photos library",
-    "  labels     Print out image classification labels found in the Photos",
-    "  list       Print list of Photos libraries found on the system.",
-    "  persons    Print out persons (faces) found in the Photos library.",
-    "  places     Print out places found in the Photos library.",
-    "  query      Query the Photos database using 1 or more search options; if",
-    "  uninstall  Uninstall Python packages from the osxphotos environment",
-]
-
 CLI_OUTPUT_QUERY_UUID = '[{"uuid": "D79B8D77-BFFC-460B-9312-034F2877D35B", "filename": "D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg", "original_filename": "Pumkins2.jpg", "date": "2018-09-28T16:07:07-04:00", "description": "Girl holding pumpkin", "title": "I found one!", "keywords": ["Kids"], "albums": ["Pumpkin Farm", "Test Album", "Multi Keyword"], "persons": ["Katie"], "path": "/tests/Test-10.15.7.photoslibrary/originals/D/D79B8D77-BFFC-460B-9312-034F2877D35B.jpeg", "ismissing": false, "hasadjustments": false, "external_edit": false, "favorite": false, "hidden": false, "latitude": 41.256566, "longitude": -95.940257, "path_edited": null, "shared": false, "isphoto": true, "ismovie": false, "uti": "public.jpeg", "burst": false, "live_photo": false, "path_live_photo": null, "iscloudasset": false, "incloud": null}]'
 
 CLI_EXPORT_FILENAMES = [
@@ -1066,11 +1041,9 @@ def test_osxphotos():
 
     runner = CliRunner()
     result = runner.invoke(cli_main, [])
-    output = result.output
 
     assert result.exit_code == 0
-    for line in CLI_OUTPUT_NO_SUBCOMMAND:
-        assert line.strip() in output
+    assert "Print information about osxphotos" in result.output
 
 
 def test_osxphotos_help_1():
@@ -1078,10 +1051,8 @@ def test_osxphotos_help_1():
 
     runner = CliRunner()
     result = runner.invoke(cli_main, ["help"])
-    output = result.output
     assert result.exit_code == 0
-    for line in CLI_OUTPUT_NO_SUBCOMMAND:
-        assert line.strip() in output
+    assert "Print information about osxphotos" in result.output
 
 
 def test_osxphotos_help_2():

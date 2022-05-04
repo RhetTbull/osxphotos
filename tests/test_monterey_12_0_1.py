@@ -180,6 +180,19 @@ PATH_HEIC_EDITED = (
 UUID_IS_REFERENCE = "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C"
 UUID_NOT_REFERENCE = "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"
 
+UUID_MOMENT = {
+    "3DD2C897-F19E-4CA6-8C22-B027D5A71907": {
+        "uuid": "3DD2C897-F19E-4CA6-8C22-B027D5A71907",
+        "location": (-34.91889167000001, 138.59686167),
+        "title": "Adelaide",
+        "subtitle": "",
+        "start_date": "2017-06-20T17:18:56.518000+09:30",
+        "end_date": "2017-06-20T17:18:56.518000+09:30",
+        "date": "2017-06-20T17:18:56.518000+09:30",
+        "modification_date": "2020-04-06T15:22:24.595584+09:30",
+    }
+}
+
 
 @pytest.fixture(scope="module")
 def photosdb():
@@ -1130,3 +1143,17 @@ def test_no_adjustments(photosdb):
 
     photo = photosdb.get_photo(UUID_DICT["no_adjustments"])
     assert photo.adjustments is None
+
+
+@pytest.mark.parametrize("info", UUID_MOMENT.values())
+def test_moment(photosdb, info):
+    """test PhotoInfo.moment"""
+    photo = photosdb.get_photo(uuid=info["uuid"])
+    assert photo.moment_info.title == info["title"]
+    assert photo.moment_info.asdict()["title"] == info["title"]
+    assert photo.moment_info.subtitle == info["subtitle"]
+    assert photo.moment_info.location == info["location"]
+    assert photo.moment_info.start_date.isoformat() == info["start_date"]
+    assert photo.moment_info.end_date.isoformat() == info["end_date"]
+    assert photo.moment_info.date.isoformat() == info["date"]
+    assert photo.moment_info.modification_date.isoformat() == info["modification_date"]

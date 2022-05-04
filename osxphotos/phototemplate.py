@@ -138,6 +138,7 @@ TEMPLATE_SUBSTITUTIONS = {
     "{exif.camera_make}": "Camera make from original photo's EXIF information as imported by Photos, e.g. 'Apple'",
     "{exif.camera_model}": "Camera model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s'",
     "{exif.lens_model}": "Lens model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s back camera 4.15mm f/2.2'",
+    "{moment}": "The moment title of the photo",
     "{uuid}": "Photo's internal universally unique identifier (UUID) for the photo, a 36-character string unique to the photo, e.g. '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'",
     "{id}": "A unique number for the photo based on its primary key in the Photos database. "
     + "A sequential integer, e.g. 1, 2, 3...etc.  Each asset associated with a photo (e.g. an image and Live Photo preview) will share the same id. "
@@ -974,6 +975,8 @@ class PhotoTemplate:
             value = self.photo.exif_info.camera_model if self.photo.exif_info else None
         elif field == "exif.lens_model":
             value = self.photo.exif_info.lens_model if self.photo.exif_info else None
+        elif field == "moment":
+            value = self.photo.moment_info.title if self.photo.moment_info else None
         elif field == "uuid":
             value = self.photo.uuid
         elif field == "id":

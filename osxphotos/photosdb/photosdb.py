@@ -14,8 +14,8 @@ import tempfile
 from collections import OrderedDict
 from collections.abc import Iterable
 from datetime import datetime, timedelta, timezone
-from pprint import pformat
 from typing import List
+from unicodedata import normalize
 
 import bitmath
 import photoscript
@@ -2566,8 +2566,16 @@ class PhotosDB:
                     moment_info[date_name] = moment_date.astimezone(tz=tz)
 
             # process title/subtitle
-            moment_info["title"] = moment_info["title"] or ""
-            moment_info["subtitle"] = moment_info["subtitle"] or ""
+            # use unicodedata.normalize with KFKC instead of normalize_unicode as is done elsewhere
+            # to replace non-breaking whitespace chars with spaces as Photos uses \xa0 as space in Moment titles, subtitles
+            moment_info["title"] = (
+                normalize("NFKC", moment_info["title"]) if moment_info["title"] else ""
+            )
+            moment_info["subtitle"] = (
+                normalize("NFKC", moment_info["subtitle"])
+                if moment_info["subtitle"]
+                else ""
+            )
 
             self._db_moment_pk[moment_info["pk"]] = moment_info
 

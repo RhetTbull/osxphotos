@@ -68,3 +68,19 @@ class MomentInfo:
 
             self._photos = self._db.photos_by_uuid(photo_uuids)
             return self._photos
+
+    def asdict(self):
+        """Returns all moment info as dictionary"""
+        return {
+            "pk": self.pk,
+            "location": self.location,
+            "title": self.title,
+            "subtitle": self.subtitle,
+            "start_date": self.start_date.isoformat() if self.start_date else None,
+            "end_date": self.end_date.isoformat() if self.end_date else None,
+            "date": self.date.isoformat() if self.date else None,
+            "modification_date": self.modification_date.isoformat()
+            if self.modification_date
+            else None,
+            "photos": self.photos,
+        }

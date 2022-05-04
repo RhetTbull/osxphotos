@@ -333,7 +333,9 @@ UUID_CONDITIONAL = {
         "{photo.score.overall >= 0.7?YES,NO}": ["NO"],
         "{photo.score.overall not < 0.7?YES,NO}": ["NO"],
         "{folder_album(-) contains Folder1-SubFolder2-AlbumInFolder?YES,NO}": ["YES"],
-        "{folder_album( - ) contains Folder1 - SubFolder2 - AlbumInFolder?YES,NO}": ["YES"],
+        "{folder_album( - ) contains Folder1 - SubFolder2 - AlbumInFolder?YES,NO}": [
+            "YES"
+        ],
         "{folder_album(-)[In,] contains Folder1-SubFolder2-AlbumFolder?YES,NO}": [
             "YES"
         ],
@@ -393,6 +395,14 @@ UUID_ALBUM_SEQ = {
             "{folder_album_seq.1:03d}": "002",
         },
     },
+}
+
+UUID_MOMENT = {
+    "7FD37B5F-6FAA-4DB1-8A29-BF9C37E38091": {
+        "templates": {
+            "{moment}": ["Hawaiian Islands"],
+        }
+    }
 }
 
 UUID_EMPTY_TITLE = "7783E8E6-9CAC-40F3-BE22-81FB7051C266"  # IMG_3092.heic
@@ -1243,3 +1253,12 @@ def test_no_project(photosdb_project):
     for template, value in TEMPLATE_VALUES_NO_PROJECT.items():
         rendered, _ = photo.render_template(template)
         assert rendered == value
+
+
+def test_moment(photosdb):
+    """Test {moment} template"""
+    for uuid in UUID_MOMENT:
+        photo = photosdb.get_photo(uuid)
+        for template, value in UUID_MOMENT[uuid]["templates"].items():
+            rendered, _ = photo.render_template(template)
+            assert rendered == value

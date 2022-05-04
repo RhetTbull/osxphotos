@@ -281,6 +281,8 @@ Template Substitutions
      - Camera model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s'
    * - {exif.lens_model}
      - Lens model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s back camera 4.15mm f/2.2'
+   * - {moment}
+     - The moment title of the photo
    * - {uuid}
      - Photo's internal universally unique identifier (UUID) for the photo, a 36-character string unique to the photo, e.g. '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'
    * - {id}
@@ -318,7 +320,7 @@ Template Substitutions
    * - {crlf}
      - a carriage return + line feed: '\r\n'
    * - {osxphotos_version}
-     - The osxphotos version, e.g. '0.48.1'
+     - The osxphotos version, e.g. '0.48.2'
    * - {osxphotos_cmd_line}
      - The full command line used to run osxphotos
    * - {album}
