@@ -54,3 +54,8 @@ class Timezone:
 
     def __repr__(self):
         return self.name
+
+    def __eq__(self, other):
+        if isinstance(other, Timezone):
+            return self.timezone == other.timezone
+        return False

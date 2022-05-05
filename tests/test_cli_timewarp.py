@@ -81,7 +81,7 @@ def test_inspect(photoslib, suspend_capture, output_file):
     runner = CliRunner()
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "-o", output_file],
+        ["--inspect", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
@@ -101,6 +101,7 @@ def test_date(photoslib, suspend_capture):
             "--date",
             TEST_DATA["date"]["value"],
             "--plain",
+            "--force",
         ],
         terminal_width=TERMINAL_WIDTH,
     )
@@ -122,13 +123,14 @@ def test_date_delta(photoslib, suspend_capture, input_value, expected, output_fi
             "--date-delta",
             input_value,
             "--plain",
+            "--force",
         ],
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "-o", output_file],
+        ["--inspect", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_inspect_output(output_file)
@@ -148,6 +150,7 @@ def test_time(photoslib, suspend_capture, input_value, expected, output_file):
             "--time",
             input_value,
             "--plain",
+            "--force",
         ],
         terminal_width=TERMINAL_WIDTH,
     )
@@ -156,7 +159,7 @@ def test_time(photoslib, suspend_capture, input_value, expected, output_file):
     # don't use photo.date as it will return local time instead of the time in the timezone
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "-o", output_file],
+        ["--inspect", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_inspect_output(output_file)
@@ -176,13 +179,14 @@ def test_time_delta(photoslib, suspend_capture, input_value, expected, output_fi
             "--time-delta",
             input_value,
             "--plain",
+            "--force",
         ],
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "-o", output_file],
+        ["--inspect", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_inspect_output(output_file)
@@ -206,13 +210,14 @@ def test_time_zone(
             "--timezone",
             input_value,
             "--plain",
+            "--force",
         ],
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "-o", output_file],
+        ["--inspect", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_inspect_output(output_file)
@@ -232,6 +237,7 @@ def test_compare_exif(photoslib, suspend_capture, expected, output_file):
         [
             "--compare-exif",
             "--plain",
+            "--force",
             "-o",
             output_file,
         ],
@@ -258,6 +264,7 @@ def test_compare_exif_add_to_album(photoslib, suspend_capture, expected, album):
             "--add-to-album",
             album,
             "--plain",
+            "--force",
         ],
         terminal_width=TERMINAL_WIDTH,
     )
@@ -282,7 +289,7 @@ def test_compare_exif_3(photoslib, suspend_capture, expected, output_file):
     runner = CliRunner()
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "-o", output_file],
+        ["--compare-exif", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
@@ -304,13 +311,14 @@ def test_match(photoslib, suspend_capture, input_value, expected, output_file):
             input_value,
             "--match-time",
             "--plain",
+            "--force",
         ],
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "-o", output_file],
+        ["--inspect", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_inspect_output(output_file)
@@ -324,7 +332,9 @@ def test_push_exif_missing_file():
 
     runner = CliRunner()
     result = runner.invoke(
-        timewarp, ["--push-exif", "--plain", "--verbose"], terminal_width=TERMINAL_WIDTH
+        timewarp,
+        ["--push-exif", "--plain", "--force", "--verbose"],
+        terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
     assert "Skipping EXIF update for missing photo" in result.output
@@ -361,6 +371,7 @@ def test_push_exif_1(
         time_delta_value,
         "--push-exif",
         "--plain",
+        "--force",
     ]
     if match:
         cli_args.append("--match-time")
@@ -370,7 +381,7 @@ def test_push_exif_1(
     assert result.exit_code == 0
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "-o", output_file],
+        ["--inspect", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_inspect_output(output_file)
@@ -403,7 +414,7 @@ def test_push_exif_2(photoslib, suspend_capture, output_file):
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "-o", output_file],
+        ["--compare-exif", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_compare_exif(output_file)
@@ -414,6 +425,7 @@ def test_push_exif_2(photoslib, suspend_capture, output_file):
         [
             "--push-exif",
             "--plain",
+            "--force",
             "--verbose",
         ],
         terminal_width=TERMINAL_WIDTH,
@@ -422,7 +434,7 @@ def test_push_exif_2(photoslib, suspend_capture, output_file):
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "-o", output_file],
+        ["--compare-exif", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_compare_exif(output_file)
@@ -442,14 +454,14 @@ def test_pull_exif_1(photoslib, suspend_capture, output_file):
     # update the photo so we know if the data is updated
     result = runner.invoke(
         timewarp,
-        ["-z", "-0400", "-D", "+1 day", "-m", "-V", "--plain"],
+        ["-z", "-0400", "-D", "+1 day", "-m", "-V", "--plain", "--force"],
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "-o", output_file],
+        ["--compare-exif", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_compare_exif(output_file)
@@ -460,6 +472,7 @@ def test_pull_exif_1(photoslib, suspend_capture, output_file):
         [
             "--pull-exif",
             "--plain",
+            "--force",
             "--verbose",
         ],
         terminal_width=TERMINAL_WIDTH,
@@ -468,7 +481,7 @@ def test_pull_exif_1(photoslib, suspend_capture, output_file):
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "-o", output_file],
+        ["--compare-exif", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_compare_exif(output_file)
@@ -493,7 +506,7 @@ def test_pull_exif_no_time(photoslib, suspend_capture, output_file):
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "-o", output_file],
+        ["--compare-exif", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_compare_exif(output_file)
@@ -504,6 +517,7 @@ def test_pull_exif_no_time(photoslib, suspend_capture, output_file):
         [
             "--pull-exif",
             "--plain",
+            "--force",
             "--verbose",
         ],
         terminal_width=TERMINAL_WIDTH,
@@ -512,7 +526,7 @@ def test_pull_exif_no_time(photoslib, suspend_capture, output_file):
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "-o", output_file],
+        ["--compare-exif", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_compare_exif(output_file)
@@ -537,7 +551,7 @@ def test_pull_exif_no_offset(photoslib, suspend_capture, output_file):
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "-o", output_file],
+        ["--compare-exif", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_compare_exif(output_file)
@@ -548,6 +562,7 @@ def test_pull_exif_no_offset(photoslib, suspend_capture, output_file):
         [
             "--pull-exif",
             "--plain",
+            "--force",
             "--verbose",
         ],
         terminal_width=TERMINAL_WIDTH,
@@ -556,7 +571,7 @@ def test_pull_exif_no_offset(photoslib, suspend_capture, output_file):
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "-o", output_file],
+        ["--compare-exif", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_compare_exif(output_file)
@@ -583,7 +598,7 @@ def test_pull_exif_no_data(photoslib, suspend_capture, output_file):
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "-o", output_file],
+        ["--compare-exif", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_compare_exif(output_file)
@@ -594,6 +609,7 @@ def test_pull_exif_no_data(photoslib, suspend_capture, output_file):
         [
             "--pull-exif",
             "--plain",
+            "--force",
             "--verbose",
         ],
         terminal_width=TERMINAL_WIDTH,
@@ -603,7 +619,7 @@ def test_pull_exif_no_data(photoslib, suspend_capture, output_file):
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "-o", output_file],
+        ["--compare-exif", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_compare_exif(output_file)
@@ -622,7 +638,7 @@ def test_pull_exif_no_data_use_file_time(photoslib, suspend_capture, output_file
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "-o", output_file],
+        ["--compare-exif", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_compare_exif(output_file)
@@ -633,6 +649,7 @@ def test_pull_exif_no_data_use_file_time(photoslib, suspend_capture, output_file
         [
             "--pull-exif",
             "--plain",
+            "--force",
             "--verbose",
             "--use-file-time",
         ],
@@ -643,7 +660,7 @@ def test_pull_exif_no_data_use_file_time(photoslib, suspend_capture, output_file
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "-o", output_file],
+        ["--compare-exif", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_compare_exif(output_file)
@@ -668,6 +685,7 @@ def test_video_compare_exif(photoslib, suspend_capture, expected, output_file):
         [
             "--compare-exif",
             "--plain",
+            "--force",
             "-o",
             output_file,
         ],
@@ -695,6 +713,7 @@ def test_video_date_delta(
             "--date-delta",
             input_value,
             "--plain",
+            "--force",
         ],
         terminal_width=TERMINAL_WIDTH,
     )
@@ -702,7 +721,7 @@ def test_video_date_delta(
 
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "-o", output_file],
+        ["--inspect", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_inspect_output(output_file)
@@ -726,13 +745,14 @@ def test_video_time_delta(
             "--time-delta",
             input_value,
             "--plain",
+            "--force",
         ],
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "-o", output_file],
+        ["--inspect", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_inspect_output(output_file)
@@ -752,6 +772,7 @@ def test_video_date(photoslib, suspend_capture, input_value, expected, output_fi
             "--date",
             input_value,
             "--plain",
+            "--force",
         ],
         terminal_width=TERMINAL_WIDTH,
     )
@@ -760,7 +781,7 @@ def test_video_date(photoslib, suspend_capture, input_value, expected, output_fi
     # don't use photo.date as it will return local time instead of the time in the timezone
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "-o", output_file],
+        ["--inspect", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_inspect_output(output_file)
@@ -780,6 +801,7 @@ def test_video_time(photoslib, suspend_capture, input_value, expected, output_fi
             "--time",
             input_value,
             "--plain",
+            "--force",
         ],
         terminal_width=TERMINAL_WIDTH,
     )
@@ -788,7 +810,7 @@ def test_video_time(photoslib, suspend_capture, input_value, expected, output_fi
     # don't use photo.date as it will return local time instead of the time in the timezone
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "-o", output_file],
+        ["--inspect", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_inspect_output(output_file)
@@ -812,13 +834,14 @@ def test_video_time_zone(
             "--timezone",
             input_value,
             "--plain",
+            "--force",
         ],
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "-o", output_file],
+        ["--inspect", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_inspect_output(output_file)
@@ -840,13 +863,14 @@ def test_video_match(photoslib, suspend_capture, input_value, expected, output_f
             input_value,
             "--match-time",
             "--plain",
+            "--force",
         ],
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "-o", output_file],
+        ["--inspect", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_inspect_output(output_file)
@@ -865,7 +889,7 @@ def test_video_push_exif(photoslib, suspend_capture, output_file):
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "-o", output_file],
+        ["--compare-exif", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_compare_exif(output_file)
@@ -876,6 +900,7 @@ def test_video_push_exif(photoslib, suspend_capture, output_file):
         [
             "--push-exif",
             "--plain",
+            "--force",
             "--verbose",
         ],
         terminal_width=TERMINAL_WIDTH,
@@ -884,7 +909,7 @@ def test_video_push_exif(photoslib, suspend_capture, output_file):
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "-o", output_file],
+        ["--compare-exif", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_compare_exif(output_file)
@@ -904,14 +929,25 @@ def test_video_pull_exif(photoslib, suspend_capture, output_file):
     # update the photo so we know if the data is updated
     result = runner.invoke(
         timewarp,
-        ["-z", "-0500", "-D", "+1 day", "-T", "-10 hours", "-m", "-V", "--plain"],
+        [
+            "-z",
+            "-0500",
+            "-D",
+            "+1 day",
+            "-T",
+            "-10 hours",
+            "-m",
+            "-V",
+            "--plain",
+            "--force",
+        ],
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "-o", output_file],
+        ["--compare-exif", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_compare_exif(output_file)
@@ -922,6 +958,7 @@ def test_video_pull_exif(photoslib, suspend_capture, output_file):
         [
             "--pull-exif",
             "--plain",
+            "--force",
             "--verbose",
         ],
         terminal_width=TERMINAL_WIDTH,
@@ -930,7 +967,7 @@ def test_video_pull_exif(photoslib, suspend_capture, output_file):
 
     result = runner.invoke(
         timewarp,
-        ["--compare-exif", "--plain", "-o", output_file],
+        ["--compare-exif", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_compare_exif(output_file)
@@ -956,13 +993,14 @@ def test_function(photoslib, suspend_capture, output_file):
         [
             "--function",
             "tests/timewarp_function_example.py::get_date_time_timezone",
+            "--force",
         ],
         terminal_width=TERMINAL_WIDTH,
     )
     assert result.exit_code == 0
     result = runner.invoke(
         timewarp,
-        ["--inspect", "--plain", "-o", output_file],
+        ["--inspect", "--plain", "--force", "-o", output_file],
         terminal_width=TERMINAL_WIDTH,
     )
     output_values = parse_inspect_output(output_file)

@@ -95,7 +95,7 @@ setup(
         "pyobjc-framework-Photos>=7.3,<9.0",
         "pyobjc-framework-Quartz>=7.3,<9.0",
         "pyobjc-framework-Vision>=7.3,<9.0",
-        "pytimeparse==1.1.8",
+        "pytimeparse2==1.4.0",
         "requests>=2.27.1,<3.0.0",
         "rich>=11.2.0,<13.0.0",
         "rich_theme_manager>=0.11.0",

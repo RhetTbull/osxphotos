@@ -8,7 +8,7 @@ import re
 
 def utc_offset_string_to_seconds(utc_offset: str) -> int:
     """match a UTC offset in format ±[hh]:[mm], ±[h]:[mm], or ±[hh][mm] and return number of seconds offset"""
-    patterns = ["^([+-]?)(\d{1,2}):(\d{2})$", "^([+-]?)(\d{2})(\d{2})$"]
+    patterns = [r"^([+-]?)(\d{1,2}):(\d{2})$", r"^([+-]?)(\d{2})(\d{2})$"]
     for pattern in patterns:
         match = re.match(pattern, utc_offset)
         if not match:
@@ -56,7 +56,7 @@ def update_datetime(
     return dt
 
 
-def time_string_to_datetime(time: str) -> datetime.datetime:
+def time_string_to_datetime(time: str) -> datetime.time:
     """Convert time string to datetime.datetime"""
 
     """ valid time formats:
@@ -74,7 +74,7 @@ def time_string_to_datetime(time: str) -> datetime.datetime:
 
     for dt_format in time_formats:
         try:
-            parsed_dt = datetime.datetime.strptime(time, dt_format)
+            parsed_dt = datetime.datetime.strptime(time, dt_format).time()
         except ValueError as e:
             pass
         else:
