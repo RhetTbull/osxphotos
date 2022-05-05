@@ -1,5 +1,4 @@
 """ Test the command line interface (CLI) """
-
 import datetime
 import glob
 import json
@@ -7077,6 +7076,46 @@ def test_query_function():
         json_got = json.loads(result.output)
         assert len(json_got) == 1
         assert json_got[0]["original_filename"] == "DSC03584.dng"
+
+
+def test_query_added_after():
+    """test query --added-after"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    results = runner.invoke(
+        query,
+        [
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--json",
+            "--added-after",
+            "2022-02-03",
+        ],
+    )
+    assert results.exit_code == 0
+    json_got = json.loads(results.output)
+    assert len(json_got) == 4
+
+
+def test_query_added_before():
+    """test query --added-before"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    results = runner.invoke(
+        query,
+        [
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--json",
+            "--added-before",
+            "2019-07-28",
+        ],
+    )
+    assert results.exit_code == 0
+    json_got = json.loads(results.output)
+    assert len(json_got) == 7
 
 
 def test_export_export_dir_template():

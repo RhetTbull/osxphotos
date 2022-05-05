@@ -3446,6 +3446,23 @@ class PhotosDB:
                             matching_photos.append(p)
             photos = matching_photos
 
+        if options.added_after:
+            added_after = options.added_after
+            if not datetime_has_tz(added_after):
+                added_after = datetime_naive_to_local(added_after)
+            photos = [p for p in photos if p.date_added and p.date_added > added_after]
+
+        if options.added_before:
+            added_before = options.added_before
+            if not datetime_has_tz(added_before):
+                added_before = datetime_naive_to_local(added_before)
+            photos = [p for p in photos if p.date_added and p.date_added < added_before]
+
+        if options.added_in_last:
+            added_after = datetime.now() - options.added_in_last
+            added_after = datetime_naive_to_local(added_after)
+            photos = [p for p in photos if p.date_added and p.date_added > added_after]
+
         if options.function:
             for function in options.function:
                 photos = function[0](photos)
