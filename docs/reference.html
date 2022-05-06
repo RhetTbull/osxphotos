@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="OSXPhotos Python Package Overview" href="package_overview.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>OSXPhotos python API - osxphotos 0.48.2 documentation</title>
+        <title>OSXPhotos python API - osxphotos 0.48.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.48.2 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.48.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.48.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.48.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -2022,25 +2022,35 @@ Projects are cards, calendars, slideshows, etc.</p>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="osxphotos.QueryOptions">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">osxphotos.</span></span><span class="sig-name descname"><span class="pre">QueryOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keyword</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">person</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">album</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_case</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edited</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_edit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">favorite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_favorite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_missing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shared</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_shared</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">movies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uti</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">burst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_burst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">live</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_live</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cloudasset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_cloudasset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incloud</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_incloud</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">datetime.datetime</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">datetime.datetime</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">datetime.time</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">datetime.time</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">portrait</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_portrait</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">screenshot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_screenshot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slow_mo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_slow_mo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_lapse</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_time_lapse</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hdr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_hdr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selfie</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_selfie</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">panorama</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_panorama</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_raw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">place</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_place</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deleted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deleted_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_comment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_comment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_likes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_likes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_reference</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_album</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_in_album</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">burst_photos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missing_bursts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bitmath.Byte</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bitmath.Byte</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regex</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_eval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duplicate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_location</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">callable</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exif</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/queryoptions.html#QueryOptions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.QueryOptions" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">osxphotos.</span></span><span class="sig-name descname"><span class="pre">QueryOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">added_after</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">datetime.datetime</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">added_before</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">datetime.datetime</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">added_in_last</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">datetime.timedelta</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">album</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">burst_photos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">burst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cloudasset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deleted_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deleted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duplicate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edited</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exif</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_edit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">favorite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">datetime.datetime</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">datetime.time</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">callable</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_comment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_likes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_raw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hdr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_case</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_album</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incloud</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_reference</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keyword</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">live</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bitmath.Byte</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bitmath.Byte</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missing_bursts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">movies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_comment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_likes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_location</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_place</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_burst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_cloudasset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_favorite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_hdr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_in_album</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_incloud</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_live</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_missing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_panorama</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_portrait</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_screenshot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_selfie</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_shared</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_slow_mo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">not_time_lapse</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">panorama</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">person</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">place</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">portrait</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_eval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regex</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">screenshot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selfie</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shared</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slow_mo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_lapse</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">datetime.datetime</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">datetime.time</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uti</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/queryoptions.html#QueryOptions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.QueryOptions" title="Permalink to this definition">#</a></dt>
 <dd><p>QueryOptions class for PhotosDB.query</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.keyword">
-<span class="sig-name descname"><span class="pre">keyword</span></span><a class="headerlink" href="#osxphotos.QueryOptions.keyword" title="Permalink to this definition">#</a></dt>
-<dd><p>list of keywords to search for</p>
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.added_after">
+<span class="sig-name descname"><span class="pre">added_after</span></span><a class="headerlink" href="#osxphotos.QueryOptions.added_after" title="Permalink to this definition">#</a></dt>
+<dd><p>search for photos added after a given date</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[Iterable[str]]</p>
+<dd class="field-odd"><p>Optional[datetime.datetime]</p>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.person">
-<span class="sig-name descname"><span class="pre">person</span></span><a class="headerlink" href="#osxphotos.QueryOptions.person" title="Permalink to this definition">#</a></dt>
-<dd><p>list of person names to search for</p>
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.added_before">
+<span class="sig-name descname"><span class="pre">added_before</span></span><a class="headerlink" href="#osxphotos.QueryOptions.added_before" title="Permalink to this definition">#</a></dt>
+<dd><p>search for photos added before a given date</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[Iterable[str]]</p>
+<dd class="field-odd"><p>Optional[datetime.datetime]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.added_in_last">
+<span class="sig-name descname"><span class="pre">added_in_last</span></span><a class="headerlink" href="#osxphotos.QueryOptions.added_in_last" title="Permalink to this definition">#</a></dt>
+<dd><p>search for photos added in last X datetime.timedelta</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[datetime.timedelta]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2055,39 +2065,49 @@ Projects are cards, calendars, slideshows, etc.</p>
 </dl>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.folder">
-<span class="sig-name descname"><span class="pre">folder</span></span><a class="headerlink" href="#osxphotos.QueryOptions.folder" title="Permalink to this definition">#</a></dt>
-<dd><p>list of folder names to search for</p>
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.burst_photos">
+<span class="sig-name descname"><span class="pre">burst_photos</span></span><a class="headerlink" href="#osxphotos.QueryOptions.burst_photos" title="Permalink to this definition">#</a></dt>
+<dd><p>search for burst photos</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[Iterable[str]]</p>
+<dd class="field-odd"><p>Optional[bool]</p>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.uuid">
-<span class="sig-name descname"><span class="pre">uuid</span></span><a class="headerlink" href="#osxphotos.QueryOptions.uuid" title="Permalink to this definition">#</a></dt>
-<dd><p>list of uuids to search for</p>
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.burst">
+<span class="sig-name descname"><span class="pre">burst</span></span><a class="headerlink" href="#osxphotos.QueryOptions.burst" title="Permalink to this definition">#</a></dt>
+<dd><p>search for burst photos</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[Iterable[str]]</p>
+<dd class="field-odd"><p>Optional[bool]</p>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.title">
-<span class="sig-name descname"><span class="pre">title</span></span><a class="headerlink" href="#osxphotos.QueryOptions.title" title="Permalink to this definition">#</a></dt>
-<dd><p>list of titles to search for</p>
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.cloudasset">
+<span class="sig-name descname"><span class="pre">cloudasset</span></span><a class="headerlink" href="#osxphotos.QueryOptions.cloudasset" title="Permalink to this definition">#</a></dt>
+<dd><p>search for photos that are managed by iCloud</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[Iterable[str]]</p>
+<dd class="field-odd"><p>Optional[bool]</p>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.no_title">
-<span class="sig-name descname"><span class="pre">no_title</span></span><a class="headerlink" href="#osxphotos.QueryOptions.no_title" title="Permalink to this definition">#</a></dt>
-<dd><p>search for photos with no title</p>
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.deleted_only">
+<span class="sig-name descname"><span class="pre">deleted_only</span></span><a class="headerlink" href="#osxphotos.QueryOptions.deleted_only" title="Permalink to this definition">#</a></dt>
+<dd><p>search only for deleted photos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.deleted">
+<span class="sig-name descname"><span class="pre">deleted</span></span><a class="headerlink" href="#osxphotos.QueryOptions.deleted" title="Permalink to this definition">#</a></dt>
+<dd><p>also include deleted photos</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>Optional[bool]</p>
@@ -2105,19 +2125,9 @@ Projects are cards, calendars, slideshows, etc.</p>
 </dl>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.no_description">
-<span class="sig-name descname"><span class="pre">no_description</span></span><a class="headerlink" href="#osxphotos.QueryOptions.no_description" title="Permalink to this definition">#</a></dt>
-<dd><p>search for photos with no description</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.ignore_case">
-<span class="sig-name descname"><span class="pre">ignore_case</span></span><a class="headerlink" href="#osxphotos.QueryOptions.ignore_case" title="Permalink to this definition">#</a></dt>
-<dd><p>ignore case when searching</p>
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.duplicate">
+<span class="sig-name descname"><span class="pre">duplicate</span></span><a class="headerlink" href="#osxphotos.QueryOptions.duplicate" title="Permalink to this definition">#</a></dt>
+<dd><p>search for duplicate photos</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>Optional[bool]</p>
@@ -2131,6 +2141,16 @@ Projects are cards, calendars, slideshows, etc.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.exif">
+<span class="sig-name descname"><span class="pre">exif</span></span><a class="headerlink" href="#osxphotos.QueryOptions.exif" title="Permalink to this definition">#</a></dt>
+<dd><p>search for photos with EXIF tags that matches the given data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[Iterable[Tuple[str, str]]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2155,182 +2175,12 @@ Projects are cards, calendars, slideshows, etc.</p>
 </dl>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_favorite">
-<span class="sig-name descname"><span class="pre">not_favorite</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_favorite" title="Permalink to this definition">#</a></dt>
-<dd><p>search for non-favorite photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.hidden">
-<span class="sig-name descname"><span class="pre">hidden</span></span><a class="headerlink" href="#osxphotos.QueryOptions.hidden" title="Permalink to this definition">#</a></dt>
-<dd><p>search for hidden photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_hidden">
-<span class="sig-name descname"><span class="pre">not_hidden</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_hidden" title="Permalink to this definition">#</a></dt>
-<dd><p>search for non-hidden photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.missing">
-<span class="sig-name descname"><span class="pre">missing</span></span><a class="headerlink" href="#osxphotos.QueryOptions.missing" title="Permalink to this definition">#</a></dt>
-<dd><p>search for missing photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_missing">
-<span class="sig-name descname"><span class="pre">not_missing</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_missing" title="Permalink to this definition">#</a></dt>
-<dd><p>search for non-missing photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.shared">
-<span class="sig-name descname"><span class="pre">shared</span></span><a class="headerlink" href="#osxphotos.QueryOptions.shared" title="Permalink to this definition">#</a></dt>
-<dd><p>search for shared photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_shared">
-<span class="sig-name descname"><span class="pre">not_shared</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_shared" title="Permalink to this definition">#</a></dt>
-<dd><p>search for non-shared photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.photos">
-<span class="sig-name descname"><span class="pre">photos</span></span><a class="headerlink" href="#osxphotos.QueryOptions.photos" title="Permalink to this definition">#</a></dt>
-<dd><p>search for photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.movies">
-<span class="sig-name descname"><span class="pre">movies</span></span><a class="headerlink" href="#osxphotos.QueryOptions.movies" title="Permalink to this definition">#</a></dt>
-<dd><p>search for movies</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.uti">
-<span class="sig-name descname"><span class="pre">uti</span></span><a class="headerlink" href="#osxphotos.QueryOptions.uti" title="Permalink to this definition">#</a></dt>
-<dd><p>list of UTIs to search for</p>
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.folder">
+<span class="sig-name descname"><span class="pre">folder</span></span><a class="headerlink" href="#osxphotos.QueryOptions.folder" title="Permalink to this definition">#</a></dt>
+<dd><p>list of folder names to search for</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>Optional[Iterable[str]]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.burst">
-<span class="sig-name descname"><span class="pre">burst</span></span><a class="headerlink" href="#osxphotos.QueryOptions.burst" title="Permalink to this definition">#</a></dt>
-<dd><p>search for burst photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_burst">
-<span class="sig-name descname"><span class="pre">not_burst</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_burst" title="Permalink to this definition">#</a></dt>
-<dd><p>search for non-burst photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.live">
-<span class="sig-name descname"><span class="pre">live</span></span><a class="headerlink" href="#osxphotos.QueryOptions.live" title="Permalink to this definition">#</a></dt>
-<dd><p>search for live photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_live">
-<span class="sig-name descname"><span class="pre">not_live</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_live" title="Permalink to this definition">#</a></dt>
-<dd><p>search for non-live photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.cloudasset">
-<span class="sig-name descname"><span class="pre">cloudasset</span></span><a class="headerlink" href="#osxphotos.QueryOptions.cloudasset" title="Permalink to this definition">#</a></dt>
-<dd><p>search for photos that are managed by iCloud</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_cloudasset">
-<span class="sig-name descname"><span class="pre">not_cloudasset</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_cloudasset" title="Permalink to this definition">#</a></dt>
-<dd><p>search for photos that are not managed by iCloud</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.incloud">
-<span class="sig-name descname"><span class="pre">incloud</span></span><a class="headerlink" href="#osxphotos.QueryOptions.incloud" title="Permalink to this definition">#</a></dt>
-<dd><p>search for cloud assets that are synched to iCloud</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_incloud">
-<span class="sig-name descname"><span class="pre">not_incloud</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_incloud" title="Permalink to this definition">#</a></dt>
-<dd><p>search for cloud asset photos that are not yet synched to iCloud</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2345,212 +2195,12 @@ Projects are cards, calendars, slideshows, etc.</p>
 </dl>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.to_date">
-<span class="sig-name descname"><span class="pre">to_date</span></span><a class="headerlink" href="#osxphotos.QueryOptions.to_date" title="Permalink to this definition">#</a></dt>
-<dd><p>search for photos taken on or before this date</p>
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.function">
+<span class="sig-name descname"><span class="pre">function</span></span><a class="headerlink" href="#osxphotos.QueryOptions.function" title="Permalink to this definition">#</a></dt>
+<dd><p>list of query functions to evaluate</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[datetime.datetime]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.portrait">
-<span class="sig-name descname"><span class="pre">portrait</span></span><a class="headerlink" href="#osxphotos.QueryOptions.portrait" title="Permalink to this definition">#</a></dt>
-<dd><p>search for portrait photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_portrait">
-<span class="sig-name descname"><span class="pre">not_portrait</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_portrait" title="Permalink to this definition">#</a></dt>
-<dd><p>search for non-portrait photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.screenshot">
-<span class="sig-name descname"><span class="pre">screenshot</span></span><a class="headerlink" href="#osxphotos.QueryOptions.screenshot" title="Permalink to this definition">#</a></dt>
-<dd><p>search for screenshot photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_screenshot">
-<span class="sig-name descname"><span class="pre">not_screenshot</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_screenshot" title="Permalink to this definition">#</a></dt>
-<dd><p>search for non-screenshot photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.slow_mo">
-<span class="sig-name descname"><span class="pre">slow_mo</span></span><a class="headerlink" href="#osxphotos.QueryOptions.slow_mo" title="Permalink to this definition">#</a></dt>
-<dd><p>search for slow-mo photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_slow_mo">
-<span class="sig-name descname"><span class="pre">not_slow_mo</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_slow_mo" title="Permalink to this definition">#</a></dt>
-<dd><p>search for non-slow-mo photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.time_lapse">
-<span class="sig-name descname"><span class="pre">time_lapse</span></span><a class="headerlink" href="#osxphotos.QueryOptions.time_lapse" title="Permalink to this definition">#</a></dt>
-<dd><p>search for time-lapse photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_time_lapse">
-<span class="sig-name descname"><span class="pre">not_time_lapse</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_time_lapse" title="Permalink to this definition">#</a></dt>
-<dd><p>search for non-time-lapse photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.hdr">
-<span class="sig-name descname"><span class="pre">hdr</span></span><a class="headerlink" href="#osxphotos.QueryOptions.hdr" title="Permalink to this definition">#</a></dt>
-<dd><p>search for HDR photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_hdr">
-<span class="sig-name descname"><span class="pre">not_hdr</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_hdr" title="Permalink to this definition">#</a></dt>
-<dd><p>search for non-HDR photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.selfie">
-<span class="sig-name descname"><span class="pre">selfie</span></span><a class="headerlink" href="#osxphotos.QueryOptions.selfie" title="Permalink to this definition">#</a></dt>
-<dd><p>search for selfie photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_selfie">
-<span class="sig-name descname"><span class="pre">not_selfie</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_selfie" title="Permalink to this definition">#</a></dt>
-<dd><p>search for non-selfie photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.panorama">
-<span class="sig-name descname"><span class="pre">panorama</span></span><a class="headerlink" href="#osxphotos.QueryOptions.panorama" title="Permalink to this definition">#</a></dt>
-<dd><p>search for panorama photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_panorama">
-<span class="sig-name descname"><span class="pre">not_panorama</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_panorama" title="Permalink to this definition">#</a></dt>
-<dd><p>search for non-panorama photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.has_raw">
-<span class="sig-name descname"><span class="pre">has_raw</span></span><a class="headerlink" href="#osxphotos.QueryOptions.has_raw" title="Permalink to this definition">#</a></dt>
-<dd><p>search for photos with associated raw files</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.place">
-<span class="sig-name descname"><span class="pre">place</span></span><a class="headerlink" href="#osxphotos.QueryOptions.place" title="Permalink to this definition">#</a></dt>
-<dd><p>list of place names to search for</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[Iterable[str]]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.no_place">
-<span class="sig-name descname"><span class="pre">no_place</span></span><a class="headerlink" href="#osxphotos.QueryOptions.no_place" title="Permalink to this definition">#</a></dt>
-<dd><p>search for photos with no place</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.label">
-<span class="sig-name descname"><span class="pre">label</span></span><a class="headerlink" href="#osxphotos.QueryOptions.label" title="Permalink to this definition">#</a></dt>
-<dd><p>list of labels to search for</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[Iterable[str]]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.deleted">
-<span class="sig-name descname"><span class="pre">deleted</span></span><a class="headerlink" href="#osxphotos.QueryOptions.deleted" title="Permalink to this definition">#</a></dt>
-<dd><p>also include deleted photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.deleted_only">
-<span class="sig-name descname"><span class="pre">deleted_only</span></span><a class="headerlink" href="#osxphotos.QueryOptions.deleted_only" title="Permalink to this definition">#</a></dt>
-<dd><p>search only for deleted photos</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
+<dd class="field-odd"><p>Optional[List[Tuple[callable, str]]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2558,16 +2208,6 @@ Projects are cards, calendars, slideshows, etc.</p>
 <dt class="sig sig-object py" id="osxphotos.QueryOptions.has_comment">
 <span class="sig-name descname"><span class="pre">has_comment</span></span><a class="headerlink" href="#osxphotos.QueryOptions.has_comment" title="Permalink to this definition">#</a></dt>
 <dd><p>search for photos with comments</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.no_comment">
-<span class="sig-name descname"><span class="pre">no_comment</span></span><a class="headerlink" href="#osxphotos.QueryOptions.no_comment" title="Permalink to this definition">#</a></dt>
-<dd><p>search for photos with no comments</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>Optional[bool]</p>
@@ -2585,9 +2225,9 @@ Projects are cards, calendars, slideshows, etc.</p>
 </dl>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.no_likes">
-<span class="sig-name descname"><span class="pre">no_likes</span></span><a class="headerlink" href="#osxphotos.QueryOptions.no_likes" title="Permalink to this definition">#</a></dt>
-<dd><p>search for shared photos with no likes</p>
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.has_raw">
+<span class="sig-name descname"><span class="pre">has_raw</span></span><a class="headerlink" href="#osxphotos.QueryOptions.has_raw" title="Permalink to this definition">#</a></dt>
+<dd><p>search for photos with associated raw files</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>Optional[bool]</p>
@@ -2595,9 +2235,29 @@ Projects are cards, calendars, slideshows, etc.</p>
 </dl>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.is_reference">
-<span class="sig-name descname"><span class="pre">is_reference</span></span><a class="headerlink" href="#osxphotos.QueryOptions.is_reference" title="Permalink to this definition">#</a></dt>
-<dd><p>search for photos stored by reference (that is, they are not managed by Photos)</p>
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.hdr">
+<span class="sig-name descname"><span class="pre">hdr</span></span><a class="headerlink" href="#osxphotos.QueryOptions.hdr" title="Permalink to this definition">#</a></dt>
+<dd><p>search for HDR photos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.hidden">
+<span class="sig-name descname"><span class="pre">hidden</span></span><a class="headerlink" href="#osxphotos.QueryOptions.hidden" title="Permalink to this definition">#</a></dt>
+<dd><p>search for hidden photos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.ignore_case">
+<span class="sig-name descname"><span class="pre">ignore_case</span></span><a class="headerlink" href="#osxphotos.QueryOptions.ignore_case" title="Permalink to this definition">#</a></dt>
+<dd><p>ignore case when searching</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>Optional[bool]</p>
@@ -2615,9 +2275,9 @@ Projects are cards, calendars, slideshows, etc.</p>
 </dl>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_in_album">
-<span class="sig-name descname"><span class="pre">not_in_album</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_in_album" title="Permalink to this definition">#</a></dt>
-<dd><p>search for photos not in an album</p>
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.incloud">
+<span class="sig-name descname"><span class="pre">incloud</span></span><a class="headerlink" href="#osxphotos.QueryOptions.incloud" title="Permalink to this definition">#</a></dt>
+<dd><p>search for cloud assets that are synched to iCloud</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>Optional[bool]</p>
@@ -2625,9 +2285,9 @@ Projects are cards, calendars, slideshows, etc.</p>
 </dl>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.burst_photos">
-<span class="sig-name descname"><span class="pre">burst_photos</span></span><a class="headerlink" href="#osxphotos.QueryOptions.burst_photos" title="Permalink to this definition">#</a></dt>
-<dd><p>search for burst photos</p>
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.is_reference">
+<span class="sig-name descname"><span class="pre">is_reference</span></span><a class="headerlink" href="#osxphotos.QueryOptions.is_reference" title="Permalink to this definition">#</a></dt>
+<dd><p>search for photos stored by reference (that is, they are not managed by Photos)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>Optional[bool]</p>
@@ -2635,19 +2295,9 @@ Projects are cards, calendars, slideshows, etc.</p>
 </dl>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.missing_bursts">
-<span class="sig-name descname"><span class="pre">missing_bursts</span></span><a class="headerlink" href="#osxphotos.QueryOptions.missing_bursts" title="Permalink to this definition">#</a></dt>
-<dd><p>for burst photos, also include burst photos that are missing</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bool]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.name">
-<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#osxphotos.QueryOptions.name" title="Permalink to this definition">#</a></dt>
-<dd><p>list of names to search for</p>
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.keyword">
+<span class="sig-name descname"><span class="pre">keyword</span></span><a class="headerlink" href="#osxphotos.QueryOptions.keyword" title="Permalink to this definition">#</a></dt>
+<dd><p>list of keywords to search for</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>Optional[Iterable[str]]</p>
@@ -2655,39 +2305,9 @@ Projects are cards, calendars, slideshows, etc.</p>
 </dl>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.min_size">
-<span class="sig-name descname"><span class="pre">min_size</span></span><a class="headerlink" href="#osxphotos.QueryOptions.min_size" title="Permalink to this definition">#</a></dt>
-<dd><p>minimum size of photos to search for</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bitmath.Byte]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.max_size">
-<span class="sig-name descname"><span class="pre">max_size</span></span><a class="headerlink" href="#osxphotos.QueryOptions.max_size" title="Permalink to this definition">#</a></dt>
-<dd><p>maximum size of photos to search for</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[bitmath.Byte]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.regex">
-<span class="sig-name descname"><span class="pre">regex</span></span><a class="headerlink" href="#osxphotos.QueryOptions.regex" title="Permalink to this definition">#</a></dt>
-<dd><p>list of regular expressions to search for</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[Iterable[Tuple[str, str]]]</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.query_eval">
-<span class="sig-name descname"><span class="pre">query_eval</span></span><a class="headerlink" href="#osxphotos.QueryOptions.query_eval" title="Permalink to this definition">#</a></dt>
-<dd><p>list of query expressions to evaluate</p>
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.label">
+<span class="sig-name descname"><span class="pre">label</span></span><a class="headerlink" href="#osxphotos.QueryOptions.label" title="Permalink to this definition">#</a></dt>
+<dd><p>list of labels to search for</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>Optional[Iterable[str]]</p>
@@ -2695,9 +2315,9 @@ Projects are cards, calendars, slideshows, etc.</p>
 </dl>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.duplicate">
-<span class="sig-name descname"><span class="pre">duplicate</span></span><a class="headerlink" href="#osxphotos.QueryOptions.duplicate" title="Permalink to this definition">#</a></dt>
-<dd><p>search for duplicate photos</p>
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.live">
+<span class="sig-name descname"><span class="pre">live</span></span><a class="headerlink" href="#osxphotos.QueryOptions.live" title="Permalink to this definition">#</a></dt>
+<dd><p>search for live photos</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>Optional[bool]</p>
@@ -2715,6 +2335,96 @@ Projects are cards, calendars, slideshows, etc.</p>
 </dl>
 </dd></dl>
 <dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.max_size">
+<span class="sig-name descname"><span class="pre">max_size</span></span><a class="headerlink" href="#osxphotos.QueryOptions.max_size" title="Permalink to this definition">#</a></dt>
+<dd><p>maximum size of photos to search for</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bitmath.Byte]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.min_size">
+<span class="sig-name descname"><span class="pre">min_size</span></span><a class="headerlink" href="#osxphotos.QueryOptions.min_size" title="Permalink to this definition">#</a></dt>
+<dd><p>minimum size of photos to search for</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bitmath.Byte]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.missing_bursts">
+<span class="sig-name descname"><span class="pre">missing_bursts</span></span><a class="headerlink" href="#osxphotos.QueryOptions.missing_bursts" title="Permalink to this definition">#</a></dt>
+<dd><p>for burst photos, also include burst photos that are missing</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.missing">
+<span class="sig-name descname"><span class="pre">missing</span></span><a class="headerlink" href="#osxphotos.QueryOptions.missing" title="Permalink to this definition">#</a></dt>
+<dd><p>search for missing photos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.movies">
+<span class="sig-name descname"><span class="pre">movies</span></span><a class="headerlink" href="#osxphotos.QueryOptions.movies" title="Permalink to this definition">#</a></dt>
+<dd><p>search for movies</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#osxphotos.QueryOptions.name" title="Permalink to this definition">#</a></dt>
+<dd><p>list of names to search for</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[Iterable[str]]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.no_comment">
+<span class="sig-name descname"><span class="pre">no_comment</span></span><a class="headerlink" href="#osxphotos.QueryOptions.no_comment" title="Permalink to this definition">#</a></dt>
+<dd><p>search for photos with no comments</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.no_description">
+<span class="sig-name descname"><span class="pre">no_description</span></span><a class="headerlink" href="#osxphotos.QueryOptions.no_description" title="Permalink to this definition">#</a></dt>
+<dd><p>search for photos with no description</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.no_likes">
+<span class="sig-name descname"><span class="pre">no_likes</span></span><a class="headerlink" href="#osxphotos.QueryOptions.no_likes" title="Permalink to this definition">#</a></dt>
+<dd><p>search for shared photos with no likes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
 <dt class="sig sig-object py" id="osxphotos.QueryOptions.no_location">
 <span class="sig-name descname"><span class="pre">no_location</span></span><a class="headerlink" href="#osxphotos.QueryOptions.no_location" title="Permalink to this definition">#</a></dt>
 <dd><p>search for photos with no location</p>
@@ -2725,12 +2435,262 @@ Projects are cards, calendars, slideshows, etc.</p>
 </dl>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.function">
-<span class="sig-name descname"><span class="pre">function</span></span><a class="headerlink" href="#osxphotos.QueryOptions.function" title="Permalink to this definition">#</a></dt>
-<dd><p>list of query functions to evaluate</p>
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.no_place">
+<span class="sig-name descname"><span class="pre">no_place</span></span><a class="headerlink" href="#osxphotos.QueryOptions.no_place" title="Permalink to this definition">#</a></dt>
+<dd><p>search for photos with no place</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[List[Tuple[callable, str]]]</p>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.no_title">
+<span class="sig-name descname"><span class="pre">no_title</span></span><a class="headerlink" href="#osxphotos.QueryOptions.no_title" title="Permalink to this definition">#</a></dt>
+<dd><p>search for photos with no title</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_burst">
+<span class="sig-name descname"><span class="pre">not_burst</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_burst" title="Permalink to this definition">#</a></dt>
+<dd><p>search for non-burst photos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_cloudasset">
+<span class="sig-name descname"><span class="pre">not_cloudasset</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_cloudasset" title="Permalink to this definition">#</a></dt>
+<dd><p>search for photos that are not managed by iCloud</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_favorite">
+<span class="sig-name descname"><span class="pre">not_favorite</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_favorite" title="Permalink to this definition">#</a></dt>
+<dd><p>search for non-favorite photos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_hdr">
+<span class="sig-name descname"><span class="pre">not_hdr</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_hdr" title="Permalink to this definition">#</a></dt>
+<dd><p>search for non-HDR photos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_hidden">
+<span class="sig-name descname"><span class="pre">not_hidden</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_hidden" title="Permalink to this definition">#</a></dt>
+<dd><p>search for non-hidden photos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_in_album">
+<span class="sig-name descname"><span class="pre">not_in_album</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_in_album" title="Permalink to this definition">#</a></dt>
+<dd><p>search for photos not in an album</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_incloud">
+<span class="sig-name descname"><span class="pre">not_incloud</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_incloud" title="Permalink to this definition">#</a></dt>
+<dd><p>search for cloud asset photos that are not yet synched to iCloud</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_live">
+<span class="sig-name descname"><span class="pre">not_live</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_live" title="Permalink to this definition">#</a></dt>
+<dd><p>search for non-live photos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_missing">
+<span class="sig-name descname"><span class="pre">not_missing</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_missing" title="Permalink to this definition">#</a></dt>
+<dd><p>search for non-missing photos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_panorama">
+<span class="sig-name descname"><span class="pre">not_panorama</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_panorama" title="Permalink to this definition">#</a></dt>
+<dd><p>search for non-panorama photos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_portrait">
+<span class="sig-name descname"><span class="pre">not_portrait</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_portrait" title="Permalink to this definition">#</a></dt>
+<dd><p>search for non-portrait photos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_screenshot">
+<span class="sig-name descname"><span class="pre">not_screenshot</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_screenshot" title="Permalink to this definition">#</a></dt>
+<dd><p>search for non-screenshot photos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_selfie">
+<span class="sig-name descname"><span class="pre">not_selfie</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_selfie" title="Permalink to this definition">#</a></dt>
+<dd><p>search for non-selfie photos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_shared">
+<span class="sig-name descname"><span class="pre">not_shared</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_shared" title="Permalink to this definition">#</a></dt>
+<dd><p>search for non-shared photos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_slow_mo">
+<span class="sig-name descname"><span class="pre">not_slow_mo</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_slow_mo" title="Permalink to this definition">#</a></dt>
+<dd><p>search for non-slow-mo photos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.not_time_lapse">
+<span class="sig-name descname"><span class="pre">not_time_lapse</span></span><a class="headerlink" href="#osxphotos.QueryOptions.not_time_lapse" title="Permalink to this definition">#</a></dt>
+<dd><p>search for non-time-lapse photos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.panorama">
+<span class="sig-name descname"><span class="pre">panorama</span></span><a class="headerlink" href="#osxphotos.QueryOptions.panorama" title="Permalink to this definition">#</a></dt>
+<dd><p>search for panorama photos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.person">
+<span class="sig-name descname"><span class="pre">person</span></span><a class="headerlink" href="#osxphotos.QueryOptions.person" title="Permalink to this definition">#</a></dt>
+<dd><p>list of person names to search for</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[Iterable[str]]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.photos">
+<span class="sig-name descname"><span class="pre">photos</span></span><a class="headerlink" href="#osxphotos.QueryOptions.photos" title="Permalink to this definition">#</a></dt>
+<dd><p>search for photos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.place">
+<span class="sig-name descname"><span class="pre">place</span></span><a class="headerlink" href="#osxphotos.QueryOptions.place" title="Permalink to this definition">#</a></dt>
+<dd><p>list of place names to search for</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[Iterable[str]]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.portrait">
+<span class="sig-name descname"><span class="pre">portrait</span></span><a class="headerlink" href="#osxphotos.QueryOptions.portrait" title="Permalink to this definition">#</a></dt>
+<dd><p>search for portrait photos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.query_eval">
+<span class="sig-name descname"><span class="pre">query_eval</span></span><a class="headerlink" href="#osxphotos.QueryOptions.query_eval" title="Permalink to this definition">#</a></dt>
+<dd><p>list of query expressions to evaluate</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[Iterable[str]]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.regex">
+<span class="sig-name descname"><span class="pre">regex</span></span><a class="headerlink" href="#osxphotos.QueryOptions.regex" title="Permalink to this definition">#</a></dt>
+<dd><p>list of regular expressions to search for</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[Iterable[Tuple[str, str]]]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.screenshot">
+<span class="sig-name descname"><span class="pre">screenshot</span></span><a class="headerlink" href="#osxphotos.QueryOptions.screenshot" title="Permalink to this definition">#</a></dt>
+<dd><p>search for screenshot photos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2745,12 +2705,82 @@ Projects are cards, calendars, slideshows, etc.</p>
 </dl>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="osxphotos.QueryOptions.exif">
-<span class="sig-name descname"><span class="pre">exif</span></span><a class="headerlink" href="#osxphotos.QueryOptions.exif" title="Permalink to this definition">#</a></dt>
-<dd><p>search for photos with EXIF tags that matches the given data</p>
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.selfie">
+<span class="sig-name descname"><span class="pre">selfie</span></span><a class="headerlink" href="#osxphotos.QueryOptions.selfie" title="Permalink to this definition">#</a></dt>
+<dd><p>search for selfie photos</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Optional[Iterable[Tuple[str, str]]]</p>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.shared">
+<span class="sig-name descname"><span class="pre">shared</span></span><a class="headerlink" href="#osxphotos.QueryOptions.shared" title="Permalink to this definition">#</a></dt>
+<dd><p>search for shared photos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.slow_mo">
+<span class="sig-name descname"><span class="pre">slow_mo</span></span><a class="headerlink" href="#osxphotos.QueryOptions.slow_mo" title="Permalink to this definition">#</a></dt>
+<dd><p>search for slow-mo photos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.time_lapse">
+<span class="sig-name descname"><span class="pre">time_lapse</span></span><a class="headerlink" href="#osxphotos.QueryOptions.time_lapse" title="Permalink to this definition">#</a></dt>
+<dd><p>search for time-lapse photos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.title">
+<span class="sig-name descname"><span class="pre">title</span></span><a class="headerlink" href="#osxphotos.QueryOptions.title" title="Permalink to this definition">#</a></dt>
+<dd><p>list of titles to search for</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[Iterable[str]]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.to_date">
+<span class="sig-name descname"><span class="pre">to_date</span></span><a class="headerlink" href="#osxphotos.QueryOptions.to_date" title="Permalink to this definition">#</a></dt>
+<dd><p>search for photos taken on or before this date</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[datetime.datetime]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.uti">
+<span class="sig-name descname"><span class="pre">uti</span></span><a class="headerlink" href="#osxphotos.QueryOptions.uti" title="Permalink to this definition">#</a></dt>
+<dd><p>list of UTIs to search for</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[Iterable[str]]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="osxphotos.QueryOptions.uuid">
+<span class="sig-name descname"><span class="pre">uuid</span></span><a class="headerlink" href="#osxphotos.QueryOptions.uuid" title="Permalink to this definition">#</a></dt>
+<dd><p>list of uuids to search for</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Optional[Iterable[str]]</p>
 </dd>
 </dl>
 </dd></dl>

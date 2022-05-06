@@ -7118,6 +7118,27 @@ def test_query_added_before():
     assert len(json_got) == 7
 
 
+def test_query_added_in_last():
+    """test query --added-in-last"""
+
+    # Note: ideally, I'd test this with freezegun to verify the time deltas worked but
+    # freezegun causes osxphotos tests to crash so we just test that the --added-in-last runs without error
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    results = runner.invoke(
+        query,
+        [
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--json",
+            "--added-in-last",
+            "10 years",
+        ],
+    )
+    assert results.exit_code == 0
+
+
 def test_export_export_dir_template():
     """Test {export_dir} template"""
 
@@ -7631,3 +7652,66 @@ def test_theme_list():
         result = runner.invoke(cli_main, ["theme", "--list"])
         assert result.exit_code == 0
         assert "Dark" in result.output
+
+
+def test_export_added_after():
+    """test export --added-after"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                "--added-after",
+                "2022-02-03",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Exporting 4 photos" in result.output
+
+
+def test_export_added_before():
+    """test export --added-before"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                "--added-before",
+                "2019-07-28",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Exporting 7 photos" in result.output
+
+
+def test_export_added_in_last():
+    """test export --added-in-last"""
+
+    # can't use freezegun as it causes osxphotos tests to crash so
+    # just run export with --added-in-last and verify no errors
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                "--added-in-last",
+                "10 years",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Exporting" in result.output

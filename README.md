@@ -472,6 +472,10 @@ You can also export photos in a certain date range:
 
 `osxphotos export /path/to/export --from-date "2020-01-01" --to-date "2020-02-28"`
 
+or photos added to the library in the last week:
+
+`osxphotos export /path/to/export --added-in-last "1 week"`
+
 #### Converting images to JPEG on export
 
 Photos can store images in many different formats.  osxphotos can convert non-JPEG images (for example, RAW photos) to JPEG on export using the `--convert-to-jpeg` option.  You can specify the JPEG quality (0: worst, 1.0: best) using `--jpeg-quality`.  For example:
@@ -742,6 +746,26 @@ Options:
                                   --year 2022 to find all photos from the year
                                   2022. May be repeated to search multiple
                                   years.
+  --added-before DATE             Search for items added to the library before a
+                                  specific date/time, e.g. --added-before e.g.
+                                  2000-01-12T12:00:00,
+                                  2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO
+                                  8601 with/without timezone).
+  --added-after DATE              Search for items added to the libray after a
+                                  specific date/time, e.g. --added-after e.g.
+                                  2000-01-12T12:00:00,
+                                  2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO
+                                  8601 with/without timezone).
+  --added-in-last TIME_DELTA      Search for items added to the library in the
+                                  last TIME_DELTA, where TIME_DELTA is a string
+                                  like '12 hrs', '1 day', '1d', '1 week',
+                                  '2weeks', '1 month', '1 year'. for example,
+                                  `--added-in-last 7d` and `--added-in-last '1
+                                  week'` are equivalent. months are assumed to
+                                  be 30 days and years are assumed to be 365
+                                  days. Common English abbreviations are
+                                  accepted, e.g. d, day, days or m, min,
+                                  minutes.
   --has-comment                   Search for photos that have comments.
   --no-comment                    Search for photos with no comments.
   --has-likes                     Search for photos that have likes.
@@ -1807,7 +1831,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.48.2'
+{osxphotos_version}             The osxphotos version, e.g. '0.48.3'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -3970,7 +3994,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.48.2'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.48.3'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|

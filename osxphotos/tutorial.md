@@ -252,6 +252,10 @@ You can also export photos in a certain date range:
 
 `osxphotos export /path/to/export --from-date "2020-01-01" --to-date "2020-02-28"`
 
+or photos added to the library in the last week:
+
+`osxphotos export /path/to/export --added-in-last "1 week"`
+
 ## Converting images to JPEG on export
 
 Photos can store images in many different formats.  osxphotos can convert non-JPEG images (for example, RAW photos) to JPEG on export using the `--convert-to-jpeg` option.  You can specify the JPEG quality (0: worst, 1.0: best) using `--jpeg-quality`.  For example:

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>osxphotos.queryoptions - osxphotos 0.47.9 documentation</title>
+        <title>osxphotos.queryoptions - osxphotos 0.48.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.47.9 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.48.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.47.9 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.48.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -155,11 +155,12 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../overview.html">osxphotos</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">osxphotos Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli.html">osxphotos Command Line Interface (CLI)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../package_overview.html">Example uses of the python package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../reference.html">osxphotos python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">OSXPhotos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">OSXPhotos Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cli.html">OSXPhotos Command Line Interface (CLI)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../template_help.html">OSXPhotos Template System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../package_overview.html">OSXPhotos Python Package Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference.html">OSXPhotos python API</a></li>
 </ul>
 
 </div>
@@ -210,158 +211,163 @@
     <span class="sd">"""QueryOptions class for PhotosDB.query</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        keyword: list of keywords to search for</span>
-<span class="sd">        person: list of person names to search for</span>
+<span class="sd">        added_after: search for photos added after a given date</span>
+<span class="sd">        added_before: search for photos added before a given date</span>
+<span class="sd">        added_in_last: search for photos added in last X datetime.timedelta</span>
 <span class="sd">        album: list of album names to search for</span>
-<span class="sd">        folder: list of folder names to search for</span>
-<span class="sd">        uuid: list of uuids to search for</span>
-<span class="sd">        title: list of titles to search for</span>
-<span class="sd">        no_title: search for photos with no title</span>
+<span class="sd">        burst_photos: search for burst photos</span>
+<span class="sd">        burst: search for burst photos</span>
+<span class="sd">        cloudasset: search for photos that are managed by iCloud</span>
+<span class="sd">        deleted_only: search only for deleted photos</span>
+<span class="sd">        deleted: also include deleted photos</span>
 <span class="sd">        description: list of descriptions to search for</span>
-<span class="sd">        no_description: search for photos with no description</span>
-<span class="sd">        ignore_case: ignore case when searching</span>
+<span class="sd">        duplicate: search for duplicate photos</span>
 <span class="sd">        edited: search for edited photos</span>
+<span class="sd">        exif: search for photos with EXIF tags that matches the given data</span>
 <span class="sd">        external_edit: search for photos edited in external apps</span>
 <span class="sd">        favorite: search for favorite photos</span>
-<span class="sd">        not_favorite: search for non-favorite photos</span>
-<span class="sd">        hidden: search for hidden photos</span>
-<span class="sd">        not_hidden: search for non-hidden photos</span>
-<span class="sd">        missing: search for missing photos</span>
-<span class="sd">        not_missing: search for non-missing photos</span>
-<span class="sd">        shared: search for shared photos</span>
-<span class="sd">        not_shared: search for non-shared photos</span>
-<span class="sd">        photos: search for photos</span>
-<span class="sd">        movies: search for movies</span>
-<span class="sd">        uti: list of UTIs to search for</span>
-<span class="sd">        burst: search for burst photos</span>
-<span class="sd">        not_burst: search for non-burst photos</span>
-<span class="sd">        live: search for live photos</span>
-<span class="sd">        not_live: search for non-live photos</span>
-<span class="sd">        cloudasset: search for photos that are managed by iCloud</span>
-<span class="sd">        not_cloudasset: search for photos that are not managed by iCloud</span>
-<span class="sd">        incloud: search for cloud assets that are synched to iCloud</span>
-<span class="sd">        not_incloud: search for cloud asset photos that are not yet synched to iCloud</span>
+<span class="sd">        folder: list of folder names to search for</span>
 <span class="sd">        from_date: search for photos taken on or after this date</span>
-<span class="sd">        to_date: search for photos taken on or before this date</span>
-<span class="sd">        portrait: search for portrait photos</span>
-<span class="sd">        not_portrait: search for non-portrait photos</span>
-<span class="sd">        screenshot: search for screenshot photos</span>
-<span class="sd">        not_screenshot: search for non-screenshot photos</span>
-<span class="sd">        slow_mo: search for slow-mo photos</span>
-<span class="sd">        not_slow_mo: search for non-slow-mo photos</span>
-<span class="sd">        time_lapse: search for time-lapse photos</span>
-<span class="sd">        not_time_lapse: search for non-time-lapse photos</span>
-<span class="sd">        hdr: search for HDR photos</span>
-<span class="sd">        not_hdr: search for non-HDR photos</span>
-<span class="sd">        selfie: search for selfie photos</span>
-<span class="sd">        not_selfie: search for non-selfie photos</span>
-<span class="sd">        panorama: search for panorama photos</span>
-<span class="sd">        not_panorama: search for non-panorama photos</span>
-<span class="sd">        has_raw: search for photos with associated raw files</span>
-<span class="sd">        place: list of place names to search for</span>
-<span class="sd">        no_place: search for photos with no place</span>
-<span class="sd">        label: list of labels to search for</span>
-<span class="sd">        deleted: also include deleted photos</span>
-<span class="sd">        deleted_only: search only for deleted photos</span>
-<span class="sd">        has_comment: search for photos with comments</span>
-<span class="sd">        no_comment: search for photos with no comments</span>
-<span class="sd">        has_likes: search for shared photos with likes</span>
-<span class="sd">        no_likes: search for shared photos with no likes</span>
-<span class="sd">        is_reference: search for photos stored by reference (that is, they are not managed by Photos)</span>
-<span class="sd">        in_album: search for photos in an album</span>
-<span class="sd">        not_in_album: search for photos not in an album</span>
-<span class="sd">        burst_photos: search for burst photos</span>
-<span class="sd">        missing_bursts: for burst photos, also include burst photos that are missing</span>
-<span class="sd">        name: list of names to search for</span>
-<span class="sd">        min_size: minimum size of photos to search for</span>
-<span class="sd">        max_size: maximum size of photos to search for</span>
-<span class="sd">        regex: list of regular expressions to search for</span>
-<span class="sd">        query_eval: list of query expressions to evaluate</span>
-<span class="sd">        duplicate: search for duplicate photos</span>
-<span class="sd">        location: search for photos with a location</span>
-<span class="sd">        no_location: search for photos with no location</span>
 <span class="sd">        function: list of query functions to evaluate</span>
+<span class="sd">        has_comment: search for photos with comments</span>
+<span class="sd">        has_likes: search for shared photos with likes</span>
+<span class="sd">        has_raw: search for photos with associated raw files</span>
+<span class="sd">        hdr: search for HDR photos</span>
+<span class="sd">        hidden: search for hidden photos</span>
+<span class="sd">        ignore_case: ignore case when searching</span>
+<span class="sd">        in_album: search for photos in an album</span>
+<span class="sd">        incloud: search for cloud assets that are synched to iCloud</span>
+<span class="sd">        is_reference: search for photos stored by reference (that is, they are not managed by Photos)</span>
+<span class="sd">        keyword: list of keywords to search for</span>
+<span class="sd">        label: list of labels to search for</span>
+<span class="sd">        live: search for live photos</span>
+<span class="sd">        location: search for photos with a location</span>
+<span class="sd">        max_size: maximum size of photos to search for</span>
+<span class="sd">        min_size: minimum size of photos to search for</span>
+<span class="sd">        missing_bursts: for burst photos, also include burst photos that are missing</span>
+<span class="sd">        missing: search for missing photos</span>
+<span class="sd">        movies: search for movies</span>
+<span class="sd">        name: list of names to search for</span>
+<span class="sd">        no_comment: search for photos with no comments</span>
+<span class="sd">        no_description: search for photos with no description</span>
+<span class="sd">        no_likes: search for shared photos with no likes</span>
+<span class="sd">        no_location: search for photos with no location</span>
+<span class="sd">        no_place: search for photos with no place</span>
+<span class="sd">        no_title: search for photos with no title</span>
+<span class="sd">        not_burst: search for non-burst photos</span>
+<span class="sd">        not_cloudasset: search for photos that are not managed by iCloud</span>
+<span class="sd">        not_favorite: search for non-favorite photos</span>
+<span class="sd">        not_hdr: search for non-HDR photos</span>
+<span class="sd">        not_hidden: search for non-hidden photos</span>
+<span class="sd">        not_in_album: search for photos not in an album</span>
+<span class="sd">        not_incloud: search for cloud asset photos that are not yet synched to iCloud</span>
+<span class="sd">        not_live: search for non-live photos</span>
+<span class="sd">        not_missing: search for non-missing photos</span>
+<span class="sd">        not_panorama: search for non-panorama photos</span>
+<span class="sd">        not_portrait: search for non-portrait photos</span>
+<span class="sd">        not_screenshot: search for non-screenshot photos</span>
+<span class="sd">        not_selfie: search for non-selfie photos</span>
+<span class="sd">        not_shared: search for non-shared photos</span>
+<span class="sd">        not_slow_mo: search for non-slow-mo photos</span>
+<span class="sd">        not_time_lapse: search for non-time-lapse photos</span>
+<span class="sd">        panorama: search for panorama photos</span>
+<span class="sd">        person: list of person names to search for</span>
+<span class="sd">        photos: search for photos</span>
+<span class="sd">        place: list of place names to search for</span>
+<span class="sd">        portrait: search for portrait photos</span>
+<span class="sd">        query_eval: list of query expressions to evaluate</span>
+<span class="sd">        regex: list of regular expressions to search for</span>
+<span class="sd">        screenshot: search for screenshot photos</span>
 <span class="sd">        selected: search for selected photos</span>
-<span class="sd">        exif: search for photos with EXIF tags that matches the given data</span>
+<span class="sd">        selfie: search for selfie photos</span>
+<span class="sd">        shared: search for shared photos</span>
+<span class="sd">        slow_mo: search for slow-mo photos</span>
+<span class="sd">        time_lapse: search for time-lapse photos</span>
+<span class="sd">        title: list of titles to search for</span>
+<span class="sd">        to_date: search for photos taken on or before this date</span>
+<span class="sd">        uti: list of UTIs to search for</span>
+<span class="sd">        uuid: list of uuids to search for</span>
 <span class="sd">        year: search for photos taken in a given year</span>
-
 <span class="sd">    """</span>
 
-    <span class="n">keyword</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">person</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">added_after</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">added_before</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">added_in_last</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">album</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">folder</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">uuid</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">title</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">no_title</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">burst_photos</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">burst</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">cloudasset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">deleted_only</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">deleted</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">no_description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">ignore_case</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">duplicate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">edited</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">exif</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">external_edit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">favorite</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">not_favorite</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">hidden</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">not_hidden</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">missing</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">not_missing</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">shared</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">not_shared</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">photos</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">movies</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">uti</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">burst</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">not_burst</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">live</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">not_live</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">cloudasset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">not_cloudasset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">incloud</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">not_incloud</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">folder</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">from_date</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">to_date</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">from_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">time</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">to_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">time</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">portrait</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">not_portrait</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">screenshot</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">not_screenshot</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">slow_mo</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">not_slow_mo</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">time_lapse</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">not_time_lapse</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">hdr</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">not_hdr</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">selfie</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">not_selfie</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">panorama</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">not_panorama</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">has_raw</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">place</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">no_place</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">deleted</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">deleted_only</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">has_comment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">no_comment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">has_likes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">no_likes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">is_reference</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">in_album</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">not_in_album</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">burst_photos</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">missing_bursts</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">min_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">bitmath</span><span class="o">.</span><span class="n">Byte</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">max_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">bitmath</span><span class="o">.</span><span class="n">Byte</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">regex</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">query_eval</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">duplicate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">location</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">no_location</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">function</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">callable</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">has_comment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">has_likes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">has_raw</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">hdr</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">hidden</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ignore_case</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">in_album</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">incloud</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">is_reference</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">keyword</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">live</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">location</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">max_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">bitmath</span><span class="o">.</span><span class="n">Byte</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">min_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">bitmath</span><span class="o">.</span><span class="n">Byte</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">missing_bursts</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">missing</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">movies</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">no_comment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">no_description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">no_likes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">no_location</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">no_place</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">no_title</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">not_burst</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">not_cloudasset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">not_favorite</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">not_hdr</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">not_hidden</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">not_in_album</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">not_incloud</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">not_live</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">not_missing</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">not_panorama</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">not_portrait</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">not_screenshot</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">not_selfie</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">not_shared</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">not_slow_mo</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">not_time_lapse</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">panorama</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">person</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">photos</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">place</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">portrait</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">query_eval</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">regex</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">screenshot</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">selected</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">exif</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">selfie</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">shared</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">slow_mo</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">time_lapse</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">title</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">to_date</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">to_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">time</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">uti</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">uuid</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">year</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
