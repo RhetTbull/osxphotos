@@ -380,6 +380,31 @@ def QUERY_OPTIONS(f):
             multiple=True,
             type=int,
         ),
+        o(
+            "--added-before",
+            metavar="DATE",
+            help="Search for items added to the library before a specific date/time, "
+            "e.g. --added-before e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).",
+            type=DateTimeISO8601(),
+        ),
+        o(
+            "--added-after",
+            metavar="DATE",
+            help="Search for items added to the libray after a specific date/time, "
+            "e.g. --added-after e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).",
+            type=DateTimeISO8601(),
+        ),
+        o(
+            "--added-in-last",
+            metavar="TIME_DELTA",
+            help="Search for items added to the library in the last TIME_DELTA, "
+            "where TIME_DELTA is a string like "
+            "'12 hrs', '1 day', '1d', '1 week', '2weeks', '1 month', '1 year'. "
+            "for example, `--added-in-last 7d` and `--added-in-last '1 week'` are equivalent. "
+            "months are assumed to be 30 days and years are assumed to be 365 days. "
+            "Common English abbreviations are accepted, e.g. d, day, days or m, min, minutes.",
+            type=TimeOffset(),
+        ),
         o("--has-comment", is_flag=True, help="Search for photos that have comments."),
         o("--no-comment", is_flag=True, help="Search for photos with no comments."),
         o("--has-likes", is_flag=True, help="Search for photos that have likes."),
@@ -569,4 +594,3 @@ def check_version():
             "to suppress this message and prevent osxphotos from checking for latest version.",
             err=True,
         )
-
