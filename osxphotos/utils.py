@@ -3,6 +3,7 @@
 import datetime
 import fnmatch
 import glob
+import hashlib
 import importlib
 import inspect
 import logging
@@ -29,6 +30,7 @@ __all__ = [
     "expand_and_validate_filepath",
     "get_last_library_path",
     "get_system_library_path",
+    "hexdigest",
     "increment_filename_with_count",
     "increment_filename",
     "lineno",
@@ -517,3 +519,10 @@ def get_latest_version() -> Tuple[Optional[str], str]:
 def pluralize(count, singular, plural):
     """Return singular or plural based on count"""
     return singular if count == 1 else plural
+
+
+def hexdigest(strval: str) -> str:
+    """hexdigest of a string, using blake2b"""
+    h = hashlib.blake2b(digest_size=20)
+    h.update(bytes(strval, "utf-8"))
+    return h.hexdigest()

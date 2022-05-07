@@ -2,13 +2,11 @@
 """
 
 import dataclasses
-import hashlib
 import json
 import logging
 import os
 import pathlib
 import re
-import tempfile
 import typing as t
 from collections import namedtuple  # pylint: disable=syntax-error
 from dataclasses import asdict, dataclass
@@ -45,14 +43,13 @@ from .photokit import (
 from .phototemplate import RenderOptions
 from .rich_utils import add_rich_markup_tag
 from .uti import get_preferred_uti_extension
-from .utils import increment_filename, lineno, list_directory
+from .utils import hexdigest, increment_filename, lineno, list_directory
 
 __all__ = [
     "ExportError",
     "ExportOptions",
     "ExportResults",
     "PhotoExporter",
-    "hexdigest",
     "rename_jpeg_files",
 ]
 
@@ -266,6 +263,7 @@ class ExportResults:
         exported_album=None,
         skipped_album=None,
         missing_album=None,
+        metadata_changed=None,
     ):
         self.exported = exported or []
         self.new = new or []
@@ -292,6 +290,7 @@ class ExportResults:
         self.exported_album = exported_album or []
         self.skipped_album = skipped_album or []
         self.missing_album = missing_album or []
+        self.metadata_changed = metadata_changed or []
 
     def all_files(self):
         """return all filenames contained in results"""
@@ -342,6 +341,7 @@ class ExportResults:
         self.exported_album += other.exported_album
         self.skipped_album += other.skipped_album
         self.missing_album += other.missing_album
+        self.metadata_changed += other.metadata_changed
 
         return self
 
@@ -371,12 +371,14 @@ class ExportResults:
             + f",exported_album={self.exported_album}"
             + f",skipped_album={self.skipped_album}"
             + f",missing_album={self.missing_album}"
+            + f",metadata_changed={self.metadata_changed}"
             + ")"
         )
 
 
 class PhotoExporter:
     """Export a photo"""
+
     def __init__(self, photo: "PhotoInfo", tmpdir: t.Optional[str] = None):
         self.photo = photo
         self._render_options = RenderOptions()
@@ -739,7 +741,7 @@ class PhotoExporter:
             return ShouldUpdate.EDITED_SIG_DIFFERENT
 
         if options.force_update:
-            current_digest = hexdigest(self.photo.json())
+            current_digest = self.photo.hexdigest
             if current_digest != file_record.digest:
                 # metadata in Photos changed, force update
                 return ShouldUpdate.DIGEST_DIFFERENT
@@ -1179,8 +1181,9 @@ class PhotoExporter:
                 rec.dest_sig = fileutil.file_sig(dest)
             if options.exiftool:
                 rec.exifdata = self._exiftool_json_sidecar(options)
-            if options.force_update:
-                rec.digest = hexdigest(photoinfo)
+            if self.photo.hexdigest != rec.digest:
+                results.metadata_changed = [dest_str]
+            rec.digest = self.photo.hexdigest
 
         return results
 
@@ -2009,13 +2012,6 @@ class PhotoExporter:
         f = open(filename, "w")
         f.write(sidecar_str)
         f.close()
-
-
-def hexdigest(strval):
-    """hexdigest of a string, using blake2b"""
-    h = hashlib.blake2b(digest_size=20)
-    h.update(bytes(strval, "utf-8"))
-    return h.hexdigest()
 
 
 def _check_export_suffix(src, dest, edited):
