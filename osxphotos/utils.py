@@ -516,7 +516,7 @@ def get_latest_version() -> Tuple[Optional[str], str]:
         return None, e
 
 
-def pluralize(count, singular, plural):
+def pluralize(count: Optional[int], singular: str, plural: str) -> str:
     """Return singular or plural based on count"""
     return singular if count == 1 else plural
 

@@ -7715,3 +7715,60 @@ def test_export_added_in_last():
         )
         assert result.exit_code == 0
         assert "Exporting" in result.output
+
+
+def test_export_limit():
+    """test export --limit"""
+
+    # Use --added-before so test doesn't break if photos added in the future
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                "--update",
+                "--limit",
+                "20",
+                "--added-before",
+                "2022-05-07",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "limit: 20/20 exported" in result.output
+
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                "--update",
+                "--limit",
+                "20",
+                "--added-before",
+                "2022-05-07",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "limit: 5/20 exported" in result.output
+
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                "--update",
+                "--limit",
+                "20",
+                "--added-before",
+                "2022-05-07",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "limit: 0/20 exported" in result.output
