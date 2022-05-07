@@ -11,6 +11,7 @@ import os
 import os.path
 import pathlib
 from datetime import timedelta, timezone
+from functools import cached_property
 from typing import Optional
 
 import yaml
@@ -54,7 +55,7 @@ from .scoreinfo import ScoreInfo
 from .searchinfo import SearchInfo
 from .text_detection import detect_text
 from .uti import get_preferred_uti_extension, get_uti_for_extension
-from .utils import _get_resource_loc, list_directory
+from .utils import _get_resource_loc, hexdigest, list_directory
 
 __all__ = ["PhotoInfo", "PhotoInfoNone"]
 
@@ -1355,6 +1356,11 @@ class PhotoInfo:
 
             self._exiftool = exiftool
             return self._exiftool
+
+    @cached_property
+    def hexdigest(self):
+        """ "Returns a hexdigest of the photo's data; useful for detecting changes in any property/metadata of the photo"""
+        return hexdigest(self.json())
 
     def detected_text(self, confidence_threshold=TEXT_DETECTION_CONFIDENCE_THRESHOLD):
         """Detects text in photo and returns lists of results as (detected text, confidence)

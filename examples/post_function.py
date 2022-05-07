@@ -50,6 +50,7 @@ def post_function(
     # exported_album: list of tuples of (filename, album_name) for exported files added to album with --add-exported-to-album
     # skipped_album: list of tuples of (filename, album_name) for skipped files added to album with --add-skipped-to-album
     # missing_album: list of tuples of (filename, album_name) for missing files added to album with --add-missing-to-album
+    # metadata_changed: list of filenames that had metadata changes since last export
 
     for filename in results.exported:
         # do your processing here
