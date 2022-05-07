@@ -2981,6 +2981,9 @@ Returns a [ScoreInfo](#scoreinfo) data class object which provides access to the
 
 Returns list of PhotoInfo objects for *possible* duplicates or empty list if no matching duplicates.  Photos are considered possible duplicates if the photo's original file size, date created, height, and width match another those of another photo.  This does not do a byte-for-byte comparison or compute a hash which makes it fast and allows for identification of possible duplicates even if originals are not downloaded from iCloud.  The signature-based approach should be robust enough to match duplicates created either through the "duplicate photo" menu item or imported twice into the library but you should not rely on this 100% for identification of all duplicates.
 
+#### `hexdigest`
+Returns a unique digest of the photo's properties and metadata; useful for detecting changes in any property/metadata of the photo.
+
 #### `json()`
 
 Returns a JSON representation of all photo info.

@@ -1359,7 +1359,8 @@ class PhotoInfo:
 
     @cached_property
     def hexdigest(self):
-        """ "Returns a hexdigest of the photo's data; useful for detecting changes in any property/metadata of the photo"""
+        """Returns a unique digest of the photo's properties and metadata;
+        useful for detecting changes in any property/metadata of the photo"""
         return hexdigest(self.json())
 
     def detected_text(self, confidence_threshold=TEXT_DETECTION_CONFIDENCE_THRESHOLD):
