@@ -55,7 +55,7 @@ from osxphotos.photosalbum import PhotosAlbum
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.queryoptions import QueryOptions
 from osxphotos.uti import get_preferred_uti_extension
-from osxphotos.utils import format_sec_to_hhmmss, normalize_fs_path
+from osxphotos.utils import format_sec_to_hhmmss, normalize_fs_path, pluralize
 
 from .click_rich_echo import (
     rich_click_echo,
@@ -137,6 +137,13 @@ from .verbose import get_verbose_console, time_stamp, verbose_print
     is_flag=True,
     help="If used with --update, ignores any previously exported files, even if missing from "
     "the export folder and only exports new files that haven't previously been exported.",
+)
+@click.option(
+    "--limit",
+    metavar="LIMIT",
+    help="Export at most LIMIT photos. "
+    "Useful for testing. Maybe used with --update to export incrementally.",
+    type=int,
 )
 @click.option(
     "--dry-run",
@@ -730,6 +737,7 @@ def export(
     keyword_template,
     keyword,
     label,
+    limit,
     live,
     load_config,
     location,
@@ -945,6 +953,7 @@ def export(
         keyword = cfg.keyword
         keyword_template = cfg.keyword_template
         label = cfg.label
+        limit = cfg.limit
         live = cfg.live
         location = cfg.location
         max_size = cfg.max_size
@@ -1383,8 +1392,7 @@ def export(
 
     if photos:
         num_photos = len(photos)
-        # TODO: photos or photo appears several times, pull into a separate function
-        photo_str = "photos" if num_photos > 1 else "photo"
+        photo_str = pluralize(num_photos, "photo", "photos")
         rich_echo(
             f"Exporting [num]{num_photos}[/num] {photo_str} to [filepath]{dest}[/]..."
         )
@@ -1412,9 +1420,11 @@ def export(
         )
 
         photo_num = 0
+        num_exported = 0
+        limit_str = f" (limit = [num]{limit}[/num])" if limit else ""
         with rich_progress(console=get_verbose_console(), mock=no_progress) as progress:
             task = progress.add_task(
-                f"Exporting [num]{num_photos}[/] photos", total=num_photos
+                f"Exporting [num]{num_photos}[/] photos{limit_str}", total=num_photos
             )
             for p in photos:
                 photo_num += 1
@@ -1579,7 +1589,17 @@ def export(
 
                 progress.advance(task)
 
-        photo_str_total = "photos" if len(photos) != 1 else "photo"
+                # handle limit
+                if export_results.exported:
+                    # if any photos were exported, increment num_exported used by limit
+                    # limit considers each PhotoInfo object as a single photo even if multiple files are exported
+                    num_exported += 1
+                if limit and num_exported >= limit:
+                    # advance progress to end
+                    progress.advance(task, num_photos - photo_num)
+                    break
+
+        photo_str_total = pluralize(len(photos), "photo", "photos")
         if update or force_update:
             summary = (
                 f"Processed: [num]{len(photos)}[/] {photo_str_total}, "
@@ -1597,6 +1617,8 @@ def export(
         summary += f"error: [num]{len(results.error)}[/]"
         if touch_file:
             summary += f", touched date: [num]{len(results.touched)}[/]"
+        if limit:
+            summary += f", limit: [num]{num_exported}[/]/[num]{limit}[/] exported"
         rich_echo(summary)
         stop_time = time.perf_counter()
         rich_echo(f"Elapsed time: [time]{format_sec_to_hhmmss(stop_time-start_time)}")

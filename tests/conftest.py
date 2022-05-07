@@ -12,7 +12,11 @@ from osxphotos.exiftool import _ExifToolProc
 
 from .test_catalina_10_15_7 import UUID_DICT_LOCAL
 
+# run timewarp tests (configured with --timewarp)
 TEST_TIMEWARP = False
+
+# don't clean up crash logs (configured with --no-cleanup)
+NO_CLEANUP = False
 
 
 def get_os_version():
@@ -68,6 +72,12 @@ def pytest_addoption(parser):
     parser.addoption(
         "--timewarp", action="store_true", default=False, help="run --timewarp tests"
     )
+    parser.addoption(
+        "--no-cleanup",
+        action="store_true",
+        default=False,
+        help="don't clean up crash logs after tests",
+    )
 
 
 def pytest_configure(config):
@@ -81,9 +91,14 @@ def pytest_configure(config):
         "markers", "timewarp: mark test as requiring --timewarp to run"
     )
 
+    # this is hacky but I can't figure out how to check config options in other fixtures
     if config.getoption("--timewarp"):
         global TEST_TIMEWARP
         TEST_TIMEWARP = True
+
+    if config.getoption("--no-cleanup"):
+        global NO_CLEANUP
+        NO_CLEANUP = True
 
 
 def pytest_collection_modifyitems(config, items):
@@ -163,7 +178,7 @@ def delete_crash_logs():
     """Delete left over crash logs from tests that were supposed to crash"""
     yield
     path = pathlib.Path(os.getcwd()) / "osxphotos_crash.log"
-    if path.is_file():
+    if path.is_file() and not NO_CLEANUP:
         path.unlink()
 
 
