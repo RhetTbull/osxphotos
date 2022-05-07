@@ -147,6 +147,11 @@ def QUERY_OPTIONS(f):
             'If more than one keyword, treated as "OR", e.g. find photos matching any keyword',
         ),
         o(
+            "--no-keyword",
+            is_flag=True,
+            help="Search for photos with no keyword.",
+        ),
+        o(
             "--person",
             metavar="PERSON",
             default=None,

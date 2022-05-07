@@ -56,6 +56,7 @@ class QueryOptions:
         no_description: search for photos with no description
         no_likes: search for shared photos with no likes
         no_location: search for photos with no location
+        no_keyword: search for photos with no keywords
         no_place: search for photos with no place
         no_title: search for photos with no title
         not_burst: search for non-burst photos
@@ -136,6 +137,7 @@ class QueryOptions:
     no_description: Optional[bool] = None
     no_likes: Optional[bool] = None
     no_location: Optional[bool] = None
+    no_keyword: Optional[bool] = None
     no_place: Optional[bool] = None
     no_title: Optional[bool] = None
     not_burst: Optional[bool] = None

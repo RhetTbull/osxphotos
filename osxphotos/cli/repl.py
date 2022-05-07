@@ -284,6 +284,7 @@ def _query_options_from_kwargs(**kwargs) -> QueryOptions:
         ("incloud", "not_incloud"),
         ("live", "not_live"),
         ("location", "no_location"),
+        ("keyword", "no_keyword"),
         ("missing", "not_missing"),
         ("only_photos", "only_movies"),
         ("panorama", "not_panorama"),
@@ -301,6 +302,7 @@ def _query_options_from_kwargs(**kwargs) -> QueryOptions:
             all([any(kwargs["title"]), kwargs["no_title"]]),
             all([any(kwargs["description"]), kwargs["no_description"]]),
             all([any(kwargs["place"]), kwargs["no_place"]]),
+            all([any(kwargs["keyword"]), kwargs["no_keyword"]]),
         ]
     ):
         raise IncompatibleQueryOptions

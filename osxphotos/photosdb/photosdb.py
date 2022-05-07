@@ -3076,6 +3076,8 @@ class PhotosDB:
             photos = _get_photos_by_attribute(
                 photos, "keywords", keyword, options.ignore_case
             )
+        elif options.no_keyword:
+            photos = [p for p in photos if not p.keywords]
 
         if person:
             photos = _get_photos_by_attribute(

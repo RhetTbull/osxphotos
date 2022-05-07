@@ -2711,6 +2711,27 @@ def test_query_keyword_4():
     assert len(json_got) == 6
 
 
+def test_query_no_keyword():
+    """Test query --no-keyword"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, PHOTOS_DB_15_7),
+            "--no-keyword",
+            "--added-before",
+            "2022-05-05",
+        ],
+    )
+    assert result.exit_code == 0
+    json_got = json.loads(result.output)
+    assert len(json_got) == 11
+
+
 def test_query_person_1():
     """Test query --person"""
 
@@ -7772,3 +7793,23 @@ def test_export_limit():
         )
         assert result.exit_code == 0
         assert "limit: 0/20 exported" in result.output
+
+def test_export_no_keyword():
+    """test export --no-keyword"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                "--no-keyword",
+                "--added-before",
+                "2022-05-05",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Exporting 11" in result.output

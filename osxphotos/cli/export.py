@@ -749,6 +749,7 @@ def export(
     no_description,
     no_likes,
     no_location,
+    no_keyword,
     no_place,
     no_progress,
     no_title,
@@ -964,6 +965,7 @@ def export(
         no_description = cfg.no_description
         no_likes = cfg.no_likes
         no_location = cfg.no_location
+        no_keyword = cfg.no_keyword
         no_place = cfg.no_place
         no_progress = cfg.no_progress
         no_title = cfg.no_title
@@ -1068,6 +1070,7 @@ def export(
         ("in_album", "not_in_album"),
         ("live", "not_live"),
         ("location", "no_location"),
+        ("keyword", "no_keyword"),
         ("only_photos", "only_movies"),
         ("panorama", "not_panorama"),
         ("place", "no_place"),
@@ -1325,6 +1328,7 @@ def export(
         no_description=no_description,
         no_likes=no_likes,
         no_location=no_location,
+        no_keyword=no_keyword,
         no_place=no_place,
         no_title=no_title,
         not_burst=not_burst,
