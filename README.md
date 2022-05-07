@@ -883,7 +883,7 @@ Options:
                                   export folder and only exports new files that
                                   haven't previously been exported.
   --limit LIMIT                   Export at most LIMIT photos. Useful for
-                                  testing. Maybe used with --update to export
+                                  testing. May be used with --update to export
                                   incrementally.
   --dry-run                       Dry run (test) the export but don't actually
                                   export any files; most useful with --verbose.

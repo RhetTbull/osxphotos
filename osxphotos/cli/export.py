@@ -142,7 +142,7 @@ from .verbose import get_verbose_console, time_stamp, verbose_print
     "--limit",
     metavar="LIMIT",
     help="Export at most LIMIT photos. "
-    "Useful for testing. Maybe used with --update to export incrementally.",
+    "Useful for testing. May be used with --update to export incrementally.",
     type=int,
 )
 @click.option(
