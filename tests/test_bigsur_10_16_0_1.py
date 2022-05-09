@@ -519,6 +519,7 @@ def test_path_derivatives(photosdb):
     derivs = [
         "D05A5FE3-15FB-49A1-A15D-AB3DA6F8B068_1_100_o.jpeg",
         "D05A5FE3-15FB-49A1-A15D-AB3DA6F8B068_1_105_c.jpeg",
+        "D05A5FE3-15FB-49A1-A15D-AB3DA6F8B068_4_5005_c.jpeg",
     ]
     for i, p in enumerate(path):
         assert p.endswith(derivs[i])

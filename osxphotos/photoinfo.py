@@ -893,38 +893,37 @@ class PhotoInfo:
 
         return photopath
 
-    @property
+    @cached_property
     def path_derivatives(self):
         """Return any derivative (preview) images associated with the photo as a list of paths, sorted by file size (largest first)"""
-        try:
-            return self._path_derivatives
-        except AttributeError:
-            if self._db._db_version <= _PHOTOS_4_VERSION:
-                self._path_derivatives = self._path_derivatives_4()
-                return self._path_derivatives
+        if self._db._db_version <= _PHOTOS_4_VERSION:
+            return self._path_derivatives_4()
 
-            directory = self._uuid[0]  # first char of uuid
-            derivative_path = (
-                pathlib.Path(self._db._library_path)
-                / "resources"
-                / "derivatives"
-                / directory
-            )
-            files = derivative_path.glob(f"{self.uuid}*.*")
-            files = sorted(files, reverse=True, key=lambda f: f.stat().st_size)
-            # return list of filename but skip .THM files (these are actually low-res thumbnails in JPEG format but with .THM extension)
-            derivatives = [
-                str(filename) for filename in files if filename.suffix != ".THM"
-            ]
-            if (
-                self.isphoto
-                and len(derivatives) > 1
-                and derivatives[0].endswith(".mov")
-            ):
-                derivatives[1], derivatives[0] = derivatives[0], derivatives[1]
+        if self.shared:
+            return self._path_derivatives_5_shared()
 
-            self._path_derivatives = derivatives
-            return self._path_derivatives
+        directory = self._uuid[0]  # first char of uuid
+        derivative_path = (
+            pathlib.Path(self._db._library_path) / f"resources/derivatives/{directory}"
+        )
+        files = list(derivative_path.glob(f"{self.uuid}*.*"))
+
+        # previews may be missing from derivatives path
+        # there are what appear to be low res thumbnails in the "masters" subfolder
+        thumb_path = (
+            pathlib.Path(self._db._library_path)
+            / f"resources/derivatives/masters/{directory}/{self.uuid}_4_5005_c.jpeg"
+        )
+        if thumb_path.exists():
+            files.append(thumb_path)
+
+        files = sorted(files, reverse=True, key=lambda f: f.stat().st_size)
+        # return list of filename but skip .THM files (these are actually low-res thumbnails in JPEG format but with .THM extension)
+        derivatives = [str(filename) for filename in files if filename.suffix != ".THM"]
+        if self.isphoto and len(derivatives) > 1 and derivatives[0].endswith(".mov"):
+            derivatives[1], derivatives[0] = derivatives[0], derivatives[1]
+
+        return derivatives
 
     def _path_derivatives_4(self):
         """Return paths to all derivative (preview) files for Photos <= 4"""
@@ -934,10 +933,7 @@ class PhotoInfo:
         folder_id, file_id = _get_resource_loc(modelid)
         derivatives_root = (
             pathlib.Path(self._db._library_path)
-            / "resources"
-            / "proxies"
-            / "derivatives"
-            / folder_id
+            / f"resources/proxies/derivatives/{folder_id}"
         )
 
         # photos appears to usually be in "00" subfolder but
@@ -960,6 +956,19 @@ class PhotoInfo:
                     return [str(filename) for filename in files]
 
         # didn't find a derivatives path
+        return []
+
+    def _path_derivatives_5_shared(self):
+        """Return paths to all derivative (preview) files for shared iCloud photos in Photos >= 5"""
+        directory = self._uuid[0]  # first char of uuid
+        # only 1 derivative for shared photos and it's called 'UUID_4_5005_c.jpeg'
+        derivative_path = (
+            pathlib.Path(self._db._library_path)
+            / "resources/cloudsharing/resources/derivatives/masters"
+            / f"{directory}/{self.uuid}_4_5005_c.jpeg"
+        )
+        if derivative_path.exists():
+            return [str(derivative_path)]
         return []
 
     @property
