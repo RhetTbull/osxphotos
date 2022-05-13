@@ -25,6 +25,7 @@ if OS_VER == "15":
     from tests.config_timewarp_catalina import CATALINA_PHOTOS_5 as TEST_DATA
 
 else:
+    pytest.skip(allow_module_level=True)
     TEST_DATA = {}
 
 
