@@ -5478,7 +5478,7 @@ def test_export_report():
             [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--report", "report.csv"],
         )
         assert result.exit_code == 0
-        assert "Writing export report" in result.output
+        assert "Wrote export report" in result.output
         assert os.path.exists("report.csv")
 
 
@@ -5500,7 +5500,7 @@ def test_export_report_template():
             ],
         )
         assert result.exit_code == 0
-        assert "Writing export report" in result.output
+        assert "Wrote export report" in result.output
         assert os.path.exists(f"report_{__version__}.csv")
 
 

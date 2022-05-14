@@ -86,6 +86,7 @@ from .common import (
 from .help import ExportCommand, get_help_msg
 from .list import _list_libraries
 from .param_types import ExportDBType, FunctionCall, TemplateString
+from .report_writer import report_writer_factory, ReportWriterNoOp
 from .rich_progress import rich_progress
 from .verbose import get_verbose_console, time_stamp, verbose_print
 
@@ -1154,6 +1155,9 @@ def export(
 
     if report:
         report = render_and_validate_report(report, exiftool_path, dest)
+        report_writer = report_writer_factory(report, False)
+    else:
+        report_writer = ReportWriterNoOp()
 
     # if use_photokit and not check_photokit_authorization():
     #     click.echo(
@@ -1575,6 +1579,8 @@ def export(
                         export_dir=dest,
                         verbose_=verbose_,
                     )
+                    export_results.xattr_written.extend(tags_written)
+                    export_results.xattr_skipped.extend(tags_skipped)
                     results.xattr_written.extend(tags_written)
                     results.xattr_skipped.extend(tags_skipped)
 
@@ -1587,8 +1593,12 @@ def export(
                         export_dir=dest,
                         verbose_=verbose_,
                     )
+                    export_results.xattr_written.extend(xattr_written)
+                    export_results.xattr_skipped.extend(xattr_skipped)
                     results.xattr_written.extend(xattr_written)
                     results.xattr_skipped.extend(xattr_skipped)
+
+                report_writer.write(export_results)
 
                 progress.advance(task)
 
@@ -1661,30 +1671,21 @@ def export(
         rich_echo(
             f"Deleted: [num]{len(cleaned_files)}[/num] {file_str}, [num]{len(cleaned_dirs)}[/num] {dir_str}"
         )
+        report_writer.write(
+            ExportResults(deleted_files=cleaned_files, deleted_directories=cleaned_dirs)
+        )
         results.deleted_files = cleaned_files
         results.deleted_directories = cleaned_dirs
 
     if report:
-        verbose_(f"Writing export report to [filepath]{report}")
-        write_export_report(report, results)
+        verbose_(f"Wrote export report to [filepath]{report}")
+        report_writer.close()
 
     # close export_db and write changes if needed
     if ramdb and not dry_run:
         verbose_(f"Writing export database changes back to [filepath]{export_db.path}")
         export_db.write_to_disk()
     export_db.close()
-
-
-def _export_with_profiler(args: Dict):
-    """ "Run export with cProfile"""
-    try:
-        args.pop("profile")
-    except KeyError:
-        pass
-
-    cProfile.runctx(
-        "_export(**args)", globals=globals(), locals=locals(), sort="tottime"
-    )
 
 
 def export_photo(
@@ -2436,150 +2437,6 @@ def find_files_in_branch(pathname, filename):
     return files
 
 
-def write_export_report(report_file, results):
-
-    """write CSV report with results from export
-
-    Args:
-        report_file: path to report file
-        results: ExportResults object
-    """
-
-    # Collect results for reporting
-    all_results = {
-        result: {
-            "filename": result,
-            "exported": 0,
-            "new": 0,
-            "updated": 0,
-            "skipped": 0,
-            "exif_updated": 0,
-            "touched": 0,
-            "converted_to_jpeg": 0,
-            "sidecar_xmp": 0,
-            "sidecar_json": 0,
-            "sidecar_exiftool": 0,
-            "missing": 0,
-            "error": "",
-            "exiftool_warning": "",
-            "exiftool_error": "",
-            "extended_attributes_written": 0,
-            "extended_attributes_skipped": 0,
-            "cleanup_deleted_file": 0,
-            "cleanup_deleted_directory": 0,
-            "exported_album": "",
-        }
-        for result in results.all_files()
-        + results.deleted_files
-        + results.deleted_directories
-    }
-
-    for result in results.exported:
-        all_results[result]["exported"] = 1
-
-    for result in results.new:
-        all_results[result]["new"] = 1
-
-    for result in results.updated:
-        all_results[result]["updated"] = 1
-
-    for result in results.skipped:
-        all_results[result]["skipped"] = 1
-
-    for result in results.exif_updated:
-        all_results[result]["exif_updated"] = 1
-
-    for result in results.touched:
-        all_results[result]["touched"] = 1
-
-    for result in results.converted_to_jpeg:
-        all_results[result]["converted_to_jpeg"] = 1
-
-    for result in results.sidecar_xmp_written:
-        all_results[result]["sidecar_xmp"] = 1
-        all_results[result]["exported"] = 1
-
-    for result in results.sidecar_xmp_skipped:
-        all_results[result]["sidecar_xmp"] = 1
-        all_results[result]["skipped"] = 1
-
-    for result in results.sidecar_json_written:
-        all_results[result]["sidecar_json"] = 1
-        all_results[result]["exported"] = 1
-
-    for result in results.sidecar_json_skipped:
-        all_results[result]["sidecar_json"] = 1
-        all_results[result]["skipped"] = 1
-
-    for result in results.sidecar_exiftool_written:
-        all_results[result]["sidecar_exiftool"] = 1
-        all_results[result]["exported"] = 1
-
-    for result in results.sidecar_exiftool_skipped:
-        all_results[result]["sidecar_exiftool"] = 1
-        all_results[result]["skipped"] = 1
-
-    for result in results.missing:
-        all_results[result]["missing"] = 1
-
-    for result in results.error:
-        all_results[result[0]]["error"] = result[1]
-
-    for result in results.exiftool_warning:
-        all_results[result[0]]["exiftool_warning"] = result[1]
-
-    for result in results.exiftool_error:
-        all_results[result[0]]["exiftool_error"] = result[1]
-
-    for result in results.xattr_written:
-        all_results[result]["extended_attributes_written"] = 1
-
-    for result in results.xattr_skipped:
-        all_results[result]["extended_attributes_skipped"] = 1
-
-    for result in results.deleted_files:
-        all_results[result]["cleanup_deleted_file"] = 1
-
-    for result in results.deleted_directories:
-        all_results[result]["cleanup_deleted_directory"] = 1
-
-    for result, album in results.exported_album:
-        all_results[result]["exported_album"] = album
-
-    report_columns = [
-        "filename",
-        "exported",
-        "new",
-        "updated",
-        "skipped",
-        "exif_updated",
-        "touched",
-        "converted_to_jpeg",
-        "sidecar_xmp",
-        "sidecar_json",
-        "sidecar_exiftool",
-        "missing",
-        "error",
-        "exiftool_warning",
-        "exiftool_error",
-        "extended_attributes_written",
-        "extended_attributes_skipped",
-        "cleanup_deleted_file",
-        "cleanup_deleted_directory",
-        "exported_album",
-    ]
-
-    try:
-        with open(report_file, "w") as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=report_columns)
-            writer.writeheader()
-            for data in [result for result in all_results.values()]:
-                writer.writerow(data)
-    except IOError:
-        rich_echo_error("[error]Could not open output file for writing"),
-        sys.exit(1)
-
-
 def cleanup_files(dest_path, files_to_keep, fileutil, verbose_):
     """cleanup dest_path by deleting and files and empty directories
         not in files_to_keep
@@ -2855,3 +2712,15 @@ def render_and_validate_report(report: str, exiftool_path: str, export_dir: str)
         sys.exit(1)
 
     return report
+
+
+# def _export_with_profiler(args: Dict):
+#     """ "Run export with cProfile"""
+#     try:
+#         args.pop("profile")
+#     except KeyError:
+#         pass
+
+#     cProfile.runctx(
+#         "_export(**args)", globals=globals(), locals=locals(), sort="tottime"
+#     )
