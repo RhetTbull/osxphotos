@@ -1,13 +1,13 @@
 """ Custom template system for osxphotos, implements metadata template language (MTL) """
 
+
 import datetime
-import json
 import locale
-import logging
 import os
 import pathlib
 import shlex
 import sys
+from contextlib import suppress
 from dataclasses import dataclass
 from typing import Optional
 
@@ -419,7 +419,7 @@ class PhotoTemplate:
         try:
             model = self.parser.parse(template)
         except TextXSyntaxError as e:
-            raise ValueError(f"SyntaxError: {e}")
+            raise ValueError(f"SyntaxError: {e}") from e
 
         if not model:
             # empty string
@@ -612,10 +612,12 @@ class PhotoTemplate:
                                 break
                         if match:
                             break
-                    if (match and not negation) or (negation and not match):
-                        return ["True"]
-                    else:
-                        return []
+
+                    return (
+                        ["True"]
+                        if (match and not negation) or (negation and not match)
+                        else []
+                    )
 
                 def comparison_test(test_function):
                     """Perform numerical comparisons using test_function; closure to capture conditional_val, vals, negation"""
@@ -627,14 +629,16 @@ class PhotoTemplate:
                         match = bool(
                             test_function(float(vals[0]), float(conditional_value[0]))
                         )
-                        if (match and not negation) or (negation and not match):
-                            return ["True"]
-                        else:
-                            return []
+
+                        return (
+                            ["True"]
+                            if (match and not negation) or (negation and not match)
+                            else []
+                        )
                     except ValueError as e:
                         raise ValueError(
                             f"comparison operators may only be used with values that can be converted to numbers: {vals} {conditional_value}"
-                        )
+                        ) from e
 
                 if operator in ["contains", "matches", "startswith", "endswith"]:
                     # process any "or" values separated by "|"
@@ -722,9 +726,6 @@ class PhotoTemplate:
             ValueError if no rule exists for field.
         """
 
-        if self.photo.uuid is None:
-            return []
-
         # initialize today with current date/time if needed
         if self.today is None:
             self.today = datetime.datetime.now()
@@ -732,7 +733,50 @@ class PhotoTemplate:
         value = None
 
         # wouldn't a switch/case statement be nice...
-        if field == "name":
+        # handle the fields that don't require a PhotoInfo object first
+        if field == "today.date":
+            value = DateTimeFormatter(self.today).date
+        elif field == "today.year":
+            value = DateTimeFormatter(self.today).year
+        elif field == "today.yy":
+            value = DateTimeFormatter(self.today).yy
+        elif field == "today.mm":
+            value = DateTimeFormatter(self.today).mm
+        elif field == "today.month":
+            value = DateTimeFormatter(self.today).month
+        elif field == "today.mon":
+            value = DateTimeFormatter(self.today).mon
+        elif field == "today.dd":
+            value = DateTimeFormatter(self.today).dd
+        elif field == "today.dow":
+            value = DateTimeFormatter(self.today).dow
+        elif field == "today.doy":
+            value = DateTimeFormatter(self.today).doy
+        elif field == "today.hour":
+            value = DateTimeFormatter(self.today).hour
+        elif field == "today.min":
+            value = DateTimeFormatter(self.today).min
+        elif field == "today.sec":
+            value = DateTimeFormatter(self.today).sec
+        elif field == "today.strftime":
+            if default:
+                try:
+                    value = self.today.strftime(default[0])
+                except:
+                    raise ValueError(f"Invalid strftime template: '{default}'")
+            else:
+                value = None
+        elif field in PUNCTUATION:
+            value = PUNCTUATION[field]
+        elif field == "osxphotos_version":
+            value = __version__
+        elif field == "osxphotos_cmd_line":
+            value = " ".join(sys.argv)
+        elif self.photo.uuid is None:
+            # if no uuid, don't have a PhotoInfo object (could be PhotoInfoNone)
+            # so don't try to handle any of the photo fields
+            return []
+        elif field == "name":
             value = pathlib.Path(self.photo.filename).stem
         elif field == "original_name":
             value = pathlib.Path(self.photo.original_filename).stem
@@ -865,38 +909,6 @@ class PhotoTemplate:
                     raise ValueError(f"Invalid strftime template: '{default}'")
             else:
                 value = None
-        elif field == "today.date":
-            value = DateTimeFormatter(self.today).date
-        elif field == "today.year":
-            value = DateTimeFormatter(self.today).year
-        elif field == "today.yy":
-            value = DateTimeFormatter(self.today).yy
-        elif field == "today.mm":
-            value = DateTimeFormatter(self.today).mm
-        elif field == "today.month":
-            value = DateTimeFormatter(self.today).month
-        elif field == "today.mon":
-            value = DateTimeFormatter(self.today).mon
-        elif field == "today.dd":
-            value = DateTimeFormatter(self.today).dd
-        elif field == "today.dow":
-            value = DateTimeFormatter(self.today).dow
-        elif field == "today.doy":
-            value = DateTimeFormatter(self.today).doy
-        elif field == "today.hour":
-            value = DateTimeFormatter(self.today).hour
-        elif field == "today.min":
-            value = DateTimeFormatter(self.today).min
-        elif field == "today.sec":
-            value = DateTimeFormatter(self.today).sec
-        elif field == "today.strftime":
-            if default:
-                try:
-                    value = self.today.strftime(default[0])
-                except:
-                    raise ValueError(f"Invalid strftime template: '{default}'")
-            else:
-                value = None
         elif field == "place.name":
             value = self.photo.place.name if self.photo.place else None
         elif field == "place.country_code":
@@ -982,33 +994,25 @@ class PhotoTemplate:
         elif field == "id":
             value = format_str_value(self.photo._info["pk"], subfield)
         elif field.startswith("album_seq") or field.startswith("folder_album_seq"):
-            dest_path = self.dest_path
-            if not dest_path:
-                value = None
-            else:
+            if dest_path := self.dest_path:
                 if field.startswith("album_seq"):
                     album = pathlib.Path(dest_path).name
                     album_info = _get_album_by_name(self.photo, album)
                 else:
                     album_info = _get_album_by_path(self.photo, dest_path)
                 value = album_info.photo_index(self.photo) if album_info else None
+            else:
+                value = None
             if value is not None:
-                try:
+                with suppress(IndexError):
                     start_id = field.split(".", 1)
                     value = int(value) + int(start_id[1])
-                except IndexError:
-                    pass
                 value = format_str_value(value, subfield)
-        elif field in PUNCTUATION:
-            value = PUNCTUATION[field]
-        elif field == "osxphotos_version":
-            value = __version__
-        elif field == "osxphotos_cmd_line":
-            value = " ".join(sys.argv)
         else:
             # if here, didn't get a match
             raise ValueError(f"Unhandled template value: {field}")
 
+        # sanitize filename or directory name if needed
         if self.filename:
             value = sanitize_pathpart(value)
         elif self.dirname:
@@ -1038,8 +1042,8 @@ class PhotoTemplate:
         field_value = None
         try:
             field_value = getattr(self, field_stem)
-        except AttributeError:
-            raise ValueError(f"Unknown path-like field: {field_stem}")
+        except AttributeError as e:
+            raise ValueError(f"Unknown path-like field: {field_stem}") from e
 
         value = _get_pathlib_value(field, field_value, self.quote)
 
@@ -1083,14 +1087,14 @@ class PhotoTemplate:
                 value = ["{" + values + "}"] if values else []
         elif filter_ == "parens":
             if values and type(values) == list:
-                value = ["(" + v + ")" for v in values]
+                value = [f"({v})" for v in values]
             else:
-                value = ["(" + values + ")"] if values else []
+                value = [f"({values})"] if values else []
         elif filter_ == "brackets":
             if values and type(values) == list:
-                value = ["[" + v + "]" for v in values]
+                value = [f"[{v}]" for v in values]
             else:
-                value = ["[" + values + "]"] if values else []
+                value = [f"[{values}]"] if values else []
         elif filter_ == "shell_quote":
             if values and type(values) == list:
                 value = [shlex.quote(v) for v in values]
@@ -1406,7 +1410,7 @@ def get_template_field_table():
         *TEMPLATE_SUBSTITUTIONS_MULTI_VALUED.items(),
     ]:
         # replace '|' with '\|' to avoid markdown parsing issues (e.g. in {pipe} description)
-        descr = descr.replace("'|'", "'\|'")
+        descr = descr.replace("'|'", r"'\|'")
         template_table += f"\n|{subst}|{descr}|"
     return template_table
 

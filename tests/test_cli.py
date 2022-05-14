@@ -19,6 +19,7 @@ from click.testing import CliRunner
 from osxmetadata import OSXMetaData, Tag
 
 import osxphotos
+from osxphotos._version import __version__
 from osxphotos._constants import OSXPHOTOS_EXPORT_DB
 from osxphotos.cli import (
     about,
@@ -5481,6 +5482,28 @@ def test_export_report():
         assert os.path.exists("report.csv")
 
 
+def test_export_report_template():
+    """test export with --report option with a template for report name"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--report",
+                "report_{osxphotos_version}.csv",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Writing export report" in result.output
+        assert os.path.exists(f"report_{__version__}.csv")
+
+
 def test_export_report_not_a_file():
     """test export with --report option and bad report value"""
 
@@ -5492,7 +5515,7 @@ def test_export_report_not_a_file():
             export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--report", "."]
         )
         assert result.exit_code != 0
-        assert "report is a directory, must be file name" in result.output
+        assert "is a directory, must be file name" in result.output
 
 
 def test_export_as_hardlink_download_missing():
@@ -7793,6 +7816,7 @@ def test_export_limit():
         )
         assert result.exit_code == 0
         assert "limit: 0/20 exported" in result.output
+
 
 def test_export_no_keyword():
     """test export --no-keyword"""

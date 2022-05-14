@@ -1,7 +1,6 @@
 """ Helper class for managing database used by PhotoExporter for tracking state of exports and updates """
 
 
-import contextlib
 import datetime
 import json
 import logging
@@ -9,6 +8,7 @@ import os
 import pathlib
 import sqlite3
 import sys
+from contextlib import suppress
 from io import StringIO
 from sqlite3 import Error
 from tempfile import TemporaryDirectory
@@ -367,7 +367,7 @@ class ExportDB:
 
     def __del__(self):
         """ensure the database connection is closed"""
-        with contextlib.suppress(Exception):
+        with suppress(Exception):
             self._conn.close()
 
     def _insert_run_info(self):
@@ -681,7 +681,7 @@ class ExportDBInMemory(ExportDB):
 
     def __del__(self):
         """close the database connection"""
-        with contextlib.suppress(Error):
+        with suppress(Error):
             self.close()
 
 

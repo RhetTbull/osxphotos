@@ -47,6 +47,7 @@ from osxphotos.export_db import ExportDB, ExportDBInMemory
 from osxphotos.fileutil import FileUtil, FileUtilNoOp
 from osxphotos.path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
 from osxphotos.photoexporter import ExportOptions, ExportResults, PhotoExporter
+from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.photokit import (
     check_photokit_authorization,
     request_photokit_authorization,
@@ -513,8 +514,10 @@ from .verbose import get_verbose_console, time_stamp, verbose_print
 @click.option(
     "--report",
     metavar="REPORT_FILE",
-    help="Write a CSV formatted report of all files that were exported.",
-    type=click.Path(),
+    help="Write a CSV formatted report of all files that were exported. "
+    "REPORT_FILE may be a template string (see Templating System), for example, "
+    "--report 'export_{today.date}.csv' will write a report file named with today's date.",
+    type=TemplateString(),
 )
 @click.option(
     "--cleanup",
@@ -1149,12 +1152,8 @@ def export(
 
     dest = str(pathlib.Path(dest).resolve())
 
-    if report and os.path.isdir(report):
-        rich_click_echo(
-            f"[error]report is a directory, must be file name",
-            err=True,
-        )
-        sys.exit(1)
+    if report:
+        report = render_and_validate_report(report, exiftool_path, dest)
 
     # if use_photokit and not check_photokit_authorization():
     #     click.echo(
@@ -2826,3 +2825,33 @@ def run_post_command(
                             rich_echo_error(
                                 f'[error]Error running command "{command}": {run_error}'
                             )
+
+
+def render_and_validate_report(report: str, exiftool_path: str, export_dir: str) -> str:
+    """Render a report file template and validate the filename
+
+    Args:
+        report: the template string
+        exiftool_path: the path to the exiftool binary
+        export_dir: the export directory
+
+    Returns:
+        the rendered report filename
+
+    Note:
+        Exits with error if the report filename is invalid
+    """
+    # render report template and validate the filename
+    template = PhotoTemplate(PhotoInfoNone(), exiftool_path=exiftool_path)
+    render_options = RenderOptions(export_dir=export_dir)
+    report_file, _ = template.render(report, options=render_options)
+    report = report_file[0]
+
+    if os.path.isdir(report):
+        rich_click_echo(
+            f"[error]Report '{report}' is a directory, must be file name",
+            err=True,
+        )
+        sys.exit(1)
+
+    return report

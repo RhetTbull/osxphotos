@@ -84,8 +84,7 @@ def terminate_exiftool():
 @lru_cache(maxsize=1)
 def get_exiftool_path():
     """return path of exiftool, cache result"""
-    exiftool_path = shutil.which("exiftool")
-    if exiftool_path:
+    if exiftool_path := shutil.which("exiftool"):
         return exiftool_path.rstrip()
     else:
         raise FileNotFoundError(
