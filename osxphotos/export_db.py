@@ -2,17 +2,20 @@
 
 
 import datetime
+import gzip
 import json
 import logging
 import os
 import pathlib
+import pickle
 import sqlite3
 import sys
+import time
 from contextlib import suppress
 from io import StringIO
 from sqlite3 import Error
 from tempfile import TemporaryDirectory
-from typing import Optional, Tuple, Union
+from typing import Any, Optional, Tuple, Union
 
 from tenacity import retry, stop_after_attempt
 
@@ -27,11 +30,41 @@ __all__ = [
     "ExportDBTemp",
 ]
 
-OSXPHOTOS_EXPORTDB_VERSION = "6.0"
+OSXPHOTOS_EXPORTDB_VERSION = "7.0"
 OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
 
 # max retry attempts for methods which use tenacity.retry
 MAX_RETRY_ATTEMPTS = 5
+
+# maximum number of export results rows to save
+MAX_EXPORT_RESULTS_DATA_ROWS = 10
+
+
+def pickle_and_zip(data: Any) -> bytes:
+    """
+    Pickle and gzip data.
+
+    Args:
+        data: data to pickle and gzip (must be pickle-able)
+
+    Returns:
+        bytes of gzipped pickled data
+    """
+    pickled = pickle.dumps(data)
+    return gzip.compress(pickled)
+
+
+def unzip_and_unpickle(data: bytes) -> Any:
+    """
+    Unzip and unpickle data.
+
+    Args:
+        data: data to unzip and unpickle
+
+    Returns:
+        unpickled data
+    """
+    return pickle.loads(gzip.decompress(data))
 
 
 class ExportDB:
@@ -191,6 +224,63 @@ class ExportDB:
             conn.commit()
         except Error as e:
             logging.warning(e)
+
+    def set_export_results(self, results):
+        """Store export results in database; data is pickled and gzipped for storage"""
+
+        results_data = pickle_and_zip(results)
+
+        conn = self._conn
+        try:
+            dt = datetime.datetime.now().isoformat()
+            c = conn.cursor()
+            c.execute(
+                """
+                UPDATE export_results_data
+                SET datetime = ?,
+                    export_results = ?
+                WHERE datetime = (SELECT MIN(datetime) FROM export_results_data);
+                """,
+                (dt, results_data),
+            )
+            conn.commit()
+        except Error as e:
+            logging.warning(e)
+
+    def get_export_results(self, run: int = 0):
+        """Retrieve export results from database
+
+        Args:
+            run: which run to retrieve results for;
+            0 = most recent run, -1 = previous run, -2 = run prior to that, etc.
+
+        Returns:
+            ExportResults object or None if no results found
+        """
+        if run > 0:
+            raise ValueError("run must be 0 or negative")
+        run = -run
+
+        conn = self._conn
+        try:
+            c = conn.cursor()
+            c.execute(
+                """
+                SELECT export_results
+                FROM export_results_data
+                ORDER BY datetime DESC
+                """,
+            )
+            rows = c.fetchall()
+            try:
+                data = rows[run][0]
+                results = unzip_and_unpickle(data) if data else None
+            except IndexError:
+                results = None
+        except Error as e:
+            logging.warning(e)
+            results = None
+        return results
 
     def close(self):
         """close the database connection"""
@@ -361,6 +451,10 @@ class ExportDB:
         if version[1] < "6.0":
             # create export_data table
             self._migrate_5_0_to_6_0(conn)
+
+        if version[1] < "7.0":
+            # create report_data table
+            self._migrate_6_0_to_7_0(conn)
 
         conn.execute("VACUUM;")
         conn.commit()
@@ -556,6 +650,29 @@ class ExportDB:
         except Error as e:
             logging.warning(e)
 
+    def _migrate_6_0_to_7_0(self, conn):
+        try:
+            c = conn.cursor()
+            c.execute(
+                """CREATE TABLE IF NOT EXISTS export_results_data (
+                        id INTEGER PRIMARY KEY,
+                        datetime TEXT,
+                        export_results BLOB
+                );"""
+            )
+            # pre-populate report_data table with blank fields
+            # ExportDB will use these as circular buffer always writing to the oldest record
+            for _ in range(MAX_EXPORT_RESULTS_DATA_ROWS):
+                c.execute(
+                    """INSERT INTO export_results_data (datetime, export_results) VALUES (?, ?);""",
+                    (datetime.datetime.now().isoformat(), b""),
+                )
+                # sleep a tiny bit just to ensure time stamps increment
+                time.sleep(0.001)
+            conn.commit()
+        except Error as e:
+            logging.warning(e)
+
     def _perform_db_maintenace(self, conn):
         """Perform database maintenance"""
         try:
@@ -630,7 +747,7 @@ class ExportDBInMemory(ExportDB):
         except Error as e:
             logging.warning(e)
 
-    def _open_export_db(self, dbfile):
+    def _open_export_db(self, dbfile):  # sourcery skip: raise-specific-error
         """open export database and return a db connection
         returns: connection to the database
         """
@@ -932,6 +1049,10 @@ class ExportRecord:
             "exifdata": exifdata,
             "photoinfo": photoinfo,
         }
+
+    def json(self, indent=None):
+        """Return json of self"""
+        return json.dumps(self.asdict(), indent=indent)
 
     def __enter__(self):
         self._context_manager = True

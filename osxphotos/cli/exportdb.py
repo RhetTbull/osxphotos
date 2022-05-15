@@ -8,7 +8,11 @@ from rich import print
 
 from osxphotos._constants import OSXPHOTOS_EXPORT_DB
 from osxphotos._version import __version__
-from osxphotos.export_db import OSXPHOTOS_EXPORTDB_VERSION, ExportDB
+from osxphotos.export_db import (
+    MAX_EXPORT_RESULTS_DATA_ROWS,
+    OSXPHOTOS_EXPORTDB_VERSION,
+    ExportDB,
+)
 from osxphotos.export_db_utils import (
     export_db_check_signatures,
     export_db_get_last_run,
@@ -20,6 +24,9 @@ from osxphotos.export_db_utils import (
 )
 
 from .common import OSXPHOTOS_HIDDEN
+from .export import render_and_validate_report
+from .param_types import TemplateString
+from .report_writer import report_writer_factory
 from .verbose import verbose_print
 
 
@@ -58,6 +65,23 @@ from .verbose import verbose_print
     help="Print information about FILE_PATH contained in the database.",
 )
 @click.option(
+    "--report",
+    metavar="REPORT_FILE RUN_ID",
+    help="Generate an export report as `osxphotos export ... --report REPORT_FILE` would have done. "
+    "This allows you to re-create an export report if you didn't use the --report option "
+    "when running `osxphotos export`. "
+    "The extension of the report file is used to determine the format. "
+    "Valid extensions are: "
+    ".csv (CSV file), .json (JSON), .db and .sqlite (SQLite database). "
+    f"RUN_ID may be any integer from {-MAX_EXPORT_RESULTS_DATA_ROWS} to 0 specifying which run to use. "
+    "For example, `--report report.csv 0` will generate a CSV report for the last run and "
+    "`--report report.json -1` will generate a JSON report for the second-to-last run "
+    "(one run prior to last run). "
+    "REPORT_FILE may be a template string (see Templating System), for example, "
+    "--report 'export_{today.date}.csv' will write a CSV report file named with today's date. ",
+    type=(TemplateString(), click.IntRange(-MAX_EXPORT_RESULTS_DATA_ROWS, 0)),
+)
+@click.option(
     "--migrate",
     is_flag=True,
     help="Migrate (if needed) export database to current version.",
@@ -88,6 +112,7 @@ def exportdb(
     last_run,
     save_config,
     info,
+    report,
     migrate,
     sql,
     export_dir,
@@ -112,15 +137,20 @@ def exportdb(
     export_dir = export_dir or export_db.parent
 
     sub_commands = [
-        version,
-        check_signatures,
-        update_signatures,
-        touch_file,
-        last_run,
-        bool(save_config),
-        bool(info),
-        migrate,
-        bool(sql),
+        bool(cmd)
+        for cmd in [
+            check_signatures,
+            info,
+            last_run,
+            migrate,
+            report,
+            save_config,
+            sql,
+            touch_file,
+            update_signatures,
+            vacuum,
+            version,
+        ]
     ]
     if sum(sub_commands) > 1:
         print("[red]Only a single sub-command may be specified at a time[/red]")
@@ -221,10 +251,28 @@ def exportdb(
             sys.exit(1)
         else:
             if info_rec:
-                print(info_rec.asdict())
+                print(info_rec.json(indent=2))
             else:
                 print(f"[red]File '{info}' not found in export database[/red]")
             sys.exit(0)
+
+    if report:
+        exportdb = ExportDB(export_db, export_dir)
+        report_template, run_id = report
+        report_filename = render_and_validate_report(report_template, "", export_dir)
+        export_results = exportdb.get_export_results(run_id)
+        if not export_results:
+            print(f"[red]No report results found for run ID {run_id}[/red]")
+            sys.exit(1)
+        try:
+            report_writer = report_writer_factory(report_filename)
+        except ValueError as e:
+            print(f"[red]Error: {e}[/red]")
+            sys.exit(1)
+        report_writer.write(export_results)
+        report_writer.close()
+        print(f"Wrote report to {report_filename}")
+        sys.exit(0)
 
     if migrate:
         exportdb = ExportDB(export_db, export_dir)

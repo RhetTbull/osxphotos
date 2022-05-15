@@ -2103,6 +2103,7 @@ Attributes:
 
 `ExportResults` has the following properties:
 
+* datetime: date/time of export in ISO 8601 format
 * exported: list of all exported files (A single call to export could export more than one file, e.g. original file, preview, live video, raw, etc.)
 * new: list of new files exported when used with update=True
 * updated: list of updated files when used with update=True
