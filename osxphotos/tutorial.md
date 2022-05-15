@@ -158,7 +158,7 @@ Photos tracks a tremendous amount of metadata associated with photos in the libr
 
 `osxphotos export /path/to/export --exiftool`
 
-This will write basic metadata such as keywords, persons, and GPS location to the exported files.  osxphotos includes several additional options that can be used in conjunction with `--exiftool` to modify the metadata that is written by `exiftool`. For example, you can use the `--keyword-template` option to specify custom keywords (again, via the osxphotos template system).  For example, to use the folder and album a photo is in to create hierarchal keywords in the format used by Lightroom Classic:
+This will write basic metadata such as keywords, persons, and GPS location to the exported files.  osxphotos includes several additional options that can be used in conjunction with `--exiftool` to modify the metadata that is written by `exiftool`. For example, you can use the `--keyword-template` option to specify custom keywords (again, via the osxphotos template system).  For example, to use the folder and album a photo is in to create hierarchical keywords in the format used by Lightroom Classic:
 
     osxphotos export /path/to/export --exiftool --keyword-template "{folder_album(>)}"
                                                                      │            │
@@ -170,7 +170,7 @@ This will write basic metadata such as keywords, persons, and GPS location to th
                            for joining the folders and albums.  For example, 
                            if photo is in Folder1/Folder2/Album, (>) produces
                            "Folder1>Folder2>Album" which some programs, such as
-                           Lightroom Classic, treat as hierarchal keywords
+                           Lightroom Classic, treat as hierarchical keywords
 
 The above command will write all the regular metadata that `--exiftool` normally writes to the file upon export but will also add an additional keyword in the exported metadata in the form "Folder1>Folder2>Album".  If you did not include the `(>)` in the template string (e.g. `{folder_album}`), folder_album would render in form "Folder1/Folder2/Album".
 
