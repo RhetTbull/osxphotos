@@ -515,10 +515,19 @@ from .verbose import get_verbose_console, time_stamp, verbose_print
 @click.option(
     "--report",
     metavar="REPORT_FILE",
-    help="Write a CSV formatted report of all files that were exported. "
+    help="Write a report of all files that were exported. "
+    "The extension of the report filename will be used to determine the format. "
+    "Valid extensions are: .csv (CSV formatted) and .json (JSON). "
     "REPORT_FILE may be a template string (see Templating System), for example, "
-    "--report 'export_{today.date}.csv' will write a report file named with today's date.",
+    "--report 'export_{today.date}.csv' will write a CSV report file named with today's date. "
+    "See also --append.",
     type=TemplateString(),
+)
+@click.option(
+    "--append",
+    is_flag=True,
+    help="If used with --report, add data to existing report file instead of overwriting it. "
+    "See also --report.",
 )
 @click.option(
     "--cleanup",
@@ -691,6 +700,7 @@ def export(
     added_in_last,
     album_keyword,
     album,
+    append,
     beta,
     burst,
     cleanup,
@@ -910,6 +920,7 @@ def export(
         add_skipped_to_album = cfg.add_skipped_to_album
         album = cfg.album
         album_keyword = cfg.album_keyword
+        append = cfg.append
         beta = cfg.beta
         burst = cfg.burst
         cleanup = cfg.cleanup
@@ -1095,6 +1106,7 @@ def export(
         ("jpeg_quality", ("convert_to_jpeg")),
         ("missing", ("download_missing", "use_photos_export")),
         ("only_new", ("update", "force_update")),
+        ("append", ("report")),
     ]
     try:
         cfg.validate(exclusive=exclusive_options, dependent=dependent_options, cli=True)
@@ -1155,7 +1167,7 @@ def export(
 
     if report:
         report = render_and_validate_report(report, exiftool_path, dest)
-        report_writer = report_writer_factory(report, False)
+        report_writer = report_writer_factory(report, append)
     else:
         report_writer = ReportWriterNoOp()
 

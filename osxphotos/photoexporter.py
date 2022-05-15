@@ -10,6 +10,7 @@ import re
 import typing as t
 from collections import namedtuple  # pylint: disable=syntax-error
 from dataclasses import asdict, dataclass
+from datetime import datetime
 from enum import Enum
 
 import photoscript
@@ -238,59 +239,62 @@ class ExportResults:
 
     def __init__(
         self,
-        exported=None,
-        new=None,
-        updated=None,
-        skipped=None,
-        exif_updated=None,
-        touched=None,
-        to_touch=None,
         converted_to_jpeg=None,
-        sidecar_json_written=None,
-        sidecar_json_skipped=None,
-        sidecar_exiftool_written=None,
-        sidecar_exiftool_skipped=None,
-        sidecar_xmp_written=None,
-        sidecar_xmp_skipped=None,
-        missing=None,
-        error=None,
-        exiftool_warning=None,
-        exiftool_error=None,
-        xattr_written=None,
-        xattr_skipped=None,
-        deleted_files=None,
         deleted_directories=None,
+        deleted_files=None,
+        error=None,
+        exif_updated=None,
+        exiftool_error=None,
+        exiftool_warning=None,
         exported_album=None,
-        skipped_album=None,
-        missing_album=None,
+        exported=None,
         metadata_changed=None,
+        missing_album=None,
+        missing=None,
+        new=None,
+        sidecar_exiftool_skipped=None,
+        sidecar_exiftool_written=None,
+        sidecar_json_skipped=None,
+        sidecar_json_written=None,
+        sidecar_xmp_skipped=None,
+        sidecar_xmp_written=None,
+        skipped_album=None,
+        skipped=None,
+        to_touch=None,
+        touched=None,
+        updated=None,
+        xattr_skipped=None,
+        xattr_written=None,
     ):
-        self.exported = exported or []
-        self.new = new or []
-        self.updated = updated or []
-        self.skipped = skipped or []
-        self.exif_updated = exif_updated or []
-        self.touched = touched or []
-        self.to_touch = to_touch or []
+
+        self.datetime = datetime.now().isoformat()
+
         self.converted_to_jpeg = converted_to_jpeg or []
-        self.sidecar_json_written = sidecar_json_written or []
-        self.sidecar_json_skipped = sidecar_json_skipped or []
-        self.sidecar_exiftool_written = sidecar_exiftool_written or []
-        self.sidecar_exiftool_skipped = sidecar_exiftool_skipped or []
-        self.sidecar_xmp_written = sidecar_xmp_written or []
-        self.sidecar_xmp_skipped = sidecar_xmp_skipped or []
-        self.missing = missing or []
-        self.error = error or []
-        self.exiftool_warning = exiftool_warning or []
-        self.exiftool_error = exiftool_error or []
-        self.xattr_written = xattr_written or []
-        self.xattr_skipped = xattr_skipped or []
-        self.deleted_files = deleted_files or []
         self.deleted_directories = deleted_directories or []
+        self.deleted_files = deleted_files or []
+        self.error = error or []
+        self.exif_updated = exif_updated or []
+        self.exiftool_error = exiftool_error or []
+        self.exiftool_warning = exiftool_warning or []
+        self.exported = exported or []
         self.exported_album = exported_album or []
-        self.skipped_album = skipped_album or []
-        self.missing_album = missing_album or []
         self.metadata_changed = metadata_changed or []
+        self.missing = missing or []
+        self.missing_album = missing_album or []
+        self.new = new or []
+        self.sidecar_exiftool_skipped = sidecar_exiftool_skipped or []
+        self.sidecar_exiftool_written = sidecar_exiftool_written or []
+        self.sidecar_json_skipped = sidecar_json_skipped or []
+        self.sidecar_json_written = sidecar_json_written or []
+        self.sidecar_xmp_skipped = sidecar_xmp_skipped or []
+        self.sidecar_xmp_written = sidecar_xmp_written or []
+        self.skipped = skipped or []
+        self.skipped_album = skipped_album or []
+        self.to_touch = to_touch or []
+        self.touched = touched or []
+        self.updated = updated or []
+        self.xattr_skipped = xattr_skipped or []
+        self.xattr_written = xattr_written or []
 
     def all_files(self):
         """return all filenames contained in results"""
@@ -348,7 +352,8 @@ class ExportResults:
     def __str__(self):
         return (
             "ExportResults("
-            + f"exported={self.exported}"
+            + f"datetime={self.datetime}"
+            + f",exported={self.exported}"
             + f",new={self.new}"
             + f",updated={self.updated}"
             + f",skipped={self.skipped}"

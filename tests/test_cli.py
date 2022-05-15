@@ -1,4 +1,5 @@
 """ Test the command line interface (CLI) """
+import csv
 import datetime
 import glob
 import json
@@ -9,7 +10,6 @@ import pathlib
 import re
 import shutil
 import sqlite3
-import sys
 import tempfile
 import time
 from tempfile import TemporaryDirectory
@@ -19,8 +19,8 @@ from click.testing import CliRunner
 from osxmetadata import OSXMetaData, Tag
 
 import osxphotos
-from osxphotos._version import __version__
 from osxphotos._constants import OSXPHOTOS_EXPORT_DB
+from osxphotos._version import __version__
 from osxphotos.cli import (
     about,
     albums,
@@ -958,6 +958,18 @@ EXPORT_UNICODE_TITLE_FILENAMES = [
     "Frítest (1).jpg",
     "Frítest (2).jpg",
     "Frítest (3).jpg",
+]
+
+# data for --report
+UUID_REPORT = [
+    {
+        "uuid": "4D521201-92AC-43E5-8F7C-59BC41C37A96",
+        "filenames": ["IMG_1997.JPG", "IMG_1997.cr2"],
+    },
+    {
+        "uuid": "7783E8E6-9CAC-40F3-BE22-81FB7051C266",
+        "filenames": ["IMG_3092.heic", "IMG_3092_edited.jpeg"],
+    },
 ]
 
 # data for --exif
@@ -5473,13 +5485,142 @@ def test_export_report():
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
+        # test report creation
         result = runner.invoke(
             export,
-            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--report", "report.csv"],
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--uuid",
+                UUID_REPORT[0]["uuid"],
+                "--report",
+                "report.csv",
+            ],
         )
         assert result.exit_code == 0
         assert "Wrote export report" in result.output
         assert os.path.exists("report.csv")
+        with open("report.csv", "r") as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+        filenames = [str(pathlib.Path(row["filename"]).name) for row in rows]
+        assert sorted(filenames) == sorted(UUID_REPORT[0]["filenames"])
+
+        # test report gets overwritten
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--uuid",
+                UUID_REPORT[1]["uuid"],
+                "--report",
+                "report.csv",
+            ],
+        )
+        assert result.exit_code == 0
+        with open("report.csv", "r") as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+        filenames = [str(pathlib.Path(row["filename"]).name) for row in rows]
+        assert sorted(filenames) == sorted(UUID_REPORT[1]["filenames"])
+
+        # test report with --append
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--uuid",
+                UUID_REPORT[0]["uuid"],
+                "--report",
+                "report.csv",
+                "--overwrite",
+                "--append",
+            ],
+        )
+        assert result.exit_code == 0
+        with open("report.csv", "r") as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+        filenames = [str(pathlib.Path(row["filename"]).name) for row in rows]
+        assert sorted(filenames) == sorted(
+            UUID_REPORT[0]["filenames"] + UUID_REPORT[1]["filenames"]
+        )
+
+
+def test_export_report_json():
+    """test export with --report option for JSON report"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        # test report creation
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--uuid",
+                UUID_REPORT[0]["uuid"],
+                "--report",
+                "report.json",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Wrote export report" in result.output
+        assert os.path.exists("report.json")
+        with open("report.json", "r") as f:
+            rows = json.load(f)
+        filenames = [str(pathlib.Path(row["filename"]).name) for row in rows]
+        assert sorted(filenames) == sorted(UUID_REPORT[0]["filenames"])
+
+        # test report gets overwritten
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--uuid",
+                UUID_REPORT[1]["uuid"],
+                "--report",
+                "report.json",
+            ],
+        )
+        assert result.exit_code == 0
+        with open("report.json", "r") as f:
+            rows = json.load(f)
+        filenames = [str(pathlib.Path(row["filename"]).name) for row in rows]
+        assert sorted(filenames) == sorted(UUID_REPORT[1]["filenames"])
+
+        # test report with --append
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--uuid",
+                UUID_REPORT[0]["uuid"],
+                "--report",
+                "report.json",
+                "--overwrite",
+                "--append",
+            ],
+        )
+        assert result.exit_code == 0
+        with open("report.json", "r") as f:
+            rows = json.load(f)
+        filenames = [str(pathlib.Path(row["filename"]).name) for row in rows]
+        assert sorted(filenames) == sorted(
+            UUID_REPORT[0]["filenames"] + UUID_REPORT[1]["filenames"]
+        )
 
 
 def test_export_report_template():
