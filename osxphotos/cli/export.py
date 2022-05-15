@@ -1625,6 +1625,9 @@ def export(
                     progress.advance(task, num_photos - photo_num)
                     break
 
+        # store results so they can be used by `osxphotos exportdb --report`
+        export_db.set_export_results(results)
+
         photo_str_total = pluralize(len(photos), "photo", "photos")
         if update or force_update:
             summary = (

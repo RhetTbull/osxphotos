@@ -5649,7 +5649,7 @@ def test_export_report_sqlite(report_file):
         assert os.path.exists(report_file)
         conn = sqlite3.connect(report_file)
         c = conn.cursor()
-        c.execute("SELECT filename FROM export_data")
+        c.execute("SELECT filename FROM report")
         filenames = [str(pathlib.Path(row[0]).name) for row in c.fetchall()]
         assert sorted(filenames) == sorted(UUID_REPORT[0]["filenames"])
 
@@ -5669,7 +5669,7 @@ def test_export_report_sqlite(report_file):
         assert result.exit_code == 0
         conn = sqlite3.connect(report_file)
         c = conn.cursor()
-        c.execute("SELECT filename FROM export_data")
+        c.execute("SELECT filename FROM report")
         filenames = [str(pathlib.Path(row[0]).name) for row in c.fetchall()]
         assert sorted(filenames) == sorted(UUID_REPORT[1]["filenames"])
 
@@ -5691,7 +5691,7 @@ def test_export_report_sqlite(report_file):
         assert result.exit_code == 0
         conn = sqlite3.connect(report_file)
         c = conn.cursor()
-        c.execute("SELECT filename FROM export_data")
+        c.execute("SELECT filename FROM report")
         filenames = [str(pathlib.Path(row[0]).name) for row in c.fetchall()]
         assert sorted(filenames) == sorted(
             UUID_REPORT[0]["filenames"] + UUID_REPORT[1]["filenames"]

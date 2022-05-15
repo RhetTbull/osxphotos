@@ -11,6 +11,7 @@ from contextlib import suppress
 from typing import Union, Dict
 
 from osxphotos.photoexporter import ExportResults
+from osxphotos.export_db import OSXPHOTOS_ABOUT_STRING
 
 __all__ = [
     "report_writer_factory",
@@ -173,7 +174,7 @@ class ReportWriterSQLite(ReportWriterABC):
         for data in list(all_results.values()):
             cursor = self._conn.cursor()
             cursor.execute(
-                "INSERT INTO export_data "
+                "INSERT INTO report "
                 "(datetime, filename, exported, new, updated, skipped, exif_updated, touched, converted_to_jpeg, sidecar_xmp, sidecar_json, sidecar_exiftool, missing, error, exiftool_warning, exiftool_error, extended_attributes_written, extended_attributes_skipped, cleanup_deleted_file, cleanup_deleted_directory, exported_album) "
                 "VALUES "
                 "(:datetime, :filename, :exported, :new, :updated, :skipped, :exif_updated, :touched, :converted_to_jpeg, :sidecar_xmp, :sidecar_json, :sidecar_exiftool, :missing, :error, :exiftool_warning, :exiftool_error, :extended_attributes_written, :extended_attributes_skipped, :cleanup_deleted_file, :cleanup_deleted_directory, :exported_album);",
@@ -186,9 +187,10 @@ class ReportWriterSQLite(ReportWriterABC):
         self._conn.close()
 
     def _create_tables(self):
-        self._conn.execute(
+        c = self._conn.cursor()
+        c.execute(
             """
-            CREATE TABLE IF NOT EXISTS export_data (
+            CREATE TABLE IF NOT EXISTS report (
                 datetime text,
                 filename text,
                 exported integer,
@@ -213,6 +215,18 @@ class ReportWriterSQLite(ReportWriterABC):
             )
             """
         )
+        c.execute(
+            """
+            CREATE TABLE IF NOT EXISTS about (
+                id INTEGER PRIMARY KEY,
+                about TEXT
+                );"""
+        )
+        c.execute(
+            "INSERT INTO about(about) VALUES (?);",
+            (f"OSXPhotos Export Report. {OSXPHOTOS_ABOUT_STRING}",),
+        )
+
         self._conn.commit()
 
     def __del__(self):
