@@ -933,6 +933,10 @@ class ExportRecord:
             "photoinfo": photoinfo,
         }
 
+    def json(self, indent=None):
+        """Return json of self"""
+        return json.dumps(self.asdict(), indent=indent)
+
     def __enter__(self):
         self._context_manager = True
         return self

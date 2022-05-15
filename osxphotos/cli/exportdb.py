@@ -221,7 +221,7 @@ def exportdb(
             sys.exit(1)
         else:
             if info_rec:
-                print(info_rec.asdict())
+                print(info_rec.json(indent=2))
             else:
                 print(f"[red]File '{info}' not found in export database[/red]")
             sys.exit(0)

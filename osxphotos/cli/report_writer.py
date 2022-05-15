@@ -95,6 +95,7 @@ class ReportWriterCSV(ReportWriterABC):
         all_results = prepare_results_for_writing(export_results)
         for data in list(all_results.values()):
             self._csv_writer.writerow(data)
+        self._output_fh.flush()
 
     def close(self):
         """Close the output file"""
@@ -137,6 +138,7 @@ class ReportWriterJSON(ReportWriterABC):
             else:
                 self._first_record_written = True
             self._output_fh.write(json.dumps(data, indent=self.indent))
+        self._output_fh.flush()
 
     def close(self):
         """Close the output file"""
