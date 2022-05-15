@@ -5623,6 +5623,81 @@ def test_export_report_json():
         )
 
 
+@pytest.mark.parametrize("report_file", ["report.db", "report.sqlite"])
+def test_export_report_sqlite(report_file):
+    """test export with --report option with sqlite report"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        # test report creation
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--uuid",
+                UUID_REPORT[0]["uuid"],
+                "--report",
+                report_file,
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Wrote export report" in result.output
+        assert os.path.exists(report_file)
+        conn = sqlite3.connect(report_file)
+        c = conn.cursor()
+        c.execute("SELECT filename FROM export_data")
+        filenames = [str(pathlib.Path(row[0]).name) for row in c.fetchall()]
+        assert sorted(filenames) == sorted(UUID_REPORT[0]["filenames"])
+
+        # test report gets overwritten
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--uuid",
+                UUID_REPORT[1]["uuid"],
+                "--report",
+                report_file,
+            ],
+        )
+        assert result.exit_code == 0
+        conn = sqlite3.connect(report_file)
+        c = conn.cursor()
+        c.execute("SELECT filename FROM export_data")
+        filenames = [str(pathlib.Path(row[0]).name) for row in c.fetchall()]
+        assert sorted(filenames) == sorted(UUID_REPORT[1]["filenames"])
+
+        # test report with --append
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--uuid",
+                UUID_REPORT[0]["uuid"],
+                "--report",
+                report_file,
+                "--overwrite",
+                "--append",
+            ],
+        )
+        assert result.exit_code == 0
+        conn = sqlite3.connect(report_file)
+        c = conn.cursor()
+        c.execute("SELECT filename FROM export_data")
+        filenames = [str(pathlib.Path(row[0]).name) for row in c.fetchall()]
+        assert sorted(filenames) == sorted(
+            UUID_REPORT[0]["filenames"] + UUID_REPORT[1]["filenames"]
+        )
+
+
 def test_export_report_template():
     """test export with --report option with a template for report name"""
 

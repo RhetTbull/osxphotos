@@ -517,7 +517,8 @@ from .verbose import get_verbose_console, time_stamp, verbose_print
     metavar="REPORT_FILE",
     help="Write a report of all files that were exported. "
     "The extension of the report filename will be used to determine the format. "
-    "Valid extensions are: .csv (CSV formatted) and .json (JSON). "
+    "Valid extensions are: "
+    ".csv (CSV file), .json (JSON), .db and .sqlite (SQLite database). "
     "REPORT_FILE may be a template string (see Templating System), for example, "
     "--report 'export_{today.date}.csv' will write a CSV report file named with today's date. "
     "See also --append.",
