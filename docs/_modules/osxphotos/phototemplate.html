@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>osxphotos.phototemplate - osxphotos 0.48.3 documentation</title>
+        <title>osxphotos.phototemplate - osxphotos 0.49.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.48.3 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.49.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.48.3 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.49.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -196,14 +196,14 @@
           <h1>Source code for osxphotos.phototemplate</h1><div class="highlight"><pre>
 <span></span><span class="sd">""" Custom template system for osxphotos, implements metadata template language (MTL) """</span>
 
+
 <span class="kn">import</span> <span class="nn">datetime</span>
-<span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">locale</span>
-<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pathlib</span>
 <span class="kn">import</span> <span class="nn">shlex</span>
 <span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">suppress</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
@@ -615,7 +615,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">TextXSyntaxError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"SyntaxError: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"SyntaxError: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">model</span><span class="p">:</span>
             <span class="c1"># empty string</span>
@@ -808,10 +808,12 @@
                                 <span class="k">break</span>
                         <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
                             <span class="k">break</span>
-                    <span class="k">if</span> <span class="p">(</span><span class="n">match</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">negation</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">negation</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">match</span><span class="p">):</span>
-                        <span class="k">return</span> <span class="p">[</span><span class="s2">"True"</span><span class="p">]</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="k">return</span> <span class="p">[]</span>
+
+                    <span class="k">return</span> <span class="p">(</span>
+                        <span class="p">[</span><span class="s2">"True"</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">match</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">negation</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">negation</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">match</span><span class="p">)</span>
+                        <span class="k">else</span> <span class="p">[]</span>
+                    <span class="p">)</span>
 
                 <span class="k">def</span> <span class="nf">comparison_test</span><span class="p">(</span><span class="n">test_function</span><span class="p">):</span>
                     <span class="sd">"""Perform numerical comparisons using test_function; closure to capture conditional_val, vals, negation"""</span>
@@ -823,14 +825,16 @@
                         <span class="n">match</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span>
                             <span class="n">test_function</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">conditional_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
                         <span class="p">)</span>
-                        <span class="k">if</span> <span class="p">(</span><span class="n">match</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">negation</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">negation</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">match</span><span class="p">):</span>
-                            <span class="k">return</span> <span class="p">[</span><span class="s2">"True"</span><span class="p">]</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="k">return</span> <span class="p">[]</span>
+
+                        <span class="k">return</span> <span class="p">(</span>
+                            <span class="p">[</span><span class="s2">"True"</span><span class="p">]</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="n">match</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">negation</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">negation</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">match</span><span class="p">)</span>
+                            <span class="k">else</span> <span class="p">[]</span>
+                        <span class="p">)</span>
                     <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                             <span class="sa">f</span><span class="s2">"comparison operators may only be used with values that can be converted to numbers: </span><span class="si">{</span><span class="n">vals</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">conditional_value</span><span class="si">}</span><span class="s2">"</span>
-                        <span class="p">)</span>
+                        <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
 
                 <span class="k">if</span> <span class="n">operator</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"contains"</span><span class="p">,</span> <span class="s2">"matches"</span><span class="p">,</span> <span class="s2">"startswith"</span><span class="p">,</span> <span class="s2">"endswith"</span><span class="p">]:</span>
                     <span class="c1"># process any "or" values separated by "|"</span>
@@ -918,9 +922,6 @@
 <span class="sd">            ValueError if no rule exists for field.</span>
 <span class="sd">        """</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[]</span>
-
         <span class="c1"># initialize today with current date/time if needed</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">today</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">today</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
@@ -928,7 +929,50 @@
         <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># wouldn't a switch/case statement be nice...</span>
-        <span class="k">if</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"name"</span><span class="p">:</span>
+        <span class="c1"># handle the fields that don't require a PhotoInfo object first</span>
+        <span class="k">if</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.date"</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">date</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.year"</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">year</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.yy"</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">yy</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.mm"</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">mm</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.month"</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">month</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.mon"</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">mon</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.dd"</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">dd</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.dow"</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">dow</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.doy"</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">doy</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.hour"</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">hour</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.min"</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">min</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.sec"</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">sec</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.strftime"</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">default</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">default</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid strftime template: '</span><span class="si">{</span><span class="n">default</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">PUNCTUATION</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">PUNCTUATION</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"osxphotos_version"</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">__version__</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"osxphotos_cmd_line"</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># if no uuid, don't have a PhotoInfo object (could be PhotoInfoNone)</span>
+            <span class="c1"># so don't try to handle any of the photo fields</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"name"</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span>
         <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"original_name"</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">original_filename</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span>
@@ -1061,38 +1105,6 @@
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid strftime template: '</span><span class="si">{</span><span class="n">default</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.date"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">date</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.year"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">year</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.yy"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">yy</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.mm"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">mm</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.month"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">month</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.mon"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">mon</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.dd"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">dd</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.dow"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">dow</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.doy"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">doy</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.hour"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">hour</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.min"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">min</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.sec"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">sec</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.strftime"</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">default</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">default</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-                <span class="k">except</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid strftime template: '</span><span class="si">{</span><span class="n">default</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"place.name"</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"place.country_code"</span><span class="p">:</span>
@@ -1178,33 +1190,25 @@
         <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"id"</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">format_str_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">"pk"</span><span class="p">],</span> <span class="n">subfield</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">field</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"album_seq"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">field</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"folder_album_seq"</span><span class="p">):</span>
-            <span class="n">dest_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dest_path</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">dest_path</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dest_path</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dest_path</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"album_seq"</span><span class="p">):</span>
                     <span class="n">album</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">dest_path</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
                     <span class="n">album_info</span> <span class="o">=</span> <span class="n">_get_album_by_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="p">,</span> <span class="n">album</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">album_info</span> <span class="o">=</span> <span class="n">_get_album_by_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="p">,</span> <span class="n">dest_path</span><span class="p">)</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="n">album_info</span><span class="o">.</span><span class="n">photo_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="p">)</span> <span class="k">if</span> <span class="n">album_info</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">IndexError</span><span class="p">):</span>
                     <span class="n">start_id</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
                     <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">start_id</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-                <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
-                    <span class="k">pass</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="n">format_str_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">subfield</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">PUNCTUATION</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">PUNCTUATION</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"osxphotos_version"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">__version__</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"osxphotos_cmd_line"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># if here, didn't get a match</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unhandled template value: </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
+        <span class="c1"># sanitize filename or directory name if needed</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">sanitize_pathpart</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">dirname</span><span class="p">:</span>
@@ -1234,8 +1238,8 @@
         <span class="n">field_value</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">field_value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_stem</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unknown path-like field: </span><span class="si">{</span><span class="n">field_stem</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unknown path-like field: </span><span class="si">{</span><span class="n">field_stem</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
 
         <span class="n">value</span> <span class="o">=</span> <span class="n">_get_pathlib_value</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">field_value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">quote</span><span class="p">)</span>
 
@@ -1279,14 +1283,14 @@
                 <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"{"</span> <span class="o">+</span> <span class="n">values</span> <span class="o">+</span> <span class="s2">"}"</span><span class="p">]</span> <span class="k">if</span> <span class="n">values</span> <span class="k">else</span> <span class="p">[]</span>
         <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"parens"</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">values</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"("</span> <span class="o">+</span> <span class="n">v</span> <span class="o">+</span> <span class="s2">")"</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">)"</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"("</span> <span class="o">+</span> <span class="n">values</span> <span class="o">+</span> <span class="s2">")"</span><span class="p">]</span> <span class="k">if</span> <span class="n">values</span> <span class="k">else</span> <span class="p">[]</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">values</span><span class="si">}</span><span class="s2">)"</span><span class="p">]</span> <span class="k">if</span> <span class="n">values</span> <span class="k">else</span> <span class="p">[]</span>
         <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"brackets"</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">values</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"["</span> <span class="o">+</span> <span class="n">v</span> <span class="o">+</span> <span class="s2">"]"</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">]"</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"["</span> <span class="o">+</span> <span class="n">values</span> <span class="o">+</span> <span class="s2">"]"</span><span class="p">]</span> <span class="k">if</span> <span class="n">values</span> <span class="k">else</span> <span class="p">[]</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="n">values</span><span class="si">}</span><span class="s2">]"</span><span class="p">]</span> <span class="k">if</span> <span class="n">values</span> <span class="k">else</span> <span class="p">[]</span>
         <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"shell_quote"</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">values</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">shlex</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
@@ -1602,7 +1606,7 @@
         <span class="o">*</span><span class="n">TEMPLATE_SUBSTITUTIONS_MULTI_VALUED</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span>
     <span class="p">]:</span>
         <span class="c1"># replace '|' with '\|' to avoid markdown parsing issues (e.g. in {pipe} description)</span>
-        <span class="n">descr</span> <span class="o">=</span> <span class="n">descr</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"'|'"</span><span class="p">,</span> <span class="s2">"'\|'"</span><span class="p">)</span>
+        <span class="n">descr</span> <span class="o">=</span> <span class="n">descr</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"'|'"</span><span class="p">,</span> <span class="sa">r</span><span class="s2">"'\|'"</span><span class="p">)</span>
         <span class="n">template_table</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">|</span><span class="si">{</span><span class="n">subst</span><span class="si">}</span><span class="s2">|</span><span class="si">{</span><span class="n">descr</span><span class="si">}</span><span class="s2">|"</span>
     <span class="k">return</span> <span class="n">template_table</span>
 

@@ -1167,8 +1167,19 @@ Options:
                                   iTerm2 (use with Terminal.app). This is faster
                                   and more reliable than the default AppleScript
                                   interface.
-  --report REPORT_FILE            Write a CSV formatted report of all files that
-                                  were exported.
+  --report REPORT_FILE            Write a report of all files that were
+                                  exported. The extension of the report filename
+                                  will be used to determine the format. Valid
+                                  extensions are: .csv (CSV file), .json (JSON),
+                                  .db and .sqlite (SQLite database). REPORT_FILE
+                                  may be a template string (see Templating
+                                  System), for example, --report
+                                  'export_{today.date}.csv' will write a CSV
+                                  report file named with today's date. See also
+                                  --append.
+  --append                        If used with --report, add data to existing
+                                  report file instead of overwriting it. See
+                                  also --report.
   --cleanup                       Cleanup export directory by deleting any files
                                   which were not included in this export set.
                                   For example, photos which had previously been
@@ -1835,7 +1846,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.48.8'
+{osxphotos_version}             The osxphotos version, e.g. '0.49.0'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -4001,7 +4012,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.48.8'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.49.0'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
