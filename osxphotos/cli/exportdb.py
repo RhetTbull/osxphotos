@@ -23,14 +23,13 @@ from osxphotos.export_db_utils import (
     export_db_vacuum,
 )
 
-from .common import OSXPHOTOS_HIDDEN
 from .export import render_and_validate_report
 from .param_types import TemplateString
 from .report_writer import report_writer_factory
 from .verbose import verbose_print
 
 
-@click.command(name="exportdb", hidden=OSXPHOTOS_HIDDEN)
+@click.command(name="exportdb")
 @click.option("--version", is_flag=True, help="Print export database version and exit.")
 @click.option("--vacuum", is_flag=True, help="Run VACUUM to defragment the database.")
 @click.option(
@@ -78,8 +77,9 @@ from .verbose import verbose_print
     "`--report report.json -1` will generate a JSON report for the second-to-last run "
     "(one run prior to last run). "
     "REPORT_FILE may be a template string (see Templating System), for example, "
-    "--report 'export_{today.date}.csv' will write a CSV report file named with today's date. ",
-    type=(TemplateString(), click.IntRange(-MAX_EXPORT_RESULTS_DATA_ROWS, 0)),
+    "--report 'export_{today.date}.csv' will write a CSV report file named with today's date. "
+    "See also --append.",
+    type=(TemplateString(), click.IntRange(-(MAX_EXPORT_RESULTS_DATA_ROWS - 1), 0)),
 )
 @click.option(
     "--migrate",
@@ -95,6 +95,12 @@ from .verbose import verbose_print
     "--export-dir",
     help="Optional path to export directory (if not parent of export database).",
     type=click.Path(exists=True, file_okay=False, dir_okay=True),
+)
+@click.option(
+    "--append",
+    is_flag=True,
+    help="If used with --report, add data to existing report file instead of overwriting it. "
+    "See also --report.",
 )
 @click.option("--verbose", "-V", is_flag=True, help="Print verbose output.")
 @click.option(
@@ -116,6 +122,7 @@ def exportdb(
     migrate,
     sql,
     export_dir,
+    append,
     verbose,
     dry_run,
     export_db,
@@ -123,6 +130,14 @@ def exportdb(
     """Utilities for working with the osxphotos export database"""
 
     verbose_ = verbose_print(verbose, rich=True)
+
+    # validate options and args
+    if append and not report:
+        print(
+            "[red]Error: --append requires --report; ee --help for more information.[/]",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
     export_db = pathlib.Path(export_db)
     if export_db.is_dir():
@@ -156,6 +171,8 @@ def exportdb(
         print("[red]Only a single sub-command may be specified at a time[/red]")
         sys.exit(1)
 
+    # process sub-commands
+    # TODO: each of these should be a function call
     if version:
         try:
             osxphotos_ver, export_db_ver = export_db_get_version(export_db)
@@ -265,7 +282,7 @@ def exportdb(
             print(f"[red]No report results found for run ID {run_id}[/red]")
             sys.exit(1)
         try:
-            report_writer = report_writer_factory(report_filename)
+            report_writer = report_writer_factory(report_filename, append=append)
         except ValueError as e:
             print(f"[red]Error: {e}[/red]")
             sys.exit(1)
