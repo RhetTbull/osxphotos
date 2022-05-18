@@ -18,9 +18,10 @@ OSXPhotos provides the ability to interact with and query Apple's Photos.app lib
 * [Supported operating systems](#supported-operating-systems)
 * [Installation](#installation)
 * [Command Line Usage](#command-line-usage)
-  * [Command line examples](#command-line-examples)
+  * [Command Line Examples](#command-line-examples)
   * [Tutorial](#tutorial)
-  * [Command line reference: export](#command-line-reference-export)
+  * [Command Line Reference: export](#command-line-reference-export)
+  * [Files Created By OSXPhotos](#files-created-by-osxphotos)
 * [Package Interface](#package-interface)
   * [PhotosDB](#photosdb)
   * [PhotoInfo](#photoinfo)
@@ -130,17 +131,17 @@ Usage: osxphotos [OPTIONS] COMMAND [ARGS]...
   osxphotos: query and export your Photos library
 
 Options:
-  --db <Photos database path>  Specify Photos database path. Path to Photos
-                               library/database can be specified using either
-                               --db or directly as PHOTOS_LIBRARY positional
-                               argument. If neither --db or PHOTOS_LIBRARY
-                               provided, will attempt to find the library to
-                               use in the following order: 1. last opened
-                               library, 2. system library, 3.
-                               ~/Pictures/Photos Library.photoslibrary
-  --json                       Print output in JSON format.
-  -v, --version                Show the version and exit.
-  -h, --help                   Show this message and exit.
+  --db PHOTOS_LIBRARY_PATH  Specify Photos database path. Path to Photos
+                            library/database can be specified using either
+                            --db or directly as PHOTOS_LIBRARY positional
+                            argument. If neither --db or PHOTOS_LIBRARY
+                            provided, will attempt to find the library to use
+                            in the following order: 1. last opened library, 2.
+                            system library, 3. ~/Pictures/Photos
+                            Library.photoslibrary
+  --json                    Print output in JSON format.
+  -v, --version             Show the version and exit.
+  -h, --help                Show this message and exit.
 
 Commands:
   about      Print information about osxphotos including license.
@@ -149,6 +150,7 @@ Commands:
   docs       Open osxphotos documentation in your browser.
   dump       Print list of all photos & associated info from the Photos...
   export     Export photos from the Photos database.
+  exportdb   Utilities for working with the osxphotos export database
   help       Print help; for help on commands: help <command>.
   info       Print out descriptive info of the Photos library database.
   install    Install Python packages into the same environment as osxphotos
@@ -159,7 +161,7 @@ Commands:
   places     Print out places found in the Photos library.
   query      Query the Photos database using 1 or more search options; if...
   repl       Run interactive osxphotos REPL shell (useful for debugging,...
-  run        Run a python file using same environment as osxphotos
+  run        Run a python file using same environment as osxphotos.
   snap       Create snapshot of Photos database to use with diff command
   theme      Manage osxphotos color themes.
   timewarp   Adjust date/time/timezone of photos in Apple Photos.
@@ -611,7 +613,7 @@ Here's a comprehensive use case from an actual osxphotos user that integrates ma
 
 #### Color Themes
 
-Some osxphotos commands such as export use color themes to colorize the output to make it more legible. The theme may be specified with the `--theme` option. For example: `osxphotos export /path/to/export --verbose --theme dark` uses a theme suited for dark terminals. If you don't specify the color theme, osxphotos will select a default theme based on the current terminal settings. You can also specify your own default theme. See `osxphotos help theme` for more information on themes and for commands to help manage themes.  Themes are defined in `.theme` files in the `~/.osxphotos/themes` directory and use style specifications compatible with the [rich](https://rich.readthedocs.io/en/stable/style.html) library.
+Some osxphotos commands such as export use color themes to colorize the output to make it more legible. The theme may be specified with the `--theme` option. For example: `osxphotos export /path/to/export --verbose --theme dark` uses a theme suited for dark terminals. If you don't specify the color theme, osxphotos will select a default theme based on the current terminal settings. You can also specify your own default theme. See `osxphotos help theme` for more information on themes and for commands to help manage themes.  Themes are defined in `.theme` files in the `~/.config/osxphotos/themes` directory (or `$XDG_CONFIG_HOME`, see [Files Created by OSXPhotos](#files-created-by-osxphotos)) and use style specifications compatible with the [rich](https://rich.readthedocs.io/en/stable/style.html) library.
 
 #### Conclusion
 
@@ -2051,6 +2053,16 @@ not be called if the --dry-run flag is set.
 
 ```
 <!-- OSXPHOTOS-EXPORT-USAGE:END -->
+
+### Files Created By OSXPhotos 
+
+The OSXPhotos command line tool creates a number of files during the course of its execution. 
+OSXPhotos adheres to the [XDG](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html) standard for file locations.
+
+* `$XDG_CONFIG_HOME` or `$HOME/.config`: `osxphotos` directory containing configuration files, for example color themes for colorized output.
+* `$XDG_DATA_HOME` or `$HOME/.local/share`: `osxphotos` directory containing local data files, for example, the help files displayed with `osxphotos docs`.
+* Current working dir: `osxphotos_crash.log` file containing the stack trace of the last crash if OSXPhotos encounters a fatal error during execution.
+* export directory (when running `osxphotos export` command): `.osxphotos_export.db` [SQLite](https://www.sqlite.org/index.html) database containing information needed to update an export and track metadata changes in exported photos. *Note*: This file may contain sensitive information such as locations and the names of persons in photos so if you are using `osxphotos export` to share with others, you may want to delete this file. You can also specify an alternate location for the export database using the `--exportdb` flag during export.  See also `osxphotos help exportdb` for more information about built in utilities for working with the export database.
 
 ## Example uses of the package
 

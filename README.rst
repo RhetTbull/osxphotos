@@ -103,6 +103,7 @@ Alternatively, you can also run the command line utility like this: ``python3 -m
      docs       Open osxphotos documentation in your browser.
      dump       Print list of all photos & associated info from the Photos...
      export     Export photos from the Photos database.
+     exportdb   Utilities for working with the osxphotos export database
      help       Print help; for help on commands: help <command>.
      info       Print out descriptive info of the Photos library database.
      install    Install Python packages into the same environment as osxphotos
