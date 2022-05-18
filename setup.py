@@ -104,6 +104,7 @@ setup(
         "toml>=0.10.2,<0.11.0",
         "wrapt>=1.13.3,<1.14.0",
         "wurlitzer>=2.1.0,<3.0.0",
+        "xdg==5.1.1",
     ],
     entry_points={"console_scripts": ["osxphotos=osxphotos.__main__:cli_main"]},
     include_package_data=True,

@@ -7,6 +7,7 @@ from datetime import datetime
 
 import click
 from packaging import version
+from xdg import xdg_config_home, xdg_data_home
 
 import osxphotos
 from osxphotos._constants import APP_NAME
@@ -582,10 +583,18 @@ def load_uuid_from_file(filename):
 
 def get_config_dir() -> pathlib.Path:
     """Get the directory where config files are stored; create it if necessary."""
-    config_dir = pathlib.Path.home() / ".config" / APP_NAME
+    config_dir = xdg_config_home() / APP_NAME
     if not config_dir.is_dir():
         config_dir.mkdir(parents=True)
     return config_dir
+
+
+def get_data_dir() -> pathlib.Path:
+    """Get the director where local user data files are stored; create it if necessary"""
+    data_dir = xdg_data_home() / APP_NAME
+    if not data_dir.is_dir():
+        data_dir.mkdir(parents=True)
+    return data_dir
 
 
 def check_version():

@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Template System" href="template_help.html" /><link rel="prev" title="OSXPhotos Tutorial" href="tutorial.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.49.0 documentation</title>
+        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.49.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.49.0 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.49.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.49.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.49.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -1095,6 +1095,95 @@ to modify this behavior.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-export-arg-DEST">
 <span id="cmdoption-osxphotos-export-arg-dest"></span><span class="sig-name descname"><span class="pre">DEST</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-arg-DEST" title="Permalink to this definition">#</a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+</section>
+<section id="osxphotos-exportdb">
+<h3>exportdb<a class="headerlink" href="#osxphotos-exportdb" title="Permalink to this headline">#</a></h3>
+<p>Utilities for working with the osxphotos export database</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos exportdb <span class="o">[</span>OPTIONS<span class="o">]</span> EXPORT_DATABASE
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-version">
+<span class="sig-name descname"><span class="pre">--version</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-version" title="Permalink to this definition">#</a></dt>
+<dd><p>Print export database version and exit.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-vacuum">
+<span class="sig-name descname"><span class="pre">--vacuum</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-vacuum" title="Permalink to this definition">#</a></dt>
+<dd><p>Run VACUUM to defragment the database.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-check-signatures">
+<span class="sig-name descname"><span class="pre">--check-signatures</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-check-signatures" title="Permalink to this definition">#</a></dt>
+<dd><p>Check signatures for all exported photos in the database to find signatures that don’t match.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-update-signatures">
+<span class="sig-name descname"><span class="pre">--update-signatures</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-update-signatures" title="Permalink to this definition">#</a></dt>
+<dd><p>Update signatures for all exported photos in the database to match on-disk signatures.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-touch-file">
+<span class="sig-name descname"><span class="pre">--touch-file</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-touch-file" title="Permalink to this definition">#</a></dt>
+<dd><p>Touch files on disk to match created date in Photos library and update export database signatures</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-last-run">
+<span class="sig-name descname"><span class="pre">--last-run</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-last-run" title="Permalink to this definition">#</a></dt>
+<dd><p>Show last run osxphotos commands used with this database.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-save-config">
+<span class="sig-name descname"><span class="pre">--save-config</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;CONFIG_FILE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-save-config" title="Permalink to this definition">#</a></dt>
+<dd><p>Save last run configuration to TOML file for use by –load-config.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-info">
+<span class="sig-name descname"><span class="pre">--info</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;FILE_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-info" title="Permalink to this definition">#</a></dt>
+<dd><p>Print information about FILE_PATH contained in the database.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-report">
+<span class="sig-name descname"><span class="pre">--report</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;REPORT_FILE</span> <span class="pre">RUN_ID&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-report" title="Permalink to this definition">#</a></dt>
+<dd><p>Generate an export report as <cite>osxphotos export … –report REPORT_FILE</cite> would have done. This allows you to re-create an export report if you didn’t use the –report option when running <cite>osxphotos export</cite>. The extension of the report file is used to determine the format. Valid extensions are: .csv (CSV file), .json (JSON), .db and .sqlite (SQLite database). RUN_ID may be any integer from -10 to 0 specifying which run to use. For example, <cite>–report report.csv 0</cite> will generate a CSV report for the last run and <cite>–report report.json -1</cite> will generate a JSON report for the second-to-last run (one run prior to last run). REPORT_FILE may be a template string (see Templating System), for example, –report ‘export_{today.date}.csv’ will write a CSV report file named with today’s date. See also –append.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-migrate">
+<span class="sig-name descname"><span class="pre">--migrate</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-migrate" title="Permalink to this definition">#</a></dt>
+<dd><p>Migrate (if needed) export database to current version.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-sql">
+<span class="sig-name descname"><span class="pre">--sql</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;SQL_STATEMENT&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-sql" title="Permalink to this definition">#</a></dt>
+<dd><p>Execute SQL_STATEMENT against export database and print results.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-export-dir">
+<span class="sig-name descname"><span class="pre">--export-dir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;export_dir&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-export-dir" title="Permalink to this definition">#</a></dt>
+<dd><p>Optional path to export directory (if not parent of export database).</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-append">
+<span class="sig-name descname"><span class="pre">--append</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-append" title="Permalink to this definition">#</a></dt>
+<dd><p>If used with –report, add data to existing report file instead of overwriting it. See also –report.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-V">
+<span id="cmdoption-osxphotos-exportdb-v"></span><span id="cmdoption-osxphotos-exportdb-verbose"></span><span class="sig-name descname"><span class="pre">-V</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-V" title="Permalink to this definition">#</a></dt>
+<dd><p>Print verbose output.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-dry-run">
+<span class="sig-name descname"><span class="pre">--dry-run</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-dry-run" title="Permalink to this definition">#</a></dt>
+<dd><p>Run in dry-run mode (don’t actually update files), e.g. for use with –update-signatures.</p>
+</dd></dl>
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-exportdb-arg-EXPORT_DATABASE">
+<span id="cmdoption-osxphotos-exportdb-arg-export-database"></span><span class="sig-name descname"><span class="pre">EXPORT_DATABASE</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-exportdb-arg-EXPORT_DATABASE" title="Permalink to this definition">#</a></dt>
 <dd><p>Required argument</p>
 </dd></dl>
 </section>
@@ -2480,6 +2569,7 @@ Commands:
 <li><a class="reference internal" href="#osxphotos-docs">docs</a></li>
 <li><a class="reference internal" href="#osxphotos-dump">dump</a></li>
 <li><a class="reference internal" href="#osxphotos-export">export</a></li>
+<li><a class="reference internal" href="#osxphotos-exportdb">exportdb</a></li>
 <li><a class="reference internal" href="#osxphotos-help">help</a></li>
 <li><a class="reference internal" href="#osxphotos-info">info</a></li>
 <li><a class="reference internal" href="#osxphotos-install">install</a></li>

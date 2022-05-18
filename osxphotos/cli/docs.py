@@ -3,13 +3,14 @@
 import pathlib
 import shutil
 import zipfile
+from contextlib import suppress
 from typing import Optional
 
 import click
 
 from osxphotos._version import __version__
 
-from .common import get_config_dir
+from .common import get_config_dir, get_data_dir
 
 
 @click.command()
@@ -18,7 +19,14 @@ from .common import get_config_dir
 def docs(ctx, cli_obj):
     """Open osxphotos documentation in your browser."""
 
-    docs_dir = get_config_dir() / "docs"
+    # first check if docs installed in old location in confir dir and if so, delete them
+    old_docs_dir = get_config_dir() / "docs"
+    if old_docs_dir.exists():
+        with suppress(Exception):
+            shutil.rmtree(str(old_docs_dir))
+
+    # now check if docs installed in correct location in data dir and if not, copy them
+    docs_dir = get_data_dir() / "docs"
     docs_version = get_docs_version(docs_dir)
     if not docs_version or docs_version != __version__:
         click.echo(f"Copying docs for osxphotos version {__version__}")
@@ -50,10 +58,10 @@ def copy_docs():
     # docs are in osxphotos/docs and this file is in osxphotos/cli
     src_dir = pathlib.Path(__file__).parent.parent / "docs"
     docs_zip = src_dir / "docs.zip"
-    config_dir = get_config_dir()
+    data_dir = get_data_dir()
     with zipfile.ZipFile(str(docs_zip), "r") as zf:
-        zf.extractall(path=str(config_dir))
-    set_docs_version(config_dir / "docs", __version__)
+        zf.extractall(path=str(data_dir))
+    set_docs_version(data_dir / "docs", __version__)
 
 
 def set_docs_version(docs_dir: pathlib.Path, version: str):

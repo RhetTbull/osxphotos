@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Command Line Interface (CLI)" href="cli.html" /><link rel="prev" title="OSXPhotos" href="overview.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>OSXPhotos Tutorial - osxphotos 0.49.0 documentation</title>
+        <title>OSXPhotos Tutorial - osxphotos 0.49.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.49.0 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.49.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.49.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.49.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -314,7 +314,7 @@
 <h2>Exporting metadata with exported photos<a class="headerlink" href="#exporting-metadata-with-exported-photos" title="Permalink to this headline">#</a></h2>
 <p>Photos tracks a tremendous amount of metadata associated with photos in the library such as keywords, faces and persons, reverse geolocation data, and image classification labels.  Photos’ native export capability does not preserve most of this metadata.  osxphotos can, however, access and preserve almost all the metadata associated with photos.  Using the free <cite>``exiftool`</cite> &lt;<a class="reference external" href="https://exiftool.org/">https://exiftool.org/</a>&gt;`_ app, osxphotos can write metadata to exported photos.  Follow the instructions on the exiftool website to install exiftool then you can use the <code class="docutils literal notranslate"><span class="pre">--exiftool</span></code> option to write metadata to exported photos:</p>
 <p><code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">export</span> <span class="pre">/path/to/export</span> <span class="pre">--exiftool</span></code></p>
-<p>This will write basic metadata such as keywords, persons, and GPS location to the exported files.  osxphotos includes several additional options that can be used in conjunction with <code class="docutils literal notranslate"><span class="pre">--exiftool</span></code> to modify the metadata that is written by <code class="docutils literal notranslate"><span class="pre">exiftool</span></code>. For example, you can use the <code class="docutils literal notranslate"><span class="pre">--keyword-template</span></code> option to specify custom keywords (again, via the osxphotos template system).  For example, to use the folder and album a photo is in to create hierarchal keywords in the format used by Lightroom Classic:</p>
+<p>This will write basic metadata such as keywords, persons, and GPS location to the exported files.  osxphotos includes several additional options that can be used in conjunction with <code class="docutils literal notranslate"><span class="pre">--exiftool</span></code> to modify the metadata that is written by <code class="docutils literal notranslate"><span class="pre">exiftool</span></code>. For example, you can use the <code class="docutils literal notranslate"><span class="pre">--keyword-template</span></code> option to specify custom keywords (again, via the osxphotos template system).  For example, to use the folder and album a photo is in to create hierarchical keywords in the format used by Lightroom Classic:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>osxphotos export /path/to/export --exiftool --keyword-template "{folder_album(&gt;)}"
                                                                  │            │
                                                                  │            │
@@ -325,7 +325,7 @@
                        for joining the folders and albums.  For example,
                        if photo is in Folder1/Folder2/Album, (&gt;) produces
                        "Folder1&gt;Folder2&gt;Album" which some programs, such as
-                       Lightroom Classic, treat as hierarchal keywords
+                       Lightroom Classic, treat as hierarchical keywords
 </pre></div>
 </div>
 <p>The above command will write all the regular metadata that <code class="docutils literal notranslate"><span class="pre">--exiftool</span></code> normally writes to the file upon export but will also add an additional keyword in the exported metadata in the form “Folder1&gt;Folder2&gt;Album”.  If you did not include the <code class="docutils literal notranslate"><span class="pre">(&gt;)</span></code> in the template string (e.g. <code class="docutils literal notranslate"><span class="pre">{folder_album}</span></code>), folder_album would render in form “Folder1/Folder2/Album”.</p>
