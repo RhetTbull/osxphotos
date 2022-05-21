@@ -102,6 +102,7 @@ Alternatively, you can also run the command line utility like this: ``python3 -m
      diff       Compare two Photos databases and print out differences
      docs       Open osxphotos documentation in your browser.
      dump       Print list of all photos & associated info from the Photos...
+     exiftool   Run exiftool on previously exported files to update metadata.
      export     Export photos from the Photos database.
      exportdb   Utilities for working with the osxphotos export database
      help       Print help; for help on commands: help <command>.

@@ -2729,14 +2729,3 @@ def render_and_validate_report(report: str, exiftool_path: str, export_dir: str)
 
     return report
 
-
-# def _export_with_profiler(args: Dict):
-#     """ "Run export with cProfile"""
-#     try:
-#         args.pop("profile")
-#     except KeyError:
-#         pass
-
-#     cProfile.runctx(
-#         "_export(**args)", globals=globals(), locals=locals(), sort="tottime"
-#     )

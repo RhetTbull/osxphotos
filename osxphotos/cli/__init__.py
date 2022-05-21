@@ -48,6 +48,7 @@ from .cli import cli_main
 from .common import get_photos_db, load_uuid_from_file
 from .debug_dump import debug_dump
 from .dump import dump
+from .exiftool_cli import exiftool
 from .export import export
 from .exportdb import exportdb
 from .grep import grep
@@ -74,6 +75,7 @@ __all__ = [
     "debug_dump",
     "diff",
     "dump",
+    "exiftool_cli",
     "export",
     "exportdb",
     "grep",

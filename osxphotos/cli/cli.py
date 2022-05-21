@@ -10,6 +10,7 @@ from .common import DB_OPTION, JSON_OPTION, OSXPHOTOS_HIDDEN
 from .debug_dump import debug_dump
 from .docs import docs
 from .dump import dump
+from .exiftool_cli import exiftool
 from .export import export
 from .exportdb import exportdb
 from .grep import grep
@@ -67,6 +68,7 @@ for command in [
     diff,
     docs,
     dump,
+    exiftool,
     export,
     exportdb,
     grep,
