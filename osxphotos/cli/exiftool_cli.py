@@ -1,5 +1,6 @@
 """exiftool command for osxphotos CLI to update an previous export with exiftool metadata"""
 
+import os
 import pathlib
 import sys
 from typing import Callable
@@ -18,7 +19,6 @@ from osxphotos.utils import pluralize
 
 from .click_rich_echo import (
     rich_click_echo,
-    rich_echo,
     rich_echo_error,
     set_rich_console,
     set_rich_theme,
@@ -343,6 +343,8 @@ def process_files(
     total = len(files)
     count = 1
     all_results = ExportResults()
+    # process files that are hardlinked? Requires user confirmation
+    hardlink_ok = False
     with rich_progress(console=get_verbose_console(), mock=options.verbose) as progress:
         task = progress.add_task("Processing files", total=total)
         for uuid, file in files:
@@ -350,7 +352,14 @@ def process_files(
                 verbose(f"Skipping missing file [filepath]{file}[/]")
                 report_writer.write(ExportResults(missing=[file]))
                 continue
-            # TODO: zzz put in check for hardlink
+            if not hardlink_ok and os.stat(file).st_nlink > 1:
+                rich_click_echo(
+                    f"[warning]:warning-emoji:  Warning: file [filepath]{file}[/] is hardlinked.\n"
+                    "You may be modifying linked original files in your Photos library. "
+                    "This is inadvisable.[/]",
+                )
+                click.confirm("Continue processing hardlinks?", abort=True)
+                hardlink_ok = True
             verbose(f"Processing file [filepath]{file}[/] ([num]{count}/{total}[/num])")
             photo = photosdb.get_photo(uuid)
             export_options = ExportOptions(
