@@ -35,8 +35,9 @@ def test_export_exiftool():
         result = runner.invoke(
             export,
             [
+                "--db",
                 os.path.join(cwd, PHOTOS_DB_15_7),
-                ".",
+                temp_dir,
                 "-V",
                 *uuid_option,
             ],
@@ -65,8 +66,9 @@ def test_export_exiftool():
         result = runner.invoke(
             export,
             [
+                "--db",
                 os.path.join(cwd, PHOTOS_DB_15_7),
-                ".",
+                temp_dir,
                 "-V",
                 "--exiftool",
                 "--update",
@@ -88,8 +90,9 @@ def test_export_exiftool_album_keyword():
         result = runner.invoke(
             export,
             [
+                "--db",
                 os.path.join(cwd, PHOTOS_DB_15_7),
-                ".",
+                temp_dir,
                 "-V",
                 "--album",
                 "Pumpkin Farm",
@@ -126,8 +129,9 @@ def test_export_exiftool_album_keyword():
         result = runner.invoke(
             export,
             [
+                "--db",
                 os.path.join(cwd, PHOTOS_DB_15_7),
-                ".",
+                temp_dir,
                 "-V",
                 "--exiftool",
                 "--update",
@@ -155,8 +159,9 @@ def test_export_exiftool_keyword_template():
         result = runner.invoke(
             export,
             [
+                "--db",
                 os.path.join(cwd, PHOTOS_DB_15_7),
-                ".",
+                temp_dir,
                 "-V",
                 *uuid_option,
             ],
@@ -189,8 +194,9 @@ def test_export_exiftool_keyword_template():
         result = runner.invoke(
             export,
             [
+                "--db",
                 os.path.join(cwd, PHOTOS_DB_15_7),
-                ".",
+                temp_dir,
                 "-V",
                 "--exiftool",
                 "--keyword-template",
@@ -218,8 +224,9 @@ def test_export_exiftool_load_config():
         result = runner.invoke(
             export,
             [
+                "--db",
                 os.path.join(cwd, PHOTOS_DB_15_7),
-                ".",
+                temp_dir,
                 "-V",
                 "--save-config",
                 "config.toml",
@@ -246,8 +253,9 @@ def test_export_exiftool_load_config():
         result = runner.invoke(
             export,
             [
+                "--db",
                 os.path.join(cwd, PHOTOS_DB_15_7),
-                ".",
+                temp_dir,
                 "-V",
                 "--exiftool",
                 "--update",
