@@ -12,10 +12,11 @@ from rich import print
 
 from ._constants import OSXPHOTOS_EXPORT_DB
 from ._version import __version__
-from .utils import noop
+from .configoptions import ConfigOptions
 from .export_db import OSXPHOTOS_EXPORTDB_VERSION, ExportDB
 from .fileutil import FileUtil
 from .photosdb import PhotosDB
+from .utils import noop
 
 __all__ = [
     "export_db_check_signatures",
@@ -123,6 +124,23 @@ def export_db_save_config_to_file(
         return ValueError("No config found in export_db")
     with config_file.open("w") as f:
         f.write(row[0])
+
+
+def export_db_get_config(
+    export_db: Union[str, pathlib.Path], config: ConfigOptions, override=False
+) -> ConfigOptions:
+    """Load last run config to config
+
+    Args:
+        export_db: path to export database
+        override: if True, any loaded config values will overwrite existing values in config
+    """
+    conn = sqlite3.connect(str(export_db))
+    c = conn.cursor()
+    row = c.execute("SELECT config FROM config ORDER BY id DESC LIMIT 1;").fetchone()
+    if not row:
+        return ValueError("No config found in export_db")
+    return config.load_from_str(row[0], override=override)
 
 
 def export_db_check_signatures(

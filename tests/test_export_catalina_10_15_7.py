@@ -404,7 +404,7 @@ def test_exiftool_json_sidecar(photosdb):
     with open(str(pathlib.Path(SIDECAR_DIR) / f"{uuid}.json"), "r") as fp:
         json_expected = json.load(fp)[0]
 
-    json_got = PhotoExporter(photo)._exiftool_json_sidecar()
+    json_got = PhotoExporter(photo).exiftool_json_sidecar()
     json_got = json.loads(json_got)[0]
 
     assert json_got == json_expected
@@ -420,7 +420,7 @@ def test_exiftool_json_sidecar_ignore_date_modified(photosdb):
     ) as fp:
         json_expected = json.load(fp)[0]
 
-    json_got = PhotoExporter(photo)._exiftool_json_sidecar(
+    json_got = PhotoExporter(photo).exiftool_json_sidecar(
         ExportOptions(ignore_date_modified=True)
     )
     json_got = json.loads(json_got)[0]
@@ -453,7 +453,7 @@ def test_exiftool_json_sidecar_keyword_template_long(capsys, photosdb):
 
     long_str = "x" * (_MAX_IPTC_KEYWORD_LEN + 1)
     photos[0]._verbose = print
-    json_got = PhotoExporter(photos[0])._exiftool_json_sidecar(
+    json_got = PhotoExporter(photos[0]).exiftool_json_sidecar(
         ExportOptions(keyword_template=[long_str])
     )
     json_got = json.loads(json_got)[0]
@@ -479,7 +479,7 @@ def test_exiftool_json_sidecar_keyword_template(photosdb):
         str(pathlib.Path(SIDECAR_DIR) / f"{uuid}_keyword_template.json"), "r"
     ) as fp:
         json_expected = json.load(fp)
-    json_got = PhotoExporter(photo)._exiftool_json_sidecar(
+    json_got = PhotoExporter(photo).exiftool_json_sidecar(
         ExportOptions(keyword_template=["{folder_album}"])
     )
     json_got = json.loads(json_got)
@@ -497,7 +497,7 @@ def test_exiftool_json_sidecar_use_persons_keyword(photosdb):
     ) as fp:
         json_expected = json.load(fp)[0]
 
-    json_got = PhotoExporter(photo)._exiftool_json_sidecar(
+    json_got = PhotoExporter(photo).exiftool_json_sidecar(
         ExportOptions(use_persons_as_keywords=True)
     )
     json_got = json.loads(json_got)[0]
@@ -515,7 +515,7 @@ def test_exiftool_json_sidecar_use_albums_keywords(photosdb):
     ) as fp:
         json_expected = json.load(fp)
 
-    json_got = PhotoExporter(photo)._exiftool_json_sidecar(
+    json_got = PhotoExporter(photo).exiftool_json_sidecar(
         ExportOptions(use_albums_as_keywords=True)
     )
     json_got = json.loads(json_got)
@@ -530,7 +530,7 @@ def test_exiftool_sidecar(photosdb):
     with open(pathlib.Path(SIDECAR_DIR) / f"{uuid}_no_tag_groups.json", "r") as fp:
         json_expected = fp.read()
 
-    json_got = PhotoExporter(photo)._exiftool_json_sidecar(tag_groups=False)
+    json_got = PhotoExporter(photo).exiftool_json_sidecar(tag_groups=False)
 
     assert json_got == json_expected
 

@@ -57,8 +57,8 @@ class ConfigOptions:
                         setattr(self, attr, self._attrs[attr])
                 else:
                     setattr(self, attr, arg)
-            except KeyError:
-                raise KeyError(f"Missing argument: {attr}")
+            except KeyError as e:
+                raise KeyError(f"Missing argument: {attr}") from e
 
     def validate(self, exclusive=None, inclusive=None, dependent=None, cli=False):
         """validate combinations of otions
@@ -153,9 +153,26 @@ class ConfigOptions:
             ConfigOptionsLoadError if there are any errors during the parsing of the TOML file
         """
         loaded = toml.load(filename)
+        return self._load_from_toml_dict(loaded, override)
+
+    def load_from_str(self, str, override=False):
+        """Load options from a TOML str.
+
+        Args:
+            str: TOML str
+            override: bool; if True, values in the TOML str will override values already set in the instance
+
+        Raises:
+            ConfigOptionsLoadError if there are any errors during the parsing of the TOML str
+        """
+        loaded = toml.loads(str)
+        return self._load_from_toml_dict(loaded, override)
+
+    def _load_from_toml_dict(self, loaded, override):
+        """Load options from a TOML dict (as returned by toml.load or toml.loads)"""
         name = self._name
         if name not in loaded:
-            raise ConfigOptionsLoadError(f"[{name}] section missing from {filename}")
+            raise ConfigOptionsLoadError(f"[{name}] section missing from config file")
 
         for attr in loaded[name]:
             if attr not in self._attrs:

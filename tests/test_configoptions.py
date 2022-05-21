@@ -1,6 +1,8 @@
 """ test ConfigOptions class """
 
 import pathlib
+from io import StringIO
+
 import pytest
 import toml
 
@@ -39,6 +41,15 @@ def test_write_to_file_load_from_file(tmpdir):
     assert cfg_dict["test"]["foo"] == "bar"
 
     cfg2 = ConfigOptions("test", VARS).load_from_file(str(cfg_file))
+    assert cfg2.foo == "bar"
+    assert cfg2.bar
+
+
+def test_load_from_str(tmpdir):
+    cfg = ConfigOptions("test", VARS)
+    cfg.bar = True
+    cfg_str = cfg.write_to_str()
+    cfg2 = ConfigOptions("test", VARS).load_from_str(cfg_str)
     assert cfg2.foo == "bar"
     assert cfg2.bar
 

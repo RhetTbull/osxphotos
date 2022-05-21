@@ -80,19 +80,19 @@ def generate_sidecars(dbname, uuid_dict):
 
         # generate JSON files
         sidecar = str(pathlib.Path(SIDECAR_DIR) / f"{uuid}.json")
-        json_ = exporter._exiftool_json_sidecar()
+        json_ = exporter.exiftool_json_sidecar()
         with open(sidecar, "w") as file:
             file.write(json_)
 
         # no tag groups
         sidecar = str(pathlib.Path(SIDECAR_DIR) / f"{uuid}_no_tag_groups.json")
-        json_ = exporter._exiftool_json_sidecar(tag_groups=False)
+        json_ = exporter.exiftool_json_sidecar(tag_groups=False)
         with open(sidecar, "w") as file:
             file.write(json_)
 
         # ignore_date_modified
         sidecar = str(pathlib.Path(SIDECAR_DIR) / f"{uuid}_ignore_date_modified.json")
-        json_ = exporter._exiftool_json_sidecar(
+        json_ = exporter.exiftool_json_sidecar(
             ExportOptions(ignore_date_modified=True)
         )
         with open(sidecar, "w") as file:
@@ -100,7 +100,7 @@ def generate_sidecars(dbname, uuid_dict):
 
         # keyword_template
         sidecar = str(pathlib.Path(SIDECAR_DIR) / f"{uuid}_keyword_template.json")
-        json_ = exporter._exiftool_json_sidecar(
+        json_ = exporter.exiftool_json_sidecar(
             ExportOptions(keyword_template=["{folder_album}"])
         )
         with open(sidecar, "w") as file:
@@ -108,7 +108,7 @@ def generate_sidecars(dbname, uuid_dict):
 
         # persons_as_keywords
         sidecar = str(pathlib.Path(SIDECAR_DIR) / f"{uuid}_persons_as_keywords.json")
-        json_ = exporter._exiftool_json_sidecar(
+        json_ = exporter.exiftool_json_sidecar(
             ExportOptions(use_persons_as_keywords=True)
         )
         with open(sidecar, "w") as file:
@@ -116,7 +116,7 @@ def generate_sidecars(dbname, uuid_dict):
 
         # albums_as_keywords
         sidecar = str(pathlib.Path(SIDECAR_DIR) / f"{uuid}_albums_as_keywords.json")
-        json_ = exporter._exiftool_json_sidecar(
+        json_ = exporter.exiftool_json_sidecar(
             ExportOptions(use_albums_as_keywords=True)
         )
         with open(sidecar, "w") as file:

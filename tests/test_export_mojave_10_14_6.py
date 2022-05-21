@@ -337,7 +337,7 @@ def test_exiftool_json_sidecar(photosdb):
     with open(str(pathlib.Path(SIDECAR_DIR) / f"{uuid}.json"), "r") as fp:
         json_expected = json.load(fp)[0]
 
-    json_got = PhotoExporter(photo)._exiftool_json_sidecar()
+    json_got = PhotoExporter(photo).exiftool_json_sidecar()
     json_got = json.loads(json_got)[0]
 
     assert json_got == json_expected

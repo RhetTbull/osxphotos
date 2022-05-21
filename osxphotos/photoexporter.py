@@ -735,7 +735,7 @@ class PhotoExporter:
             return ShouldUpdate.EXPORT_OPTIONS_DIFFERENT
 
         if options.exiftool:
-            current_exifdata = self._exiftool_json_sidecar(options=options)
+            current_exifdata = self.exiftool_json_sidecar(options=options)
             rv = current_exifdata != file_record.exifdata
             # if using exiftool, don't need to continue checking edited below
             # as exiftool will be used to update edited file
@@ -1143,7 +1143,7 @@ class PhotoExporter:
                     # point src to the tmp_file so that the original source is not modified
                     # and the export grabs the new file
                     src = tmp_file
-                    exif_results = self._write_exif_metadata_to_file(
+                    exif_results = self.write_exiftool_metadata_to_file(
                         src, dest, options=options
                     )
 
@@ -1185,7 +1185,7 @@ class PhotoExporter:
             if not options.ignore_signature:
                 rec.dest_sig = fileutil.file_sig(dest)
             if options.exiftool:
-                rec.exifdata = self._exiftool_json_sidecar(options)
+                rec.exifdata = self.exiftool_json_sidecar(options)
             if self.photo.hexdigest != rec.digest:
                 results.metadata_changed = [dest_str]
             rec.digest = self.photo.hexdigest
@@ -1320,7 +1320,7 @@ class PhotoExporter:
             sidecar_filename = dest.parent / pathlib.Path(
                 f"{dest.stem}{dest_suffix}.json"
             )
-            sidecar_str = self._exiftool_json_sidecar(
+            sidecar_str = self.exiftool_json_sidecar(
                 filename=dest.name, options=options
             )
             sidecars.append(
@@ -1337,7 +1337,7 @@ class PhotoExporter:
             sidecar_filename = dest.parent / pathlib.Path(
                 f"{dest.stem}{dest_suffix}.json"
             )
-            sidecar_str = self._exiftool_json_sidecar(
+            sidecar_str = self.exiftool_json_sidecar(
                 tag_groups=False, filename=dest.name, options=options
             )
             sidecars.append(
@@ -1436,19 +1436,20 @@ class PhotoExporter:
 
         return results
 
-    def _write_exif_metadata_to_file(
+    def write_exiftool_metadata_to_file(
         self,
         src,
         dest,
         options: ExportOptions,
     ) -> ExportResults:
-        """Write exif metadata to file using exiftool
+        """Write exif metadata to src file using exiftool
 
-        Note: this method modifies src so src must be a copy of the original file;
+        Caution: This method modifies *src*, not *dest*, 
+        so src must be a copy of the original file if you don't want the source modified;
         it also does not write to dest (dest is the intended destination for purposes of
         referencing the export database. This allows the exiftool update to be done on the
         local machine prior to being copied to the export destination which may be on a
-        network drive or other slower external storage."""
+        network drive or other slower external storage)."""
 
         verbose = options.verbose or self._verbose
         exiftool_results = ExportResults()
@@ -1491,7 +1492,7 @@ class PhotoExporter:
             old_data = exif_record.exifdata if exif_record else None
             if old_data is not None:
                 old_data = json.loads(old_data)[0]
-                current_data = json.loads(self._exiftool_json_sidecar(options=options))
+                current_data = json.loads(self.exiftool_json_sidecar(options=options))
                 current_data = current_data[0]
                 if old_data != current_data:
                     files_are_different = True
@@ -1831,7 +1832,7 @@ class PhotoExporter:
                 pass
         return persons
 
-    def _exiftool_json_sidecar(
+    def exiftool_json_sidecar(
         self,
         options: t.Optional[ExportOptions] = None,
         tag_groups: bool = True,

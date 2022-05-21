@@ -282,6 +282,20 @@ class ExportDB:
             results = None
         return results
 
+    def get_exported_files(self):
+        """Returns tuple of (uuid, filepath) for all paths of all exported files tracked in the database"""
+        conn = self._conn
+        try:
+            c = conn.cursor()
+            c.execute("SELECT uuid, filepath FROM export_data")
+        except Error as e:
+            logging.warning(e)
+            return
+
+        while row := c.fetchone():
+            yield row[0], os.path.join(self.export_dir, row[1])
+        return
+
     def close(self):
         """close the database connection"""
         try:
@@ -299,7 +313,7 @@ class ExportDB:
         if not os.path.isfile(dbfile):
             conn = self._get_db_connection(dbfile)
             if not conn:
-                raise Exception("Error getting connection to database {dbfile}")
+                raise Exception(f"Error getting connection to database {dbfile}")
             self._create_or_migrate_db_tables(conn)
             self.was_created = True
             self.was_upgraded = ()
