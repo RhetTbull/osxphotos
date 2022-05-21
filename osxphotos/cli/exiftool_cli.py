@@ -350,7 +350,7 @@ def process_files(
                 verbose(f"Skipping missing file [filepath]{file}[/]")
                 report_writer.write(ExportResults(missing=[file]))
                 continue
-            # zzz put in check for hardlink
+            # TODO: zzz put in check for hardlink
             verbose(f"Processing file [filepath]{file}[/] ([num]{count}/{total}[/num])")
             photo = photosdb.get_photo(uuid)
             export_options = ExportOptions(

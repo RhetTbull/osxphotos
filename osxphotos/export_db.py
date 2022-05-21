@@ -15,7 +15,7 @@ from contextlib import suppress
 from io import StringIO
 from sqlite3 import Error
 from tempfile import TemporaryDirectory
-from typing import Any, Optional, Tuple, Union
+from typing import Any, Optional, Tuple, Union, List
 
 from tenacity import retry, stop_after_attempt
 
@@ -170,6 +170,17 @@ class ExportDB:
             logging.warning(e)
             uuid = None
         return uuid
+
+    def get_files_for_uuid(self, uuid: str) -> List:
+        """query database for UUID and return list of files associated with UUID or empty list"""
+        conn = self._conn
+        c = conn.cursor()
+        c.execute(
+            "SELECT filepath FROM export_data WHERE uuid = ?",
+            (uuid,),
+        )
+        results = c.fetchall()
+        return [os.path.join(self.export_dir, r[0]) for r in results]
 
     def get_photoinfo_for_uuid(self, uuid):
         """returns the photoinfo JSON struct for a UUID"""

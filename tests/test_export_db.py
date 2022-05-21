@@ -50,6 +50,7 @@ def test_export_db():
     assert db.get_uuid_for_file(filepath) is None
     db.create_file_record(filepath, uuid)
     assert db.get_uuid_for_file(filepath) == uuid
+    assert db.get_files_for_uuid(uuid) == [filepath]
 
     record = db.get_file_record(filepath)
     assert record.uuid == uuid
@@ -142,6 +143,7 @@ def test_export_db_in_memory():
     assert record2.digest == DIGEST_DATA
     assert record2.src_sig == (7, 8, 9)
     assert record2.dest_sig == (10, 11, 12)
+    assert dbram.get_files_for_uuid(uuid) == [filepath]
 
     # change some values
     record2.photoinfo = INFO_DATA2

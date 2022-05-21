@@ -1,5 +1,6 @@
 """exportdb command for osxphotos CLI"""
 
+import json
 import pathlib
 import sys
 
@@ -64,6 +65,18 @@ from .verbose import verbose_print
     help="Print information about FILE_PATH contained in the database.",
 )
 @click.option(
+    "--uuid-files",
+    metavar="UUID",
+    nargs=1,
+    help="List exported files associated with UUID.",
+)
+@click.option(
+    "--uuid-info",
+    metavar="UUID",
+    nargs=1,
+    help="Print information about UUID contained in the database.",
+)
+@click.option(
     "--report",
     metavar="REPORT_FILE RUN_ID",
     help="Generate an export report as `osxphotos export ... --report REPORT_FILE` would have done. "
@@ -110,22 +123,24 @@ from .verbose import verbose_print
 )
 @click.argument("export_db", metavar="EXPORT_DATABASE", type=click.Path(exists=True))
 def exportdb(
-    version,
-    vacuum,
-    check_signatures,
-    update_signatures,
-    touch_file,
-    last_run,
-    save_config,
-    info,
-    report,
-    migrate,
-    sql,
-    export_dir,
     append,
-    verbose,
+    check_signatures,
     dry_run,
     export_db,
+    export_dir,
+    info,
+    last_run,
+    migrate,
+    report,
+    save_config,
+    sql,
+    touch_file,
+    update_signatures,
+    uuid_files,
+    uuid_info,
+    vacuum,
+    verbose,
+    version,
 ):
     """Utilities for working with the osxphotos export database"""
 
@@ -163,6 +178,8 @@ def exportdb(
             sql,
             touch_file,
             update_signatures,
+            uuid_files,
+            uuid_info,
             vacuum,
             version,
         ]
@@ -271,6 +288,37 @@ def exportdb(
                 print(info_rec.json(indent=2))
             else:
                 print(f"[red]File '{info}' not found in export database[/red]")
+            sys.exit(0)
+
+    if uuid_info:
+        # get photoinfo record for a uuid
+        exportdb = ExportDB(export_db, export_dir)
+        try:
+            info_rec = exportdb.get_photoinfo_for_uuid(uuid_info)
+        except Exception as e:
+            print(f"[red]Error: {e}[/red]")
+            sys.exit(1)
+        else:
+            if info_rec:
+                print(json.dumps(json.loads(info_rec), sort_keys=True, indent=2))
+            else:
+                print(f"[red]UUID '{uuid_info}' not found in export database[/red]")
+            sys.exit(0)
+
+    if uuid_files:
+        # list files associated with a uuid
+        exportdb = ExportDB(export_db, export_dir)
+        try:
+            file_list = exportdb.get_files_for_uuid(uuid_files)
+        except Exception as e:
+            print(f"[red]Error: {e}[/red]")
+            sys.exit(1)
+        else:
+            if file_list:
+                for f in file_list:
+                    print(f)
+            else:
+                print(f"[red]UUID '{uuid_files}' not found in export database[/red]")
             sys.exit(0)
 
     if report:
