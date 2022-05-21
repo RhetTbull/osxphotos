@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>osxphotos.export_db - osxphotos 0.49.1 documentation</title>
+        <title>osxphotos.export_db - osxphotos 0.49.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.49.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.49.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.49.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.49.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -478,6 +478,20 @@
             <span class="n">results</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">results</span></div>
 
+<div class="viewcode-block" id="ExportDB.get_exported_files"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.get_exported_files">[docs]</a>    <span class="k">def</span> <span class="nf">get_exported_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">"""Returns tuple of (uuid, filepath) for all paths of all exported files tracked in the database"""</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">"SELECT uuid, filepath FROM export_data"</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">Error</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">while</span> <span class="n">row</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">fetchone</span><span class="p">():</span>
+            <span class="k">yield</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">export_dir</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span></div>
+
 <div class="viewcode-block" id="ExportDB.close"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportDB.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">"""close the database connection"""</span>
         <span class="k">try</span><span class="p">:</span>
@@ -495,7 +509,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">dbfile</span><span class="p">):</span>
             <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_db_connection</span><span class="p">(</span><span class="n">dbfile</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">conn</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">"Error getting connection to database </span><span class="si">{dbfile}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error getting connection to database </span><span class="si">{</span><span class="n">dbfile</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_create_or_migrate_db_tables</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">was_created</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">was_upgraded</span> <span class="o">=</span> <span class="p">()</span>

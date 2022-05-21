@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>osxphotos.photoexporter - osxphotos 0.49.0 documentation</title>
+        <title>osxphotos.photoexporter - osxphotos 0.49.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.49.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.49.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.49.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.49.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -931,7 +931,7 @@
             <span class="k">return</span> <span class="n">ShouldUpdate</span><span class="o">.</span><span class="n">EXPORT_OPTIONS_DIFFERENT</span>
 
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">exiftool</span><span class="p">:</span>
-            <span class="n">current_exifdata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exiftool_json_sidecar</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+            <span class="n">current_exifdata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exiftool_json_sidecar</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
             <span class="n">rv</span> <span class="o">=</span> <span class="n">current_exifdata</span> <span class="o">!=</span> <span class="n">file_record</span><span class="o">.</span><span class="n">exifdata</span>
             <span class="c1"># if using exiftool, don't need to continue checking edited below</span>
             <span class="c1"># as exiftool will be used to update edited file</span>
@@ -1339,7 +1339,7 @@
                     <span class="c1"># point src to the tmp_file so that the original source is not modified</span>
                     <span class="c1"># and the export grabs the new file</span>
                     <span class="n">src</span> <span class="o">=</span> <span class="n">tmp_file</span>
-                    <span class="n">exif_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write_exif_metadata_to_file</span><span class="p">(</span>
+                    <span class="n">exif_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_exiftool_metadata_to_file</span><span class="p">(</span>
                         <span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span>
                     <span class="p">)</span>
 
@@ -1381,7 +1381,7 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">ignore_signature</span><span class="p">:</span>
                 <span class="n">rec</span><span class="o">.</span><span class="n">dest_sig</span> <span class="o">=</span> <span class="n">fileutil</span><span class="o">.</span><span class="n">file_sig</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">exiftool</span><span class="p">:</span>
-                <span class="n">rec</span><span class="o">.</span><span class="n">exifdata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exiftool_json_sidecar</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+                <span class="n">rec</span><span class="o">.</span><span class="n">exifdata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exiftool_json_sidecar</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">hexdigest</span> <span class="o">!=</span> <span class="n">rec</span><span class="o">.</span><span class="n">digest</span><span class="p">:</span>
                 <span class="n">results</span><span class="o">.</span><span class="n">metadata_changed</span> <span class="o">=</span> <span class="p">[</span><span class="n">dest_str</span><span class="p">]</span>
             <span class="n">rec</span><span class="o">.</span><span class="n">digest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">hexdigest</span>
@@ -1516,7 +1516,7 @@
             <span class="n">sidecar_filename</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}{</span><span class="n">dest_suffix</span><span class="si">}</span><span class="s2">.json"</span>
             <span class="p">)</span>
-            <span class="n">sidecar_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exiftool_json_sidecar</span><span class="p">(</span>
+            <span class="n">sidecar_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exiftool_json_sidecar</span><span class="p">(</span>
                 <span class="n">filename</span><span class="o">=</span><span class="n">dest</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span>
             <span class="p">)</span>
             <span class="n">sidecars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
@@ -1533,7 +1533,7 @@
             <span class="n">sidecar_filename</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}{</span><span class="n">dest_suffix</span><span class="si">}</span><span class="s2">.json"</span>
             <span class="p">)</span>
-            <span class="n">sidecar_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exiftool_json_sidecar</span><span class="p">(</span>
+            <span class="n">sidecar_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exiftool_json_sidecar</span><span class="p">(</span>
                 <span class="n">tag_groups</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">dest</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span>
             <span class="p">)</span>
             <span class="n">sidecars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
@@ -1632,19 +1632,20 @@
 
         <span class="k">return</span> <span class="n">results</span>
 
-    <span class="k">def</span> <span class="nf">_write_exif_metadata_to_file</span><span class="p">(</span>
+<div class="viewcode-block" id="PhotoExporter.write_exiftool_metadata_to_file"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoExporter.write_exiftool_metadata_to_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_exiftool_metadata_to_file</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">src</span><span class="p">,</span>
         <span class="n">dest</span><span class="p">,</span>
         <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExportResults</span><span class="p">:</span>
-        <span class="sd">"""Write exif metadata to file using exiftool</span>
+        <span class="sd">"""Write exif metadata to src file using exiftool</span>
 
-<span class="sd">        Note: this method modifies src so src must be a copy of the original file;</span>
+<span class="sd">        Caution: This method modifies *src*, not *dest*, </span>
+<span class="sd">        so src must be a copy of the original file if you don't want the source modified;</span>
 <span class="sd">        it also does not write to dest (dest is the intended destination for purposes of</span>
 <span class="sd">        referencing the export database. This allows the exiftool update to be done on the</span>
 <span class="sd">        local machine prior to being copied to the export destination which may be on a</span>
-<span class="sd">        network drive or other slower external storage."""</span>
+<span class="sd">        network drive or other slower external storage)."""</span>
 
         <span class="n">verbose</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">verbose</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span>
         <span class="n">exiftool_results</span> <span class="o">=</span> <span class="n">ExportResults</span><span class="p">()</span>
@@ -1676,7 +1677,7 @@
 
         <span class="n">exiftool_results</span><span class="o">.</span><span class="n">exif_updated</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
         <span class="n">exiftool_results</span><span class="o">.</span><span class="n">to_touch</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">exiftool_results</span>
+        <span class="k">return</span> <span class="n">exiftool_results</span></div>
 
     <span class="k">def</span> <span class="nf">_should_run_exiftool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">"""Return True if exiftool should be run to update metadata"""</span>
@@ -1687,7 +1688,7 @@
             <span class="n">old_data</span> <span class="o">=</span> <span class="n">exif_record</span><span class="o">.</span><span class="n">exifdata</span> <span class="k">if</span> <span class="n">exif_record</span> <span class="k">else</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">old_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">old_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">old_data</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">current_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_exiftool_json_sidecar</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">))</span>
+                <span class="n">current_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exiftool_json_sidecar</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">))</span>
                 <span class="n">current_data</span> <span class="o">=</span> <span class="n">current_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">old_data</span> <span class="o">!=</span> <span class="n">current_data</span><span class="p">:</span>
                     <span class="n">files_are_different</span> <span class="o">=</span> <span class="kc">True</span>
@@ -2027,7 +2028,7 @@
                 <span class="k">pass</span>
         <span class="k">return</span> <span class="n">persons</span>
 
-    <span class="k">def</span> <span class="nf">_exiftool_json_sidecar</span><span class="p">(</span>
+<div class="viewcode-block" id="PhotoExporter.exiftool_json_sidecar"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoExporter.exiftool_json_sidecar">[docs]</a>    <span class="k">def</span> <span class="nf">exiftool_json_sidecar</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">options</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ExportOptions</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">tag_groups</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -2079,7 +2080,7 @@
                 <span class="n">exif_new</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
             <span class="n">exif</span> <span class="o">=</span> <span class="n">exif_new</span>
 
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">([</span><span class="n">exif</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">([</span><span class="n">exif</span><span class="p">])</span></div>
 
     <span class="k">def</span> <span class="nf">_xmp_sidecar</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>

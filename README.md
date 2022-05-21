@@ -614,7 +614,7 @@ Here's a comprehensive use case from an actual osxphotos user that integrates ma
 
 #### Color Themes
 
-Some osxphotos commands such as export use color themes to colorize the output to make it more legible. The theme may be specified with the `--theme` option. For example: `osxphotos export /path/to/export --verbose --theme dark` uses a theme suited for dark terminals. If you don't specify the color theme, osxphotos will select a default theme based on the current terminal settings. You can also specify your own default theme. See `osxphotos help theme` for more information on themes and for commands to help manage themes.  Themes are defined in `.theme` files in the `~/.config/osxphotos/themes` directory (or `$XDG_CONFIG_HOME`, see [Files Created by OSXPhotos](#files-created-by-osxphotos)) and use style specifications compatible with the [rich](https://rich.readthedocs.io/en/stable/style.html) library.
+Some osxphotos commands such as export use color themes to colorize the output to make it more legible. The theme may be specified with the `--theme` option. For example: `osxphotos export /path/to/export --verbose --theme dark` uses a theme suited for dark terminals. If you don't specify the color theme, osxphotos will select a default theme based on the current terminal settings. You can also specify your own default theme. See `osxphotos help theme` for more information on themes and for commands to help manage themes.  Themes are defined in `.theme` files in the `~/.osxphotos/themes` directory and use style specifications compatible with the [rich](https://rich.readthedocs.io/en/stable/style.html) library.
 
 #### Conclusion
 
@@ -1849,7 +1849,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.49.1'
+{osxphotos_version}             The osxphotos version, e.g. '0.49.2'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -4025,7 +4025,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.49.1'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.49.2'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|

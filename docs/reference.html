@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="OSXPhotos Python Package Overview" href="package_overview.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>OSXPhotos python API - osxphotos 0.49.1 documentation</title>
+        <title>OSXPhotos python API - osxphotos 0.49.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.49.1 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.49.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.49.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.49.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -410,6 +410,11 @@ If called in context manager, returns True (execution is delayed until exiting c
 <dd class="field-even"><p>ExportResults object or None if no results found</p>
 </dd>
 </dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="osxphotos.ExportDB.get_exported_files">
+<span class="sig-name descname"><span class="pre">get_exported_files</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/export_db.html#ExportDB.get_exported_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.ExportDB.get_exported_files" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns tuple of (uuid, filepath) for all paths of all exported files tracked in the database</p>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.ExportDB.get_file_record">
@@ -1137,6 +1142,49 @@ Highest quality face is result[0] and lowest quality face is result[n]</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">osxphotos.</span></span><span class="sig-name descname"><span class="pre">PhotoExporter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">photo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#osxphotos.PhotoInfo" title="osxphotos.PhotoInfo"><span class="pre">PhotoInfo</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmpdir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/photoexporter.html#PhotoExporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotoExporter" title="Permalink to this definition">#</a></dt>
 <dd><p>Export a photo</p>
 <dl class="py method">
+<dt class="sig sig-object py" id="osxphotos.PhotoExporter.exiftool_json_sidecar">
+<span class="sig-name descname"><span class="pre">exiftool_json_sidecar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#osxphotos.ExportOptions" title="osxphotos.photoexporter.ExportOptions"><span class="pre">osxphotos.photoexporter.ExportOptions</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag_groups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/photoexporter.html#PhotoExporter.exiftool_json_sidecar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotoExporter.exiftool_json_sidecar" title="Permalink to this definition">#</a></dt>
+<dd><dl class="simple">
+<dt>Return dict of EXIF details for building exiftool JSON sidecar or sending commands to ExifTool.</dt><dd><p>Does not include all the EXIF fields as those are likely already in the image.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>options</strong> (<a class="reference internal" href="#osxphotos.ExportOptions" title="osxphotos.ExportOptions"><em>ExportOptions</em></a>) – options for export</p></li>
+<li><p><strong>tag_groups</strong> (<em>bool</em><em>, </em><em>default=True</em>) – if True, include tag groups in the output</p></li>
+<li><p><strong>filename</strong> (<em>str</em>) – name of source image file (without path); if not None, exiftool JSON signature will be included; if None, signature will not be included</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: dict with exiftool tags / values</p>
+<dl class="simple">
+<dt>Exports the following:</dt><dd><p>EXIF:ImageDescription
+XMP:Description (may include template)
+IPTC:CaptionAbstract
+XMP:Title
+IPTC:ObjectName
+XMP:TagsList
+IPTC:Keywords (may include album name, person name, or template)
+XMP:Subject (set to keywords + person)
+XMP:PersonInImage
+EXIF:GPSLatitudeRef, EXIF:GPSLongitudeRef
+EXIF:GPSLatitude, EXIF:GPSLongitude
+EXIF:GPSPosition
+EXIF:DateTimeOriginal
+EXIF:OffsetTimeOriginal
+EXIF:ModifyDate
+IPTC:DigitalCreationDate
+IPTC:DateCreated
+QuickTime:CreationDate
+QuickTime:CreateDate (UTC)
+QuickTime:ModifyDate (UTC)
+QuickTime:GPSCoordinates
+UserData:GPSCoordinates</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.PhotoExporter.export">
 <span class="sig-name descname"><span class="pre">export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dest</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#osxphotos.ExportOptions" title="osxphotos.photoexporter.ExportOptions"><span class="pre">osxphotos.photoexporter.ExportOptions</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="#osxphotos.ExportResults" title="osxphotos.photoexporter.ExportResults"><span class="pre">osxphotos.photoexporter.ExportResults</span></a></span></span><a class="reference internal" href="_modules/osxphotos/photoexporter.html#PhotoExporter.export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotoExporter.export" title="Permalink to this definition">#</a></dt>
 <dd><p>Export photo</p>
@@ -1166,6 +1214,17 @@ reference PhotoInfo.path_edited</p></li>
 </dd>
 </dl>
 </div>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="osxphotos.PhotoExporter.write_exiftool_metadata_to_file">
+<span class="sig-name descname"><span class="pre">write_exiftool_metadata_to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#osxphotos.ExportOptions" title="osxphotos.photoexporter.ExportOptions"><span class="pre">osxphotos.photoexporter.ExportOptions</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="#osxphotos.ExportResults" title="osxphotos.photoexporter.ExportResults"><span class="pre">osxphotos.photoexporter.ExportResults</span></a></span></span><a class="reference internal" href="_modules/osxphotos/photoexporter.html#PhotoExporter.write_exiftool_metadata_to_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotoExporter.write_exiftool_metadata_to_file" title="Permalink to this definition">#</a></dt>
+<dd><p>Write exif metadata to src file using exiftool</p>
+<p>Caution: This method modifies <em>src</em>, not <em>dest</em>,
+so src must be a copy of the original file if you don’t want the source modified;
+it also does not write to dest (dest is the intended destination for purposes of
+referencing the export database. This allows the exiftool update to be done on the
+local machine prior to being copied to the export destination which may be on a
+network drive or other slower external storage).</p>
 </dd></dl>
 </dd></dl>
 <dl class="py class">
