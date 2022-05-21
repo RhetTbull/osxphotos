@@ -332,8 +332,7 @@ def process_files(
         export_db = ExportDB(exportdb, export_dir)
         fileutil = FileUtil
 
-    # get_exported_files is a generator so need to iterate over it
-    # get_exported_files returns a tuple of (uuid, filepath)
+    # get_exported_files is a generator which returns tuple of (uuid, filepath)
     files = list(export_db.get_exported_files())
     # filter out sidecar files
     files = [
