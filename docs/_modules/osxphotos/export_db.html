@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>osxphotos.export_db - osxphotos 0.49.3 documentation</title>
+        <title>osxphotos.export_db - osxphotos 0.49.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.49.3 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.49.4 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.49.3 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.49.4 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -226,7 +226,7 @@
     <span class="s2">"ExportDBTemp"</span><span class="p">,</span>
 <span class="p">]</span>
 
-<span class="n">OSXPHOTOS_EXPORTDB_VERSION</span> <span class="o">=</span> <span class="s2">"7.0"</span>
+<span class="n">OSXPHOTOS_EXPORTDB_VERSION</span> <span class="o">=</span> <span class="s2">"7.1"</span>
 <span class="n">OSXPHOTOS_ABOUT_STRING</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Created by osxphotos version </span><span class="si">{</span><span class="n">__version__</span><span class="si">}</span><span class="s2"> (https://github.com/RhetTbull/osxphotos) on </span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span>
 
 <span class="c1"># max retry attempts for methods which use tenacity.retry</span>
@@ -677,6 +677,10 @@
             <span class="c1"># create report_data table</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_migrate_6_0_to_7_0</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">version</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="s2">"7.1"</span><span class="p">:</span>
+            <span class="c1"># add timestamp to export_data</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_migrate_7_0_to_7_1</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
+
         <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">"VACUUM;"</span><span class="p">)</span>
         <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 
@@ -890,6 +894,32 @@
                 <span class="p">)</span>
                 <span class="c1"># sleep a tiny bit just to ensure time stamps increment</span>
                 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">Error</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_migrate_7_0_to_7_1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">"""ALTER TABLE export_data ADD COLUMN timestamp DATETIME;"""</span><span class="p">)</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="sd">"""</span>
+<span class="sd">                CREATE TRIGGER insert_timestamp_trigger</span>
+<span class="sd">                AFTER INSERT ON export_data</span>
+<span class="sd">                BEGIN</span>
+<span class="sd">                   UPDATE export_data SET timestamp = STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW') WHERE id = NEW.id;</span>
+<span class="sd">                END;</span>
+<span class="sd">                """</span>
+            <span class="p">)</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="sd">"""</span>
+<span class="sd">                CREATE TRIGGER update_timestamp_trigger</span>
+<span class="sd">                AFTER UPDATE On export_data</span>
+<span class="sd">                BEGIN</span>
+<span class="sd">                    UPDATE export_data SET timestamp = STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW') WHERE id = NEW.id;</span>
+<span class="sd">                END;</span>
+<span class="sd">                """</span>
+            <span class="p">)</span>
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">Error</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
@@ -1255,6 +1285,21 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context_manager</span><span class="p">:</span>
             <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">"""returns the timestamp value"""</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">row</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s2">"SELECT timestamp FROM export_data WHERE filepath_normalized = ?;"</span><span class="p">,</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filepath_normalized</span><span class="p">,),</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"No timestamp found in database for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_filepath_normalized</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">"""Return dict of self"""</span>
         <span class="n">exifdata</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exifdata</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exifdata</span> <span class="k">else</span> <span class="kc">None</span>
@@ -1263,6 +1308,7 @@
             <span class="s2">"filepath"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">,</span>
             <span class="s2">"filepath_normalized"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">filepath_normalized</span><span class="p">,</span>
             <span class="s2">"uuid"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+            <span class="s2">"timestamp"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span>
             <span class="s2">"digest"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">digest</span><span class="p">,</span>
             <span class="s2">"src_sig"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">src_sig</span><span class="p">,</span>
             <span class="s2">"dest_sig"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dest_sig</span><span class="p">,</span>

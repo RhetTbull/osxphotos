@@ -30,7 +30,7 @@ __all__ = [
     "ExportDBTemp",
 ]
 
-OSXPHOTOS_EXPORTDB_VERSION = "7.0"
+OSXPHOTOS_EXPORTDB_VERSION = "7.1"
 OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
 
 # max retry attempts for methods which use tenacity.retry
@@ -481,6 +481,10 @@ class ExportDB:
             # create report_data table
             self._migrate_6_0_to_7_0(conn)
 
+        if version[1] < "7.1":
+            # add timestamp to export_data
+            self._migrate_7_0_to_7_1(conn)
+
         conn.execute("VACUUM;")
         conn.commit()
 
@@ -694,6 +698,32 @@ class ExportDB:
                 )
                 # sleep a tiny bit just to ensure time stamps increment
                 time.sleep(0.001)
+            conn.commit()
+        except Error as e:
+            logging.warning(e)
+
+    def _migrate_7_0_to_7_1(self, conn):
+        try:
+            c = conn.cursor()
+            c.execute("""ALTER TABLE export_data ADD COLUMN timestamp DATETIME;""")
+            c.execute(
+                """
+                CREATE TRIGGER insert_timestamp_trigger
+                AFTER INSERT ON export_data
+                BEGIN
+                   UPDATE export_data SET timestamp = STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW') WHERE id = NEW.id;
+                END;
+                """
+            )
+            c.execute(
+                """
+                CREATE TRIGGER update_timestamp_trigger
+                AFTER UPDATE On export_data
+                BEGIN
+                    UPDATE export_data SET timestamp = STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW') WHERE id = NEW.id;
+                END;
+                """
+            )
             conn.commit()
         except Error as e:
             logging.warning(e)
@@ -1059,6 +1089,21 @@ class ExportRecord:
         if not self._context_manager:
             conn.commit()
 
+    @property
+    def timestamp(self):
+        """returns the timestamp value"""
+        conn = self._conn
+        c = conn.cursor()
+        if row := c.execute(
+            "SELECT timestamp FROM export_data WHERE filepath_normalized = ?;",
+            (self._filepath_normalized,),
+        ).fetchone():
+            return row[0]
+
+        raise ValueError(
+            f"No timestamp found in database for {self._filepath_normalized}"
+        )
+
     def asdict(self):
         """Return dict of self"""
         exifdata = json.loads(self.exifdata) if self.exifdata else None
@@ -1067,6 +1112,7 @@ class ExportRecord:
             "filepath": self.filepath,
             "filepath_normalized": self.filepath_normalized,
             "uuid": self.uuid,
+            "timestamp": self.timestamp,
             "digest": self.digest,
             "src_sig": self.src_sig,
             "dest_sig": self.dest_sig,
