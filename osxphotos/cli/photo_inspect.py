@@ -342,7 +342,13 @@ def make_layout() -> Layout:
 @THEME_OPTION
 @DB_OPTION
 def photo_inspect(db, theme, detect_text):
-    """Interactively inspect photos selected in Photos"""
+    """Interactively inspect photos selected in Photos.
+
+    Open Photos then run `osxphotos inspect` in the terminal.
+    As you select a photo in Photos, inspect will display metadata about the photo. 
+    Press Ctrl+C to exit when done.
+    Works best with a modern terminal like iTerm2 or Kitty.
+    """
     db = get_photos_db(db)
     if not db:
         raise click.UsageError(
