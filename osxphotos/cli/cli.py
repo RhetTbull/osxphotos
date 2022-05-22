@@ -21,6 +21,7 @@ from .keywords import keywords
 from .labels import labels
 from .list import list_libraries
 from .persons import persons
+from .photo_inspect import photo_inspect
 from .places import places
 from .query import query
 from .repl import repl
@@ -79,6 +80,7 @@ for command in [
     labels,
     list_libraries,
     persons,
+    photo_inspect,
     places,
     query,
     repl,
