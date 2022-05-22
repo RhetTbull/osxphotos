@@ -306,7 +306,7 @@ def _get_detected_text(uuid: str, path: str, orientation: int, queue: Queue) -> 
         if text := detect_text_in_photo(path, orientation):
             queue.put([uuid, " ".join(t[0] for t in text if t[1] > 0.5)])
     except Exception as e:
-        queue.put([uuid, str(e)])
+        queue.put([None, str(e)])
 
 
 def get_uuid_for_photos_selection() -> List[str]:
@@ -345,7 +345,7 @@ def photo_inspect(db, theme, detect_text):
     """Interactively inspect photos selected in Photos.
 
     Open Photos then run `osxphotos inspect` in the terminal.
-    As you select a photo in Photos, inspect will display metadata about the photo. 
+    As you select a photo in Photos, inspect will display metadata about the photo.
     Press Ctrl+C to exit when done.
     Works best with a modern terminal like iTerm2 or Kitty.
     """
@@ -422,6 +422,7 @@ def photo_inspect(db, theme, detect_text):
                         # start text detection if requested
                         if (
                             detect_text
+                            and photo.isphoto
                             and (
                                 photo.path
                                 or photo.path_edited
