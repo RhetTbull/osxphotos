@@ -107,6 +107,7 @@ Alternatively, you can also run the command line utility like this: ``python3 -m
      exportdb   Utilities for working with the osxphotos export database
      help       Print help; for help on commands: help <command>.
      info       Print out descriptive info of the Photos library database.
+     inspect    Interactively inspect photos selected in Photos.
      install    Install Python packages into the same environment as osxphotos
      keywords   Print out keywords found in the Photos library.
      labels     Print out image classification labels found in the Photos...

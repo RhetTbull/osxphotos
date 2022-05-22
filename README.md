@@ -154,6 +154,7 @@ Commands:
   exportdb   Utilities for working with the osxphotos export database
   help       Print help; for help on commands: help <command>.
   info       Print out descriptive info of the Photos library database.
+  inspect    Interactively inspect photos selected in Photos.
   install    Install Python packages into the same environment as osxphotos
   keywords   Print out keywords found in the Photos library.
   labels     Print out image classification labels found in the Photos...
@@ -1849,7 +1850,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.49.4'
+{osxphotos_version}             The osxphotos version, e.g. '0.49.5'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -4025,7 +4026,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.49.4'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.49.5'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
