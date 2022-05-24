@@ -52,7 +52,7 @@ Field:
 ;
 
 FIELD_WORD:
-    /[\.\w]+/
+    /[\%]?[\.\w]+/
 ;
 
 SubField:
@@ -70,13 +70,14 @@ SUBFIELD_WORD:
 Filter:
     (
     "|"-
-    (value+=FILTER_WORD['|'])?
+    (value+=FILTER_FUNCTION['|'])?
     )?
 ;
 
-FILTER_WORD:
-    /[\.\w:\/]+/
+FILTER_FUNCTION:
+    /[\.\w:\/]+(\([^\)]*\))?/
 ;
+
 
 Conditional:
     (
@@ -84,7 +85,7 @@ Conditional:
     (negation=NEGATION)?
     (operator=OPERATOR)
     (" "+)-
-    (value=Statement)
+    (value+=Statement['|'])
     )?
 ;
 

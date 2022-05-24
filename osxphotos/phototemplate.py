@@ -529,11 +529,9 @@ class PhotoTemplate:
                 negation = ts.template.conditional.negation
                 if ts.template.conditional.value is not None:
                     # conditional value is also a TemplateString
-                    conditional_value, u = self._render_statement(
-                        ts.template.conditional.value,
-                        field_arg=field_arg,
-                    )
-                    unmatched.extend(u)
+                    conditional_value = []
+                    for cv in ts.template.conditional.value:
+                        conditional_value += self._render_statement(cv)[0]
                 else:
                     # this shouldn't happen
                     conditional_value = [""]

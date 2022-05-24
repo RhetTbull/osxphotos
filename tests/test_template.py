@@ -323,6 +323,7 @@ UUID_CONDITIONAL = {
         "{title endswith Park?YES,NO}": ["YES"],
         "{title endswith Elder?YES,NO}": ["NO"],
         "{title startswith Elder?YES,NO}": ["YES"],
+        "{title startswith Elder|endswith Park?YES,NO}": ["YES"],
         "{title endswith Elder?YES,NO}": ["NO"],
         "{photo.place.name contains Adelaide?YES,NO}": ["YES"],
         "{photo.place.name|lower contains adelaide?YES,NO}": ["YES"],
