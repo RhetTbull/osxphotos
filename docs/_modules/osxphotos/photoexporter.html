@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>osxphotos.photoexporter - osxphotos 0.49.2 documentation</title>
+        <title>osxphotos.photoexporter - osxphotos 0.49.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.49.2 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.49.7 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.49.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.49.7 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -240,7 +240,13 @@
 <span class="kn">from</span> <span class="nn">.phototemplate</span> <span class="kn">import</span> <span class="n">RenderOptions</span>
 <span class="kn">from</span> <span class="nn">.rich_utils</span> <span class="kn">import</span> <span class="n">add_rich_markup_tag</span>
 <span class="kn">from</span> <span class="nn">.uti</span> <span class="kn">import</span> <span class="n">get_preferred_uti_extension</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">hexdigest</span><span class="p">,</span> <span class="n">increment_filename</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">list_directory</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">hexdigest</span><span class="p">,</span>
+    <span class="n">increment_filename</span><span class="p">,</span>
+    <span class="n">increment_filename_with_count</span><span class="p">,</span>
+    <span class="n">lineno</span><span class="p">,</span>
+    <span class="n">list_directory</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">"ExportError"</span><span class="p">,</span>
@@ -684,7 +690,7 @@
         <span class="n">src</span> <span class="o">=</span> <span class="n">staged_files</span><span class="o">.</span><span class="n">edited</span> <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">edited</span> <span class="k">else</span> <span class="n">staged_files</span><span class="o">.</span><span class="n">original</span>
 
         <span class="c1"># get the right destination path depending on options.update, etc.</span>
-        <span class="n">dest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dest_path</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+        <span class="n">dest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dest_path</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_render_options</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
         <span class="n">all_results</span> <span class="o">=</span> <span class="n">ExportResults</span><span class="p">()</span>
@@ -838,12 +844,11 @@
         <span class="k">return</span> <span class="n">edited_filename</span>
 
     <span class="k">def</span> <span class="nf">_get_dest_path</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">:</span>
         <span class="sd">"""If destination exists find match in ExportDB, on disk, or add (1), (2), and so on to filename to get a valid destination</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            src (str): source file path</span>
 <span class="sd">            dest (str): destination path</span>
 <span class="sd">            options (ExportOptions): Export options</span>
 
@@ -859,6 +864,10 @@
                 <span class="sa">f</span><span class="s2">"destination exists (</span><span class="si">{</span><span class="n">dest</span><span class="si">}</span><span class="s2">); overwrite=</span><span class="si">{</span><span class="n">options</span><span class="o">.</span><span class="n">overwrite</span><span class="si">}</span><span class="s2">, increment=</span><span class="si">{</span><span class="n">options</span><span class="o">.</span><span class="n">increment</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
 
+        <span class="c1"># if overwrite, we don't care if the file exists or not</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">overwrite</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">dest</span>
+
         <span class="c1"># if not update or overwrite, check to see if file exists and if so, add (1), (2), etc</span>
         <span class="c1"># until we find one that works</span>
         <span class="c1"># Photos checks the stem and adds (1), (2), etc which avoids collision with sidecars</span>
@@ -871,29 +880,36 @@
             <span class="k">return</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">increment_filename</span><span class="p">(</span><span class="n">dest</span><span class="p">))</span>
 
         <span class="c1"># if update and file exists, need to check to see if it's the right file by checking export db</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">update</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">)</span> <span class="ow">and</span> <span class="n">dest</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">src</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">update</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">force_update</span><span class="p">:</span>
             <span class="n">export_db</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">export_db</span>
-            <span class="c1"># destination exists, check to see if destination is the right UUID</span>
             <span class="n">dest_uuid</span> <span class="o">=</span> <span class="n">export_db</span><span class="o">.</span><span class="n">get_uuid_for_file</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">dest_uuid</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">:</span>
-                <span class="c1"># not the right file, find the right one</span>
-                <span class="c1"># find files that match "dest_name (*.ext" (e.g. "dest_name (1).jpg", "dest_name (2).jpg)", ...)</span>
-                <span class="n">dest_files</span> <span class="o">=</span> <span class="n">list_directory</span><span class="p">(</span>
-                    <span class="n">dest</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span>
-                    <span class="n">startswith</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dest</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2"> ("</span><span class="p">,</span>
-                    <span class="n">endswith</span><span class="o">=</span><span class="n">dest</span><span class="o">.</span><span class="n">suffix</span><span class="p">,</span>
-                    <span class="n">include_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="k">for</span> <span class="n">file_</span> <span class="ow">in</span> <span class="n">dest_files</span><span class="p">:</span>
-                    <span class="n">dest_uuid</span> <span class="o">=</span> <span class="n">export_db</span><span class="o">.</span><span class="n">get_uuid_for_file</span><span class="p">(</span><span class="n">file_</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">dest_uuid</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">:</span>
-                        <span class="n">dest</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">file_</span><span class="p">)</span>
-                        <span class="k">break</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="c1"># increment the destination file</span>
-                    <span class="n">dest</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">increment_filename</span><span class="p">(</span><span class="n">dest</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">dest_uuid</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">dest</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="c1"># destination doesn't exist in export db and doesn't exist on disk</span>
+                <span class="c1"># so we can just use it</span>
+                <span class="k">return</span> <span class="n">dest</span>
 
-        <span class="c1"># either dest was updated in the if clause above or not updated at all</span>
+            <span class="k">if</span> <span class="n">dest_uuid</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">:</span>
+                <span class="c1"># destination is the right file</span>
+                <span class="k">return</span> <span class="n">dest</span>
+
+            <span class="c1"># either dest_uuid is wrong or file exists and there's no associated UUID, so find a name that matches</span>
+            <span class="c1"># or create a new name if no match</span>
+            <span class="c1"># find files that match "dest_name (*.ext" (e.g. "dest_name (1).jpg", "dest_name (2).jpg)", ...)</span>
+            <span class="c1"># first, find all matching files in export db and see if there's a match</span>
+            <span class="k">if</span> <span class="n">dest_target</span> <span class="o">:=</span> <span class="n">export_db</span><span class="o">.</span><span class="n">get_target_for_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span> <span class="n">dest</span><span class="p">):</span>
+                <span class="c1"># there's a match so use that</span>
+                <span class="k">return</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">dest_target</span><span class="p">)</span>
+
+            <span class="c1"># no match so need to create a new name</span>
+            <span class="c1"># increment the destination file until we find one that doesn't exist and doesn't match another uuid in the database</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">dest</span><span class="p">,</span> <span class="n">count</span> <span class="o">=</span> <span class="n">increment_filename_with_count</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">while</span> <span class="n">export_db</span><span class="o">.</span><span class="n">get_uuid_for_file</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">dest</span><span class="p">,</span> <span class="n">count</span> <span class="o">=</span> <span class="n">increment_filename_with_count</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+
+        <span class="c1"># fail safe...I can't think of a case that gets here</span>
         <span class="k">return</span> <span class="n">dest</span>
 
     <span class="k">def</span> <span class="nf">_should_update_photo</span><span class="p">(</span>
@@ -1232,9 +1248,9 @@
 
     <span class="k">def</span> <span class="nf">_export_photo</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">src</span><span class="p">,</span>
-        <span class="n">dest</span><span class="p">,</span>
-        <span class="n">options</span><span class="p">,</span>
+        <span class="n">src</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">dest</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">ExportOptions</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">"""Helper function for export()</span>
 <span class="sd">            Does the actual copy or hardlink taking the appropriate</span>
@@ -1640,7 +1656,7 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExportResults</span><span class="p">:</span>
         <span class="sd">"""Write exif metadata to src file using exiftool</span>
 
-<span class="sd">        Caution: This method modifies *src*, not *dest*, </span>
+<span class="sd">        Caution: This method modifies *src*, not *dest*,</span>
 <span class="sd">        so src must be a copy of the original file if you don't want the source modified;</span>
 <span class="sd">        it also does not write to dest (dest is the intended destination for purposes of</span>
 <span class="sd">        referencing the export database. This allows the exiftool update to be done on the</span>

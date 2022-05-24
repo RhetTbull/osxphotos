@@ -44,7 +44,13 @@ from .photokit import (
 from .phototemplate import RenderOptions
 from .rich_utils import add_rich_markup_tag
 from .uti import get_preferred_uti_extension
-from .utils import hexdigest, increment_filename, lineno, list_directory
+from .utils import (
+    hexdigest,
+    increment_filename,
+    increment_filename_with_count,
+    lineno,
+    list_directory,
+)
 
 __all__ = [
     "ExportError",
@@ -488,7 +494,7 @@ class PhotoExporter:
         src = staged_files.edited if options.edited else staged_files.original
 
         # get the right destination path depending on options.update, etc.
-        dest = self._get_dest_path(src, dest, options)
+        dest = self._get_dest_path(dest, options)
 
         self._render_options.filepath = str(dest)
         all_results = ExportResults()
@@ -642,12 +648,11 @@ class PhotoExporter:
         return edited_filename
 
     def _get_dest_path(
-        self, src: str, dest: pathlib.Path, options: ExportOptions
+        self, dest: pathlib.Path, options: ExportOptions
     ) -> pathlib.Path:
         """If destination exists find match in ExportDB, on disk, or add (1), (2), and so on to filename to get a valid destination
 
         Args:
-            src (str): source file path
             dest (str): destination path
             options (ExportOptions): Export options
 
@@ -663,6 +668,10 @@ class PhotoExporter:
                 f"destination exists ({dest}); overwrite={options.overwrite}, increment={options.increment}"
             )
 
+        # if overwrite, we don't care if the file exists or not
+        if options.overwrite:
+            return dest
+
         # if not update or overwrite, check to see if file exists and if so, add (1), (2), etc
         # until we find one that works
         # Photos checks the stem and adds (1), (2), etc which avoids collision with sidecars
@@ -675,29 +684,36 @@ class PhotoExporter:
             return pathlib.Path(increment_filename(dest))
 
         # if update and file exists, need to check to see if it's the right file by checking export db
-        if (options.update or options.force_update) and dest.exists() and src:
+        if options.update or options.force_update:
             export_db = options.export_db
-            # destination exists, check to see if destination is the right UUID
             dest_uuid = export_db.get_uuid_for_file(dest)
-            if dest_uuid != self.photo.uuid:
-                # not the right file, find the right one
-                # find files that match "dest_name (*.ext" (e.g. "dest_name (1).jpg", "dest_name (2).jpg)", ...)
-                dest_files = list_directory(
-                    dest.parent,
-                    startswith=f"{dest.stem} (",
-                    endswith=dest.suffix,
-                    include_path=True,
-                )
-                for file_ in dest_files:
-                    dest_uuid = export_db.get_uuid_for_file(file_)
-                    if dest_uuid == self.photo.uuid:
-                        dest = pathlib.Path(file_)
-                        break
-                else:
-                    # increment the destination file
-                    dest = pathlib.Path(increment_filename(dest))
+            if dest_uuid is None and not dest.exists():
+                # destination doesn't exist in export db and doesn't exist on disk
+                # so we can just use it
+                return dest
 
-        # either dest was updated in the if clause above or not updated at all
+            if dest_uuid == self.photo.uuid:
+                # destination is the right file
+                return dest
+
+            # either dest_uuid is wrong or file exists and there's no associated UUID, so find a name that matches
+            # or create a new name if no match
+            # find files that match "dest_name (*.ext" (e.g. "dest_name (1).jpg", "dest_name (2).jpg)", ...)
+            # first, find all matching files in export db and see if there's a match
+            if dest_target := export_db.get_target_for_file(self.photo.uuid, dest):
+                # there's a match so use that
+                return pathlib.Path(dest_target)
+
+            # no match so need to create a new name
+            # increment the destination file until we find one that doesn't exist and doesn't match another uuid in the database
+            count = 0
+            dest, count = increment_filename_with_count(dest, count)
+            count += 1
+            while export_db.get_uuid_for_file(dest) is not None:
+                dest, count = increment_filename_with_count(dest, count)
+            return pathlib.Path(dest)
+
+        # fail safe...I can't think of a case that gets here
         return dest
 
     def _should_update_photo(
@@ -1036,9 +1052,9 @@ class PhotoExporter:
 
     def _export_photo(
         self,
-        src,
-        dest,
-        options,
+        src: str,
+        dest: pathlib.Path,
+        options: ExportOptions,
     ):
         """Helper function for export()
             Does the actual copy or hardlink taking the appropriate
@@ -1444,7 +1460,7 @@ class PhotoExporter:
     ) -> ExportResults:
         """Write exif metadata to src file using exiftool
 
-        Caution: This method modifies *src*, not *dest*, 
+        Caution: This method modifies *src*, not *dest*,
         so src must be a copy of the original file if you don't want the source modified;
         it also does not write to dest (dest is the intended destination for purposes of
         referencing the export database. This allows the exiftool update to be done on the

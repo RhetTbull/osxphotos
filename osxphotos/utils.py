@@ -411,7 +411,7 @@ def normalize_unicode(value):
 
 def increment_filename_with_count(
     filepath: Union[str, pathlib.Path], count: int = 0
-) -> str:
+) -> Tuple[str, int]:
     """Return filename (1).ext, etc if filename.ext exists
 
         If file exists in filename's parent folder with same stem as filename,
@@ -447,6 +447,7 @@ def increment_filename(filepath: Union[str, pathlib.Path]) -> str:
 
     Args:
         filepath: str or pathlib.Path; full path, including file name
+        force: force the file count to increment by at least 1 even if filepath doesn't exist
 
     Returns:
         new filepath (or same if not incremented)
@@ -455,6 +456,13 @@ def increment_filename(filepath: Union[str, pathlib.Path]) -> str:
     """
     new_filepath, _ = increment_filename_with_count(filepath)
     return new_filepath
+
+
+def extract_increment_count_from_filename(filepath: Union[str, pathlib.Path]) -> int:
+    """Extract a count from end of file name if it exists or 0 if not; count takes forms file (1).ext, file (2).ext, etc."""
+    filepath = str(filepath)
+    match = re.search(r"(?s:.*)\((\d+)\)", filepath)
+    return int(match[1]) if match else 0
 
 
 def expand_and_validate_filepath(path: str) -> str:

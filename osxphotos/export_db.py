@@ -6,8 +6,10 @@ import gzip
 import json
 import logging
 import os
+import os.path
 import pathlib
 import pickle
+import re
 import sqlite3
 import sys
 import time
@@ -15,7 +17,7 @@ from contextlib import suppress
 from io import StringIO
 from sqlite3 import Error
 from tempfile import TemporaryDirectory
-from typing import Any, Optional, Tuple, Union, List
+from typing import Any, List, Optional, Tuple, Union
 
 from tenacity import retry, stop_after_attempt
 
@@ -208,6 +210,35 @@ class ExportDB:
             conn.commit()
         except Error as e:
             logging.warning(e)
+
+    def get_target_for_file(
+        self, uuid: str, filename: Union[str, pathlib.Path]
+    ) -> Optional[str]:
+        """query database for file matching file name and return the matching filename if there is one;
+           otherwise return None; looks for file.ext, file (1).ext, file (2).ext and so on to find the
+           actual target name that was used to export filename
+
+        Returns: the matching filename or None if no match found
+        """
+        conn = self._conn
+        c = conn.cursor()
+        filepath_normalized = self._normalize_filepath_relative(filename)
+        filepath_stem = os.path.splitext(filepath_normalized)[0]
+        c.execute(
+            "SELECT uuid, filepath, filepath_normalized FROM export_data WHERE uuid = ? AND filepath_normalized LIKE ?",
+            (
+                uuid,
+                f"{filepath_stem}%",
+            ),
+        )
+        results = c.fetchall()
+
+        for result in results:
+            filepath_normalized = os.path.splitext(result[2])[0]
+            if re.match(re.escape(filepath_stem) + r"(\s\(\d+\))?$", filepath_normalized):
+                return os.path.join(self.export_dir, result[1])
+
+        return None
 
     def get_previous_uuids(self):
         """returns list of UUIDs of previously exported photos found in export database"""
