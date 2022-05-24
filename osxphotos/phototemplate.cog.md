@@ -10,7 +10,7 @@ In its simplest form, a template statement has the form: `"{template_field}"`, f
 
 Template statements may contain one or more modifiers.  The full syntax is:
 
-`"pretext{delim+template_field:subfield|filter(path_sep)[find,replace] conditional?bool_value,default}posttext"`
+`"pretext{delim+template_field:subfield(field_arg)|filter[find,replace] conditional?bool_value,default}posttext"`
 
 Template statements are white-space sensitive meaning that white space (spaces, tabs) changes the meaning of the template statement.
 
@@ -30,6 +30,8 @@ e.g. if Photo keywords are `["foo","bar"]`:
 `template_field`: The template field to resolve.  See [Template Substitutions](#template-substitutions) for full list of template fields.
 
 `:subfield`: Some templates have sub-fields, For example, `{exiftool:IPTC:Make}`; the template_field is `exiftool` and the sub-field is `IPTC:Make`.
+
+`(field_arg)`: optional arguments to pass to the field; for example, with `{folder_album}` this is used to pass the path separator used for joining folders and albums when rendering the field (default is "/" for `{folder_album}`).
 
 `|filter`: You may optionally append one or more filter commands to the end of the template field using the vertical pipe ('|') symbol.  Filters may be combined, separated by '|' as in: `{keyword|capitalize|parens}`.
 
@@ -62,8 +64,6 @@ e.g. if Photo keywords are `["FOO","bar"]`:
 e.g. if Photo description is "my description":
 
 - `"{descr|titlecase}"` renders to: `"My Description"`
-
-`(path_sep)`: optional path separator to use when joining path-like fields, for example `{folder_album}`.  Default is "/".
 
 e.g. If Photo is in `Album1` in `Folder1`:
 
@@ -107,7 +107,7 @@ This can be used to rename files as well, for example:
 
 This renames any photo that is a favorite as 'Favorite-ImageName.jpg' (where 'ImageName.jpg' is the original name of the photo) and all other photos with the unmodified original name.
 
-`?bool_value`: Template fields may be evaluated as boolean (True/False) by appending "?" after the field name (and following "(path_sep)" or "[find/replace]".  If a field is True (e.g. photo is HDR and field is `"{hdr}"`) or has any value, the value following the "?" will be used to render the template instead of the actual field value.  If the template field evaluates to False (e.g. in above example, photo is not HDR) or has no value (e.g. photo has no title and field is `"{title}"`) then the default value following a "," will be used.  
+`?bool_value`: Template fields may be evaluated as boolean (True/False) by appending "?" after the field name (and following "(field_arg)" or "[find/replace]".  If a field is True (e.g. photo is HDR and field is `"{hdr}"`) or has any value, the value following the "?" will be used to render the template instead of the actual field value.  If the template field evaluates to False (e.g. in above example, photo is not HDR) or has no value (e.g. photo has no title and field is `"{title}"`) then the default value following a "," will be used.  
 
 e.g. if photo is an HDR image,
 

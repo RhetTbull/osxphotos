@@ -148,21 +148,23 @@ TEMPLATE_SUBSTITUTIONS = {
     "{album_seq}": "An integer, starting at 0, indicating the photo's index (sequence) in the containing album. "
     + "Only valid when used in a '--filename' template and only when '{album}' or '{folder_album}' is used in the '--directory' template. "
     + 'For example \'--directory "{folder_album}" --filename "{album_seq}_{original_name}"\'. '
-    + "To start counting at a value other than 0, append append a period and the starting value to the field name.  "
-    + "For example, to start counting at 1 instead of 0: '{album_seq.1}'. "
+    + "To start counting at a value other than 0, append append '(starting_value)' to the field name.  "
+    + "For example, to start counting at 1 instead of 0: '{album_seq(1)}'. "
     + "May be formatted using a python string format code. "
     + "For example, to format as a 5-digit integer and pad with zeros, use '{album_seq:05d}' which results in "
     + "00000, 00001, 00002...etc. "
+    + "To format while also using a starting value: '{album_seq:05d(1)}' which results in 0001, 00002...etc."
     + "This may result in incorrect sequences if you have duplicate albums with the same name; see also '{folder_album_seq}'.",
     "{folder_album_seq}": "An integer, starting at 0, indicating the photo's index (sequence) in the containing album and folder path. "
     + "Only valid when used in a '--filename' template and only when '{folder_album}' is used in the '--directory' template. "
     + 'For example \'--directory "{folder_album}" --filename "{folder_album_seq}_{original_name}"\'. '
-    + "To start counting at a value other than 0, append append a period and the starting value to the field name.  "
-    + "For example, to start counting at 1 instead of 0: '{folder_album_seq.1}' "
+    + "To start counting at a value other than 0, append '(starting_value)' to the field name. "
+    + "For example, to start counting at 1 instead of 0: '{folder_album_seq(1)}' "
     + "May be formatted using a python string format code. "
     + "For example, to format as a 5-digit integer and pad with zeros, use '{folder_album_seq:05d}' which results in "
     + "00000, 00001, 00002...etc. "
-    + "This may result in incorrect sequences if you have duplicate albums with the same name in the same folder; see also '{album_seq}'.",
+    + "To format while also using a starting value: '{folder_album_seq:05d(1)}' which results in 0001, 00002...etc."
+    + "This may result in incorrect sequences if you have duplicate albums with the same name in the same folder; see also '{album_seq}'. ",
     "{comma}": "A comma: ','",
     "{semicolon}": "A semicolon: ';'",
     "{questionmark}": "A question mark: '?'",
@@ -430,14 +432,13 @@ class PhotoTemplate:
     def _render_statement(
         self,
         statement,
-        path_sep=None,
+        field_arg=None,
     ):
-        path_sep = path_sep or self.path_sep
         results = []
         unmatched = []
         for ts in statement.template_strings:
             results, unmatched = self._render_template_string(
-                ts, results=results, unmatched=unmatched, path_sep=path_sep
+                ts, results=results, unmatched=unmatched, field_arg=field_arg
             )
 
         rendered_strings = results
@@ -457,7 +458,7 @@ class PhotoTemplate:
     def _render_template_string(
         self,
         ts,
-        path_sep,
+        field_arg,
         results=None,
         unmatched=None,
     ):
@@ -481,9 +482,9 @@ class PhotoTemplate:
             if ts.template.filter is not None:
                 filters = ts.template.filter.value
 
-            # process path_sep
-            if ts.template.pathsep is not None:
-                path_sep = ts.template.pathsep.value
+            # process field arguments
+            if ts.template.fieldarg is not None:
+                field_arg = ts.template.fieldarg.value
 
             # process delim
             if ts.template.delim is not None:
@@ -497,7 +498,7 @@ class PhotoTemplate:
                 if ts.template.bool.value is not None:
                     bool_val, u = self._render_statement(
                         ts.template.bool.value,
-                        path_sep=path_sep,
+                        field_arg=field_arg,
                     )
                     unmatched.extend(u)
                 else:
@@ -513,7 +514,7 @@ class PhotoTemplate:
                 if ts.template.default.value is not None:
                     default, u = self._render_statement(
                         ts.template.default.value,
-                        path_sep=path_sep,
+                        field_arg=field_arg,
                     )
                     unmatched.extend(u)
                 else:
@@ -530,7 +531,7 @@ class PhotoTemplate:
                     # conditional value is also a TemplateString
                     conditional_value, u = self._render_statement(
                         ts.template.conditional.value,
-                        path_sep=path_sep,
+                        field_arg=field_arg,
                     )
                     unmatched.extend(u)
                 else:
@@ -550,8 +551,7 @@ class PhotoTemplate:
                     field,
                     default=default,
                     subfield=subfield,
-                    # delim=delim or self.inplace_sep,
-                    # path_sep=path_sep,
+                    field_arg=field_arg,
                 )
             elif field == "exiftool":
                 if subfield is None:
@@ -566,12 +566,10 @@ class PhotoTemplate:
                     raise ValueError(
                         "SyntaxError: filename and function must not be null with {function::filename.py:function_name}"
                     )
-                vals = self.get_template_value_function(
-                    subfield,
-                )
+                vals = self.get_template_value_function(subfield, field_arg)
             elif field in MULTI_VALUE_SUBSTITUTIONS or field.startswith("photo"):
                 vals = self.get_template_value_multi(
-                    field, subfield, path_sep=path_sep, default=default
+                    field, subfield, path_sep=field_arg, default=default
                 )
             elif field.split(".")[0] in PATHLIB_SUBSTITUTIONS:
                 vals = self.get_template_value_pathlib(field)
@@ -704,10 +702,8 @@ class PhotoTemplate:
         self,
         field,
         default,
-        subfield=None,
-        # bool_val=None,
-        # delim=None,
-        # path_sep=None,
+        subfield,
+        field_arg,
     ):
         """lookup value for template field (single-value template substitutions)
 
@@ -1004,9 +1000,8 @@ class PhotoTemplate:
             else:
                 value = None
             if value is not None:
-                with suppress(IndexError):
-                    start_id = field.split(".", 1)
-                    value = int(value) + int(start_id[1])
+                start_id = int(field_arg) if field_arg is not None else 0
+                value = int(value) + start_id
                 value = format_str_value(value, subfield)
         else:
             # if here, didn't get a match
@@ -1123,6 +1118,8 @@ class PhotoTemplate:
         """
 
         """ return list of values for a multi-valued template field """
+
+        path_sep = path_sep or self.path_sep
 
         if self.photo.uuid is None:
             return []
@@ -1264,6 +1261,7 @@ class PhotoTemplate:
     def get_template_value_function(
         self,
         subfield,
+        field_arg,
     ):
         """Get template value from external function"""
 
@@ -1279,7 +1277,13 @@ class PhotoTemplate:
             raise ValueError(f"'{filename}' does not appear to be a file")
 
         template_func = load_function(filename_validated, funcname)
-        values = template_func(self.photo, options=self.options)
+        if self.photo.uuid is None:
+            # must be a PhotoInfoNone instance
+            # if no uuid, then template is being validated but not actually run
+            # so don't run the function
+            values = []
+        else:
+            values = template_func(self.photo, options=self.options, args=field_arg)
 
         if not isinstance(values, (str, list)):
             raise TypeError(
@@ -1317,7 +1321,11 @@ class PhotoTemplate:
 
         if not isinstance(values, (list, tuple)):
             values = [values]
-        values = template_func(values)
+
+        if self.photo.uuid is not None:
+            # if uuid is None, it's a PhotoInfoNone instance and template is being validated
+            # so don't run the function
+            values = template_func(values)
 
         if not isinstance(values, list):
             raise TypeError(
@@ -1329,10 +1337,7 @@ class PhotoTemplate:
     def get_photo_video_type(self, default):
         """return media type, e.g. photo or video"""
         default_dict = parse_default_kv(default, PHOTO_VIDEO_TYPE_DEFAULTS)
-        if self.photo.isphoto:
-            return default_dict["photo"]
-        else:
-            return default_dict["video"]
+        return default_dict["photo"] if self.photo.isphoto else default_dict["video"]
 
     def get_media_type(self, default):
         """return special media type, e.g. slow_mo, panorama, etc., defaults to photo or video if no special type"""
@@ -1360,12 +1365,8 @@ class PhotoTemplate:
             return default_dict["photo"]
 
     def get_photo_bool_attribute(self, attr, default, bool_val):
-        # get value for a PhotoInfo bool attribute
-        val = getattr(self.photo, attr)
-        if val:
-            return bool_val
-        else:
-            return default
+        """Return the boolean value for a photo attribute"""
+        return bool_val if (val := getattr(self.photo, attr)) else default
 
 
 def parse_default_kv(default, default_dict):

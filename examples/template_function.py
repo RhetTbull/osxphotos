@@ -5,16 +5,20 @@
 """
 
 import pathlib
-from typing import List, Union
+from typing import List, Optional, Union
 
-import osxphotos
+from osxphotos import ExportOptions, PhotoInfo
 
 
-def example(photo: osxphotos.PhotoInfo, **kwargs) -> Union[List, str]:
-    """ example function for {function} template; adds suffix of # if photo has adjustments and ! if photo is a favorite
+def example(
+    photo: PhotoInfo, options: ExportOptions, args: Optional[str] = None, **kwargs
+) -> Union[List, str]:
+    """example function for {function} template; adds suffix of # if photo has adjustments and ! if photo is a favorite
 
     Args:
         photo: osxphotos.PhotoInfo object
+        options: osxphotos.ExportOptions object
+        args: optional str of arguments passed to template function
         **kwargs: not currently used, placeholder to keep functions compatible with possible changes to {function}
 
     Returns:

@@ -360,12 +360,14 @@ UUID_ALBUM_SEQ = {
         "templates": {
             "{album_seq}": "0",
             "{album_seq:02d}": "00",
-            "{album_seq.1}": "1",
-            "{album_seq.1:03d}": "001",
+            "{album_seq(1)}": "1",
+            "{album_seq(2)}": "2",
+            "{album_seq:03d(1)}": "001",
             "{folder_album_seq}": "0",
             "{folder_album_seq:02d}": "00",
-            "{folder_album_seq.1}": "1",
-            "{folder_album_seq.1:03d}": "001",
+            "{folder_album_seq(1)}": "1",
+            "{folder_album_seq(2)}": "2",
+            "{folder_album_seq:03d(1)}": "001",
         },
     },
     "F12384F6-CD17-4151-ACBA-AE0E3688539E": {
@@ -373,12 +375,12 @@ UUID_ALBUM_SEQ = {
         "templates": {
             "{album_seq}": "2",
             "{album_seq:02d}": "02",
-            "{album_seq.1}": "3",
-            "{album_seq.1:03d}": "003",
+            "{album_seq(1)}": "3",
+            "{album_seq:03d(1)}": "003",
             "{folder_album_seq}": "2",
             "{folder_album_seq:02d}": "02",
-            "{folder_album_seq.1}": "3",
-            "{folder_album_seq.1:03d}": "003",
+            "{folder_album_seq(1)}": "3",
+            "{folder_album_seq:03d(1)}": "003",
         },
     },
     "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51": {
@@ -386,13 +388,13 @@ UUID_ALBUM_SEQ = {
         "templates": {
             "{album_seq}": "1",
             "{album_seq:02d}": "01",
-            "{album_seq.1}": "2",
-            "{album_seq.1:03d}": "002",
+            "{album_seq(1)}": "2",
+            "{album_seq:03d(1)}": "002",
             "{folder_album_seq}": "1",
             "{folder_album_seq:02d}": "01",
-            "{folder_album_seq.1}": "2",
-            "{folder_album_seq.0}": "1",
-            "{folder_album_seq.1:03d}": "002",
+            "{folder_album_seq(1)}": "2",
+            "{folder_album_seq(0)}": "1",
+            "{folder_album_seq:03d(1)}": "002",
         },
     },
 }
@@ -469,7 +471,7 @@ def test_lookup(photosdb_places):
 
     for subst in TEMPLATE_SUBSTITUTIONS:
         lookup_str = re.match(r"\{([^\\,}]+)\}", subst).group(1)
-        lookup = template.get_template_value(lookup_str, None)
+        lookup = template.get_template_value(lookup_str, None, None, None)
         assert lookup or lookup is None
 
 
@@ -783,7 +785,7 @@ def test_subst_multi_folder_albums_1_path_sep_lower(photosdb):
 
     # photo in an album in a folder
     photo = photosdb.photos(uuid=[UUID_DICT["folder_album_1"]])[0]
-    template = "{folder_album|lower(:)}"
+    template = "{folder_album(:)|lower}"
     expected = [
         "2018-10 - sponsion, museum, frühstück, römermuseum",
         "2019-10/11 paris clermont",
@@ -851,7 +853,7 @@ def test_subst_multi_folder_albums_4_path_sep_lower(photosdb_14_6):
 
     # photo in an album in a folder
     photo = photosdb_14_6.photos(uuid=[UUID_DICT["mojave_album_1"]])[0]
-    template = "{folder_album|lower(>)}"
+    template = "{folder_album(>)|lower}"
     expected = ["folder1>subfolder2>albuminfolder", "pumpkin farm", "test album (1)"]
     rendered, unknown = photo.render_template(template)
     assert sorted(rendered) == sorted(expected)
