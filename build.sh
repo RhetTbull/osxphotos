@@ -35,6 +35,7 @@ echo "Building docs"
 
 # copy docs to osxphotos/docs/docs.zip for use with `osxphotos docs` command
 echo "Zipping docs to osxphotos/docs/docs.zip"
+rm osxphotos/docs/docs.zip
 zip -r osxphotos/docs/docs.zip docs/*
 
 # build the package
