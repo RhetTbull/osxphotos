@@ -198,6 +198,10 @@ TEMPLATE_VALUES = {
     "{title?Title is '{title} - {descr}',No Title}": "Title is 'Glen Ord - Jack Rose Dining Saloon'",
     "{favorite}": "_",
     "{favorite?FAV,NOTFAV}": "NOTFAV",
+    "{var:myvar,{semicolon}}{created.dow}{%myvar}": "Tuesday;",
+    "{var:pipe,{pipe}}{place.address[,,%pipe]}": "2038 18th St NW| Washington| DC  20009| United States",
+    "{format:float:.2f,{photo.exif_info.aperture}}": "2.20",
+    "{format:int:02d,{photo.exif_info.aperture}}": "02",
 }
 
 
@@ -327,6 +331,7 @@ UUID_CONDITIONAL = {
         "{title endswith Elder?YES,NO}": ["NO"],
         "{photo.place.name contains Adelaide?YES,NO}": ["YES"],
         "{photo.place.name|lower contains adelaide?YES,NO}": ["YES"],
+        "{photo.place.name|lower contains adelaide|australia?YES,NO}": ["YES"],
         "{photo.place.name|lower not contains adelaide?YES,NO}": ["NO"],
         "{photo.score.overall < 0.7?YES,NO}": ["YES"],
         "{photo.score.overall <= 0.7?YES,NO}": ["YES"],
@@ -483,7 +488,7 @@ def test_lookup_multi(photosdb_places):
 
     for subst in TEMPLATE_SUBSTITUTIONS_MULTI_VALUED:
         lookup_str = re.match(r"\{([^\\,}]+)\}", subst).group(1)
-        if subst in ["{exiftool}", "{photo}", "{function}"]:
+        if subst in ["{exiftool}", "{photo}", "{function}", "{format}"]:
             continue
         lookup = template.get_template_value_multi(
             lookup_str,
@@ -1137,7 +1142,9 @@ def test_function_filter(photosdb):
 def test_function_filter_bad(photosdb):
     """Test invalid {field|function} filter"""
     photo = photosdb.get_photo(UUID_MULTI_KEYWORDS)
-    with pytest.raises(ValueError):
+    # bad field raises SyntaxError
+    # bad function raises ValueError
+    with pytest.raises((SyntaxError, ValueError)):
         rendered, _ = photo.render_template(
             "{photo.original_filename|function:tests/template_filter.py::foobar}"
         )
