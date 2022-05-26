@@ -3,6 +3,8 @@ PhotoInfo class
 Represents a single photo in the Photos library and provides access to the photo's attributes
 PhotosDB.photos() returns a list of PhotoInfo objects
 """
+
+import contextlib
 import dataclasses
 import datetime
 import json
@@ -10,14 +12,16 @@ import logging
 import os
 import os.path
 import pathlib
+import plistlib
 from datetime import timedelta, timezone
 from functools import cached_property
-from typing import Optional
+from typing import Dict, Optional
 
 import yaml
 from osxmetadata import OSXMetaData
 
 from ._constants import (
+    _DB_TABLE_NAMES,
     _MOVIE_TYPE,
     _PHOTO_TYPE,
     _PHOTOS_4_ALBUM_KIND,
@@ -1371,6 +1375,30 @@ class PhotoInfo:
         """Returns a unique digest of the photo's properties and metadata;
         useful for detecting changes in any property/metadata of the photo"""
         return hexdigest(self.json())
+
+    @cached_property
+    def cloud_metadata(self) -> Dict:
+        """Returns contents of ZCLOUDMASTERMEDIAMETADATA as dict"""
+        # This is a large blob of data so don't load it unless requested
+        asset_table = _DB_TABLE_NAMES[self._db._photos_ver]["ASSET"]
+        sql_cloud_metadata = f"""
+            SELECT ZCLOUDMASTERMEDIAMETADATA.ZDATA
+            FROM ZCLOUDMASTERMEDIAMETADATA
+            JOIN ZCLOUDMASTER ON ZCLOUDMASTER.Z_PK = ZCLOUDMASTERMEDIAMETADATA.ZCLOUDMASTER
+            JOIN {asset_table} on  {asset_table}.ZMASTER = ZCLOUDMASTER.Z_PK
+            WHERE {asset_table}.ZUUID = ?
+        """
+
+        if self._db._db_version <= _PHOTOS_4_VERSION:
+            logging.debug(f"cloud_metadata not implemented for this database version")
+            return {}
+
+        _, cursor = self._db.get_db_connection()
+        metadata = {}
+        if results := cursor.execute(sql_cloud_metadata, (self.uuid,)).fetchone():
+            with contextlib.suppress(Exception):
+                metadata = plistlib.loads(results[0])
+        return metadata
 
     def detected_text(self, confidence_threshold=TEXT_DETECTION_CONFIDENCE_THRESHOLD):
         """Detects text in photo and returns lists of results as (detected text, confidence)
