@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>osxphotos.photoinfo - osxphotos 0.48.7 documentation</title>
+        <title>osxphotos.photoinfo - osxphotos 0.49.9 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.48.7 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.49.9 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.48.7 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.49.9 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -199,6 +199,8 @@
 <span class="sd">Represents a single photo in the Photos library and provides access to the photo's attributes</span>
 <span class="sd">PhotosDB.photos() returns a list of PhotoInfo objects</span>
 <span class="sd">"""</span>
+
+<span class="kn">import</span> <span class="nn">contextlib</span>
 <span class="kn">import</span> <span class="nn">dataclasses</span>
 <span class="kn">import</span> <span class="nn">datetime</span>
 <span class="kn">import</span> <span class="nn">json</span>
@@ -206,14 +208,16 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">os.path</span>
 <span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">plistlib</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">timezone</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cached_property</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">from</span> <span class="nn">osxmetadata</span> <span class="kn">import</span> <span class="n">OSXMetaData</span>
 
 <span class="kn">from</span> <span class="nn">._constants</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_DB_TABLE_NAMES</span><span class="p">,</span>
     <span class="n">_MOVIE_TYPE</span><span class="p">,</span>
     <span class="n">_PHOTO_TYPE</span><span class="p">,</span>
     <span class="n">_PHOTOS_4_ALBUM_KIND</span><span class="p">,</span>
@@ -1567,6 +1571,30 @@
         <span class="sd">"""Returns a unique digest of the photo's properties and metadata;</span>
 <span class="sd">        useful for detecting changes in any property/metadata of the photo"""</span>
         <span class="k">return</span> <span class="n">hexdigest</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">cloud_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="sd">"""Returns contents of ZCLOUDMASTERMEDIAMETADATA as dict"""</span>
+        <span class="c1"># This is a large blob of data so don't load it unless requested</span>
+        <span class="n">asset_table</span> <span class="o">=</span> <span class="n">_DB_TABLE_NAMES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_photos_ver</span><span class="p">][</span><span class="s2">"ASSET"</span><span class="p">]</span>
+        <span class="n">sql_cloud_metadata</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"""</span>
+<span class="s2">            SELECT ZCLOUDMASTERMEDIAMETADATA.ZDATA</span>
+<span class="s2">            FROM ZCLOUDMASTERMEDIAMETADATA</span>
+<span class="s2">            JOIN ZCLOUDMASTER ON ZCLOUDMASTER.Z_PK = ZCLOUDMASTERMEDIAMETADATA.ZCLOUDMASTER</span>
+<span class="s2">            JOIN </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2"> on  </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZMASTER = ZCLOUDMASTER.Z_PK</span>
+<span class="s2">            WHERE </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZUUID = ?</span>
+<span class="s2">        """</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"cloud_metadata not implemented for this database version"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">{}</span>
+
+        <span class="n">_</span><span class="p">,</span> <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">get_db_connection</span><span class="p">()</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">results</span> <span class="o">:=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql_cloud_metadata</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,))</span><span class="o">.</span><span class="n">fetchone</span><span class="p">():</span>
+            <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">suppress</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+                <span class="n">metadata</span> <span class="o">=</span> <span class="n">plistlib</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">metadata</span>
 
 <div class="viewcode-block" id="PhotoInfo.detected_text"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoInfo.detected_text">[docs]</a>    <span class="k">def</span> <span class="nf">detected_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">confidence_threshold</span><span class="o">=</span><span class="n">TEXT_DETECTION_CONFIDENCE_THRESHOLD</span><span class="p">):</span>
         <span class="sd">"""Detects text in photo and returns lists of results as (detected text, confidence)</span>
