@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>osxphotos.phototemplate - osxphotos 0.49.9 documentation</title>
+        <title>osxphotos.phototemplate - osxphotos 0.50.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.49.9 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.50.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.49.9 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.50.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -201,11 +201,12 @@
 <span class="kn">import</span> <span class="nn">locale</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">shlex</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">suppress</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">from</span> <span class="nn">textx</span> <span class="kn">import</span> <span class="n">TextXSyntaxError</span><span class="p">,</span> <span class="n">metamodel_from_file</span>
 
@@ -344,21 +345,23 @@
     <span class="s2">"</span><span class="si">{album_seq}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"An integer, starting at 0, indicating the photo's index (sequence) in the containing album. "</span>
     <span class="o">+</span> <span class="s2">"Only valid when used in a '--filename' template and only when '</span><span class="si">{album}</span><span class="s2">' or '</span><span class="si">{folder_album}</span><span class="s2">' is used in the '--directory' template. "</span>
     <span class="o">+</span> <span class="s1">'For example </span><span class="se">\'</span><span class="s1">--directory "</span><span class="si">{folder_album}</span><span class="s1">" --filename "</span><span class="si">{album_seq}</span><span class="s1">_</span><span class="si">{original_name}</span><span class="s1">"</span><span class="se">\'</span><span class="s1">. '</span>
-    <span class="o">+</span> <span class="s2">"To start counting at a value other than 0, append append a period and the starting value to the field name.  "</span>
-    <span class="o">+</span> <span class="s2">"For example, to start counting at 1 instead of 0: '</span><span class="si">{album_seq.1}</span><span class="s2">'. "</span>
+    <span class="o">+</span> <span class="s2">"To start counting at a value other than 0, append append '(starting_value)' to the field name.  "</span>
+    <span class="o">+</span> <span class="s2">"For example, to start counting at 1 instead of 0: '{album_seq(1)}'. "</span>
     <span class="o">+</span> <span class="s2">"May be formatted using a python string format code. "</span>
     <span class="o">+</span> <span class="s2">"For example, to format as a 5-digit integer and pad with zeros, use '</span><span class="si">{album_seq:05d}</span><span class="s2">' which results in "</span>
     <span class="o">+</span> <span class="s2">"00000, 00001, 00002...etc. "</span>
+    <span class="o">+</span> <span class="s2">"To format while also using a starting value: '{album_seq:05d(1)}' which results in 0001, 00002...etc."</span>
     <span class="o">+</span> <span class="s2">"This may result in incorrect sequences if you have duplicate albums with the same name; see also '</span><span class="si">{folder_album_seq}</span><span class="s2">'."</span><span class="p">,</span>
     <span class="s2">"</span><span class="si">{folder_album_seq}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"An integer, starting at 0, indicating the photo's index (sequence) in the containing album and folder path. "</span>
     <span class="o">+</span> <span class="s2">"Only valid when used in a '--filename' template and only when '</span><span class="si">{folder_album}</span><span class="s2">' is used in the '--directory' template. "</span>
     <span class="o">+</span> <span class="s1">'For example </span><span class="se">\'</span><span class="s1">--directory "</span><span class="si">{folder_album}</span><span class="s1">" --filename "</span><span class="si">{folder_album_seq}</span><span class="s1">_</span><span class="si">{original_name}</span><span class="s1">"</span><span class="se">\'</span><span class="s1">. '</span>
-    <span class="o">+</span> <span class="s2">"To start counting at a value other than 0, append append a period and the starting value to the field name.  "</span>
-    <span class="o">+</span> <span class="s2">"For example, to start counting at 1 instead of 0: '</span><span class="si">{folder_album_seq.1}</span><span class="s2">' "</span>
+    <span class="o">+</span> <span class="s2">"To start counting at a value other than 0, append '(starting_value)' to the field name. "</span>
+    <span class="o">+</span> <span class="s2">"For example, to start counting at 1 instead of 0: '{folder_album_seq(1)}' "</span>
     <span class="o">+</span> <span class="s2">"May be formatted using a python string format code. "</span>
     <span class="o">+</span> <span class="s2">"For example, to format as a 5-digit integer and pad with zeros, use '</span><span class="si">{folder_album_seq:05d}</span><span class="s2">' which results in "</span>
     <span class="o">+</span> <span class="s2">"00000, 00001, 00002...etc. "</span>
-    <span class="o">+</span> <span class="s2">"This may result in incorrect sequences if you have duplicate albums with the same name in the same folder; see also '</span><span class="si">{album_seq}</span><span class="s2">'."</span><span class="p">,</span>
+    <span class="o">+</span> <span class="s2">"To format while also using a starting value: '{folder_album_seq:05d(1)}' which results in 0001, 00002...etc."</span>
+    <span class="o">+</span> <span class="s2">"This may result in incorrect sequences if you have duplicate albums with the same name in the same folder; see also '</span><span class="si">{album_seq}</span><span class="s2">'. "</span><span class="p">,</span>
     <span class="s2">"</span><span class="si">{comma}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"A comma: ','"</span><span class="p">,</span>
     <span class="s2">"</span><span class="si">{semicolon}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"A semicolon: ';'"</span><span class="p">,</span>
     <span class="s2">"</span><span class="si">{questionmark}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"A question mark: '?'"</span><span class="p">,</span>
@@ -418,6 +421,9 @@
     <span class="o">+</span> <span class="s2">"Note: this feature is not the same thing as Live Text in macOS Monterey, which osxphotos does not yet support."</span><span class="p">,</span>
     <span class="s2">"</span><span class="si">{shell_quote}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"Use in form '{shell_quote,TEMPLATE}'; quotes the rendered TEMPLATE value(s) for safe usage in the shell, e.g. My file.jpeg =&gt; 'My file.jpeg'; only adds quotes if needed."</span><span class="p">,</span>
     <span class="s2">"</span><span class="si">{strip}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"Use in form '{strip,TEMPLATE}'; strips whitespace from begining and end of rendered TEMPLATE value(s)."</span><span class="p">,</span>
+    <span class="s2">"</span><span class="si">{format}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"Use in form, '{format:TYPE:FORMAT,TEMPLATE}'; converts TEMPLATE value to TYPE then formats the value "</span>
+    <span class="o">+</span> <span class="s2">"using Python string formatting codes specified by FORMAT; TYPE is one of: 'int', 'float', or 'str'. "</span>
+    <span class="s2">"For example, '{format:float:.1f,{exiftool:EXIF:FocalLength}}' will format focal length to 1 decimal place (e.g. '100.0'). "</span><span class="p">,</span>
     <span class="s2">"</span><span class="si">{function}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"Execute a python function from an external file and use return value as template substitution. "</span>
     <span class="o">+</span> <span class="s2">"Use in format: {function:file.py::function_name} where 'file.py' is the name of the python file and 'function_name' is the name of the function to call. "</span>
     <span class="o">+</span> <span class="s2">"The function will be passed the PhotoInfo object for the photo. "</span>
@@ -435,6 +441,18 @@
     <span class="s2">"brackets"</span><span class="p">:</span> <span class="s2">"Enclose value in brackets, e.g. 'value' =&gt; '[value]'"</span><span class="p">,</span>
     <span class="s2">"shell_quote"</span><span class="p">:</span> <span class="s2">"Quotes the value for safe usage in the shell, e.g. My file.jpeg =&gt; 'My file.jpeg'; only adds quotes if needed."</span><span class="p">,</span>
     <span class="s2">"function"</span><span class="p">:</span> <span class="s2">"Run custom python function to filter value; use in format 'function:/path/to/file.py::function_name'. See example at https://github.com/RhetTbull/osxphotos/blob/master/examples/template_filter.py"</span><span class="p">,</span>
+    <span class="s2">"split(x)"</span><span class="p">:</span> <span class="s2">"Split value into a list of values using x as delimiter, e.g. 'value1;value2' =&gt; ['value1', 'value2'] if used with split(;)."</span><span class="p">,</span>
+    <span class="s2">"autosplit"</span><span class="p">:</span> <span class="s2">"Automatically split delimited string into separate values; will split strings delimited by comma, semicolon, or space, e.g. 'value1,value2' =&gt; ['value1', 'value2']."</span><span class="p">,</span>
+    <span class="s2">"chop(x)"</span><span class="p">:</span> <span class="s2">"Remove x characters off the end of value, e.g. chop(1): 'Value' =&gt; 'Valu'; when applied to a list, chops characters from each list value, e.g. chop(1): ['travel', 'beach']=&gt; ['trave', 'beac']."</span><span class="p">,</span>
+    <span class="s2">"chomp(x)"</span><span class="p">:</span> <span class="s2">"Remove x characters from the beginning of value, e.g. chomp(1): ['Value'] =&gt; ['alue']; when applied to a list, removes characters from each list value, e.g. chomp(1): ['travel', 'beach']=&gt; ['ravel', 'each']."</span><span class="p">,</span>
+    <span class="s2">"sort"</span><span class="p">:</span> <span class="s2">"Sort list of values, e.g. ['c', 'b', 'a'] =&gt; ['a', 'b', 'c']."</span><span class="p">,</span>
+    <span class="s2">"rsort"</span><span class="p">:</span> <span class="s2">"Sort list of values in reverse order, e.g. ['a', 'b', 'c'] =&gt; ['c', 'b', 'a']."</span><span class="p">,</span>
+    <span class="s2">"reverse"</span><span class="p">:</span> <span class="s2">"Reverse order of values, e.g. ['a', 'b', 'c'] =&gt; ['c', 'b', 'a']."</span><span class="p">,</span>
+    <span class="s2">"uniq"</span><span class="p">:</span> <span class="s2">"Remove duplicate values, e.g. ['a', 'b', 'c', 'b', 'a'] =&gt; ['a', 'b', 'c']."</span><span class="p">,</span>
+    <span class="s2">"join(x)"</span><span class="p">:</span> <span class="s2">"Join list of values with delimiter x, e.g. join(:): ['a', 'b', 'c'] =&gt; 'a:b:c'; the DELIM option functions similar to join(x) but with DELIM, the join happens before being passed to any filters."</span><span class="p">,</span>
+    <span class="s2">"append(x)"</span><span class="p">:</span> <span class="s2">"Append x to list of values, e.g. append(d): ['a', 'b', 'c'] =&gt; ['a', 'b', 'c', 'd']."</span><span class="p">,</span>
+    <span class="s2">"prepend(x)"</span><span class="p">:</span> <span class="s2">"Prepend x to list of values, e.g. prepend(d): ['a', 'b', 'c'] =&gt; ['d', 'a', 'b', 'c']."</span><span class="p">,</span>
+    <span class="s2">"remove(x)"</span><span class="p">:</span> <span class="s2">"Remove x from list of values, e.g. remove(b): ['a', 'b', 'c'] =&gt; ['a', 'c']."</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="c1"># Just the substitutions without the braces</span>
@@ -578,6 +596,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">filepath</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">quote</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">quote</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dest_path</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">dest_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="p">{}</span>
 
 <div class="viewcode-block" id="PhotoTemplate.render"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.render">[docs]</a>    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -626,14 +645,13 @@
     <span class="k">def</span> <span class="nf">_render_statement</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">statement</span><span class="p">,</span>
-        <span class="n">path_sep</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">field_arg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="n">path_sep</span> <span class="o">=</span> <span class="n">path_sep</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_sep</span>
         <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">unmatched</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">ts</span> <span class="ow">in</span> <span class="n">statement</span><span class="o">.</span><span class="n">template_strings</span><span class="p">:</span>
             <span class="n">results</span><span class="p">,</span> <span class="n">unmatched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_template_string</span><span class="p">(</span>
-                <span class="n">ts</span><span class="p">,</span> <span class="n">results</span><span class="o">=</span><span class="n">results</span><span class="p">,</span> <span class="n">unmatched</span><span class="o">=</span><span class="n">unmatched</span><span class="p">,</span> <span class="n">path_sep</span><span class="o">=</span><span class="n">path_sep</span>
+                <span class="n">ts</span><span class="p">,</span> <span class="n">results</span><span class="o">=</span><span class="n">results</span><span class="p">,</span> <span class="n">unmatched</span><span class="o">=</span><span class="n">unmatched</span><span class="p">,</span> <span class="n">field_arg</span><span class="o">=</span><span class="n">field_arg</span>
             <span class="p">)</span>
 
         <span class="n">rendered_strings</span> <span class="o">=</span> <span class="n">results</span>
@@ -653,7 +671,7 @@
     <span class="k">def</span> <span class="nf">_render_template_string</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ts</span><span class="p">,</span>
-        <span class="n">path_sep</span><span class="p">,</span>
+        <span class="n">field_arg</span><span class="p">,</span>
         <span class="n">results</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">unmatched</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
@@ -665,11 +683,6 @@
         <span class="k">if</span> <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="p">:</span>
             <span class="c1"># have a template field to process</span>
             <span class="n">field</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">field</span>
-            <span class="n">field_part</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">field</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">FIELD_NAMES</span> <span class="ow">and</span> <span class="n">field_part</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">FIELD_NAMES</span><span class="p">:</span>
-                <span class="n">unmatched</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
-                <span class="k">return</span> <span class="p">[],</span> <span class="n">unmatched</span>
-
             <span class="n">subfield</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">subfield</span>
 
             <span class="c1"># process filters</span>
@@ -677,14 +690,15 @@
             <span class="k">if</span> <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">filter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">filters</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">filter</span><span class="o">.</span><span class="n">value</span>
 
-            <span class="c1"># process path_sep</span>
-            <span class="k">if</span> <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">pathsep</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">path_sep</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">pathsep</span><span class="o">.</span><span class="n">value</span>
+            <span class="c1"># process field arguments</span>
+            <span class="k">if</span> <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">fieldarg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">field_arg</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">fieldarg</span><span class="o">.</span><span class="n">value</span>
 
             <span class="c1"># process delim</span>
             <span class="k">if</span> <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">delim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="c1"># if value is None, means format was {+field}</span>
                 <span class="n">delim</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">delim</span><span class="o">.</span><span class="n">value</span> <span class="ow">or</span> <span class="s2">""</span>
+                <span class="n">delim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expand_variables_to_str</span><span class="p">(</span><span class="n">delim</span><span class="p">,</span> <span class="s2">"delim"</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">delim</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -693,7 +707,7 @@
                 <span class="k">if</span> <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">bool</span><span class="o">.</span><span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">bool_val</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_statement</span><span class="p">(</span>
                         <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">bool</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-                        <span class="n">path_sep</span><span class="o">=</span><span class="n">path_sep</span><span class="p">,</span>
+                        <span class="n">field_arg</span><span class="o">=</span><span class="n">field_arg</span><span class="p">,</span>
                     <span class="p">)</span>
                     <span class="n">unmatched</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -709,7 +723,7 @@
                 <span class="k">if</span> <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">default</span><span class="o">.</span><span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">default</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_statement</span><span class="p">(</span>
                         <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">default</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-                        <span class="n">path_sep</span><span class="o">=</span><span class="n">path_sep</span><span class="p">,</span>
+                        <span class="n">field_arg</span><span class="o">=</span><span class="n">field_arg</span><span class="p">,</span>
                     <span class="p">)</span>
                     <span class="n">unmatched</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -724,11 +738,11 @@
                 <span class="n">negation</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">conditional</span><span class="o">.</span><span class="n">negation</span>
                 <span class="k">if</span> <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">conditional</span><span class="o">.</span><span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="c1"># conditional value is also a TemplateString</span>
-                    <span class="n">conditional_value</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_statement</span><span class="p">(</span>
-                        <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">conditional</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-                        <span class="n">path_sep</span><span class="o">=</span><span class="n">path_sep</span><span class="p">,</span>
-                    <span class="p">)</span>
-                    <span class="n">unmatched</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+                    <span class="n">conditional_value</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">cv</span> <span class="ow">in</span> <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">conditional</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+                        <span class="n">value</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_statement</span><span class="p">(</span><span class="n">cv</span><span class="p">)</span>
+                        <span class="n">conditional_value</span> <span class="o">+=</span> <span class="n">value</span>
+                        <span class="n">unmatched</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c1"># this shouldn't happen</span>
                     <span class="n">conditional_value</span> <span class="o">=</span> <span class="p">[</span><span class="s2">""</span><span class="p">]</span>
@@ -737,43 +751,23 @@
                 <span class="n">negation</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="n">conditional_value</span> <span class="o">=</span> <span class="p">[]</span>
 
-            <span class="n">vals</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="n">field</span> <span class="ow">in</span> <span class="n">SINGLE_VALUE_SUBSTITUTIONS</span>
-                <span class="ow">or</span> <span class="n">field</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">SINGLE_VALUE_SUBSTITUTIONS</span>
-            <span class="p">):</span>
-                <span class="n">vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_value</span><span class="p">(</span>
-                    <span class="n">field</span><span class="p">,</span>
-                    <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span>
-                    <span class="n">subfield</span><span class="o">=</span><span class="n">subfield</span><span class="p">,</span>
-                    <span class="c1"># delim=delim or self.inplace_sep,</span>
-                    <span class="c1"># path_sep=path_sep,</span>
-                <span class="p">)</span>
-            <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"exiftool"</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">subfield</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="s2">"SyntaxError: GROUP:NAME subfield must not be null with {exiftool:GROUP:NAME}'"</span>
+            <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"%"</span><span class="p">):</span>
+                <span class="c1"># variable in form {%var}</span>
+                <span class="n">vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">vals</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Variable '</span><span class="si">{</span><span class="n">field</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="si">}</span><span class="s2">' is not defined."</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"var"</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">subfield</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">default</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span>
+                        <span class="s2">"var must have a subfield and value in form {var:subfield,value}"</span>
                     <span class="p">)</span>
-                <span class="n">vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_value_exiftool</span><span class="p">(</span>
-                    <span class="n">subfield</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"function"</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">subfield</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="s2">"SyntaxError: filename and function must not be null with {function::filename.py:function_name}"</span>
-                    <span class="p">)</span>
-                <span class="n">vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_value_function</span><span class="p">(</span>
-                    <span class="n">subfield</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="k">elif</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">MULTI_VALUE_SUBSTITUTIONS</span> <span class="ow">or</span> <span class="n">field</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"photo"</span><span class="p">):</span>
-                <span class="n">vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_value_multi</span><span class="p">(</span>
-                    <span class="n">field</span><span class="p">,</span> <span class="n">subfield</span><span class="p">,</span> <span class="n">path_sep</span><span class="o">=</span><span class="n">path_sep</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span>
-                <span class="p">)</span>
-            <span class="k">elif</span> <span class="n">field</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">PATHLIB_SUBSTITUTIONS</span><span class="p">:</span>
-                <span class="n">vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_value_pathlib</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">subfield</span><span class="p">]</span> <span class="o">=</span> <span class="n">default</span>
+                <span class="n">vals</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">unmatched</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
-                <span class="k">return</span> <span class="p">[],</span> <span class="n">unmatched</span>
+                <span class="n">vals</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_field_values</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">subfield</span><span class="p">,</span> <span class="n">field_arg</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">u</span><span class="p">:</span>
+                    <span class="n">unmatched</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="p">[],</span> <span class="n">unmatched</span>
 
             <span class="n">vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">val</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">vals</span> <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
 
@@ -782,7 +776,7 @@
                 <span class="n">vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">vals</span><span class="p">))]</span> <span class="k">if</span> <span class="n">vals</span> <span class="k">else</span> <span class="p">[]</span>
 
             <span class="k">for</span> <span class="n">filter_</span> <span class="ow">in</span> <span class="n">filters</span><span class="p">:</span>
-                <span class="n">vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_value_filter</span><span class="p">(</span><span class="n">filter_</span><span class="p">,</span> <span class="n">vals</span><span class="p">)</span>
+                <span class="n">vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_filter_values</span><span class="p">(</span><span class="n">filter_</span><span class="p">,</span> <span class="n">vals</span><span class="p">)</span>
 
             <span class="c1"># process find/replace</span>
             <span class="k">if</span> <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">findreplace</span><span class="p">:</span>
@@ -790,7 +784,9 @@
                 <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">vals</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">ts</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">findreplace</span><span class="o">.</span><span class="n">pairs</span><span class="p">:</span>
                         <span class="n">find</span> <span class="o">=</span> <span class="n">pair</span><span class="o">.</span><span class="n">find</span> <span class="ow">or</span> <span class="s2">""</span>
+                        <span class="n">find</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expand_variables_to_str</span><span class="p">(</span><span class="n">find</span><span class="p">,</span> <span class="s2">"find/replace"</span><span class="p">)</span>
                         <span class="n">repl</span> <span class="o">=</span> <span class="n">pair</span><span class="o">.</span><span class="n">replace</span> <span class="ow">or</span> <span class="s2">""</span>
+                        <span class="n">repl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expand_variables_to_str</span><span class="p">(</span><span class="n">repl</span><span class="p">,</span> <span class="s2">"find/replace"</span><span class="p">)</span>
                         <span class="n">val</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">find</span><span class="p">,</span> <span class="n">repl</span><span class="p">)</span>
                     <span class="n">new_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
                 <span class="n">vals</span> <span class="o">=</span> <span class="n">new_vals</span>
@@ -817,22 +813,23 @@
 
                 <span class="k">def</span> <span class="nf">comparison_test</span><span class="p">(</span><span class="n">test_function</span><span class="p">):</span>
                     <span class="sd">"""Perform numerical comparisons using test_function; closure to capture conditional_val, vals, negation"""</span>
-                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">conditional_value</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">"comparison operators may only be used with a single value: </span><span class="si">{</span><span class="n">vals</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">conditional_value</span><span class="si">}</span><span class="s2">"</span>
+                    <span class="c1"># returns True if any of the values match the condition</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">conditional_value</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">"comparison operators may only be used with a single conditional value: </span><span class="si">{</span><span class="n">conditional_value</span><span class="si">}</span><span class="s2">"</span>
                         <span class="p">)</span>
                     <span class="k">try</span><span class="p">:</span>
-                        <span class="n">match</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span>
-                            <span class="n">test_function</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">conditional_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                        <span class="n">match</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span>
+                            <span class="nb">bool</span><span class="p">(</span><span class="n">test_function</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">conditional_value</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
+                            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vals</span>
                         <span class="p">)</span>
-
                         <span class="k">return</span> <span class="p">(</span>
                             <span class="p">[</span><span class="s2">"True"</span><span class="p">]</span>
                             <span class="k">if</span> <span class="p">(</span><span class="n">match</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">negation</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">negation</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">match</span><span class="p">)</span>
                             <span class="k">else</span> <span class="p">[]</span>
                         <span class="p">)</span>
                     <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span>
                             <span class="sa">f</span><span class="s2">"comparison operators may only be used with values that can be converted to numbers: </span><span class="si">{</span><span class="n">vals</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">conditional_value</span><span class="si">}</span><span class="s2">"</span>
                         <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
 
@@ -874,7 +871,8 @@
 
             <span class="k">if</span> <span class="n">is_bool</span><span class="p">:</span>
                 <span class="n">vals</span> <span class="o">=</span> <span class="n">default</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">vals</span> <span class="k">else</span> <span class="n">bool_val</span>
-            <span class="k">elif</span> <span class="ow">not</span> <span class="n">vals</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">vals</span> <span class="ow">and</span> <span class="n">field</span> <span class="o">!=</span> <span class="s2">"var"</span><span class="p">:</span>
+                <span class="c1"># don't assign default value if the template was variable assignment</span>
                 <span class="n">vals</span> <span class="o">=</span> <span class="n">default</span> <span class="ow">or</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">none_str</span><span class="p">]</span>
 
             <span class="n">pre</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">pre</span> <span class="ow">or</span> <span class="s2">""</span>
@@ -896,14 +894,103 @@
 
         <span class="k">return</span> <span class="n">results</span><span class="p">,</span> <span class="n">unmatched</span>
 
+<div class="viewcode-block" id="PhotoTemplate.expand_variables_to_str"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.expand_variables_to_str">[docs]</a>    <span class="k">def</span> <span class="nf">expand_variables_to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">"""</span>
+<span class="sd">        Expand variables in value and return a str of the expanded value.</span>
+<span class="sd">        Enforce that the expanded value is a single value, raises ValueError if not.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value: the value to expand</span>
+<span class="sd">            name: the name of the value being expanded (used in error messages)</span>
+<span class="sd">        """</span>
+        <span class="n">expanded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expand_variables</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">expanded</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> must have a single value, not </span><span class="si">{</span><span class="n">expanded</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">expanded</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="PhotoTemplate.expand_variables"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.expand_variables">[docs]</a>    <span class="k">def</span> <span class="nf">expand_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="sd">"""Expand variables in value"""</span>
+        <span class="c1"># replace any variables with their values</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span>
+        <span class="n">new_values</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># allow %% to escape %, match variables in form %var</span>
+        <span class="n">variable_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"(?:</span><span class="si">%%</span><span class="s2">)*(%[\w]+)?"</span><span class="p">)</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="n">variable_match</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">match</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="k">break</span>
+                <span class="n">var</span> <span class="o">=</span> <span class="n">match</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">var_name</span> <span class="o">=</span> <span class="n">var</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+                <span class="k">if</span> <span class="n">var_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Variable '</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s2">' is not defined."</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">var_val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var_name</span><span class="p">]:</span>
+                        <span class="n">new_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">f</span><span class="s2">"(%%)*</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="sa">r</span><span class="s2">"\g&lt;1&gt;"</span> <span class="o">+</span> <span class="n">var_val</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+                        <span class="p">)</span>
+            <span class="k">if</span> <span class="n">new_values</span> <span class="o">==</span> <span class="n">values</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">new_values</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">new_values</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">new_values</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># replace %% with %</span>
+        <span class="c1"># any %% left in the string will be replaced with %</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"</span><span class="si">%%</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"%"</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">values</span></div>
+
+<div class="viewcode-block" id="PhotoTemplate.get_field_values"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_field_values">[docs]</a>    <span class="k">def</span> <span class="nf">get_field_values</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">subfield</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">field_arg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">default</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+        <span class="sd">"""Get the values for a field"""</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">unmatched</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">field</span> <span class="ow">in</span> <span class="n">SINGLE_VALUE_SUBSTITUTIONS</span>
+            <span class="ow">or</span> <span class="n">field</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">SINGLE_VALUE_SUBSTITUTIONS</span>
+        <span class="p">):</span>
+            <span class="n">vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_value</span><span class="p">(</span>
+                <span class="n">field</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span>
+                <span class="n">subfield</span><span class="o">=</span><span class="n">subfield</span><span class="p">,</span>
+                <span class="n">field_arg</span><span class="o">=</span><span class="n">field_arg</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"exiftool"</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">subfield</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">"SyntaxError: GROUP:NAME subfield must not be null with {exiftool:GROUP:NAME}'"</span>
+                <span class="p">)</span>
+            <span class="n">vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_value_exiftool</span><span class="p">(</span>
+                <span class="n">subfield</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"function"</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">subfield</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">"SyntaxError: filename and function must not be null with {function::filename.py:function_name}"</span>
+                <span class="p">)</span>
+            <span class="n">vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_value_function</span><span class="p">(</span><span class="n">subfield</span><span class="p">,</span> <span class="n">field_arg</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">MULTI_VALUE_SUBSTITUTIONS</span> <span class="ow">or</span> <span class="n">field</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"photo"</span><span class="p">):</span>
+            <span class="n">vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_value_multi</span><span class="p">(</span>
+                <span class="n">field</span><span class="p">,</span> <span class="n">subfield</span><span class="p">,</span> <span class="n">path_sep</span><span class="o">=</span><span class="n">field_arg</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">field</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">PATHLIB_SUBSTITUTIONS</span><span class="p">:</span>
+            <span class="n">vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_value_pathlib</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">unmatched</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[],</span> <span class="n">unmatched</span>
+        <span class="k">return</span> <span class="n">vals</span><span class="p">,</span> <span class="n">unmatched</span></div>
+
 <div class="viewcode-block" id="PhotoTemplate.get_template_value"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_template_value">[docs]</a>    <span class="k">def</span> <span class="nf">get_template_value</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">field</span><span class="p">,</span>
         <span class="n">default</span><span class="p">,</span>
-        <span class="n">subfield</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="c1"># bool_val=None,</span>
-        <span class="c1"># delim=None,</span>
-        <span class="c1"># path_sep=None,</span>
+        <span class="n">subfield</span><span class="p">,</span>
+        <span class="n">field_arg</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">"""lookup value for template field (single-value template substitutions)</span>
 
@@ -1200,9 +1287,8 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">IndexError</span><span class="p">):</span>
-                    <span class="n">start_id</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-                    <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">start_id</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">start_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">field_arg</span><span class="p">)</span> <span class="k">if</span> <span class="n">field_arg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">+</span> <span class="n">start_id</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="n">format_str_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">subfield</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># if here, didn't get a match</span>
@@ -1250,57 +1336,116 @@
 
         <span class="k">return</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span></div>
 
-    <span class="k">def</span> <span class="nf">get_template_value_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+<div class="viewcode-block" id="PhotoTemplate.get_filter_values"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_filter_values">[docs]</a>    <span class="k">def</span> <span class="nf">get_filter_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="sd">"""Return filtered values"""</span>
+
+        <span class="c1"># extract args, if any</span>
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\(.*\)"</span><span class="p">,</span> <span class="n">filter_</span><span class="p">):</span>
+            <span class="n">filter_</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="n">filter_</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"("</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expand_variables_to_str</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">"Filter arguments"</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># check that filter name (without subfields or arguments) is valid</span>
+        <span class="n">valid_filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"("</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">FILTER_VALUES</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">filter_</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">":"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_filters</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unknown filter: </span><span class="si">{</span><span class="n">filter_</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">filter_</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="s2">"split"</span><span class="p">,</span>
+            <span class="s2">"chop"</span><span class="p">,</span>
+            <span class="s2">"chomp"</span><span class="p">,</span>
+            <span class="s2">"join"</span><span class="p">,</span>
+            <span class="s2">"append"</span><span class="p">,</span>
+            <span class="s2">"prepend"</span><span class="p">,</span>
+            <span class="s2">"remove"</span><span class="p">,</span>
+        <span class="p">]</span> <span class="ow">and</span> <span class="p">(</span><span class="n">args</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">filter_</span><span class="si">}</span><span class="s2"> requires arguments"</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"lower"</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">values</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">values</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span> <span class="k">if</span> <span class="n">values</span> <span class="k">else</span> <span class="p">[]</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"upper"</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">values</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">values</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span> <span class="k">if</span> <span class="n">values</span> <span class="k">else</span> <span class="p">[]</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"strip"</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">values</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">values</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span> <span class="k">if</span> <span class="n">values</span> <span class="k">else</span> <span class="p">[]</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"capitalize"</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">values</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">values</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()]</span> <span class="k">if</span> <span class="n">values</span> <span class="k">else</span> <span class="p">[]</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"titlecase"</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">values</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">title</span><span class="p">()</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">values</span><span class="o">.</span><span class="n">title</span><span class="p">()]</span> <span class="k">if</span> <span class="n">values</span> <span class="k">else</span> <span class="p">[]</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">title</span><span class="p">()</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"braces"</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">values</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"{"</span> <span class="o">+</span> <span class="n">v</span> <span class="o">+</span> <span class="s2">"}"</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"{"</span> <span class="o">+</span> <span class="n">values</span> <span class="o">+</span> <span class="s2">"}"</span><span class="p">]</span> <span class="k">if</span> <span class="n">values</span> <span class="k">else</span> <span class="p">[]</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"{"</span> <span class="o">+</span> <span class="n">v</span> <span class="o">+</span> <span class="s2">"}"</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"parens"</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">values</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">)"</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">values</span><span class="si">}</span><span class="s2">)"</span><span class="p">]</span> <span class="k">if</span> <span class="n">values</span> <span class="k">else</span> <span class="p">[]</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"("</span> <span class="o">+</span> <span class="n">v</span> <span class="o">+</span> <span class="s2">")"</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"brackets"</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">values</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">]"</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="n">values</span><span class="si">}</span><span class="s2">]"</span><span class="p">]</span> <span class="k">if</span> <span class="n">values</span> <span class="k">else</span> <span class="p">[]</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"["</span> <span class="o">+</span> <span class="n">v</span> <span class="o">+</span> <span class="s2">"]"</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"shell_quote"</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">values</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">shlex</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">shlex</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"split"</span><span class="p">:</span>
+            <span class="c1"># split on delimiter</span>
+            <span class="n">delim</span> <span class="o">=</span> <span class="n">args</span>
+            <span class="k">if</span> <span class="n">delim</span><span class="p">:</span>
+                <span class="n">new_values</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+                    <span class="n">new_values</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">delim</span><span class="p">))</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">new_values</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">shlex</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">values</span><span class="p">)]</span> <span class="k">if</span> <span class="n">values</span> <span class="k">else</span> <span class="p">[]</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">values</span>
+        <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"chop"</span><span class="p">:</span>
+            <span class="c1"># chop off characters from the end</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">chop</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid value for chop: </span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">[:</span><span class="o">-</span><span class="n">chop</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span> <span class="k">if</span> <span class="n">chop</span> <span class="k">else</span> <span class="n">values</span>
+        <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"chomp"</span><span class="p">:</span>
+            <span class="c1"># chop off characters from the beginning</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">chomp</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid value for chomp: </span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">[</span><span class="n">chomp</span><span class="p">:]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span> <span class="k">if</span> <span class="n">chomp</span> <span class="k">else</span> <span class="n">values</span>
+        <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"autosplit"</span><span class="p">:</span>
+            <span class="c1"># try to split keyword strings automatically</span>
+            <span class="n">temp_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">","</span><span class="p">,</span> <span class="s2">" "</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+            <span class="n">temp_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">";"</span><span class="p">,</span> <span class="s2">" "</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">temp_values</span><span class="p">]</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">temp_values</span><span class="p">:</span>
+                <span class="n">value</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">val</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+        <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"sort"</span><span class="p">:</span>
+            <span class="c1"># sort list of values</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"rsort"</span><span class="p">:</span>
+            <span class="c1"># reverse sort list of values</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"reverse"</span><span class="p">:</span>
+            <span class="c1"># reverse list of values</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">values</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"uniq"</span><span class="p">:</span>
+            <span class="c1"># remove duplicate values from list</span>
+            <span class="n">temp_values</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">temp_values</span><span class="p">:</span>
+                    <span class="n">temp_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">temp_values</span>
+        <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"join"</span><span class="p">:</span>
+            <span class="c1"># join list of values with delimiter</span>
+            <span class="n">delim</span> <span class="o">=</span> <span class="n">args</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">delim</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">values</span><span class="p">)]</span>
+        <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"append"</span><span class="p">:</span>
+            <span class="c1"># append value to list</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">values</span> <span class="o">+</span> <span class="p">[</span><span class="n">args</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"prepend"</span><span class="p">:</span>
+            <span class="c1"># prepend value to list</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">args</span><span class="p">]</span> <span class="o">+</span> <span class="n">values</span>
+        <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"remove"</span><span class="p">:</span>
+            <span class="c1"># remove value from list</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span> <span class="k">if</span> <span class="n">v</span> <span class="o">!=</span> <span class="n">args</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">filter_</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"function:"</span><span class="p">):</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_value_filter_function</span><span class="p">(</span><span class="n">filter_</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_value_filter_function</span><span class="p">(</span><span class="n">filter_</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">return</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="n">value</span></div>
 
 <div class="viewcode-block" id="PhotoTemplate.get_template_value_multi"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_template_value_multi">[docs]</a>    <span class="k">def</span> <span class="nf">get_template_value_multi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">subfield</span><span class="p">,</span> <span class="n">path_sep</span><span class="p">,</span> <span class="n">default</span><span class="p">):</span>
         <span class="sd">"""lookup value for template field (multi-value template substitutions)</span>
@@ -1319,6 +1464,8 @@
 <span class="sd">        """</span>
 
         <span class="sd">""" return list of values for a multi-valued template field """</span>
+
+        <span class="n">path_sep</span> <span class="o">=</span> <span class="n">path_sep</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_sep</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
@@ -1385,6 +1532,8 @@
             <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">shlex</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">default</span> <span class="k">if</span> <span class="n">v</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"strip"</span><span class="p">:</span>
             <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">default</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"format"</span><span class="p">:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_format_values</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">subfield</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">field</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"photo"</span><span class="p">):</span>
             <span class="c1"># provide access to PhotoInfo object</span>
             <span class="n">properties</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">)</span>
@@ -1399,10 +1548,11 @@
                     <span class="n">obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">property_</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="k">break</span>
-                <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                         <span class="s2">"Invalid property for </span><span class="si">{photo}</span><span class="s2"> template: "</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">property_</span><span class="si">}</span><span class="s2">'"</span>
-                    <span class="p">)</span>
+                    <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+
             <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
@@ -1426,6 +1576,31 @@
         <span class="c1"># If no values, insert None so code below will substitute none_str for None</span>
         <span class="n">values</span> <span class="o">=</span> <span class="n">values</span> <span class="ow">or</span> <span class="p">[]</span>
         <span class="k">return</span> <span class="n">values</span></div>
+
+<div class="viewcode-block" id="PhotoTemplate.get_format_values"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_format_values">[docs]</a>    <span class="k">def</span> <span class="nf">get_format_values</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subfield</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>
+        <span class="sd">"""Return values for {format} templates"""</span>
+
+        <span class="k">if</span> <span class="n">field</span> <span class="o">!=</span> <span class="s2">"format"</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unhandled template value in get_format_values: </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">subfield</span> <span class="ow">or</span> <span class="s2">":"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">subfield</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="s2">"</span><span class="si">{format}</span><span class="s2"> requires subfield in form TYPE:FORMAT"</span><span class="p">)</span>
+        <span class="n">type_</span><span class="p">,</span> <span class="n">format_str</span> <span class="o">=</span> <span class="n">subfield</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">":"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">type_</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"int"</span><span class="p">,</span> <span class="s2">"float"</span><span class="p">,</span> <span class="s2">"str"</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">type_</span><span class="si">}</span><span class="s2">' is not a valid type for </span><span class="si">{</span><span class="nb">format</span><span class="si">}</span><span class="s2">: must be one of 'int', 'float', 'str'"</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">type_</span> <span class="o">==</span> <span class="s2">"int"</span><span class="p">:</span>
+            <span class="c1"># convert to float then int to avoid error when converting a string float to int</span>
+            <span class="n">default_</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">default</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">type_</span> <span class="o">==</span> <span class="s2">"float"</span><span class="p">:</span>
+            <span class="n">default_</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">default</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">default_</span> <span class="o">=</span> <span class="n">default</span>
+        <span class="n">format_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expand_variables_to_str</span><span class="p">(</span><span class="n">format_str</span><span class="p">,</span> <span class="s2">"format string"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">format_str_value</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">format_str</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">default_</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="PhotoTemplate.get_template_value_exiftool"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_template_value_exiftool">[docs]</a>    <span class="k">def</span> <span class="nf">get_template_value_exiftool</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1460,6 +1635,7 @@
 <div class="viewcode-block" id="PhotoTemplate.get_template_value_function"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_template_value_function">[docs]</a>    <span class="k">def</span> <span class="nf">get_template_value_function</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">subfield</span><span class="p">,</span>
+        <span class="n">field_arg</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">"""Get template value from external function"""</span>
 
@@ -1475,7 +1651,13 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">' does not appear to be a file"</span><span class="p">)</span>
 
         <span class="n">template_func</span> <span class="o">=</span> <span class="n">load_function</span><span class="p">(</span><span class="n">filename_validated</span><span class="p">,</span> <span class="n">funcname</span><span class="p">)</span>
-        <span class="n">values</span> <span class="o">=</span> <span class="n">template_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># must be a PhotoInfoNone instance</span>
+            <span class="c1"># if no uuid, then template is being validated but not actually run</span>
+            <span class="c1"># so don't run the function</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">template_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">field_arg</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
@@ -1493,8 +1675,9 @@
 
         <span class="k">return</span> <span class="n">values</span></div>
 
-<div class="viewcode-block" id="PhotoTemplate.get_template_value_filter_function"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_template_value_filter_function">[docs]</a>    <span class="k">def</span> <span class="nf">get_template_value_filter_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+<div class="viewcode-block" id="PhotoTemplate.get_template_value_filter_function"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_template_value_filter_function">[docs]</a>    <span class="k">def</span> <span class="nf">get_template_value_filter_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
         <span class="sd">"""Filter template value from external function"""</span>
+        <span class="c1"># TODO: add args to filter function call? Would change signature of function</span>
 
         <span class="n">filter_</span> <span class="o">=</span> <span class="n">filter_</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"function:"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
 
@@ -1513,7 +1696,11 @@
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
             <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">values</span><span class="p">]</span>
-        <span class="n">values</span> <span class="o">=</span> <span class="n">template_func</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># if uuid is None, it's a PhotoInfoNone instance and template is being validated</span>
+            <span class="c1"># so don't run the function</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">template_func</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
@@ -1525,10 +1712,7 @@
 <div class="viewcode-block" id="PhotoTemplate.get_photo_video_type"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_photo_video_type">[docs]</a>    <span class="k">def</span> <span class="nf">get_photo_video_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">):</span>
         <span class="sd">"""return media type, e.g. photo or video"""</span>
         <span class="n">default_dict</span> <span class="o">=</span> <span class="n">parse_default_kv</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">PHOTO_VIDEO_TYPE_DEFAULTS</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">isphoto</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">default_dict</span><span class="p">[</span><span class="s2">"photo"</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">default_dict</span><span class="p">[</span><span class="s2">"video"</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="n">default_dict</span><span class="p">[</span><span class="s2">"photo"</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">isphoto</span> <span class="k">else</span> <span class="n">default_dict</span><span class="p">[</span><span class="s2">"video"</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="PhotoTemplate.get_media_type"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_media_type">[docs]</a>    <span class="k">def</span> <span class="nf">get_media_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">):</span>
         <span class="sd">"""return special media type, e.g. slow_mo, panorama, etc., defaults to photo or video if no special type"""</span>
@@ -1555,13 +1739,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">default_dict</span><span class="p">[</span><span class="s2">"photo"</span><span class="p">]</span></div>
 
-    <span class="k">def</span> <span class="nf">get_photo_bool_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">default</span><span class="p">,</span> <span class="n">bool_val</span><span class="p">):</span>
-        <span class="c1"># get value for a PhotoInfo bool attribute</span>
-        <span class="n">val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">val</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">bool_val</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">default</span></div>
+<div class="viewcode-block" id="PhotoTemplate.get_photo_bool_attribute"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_photo_bool_attribute">[docs]</a>    <span class="k">def</span> <span class="nf">get_photo_bool_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">default</span><span class="p">,</span> <span class="n">bool_val</span><span class="p">):</span>
+        <span class="sd">"""Return the boolean value for a photo attribute"""</span>
+        <span class="k">return</span> <span class="n">bool_val</span> <span class="k">if</span> <span class="p">(</span><span class="n">val</span> <span class="o">:=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span> <span class="k">else</span> <span class="n">default</span></div></div>
 
 
 <span class="k">def</span> <span class="nf">parse_default_kv</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">default_dict</span><span class="p">):</span>

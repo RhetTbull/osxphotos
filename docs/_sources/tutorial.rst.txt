@@ -218,6 +218,15 @@ A powerful feature of Photos is that it uses machine learning algorithms to auto
 
 ``osxphotos export /path/to/export --exiftool --keyword-template "{label}"``
 
+Removing a keyword during export
+--------------------------------
+
+If some of your photos contain a keyword you do not want to be added to the exported file with ``--exiftool``\ , you can use the template system to remove the keyword from the exported file. For example, if you want to remove the keyword "MyKeyword" from all your photos:
+
+``osxphotos export /path/to/export --exiftool --keyword-template "{keyword|remove(MyKeyword)}" --replace-keywords``
+
+In this example, ``|remove(MyKeyword)`` is a filter which removes ``MyKeyword`` from the keyword list of every photo being processed.  The ``--replace-keywords`` option instructs osxphotos to replace the keywords in the exported file with the filtered keywords from ``--keyword-template``.
+
 **Note**\ : When evaluating templates for ``--directory`` and ``--filename``\ , osxphotos inserts the automatic default value "_" for any template field which is null (empty or blank).  This is to ensure that there's never a null directory or filename created.  For metadata templates such as ``--keyword-template``\ , osxphotos does not provide an automatic default value thus if the template field is null, no keyword would be created.  Of course, you can provide a default value if desired and osxphotos will use this.  For example, to add "nolabel" as a keyword for any photo that doesn't have labels:
 
 ``osxphotos export /path/to/export --exiftool --keyword-template "{label,nolabel}"``

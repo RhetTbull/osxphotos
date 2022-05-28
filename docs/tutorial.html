@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Command Line Interface (CLI)" href="cli.html" /><link rel="prev" title="OSXPhotos" href="overview.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>OSXPhotos Tutorial - osxphotos 0.49.9 documentation</title>
+        <title>OSXPhotos Tutorial - osxphotos 0.50.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.49.9 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.50.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.49.9 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.50.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -331,6 +331,12 @@
 <p>The above command will write all the regular metadata that <code class="docutils literal notranslate"><span class="pre">--exiftool</span></code> normally writes to the file upon export but will also add an additional keyword in the exported metadata in the form “Folder1&gt;Folder2&gt;Album”.  If you did not include the <code class="docutils literal notranslate"><span class="pre">(&gt;)</span></code> in the template string (e.g. <code class="docutils literal notranslate"><span class="pre">{folder_album}</span></code>), folder_album would render in form “Folder1/Folder2/Album”.</p>
 <p>A powerful feature of Photos is that it uses machine learning algorithms to automatically classify or label photos.  These labels are used when you search for images in Photos but are not otherwise available to the user.  osxphotos is able to read all the labels associated with a photo and makes those available through the template system via the <code class="docutils literal notranslate"><span class="pre">{label}</span></code>.  Think of these as automatic keywords as opposed to the keywords you assign manually in Photos.  One common use case is to use the automatic labels to create new keywords when exporting images so that these labels are embedded in the image’s metadata:</p>
 <p><code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">export</span> <span class="pre">/path/to/export</span> <span class="pre">--exiftool</span> <span class="pre">--keyword-template</span> <span class="pre">"{label}"</span></code></p>
+</section>
+<section id="removing-a-keyword-during-export">
+<h2>Removing a keyword during export<a class="headerlink" href="#removing-a-keyword-during-export" title="Permalink to this headline">#</a></h2>
+<p>If some of your photos contain a keyword you do not want to be added to the exported file with <code class="docutils literal notranslate"><span class="pre">--exiftool</span></code>, you can use the template system to remove the keyword from the exported file. For example, if you want to remove the keyword “MyKeyword” from all your photos:</p>
+<p><code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">export</span> <span class="pre">/path/to/export</span> <span class="pre">--exiftool</span> <span class="pre">--keyword-template</span> <span class="pre">"{keyword|remove(MyKeyword)}"</span> <span class="pre">--replace-keywords</span></code></p>
+<p>In this example, <code class="docutils literal notranslate"><span class="pre">|remove(MyKeyword)</span></code> is a filter which removes <code class="docutils literal notranslate"><span class="pre">MyKeyword</span></code> from the keyword list of every photo being processed.  The <code class="docutils literal notranslate"><span class="pre">--replace-keywords</span></code> option instructs osxphotos to replace the keywords in the exported file with the filtered keywords from <code class="docutils literal notranslate"><span class="pre">--keyword-template</span></code>.</p>
 <p><strong>Note</strong>: When evaluating templates for <code class="docutils literal notranslate"><span class="pre">--directory</span></code> and <code class="docutils literal notranslate"><span class="pre">--filename</span></code>, osxphotos inserts the automatic default value “_” for any template field which is null (empty or blank).  This is to ensure that there’s never a null directory or filename created.  For metadata templates such as <code class="docutils literal notranslate"><span class="pre">--keyword-template</span></code>, osxphotos does not provide an automatic default value thus if the template field is null, no keyword would be created.  Of course, you can provide a default value if desired and osxphotos will use this.  For example, to add “nolabel” as a keyword for any photo that doesn’t have labels:</p>
 <p><code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">export</span> <span class="pre">/path/to/export</span> <span class="pre">--exiftool</span> <span class="pre">--keyword-template</span> <span class="pre">"{label,nolabel}"</span></code></p>
 </section>
@@ -568,6 +574,7 @@ template fields.
 <li><a class="reference internal" href="#missing-photos">Missing photos</a></li>
 <li><a class="reference internal" href="#exporting-to-external-disks">Exporting to external disks</a></li>
 <li><a class="reference internal" href="#exporting-metadata-with-exported-photos">Exporting metadata with exported photos</a></li>
+<li><a class="reference internal" href="#removing-a-keyword-during-export">Removing a keyword during export</a></li>
 <li><a class="reference internal" href="#sidecar-files">Sidecar files</a></li>
 <li><a class="reference internal" href="#updating-a-previous-export">Updating a previous export</a></li>
 <li><a class="reference internal" href="#dry-run">Dry Run</a></li>
