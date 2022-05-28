@@ -198,6 +198,34 @@ TEMPLATE_VALUES = {
     "{title?Title is '{title} - {descr}',No Title}": "Title is 'Glen Ord - Jack Rose Dining Saloon'",
     "{favorite}": "_",
     "{favorite?FAV,NOTFAV}": "NOTFAV",
+    "{var:myvar,{semicolon}}{created.dow}{%myvar}": "Tuesday;",
+    "{var:pipe,{pipe}}{place.address[,,%pipe]}": "2038 18th St NW| Washington| DC  20009| United States",
+    "{format:float:.2f,{photo.exif_info.aperture}}": "2.20",
+    "{format:int:02d,{photo.exif_info.aperture}}": "02",
+    "{format:int:03d,{photo.exif_info.aperture}}": "002",
+    "{format:float:10.4f,{photo.exif_info.aperture}}": "    2.2000",
+    "{format:str:-^10,{photo.exif_info.aperture}}": "---2.2----",
+    "{descr|lower}": "jack rose dining saloon",
+    "{descr|upper}": "JACK ROSE DINING SALOON",
+    "{var:spaces,  {descr}}{%spaces|strip,}": "Jack Rose Dining Saloon",
+    "{descr|titlecase}": "Jack Rose Dining Saloon",
+    "{descr|capitalize}": "Jack rose dining saloon",
+    "{descr|braces}": "{Jack Rose Dining Saloon}",
+    "{descr|parens}": "(Jack Rose Dining Saloon)",
+    "{descr|brackets}": "[Jack Rose Dining Saloon]",
+    "{descr|split( )|join(|)}": "Jack|Rose|Dining|Saloon",
+    "{descr|autosplit|join(|)}": "Jack|Rose|Dining|Saloon",
+    "{descr|autosplit|chop(1)|join(|)}": "Jac|Ros|Dinin|Saloo",
+    "{descr|autosplit|chomp(1)|join(|)}": "ack|ose|ining|aloon",
+    "{descr|chop(2)}": "Jack Rose Dining Salo",
+    "{descr|chomp(2)}": "ck Rose Dining Saloon",
+    "{descr|autosplit|sort|join(|)}": "Dining|Jack|Rose|Saloon",
+    "{descr|autosplit|rsort|join(|)}": "Saloon|Rose|Jack|Dining",
+    "{descr|autosplit|reverse|join(|)}": "Saloon|Dining|Rose|Jack",
+    "{var:myvar,a e a b d c c d e}{%myvar|autosplit|uniq|sort|join(,)}": "a,b,c,d,e",
+    "{descr|chop(6)|autosplit|append(Restaurant)|join( )}": "Jack Rose Dining Restaurant",
+    "{descr|chomp(4)|autosplit|prepend(Mack)|join( )}": "Mack Rose Dining Saloon",
+    "{descr|autosplit|remove(Rose)|join( )}": "Jack Dining Saloon",
 }
 
 
@@ -323,9 +351,11 @@ UUID_CONDITIONAL = {
         "{title endswith Park?YES,NO}": ["YES"],
         "{title endswith Elder?YES,NO}": ["NO"],
         "{title startswith Elder?YES,NO}": ["YES"],
+        "{title startswith Elder|endswith Park?YES,NO}": ["YES"],
         "{title endswith Elder?YES,NO}": ["NO"],
         "{photo.place.name contains Adelaide?YES,NO}": ["YES"],
         "{photo.place.name|lower contains adelaide?YES,NO}": ["YES"],
+        "{photo.place.name|lower contains adelaide|australia?YES,NO}": ["YES"],
         "{photo.place.name|lower not contains adelaide?YES,NO}": ["NO"],
         "{photo.score.overall < 0.7?YES,NO}": ["YES"],
         "{photo.score.overall <= 0.7?YES,NO}": ["YES"],
@@ -360,12 +390,14 @@ UUID_ALBUM_SEQ = {
         "templates": {
             "{album_seq}": "0",
             "{album_seq:02d}": "00",
-            "{album_seq.1}": "1",
-            "{album_seq.1:03d}": "001",
+            "{album_seq(1)}": "1",
+            "{album_seq(2)}": "2",
+            "{album_seq:03d(1)}": "001",
             "{folder_album_seq}": "0",
             "{folder_album_seq:02d}": "00",
-            "{folder_album_seq.1}": "1",
-            "{folder_album_seq.1:03d}": "001",
+            "{folder_album_seq(1)}": "1",
+            "{folder_album_seq(2)}": "2",
+            "{folder_album_seq:03d(1)}": "001",
         },
     },
     "F12384F6-CD17-4151-ACBA-AE0E3688539E": {
@@ -373,12 +405,12 @@ UUID_ALBUM_SEQ = {
         "templates": {
             "{album_seq}": "2",
             "{album_seq:02d}": "02",
-            "{album_seq.1}": "3",
-            "{album_seq.1:03d}": "003",
+            "{album_seq(1)}": "3",
+            "{album_seq:03d(1)}": "003",
             "{folder_album_seq}": "2",
             "{folder_album_seq:02d}": "02",
-            "{folder_album_seq.1}": "3",
-            "{folder_album_seq.1:03d}": "003",
+            "{folder_album_seq(1)}": "3",
+            "{folder_album_seq:03d(1)}": "003",
         },
     },
     "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51": {
@@ -386,13 +418,13 @@ UUID_ALBUM_SEQ = {
         "templates": {
             "{album_seq}": "1",
             "{album_seq:02d}": "01",
-            "{album_seq.1}": "2",
-            "{album_seq.1:03d}": "002",
+            "{album_seq(1)}": "2",
+            "{album_seq:03d(1)}": "002",
             "{folder_album_seq}": "1",
             "{folder_album_seq:02d}": "01",
-            "{folder_album_seq.1}": "2",
-            "{folder_album_seq.0}": "1",
-            "{folder_album_seq.1:03d}": "002",
+            "{folder_album_seq(1)}": "2",
+            "{folder_album_seq(0)}": "1",
+            "{folder_album_seq:03d(1)}": "002",
         },
     },
 }
@@ -469,7 +501,7 @@ def test_lookup(photosdb_places):
 
     for subst in TEMPLATE_SUBSTITUTIONS:
         lookup_str = re.match(r"\{([^\\,}]+)\}", subst).group(1)
-        lookup = template.get_template_value(lookup_str, None)
+        lookup = template.get_template_value(lookup_str, None, None, None)
         assert lookup or lookup is None
 
 
@@ -480,7 +512,7 @@ def test_lookup_multi(photosdb_places):
 
     for subst in TEMPLATE_SUBSTITUTIONS_MULTI_VALUED:
         lookup_str = re.match(r"\{([^\\,}]+)\}", subst).group(1)
-        if subst in ["{exiftool}", "{photo}", "{function}"]:
+        if subst in ["{exiftool}", "{photo}", "{function}", "{format}"]:
             continue
         lookup = template.get_template_value_multi(
             lookup_str,
@@ -783,7 +815,7 @@ def test_subst_multi_folder_albums_1_path_sep_lower(photosdb):
 
     # photo in an album in a folder
     photo = photosdb.photos(uuid=[UUID_DICT["folder_album_1"]])[0]
-    template = "{folder_album|lower(:)}"
+    template = "{folder_album(:)|lower}"
     expected = [
         "2018-10 - sponsion, museum, frühstück, römermuseum",
         "2019-10/11 paris clermont",
@@ -851,7 +883,7 @@ def test_subst_multi_folder_albums_4_path_sep_lower(photosdb_14_6):
 
     # photo in an album in a folder
     photo = photosdb_14_6.photos(uuid=[UUID_DICT["mojave_album_1"]])[0]
-    template = "{folder_album|lower(>)}"
+    template = "{folder_album(>)|lower}"
     expected = ["folder1>subfolder2>albuminfolder", "pumpkin farm", "test album (1)"]
     rendered, unknown = photo.render_template(template)
     assert sorted(rendered) == sorted(expected)
@@ -1134,7 +1166,9 @@ def test_function_filter(photosdb):
 def test_function_filter_bad(photosdb):
     """Test invalid {field|function} filter"""
     photo = photosdb.get_photo(UUID_MULTI_KEYWORDS)
-    with pytest.raises(ValueError):
+    # bad field raises SyntaxError
+    # bad function raises ValueError
+    with pytest.raises((SyntaxError, ValueError)):
         rendered, _ = photo.render_template(
             "{photo.original_filename|function:tests/template_filter.py::foobar}"
         )

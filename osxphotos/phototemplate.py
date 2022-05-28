@@ -5,11 +5,12 @@ import datetime
 import locale
 import os
 import pathlib
+import re
 import shlex
 import sys
 from contextlib import suppress
 from dataclasses import dataclass
-from typing import Optional
+from typing import List, Optional, Tuple
 
 from textx import TextXSyntaxError, metamodel_from_file
 
@@ -148,21 +149,23 @@ TEMPLATE_SUBSTITUTIONS = {
     "{album_seq}": "An integer, starting at 0, indicating the photo's index (sequence) in the containing album. "
     + "Only valid when used in a '--filename' template and only when '{album}' or '{folder_album}' is used in the '--directory' template. "
     + 'For example \'--directory "{folder_album}" --filename "{album_seq}_{original_name}"\'. '
-    + "To start counting at a value other than 0, append append a period and the starting value to the field name.  "
-    + "For example, to start counting at 1 instead of 0: '{album_seq.1}'. "
+    + "To start counting at a value other than 0, append append '(starting_value)' to the field name.  "
+    + "For example, to start counting at 1 instead of 0: '{album_seq(1)}'. "
     + "May be formatted using a python string format code. "
     + "For example, to format as a 5-digit integer and pad with zeros, use '{album_seq:05d}' which results in "
     + "00000, 00001, 00002...etc. "
+    + "To format while also using a starting value: '{album_seq:05d(1)}' which results in 0001, 00002...etc."
     + "This may result in incorrect sequences if you have duplicate albums with the same name; see also '{folder_album_seq}'.",
     "{folder_album_seq}": "An integer, starting at 0, indicating the photo's index (sequence) in the containing album and folder path. "
     + "Only valid when used in a '--filename' template and only when '{folder_album}' is used in the '--directory' template. "
     + 'For example \'--directory "{folder_album}" --filename "{folder_album_seq}_{original_name}"\'. '
-    + "To start counting at a value other than 0, append append a period and the starting value to the field name.  "
-    + "For example, to start counting at 1 instead of 0: '{folder_album_seq.1}' "
+    + "To start counting at a value other than 0, append '(starting_value)' to the field name. "
+    + "For example, to start counting at 1 instead of 0: '{folder_album_seq(1)}' "
     + "May be formatted using a python string format code. "
     + "For example, to format as a 5-digit integer and pad with zeros, use '{folder_album_seq:05d}' which results in "
     + "00000, 00001, 00002...etc. "
-    + "This may result in incorrect sequences if you have duplicate albums with the same name in the same folder; see also '{album_seq}'.",
+    + "To format while also using a starting value: '{folder_album_seq:05d(1)}' which results in 0001, 00002...etc."
+    + "This may result in incorrect sequences if you have duplicate albums with the same name in the same folder; see also '{album_seq}'. ",
     "{comma}": "A comma: ','",
     "{semicolon}": "A semicolon: ';'",
     "{questionmark}": "A question mark: '?'",
@@ -222,6 +225,9 @@ TEMPLATE_SUBSTITUTIONS_MULTI_VALUED = {
     + "Note: this feature is not the same thing as Live Text in macOS Monterey, which osxphotos does not yet support.",
     "{shell_quote}": "Use in form '{shell_quote,TEMPLATE}'; quotes the rendered TEMPLATE value(s) for safe usage in the shell, e.g. My file.jpeg => 'My file.jpeg'; only adds quotes if needed.",
     "{strip}": "Use in form '{strip,TEMPLATE}'; strips whitespace from begining and end of rendered TEMPLATE value(s).",
+    "{format}": "Use in form, '{format:TYPE:FORMAT,TEMPLATE}'; converts TEMPLATE value to TYPE then formats the value "
+    + "using Python string formatting codes specified by FORMAT; TYPE is one of: 'int', 'float', or 'str'. "
+    "For example, '{format:float:.1f,{exiftool:EXIF:FocalLength}}' will format focal length to 1 decimal place (e.g. '100.0'). ",
     "{function}": "Execute a python function from an external file and use return value as template substitution. "
     + "Use in format: {function:file.py::function_name} where 'file.py' is the name of the python file and 'function_name' is the name of the function to call. "
     + "The function will be passed the PhotoInfo object for the photo. "
@@ -239,6 +245,18 @@ FILTER_VALUES = {
     "brackets": "Enclose value in brackets, e.g. 'value' => '[value]'",
     "shell_quote": "Quotes the value for safe usage in the shell, e.g. My file.jpeg => 'My file.jpeg'; only adds quotes if needed.",
     "function": "Run custom python function to filter value; use in format 'function:/path/to/file.py::function_name'. See example at https://github.com/RhetTbull/osxphotos/blob/master/examples/template_filter.py",
+    "split(x)": "Split value into a list of values using x as delimiter, e.g. 'value1;value2' => ['value1', 'value2'] if used with split(;).",
+    "autosplit": "Automatically split delimited string into separate values; will split strings delimited by comma, semicolon, or space, e.g. 'value1,value2' => ['value1', 'value2'].",
+    "chop(x)": "Remove x characters off the end of value, e.g. chop(1): 'Value' => 'Valu'; when applied to a list, chops characters from each list value, e.g. chop(1): ['travel', 'beach']=> ['trave', 'beac'].",
+    "chomp(x)": "Remove x characters from the beginning of value, e.g. chomp(1): ['Value'] => ['alue']; when applied to a list, removes characters from each list value, e.g. chomp(1): ['travel', 'beach']=> ['ravel', 'each'].",
+    "sort": "Sort list of values, e.g. ['c', 'b', 'a'] => ['a', 'b', 'c'].",
+    "rsort": "Sort list of values in reverse order, e.g. ['a', 'b', 'c'] => ['c', 'b', 'a'].",
+    "reverse": "Reverse order of values, e.g. ['a', 'b', 'c'] => ['c', 'b', 'a'].",
+    "uniq": "Remove duplicate values, e.g. ['a', 'b', 'c', 'b', 'a'] => ['a', 'b', 'c'].",
+    "join(x)": "Join list of values with delimiter x, e.g. join(:): ['a', 'b', 'c'] => 'a:b:c'; the DELIM option functions similar to join(x) but with DELIM, the join happens before being passed to any filters.",
+    "append(x)": "Append x to list of values, e.g. append(d): ['a', 'b', 'c'] => ['a', 'b', 'c', 'd'].",
+    "prepend(x)": "Prepend x to list of values, e.g. prepend(d): ['a', 'b', 'c'] => ['d', 'a', 'b', 'c'].",
+    "remove(x)": "Remove x from list of values, e.g. remove(b): ['a', 'b', 'c'] => ['a', 'c'].",
 }
 
 # Just the substitutions without the braces
@@ -382,6 +400,7 @@ class PhotoTemplate:
         self.filepath = options.filepath
         self.quote = options.quote
         self.dest_path = options.dest_path
+        self.variables = {}
 
     def render(
         self,
@@ -430,14 +449,13 @@ class PhotoTemplate:
     def _render_statement(
         self,
         statement,
-        path_sep=None,
+        field_arg=None,
     ):
-        path_sep = path_sep or self.path_sep
         results = []
         unmatched = []
         for ts in statement.template_strings:
             results, unmatched = self._render_template_string(
-                ts, results=results, unmatched=unmatched, path_sep=path_sep
+                ts, results=results, unmatched=unmatched, field_arg=field_arg
             )
 
         rendered_strings = results
@@ -457,7 +475,7 @@ class PhotoTemplate:
     def _render_template_string(
         self,
         ts,
-        path_sep,
+        field_arg,
         results=None,
         unmatched=None,
     ):
@@ -469,11 +487,6 @@ class PhotoTemplate:
         if ts.template:
             # have a template field to process
             field = ts.template.field
-            field_part = field.split(".")[0]
-            if field not in FIELD_NAMES and field_part not in FIELD_NAMES:
-                unmatched.append(field)
-                return [], unmatched
-
             subfield = ts.template.subfield
 
             # process filters
@@ -481,14 +494,15 @@ class PhotoTemplate:
             if ts.template.filter is not None:
                 filters = ts.template.filter.value
 
-            # process path_sep
-            if ts.template.pathsep is not None:
-                path_sep = ts.template.pathsep.value
+            # process field arguments
+            if ts.template.fieldarg is not None:
+                field_arg = ts.template.fieldarg.value
 
             # process delim
             if ts.template.delim is not None:
                 # if value is None, means format was {+field}
                 delim = ts.template.delim.value or ""
+                delim = self.expand_variables_to_str(delim, "delim")
             else:
                 delim = None
 
@@ -497,7 +511,7 @@ class PhotoTemplate:
                 if ts.template.bool.value is not None:
                     bool_val, u = self._render_statement(
                         ts.template.bool.value,
-                        path_sep=path_sep,
+                        field_arg=field_arg,
                     )
                     unmatched.extend(u)
                 else:
@@ -513,7 +527,7 @@ class PhotoTemplate:
                 if ts.template.default.value is not None:
                     default, u = self._render_statement(
                         ts.template.default.value,
-                        path_sep=path_sep,
+                        field_arg=field_arg,
                     )
                     unmatched.extend(u)
                 else:
@@ -528,11 +542,11 @@ class PhotoTemplate:
                 negation = ts.template.conditional.negation
                 if ts.template.conditional.value is not None:
                     # conditional value is also a TemplateString
-                    conditional_value, u = self._render_statement(
-                        ts.template.conditional.value,
-                        path_sep=path_sep,
-                    )
-                    unmatched.extend(u)
+                    conditional_value = []
+                    for cv in ts.template.conditional.value:
+                        value, u = self._render_statement(cv)
+                        conditional_value += value
+                        unmatched.extend(u)
                 else:
                     # this shouldn't happen
                     conditional_value = [""]
@@ -541,43 +555,23 @@ class PhotoTemplate:
                 negation = None
                 conditional_value = []
 
-            vals = []
-            if (
-                field in SINGLE_VALUE_SUBSTITUTIONS
-                or field.split(".")[0] in SINGLE_VALUE_SUBSTITUTIONS
-            ):
-                vals = self.get_template_value(
-                    field,
-                    default=default,
-                    subfield=subfield,
-                    # delim=delim or self.inplace_sep,
-                    # path_sep=path_sep,
-                )
-            elif field == "exiftool":
-                if subfield is None:
-                    raise ValueError(
-                        "SyntaxError: GROUP:NAME subfield must not be null with {exiftool:GROUP:NAME}'"
+            if field.startswith("%"):
+                # variable in form {%var}
+                vals = self.variables.get(field[1:], None)
+                if vals is None:
+                    raise SyntaxError(f"Variable '{field[1:]}' is not defined.")
+            elif field == "var":
+                if not subfield or not default:
+                    raise SyntaxError(
+                        "var must have a subfield and value in form {var:subfield,value}"
                     )
-                vals = self.get_template_value_exiftool(
-                    subfield,
-                )
-            elif field == "function":
-                if subfield is None:
-                    raise ValueError(
-                        "SyntaxError: filename and function must not be null with {function::filename.py:function_name}"
-                    )
-                vals = self.get_template_value_function(
-                    subfield,
-                )
-            elif field in MULTI_VALUE_SUBSTITUTIONS or field.startswith("photo"):
-                vals = self.get_template_value_multi(
-                    field, subfield, path_sep=path_sep, default=default
-                )
-            elif field.split(".")[0] in PATHLIB_SUBSTITUTIONS:
-                vals = self.get_template_value_pathlib(field)
+                self.variables[subfield] = default
+                vals = []
             else:
-                unmatched.append(field)
-                return [], unmatched
+                vals, u = self.get_field_values(field, subfield, field_arg, default)
+                if u:
+                    unmatched.extend(u)
+                    return [], unmatched
 
             vals = [val for val in vals if val is not None]
 
@@ -586,7 +580,7 @@ class PhotoTemplate:
                 vals = [sep.join(sorted(vals))] if vals else []
 
             for filter_ in filters:
-                vals = self.get_template_value_filter(filter_, vals)
+                vals = self.get_filter_values(filter_, vals)
 
             # process find/replace
             if ts.template.findreplace:
@@ -594,7 +588,9 @@ class PhotoTemplate:
                 for val in vals:
                     for pair in ts.template.findreplace.pairs:
                         find = pair.find or ""
+                        find = self.expand_variables_to_str(find, "find/replace")
                         repl = pair.replace or ""
+                        repl = self.expand_variables_to_str(repl, "find/replace")
                         val = val.replace(find, repl)
                     new_vals.append(val)
                 vals = new_vals
@@ -621,22 +617,23 @@ class PhotoTemplate:
 
                 def comparison_test(test_function):
                     """Perform numerical comparisons using test_function; closure to capture conditional_val, vals, negation"""
-                    if len(vals) != 1 or len(conditional_value) != 1:
-                        raise ValueError(
-                            f"comparison operators may only be used with a single value: {vals} {conditional_value}"
+                    # returns True if any of the values match the condition
+                    if len(conditional_value) != 1:
+                        raise SyntaxError(
+                            f"comparison operators may only be used with a single conditional value: {conditional_value}"
                         )
                     try:
-                        match = bool(
-                            test_function(float(vals[0]), float(conditional_value[0]))
+                        match = any(
+                            bool(test_function(float(v), float(conditional_value[0])))
+                            for v in vals
                         )
-
                         return (
                             ["True"]
                             if (match and not negation) or (negation and not match)
                             else []
                         )
                     except ValueError as e:
-                        raise ValueError(
+                        raise SyntaxError(
                             f"comparison operators may only be used with values that can be converted to numbers: {vals} {conditional_value}"
                         ) from e
 
@@ -678,7 +675,8 @@ class PhotoTemplate:
 
             if is_bool:
                 vals = default if not vals else bool_val
-            elif not vals:
+            elif not vals and field != "var":
+                # don't assign default value if the template was variable assignment
                 vals = default or [self.none_str]
 
             pre = ts.pre or ""
@@ -700,14 +698,103 @@ class PhotoTemplate:
 
         return results, unmatched
 
+    def expand_variables_to_str(self, value: str, name: str) -> str:
+        """
+        Expand variables in value and return a str of the expanded value.
+        Enforce that the expanded value is a single value, raises ValueError if not.
+
+        Args:
+            value: the value to expand
+            name: the name of the value being expanded (used in error messages)
+        """
+        expanded = self.expand_variables(value)
+        if len(expanded) != 1:
+            raise SyntaxError(f"{name} must have a single value, not {expanded}")
+        return expanded[0]
+
+    def expand_variables(self, value: str) -> List[str]:
+        """Expand variables in value"""
+        # replace any variables with their values
+        values = [value]
+        new_values = []
+        # allow %% to escape %, match variables in form %var
+        variable_match = re.compile(r"(?:%%)*(%[\w]+)?")
+        while True:
+            for value in values:
+                match = variable_match.search(value)
+                if not match or not match[1]:
+                    break
+                var = match[1]
+                var_name = var[1:]
+                if var_name not in self.variables:
+                    raise SyntaxError(f"Variable '{var_name}' is not defined.")
+                for val in values:
+                    for var_val in self.variables[var_name]:
+                        new_values.append(
+                            re.sub(f"(%%)*{var}", r"\g<1>" + var_val, val)
+                        )
+            if new_values == values or not new_values:
+                break
+            values = new_values.copy()
+            new_values = []
+
+        # replace %% with %
+        # any %% left in the string will be replaced with %
+        values = [value.replace("%%", "%") for value in values]
+
+        return values
+
+    def get_field_values(
+        self,
+        field: str,
+        subfield: Optional[str],
+        field_arg: Optional[str],
+        default: List[str],
+    ) -> Tuple[List[str], List[str]]:
+        """Get the values for a field"""
+        vals = []
+        unmatched = []
+        if (
+            field in SINGLE_VALUE_SUBSTITUTIONS
+            or field.split(".")[0] in SINGLE_VALUE_SUBSTITUTIONS
+        ):
+            vals = self.get_template_value(
+                field,
+                default=default,
+                subfield=subfield,
+                field_arg=field_arg,
+            )
+        elif field == "exiftool":
+            if subfield is None:
+                raise ValueError(
+                    "SyntaxError: GROUP:NAME subfield must not be null with {exiftool:GROUP:NAME}'"
+                )
+            vals = self.get_template_value_exiftool(
+                subfield,
+            )
+        elif field == "function":
+            if subfield is None:
+                raise ValueError(
+                    "SyntaxError: filename and function must not be null with {function::filename.py:function_name}"
+                )
+            vals = self.get_template_value_function(subfield, field_arg)
+        elif field in MULTI_VALUE_SUBSTITUTIONS or field.startswith("photo"):
+            vals = self.get_template_value_multi(
+                field, subfield, path_sep=field_arg, default=default
+            )
+        elif field.split(".")[0] in PATHLIB_SUBSTITUTIONS:
+            vals = self.get_template_value_pathlib(field)
+        else:
+            unmatched.append(field)
+            return [], unmatched
+        return vals, unmatched
+
     def get_template_value(
         self,
         field,
         default,
-        subfield=None,
-        # bool_val=None,
-        # delim=None,
-        # path_sep=None,
+        subfield,
+        field_arg,
     ):
         """lookup value for template field (single-value template substitutions)
 
@@ -1004,9 +1091,8 @@ class PhotoTemplate:
             else:
                 value = None
             if value is not None:
-                with suppress(IndexError):
-                    start_id = field.split(".", 1)
-                    value = int(value) + int(start_id[1])
+                start_id = int(field_arg) if field_arg is not None else 0
+                value = int(value) + start_id
                 value = format_str_value(value, subfield)
         else:
             # if here, didn't get a match
@@ -1054,54 +1140,113 @@ class PhotoTemplate:
 
         return [value]
 
-    def get_template_value_filter(self, filter_, values):
+    def get_filter_values(self, filter_: str, values: List[str]) -> List[str]:
+        """Return filtered values"""
+
+        # extract args, if any
+        if re.search(r"\(.*\)", filter_):
+            filter_, args = filter_.split("(", 1)
+            args = args.rstrip(")")
+            args = self.expand_variables_to_str(args, "Filter arguments")
+        else:
+            args = None
+
+        # check that filter name (without subfields or arguments) is valid
+        valid_filters = [f.split("(")[0] for f in FILTER_VALUES]
+        if filter_.split(":")[0] not in valid_filters:
+            raise SyntaxError(f"Unknown filter: {filter_}")
+
+        if filter_ in [
+            "split",
+            "chop",
+            "chomp",
+            "join",
+            "append",
+            "prepend",
+            "remove",
+        ] and (args is None or not len(args)):
+            raise SyntaxError(f"{filter_} requires arguments")
+
         if filter_ == "lower":
-            if values and type(values) == list:
-                value = [v.lower() for v in values]
-            else:
-                value = [values.lower()] if values else []
+            value = [v.lower() for v in values]
         elif filter_ == "upper":
-            if values and type(values) == list:
-                value = [v.upper() for v in values]
-            else:
-                value = [values.upper()] if values else []
+            value = [v.upper() for v in values]
         elif filter_ == "strip":
-            if values and type(values) == list:
-                value = [v.strip() for v in values]
-            else:
-                value = [values.strip()] if values else []
+            value = [v.strip() for v in values]
         elif filter_ == "capitalize":
-            if values and type(values) == list:
-                value = [v.capitalize() for v in values]
-            else:
-                value = [values.capitalize()] if values else []
+            value = [v.capitalize() for v in values]
         elif filter_ == "titlecase":
-            if values and type(values) == list:
-                value = [v.title() for v in values]
-            else:
-                value = [values.title()] if values else []
+            value = [v.title() for v in values]
         elif filter_ == "braces":
-            if values and type(values) == list:
-                value = ["{" + v + "}" for v in values]
-            else:
-                value = ["{" + values + "}"] if values else []
+            value = ["{" + v + "}" for v in values]
         elif filter_ == "parens":
-            if values and type(values) == list:
-                value = [f"({v})" for v in values]
-            else:
-                value = [f"({values})"] if values else []
+            value = ["(" + v + ")" for v in values]
         elif filter_ == "brackets":
-            if values and type(values) == list:
-                value = [f"[{v}]" for v in values]
-            else:
-                value = [f"[{values}]"] if values else []
+            value = ["[" + v + "]" for v in values]
         elif filter_ == "shell_quote":
-            if values and type(values) == list:
-                value = [shlex.quote(v) for v in values]
+            value = [shlex.quote(v) for v in values]
+        elif filter_ == "split":
+            # split on delimiter
+            delim = args
+            if delim:
+                new_values = []
+                for v in values:
+                    new_values.extend(v.split(delim))
+                value = new_values
             else:
-                value = [shlex.quote(values)] if values else []
+                value = values
+        elif filter_ == "chop":
+            # chop off characters from the end
+            try:
+                chop = int(args)
+            except ValueError:
+                raise SyntaxError(f"Invalid value for chop: {args}")
+            value = [v[:-chop] for v in values] if chop else values
+        elif filter_ == "chomp":
+            # chop off characters from the beginning
+            try:
+                chomp = int(args)
+            except ValueError:
+                raise SyntaxError(f"Invalid value for chomp: {args}")
+            value = [v[chomp:] for v in values] if chomp else values
+        elif filter_ == "autosplit":
+            # try to split keyword strings automatically
+            temp_values = [v.replace(",", " ") for v in values]
+            temp_values = [v.replace(";", " ") for v in temp_values]
+            value = []
+            for val in temp_values:
+                value.extend(val.split())
+        elif filter_ == "sort":
+            # sort list of values
+            value = sorted(values)
+        elif filter_ == "rsort":
+            # reverse sort list of values
+            value = sorted(values, reverse=True)
+        elif filter_ == "reverse":
+            # reverse list of values
+            value = values[::-1]
+        elif filter_ == "uniq":
+            # remove duplicate values from list
+            temp_values = []
+            for v in values:
+                if v not in temp_values:
+                    temp_values.append(v)
+            value = temp_values
+        elif filter_ == "join":
+            # join list of values with delimiter
+            delim = args
+            value = [delim.join(values)]
+        elif filter_ == "append":
+            # append value to list
+            value = values + [args]
+        elif filter_ == "prepend":
+            # prepend value to list
+            value = [args] + values
+        elif filter_ == "remove":
+            # remove value from list
+            value = [v for v in values if v != args]
         elif filter_.startswith("function:"):
-            value = self.get_template_value_filter_function(filter_, values)
+            value = self.get_template_value_filter_function(filter_, args, values)
         else:
             value = []
         return value
@@ -1123,6 +1268,8 @@ class PhotoTemplate:
         """
 
         """ return list of values for a multi-valued template field """
+
+        path_sep = path_sep or self.path_sep
 
         if self.photo.uuid is None:
             return []
@@ -1189,6 +1336,8 @@ class PhotoTemplate:
             values = [shlex.quote(v) for v in default if v]
         elif field == "strip":
             values = [v.strip() for v in default]
+        elif field == "format":
+            values = self.get_format_values(field, subfield, default)
         elif field.startswith("photo"):
             # provide access to PhotoInfo object
             properties = field.split(".")
@@ -1203,10 +1352,11 @@ class PhotoTemplate:
                     obj = getattr(obj, property_)
                     if obj is None:
                         break
-                except AttributeError:
+                except AttributeError as e:
                     raise ValueError(
                         "Invalid property for {photo} template: " + f"'{property_}'"
-                    )
+                    ) from e
+
             if obj is None:
                 values = []
             elif isinstance(obj, bool):
@@ -1230,6 +1380,31 @@ class PhotoTemplate:
         # If no values, insert None so code below will substitute none_str for None
         values = values or []
         return values
+
+    def get_format_values(
+        self, field: str, subfield: str, default: List[str]
+    ) -> Optional[List[Optional[str]]]:
+        """Return values for {format} templates"""
+
+        if field != "format":
+            raise ValueError(f"Unhandled template value in get_format_values: {field}")
+
+        if not subfield or ":" not in subfield:
+            raise SyntaxError("{format} requires subfield in form TYPE:FORMAT")
+        type_, format_str = subfield.split(":", 1)
+        if type_ not in ("int", "float", "str"):
+            raise SyntaxError(
+                f"'{type_}' is not a valid type for {format}: must be one of 'int', 'float', 'str'"
+            )
+        if type_ == "int":
+            # convert to float then int to avoid error when converting a string float to int
+            default_ = [int(float(v)) for v in default]
+        elif type_ == "float":
+            default_ = [float(v) for v in default]
+        else:
+            default_ = default
+        format_str = self.expand_variables_to_str(format_str, "format string")
+        return [format_str_value(v, format_str) for v in default_]
 
     def get_template_value_exiftool(
         self,
@@ -1264,6 +1439,7 @@ class PhotoTemplate:
     def get_template_value_function(
         self,
         subfield,
+        field_arg,
     ):
         """Get template value from external function"""
 
@@ -1279,7 +1455,13 @@ class PhotoTemplate:
             raise ValueError(f"'{filename}' does not appear to be a file")
 
         template_func = load_function(filename_validated, funcname)
-        values = template_func(self.photo, options=self.options)
+        if self.photo.uuid is None:
+            # must be a PhotoInfoNone instance
+            # if no uuid, then template is being validated but not actually run
+            # so don't run the function
+            values = []
+        else:
+            values = template_func(self.photo, options=self.options, args=field_arg)
 
         if not isinstance(values, (str, list)):
             raise TypeError(
@@ -1297,8 +1479,9 @@ class PhotoTemplate:
 
         return values
 
-    def get_template_value_filter_function(self, filter_, values):
+    def get_template_value_filter_function(self, filter_, args, values):
         """Filter template value from external function"""
+        # TODO: add args to filter function call? Would change signature of function
 
         filter_ = filter_.replace("function:", "")
 
@@ -1317,7 +1500,11 @@ class PhotoTemplate:
 
         if not isinstance(values, (list, tuple)):
             values = [values]
-        values = template_func(values)
+
+        if self.photo.uuid is not None:
+            # if uuid is None, it's a PhotoInfoNone instance and template is being validated
+            # so don't run the function
+            values = template_func(values)
 
         if not isinstance(values, list):
             raise TypeError(
@@ -1329,10 +1516,7 @@ class PhotoTemplate:
     def get_photo_video_type(self, default):
         """return media type, e.g. photo or video"""
         default_dict = parse_default_kv(default, PHOTO_VIDEO_TYPE_DEFAULTS)
-        if self.photo.isphoto:
-            return default_dict["photo"]
-        else:
-            return default_dict["video"]
+        return default_dict["photo"] if self.photo.isphoto else default_dict["video"]
 
     def get_media_type(self, default):
         """return special media type, e.g. slow_mo, panorama, etc., defaults to photo or video if no special type"""
@@ -1360,12 +1544,8 @@ class PhotoTemplate:
             return default_dict["photo"]
 
     def get_photo_bool_attribute(self, attr, default, bool_val):
-        # get value for a PhotoInfo bool attribute
-        val = getattr(self.photo, attr)
-        if val:
-            return bool_val
-        else:
-            return default
+        """Return the boolean value for a photo attribute"""
+        return bool_val if (val := getattr(self.photo, attr)) else default
 
 
 def parse_default_kv(default, default_dict):

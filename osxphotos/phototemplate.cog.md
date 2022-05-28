@@ -10,7 +10,7 @@ In its simplest form, a template statement has the form: `"{template_field}"`, f
 
 Template statements may contain one or more modifiers.  The full syntax is:
 
-`"pretext{delim+template_field:subfield|filter(path_sep)[find,replace] conditional?bool_value,default}posttext"`
+`"pretext{delim+template_field:subfield(field_arg)|filter[find,replace] conditional?bool_value,default}posttext"`
 
 Template statements are white-space sensitive meaning that white space (spaces, tabs) changes the meaning of the template statement.
 
@@ -31,6 +31,8 @@ e.g. if Photo keywords are `["foo","bar"]`:
 
 `:subfield`: Some templates have sub-fields, For example, `{exiftool:IPTC:Make}`; the template_field is `exiftool` and the sub-field is `IPTC:Make`.
 
+`(field_arg)`: optional arguments to pass to the field; for example, with `{folder_album}` this is used to pass the path separator used for joining folders and albums when rendering the field (default is "/" for `{folder_album}`).
+
 `|filter`: You may optionally append one or more filter commands to the end of the template field using the vertical pipe ('|') symbol.  Filters may be combined, separated by '|' as in: `{keyword|capitalize|parens}`.
 
 Valid filters are:
@@ -40,16 +42,6 @@ from osxphotos.phototemplate import FILTER_VALUES
 filter_help = "\n".join(f"- `{f}`: {descr}" for f, descr in FILTER_VALUES.items())
 cog.out(filter_help)
 ]]]-->
-- `lower`: Convert value to lower case, e.g. 'Value' => 'value'.
-- `upper`: Convert value to upper case, e.g. 'Value' => 'VALUE'.
-- `strip`: Strip whitespace from beginning/end of value, e.g. ' Value ' => 'Value'.
-- `titlecase`: Convert value to title case, e.g. 'my value' => 'My Value'.
-- `capitalize`: Capitalize first word of value and convert other words to lower case, e.g. 'MY VALUE' => 'My value'.
-- `braces`: Enclose value in curly braces, e.g. 'value => '{value}'.
-- `parens`: Enclose value in parentheses, e.g. 'value' => '(value')
-- `brackets`: Enclose value in brackets, e.g. 'value' => '[value]'
-- `shell_quote`: Quotes the value for safe usage in the shell, e.g. My file.jpeg => 'My file.jpeg'; only adds quotes if needed.
-- `function`: Run custom python function to filter value; use in format 'function:/path/to/file.py::function_name'. See example at <https://github.com/RhetTbull/osxphotos/blob/master/examples/template_filter.py>
 <!--[[[end]]]-->
 
 e.g. if Photo keywords are `["FOO","bar"]`:
@@ -62,8 +54,6 @@ e.g. if Photo keywords are `["FOO","bar"]`:
 e.g. if Photo description is "my description":
 
 - `"{descr|titlecase}"` renders to: `"My Description"`
-
-`(path_sep)`: optional path separator to use when joining path-like fields, for example `{folder_album}`.  Default is "/".
 
 e.g. If Photo is in `Album1` in `Folder1`:
 
@@ -107,7 +97,7 @@ This can be used to rename files as well, for example:
 
 This renames any photo that is a favorite as 'Favorite-ImageName.jpg' (where 'ImageName.jpg' is the original name of the photo) and all other photos with the unmodified original name.
 
-`?bool_value`: Template fields may be evaluated as boolean (True/False) by appending "?" after the field name (and following "(path_sep)" or "[find/replace]".  If a field is True (e.g. photo is HDR and field is `"{hdr}"`) or has any value, the value following the "?" will be used to render the template instead of the actual field value.  If the template field evaluates to False (e.g. in above example, photo is not HDR) or has no value (e.g. photo has no title and field is `"{title}"`) then the default value following a "," will be used.  
+`?bool_value`: Template fields may be evaluated as boolean (True/False) by appending "?" after the field name (and following "(field_arg)" or "[find/replace]".  If a field is True (e.g. photo is HDR and field is `"{hdr}"`) or has any value, the value following the "?" will be used to render the template instead of the actual field value.  If the template field evaluates to False (e.g. in above example, photo is not HDR) or has no value (e.g. photo has no title and field is `"{title}"`) then the default value following a "," will be used.  
 
 e.g. if photo is an HDR image,
 
@@ -137,3 +127,13 @@ Either or both bool_value or default (False value) may be empty which would resu
 If you want to include "{" or "}" in the output, use "{openbrace}" or "{closebrace}" template substitution.
 
 e.g. `"{created.year}/{openbrace}{title}{closebrace}"` would result in `"2020/{Photo Title}"`.
+
+**Variables**
+
+You can define variables for later use in the template string using the format `{var:NAME,VALUE}`.  Variables may then be referenced using the format `%NAME`. For example: `{var:foo,bar}` defines the variable `%foo` to have value `bar`. This can be useful if you want to re-use a complex template value in multiple places within your template string or for allowing the use of characters that would otherwise be prohibited in a template string. For example, the "pipe" (`|`) character is not allowed in a find/replace pair but you can get around this limitation like so: `{var:pipe,{pipe}}{title[-,%pipe]}` which replaces the `-` character with `|` (the value of `%pipe`).  
+
+Variables can also be referenced as fields in the template string, for example: `{var:year,created.year}{original_name}-{%year}`. In some cases, use of variables can make your template string more readable.  Variables can be used as template fields, as values for filters, as values for conditional operations, or as default values.  When used as a conditional value or default value, variables should be treated like any other field and enclosed in braces as conditional and default values are evaluated as template strings. For example: `{var:name,Katie}{person contains {%name}?{%name},Not-{%name}}`.
+
+If you need to use a `%` (percent sign character), you can escape the percent sign by using `%%`.  You can also use the `{percent}` template field where a template field is required. For example:
+
+`{title[:,%%]}` replaces the `:` with `%` and `{title contains Foo?{title}{percent},{title}}` adds `%` to the  title if it contains `Foo`.

@@ -1,6 +1,6 @@
 // OSXPhotos Metadata Template Language (MTL)
 // a TemplateString has format:
-// pre{delim+template_field:subfield|filter(path_sep)[find,replace] conditional?bool_value,default}post
+// pre{delim+template_field:subfield(field_arg)|filter[find,replace] conditional?bool_value,default}post
 // a TemplateStatement may contain zero or more TemplateStrings
 // The pre and post are optional strings
 // The template itself (inside the {}) is also optional but if present
@@ -22,8 +22,8 @@ Template:
     delim=Delim
     field=Field
     subfield=SubField
+    fieldarg=FieldArg
     filter=Filter
-    pathsep=PathSep
     findreplace=FindReplace
     conditional=Conditional
     bool=Boolean
@@ -52,7 +52,7 @@ Field:
 ;
 
 FIELD_WORD:
-    /[\.\w]+/
+    /[\%]?[\.\w]+/
 ;
 
 SubField:
@@ -70,13 +70,14 @@ SUBFIELD_WORD:
 Filter:
     (
     "|"-
-    (value+=FILTER_WORD['|'])?
+    (value+=FILTER_FUNCTION['|'])?
     )?
 ;
 
-FILTER_WORD:
-    /[\.\w:\/]+/
+FILTER_FUNCTION:
+    /[\.\w:\/]+(\([^\)]*\))?/
 ;
+
 
 Conditional:
     (
@@ -84,7 +85,7 @@ Conditional:
     (negation=NEGATION)?
     (operator=OPERATOR)
     (" "+)-
-    (value=Statement)
+    (value+=Statement['|'])
     )?
 ;
 
@@ -96,7 +97,7 @@ OPERATOR:
     "contains" | "matches" | "startswith" | "endswith" | "<=" | ">=" | "<" | ">" | "==" | "!="
 ;
 
-PathSep:
+FieldArg:
     (
     "("
     (value=/[^\(\)\{\}]+/)?
