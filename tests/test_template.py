@@ -215,6 +215,7 @@ TEMPLATE_VALUES = {
     "{descr|brackets}": "[Jack Rose Dining Saloon]",
     "{descr|split( )|join(|)}": "Jack|Rose|Dining|Saloon",
     "{descr|autosplit|join(|)}": "Jack|Rose|Dining|Saloon",
+    "{descr|autosplit|join()}": "JackRoseDiningSaloon",
     "{descr|autosplit|chop(1)|join(|)}": "Jac|Ros|Dinin|Saloo",
     "{descr|autosplit|chomp(1)|join(|)}": "ack|ose|ining|aloon",
     "{descr|chop(2)}": "Jack Rose Dining Salo",
