@@ -255,7 +255,7 @@ FILTER_VALUES = {
     "rsort": "Sort list of values in reverse order, e.g. ['a', 'b', 'c'] => ['c', 'b', 'a'].",
     "reverse": "Reverse order of values, e.g. ['a', 'b', 'c'] => ['c', 'b', 'a'].",
     "uniq": "Remove duplicate values, e.g. ['a', 'b', 'c', 'b', 'a'] => ['a', 'b', 'c'].",
-    "join(x)": "Join list of values with delimiter x, e.g. join(:): ['a', 'b', 'c'] => 'a:b:c'; "
+    "join(x)": "Join list of values with delimiter x, e.g. join(,): ['a', 'b', 'c'] => 'a,b,c'; "
     + "the DELIM option functions similar to join(x) but with DELIM, the join happens before being passed to any filters."
     + "May optionally be used without an argument, that is 'join()' which joins values together with no delimiter. "
     + "e.g. join(): ['a', 'b', 'c'] => 'abc'.",
