@@ -52,8 +52,15 @@ def trim(text: str, pad: str = "") -> str:
     return text if len(text) <= width else f"{text[: width- 3]}..."
 
 
-def inspect_photo(photo: PhotoInfo, detected_text: Optional[str] = None) -> str:
+def inspect_photo(
+    photo: PhotoInfo,
+    detected_text: Optional[str] = None,
+    templates: Optional[List[str]] = None,
+) -> str:
     """Get info about an osxphotos PhotoInfo object formatted for printing"""
+
+    if templates:
+        return inspect_photo_templates(photo, templates)
 
     properties = [
         bold("Filename: ") + f"[filename]{photo.original_filename}[/]",
@@ -138,6 +145,30 @@ def inspect_photo(photo: PhotoInfo, detected_text: Optional[str] = None) -> str:
     properties.append(format_paths(photo))
 
     return "\n".join(properties)
+
+
+def inspect_photo_templates(
+    photo: PhotoInfo, templates: Optional[List[str]] = None
+) -> str:
+    """Render and display photo templates"""
+    properties = [
+        bold("Filename: ") + f"[filename]{photo.original_filename}[/]",
+        bold("Type: ") + get_photo_type(photo),
+        bold("UUID: ") + f"[uuid]{photo.uuid}[/]",
+    ]
+    properties.append(bold("Templates: "))
+    properties.append(format_templates(photo, templates))
+
+    return "\n".join(properties)
+
+
+def format_templates(photo: PhotoInfo, templates: List[str]) -> str:
+    """Format templates for a photo"""
+    formatted_templates = []
+    for template in templates:
+        template_str, _ = photo.render_template(template)
+        formatted_templates.append((template, template_str))
+    return "\n".join(f"{t[0]} = {t[1]}" for t in formatted_templates)
 
 
 def format_score_info(photo: PhotoInfo) -> str:
@@ -339,9 +370,18 @@ def make_layout() -> Layout:
 
 @click.command(name="inspect")
 @click.option("--detect-text", "-t", is_flag=True, help="Detect text in photos")
+@click.option(
+    "--template",
+    "-T",
+    metavar="TEMPLATE",
+    multiple=True,
+    help="Template string to render for each photo using template preview mode. "
+    "Useful for testing templates for export; may be repeated to test multiple templates. "
+    "If --template/-T is used, other inspection data will not be displayed. ",
+)
 @THEME_OPTION
 @DB_OPTION
-def photo_inspect(db, theme, detect_text):
+def photo_inspect(db, theme, detect_text, template):
     """Interactively inspect photos selected in Photos.
 
     Open Photos then run `osxphotos inspect` in the terminal.
@@ -375,7 +415,7 @@ def photo_inspect(db, theme, detect_text):
         if uuid == CURRENT_UUID:
             layout["main"].update(
                 Panel(
-                    inspect_photo(photo, text),
+                    inspect_photo(photo, detected_text=text),
                     title=photo.title or photo.original_filename,
                 )
             )
@@ -414,14 +454,16 @@ def photo_inspect(db, theme, detect_text):
                                 inspect_photo(
                                     photo,
                                     detected_text=detected_text_cache.get(uuid, None),
+                                    templates=template,
                                 ),
                                 title=photo.title or photo.original_filename,
                             )
                         )
 
-                        # start text detection if requested
+                        # start text detection if requested (but not if in template preview mode)
                         if (
                             detect_text
+                            and not template
                             and photo.isphoto
                             and (
                                 photo.path

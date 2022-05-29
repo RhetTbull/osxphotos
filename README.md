@@ -1463,8 +1463,8 @@ Valid filters are:
  • reverse: Reverse order of values, e.g. ['a', 'b', 'c'] => ['c', 'b', 'a']. 
  • uniq: Remove duplicate values, e.g. ['a', 'b', 'c', 'b', 'a'] => ['a', 'b',
    'c'].                                                                      
- • join(x): Join list of values with delimiter x, e.g. join(:): ['a', 'b',    
-   'c'] => 'a:b:c'; the DELIM option functions similar to join(x) but with    
+ • join(x): Join list of values with delimiter x, e.g. join(,): ['a', 'b',    
+   'c'] => 'a,b,c'; the DELIM option functions similar to join(x) but with    
    DELIM, the join happens before being passed to any filters.May optionally  
    be used without an argument, that is 'join()' which joins values together  
    with no delimiter. e.g. join(): ['a', 'b', 'c'] => 'abc'.                  
@@ -1911,7 +1911,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.50.2'
+{osxphotos_version}             The osxphotos version, e.g. '0.50.3'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2195,7 +2195,7 @@ Valid filters are:
 - `rsort`: Sort list of values in reverse order, e.g. ['a', 'b', 'c'] => ['c', 'b', 'a'].
 - `reverse`: Reverse order of values, e.g. ['a', 'b', 'c'] => ['c', 'b', 'a'].
 - `uniq`: Remove duplicate values, e.g. ['a', 'b', 'c', 'b', 'a'] => ['a', 'b', 'c'].
-- `join(x)`: Join list of values with delimiter x, e.g. join(:): ['a', 'b', 'c'] => 'a:b:c'; the DELIM option functions similar to join(x) but with DELIM, the join happens before being passed to any filters.May optionally be used without an argument, that is 'join()' which joins values together with no delimiter. e.g. join(): ['a', 'b', 'c'] => 'abc'.
+- `join(x)`: Join list of values with delimiter x, e.g. join(,): ['a', 'b', 'c'] => 'a,b,c'; the DELIM option functions similar to join(x) but with DELIM, the join happens before being passed to any filters.May optionally be used without an argument, that is 'join()' which joins values together with no delimiter. e.g. join(): ['a', 'b', 'c'] => 'abc'.
 - `append(x)`: Append x to list of values, e.g. append(d): ['a', 'b', 'c'] => ['a', 'b', 'c', 'd'].
 - `prepend(x)`: Prepend x to list of values, e.g. prepend(d): ['a', 'b', 'c'] => ['d', 'a', 'b', 'c'].
 - `remove(x)`: Remove x from list of values, e.g. remove(b): ['a', 'b', 'c'] => ['a', 'c'].
@@ -2388,7 +2388,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.50.2'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.50.3'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
