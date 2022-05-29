@@ -2021,7 +2021,7 @@ def test_export_exiftool_path_render_template():
                 ],
             )
             assert result.exit_code == 0
-            assert re.search(r"Exporting.*Canon", result.output)
+            assert re.search(r"Exported.*Canon", result.output)
 
     osxphotos.exiftool.get_exiftool_path = get_exiftool_path
 
