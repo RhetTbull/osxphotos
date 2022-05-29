@@ -310,7 +310,7 @@ Template Substitutions
    * - {uuid}
      - Photo's internal universally unique identifier (UUID) for the photo, a 36-character string unique to the photo, e.g. '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'
    * - {shortuuid}
-     - A shorter representation of photo's internal universally unique identifier (UUID) for the photo, a 20-character string unique to the photo, e.g. 'JYsxugP9UjetmCbBCHXcmu'
+     - A shorter representation of photo's internal universally unique identifier (UUID) for the photo, a 22-character string unique to the photo, e.g. 'JYsxugP9UjetmCbBCHXcmu'
    * - {id}
      - A unique number for the photo based on its primary key in the Photos database. A sequential integer, e.g. 1, 2, 3...etc.  Each asset associated with a photo (e.g. an image and Live Photo preview) will share the same id. May be formatted using a python string format code. For example, to format as a 5-digit integer and pad with zeros, use '{id:05d}' which results in 00001, 00002, 00003...etc.
    * - {album_seq}
