@@ -1920,7 +1920,7 @@ def export_photo(
             original_filename = str(original_filename)
 
             verbose_(
-                f"Exporting [filename]{photo.original_filename}[/] ([filename]{photo.filename}[/]) as [filepath]{original_filename}[/] ([count]{photo_num}/{num_photos}[/])"
+                f"Exporting [filename]{photo.original_filename}[/] ([filename]{photo.filename}[/]) ([count]{photo_num}/{num_photos}[/])"
             )
 
             results += export_photo_to_directory(
@@ -2034,7 +2034,7 @@ def export_photo(
                 )
 
                 verbose_(
-                    f"Exporting edited version of [filename]{photo.original_filename}[/filename] ([filename]{photo.filename}[/filename]) as [filepath]{edited_filename}[/filepath]"
+                    f"Exporting edited version of [filename]{photo.original_filename}[/filename] ([filename]{photo.filename}[/filename])"
                 )
 
                 results += export_photo_to_directory(
@@ -2728,4 +2728,3 @@ def render_and_validate_report(report: str, exiftool_path: str, export_dir: str)
         sys.exit(1)
 
     return report
-

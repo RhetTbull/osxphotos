@@ -337,6 +337,34 @@ class ExportDB:
         return
 
     @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
+    def delete_data_for_uuid(self, uuid):
+        """Delete all exportdb data for given UUID"""
+        conn = self._conn
+        c = conn.cursor()
+        count = 0
+        c.execute("DELETE FROM export_data WHERE uuid = ?;", (uuid,))
+        count += c.execute("SELECT CHANGES();").fetchone()[0]
+        c.execute("DELETE FROM photoinfo WHERE uuid = ?;", (uuid,))
+        count += c.execute("SELECT CHANGES();").fetchone()[0]
+        conn.commit()
+        return count
+
+    @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
+    def delete_data_for_filepath(self, filepath):
+        """Delete all exportdb data for given filepath"""
+        conn = self._conn
+        c = conn.cursor()
+        filepath_normalized = self._normalize_filepath_relative(filepath)
+        results = c.execute(
+            "SELECT uuid FROM export_data WHERE filepath_normalized = ?;",
+            (filepath_normalized,),
+        ).fetchall()
+        count = 0
+        for row in results:
+            count += self.delete_data_for_uuid(row[0])
+        return count
+
+    @retry(stop=stop_after_attempt(MAX_RETRY_ATTEMPTS))
     def close(self):
         """close the database connection"""
         self._conn.close()

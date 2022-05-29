@@ -23,6 +23,7 @@ from osxphotos.export_db_utils import (
     export_db_update_signatures,
     export_db_vacuum,
 )
+from osxphotos.utils import pluralize
 
 from .export import render_and_validate_report
 from .param_types import TemplateString
@@ -75,6 +76,21 @@ from .verbose import verbose_print
     metavar="UUID",
     nargs=1,
     help="Print information about UUID contained in the database.",
+)
+@click.option(
+    "--delete-uuid",
+    metavar="UUID",
+    nargs=1,
+    multiple=True,
+    help="Delete all data associated with UUID from the database.",
+)
+@click.option(
+    "--delete-file",
+    metavar="FILE_PATH",
+    nargs=1,
+    multiple=True,
+    help="Delete all data associated with FILE_PATH from the database; "
+    "does not delete the actual exported file if it exists, only the data in the database.",
 )
 @click.option(
     "--report",
@@ -138,6 +154,8 @@ def exportdb(
     update_signatures,
     uuid_files,
     uuid_info,
+    delete_uuid,
+    delete_file,
     vacuum,
     verbose,
     version,
@@ -319,6 +337,24 @@ def exportdb(
                     print(f)
             else:
                 print(f"[red]UUID '{uuid_files}' not found in export database[/red]")
+            sys.exit(0)
+
+    if delete_uuid:
+        # delete a uuid from the export database
+        exportdb = ExportDB(export_db, export_dir)
+        for uuid in delete_uuid:
+            print(f"Deleting uuid {uuid} from database.")
+            count = exportdb.delete_data_for_uuid(uuid)
+            print(f"Deleted {count} {pluralize(count, 'record', 'records')}.")
+        sys.exit(0)
+
+    if delete_file:
+        # delete information associated with a file from the export database
+        exportdb = ExportDB(export_db, export_dir)
+        for filepath in delete_file:
+            print(f"Deleting file {filepath} from database.")
+            count = exportdb.delete_data_for_filepath(filepath)
+            print(f"Deleted {count} {pluralize(count, 'record', 'records')}.")
             sys.exit(0)
 
     if report:

@@ -1076,6 +1076,7 @@ class PhotoExporter:
             ValueError if export_as_hardlink and convert_to_jpeg both True
         """
 
+        verbose = options.verbose or self._verbose
         if options.export_as_hardlink and options.convert_to_jpeg:
             raise ValueError(
                 "export_as_hardlink and convert_to_jpeg cannot both be True"
@@ -1165,6 +1166,9 @@ class PhotoExporter:
 
                 try:
                     fileutil.copy(src, dest_str)
+                    verbose(
+                        f"Exported {self._filename(self.photo.original_filename)} to {self._filepath(dest_str)}"
+                    )
                 except Exception as e:
                     raise ExportError(
                         f"Error copying file {src} to {dest_str}: {e} ({lineno(__file__)})"
