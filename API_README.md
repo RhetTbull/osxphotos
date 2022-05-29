@@ -1792,10 +1792,10 @@ Template statements are white-space sensitive meaning that white space (spaces, 
 
 e.g. if Photo keywords are `["foo","bar"]`:
 
-* `"{keyword}"` renders to `"foo", "bar"`
-* `"{,+keyword}"` renders to: `"foo,bar"`
-* `"{; +keyword}"` renders to: `"foo; bar"`
-* `"{+keyword}"` renders to `"foobar"`
+- `"{keyword}"` renders to `"foo", "bar"`
+- `"{,+keyword}"` renders to: `"foo,bar"`
+- `"{; +keyword}"` renders to: `"foo; bar"`
+- `"{+keyword}"` renders to `"foobar"`
 
 `template_field`: The template field to resolve.  See [Template Substitutions](#template-substitutions) for full list of template fields.
 
@@ -1807,70 +1807,70 @@ e.g. if Photo keywords are `["foo","bar"]`:
 
 Valid filters are:
 
-* `lower`: Convert value to lower case, e.g. 'Value' => 'value'.
-* `upper`: Convert value to upper case, e.g. 'Value' => 'VALUE'.
-* `strip`: Strip whitespace from beginning/end of value, e.g. ' Value ' => 'Value'.
-* `titlecase`: Convert value to title case, e.g. 'my value' => 'My Value'.
-* `capitalize`: Capitalize first word of value and convert other words to lower case, e.g. 'MY VALUE' => 'My value'.
-* `braces`: Enclose value in curly braces, e.g. 'value => '{value}'.
-* `parens`: Enclose value in parentheses, e.g. 'value' => '(value')
-* `brackets`: Enclose value in brackets, e.g. 'value' => '[value]'
-* `shell_quote`: Quotes the value for safe usage in the shell, e.g. My file.jpeg => 'My file.jpeg'; only adds quotes if needed.
-* `function`: Run custom python function to filter value; use in format 'function:/path/to/file.py::function_name'. See example at <https://github.com/RhetTbull/osxphotos/blob/master/examples/template_filter.py>
-* `split(x)`: Split value into a list of values using x as delimiter, e.g. 'value1;value2' => ['value1', 'value2'] if used with split(;).
-* `autosplit`: Automatically split delimited string into separate values; will split strings delimited by comma, semicolon, or space, e.g. 'value1,value2' => ['value1', 'value2'].
-* `chop(x)`: Remove x characters off the end of value, e.g. chop(1): 'Value' => 'Valu'; when applied to a list, chops characters from each list value, e.g. chop(1): ['travel', 'beach']=> ['trave', 'beac'].
-* `chomp(x)`: Remove x characters from the beginning of value, e.g. chomp(1): ['Value'] => ['alue']; when applied to a list, removes characters from each list value, e.g. chomp(1): ['travel', 'beach']=> ['ravel', 'each'].
-* `sort`: Sort list of values, e.g. ['c', 'b', 'a'] => ['a', 'b', 'c'].
-* `rsort`: Sort list of values in reverse order, e.g. ['a', 'b', 'c'] => ['c', 'b', 'a'].
-* `reverse`: Reverse order of values, e.g. ['a', 'b', 'c'] => ['c', 'b', 'a'].
-* `uniq`: Remove duplicate values, e.g. ['a', 'b', 'c', 'b', 'a'] => ['a', 'b', 'c'].
-* `join(x)`: Join list of values with delimiter x, e.g. join(:): ['a', 'b', 'c'] => 'a:b:c'; the DELIM option functions similar to join(x) but with DELIM, the join happens before being passed to any filters.
-* `append(x)`: Append x to list of values, e.g. append(d): ['a', 'b', 'c'] => ['a', 'b', 'c', 'd'].
-* `prepend(x)`: Prepend x to list of values, e.g. prepend(d): ['a', 'b', 'c'] => ['d', 'a', 'b', 'c'].
-* `remove(x)`: Remove x from list of values, e.g. remove(b): ['a', 'b', 'c'] => ['a', 'c'].
+- `lower`: Convert value to lower case, e.g. 'Value' => 'value'.
+- `upper`: Convert value to upper case, e.g. 'Value' => 'VALUE'.
+- `strip`: Strip whitespace from beginning/end of value, e.g. ' Value ' => 'Value'.
+- `titlecase`: Convert value to title case, e.g. 'my value' => 'My Value'.
+- `capitalize`: Capitalize first word of value and convert other words to lower case, e.g. 'MY VALUE' => 'My value'.
+- `braces`: Enclose value in curly braces, e.g. 'value => '{value}'.
+- `parens`: Enclose value in parentheses, e.g. 'value' => '(value')
+- `brackets`: Enclose value in brackets, e.g. 'value' => '[value]'
+- `shell_quote`: Quotes the value for safe usage in the shell, e.g. My file.jpeg => 'My file.jpeg'; only adds quotes if needed.
+- `function`: Run custom python function to filter value; use in format 'function:/path/to/file.py::function_name'. See example at https://github.com/RhetTbull/osxphotos/blob/master/examples/template_filter.py
+- `split(x)`: Split value into a list of values using x as delimiter, e.g. 'value1;value2' => ['value1', 'value2'] if used with split(;).
+- `autosplit`: Automatically split delimited string into separate values; will split strings delimited by comma, semicolon, or space, e.g. 'value1,value2' => ['value1', 'value2'].
+- `chop(x)`: Remove x characters off the end of value, e.g. chop(1): 'Value' => 'Valu'; when applied to a list, chops characters from each list value, e.g. chop(1): ['travel', 'beach']=> ['trave', 'beac'].
+- `chomp(x)`: Remove x characters from the beginning of value, e.g. chomp(1): ['Value'] => ['alue']; when applied to a list, removes characters from each list value, e.g. chomp(1): ['travel', 'beach']=> ['ravel', 'each'].
+- `sort`: Sort list of values, e.g. ['c', 'b', 'a'] => ['a', 'b', 'c'].
+- `rsort`: Sort list of values in reverse order, e.g. ['a', 'b', 'c'] => ['c', 'b', 'a'].
+- `reverse`: Reverse order of values, e.g. ['a', 'b', 'c'] => ['c', 'b', 'a'].
+- `uniq`: Remove duplicate values, e.g. ['a', 'b', 'c', 'b', 'a'] => ['a', 'b', 'c'].
+- `join(x)`: Join list of values with delimiter x, e.g. join(:): ['a', 'b', 'c'] => 'a:b:c'; the DELIM option functions similar to join(x) but with DELIM, the join happens before being passed to any filters.
+- `append(x)`: Append x to list of values, e.g. append(d): ['a', 'b', 'c'] => ['a', 'b', 'c', 'd'].
+- `prepend(x)`: Prepend x to list of values, e.g. prepend(d): ['a', 'b', 'c'] => ['d', 'a', 'b', 'c'].
+- `remove(x)`: Remove x from list of values, e.g. remove(b): ['a', 'b', 'c'] => ['a', 'c'].
 
 e.g. if Photo keywords are `["FOO","bar"]`:
 
-* `"{keyword|lower}"` renders to `"foo", "bar"`
-* `"{keyword|upper}"` renders to: `"FOO", "BAR"`
-* `"{keyword|capitalize}"` renders to: `"Foo", "Bar"`
-* `"{keyword|lower|parens}"` renders to: `"(foo)", "(bar)"`
+- `"{keyword|lower}"` renders to `"foo", "bar"`
+- `"{keyword|upper}"` renders to: `"FOO", "BAR"`
+- `"{keyword|capitalize}"` renders to: `"Foo", "Bar"`
+- `"{keyword|lower|parens}"` renders to: `"(foo)", "(bar)"`
 
 e.g. if Photo description is "my description":
 
-* `"{descr|titlecase}"` renders to: `"My Description"`
+- `"{descr|titlecase}"` renders to: `"My Description"`
 
 e.g. If Photo is in `Album1` in `Folder1`:
 
-* `"{folder_album}"` renders to `["Folder1/Album1"]`
-* `"{folder_album(>)}"` renders to `["Folder1>Album1"]`
-* `"{folder_album()}"` renders to `["Folder1Album1"]`
+- `"{folder_album}"` renders to `["Folder1/Album1"]`
+- `"{folder_album(>)}"` renders to `["Folder1>Album1"]`
+- `"{folder_album()}"` renders to `["Folder1Album1"]`
 
 `[find,replace]`: optional text replacement to perform on rendered template value.  For example, to replace "/" in an album name, you could use the template `"{album[/,-]}"`.  Multiple replacements can be made by appending "|" and adding another find|replace pair.  e.g. to replace both "/" and ":" in album name: `"{album[/,-|:,-]}"`.  find/replace pairs are not limited to single characters.  The "|" character cannot be used in a find/replace pair.
 
 `conditional`: optional conditional expression that is evaluated as boolean (True/False) for use with the `?bool_value` modifier.  Conditional expressions take the form '`not operator value`' where `not` is an optional modifier that negates the `operator`.  Note: the space before the conditional expression is required if you use a conditional expression.  Valid comparison operators are:
 
-* `contains`: template field contains value, similar to python's `in`
-* `matches`: template field contains exactly value, unlike `contains`: does not match partial matches
-* `startswith`: template field starts with value
-* `endswith`: template field ends with value
-* `<=`: template field is less than or equal to value
-* `>=`: template field is greater than or equal to value
-* `<`: template field is less than value
-* `>`: template field is greater than value
-* `==`: template field equals value
-* `!=`: template field does not equal value
+- `contains`: template field contains value, similar to python's `in`
+- `matches`: template field contains exactly value, unlike `contains`: does not match partial matches
+- `startswith`: template field starts with value
+- `endswith`: template field ends with value
+- `<=`: template field is less than or equal to value
+- `>=`: template field is greater than or equal to value
+- `<`: template field is less than value
+- `>`: template field is greater than value
+- `==`: template field equals value
+- `!=`: template field does not equal value
 
 The `value` part of the conditional expression is treated as a bare (unquoted) word/phrase.  Multiple values may be separated by '|' (the pipe symbol).  `value` is itself a template statement so you can use one or more template fields in `value` which will be resolved before the comparison occurs.
 
 For example:
 
-* `{keyword matches Beach}` resolves to True if 'Beach' is a keyword. It would not match keyword 'BeachDay'.
-* `{keyword contains Beach}` resolves to True if any keyword contains the word 'Beach' so it would match both 'Beach' and 'BeachDay'.
-* `{photo.score.overall > 0.7}` resolves to True if the photo's overall aesthetic score is greater than 0.7.
-* `{keyword|lower contains beach}` uses the lower case filter to do case-insensitive matching to match any keyword that contains the word 'beach'.
-* `{keyword|lower not contains beach}` uses the `not` modifier to negate the comparison so this resolves to True if there is no keyword that matches 'beach'.
+- `{keyword matches Beach}` resolves to True if 'Beach' is a keyword. It would not match keyword 'BeachDay'.
+- `{keyword contains Beach}` resolves to True if any keyword contains the word 'Beach' so it would match both 'Beach' and 'BeachDay'.
+- `{photo.score.overall > 0.7}` resolves to True if the photo's overall aesthetic score is greater than 0.7.
+- `{keyword|lower contains beach}` uses the lower case filter to do case-insensitive matching to match any keyword that contains the word 'beach'.
+- `{keyword|lower not contains beach}` uses the `not` modifier to negate the comparison so this resolves to True if there is no keyword that matches 'beach'.
 
 Examples: to export photos that contain certain keywords with the `osxphotos export` command's `--directory` option:
 
@@ -1887,24 +1887,24 @@ This renames any photo that is a favorite as 'Favorite-ImageName.jpg' (where 'Im
 
 e.g. if photo is an HDR image,
 
-* `"{hdr?ISHDR,NOTHDR}"` renders to `"ISHDR"`
+- `"{hdr?ISHDR,NOTHDR}"` renders to `"ISHDR"`
 
 and if it is not an HDR image,
 
-* `"{hdr?ISHDR,NOTHDR}"` renders to `"NOTHDR"`
+- `"{hdr?ISHDR,NOTHDR}"` renders to `"NOTHDR"`
 
 `,default`: optional default value to use if the template name has no value.  This modifier is also used for the value if False for boolean-type fields (see above) as well as to hold a sub-template for values like `{created.strftime}`.  If no default value provided, "_" is used.
 
 e.g., if photo has no title set,
 
-* `"{title}"` renders to "_"
-* `"{title,I have no title}"` renders to `"I have no title"`
+- `"{title}"` renders to "_"
+- `"{title,I have no title}"` renders to `"I have no title"`
 
 Template fields such as `created.strftime` use the default value to pass the template to use for `strftime`.  
 
 e.g., if photo date is 4 February 2020, 19:07:38,
 
-* `"{created.strftime,%Y-%m-%d-%H%M%S}"` renders to `"2020-02-04-190738"`
+- `"{created.strftime,%Y-%m-%d-%H%M%S}"` renders to `"2020-02-04-190738"`
 
 Some template fields such as `"{media_type}"` use the default value to allow customization of the output. For example, `"{media_type}"` resolves to the special media type of the photo such as `panorama` or `selfie`.  You may use the default value to override these in form: `"{media_type,video=vidéo;time_lapse=vidéo_accélérée}"`. In this example, if photo was a time_lapse photo, `media_type` would resolve to `vidéo_accélérée` instead of `time_lapse`.
 
@@ -1955,7 +1955,7 @@ cog.out(get_template_field_table())
 |{created.hour}|2-digit hour of the photo creation time|
 |{created.min}|2-digit minute of the photo creation time|
 |{created.sec}|2-digit second of the photo creation time|
-|{created.strftime}|Apply strftime template to file creation date/time. Should be used in form {created.strftime,TEMPLATE} where TEMPLATE is a valid strftime template, e.g. {created.strftime,%Y-%U} would result in year-week number of year: '2020-23'. If used with no template will return null value. See <https://strftime.org/> for help on strftime templates.|
+|{created.strftime}|Apply strftime template to file creation date/time. Should be used in form {created.strftime,TEMPLATE} where TEMPLATE is a valid strftime template, e.g. {created.strftime,%Y-%U} would result in year-week number of year: '2020-23'. If used with no template will return null value. See https://strftime.org/ for help on strftime templates.|
 |{modified.date}|Photo's modification date in ISO format, e.g. '2020-03-22'; uses creation date if photo is not modified|
 |{modified.year}|4-digit year of photo modification time; uses creation date if photo is not modified|
 |{modified.yy}|2-digit year of photo modification time; uses creation date if photo is not modified|
@@ -1968,7 +1968,7 @@ cog.out(get_template_field_table())
 |{modified.hour}|2-digit hour of the photo modification time; uses creation date if photo is not modified|
 |{modified.min}|2-digit minute of the photo modification time; uses creation date if photo is not modified|
 |{modified.sec}|2-digit second of the photo modification time; uses creation date if photo is not modified|
-|{modified.strftime}|Apply strftime template to file modification date/time. Should be used in form {modified.strftime,TEMPLATE} where TEMPLATE is a valid strftime template, e.g. {modified.strftime,%Y-%U} would result in year-week number of year: '2020-23'. If used with no template will return null value. Uses creation date if photo is not modified. See <https://strftime.org/> for help on strftime templates.|
+|{modified.strftime}|Apply strftime template to file modification date/time. Should be used in form {modified.strftime,TEMPLATE} where TEMPLATE is a valid strftime template, e.g. {modified.strftime,%Y-%U} would result in year-week number of year: '2020-23'. If used with no template will return null value. Uses creation date if photo is not modified. See https://strftime.org/ for help on strftime templates.|
 |{today.date}|Current date in iso format, e.g. '2020-03-22'|
 |{today.year}|4-digit year of current date|
 |{today.yy}|2-digit year of current date|
@@ -1981,7 +1981,7 @@ cog.out(get_template_field_table())
 |{today.hour}|2-digit hour of the current date|
 |{today.min}|2-digit minute of the current date|
 |{today.sec}|2-digit second of the current date|
-|{today.strftime}|Apply strftime template to current date/time. Should be used in form {today.strftime,TEMPLATE} where TEMPLATE is a valid strftime template, e.g. {today.strftime,%Y-%U} would result in year-week number of year: '2020-23'. If used with no template will return null value. See <https://strftime.org/> for help on strftime templates.|
+|{today.strftime}|Apply strftime template to current date/time. Should be used in form {today.strftime,TEMPLATE} where TEMPLATE is a valid strftime template, e.g. {today.strftime,%Y-%U} would result in year-week number of year: '2020-23'. If used with no template will return null value. See https://strftime.org/ for help on strftime templates.|
 |{place.name}|Place name from the photo's reverse geolocation data, as displayed in Photos|
 |{place.country_code}|The ISO country code from the photo's reverse geolocation data|
 |{place.name.country}|Country name from the photo's reverse geolocation data|
@@ -2030,17 +2030,17 @@ cog.out(get_template_field_table())
 |{label}|Image categorization label associated with a photo (Photos 5+ only). Labels are added automatically by Photos using machine learning algorithms to categorize images. These are not the same as {keyword} which refers to the user-defined keywords/tags applied in Photos.|
 |{label_normalized}|All lower case version of 'label' (Photos 5+ only)|
 |{comment}|Comment(s) on shared Photos; format is 'Person name: comment text' (Photos 5+ only)|
-|{exiftool}|Format: '{exiftool:GROUP:TAGNAME}'; use exiftool (<https://exiftool.org>) to extract metadata, in form GROUP:TAGNAME, from image.  E.g. '{exiftool:EXIF:Make}' to get camera make, or {exiftool:IPTC:Keywords} to extract keywords. See <https://exiftool.org/TagNames/> for list of valid tag names.  You must specify group (e.g. EXIF, IPTC, etc) as used in `exiftool -G`. exiftool must be installed in the path to use this template.|
+|{exiftool}|Format: '{exiftool:GROUP:TAGNAME}'; use exiftool (https://exiftool.org) to extract metadata, in form GROUP:TAGNAME, from image.  E.g. '{exiftool:EXIF:Make}' to get camera make, or {exiftool:IPTC:Keywords} to extract keywords. See https://exiftool.org/TagNames/ for list of valid tag names.  You must specify group (e.g. EXIF, IPTC, etc) as used in `exiftool -G`. exiftool must be installed in the path to use this template.|
 |{searchinfo.holiday}|Holiday names associated with a photo, e.g. 'Christmas Day'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
 |{searchinfo.activity}|Activities associated with a photo, e.g. 'Sporting Event'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
 |{searchinfo.venue}|Venues associated with a photo, e.g. name of restaurant; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
 |{searchinfo.venue_type}|Venue types associated with a photo, e.g. 'Restaurant'; (Photos 5+ only, applied automatically by Photos' image categorization algorithms).|
-|{photo}|Provides direct access to the PhotoInfo object for the photo. Must be used in format '{photo.property}' where 'property' represents a PhotoInfo property. For example: '{photo.favorite}' is the same as '{favorite}' and '{photo.place.name}' is the same as '{place.name}'. '{photo}' provides access to properties that are not available as separate template fields but it assumes some knowledge of the underlying PhotoInfo class.  See <https://rhettbull.github.io/osxphotos/> for additional documentation on the PhotoInfo class.|
+|{photo}|Provides direct access to the PhotoInfo object for the photo. Must be used in format '{photo.property}' where 'property' represents a PhotoInfo property. For example: '{photo.favorite}' is the same as '{favorite}' and '{photo.place.name}' is the same as '{place.name}'. '{photo}' provides access to properties that are not available as separate template fields but it assumes some knowledge of the underlying PhotoInfo class.  See https://rhettbull.github.io/osxphotos/ for additional documentation on the PhotoInfo class.|
 |{detected_text}|List of text strings found in the image after performing text detection. Using '{detected_text}' will cause osxphotos to perform text detection on your photos using the built-in macOS text detection algorithms which will slow down your export. The results for each photo will be cached in the export database so that future exports with '--update' do not need to reprocess each photo. You may pass a confidence threshold value between 0.0 and 1.0 after a colon as in '{detected_text:0.5}'; The default confidence threshold is 0.75. '{detected_text}' works only on macOS Catalina (10.15) or later. Note: this feature is not the same thing as Live Text in macOS Monterey, which osxphotos does not yet support.|
 |{shell_quote}|Use in form '{shell_quote,TEMPLATE}'; quotes the rendered TEMPLATE value(s) for safe usage in the shell, e.g. My file.jpeg => 'My file.jpeg'; only adds quotes if needed.|
 |{strip}|Use in form '{strip,TEMPLATE}'; strips whitespace from begining and end of rendered TEMPLATE value(s).|
 |{format}|Use in form, '{format:TYPE:FORMAT,TEMPLATE}'; converts TEMPLATE value to TYPE then formats the value using Python string formatting codes specified by FORMAT; TYPE is one of: 'int', 'float', or 'str'. For example, '{format:float:.1f,{exiftool:EXIF:FocalLength}}' will format focal length to 1 decimal place (e.g. '100.0'). |
-|{function}|Execute a python function from an external file and use return value as template substitution. Use in format: {function:file.py::function_name} where 'file.py' is the name of the python file and 'function_name' is the name of the function to call. The function will be passed the PhotoInfo object for the photo. See <https://github.com/RhetTbull/osxphotos/blob/master/examples/template_function.py> for an example of how to implement a template function.|
+|{function}|Execute a python function from an external file and use return value as template substitution. Use in format: {function:file.py::function_name} where 'file.py' is the name of the python file and 'function_name' is the name of the function to call. The function will be passed the PhotoInfo object for the photo. See https://github.com/RhetTbull/osxphotos/blob/master/examples/template_function.py for an example of how to implement a template function.|
 <!--[[[end]]] -->
 
 ### <a name="exiftoolExifTool">ExifTool</a>
