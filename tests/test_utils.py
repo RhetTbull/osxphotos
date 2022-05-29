@@ -15,9 +15,11 @@ UTI_DICT = {"public.jpeg": "jpeg", "com.canon.cr2-raw-image": "cr2"}
 
 from osxphotos.utils import (
     _dd_to_dms,
-    increment_filename,
     increment_filename_with_count,
+    increment_filename,
     list_directory,
+    shortuuid_to_uuid,
+    uuid_to_shortuuid,
 )
 
 
@@ -136,3 +138,11 @@ def test_increment_filename():
             str(temp_dir / "file2 (3).jpg"),
             3,
         )
+
+
+def test_shortuuid_uuid():
+    """Test shortuuid_to_uuid and uuid_to_shortuuid"""
+    uuid = "5CF8D91E-DCEB-4CC3-BFF7-920B05564EB0"
+    shortuuid = "JYsxugP9UjetmCbBCHXcmu"
+    assert uuid_to_shortuuid(uuid) == shortuuid
+    assert shortuuid_to_uuid(shortuuid) == uuid

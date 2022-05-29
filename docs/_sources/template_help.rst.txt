@@ -55,10 +55,12 @@ Valid filters are:
 * ``rsort``\ : Sort list of values in reverse order, e.g. ['a', 'b', 'c'] => ['c', 'b', 'a'].
 * ``reverse``\ : Reverse order of values, e.g. ['a', 'b', 'c'] => ['c', 'b', 'a'].
 * ``uniq``\ : Remove duplicate values, e.g. ['a', 'b', 'c', 'b', 'a'] => ['a', 'b', 'c'].
-* `join(x)`: Join list of values with delimiter x, e.g. join(:): ['a', 'b', 'c'] => 'a:b:c'; the DELIM option functions similar to join(x) but with DELIM, the join happens before being passed to any filters.
+* `join(x)`: Join list of values with delimiter x, e.g. join(:): ['a', 'b', 'c'] => 'a:b:c'; the DELIM option functions similar to join(x) but with DELIM, the join happens before being passed to any filters.May optionally be used without an argument, that is 'join()' which joins values together with no delimiter. e.g. join(): ['a', 'b', 'c'] => 'abc'.
 * `append(x)`: Append x to list of values, e.g. append(d): ['a', 'b', 'c'] => ['a', 'b', 'c', 'd'].
 * `prepend(x)`: Prepend x to list of values, e.g. prepend(d): ['a', 'b', 'c'] => ['d', 'a', 'b', 'c'].
 * `remove(x)`: Remove x from list of values, e.g. remove(b): ['a', 'b', 'c'] => ['a', 'c'].
+* `slice(start:stop:step)`: Slice list using same semantics as Python's list slicing, e.g. slice(1:3): ['a', 'b', 'c', 'd'] => ['b', 'c']; slice(1:4:2): ['a', 'b', 'c', 'd'] => ['b', 'd']; slice(1:): ['a', 'b', 'c', 'd'] => ['b', 'c', 'd']; slice(:-1): ['a', 'b', 'c', 'd'] => ['a', 'b', 'c']; slice(::-1): ['a', 'b', 'c', 'd'] => ['d', 'c', 'b', 'a']. See also sslice().
+* `sslice(start:stop:step)`: [s(tring) slice] Slice values in a list using same semantics as Python's string slicing, e.g. sslice(1:3):'abcd => 'bc'; sslice(1:4:2): 'abcd' => 'bd', etc. See also slice().
 
 e.g. if Photo keywords are ``["FOO","bar"]``\ :
 
@@ -307,6 +309,8 @@ Template Substitutions
      - The moment title of the photo
    * - {uuid}
      - Photo's internal universally unique identifier (UUID) for the photo, a 36-character string unique to the photo, e.g. '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'
+   * - {shortuuid}
+     - A shorter representation of photo's internal universally unique identifier (UUID) for the photo, a 20-character string unique to the photo, e.g. 'JYsxugP9UjetmCbBCHXcmu'
    * - {id}
      - A unique number for the photo based on its primary key in the Photos database. A sequential integer, e.g. 1, 2, 3...etc.  Each asset associated with a photo (e.g. an image and Live Photo preview) will share the same id. May be formatted using a python string format code. For example, to format as a 5-digit integer and pad with zeros, use '{id:05d}' which results in 00001, 00002, 00003...etc.
    * - {album_seq}
@@ -342,7 +346,7 @@ Template Substitutions
    * - {crlf}
      - a carriage return + line feed: '\r\n'
    * - {osxphotos_version}
-     - The osxphotos version, e.g. '0.50.1'
+     - The osxphotos version, e.g. '0.50.2'
    * - {osxphotos_cmd_line}
      - The full command line used to run osxphotos
    * - {album}

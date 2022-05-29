@@ -19,9 +19,11 @@ import unicodedata
 import urllib.parse
 from plistlib import load as plistload
 from typing import Callable, List, Optional, Tuple, Union
+from uuid import UUID
 
 import CoreFoundation
 import requests
+import shortuuid
 
 from ._constants import UNICODE_FORMAT
 
@@ -41,6 +43,8 @@ __all__ = [
     "normalize_fs_path",
     "normalize_unicode",
     "pluralize",
+    "shortuuid_to_uuid",
+    "uuid_to_shortuuid",
 ]
 
 
@@ -534,3 +538,13 @@ def hexdigest(strval: str) -> str:
     h = hashlib.blake2b(digest_size=20)
     h.update(bytes(strval, "utf-8"))
     return h.hexdigest()
+
+
+def uuid_to_shortuuid(uuid: str) -> str:
+    """Convert uuid to shortuuid"""
+    return str(shortuuid.encode(UUID(uuid)))
+
+
+def shortuuid_to_uuid(short_uuid: str) -> str:
+    """Convert shortuuid to uuid"""
+    return str(shortuuid.decode(short_uuid)).upper()

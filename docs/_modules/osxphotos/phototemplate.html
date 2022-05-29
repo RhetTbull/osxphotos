@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>osxphotos.phototemplate - osxphotos 0.50.0 documentation</title>
+        <title>osxphotos.phototemplate - osxphotos 0.50.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.50.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.50.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.50.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.50.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -216,7 +216,7 @@
 <span class="kn">from</span> <span class="nn">.exiftool</span> <span class="kn">import</span> <span class="n">ExifToolCaching</span>
 <span class="kn">from</span> <span class="nn">.path_utils</span> <span class="kn">import</span> <span class="n">sanitize_dirname</span><span class="p">,</span> <span class="n">sanitize_filename</span><span class="p">,</span> <span class="n">sanitize_pathpart</span>
 <span class="kn">from</span> <span class="nn">.text_detection</span> <span class="kn">import</span> <span class="n">detect_text</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">expand_and_validate_filepath</span><span class="p">,</span> <span class="n">load_function</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">expand_and_validate_filepath</span><span class="p">,</span> <span class="n">load_function</span><span class="p">,</span> <span class="n">uuid_to_shortuuid</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">"RenderOptions"</span><span class="p">,</span>
@@ -337,6 +337,8 @@
     <span class="s2">"</span><span class="si">{exif.lens_model}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"Lens model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s back camera 4.15mm f/2.2'"</span><span class="p">,</span>
     <span class="s2">"</span><span class="si">{moment}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"The moment title of the photo"</span><span class="p">,</span>
     <span class="s2">"</span><span class="si">{uuid}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"Photo's internal universally unique identifier (UUID) for the photo, a 36-character string unique to the photo, e.g. '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'"</span><span class="p">,</span>
+    <span class="s2">"</span><span class="si">{shortuuid}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"A shorter representation of photo's internal universally unique identifier (UUID) for the photo, "</span>
+    <span class="o">+</span> <span class="s2">"a 20-character string unique to the photo, e.g. 'JYsxugP9UjetmCbBCHXcmu'"</span><span class="p">,</span>
     <span class="s2">"</span><span class="si">{id}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"A unique number for the photo based on its primary key in the Photos database. "</span>
     <span class="o">+</span> <span class="s2">"A sequential integer, e.g. 1, 2, 3...etc.  Each asset associated with a photo (e.g. an image and Live Photo preview) will share the same id. "</span>
     <span class="o">+</span> <span class="s2">"May be formatted using a python string format code. "</span>
@@ -449,10 +451,19 @@
     <span class="s2">"rsort"</span><span class="p">:</span> <span class="s2">"Sort list of values in reverse order, e.g. ['a', 'b', 'c'] =&gt; ['c', 'b', 'a']."</span><span class="p">,</span>
     <span class="s2">"reverse"</span><span class="p">:</span> <span class="s2">"Reverse order of values, e.g. ['a', 'b', 'c'] =&gt; ['c', 'b', 'a']."</span><span class="p">,</span>
     <span class="s2">"uniq"</span><span class="p">:</span> <span class="s2">"Remove duplicate values, e.g. ['a', 'b', 'c', 'b', 'a'] =&gt; ['a', 'b', 'c']."</span><span class="p">,</span>
-    <span class="s2">"join(x)"</span><span class="p">:</span> <span class="s2">"Join list of values with delimiter x, e.g. join(:): ['a', 'b', 'c'] =&gt; 'a:b:c'; the DELIM option functions similar to join(x) but with DELIM, the join happens before being passed to any filters."</span><span class="p">,</span>
+    <span class="s2">"join(x)"</span><span class="p">:</span> <span class="s2">"Join list of values with delimiter x, e.g. join(:): ['a', 'b', 'c'] =&gt; 'a:b:c'; "</span>
+    <span class="o">+</span> <span class="s2">"the DELIM option functions similar to join(x) but with DELIM, the join happens before being passed to any filters."</span>
+    <span class="o">+</span> <span class="s2">"May optionally be used without an argument, that is 'join()' which joins values together with no delimiter. "</span>
+    <span class="o">+</span> <span class="s2">"e.g. join(): ['a', 'b', 'c'] =&gt; 'abc'."</span><span class="p">,</span>
     <span class="s2">"append(x)"</span><span class="p">:</span> <span class="s2">"Append x to list of values, e.g. append(d): ['a', 'b', 'c'] =&gt; ['a', 'b', 'c', 'd']."</span><span class="p">,</span>
     <span class="s2">"prepend(x)"</span><span class="p">:</span> <span class="s2">"Prepend x to list of values, e.g. prepend(d): ['a', 'b', 'c'] =&gt; ['d', 'a', 'b', 'c']."</span><span class="p">,</span>
     <span class="s2">"remove(x)"</span><span class="p">:</span> <span class="s2">"Remove x from list of values, e.g. remove(b): ['a', 'b', 'c'] =&gt; ['a', 'c']."</span><span class="p">,</span>
+    <span class="s2">"slice(start:stop:step)"</span><span class="p">:</span> <span class="s2">"Slice list using same semantics as Python's list slicing, "</span>
+    <span class="o">+</span> <span class="s2">"e.g. slice(1:3): ['a', 'b', 'c', 'd'] =&gt; ['b', 'c']; slice(1:4:2): ['a', 'b', 'c', 'd'] =&gt; ['b', 'd']; "</span>
+    <span class="o">+</span> <span class="s2">"slice(1:): ['a', 'b', 'c', 'd'] =&gt; ['b', 'c', 'd']; slice(:-1): ['a', 'b', 'c', 'd'] =&gt; ['a', 'b', 'c']; "</span>
+    <span class="o">+</span> <span class="s2">"slice(::-1): ['a', 'b', 'c', 'd'] =&gt; ['d', 'c', 'b', 'a']. See also sslice()."</span><span class="p">,</span>
+    <span class="s2">"sslice(start:stop:step)"</span><span class="p">:</span> <span class="s2">"[s(tring) slice] Slice values in a list using same semantics as Python's string slicing, "</span>
+    <span class="o">+</span> <span class="s2">"e.g. sslice(1:3):'abcd =&gt; 'bc'; sslice(1:4:2): 'abcd' =&gt; 'bd', etc. See also slice()."</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="c1"># Just the substitutions without the braces</span>
@@ -1274,6 +1285,8 @@
             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">moment_info</span><span class="o">.</span><span class="n">title</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">moment_info</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"uuid"</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"shortuuid"</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">uuid_to_shortuuid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">uuid</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"id"</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">format_str_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">"pk"</span><span class="p">],</span> <span class="n">subfield</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">field</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"album_seq"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">field</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"folder_album_seq"</span><span class="p">):</span>
@@ -1356,10 +1369,11 @@
             <span class="s2">"split"</span><span class="p">,</span>
             <span class="s2">"chop"</span><span class="p">,</span>
             <span class="s2">"chomp"</span><span class="p">,</span>
-            <span class="s2">"join"</span><span class="p">,</span>
             <span class="s2">"append"</span><span class="p">,</span>
             <span class="s2">"prepend"</span><span class="p">,</span>
             <span class="s2">"remove"</span><span class="p">,</span>
+            <span class="s2">"slice"</span><span class="p">,</span>
+            <span class="s2">"sslice"</span><span class="p">,</span>
         <span class="p">]</span> <span class="ow">and</span> <span class="p">(</span><span class="n">args</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)):</span>
             <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">filter_</span><span class="si">}</span><span class="s2"> requires arguments"</span><span class="p">)</span>
 
@@ -1430,7 +1444,7 @@
             <span class="n">value</span> <span class="o">=</span> <span class="n">temp_values</span>
         <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"join"</span><span class="p">:</span>
             <span class="c1"># join list of values with delimiter</span>
-            <span class="n">delim</span> <span class="o">=</span> <span class="n">args</span>
+            <span class="n">delim</span> <span class="o">=</span> <span class="n">args</span> <span class="ow">or</span> <span class="s2">""</span>
             <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">delim</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">values</span><span class="p">)]</span>
         <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"append"</span><span class="p">:</span>
             <span class="c1"># append value to list</span>
@@ -1441,6 +1455,13 @@
         <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"remove"</span><span class="p">:</span>
             <span class="c1"># remove value from list</span>
             <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span> <span class="k">if</span> <span class="n">v</span> <span class="o">!=</span> <span class="n">args</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"slice"</span><span class="p">:</span>
+            <span class="c1"># slice list of values</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">create_slice</span><span class="p">(</span><span class="n">args</span><span class="p">)]</span>
+        <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"sslice"</span><span class="p">:</span>
+            <span class="c1"># slice each value in a list</span>
+            <span class="n">slice_</span> <span class="o">=</span> <span class="n">create_slice</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">[</span><span class="n">slice_</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">filter_</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"function:"</span><span class="p">):</span>
             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_value_filter_function</span><span class="p">(</span><span class="n">filter_</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1865,6 +1886,28 @@
     <span class="c1"># so the first time this gets called is slow but repeated accesses are fast</span>
     <span class="n">detected_text</span> <span class="o">=</span> <span class="n">photo</span><span class="o">.</span><span class="n">_detected_text</span><span class="p">()</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">text</span> <span class="k">for</span> <span class="n">text</span><span class="p">,</span> <span class="n">conf</span> <span class="ow">in</span> <span class="n">detected_text</span> <span class="k">if</span> <span class="n">conf</span> <span class="o">&gt;=</span> <span class="n">confidence</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">create_slice</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">"""Create a slice object from a string of args in form "start:end:step" """</span>
+    <span class="n">slice_args</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">":"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">slice_args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">slice_args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">slice_args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">slice_args</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">start</span><span class="p">)</span> <span class="k">if</span> <span class="n">start</span> <span class="o">!=</span> <span class="s2">""</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">end</span><span class="p">)</span> <span class="k">if</span> <span class="n">end</span> <span class="o">!=</span> <span class="s2">""</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">slice_args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">step</span> <span class="o">=</span> <span class="n">slice_args</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">start</span><span class="p">)</span> <span class="k">if</span> <span class="n">start</span> <span class="o">!=</span> <span class="s2">""</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">end</span><span class="p">)</span> <span class="k">if</span> <span class="n">end</span> <span class="o">!=</span> <span class="s2">""</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">step</span><span class="p">)</span> <span class="k">if</span> <span class="n">step</span> <span class="o">!=</span> <span class="s2">""</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid slice: </span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
 </pre></div>
         </article>
       </div>

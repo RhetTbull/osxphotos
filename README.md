@@ -1465,13 +1465,24 @@ Valid filters are:
    'c'].                                                                      
  • join(x): Join list of values with delimiter x, e.g. join(:): ['a', 'b',    
    'c'] => 'a:b:c'; the DELIM option functions similar to join(x) but with    
-   DELIM, the join happens before being passed to any filters.                
+   DELIM, the join happens before being passed to any filters.May optionally  
+   be used without an argument, that is 'join()' which joins values together  
+   with no delimiter. e.g. join(): ['a', 'b', 'c'] => 'abc'.                  
  • append(x): Append x to list of values, e.g. append(d): ['a', 'b', 'c'] =>  
    ['a', 'b', 'c', 'd'].                                                      
  • prepend(x): Prepend x to list of values, e.g. prepend(d): ['a', 'b', 'c']  
    => ['d', 'a', 'b', 'c'].                                                   
  • remove(x): Remove x from list of values, e.g. remove(b): ['a', 'b', 'c'] =>
    ['a', 'c'].                                                                
+ • slice(start:stop:step): Slice list using same semantics as Python's list   
+   slicing, e.g. slice(1:3): ['a', 'b', 'c', 'd'] => ['b', 'c']; slice(1:4:2):
+   ['a', 'b', 'c', 'd'] => ['b', 'd']; slice(1:): ['a', 'b', 'c', 'd'] =>     
+   ['b', 'c', 'd']; slice(:-1): ['a', 'b', 'c', 'd'] => ['a', 'b', 'c'];      
+   slice(::-1): ['a', 'b', 'c', 'd'] => ['d', 'c', 'b', 'a']. See also        
+   sslice().                                                                  
+ • sslice(start:stop:step): [s(tring) slice] Slice values in a list using same
+   semantics as Python's string slicing, e.g. sslice(1:3):'abcd => 'bc';      
+   sslice(1:4:2): 'abcd' => 'bd', etc. See also slice().                      
 
 e.g. if Photo keywords are ["FOO","bar"]:                                     
 
@@ -1827,6 +1838,10 @@ Substitution                    Description
                                 identifier (UUID) for the photo, a
                                 36-character string unique to the photo,
                                 e.g. '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'
+{shortuuid}                     A shorter representation of photo's internal
+                                universally unique identifier (UUID) for the
+                                photo, a 20-character string unique to the
+                                photo, e.g. 'JYsxugP9UjetmCbBCHXcmu'
 {id}                            A unique number for the photo based on its
                                 primary key in the Photos database. A
                                 sequential integer, e.g. 1, 2, 3...etc.
@@ -1896,7 +1911,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.50.1'
+{osxphotos_version}             The osxphotos version, e.g. '0.50.2'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2180,10 +2195,12 @@ Valid filters are:
 - `rsort`: Sort list of values in reverse order, e.g. ['a', 'b', 'c'] => ['c', 'b', 'a'].
 - `reverse`: Reverse order of values, e.g. ['a', 'b', 'c'] => ['c', 'b', 'a'].
 - `uniq`: Remove duplicate values, e.g. ['a', 'b', 'c', 'b', 'a'] => ['a', 'b', 'c'].
-- `join(x)`: Join list of values with delimiter x, e.g. join(:): ['a', 'b', 'c'] => 'a:b:c'; the DELIM option functions similar to join(x) but with DELIM, the join happens before being passed to any filters.
+- `join(x)`: Join list of values with delimiter x, e.g. join(:): ['a', 'b', 'c'] => 'a:b:c'; the DELIM option functions similar to join(x) but with DELIM, the join happens before being passed to any filters.May optionally be used without an argument, that is 'join()' which joins values together with no delimiter. e.g. join(): ['a', 'b', 'c'] => 'abc'.
 - `append(x)`: Append x to list of values, e.g. append(d): ['a', 'b', 'c'] => ['a', 'b', 'c', 'd'].
 - `prepend(x)`: Prepend x to list of values, e.g. prepend(d): ['a', 'b', 'c'] => ['d', 'a', 'b', 'c'].
 - `remove(x)`: Remove x from list of values, e.g. remove(b): ['a', 'b', 'c'] => ['a', 'c'].
+- `slice(start:stop:step)`: Slice list using same semantics as Python's list slicing, e.g. slice(1:3): ['a', 'b', 'c', 'd'] => ['b', 'c']; slice(1:4:2): ['a', 'b', 'c', 'd'] => ['b', 'd']; slice(1:): ['a', 'b', 'c', 'd'] => ['b', 'c', 'd']; slice(:-1): ['a', 'b', 'c', 'd'] => ['a', 'b', 'c']; slice(::-1): ['a', 'b', 'c', 'd'] => ['d', 'c', 'b', 'a']. See also sslice().
+- `sslice(start:stop:step)`: [s(tring) slice] Slice values in a list using same semantics as Python's string slicing, e.g. sslice(1:3):'abcd => 'bc'; sslice(1:4:2): 'abcd' => 'bd', etc. See also slice().
 
 e.g. if Photo keywords are `["FOO","bar"]`:
 
@@ -2353,6 +2370,7 @@ The following template field substitutions are availabe for use the templating s
 |{exif.lens_model}|Lens model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s back camera 4.15mm f/2.2'|
 |{moment}|The moment title of the photo|
 |{uuid}|Photo's internal universally unique identifier (UUID) for the photo, a 36-character string unique to the photo, e.g. '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'|
+|{shortuuid}|A shorter representation of photo's internal universally unique identifier (UUID) for the photo, a 20-character string unique to the photo, e.g. 'JYsxugP9UjetmCbBCHXcmu'|
 |{id}|A unique number for the photo based on its primary key in the Photos database. A sequential integer, e.g. 1, 2, 3...etc.  Each asset associated with a photo (e.g. an image and Live Photo preview) will share the same id. May be formatted using a python string format code. For example, to format as a 5-digit integer and pad with zeros, use '{id:05d}' which results in 00001, 00002, 00003...etc. |
 |{album_seq}|An integer, starting at 0, indicating the photo's index (sequence) in the containing album. Only valid when used in a '--filename' template and only when '{album}' or '{folder_album}' is used in the '--directory' template. For example '--directory "{folder_album}" --filename "{album_seq}_{original_name}"'. To start counting at a value other than 0, append append '(starting_value)' to the field name.  For example, to start counting at 1 instead of 0: '{album_seq(1)}'. May be formatted using a python string format code. For example, to format as a 5-digit integer and pad with zeros, use '{album_seq:05d}' which results in 00000, 00001, 00002...etc. To format while also using a starting value: '{album_seq:05d(1)}' which results in 0001, 00002...etc.This may result in incorrect sequences if you have duplicate albums with the same name; see also '{folder_album_seq}'.|
 |{folder_album_seq}|An integer, starting at 0, indicating the photo's index (sequence) in the containing album and folder path. Only valid when used in a '--filename' template and only when '{folder_album}' is used in the '--directory' template. For example '--directory "{folder_album}" --filename "{folder_album_seq}_{original_name}"'. To start counting at a value other than 0, append '(starting_value)' to the field name. For example, to start counting at 1 instead of 0: '{folder_album_seq(1)}' May be formatted using a python string format code. For example, to format as a 5-digit integer and pad with zeros, use '{folder_album_seq:05d}' which results in 00000, 00001, 00002...etc. To format while also using a starting value: '{folder_album_seq:05d(1)}' which results in 0001, 00002...etc.This may result in incorrect sequences if you have duplicate albums with the same name in the same folder; see also '{album_seq}'. |
@@ -2370,7 +2388,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.50.1'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.50.2'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|

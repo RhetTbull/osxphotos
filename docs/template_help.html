@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Python Package Overview" href="package_overview.html" /><link rel="prev" title="OSXPhotos Command Line Interface (CLI)" href="cli.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>OSXPhotos Template System - osxphotos 0.50.1 documentation</title>
+        <title>OSXPhotos Template System - osxphotos 0.50.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.50.1 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.50.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.50.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.50.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -235,10 +235,12 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">rsort</span></code>: Sort list of values in reverse order, e.g. [‘a’, ‘b’, ‘c’] =&gt; [‘c’, ‘b’, ‘a’].</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">reverse</span></code>: Reverse order of values, e.g. [‘a’, ‘b’, ‘c’] =&gt; [‘c’, ‘b’, ‘a’].</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">uniq</span></code>: Remove duplicate values, e.g. [‘a’, ‘b’, ‘c’, ‘b’, ‘a’] =&gt; [‘a’, ‘b’, ‘c’].</p></li>
-<li><p><cite>join(x)</cite>: Join list of values with delimiter x, e.g. join(:): [‘a’, ‘b’, ‘c’] =&gt; ‘a:b:c’; the DELIM option functions similar to join(x) but with DELIM, the join happens before being passed to any filters.</p></li>
+<li><p><cite>join(x)</cite>: Join list of values with delimiter x, e.g. join(:): [‘a’, ‘b’, ‘c’] =&gt; ‘a:b:c’; the DELIM option functions similar to join(x) but with DELIM, the join happens before being passed to any filters.May optionally be used without an argument, that is ‘join()’ which joins values together with no delimiter. e.g. join(): [‘a’, ‘b’, ‘c’] =&gt; ‘abc’.</p></li>
 <li><p><cite>append(x)</cite>: Append x to list of values, e.g. append(d): [‘a’, ‘b’, ‘c’] =&gt; [‘a’, ‘b’, ‘c’, ‘d’].</p></li>
 <li><p><cite>prepend(x)</cite>: Prepend x to list of values, e.g. prepend(d): [‘a’, ‘b’, ‘c’] =&gt; [‘d’, ‘a’, ‘b’, ‘c’].</p></li>
 <li><p><cite>remove(x)</cite>: Remove x from list of values, e.g. remove(b): [‘a’, ‘b’, ‘c’] =&gt; [‘a’, ‘c’].</p></li>
+<li><p><cite>slice(start:stop:step)</cite>: Slice list using same semantics as Python’s list slicing, e.g. slice(1:3): [‘a’, ‘b’, ‘c’, ‘d’] =&gt; [‘b’, ‘c’]; slice(1:4:2): [‘a’, ‘b’, ‘c’, ‘d’] =&gt; [‘b’, ‘d’]; slice(1:): [‘a’, ‘b’, ‘c’, ‘d’] =&gt; [‘b’, ‘c’, ‘d’]; slice(:-1): [‘a’, ‘b’, ‘c’, ‘d’] =&gt; [‘a’, ‘b’, ‘c’]; slice(::-1): [‘a’, ‘b’, ‘c’, ‘d’] =&gt; [‘d’, ‘c’, ‘b’, ‘a’]. See also sslice().</p></li>
+<li><p><cite>sslice(start:stop:step)</cite>: [s(tring) slice] Slice values in a list using same semantics as Python’s string slicing, e.g. sslice(1:3):’abcd =&gt; ‘bc’; sslice(1:4:2): ‘abcd’ =&gt; ‘bd’, etc. See also slice().</p></li>
 </ul>
 <p>e.g. if Photo keywords are <code class="docutils literal notranslate"><span class="pre">["FOO","bar"]</span></code>:</p>
 <ul class="simple">
@@ -532,124 +534,127 @@
 <tr class="row-odd"><td><p>{uuid}</p></td>
 <td><p>Photo’s internal universally unique identifier (UUID) for the photo, a 36-character string unique to the photo, e.g. ‘128FB4C6-0B16-4E7D-9108-FB2E90DA1546’</p></td>
 </tr>
-<tr class="row-even"><td><p>{id}</p></td>
+<tr class="row-even"><td><p>{shortuuid}</p></td>
+<td><p>A shorter representation of photo’s internal universally unique identifier (UUID) for the photo, a 20-character string unique to the photo, e.g. ‘JYsxugP9UjetmCbBCHXcmu’</p></td>
+</tr>
+<tr class="row-odd"><td><p>{id}</p></td>
 <td><p>A unique number for the photo based on its primary key in the Photos database. A sequential integer, e.g. 1, 2, 3…etc.  Each asset associated with a photo (e.g. an image and Live Photo preview) will share the same id. May be formatted using a python string format code. For example, to format as a 5-digit integer and pad with zeros, use ‘{id:05d}’ which results in 00001, 00002, 00003…etc.</p></td>
 </tr>
-<tr class="row-odd"><td><p>{album_seq}</p></td>
+<tr class="row-even"><td><p>{album_seq}</p></td>
 <td><p>An integer, starting at 0, indicating the photo’s index (sequence) in the containing album. Only valid when used in a ‘–filename’ template and only when ‘{album}’ or ‘{folder_album}’ is used in the ‘–directory’ template. For example ‘–directory “{folder_album}” –filename “{album<em>seq}</em>{original_name}”’. To start counting at a value other than 0, append append ‘(starting_value)’ to the field name.  For example, to start counting at 1 instead of 0: ‘{album_seq(1)}’. May be formatted using a python string format code. For example, to format as a 5-digit integer and pad with zeros, use ‘{album_seq:05d}’ which results in 00000, 00001, 00002…etc. To format while also using a starting value: ‘{album_seq:05d(1)}’ which results in 0001, 00002…etc.This may result in incorrect sequences if you have duplicate albums with the same name; see also ‘{folder_album_seq}’.</p></td>
 </tr>
-<tr class="row-even"><td><p>{folder_album_seq}</p></td>
+<tr class="row-odd"><td><p>{folder_album_seq}</p></td>
 <td><p>An integer, starting at 0, indicating the photo’s index (sequence) in the containing album and folder path. Only valid when used in a ‘–filename’ template and only when ‘{folder_album}’ is used in the ‘–directory’ template. For example ‘–directory “{folder_album}” –filename “{folder_album<em>seq}</em>{original_name}”’. To start counting at a value other than 0, append ‘(starting_value)’ to the field name. For example, to start counting at 1 instead of 0: ‘{folder_album_seq(1)}’ May be formatted using a python string format code. For example, to format as a 5-digit integer and pad with zeros, use ‘{folder_album_seq:05d}’ which results in 00000, 00001, 00002…etc. To format while also using a starting value: ‘{folder_album_seq:05d(1)}’ which results in 0001, 00002…etc.This may result in incorrect sequences if you have duplicate albums with the same name in the same folder; see also ‘{album_seq}’.</p></td>
 </tr>
-<tr class="row-odd"><td><p>{comma}</p></td>
+<tr class="row-even"><td><p>{comma}</p></td>
 <td><p>A comma: ‘,’</p></td>
 </tr>
-<tr class="row-even"><td><p>{semicolon}</p></td>
+<tr class="row-odd"><td><p>{semicolon}</p></td>
 <td><p>A semicolon: ‘;’</p></td>
 </tr>
-<tr class="row-odd"><td><p>{questionmark}</p></td>
+<tr class="row-even"><td><p>{questionmark}</p></td>
 <td><p>A question mark: ‘?’</p></td>
 </tr>
-<tr class="row-even"><td><p>{pipe}</p></td>
+<tr class="row-odd"><td><p>{pipe}</p></td>
 <td><p>A vertical pipe: ‘|’</p></td>
 </tr>
-<tr class="row-odd"><td><p>{openbrace}</p></td>
+<tr class="row-even"><td><p>{openbrace}</p></td>
 <td><p>An open brace: ‘{’</p></td>
 </tr>
-<tr class="row-even"><td><p>{closebrace}</p></td>
+<tr class="row-odd"><td><p>{closebrace}</p></td>
 <td><p>A close brace: ‘}’</p></td>
 </tr>
-<tr class="row-odd"><td><p>{openparens}</p></td>
+<tr class="row-even"><td><p>{openparens}</p></td>
 <td><p>An open parentheses: ‘(’</p></td>
 </tr>
-<tr class="row-even"><td><p>{closeparens}</p></td>
+<tr class="row-odd"><td><p>{closeparens}</p></td>
 <td><p>A close parentheses: ‘)’</p></td>
 </tr>
-<tr class="row-odd"><td><p>{openbracket}</p></td>
+<tr class="row-even"><td><p>{openbracket}</p></td>
 <td><p>An open bracket: ‘[’</p></td>
 </tr>
-<tr class="row-even"><td><p>{closebracket}</p></td>
+<tr class="row-odd"><td><p>{closebracket}</p></td>
 <td><p>A close bracket: ‘]’</p></td>
 </tr>
-<tr class="row-odd"><td><p>{newline}</p></td>
+<tr class="row-even"><td><p>{newline}</p></td>
 <td><p>A newline: ‘n’</p></td>
 </tr>
-<tr class="row-even"><td><p>{lf}</p></td>
+<tr class="row-odd"><td><p>{lf}</p></td>
 <td><p>A line feed: ‘n’, alias for {newline}</p></td>
 </tr>
-<tr class="row-odd"><td><p>{cr}</p></td>
+<tr class="row-even"><td><p>{cr}</p></td>
 <td><p>A carriage return: ‘r’</p></td>
 </tr>
-<tr class="row-even"><td><p>{crlf}</p></td>
+<tr class="row-odd"><td><p>{crlf}</p></td>
 <td><p>a carriage return + line feed: ‘rn’</p></td>
 </tr>
-<tr class="row-odd"><td><p>{osxphotos_version}</p></td>
-<td><p>The osxphotos version, e.g. ‘0.50.1’</p></td>
+<tr class="row-even"><td><p>{osxphotos_version}</p></td>
+<td><p>The osxphotos version, e.g. ‘0.50.2’</p></td>
 </tr>
-<tr class="row-even"><td><p>{osxphotos_cmd_line}</p></td>
+<tr class="row-odd"><td><p>{osxphotos_cmd_line}</p></td>
 <td><p>The full command line used to run osxphotos</p></td>
 </tr>
-<tr class="row-odd"><td><p>{album}</p></td>
+<tr class="row-even"><td><p>{album}</p></td>
 <td><p>Album(s) photo is contained in</p></td>
 </tr>
-<tr class="row-even"><td><p>{folder_album}</p></td>
+<tr class="row-odd"><td><p>{folder_album}</p></td>
 <td><p>Folder path + album photo is contained in. e.g. ‘Folder/Subfolder/Album’ or just ‘Album’ if no enclosing folder</p></td>
 </tr>
-<tr class="row-odd"><td><p>{project}</p></td>
+<tr class="row-even"><td><p>{project}</p></td>
 <td><p>Project(s) photo is contained in (such as greeting cards, calendars, slideshows)</p></td>
 </tr>
-<tr class="row-even"><td><p>{album_project}</p></td>
+<tr class="row-odd"><td><p>{album_project}</p></td>
 <td><p>Album(s) and project(s) photo is contained in; treats projects as regular albums</p></td>
 </tr>
-<tr class="row-odd"><td><p>{folder_album_project}</p></td>
+<tr class="row-even"><td><p>{folder_album_project}</p></td>
 <td><p>Folder path + album (includes projects as albums) photo is contained in. e.g. ‘Folder/Subfolder/Album’ or just ‘Album’ if no enclosing folder</p></td>
 </tr>
-<tr class="row-even"><td><p>{keyword}</p></td>
+<tr class="row-odd"><td><p>{keyword}</p></td>
 <td><p>Keyword(s) assigned to photo</p></td>
 </tr>
-<tr class="row-odd"><td><p>{person}</p></td>
+<tr class="row-even"><td><p>{person}</p></td>
 <td><p>Person(s) / face(s) in a photo</p></td>
 </tr>
-<tr class="row-even"><td><p>{label}</p></td>
+<tr class="row-odd"><td><p>{label}</p></td>
 <td><p>Image categorization label associated with a photo (Photos 5+ only). Labels are added automatically by Photos using machine learning algorithms to categorize images. These are not the same as {keyword} which refers to the user-defined keywords/tags applied in Photos.</p></td>
 </tr>
-<tr class="row-odd"><td><p>{label_normalized}</p></td>
+<tr class="row-even"><td><p>{label_normalized}</p></td>
 <td><p>All lower case version of ‘label’ (Photos 5+ only)</p></td>
 </tr>
-<tr class="row-even"><td><p>{comment}</p></td>
+<tr class="row-odd"><td><p>{comment}</p></td>
 <td><p>Comment(s) on shared Photos; format is ‘Person name: comment text’ (Photos 5+ only)</p></td>
 </tr>
-<tr class="row-odd"><td><p>{exiftool}</p></td>
+<tr class="row-even"><td><p>{exiftool}</p></td>
 <td><p>Format: ‘{exiftool:GROUP:TAGNAME}’; use exiftool (https://exiftool.org) to extract metadata, in form GROUP:TAGNAME, from image.  E.g. ‘{exiftool:EXIF:Make}’ to get camera make, or {exiftool:IPTC:Keywords} to extract keywords. See https://exiftool.org/TagNames/ for list of valid tag names.  You must specify group (e.g. EXIF, IPTC, etc) as used in <code class="docutils literal notranslate"><span class="pre">exiftool</span> <span class="pre">-G</span></code>. exiftool must be installed in the path to use this template.</p></td>
 </tr>
-<tr class="row-even"><td><p>{searchinfo.holiday}</p></td>
+<tr class="row-odd"><td><p>{searchinfo.holiday}</p></td>
 <td><p>Holiday names associated with a photo, e.g. ‘Christmas Day’; (Photos 5+ only, applied automatically by Photos’ image categorization algorithms).</p></td>
 </tr>
-<tr class="row-odd"><td><p>{searchinfo.activity}</p></td>
+<tr class="row-even"><td><p>{searchinfo.activity}</p></td>
 <td><p>Activities associated with a photo, e.g. ‘Sporting Event’; (Photos 5+ only, applied automatically by Photos’ image categorization algorithms).</p></td>
 </tr>
-<tr class="row-even"><td><p>{searchinfo.venue}</p></td>
+<tr class="row-odd"><td><p>{searchinfo.venue}</p></td>
 <td><p>Venues associated with a photo, e.g. name of restaurant; (Photos 5+ only, applied automatically by Photos’ image categorization algorithms).</p></td>
 </tr>
-<tr class="row-odd"><td><p>{searchinfo.venue_type}</p></td>
+<tr class="row-even"><td><p>{searchinfo.venue_type}</p></td>
 <td><p>Venue types associated with a photo, e.g. ‘Restaurant’; (Photos 5+ only, applied automatically by Photos’ image categorization algorithms).</p></td>
 </tr>
-<tr class="row-even"><td><p>{photo}</p></td>
+<tr class="row-odd"><td><p>{photo}</p></td>
 <td><p>Provides direct access to the PhotoInfo object for the photo. Must be used in format ‘{photo.property}’ where ‘property’ represents a PhotoInfo property. For example: ‘{photo.favorite}’ is the same as ‘{favorite}’ and ‘{photo.place.name}’ is the same as ‘{place.name}’. ‘{photo}’ provides access to properties that are not available as separate template fields but it assumes some knowledge of the underlying PhotoInfo class.  See <a class="reference external" href="https://rhettbull.github.io/osxphotos/">https://rhettbull.github.io/osxphotos/</a> for additional documentation on the PhotoInfo class.</p></td>
 </tr>
-<tr class="row-odd"><td><p>{detected_text}</p></td>
+<tr class="row-even"><td><p>{detected_text}</p></td>
 <td><p>List of text strings found in the image after performing text detection. Using ‘{detected_text}’ will cause osxphotos to perform text detection on your photos using the built-in macOS text detection algorithms which will slow down your export. The results for each photo will be cached in the export database so that future exports with ‘–update’ do not need to reprocess each photo. You may pass a confidence threshold value between 0.0 and 1.0 after a colon as in ‘{detected_text:0.5}’; The default confidence threshold is 0.75. ‘{detected_text}’ works only on macOS Catalina (10.15) or later. Note: this feature is not the same thing as Live Text in macOS Monterey, which osxphotos does not yet support.</p></td>
 </tr>
-<tr class="row-even"><td><p>{shell_quote}</p></td>
+<tr class="row-odd"><td><p>{shell_quote}</p></td>
 <td><p>Use in form ‘{shell_quote,TEMPLATE}’; quotes the rendered TEMPLATE value(s) for safe usage in the shell, e.g. My file.jpeg =&gt; ‘My file.jpeg’; only adds quotes if needed.</p></td>
 </tr>
-<tr class="row-odd"><td><p>{strip}</p></td>
+<tr class="row-even"><td><p>{strip}</p></td>
 <td><p>Use in form ‘{strip,TEMPLATE}’; strips whitespace from begining and end of rendered TEMPLATE value(s).</p></td>
 </tr>
-<tr class="row-even"><td><p>{format}</p></td>
+<tr class="row-odd"><td><p>{format}</p></td>
 <td><p>Use in form, ‘{format:TYPE:FORMAT,TEMPLATE}’; converts TEMPLATE value to TYPE then formats the value using Python string formatting codes specified by FORMAT; TYPE is one of: ‘int’, ‘float’, or ‘str’. For example, ‘{format:float:.1f,{exiftool:EXIF:FocalLength}}’ will format focal length to 1 decimal place (e.g. ‘100.0’).</p></td>
 </tr>
-<tr class="row-odd"><td><p>{function}</p></td>
+<tr class="row-even"><td><p>{function}</p></td>
 <td><p>Execute a python function from an external file and use return value as template substitution. Use in format: {function:file.py::function_name} where ‘file.py’ is the name of the python file and ‘function_name’ is the name of the function to call. The function will be passed the PhotoInfo object for the photo. See https://github.com/RhetTbull/osxphotos/blob/master/examples/template_function.py for an example of how to implement a template function.</p></td>
 </tr>
 </tbody>

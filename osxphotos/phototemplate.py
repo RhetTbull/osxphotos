@@ -20,7 +20,7 @@ from .datetime_formatter import DateTimeFormatter
 from .exiftool import ExifToolCaching
 from .path_utils import sanitize_dirname, sanitize_filename, sanitize_pathpart
 from .text_detection import detect_text
-from .utils import expand_and_validate_filepath, load_function
+from .utils import expand_and_validate_filepath, load_function, uuid_to_shortuuid
 
 __all__ = [
     "RenderOptions",
@@ -141,6 +141,8 @@ TEMPLATE_SUBSTITUTIONS = {
     "{exif.lens_model}": "Lens model from original photo's EXIF information as imported by Photos, e.g. 'iPhone 6s back camera 4.15mm f/2.2'",
     "{moment}": "The moment title of the photo",
     "{uuid}": "Photo's internal universally unique identifier (UUID) for the photo, a 36-character string unique to the photo, e.g. '128FB4C6-0B16-4E7D-9108-FB2E90DA1546'",
+    "{shortuuid}": "A shorter representation of photo's internal universally unique identifier (UUID) for the photo, "
+    + "a 20-character string unique to the photo, e.g. 'JYsxugP9UjetmCbBCHXcmu'",
     "{id}": "A unique number for the photo based on its primary key in the Photos database. "
     + "A sequential integer, e.g. 1, 2, 3...etc.  Each asset associated with a photo (e.g. an image and Live Photo preview) will share the same id. "
     + "May be formatted using a python string format code. "
@@ -1087,6 +1089,8 @@ class PhotoTemplate:
             value = self.photo.moment_info.title if self.photo.moment_info else None
         elif field == "uuid":
             value = self.photo.uuid
+        elif field == "shortuuid":
+            value = uuid_to_shortuuid(self.photo.uuid) if self.photo.uuid else None
         elif field == "id":
             value = format_str_value(self.photo._info["pk"], subfield)
         elif field.startswith("album_seq") or field.startswith("folder_album_seq"):
