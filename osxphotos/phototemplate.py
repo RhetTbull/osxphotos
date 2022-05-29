@@ -260,6 +260,12 @@ FILTER_VALUES = {
     "append(x)": "Append x to list of values, e.g. append(d): ['a', 'b', 'c'] => ['a', 'b', 'c', 'd'].",
     "prepend(x)": "Prepend x to list of values, e.g. prepend(d): ['a', 'b', 'c'] => ['d', 'a', 'b', 'c'].",
     "remove(x)": "Remove x from list of values, e.g. remove(b): ['a', 'b', 'c'] => ['a', 'c'].",
+    "slice(start:stop:step)": "Slice list using same semantics as Python's list slicing, "
+    + "e.g. slice(1:3): ['a', 'b', 'c', 'd'] => ['b', 'c']; slice(1:4:2): ['a', 'b', 'c', 'd'] => ['b', 'd']; "
+    + "slice(1:): ['a', 'b', 'c', 'd'] => ['b', 'c', 'd']; slice(:-1): ['a', 'b', 'c', 'd'] => ['a', 'b', 'c']; "
+    + "slice(::-1): ['a', 'b', 'c', 'd'] => ['d', 'c', 'b', 'a']. See also sslice().",
+    "sslice(start:stop:step)": "[s(tring) slice] Slice values in a list using same semantics as Python's string slicing, "
+    + "e.g. sslice(1:3):'abcd => 'bc'; sslice(1:4:2): 'abcd' => 'bd', etc. See also slice().",
 }
 
 # Just the substitutions without the braces
@@ -1166,6 +1172,8 @@ class PhotoTemplate:
             "append",
             "prepend",
             "remove",
+            "slice",
+            "sslice",
         ] and (args is None or not len(args)):
             raise SyntaxError(f"{filter_} requires arguments")
 
@@ -1247,6 +1255,13 @@ class PhotoTemplate:
         elif filter_ == "remove":
             # remove value from list
             value = [v for v in values if v != args]
+        elif filter_ == "slice":
+            # slice list of values
+            value = values[create_slice(args)]
+        elif filter_ == "sslice":
+            # slice each value in a list
+            slice_ = create_slice(args)
+            value = [v[slice_] for v in values]
         elif filter_.startswith("function:"):
             value = self.get_template_value_filter_function(filter_, args, values)
         else:
@@ -1671,3 +1686,25 @@ def _get_detected_text(photo, confidence=TEXT_DETECTION_CONFIDENCE_THRESHOLD):
     # so the first time this gets called is slow but repeated accesses are fast
     detected_text = photo._detected_text()
     return [text for text, conf in detected_text if conf >= confidence]
+
+
+def create_slice(args):
+    """Create a slice object from a string of args in form "start:end:step" """
+    slice_args = args.split(":")
+    if len(slice_args) == 1:
+        start = int(slice_args[0] or 0)
+        end = None
+        step = None
+    elif len(slice_args) == 2:
+        start, end = slice_args
+        start = int(start) if start != "" else None
+        end = int(end) if end != "" else None
+        step = None
+    elif len(slice_args) == 3:
+        start, end, step = slice_args
+        start = int(start) if start != "" else None
+        end = int(end) if end != "" else None
+        step = int(step) if step != "" else None
+    else:
+        raise SyntaxError(f"Invalid slice: {args}")
+    return slice(start, end, step)

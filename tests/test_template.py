@@ -227,6 +227,15 @@ TEMPLATE_VALUES = {
     "{descr|chop(6)|autosplit|append(Restaurant)|join( )}": "Jack Rose Dining Restaurant",
     "{descr|chomp(4)|autosplit|prepend(Mack)|join( )}": "Mack Rose Dining Saloon",
     "{descr|autosplit|remove(Rose)|join( )}": "Jack Dining Saloon",
+    "{descr|sslice(0:3)}": "Jac",
+    "{descr|sslice(5:11)}": "Rose D",
+    "{descr|sslice(:-6)}": "Jack Rose Dining ",
+    "{descr|sslice(::2)}": "Jc oeDnn aon",
+    "{descr|autosplit|slice(1:3)|join()}": "RoseDining",
+    "{descr|autosplit|slice(2:)|join()}": "DiningSaloon",
+    "{descr|autosplit|slice(:2)|join()}": "JackRose",
+    "{descr|autosplit|slice(:-1)|join()}": "JackRoseDining",
+    "{descr|autosplit|slice(::2)|join()}": "JackDining",
 }
 
 
@@ -1297,3 +1306,21 @@ def test_moment(photosdb):
         for template, value in UUID_MOMENT[uuid]["templates"].items():
             rendered, _ = photo.render_template(template)
             assert rendered == value
+
+
+def test_bad_slice(photosdb):
+    """Test invalid {|slice} filter"""
+    photo = photosdb.get_photo(UUID_MULTI_KEYWORDS)
+    # bad field raises SyntaxError
+    # bad function raises ValueError
+    with pytest.raises((SyntaxError, ValueError)):
+        rendered, _ = photo.render_template("{photo.original_filename|slice(1:2:3:4)}")
+
+
+def test_bad_sslice(photosdb):
+    """Test invalid {|sslice} filter"""
+    photo = photosdb.get_photo(UUID_MULTI_KEYWORDS)
+    # bad field raises SyntaxError
+    # bad function raises ValueError
+    with pytest.raises((SyntaxError, ValueError)):
+        rendered, _ = photo.render_template("{photo.original_filename|sslice(1:2:3:4)}")
