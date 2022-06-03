@@ -2191,6 +2191,7 @@ Attributes:
 * touched: list of files touched during export (e.g. file date/time updated with touch_file=True)
 * to_touch: Reserved for internal use of export
 * converted_to_jpeg: list of files converted to jpeg when convert_to_jpeg=True
+* metadata_changed: list of filenames that had metadata changes since last export
 * sidecar_json_written: list of JSON sidecars written
 * sidecar_json_skipped: list of JSON sidecars skipped when update=True
 * sidecar_exiftool_written: list of exiftool sidecars written
