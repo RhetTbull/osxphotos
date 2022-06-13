@@ -26,9 +26,10 @@ def main():
 
         # Photos stores some data in photo.exif but the rating data must be extracted with exiftool
         if exif := photo.exiftool:
+            exif_data = exif.asdict()
             # I think SONY uses XMP:Rating but also check EXIF:Rating
-            xmp_rating = exif.get("XMP:Rating", 0)
-            exif_rating = exif.get("EXIF:Rating", 0)
+            xmp_rating = exif_data.get("XMP:Rating", 0)
+            exif_rating = exif_data.get("EXIF:Rating", 0)
             rating = max(xmp_rating, exif_rating)
             if rating == 5:
                 print(f"Marking {photo.original_filename} ({photo.uuid}) as favorite")
