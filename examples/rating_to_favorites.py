@@ -7,8 +7,9 @@
     You'll also need exiftool (https://exiftool.org/)
 """
 
-import osxphotos
 import photoscript
+
+import osxphotos
 
 # only find photos taken with SONY cameras, adjust to suit your use case
 CAMERA_MAKE = "SONY"
@@ -18,6 +19,8 @@ def main():
     """Find all photos with EXIF or XMP rating of 5 and mark them as favorites"""
     photosdb = osxphotos.PhotosDB()
     for photo in photosdb.photos():
+        # extracting the rating data takes a while so 
+        # skip photos not taken with the camera we're looking for
         if photo.exif_info.camera_make != CAMERA_MAKE:
             continue
 
