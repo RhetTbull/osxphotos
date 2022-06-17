@@ -1,12 +1,10 @@
 """ Methods for PhotosDB to add Photos face info 
 """
 
-import logging
 
 from .._constants import _DB_TABLE_NAMES, _PHOTOS_4_VERSION
 from ..utils import _open_sql_file, normalize_unicode
 from .photosdb_utils import get_db_version
-
 
 """
     This module should be imported in the class defintion of PhotosDB in photosdb.py
@@ -202,8 +200,8 @@ def _process_faceinfo_5(photosdb):
         ZDETECTEDFACE.ZHASSMILE,
         ZDETECTEDFACE.ZHIDDEN,
         ZDETECTEDFACE.ZISINTRASH,
-        ZDETECTEDFACE.ZISLEFTEYECLOSED,
-        ZDETECTEDFACE.ZISRIGHTEYECLOSED,
+        NULL, -- ZDETECTEDFACE.ZISLEFTEYECLOSED
+        NULL, -- ZDETECTEDFACE.ZISRIGHTEYECLOSED
         ZDETECTEDFACE.ZLIPMAKEUPTYPE,
         ZDETECTEDFACE.ZMANUAL,
         ZDETECTEDFACE.ZQUALITYMEASURE,
@@ -213,17 +211,17 @@ def _process_faceinfo_5(photosdb):
         ZDETECTEDFACE.ZBLURSCORE,
         ZDETECTEDFACE.ZCENTERX,
         ZDETECTEDFACE.ZCENTERY,
-        ZDETECTEDFACE.ZLEFTEYEX,
-        ZDETECTEDFACE.ZLEFTEYEY,
-        ZDETECTEDFACE.ZMOUTHX,
-        ZDETECTEDFACE.ZMOUTHY,
+        NULL, -- ZDETECTEDFACE.ZLEFTEYEX,
+        NULL, -- ZDETECTEDFACE.ZLEFTEYEY,
+        NULL, -- ZDETECTEDFACE.ZMOUTHX,
+        NULL, -- ZDETECTEDFACE.ZMOUTHY,
         ZDETECTEDFACE.ZPOSEYAW,
         ZDETECTEDFACE.ZQUALITY,
-        ZDETECTEDFACE.ZRIGHTEYEX,
-        ZDETECTEDFACE.ZRIGHTEYEY,
+        NULL, -- ZDETECTEDFACE.ZRIGHTEYEX,
+        NULL, -- ZDETECTEDFACE.ZRIGHTEYEY,
         ZDETECTEDFACE.ZROLL,
         ZDETECTEDFACE.ZSIZE,
-        ZDETECTEDFACE.ZYAW,
+        NULL, -- ZDETECTEDFACE.ZYAW,
         ZDETECTEDFACE.ZMASTERIDENTIFIER
         FROM ZDETECTEDFACE
         JOIN {asset_table} ON {asset_table}.Z_PK = ZDETECTEDFACE.ZASSET
@@ -237,7 +235,7 @@ def _process_faceinfo_5(photosdb):
     # 3    ZDETECTEDFACE.ZPERSON,
     # 4    ZPERSON.ZFULLNAME,
     # 5    ZDETECTEDFACE.ZAGETYPE,
-    # 6    ZDETECTEDFACE.ZBALDTYPE,  (Not available on Monterey)
+    # 6    NULL -- ZDETECTEDFACE.ZBALDTYPE,  (Not available on Monterey)
     # 7    ZDETECTEDFACE.ZEYEMAKEUPTYPE,
     # 8    ZDETECTEDFACE.ZEYESSTATE,
     # 9    ZDETECTEDFACE.ZFACIALHAIRTYPE,
@@ -247,8 +245,8 @@ def _process_faceinfo_5(photosdb):
     # 13   ZDETECTEDFACE.ZHASSMILE,
     # 14   ZDETECTEDFACE.ZHIDDEN,
     # 15   ZDETECTEDFACE.ZISINTRASH,
-    # 16   ZDETECTEDFACE.ZISLEFTEYECLOSED,
-    # 17   ZDETECTEDFACE.ZISRIGHTEYECLOSED,
+    # 16   NULL -- ZDETECTEDFACE.ZISLEFTEYECLOSED,
+    # 17   NULL -- ZDETECTEDFACE.ZISRIGHTEYECLOSED,
     # 18   ZDETECTEDFACE.ZLIPMAKEUPTYPE,
     # 19   ZDETECTEDFACE.ZMANUAL,
     # 20   ZDETECTEDFACE.ZQUALITYMEASURE,
@@ -258,17 +256,17 @@ def _process_faceinfo_5(photosdb):
     # 24   ZDETECTEDFACE.ZBLURSCORE,
     # 25   ZDETECTEDFACE.ZCENTERX,
     # 26   ZDETECTEDFACE.ZCENTERY,
-    # 27   ZDETECTEDFACE.ZLEFTEYEX,
-    # 28   ZDETECTEDFACE.ZLEFTEYEY,
-    # 29   ZDETECTEDFACE.ZMOUTHX,
-    # 30   ZDETECTEDFACE.ZMOUTHY,
+    # 27   NULL -- ZDETECTEDFACE.ZLEFTEYEX, (Not available on Ventura)
+    # 28   NULL -- ZDETECTEDFACE.ZLEFTEYEY, (Not available on Ventura)
+    # 29   NULL -- ZDETECTEDFACE.ZMOUTHX, (Not available on Ventura)
+    # 30   NULL -- ZDETECTEDFACE.ZMOUTHY, (Not available on Ventura)
     # 31   ZDETECTEDFACE.ZPOSEYAW,
     # 32   ZDETECTEDFACE.ZQUALITY,
-    # 33   ZDETECTEDFACE.ZRIGHTEYEX,
-    # 34   ZDETECTEDFACE.ZRIGHTEYEY,
+    # 33   NULL -- ZDETECTEDFACE.ZRIGHTEYEX, (Not available on Ventura)
+    # 34   NULL -- ZDETECTEDFACE.ZRIGHTEYEY, (Not available on Ventura)
     # 35   ZDETECTEDFACE.ZROLL,
     # 36   ZDETECTEDFACE.ZSIZE,
-    # 37   ZDETECTEDFACE.ZYAW,
+    # 37   NULL -- ZDETECTEDFACE.ZYAW, (Not available on Ventura)
     # 38   ZDETECTEDFACE.ZMASTERIDENTIFIER
 
     for row in result:
@@ -310,8 +308,8 @@ def _process_faceinfo_5(photosdb):
         face["righteyey"] = row[34]
         face["roll"] = row[35]
         face["size"] = row[36]
-        face["yaw"] = row[37]
-        face["pitch"] = 0.0  # not defined in Photos 5
+        face["yaw"] = 0 # Photos 4 only (this is in Photos 5-7, but dropped in Ventura so just don't support it)
+        face["pitch"] = 0  # not defined in Photos 5
 
         photosdb._db_faceinfo_pk[pk] = face
 

@@ -92,11 +92,13 @@ class PersonInfo:
         return f"PersonInfo(name={self.name}, display_name={self.display_name}, uuid={self.uuid}, facecount={self.facecount})"
 
     def __eq__(self, other):
-        if not isinstance(other, type(self)):
-            return False
-
-        return all(
-            getattr(self, field) == getattr(other, field) for field in ["_db", "_pk"]
+        return (
+            all(
+                getattr(self, field) == getattr(other, field)
+                for field in ["_db", "_pk"]
+            )
+            if isinstance(other, type(self))
+            else False
         )
 
     def __ne__(self, other):
@@ -127,23 +129,14 @@ class FaceInfo:
         self._person_pk = face["person"]
         self.center_x = face["centerx"]
         self.center_y = face["centery"]
-        self.mouth_x = face["mouthx"]
-        self.mouth_y = face["mouthy"]
-        self.left_eye_x = face["lefteyex"]
-        self.left_eye_y = face["lefteyey"]
-        self.right_eye_x = face["righteyex"]
-        self.right_eye_y = face["righteyey"]
         self.size = face["size"]
         self.quality = face["quality"]
         self.source_width = face["sourcewidth"]
         self.source_height = face["sourceheight"]
         self.has_smile = face["has_smile"]
-        self.left_eye_closed = face["left_eye_closed"]
-        self.right_eye_closed = face["right_eye_closed"]
         self.manual = face["manual"]
         self.face_type = face["facetype"]
         self.age_type = face["agetype"]
-        # self.bald_type = face["baldtype"]
         self.eye_makeup_type = face["eyemakeuptype"]
         self.eye_state = face["eyestate"]
         self.facial_hair_type = face["facialhairtype"]
@@ -173,33 +166,6 @@ class FaceInfo:
         photo = self.photo
         size_reference = photo.width if photo.width > photo.height else photo.height
         return self.size * size_reference
-
-    @property
-    def mouth(self):
-        """Coordinates, in PIL format, for mouth position
-
-        Returns:
-            tuple of coordinates in form (x, y)
-        """
-        return self._make_point_with_rotation((self.mouth_x, self.mouth_y))
-
-    @property
-    def left_eye(self):
-        """Coordinates, in PIL format, for left eye position
-
-        Returns:
-            tuple of coordinates in form (x, y)
-        """
-        return self._make_point_with_rotation((self.left_eye_x, self.left_eye_y))
-
-    @property
-    def right_eye(self):
-        """Coordinates, in PIL format, for right eye position
-
-        Returns:
-            tuple of coordinates in form (x, y)
-        """
-        return self._make_point_with_rotation((self.right_eye_x, self.right_eye_y))
 
     @property
     def person_info(self):
@@ -415,15 +381,6 @@ class FaceInfo:
             "center_x": self.center_x,
             "center_y": self.center_y,
             "center": self.center,
-            "mouth_x": self.mouth_x,
-            "mouth_y": self.mouth_y,
-            "mouth": self.mouth,
-            "left_eye_x": self.left_eye_x,
-            "left_eye_y": self.left_eye_y,
-            "left_eye": self.left_eye,
-            "right_eye_x": self.right_eye_x,
-            "right_eye_y": self.right_eye_y,
-            "right_eye": self.right_eye,
             "size": self.size,
             "face_rect": self.face_rect(),
             "mpri_reg_rect": self.mpri_reg_rect._asdict(),
@@ -435,12 +392,9 @@ class FaceInfo:
             "source_width": self.source_width,
             "source_height": self.source_height,
             "has_smile": self.has_smile,
-            "left_eye_closed": self.left_eye_closed,
-            "right_eye_closed": self.right_eye_closed,
             "manual": self.manual,
             "face_type": self.face_type,
             "age_type": self.age_type,
-            # "bald_type": self.bald_type,
             "eye_makeup_type": self.eye_makeup_type,
             "eye_state": self.eye_state,
             "facial_hair_type": self.facial_hair_type,

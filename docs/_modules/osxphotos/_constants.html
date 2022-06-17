@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>osxphotos._constants - osxphotos 0.48.1 documentation</title>
+        <title>osxphotos._constants - osxphotos 0.50.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.48.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.50.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.48.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.50.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -240,10 +240,8 @@
 <span class="c1"># Ranges for model version by Photos version</span>
 <span class="n">_PHOTOS_5_MODEL_VERSION</span> <span class="o">=</span> <span class="p">[</span><span class="mi">13000</span><span class="p">,</span> <span class="mi">13999</span><span class="p">]</span>
 <span class="n">_PHOTOS_6_MODEL_VERSION</span> <span class="o">=</span> <span class="p">[</span><span class="mi">14000</span><span class="p">,</span> <span class="mi">14999</span><span class="p">]</span>
-<span class="n">_PHOTOS_7_MODEL_VERSION</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="mi">15000</span><span class="p">,</span>
-    <span class="mi">15999</span><span class="p">,</span>
-<span class="p">]</span>  <span class="c1"># Monterey developer preview is 15134, 12.1 is 15331</span>
+<span class="n">_PHOTOS_7_MODEL_VERSION</span> <span class="o">=</span> <span class="p">[</span><span class="mi">15000</span><span class="p">,</span> <span class="mi">15999</span><span class="p">]</span>  <span class="c1"># Dev preview: 15134, 12.1: 15331</span>
+<span class="n">_PHOTOS_8_MODEL_VERSION</span> <span class="o">=</span> <span class="p">[</span><span class="mi">16000</span><span class="p">,</span> <span class="mi">16999</span><span class="p">]</span>  <span class="c1"># Ventura dev preview: 16119</span>
 
 <span class="c1"># some table names differ between Photos 5 and Photos 6</span>
 <span class="n">_DB_TABLE_NAMES</span> <span class="o">=</span> <span class="p">{</span>
@@ -283,6 +281,18 @@
         <span class="s2">"ASSET_ALBUM_TABLE"</span><span class="p">:</span> <span class="s2">"Z_27ASSETS"</span><span class="p">,</span>
         <span class="s2">"HDR_TYPE"</span><span class="p">:</span> <span class="s2">"ZHDRTYPE"</span><span class="p">,</span>
     <span class="p">},</span>
+    <span class="mi">8</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"ASSET"</span><span class="p">:</span> <span class="s2">"ZASSET"</span><span class="p">,</span>
+        <span class="s2">"KEYWORD_JOIN"</span><span class="p">:</span> <span class="s2">"Z_1KEYWORDS.Z_40KEYWORDS"</span><span class="p">,</span>
+        <span class="s2">"ALBUM_JOIN"</span><span class="p">:</span> <span class="s2">"Z_28ASSETS.Z_3ASSETS"</span><span class="p">,</span>
+        <span class="s2">"ALBUM_SORT_ORDER"</span><span class="p">:</span> <span class="s2">"Z_28ASSETS.Z_FOK_3ASSETS"</span><span class="p">,</span>
+        <span class="s2">"IMPORT_FOK"</span><span class="p">:</span> <span class="s2">"null"</span><span class="p">,</span>
+        <span class="s2">"DEPTH_STATE"</span><span class="p">:</span> <span class="s2">"ZASSET.ZDEPTHTYPE"</span><span class="p">,</span>
+        <span class="s2">"UTI_ORIGINAL"</span><span class="p">:</span> <span class="s2">"ZINTERNALRESOURCE.ZCOMPACTUTI"</span><span class="p">,</span>
+        <span class="s2">"ASSET_ALBUM_JOIN"</span><span class="p">:</span> <span class="s2">"Z_28ASSETS.Z_28ALBUMS"</span><span class="p">,</span>
+        <span class="s2">"ASSET_ALBUM_TABLE"</span><span class="p">:</span> <span class="s2">"Z_28ASSETS"</span><span class="p">,</span>
+        <span class="s2">"HDR_TYPE"</span><span class="p">:</span> <span class="s2">"ZHDRTYPE"</span><span class="p">,</span>
+    <span class="p">},</span>
 <span class="p">}</span>
 
 <span class="c1"># which version operating systems have been tested</span>
@@ -303,6 +313,7 @@
     <span class="p">(</span><span class="s2">"12"</span><span class="p">,</span> <span class="s2">"1"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"12"</span><span class="p">,</span> <span class="s2">"2"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"12"</span><span class="p">,</span> <span class="s2">"3"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"12"</span><span class="p">,</span> <span class="s2">"4"</span><span class="p">),</span>
 <span class="p">]</span>
 
 <span class="c1"># Photos 5 has persons who are empty string if unidentified face</span>

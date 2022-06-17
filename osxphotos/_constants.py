@@ -44,10 +44,8 @@ _PHOTOS_5_VERSION = "5000"  # I've seen both 5001 and 6000.  6000 is most common
 # Ranges for model version by Photos version
 _PHOTOS_5_MODEL_VERSION = [13000, 13999]
 _PHOTOS_6_MODEL_VERSION = [14000, 14999]
-_PHOTOS_7_MODEL_VERSION = [
-    15000,
-    15999,
-]  # Monterey developer preview is 15134, 12.1 is 15331
+_PHOTOS_7_MODEL_VERSION = [15000, 15999]  # Dev preview: 15134, 12.1: 15331
+_PHOTOS_8_MODEL_VERSION = [16000, 16999]  # Ventura dev preview: 16119
 
 # some table names differ between Photos 5 and Photos 6
 _DB_TABLE_NAMES = {
@@ -87,6 +85,18 @@ _DB_TABLE_NAMES = {
         "ASSET_ALBUM_TABLE": "Z_27ASSETS",
         "HDR_TYPE": "ZHDRTYPE",
     },
+    8: {
+        "ASSET": "ZASSET",
+        "KEYWORD_JOIN": "Z_1KEYWORDS.Z_40KEYWORDS",
+        "ALBUM_JOIN": "Z_28ASSETS.Z_3ASSETS",
+        "ALBUM_SORT_ORDER": "Z_28ASSETS.Z_FOK_3ASSETS",
+        "IMPORT_FOK": "null",
+        "DEPTH_STATE": "ZASSET.ZDEPTHTYPE",
+        "UTI_ORIGINAL": "ZINTERNALRESOURCE.ZCOMPACTUTI",
+        "ASSET_ALBUM_JOIN": "Z_28ASSETS.Z_28ALBUMS",
+        "ASSET_ALBUM_TABLE": "Z_28ASSETS",
+        "HDR_TYPE": "ZHDRTYPE",
+    },
 }
 
 # which version operating systems have been tested
@@ -107,6 +117,7 @@ _TESTED_OS_VERSIONS = [
     ("12", "1"),
     ("12", "2"),
     ("12", "3"),
+    ("12", "4"),
 ]
 
 # Photos 5 has persons who are empty string if unidentified face

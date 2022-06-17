@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>osxphotos.photosdb.photosdb - osxphotos 0.50.0 documentation</title>
+        <title>osxphotos.photosdb.photosdb - osxphotos 0.50.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">osxphotos 0.50.0 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">osxphotos 0.50.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.50.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.50.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -210,7 +210,7 @@
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">timezone</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 <span class="kn">from</span> <span class="nn">unicodedata</span> <span class="kn">import</span> <span class="n">normalize</span>
 
 <span class="kn">import</span> <span class="nn">bitmath</span>
@@ -3054,16 +3054,16 @@
 
 <div class="viewcode-block" id="PhotosDB.photos"><a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB.photos">[docs]</a>    <span class="k">def</span> <span class="nf">photos</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">keywords</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">persons</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">albums</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">images</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">movies</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">from_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">to_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">intrash</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="p">):</span>
+        <span class="n">keywords</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">uuid</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">persons</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">albums</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">images</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">movies</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">from_date</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">to_date</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">intrash</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">PhotoInfo</span><span class="p">]:</span>
         <span class="sd">"""Return a list of PhotoInfo objects</span>
 <span class="sd">        If called with no args, returns the entire database of photos</span>
 <span class="sd">        If called with args, returns photos matching the args (e.g. keywords, persons, etc.)</span>
