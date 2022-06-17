@@ -14,7 +14,7 @@ import tempfile
 from collections import OrderedDict
 from collections.abc import Iterable
 from datetime import datetime, timedelta, timezone
-from typing import List
+from typing import List, Optional
 from unicodedata import normalize
 
 import bitmath
@@ -2858,16 +2858,16 @@ class PhotosDB:
 
     def photos(
         self,
-        keywords=None,
-        uuid=None,
-        persons=None,
-        albums=None,
-        images=True,
-        movies=True,
-        from_date=None,
-        to_date=None,
-        intrash=False,
-    ):
+        keywords: Optional[List[str]] = None,
+        uuid: Optional[List[str]] = None,
+        persons: Optional[List[str]] = None,
+        albums: Optional[List[str]] = None,
+        images: bool = True,
+        movies: bool = True,
+        from_date: Optional[datetime] = None,
+        to_date: Optional[datetime] = None,
+        intrash: bool = False,
+    ) -> List[PhotoInfo]:
         """Return a list of PhotoInfo objects
         If called with no args, returns the entire database of photos
         If called with args, returns photos matching the args (e.g. keywords, persons, etc.)

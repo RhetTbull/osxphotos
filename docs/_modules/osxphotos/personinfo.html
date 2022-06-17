@@ -1,37 +1,200 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-<!DOCTYPE html>
+    <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
+        <title>osxphotos.personinfo - osxphotos 0.50.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    
+    
 
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos.personinfo &#8212; osxphotos 0.47.9 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <link rel="index" title="Index" href="../../genindex.html" />
-    <link rel="search" title="Search" href="../../search.html" />
-   
-  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">osxphotos 0.50.3 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
-
-  </head><body>
+  <span class="sidebar-brand-text">osxphotos 0.50.3 documentation</span>
   
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">OSXPhotos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">OSXPhotos Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cli.html">OSXPhotos Command Line Interface (CLI)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../template_help.html">OSXPhotos Template System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../package_overview.html">OSXPhotos Python Package Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference.html">OSXPhotos python API</a></li>
+</ul>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          
+</div>
+</div>
 
-          <div class="body" role="main">
-            
-  <h1>Source code for osxphotos.personinfo</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot; PhotoInfo and FaceInfo classes to expose info about persons and faces in the Photos library &quot;&quot;&quot;</span>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <h1>Source code for osxphotos.personinfo</h1><div class="highlight"><pre>
+<span></span><span class="sd">""" PhotoInfo and FaceInfo classes to expose info about persons and faces in the Photos library """</span>
 
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
@@ -39,17 +202,17 @@
 
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;PersonInfo&quot;</span><span class="p">,</span> <span class="s2">&quot;FaceInfo&quot;</span><span class="p">,</span> <span class="s2">&quot;rotate_image_point&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"PersonInfo"</span><span class="p">,</span> <span class="s2">"FaceInfo"</span><span class="p">,</span> <span class="s2">"rotate_image_point"</span><span class="p">]</span>
 
-<span class="n">MWG_RS_Area</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;MWG_RS_Area&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">])</span>
-<span class="n">MPRI_Reg_Rect</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;MPRI_Reg_Rect&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">])</span>
+<span class="n">MWG_RS_Area</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">"MWG_RS_Area"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="s2">"h"</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">])</span>
+<span class="n">MPRI_Reg_Rect</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">"MPRI_Reg_Rect"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="s2">"h"</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">])</span>
 
 
 <div class="viewcode-block" id="PersonInfo"><a class="viewcode-back" href="../../reference.html#osxphotos.PersonInfo">[docs]</a><span class="k">class</span> <span class="nc">PersonInfo</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Info about a person in the Photos library&quot;&quot;&quot;</span>
+    <span class="sd">"""Info about a person in the Photos library"""</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Creates a new PersonInfo instance</span>
+        <span class="sd">"""Creates a new PersonInfo instance</span>
 
 <span class="sd">        Arguments:</span>
 <span class="sd">            db: instance of PhotosDB object</span>
@@ -57,16 +220,16 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            PersonInfo instance</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_db</span> <span class="o">=</span> <span class="n">db</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pk</span> <span class="o">=</span> <span class="n">pk</span>
 
         <span class="n">person</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbpersons_pk</span><span class="p">[</span><span class="n">pk</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span> <span class="o">=</span> <span class="n">person</span><span class="p">[</span><span class="s2">&quot;uuid&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">person</span><span class="p">[</span><span class="s2">&quot;fullname&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">display_name</span> <span class="o">=</span> <span class="n">person</span><span class="p">[</span><span class="s2">&quot;displayname&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">keyface</span> <span class="o">=</span> <span class="n">person</span><span class="p">[</span><span class="s2">&quot;keyface&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">facecount</span> <span class="o">=</span> <span class="n">person</span><span class="p">[</span><span class="s2">&quot;facecount&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span> <span class="o">=</span> <span class="n">person</span><span class="p">[</span><span class="s2">"uuid"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">person</span><span class="p">[</span><span class="s2">"fullname"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">display_name</span> <span class="o">=</span> <span class="n">person</span><span class="p">[</span><span class="s2">"displayname"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keyface</span> <span class="o">=</span> <span class="n">person</span><span class="p">[</span><span class="s2">"keyface"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">facecount</span> <span class="o">=</span> <span class="n">person</span><span class="p">[</span><span class="s2">"facecount"</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">keyphoto</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -74,9 +237,9 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_keyphoto</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="n">person</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbpersons_pk</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_pk</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">person</span><span class="p">[</span><span class="s2">&quot;photo_uuid&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">person</span><span class="p">[</span><span class="s2">"photo_uuid"</span><span class="p">]:</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="n">key_photo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">get_photo</span><span class="p">(</span><span class="n">person</span><span class="p">[</span><span class="s2">&quot;photo_uuid&quot;</span><span class="p">])</span>
+                    <span class="n">key_photo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">get_photo</span><span class="p">(</span><span class="n">person</span><span class="p">[</span><span class="s2">"photo_uuid"</span><span class="p">])</span>
                 <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
                     <span class="n">key_photo</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">else</span><span class="p">:</span>
@@ -86,14 +249,14 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">photos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns list of PhotoInfo objects associated with this person&quot;&quot;&quot;</span>
+        <span class="sd">"""Returns list of PhotoInfo objects associated with this person"""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">photos_by_uuid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_dbfaces_pk</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_pk</span><span class="p">])</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">face_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns a list of FaceInfo objects associated with this person sorted by quality score</span>
+        <span class="sd">"""Returns a list of FaceInfo objects associated with this person sorted by quality score</span>
 <span class="sd">        Highest quality face is result[0] and lowest quality face is result[n]</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">faces</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_faceinfo_person</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_pk</span><span class="p">]</span>
             <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span>
@@ -106,30 +269,32 @@
             <span class="k">return</span> <span class="p">[]</span>
 
 <div class="viewcode-block" id="PersonInfo.asdict"><a class="viewcode-back" href="../../reference.html#osxphotos.PersonInfo.asdict">[docs]</a>    <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns dictionary representation of class instance&quot;&quot;&quot;</span>
+        <span class="sd">"""Returns dictionary representation of class instance"""</span>
         <span class="n">keyphoto</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">keyphoto</span><span class="o">.</span><span class="n">uuid</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">keyphoto</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="s2">&quot;displayname&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">display_name</span><span class="p">,</span>
-            <span class="s2">&quot;keyface&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">keyface</span><span class="p">,</span>
-            <span class="s2">&quot;facecount&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">facecount</span><span class="p">,</span>
-            <span class="s2">&quot;keyphoto&quot;</span><span class="p">:</span> <span class="n">keyphoto</span><span class="p">,</span>
+            <span class="s2">"uuid"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+            <span class="s2">"name"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">"displayname"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">display_name</span><span class="p">,</span>
+            <span class="s2">"keyface"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">keyface</span><span class="p">,</span>
+            <span class="s2">"facecount"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">facecount</span><span class="p">,</span>
+            <span class="s2">"keyphoto"</span><span class="p">:</span> <span class="n">keyphoto</span><span class="p">,</span>
         <span class="p">}</span></div>
 
 <div class="viewcode-block" id="PersonInfo.json"><a class="viewcode-back" href="../../reference.html#osxphotos.PersonInfo.json">[docs]</a>    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns JSON representation of class instance&quot;&quot;&quot;</span>
+        <span class="sd">"""Returns JSON representation of class instance"""</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asdict</span><span class="p">())</span></div>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;PersonInfo(name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, display_name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">display_name</span><span class="si">}</span><span class="s2">, uuid=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">, facecount=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">facecount</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"PersonInfo(name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, display_name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">display_name</span><span class="si">}</span><span class="s2">, uuid=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">, facecount=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">facecount</span><span class="si">}</span><span class="s2">)"</span>
 
     <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
-            <span class="k">return</span> <span class="kc">False</span>
-
-        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span>
-            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span> <span class="o">==</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;_db&quot;</span><span class="p">,</span> <span class="s2">&quot;_pk&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="nb">all</span><span class="p">(</span>
+                <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span> <span class="o">==</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"_db"</span><span class="p">,</span> <span class="s2">"_pk"</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+            <span class="k">else</span> <span class="kc">False</span>
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
@@ -137,10 +302,10 @@
 
 
 <span class="k">class</span> <span class="nc">FaceInfo</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Info about a face in the Photos library&quot;&quot;&quot;</span>
+    <span class="sd">"""Info about a face in the Photos library"""</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Creates a new FaceInfo instance</span>
+        <span class="sd">"""Creates a new FaceInfo instance</span>
 
 <span class="sd">        Arguments:</span>
 <span class="sd">            db: instance of PhotosDB object</span>
@@ -148,95 +313,59 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            FaceInfo instance</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_db</span> <span class="o">=</span> <span class="n">db</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pk</span> <span class="o">=</span> <span class="n">pk</span>
 
         <span class="n">face</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_faceinfo_pk</span><span class="p">[</span><span class="n">pk</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_info</span> <span class="o">=</span> <span class="n">face</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;uuid&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;fullname&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">asset_uuid</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;asset_uuid&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_person_pk</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;person&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">center_x</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;centerx&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">center_y</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;centery&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mouth_x</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;mouthx&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mouth_y</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;mouthy&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">left_eye_x</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;lefteyex&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">left_eye_y</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;lefteyey&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">right_eye_x</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;righteyex&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">right_eye_y</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;righteyey&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;size&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">quality</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;quality&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">source_width</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;sourcewidth&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">source_height</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;sourceheight&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">has_smile</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;has_smile&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">left_eye_closed</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;left_eye_closed&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">right_eye_closed</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;right_eye_closed&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">manual</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;manual&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">face_type</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;facetype&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">age_type</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;agetype&quot;</span><span class="p">]</span>
-        <span class="c1"># self.bald_type = face[&quot;baldtype&quot;]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">eye_makeup_type</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;eyemakeuptype&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">eye_state</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;eyestate&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">facial_hair_type</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;facialhairtype&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gender_type</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;gendertype&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">glasses_type</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;glassestype&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">hair_color_type</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;haircolortype&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">intrash</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;intrash&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">lip_makeup_type</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;lipmakeuptype&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">smile_type</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">&quot;smiletype&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"uuid"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"fullname"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">asset_uuid</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"asset_uuid"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_person_pk</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"person"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">center_x</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"centerx"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">center_y</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"centery"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"size"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quality</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"quality"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">source_width</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"sourcewidth"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">source_height</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"sourceheight"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_smile</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"has_smile"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manual</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"manual"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">face_type</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"facetype"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">age_type</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"agetype"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eye_makeup_type</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"eyemakeuptype"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eye_state</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"eyestate"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">facial_hair_type</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"facialhairtype"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gender_type</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"gendertype"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">glasses_type</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"glassestype"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hair_color_type</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"haircolortype"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intrash</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"intrash"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lip_makeup_type</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"lipmakeuptype"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">smile_type</span> <span class="o">=</span> <span class="n">face</span><span class="p">[</span><span class="s2">"smiletype"</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">center</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Coordinates, in PIL format, for center of face</span>
+        <span class="sd">"""Coordinates, in PIL format, for center of face</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            tuple of coordinates in form (x, y)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_point</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">center_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">center_y</span><span class="p">))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">size_pixels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Size of face in pixels (centered around center_x, center_y)</span>
+        <span class="sd">"""Size of face in pixels (centered around center_x, center_y)</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            size, in int pixels, of a circle drawn around the center of the face</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">photo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span>
         <span class="n">size_reference</span> <span class="o">=</span> <span class="n">photo</span><span class="o">.</span><span class="n">width</span> <span class="k">if</span> <span class="n">photo</span><span class="o">.</span><span class="n">width</span> <span class="o">&gt;</span> <span class="n">photo</span><span class="o">.</span><span class="n">height</span> <span class="k">else</span> <span class="n">photo</span><span class="o">.</span><span class="n">height</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">*</span> <span class="n">size_reference</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">mouth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Coordinates, in PIL format, for mouth position</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            tuple of coordinates in form (x, y)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_point_with_rotation</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">mouth_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mouth_y</span><span class="p">))</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">left_eye</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Coordinates, in PIL format, for left eye position</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            tuple of coordinates in form (x, y)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_point_with_rotation</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">left_eye_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">left_eye_y</span><span class="p">))</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">right_eye</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Coordinates, in PIL format, for right eye position</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            tuple of coordinates in form (x, y)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_point_with_rotation</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">right_eye_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">right_eye_y</span><span class="p">))</span>
-
-    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">person_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;PersonInfo instance for person associated with this face&quot;&quot;&quot;</span>
+        <span class="sd">"""PersonInfo instance for person associated with this face"""</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_person</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
@@ -245,18 +374,18 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">photo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;PhotoInfo instance associated with this face&quot;&quot;&quot;</span>
+        <span class="sd">"""PhotoInfo instance associated with this face"""</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photo</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_photo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">get_photo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asset_uuid</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not get photo for uuid: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">asset_uuid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Could not get photo for uuid: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">asset_uuid</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photo</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">mwg_rs_area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get coordinates for Metadata Working Group Region Area.</span>
+        <span class="sd">"""Get coordinates for Metadata Working Group Region Area.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            MWG_RS_Area named tuple with x, y, h, w where:</span>
@@ -267,7 +396,7 @@
 
 <span class="sd">        Reference:</span>
 <span class="sd">            https://photo.stackexchange.com/questions/106410/how-does-xmp-define-the-face-region</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">center_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">center_y</span>
         <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fix_orientation</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
 
@@ -282,7 +411,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">mpri_reg_rect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get coordinates for Microsoft Photo Region Rectangle.</span>
+        <span class="sd">"""Get coordinates for Microsoft Photo Region Rectangle.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            MPRI_Reg_Rect named tuple with x, y, h, w where:</span>
@@ -293,7 +422,7 @@
 
 <span class="sd">        Reference:</span>
 <span class="sd">            https://docs.microsoft.com/en-us/windows/win32/wic/-wic-people-tagging</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">center_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">center_y</span>
         <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fix_orientation</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
 
@@ -311,13 +440,13 @@
         <span class="k">return</span> <span class="n">MPRI_Reg_Rect</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">face_rect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get face rectangle coordinates for current version of the associated image</span>
+        <span class="sd">"""Get face rectangle coordinates for current version of the associated image</span>
 <span class="sd">            If image has been edited, rectangle applies to edited version, otherwise original version</span>
 <span class="sd">            Coordinates in format and reference frame used by PIL</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            list [(x0, x1), (y0, y1)] of coordinates in reference frame used by PIL</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">photo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span>
         <span class="n">size_reference</span> <span class="o">=</span> <span class="n">photo</span><span class="o">.</span><span class="n">width</span> <span class="k">if</span> <span class="n">photo</span><span class="o">.</span><span class="n">width</span> <span class="o">&gt;</span> <span class="n">photo</span><span class="o">.</span><span class="n">height</span> <span class="k">else</span> <span class="n">photo</span><span class="o">.</span><span class="n">height</span>
         <span class="n">radius</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">size_reference</span>
@@ -327,34 +456,34 @@
         <span class="k">return</span> <span class="p">[(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">),</span> <span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">)]</span>
 
     <span class="k">def</span> <span class="nf">roll_pitch_yaw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Roll, pitch, yaw of face in radians as tuple&quot;&quot;&quot;</span>
+        <span class="sd">"""Roll, pitch, yaw of face in radians as tuple"""</span>
         <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span>
-        <span class="n">roll</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;roll&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;roll&quot;</span><span class="p">]</span>
-        <span class="n">pitch</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;pitch&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;pitch&quot;</span><span class="p">]</span>
-        <span class="n">yaw</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;yaw&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;yaw&quot;</span><span class="p">]</span>
+        <span class="n">roll</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">info</span><span class="p">[</span><span class="s2">"roll"</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">info</span><span class="p">[</span><span class="s2">"roll"</span><span class="p">]</span>
+        <span class="n">pitch</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">info</span><span class="p">[</span><span class="s2">"pitch"</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">info</span><span class="p">[</span><span class="s2">"pitch"</span><span class="p">]</span>
+        <span class="n">yaw</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">info</span><span class="p">[</span><span class="s2">"yaw"</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">info</span><span class="p">[</span><span class="s2">"yaw"</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="p">(</span><span class="n">roll</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">yaw</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">roll</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return roll angle in radians of the face region&quot;&quot;&quot;</span>
+        <span class="sd">"""Return roll angle in radians of the face region"""</span>
         <span class="n">roll</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">roll_pitch_yaw</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">roll</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pitch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return pitch angle in radians of the face region&quot;&quot;&quot;</span>
+        <span class="sd">"""Return pitch angle in radians of the face region"""</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">roll_pitch_yaw</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">pitch</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">yaw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return yaw angle in radians of the face region&quot;&quot;&quot;</span>
+        <span class="sd">"""Return yaw angle in radians of the face region"""</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">yaw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">roll_pitch_yaw</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">yaw</span>
 
     <span class="k">def</span> <span class="nf">_fix_orientation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xy</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Translate an (x, y) tuple based on image orientation</span>
+        <span class="sd">"""Translate an (x, y) tuple based on image orientation</span>
 
 <span class="sd">        Arguments:</span>
 <span class="sd">            xy: tuple of (x, y) coordinates for point to translate</span>
@@ -362,7 +491,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            (x, y) tuple of translated coordinates</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Reference: https://github.com/neilpa/phace/blob/7594776480505d0c389688a42099c94ac5d34f3f/cmd/phace/draw.go#L79-L94</span>
 
         <span class="n">orientation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">orientation</span>
@@ -386,15 +515,15 @@
         <span class="k">elif</span> <span class="n">orientation</span> <span class="o">==</span> <span class="mi">8</span><span class="p">:</span>
             <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span>
         <span class="k">elif</span> <span class="n">orientation</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="c1"># set by osxphotos if adjusted orientation cannot be read, assume it&#39;s 1</span>
+            <span class="c1"># set by osxphotos if adjusted orientation cannot be read, assume it's 1</span>
             <span class="n">y</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">y</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unhandled orientation: </span><span class="si">{</span><span class="n">orientation</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unhandled orientation: </span><span class="si">{</span><span class="n">orientation</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_make_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xy</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Translate an (x, y) tuple based on image orientation</span>
+        <span class="sd">"""Translate an (x, y) tuple based on image orientation</span>
 <span class="sd">            and convert to image coordinates</span>
 
 <span class="sd">        Arguments:</span>
@@ -403,7 +532,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            (x, y) tuple of translated coordinates in pixels in PIL format/reference frame</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Reference: https://github.com/neilpa/phace/blob/7594776480505d0c389688a42099c94ac5d34f3f/cmd/phace/draw.go#L79-L94</span>
 
         <span class="n">orientation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">orientation</span>
@@ -415,7 +544,7 @@
         <span class="k">return</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">dx</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span> <span class="o">*</span> <span class="n">dy</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_make_point_with_rotation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xy</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Translate an (x, y) tuple based on image orientation and rotation</span>
+        <span class="sd">"""Translate an (x, y) tuple based on image orientation and rotation</span>
 <span class="sd">            and convert to image coordinates</span>
 
 <span class="sd">        Arguments:</span>
@@ -424,7 +553,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            (x, y) tuple of translated coordinates in pixels in PIL format/reference frame</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="c1"># convert to image coordinates</span>
         <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_point</span><span class="p">(</span><span class="n">xy</span><span class="p">)</span>
@@ -437,70 +566,58 @@
         <span class="k">return</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">xr</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">yr</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns dict representation of class instance&quot;&quot;&quot;</span>
+        <span class="sd">"""Returns dict representation of class instance"""</span>
         <span class="n">roll</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">yaw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">roll_pitch_yaw</span><span class="p">()</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;_pk&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pk</span><span class="p">,</span>
-            <span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="s2">&quot;asset_uuid&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">asset_uuid</span><span class="p">,</span>
-            <span class="s2">&quot;_person_pk&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_person_pk</span><span class="p">,</span>
-            <span class="s2">&quot;center_x&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">center_x</span><span class="p">,</span>
-            <span class="s2">&quot;center_y&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">center_y</span><span class="p">,</span>
-            <span class="s2">&quot;center&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">,</span>
-            <span class="s2">&quot;mouth_x&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mouth_x</span><span class="p">,</span>
-            <span class="s2">&quot;mouth_y&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mouth_y</span><span class="p">,</span>
-            <span class="s2">&quot;mouth&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mouth</span><span class="p">,</span>
-            <span class="s2">&quot;left_eye_x&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">left_eye_x</span><span class="p">,</span>
-            <span class="s2">&quot;left_eye_y&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">left_eye_y</span><span class="p">,</span>
-            <span class="s2">&quot;left_eye&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">left_eye</span><span class="p">,</span>
-            <span class="s2">&quot;right_eye_x&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">right_eye_x</span><span class="p">,</span>
-            <span class="s2">&quot;right_eye_y&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">right_eye_y</span><span class="p">,</span>
-            <span class="s2">&quot;right_eye&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">right_eye</span><span class="p">,</span>
-            <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
-            <span class="s2">&quot;face_rect&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">face_rect</span><span class="p">(),</span>
-            <span class="s2">&quot;mpri_reg_rect&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpri_reg_rect</span><span class="o">.</span><span class="n">_asdict</span><span class="p">(),</span>
-            <span class="s2">&quot;mwg_rs_area&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mwg_rs_area</span><span class="o">.</span><span class="n">_asdict</span><span class="p">(),</span>
-            <span class="s2">&quot;roll&quot;</span><span class="p">:</span> <span class="n">roll</span><span class="p">,</span>
-            <span class="s2">&quot;pitch&quot;</span><span class="p">:</span> <span class="n">pitch</span><span class="p">,</span>
-            <span class="s2">&quot;yaw&quot;</span><span class="p">:</span> <span class="n">yaw</span><span class="p">,</span>
-            <span class="s2">&quot;quality&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">quality</span><span class="p">,</span>
-            <span class="s2">&quot;source_width&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_width</span><span class="p">,</span>
-            <span class="s2">&quot;source_height&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_height</span><span class="p">,</span>
-            <span class="s2">&quot;has_smile&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_smile</span><span class="p">,</span>
-            <span class="s2">&quot;left_eye_closed&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">left_eye_closed</span><span class="p">,</span>
-            <span class="s2">&quot;right_eye_closed&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">right_eye_closed</span><span class="p">,</span>
-            <span class="s2">&quot;manual&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">manual</span><span class="p">,</span>
-            <span class="s2">&quot;face_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">face_type</span><span class="p">,</span>
-            <span class="s2">&quot;age_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">age_type</span><span class="p">,</span>
-            <span class="c1"># &quot;bald_type&quot;: self.bald_type,</span>
-            <span class="s2">&quot;eye_makeup_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">eye_makeup_type</span><span class="p">,</span>
-            <span class="s2">&quot;eye_state&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">eye_state</span><span class="p">,</span>
-            <span class="s2">&quot;facial_hair_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">facial_hair_type</span><span class="p">,</span>
-            <span class="s2">&quot;gender_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gender_type</span><span class="p">,</span>
-            <span class="s2">&quot;glasses_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">glasses_type</span><span class="p">,</span>
-            <span class="s2">&quot;hair_color_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hair_color_type</span><span class="p">,</span>
-            <span class="s2">&quot;intrash&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">intrash</span><span class="p">,</span>
-            <span class="s2">&quot;lip_makeup_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lip_makeup_type</span><span class="p">,</span>
-            <span class="s2">&quot;smile_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">smile_type</span><span class="p">,</span>
+            <span class="s2">"_pk"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pk</span><span class="p">,</span>
+            <span class="s2">"uuid"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+            <span class="s2">"name"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">"asset_uuid"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">asset_uuid</span><span class="p">,</span>
+            <span class="s2">"_person_pk"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_person_pk</span><span class="p">,</span>
+            <span class="s2">"center_x"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">center_x</span><span class="p">,</span>
+            <span class="s2">"center_y"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">center_y</span><span class="p">,</span>
+            <span class="s2">"center"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">,</span>
+            <span class="s2">"size"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+            <span class="s2">"face_rect"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">face_rect</span><span class="p">(),</span>
+            <span class="s2">"mpri_reg_rect"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpri_reg_rect</span><span class="o">.</span><span class="n">_asdict</span><span class="p">(),</span>
+            <span class="s2">"mwg_rs_area"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mwg_rs_area</span><span class="o">.</span><span class="n">_asdict</span><span class="p">(),</span>
+            <span class="s2">"roll"</span><span class="p">:</span> <span class="n">roll</span><span class="p">,</span>
+            <span class="s2">"pitch"</span><span class="p">:</span> <span class="n">pitch</span><span class="p">,</span>
+            <span class="s2">"yaw"</span><span class="p">:</span> <span class="n">yaw</span><span class="p">,</span>
+            <span class="s2">"quality"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">quality</span><span class="p">,</span>
+            <span class="s2">"source_width"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_width</span><span class="p">,</span>
+            <span class="s2">"source_height"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_height</span><span class="p">,</span>
+            <span class="s2">"has_smile"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_smile</span><span class="p">,</span>
+            <span class="s2">"manual"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">manual</span><span class="p">,</span>
+            <span class="s2">"face_type"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">face_type</span><span class="p">,</span>
+            <span class="s2">"age_type"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">age_type</span><span class="p">,</span>
+            <span class="s2">"eye_makeup_type"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">eye_makeup_type</span><span class="p">,</span>
+            <span class="s2">"eye_state"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">eye_state</span><span class="p">,</span>
+            <span class="s2">"facial_hair_type"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">facial_hair_type</span><span class="p">,</span>
+            <span class="s2">"gender_type"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gender_type</span><span class="p">,</span>
+            <span class="s2">"glasses_type"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">glasses_type</span><span class="p">,</span>
+            <span class="s2">"hair_color_type"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hair_color_type</span><span class="p">,</span>
+            <span class="s2">"intrash"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">intrash</span><span class="p">,</span>
+            <span class="s2">"lip_makeup_type"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lip_makeup_type</span><span class="p">,</span>
+            <span class="s2">"smile_type"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">smile_type</span><span class="p">,</span>
         <span class="p">}</span>
 
     <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return JSON representation of FaceInfo instance&quot;&quot;&quot;</span>
+        <span class="sd">"""Return JSON representation of FaceInfo instance"""</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asdict</span><span class="p">())</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;FaceInfo(uuid=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">, center_x=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">center_x</span><span class="si">}</span><span class="s2">, center_y = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">center_y</span><span class="si">}</span><span class="s2">, size=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2">, person=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, asset_uuid=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">asset_uuid</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"FaceInfo(uuid=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">, center_x=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">center_x</span><span class="si">}</span><span class="s2">, center_y = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">center_y</span><span class="si">}</span><span class="s2">, size=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2">, person=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, asset_uuid=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">asset_uuid</span><span class="si">}</span><span class="s2">)"</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;FaceInfo(db=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="si">}</span><span class="s2">, pk=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_pk</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"FaceInfo(db=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="si">}</span><span class="s2">, pk=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_pk</span><span class="si">}</span><span class="s2">)"</span>
 
     <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
             <span class="k">return</span> <span class="kc">False</span>
 
         <span class="k">return</span> <span class="nb">all</span><span class="p">(</span>
-            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span> <span class="o">==</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;_db&quot;</span><span class="p">,</span> <span class="s2">&quot;_pk&quot;</span><span class="p">]</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span> <span class="o">==</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"_db"</span><span class="p">,</span> <span class="s2">"_pk"</span><span class="p">]</span>
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
@@ -508,7 +625,7 @@
 
 
 <span class="k">def</span> <span class="nf">rotate_image_point</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">xmid</span><span class="p">,</span> <span class="n">ymid</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;rotate image point about xm, ym by angle in radians</span>
+    <span class="sd">"""rotate image point about xm, ym by angle in radians</span>
 
 <span class="sd">    Arguments:</span>
 <span class="sd">        x: x coordinate of point to rotate</span>
@@ -520,7 +637,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        tuple of rotated points (xr, yr)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># translate point relative to the mid point</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">xmid</span>
     <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="n">ymid</span>
@@ -535,72 +652,45 @@
 
     <span class="k">return</span> <span class="p">(</span><span class="n">xr</span><span class="p">,</span> <span class="n">yr</span><span class="p">)</span>
 </pre></div>
-
-          </div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
           
         </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../../index.html">osxphotos</a></h1>
-
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../overview.html">osxphotos</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli.html">osxphotos command line interface (CLI)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../reference.html">osxphotos package</a></li>
-</ul>
-
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="../../index.html">Documentation overview</a><ul>
-  <li><a href="../index.html">Module code</a><ul>
-  </ul></li>
-  </ul></li>
-</ul>
-</div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script>$('#searchbox').show(0);</script>
-
-
-
-
-
-
-
-
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2021, Rhet Turnbull
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="clearer"></div>
+        
+      </footer>
     </div>
-    <div class="footer">
-      &copy;2021, Rhet Turnbull.
+    <aside class="toc-drawer no-toc">
       
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
-    </div>
-
-    
-
-    
-  </body>
+      
+    </aside>
+  </div>
+</div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/scripts/furo.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    </body>
 </html>

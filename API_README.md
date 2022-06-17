@@ -1626,18 +1626,6 @@ Returns list of x, y coordinates as tuples `[(x0, y0), (x1, y1)]` representing t
 
 Coordinates as (x, y) tuple for the center of the detected face.
 
-#### `mouth`
-
-Coordinates as (x, y) tuple for the mouth of the detected face.
-
-#### `left_eye`
-
-Coordinates as (x, y) tuple for the left eye of the detected face.
-
-#### `right_eye`
-
-Coordinates as (x, y) tuple for the right eye of the detected face.
-
 #### `size_pixels`
 
 Diameter of detected face region in pixels.
@@ -1654,9 +1642,13 @@ Roll of face region in radians.
 
 Pitch of face region in radians.
 
+**Note**: Only valid on Photos version <= 4, otherwise returns 0
+
 #### yaw
 
 Yaw of face region in radians.
+
+**Note**: Only valid on Photos version <= 4, otherwise returns 0
 
 #### `Additional properties`
 
@@ -1664,19 +1656,11 @@ The following additional properties are also available but are not yet fully doc
 
 * `center_x`: x coordinate of center of face in Photos' internal reference frame
 * `center_y`: y coordinate of center of face in Photos' internal reference frame
-* `mouth_x`: x coordinate of mouth in Photos' internal reference frame
-* `mouth_y`: y coordinate of mouth in Photos' internal reference frame
-* `left_eye_x`: x coordinate of left eye in Photos' internal reference frame
-* `left_eye_y`: y coordinate of left eye in Photos' internal reference frame
-* `right_eye_x`: x coordinate of right eye in Photos' internal reference frame
-* `right_eye_y`: y coordinate of right eye in Photos' internal reference frame
 * `size`: size of face region in Photos' internal reference frame
 * `quality`: quality measure of detected face
 * `source_width`: width in pixels of photo
 * `source_height`: height in pixels of photo
 * `has_smile`:
-* `left_eye_closed`:
-* `right_eye_closed`:
 * `manual`:
 * `face_type`:
 * `age_type`:

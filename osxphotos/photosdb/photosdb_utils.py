@@ -12,6 +12,7 @@ from .._constants import (
     _PHOTOS_5_VERSION,
     _PHOTOS_6_MODEL_VERSION,
     _PHOTOS_7_MODEL_VERSION,
+    _PHOTOS_8_MODEL_VERSION,
     _TESTED_DB_VERSIONS,
 )
 from ..utils import _open_sql_file
@@ -92,10 +93,12 @@ def get_db_model_version(db_file):
         return 6
     elif _PHOTOS_7_MODEL_VERSION[0] <= model_ver <= _PHOTOS_7_MODEL_VERSION[1]:
         return 7
+    elif _PHOTOS_8_MODEL_VERSION[0] <= model_ver <= _PHOTOS_8_MODEL_VERSION[1]:
+        return 8
     else:
         logging.warning(f"Unknown model version: {model_ver}")
         # cross our fingers and try latest version
-        return 7
+        return 8
 
 
 class UnknownLibraryVersion(Exception):
