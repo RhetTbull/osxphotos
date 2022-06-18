@@ -46,7 +46,7 @@ Only works on macOS (aka Mac OS X). Tested on macOS Sierra (10.12.6) through mac
 
 \* Basic functionality has been tested on a Photos library created with the developer preview of macOS Ventura (13.0).  I do not have access to a Mac running Ventura beta to do further testing.
 
-\*\* Some features may not be fully supported on Monterey (notably `--use-photokit` and `--download-missing` may or may not work depending on your configuration.  This is a known issue that will be fixed if I can find a solution.)
+\*\* Some features may not be fully supported on Monterey. Notably, `--use-photokit` and `--download-missing` may or may not work depending on your configuration; this is a known issue that will be fixed if I can find a solution.  Many users successfully use OSXPhotos on Monterey without problem.
 
 This package will read Photos databases for any supported version on any supported macOS version.  E.g. you can read a database created with Photos 5.0 on MacOS 10.15 on a machine running macOS 10.12 and vice versa.
 
