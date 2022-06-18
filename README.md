@@ -36,12 +36,17 @@ Only works on macOS (aka Mac OS X). Tested on macOS Sierra (10.12.6) through mac
 
 | macOS Version     | macOS name | Photos.app version |
 | ----------------- |------------|:-------------------|
-| 12.0              | Monterey   | 7.0 ✅             |
+| 13.0              | Ventura    | 8.0 ?  *           |
+| 12.0 - 12.4       | Monterey   | 7.0 ✅ **          |
 | 10.16, 11.0-11.4  | Big Sur    | 6.0 ✅             |
 | 10.15.1 - 10.15.7 | Catalina   | 5.0 ✅             |
 | 10.14.5, 10.14.6  | Mojave     | 4.0 ✅             |
 | 10.13.6           | High Sierra| 3.0 ✅             |
 | 10.12.6           | Sierra     | 2.0 ✅             |
+
+\* Basic functionality has been tested on a Photos library created with the developer preview of macOS Ventura (13.0).  I do not have access to a Mac running Ventura beta to do further testing.
+
+\*\* Some features may not be fully supported on Monterey (notably `--use-photokit` and `--download-missing` may or may not work depending on your configuration.  This is a known issue that will be fixed if I can find a solution.)
 
 This package will read Photos databases for any supported version on any supported macOS version.  E.g. you can read a database created with Photos 5.0 on MacOS 10.15 on a machine running macOS 10.12 and vice versa.
 
@@ -96,6 +101,12 @@ Once you've installed osxphotos via the git repository, to upgrade to the latest
 ### Installing pre-built executable
 
 You can also download a stand-alone pre-built executable--that doesn't require installing python--from the [releases](https://github.com/RhetTbull/osxphotos/releases) page.  Look for the file with a name similar to `osxphotos_MacOS_exe_darwin_x64_v0.42.9.zip`.  In this case `v0.42.9` specifies version 0.42.9.  Unzip the file and put the included `osxphotos` binary in your system path.  Currently, the binary is not signed or notarized so you'll have to authorize the app to run in the System Preferences | Security & Privacy settings.  It's also likely this executable will not run on M1 Macs.  If you don't know how to do this, I recommend using `pipx` as described above.
+
+## Getting Help
+
+OSXPhotos is well documented.  See the [tutorial](#tutorial) for a description of key features.  The tutorial can be accessed using the command `osxphotos tutorial` via the command line.  If you are interested in using OSXPhotos in your own code, see [API_README.md](https://github.com/RhetTbull/osxphotos/blob/master/API_README.md) for a description of the API as well as the [example](https://github.com/RhetTbull/osxphotos/tree/master/examples) programs. The full documentation is [available online](https://rhettbull.github.io/osxphotos/) and can also be accessed using the command `osxphotos docs` via the command line.
+
+If you have questions, would like to show off projects created with OSXPhotos, or if you just want to say hello, please use the [GitHub discussions forum](https://github.com/RhetTbull/osxphotos/discussions) or the [osxphotos subreddit](https://www.reddit.com/r/osxphotos/) on Reddit.
 
 ## Command Line Usage
 
