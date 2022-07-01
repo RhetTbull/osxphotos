@@ -557,3 +557,49 @@ def test_unescape_str():
     assert quoted_str == QUOTED_JSON_STRING_UNESCAPED
     quoted_json = json.loads(quoted_str)
     assert quoted_json == QUOTED_JSON_LOADED
+
+
+def test_large_file_support():
+    """test large file support flag"""
+    # doesn't actually test against a large file, just that exiftool runs correctly
+    # See #722
+
+    import os.path
+    import tempfile
+
+    import osxphotos.exiftool
+    from osxphotos.fileutil import FileUtil
+
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    tempfile = os.path.join(tempdir.name, os.path.basename(TEST_FILE_ONE_KEYWORD))
+    FileUtil.copy(TEST_FILE_ONE_KEYWORD, tempfile)
+
+    exif = osxphotos.exiftool.ExifTool(tempfile, large_file_support=True)
+    exif.setvalue("IPTC:Keywords", "test")
+    assert not exif.error
+
+    exif._read_exif()
+    assert exif.data["IPTC:Keywords"] == "test"
+
+
+def test_large_file_support_disabled():
+    """test large file support flag disabled"""
+    # doesn't actually test against a large file, just that exiftool runs correctly
+    # See #722
+
+    import os.path
+    import tempfile
+
+    import osxphotos.exiftool
+    from osxphotos.fileutil import FileUtil
+
+    tempdir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    tempfile = os.path.join(tempdir.name, os.path.basename(TEST_FILE_ONE_KEYWORD))
+    FileUtil.copy(TEST_FILE_ONE_KEYWORD, tempfile)
+
+    exif = osxphotos.exiftool.ExifTool(tempfile, large_file_support=False)
+    exif.setvalue("IPTC:Keywords", "test")
+    assert not exif.error
+
+    exif._read_exif()
+    assert exif.data["IPTC:Keywords"] == "test"
