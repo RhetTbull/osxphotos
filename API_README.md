@@ -2050,10 +2050,11 @@ True
 ['Keyword1', 'Keyword2', 'Keyword3']
 ```
 
-`ExifTool(filepath, exiftool=None)`
+`ExifTool(filepath, exiftool=None, large_file_support=True)`
 
 * `filepath`: str, path to photo
 * `exiftool`: str, optional path to `exiftool`; if not provided, will look for `exiftool` in the system path
+* `large_file_support`: bool, if True, enables large file support in exiftool (`-api largefilesupport=1`)
 
 #### ExifTool methods
 
