@@ -949,7 +949,7 @@ class PhotoExporter:
         # export live_photo .mov file?
         live_photo = bool(options.live_photo and self.photo.live_photo)
         overwrite = any([options.overwrite, options.update, options.force_update])
-        edited_version = options.edited or self.photo.shared
+        edited_version = bool(options.edited or self.photo.shared)
         # shared photos (in shared albums) show up as not having adjustments (not edited)
         # but Photos is unable to export the "original" as only a jpeg copy is shared in iCloud
         # so tell Photos to export the current version in this case
