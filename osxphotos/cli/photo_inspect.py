@@ -85,14 +85,32 @@ def inspect_photo(
             + f"[time]{photo.import_info.creation_date.isoformat()}[/]"
         )
 
+    file_size = (
+        bold("File size: ")
+        + f"[num]{float(bitmath.Byte(photo.original_filesize).to_MB()):.2f} MB[/]"
+    )
+
+    if photo.live_photo and photo.path_live_photo:
+        file_size += (
+            " | [num]"
+            + f"{float(bitmath.Byte(pathlib.Path(photo.path_live_photo).stat().st_size).to_MB()):.2f}"
+            + " MB (Live video)[/]"
+        )
+
+    if photo.has_raw and photo.path_raw:
+        file_size += (
+            " | [num]"
+            + f"{float(bitmath.Byte(pathlib.Path(photo.path_raw).stat().st_size).to_MB()):.2f}"
+            + " MB (RAW photo)[/]"
+        )
+
     properties.extend(
         [
             bold("Dimensions: ")
             + f"[num]{photo.width}[/] x [num]{photo.height}[/] "
             + bold("Orientation: ")
             + f"[num]{photo.orientation}[/]",
-            bold("File size: ")
-            + f"[num]{float(bitmath.Byte(photo.original_filesize).to_MB()):.2f} MB[/]",
+            file_size,
             bold("Title: ") + f"{photo.title or '-'}",
             bold("Description: ")
             + f"{trim(photo.description or '-', 'Description: ')}",
@@ -106,7 +124,7 @@ def inspect_photo(
             bold("Location: ")
             + f"{', '.join(dd_to_dms_str(*photo.location)) if photo.location[0] else '-'}",
             bold("Place: ") + f"{photo.place.name if photo.place else '-'}",
-            bold("Categories: ") + f"{', '.join(photo.labels) or '-'}",
+            bold("Categories/Labels: ") + f"{', '.join(photo.labels) or '-'}",
         ]
     )
     properties.append(format_flags(photo))
@@ -231,6 +249,10 @@ def format_paths(photo: PhotoInfo) -> str:
         path_str += "\n"
         path_str += bold("Path edited: ")
         path_str += f"[filepath]{format_path_link(photo.path_edited)}[/]"
+    if photo.path_live_photo:
+        path_str += "\n"
+        path_str += bold("Path live video: ")
+        path_str += f"[filepath]{format_path_link(photo.path_live_photo)}[/]"
     if photo.path_raw:
         path_str += "\n"
         path_str += bold("Path raw: ")
