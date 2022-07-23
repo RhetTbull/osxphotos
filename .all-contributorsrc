@@ -335,6 +335,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "infused-kim",
+      "name": "Kim",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7404004?v=4",
+      "profile": "https://github.com/infused-kim",
+      "contributions": [
+        "ideas"
+      ]
     }
   ],
   "contributorsPerLine": 7,
