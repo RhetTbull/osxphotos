@@ -57,11 +57,10 @@ from ..photoinfo import PhotoInfo
 from ..phototemplate import RenderOptions
 from ..queryoptions import QueryOptions
 from ..rich_utils import add_rich_markup_tag
+from ..sqlite_utils import sqlite_open_ro, sqlite_db_is_locked
 from ..utils import (
     _check_file_exists,
-    _db_is_locked,
     _get_os_version,
-    _open_sql_file,
     get_last_library_path,
     noop,
     normalize_unicode,
@@ -309,7 +308,7 @@ class PhotosDB:
         # Photos maintains an exclusive lock on the database file while Photos is open
         # photoanalysisd sometimes maintains this lock even after Photos is closed
         # In those cases, make a temp copy of the file for sqlite3 to read
-        if _db_is_locked(self._dbfile):
+        if sqlite_db_is_locked(self._dbfile):
             verbose(f"Database locked, creating temporary copy.")
             self._tmp_db = self._copy_db_file(self._dbfile)
 
@@ -325,7 +324,7 @@ class PhotosDB:
                 self._dbfile_actual = self._tmp_db = dbfile
                 verbose(f"Processing database {self._filepath(self._dbfile_actual)}")
                 # if database is exclusively locked, make a copy of it and use the copy
-                if _db_is_locked(self._dbfile_actual):
+                if sqlite_db_is_locked(self._dbfile_actual):
                     verbose(f"Database locked, creating temporary copy.")
                     self._tmp_db = self._copy_db_file(self._dbfile_actual)
 
@@ -578,7 +577,7 @@ class PhotosDB:
         Returns:
             tuple of (connection, cursor) to sqlite3 database
         """
-        return _open_sql_file(self._tmp_db)
+        return sqlite_open_ro(self._tmp_db)
 
     def _copy_db_file(self, fname):
         """copies the sqlite database file to a temp file"""
@@ -642,7 +641,7 @@ class PhotosDB:
 
         self._photos_ver = 4  # only used in Photos 5+
 
-        (conn, c) = _open_sql_file(self._tmp_db)
+        (conn, c) = sqlite_open_ro(self._tmp_db)
 
         # get info to associate persons with photos
         # then get detected faces in each photo and link to persons
@@ -1593,7 +1592,7 @@ class PhotosDB:
             logging.debug(f"_process_database5")
         verbose = self._verbose
         verbose(f"Processing database.")
-        (conn, c) = _open_sql_file(self._tmp_db)
+        (conn, c) = sqlite_open_ro(self._tmp_db)
 
         # some of the tables/columns have different names in different versions of Photos
         photos_ver = get_db_model_version(self._tmp_db)

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>osxphotos.photosdb.photosdb - osxphotos 0.50.4 documentation</title>
+        <title>osxphotos.photosdb.photosdb - osxphotos 0.50.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">osxphotos 0.50.4 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">osxphotos 0.50.7 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.50.4 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.50.7 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -253,11 +253,10 @@
 <span class="kn">from</span> <span class="nn">..phototemplate</span> <span class="kn">import</span> <span class="n">RenderOptions</span>
 <span class="kn">from</span> <span class="nn">..queryoptions</span> <span class="kn">import</span> <span class="n">QueryOptions</span>
 <span class="kn">from</span> <span class="nn">..rich_utils</span> <span class="kn">import</span> <span class="n">add_rich_markup_tag</span>
+<span class="kn">from</span> <span class="nn">..sqlite_utils</span> <span class="kn">import</span> <span class="n">sqlite_open_ro</span><span class="p">,</span> <span class="n">sqlite_db_is_locked</span>
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">_check_file_exists</span><span class="p">,</span>
-    <span class="n">_db_is_locked</span><span class="p">,</span>
     <span class="n">_get_os_version</span><span class="p">,</span>
-    <span class="n">_open_sql_file</span><span class="p">,</span>
     <span class="n">get_last_library_path</span><span class="p">,</span>
     <span class="n">noop</span><span class="p">,</span>
     <span class="n">normalize_unicode</span><span class="p">,</span>
@@ -505,7 +504,7 @@
         <span class="c1"># Photos maintains an exclusive lock on the database file while Photos is open</span>
         <span class="c1"># photoanalysisd sometimes maintains this lock even after Photos is closed</span>
         <span class="c1"># In those cases, make a temp copy of the file for sqlite3 to read</span>
-        <span class="k">if</span> <span class="n">_db_is_locked</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">sqlite_db_is_locked</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">):</span>
             <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Database locked, creating temporary copy."</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_tmp_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_copy_db_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">)</span>
 
@@ -521,7 +520,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_dbfile_actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tmp_db</span> <span class="o">=</span> <span class="n">dbfile</span>
                 <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Processing database </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_filepath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile_actual</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
                 <span class="c1"># if database is exclusively locked, make a copy of it and use the copy</span>
-                <span class="k">if</span> <span class="n">_db_is_locked</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile_actual</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">sqlite_db_is_locked</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile_actual</span><span class="p">):</span>
                     <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Database locked, creating temporary copy."</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_tmp_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_copy_db_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile_actual</span><span class="p">)</span>
 
@@ -774,7 +773,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            tuple of (connection, cursor) to sqlite3 database</span>
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="n">_open_sql_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp_db</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">sqlite_open_ro</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp_db</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_copy_db_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
         <span class="sd">"""copies the sqlite database file to a temp file"""</span>
@@ -838,7 +837,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_photos_ver</span> <span class="o">=</span> <span class="mi">4</span>  <span class="c1"># only used in Photos 5+</span>
 
-        <span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="o">=</span> <span class="n">_open_sql_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp_db</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="o">=</span> <span class="n">sqlite_open_ro</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp_db</span><span class="p">)</span>
 
         <span class="c1"># get info to associate persons with photos</span>
         <span class="c1"># then get detected faces in each photo and link to persons</span>
@@ -1789,7 +1788,7 @@
             <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"_process_database5"</span><span class="p">)</span>
         <span class="n">verbose</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span>
         <span class="n">verbose</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Processing database."</span><span class="p">)</span>
-        <span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="o">=</span> <span class="n">_open_sql_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp_db</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="o">=</span> <span class="n">sqlite_open_ro</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp_db</span><span class="p">)</span>
 
         <span class="c1"># some of the tables/columns have different names in different versions of Photos</span>
         <span class="n">photos_ver</span> <span class="o">=</span> <span class="n">get_db_model_version</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp_db</span><span class="p">)</span>

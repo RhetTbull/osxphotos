@@ -2,16 +2,18 @@
 
 
 import csv
+import datetime
 import json
 import os
 import os.path
 import sqlite3
 from abc import ABC, abstractmethod
 from contextlib import suppress
-from typing import Union, Dict
+from typing import Dict, Union
 
-from osxphotos.photoexporter import ExportResults
 from osxphotos.export_db import OSXPHOTOS_ABOUT_STRING
+from osxphotos.photoexporter import ExportResults
+from osxphotos.sqlite_utils import sqlite_columns
 
 __all__ = [
     "report_writer_factory",
@@ -164,6 +166,8 @@ class ReportWriterSQLite(ReportWriterABC):
             with suppress(FileNotFoundError):
                 os.unlink(self.output_file)
 
+        self.export_id = datetime.datetime.now().isoformat()
+
         self._conn = sqlite3.connect(self.output_file)
         self._create_tables()
 
@@ -172,12 +176,13 @@ class ReportWriterSQLite(ReportWriterABC):
 
         all_results = prepare_results_for_writing(export_results)
         for data in list(all_results.values()):
+            data["export_id"] = self.export_id
             cursor = self._conn.cursor()
             cursor.execute(
                 "INSERT INTO report "
-                "(datetime, filename, exported, new, updated, skipped, exif_updated, touched, converted_to_jpeg, sidecar_xmp, sidecar_json, sidecar_exiftool, missing, error, exiftool_warning, exiftool_error, extended_attributes_written, extended_attributes_skipped, cleanup_deleted_file, cleanup_deleted_directory, exported_album) "
+                "(datetime, filename, exported, new, updated, skipped, exif_updated, touched, converted_to_jpeg, sidecar_xmp, sidecar_json, sidecar_exiftool, missing, error, exiftool_warning, exiftool_error, extended_attributes_written, extended_attributes_skipped, cleanup_deleted_file, cleanup_deleted_directory, exported_album, export_id) "
                 "VALUES "
-                "(:datetime, :filename, :exported, :new, :updated, :skipped, :exif_updated, :touched, :converted_to_jpeg, :sidecar_xmp, :sidecar_json, :sidecar_exiftool, :missing, :error, :exiftool_warning, :exiftool_error, :extended_attributes_written, :extended_attributes_skipped, :cleanup_deleted_file, :cleanup_deleted_directory, :exported_album);",
+                "(:datetime, :filename, :exported, :new, :updated, :skipped, :exif_updated, :touched, :converted_to_jpeg, :sidecar_xmp, :sidecar_json, :sidecar_exiftool, :missing, :error, :exiftool_warning, :exiftool_error, :extended_attributes_written, :extended_attributes_skipped, :cleanup_deleted_file, :cleanup_deleted_directory, :exported_album, :export_id);",
                 data,
             )
         self._conn.commit()
@@ -228,6 +233,11 @@ class ReportWriterSQLite(ReportWriterABC):
         )
 
         self._conn.commit()
+
+        # migrate report table to add export_id if needed (#731)
+        if "export_id" not in sqlite_columns(self._conn, "report"):
+            self._conn.cursor().execute("ALTER TABLE report ADD COLUMN export_id text;")
+            self._conn.commit()
 
     def __del__(self):
         with suppress(Exception):

@@ -15,7 +15,7 @@ from .._constants import (
     _PHOTOS_8_MODEL_VERSION,
     _TESTED_DB_VERSIONS,
 )
-from ..utils import _open_sql_file
+from ..sqlite_utils import sqlite_open_ro
 
 __all__ = [
     "get_db_version",
@@ -37,7 +37,7 @@ def get_db_version(db_file):
 
     version = None
 
-    (conn, c) = _open_sql_file(db_file)
+    (conn, c) = sqlite_open_ro(db_file)
 
     # get database version
     c.execute("SELECT value from LiGlobals where LiGlobals.keyPath is 'libraryVersion'")
@@ -64,7 +64,7 @@ def get_model_version(db_file):
 
     version = None
 
-    (conn, c) = _open_sql_file(db_file)
+    (conn, c) = sqlite_open_ro(db_file)
 
     # get database version
     c.execute("SELECT MAX(Z_VERSION), Z_PLIST FROM Z_METADATA")

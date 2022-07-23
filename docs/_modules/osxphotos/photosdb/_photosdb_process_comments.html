@@ -1,52 +1,216 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-<!DOCTYPE html>
+    <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
+        <title>osxphotos.photosdb._photosdb_process_comments - osxphotos 0.50.7 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    
+    
 
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osxphotos.photosdb._photosdb_process_comments &#8212; osxphotos 0.47.9 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <link rel="index" title="Index" href="../../../genindex.html" />
-    <link rel="search" title="Search" href="../../../search.html" />
-   
-  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../index.html"><div class="brand">osxphotos 0.50.7 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
-
-  </head><body>
+  <span class="sidebar-brand-text">osxphotos 0.50.7 documentation</span>
   
+</a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../overview.html">OSXPhotos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">OSXPhotos Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">OSXPhotos Command Line Interface (CLI)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../template_help.html">OSXPhotos Template System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../package_overview.html">OSXPhotos Python Package Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference.html">OSXPhotos python API</a></li>
+</ul>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          
+</div>
+</div>
 
-          <div class="body" role="main">
-            
-  <h1>Source code for osxphotos.photosdb._photosdb_process_comments</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot; PhotosDB method for processing comments and likes on shared photos.</span>
-<span class="sd">    Do not import this module directly &quot;&quot;&quot;</span>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <h1>Source code for osxphotos.photosdb._photosdb_process_comments</h1><div class="highlight"><pre>
+<span></span><span class="sd">""" PhotosDB method for processing comments and likes on shared photos.</span>
+<span class="sd">    Do not import this module directly """</span>
 
 <span class="kn">import</span> <span class="nn">dataclasses</span>
 <span class="kn">import</span> <span class="nn">datetime</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
 
 <span class="kn">from</span> <span class="nn">.._constants</span> <span class="kn">import</span> <span class="n">_DB_TABLE_NAMES</span><span class="p">,</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">,</span> <span class="n">TIME_DELTA</span>
-<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">_open_sql_file</span><span class="p">,</span> <span class="n">normalize_unicode</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">normalize_unicode</span>
+<span class="kn">from</span> <span class="nn">..sqlite_utils</span> <span class="kn">import</span> <span class="n">sqlite_open_ro</span>
 
 
 <span class="k">def</span> <span class="nf">_process_comments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;load the comments and likes data from the database</span>
+    <span class="sd">"""load the comments and likes data from the database</span>
 <span class="sd">    this is a PhotosDB method that should be imported in</span>
 <span class="sd">    the PhotosDB class definition in photosdb.py</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_db_hashed_person_id</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_db_comments_uuid</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
@@ -57,7 +221,7 @@
 
 <div class="viewcode-block" id="CommentInfo"><a class="viewcode-back" href="../../../reference.html#osxphotos.CommentInfo">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">CommentInfo</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Class for shared photo comments&quot;&quot;&quot;</span>
+    <span class="sd">"""Class for shared photo comments"""</span>
 
     <span class="n">datetime</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span>
     <span class="n">user</span><span class="p">:</span> <span class="nb">str</span>
@@ -70,7 +234,7 @@
 
 <div class="viewcode-block" id="LikeInfo"><a class="viewcode-back" href="../../../reference.html#osxphotos.LikeInfo">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">LikeInfo</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Class for shared photo likes&quot;&quot;&quot;</span>
+    <span class="sd">"""Class for shared photo likes"""</span>
 
     <span class="n">datetime</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span>
     <span class="n">user</span><span class="p">:</span> <span class="nb">str</span>
@@ -83,25 +247,25 @@
 <span class="c1"># The following methods do not get imported into PhotosDB</span>
 <span class="c1"># but will get called by _process_comments</span>
 <span class="k">def</span> <span class="nf">_process_comments_4</span><span class="p">(</span><span class="n">photosdb</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;process comments and likes info for Photos &lt;= 4</span>
-<span class="sd">    photosdb: PhotosDB instance&quot;&quot;&quot;</span>
+    <span class="sd">"""process comments and likes info for Photos &lt;= 4</span>
+<span class="sd">    photosdb: PhotosDB instance"""</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Not implemented for database version </span><span class="si">{</span><span class="n">photosdb</span><span class="o">.</span><span class="n">_db_version</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="sa">f</span><span class="s2">"Not implemented for database version </span><span class="si">{</span><span class="n">photosdb</span><span class="o">.</span><span class="n">_db_version</span><span class="si">}</span><span class="s2">."</span>
     <span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_process_comments_5</span><span class="p">(</span><span class="n">photosdb</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;process comments and likes info for Photos &gt;= 5</span>
-<span class="sd">    photosdb: PhotosDB instance&quot;&quot;&quot;</span>
+    <span class="sd">"""process comments and likes info for Photos &gt;= 5</span>
+<span class="sd">    photosdb: PhotosDB instance"""</span>
 
     <span class="n">db</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">_tmp_db</span>
 
-    <span class="n">asset_table</span> <span class="o">=</span> <span class="n">_DB_TABLE_NAMES</span><span class="p">[</span><span class="n">photosdb</span><span class="o">.</span><span class="n">_photos_ver</span><span class="p">][</span><span class="s2">&quot;ASSET&quot;</span><span class="p">]</span>
+    <span class="n">asset_table</span> <span class="o">=</span> <span class="n">_DB_TABLE_NAMES</span><span class="p">[</span><span class="n">photosdb</span><span class="o">.</span><span class="n">_photos_ver</span><span class="p">][</span><span class="s2">"ASSET"</span><span class="p">]</span>
 
-    <span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">cursor</span><span class="p">)</span> <span class="o">=</span> <span class="n">_open_sql_file</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">cursor</span><span class="p">)</span> <span class="o">=</span> <span class="n">sqlite_open_ro</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
 
     <span class="n">results</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">"""</span>
 <span class="sd">        SELECT DISTINCT</span>
 <span class="sd">        ZINVITEEHASHEDPERSONID AS HASHEDPERSONID,</span>
 <span class="sd">        ZINVITEEFIRSTNAME AS FIRSTNAME,</span>
@@ -109,7 +273,7 @@
 <span class="sd">        ZINVITEEFULLNAME AS FULLNAME</span>
 <span class="sd">        FROM ZCLOUDSHAREDALBUMINVITATIONRECORD</span>
 <span class="sd">        WHERE HASHEDPERSONID IS NOT NULL</span>
-<span class="sd">        AND HASHEDPERSONID != &quot;&quot;</span>
+<span class="sd">        AND HASHEDPERSONID != ""</span>
 <span class="sd">        AND NOT (FIRSTNAME IS NULL AND LASTNAME IS NULL)</span>
 <span class="sd">        UNION</span>
 <span class="sd">        SELECT DISTINCT</span>
@@ -119,9 +283,9 @@
 <span class="sd">        ZCLOUDOWNERFULLNAME AS FULLNAME</span>
 <span class="sd">        FROM ZGENERICALBUM</span>
 <span class="sd">        WHERE HASHEDPERSONID IS NOT NULL</span>
-<span class="sd">        AND HASHEDPERSONID != &quot;&quot;</span>
+<span class="sd">        AND HASHEDPERSONID != ""</span>
 <span class="sd">        AND NOT (FIRSTNAME IS NULL AND LASTNAME IS NULL)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
     <span class="p">)</span>
 
     <span class="c1"># order of results</span>
@@ -134,35 +298,35 @@
     <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">fetchall</span><span class="p">():</span>
         <span class="n">person_id</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">photosdb</span><span class="o">.</span><span class="n">_db_hashed_person_id</span><span class="p">[</span><span class="n">person_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;first_name&quot;</span><span class="p">:</span> <span class="n">normalize_unicode</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
-            <span class="s2">&quot;last_name&quot;</span><span class="p">:</span> <span class="n">normalize_unicode</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span>
-            <span class="s2">&quot;full_name&quot;</span><span class="p">:</span> <span class="n">normalize_unicode</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span>
+            <span class="s2">"first_name"</span><span class="p">:</span> <span class="n">normalize_unicode</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="s2">"last_name"</span><span class="p">:</span> <span class="n">normalize_unicode</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span>
+            <span class="s2">"full_name"</span><span class="p">:</span> <span class="n">normalize_unicode</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span>
         <span class="p">}</span>
 
     <span class="n">results</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+        <span class="sa">f</span><span class="s2">"""</span>
 <span class="s2">        SELECT </span>
 <span class="s2">        </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.ZUUID, -- UUID of the photo</span>
-<span class="s2">        ZCLOUDSHAREDCOMMENT.ZISLIKE, -- comment is actually a &quot;like&quot;</span>
+<span class="s2">        ZCLOUDSHAREDCOMMENT.ZISLIKE, -- comment is actually a "like"</span>
 <span class="s2">        ZCLOUDSHAREDCOMMENT.ZCOMMENTDATE, -- date of comment</span>
 <span class="s2">        ZCLOUDSHAREDCOMMENT.ZCOMMENTTEXT, -- text of comment</span>
 <span class="s2">        ZCLOUDSHAREDCOMMENT.ZCOMMENTERHASHEDPERSONID, -- hashed ID of person who made comment/like</span>
-<span class="s2">        ZCLOUDSHAREDCOMMENT.ZISMYCOMMENT -- is my (this user&#39;s) comment</span>
+<span class="s2">        ZCLOUDSHAREDCOMMENT.ZISMYCOMMENT -- is my (this user's) comment</span>
 <span class="s2">        FROM ZCLOUDSHAREDCOMMENT</span>
 <span class="s2">        JOIN </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2"> ON</span>
 <span class="s2">        </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.Z_PK = ZCLOUDSHAREDCOMMENT.ZCOMMENTEDASSET</span>
 <span class="s2">        OR</span>
 <span class="s2">        </span><span class="si">{</span><span class="n">asset_table</span><span class="si">}</span><span class="s2">.Z_PK = ZCLOUDSHAREDCOMMENT.ZLIKEDASSET</span>
-<span class="s2">    &quot;&quot;&quot;</span>
+<span class="s2">    """</span>
     <span class="p">)</span>
 
     <span class="c1"># order of results</span>
     <span class="c1"># 0: ZGENERICASSET.ZUUID, -- UUID of the photo</span>
-    <span class="c1"># 1: ZCLOUDSHAREDCOMMENT.ZISLIKE, -- comment is actually a &quot;like&quot;</span>
+    <span class="c1"># 1: ZCLOUDSHAREDCOMMENT.ZISLIKE, -- comment is actually a "like"</span>
     <span class="c1"># 2: ZCLOUDSHAREDCOMMENT.ZCOMMENTDATE, -- date of comment</span>
     <span class="c1"># 3: ZCLOUDSHAREDCOMMENT.ZCOMMENTTEXT, -- text of comment</span>
     <span class="c1"># 4: ZCLOUDSHAREDCOMMENT.ZCOMMENTERHASHEDPERSONID, -- hashed ID of person who made comment/like</span>
-    <span class="c1"># 5: ZCLOUDSHAREDCOMMENT.ZISMYCOMMENT -- is my (this user&#39;s) comment</span>
+    <span class="c1"># 5: ZCLOUDSHAREDCOMMENT.ZISMYCOMMENT -- is my (this user's) comment</span>
 
     <span class="n">photosdb</span><span class="o">.</span><span class="n">_db_comments_uuid</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
@@ -170,7 +334,7 @@
         <span class="n">is_like</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
         <span class="n">text</span> <span class="o">=</span> <span class="n">normalize_unicode</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">user_name</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">_db_hashed_person_id</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">4</span><span class="p">]][</span><span class="s2">&quot;full_name&quot;</span><span class="p">]</span>
+            <span class="n">user_name</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">_db_hashed_person_id</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">4</span><span class="p">]][</span><span class="s2">"full_name"</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="n">user_name</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -184,89 +348,62 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">db_comments</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">_db_comments_uuid</span><span class="p">[</span><span class="n">uuid</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="n">photosdb</span><span class="o">.</span><span class="n">_db_comments_uuid</span><span class="p">[</span><span class="n">uuid</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;likes&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+            <span class="n">photosdb</span><span class="o">.</span><span class="n">_db_comments_uuid</span><span class="p">[</span><span class="n">uuid</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"likes"</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">"comments"</span><span class="p">:</span> <span class="p">[]}</span>
             <span class="n">db_comments</span> <span class="o">=</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">_db_comments_uuid</span><span class="p">[</span><span class="n">uuid</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">is_like</span><span class="p">:</span>
-            <span class="n">db_comments</span><span class="p">[</span><span class="s2">&quot;likes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">LikeInfo</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">ismine</span><span class="p">))</span>
+            <span class="n">db_comments</span><span class="p">[</span><span class="s2">"likes"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">LikeInfo</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">ismine</span><span class="p">))</span>
         <span class="k">elif</span> <span class="n">text</span><span class="p">:</span>
-            <span class="n">db_comments</span><span class="p">[</span><span class="s2">&quot;comments&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">CommentInfo</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">ismine</span><span class="p">,</span> <span class="n">text</span><span class="p">))</span>
+            <span class="n">db_comments</span><span class="p">[</span><span class="s2">"comments"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">CommentInfo</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">ismine</span><span class="p">,</span> <span class="n">text</span><span class="p">))</span>
 
     <span class="c1"># sort results</span>
     <span class="k">for</span> <span class="n">uuid</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">_db_comments_uuid</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">_db_comments_uuid</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;likes&quot;</span><span class="p">]:</span>
-            <span class="n">photosdb</span><span class="o">.</span><span class="n">_db_comments_uuid</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;likes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">_db_comments_uuid</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;comments&quot;</span><span class="p">]:</span>
-            <span class="n">value</span><span class="p">[</span><span class="s2">&quot;comments&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">_db_comments_uuid</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">"likes"</span><span class="p">]:</span>
+            <span class="n">photosdb</span><span class="o">.</span><span class="n">_db_comments_uuid</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">"likes"</span><span class="p">]</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">photosdb</span><span class="o">.</span><span class="n">_db_comments_uuid</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">"comments"</span><span class="p">]:</span>
+            <span class="n">value</span><span class="p">[</span><span class="s2">"comments"</span><span class="p">]</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span>
 
     <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </pre></div>
-
-          </div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
           
         </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../../../index.html">osxphotos</a></h1>
-
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../overview.html">osxphotos</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">osxphotos command line interface (CLI)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../reference.html">osxphotos package</a></li>
-</ul>
-
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="../../../index.html">Documentation overview</a><ul>
-  <li><a href="../../index.html">Module code</a><ul>
-  </ul></li>
-  </ul></li>
-</ul>
-</div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script>$('#searchbox').show(0);</script>
-
-
-
-
-
-
-
-
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2021, Rhet Turnbull
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="clearer"></div>
+        
+      </footer>
     </div>
-    <div class="footer">
-      &copy;2021, Rhet Turnbull.
+    <aside class="toc-drawer no-toc">
       
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
-    </div>
-
-    
-
-    
-  </body>
+      
+    </aside>
+  </div>
+</div><script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/scripts/furo.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    </body>
 </html>
