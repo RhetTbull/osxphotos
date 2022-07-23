@@ -238,6 +238,28 @@ class ReportWriterSQLite(ReportWriterABC):
             );"""
         )
 
+        c.execute(
+            """
+            CREATE VIEW IF NOT EXISTS report_summary AS
+            SELECT
+            report_id,
+            datetime(MIN(datetime)) start_time,
+            datetime(MAX(datetime)) end_time,
+            STRFTIME('%s',MAX(datetime)) - STRFTIME('%s',MIN(datetime)) AS duration_s,
+            SUM(exported) AS exported,
+            sum(new) as new,
+            SUM(updated) as updated,
+            SUM(skipped) as skipped,
+            SUM(sidecar_xmp) as sidecar_xmp,
+            SUM(touched) as touched,
+            SUM(converted_to_jpeg) as converted_to_jpeg,
+            SUM(missing) as missing,
+            SUM(CASE WHEN error = "" THEN 0 ELSE 1 END) as error,
+            SUM(cleanup_deleted_file) as cleanup_deleted_file
+            FROM report
+            GROUP BY report_id;"""
+        )
+
         self._conn.commit()
 
         # migrate report table to add report_id if needed (#731)
