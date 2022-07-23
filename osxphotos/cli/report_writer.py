@@ -256,7 +256,7 @@ class ReportWriterSQLite(ReportWriterABC):
                 SUM(exported) AS exported,
                 sum(new) as new,
                 SUM(updated) as updated,
-                    SUM(skipped) as skipped,
+                SUM(skipped) as skipped,
                 SUM(sidecar_xmp) as sidecar_xmp,
                 SUM(touched) as touched,
                 SUM(converted_to_jpeg) as converted_to_jpeg,
