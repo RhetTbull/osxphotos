@@ -166,23 +166,22 @@ class ReportWriterSQLite(ReportWriterABC):
             with suppress(FileNotFoundError):
                 os.unlink(self.output_file)
 
-        self.export_id = datetime.datetime.now().isoformat()
-
         self._conn = sqlite3.connect(self.output_file)
         self._create_tables()
+        self.report_id = self._generate_report_id()
 
     def write(self, export_results: ExportResults):
         """Write results to the output file"""
 
         all_results = prepare_results_for_writing(export_results)
         for data in list(all_results.values()):
-            data["export_id"] = self.export_id
+            data["report_id"] = self.report_id
             cursor = self._conn.cursor()
             cursor.execute(
                 "INSERT INTO report "
-                "(datetime, filename, exported, new, updated, skipped, exif_updated, touched, converted_to_jpeg, sidecar_xmp, sidecar_json, sidecar_exiftool, missing, error, exiftool_warning, exiftool_error, extended_attributes_written, extended_attributes_skipped, cleanup_deleted_file, cleanup_deleted_directory, exported_album, export_id) "
+                "(datetime, filename, exported, new, updated, skipped, exif_updated, touched, converted_to_jpeg, sidecar_xmp, sidecar_json, sidecar_exiftool, missing, error, exiftool_warning, exiftool_error, extended_attributes_written, extended_attributes_skipped, cleanup_deleted_file, cleanup_deleted_directory, exported_album, report_id) "
                 "VALUES "
-                "(:datetime, :filename, :exported, :new, :updated, :skipped, :exif_updated, :touched, :converted_to_jpeg, :sidecar_xmp, :sidecar_json, :sidecar_exiftool, :missing, :error, :exiftool_warning, :exiftool_error, :extended_attributes_written, :extended_attributes_skipped, :cleanup_deleted_file, :cleanup_deleted_directory, :exported_album, :export_id);",
+                "(:datetime, :filename, :exported, :new, :updated, :skipped, :exif_updated, :touched, :converted_to_jpeg, :sidecar_xmp, :sidecar_json, :sidecar_exiftool, :missing, :error, :exiftool_warning, :exiftool_error, :extended_attributes_written, :extended_attributes_skipped, :cleanup_deleted_file, :cleanup_deleted_directory, :exported_album, :report_id);",
                 data,
             )
         self._conn.commit()
@@ -196,27 +195,27 @@ class ReportWriterSQLite(ReportWriterABC):
         c.execute(
             """
             CREATE TABLE IF NOT EXISTS report (
-                datetime text,
-                filename text,
-                exported integer,
-                new integer,
-                updated integer,
-                skipped integer,
-                exif_updated integer,
-                touched integer,
-                converted_to_jpeg integer,
-                sidecar_xmp integer,
-                sidecar_json integer,
-                sidecar_exiftool integer,
-                missing integer,
-                error text,
-                exiftool_warning text,
-                exiftool_error text,
-                extended_attributes_written integer,
-                extended_attributes_skipped integer,
-                cleanup_deleted_file integer,
-                cleanup_deleted_directory integer,
-                exported_album text
+                datetime TEXT,
+                filename TEXT,
+                exported INTEGER,
+                new INTEGER,
+                updated INTEGER,
+                skipped INTEGER,
+                exif_updated INTEGER,
+                touched INTEGER,
+                converted_to_jpeg INTEGER,
+                sidecar_xmp INTEGER,
+                sidecar_json INTEGER,
+                sidecar_exiftool INTEGER,
+                missing INTEGER,
+                error TEXT,
+                exiftool_warning TEXT,
+                exiftool_error TEXT,
+                extended_attributes_written INTEGER,
+                extended_attributes_skipped INTEGER,
+                cleanup_deleted_file INTEGER,
+                cleanup_deleted_directory INTEGER,
+                exported_album TEXT
             )
             """
         )
@@ -231,13 +230,31 @@ class ReportWriterSQLite(ReportWriterABC):
             "INSERT INTO about(about) VALUES (?);",
             (f"OSXPhotos Export Report. {OSXPHOTOS_ABOUT_STRING}",),
         )
+        c.execute(
+            """
+            CREATE TABLE IF NOT EXISTS report_id (
+                report_id INTEGER PRIMARY KEY,
+                datetime TEXT
+            );"""
+        )
 
         self._conn.commit()
 
-        # migrate report table to add export_id if needed (#731)
-        if "export_id" not in sqlite_columns(self._conn, "report"):
-            self._conn.cursor().execute("ALTER TABLE report ADD COLUMN export_id text;")
+        # migrate report table to add report_id if needed (#731)
+        if "report_id" not in sqlite_columns(self._conn, "report"):
+            self._conn.cursor().execute("ALTER TABLE report ADD COLUMN report_id TEXT;")
             self._conn.commit()
+
+    def _generate_report_id(self) -> int:
+        """Get a new report ID for this report"""
+        c = self._conn.cursor()
+        c.execute(
+            "INSERT INTO report_id(datetime) VALUES (?);",
+            (datetime.datetime.now().isoformat(),),
+        )
+        report_id = c.lastrowid
+        self._conn.commit()
+        return report_id
 
     def __del__(self):
         with suppress(Exception):
