@@ -136,6 +136,7 @@ class ExportOptions:
         use_photokit (bool, default=False): if True, will use photokit to export photos when use_photos_export is True
         verbose (callable): optional callable function to use for printing verbose text during processing; if None (default), does not print output.
         tmpdir: (str, default=None): Optional directory to use for temporary files, if None (default) uses system tmp directory
+        favorite_rating (bool): if True, set XMP:Rating=5 for favorite images and XMP:Rating=0 for non-favorites
 
     """
 
@@ -181,6 +182,7 @@ class ExportOptions:
     use_photos_export: bool = False
     verbose: t.Optional[t.Callable] = None
     tmpdir: t.Optional[str] = None
+    favorite_rating: bool = False
 
     def asdict(self):
         return asdict(self)
@@ -1586,6 +1588,7 @@ class PhotoExporter:
             QuickTime:ModifyDate (UTC)
             QuickTime:GPSCoordinates
             UserData:GPSCoordinates
+            XMP:Rating
 
         Reference:
             https://iptc.org/std/photometadata/specification/IPTC-PhotoMetadata-201610_1.pdf
@@ -1701,8 +1704,8 @@ class PhotoExporter:
         if options.face_regions and self.photo.face_info:
             exif.update(self._get_mwg_face_regions_exiftool())
 
-        # if self.favorite():
-        #     exif["Rating"] = 5
+        if options.favorite_rating:
+            exif["XMP:Rating"] = 5 if self.photo.favorite else 0
 
         if options.location:
             (lat, lon) = self.photo.location
@@ -2009,6 +2012,11 @@ class PhotoExporter:
 
         latlon = self.photo.location if options.location else (None, None)
 
+        if options.favorite_rating:
+            rating = 5 if self.photo.favorite else 0
+        else:
+            rating = None
+
         xmp_str = xmp_template.render(
             photo=self.photo,
             description=description,
@@ -2018,6 +2026,7 @@ class PhotoExporter:
             extension=extension,
             location=latlon,
             version=__version__,
+            rating=rating,
         )
 
         # remove extra lines that mako inserts from template

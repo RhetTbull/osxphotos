@@ -9,6 +9,7 @@ import os.path
 import pathlib
 import re
 import shutil
+import subprocess
 import sqlite3
 import tempfile
 import time
@@ -986,6 +987,11 @@ CLI_EXPORT_LIVE_EDITED = [
     "IMG_4813_edited.jpeg",
     "IMG_4813_edited.mov",
 ]
+
+UUID_FAVORITE = "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"
+FILE_FAVORITE = "wedding.jpg"
+UUID_NOT_FAVORITE = "1EB2B765-0765-43BA-A90C-0D0580E6172C"
+FILE_NOT_FAVORITE = "Pumpkins3.jpg"
 
 
 def modify_file(filename):
@@ -2264,6 +2270,34 @@ def test_export_exiftool_merge_sidecar():
                     assert exif[key] == CLI_EXIFTOOL_MERGE[uuid][key]
 
 
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+def test_export_exiftool_favorite_rating():
+    """Test --exiftol --favorite-rating"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        for uuid in CLI_EXIFTOOL:
+            result = runner.invoke(
+                export,
+                [
+                    os.path.join(cwd, PHOTOS_DB_15_7),
+                    ".",
+                    "-V",
+                    "--exiftool",
+                    "--uuid",
+                    UUID_FAVORITE,
+                    "--uuid",
+                    UUID_NOT_FAVORITE,
+                    "--favorite-rating",
+                ],
+            )
+            assert result.exit_code == 0
+            assert ExifTool(FILE_FAVORITE).asdict()["XMP:Rating"] == 5
+            assert ExifTool(FILE_NOT_FAVORITE).asdict()["XMP:Rating"] == 0
+
+
 def test_export_edited_suffix():
     """test export with --edited-suffix"""
 
@@ -3065,6 +3099,49 @@ def test_export_sidecar():
         assert result.exit_code == 0
         files = glob.glob("*.*")
         assert sorted(files) == sorted(CLI_EXPORT_SIDECAR_FILENAMES)
+
+
+def test_export_sidecar_favorite_rating():
+    """test --sidecar --favorite-rating"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli_main,
+            [
+                "export",
+                "--db",
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "--sidecar=json",
+                "--sidecar=xmp",
+                f"--uuid={UUID_FAVORITE}",
+                f"--uuid={UUID_NOT_FAVORITE}",
+                "--favorite-rating",
+                "-V",
+            ],
+        )
+        assert result.exit_code == 0
+        with open(f"{FILE_FAVORITE}.json") as fp:
+            json_sidecar = json.load(fp)
+            assert json_sidecar[0]["XMP:Rating"] == 5
+        with open(f"{FILE_NOT_FAVORITE}.json") as fp:
+            json_sidecar = json.load(fp)
+            assert json_sidecar[0]["XMP:Rating"] == 0
+
+        results = subprocess.run(
+            ["grep", "xmp:Rating", f"{FILE_FAVORITE}.xmp"], capture_output=True
+        )
+        results_stdout = results.stdout.decode("utf-8")
+        assert "<xmp:Rating>5</xmp:Rating>" in results_stdout
+
+        results = subprocess.run(
+            ["grep", "xmp:Rating", f"{FILE_NOT_FAVORITE}.xmp"], capture_output=True
+        )
+        results_stdout = results.stdout.decode("utf-8")
+        assert "<xmp:Rating>0</xmp:Rating>" in results_stdout
 
 
 def test_export_sidecar_drop_ext():
