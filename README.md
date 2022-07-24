@@ -1051,6 +1051,10 @@ Options:
   --exiftool-merge-persons        Merge any persons found in the original file
                                   with persons used for '--exiftool' and '--
                                   sidecar'.
+  --favorite-rating               When used with --exiftool or --sidecar, set
+                                  XMP:Rating=5 for photos marked as Favorite and
+                                  XMP:Rating=0 for non-Favorites. If not
+                                  specified, XMP:Rating is not set.
   --ignore-date-modified          If used with --exiftool or --sidecar, will
                                   ignore the photo modification date and set
                                   EXIF:ModifyDate to EXIF:DateTimeOriginal; this
@@ -1922,7 +1926,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.50.8'
+{osxphotos_version}             The osxphotos version, e.g. '0.50.9'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2399,7 +2403,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.50.8'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.50.9'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
