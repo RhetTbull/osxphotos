@@ -353,6 +353,15 @@
       "contributions": [
         "ideas"
       ]
+    },
+    {
+      "login": "franzone",
+      "name": "franzone",
+      "avatar_url": "https://avatars.githubusercontent.com/u/900684?v=4",
+      "profile": "http://www.franzone.com",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
