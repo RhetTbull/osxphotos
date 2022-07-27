@@ -11,7 +11,7 @@ import shlex
 import subprocess
 import sys
 import time
-from typing import Dict
+from typing import Iterable, List, Tuple
 
 import click
 import osxmetadata
@@ -547,6 +547,26 @@ from .verbose import get_verbose_console, time_stamp, verbose_print
     "--cleanup.  Use --dry-run with --cleanup first if you're not certain.",
 )
 @click.option(
+    "--keep",
+    metavar="KEEP_PATH",
+    nargs=1,
+    multiple=True,
+    help="When used with --cleanup, prevents file or directory KEEP_PATH from being deleted "
+    "when cleanup is run. Use this if there are files in the export directory that you don't "
+    "want to be deleted when --cleanup is run. "
+    "KEEP_PATH may be a file path, e.g. '/Volumes/Photos/keep.jpg', "
+    "or a file path and wild card, e.g. '/Volumes/Photos/*.txt', "
+    "or a directory, e.g. '/Volumes/Photos/KeepMe'. "
+    "KEEP_PATH may be an absolute path or a relative path. "
+    "If it is relative, it must be relative to the export destination. "
+    "For example if export destination is `/Volumes/Photos` and you want to keep all `.txt` files, "
+    'you can specify `--keep "/Volumes/Photos/*.txt"` or `--keep "*.txt"`. '
+    "If wild card is used, KEEP_PATH must be enclosed in quotes to prevent the shell from expanding the wildcard, "
+    'e.g. `--keep "/Volumes/Photos/*.txt"`. '
+    "If KEEP_PATH is a directory, all files and directories contained in KEEP_PATH will be kept. "
+    "--keep may be repeated to keep additional files/directories.",
+)
+@click.option(
     "--add-exported-to-album",
     metavar="ALBUM",
     help="Add all exported photos to album ALBUM in Photos. Album ALBUM will be created "
@@ -757,6 +777,7 @@ def export(
     is_reference,
     jpeg_ext,
     jpeg_quality,
+    keep,
     keyword_template,
     keyword,
     label,
@@ -976,6 +997,7 @@ def export(
         in_album = cfg.in_album
         jpeg_ext = cfg.jpeg_ext
         jpeg_quality = cfg.jpeg_quality
+        keep = (cfg.keep,)
         keyword = cfg.keyword
         keyword_template = cfg.keyword_template
         label = cfg.label
@@ -1115,6 +1137,7 @@ def export(
         ("exiftool_option", ("exiftool")),
         ("ignore_signature", ("update", "force_update")),
         ("jpeg_quality", ("convert_to_jpeg")),
+        ("keep", ("cleanup")),
         ("missing", ("download_missing", "use_photos_export")),
         ("only_new", ("update", "force_update")),
         ("append", ("report")),
@@ -1689,9 +1712,18 @@ def export(
             + [r[0] for r in results.error]
             + db_files
         )
+
+        # if --report, add report file to keep list to prevent it from being deleted
+        if report:
+            all_files.append(report)
+
+        dirs_to_keep = []
+        if keep:
+            files_to_keep, dirs_to_keep = collect_files_to_keep(keep, dest)
+            all_files += files_to_keep
         rich_echo(f"Cleaning up [filepath]{dest}")
         cleaned_files, cleaned_dirs = cleanup_files(
-            dest, all_files, fileutil, verbose_=verbose_
+            dest, all_files, dirs_to_keep, fileutil, verbose_=verbose_
         )
         file_str = "files" if len(cleaned_files) != 1 else "file"
         dir_str = "directories" if len(cleaned_dirs) != 1 else "directory"
@@ -2453,7 +2485,6 @@ def find_files_in_branch(pathname, filename):
     # walk down the tree
     for root, _, filenames in os.walk(pathname):
         # for directory in directories:
-        # print(os.path.join(root, directory))
         for fname in filenames:
             if fname == filename and pathlib.Path(root) != pathname:
                 files.append(os.path.join(root, fname))
@@ -2470,14 +2501,43 @@ def find_files_in_branch(pathname, filename):
     return files
 
 
-def cleanup_files(dest_path, files_to_keep, fileutil, verbose_):
+def collect_files_to_keep(
+    keep: Iterable[str], export_dir: str
+) -> Tuple[List[str], List[str]]:
+    """Collect all files to keep for --keep/--cleanup.
+
+    Args:
+        keep: Iterable of filepaths to keep; each path may be a filepath, a filepath/wildcard, or a directory path.
+        export_dir: the export directory which will be used to resolve paths when paths in keep are relative instead of absolute
+
+    Returns:
+        tuple of [files_to_keep], [dirs_to_keep]
+    """
+    export_dir = pathlib.Path(export_dir)
+    keepers = []
+    for k in keep:
+        keeper = pathlib.Path(k).expanduser()
+        if not keeper.is_absolute():
+            # relative path: relative to export_dir
+            keeper = export_dir / keeper
+        if keeper.is_dir():
+            keepers.extend(keeper.glob("**/*"))
+        keepers.extend(keeper.parent.glob(keeper.name))
+    files_to_keep = [str(k) for k in keepers if k.is_file()]
+    dirs_to_keep = [str(k) for k in keepers if k.is_dir()]
+    return files_to_keep, dirs_to_keep
+
+
+def cleanup_files(dest_path, files_to_keep, dirs_to_keep, fileutil, verbose_):
     """cleanup dest_path by deleting and files and empty directories
         not in files_to_keep
 
     Args:
         dest_path: path to directory to clean
         files_to_keep: list of full file paths to keep (not delete)
-        fileutile: FileUtil object
+        dirs_to_keep: list of full dir paths to keep (not delete if they are empty)
+        fileutil: FileUtil object
+        verbose_: verbose callable for printing verbose output
 
     Returns:
         tuple of (list of files deleted, list of directories deleted)
@@ -2497,6 +2557,8 @@ def cleanup_files(dest_path, files_to_keep, fileutil, verbose_):
     deleted_dirs = []
     # walk directory tree bottom up and verify contents are empty
     for dirpath, _, _ in os.walk(dest_path, topdown=False):
+        if dirpath in dirs_to_keep:
+            continue
         if not list(pathlib.Path(dirpath).glob("*")):
             # directory and directory is empty
             verbose_(f"Deleting empty directory {dirpath}")
