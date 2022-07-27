@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Template System" href="template_help.html" /><link rel="prev" title="OSXPhotos Tutorial" href="tutorial.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.50.9 documentation</title>
+        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.50.10 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.50.9 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.50.10 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.50.9 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.50.10 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -1157,6 +1157,11 @@ to modify this behavior.</p>
 <dt class="sig sig-object std" id="cmdoption-osxphotos-export-cleanup">
 <span class="sig-name descname"><span class="pre">--cleanup</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-cleanup" title="Permalink to this definition">#</a></dt>
 <dd><p>Cleanup export directory by deleting any files which were not included in this export set. For example, photos which had previously been exported and were subsequently deleted in Photos. WARNING: –cleanup will delete <em>any</em> files in the export directory that were not exported by osxphotos, for example, your own scripts or other files.  Be sure this is what you intend before using –cleanup.  Use –dry-run with –cleanup first if you’re not certain.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-keep">
+<span class="sig-name descname"><span class="pre">--keep</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;KEEP_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-keep" title="Permalink to this definition">#</a></dt>
+<dd><p>When used with –cleanup, prevents file or directory KEEP_PATH from being deleted when cleanup is run. Use this if there are files in the export directory that you don’t want to be deleted when –cleanup is run. KEEP_PATH may be a file path, e.g. ‘/Volumes/Photos/keep.jpg’, or a file path and wild card, e.g. ‘/Volumes/Photos/<em>.txt’, or a directory, e.g. ‘/Volumes/Photos/KeepMe’. KEEP_PATH may be an absolute path or a relative path. If it is relative, it must be relative to the export destination. For example if export destination is `/Volumes/Photos` and you want to keep all `.txt` files, you can specify `–keep “/Volumes/Photos/</em>.txt”` or <cite>–keep “*.txt”</cite>. If wild card is used, KEEP_PATH must be enclosed in quotes to prevent the shell from expanding the wildcard, e.g. <cite>–keep “/Volumes/Photos/*.txt”</cite>. If KEEP_PATH is a directory, all files and directories contained in KEEP_PATH will be kept. –keep may be repeated to keep additional files/directories.</p>
 </dd></dl>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-export-add-exported-to-album">

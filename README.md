@@ -1195,6 +1195,29 @@ Options:
                                   you intend before using --cleanup.  Use --dry-
                                   run with --cleanup first if you're not
                                   certain.
+  --keep KEEP_PATH                When used with --cleanup, prevents file or
+                                  directory KEEP_PATH from being deleted when
+                                  cleanup is run. Use this if there are files in
+                                  the export directory that you don't want to be
+                                  deleted when --cleanup is run. KEEP_PATH may
+                                  be a file path, e.g.
+                                  '/Volumes/Photos/keep.jpg', or a file path and
+                                  wild card, e.g. '/Volumes/Photos/*.txt', or a
+                                  directory, e.g. '/Volumes/Photos/KeepMe'.
+                                  KEEP_PATH may be an absolute path or a
+                                  relative path. If it is relative, it must be
+                                  relative to the export destination. For
+                                  example if export destination is
+                                  `/Volumes/Photos` and you want to keep all
+                                  `.txt` files, you can specify `--keep
+                                  "/Volumes/Photos/*.txt"` or `--keep "*.txt"`.
+                                  If wild card is used, KEEP_PATH must be
+                                  enclosed in quotes to prevent the shell from
+                                  expanding the wildcard, e.g. `--keep
+                                  "/Volumes/Photos/*.txt"`. If KEEP_PATH is a
+                                  directory, all files and directories contained
+                                  in KEEP_PATH will be kept. --keep may be
+                                  repeated to keep additional files/directories.
   --add-exported-to-album ALBUM   Add all exported photos to album ALBUM in
                                   Photos. Album ALBUM will be created if it
                                   doesn't exist.  All exported photos will be
@@ -1926,7 +1949,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.50.9'
+{osxphotos_version}             The osxphotos version, e.g. '0.50.10'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2403,7 +2426,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.50.9'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.50.10'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
