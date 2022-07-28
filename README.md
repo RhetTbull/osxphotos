@@ -774,6 +774,9 @@ Options:
   --is-reference                  Search for photos that were imported as
                                   referenced files (not copied into Photos
                                   library).
+  --not-reference                 Search for photos that are not references,
+                                  that is, they were copied into the Photos
+                                  library and are managed by Photos.
   --in-album                      Search for photos that are in one or more
                                   albums.
   --not-in-album                  Search for photos that are not in any albums.
@@ -1949,7 +1952,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.50.10'
+{osxphotos_version}             The osxphotos version, e.g. '0.50.11'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2426,7 +2429,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.50.10'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.50.11'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
@@ -2450,244 +2453,6 @@ The following template field substitutions are availabe for use the templating s
 |{format}|Use in form, '{format:TYPE:FORMAT,TEMPLATE}'; converts TEMPLATE value to TYPE then formats the value using Python string formatting codes specified by FORMAT; TYPE is one of: 'int', 'float', or 'str'. For example, '{format:float:.1f,{exiftool:EXIF:FocalLength}}' will format focal length to 1 decimal place (e.g. '100.0'). |
 |{function}|Execute a python function from an external file and use return value as template substitution. Use in format: {function:file.py::function_name} where 'file.py' is the name of the python file and 'function_name' is the name of the function to call. The function will be passed the PhotoInfo object for the photo. See https://github.com/RhetTbull/osxphotos/blob/master/examples/template_function.py for an example of how to implement a template function.|
 <!-- OSXPHOTOS-TEMPLATE-TABLE:END -->
-
-### <a name="exiftoolExifTool">ExifTool</a>
-
-osxphotos includes its own `exiftool` library that can be accessed via `osxphotos.exiftool`:
-
-```python
->>> from osxphotos.exiftool import ExifTool
->>> exiftool = ExifTool("/Users/rhet/Downloads/test.jpeg")
->>> exifdict = exiftool.asdict()
->>> exifdict["EXIF:Make"]
-'Canon'
->>> exiftool.setvalue("IPTC:Keywords","Keyword1")
-True
->>> exiftool.asdict()["IPTC:Keywords"]
-'Keyword1'
->>> exiftool.addvalues("IPTC:Keywords","Keyword2","Keyword3")
-True
->>> exiftool.asdict()["IPTC:Keywords"]
-['Keyword1', 'Keyword2', 'Keyword3']
-```
-
-`ExifTool(filepath, exiftool=None)`
-
-* `filepath`: str, path to photo
-* `exiftool`: str, optional path to `exiftool`; if not provided, will look for `exiftool` in the system path
-
-#### ExifTool methods
-
-* `asdict(tag_groups=True)`: returns all EXIF metadata found in the file as a dictionary in following form (Note: this shows just a subset of available metadata).  See [exiftool](https://exiftool.org/) documentation to understand which metadata keys are available. If `tag_groups` is True (default) dict keys are in form "GROUP:TAG", e.g. "IPTC:Keywords". If `tag_groups` is False, dict keys do not have group names, e.g. "Keywords".
-
-```python
-{'Composite:Aperture': 2.2,
- 'Composite:GPSPosition': '-34.9188916666667 138.596861111111',
- 'Composite:ImageSize': '2754 2754',
- 'EXIF:CreateDate': '2017:06:20 17:18:56',
- 'EXIF:LensMake': 'Apple',
- 'EXIF:LensModel': 'iPhone 6s back camera 4.15mm f/2.2',
- 'EXIF:Make': 'Apple',
- 'XMP:Title': 'Elder Park',
-}
-```
-
-* `json()`: returns same information as `asdict()` but as a serialized JSON string.
-
-* `setvalue(tag, value)`: write to the EXIF data in the photo file. To delete a tag, use setvalue with value = `None`. For example:
-
-```python
-photo.exiftool.setvalue("XMP:Title", "Title of photo")
-```
-
-* `addvalues(tag, *values)`: Add one or more value(s) to tag.  For a tag that accepts multiple values, like "IPTC:Keywords", this will add the values as additional list values.  However, for tags which are not usually lists, such as "EXIF:ISO" this will literally add the new value to the old value which is probably not the desired effect.  Be sure you understand the behavior of the individual tag before using this. For example:
-
-```python
-photo.exiftool.addvalues("IPTC:Keywords", "vacation", "beach")
-```
-
-osxphotos.exiftool also provides an `ExifToolCaching` class which caches all metadata after the first call to `exiftool`. This can significantly speed up repeated access to the metadata but should only be used if you do not intend to modify the file's metadata.
-
-[`PhotoInfo.exiftool`](#exiftool) returns an `ExifToolCaching` instance for the original image in the Photos library.
-
-#### Implementation Note
-
-`ExifTool()` runs `exiftool` as a subprocess using the `-stay_open True` flag to keep the process running in the background.  The subprocess will be cleaned up when your main script terminates.  `ExifTool()` uses a singleton pattern to ensure that only one instance of `exiftool` is created.  Multiple instances of `ExifTool()` will all use the same `exiftool` subprocess.
-
-### <a name="photoexporter">PhotoExporter</a>
-
-[PhotoInfo.export()](#photoinfo) provides a simple method to export a photo.  This method actually calls `PhotoExporter.export()` to do the export.  `PhotoExporter` provides many more options to configure the export and report results and this is what the osxphotos command line export tools uses.
-
-#### `export(dest, filename=None, options: Optional[ExportOptions]=None) -> ExportResults`
-
-Export a photo.
-
-Args:
-
-* dest: must be valid destination path or exception raised
-* filename: (optional): name of exported picture; if not provided, will use current filename
-* options (ExportOptions): optional ExportOptions instance
-
-Returns: ExportResults instance
-
-*Note*: to use dry run mode, you must set options.dry_run=True and also pass in memory version of export_db, and no-op fileutil (e.g. `ExportDBInMemory` and `FileUtilNoOp`) in options.export_db and options.fileutil respectively.
-
-#### `ExportOptions`
-
-Options class for exporting photos with `export`
-
-Attributes:
-
-* convert_to_jpeg (bool): if True, converts non-jpeg images to jpeg
-* description_template (str): optional template string that will be rendered for use as photo description
-* download_missing: (bool, default=False): if True will attempt to export photo via applescript interaction with Photos if missing (see also use_photokit, use_photos_export)
-* dry_run: (bool, default=False): set to True to run in "dry run" mode
-* edited: (bool, default=False): if True will export the edited version of the photo otherwise exports the original version
-* exiftool_flags (list of str): optional list of flags to pass to exiftool when using exiftool option, e.g ["-m", "-F"]
-* exiftool: (bool, default = False): if True, will use exiftool to write metadata to export file
-* export_as_hardlink: (bool, default=False): if True, will hardlink files instead of copying them
-* export_db: (ExportDB): instance of a class that conforms to ExportDB with methods for getting/setting data related to exported files to compare update state
-* fileutil: (FileUtilABC): class that conforms to FileUtilABC with various file utilities
-* ignore_date_modified (bool): for use with sidecar and exiftool; if True, sets EXIF:ModifyDate to EXIF:DateTimeOriginal even if date_modified is set
-* ignore_signature (bool, default=False): ignore file signature when used with update (look only at filename)
-* increment (bool, default=True): if True, will increment file name until a non-existant name is found if overwrite=False and increment=False, export will fail if destination file already exists
-* jpeg_ext (str): if set, will use this value for extension on jpegs converted to jpeg with convert_to_jpeg; if not set, uses jpeg; do not include the leading "."
-* jpeg_quality (float in range 0.0 <= jpeg_quality <= 1.0): a value of 1.0 specifies use best quality, a value of 0.0 specifies use maximum compression.
-* keyword_template (list of str): list of template strings that will be rendered as used as keywords
-* live_photo (bool, default=False): if True, will also export the associated .mov for live photos
-* location (bool): if True, include location in exported metadata
-* merge_exif_keywords (bool): if True, merged keywords found in file's exif data (requires exiftool)
-* merge_exif_persons (bool): if True, merged persons found in file's exif data (requires exiftool)
-* overwrite (bool, default=False): if True will overwrite files if they already exist
-* persons (bool): if True, include persons in exported metadata
-* preview_suffix (str): optional string to append to end of filename for preview images
-* preview (bool): if True, also exports preview image
-* raw_photo (bool, default=False): if True, will also export the associated RAW photo
-* render_options (RenderOptions): optional osxphotos.phototemplate.RenderOptions instance to specify options for rendering templates
-* replace_keywords (bool): if True, keyword_template replaces any keywords, otherwise it's additive
-* sidecar_drop_ext (bool, default=False): if True, drops the photo's extension from sidecar filename (e.g. 'IMG_1234.json' instead of 'IMG_1234.JPG.json')
-* sidecar: bit field (int): set to one or more of SIDECAR_XMP, SIDECAR_JSON, SIDECAR_EXIFTOOL
-  * SIDECAR_JSON: if set will write a json sidecar with data in format readable by exiftool sidecar filename will be dest/filename.json; includes exiftool tag group names (e.g. `exiftool -G -j`)
-  * SIDECAR_EXIFTOOL: if set will write a json sidecar with data in format readable by exiftool sidecar filename will be dest/filename.json; does not include exiftool tag group names (e.g. `exiftool -j`)
-  * SIDECAR_XMP: if set will write an XMP sidecar with IPTC data sidecar filename will be dest/filename.xmp
-* strip (bool): if True, strip whitespace from rendered templates
-* timeout (int, default=120): timeout in seconds used with use_photos_export
-* touch_file (bool, default=False): if True, sets file's modification time upon photo date
-* update (bool, default=False): if True export will run in update mode, that is, it will not export the photo if the current version already exists in the destination
-* use_albums_as_keywords (bool, default = False): if True, will include album names in keywords when exporting metadata with exiftool or sidecar
-* use_persons_as_keywords (bool, default = False): if True, will include person names in keywords when exporting metadata with exiftool or sidecar
-* use_photos_export (bool, default=False): if True will attempt to export photo via applescript interaction with Photos even if not missing (see also use_photokit, download_missing)
-* use_photokit (bool, default=False): if True, will use photokit to export photos when use_photos_export is True
-* verbose (Callable): optional callable function to use for printing verbose text during processing; if None (default), does not print output.
-* tmpfile (str): optional path to use for temporary files
-
-#### `ExportResults`
-
-`PhotoExporter().export()` returns an instance of this class.
-
-`ExportResults` has the following properties:
-
-* datetime: date/time of export in ISO 8601 format
-* exported: list of all exported files (A single call to export could export more than one file, e.g. original file, preview, live video, raw, etc.)
-* new: list of new files exported when used with update=True
-* updated: list of updated files when used with update=True
-* skipped: list of skipped files when used with update=True
-* exif_updated: list of updated files when used with update=True and exiftool
-* touched: list of files touched during export (e.g. file date/time updated with touch_file=True)
-* to_touch: Reserved for internal use of export
-* converted_to_jpeg: list of files converted to jpeg when convert_to_jpeg=True
-* sidecar_json_written: list of JSON sidecars written
-* sidecar_json_skipped: list of JSON sidecars skipped when update=True
-* sidecar_exiftool_written: list of exiftool sidecars written
-* sidecar_exiftool_skipped: list of exiftool sidecars skipped when update=True
-* sidecar_xmp_written: list of XMP sidecars written
-* sidecar_xmp_skipped: list of XMP sidecars skipped when update=True
-* missing: list of missing files
-* error: list of tuples containing (filename, error) if error generated during export
-* exiftool_warning: list of warnings generated by exiftool during export
-* exiftool_error: list of errors generated by exiftool during export
-* xattr_written: list of files with extended attributes written during export
-* xattr_skipped: list of files where extended attributes were skipped when update=True
-* metadata_changed: list of files where metadata changed since last export
-* deleted_files: reserved for use by osxphotos CLI
-* deleted_directories: reserved for use by osxphotos CLI
-* exported_album: reserved for use by osxphotos CLI
-* skipped_album: reserved for use by osxphotos CLI
-* missing_album: reserved for use by osxphotos CLI
-
-### <a name="textdetection">Text Detection</a>
-
-The [PhotoInfo.detected_text()](#detected_text_method) and the `{detected_text}` template will perform text detection on the photos in your library. Text detection is a slow process so to avoid unnecessary re-processing of photos, osxphotos will cache the results of the text detection process as an extended attribute on the photo image file.  Extended attributes do not modify the actual file.  The extended attribute is named `osxphotos.metadata:detected_text` and can be viewed using the built-in [xattr](https://ss64.com/osx/xattr.html) command or my [osxmetadata](https://github.com/RhetTbull/osxmetadata) tool.  If you want to remove the cached attribute, you can do so with osxmetadata as follows:
-
-`osxmetadata --clear osxphotos.metadata:detected_text --walk ~/Pictures/Photos\ Library.photoslibrary/`
-
-### Utility Functions
-
-The following functions are located in osxphotos.utils
-
-#### `get_system_library_path()`
-
-**MacOS 10.15 Only** Returns path to System Photo Library as string.  On MacOS version < 10.15, returns None.
-
-#### `get_last_library_path()`
-
-Returns path to last opened Photo Library as string.  
-
-#### `list_photo_libraries()`
-
-Returns list of Photos libraries found on the system.  **Note**: On MacOS 10.15, this appears to list all libraries. On older systems, it may not find some libraries if they are not located in ~/Pictures.  Provided for convenience but do not rely on this to find all libraries on the system.
-
-## Examples
-
-```python
-import osxphotos
-
-def main():
-
-    photosdb = osxphotos.PhotosDB("/Users/smith/Pictures/Photos Library.photoslibrary")
-    print(f"db file = {photosdb.db_path}")
-    print(f"db version = {photosdb.db_version}")
-
-    print(photosdb.keywords)
-    print(photosdb.persons)
-    print(photosdb.album_names)
-
-    print(photosdb.keywords_as_dict)
-    print(photosdb.persons_as_dict)
-    print(photosdb.albums_as_dict)
-
-    # find all photos with Keyword = Kids and containing person Katie
-    photos = photosdb.photos(keywords=["Kids"], persons=["Katie"])
-    print(f"found {len(photos)} photos")
-
-    # find all photos that include Katie but do not contain the keyword wedding
-    photos = [
-        p
-        for p in photosdb.photos(persons=["Katie"])
-        if p not in photosdb.photos(keywords=["wedding"])
-    ]
-
-    # get all photos in the database
-    photos = photosdb.photos()
-    for p in photos:
-        print(
-            p.uuid,
-            p.filename,
-            p.date,
-            p.description,
-            p.title,
-            p.keywords,
-            p.albums,
-            p.persons,
-            p.path,
-            p.ismissing,
-            p.hasadjustments,
-        )
-
-
-if __name__ == "__main__":
-    main()
-```
 
 ## Related Projects
 
