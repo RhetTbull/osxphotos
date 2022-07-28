@@ -3286,6 +3286,8 @@ class PhotosDB:
 
         if options.is_reference:
             photos = [p for p in photos if p.isreference]
+        elif options.not_reference:
+            photos = [p for p in photos if not p.isreference]
 
         if options.in_album:
             photos = [p for p in photos if p.albums]
