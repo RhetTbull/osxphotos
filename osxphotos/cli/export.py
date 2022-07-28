@@ -805,6 +805,7 @@ def export(
     not_live,
     not_panorama,
     not_portrait,
+    not_reference,
     not_screenshot,
     not_selfie,
     not_shared,
@@ -995,6 +996,7 @@ def export(
         ignore_date_modified = cfg.ignore_date_modified
         ignore_signature = cfg.ignore_signature
         in_album = cfg.in_album
+        is_reference = cfg.is_reference
         jpeg_ext = cfg.jpeg_ext
         jpeg_quality = cfg.jpeg_quality
         keep = (cfg.keep,)
@@ -1024,6 +1026,7 @@ def export(
         not_live = cfg.not_live
         not_panorama = cfg.not_panorama
         not_portrait = cfg.not_portrait
+        not_reference = cfg.not_reference
         not_screenshot = cfg.not_screenshot
         not_selfie = cfg.not_selfie
         not_shared = cfg.not_shared
@@ -1129,6 +1132,7 @@ def export(
         ("slow_mo", "not_slow_mo"),
         ("time_lapse", "not_time_lapse"),
         ("title", "no_title"),
+        ("is_reference", "not_reference"),
     ]
     dependent_options = [
         ("exiftool_merge_keywords", ("exiftool", "sidecar")),
@@ -1391,6 +1395,7 @@ def export(
         not_missing=None,
         not_panorama=not_panorama,
         not_portrait=not_portrait,
+        not_reference=not_reference,
         not_screenshot=not_screenshot,
         not_selfie=not_selfie,
         not_shared=not_shared,

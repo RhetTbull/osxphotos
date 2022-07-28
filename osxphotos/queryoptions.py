@@ -70,6 +70,7 @@ class QueryOptions:
         not_missing: search for non-missing photos
         not_panorama: search for non-panorama photos
         not_portrait: search for non-portrait photos
+        not_reference: search for photos not stored by reference (that is, they are managed by Photos)
         not_screenshot: search for non-screenshot photos
         not_selfie: search for non-selfie photos
         not_shared: search for non-shared photos
@@ -151,6 +152,7 @@ class QueryOptions:
     not_missing: Optional[bool] = None
     not_panorama: Optional[bool] = None
     not_portrait: Optional[bool] = None
+    not_reference: Optional[bool] = None
     not_screenshot: Optional[bool] = None
     not_selfie: Optional[bool] = None
     not_shared: Optional[bool] = None
