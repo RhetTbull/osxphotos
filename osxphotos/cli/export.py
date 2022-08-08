@@ -999,7 +999,7 @@ def export(
         is_reference = cfg.is_reference
         jpeg_ext = cfg.jpeg_ext
         jpeg_quality = cfg.jpeg_quality
-        keep = (cfg.keep,)
+        keep = cfg.keep
         keyword = cfg.keyword
         keyword_template = cfg.keyword_template
         label = cfg.label
