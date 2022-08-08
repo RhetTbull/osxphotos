@@ -5899,6 +5899,7 @@ def test_export_cleanup():
                 "--dry-run",
             ],
         )
+        assert result.exit_code == 0
         assert "Deleted: 2 files, 0 directories" in result.output
         assert pathlib.Path("./delete_me.txt").is_file()
         assert pathlib.Path("./foo/delete_me_too.txt").is_file()
