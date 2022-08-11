@@ -12,6 +12,7 @@ from .momentinfo import MomentInfo
 from .personinfo import PersonInfo
 from .photoexporter import ExportOptions, ExportResults, PhotoExporter
 from .photoinfo import PhotoInfo
+from .photosalbum import PhotosAlbum
 from .photosdb import PhotosDB
 from .photosdb._photosdb_process_comments import CommentInfo, LikeInfo
 from .phototemplate import PhotoTemplate
@@ -43,6 +44,7 @@ __all__ = [
     "PhotoExporter",
     "PhotoInfo",
     "PhotoTemplate",
+    "PhotosAlbum",
     "PhotosDB",
     "PlaceInfo",
     "ProjectInfo",
