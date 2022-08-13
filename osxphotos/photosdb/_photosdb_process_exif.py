@@ -4,7 +4,7 @@
 import logging
 
 from .._constants import _DB_TABLE_NAMES, _PHOTOS_4_VERSION
-from ..utils import _db_is_locked, _open_sql_file
+from ..sqlite_utils import sqlite_open_ro, sqlite_db_is_locked
 from .photosdb_utils import get_db_version
 
 
@@ -38,7 +38,7 @@ def _process_exifinfo_5(photosdb):
 
     asset_table = _DB_TABLE_NAMES[photosdb._photos_ver]["ASSET"]
 
-    (conn, cursor) = _open_sql_file(db)
+    (conn, cursor) = sqlite_open_ro(db)
 
     result = conn.execute(
         f"""

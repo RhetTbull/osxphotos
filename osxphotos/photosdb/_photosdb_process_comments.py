@@ -6,7 +6,8 @@ import datetime
 from dataclasses import dataclass
 
 from .._constants import _DB_TABLE_NAMES, _PHOTOS_4_VERSION, TIME_DELTA
-from ..utils import _open_sql_file, normalize_unicode
+from ..utils import normalize_unicode
+from ..sqlite_utils import sqlite_open_ro
 
 
 def _process_comments(self):
@@ -65,7 +66,7 @@ def _process_comments_5(photosdb):
 
     asset_table = _DB_TABLE_NAMES[photosdb._photos_ver]["ASSET"]
 
-    (conn, cursor) = _open_sql_file(db)
+    (conn, cursor) = sqlite_open_ro(db)
 
     results = conn.execute(
         """

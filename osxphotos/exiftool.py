@@ -6,7 +6,9 @@
     If these aren't important to you, I highly recommend you use Sven Marnach's excellent 
     pyexiftool: https://github.com/smarnach/pyexiftool which provides more functionality """
 
+
 import atexit
+import contextlib
 import html
 import json
 import logging
@@ -104,9 +106,12 @@ class _ExifToolProc:
 
         return cls.instance
 
-    def __init__(self, exiftool=None):
+    def __init__(self, exiftool=None, large_file_support=True):
         """construct _ExifToolProc singleton object or return instance of already created object
-        exiftool: optional path to exiftool binary (if not provided, will search path to find it)
+
+        Args:
+            exiftool: optional path to exiftool binary (if not provided, will search path to find it)
+            large_file_support: if True, enables large file support (>4GB) via `-api largefilesupport=1`
         """
 
         if hasattr(self, "_process_running") and self._process_running:
@@ -119,16 +124,14 @@ class _ExifToolProc:
             return
         self._process_running = False
         self._exiftool = exiftool or get_exiftool_path()
-        self._start_proc()
+        self._start_proc(large_file_support=large_file_support)
 
     @property
     def process(self):
         """return the exiftool subprocess"""
-        if self._process_running:
-            return self._process
-        else:
+        if not self._process_running:
             self._start_proc()
-            return self._process
+        return self._process
 
     @property
     def pid(self):
@@ -140,7 +143,7 @@ class _ExifToolProc:
         """return path to exiftool process"""
         return self._exiftool
 
-    def _start_proc(self):
+    def _start_proc(self, large_file_support):
         """start exiftool in batch mode"""
 
         if self._process_running:
@@ -151,11 +154,13 @@ class _ExifToolProc:
         # make sure /usr/bin at start of path so exiftool can find xattr (see #636)
         env = os.environ.copy()
         env["PATH"] = f'/usr/bin/:{env["PATH"]}'
+        large_file_args = ["-api", "largefilesupport=1"] if large_file_support else []
         self._process = subprocess.Popen(
             [
                 self._exiftool,
                 "-stay_open",  # keep process open in batch mode
                 "True",  # -stay_open=True, keep process open in batch mode
+                *large_file_args,
                 "-@",  # read command-line arguments from file
                 "-",  # read from stdin
                 "-common_args",  # specifies args common to all commands subsequently run
@@ -179,13 +184,10 @@ class _ExifToolProc:
         if not self._process_running:
             return
 
-        try:
+        with contextlib.suppress(Exception):
             self._process.stdin.write(b"-stay_open\n")
             self._process.stdin.write(b"False\n")
             self._process.stdin.flush()
-        except Exception as e:
-            pass
-
         try:
             self._process.communicate(timeout=5)
         except subprocess.TimeoutExpired:
@@ -199,7 +201,14 @@ class _ExifToolProc:
 class ExifTool:
     """Basic exiftool interface for reading and writing EXIF tags"""
 
-    def __init__(self, filepath, exiftool=None, overwrite=True, flags=None):
+    def __init__(
+        self,
+        filepath,
+        exiftool=None,
+        overwrite=True,
+        flags=None,
+        large_file_support=True,
+    ):
         """Create ExifTool object
 
         Args:
@@ -207,6 +216,7 @@ class ExifTool:
             exiftool: path to exiftool, if not specified will look in path
             overwrite: if True, will overwrite image file without creating backup, default=False
             flags: optional list of exiftool flags to prepend to exiftool command when writing metadata (e.g. -m or -F)
+            large_file_support: if True, enables large file support in exiftool (`-api largefilesupport=1`)
 
         Returns:
             ExifTool instance
@@ -219,7 +229,9 @@ class ExifTool:
         self.error = None
         # if running as a context manager, self._context_mgr will be True
         self._context_mgr = False
-        self._exiftoolproc = _ExifToolProc(exiftool=exiftool)
+        self._exiftoolproc = _ExifToolProc(
+            exiftool=exiftool, large_file_support=large_file_support
+        )
         self._read_exif()
 
     @property
@@ -327,7 +339,7 @@ class ExifTool:
             commands = list(commands)
             commands.append("-overwrite_original")
 
-        filename = os.fsencode(self.file) if not no_file else b""
+        filename = b"" if no_file else os.fsencode(self.file)
 
         if self.flags:
             # need to split flags, e.g. so "--ext AVI" becomes ["--ext", "AVI"]
@@ -423,8 +435,7 @@ class ExifTool:
 
     def _read_exif(self):
         """read exif data from file"""
-        data = self.asdict()
-        self.data = {k: v for k, v in data.items()}
+        self.data = self.asdict().copy()
 
     def __str__(self):
         return f"file: {self.file}\nexiftool: {self._exiftoolproc._exiftool}"

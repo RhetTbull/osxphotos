@@ -3,14 +3,15 @@
     ref: https://github.com/dogsheep/photos-to-sqlite/issues/16
 """
 
-from functools import lru_cache
 import logging
 import pathlib
 import uuid as uuidlib
+from functools import lru_cache
 from pprint import pformat
 
 from .._constants import _PHOTOS_4_VERSION, SEARCH_CATEGORY_LABEL
-from ..utils import _db_is_locked, _open_sql_file, normalize_unicode
+from ..sqlite_utils import sqlite_open_ro, sqlite_db_is_locked
+from ..utils import normalize_unicode
 
 """
     This module should be imported in the class defintion of PhotosDB in photosdb.py
@@ -63,12 +64,12 @@ def _process_searchinfo(self):
         logging.warning(f"could not find search db: {search_db_path}")
         return None
 
-    if _db_is_locked(search_db_path):
+    if sqlite_db_is_locked(search_db_path):
         search_db = self._copy_db_file(search_db_path)
     else:
         search_db = search_db_path
 
-    (conn, c) = _open_sql_file(search_db)
+    (conn, c) = sqlite_open_ro(search_db)
 
     result = c.execute(
         """

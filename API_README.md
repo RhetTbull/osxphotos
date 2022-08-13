@@ -2005,7 +2005,7 @@ cog.out(get_template_field_table())
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.50.4'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.50.12'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
@@ -2050,10 +2050,11 @@ True
 ['Keyword1', 'Keyword2', 'Keyword3']
 ```
 
-`ExifTool(filepath, exiftool=None)`
+`ExifTool(filepath, exiftool=None, large_file_support=True)`
 
 * `filepath`: str, path to photo
 * `exiftool`: str, optional path to `exiftool`; if not provided, will look for `exiftool` in the system path
+* `large_file_support`: bool, if True, enables large file support in exiftool (`-api largefilesupport=1`)
 
 #### ExifTool methods
 

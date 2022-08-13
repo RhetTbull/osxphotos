@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="#" /><link rel="search" title="Search" href="search.html" />
 
-    <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/><title>Index - osxphotos 0.50.4 documentation</title>
+    <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/><title>Index - osxphotos 0.50.12 documentation</title>
 <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -122,7 +122,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.50.4 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.50.12 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -145,7 +145,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.50.4 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.50.12 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -685,6 +685,13 @@
 </li>
         </ul></li>
         <li>
+    --favorite-rating
+
+        <ul>
+          <li><a href="cli.html#cmdoption-osxphotos-export-favorite-rating">osxphotos-export command line option</a>
+</li>
+        </ul></li>
+        <li>
     --filename
 
         <ul>
@@ -932,6 +939,13 @@
           <li><a href="cli.html#cmdoption-osxphotos-places-json">osxphotos-places command line option</a>
 </li>
           <li><a href="cli.html#cmdoption-osxphotos-query-json">osxphotos-query command line option</a>
+</li>
+        </ul></li>
+        <li>
+    --keep
+
+        <ul>
+          <li><a href="cli.html#cmdoption-osxphotos-export-keep">osxphotos-export command line option</a>
 </li>
         </ul></li>
         <li>
@@ -1281,6 +1295,17 @@
           <li><a href="cli.html#cmdoption-osxphotos-query-not-portrait">osxphotos-query command line option</a>
 </li>
           <li><a href="cli.html#cmdoption-osxphotos-repl-not-portrait">osxphotos-repl command line option</a>
+</li>
+        </ul></li>
+        <li>
+    --not-reference
+
+        <ul>
+          <li><a href="cli.html#cmdoption-osxphotos-export-not-reference">osxphotos-export command line option</a>
+</li>
+          <li><a href="cli.html#cmdoption-osxphotos-query-not-reference">osxphotos-query command line option</a>
+</li>
+          <li><a href="cli.html#cmdoption-osxphotos-repl-not-reference">osxphotos-repl command line option</a>
 </li>
         </ul></li>
         <li>
@@ -2481,6 +2506,8 @@
           <li><a href="reference.html#osxphotos.QueryOptions.favorite">(osxphotos.QueryOptions attribute)</a>
 </li>
         </ul></li>
+        <li><a href="reference.html#osxphotos.ExportOptions.favorite_rating">favorite_rating (osxphotos.ExportOptions attribute)</a>
+</li>
         <li><a href="reference.html#osxphotos.FileUtilNoOp.file_sig">file_sig() (osxphotos.FileUtilNoOp class method)</a>
 </li>
         <li><a href="reference.html#osxphotos.PhotoInfo.filename">filename (osxphotos.PhotoInfo property)</a>
@@ -2832,10 +2859,10 @@
 </li>
         <li><a href="reference.html#osxphotos.QueryOptions.not_favorite">not_favorite (osxphotos.QueryOptions attribute)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="reference.html#osxphotos.QueryOptions.not_hdr">not_hdr (osxphotos.QueryOptions attribute)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="reference.html#osxphotos.QueryOptions.not_hidden">not_hidden (osxphotos.QueryOptions attribute)</a>
 </li>
         <li><a href="reference.html#osxphotos.QueryOptions.not_in_album">not_in_album (osxphotos.QueryOptions attribute)</a>
@@ -2849,6 +2876,8 @@
         <li><a href="reference.html#osxphotos.QueryOptions.not_panorama">not_panorama (osxphotos.QueryOptions attribute)</a>
 </li>
         <li><a href="reference.html#osxphotos.QueryOptions.not_portrait">not_portrait (osxphotos.QueryOptions attribute)</a>
+</li>
+        <li><a href="reference.html#osxphotos.QueryOptions.not_reference">not_reference (osxphotos.QueryOptions attribute)</a>
 </li>
         <li><a href="reference.html#osxphotos.QueryOptions.not_screenshot">not_screenshot (osxphotos.QueryOptions attribute)</a>
 </li>
@@ -3074,6 +3103,8 @@
 </li>
           <li><a href="cli.html#cmdoption-osxphotos-export-favorite">--favorite</a>
 </li>
+          <li><a href="cli.html#cmdoption-osxphotos-export-favorite-rating">--favorite-rating</a>
+</li>
           <li><a href="cli.html#cmdoption-osxphotos-export-filename">--filename</a>
 </li>
           <li><a href="cli.html#cmdoption-osxphotos-export-finder-tag-keywords">--finder-tag-keywords</a>
@@ -3111,6 +3142,8 @@
           <li><a href="cli.html#cmdoption-osxphotos-export-jpeg-ext">--jpeg-ext</a>
 </li>
           <li><a href="cli.html#cmdoption-osxphotos-export-jpeg-quality">--jpeg-quality</a>
+</li>
+          <li><a href="cli.html#cmdoption-osxphotos-export-keep">--keep</a>
 </li>
           <li><a href="cli.html#cmdoption-osxphotos-export-keyword">--keyword</a>
 </li>
@@ -3165,6 +3198,8 @@
           <li><a href="cli.html#cmdoption-osxphotos-export-not-panorama">--not-panorama</a>
 </li>
           <li><a href="cli.html#cmdoption-osxphotos-export-not-portrait">--not-portrait</a>
+</li>
+          <li><a href="cli.html#cmdoption-osxphotos-export-not-reference">--not-reference</a>
 </li>
           <li><a href="cli.html#cmdoption-osxphotos-export-not-screenshot">--not-screenshot</a>
 </li>
@@ -3401,6 +3436,8 @@
           <li><a href="cli.html#cmdoption-osxphotos-keywords-arg-PHOTOS_LIBRARY">PHOTOS_LIBRARY</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li>
     osxphotos-labels command line option
 
@@ -3412,8 +3449,6 @@
           <li><a href="cli.html#cmdoption-osxphotos-labels-arg-PHOTOS_LIBRARY">PHOTOS_LIBRARY</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li>
     osxphotos-list command line option
 
@@ -3556,6 +3591,8 @@
           <li><a href="cli.html#cmdoption-osxphotos-query-not-panorama">--not-panorama</a>
 </li>
           <li><a href="cli.html#cmdoption-osxphotos-query-not-portrait">--not-portrait</a>
+</li>
+          <li><a href="cli.html#cmdoption-osxphotos-query-not-reference">--not-reference</a>
 </li>
           <li><a href="cli.html#cmdoption-osxphotos-query-not-screenshot">--not-screenshot</a>
 </li>
@@ -3727,6 +3764,8 @@
           <li><a href="cli.html#cmdoption-osxphotos-repl-not-panorama">--not-panorama</a>
 </li>
           <li><a href="cli.html#cmdoption-osxphotos-repl-not-portrait">--not-portrait</a>
+</li>
+          <li><a href="cli.html#cmdoption-osxphotos-repl-not-reference">--not-reference</a>
 </li>
           <li><a href="cli.html#cmdoption-osxphotos-repl-not-screenshot">--not-screenshot</a>
 </li>

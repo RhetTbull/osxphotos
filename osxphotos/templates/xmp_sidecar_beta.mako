@@ -92,6 +92,12 @@
     % endif
 </%def>
 
+<%def name="xmp_rating(rating)">
+    % if rating is not None:
+        <xmp:Rating>${rating}</xmp:Rating>
+    % endif
+</%def>
+
 <%def name="gps_info(latitude, longitude)">
     % if latitude is not None and longitude is not None:
         <exif:GPSLongitude>${int(abs(longitude))},${(abs(longitude) % 1) * 60}${"E" if longitude >= 0 else "W"}</exif:GPSLongitude>
@@ -174,6 +180,7 @@
  xmlns:xmp='http://ns.adobe.com/xap/1.0/'>
  ${adobe_createdate(photo.date)}
  ${adobe_modifydate(photo.date)}
+ ${xmp_rating(rating)}
 </rdf:Description>
 
 <rdf:Description rdf:about=""

@@ -421,6 +421,12 @@ def QUERY_OPTIONS(f):
             help="Search for photos that were imported as referenced files (not copied into Photos library).",
         ),
         o(
+            "--not-reference",
+            is_flag=True,
+            help="Search for photos that are not references, that is, they were copied into the Photos library "
+            "and are managed by Photos.",
+        ),
+        o(
             "--in-album",
             is_flag=True,
             help="Search for photos that are in one or more albums.",

@@ -1,5 +1,5 @@
-import logging
-import os.path
+"""Test osxphotos.utils"""
+
 import pathlib
 import tempfile
 
@@ -7,16 +7,12 @@ import pytest
 
 import osxphotos
 
-DB_LOCKED_10_12 = "./tests/Test-Lock-10_12.photoslibrary/database/photos.db"
-DB_LOCKED_10_15 = "./tests/Test-Lock-10_15_1.photoslibrary/database/Photos.sqlite"
-DB_UNLOCKED_10_15 = "./tests/Test-10.15.1.photoslibrary/database/photos.db"
-
 UTI_DICT = {"public.jpeg": "jpeg", "com.canon.cr2-raw-image": "cr2"}
 
 from osxphotos.utils import (
     _dd_to_dms,
-    increment_filename_with_count,
     increment_filename,
+    increment_filename_with_count,
     list_directory,
     shortuuid_to_uuid,
     uuid_to_shortuuid,
@@ -37,17 +33,6 @@ def test_get_system_library_path():
         assert osxphotos.utils.get_system_library_path() is None
     else:
         assert osxphotos.utils.get_system_library_path() is not None
-
-
-def test_db_is_locked_locked():
-
-    assert osxphotos.utils._db_is_locked(DB_LOCKED_10_12)
-    assert osxphotos.utils._db_is_locked(DB_LOCKED_10_15)
-
-
-def test_db_is_locked_unlocked():
-
-    assert not osxphotos.utils._db_is_locked(DB_UNLOCKED_10_15)
 
 
 def test_list_directory():

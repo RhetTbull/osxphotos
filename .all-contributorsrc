@@ -326,6 +326,43 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "nullpointerninja",
+      "name": "nullpointerninja",
+      "avatar_url": "https://avatars.githubusercontent.com/u/62975432?v=4",
+      "profile": "https://github.com/nullpointerninja",
+      "contributions": [
+        "bug",
+        "ideas"
+      ]
+    },
+    {
+      "login": "infused-kim",
+      "name": "Kim",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7404004?v=4",
+      "profile": "https://github.com/infused-kim",
+      "contributions": [
+        "ideas"
+      ]
+    },
+    {
+      "login": "Se7enair",
+      "name": "Christoph",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1680106?v=4",
+      "profile": "https://github.com/Se7enair",
+      "contributions": [
+        "ideas"
+      ]
+    },
+    {
+      "login": "franzone",
+      "name": "franzone",
+      "avatar_url": "https://avatars.githubusercontent.com/u/900684?v=4",
+      "profile": "http://www.franzone.com",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,

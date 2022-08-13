@@ -253,7 +253,6 @@ def _query_options_from_kwargs(**kwargs) -> QueryOptions:
         "from_date",
         "from_time",
         "has_raw",
-        "is_reference",
         "keyword",
         "label",
         "max_size",
@@ -294,6 +293,7 @@ def _query_options_from_kwargs(**kwargs) -> QueryOptions:
         ("shared", "not_shared"),
         ("slow_mo", "not_slow_mo"),
         ("time_lapse", "not_time_lapse"),
+        ("is_reference", "not_reference"),
     ]
     # print help if no non-exclusive term or a double exclusive term is given
     # TODO: add option to validate requiring at least one query arg

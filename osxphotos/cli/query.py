@@ -127,6 +127,7 @@ def query(
     not_missing,
     not_panorama,
     not_portrait,
+    not_reference,
     not_screenshot,
     not_selfie,
     not_shared,
@@ -176,7 +177,6 @@ def query(
         from_date,
         from_time,
         has_raw,
-        is_reference,
         keyword,
         label,
         max_size,
@@ -220,6 +220,7 @@ def query(
         (shared, not_shared),
         (slow_mo, not_slow_mo),
         (time_lapse, not_time_lapse),
+        (is_reference, not_reference),
     ]
     # print help if no non-exclusive term or a double exclusive term is given
     if any(all(bb) for bb in exclusive) or not any(
@@ -309,6 +310,7 @@ def query(
         not_missing=not_missing,
         not_panorama=not_panorama,
         not_portrait=not_portrait,
+        not_reference=not_reference,
         not_screenshot=not_screenshot,
         not_selfie=not_selfie,
         not_shared=not_shared,
