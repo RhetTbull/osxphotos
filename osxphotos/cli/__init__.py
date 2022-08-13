@@ -58,6 +58,7 @@ from .install_uninstall_run import install, run, uninstall
 from .keywords import keywords
 from .labels import labels
 from .list import _list_libraries, list_libraries
+from .orphans import orphans
 from .persons import persons
 from .photo_inspect import photo_inspect
 from .places import places
@@ -88,6 +89,7 @@ __all__ = [
     "list_libraries",
     "list_libraries",
     "load_uuid_from_file",
+    "orphans",
     "persons",
     "photo_inspect",
     "places",

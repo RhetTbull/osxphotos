@@ -20,6 +20,7 @@ from .install_uninstall_run import install, run, uninstall
 from .keywords import keywords
 from .labels import labels
 from .list import list_libraries
+from .orphans import orphans
 from .persons import persons
 from .photo_inspect import photo_inspect
 from .places import places
@@ -79,6 +80,7 @@ for command in [
     keywords,
     labels,
     list_libraries,
+    orphans,
     persons,
     photo_inspect,
     places,
