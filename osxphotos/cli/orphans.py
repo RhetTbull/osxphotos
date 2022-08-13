@@ -8,36 +8,40 @@ import sys
 # using os.path.join is slightly slower inside loop than directly using the method
 from os.path import join as joinpath
 from os.path import splitext
+from pathlib import Path
 from typing import Dict
 
 import click
 
-import osxphotos
-from osxphotos.photosdb.photosdb_utils import get_db_model_version
+from osxphotos import PhotosDB
+from osxphotos._constants import _PHOTOS_4_VERSION
+from osxphotos.fileutil import FileUtil
+from osxphotos.utils import increment_filename, pluralize
 
-from .click_rich_echo import (
-    rich_click_echo,
-    rich_echo,
-    rich_echo_error,
-    set_rich_console,
-    set_rich_theme,
-    set_rich_timestamp,
-)
+from .click_rich_echo import rich_click_echo as echo
+from .click_rich_echo import set_rich_console, set_rich_theme, set_rich_timestamp
 from .color_themes import get_theme
-from .common import DB_ARGUMENT, DB_OPTION, THEME_OPTION, get_photos_db
+from .common import DB_OPTION, THEME_OPTION, get_photos_db
 from .help import get_help_msg
 from .list import _list_libraries
 from .verbose import get_verbose_console, verbose_print
 
 
 @click.command(name="orphans")
+@click.option(
+    "--export",
+    metavar="EXPORT_PATH",
+    required=False,
+    type=click.Path(file_okay=False, writable=True, resolve_path=True, exists=True),
+    help="Export orphans to directory EXPORT_PATH. If --export not specified, orphans are listed but not exported.",
+)
 @DB_OPTION
 @click.option("--verbose", "-V", "verbose", is_flag=True, help="Print verbose output.")
 @click.option("--timestamp", is_flag=True, help="Add time stamp to verbose output")
 @THEME_OPTION
 @click.pass_obj
 @click.pass_context
-def orphans(ctx, cli_obj, db, verbose, timestamp, theme):
+def orphans(ctx, cli_obj, export, db, verbose, timestamp, theme):
     """Find orphaned photos in a Photos library"""
 
     color_theme = get_theme(theme)
@@ -53,23 +57,17 @@ def orphans(ctx, cli_obj, db, verbose, timestamp, theme):
     cli_db = cli_obj.db if cli_obj is not None else None
     db = get_photos_db(db, cli_db)
     if not db:
-        rich_click_echo(get_help_msg(orphans), err=True)
-        rich_click_echo(
-            "\n\nLocated the following Photos library databases: ", err=True
-        )
+        echo(get_help_msg(orphans), err=True)
+        echo("\n\nLocated the following Photos library databases: ", err=True)
         _list_libraries()
         return
 
     verbose_("Loading Photos database")
-    photosdb = osxphotos.PhotosDB(dbfile=db, verbose=verbose_, rich=True)
-    if (
-        get_db_model_version(
-            joinpath(photosdb.library_path, "database", "Photos.sqlite")
-        )
-        < 5
-    ):
-        print(
-            "orphans can only be used with Photos libraries > version 5 (MacOS Catalina/10.15)"
+    photosdb = PhotosDB(dbfile=db, verbose=verbose_, rich=True)
+    if photosdb.db_version <= _PHOTOS_4_VERSION:
+        echo(
+            "[error]Orphans can only be used with Photos libraries > version 5 (MacOS Catalina/10.15)[/]",
+            err=True,
         )
         sys.exit(1)
 
@@ -112,9 +110,28 @@ def orphans(ctx, cli_obj, db, verbose, timestamp, theme):
     scan_for_files(directory, uuids_in_library)
 
     # find orphans
+    possible_orphans = []
     for uuid, files in uuids_in_library.items():
         if uuid not in uuids_in_db:
-            print(f"Possible orphan: {uuid} {files}")
+            possible_orphans.extend(files)
+
+    echo(
+        f"Found [num]{len(possible_orphans)}[/] "
+        f"{pluralize(len(possible_orphans), 'orphan', 'orphans')}"
+    )
+    exported = []
+    for orphan in possible_orphans:
+        echo(f"[filepath]{orphan}[/]")
+        if export:
+            dest = increment_filename(Path(export) / Path(orphan).name)
+            verbose_(f"Copying [filepath]{Path(orphan).name}[/] to [filepath]{dest}[/]")
+            FileUtil.copy(orphan, dest)
+            exported.append(dest)
+    if export:
+        echo(
+            f"Exported [num]{len(exported)}[/] "
+            f"{pluralize(len(exported), 'file', 'files')}"
+        )
 
 
 def scan_for_files(directory: str, uuid_dict: Dict):
