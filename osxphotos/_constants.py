@@ -118,6 +118,7 @@ _TESTED_OS_VERSIONS = [
     ("12", "2"),
     ("12", "3"),
     ("12", "4"),
+    ("12", "5"),
 ]
 
 # Photos 5 has persons who are empty string if unidentified face
