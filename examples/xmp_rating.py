@@ -1,5 +1,7 @@
 """ Example function for use with osxphotos export --post-function option to set custom XMP:Rating value"""
 
+# See this Reddit post for context: https://www.reddit.com/r/osxphotos/comments/wo4xra/can_i_set_xmprating_based_on_keywords/
+
 import sys
 from typing import Callable
 
@@ -8,11 +10,11 @@ from osxphotos.exiftool import ExifTool
 
 # Update this for your custom keyword to rating mapping
 RATINGS = {
-    "Keyword1": 1,
-    "Keyword2": 2,
-    "Keyword3": 3,
-    "Keyword4": 4,
-    "Keyword5": 5,
+    "★⭐︎⭐︎⭐︎⭐︎": 1,
+    "★★︎⭐︎⭐︎⭐︎": 2,
+    "★★★︎⭐︎⭐︎": 3,
+    "★★★★︎⭐︎": 4,
+    "★★★★★︎": 5,
 }
 
 
