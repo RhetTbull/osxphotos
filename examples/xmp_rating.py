@@ -7,6 +7,7 @@ from typing import Callable
 
 from osxphotos import ExportResults, PhotoInfo
 from osxphotos.exiftool import ExifTool
+from osxphotos.utils import normalize_unicode
 
 # Update this for your custom keyword to rating mapping
 RATINGS = {
@@ -16,6 +17,9 @@ RATINGS = {
     "★★★★︎⭐︎": 4,
     "★★★★★︎": 5,
 }
+
+# normalize the unicode to match what osxphotos uses internally
+RATINGS = {normalize_unicode(k): v for k, v in RATINGS.items()}
 
 
 def rating(photo: PhotoInfo, results: ExportResults, verbose: Callable, **kwargs):
