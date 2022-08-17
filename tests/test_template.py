@@ -1228,6 +1228,9 @@ def test_filepath():
     rendered, _ = template.render("{filepath.parent}", options)
     assert rendered[0] == "/foo"
 
+    rendered, _ = template.render("{filepath.parent.name}", options)
+    assert rendered[0] == "foo"
+
     rendered, _ = template.render("{filepath.stem}", options)
     assert rendered[0] == "bar"
 

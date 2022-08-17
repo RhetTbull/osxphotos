@@ -1,0 +1,192 @@
+""" Tests which require user interaction to run for osxphotos import command; run with pytest --test-import """
+
+import os
+import os.path
+import pathlib
+import re
+import time
+from typing import Dict
+
+import pytest
+from click.testing import CliRunner
+from photoscript import Photo
+
+from osxphotos import PhotosDB
+from osxphotos.cli.import_cli import import_cli
+from osxphotos.exiftool import ExifTool
+from tests.conftest import get_os_version
+
+TEST_IMAGE_1 = "tests/test-images/IMG_4179.jpeg"
+
+TEST_DATA = {
+    TEST_IMAGE_1: {
+        "title": "Waves crashing on rocks",
+        "description": "Used for testing osxphotos",
+        "keywords": ["osxphotos"],
+    }
+}
+
+# set timezone to avoid issues with comparing dates
+os.environ["TZ"] = "US/Pacific"
+time.tzset()
+
+TERMINAL_WIDTH = 250
+
+OS_VER = get_os_version()[1]
+if OS_VER != "15":
+    pytest.skip(allow_module_level=True)
+
+
+def prompt(message):
+    """Helper function for tests that require user input"""
+    message = f"\n{message}\nPlease answer y/n: "
+    answer = input(message)
+    return answer.lower() == "y"
+
+
+def say(msg: str) -> None:
+    """Say message with text to speech"""
+    os.system(f"say {msg}")
+
+
+def parse_import_output(output: str) -> Dict[str, str]:
+    """Parse output of osxphotos import command and return dict of {image name: uuid} for imported photos"""
+    # look for lines that look like this:
+    # Imported IMG_4179.jpeg with UUID A62792F0-4524-4529-9931-56E52C95E873
+
+    results = {}
+    for line in output.split("\n"):
+        pattern = re.compile(
+            r"Imported ([\w\.]+)\s.*UUID\s([0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12})"
+        )
+        if match := re.match(pattern, line):
+            file = match[1]
+            uuid = match[2]
+            results[file] = uuid
+    return results
+
+
+########## Interactive tests run first ##########
+
+
+@pytest.mark.test_import
+def test_import():
+    """Test basic import"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    result = runner.invoke(
+        import_cli,
+        ["--verbose", test_image_1],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(test_image_1).name
+    uuid_1 = import_data[file_1]
+    photo_1 = Photo(uuid_1)
+
+    assert photo_1.filename == file_1
+
+
+@pytest.mark.test_import
+def test_import_album():
+    """Test basic import to an album"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    result = runner.invoke(
+        import_cli,
+        ["--verbose", "--album", "My New Album", test_image_1],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(test_image_1).name
+    uuid_1 = import_data[file_1]
+    photo_1 = Photo(uuid_1)
+
+    assert photo_1.filename == file_1
+    albums = photo_1.albums
+    assert len(albums) == 1
+    assert albums[0].title == "My New Album"
+
+
+@pytest.mark.test_import
+def test_import_album_2():
+    """Test basic import to an album with a "/" in it"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    result = runner.invoke(
+        import_cli,
+        ["--verbose", "--album", "Folder/My New Album", test_image_1],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(test_image_1).name
+    uuid_1 = import_data[file_1]
+    photo_1 = Photo(uuid_1)
+
+    assert photo_1.filename == file_1
+    albums = photo_1.albums
+    assert len(albums) == 1
+    assert albums[0].title == "Folder/My New Album"
+    assert albums[0].path_str() == "Folder/My New Album"
+
+
+@pytest.mark.test_import
+def test_import_album_auto_folder():
+    """Test basic import to an album with a "/" in it and --auto-folder"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    result = runner.invoke(
+        import_cli,
+        ["--verbose", "--album", "Folder/My New Album", "--auto-folder", test_image_1],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(test_image_1).name
+    uuid_1 = import_data[file_1]
+    photo_1 = Photo(uuid_1)
+
+    assert photo_1.filename == file_1
+    albums = photo_1.albums
+    assert len(albums) == 1
+    assert albums[0].title == "My New Album"
+    assert albums[0].path_str() == "Folder/My New Album"
+
+
+@pytest.mark.test_import
+def test_import_dup_check():
+    """Test basic import with --dup-check"""
+    say("Please click Import when prompted by Photos to import duplicate photo.")
+
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    result = runner.invoke(
+        import_cli,
+        ["--verbose", "--dup-check", test_image_1],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(test_image_1).name
+    uuid_1 = import_data[file_1]
+    photo_1 = Photo(uuid_1)
+
+    assert photo_1.filename == file_1
