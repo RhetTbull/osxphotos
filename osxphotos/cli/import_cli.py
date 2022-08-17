@@ -5,11 +5,15 @@ import logging
 import os.path
 import uuid
 from pathlib import Path
+from textwrap import dedent
 from typing import Callable, List, Optional, Tuple, Union
 
 import click
 from photoscript import Photo, PhotosLibrary
+from rich.console import Console
+from rich.markdown import Markdown
 
+from osxphotos.cli.help import HELP_WIDTH
 from osxphotos.datetime_utils import datetime_naive_to_local
 from osxphotos.exiftool import ExifToolCaching, get_exiftool_path
 from osxphotos.photosalbum import PhotosAlbumPhotoScript
@@ -120,9 +124,14 @@ class PhotoInfoFromFile:
 
 
 def import_photo(
-    filepath: Path, dup_check: bool, verbose: Callable
+    filepath: Path, dup_check: bool, verbose: Callable[..., None]
 ) -> Tuple[Optional[Photo], Optional[str]]:
-    """Import a photo and return Photo object and error string if any"""
+    """Import a photo and return Photo object and error string if any
+
+    Args:
+        filepath: path to the file to import
+        dup_check: enable or disable Photo's duplicate check on import
+        verbose: Callable"""
     if imported := PhotosLibrary().import_photos(
         [filepath], skip_duplicate_check=not dup_check
     ):
@@ -143,12 +152,13 @@ def add_photo_to_albums(
     relative_filepath: Path,
     album_templates: List[str],
     auto_folder: bool,
-    verbose: Callable,
+    verbose: Callable[..., None],
+    exiftool_path: Optional[str],
 ):
     """Add photo to one or more albums"""
 
     # render album names
-    photoinfo = PhotoInfoFromFile(filepath)
+    photoinfo = PhotoInfoFromFile(filepath, exiftool=exiftool_path)
     options = RenderOptions(filepath=relative_filepath)
     albums = []
     for a in album_templates:
@@ -166,9 +176,83 @@ def add_photo_to_albums(
         photos_album.add(photo)
 
 
+def clear_photo_metadata(photo: Photo):
+    """Clear any metadata (title, description, keywords) associated with Photo in the Photos Library"""
+    photo.title = ""
+    photo.description = ""
+    photo.keywords = []
+
+
+class ImportCommand(click.Command):
+    """Custom click.Command that overrides get_help() to show additional help info for import"""
+
+    def get_help(self, ctx):
+        help_text = super().get_help(ctx)
+        formatter = click.HelpFormatter(width=HELP_WIDTH)
+        extra_help = dedent(
+            """
+            ## Examples
+
+            Import a file into Photos:
+            `osxphotos import /Volumes/photos/img_1234.jpg`
+
+            Import multiple jpg files into Photos:
+
+            `osxphotos import /Volumes/photos/*.jpg`
+
+            Import files into Photos and add to album:
+
+            `osxphotos import /Volumes/photos/*.jpg --album "My Album"`
+
+            ## Albums
+
+            TODO:
+
+            ## Metadata
+
+            `osxphotos import` can set metadata (title, description, keywords) for 
+            imported photos using several options. 
+
+            If you have exiftool (https://exiftool.org/) installed, osxphotos can use
+            exiftool to extract metadata from the imported file and use this to update
+            the metadata in Photos.
+
+            The `--exiftool` option will automatically attempt to update title, 
+            description, and keywords from the file's metadata:
+            
+            `osxphotos import *.jpg --exiftool` 
+
+            The following metadata fields are read (in priority order) and used to set 
+            the metadata of the imported photo:
+
+            - Title: XMP:Title, IPTC:ObjectName
+            - Description: XMP:Description, IPTC:Caption-Abstract, EXIF:ImageDescription
+            - Keywords: XMP:Subject, XMP:TagsList, IPTC:Keywords
+
+            When importing photos, Photos itself will usually read most of these same fields 
+            and set the metadata but when importing via AppleScript (which is how `osxphotos 
+            import` interacts with Photos), Photos does not always reliably do this. It is 
+            recommended you use `--exiftool` to ensure metadata gets correctly imported.
+
+            You can also use `--clear-metadata` to remove any metadata automatically set by
+            Photos upon import.
+
+            ## Template System
+
+            TODO
+        """
+        )
+        console = Console()
+        with console.capture() as capture:
+            console.print(Markdown(extra_help), width=min(HELP_WIDTH, console.width))
+        formatter.write(capture.get())
+        help_text += "\n\n" + formatter.getvalue()
+        return help_text
+
+
 # TODO: Add --merge-metadata (to merge with what Photos will read from XMP)
-# Add --no-metadata (to import with no metadata)
-@click.command(name="import")
+# TODO: add --location
+@click.command(name="import", cls=ImportCommand)
 @click.option(
     "--album",
     "-a",
@@ -177,6 +261,29 @@ def add_photo_to_albums(
     help="Import photos into album ALBUM_TEMPLATE. "
     "ALBUM_TEMPLATE is an osxphotos template string. "
     "Photos may be imported into more than one album by repeating --album.",
+)
+@click.option(
+    "--clear-metadata",
+    "-N",
+    is_flag=True,
+    help="Clear any metadata set automatically "
+    "by Photos upon import. Normally, Photos will set title, description, and keywords "
+    "from XMP metadata in the imported file.  If you specify --clear-metadata, any metadata "
+    "set by Photos will be cleared after import.",
+)
+@click.option(
+    "--exiftool",
+    "-e",
+    is_flag=True,
+    help="Use third party tool exiftool (https://exiftool.org/) to automatically "
+    "update metadata (title, description, keywords) in imported photos from "
+    "the imported file's metadata.",
+)
+@click.option(
+    "--exiftool-path",
+    metavar="EXIFTOOL_PATH",
+    type=click.Path(exists=True, dir_okay=False),
+    help="Optionally specify path to exiftool; if not provided, will look for exiftool in $PATH.",
 )
 @click.option(
     "--relative-to",
@@ -208,6 +315,9 @@ def import_cli(
     ctx,
     cli_obj,
     album,
+    clear_metadata,
+    exiftool,
+    exiftool_path,
     relative_to,
     dup_check,
     auto_folder,
@@ -217,7 +327,7 @@ def import_cli(
     theme,
     files,
 ):
-    """Import photos and videos into Photos"""
+    """Import photos and videos into Photos."""
 
     color_theme = get_theme(theme)
     verbose = verbose_print(
@@ -242,8 +352,6 @@ def import_cli(
         return
 
     relative_to = Path(relative_to) if relative_to else None
-
-    photoslib = PhotosLibrary()
 
     imported_count = 0
     error_count = 0
@@ -270,12 +378,22 @@ def import_cli(
             continue
         imported_count += 1
 
+        if clear_metadata:
+            verbose(f"Clearing metadata for [filename]{filepath.name}[/]")
+            clear_photo_metadata(photo)
+
         if album:
             verbose(
                 f"Adding photo [filename]{filepath.name}[/filename] to {len(album)} {pluralize(len(album), 'album', 'albums')}"
             )
         add_photo_to_albums(
-            photo, filepath, relative_filepath, album, auto_folder, verbose
+            photo,
+            filepath,
+            relative_filepath,
+            album,
+            auto_folder,
+            verbose,
+            exiftool_path,
         )
 
     echo(
