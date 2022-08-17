@@ -5,10 +5,10 @@ import logging
 import os.path
 import uuid
 from pathlib import Path
-from typing import Optional, Union
+from typing import Callable, List, Optional, Tuple, Union
 
 import click
-from photoscript import PhotosLibrary
+from photoscript import Photo, PhotosLibrary
 
 from osxphotos.datetime_utils import datetime_naive_to_local
 from osxphotos.exiftool import ExifToolCaching, get_exiftool_path
@@ -119,6 +119,53 @@ class PhotoInfoFromFile:
         raise AttributeError()
 
 
+def import_photo(
+    filepath: Path, dup_check: bool, verbose: Callable
+) -> Tuple[Optional[Photo], Optional[str]]:
+    """Import a photo and return Photo object and error string if any"""
+    if imported := PhotosLibrary().import_photos(
+        [filepath], skip_duplicate_check=not dup_check
+    ):
+        verbose(
+            f"Imported [filename]{filepath.name}[/] with UUID [uuid]{imported[0].uuid}[/]"
+        )
+        photo = imported[0]
+        return photo, None
+    else:
+        error_str = f"[error]Error importing file [filepath]{filepath}[/][/]"
+        echo(error_str, err=True)
+        return None, error_str
+
+
+def add_photo_to_albums(
+    photo: Photo,
+    filepath: Path,
+    relative_filepath: Path,
+    album_templates: List[str],
+    auto_folder: bool,
+    verbose: Callable,
+):
+    """Add photo to one or more albums"""
+
+    # render album names
+    photoinfo = PhotoInfoFromFile(filepath)
+    options = RenderOptions(filepath=relative_filepath)
+    albums = []
+    for a in album_templates:
+        album_names, _ = photoinfo.render_template(a, options=options)
+        # filter out empty strings
+        album_names = [a for a in album_names if a]
+        albums.extend(album_names)
+
+    # add photo to albums
+    for a in albums:
+        verbose(f"Adding photo [filename]{filepath.name}[/] to album [filepath]{a}[/]")
+        photos_album = PhotosAlbumPhotoScript(
+            a, verbose=verbose, auto_folder=auto_folder
+        )
+        photos_album.add(photo)
+
+
 # TODO: Add --merge-metadata (to merge with what Photos will read from XMP)
 # Add --no-metadata (to import with no metadata)
 @click.command(name="import")
@@ -201,51 +248,35 @@ def import_cli(
     imported_count = 0
     error_count = 0
     echo(f"Importing [num]{len(files)}[/] {pluralize(len(files), 'file', 'files')}")
-    for file in files:
-        file = Path(file).resolve().absolute()
-        filepath = file
-        verbose(f"Importing [filepath]{file}[/]")
+    for filepath in files:
+        filepath = Path(filepath).resolve().absolute()
+        relative_filepath = filepath
+
+        # check relative_to here so we abort before import if relative_to is bad
         if relative_to:
             try:
-                filepath = filepath.relative_to(relative_to)
+                relative_filepath = relative_filepath.relative_to(relative_to)
             except ValueError as e:
                 echo(
-                    f"--relative-to value of '{relative_to}' is not in the same path as '{filepath}'",
+                    f"--relative-to value of '{relative_to}' is not in the same path as '{relative_filepath}'",
                     err=True,
                 )
                 raise click.Abort() from e
 
-        # render album names and metadata templates
-        photoinfo = PhotoInfoFromFile(file)
-        options = RenderOptions(filepath=filepath)
-        albums = []
-        for a in album:
-            album_names, _ = photoinfo.render_template(a, options=options)
-            # filter out empty strings
-            album_names = [a for a in album_names if a]
-            albums.extend(album_names)
-
-        if imported := photoslib.import_photos(
-            [file], skip_duplicate_check=not dup_check
-        ):
-            verbose(
-                f"Imported [filename]{filepath.name}[/] with UUID [uuid]{imported[0].uuid}[/]"
-            )
-            photo = imported[0]
-            imported_count += 1
-        else:
-            echo(f"[error]Error importing file [filepath]{file}[/][/]", err=True)
+        verbose(f"Importing [filepath]{filepath}[/]")
+        photo, error = import_photo(filepath, dup_check, verbose)
+        if error:
             error_count += 1
             continue
+        imported_count += 1
 
-        for a in albums:
+        if album:
             verbose(
-                f"Adding photo [filename]{filepath.name}[/] to album [filepath]{a}[/]"
+                f"Adding photo [filename]{filepath.name}[/filename] to {len(album)} {pluralize(len(album), 'album', 'albums')}"
             )
-            photos_album = PhotosAlbumPhotoScript(
-                a, verbose=verbose, auto_folder=auto_folder
-            )
-            photos_album.add(photo)
+        add_photo_to_albums(
+            photo, filepath, relative_filepath, album, auto_folder, verbose
+        )
 
     echo(
         f"Done: imported [num]{imported_count}[/] {pluralize(imported_count, 'file', 'files')}, "

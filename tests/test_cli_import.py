@@ -190,3 +190,37 @@ def test_import_dup_check():
     photo_1 = Photo(uuid_1)
 
     assert photo_1.filename == file_1
+
+
+@pytest.mark.test_import
+def test_import_album_relative_to():
+    """Test import with --relative-to"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    result = runner.invoke(
+        import_cli,
+        [
+            "--verbose",
+            "--album",
+            "{filepath.parent}",
+            "--auto-folder",
+            "--relative-to",
+            cwd,
+            test_image_1,
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(test_image_1).name
+    uuid_1 = import_data[file_1]
+    photo_1 = Photo(uuid_1)
+
+    assert photo_1.filename == file_1
+    albums = photo_1.albums
+    assert len(albums) == 1
+    assert albums[0].title == "test-images"
+    assert albums[0].path_str() == "tests/test-images"
