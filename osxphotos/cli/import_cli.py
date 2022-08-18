@@ -4,6 +4,7 @@ import datetime
 import logging
 import os.path
 import uuid
+from collections import namedtuple
 from pathlib import Path
 from textwrap import dedent
 from typing import Callable, List, Optional, Tuple, Union
@@ -31,6 +32,8 @@ from .common import DB_OPTION, THEME_OPTION, get_photos_db
 from .help import get_help_msg
 from .list import _list_libraries
 from .verbose import get_verbose_console, verbose_print
+
+MetaData = namedtuple("MetaData", ["title", "description", "keywords"])
 
 
 def echo(message, emoji=True, **kwargs):
@@ -183,6 +186,46 @@ def clear_photo_metadata(photo: Photo):
     photo.keywords = []
 
 
+def metadata_from_file(filepath: Path, exiftool_path: str) -> MetaData:
+    """Get metadata from file with exiftool
+
+    Returns the following metadata from EXIF/XMP/IPTC fields as a MetaData named tuple
+
+        title: XMP:Title, IPTC:ObjectName
+        description: XMP:Description, IPTC:Caption-Abstract, EXIF:ImageDescription
+        keywords: XMP:Subject, XMP:TagsList, IPTC:Keywords
+
+    """
+    exiftool = ExifToolCaching(filepath, exiftool_path)
+    metadata = exiftool.asdict()
+    title = metadata.get("XMP:Title") or metadata.get("IPTC:ObjectName")
+    description = (
+        metadata.get("XMP:Description")
+        or metadata.get("IPTC:Caption-Abstract")
+        or metadata.get("EXIF:ImageDescription")
+    )
+    keywords = (
+        metadata.get("XMP:Subject")
+        or metadata.get("XMP:TagsList")
+        or metadata.get("IPTC:Keywords")
+    )
+
+    title = title or ""
+    description = description or ""
+    keywords = keywords or []
+    if not isinstance(keywords, (tuple, list)):
+        keywords = [keywords]
+
+    return MetaData(title, description, keywords)
+
+
+def set_metadata_for_photo(photo: Photo, metadata: MetaData):
+    """Set metadata (title, description, keywords) for a Photo object"""
+    photo.title = metadata.title
+    photo.description = metadata.description
+    photo.keywords = metadata.keywords
+
+
 class ImportCommand(click.Command):
     """Custom click.Command that overrides get_help() to show additional help info for import"""
 
@@ -264,7 +307,7 @@ class ImportCommand(click.Command):
 )
 @click.option(
     "--clear-metadata",
-    "-N",
+    "-C",
     is_flag=True,
     help="Clear any metadata set automatically "
     "by Photos upon import. Normally, Photos will set title, description, and keywords "
@@ -281,12 +324,14 @@ class ImportCommand(click.Command):
 )
 @click.option(
     "--exiftool-path",
+    "-p",
     metavar="EXIFTOOL_PATH",
     type=click.Path(exists=True, dir_okay=False),
     help="Optionally specify path to exiftool; if not provided, will look for exiftool in $PATH.",
 )
 @click.option(
     "--relative-to",
+    "-r",
     metavar="RELATIVE_TO_PATH",
     type=click.Path(exists=True, file_okay=False, resolve_path=True),
     help="If set, the '{filepath}' template "
@@ -299,6 +344,7 @@ class ImportCommand(click.Command):
 @click.option("--dup-check", is_flag=True, help="Check for duplicates on import.")
 @click.option(
     "--auto-folder",
+    "-f",
     is_flag=True,
     help="Automatically create folders for albums as needed. "
     "If album name contains '/' (e.g. 'Folder/Album') and '--auto-folder' is set, "
@@ -306,7 +352,9 @@ class ImportCommand(click.Command):
 )
 @DB_OPTION
 @click.option("--verbose", "-V", "verbose_", is_flag=True, help="Print verbose output.")
-@click.option("--timestamp", is_flag=True, help="Add time stamp to verbose output")
+@click.option(
+    "--timestamp", "-T", is_flag=True, help="Add time stamp to verbose output"
+)
 @THEME_OPTION
 @click.argument("files", nargs=-1)
 @click.pass_obj
@@ -381,6 +429,18 @@ def import_cli(
         if clear_metadata:
             verbose(f"Clearing metadata for [filename]{filepath.name}[/]")
             clear_photo_metadata(photo)
+
+        if exiftool:
+            verbose(f"Setting metadata from EXIF for [filename]{filepath.name}[/]")
+            metadata = metadata_from_file(filepath, exiftool_path)
+            if any([metadata.title, metadata.description, metadata.keywords]):
+                set_metadata_for_photo(photo, metadata)
+                verbose(f"Set metadata for [filename]{filepath.name}[/]:")
+                verbose(
+                    f"title='{metadata.title}', description='{metadata.description}', keywords={metadata.keywords}"
+                )
+            else:
+                verbose(f"No metadata to set for [filename]{filepath.name}[/]")
 
         if album:
             verbose(

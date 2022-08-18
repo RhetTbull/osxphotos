@@ -13,8 +13,10 @@ from photoscript import Photo
 
 from osxphotos import PhotosDB
 from osxphotos.cli.import_cli import import_cli
-from osxphotos.exiftool import ExifTool
+from osxphotos.exiftool import ExifTool, get_exiftool_path
 from tests.conftest import get_os_version
+
+TERMINAL_WIDTH = 250
 
 TEST_IMAGE_1 = "tests/test-images/IMG_4179.jpeg"
 
@@ -30,7 +32,12 @@ TEST_DATA = {
 os.environ["TZ"] = "US/Pacific"
 time.tzset()
 
-TERMINAL_WIDTH = 250
+
+# determine if exiftool installed so exiftool tests can be skipped
+try:
+    exiftool_path = get_exiftool_path()
+except FileNotFoundError:
+    exiftool_path = None
 
 OS_VER = get_os_version()[1]
 if OS_VER != "15":
@@ -224,3 +231,63 @@ def test_import_album_relative_to():
     assert len(albums) == 1
     assert albums[0].title == "test-images"
     assert albums[0].path_str() == "tests/test-images"
+
+
+@pytest.mark.test_import
+def test_import_clear_metadata():
+    """Test import with --clear-metadata"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    result = runner.invoke(
+        import_cli,
+        [
+            "--verbose",
+            "--clear-metadata",
+            test_image_1,
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(test_image_1).name
+    uuid_1 = import_data[file_1]
+    photo_1 = Photo(uuid_1)
+
+    assert photo_1.filename == file_1
+    assert not photo_1.title
+    assert not photo_1.description
+    assert not photo_1.keywords
+
+
+@pytest.mark.skipif(exiftool_path is None, reason="exiftool not installed")
+@pytest.mark.test_import
+def test_import_exiftool():
+    """Test import with --exiftool"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    result = runner.invoke(
+        import_cli,
+        [
+            "--verbose",
+            "--clear-metadata",
+            "--exiftool",
+            test_image_1,
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(test_image_1).name
+    uuid_1 = import_data[file_1]
+    photo_1 = Photo(uuid_1)
+
+    assert photo_1.filename == file_1
+    assert photo_1.title == TEST_DATA[TEST_IMAGE_1]["title"]
+    assert photo_1.description == TEST_DATA[TEST_IMAGE_1]["description"]
+    assert photo_1.keywords == TEST_DATA[TEST_IMAGE_1]["keywords"]
