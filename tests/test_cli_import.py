@@ -377,7 +377,7 @@ def test_import_exiftool_video_no_metadata():
     assert photo_1.filename == file_1
     assert photo_1.title == ""
     assert photo_1.description == ""
-    assert photo_1.keywords == [] 
+    assert photo_1.keywords == []
     lat, lon = photo_1.location
     assert lat is None
     assert lon is None
@@ -505,3 +505,35 @@ def test_import_keyword_merge():
 
     assert photo_1.filename == file_1
     assert sorted(photo_1.keywords) == ["Bar", "Foo", "osxphotos"]
+
+
+@pytest.mark.test_import
+def test_import_location():
+    """Test import file with --location"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    result = runner.invoke(
+        import_cli,
+        [
+            "--verbose",
+            "--clear-metadata",
+            "--location",
+            "-45.0",
+            "-45.0",
+            test_image_1,
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(test_image_1).name
+    uuid_1 = import_data[file_1]
+    photo_1 = Photo(uuid_1)
+
+    assert photo_1.filename == file_1
+    lat, lon = photo_1.location
+    assert lat == approx(-45.0)
+    assert lon == approx(-45.0)
