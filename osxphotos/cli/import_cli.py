@@ -35,7 +35,7 @@ from .list import _list_libraries
 from .rich_progress import rich_progress
 from .verbose import get_verbose_console, verbose_print
 
-MetaData = namedtuple("MetaData", ["title", "description", "keywords"])
+MetaData = namedtuple("MetaData", ["title", "description", "keywords", "location"])
 
 
 def echo(message, emoji=True, **kwargs):
@@ -206,23 +206,33 @@ def clear_photo_metadata(photo: Photo, filepath: Path, verbose: Callable[..., No
     photo.keywords = []
 
 
+def clear_photo_location(photo: Photo, filepath: Path, verbose: Callable[..., None]):
+    """Clear any location (latitude, longitude) associated with Photo in the Photos Library"""
+    verbose(f"Clearing location for [filename]{filepath.name}[/]")
+    photo.location = (None, None)
+
+
 def metadata_from_file(filepath: Path, exiftool_path: str) -> MetaData:
     """Get metadata from file with exiftool
 
     Returns the following metadata from EXIF/XMP/IPTC fields as a MetaData named tuple
-
-        title: XMP:Title, IPTC:ObjectName
-        description: XMP:Description, IPTC:Caption-Abstract, EXIF:ImageDescription
-        keywords: XMP:Subject, XMP:TagsList, IPTC:Keywords
-
+        title: str, XMP:Title, IPTC:ObjectName, QuickTime:DisplayName
+        description: str, XMP:Description, IPTC:Caption-Abstract, EXIF:ImageDescription, QuickTime:Description
+        keywords: str, XMP:Subject, XMP:TagsList, IPTC:Keywords (QuickTime:Keywords not supported)
+        location: Tuple[lat, lon],  EXIF:GPSLatitudeRef, EXIF:GPSLongitudeRef, EXIF:GPSLatitude, EXIF:GPSLongitude, QuickTime:GPSCoordinates, UserData:GPSCoordinates
     """
     exiftool = ExifToolCaching(filepath, exiftool_path)
     metadata = exiftool.asdict()
-    title = metadata.get("XMP:Title") or metadata.get("IPTC:ObjectName")
+    title = (
+        metadata.get("XMP:Title")
+        or metadata.get("IPTC:ObjectName")
+        or metadata.get("QuickTime:DisplayName")
+    )
     description = (
         metadata.get("XMP:Description")
         or metadata.get("IPTC:Caption-Abstract")
         or metadata.get("EXIF:ImageDescription")
+        or metadata.get("QuickTime:Description")
     )
     keywords = (
         metadata.get("XMP:Subject")
@@ -236,33 +246,114 @@ def metadata_from_file(filepath: Path, exiftool_path: str) -> MetaData:
     if not isinstance(keywords, (tuple, list)):
         keywords = [keywords]
 
-    return MetaData(title, description, keywords)
+    location = location_from_file(filepath, exiftool_path)
+    return MetaData(title, description, keywords, location)
 
 
-def set_photo_metadata(photo: Photo, metadata: MetaData):
+def location_from_file(
+    filepath: Path, exiftool_path: str
+) -> Tuple[Optional[float], Optional[float]]:
+    """Get location from file with exiftool
+
+    Returns:
+        Tuple of lat, long or None, None if not set
+
+    Note:
+        Attempts to get location from the following EXIF fields:
+            EXIF:GPSLatitudeRef, EXIF:GPSLongitudeRef
+            EXIF:GPSLatitude, EXIF:GPSLongitude
+            QuickTime:GPSCoordinates
+            UserData:GPSCoordinates
+    """
+    exiftool = ExifToolCaching(filepath, exiftool_path)
+    metadata = exiftool.asdict()
+
+    # photos and videos store location data differently
+    # for photos, location in EXIF:GPSLatitudeRef, EXIF:GPSLongitudeRef, EXIF:GPSLatitude, EXIF:GPSLongitude
+    # the GPSLatitudeRef and GPSLongitudeRef are needed to determine N/S, E/W respectively
+    # for example:
+    #   EXIF:GPSLatitudeRef N
+    #   EXIF:GPSLongitudeRef W
+    #   EXIF:GPSLatitude 33.7198027777778
+    #   EXIF:GPSLongitude 118.285491666667
+    # for video, location in QuickTime:GPSCoordinates or UserData:GPSCoordinates as a
+    # pair of positive/negative numbers thus no ref needed
+    # for example:
+    #   QuickTime:GPSCoordinates 34.0533 -118.2423
+
+    latitude, longitude = None, None
+    try:
+        if latitude := metadata.get("EXIF:GPSLatitude"):
+            latitude = float(latitude)
+            latitude_ref = metadata.get("EXIF:GPSLatitudeRef")
+            if latitude_ref == "S":
+                latitude = -latitude
+            elif latitude_ref != "N":
+                latitude = None
+        if longitude := metadata.get("EXIF:GPSLongitude"):
+            longitude = float(longitude)
+            longitude_ref = metadata.get("EXIF:GPSLongitudeRef")
+            if longitude_ref == "W":
+                longitude = -longitude
+            elif longitude_ref != "E":
+                longitude = None
+        if latitude is None or longitude is None:
+            # maybe it's a video
+            if lat_lon := metadata.get("QuickTime:GPSCoordinates") or metadata.get(
+                "UserData:GPSCoordinates"
+            ):
+                lat_lon = lat_lon.split()
+                if len(lat_lon) != 2:
+                    latitude = None
+                    longitude = None
+                else:
+                    latitude = float(lat_lon[0])
+                    longitude = float(lat_lon[1])
+    except ValueError:
+        # couldn't convert one of the numbers to float
+        return None, None
+    return latitude, longitude
+
+
+def set_photo_metadata(photo: Photo, metadata: MetaData, merge_keywords: bool):
     """Set metadata (title, description, keywords) for a Photo object"""
     photo.title = metadata.title
     photo.description = metadata.description
-    photo.keywords = metadata.keywords
+    keywords = metadata.keywords.copy()
+    if merge_keywords:
+        if old_keywords := photo.keywords:
+            keywords.extend(old_keywords)
+            keywords = list(set(keywords))
+    photo.keywords = keywords
 
 
 def set_photo_metadata_from_exiftool(
     photo: Photo,
     filepath: Path,
     exiftool_path: str,
+    merge_keywords: bool,
     verbose: Callable[..., None],
 ):
     """Set photo's metadata by reading metadata form file with exiftool"""
-    verbose(f"Setting metadata from EXIF for [filename]{filepath.name}[/]")
+    verbose(f"Setting metadata and location from EXIF for [filename]{filepath.name}[/]")
     metadata = metadata_from_file(filepath, exiftool_path)
     if any([metadata.title, metadata.description, metadata.keywords]):
-        set_photo_metadata(photo, metadata)
+        set_photo_metadata(photo, metadata, merge_keywords)
         verbose(f"Set metadata for [filename]{filepath.name}[/]:")
         verbose(
             f"title='{metadata.title}', description='{metadata.description}', keywords={metadata.keywords}"
         )
     else:
         verbose(f"No metadata to set for [filename]{filepath.name}[/]")
+    if metadata.location[0] is not None and metadata.location[1] is not None:
+        # location will be set to None, None if latitude or longitude is missing
+        photo.location = metadata.location
+        verbose(
+            f"Set location for [filename]{filepath.name}[/]: "
+            f"[num]{metadata.location[0]}[/], [num]{metadata.location[1]}[/]"
+        )
+    else:
+        verbose(f"No location to set for [filename]{filepath.name}[/]")
 
 
 def set_photo_title(
@@ -338,6 +429,19 @@ def set_photo_keywords(
         photo.keywords = keywords
 
 
+def set_photo_location(
+    photo: Photo,
+    filepath: Path,
+    location: Tuple[float, float],
+    verbose: Callable[..., None],
+):
+    """Set location of photo"""
+    verbose(
+        f"Setting location of photo [filename]{filepath.name}[/] to {location[0]}, {location[1]}"
+    )
+    photo.location = location
+
+
 class ImportCommand(click.Command):
     """Custom click.Command that overrides get_help() to show additional help info for import"""
 
@@ -373,7 +477,7 @@ class ImportCommand(click.Command):
             the metadata in Photos.
 
             The `--exiftool` option will automatically attempt to update title, 
-            description, and keywords from the file's metadata:
+            description, keywords, and location from the file's metadata:
             
             `osxphotos import *.jpg --exiftool` 
 
@@ -405,7 +509,6 @@ class ImportCommand(click.Command):
         return help_text
 
 
-# TODO: Add --merge-metadata (to merge with what Photos will read from XMP)
 # TODO: add --location
 @click.command(name="import", cls=ImportCommand)
 @click.option(
@@ -452,6 +555,18 @@ class ImportCommand(click.Command):
     "Without --merge-keywords, existing keywords will be overwritten.",
 )
 @click.option(
+    "--location",
+    "-l",
+    metavar="LATITUDE LONGITUDE",
+    nargs=2,
+    type=click.Tuple([click.FloatRange(-90.0, 90.0), click.FloatRange(-180.0, 180.0)]),
+    help="Set location of imported photo to LATITUDE LONGITUDE. "
+    "Latitude is a number in the range -90.0 to 90.0; "
+    "positive latitudes are north of the equator, negative latitudes are south of the equator. "
+    "Longitude is a number in the range -180.0 to 180.0; "
+    "positive longitudes are east of the Prime Meridian; negative longitudes are west of the Prime Meridian.",
+)
+@click.option(
     "--clear-metadata",
     "-C",
     is_flag=True,
@@ -461,11 +576,20 @@ class ImportCommand(click.Command):
     "set by Photos will be cleared after import.",
 )
 @click.option(
+    "--clear-location",
+    "-L",
+    is_flag=True,
+    help="Clear any location data automatically imported by Photos. "
+    "Normally, Photos will set location of the photo to the location data found in the "
+    "metadata in the imported file.  If you specify --clear-location, "
+    "this data will be cleared after import.",
+)
+@click.option(
     "--exiftool",
     "-e",
     is_flag=True,
     help="Use third party tool exiftool (https://exiftool.org/) to automatically "
-    "update metadata (title, description, keywords) in imported photos from "
+    "update metadata (title, description, keywords, location) in imported photos from "
     "the imported file's metadata.",
 )
 @click.option(
@@ -516,7 +640,9 @@ def import_cli(
     description,
     keyword,
     merge_keywords,
+    location,
     clear_metadata,
+    clear_location,
     exiftool,
     exiftool_path,
     relative_to,
@@ -588,9 +714,12 @@ def import_cli(
             if clear_metadata:
                 clear_photo_metadata(photo, filepath, verbose)
 
+            if clear_location:
+                clear_photo_location(photo, filepath, verbose)
+
             if exiftool:
                 set_photo_metadata_from_exiftool(
-                    photo, filepath, exiftool_path, verbose
+                    photo, filepath, exiftool_path, merge_keywords, verbose
                 )
 
             if title:
@@ -618,6 +747,9 @@ def import_cli(
                     merge_keywords,
                     verbose,
                 )
+
+            if location:
+                set_photo_location(photo, filepath, location, verbose)
 
             if album:
                 add_photo_to_albums(
