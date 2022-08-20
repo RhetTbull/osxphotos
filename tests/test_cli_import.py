@@ -291,3 +291,127 @@ def test_import_exiftool():
     assert photo_1.title == TEST_DATA[TEST_IMAGE_1]["title"]
     assert photo_1.description == TEST_DATA[TEST_IMAGE_1]["description"]
     assert photo_1.keywords == TEST_DATA[TEST_IMAGE_1]["keywords"]
+
+
+@pytest.mark.skipif(exiftool_path is None, reason="exiftool not installed")
+@pytest.mark.test_import
+def test_import_title():
+    """Test import with --title"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    result = runner.invoke(
+        import_cli,
+        [
+            "--verbose",
+            "--clear-metadata",
+            "--title",
+            "{exiftool:XMP:Title|upper}",
+            test_image_1,
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(test_image_1).name
+    uuid_1 = import_data[file_1]
+    photo_1 = Photo(uuid_1)
+
+    assert photo_1.filename == file_1
+    assert photo_1.title == TEST_DATA[TEST_IMAGE_1]["title"].upper()
+
+
+@pytest.mark.skipif(exiftool_path is None, reason="exiftool not installed")
+@pytest.mark.test_import
+def test_import_description():
+    """Test import with --description"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    result = runner.invoke(
+        import_cli,
+        [
+            "--verbose",
+            "--clear-metadata",
+            "--description",
+            "{exiftool:XMP:Description|upper}",
+            test_image_1,
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(test_image_1).name
+    uuid_1 = import_data[file_1]
+    photo_1 = Photo(uuid_1)
+
+    assert photo_1.filename == file_1
+    assert photo_1.description == TEST_DATA[TEST_IMAGE_1]["description"].upper()
+
+
+@pytest.mark.test_import
+def test_import_keyword():
+    """Test import with --keyword"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    result = runner.invoke(
+        import_cli,
+        [
+            "--verbose",
+            "--keyword",
+            "Bar",
+            "--keyword",
+            "Foo",
+            test_image_1,
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(test_image_1).name
+    uuid_1 = import_data[file_1]
+    photo_1 = Photo(uuid_1)
+
+    assert photo_1.filename == file_1
+    assert sorted(photo_1.keywords) == ["Bar", "Foo"]
+
+
+@pytest.mark.skipif(exiftool_path is None, reason="exiftool not installed")
+@pytest.mark.test_import
+def test_import_keyword_merge():
+    """Test import with --keyword and --merge-keywords"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    result = runner.invoke(
+        import_cli,
+        [
+            "--verbose",
+            "--clear-metadata",
+            "--exiftool",
+            "--keyword",
+            "Bar",
+            "--keyword",
+            "Foo",
+            "--merge-keywords",
+            test_image_1,
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(test_image_1).name
+    uuid_1 = import_data[file_1]
+    photo_1 = Photo(uuid_1)
+
+    assert photo_1.filename == file_1
+    assert sorted(photo_1.keywords) == ["Bar", "Foo", "osxphotos"]

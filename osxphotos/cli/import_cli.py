@@ -14,6 +14,7 @@ from photoscript import Photo, PhotosLibrary
 from rich.console import Console
 from rich.markdown import Markdown
 
+from osxphotos._constants import _OSXPHOTOS_NONE_SENTINEL
 from osxphotos.cli.help import HELP_WIDTH
 from osxphotos.datetime_utils import datetime_naive_to_local
 from osxphotos.exiftool import ExifToolCaching, get_exiftool_path
@@ -31,6 +32,7 @@ from .color_themes import get_theme
 from .common import DB_OPTION, THEME_OPTION, get_photos_db
 from .help import get_help_msg
 from .list import _list_libraries
+from .rich_progress import rich_progress
 from .verbose import get_verbose_console, verbose_print
 
 MetaData = namedtuple("MetaData", ["title", "description", "keywords"])
@@ -149,26 +151,43 @@ def import_photo(
         return None, error_str
 
 
+def render_photo_template(
+    filepath: Path,
+    relative_filepath: Path,
+    template: str,
+    exiftool_path: Optional[str],
+):
+    """Render template string for a photo"""
+
+    photoinfo = PhotoInfoFromFile(filepath, exiftool=exiftool_path)
+    options = RenderOptions(
+        none_str=_OSXPHOTOS_NONE_SENTINEL, filepath=relative_filepath
+    )
+    template_values, _ = photoinfo.render_template(template, options=options)
+    # filter out empty strings
+    template_values = [v.replace(_OSXPHOTOS_NONE_SENTINEL, "") for v in template_values]
+    template_values = [v for v in template_values if v]
+    return template_values
+
+
 def add_photo_to_albums(
     photo: Photo,
     filepath: Path,
     relative_filepath: Path,
-    album_templates: List[str],
+    album: Tuple[str],
     auto_folder: bool,
+    exiftool_path: Path,
     verbose: Callable[..., None],
-    exiftool_path: Optional[str],
 ):
     """Add photo to one or more albums"""
-
-    # render album names
-    photoinfo = PhotoInfoFromFile(filepath, exiftool=exiftool_path)
-    options = RenderOptions(filepath=relative_filepath)
     albums = []
-    for a in album_templates:
-        album_names, _ = photoinfo.render_template(a, options=options)
-        # filter out empty strings
-        album_names = [a for a in album_names if a]
-        albums.extend(album_names)
+    for a in album:
+        albums.extend(
+            render_photo_template(filepath, relative_filepath, a, exiftool_path)
+        )
+    verbose(
+        f"Adding photo [filename]{filepath.name}[/filename] to {len(albums)} {pluralize(len(albums), 'album', 'albums')}"
+    )
 
     # add photo to albums
     for a in albums:
@@ -179,8 +198,9 @@ def add_photo_to_albums(
         photos_album.add(photo)
 
 
-def clear_photo_metadata(photo: Photo):
+def clear_photo_metadata(photo: Photo, filepath: Path, verbose: Callable[..., None]):
     """Clear any metadata (title, description, keywords) associated with Photo in the Photos Library"""
+    verbose(f"Clearing metadata for [filename]{filepath.name}[/]")
     photo.title = ""
     photo.description = ""
     photo.keywords = []
@@ -219,11 +239,103 @@ def metadata_from_file(filepath: Path, exiftool_path: str) -> MetaData:
     return MetaData(title, description, keywords)
 
 
-def set_metadata_for_photo(photo: Photo, metadata: MetaData):
+def set_photo_metadata(photo: Photo, metadata: MetaData):
     """Set metadata (title, description, keywords) for a Photo object"""
     photo.title = metadata.title
     photo.description = metadata.description
     photo.keywords = metadata.keywords
+
+
+def set_photo_metadata_from_exiftool(
+    photo: Photo,
+    filepath: Path,
+    exiftool_path: str,
+    verbose: Callable[..., None],
+):
+    """Set photo's metadata by reading metadata form file with exiftool"""
+    verbose(f"Setting metadata from EXIF for [filename]{filepath.name}[/]")
+    metadata = metadata_from_file(filepath, exiftool_path)
+    if any([metadata.title, metadata.description, metadata.keywords]):
+        set_photo_metadata(photo, metadata)
+        verbose(f"Set metadata for [filename]{filepath.name}[/]:")
+        verbose(
+            f"title='{metadata.title}', description='{metadata.description}', keywords={metadata.keywords}"
+        )
+    else:
+        verbose(f"No metadata to set for [filename]{filepath.name}[/]")
+
+
+def set_photo_title(
+    photo: Photo,
+    filepath: Path,
+    relative_filepath: Path,
+    title_template: str,
+    exiftool_path: str,
+    verbose: Callable[..., None],
+):
+    """Set title of photo"""
+    title_text = render_photo_template(
+        filepath, relative_filepath, title_template, exiftool_path
+    )
+    if len(title_text) > 1:
+        echo(
+            f"photo can have only a single title: '{title_template}' = {title_text}",
+            err=True,
+        )
+        raise click.Abort()
+    if title_text:
+        verbose(
+            f"Setting title of photo [filename]{filepath.name}[/] to '{title_text[0]}'"
+        )
+        photo.title = title_text[0]
+
+
+def set_photo_description(
+    photo: Photo,
+    filepath: Path,
+    relative_filepath: Path,
+    description_template: str,
+    exiftool_path: str,
+    verbose: Callable[..., None],
+):
+    """Set description of photo"""
+    description_text = render_photo_template(
+        filepath, relative_filepath, description_template, exiftool_path
+    )
+    if len(description_text) > 1:
+        echo(
+            f"photo can have only a single description: '{description_template}' = {description_text}",
+            err=True,
+        )
+        raise click.Abort()
+    if description_text:
+        verbose(
+            f"Setting description of photo [filename]{filepath.name}[/] to '{description_text[0]}'"
+        )
+        photo.description = description_text[0]
+
+
+def set_photo_keywords(
+    photo: Photo,
+    filepath: Path,
+    relative_filepath: Path,
+    keyword_template: str,
+    exiftool_path: str,
+    merge: bool,
+    verbose: Callable[..., None],
+):
+    """Set keywords of photo"""
+    keywords = []
+    for keyword in keyword_template:
+        kw = render_photo_template(filepath, relative_filepath, keyword, exiftool_path)
+        keywords.extend(kw)
+    if keywords:
+        if merge:
+            if old_keywords := photo.keywords:
+                keywords.extend(old_keywords)
+                keywords = list(set(keywords))
+        verbose(f"Setting keywords of photo [filename]{filepath.name}[/] to {keywords}")
+        photo.keywords = keywords
 
 
 class ImportCommand(click.Command):
@@ -303,7 +415,41 @@ class ImportCommand(click.Command):
     multiple=True,
     help="Import photos into album ALBUM_TEMPLATE. "
     "ALBUM_TEMPLATE is an osxphotos template string. "
-    "Photos may be imported into more than one album by repeating --album.",
+    "Photos may be imported into more than one album by repeating --album. "
+    "See Templating System in help for additional information.",
+)
+@click.option(
+    "--title",
+    "-t",
+    metavar="TITLE_TEMPLATE",
+    help="Set title of imported photos to TITLE_TEMPLATE. "
+    "TITLE_TEMPLATE is a an osxphotos template string. "
+    "See Templating System in help for additional information.",
+)
+@click.option(
+    "--description",
+    "-d",
+    metavar="DESCRIPTION_TEMPLATE",
+    help="Set description of imported photos to DESCRIPTION_TEMPLATE. "
+    "DESCRIPTION_TEMPLATE is a an osxphotos template string. "
+    "See Templating System in help for additional information.",
+)
+@click.option(
+    "--keyword",
+    "-k",
+    metavar="KEYWORD_TEMPLATE",
+    multiple=True,
+    help="Set keywords of imported photos to KEYWORD_TEMPLATE. "
+    "KEYWORD_TEMPLATE is a an osxphotos template string. "
+    "More than one keyword may be set by repeating --keyword. "
+    "See Templating System in help for additional information.",
+)
+@click.option(
+    "--merge-keywords",
+    is_flag=True,
+    help="Merge keywords created by --exiftool or --keyword "
+    "with any keywords already associated with the photo. "
+    "Without --merge-keywords, existing keywords will be overwritten.",
 )
 @click.option(
     "--clear-metadata",
@@ -355,6 +501,9 @@ class ImportCommand(click.Command):
 @click.option(
     "--timestamp", "-T", is_flag=True, help="Add time stamp to verbose output"
 )
+@click.option(
+    "--no-progress", is_flag=True, help="Do not display progress bar during import."
+)
 @THEME_OPTION
 @click.argument("files", nargs=-1)
 @click.pass_obj
@@ -363,6 +512,10 @@ def import_cli(
     ctx,
     cli_obj,
     album,
+    title,
+    description,
+    keyword,
+    merge_keywords,
     clear_metadata,
     exiftool,
     exiftool_path,
@@ -372,6 +525,7 @@ def import_cli(
     db,
     verbose_,
     timestamp,
+    no_progress,
     theme,
     files,
 ):
@@ -403,58 +557,80 @@ def import_cli(
 
     imported_count = 0
     error_count = 0
-    echo(f"Importing [num]{len(files)}[/] {pluralize(len(files), 'file', 'files')}")
-    for filepath in files:
-        filepath = Path(filepath).resolve().absolute()
-        relative_filepath = filepath
-
-        # check relative_to here so we abort before import if relative_to is bad
-        if relative_to:
-            try:
-                relative_filepath = relative_filepath.relative_to(relative_to)
-            except ValueError as e:
-                echo(
-                    f"--relative-to value of '{relative_to}' is not in the same path as '{relative_filepath}'",
-                    err=True,
-                )
-                raise click.Abort() from e
-
-        verbose(f"Importing [filepath]{filepath}[/]")
-        photo, error = import_photo(filepath, dup_check, verbose)
-        if error:
-            error_count += 1
-            continue
-        imported_count += 1
-
-        if clear_metadata:
-            verbose(f"Clearing metadata for [filename]{filepath.name}[/]")
-            clear_photo_metadata(photo)
-
-        if exiftool:
-            verbose(f"Setting metadata from EXIF for [filename]{filepath.name}[/]")
-            metadata = metadata_from_file(filepath, exiftool_path)
-            if any([metadata.title, metadata.description, metadata.keywords]):
-                set_metadata_for_photo(photo, metadata)
-                verbose(f"Set metadata for [filename]{filepath.name}[/]:")
-                verbose(
-                    f"title='{metadata.title}', description='{metadata.description}', keywords={metadata.keywords}"
-                )
-            else:
-                verbose(f"No metadata to set for [filename]{filepath.name}[/]")
-
-        if album:
-            verbose(
-                f"Adding photo [filename]{filepath.name}[/filename] to {len(album)} {pluralize(len(album), 'album', 'albums')}"
-            )
-        add_photo_to_albums(
-            photo,
-            filepath,
-            relative_filepath,
-            album,
-            auto_folder,
-            verbose,
-            exiftool_path,
+    filecount = len(files)
+    with rich_progress(console=get_verbose_console(), mock=no_progress) as progress:
+        task = progress.add_task(
+            f"Importing [num]{filecount}[/] {pluralize(filecount, 'file', 'files')}",
+            total=filecount,
         )
+        for filepath in files:
+            filepath = Path(filepath).resolve().absolute()
+            relative_filepath = filepath
+
+            # check relative_to here so we abort before import if relative_to is bad
+            if relative_to:
+                try:
+                    relative_filepath = relative_filepath.relative_to(relative_to)
+                except ValueError as e:
+                    echo(
+                        f"--relative-to value of '{relative_to}' is not in the same path as '{relative_filepath}'",
+                        err=True,
+                    )
+                    raise click.Abort() from e
+
+            verbose(f"Importing [filepath]{filepath}[/]")
+            photo, error = import_photo(filepath, dup_check, verbose)
+            if error:
+                error_count += 1
+                continue
+            imported_count += 1
+
+            if clear_metadata:
+                clear_photo_metadata(photo, filepath, verbose)
+
+            if exiftool:
+                set_photo_metadata_from_exiftool(
+                    photo, filepath, exiftool_path, verbose
+                )
+
+            if title:
+                set_photo_title(
+                    photo, filepath, relative_filepath, title, exiftool_path, verbose
+                )
+
+            if description:
+                set_photo_description(
+                    photo,
+                    filepath,
+                    relative_filepath,
+                    description,
+                    exiftool_path,
+                    verbose,
+                )
+
+            if keyword:
+                set_photo_keywords(
+                    photo,
+                    filepath,
+                    relative_filepath,
+                    keyword,
+                    exiftool_path,
+                    merge_keywords,
+                    verbose,
+                )
+
+            if album:
+                add_photo_to_albums(
+                    photo,
+                    filepath,
+                    relative_filepath,
+                    album,
+                    auto_folder,
+                    exiftool_path,
+                    verbose,
+                )
+
+            progress.advance(task)
 
     echo(
         f"Done: imported [num]{imported_count}[/] {pluralize(imported_count, 'file', 'files')}, "
