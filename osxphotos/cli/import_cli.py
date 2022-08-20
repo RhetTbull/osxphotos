@@ -175,7 +175,7 @@ def add_photo_to_albums(
     filepath: Path,
     relative_filepath: Path,
     album: Tuple[str],
-    auto_folder: bool,
+    split_folder: str,
     exiftool_path: Path,
     verbose: Callable[..., None],
 ):
@@ -193,7 +193,7 @@ def add_photo_to_albums(
     for a in albums:
         verbose(f"Adding photo [filename]{filepath.name}[/] to album [filepath]{a}[/]")
         photos_album = PhotosAlbumPhotoScript(
-            a, verbose=verbose, auto_folder=auto_folder
+            a, verbose=verbose, split_folder=split_folder
         )
         photos_album.add(photo)
 
@@ -219,7 +219,7 @@ def metadata_from_file(filepath: Path, exiftool_path: str) -> MetaData:
         title: str, XMP:Title, IPTC:ObjectName, QuickTime:DisplayName
         description: str, XMP:Description, IPTC:Caption-Abstract, EXIF:ImageDescription, QuickTime:Description
         keywords: str, XMP:Subject, XMP:TagsList, IPTC:Keywords (QuickTime:Keywords not supported)
-        location: Tuple[lat, lon],  EXIF:GPSLatitudeRef, EXIF:GPSLongitudeRef, EXIF:GPSLatitude, EXIF:GPSLongitude, QuickTime:GPSCoordinates, UserData:GPSCoordinates
+        location: Tuple[lat, lon],  EXIF:GPSLatitudeRef, EXIF:GPSLongitudeRef,  EXIF:GPSLongitude, QuickTime:GPSCoordinates, UserData:GPSCoordinates
     """
     exiftool = ExifToolCaching(filepath, exiftool_path)
     metadata = exiftool.asdict()
@@ -463,14 +463,78 @@ class ImportCommand(click.Command):
 
             `osxphotos import /Volumes/photos/*.jpg --album "My Album"`
 
+            Import files into Photos and add to album named for 4-digit year of file creation date:
+
+            `oxphotos import /Volumes/photos/*.jpg --album "{created.year}"`
+
+            Import files into Photos and add to album named for month of the year in folder named
+            for the 4-digit year of the file creation date:
+
+            `osxphotos import /Volumes/photos/*.jpg --album "{created.year}/{created.month}" --split-folder "/"`
+
             ## Albums
 
-            TODO:
+            The imported files may be added to one or more albums using the `--album` option.
+            The value passed to `--album` may be a literal string or an osxphotos template
+            (see Template System below).  For example:
+
+            `osxphotos import /Volumes/photos/*.jpg --album "Vacation"` 
+
+            adds all photos to the album "Vacation".  The album will be created if it does not
+            already exist.
+
+            `osxphotos import /Volumes/photos/Madrid/*.jpg --album "{filepath.parent.name}"`
+
+            adds all photos to the album "Madrid" (the name of the file's parent folder).
+
+            ## Folders
+
+            If you want to organize the imported photos into both folders and albums, you can
+            use the `--split-folder` option.  For example, if your photos are organized into 
+            folders as follows:
+            
+                .
+                ├── 2021
+                │   ├── Family
+                │   └── Travel
+                └── 2022
+                    ├── Family
+                    └── Travel
+
+            You can recreate this hierarchal structure on import using 
+            
+            `--album "{filepath.parent}" --split-folder "/"`
+
+            In this example, `{filepath.parent}` renders to '2021/Family', '2021/Travel', etc.
+            and `--split-folder "/"` instructs osxphotos to split the album name into separate 
+            parts '2021' and 'Family'.
+            
+            If your photos are organized in a set of folders but you want to exclude one or more parent
+            folders from the list of folders and album, you can use the `--relative-to` option to specify
+            the parent path that all subsequent paths should be relative to.  For example, if your photos
+            are organized into photos as follows:
+
+                /
+                └── Volumes
+                    └── Photos
+                        ├── 2021
+                        │   ├── Family
+                        │   └── Travel
+                        └── 2022
+                            ├── Family
+                            └── Travel
+
+            and you want to exclude /Volumes/Photos from the folder/album path, you can do this:
+
+            `osxphotos import /Volumes/Photos/* --walk --album "{filepath}" --relative-to "/Volumes/Photos"`
+
+            Note: in Photos, only albums can contain photos and folders
+            may contain albums or other folders. 
 
             ## Metadata
 
-            `osxphotos import` can set metadata (title, description, keywords) for 
-            imported photos using several options. 
+            `osxphotos import` can set metadata (title, description, keywords, and location) for 
+            imported photos/videos using several options. 
 
             If you have exiftool (https://exiftool.org/) installed, osxphotos can use
             exiftool to extract metadata from the imported file and use this to update
@@ -484,9 +548,10 @@ class ImportCommand(click.Command):
             The following metadata fields are read (in priority order) and used to set 
             the metadata of the imported photo:
 
-            - Title: XMP:Title, IPTC:ObjectName
-            - Description: XMP:Description, IPTC:Caption-Abstract, EXIF:ImageDescription
-            - Keywords: XMP:Subject, XMP:TagsList, IPTC:Keywords
+            - Title: XMP:Title, IPTC:ObjectName, QuickTime:DisplayName
+            - Description: XMP:Description, IPTC:Caption-Abstract, EXIF:ImageDescription, QuickTime:Description
+            - Keywords: XMP:Subject, XMP:TagsList, IPTC:Keywords (QuickTime:Keywords not supported)
+            - Location: EXIF:GPSLatitude/EXIF:GPSLatitudeRef, EXIF:GPSLongitude/EXIF:GPSLongitudeRef, QuickTime:GPSCoordinates, UserData:GPSCoordinates
 
             When importing photos, Photos itself will usually read most of these same fields 
             and set the metadata but when importing via AppleScript (which is how `osxphotos 
@@ -496,9 +561,94 @@ class ImportCommand(click.Command):
             You can also use `--clear-metadata` to remove any metadata automatically set by
             Photos upon import.
 
+            In addition to `--exiftool`, you can specify a template (see Template System below) 
+            for setting title (`--title`), description (`--description`), and keywords (`--keywords`). 
+            Location can be set using `--location`.  The album(s) of the imported file can likewise
+            be specified with `--album`.
+
+            `--title`, `--description`, `--keyword`, and `--album` all take a literal string or an 
+            osxphotos template string.  If a template string is used, the template is rendered 
+            using the osxphotos template language to produce the final value.
+
+            For example:
+
+            `--title "{exiftool:XMP:Title}"` sets the title of the imported file to whatever value
+            is in the `XMP:Title` metadata field (as read by `exiftool`).
+
+            `--keyword "Vacation"` sets the keyword for the imported file to the literal string "Vacation".
+
             ## Template System
 
-            TODO
+            As mentioned above, the `--title`, `--description`, `--keyword`, and `--album` options 
+            all take an osxphotos template language template string that is further rendered to
+            produce the final value.  The template system used by `osxphotos import` is a subset
+            of the template system used by `osxphotos export`. For a complete description of the
+            template system, see `osxphotos help export`.
+
+            Most fields in the osxphotos template system are not available to `osxphotos import` as
+            they are derived from data in the Photos library and the photos will obviously not be
+            imported yet. The following fields are available:
+
+            #### {exiftool}
+            - `{exiftool}`: Format: '{exiftool:GROUP:TAGNAME}'; use exiftool (https://exiftool.org)
+            to extract metadata, in form GROUP:TAGNAME, from image.
+            E.g. '{exiftool:EXIF:Make}' to get camera make, or {exiftool:IPTC:Keywords} to extract
+            keywords. See https://exiftool.org/TagNames/ for list of valid tag names.
+            You must specify group (e.g. EXIF, IPTC, etc) as used in `exiftool -G`.
+            exiftool must be installed in the path to use this template (alternatively, you can use
+            `--exiftool-path` to specify the path to exiftool.)
+            
+            #### {filepath}
+            
+            - `{filepath}`: The full path to the file being imported.
+            For example, `/Volumes/photos/img_1234.jpg`. 
+            
+            `{filepath}` has several subfields that
+            allow you to access various parts of the path using the following subfield modifiers:
+
+            - `{filepath.parent}`: the parent directory
+            - `{filepath.name}`: the name of the file or final sub-directory
+            - `{filepath.stem}`: the name of the file without the extension
+            - `{filepath.suffix}`: the suffix of the file including the leading '.'
+
+            For example, if the field `{filepath}` is '/Shared/Backup/Photos/IMG_1234.JPG':
+            - `{filepath.parent}` is '/Shared/Backup/Photos'
+            - `{filepath.name}` is 'IMG_1234.JPG'
+            - `{filepath.stem}` is 'IMG_1234'
+            - `{filepath.suffix}` is '.JPG'
+
+            Subfields may be chained, for example, `{filepath.parent.parent}` in the above
+            example would be `/Shared/Backup` and `{filepath.parent.name}` would be `Photos`.
+
+            `{filepath}` may be modified using the `--relative-to` option.  For example,
+            if the path to the imported photo is `/Volumes/Photos/Folder1/Album1/IMG_1234.jpg` 
+            and you specify `--relative-to "/Volumes/Photos"` then `{filepath}` will be set
+            to `Folder1/Album1/IMG_1234.jpg`
+            (a subset of the path relative to the value of `--relative-to`).
+
+            #### {created}
+
+            - `{created}`: The date the file was created.  `{created}` must be used with a subfield to 
+            specify the format of the date.
+
+            - `{created.date}`: Photo's creation date in ISO format, e.g. '2020-03-22'
+            - `{created.year}`: 4-digit year of photo creation time
+            - `{created.yy}`: 2-digit year of photo creation time
+            - `{created.mm}`: 2-digit month of the photo creation time (zero padded)
+            - `{created.month}`: Month name in user's locale of the photo creation time
+            - `{created.mon}`: Month abbreviation in the user's locale of the photo creation time
+            - `{created.dd}`: 2-digit day of the month (zero padded) of photo creation time
+            - `{created.dow}`: Day of week in user's locale of the photo creation time
+            - `{created.doy}`: 3-digit day of year (e.g Julian day) of photo creation time, starting from 1 (zero padded)
+            - `{created.hour}`: 2-digit hour of the photo creation time
+            - `{created.min}`: 2-digit minute of the photo creation time
+            - `{created.sec}`: 2-digit second of the photo creation time
+            - `{created.strftime}`: Apply strftime template to file creation date/time. Should be used in form
+            `{created.strftime,TEMPLATE}` where TEMPLATE is a valid strftime template, e.g. 
+            `{created.strftime,%Y-%U}` would result in year-week number of year: '2020-23'. 
+            If used with no template will return null value. 
+            See https://strftime.org/ for help on strftime templates.
+
         """
         )
         console = Console()
@@ -509,7 +659,6 @@ class ImportCommand(click.Command):
         return help_text
 
 
-# TODO: add --location
 @click.command(name="import", cls=ImportCommand)
 @click.option(
     "--album",
@@ -519,7 +668,7 @@ class ImportCommand(click.Command):
     help="Import photos into album ALBUM_TEMPLATE. "
     "ALBUM_TEMPLATE is an osxphotos template string. "
     "Photos may be imported into more than one album by repeating --album. "
-    "See Templating System in help for additional information.",
+    "See Template System in help for additional information.",
 )
 @click.option(
     "--title",
@@ -527,7 +676,7 @@ class ImportCommand(click.Command):
     metavar="TITLE_TEMPLATE",
     help="Set title of imported photos to TITLE_TEMPLATE. "
     "TITLE_TEMPLATE is a an osxphotos template string. "
-    "See Templating System in help for additional information.",
+    "See Template System in help for additional information.",
 )
 @click.option(
     "--description",
@@ -535,7 +684,7 @@ class ImportCommand(click.Command):
     metavar="DESCRIPTION_TEMPLATE",
     help="Set description of imported photos to DESCRIPTION_TEMPLATE. "
     "DESCRIPTION_TEMPLATE is a an osxphotos template string. "
-    "See Templating System in help for additional information.",
+    "See Template System in help for additional information.",
 )
 @click.option(
     "--keyword",
@@ -545,10 +694,11 @@ class ImportCommand(click.Command):
     help="Set keywords of imported photos to KEYWORD_TEMPLATE. "
     "KEYWORD_TEMPLATE is a an osxphotos template string. "
     "More than one keyword may be set by repeating --keyword. "
-    "See Templating System in help for additional information.",
+    "See Template System in help for additional information.",
 )
 @click.option(
     "--merge-keywords",
+    "-m",
     is_flag=True,
     help="Merge keywords created by --exiftool or --keyword "
     "with any keywords already associated with the photo. "
@@ -590,7 +740,8 @@ class ImportCommand(click.Command):
     is_flag=True,
     help="Use third party tool exiftool (https://exiftool.org/) to automatically "
     "update metadata (title, description, keywords, location) in imported photos from "
-    "the imported file's metadata.",
+    "the imported file's metadata. "
+    "Note: importing keywords from video files is not currently supported.",
 )
 @click.option(
     "--exiftool-path",
@@ -611,16 +762,15 @@ class ImportCommand(click.Command):
     "If you set '--relative-to /Volumes/photos/import' "
     "then '{filepath}' will be set to 'album/img_1234.jpg'",
 )
-@click.option("--dup-check", is_flag=True, help="Check for duplicates on import.")
+@click.option("--dup-check", "-D", is_flag=True, help="Check for duplicates on import.")
 @click.option(
-    "--auto-folder",
+    "--split-folder",
     "-f",
-    is_flag=True,
-    help="Automatically create folders for albums as needed. "
-    "If album name contains '/' (e.g. 'Folder/Album') and '--auto-folder' is set, "
-    "folders and albums will be split on '/' and automatically created as needed. ",
+    help="Automatically create hierarchal folders for albums as needed by splitting album name "
+    "into folders and album. You must specify the character used to split folders and "
+    "albums. For example, '--split-folder \"/\"' will split the album name 'Folder/Album' "
+    "into folder 'Folder' and album 'Album'. ",
 )
-@DB_OPTION
 @click.option("--verbose", "-V", "verbose_", is_flag=True, help="Print verbose output.")
 @click.option(
     "--timestamp", "-T", is_flag=True, help="Add time stamp to verbose output"
@@ -647,8 +797,7 @@ def import_cli(
     exiftool_path,
     relative_to,
     dup_check,
-    auto_folder,
-    db,
+    split_folder,
     verbose_,
     timestamp,
     no_progress,
@@ -671,13 +820,13 @@ def import_cli(
         return
 
     # below needed for to make CliRunner work for testing
-    cli_db = cli_obj.db if cli_obj is not None else None
-    db = get_photos_db(db, cli_db)
-    if not db:
-        echo(get_help_msg(import_cli), err=True)
-        echo("\n\nLocated the following Photos library databases: ", err=True)
-        _list_libraries()
-        return
+    # cli_db = cli_obj.db if cli_obj is not None else None
+    # db = get_photos_db(db, cli_db)
+    # if not db:
+    #     echo(get_help_msg(import_cli), err=True)
+    #     echo("\n\nLocated the following Photos library databases: ", err=True)
+    #     _list_libraries()
+    #     return
 
     relative_to = Path(relative_to) if relative_to else None
 
@@ -757,7 +906,7 @@ def import_cli(
                     filepath,
                     relative_filepath,
                     album,
-                    auto_folder,
+                    split_folder,
                     exiftool_path,
                     verbose,
                 )

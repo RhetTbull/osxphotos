@@ -99,22 +99,22 @@ class PhotosAlbumPhotoScript:
     """Add photoscript.Photo objects to album"""
 
     def __init__(
-        self, name: str, verbose: Optional[callable] = None, auto_folder: bool = False
+        self, name: str, verbose: Optional[callable] = None, split_folder: Optional[str] = None
     ):
         """Return a PhotosAlbumPhotoScript object, creating the album if necessary
 
         Args:
             name: Name of album
             verbose: optional callable to print verbose output
-            auto_folder: if True, split album name on '/' to create folders if necessary,
-                e.g. if name = 'folder1/folder2/album' then folders 'folder1' and 'folder2' will be created
-                and album 'album' will be created in 'folder2';
-                if False, album 'folder1/folder2/album' will be created
+            split_folder: if set, split album name on value of split_folder to create folders if necessary,
+                e.g. if name = 'folder1/folder2/album' and split_folder='/', 
+                then folders 'folder1' and 'folder2' will be created and album 'album' will be created in 'folder2';
+                if not set, album 'folder1/folder2/album' will be created
         """
         self.verbose = verbose or noop
         self.library = PhotosLibrary()
 
-        folders_album = name.split("/") if auto_folder else [name]
+        folders_album = name.split(split_folder) if split_folder else [name]
         self.album = album_by_path(folders_album, verbose=verbose)
         self.name = name
 

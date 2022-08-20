@@ -193,14 +193,21 @@ def test_import_album_2():
 
 
 @pytest.mark.test_import
-def test_import_album_auto_folder():
-    """Test basic import to an album with a "/" in it and --auto-folder"""
+def test_import_album_slit_folder():
+    """Test basic import to an album with a "/" in it and --split-folder"""
     cwd = os.getcwd()
     test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
     runner = CliRunner()
     result = runner.invoke(
         import_cli,
-        ["--verbose", "--album", "Folder/My New Album", "--auto-folder", test_image_1],
+        [
+            "--verbose",
+            "--album",
+            "Folder/My New Album",
+            "--split-folder",
+            "/",
+            test_image_1,
+        ],
         terminal_width=TERMINAL_WIDTH,
     )
 
@@ -230,7 +237,8 @@ def test_import_album_relative_to():
             "--verbose",
             "--album",
             "{filepath.parent}",
-            "--auto-folder",
+            "--split-folder",
+            "/",
             "--relative-to",
             cwd,
             test_image_1,
