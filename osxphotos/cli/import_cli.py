@@ -119,7 +119,7 @@ class PhotoInfoFromFile:
         Returns:
             ([rendered_strings], [unmatched]): tuple of list of rendered strings and list of unmatched template values
         """
-        options = options or RenderOptions()
+        options = options or RenderOptions(caller="import")
         template = PhotoTemplate(self, exiftool_path=self._exiftool_path)
         return template.render(template_str, options)
 
@@ -163,7 +163,7 @@ def render_photo_template(
 
     photoinfo = PhotoInfoFromFile(filepath, exiftool=exiftool_path)
     options = RenderOptions(
-        none_str=_OSXPHOTOS_NONE_SENTINEL, filepath=relative_filepath
+        none_str=_OSXPHOTOS_NONE_SENTINEL, filepath=relative_filepath, caller="import"
     )
     template_values, _ = photoinfo.render_template(template, options=options)
     # filter out empty strings

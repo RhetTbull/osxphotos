@@ -329,6 +329,7 @@ class RenderOptions:
     dest_path: set to the destination path of the photo (for use by {function} template), only valid with --filename
     filepath: set to value for filepath of the exported photo if you want to evaluate {filepath} template
     quote: quote path templates for execution in the shell
+    caller: which command is calling the template (e.g. 'export')
     """
 
     none_str: str = "_"
@@ -343,6 +344,7 @@ class RenderOptions:
     dest_path: Optional[str] = None
     filepath: Optional[str] = None
     quote: bool = False
+    caller: str = "export"
 
 
 class PhotoTemplateParser:
@@ -788,7 +790,9 @@ class PhotoTemplate:
                 raise ValueError(
                     "SyntaxError: filename and function must not be null with {function::filename.py:function_name}"
                 )
-            vals = self.get_template_value_function(subfield, field_arg)
+            vals = self.get_template_value_function(
+                subfield, field_arg, self.options.caller
+            )
         elif field in MULTI_VALUE_SUBSTITUTIONS or field.startswith("photo"):
             vals = self.get_template_value_multi(
                 field, subfield, path_sep=field_arg, default=default
@@ -1459,10 +1463,17 @@ class PhotoTemplate:
 
     def get_template_value_function(
         self,
-        subfield,
-        field_arg,
+        subfield: str,
+        field_arg: Optional[str],
+        caller: str,
     ):
-        """Get template value from external function"""
+        """Get template value from external function
+
+        Args:
+            subfield: the filename and function name in for filename.py::function
+            field_arg: the argument to pass to the function
+            caller: the calling source of the template ('export' or 'import')
+        """
 
         if "::" not in subfield:
             raise ValueError(
@@ -1481,8 +1492,17 @@ class PhotoTemplate:
             # if no uuid, then template is being validated but not actually run
             # so don't run the function
             values = []
-        else:
+        elif caller == "export":
+            # function signature is:
+            # def example(photo: PhotoInfo, options: ExportOptions, args: Optional[str] = None, **kwargs) -> Union[List, str]:
             values = template_func(self.photo, options=self.options, args=field_arg)
+        elif caller == "import":
+            # function signature is:
+            # def example(filepath: pathlib.Path, args: Optional[str] = None, **kwargs) -> Union[List, str]:
+            # the PhotoInfoFromFile class used by import sets `path` to the path of the file being imported
+            values = template_func(pathlib.Path(self.photo.path), args=field_arg)
+        else:
+            raise ValueError(f"Unhandled caller: {caller}")
 
         if not isinstance(values, (str, list)):
             raise TypeError(
