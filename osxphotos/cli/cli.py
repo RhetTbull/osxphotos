@@ -15,6 +15,7 @@ from .export import export
 from .exportdb import exportdb
 from .grep import grep
 from .help import help
+from .import_cli import import_cli
 from .info import info
 from .install_uninstall_run import install, run, uninstall
 from .keywords import keywords
@@ -75,6 +76,7 @@ for command in [
     exportdb,
     grep,
     help,
+    import_cli,
     info,
     install,
     keywords,

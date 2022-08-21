@@ -4,6 +4,7 @@ furo
 m2r2
 pdbpp
 pyinstaller==4.10
+pytest-cov==3.0.0 
 pytest-mock
 pytest==7.0.1
 Sphinx

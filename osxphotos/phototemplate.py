@@ -1629,20 +1629,18 @@ def _get_pathlib_value(field, value, quote):
     if len(parts) == 1:
         return shlex.quote(value) if quote else value
 
-    if len(parts) > 2:
-        raise ValueError(f"Illegal value for path template: {field}")
-
-    path = parts[0]
-    attribute = parts[1]
     path = pathlib.Path(value)
-    try:
-        val = getattr(path, attribute)
-        val_str = str(val)
-        if quote:
-            val_str = shlex.quote(val_str)
-        return val_str
-    except AttributeError:
-        raise ValueError("Illegal value for path template: {attribute}")
+    for attribute in parts[1:]:
+        try:
+            val = getattr(path, attribute)
+            path = pathlib.Path(val)
+        except AttributeError as e:
+            raise ValueError(f"Illegal value for filepath template: {attribute}") from e
+
+    val_str = str(val)
+    if quote:
+        val_str = shlex.quote(val_str)
+    return val_str
 
 
 def format_str_value(value, format_str):
