@@ -142,12 +142,14 @@ Commands:
   export     Export photos from the Photos database.
   exportdb   Utilities for working with the osxphotos export database
   help       Print help; for help on commands: help <command>.
+  import     Import photos and videos into Photos.
   info       Print out descriptive info of the Photos library database.
   inspect    Interactively inspect photos selected in Photos.
   install    Install Python packages into the same environment as osxphotos
   keywords   Print out keywords found in the Photos library.
   labels     Print out image classification labels found in the Photos...
   list       Print list of Photos libraries found on the system.
+  orphans    Find orphaned photos in a Photos library
   persons    Print out persons (faces) found in the Photos library.
   places     Print out places found in the Photos library.
   query      Query the Photos database using 1 or more search options; if...
