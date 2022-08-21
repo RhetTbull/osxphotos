@@ -4,7 +4,9 @@ import os
 import os.path
 import pathlib
 import re
+import shutil
 import time
+from tempfile import TemporaryDirectory
 from typing import Dict
 
 import pytest
@@ -13,7 +15,7 @@ from photoscript import Photo
 from pytest import approx
 
 from osxphotos.cli.import_cli import import_cli
-from osxphotos.exiftool import ExifTool, get_exiftool_path
+from osxphotos.exiftool import get_exiftool_path
 from tests.conftest import get_os_version
 
 TERMINAL_WIDTH = 250
@@ -644,3 +646,37 @@ def test_import_check_templates():
 
     for idx, line in enumerate(output):
         assert line == TEST_DATA[TEST_IMAGE_1]["check_templates"][idx]
+
+
+@pytest.mark.test_import
+def test_import_function_template():
+    """Test import with a function template"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    function = os.path.join(cwd, "examples/template_function_import.py")
+    with TemporaryDirectory() as tempdir:
+        test_image = shutil.copy(
+            test_image_1, os.path.join(tempdir, "MyAlbum_IMG_0001.jpg")
+        )
+        runner = CliRunner()
+        result = runner.invoke(
+            import_cli,
+            [
+                "--verbose",
+                "--album",
+                "{function:" + function + "::example}",
+                test_image,
+            ],
+            terminal_width=TERMINAL_WIDTH,
+        )
+
+        assert result.exit_code == 0
+
+        import_data = parse_import_output(result.output)
+        file_1 = pathlib.Path(test_image).name
+        uuid_1 = import_data[file_1]
+        photo_1 = Photo(uuid_1)
+
+        assert photo_1.filename == file_1
+        albums = [a.title for a in photo_1.albums]
+        assert albums == ["MyAlbum"]
