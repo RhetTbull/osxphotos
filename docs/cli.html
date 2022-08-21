@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Template System" href="template_help.html" /><link rel="prev" title="OSXPhotos Tutorial" href="tutorial.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.50.13 documentation</title>
+        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.51.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.50.13 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.51.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.50.13 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.51.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -1370,6 +1370,125 @@ to modify this behavior.</p>
 <dt class="sig sig-object std" id="cmdoption-osxphotos-help-arg-SUBTOPIC">
 <span id="cmdoption-osxphotos-help-arg-subtopic"></span><span class="sig-name descname"><span class="pre">SUBTOPIC</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-help-arg-SUBTOPIC" title="Permalink to this definition">#</a></dt>
 <dd><p>Optional argument</p>
+</dd></dl>
+</section>
+<section id="osxphotos-import">
+<h3>import<a class="headerlink" href="#osxphotos-import" title="Permalink to this headline">#</a></h3>
+<p>Import photos and videos into Photos.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos import <span class="o">[</span>OPTIONS<span class="o">]</span> <span class="o">[</span>FILES<span class="o">]</span>...
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-a">
+<span id="cmdoption-osxphotos-import-album"></span><span class="sig-name descname"><span class="pre">-a</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--album</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;ALBUM_TEMPLATE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-a" title="Permalink to this definition">#</a></dt>
+<dd><p>Import photos into album ALBUM_TEMPLATE. ALBUM_TEMPLATE is an osxphotos template string. Photos may be imported into more than one album by repeating –album. See Template System in help for additional information.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-t">
+<span id="cmdoption-osxphotos-import-title"></span><span class="sig-name descname"><span class="pre">-t</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--title</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;TITLE_TEMPLATE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-t" title="Permalink to this definition">#</a></dt>
+<dd><p>Set title of imported photos to TITLE_TEMPLATE. TITLE_TEMPLATE is a an osxphotos template string. See Template System in help for additional information.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-d">
+<span id="cmdoption-osxphotos-import-description"></span><span class="sig-name descname"><span class="pre">-d</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--description</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;DESCRIPTION_TEMPLATE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-d" title="Permalink to this definition">#</a></dt>
+<dd><p>Set description of imported photos to DESCRIPTION_TEMPLATE. DESCRIPTION_TEMPLATE is a an osxphotos template string. See Template System in help for additional information.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-k">
+<span id="cmdoption-osxphotos-import-keyword"></span><span class="sig-name descname"><span class="pre">-k</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--keyword</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;KEYWORD_TEMPLATE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-k" title="Permalink to this definition">#</a></dt>
+<dd><p>Set keywords of imported photos to KEYWORD_TEMPLATE. KEYWORD_TEMPLATE is a an osxphotos template string. More than one keyword may be set by repeating –keyword. See Template System in help for additional information.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-m">
+<span id="cmdoption-osxphotos-import-merge-keywords"></span><span class="sig-name descname"><span class="pre">-m</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--merge-keywords</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-m" title="Permalink to this definition">#</a></dt>
+<dd><p>Merge keywords created by –exiftool or –keyword with any keywords already associated with the photo. Without –merge-keywords, existing keywords will be overwritten.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-l">
+<span id="cmdoption-osxphotos-import-location"></span><span class="sig-name descname"><span class="pre">-l</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--location</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;LATITUDE</span> <span class="pre">LONGITUDE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-l" title="Permalink to this definition">#</a></dt>
+<dd><p>Set location of imported photo to LATITUDE LONGITUDE. Latitude is a number in the range -90.0 to 90.0; positive latitudes are north of the equator, negative latitudes are south of the equator. Longitude is a number in the range -180.0 to 180.0; positive longitudes are east of the Prime Meridian; negative longitudes are west of the Prime Meridian.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-C">
+<span id="cmdoption-osxphotos-import-c"></span><span id="cmdoption-osxphotos-import-clear-metadata"></span><span class="sig-name descname"><span class="pre">-C</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--clear-metadata</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-C" title="Permalink to this definition">#</a></dt>
+<dd><p>Clear any metadata set automatically by Photos upon import. Normally, Photos will set title, description, and keywords from XMP metadata in the imported file.  If you specify –clear-metadata, any metadata set by Photos will be cleared after import.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-L">
+<span id="cmdoption-osxphotos-import-clear-location"></span><span class="sig-name descname"><span class="pre">-L</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--clear-location</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-L" title="Permalink to this definition">#</a></dt>
+<dd><p>Clear any location data automatically imported by Photos. Normally, Photos will set location of the photo to the location data found in the metadata in the imported file.  If you specify –clear-location, this data will be cleared after import.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-e">
+<span id="cmdoption-osxphotos-import-exiftool"></span><span class="sig-name descname"><span class="pre">-e</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--exiftool</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-e" title="Permalink to this definition">#</a></dt>
+<dd><p>Use third party tool exiftool (<a class="reference external" href="https://exiftool.org/">https://exiftool.org/</a>) to automatically update metadata (title, description, keywords, location) in imported photos from the imported file’s metadata. Note: importing keywords from video files is not currently supported.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-p">
+<span id="cmdoption-osxphotos-import-exiftool-path"></span><span class="sig-name descname"><span class="pre">-p</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--exiftool-path</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;EXIFTOOL_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-p" title="Permalink to this definition">#</a></dt>
+<dd><p>Optionally specify path to exiftool; if not provided, will look for exiftool in $PATH.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-r">
+<span id="cmdoption-osxphotos-import-relative-to"></span><span class="sig-name descname"><span class="pre">-r</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--relative-to</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;RELATIVE_TO_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-r" title="Permalink to this definition">#</a></dt>
+<dd><p>If set, the ‘{filepath}’ template will be computed relative to RELATIVE_TO_PATH. For example, if path to import is ‘/Volumes/photos/import/album/img_1234.jpg’ then ‘{filepath}’ will be this same value. If you set ‘–relative-to /Volumes/photos/import’ then ‘{filepath}’ will be set to ‘album/img_1234.jpg’</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-D">
+<span id="cmdoption-osxphotos-import-dup-check"></span><span class="sig-name descname"><span class="pre">-D</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--dup-check</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-D" title="Permalink to this definition">#</a></dt>
+<dd><p>Check for duplicates on import.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-f">
+<span id="cmdoption-osxphotos-import-split-folder"></span><span class="sig-name descname"><span class="pre">-f</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--split-folder</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;split_folder&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-f" title="Permalink to this definition">#</a></dt>
+<dd><p>Automatically create hierarchal folders for albums as needed by splitting album name into folders and album. You must specify the character used to split folders and albums. For example, ‘–split-folder “/”’ will split the album name ‘Folder/Album’ into folder ‘Folder’ and album ‘Album’.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-w">
+<span id="cmdoption-osxphotos-import-walk"></span><span class="sig-name descname"><span class="pre">-w</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--walk</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-w" title="Permalink to this definition">#</a></dt>
+<dd><p>Recursively walk through directories.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-g">
+<span id="cmdoption-osxphotos-import-glob"></span><span class="sig-name descname"><span class="pre">-g</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--glob</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;GLOB&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-g" title="Permalink to this definition">#</a></dt>
+<dd><p>Only import files matching GLOB. GLOB is a Unix shell-style glob pattern, for example: ‘–glob “<a href="#id1"><span class="problematic" id="id2">*</span></a>.jpg”’. GLOB may be repeated to import multiple patterns.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-V">
+<span id="cmdoption-osxphotos-import-v"></span><span id="cmdoption-osxphotos-import-verbose"></span><span class="sig-name descname"><span class="pre">-V</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-V" title="Permalink to this definition">#</a></dt>
+<dd><p>Print verbose output.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-T">
+<span id="cmdoption-osxphotos-import-timestamp"></span><span class="sig-name descname"><span class="pre">-T</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--timestamp</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-T" title="Permalink to this definition">#</a></dt>
+<dd><p>Add time stamp to verbose output</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-no-progress">
+<span class="sig-name descname"><span class="pre">--no-progress</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-no-progress" title="Permalink to this definition">#</a></dt>
+<dd><p>Do not display progress bar during import.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-check-templates">
+<span class="sig-name descname"><span class="pre">--check-templates</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-check-templates" title="Permalink to this definition">#</a></dt>
+<dd><p>Don’t actually import anything; renders template strings so you can verify they are correct.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-theme">
+<span class="sig-name descname"><span class="pre">--theme</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;THEME&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-theme" title="Permalink to this definition">#</a></dt>
+<dd><p>Specify the color theme to use for –verbose output. Valid themes are ‘dark’, ‘light’, ‘mono’, and ‘plain’. Defaults to ‘dark’ or ‘light’ depending on system dark mode setting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Options</dt>
+<dd class="field-odd"><p>dark | light | mono | plain</p>
+</dd>
+</dl>
+</dd></dl>
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-arg-FILES">
+<span id="cmdoption-osxphotos-import-arg-files"></span><span class="sig-name descname"><span class="pre">FILES</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-arg-FILES" title="Permalink to this definition">#</a></dt>
+<dd><p>Optional argument(s)</p>
 </dd></dl>
 </section>
 <section id="osxphotos-info">
@@ -2824,6 +2943,7 @@ Commands:
 <li><a class="reference internal" href="#osxphotos-export">export</a></li>
 <li><a class="reference internal" href="#osxphotos-exportdb">exportdb</a></li>
 <li><a class="reference internal" href="#osxphotos-help">help</a></li>
+<li><a class="reference internal" href="#osxphotos-import">import</a></li>
 <li><a class="reference internal" href="#osxphotos-info">info</a></li>
 <li><a class="reference internal" href="#osxphotos-inspect">inspect</a></li>
 <li><a class="reference internal" href="#osxphotos-install">install</a></li>
