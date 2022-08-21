@@ -31,6 +31,16 @@ TEST_DATA = {
         "keywords": ["osxphotos"],
         "lat": 33.7150638888889,
         "lon": -118.319672222222,
+        "check_templates": [
+            "exiftool title: Waves crashing on rocks",
+            "exiftool description: Used for testing osxphotos",
+            "exiftool keywords: ['osxphotos']",
+            "exiftool location: (33.7150638888889, -118.319672222222)",
+            "title: {exiftool:XMP:Title}: Waves crashing on rocks",
+            "description: {exiftool:IPTC:Caption-Abstract}: Used for testing osxphotos",
+            "keyword: {exiftool:IPTC:Keywords}: ['osxphotos']",
+            "album: {filepath.parent}: test-images",
+        ],
     },
     TEST_VIDEO_1: {
         "title": "Jellyfish",
@@ -598,3 +608,39 @@ def test_import_glob_walk():
 
     assert photo_1.filename == file_1
     assert [a.title for a in photo_1.albums] == TEST_DATA[TEST_IMAGE_2]["albums"]
+
+
+@pytest.mark.skipif(exiftool_path is None, reason="exiftool not installed")
+@pytest.mark.test_import
+def test_import_check_templates():
+    """Test import file with --check-templates"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    result = runner.invoke(
+        import_cli,
+        [
+            "--verbose",
+            "--exiftool",
+            "--title",
+            "{exiftool:XMP:Title}",
+            "--description",
+            "{exiftool:IPTC:Caption-Abstract}",
+            "--keyword",
+            "{exiftool:IPTC:Keywords}",
+            "--album",
+            "{filepath.parent}",
+            "--relative-to",
+            f"{cwd}/tests",
+            "--check-templates",
+            test_image_1,
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    # assert result.output == "foo"
+    assert result.exit_code == 0
+    output = result.output.splitlines()
+    output.pop(0)
+
+    for idx, line in enumerate(output):
+        assert line == TEST_DATA[TEST_IMAGE_1]["check_templates"][idx]

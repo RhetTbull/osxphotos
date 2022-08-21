@@ -5,6 +5,7 @@ import fnmatch
 import logging
 import os
 import os.path
+import sys
 import uuid
 from collections import namedtuple
 from pathlib import Path
@@ -23,6 +24,7 @@ from osxphotos.exiftool import ExifToolCaching, get_exiftool_path
 from osxphotos.photosalbum import PhotosAlbumPhotoScript
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.utils import pluralize
+from osxphotos.cli.param_types import TemplateString
 
 from .click_rich_echo import (
     rich_click_echo,
@@ -31,9 +33,7 @@ from .click_rich_echo import (
     set_rich_timestamp,
 )
 from .color_themes import get_theme
-from .common import DB_OPTION, THEME_OPTION, get_photos_db
-from .help import get_help_msg
-from .list import _list_libraries
+from .common import THEME_OPTION
 from .rich_progress import rich_progress
 from .verbose import get_verbose_console, verbose_print
 
@@ -444,6 +444,86 @@ def set_photo_location(
     photo.location = location
 
 
+def get_relative_filepath(filepath: Path, relative_to: Optional[str]) -> Path:
+    """Get relative filepath of file relative to relative_to or return filepath if relative_to is None
+
+    Args:
+        filepath: path to file
+        relative_to: path to directory to which filepath is relative
+
+    Returns: relative filepath or filepath if relative_to is None
+
+    Raises: click.Abort if relative_to is not in the same path as filepath
+    """
+    relative_filepath = filepath
+
+    # check relative_to here so we abort before import if relative_to is bad
+    if relative_to:
+        try:
+            relative_filepath = relative_filepath.relative_to(relative_to)
+        except ValueError as e:
+            echo(
+                f"--relative-to value of '{relative_to}' is not in the same path as '{relative_filepath}'",
+                err=True,
+            )
+            raise click.Abort() from e
+
+    return relative_filepath
+
+
+def check_templates_and_exit(
+    files: List[str],
+    relative_to: Optional[Path],
+    title: Optional[str],
+    description: Optional[str],
+    keyword: Tuple[str],
+    album: Tuple[str],
+    split_folder: Optional[str],
+    exiftool_path: Optional[str],
+    exiftool: bool,
+):
+    """Renders templates against each file so user can verify correctness"""
+    for file in files:
+        file = Path(file).absolute().resolve()
+        relative_filepath = get_relative_filepath(file, relative_to)
+        echo(f"[filepath]{file}[/]:")
+        if exiftool:
+            metadata = metadata_from_file(file, exiftool_path)
+            echo(f"exiftool title: {metadata.title}")
+            echo(f"exiftool description: {metadata.description}")
+            echo(f"exiftool keywords: {metadata.keywords}")
+            echo(f"exiftool location: {metadata.location}")
+        if title:
+            rendered_title = render_photo_template(
+                file, relative_filepath, title, exiftool_path
+            )
+            rendered_title = rendered_title[0] if rendered_title else "None"
+            echo(f"title: [italic]{title}[/]: {rendered_title}")
+        if description:
+            rendered_description = render_photo_template(
+                file, relative_filepath, description, exiftool_path
+            )
+            rendered_description = (
+                rendered_description[0] if rendered_description else "None"
+            )
+            echo(f"description: [italic]{description}[/]: {rendered_description}")
+        if keyword:
+            for kw in keyword:
+                rendered_keywords = render_photo_template(
+                    file, relative_filepath, kw, exiftool_path
+                )
+                rendered_keywords = rendered_keywords or "None"
+                echo(f"keyword: [italic]{kw}[/]: {rendered_keywords}")
+        if album:
+            for al in album:
+                rendered_album = render_photo_template(
+                    file, relative_filepath, al, exiftool_path
+                )
+                rendered_album = rendered_album[0] if rendered_album else "None"
+                echo(f"album: [italic]{al}[/]: {rendered_album}")
+    sys.exit(0)
+
+
 def filename_matches_patterns(filename: str, patterns: Tuple[str]) -> bool:
     """Return True if filename matches any pattern in patterns"""
     return any(fnmatch.fnmatch(filename, pattern) for pattern in patterns)
@@ -704,6 +784,7 @@ class ImportCommand(click.Command):
     "-a",
     metavar="ALBUM_TEMPLATE",
     multiple=True,
+    type=TemplateString(),
     help="Import photos into album ALBUM_TEMPLATE. "
     "ALBUM_TEMPLATE is an osxphotos template string. "
     "Photos may be imported into more than one album by repeating --album. "
@@ -713,6 +794,7 @@ class ImportCommand(click.Command):
     "--title",
     "-t",
     metavar="TITLE_TEMPLATE",
+    type=TemplateString(),
     help="Set title of imported photos to TITLE_TEMPLATE. "
     "TITLE_TEMPLATE is a an osxphotos template string. "
     "See Template System in help for additional information.",
@@ -721,6 +803,7 @@ class ImportCommand(click.Command):
     "--description",
     "-d",
     metavar="DESCRIPTION_TEMPLATE",
+    type=TemplateString(),
     help="Set description of imported photos to DESCRIPTION_TEMPLATE. "
     "DESCRIPTION_TEMPLATE is a an osxphotos template string. "
     "See Template System in help for additional information.",
@@ -730,6 +813,7 @@ class ImportCommand(click.Command):
     "-k",
     metavar="KEYWORD_TEMPLATE",
     multiple=True,
+    type=TemplateString(),
     help="Set keywords of imported photos to KEYWORD_TEMPLATE. "
     "KEYWORD_TEMPLATE is a an osxphotos template string. "
     "More than one keyword may be set by repeating --keyword. "
@@ -829,6 +913,12 @@ class ImportCommand(click.Command):
 @click.option(
     "--no-progress", is_flag=True, help="Do not display progress bar during import."
 )
+@click.option(
+    "--check-templates",
+    is_flag=True,
+    help="Don't actually import anything; "
+    "renders template strings so you can verify they are correct.",
+)
 @THEME_OPTION
 @click.argument("files", nargs=-1)
 @click.pass_obj
@@ -837,25 +927,26 @@ def import_cli(
     ctx,
     cli_obj,
     album,
-    title,
-    description,
-    keyword,
-    merge_keywords,
-    location,
-    clear_metadata,
+    check_templates,
     clear_location,
+    clear_metadata,
+    description,
+    dup_check,
     exiftool,
     exiftool_path,
-    relative_to,
-    dup_check,
-    split_folder,
-    walk,
-    glob,
-    verbose_,
-    timestamp,
-    no_progress,
-    theme,
     files,
+    glob,
+    keyword,
+    location,
+    merge_keywords,
+    no_progress,
+    relative_to,
+    split_folder,
+    theme,
+    timestamp,
+    title,
+    verbose_,
+    walk,
 ):
     """Import photos and videos into Photos."""
 
@@ -886,6 +977,19 @@ def import_cli(
     imported_count = 0
     error_count = 0
     files = collect_files_to_import(files, walk, glob)
+    if check_templates:
+        check_templates_and_exit(
+            files,
+            relative_to,
+            title,
+            description,
+            keyword,
+            album,
+            split_folder,
+            exiftool_path,
+            exiftool,
+        )
+
     filecount = len(files)
     with rich_progress(console=get_verbose_console(), mock=no_progress) as progress:
         task = progress.add_task(
@@ -894,18 +998,7 @@ def import_cli(
         )
         for filepath in files:
             filepath = Path(filepath).resolve().absolute()
-            relative_filepath = filepath
-
-            # check relative_to here so we abort before import if relative_to is bad
-            if relative_to:
-                try:
-                    relative_filepath = relative_filepath.relative_to(relative_to)
-                except ValueError as e:
-                    echo(
-                        f"--relative-to value of '{relative_to}' is not in the same path as '{relative_filepath}'",
-                        err=True,
-                    )
-                    raise click.Abort() from e
+            relative_filepath = get_relative_filepath(filepath, relative_to)
 
             verbose(f"Importing [filepath]{filepath}[/]")
             photo, error = import_photo(filepath, dup_check, verbose)
