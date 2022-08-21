@@ -1,7 +1,9 @@
 """import command for osxphotos CLI to import photos into Photos"""
 
 import datetime
+import fnmatch
 import logging
+import os
 import os.path
 import uuid
 from collections import namedtuple
@@ -442,6 +444,43 @@ def set_photo_location(
     photo.location = location
 
 
+def filename_matches_patterns(filename: str, patterns: Tuple[str]) -> bool:
+    """Return True if filename matches any pattern in patterns"""
+    return any(fnmatch.fnmatch(filename, pattern) for pattern in patterns)
+
+
+def collect_files_to_import(
+    files: Tuple[str], walk: bool, glob: Tuple[str]
+) -> List[str]:
+    """Collect files to import, recursively if necessary
+
+    Args:
+        files: list of initial files or directories to import
+        walk: whether to walk directories
+        glob: optional glob patterns to match files
+    """
+    files_to_import = []
+    for file in files:
+        if os.path.isfile(file):
+            if glob and filename_matches_patterns(os.path.basename(file), glob):
+                files_to_import.append(file)
+            elif not glob:
+                files_to_import.append(file)
+        elif os.path.isdir(file):
+            if walk:
+                for root, dirs, files in os.walk(file):
+                    for file in files:
+                        if glob and filename_matches_patterns(
+                            os.path.basename(file), glob
+                        ):
+                            files_to_import.append(os.path.join(root, file))
+                        elif not glob:
+                            files_to_import.append(os.path.join(root, file))
+        else:
+            continue
+    return files_to_import
+
+
 class ImportCommand(click.Command):
     """Custom click.Command that overrides get_help() to show additional help info for import"""
 
@@ -771,6 +810,18 @@ class ImportCommand(click.Command):
     "albums. For example, '--split-folder \"/\"' will split the album name 'Folder/Album' "
     "into folder 'Folder' and album 'Album'. ",
 )
+@click.option(
+    "--walk", "-w", is_flag=True, help="Recursively walk through directories."
+)
+@click.option(
+    "--glob",
+    "-g",
+    metavar="GLOB",
+    multiple=True,
+    help="Only import files matching GLOB. "
+    "GLOB is a Unix shell-style glob pattern, for example: '--glob \"*.jpg\"'. "
+    "GLOB may be repeated to import multiple patterns.",
+)
 @click.option("--verbose", "-V", "verbose_", is_flag=True, help="Print verbose output.")
 @click.option(
     "--timestamp", "-T", is_flag=True, help="Add time stamp to verbose output"
@@ -798,6 +849,8 @@ def import_cli(
     relative_to,
     dup_check,
     split_folder,
+    walk,
+    glob,
     verbose_,
     timestamp,
     no_progress,
@@ -832,6 +885,7 @@ def import_cli(
 
     imported_count = 0
     error_count = 0
+    files = collect_files_to_import(files, walk, glob)
     filecount = len(files)
     with rich_progress(console=get_verbose_console(), mock=no_progress) as progress:
         task = progress.add_task(

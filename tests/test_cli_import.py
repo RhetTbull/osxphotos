@@ -12,14 +12,15 @@ from click.testing import CliRunner
 from photoscript import Photo
 from pytest import approx
 
-from osxphotos import PhotosDB
 from osxphotos.cli.import_cli import import_cli
 from osxphotos.exiftool import ExifTool, get_exiftool_path
 from tests.conftest import get_os_version
 
 TERMINAL_WIDTH = 250
 
+TEST_IMAGES_DIR = "tests/test-images"
 TEST_IMAGE_1 = "tests/test-images/IMG_4179.jpeg"
+TEST_IMAGE_2 = "tests/test-images/faceinfo/exif1.jpg"
 TEST_VIDEO_1 = "tests/test-images/Jellyfish.mov"
 TEST_VIDEO_2 = "tests/test-images/IMG_0670B_NOGPS.MOV"
 
@@ -44,6 +45,9 @@ TEST_DATA = {
         "description": "",
         "lat": None,
         "lon": None,
+    },
+    TEST_IMAGE_2: {
+        "albums": ["faceinfo"],
     },
 }
 
@@ -545,3 +549,52 @@ def test_import_location():
     lat, lon = photo_1.location
     assert lat == approx(-45.0)
     assert lon == approx(-45.0)
+
+
+@pytest.mark.test_import
+def test_import_glob():
+    """Test import with --glob"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    result = runner.invoke(
+        import_cli,
+        ["--verbose", f"{cwd}/{TEST_IMAGES_DIR}/", "--walk", "--glob", "Pumpk*.jpg"],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+    assert "imported 2 files" in result.output
+
+
+@pytest.mark.test_import
+def test_import_glob_walk():
+    """Test import with --walk --glob"""
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    result = runner.invoke(
+        import_cli,
+        [
+            "--verbose",
+            f"{cwd}/{TEST_IMAGES_DIR}/",
+            "--walk",
+            "--glob",
+            "exif*.jpg",
+            "--album",
+            "{filepath.parent.name}",
+            "--relative-to",
+            f"{cwd}/{TEST_IMAGES_DIR}",
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    assert "imported 4 files" in result.output
+
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(TEST_IMAGE_2).name
+    uuid_1 = import_data[file_1]
+    photo_1 = Photo(uuid_1)
+
+    assert photo_1.filename == file_1
+    assert [a.title for a in photo_1.albums] == TEST_DATA[TEST_IMAGE_2]["albums"]
