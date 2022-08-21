@@ -768,6 +768,11 @@ class ImportCommand(click.Command):
             If used with no template will return null value. 
             See https://strftime.org/ for help on strftime templates.
 
+            You may find the `--check-templates` option useful for testing templates. 
+            When run with `--check-templates` osxphotos will not actually import anything 
+            but will instead print out the rendered value for each `--title`, `--description`,
+            `--keyword`, and `--album` option. It will also print out the values extracted by
+            the `--exiftool` option.
         """
         )
         console = Console()
