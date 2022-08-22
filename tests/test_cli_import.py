@@ -1,10 +1,13 @@
 """ Tests which require user interaction to run for osxphotos import command; run with pytest --test-import """
 
+import csv
+import json
 import os
 import os.path
 import pathlib
 import re
 import shutil
+import sqlite3
 import time
 from tempfile import TemporaryDirectory
 from typing import Dict
@@ -680,3 +683,228 @@ def test_import_function_template():
         assert photo_1.filename == file_1
         albums = [a.title for a in photo_1.albums]
         assert albums == ["MyAlbum"]
+
+
+@pytest.mark.test_import
+def test_import_report():
+    """test import with --report option"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            import_cli,
+            [
+                test_image_1,
+                "--report",
+                "report.csv",
+                "--verbose",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Wrote import report" in result.output
+        assert os.path.exists("report.csv")
+        with open("report.csv", "r") as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+        filenames = [str(pathlib.Path(row["filename"]).name) for row in rows]
+        assert filenames == [pathlib.Path(TEST_IMAGE_1).name]
+
+        # test report gets overwritten
+        result = runner.invoke(
+            import_cli,
+            [
+                test_image_1,
+                "--report",
+                "report.csv",
+                "--verbose",
+            ],
+        )
+        assert result.exit_code == 0
+        with open("report.csv", "r") as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+        filenames = [str(pathlib.Path(row["filename"]).name) for row in rows]
+        assert filenames == [pathlib.Path(TEST_IMAGE_1).name]
+
+        # test report with --append
+        result = runner.invoke(
+            import_cli,
+            [
+                test_image_1,
+                "--report",
+                "report.csv",
+                "--append",
+                "--verbose",
+            ],
+        )
+        assert result.exit_code == 0
+        with open("report.csv", "r") as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+        filenames = [str(pathlib.Path(row["filename"]).name) for row in rows]
+        assert filenames == [
+            pathlib.Path(TEST_IMAGE_1).name,
+            pathlib.Path(TEST_IMAGE_1).name,
+        ]
+
+
+@pytest.mark.test_import
+def test_import_report_json():
+    """test import with --report option with json output"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            import_cli,
+            [
+                test_image_1,
+                "--report",
+                "report.json",
+                "--verbose",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Wrote import report" in result.output
+        assert os.path.exists("report.json")
+        with open("report.json", "r") as f:
+            rows = json.load(f)
+        filenames = [str(pathlib.Path(row["filename"]).name) for row in rows]
+        assert filenames == [pathlib.Path(TEST_IMAGE_1).name]
+
+        # test report gets overwritten
+        result = runner.invoke(
+            import_cli,
+            [
+                test_image_1,
+                "--report",
+                "report.json",
+                "--verbose",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Wrote import report" in result.output
+        assert os.path.exists("report.json")
+        with open("report.json", "r") as f:
+            rows = json.load(f)
+        filenames = [str(pathlib.Path(row["filename"]).name) for row in rows]
+        assert filenames == [pathlib.Path(TEST_IMAGE_1).name]
+
+        # test report with --append
+        result = runner.invoke(
+            import_cli,
+            [
+                test_image_1,
+                "--report",
+                "report.json",
+                "--append",
+                "--verbose",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Wrote import report" in result.output
+        assert os.path.exists("report.json")
+        with open("report.json", "r") as f:
+            rows = json.load(f)
+        filenames = [str(pathlib.Path(row["filename"]).name) for row in rows]
+        assert filenames == [
+            pathlib.Path(TEST_IMAGE_1).name,
+            pathlib.Path(TEST_IMAGE_1).name,
+        ]
+
+
+@pytest.mark.test_import
+@pytest.mark.parametrize("report_file", ["report.db", "report.sqlite"])
+def test_import_report_sqlite(report_file):
+    """test import with --report option with sqlite output"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            import_cli,
+            [
+                test_image_1,
+                "--report",
+                report_file,
+                "--verbose",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Wrote import report" in result.output
+        assert os.path.exists(report_file)
+        conn = sqlite3.connect(report_file)
+        c = conn.cursor()
+        c.execute("SELECT filename FROM report")
+        filenames = [str(pathlib.Path(row[0]).name) for row in c.fetchall()]
+        assert filenames == [pathlib.Path(TEST_IMAGE_1).name]
+
+        # test report gets overwritten
+        result = runner.invoke(
+            import_cli,
+            [
+                test_image_1,
+                "--report",
+                report_file,
+                "--verbose",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Wrote import report" in result.output
+        assert os.path.exists(report_file)
+        conn = sqlite3.connect(report_file)
+        c = conn.cursor()
+        c.execute("SELECT filename FROM report")
+        filenames = [str(pathlib.Path(row[0]).name) for row in c.fetchall()]
+        assert filenames == [pathlib.Path(TEST_IMAGE_1).name]
+
+        # test report with --append
+        result = runner.invoke(
+            import_cli,
+            [
+                test_image_1,
+                "--report",
+                report_file,
+                "--append",
+                "--verbose",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Wrote import report" in result.output
+        assert os.path.exists(report_file)
+        conn = sqlite3.connect(report_file)
+        c = conn.cursor()
+        c.execute("SELECT filename FROM report")
+        filenames = [str(pathlib.Path(row[0]).name) for row in c.fetchall()]
+        assert filenames == [
+            pathlib.Path(TEST_IMAGE_1).name,
+            pathlib.Path(TEST_IMAGE_1).name,
+        ]
+
+
+@pytest.mark.test_import
+def test_import_report_invalid_name():
+    """test import with --report option with invalid report"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            import_cli,
+            [
+                test_image_1,
+                "--report",
+                "report",  # invalid filename, no extension
+                "--verbose",
+            ],
+        )
+        assert result.exit_code != 0
