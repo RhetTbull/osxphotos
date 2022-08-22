@@ -525,6 +525,7 @@
 <span class="sd">    dest_path: set to the destination path of the photo (for use by {function} template), only valid with --filename</span>
 <span class="sd">    filepath: set to value for filepath of the exported photo if you want to evaluate {filepath} template</span>
 <span class="sd">    quote: quote path templates for execution in the shell</span>
+<span class="sd">    caller: which command is calling the template (e.g. 'export')</span>
 <span class="sd">    """</span>
 
     <span class="n">none_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"_"</span>
@@ -539,6 +540,7 @@
     <span class="n">dest_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">filepath</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">quote</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">caller</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"export"</span>
 
 
 <span class="k">class</span> <span class="nc">PhotoTemplateParser</span><span class="p">:</span>
@@ -984,7 +986,9 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="s2">"SyntaxError: filename and function must not be null with {function::filename.py:function_name}"</span>
                 <span class="p">)</span>
-            <span class="n">vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_value_function</span><span class="p">(</span><span class="n">subfield</span><span class="p">,</span> <span class="n">field_arg</span><span class="p">)</span>
+            <span class="n">vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_value_function</span><span class="p">(</span>
+                <span class="n">subfield</span><span class="p">,</span> <span class="n">field_arg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">caller</span>
+            <span class="p">)</span>
         <span class="k">elif</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">MULTI_VALUE_SUBSTITUTIONS</span> <span class="ow">or</span> <span class="n">field</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"photo"</span><span class="p">):</span>
             <span class="n">vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_value_multi</span><span class="p">(</span>
                 <span class="n">field</span><span class="p">,</span> <span class="n">subfield</span><span class="p">,</span> <span class="n">path_sep</span><span class="o">=</span><span class="n">field_arg</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span>
@@ -1655,10 +1659,17 @@
 
 <div class="viewcode-block" id="PhotoTemplate.get_template_value_function"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_template_value_function">[docs]</a>    <span class="k">def</span> <span class="nf">get_template_value_function</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">subfield</span><span class="p">,</span>
-        <span class="n">field_arg</span><span class="p">,</span>
+        <span class="n">subfield</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">field_arg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">caller</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">"""Get template value from external function"""</span>
+        <span class="sd">"""Get template value from external function</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            subfield: the filename and function name in for filename.py::function</span>
+<span class="sd">            field_arg: the argument to pass to the function</span>
+<span class="sd">            caller: the calling source of the template ('export' or 'import')</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="s2">"::"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">subfield</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -1677,8 +1688,17 @@
             <span class="c1"># if no uuid, then template is being validated but not actually run</span>
             <span class="c1"># so don't run the function</span>
             <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">else</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">caller</span> <span class="o">==</span> <span class="s2">"export"</span><span class="p">:</span>
+            <span class="c1"># function signature is:</span>
+            <span class="c1"># def example(photo: PhotoInfo, options: ExportOptions, args: Optional[str] = None, **kwargs) -&gt; Union[List, str]:</span>
             <span class="n">values</span> <span class="o">=</span> <span class="n">template_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">field_arg</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">caller</span> <span class="o">==</span> <span class="s2">"import"</span><span class="p">:</span>
+            <span class="c1"># function signature is:</span>
+            <span class="c1"># def example(filepath: pathlib.Path, args: Optional[str] = None, **kwargs) -&gt; Union[List, str]:</span>
+            <span class="c1"># the PhotoInfoFromFile class used by import sets `path` to the path of the file being imported</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">template_func</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">path</span><span class="p">),</span> <span class="n">args</span><span class="o">=</span><span class="n">field_arg</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unhandled caller: </span><span class="si">{</span><span class="n">caller</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
