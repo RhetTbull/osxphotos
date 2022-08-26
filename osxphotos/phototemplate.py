@@ -268,6 +268,7 @@ FILTER_VALUES = {
     + "slice(::-1): ['a', 'b', 'c', 'd'] => ['d', 'c', 'b', 'a']. See also sslice().",
     "sslice(start:stop:step)": "[s(tring) slice] Slice values in a list using same semantics as Python's string slicing, "
     + "e.g. sslice(1:3):'abcd => 'bc'; sslice(1:4:2): 'abcd' => 'bd', etc. See also slice().",
+    "filter(x)": "Filter list of values using predicate x; for example, `{folder_album|filter(contains Events)}` returns only folders/albums containing the word 'Events' in their path.",
 }
 
 # Just the substitutions without the braces
@@ -667,16 +668,18 @@ class PhotoTemplate:
                     vals = string_test(lambda v, c: v.endswith(c))
                 elif operator == "==":
                     match = sorted(vals) == sorted(conditional_value)
-                    if (match and not negation) or (negation and not match):
-                        vals = ["True"]
-                    else:
-                        vals = []
+                    vals = (
+                        ["True"]
+                        if (match and not negation) or (negation and not match)
+                        else []
+                    )
                 elif operator == "!=":
                     match = sorted(vals) != sorted(conditional_value)
-                    if (match and not negation) or (negation and not match):
-                        vals = ["True"]
-                    else:
-                        vals = []
+                    vals = (
+                        ["True"]
+                        if (match and not negation) or (negation and not match)
+                        else []
+                    )
                 elif operator == "<":
                     vals = comparison_test(lambda v, c: v < c)
                 elif operator == "<=":
@@ -1182,6 +1185,7 @@ class PhotoTemplate:
             "remove",
             "slice",
             "sslice",
+            "filter",
         ] and (args is None or not len(args)):
             raise SyntaxError(f"{filter_} requires arguments")
 
@@ -1270,11 +1274,65 @@ class PhotoTemplate:
             # slice each value in a list
             slice_ = create_slice(args)
             value = [v[slice_] for v in values]
+        elif filter_ == "filter":
+            # filter values based on a predicate
+            value = [v for v in values if self.filter_predicate(v, args)]
         elif filter_.startswith("function:"):
             value = self.get_template_value_filter_function(filter_, args, values)
         else:
             value = []
         return value
+
+    def filter_predicate(self, value: str, args: str) -> bool:
+        """Return True if value passes predicate"""
+
+        # extract function name and arguments
+        if not args:
+            raise SyntaxError("Filter predicate requires arguments")
+        args = args.split(None, 1)
+        if args[0] == "not":
+            args = args[1:]
+            return not self.filter_predicate(value, " ".join(args))
+
+        predicate = args[0]
+        conditional_value = args[1].split("|")
+
+        def comparison_test(test_function):
+            """Perform numerical comparisons using test_function"""
+            # returns True if any of the values match the condition
+            try:
+                return any(
+                    bool(test_function(float(value), float(c)))
+                    for c in conditional_value
+                )
+            except ValueError as e:
+                raise SyntaxError(
+                    f"comparison operators may only be used with values that can be converted to numbers: {vals} {conditional_value}"
+                ) from e
+
+        predicate_is_true = False
+        if predicate == "contains":
+            predicate_is_true = any(c in value for c in conditional_value)
+        elif predicate == "endswith":
+            predicate_is_true = any(value.endswith(c) for c in conditional_value)
+        elif predicate in ["matches", "=="]:
+            predicate_is_true = any(value == c for c in conditional_value)
+        elif predicate == "startswith":
+            predicate_is_true = any(value.startswith(c) for c in conditional_value)
+        elif predicate == "!=":
+            predicate_is_true = any(value != c for c in conditional_value)
+        elif predicate == "<":
+            predicate_is_true = comparison_test(lambda v, c: v < c)
+        elif predicate == "<=":
+            predicate_is_true = comparison_test(lambda v, c: v <= c)
+        elif predicate == ">":
+            predicate_is_true = comparison_test(lambda v, c: v > c)
+        elif predicate == ">=":
+            predicate_is_true = comparison_test(lambda v, c: v >= c)
+        else:
+            raise SyntaxError(f"Invalid predicate: {predicate}")
+
+        return predicate_is_true
 
     def get_template_value_multi(self, field, subfield, path_sep, default):
         """lookup value for template field (multi-value template substitutions)

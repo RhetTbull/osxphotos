@@ -42,7 +42,7 @@ Valid filters are:
 - `parens`: Enclose value in parentheses, e.g. 'value' => '(value')
 - `brackets`: Enclose value in brackets, e.g. 'value' => '[value]'
 - `shell_quote`: Quotes the value for safe usage in the shell, e.g. My file.jpeg => 'My file.jpeg'; only adds quotes if needed.
-- `function`: Run custom python function to filter value; use in format 'function:/path/to/file.py::function_name'. See example at https://github.com/RhetTbull/osxphotos/blob/master/examples/template_filter.py
+- `function`: Run custom python function to filter value; use in format 'function:/path/to/file.py::function_name'. See example at <https://github.com/RhetTbull/osxphotos/blob/master/examples/template_filter.py>
 - `split(x)`: Split value into a list of values using x as delimiter, e.g. 'value1;value2' => ['value1', 'value2'] if used with split(;).
 - `autosplit`: Automatically split delimited string into separate values; will split strings delimited by comma, semicolon, or space, e.g. 'value1,value2' => ['value1', 'value2'].
 - `chop(x)`: Remove x characters off the end of value, e.g. chop(1): 'Value' => 'Valu'; when applied to a list, chops characters from each list value, e.g. chop(1): ['travel', 'beach']=> ['trave', 'beac'].
@@ -57,6 +57,7 @@ Valid filters are:
 - `remove(x)`: Remove x from list of values, e.g. remove(b): ['a', 'b', 'c'] => ['a', 'c'].
 - `slice(start:stop:step)`: Slice list using same semantics as Python's list slicing, e.g. slice(1:3): ['a', 'b', 'c', 'd'] => ['b', 'c']; slice(1:4:2): ['a', 'b', 'c', 'd'] => ['b', 'd']; slice(1:): ['a', 'b', 'c', 'd'] => ['b', 'c', 'd']; slice(:-1): ['a', 'b', 'c', 'd'] => ['a', 'b', 'c']; slice(::-1): ['a', 'b', 'c', 'd'] => ['d', 'c', 'b', 'a']. See also sslice().
 - `sslice(start:stop:step)`: [s(tring) slice] Slice values in a list using same semantics as Python's string slicing, e.g. sslice(1:3):'abcd => 'bc'; sslice(1:4:2): 'abcd' => 'bd', etc. See also slice().
+- `filter(x)`: Filter list of values using predicate x; for example, `{folder_album|filter(contains Events)}` returns only folders/albums containing the word 'Events' in their path.
 
 e.g. if Photo keywords are `["FOO","bar"]`:
 
@@ -74,6 +75,21 @@ e.g. If Photo is in `Album1` in `Folder1`:
 - `"{folder_album}"` renders to `["Folder1/Album1"]`
 - `"{folder_album(>)}"` renders to `["Folder1>Album1"]`
 - `"{folder_album()}"` renders to `["Folder1Album1"]`
+
+The `filter(x)` filter uses the format `operator value` or `not operator value` to filter a list of values, returning only the values that match the predicate statement. The operators are the same as those used with the template conditional:
+
+- `contains`: template field contains value, similar to python's `in`
+- `matches`: template field contains exactly value, unlike `contains`: does not match partial matches
+- `startswith`: template field starts with value
+- `endswith`: template field ends with value
+- `<=`: template field is less than or equal to value
+- `>=`: template field is greater than or equal to value
+- `<`: template field is less than value
+- `>`: template field is greater than value
+- `==`: template field equals value
+- `!=`: template field does not equal value
+
+The `filter(x)` filter is useful for excluding certain values, for example, if you have photos that are in multiple albums but you want to exclude certain albums from the list of exported directories when used with `--directory "{folder_album}"`. If a photo was in `Album1` and `Album2` and you wanted to exclude `Album2` from the list of output directories, you would use the filter: `--directory "{folder_album|filter(not contains Album2)}"`.
 
 `[find,replace]`: optional text replacement to perform on rendered template value.  For example, to replace "/" in an album name, you could use the template `"{album[/,-]}"`.  Multiple replacements can be made by appending "|" and adding another find|replace pair.  e.g. to replace both "/" and ":" in album name: `"{album[/,-|:,-]}"`.  find/replace pairs are not limited to single characters.  The "|" character cannot be used in a find/replace pair.
 
@@ -99,6 +115,9 @@ For example:
 - `{photo.score.overall > 0.7}` resolves to True if the photo's overall aesthetic score is greater than 0.7.
 - `{keyword|lower contains beach}` uses the lower case filter to do case-insensitive matching to match any keyword that contains the word 'beach'.
 - `{keyword|lower not contains beach}` uses the `not` modifier to negate the comparison so this resolves to True if there is no keyword that matches 'beach'.
+- `{keyword matches Beach|Travel}` resolves to True if 'Beach' or 'Travel' is a keyword. It would not match keyword 'BeachDay'.
+
+Some templates like `{folder_album}` and `{keyword}` can return lists of values -- a photo can belong to more than one album or have more than one keyword.  The `matches` operator returns True if any of the values in the list match the value.  The `==` operator works on single values so it cannot be directly used on a list of values such as `{keywords}`. If you wanted to test that a photo has exactly a certain list of keywords, you can use filters to transform the values into a single value which can then be compared with the `==` operator.  For example, if you wanted to test that a photo has exactly the keywords 'Beach' and 'Travel', you could use the template `"{keyword|sort|join == BeachTravel}"`. The `|sort|join` filter will sort the list of keywords and join them into a single string which can then be compared with `==`.
 
 Examples: to export photos that contain certain keywords with the `osxphotos export` command's `--directory` option:
 

@@ -238,6 +238,19 @@ TEMPLATE_VALUES = {
     "{descr|autosplit|slice(:2)|join()}": "JackRose",
     "{descr|autosplit|slice(:-1)|join()}": "JackRoseDining",
     "{descr|autosplit|slice(::2)|join()}": "JackDining",
+    "{descr|filter(startswith Jack)}": "Jack Rose Dining Saloon",
+    "{descr|filter(startswith Rose)}": "_",
+    "{descr|filter(endswith Saloon)}": "Jack Rose Dining Saloon",
+    "{descr|filter(endswith Rose)}": "_",
+    "{descr|filter(contains Rose)}": "Jack Rose Dining Saloon",
+    "{descr|filter(not contains Rose)}": "_",
+    "{descr|filter(matches Jack Rose Dining Saloon)}": "Jack Rose Dining Saloon",
+    "{created.mm|filter(== 02)}": "02",
+    "{created.mm|filter(<= 2)}": "02",
+    "{created.mm|filter(>= 2)}": "02",
+    "{created.mm|filter(> 3)}": "_",
+    "{created.mm|filter(< 1)}": "_",
+    "{created.mm|filter(!= 02)}": "_",
 }
 
 
@@ -437,6 +450,7 @@ UUID_ALBUM_SEQ = {
             "{folder_album_seq(1)}": "2",
             "{folder_album_seq(0)}": "1",
             "{folder_album_seq:03d(1)}": "002",
+            "{folder_album|filter(startswith Folder1)}": "Folder1/SubFolder2/AlbumInFolder",
         },
     },
 }
