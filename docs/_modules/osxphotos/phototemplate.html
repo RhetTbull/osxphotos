@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>osxphotos.phototemplate - osxphotos 0.51.0 documentation</title>
+        <title>osxphotos.phototemplate - osxphotos 0.51.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.51.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.51.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.51.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.51.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -464,6 +464,11 @@
     <span class="o">+</span> <span class="s2">"slice(::-1): ['a', 'b', 'c', 'd'] =&gt; ['d', 'c', 'b', 'a']. See also sslice()."</span><span class="p">,</span>
     <span class="s2">"sslice(start:stop:step)"</span><span class="p">:</span> <span class="s2">"[s(tring) slice] Slice values in a list using same semantics as Python's string slicing, "</span>
     <span class="o">+</span> <span class="s2">"e.g. sslice(1:3):'abcd =&gt; 'bc'; sslice(1:4:2): 'abcd' =&gt; 'bd', etc. See also slice()."</span><span class="p">,</span>
+    <span class="s2">"filter(x)"</span><span class="p">:</span> <span class="s2">"Filter list of values using predicate x; for example, `{folder_album|filter(contains Events)}` returns only folders/albums containing the word 'Events' in their path."</span><span class="p">,</span>
+    <span class="s2">"int"</span><span class="p">:</span> <span class="s2">"Convert values in list to integer, e.g. 1.0 =&gt; 1. If value cannot be converted to integer, remove value from list. "</span>
+    <span class="o">+</span> <span class="s2">"['1.1', 'x'] =&gt; ['1']. See also float."</span><span class="p">,</span>
+    <span class="s2">"float"</span><span class="p">:</span> <span class="s2">"Convert values in list to floating point number, e.g. 1 =&gt; 1.0. If value cannot be converted to float, remove value from list. "</span>
+    <span class="o">+</span> <span class="s2">"['1', 'x'] =&gt; ['1.0']. See also int."</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="c1"># Just the substitutions without the braces</span>
@@ -863,16 +868,18 @@
                     <span class="n">vals</span> <span class="o">=</span> <span class="n">string_test</span><span class="p">(</span><span class="k">lambda</span> <span class="n">v</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
                 <span class="k">elif</span> <span class="n">operator</span> <span class="o">==</span> <span class="s2">"=="</span><span class="p">:</span>
                     <span class="n">match</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span> <span class="o">==</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">conditional_value</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="p">(</span><span class="n">match</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">negation</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">negation</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">match</span><span class="p">):</span>
-                        <span class="n">vals</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"True"</span><span class="p">]</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">vals</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">vals</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="p">[</span><span class="s2">"True"</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">match</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">negation</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">negation</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">match</span><span class="p">)</span>
+                        <span class="k">else</span> <span class="p">[]</span>
+                    <span class="p">)</span>
                 <span class="k">elif</span> <span class="n">operator</span> <span class="o">==</span> <span class="s2">"!="</span><span class="p">:</span>
                     <span class="n">match</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">conditional_value</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="p">(</span><span class="n">match</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">negation</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">negation</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">match</span><span class="p">):</span>
-                        <span class="n">vals</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"True"</span><span class="p">]</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">vals</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">vals</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="p">[</span><span class="s2">"True"</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">match</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">negation</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">negation</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">match</span><span class="p">)</span>
+                        <span class="k">else</span> <span class="p">[]</span>
+                    <span class="p">)</span>
                 <span class="k">elif</span> <span class="n">operator</span> <span class="o">==</span> <span class="s2">"&lt;"</span><span class="p">:</span>
                     <span class="n">vals</span> <span class="o">=</span> <span class="n">comparison_test</span><span class="p">(</span><span class="k">lambda</span> <span class="n">v</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="n">c</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">operator</span> <span class="o">==</span> <span class="s2">"&lt;="</span><span class="p">:</span>
@@ -1378,6 +1385,7 @@
             <span class="s2">"remove"</span><span class="p">,</span>
             <span class="s2">"slice"</span><span class="p">,</span>
             <span class="s2">"sslice"</span><span class="p">,</span>
+            <span class="s2">"filter"</span><span class="p">,</span>
         <span class="p">]</span> <span class="ow">and</span> <span class="p">(</span><span class="n">args</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)):</span>
             <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">filter_</span><span class="si">}</span><span class="s2"> requires arguments"</span><span class="p">)</span>
 
@@ -1466,11 +1474,71 @@
             <span class="c1"># slice each value in a list</span>
             <span class="n">slice_</span> <span class="o">=</span> <span class="n">create_slice</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
             <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">[</span><span class="n">slice_</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"filter"</span><span class="p">:</span>
+            <span class="c1"># filter values based on a predicate</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_predicate</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">args</span><span class="p">)]</span>
+        <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"int"</span><span class="p">:</span>
+            <span class="c1"># convert value to integer</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">values_to_int</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">filter_</span> <span class="o">==</span> <span class="s2">"float"</span><span class="p">:</span>
+            <span class="c1"># convert value to float</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">values_to_float</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">filter_</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"function:"</span><span class="p">):</span>
             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_template_value_filter_function</span><span class="p">(</span><span class="n">filter_</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">return</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="PhotoTemplate.filter_predicate"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.filter_predicate">[docs]</a>    <span class="k">def</span> <span class="nf">filter_predicate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">"""Return True if value passes predicate"""</span>
+
+        <span class="c1"># extract function name and arguments</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="s2">"Filter predicate requires arguments"</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"not"</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_predicate</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+
+        <span class="n">predicate</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">conditional_value</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"|"</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">comparison_test</span><span class="p">(</span><span class="n">test_function</span><span class="p">):</span>
+            <span class="sd">"""Perform numerical comparisons using test_function"""</span>
+            <span class="c1"># returns True if any of the values match the condition</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">any</span><span class="p">(</span>
+                    <span class="nb">bool</span><span class="p">(</span><span class="n">test_function</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)))</span>
+                    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">conditional_value</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"comparison operators may only be used with values that can be converted to numbers: </span><span class="si">{</span><span class="n">vals</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">conditional_value</span><span class="si">}</span><span class="s2">"</span>
+                <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+
+        <span class="n">predicate_is_true</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">predicate</span> <span class="o">==</span> <span class="s2">"contains"</span><span class="p">:</span>
+            <span class="n">predicate_is_true</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">c</span> <span class="ow">in</span> <span class="n">value</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">conditional_value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">predicate</span> <span class="o">==</span> <span class="s2">"endswith"</span><span class="p">:</span>
+            <span class="n">predicate_is_true</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">conditional_value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">predicate</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"matches"</span><span class="p">,</span> <span class="s2">"=="</span><span class="p">]:</span>
+            <span class="n">predicate_is_true</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">value</span> <span class="o">==</span> <span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">conditional_value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">predicate</span> <span class="o">==</span> <span class="s2">"startswith"</span><span class="p">:</span>
+            <span class="n">predicate_is_true</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">conditional_value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">predicate</span> <span class="o">==</span> <span class="s2">"!="</span><span class="p">:</span>
+            <span class="n">predicate_is_true</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">value</span> <span class="o">!=</span> <span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">conditional_value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">predicate</span> <span class="o">==</span> <span class="s2">"&lt;"</span><span class="p">:</span>
+            <span class="n">predicate_is_true</span> <span class="o">=</span> <span class="n">comparison_test</span><span class="p">(</span><span class="k">lambda</span> <span class="n">v</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="n">c</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">predicate</span> <span class="o">==</span> <span class="s2">"&lt;="</span><span class="p">:</span>
+            <span class="n">predicate_is_true</span> <span class="o">=</span> <span class="n">comparison_test</span><span class="p">(</span><span class="k">lambda</span> <span class="n">v</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="n">v</span> <span class="o">&lt;=</span> <span class="n">c</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">predicate</span> <span class="o">==</span> <span class="s2">"&gt;"</span><span class="p">:</span>
+            <span class="n">predicate_is_true</span> <span class="o">=</span> <span class="n">comparison_test</span><span class="p">(</span><span class="k">lambda</span> <span class="n">v</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="n">v</span> <span class="o">&gt;</span> <span class="n">c</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">predicate</span> <span class="o">==</span> <span class="s2">"&gt;="</span><span class="p">:</span>
+            <span class="n">predicate_is_true</span> <span class="o">=</span> <span class="n">comparison_test</span><span class="p">(</span><span class="k">lambda</span> <span class="n">v</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="n">v</span> <span class="o">&gt;=</span> <span class="n">c</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid predicate: </span><span class="si">{</span><span class="n">predicate</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">predicate_is_true</span></div>
 
 <div class="viewcode-block" id="PhotoTemplate.get_template_value_multi"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_template_value_multi">[docs]</a>    <span class="k">def</span> <span class="nf">get_template_value_multi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">subfield</span><span class="p">,</span> <span class="n">path_sep</span><span class="p">,</span> <span class="n">default</span><span class="p">):</span>
         <span class="sd">"""lookup value for template field (multi-value template substitutions)</span>
@@ -1926,6 +1994,24 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid slice: </span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">values_to_int</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">"""Convert a list of strings to str representation of ints, if possible, otherwise strip values from list"""</span>
+    <span class="n">int_values</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">int_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">))))</span>
+    <span class="k">return</span> <span class="n">int_values</span>
+
+
+<span class="k">def</span> <span class="nf">values_to_float</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">"""Convert a list of strings to str representation of float, if possible, otherwise strip values from list"""</span>
+    <span class="n">float_values</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">float_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">float_values</span>
 </pre></div>
         </article>
       </div>
