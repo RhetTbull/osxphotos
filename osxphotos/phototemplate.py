@@ -269,6 +269,10 @@ FILTER_VALUES = {
     "sslice(start:stop:step)": "[s(tring) slice] Slice values in a list using same semantics as Python's string slicing, "
     + "e.g. sslice(1:3):'abcd => 'bc'; sslice(1:4:2): 'abcd' => 'bd', etc. See also slice().",
     "filter(x)": "Filter list of values using predicate x; for example, `{folder_album|filter(contains Events)}` returns only folders/albums containing the word 'Events' in their path.",
+    "int": "Convert values in list to integer, e.g. 1.0 => 1. If value cannot be converted to integer, remove value from list. "
+    + "['1.1', 'x'] => ['1']. See also float.",
+    "float": "Convert values in list to floating point number, e.g. 1 => 1.0. If value cannot be converted to float, remove value from list. "
+    + "['1', 'x'] => ['1.0']. See also int.",
 }
 
 # Just the substitutions without the braces
@@ -1277,6 +1281,12 @@ class PhotoTemplate:
         elif filter_ == "filter":
             # filter values based on a predicate
             value = [v for v in values if self.filter_predicate(v, args)]
+        elif filter_ == "int":
+            # convert value to integer
+            value = values_to_int(values)
+        elif filter_ == "float":
+            # convert value to float
+            value = values_to_float(values)
         elif filter_.startswith("function:"):
             value = self.get_template_value_filter_function(filter_, args, values)
         else:
@@ -1788,3 +1798,21 @@ def create_slice(args):
     else:
         raise SyntaxError(f"Invalid slice: {args}")
     return slice(start, end, step)
+
+
+def values_to_int(values: List[str]) -> List[str]:
+    """Convert a list of strings to str representation of ints, if possible, otherwise strip values from list"""
+    int_values = []
+    for v in values:
+        with suppress(ValueError):
+            int_values.append(str(int(float(v))))
+    return int_values
+
+
+def values_to_float(values: List[str]) -> List[str]:
+    """Convert a list of strings to str representation of float, if possible, otherwise strip values from list"""
+    float_values = []
+    for v in values:
+        with suppress(ValueError):
+            float_values.append(str(float(v)))
+    return float_values

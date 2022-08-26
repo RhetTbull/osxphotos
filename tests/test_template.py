@@ -251,6 +251,8 @@ TEMPLATE_VALUES = {
     "{created.mm|filter(> 3)}": "_",
     "{created.mm|filter(< 1)}": "_",
     "{created.mm|filter(!= 02)}": "_",
+    "{created.mm|int|filter(== 2)}": "2",
+    "{created.mm|float|filter(== 2.0)}": "2.0",
 }
 
 
