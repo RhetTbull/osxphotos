@@ -8319,3 +8319,47 @@ def test_export_no_keyword():
         )
         assert result.exit_code == 0
         assert "Exporting 11" in result.output
+
+
+def test_export_print():
+    """test export --print"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                ".",
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                "--print",
+                "uuid: {uuid}",
+                "--uuid",
+                UUID_FAVORITE,
+            ],
+        )
+        assert result.exit_code == 0
+        assert f"uuid: {UUID_FAVORITE}" in result.output
+
+
+def test_query_print_quiet():
+    """test query --print"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            query,
+            [
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                "--print",
+                "uuid: {uuid}",
+                "--uuid",
+                UUID_FAVORITE,
+                "--quiet",
+            ],
+        )
+        assert result.exit_code == 0
+        assert result.output.strip() == f"uuid: {UUID_FAVORITE}"
