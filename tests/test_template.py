@@ -8,12 +8,13 @@ import osxphotos
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.export_db import ExportDBInMemory
 from osxphotos.phototemplate import (
+    PUNCTUATION,
     TEMPLATE_SUBSTITUTIONS,
     TEMPLATE_SUBSTITUTIONS_MULTI_VALUED,
     PhotoTemplate,
     RenderOptions,
 )
-
+from osxphotos.photoinfo import PhotoInfoNone
 from .photoinfo_mock import PhotoInfoMock
 
 try:
@@ -1345,3 +1346,16 @@ def test_bad_sslice(photosdb):
     # bad function raises ValueError
     with pytest.raises((SyntaxError, ValueError)):
         rendered, _ = photo.render_template("{photo.original_filename|sslice(1:2:3:4)}")
+
+
+def test_punctuation():
+    """Test punctuation template fields"""
+    template_string = ""
+    expected_string = ""
+    for field, value in PUNCTUATION.items():
+        template_string += "{" + field + "}"
+        expected_string += f"{value}"
+    template = PhotoTemplate(PhotoInfoNone())
+    options = RenderOptions()
+    rendered, _ = template.render(template_string, options)
+    assert rendered == [expected_string]

@@ -181,7 +181,8 @@ TEMPLATE_SUBSTITUTIONS = {
     "{newline}": r"A newline: '\n'",
     "{lf}": r"A line feed: '\n', alias for {newline}",
     "{cr}": r"A carriage return: '\r'",
-    "{crlf}": r"a carriage return + line feed: '\r\n'",
+    "{crlf}": r"A carriage return + line feed: '\r\n'",
+    "{tab}": r":A tab: '\t'",
     "{osxphotos_version}": f"The osxphotos version, e.g. '{__version__}'",
     "{osxphotos_cmd_line}": "The full command line used to run osxphotos",
 }
@@ -312,6 +313,7 @@ PUNCTUATION = {
     "lf": "\n",
     "cr": "\r",
     "crlf": "\r\n",
+    "tab": "\t",
 }
 
 
