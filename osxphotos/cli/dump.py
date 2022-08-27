@@ -89,4 +89,4 @@ def dump(
             for rendered_template in rendered_templates:
                 if not rendered_template:
                     continue
-                rich_click_echo(rendered_template)
+                print(rendered_template)

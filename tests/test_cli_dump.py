@@ -63,9 +63,9 @@ def test_dump_print(photos):
                 db_path,
                 "--deleted",
                 "--print",
-                "{uuid}_{photo.original_filename}",
+                "{uuid}{tab}{photo.original_filename}",
             ],
         )
         assert result.exit_code == 0
         for photo in photos:
-            assert f"{photo.uuid}_{photo.original_filename}" in result.output
+            assert f"{photo.uuid}\t{photo.original_filename}" in result.output

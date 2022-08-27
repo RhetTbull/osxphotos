@@ -414,7 +414,7 @@ def query(
                 for rendered_template in rendered_templates:
                     if not rendered_template:
                         continue
-                    rich_click_echo(rendered_template)
+                    print(rendered_template)
 
     if not quiet:
         print_photo_info(photos, cli_json or json_, print_func=click.echo)
