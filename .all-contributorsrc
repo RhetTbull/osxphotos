@@ -363,6 +363,16 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "jmuccigr",
+      "name": "John Muccigrosso",
+      "avatar_url": "https://avatars.githubusercontent.com/u/615115?v=4",
+      "profile": "http://jmuccigr.github.io/",
+      "contributions": [
+        "bug",
+        "ideas"
+      ]
     }
   ],
   "contributorsPerLine": 7,
