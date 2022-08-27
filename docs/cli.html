@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Template System" href="template_help.html" /><link rel="prev" title="OSXPhotos Tutorial" href="tutorial.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.51.2 documentation</title>
+        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.51.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.51.2 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.51.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.51.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.51.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -1224,6 +1224,11 @@ to modify this behavior.</p>
 <dd><p>If specified, saves the config file but does not export any files; must be used with –save-config.</p>
 </dd></dl>
 <dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-print">
+<span class="sig-name descname"><span class="pre">--print</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;TEMPLATE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-print" title="Permalink to this definition">#</a></dt>
+<dd><p>Render TEMPLATE string for each photo being exported and print to stdout. TEMPLATE is an osxphotos template string. This may be useful for creating custom reports, etc. TEMPLATE will be printed after the photo is exported or skipped. May be repeated to print multiple template strings.</p>
+</dd></dl>
+<dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-export-theme">
 <span class="sig-name descname"><span class="pre">--theme</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;THEME&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-theme" title="Permalink to this definition">#</a></dt>
 <dd><p>Specify the color theme to use for –verbose output. Valid themes are ‘dark’, ‘light’, ‘mono’, and ‘plain’. Defaults to ‘dark’ or ‘light’ depending on system dark mode setting.</p>
@@ -2151,6 +2156,16 @@ if more than one option is provided, they are treated as “AND”
 <dt class="sig sig-object std" id="cmdoption-osxphotos-query-add-to-album">
 <span class="sig-name descname"><span class="pre">--add-to-album</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;ALBUM&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-add-to-album" title="Permalink to this definition">#</a></dt>
 <dd><p>Add all photos from query to album ALBUM in Photos. Album ALBUM will be created if it doesn’t exist.  All photos in the query results will be added to this album. This only works if the Photos library being queried is the last-opened (default) library in Photos. This feature is currently experimental.  I don’t know how well it will work on large query sets.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-quiet">
+<span class="sig-name descname"><span class="pre">--quiet</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-query-quiet" title="Permalink to this definition">#</a></dt>
+<dd><p>Quiet output; doesn’t actually print query results. Useful with –print and –add-to-album if you don’t want to see the actual query results.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-query-print">
+<span class="sig-name descname"><span class="pre">--print</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;TEMPLATE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-query-print" title="Permalink to this definition">#</a></dt>
+<dd><p>Render TEMPLATE string for each photo queried and print to stdout. TEMPLATE is an osxphotos template string. This may be useful for creating custom reports, etc. Most useful with –quiet. May be repeated to print multiple template strings.</p>
 </dd></dl>
 <p class="rubric">Arguments</p>
 <dl class="std option">

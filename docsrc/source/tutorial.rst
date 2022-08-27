@@ -73,6 +73,22 @@ the exported files would be:
    /path/to/export/Vacation/IMG_1234.JPG
 
 
+If your photos are organized in folders and albums in Photos you can preserve this structure on export by using the ``{folder_album}`` template field with the ``--directory`` option.  For example, if you have a photo in the album ``Vacation`` which is in the ``Travel`` folder, the following command would export the photo to the ``Travel/Vacation`` directory:
+
+``osxphotos export /path/to/export --directory "{folder_album}"``
+
+Photos can belong to more than one album.  In this case, the template field ``{folder_album}`` will expand to all the album names that the photo belongs to.  For example, if a photo belongs to the albums ``Vacation`` and ``Travel``\ , the template field ``{folder_album}`` would expand to ``Vacation``\ , ``Travel``.  If the photo belongs to no albums, the template field ``{folder_album}`` would expand to "_" (the default value).  
+
+All template fields including ``{folder_album}`` can be further filtered using a number of different filters.  To convert all directory names to lower case for example, use the ``lower`` filter:
+
+``osxphotos export /path/to/export --directory "{folder_album|lower}"``
+
+If all your photos were organized into various albums under a folder named ``Events`` but some where also included in other top-level albums and you wanted to export only the ``Events`` folder, you could use the ``filter`` option to filter out the other top-level albums by selecting only those folder/album paths that start with ``Events``\ :
+
+``osxphotos export /path/to/export --directory "{folder_album|filter(startswith Events)}"``
+
+You can learn more about the other filters using ``osxphotos help export``.
+
 Specify exported filename
 -------------------------
 
@@ -274,6 +290,14 @@ Creating a report of all exported files
 You can use the ``--report`` option to create a report, in comma-separated values (CSV) format that will list the details of all files that were exported, skipped, missing, etc. This file format is compatible with programs such as Microsoft Excel.  Provide the name of the report after the ``--report`` option:
 
 ``osxphotos export /path/to/export --report export.csv``
+
+You can also create reports in JSON or SQLite format by changing the extension of the report filename.  For example, to create a JSON report:
+
+``osxphotos export /path/to/export --report export.json``
+
+And to create a SQLite report:
+
+``osxphotos export /path/to/export --report export.sqlite``
 
 Exporting only certain photos
 -----------------------------

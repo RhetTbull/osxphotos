@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Command Line Interface (CLI)" href="cli.html" /><link rel="prev" title="OSXPhotos" href="overview.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>OSXPhotos Tutorial - osxphotos 0.51.2 documentation</title>
+        <title>OSXPhotos Tutorial - osxphotos 0.51.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.51.2 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.51.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.51.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.51.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -229,6 +229,14 @@
 <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">export</span><span class="o">/</span><span class="n">Vacation</span><span class="o">/</span><span class="n">IMG_1234</span><span class="o">.</span><span class="n">JPG</span>
 </pre></div>
 </div>
+<p>If your photos are organized in folders and albums in Photos you can preserve this structure on export by using the <code class="docutils literal notranslate"><span class="pre">{folder_album}</span></code> template field with the <code class="docutils literal notranslate"><span class="pre">--directory</span></code> option.  For example, if you have a photo in the album <code class="docutils literal notranslate"><span class="pre">Vacation</span></code> which is in the <code class="docutils literal notranslate"><span class="pre">Travel</span></code> folder, the following command would export the photo to the <code class="docutils literal notranslate"><span class="pre">Travel/Vacation</span></code> directory:</p>
+<p><code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">export</span> <span class="pre">/path/to/export</span> <span class="pre">--directory</span> <span class="pre">"{folder_album}"</span></code></p>
+<p>Photos can belong to more than one album.  In this case, the template field <code class="docutils literal notranslate"><span class="pre">{folder_album}</span></code> will expand to all the album names that the photo belongs to.  For example, if a photo belongs to the albums <code class="docutils literal notranslate"><span class="pre">Vacation</span></code> and <code class="docutils literal notranslate"><span class="pre">Travel</span></code>, the template field <code class="docutils literal notranslate"><span class="pre">{folder_album}</span></code> would expand to <code class="docutils literal notranslate"><span class="pre">Vacation</span></code>, <code class="docutils literal notranslate"><span class="pre">Travel</span></code>.  If the photo belongs to no albums, the template field <code class="docutils literal notranslate"><span class="pre">{folder_album}</span></code> would expand to “_” (the default value).</p>
+<p>All template fields including <code class="docutils literal notranslate"><span class="pre">{folder_album}</span></code> can be further filtered using a number of different filters.  To convert all directory names to lower case for example, use the <code class="docutils literal notranslate"><span class="pre">lower</span></code> filter:</p>
+<p><code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">export</span> <span class="pre">/path/to/export</span> <span class="pre">--directory</span> <span class="pre">"{folder_album|lower}"</span></code></p>
+<p>If all your photos were organized into various albums under a folder named <code class="docutils literal notranslate"><span class="pre">Events</span></code> but some where also included in other top-level albums and you wanted to export only the <code class="docutils literal notranslate"><span class="pre">Events</span></code> folder, you could use the <code class="docutils literal notranslate"><span class="pre">filter</span></code> option to filter out the other top-level albums by selecting only those folder/album paths that start with <code class="docutils literal notranslate"><span class="pre">Events</span></code>:</p>
+<p><code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">export</span> <span class="pre">/path/to/export</span> <span class="pre">--directory</span> <span class="pre">"{folder_album|filter(startswith</span> <span class="pre">Events)}"</span></code></p>
+<p>You can learn more about the other filters using <code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">help</span> <span class="pre">export</span></code>.</p>
 </section>
 <section id="specify-exported-filename">
 <h2>Specify exported filename<a class="headerlink" href="#specify-exported-filename" title="Permalink to this headline">#</a></h2>
@@ -367,6 +375,10 @@
 <h2>Creating a report of all exported files<a class="headerlink" href="#creating-a-report-of-all-exported-files" title="Permalink to this headline">#</a></h2>
 <p>You can use the <code class="docutils literal notranslate"><span class="pre">--report</span></code> option to create a report, in comma-separated values (CSV) format that will list the details of all files that were exported, skipped, missing, etc. This file format is compatible with programs such as Microsoft Excel.  Provide the name of the report after the <code class="docutils literal notranslate"><span class="pre">--report</span></code> option:</p>
 <p><code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">export</span> <span class="pre">/path/to/export</span> <span class="pre">--report</span> <span class="pre">export.csv</span></code></p>
+<p>You can also create reports in JSON or SQLite format by changing the extension of the report filename.  For example, to create a JSON report:</p>
+<p><code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">export</span> <span class="pre">/path/to/export</span> <span class="pre">--report</span> <span class="pre">export.json</span></code></p>
+<p>And to create a SQLite report:</p>
+<p><code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">export</span> <span class="pre">/path/to/export</span> <span class="pre">--report</span> <span class="pre">export.sqlite</span></code></p>
 </section>
 <section id="exporting-only-certain-photos">
 <h2>Exporting only certain photos<a class="headerlink" href="#exporting-only-certain-photos" title="Permalink to this headline">#</a></h2>

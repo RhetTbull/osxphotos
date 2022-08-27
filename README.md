@@ -266,6 +266,22 @@ the exported files would be:
     /path/to/export/Travel/IMG_1234.JPG
     /path/to/export/Vacation/IMG_1234.JPG
 
+If your photos are organized in folders and albums in Photos you can preserve this structure on export by using the `{folder_album}` template field with the `--directory` option.  For example, if you have a photo in the album `Vacation` which is in the `Travel` folder, the following command would export the photo to the `Travel/Vacation` directory:
+
+`osxphotos export /path/to/export --directory "{folder_album}"`
+
+Photos can belong to more than one album.  In this case, the template field `{folder_album}` will expand to all the album names that the photo belongs to.  For example, if a photo belongs to the albums `Vacation` and `Travel`, the template field `{folder_album}` would expand to `Vacation`, `Travel`.  If the photo belongs to no albums, the template field `{folder_album}` would expand to "_" (the default value).  
+
+All template fields including `{folder_album}` can be further filtered using a number of different filters.  To convert all directory names to lower case for example, use the `lower` filter:
+
+`osxphotos export /path/to/export --directory "{folder_album|lower}"`
+
+If all your photos were organized into various albums under a folder named `Events` but some where also included in other top-level albums and you wanted to export only the `Events` folder, you could use the `filter` option to filter out the other top-level albums by selecting only those folder/album paths that start with `Events`:
+
+`osxphotos export /path/to/export --directory "{folder_album|filter(startswith Events)}"`
+
+You can learn more about the other filters using `osxphotos help export`.
+
 #### Specify exported filename
 
 By default, osxphotos will use the original filename of the photo when exporting.  That is, the filename the photo had when it was taken or imported into Photos.  This is often something like `IMG_1234.JPG` or `DSC05678.dng`.  osxphotos allows you to specify a custom filename template using the `--filename` option in the same way as `--directory` allows you to specify a custom directory name.  For example, Photos allows you specify a title or caption for a photo and you can use this in place of the original filename:
@@ -444,6 +460,14 @@ You can use the `--dry-run` option to have osxphotos "dry run" or test an export
 You can use the `--report` option to create a report, in comma-separated values (CSV) format that will list the details of all files that were exported, skipped, missing, etc. This file format is compatible with programs such as Microsoft Excel.  Provide the name of the report after the `--report` option:
 
 `osxphotos export /path/to/export --report export.csv`
+
+You can also create reports in JSON or SQLite format by changing the extension of the report filename.  For example, to create a JSON report:
+
+`osxphotos export /path/to/export --report export.json`
+
+And to create a SQLite report:
+
+`osxphotos export /path/to/export --report export.sqlite`
 
 #### Exporting only certain photos
 
@@ -1317,6 +1341,13 @@ Options:
   --config-only                   If specified, saves the config file but does
                                   not export any files; must be used with
                                   --save-config.
+  --print TEMPLATE                Render TEMPLATE string for each photo being
+                                  exported and print to stdout. TEMPLATE is an
+                                  osxphotos template string. This may be useful
+                                  for creating custom reports, etc. TEMPLATE
+                                  will be printed after the photo is exported or
+                                  skipped. May be repeated to print multiple
+                                  template strings.
   --theme THEME                   Specify the color theme to use for --verbose
                                   output. Valid themes are 'dark', 'light',
                                   'mono', and 'plain'. Defaults to 'dark' or
@@ -1964,7 +1995,7 @@ Substitution                    Description
 {lf}                            A line feed: '\n', alias for {newline}
 {cr}                            A carriage return: '\r'
 {crlf}                          a carriage return + line feed: '\r\n'
-{osxphotos_version}             The osxphotos version, e.g. '0.51.2'
+{osxphotos_version}             The osxphotos version, e.g. '0.51.3'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2444,7 +2475,7 @@ The following template field substitutions are availabe for use the templating s
 |{lf}|A line feed: '\n', alias for {newline}|
 |{cr}|A carriage return: '\r'|
 |{crlf}|a carriage return + line feed: '\r\n'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.51.2'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.51.3'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
