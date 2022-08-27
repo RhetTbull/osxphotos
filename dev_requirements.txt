@@ -1,4 +1,5 @@
 build
+bump2version==1.0.1 
 cogapp>=3.3.0,<4.0.0
 furo
 m2r2
