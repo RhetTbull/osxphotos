@@ -373,6 +373,16 @@
         "bug",
         "ideas"
       ]
+    },
+    {
+      "login": "tkrunning",
+      "name": "Thomas K. Running",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1646041?v=4",
+      "profile": "https://nomadgate.com",
+      "contributions": [
+        "code",
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,

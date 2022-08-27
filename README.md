@@ -7,7 +7,7 @@
 [![Downloads](https://static.pepy.tech/personalized-badge/osxphotos?period=month&units=international_system&left_color=black&right_color=brightgreen&left_text=downloads/month)](https://pepy.tech/project/osxphotos)
 [![subreddit](https://img.shields.io/reddit/subreddit-subscribers/osxphotos?style=social)](https://www.reddit.com/r/osxphotos/)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-39-orange.svg?style=flat)](#contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-40-orange.svg?style=flat)](#contributors)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 OSXPhotos provides the ability to interact with and query Apple's Photos.app library on macOS. You can query the Photos library database — for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos.
@@ -2577,6 +2577,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://github.com/Se7enair"><img src="https://avatars.githubusercontent.com/u/1680106?v=4?s=75" width="75px;" alt=""/><br /><sub><b>Christoph</b></sub></a><br /><a href="#ideas-Se7enair" title="Ideas, Planning, & Feedback">🤔</a></td>
     <td align="center"><a href="http://www.franzone.com"><img src="https://avatars.githubusercontent.com/u/900684?v=4?s=75" width="75px;" alt=""/><br /><sub><b>franzone</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Afranzone" title="Bug reports">🐛</a></td>
     <td align="center"><a href="http://jmuccigr.github.io/"><img src="https://avatars.githubusercontent.com/u/615115?v=4?s=75" width="75px;" alt=""/><br /><sub><b>John Muccigrosso</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Ajmuccigr" title="Bug reports">🐛</a> <a href="#ideas-jmuccigr" title="Ideas, Planning, & Feedback">🤔</a></td>
+    <td align="center"><a href="https://nomadgate.com"><img src="https://avatars.githubusercontent.com/u/1646041?v=4?s=75" width="75px;" alt=""/><br /><sub><b>Thomas K. Running</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=tkrunning" title="Code">💻</a> <a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Atkrunning" title="Bug reports">🐛</a></td>
   </tr>
 </table>
 
