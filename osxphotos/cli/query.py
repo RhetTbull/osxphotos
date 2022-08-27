@@ -3,10 +3,17 @@
 import click
 
 import osxphotos
+from osxphotos.cli.click_rich_echo import (
+    rich_click_echo,
+    set_rich_console,
+    set_rich_theme,
+)
 from osxphotos.debug import set_debug
 from osxphotos.photosalbum import PhotosAlbum
+from osxphotos.phototemplate import RenderOptions
 from osxphotos.queryoptions import QueryOptions
 
+from .color_themes import get_default_theme
 from .common import (
     CLI_COLOR_ERROR,
     CLI_COLOR_WARNING,
@@ -21,6 +28,7 @@ from .common import (
 )
 from .list import _list_libraries
 from .print_photo_info import print_photo_info
+from .verbose import get_verbose_console
 
 
 @click.command()
@@ -61,6 +69,23 @@ from .print_photo_info import print_photo_info
     "if it doesn't exist.  All photos in the query results will be added to this album. "
     "This only works if the Photos library being queried is the last-opened (default) library in Photos. "
     "This feature is currently experimental.  I don't know how well it will work on large query sets.",
+)
+@click.option(
+    "--quiet",
+    is_flag=True,
+    help="Quiet output; doesn't actually print query results. "
+    "Useful with --print and --add-to-album if you don't want to see the actual query results.",
+)
+@click.option(
+    "--print",
+    "print_template",
+    metavar="TEMPLATE",
+    multiple=True,
+    help="Render TEMPLATE string for each photo queried and print to stdout. "
+    "TEMPLATE is an osxphotos template string. "
+    "This may be useful for creating custom reports, etc. "
+    "Most useful with --quiet. "
+    "May be repeated to print multiple template strings. ",
 )
 @click.option(
     "--debug", required=False, is_flag=True, default=False, hidden=OSXPHOTOS_HIDDEN
@@ -139,8 +164,10 @@ def query(
     person,
     place,
     portrait,
+    print_template,
     query_eval,
     query_function,
+    quiet,
     regex,
     screenshot,
     selected,
@@ -229,6 +256,10 @@ def query(
         click.echo("Incompatible query options", err=True)
         click.echo(ctx.obj.group.commands["query"].get_help(ctx), err=True)
         return
+
+    # set console for rich_echo to be same as for verbose_
+    set_rich_console(get_verbose_console())
+    set_rich_theme(get_default_theme())
 
     # actually have something to query
     # default searches for everything
@@ -368,4 +399,22 @@ def query(
                 err=True,
             )
 
-    print_photo_info(photos, cli_json or json_, print_func=click.echo)
+    if print_template:
+        options = RenderOptions()
+        for p in photos:
+            for template in print_template:
+                rendered_templates, unmatched = p.render_template(
+                    template,
+                    options,
+                )
+                if unmatched:
+                    rich_click_echo(
+                        f"[warning]Unmatched template field: {unmatched}[/]"
+                    )
+                for rendered_template in rendered_templates:
+                    if not rendered_template:
+                        continue
+                    rich_click_echo(rendered_template)
+
+    if not quiet:
+        print_photo_info(photos, cli_json or json_, print_func=click.echo)

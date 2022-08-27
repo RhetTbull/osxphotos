@@ -675,6 +675,17 @@ from .verbose import get_verbose_console, time_stamp, verbose_print
     help="If specified, saves the config file but does not export any files; must be used with --save-config.",
 )
 @click.option(
+    "--print",
+    "print_template",
+    metavar="TEMPLATE",
+    multiple=True,
+    help="Render TEMPLATE string for each photo being exported and print to stdout. "
+    "TEMPLATE is an osxphotos template string. "
+    "This may be useful for creating custom reports, etc. "
+    "TEMPLATE will be printed after the photo is exported or skipped. "
+    "May be repeated to print multiple template strings. ",
+)
+@click.option(
     "--beta",
     is_flag=True,
     default=False,
@@ -826,6 +837,7 @@ def export(
     preview_if_missing,
     preview_suffix,
     preview,
+    print_template,
     profile_sort,
     profile,
     query_eval,
@@ -1048,6 +1060,7 @@ def export(
         preview = cfg.preview
         preview_if_missing = cfg.preview_if_missing
         preview_suffix = cfg.preview_suffix
+        print_template = cfg.print_template
         query_eval = cfg.query_eval
         query_function = cfg.query_function
         ramdb = cfg.ramdb
@@ -1651,6 +1664,22 @@ def export(
                     results.xattr_skipped.extend(xattr_skipped)
 
                 report_writer.write(export_results)
+
+                if print_template:
+                    options = RenderOptions(export_dir=dest)
+                    for template in print_template:
+                        rendered_templates, unmatched = p.render_template(
+                            template,
+                            options,
+                        )
+                        if unmatched:
+                            rich_click_echo(
+                                f"[warning]Unmatched template field: {unmatched}[/]"
+                            )
+                        for rendered_template in rendered_templates:
+                            if not rendered_template:
+                                continue
+                            rich_click_echo(rendered_template)
 
                 progress.advance(task)
 
