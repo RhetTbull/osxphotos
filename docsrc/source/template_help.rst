@@ -347,9 +347,11 @@ Template Substitutions
    * - {cr}
      - A carriage return: '\r'
    * - {crlf}
-     - a carriage return + line feed: '\r\n'
+     - A carriage return + line feed: '\r\n'
+   * - {tab}
+     - :A tab: '\t'
    * - {osxphotos_version}
-     - The osxphotos version, e.g. '0.51.3'
+     - The osxphotos version, e.g. '0.51.4'
    * - {osxphotos_cmd_line}
      - The full command line used to run osxphotos
    * - {album}
