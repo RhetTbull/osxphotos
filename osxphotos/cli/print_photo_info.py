@@ -1,8 +1,9 @@
 """print_photo_info function to print PhotoInfo objects"""
 
 import csv
+import json
 import sys
-from typing import Callable, List
+from typing import Callable, List, Tuple
 
 from osxphotos.photoinfo import PhotoInfo
 
@@ -110,3 +111,44 @@ def print_photo_info(
             )
         for row in dump:
             csv_writer.writerow(row)
+
+
+def print_photo_fields(
+    photos: List[PhotoInfo], fields: Tuple[Tuple[str]], json_format: bool
+):
+    """Output custom field templates from PhotoInfo objects
+
+    Args:
+        photos: List of PhotoInfo objects
+        fields: Tuple of Tuple of field names/field templates to output"""
+    keys = [f[0] for f in fields]
+    data = []
+    for p in photos:
+        record = {}
+        for field in fields:
+            rendered_value, unmatched = p.render_template(field[1])
+            if unmatched:
+                raise ValueError(
+                    f"Unmatched template variables in field {field[0]}: {field[1]}"
+                )
+            field_value = (
+                rendered_value[0]
+                if len(rendered_value) == 1
+                else ",".join(rendered_value)
+                if not json_format
+                else rendered_value
+            )
+            record[field[0]] = field_value
+        data.append(record)
+
+    if json_format:
+        print(json.dumps(data, indent=4))
+    else:
+        # dump as CSV
+        csv_writer = csv.writer(
+            sys.stdout, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
+        )
+        # add headers
+        csv_writer.writerow(keys)
+        for record in data:
+            csv_writer.writerow(record.values())

@@ -35,6 +35,7 @@ __all__ = [
     "DB_OPTION",
     "DEBUG_OPTIONS",
     "DELETED_OPTIONS",
+    "FIELD_OPTION",
     "JSON_OPTION",
     "QUERY_OPTIONS",
     "THEME_OPTION",
@@ -114,6 +115,19 @@ JSON_OPTION = click.option(
     is_flag=True,
     default=False,
     help="Print output in JSON format.",
+)
+
+FIELD_OPTION = click.option(
+    "--field",
+    "-f",
+    metavar="FIELD TEMPLATE",
+    multiple=True,
+    nargs=2,
+    help="Output only specified custom fields. "
+    "FIELD is the name of the field and TEMPLATE is the template to use as the field value. "
+    "May be repeated to output multiple fields. "
+    "For example, to output photo uuid, name, and title: "
+    '`--field uuid "{uuid}" --field name "{original_name}" --field title "{title}"`.',
 )
 
 

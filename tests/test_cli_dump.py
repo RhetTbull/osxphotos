@@ -69,3 +69,57 @@ def test_dump_print(photos):
         assert result.exit_code == 0
         for photo in photos:
             assert f"{photo.uuid}\t{photo.original_filename}" in result.output
+
+
+def test_dump_field(photos):
+    """Test osxphotos dump --field"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    db_path = os.path.join(cwd, CLI_PHOTOS_DB)
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            dump,
+            [
+                "--db",
+                db_path,
+                "--deleted",
+                "--field",
+                "uuid",
+                "{uuid}",
+                "--field",
+                "name",
+                "{photo.original_filename}",
+            ],
+                   )
+        assert result.exit_code == 0
+        for photo in photos:
+            assert f"{photo.uuid},{photo.original_filename}" in result.output
+
+def test_dump_field_json(photos):
+    """Test osxphotos dump --field --jso"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    db_path = os.path.join(cwd, CLI_PHOTOS_DB)
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            dump,
+            [
+                "--db",
+                db_path,
+                "--deleted",
+                "--field",
+                "uuid",
+                "{uuid}",
+                "--field",
+                "name",
+                "{photo.original_filename}",
+                "--json",
+            ],
+                   )
+        assert result.exit_code == 0
+        json_data = {record["uuid"]: record for record in json.loads(result.output)}
+        for photo in photos:
+            assert photo.uuid in json_data
+            assert json_data[photo.uuid]["name"] == photo.original_filename
