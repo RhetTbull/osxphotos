@@ -8363,3 +8363,56 @@ def test_query_print_quiet():
         )
         assert result.exit_code == 0
         assert result.output.strip() == f"uuid: {UUID_FAVORITE}"
+
+
+def test_query_field():
+    """test query --field"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            query,
+            [
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                "--field",
+                "uuid",
+                "{uuid}",
+                "--field",
+                "name",
+                "{photo.original_filename}",
+                "--uuid",
+                UUID_FAVORITE,
+            ],
+        )
+        assert result.exit_code == 0
+        assert result.output.strip() == f"uuid,name\n{UUID_FAVORITE},{FILE_FAVORITE}"
+
+
+def test_query_field_json():
+    """test query --field --json"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            query,
+            [
+                "--db",
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                "--field",
+                "uuid",
+                "{uuid}",
+                "--field",
+                "name",
+                "{photo.original_filename}",
+                "--uuid",
+                UUID_FAVORITE,
+                "--json",
+            ],
+        )
+        assert result.exit_code == 0
+        json_results = json.loads(result.output)
+        assert json_results[0]["uuid"] == UUID_FAVORITE
+        assert json_results[0]["name"] == FILE_FAVORITE

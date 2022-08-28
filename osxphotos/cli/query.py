@@ -20,6 +20,7 @@ from .common import (
     DB_ARGUMENT,
     DB_OPTION,
     DELETED_OPTIONS,
+    FIELD_OPTION,
     JSON_OPTION,
     OSXPHOTOS_HIDDEN,
     QUERY_OPTIONS,
@@ -27,7 +28,7 @@ from .common import (
     load_uuid_from_file,
 )
 from .list import _list_libraries
-from .print_photo_info import print_photo_info
+from .print_photo_info import print_photo_fields, print_photo_info
 from .verbose import get_verbose_console
 
 
@@ -76,6 +77,7 @@ from .verbose import get_verbose_console
     help="Quiet output; doesn't actually print query results. "
     "Useful with --print and --add-to-album if you don't want to see the actual query results.",
 )
+@FIELD_OPTION
 @click.option(
     "--print",
     "print_template",
@@ -113,6 +115,7 @@ def query(
     exif,
     external_edit,
     favorite,
+    field,
     folder,
     from_date,
     from_time,
@@ -399,6 +402,9 @@ def query(
                 err=True,
             )
 
+    if field:
+        print_photo_fields(photos, field, cli_json or json_)
+
     if print_template:
         options = RenderOptions()
         for p in photos:
@@ -416,5 +422,5 @@ def query(
                         continue
                     print(rendered_template)
 
-    if not quiet:
+    if not quiet and not field:
         print_photo_info(photos, cli_json or json_, print_func=click.echo)

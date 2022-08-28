@@ -12,9 +12,16 @@ from osxphotos.phototemplate import RenderOptions
 from osxphotos.queryoptions import QueryOptions
 
 from .color_themes import get_default_theme
-from .common import DB_ARGUMENT, DB_OPTION, DELETED_OPTIONS, JSON_OPTION, get_photos_db
+from .common import (
+    DB_ARGUMENT,
+    DB_OPTION,
+    DELETED_OPTIONS,
+    FIELD_OPTION,
+    JSON_OPTION,
+    get_photos_db,
+)
 from .list import _list_libraries
-from .print_photo_info import print_photo_info
+from .print_photo_info import print_photo_fields, print_photo_info
 from .verbose import get_verbose_console
 
 
@@ -22,7 +29,7 @@ from .verbose import get_verbose_console
 @DB_OPTION
 @JSON_OPTION
 @DELETED_OPTIONS
-@DB_ARGUMENT
+@FIELD_OPTION
 @click.option(
     "--print",
     "print_template",
@@ -35,10 +42,19 @@ from .verbose import get_verbose_console
     "and only the rendered TEMPLATE values are printed. "
     "May be repeated to print multiple template strings. ",
 )
+@DB_ARGUMENT
 @click.pass_obj
 @click.pass_context
 def dump(
-    ctx, cli_obj, db, json_, deleted, deleted_only, photos_library, print_template
+    ctx,
+    cli_obj,
+    db,
+    deleted,
+    deleted_only,
+    field,
+    json_,
+    photos_library,
+    print_template,
 ):
     """Print list of all photos & associated info from the Photos library."""
 
@@ -71,22 +87,28 @@ def dump(
     if not deleted_only:
         photos += photosdb.photos(movies=True)
 
-    if not print_template:
+    if not print_template and not field:
         # just dump and be done
         print_photo_info(photos, cli_json or json_)
         return
 
-    # have print template(s)
-    options = RenderOptions()
-    for p in photos:
-        for template in print_template:
-            rendered_templates, unmatched = p.render_template(
-                template,
-                options,
-            )
-            if unmatched:
-                rich_click_echo(f"[warning]Unmatched template field: {unmatched}[/]")
-            for rendered_template in rendered_templates:
-                if not rendered_template:
-                    continue
-                print(rendered_template)
+    if field:
+        print_photo_fields(photos, field, cli_json or json_)
+
+    if print_template:
+        # have print template(s)
+        options = RenderOptions()
+        for p in photos:
+            for template in print_template:
+                rendered_templates, unmatched = p.render_template(
+                    template,
+                    options,
+                )
+                if unmatched:
+                    rich_click_echo(
+                        f"[warning]Unmatched template field: {unmatched}[/]"
+                    )
+                for rendered_template in rendered_templates:
+                    if not rendered_template:
+                        continue
+                    print(rendered_template)
