@@ -6,11 +6,13 @@ import os.path
 import sqlite3
 from typing import Callable, Dict, Generator, Iterable, Optional, Tuple, TypeVar, Union
 
-# keep mypy happy
+# keep mypy happy, keys/values can be any type supported by SQLite
 T = TypeVar("T")
 
+__all__ = ["SQLiteKVStore"]
 
-class SQLiteKeyValueStore:
+
+class SQLiteKVStore:
     """Simple Key-Value Store that uses sqlite3 database as backend"""
 
     def __init__(
@@ -50,7 +52,7 @@ class SQLiteKeyValueStore:
             self._conn.commit()
 
     def _create_database(self, dbpath: str):
-        """Create the progress database"""
+        """Create the key-value database"""
         conn = sqlite3.Connection(dbpath)
         cursor = conn.cursor()
         cursor.execute(
@@ -102,7 +104,10 @@ class SQLiteKeyValueStore:
         Args:
             key: key to get from key-value store
             default: optional default value to return if key not found
-        Returns: value for key or default (Note: does not insert key:default into database if key does not exist)
+
+        Returns: value for key or default
+
+        Note: does not insert key:default into database if key does not exist
         """
         try:
             return self._get(key)

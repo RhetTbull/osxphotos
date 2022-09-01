@@ -1,4 +1,4 @@
-"""Test osxphotos.sqlitekvstore"""
+"""Test sqlitekvstore"""
 
 import gzip
 import json
@@ -41,7 +41,7 @@ def unzip_and_unpickle(data: bytes) -> Any:
 def test_basic_get_set(tmpdir):
     """Test basic functionality"""
     dbpath = tmpdir / "kvtest.db"
-    kvstore = osxphotos.sqlitekvstore.SQLiteKeyValueStore(dbpath)
+    kvstore = osxphotos.sqlitekvstore.SQLiteKVStore(dbpath)
     kvstore.set("foo", "bar")
     assert kvstore.get("foo") == "bar"
     assert kvstore.get("FOOBAR") is None
@@ -61,7 +61,7 @@ def test_basic_get_set(tmpdir):
 def test_basic_get_set_wal(tmpdir):
     """Test basic functionality with WAL mode"""
     dbpath = tmpdir / "kvtest.db"
-    kvstore = osxphotos.sqlitekvstore.SQLiteKeyValueStore(dbpath, wal=True)
+    kvstore = osxphotos.sqlitekvstore.SQLiteKVStore(dbpath, wal=True)
     kvstore.set("foo", "bar")
     assert kvstore.get("foo") == "bar"
     assert kvstore.get("FOOBAR") is None
@@ -84,14 +84,14 @@ def test_set_many(tmpdir):
     """Test set_many()"""
     dbpath = tmpdir / "kvtest.db"
 
-    kvstore = osxphotos.sqlitekvstore.SQLiteKeyValueStore(dbpath)
+    kvstore = osxphotos.sqlitekvstore.SQLiteKVStore(dbpath)
     kvstore.set_many([("foo", "bar"), ("baz", "qux")])
     assert kvstore.get("foo") == "bar"
     assert kvstore.get("baz") == "qux"
     kvstore.close()
 
     # make sure values got committed
-    kvstore = osxphotos.sqlitekvstore.SQLiteKeyValueStore(dbpath)
+    kvstore = osxphotos.sqlitekvstore.SQLiteKVStore(dbpath)
     assert kvstore.get("foo") == "bar"
     assert kvstore.get("baz") == "qux"
     kvstore.close()
@@ -101,14 +101,14 @@ def test_set_many_dict(tmpdir):
     """Test set_many() with dict of values"""
     dbpath = tmpdir / "kvtest.db"
 
-    kvstore = osxphotos.sqlitekvstore.SQLiteKeyValueStore(dbpath)
+    kvstore = osxphotos.sqlitekvstore.SQLiteKVStore(dbpath)
     kvstore.set_many({"foo": "bar", "baz": "qux"})
     assert kvstore.get("foo") == "bar"
     assert kvstore.get("baz") == "qux"
     kvstore.close()
 
     # make sure values got committed
-    kvstore = osxphotos.sqlitekvstore.SQLiteKeyValueStore(dbpath)
+    kvstore = osxphotos.sqlitekvstore.SQLiteKVStore(dbpath)
     assert kvstore.get("foo") == "bar"
     assert kvstore.get("baz") == "qux"
     kvstore.close()
@@ -118,7 +118,7 @@ def test_basic_context_handler(tmpdir):
     """Test basic functionality with context handler"""
 
     dbpath = tmpdir / "kvtest.db"
-    with osxphotos.sqlitekvstore.SQLiteKeyValueStore(dbpath) as kvstore:
+    with osxphotos.sqlitekvstore.SQLiteKVStore(dbpath) as kvstore:
         kvstore.set("foo", "bar")
         assert kvstore.get("foo") == "bar"
         assert kvstore.get("FOOBAR") is None
@@ -134,7 +134,7 @@ def test_basic_context_handler(tmpdir):
 def test_about(tmpdir):
     """Test about property"""
     dbpath = tmpdir / "kvtest.db"
-    with osxphotos.sqlitekvstore.SQLiteKeyValueStore(dbpath) as kvstore:
+    with osxphotos.sqlitekvstore.SQLiteKVStore(dbpath) as kvstore:
         kvstore.about = "My description"
         assert kvstore.about == "My description"
         kvstore.about = "My new description"
@@ -144,17 +144,17 @@ def test_about(tmpdir):
 def test_existing_db(tmpdir):
     """Test that opening an existing database works as expected"""
     dbpath = tmpdir / "kvtest.db"
-    with osxphotos.sqlitekvstore.SQLiteKeyValueStore(dbpath) as kvstore:
+    with osxphotos.sqlitekvstore.SQLiteKVStore(dbpath) as kvstore:
         kvstore.set("foo", "bar")
 
-    with osxphotos.sqlitekvstore.SQLiteKeyValueStore(dbpath) as kvstore:
+    with osxphotos.sqlitekvstore.SQLiteKVStore(dbpath) as kvstore:
         assert kvstore.get("foo") == "bar"
 
 
 def test_dict_interface(tmpdir):
     """ "Test dict interface"""
     dbpath = tmpdir / "kvtest.db"
-    with osxphotos.sqlitekvstore.SQLiteKeyValueStore(dbpath) as kvstore:
+    with osxphotos.sqlitekvstore.SQLiteKVStore(dbpath) as kvstore:
         kvstore["foo"] = "bar"
         assert kvstore["foo"] == "bar"
         assert len(kvstore) == 1
@@ -186,7 +186,7 @@ def test_dict_interface(tmpdir):
 def test_serialize_deserialize(tmpdir):
     """Test serialize/deserialize"""
     dbpath = tmpdir / "kvtest.db"
-    kvstore = osxphotos.sqlitekvstore.SQLiteKeyValueStore(
+    kvstore = osxphotos.sqlitekvstore.SQLiteKVStore(
         dbpath, serialize=json.dumps, deserialize=json.loads
     )
     kvstore.set("foo", {"bar": "baz"})
@@ -197,7 +197,7 @@ def test_serialize_deserialize(tmpdir):
 def test_serialize_deserialize_binary_data(tmpdir):
     """Test serialize/deserialize with binary data"""
     dbpath = tmpdir / "kvtest.db"
-    kvstore = osxphotos.sqlitekvstore.SQLiteKeyValueStore(
+    kvstore = osxphotos.sqlitekvstore.SQLiteKVStore(
         dbpath, serialize=pickle_and_zip, deserialize=unzip_and_unpickle
     )
     kvstore.set("foo", {"bar": "baz"})
@@ -209,20 +209,16 @@ def test_serialize_deserialize_bad_callable(tmpdir):
     """Test serialize/deserialize with bad values"""
     dbpath = tmpdir / "kvtest.db"
     with pytest.raises(TypeError):
-        osxphotos.sqlitekvstore.SQLiteKeyValueStore(
-            dbpath, serialize=1, deserialize=None
-        )
+        osxphotos.sqlitekvstore.SQLiteKVStore(dbpath, serialize=1, deserialize=None)
 
     with pytest.raises(TypeError):
-        osxphotos.sqlitekvstore.SQLiteKeyValueStore(
-            dbpath, serialize=None, deserialize=1
-        )
+        osxphotos.sqlitekvstore.SQLiteKVStore(dbpath, serialize=None, deserialize=1)
 
 
 def test_iter(tmpdir):
     """Test generator behavior"""
     dbpath = tmpdir / "kvtest.db"
-    kvstore = osxphotos.sqlitekvstore.SQLiteKeyValueStore(dbpath)
+    kvstore = osxphotos.sqlitekvstore.SQLiteKVStore(dbpath)
     kvstore.set("foo", "bar")
     kvstore.set("baz", "qux")
     kvstore.set("quux", "corge")
@@ -234,7 +230,7 @@ def test_iter(tmpdir):
 def test_keys_values_items(tmpdir):
     """Test keys, values, items"""
     dbpath = tmpdir / "kvtest.db"
-    kvstore = osxphotos.sqlitekvstore.SQLiteKeyValueStore(dbpath)
+    kvstore = osxphotos.sqlitekvstore.SQLiteKVStore(dbpath)
     kvstore.set("foo", "bar")
     kvstore.set("baz", "qux")
     kvstore.set("quux", "corge")

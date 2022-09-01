@@ -37,7 +37,7 @@ from osxphotos.exiftool import ExifToolCaching, get_exiftool_path
 from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.photosalbum import PhotosAlbumPhotoScript
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
-from osxphotos.sqlitekvstore import SQLiteKeyValueStore
+from osxphotos.sqlitekvstore import SQLiteKVStore
 from osxphotos.utils import pluralize
 
 from .click_rich_echo import (
@@ -1293,7 +1293,7 @@ def import_cli(
     # report data is set even if no report is generated
     report_data: Dict[Path, ReportRecord] = {}
 
-    import_db = SQLiteKeyValueStore(
+    import_db = SQLiteKVStore(
         get_data_dir() / IMPORT_DB,
         wal=True,
         serialize=ReportRecord.serialize,
