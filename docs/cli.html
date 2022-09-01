@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Template System" href="template_help.html" /><link rel="prev" title="OSXPhotos Tutorial" href="tutorial.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.51.5 documentation</title>
+        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.51.6 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.51.5 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.51.6 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.51.5 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.51.6 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -1473,6 +1473,11 @@ to modify this behavior.</p>
 <dt class="sig sig-object std" id="cmdoption-osxphotos-import-report">
 <span class="sig-name descname"><span class="pre">--report</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;REPORT_FILE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-report" title="Permalink to this definition">#</a></dt>
 <dd><p>Write a report of all files that were imported. The extension of the report filename will be used to determine the format. Valid extensions are: .csv (CSV file), .json (JSON), .db and .sqlite (SQLite database). REPORT_FILE may be a template string (see Template System), for example, –report ‘export_{today.date}.csv’ will write a CSV report file named with today’s date. See also –append.</p>
+</dd></dl>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-R">
+<span id="cmdoption-osxphotos-import-resume"></span><span class="sig-name descname"><span class="pre">-R</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--resume</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-R" title="Permalink to this definition">#</a></dt>
+<dd><p>Resume previous import. Note: data on each imported file is kept in a database in ‘/Users/rhet/.local/share/osxphotos/osxphotos_import.db’. This data can be used to resume a previous import if there was an error or the import was cancelled.</p>
 </dd></dl>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-import-append">
