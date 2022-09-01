@@ -18,7 +18,7 @@ import uuid
 from collections import namedtuple
 from contextlib import suppress
 from dataclasses import asdict, dataclass, field
-from pathlib import Path, PosixPath
+from pathlib import Path
 from textwrap import dedent
 from typing import Callable, Dict, List, Optional, Tuple, Union
 
@@ -29,6 +29,7 @@ from rich.markdown import Markdown
 
 from osxphotos._constants import _OSXPHOTOS_NONE_SENTINEL
 from osxphotos._version import __version__
+from osxphotos.cli.common import get_data_dir
 from osxphotos.cli.help import HELP_WIDTH
 from osxphotos.cli.param_types import TemplateString
 from osxphotos.datetime_utils import datetime_naive_to_local
@@ -36,6 +37,7 @@ from osxphotos.exiftool import ExifToolCaching, get_exiftool_path
 from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.photosalbum import PhotosAlbumPhotoScript
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
+from osxphotos.sqlitekvstore import SQLiteKeyValueStore
 from osxphotos.utils import pluralize
 
 from .click_rich_echo import (
@@ -52,6 +54,9 @@ from .verbose import get_verbose_console, verbose_print
 MetaData = namedtuple("MetaData", ["title", "description", "keywords", "location"])
 
 OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
+
+# stores import status so imports can be resumed
+IMPORT_DB = "osxphotos_import.db"
 
 
 def echo(message, emoji=True, **kwargs):
@@ -550,6 +555,21 @@ class ReportRecord:
     location: Tuple[float, float] = field(default_factory=tuple)
     title: str = ""
     uuid: str = ""
+
+    @classmethod
+    def serialize(cls, record: "ReportRecord") -> str:
+        """Serialize class instance to JSON"""
+        return json.dumps(record.asjsondict())
+
+    @classmethod
+    def deserialize(cls, json_string: str) -> "ReportRecord":
+        """Deserialize class from JSON"""
+        dict_data = json.loads(json_string)
+        dict_data["filepath"] = Path(dict_data["filepath"])
+        dict_data["import_datetime"] = datetime.datetime.fromisoformat(
+            dict_data["import_datetime"]
+        )
+        return cls(**dict_data)
 
     def asdict(self):
         return asdict(self)
@@ -1171,6 +1191,14 @@ class ImportCommand(click.Command):
     type=TemplateString(),
 )
 @click.option(
+    "--resume",
+    "-R",
+    is_flag=True,
+    help="Resume previous import. "
+    f"Note: data on each imported file is kept in a database in '{get_data_dir() / IMPORT_DB}'. "
+    "This data can be used to resume a previous import if there was an error or the import was cancelled.",
+)
+@click.option(
     "--append",
     is_flag=True,
     help="If used with --report, add data to existing report file instead of overwriting it. "
@@ -1213,6 +1241,7 @@ def import_cli(
     no_progress,
     relative_to,
     report,
+    resume,
     split_folder,
     theme,
     timestamp,
@@ -1247,8 +1276,6 @@ def import_cli(
     report_file = render_and_validate_report(report) if report else None
     relative_to = Path(relative_to) if relative_to else None
 
-    imported_count = 0
-    error_count = 0
     files = collect_files_to_import(files, walk, glob)
     if check_templates:
         check_templates_and_exit(
@@ -1266,6 +1293,17 @@ def import_cli(
     # report data is set even if no report is generated
     report_data: Dict[Path, ReportRecord] = {}
 
+    import_db = SQLiteKeyValueStore(
+        get_data_dir() / IMPORT_DB,
+        wal=True,
+        serialize=ReportRecord.serialize,
+        deserialize=ReportRecord.deserialize,
+    )
+    import_db.about = f"osxphotos import database\n{OSXPHOTOS_ABOUT_STRING}"
+
+    imported_count = 0
+    error_count = 0
+    skipped_count = 0
     filecount = len(files)
     with rich_progress(console=get_verbose_console(), mock=no_progress) as progress:
         task = progress.add_task(
@@ -1275,6 +1313,20 @@ def import_cli(
         for filepath in files:
             filepath = Path(filepath).resolve().absolute()
             relative_filepath = get_relative_filepath(filepath, relative_to)
+
+            # check if file already imported
+            if resume:
+                if record := import_db.get(str(filepath)):
+                    if record.imported and not record.error:
+                        # file already imported
+                        verbose(
+                            f"Skipping [filepath]{filepath}[/], "
+                            f"already imported on [time]{record.import_datetime.isoformat()}[/] "
+                            f"with UUID [uuid]{record.uuid}[/]"
+                        )
+                        skipped_count += 1
+                        progress.advance(task)
+                        continue
 
             verbose(f"Importing [filepath]{filepath}[/]")
             report_data[filepath] = ReportRecord(
@@ -1339,14 +1391,18 @@ def import_cli(
                 )
 
             update_report_record(report_data[filepath], photo, filepath)
+            import_db.set(str(filepath), report_data[filepath])
+
             progress.advance(task)
 
     if report:
         write_report(report_file, report_data, append)
         verbose(f"Wrote import report to [filepath]{report_file}[/]")
 
+    skipped_str = f"[num]{skipped_count}[/] skipped" if resume else ""
     echo(
         f"Done: imported [num]{imported_count}[/] {pluralize(imported_count, 'file', 'files')}, "
-        f"[num]{error_count}[/] {pluralize(error_count, 'error', 'errors')}",
+        f"[num]{error_count}[/] {pluralize(error_count, 'error', 'errors')}"
+        f", {skipped_str}",
         emoji=False,
     )
