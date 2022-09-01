@@ -15,7 +15,7 @@ from typing import Dict
 import pytest
 from click.testing import CliRunner
 from photoscript import Photo
-from pytest import approx
+from pytest import MonkeyPatch, approx
 
 from osxphotos.cli.import_cli import import_cli
 from osxphotos.exiftool import get_exiftool_path
@@ -908,3 +908,41 @@ def test_import_report_invalid_name():
             ],
         )
         assert result.exit_code != 0
+
+
+@pytest.mark.test_import
+def test_import_resume(monkeypatch: MonkeyPatch, tmpdir):
+    """Test import with --resume"""
+
+    monkeypatch.delenv("XDG_DATA_HOME", raising=False)
+    monkeypatch.setenv("XDG_DATA_HOME", os.fspath(str(tmpdir)))
+
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+    runner = CliRunner()
+    result = runner.invoke(
+        import_cli,
+        ["--verbose", test_image_1],
+        terminal_width=TERMINAL_WIDTH,
+    )
+
+    assert result.exit_code == 0
+
+    import_data = parse_import_output(result.output)
+    file_1 = pathlib.Path(test_image_1).name
+    uuid_1 = import_data[file_1]
+    photo_1 = Photo(uuid_1)
+
+    assert photo_1.filename == file_1
+
+    # test resume
+    test_image_2 = os.path.join(cwd, TEST_IMAGE_2)
+    result = runner.invoke(
+        import_cli,
+        ["--verbose", "--resume", test_image_1, test_image_2],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    assert "Skipping" in result.output
+    assert "1 skipped" in result.output
+    assert "imported 1" in result.output
