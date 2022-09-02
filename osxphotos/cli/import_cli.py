@@ -1395,6 +1395,8 @@ def import_cli(
 
             progress.advance(task)
 
+    import_db.close()
+
     if report:
         write_report(report_file, report_data, append)
         verbose(f"Wrote import report to [filepath]{report_file}[/]")
