@@ -206,7 +206,7 @@ def copy_photos_library(photos_library, delay=0):
 
 @pytest.fixture
 def addalbum_library():
-    copy_photos_library(delay=10)
+    copy_photos_library(TEST_LIBRARY, delay=10)
 
 
 def copy_photos_library_to_path(photos_library_path: str, dest_path: str) -> str:

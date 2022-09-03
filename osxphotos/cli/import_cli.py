@@ -214,7 +214,7 @@ def add_photo_to_albums(
     for a in albums:
         verbose(f"Adding photo [filename]{filepath.name}[/] to album [filepath]{a}[/]")
         photos_album = PhotosAlbumPhotoScript(
-            a, verbose=verbose, split_folder=split_folder
+            a, verbose=verbose, split_folder=split_folder, rich=True
         )
         photos_album.add(photo)
 

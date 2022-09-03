@@ -38,8 +38,8 @@ def test_export_add_to_album(addalbum_library):
             ],
         )
         assert result.exit_code == 0
-        assert f"Creating Photos album '{EXPORT_ALBUM}'" in result.output
-        assert f"Creating Photos album '{SKIP_ALBUM}'" in result.output
+        assert f"Creating album '{EXPORT_ALBUM}'" in result.output
+        assert f"Creating album '{SKIP_ALBUM}'" in result.output
 
         photoslib = photoscript.PhotosLibrary()
         album = photoslib.album(EXPORT_ALBUM)
@@ -69,9 +69,9 @@ def test_export_add_to_album(addalbum_library):
             ],
         )
         assert result.exit_code == 0
-        assert f"Creating Photos album '{EXPORT_ALBUM}'" not in result.output
-        assert f"Creating Photos album '{SKIP_ALBUM}'" not in result.output
-        assert f"Creating Photos album '{MISSING_ALBUM}'" in result.output
+        assert f"Creating album '{EXPORT_ALBUM}'" not in result.output
+        assert f"Creating album '{SKIP_ALBUM}'" not in result.output
+        assert f"Creating album '{MISSING_ALBUM}'" in result.output
 
         photoslib = photoscript.PhotosLibrary()
         export_album = photoslib.album(EXPORT_ALBUM)

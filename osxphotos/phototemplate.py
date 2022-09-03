@@ -1562,7 +1562,7 @@ class PhotoTemplate:
             # if no uuid, then template is being validated but not actually run
             # so don't run the function
             values = []
-        elif caller == "export":
+        elif caller in ["export", "query"]:
             # function signature is:
             # def example(photo: PhotoInfo, options: ExportOptions, args: Optional[str] = None, **kwargs) -> Union[List, str]:
             values = template_func(self.photo, options=self.options, args=field_arg)
