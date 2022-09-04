@@ -245,6 +245,36 @@ class StagedFiles:
 class ExportResults:
     """Results class which holds export results for export"""
 
+    __slots__ = [
+        "_datetime",
+        "converted_to_jpeg",
+        "deleted_directories",
+        "deleted_files",
+        "error",
+        "exif_updated",
+        "exiftool_error",
+        "exiftool_warning",
+        "exported",
+        "exported_album",
+        "metadata_changed",
+        "missing",
+        "missing_album",
+        "new",
+        "sidecar_exiftool_skipped",
+        "sidecar_exiftool_written",
+        "sidecar_json_skipped",
+        "sidecar_json_written",
+        "sidecar_xmp_skipped",
+        "sidecar_xmp_written",
+        "skipped",
+        "skipped_album",
+        "to_touch",
+        "touched",
+        "updated",
+        "xattr_skipped",
+        "xattr_written",
+    ]
+
     def __init__(
         self,
         converted_to_jpeg=None,
@@ -254,11 +284,11 @@ class ExportResults:
         exif_updated=None,
         exiftool_error=None,
         exiftool_warning=None,
-        exported_album=None,
         exported=None,
+        exported_album=None,
         metadata_changed=None,
-        missing_album=None,
         missing=None,
+        missing_album=None,
         new=None,
         sidecar_exiftool_skipped=None,
         sidecar_exiftool_written=None,
@@ -266,8 +296,8 @@ class ExportResults:
         sidecar_json_written=None,
         sidecar_xmp_skipped=None,
         sidecar_xmp_written=None,
-        skipped_album=None,
         skipped=None,
+        skipped_album=None,
         to_touch=None,
         touched=None,
         updated=None,
@@ -275,36 +305,22 @@ class ExportResults:
         xattr_written=None,
     ):
 
-        self.datetime = datetime.now().isoformat()
+        local_vars = locals()
+        self._datetime = datetime.now().isoformat()
+        for attr in self.attributes:
+            setattr(self, attr, local_vars.get(attr) or [])
 
-        self.converted_to_jpeg = converted_to_jpeg or []
-        self.deleted_directories = deleted_directories or []
-        self.deleted_files = deleted_files or []
-        self.error = error or []
-        self.exif_updated = exif_updated or []
-        self.exiftool_error = exiftool_error or []
-        self.exiftool_warning = exiftool_warning or []
-        self.exported = exported or []
-        self.exported_album = exported_album or []
-        self.metadata_changed = metadata_changed or []
-        self.missing = missing or []
-        self.missing_album = missing_album or []
-        self.new = new or []
-        self.sidecar_exiftool_skipped = sidecar_exiftool_skipped or []
-        self.sidecar_exiftool_written = sidecar_exiftool_written or []
-        self.sidecar_json_skipped = sidecar_json_skipped or []
-        self.sidecar_json_written = sidecar_json_written or []
-        self.sidecar_xmp_skipped = sidecar_xmp_skipped or []
-        self.sidecar_xmp_written = sidecar_xmp_written or []
-        self.skipped = skipped or []
-        self.skipped_album = skipped_album or []
-        self.to_touch = to_touch or []
-        self.touched = touched or []
-        self.updated = updated or []
-        self.xattr_skipped = xattr_skipped or []
-        self.xattr_written = xattr_written or []
+    @property
+    def attributes(self) -> t.List[str]:
+        """Return list of attributes tracked by ExportResults"""
+        return [attr for attr in self.__slots__ if not attr.startswith("_")]
 
-    def all_files(self):
+    @property
+    def datetime(self) -> str:
+        """Return datetime when ExportResults was created"""
+        return self._datetime
+
+    def all_files(self) -> t.List[str]:
         """return all filenames contained in results"""
         files = (
             self.exported
@@ -326,65 +342,23 @@ class ExportResults:
         files += [x[0] for x in self.exiftool_error]
         files += [x[0] for x in self.error]
 
-        files = list(set(files))
-        return files
+        return list(set(files))
 
-    def __iadd__(self, other):
-        self.exported += other.exported
-        self.new += other.new
-        self.updated += other.updated
-        self.skipped += other.skipped
-        self.exif_updated += other.exif_updated
-        self.touched += other.touched
-        self.to_touch += other.to_touch
-        self.converted_to_jpeg += other.converted_to_jpeg
-        self.sidecar_json_written += other.sidecar_json_written
-        self.sidecar_json_skipped += other.sidecar_json_skipped
-        self.sidecar_exiftool_written += other.sidecar_exiftool_written
-        self.sidecar_exiftool_skipped += other.sidecar_exiftool_skipped
-        self.sidecar_xmp_written += other.sidecar_xmp_written
-        self.sidecar_xmp_skipped += other.sidecar_xmp_skipped
-        self.missing += other.missing
-        self.error += other.error
-        self.exiftool_warning += other.exiftool_warning
-        self.exiftool_error += other.exiftool_error
-        self.deleted_files += other.deleted_files
-        self.deleted_directories += other.deleted_directories
-        self.exported_album += other.exported_album
-        self.skipped_album += other.skipped_album
-        self.missing_album += other.missing_album
-        self.metadata_changed += other.metadata_changed
+    def __iadd__(self, other) -> "ExportResults":
+        if type(other) != ExportResults:
+            raise TypeError("Can only add ExportResults to ExportResults")
 
+        for attribute in self.attributes:
+            setattr(
+                self, attribute, getattr(self, attribute) + getattr(other, attribute)
+            )
         return self
 
-    def __str__(self):
+    def __str__(self) -> str:
         return (
             "ExportResults("
-            + f"datetime={self.datetime}"
-            + f",exported={self.exported}"
-            + f",new={self.new}"
-            + f",updated={self.updated}"
-            + f",skipped={self.skipped}"
-            + f",exif_updated={self.exif_updated}"
-            + f",touched={self.touched}"
-            + f",to_touch={self.to_touch}"
-            + f",converted_to_jpeg={self.converted_to_jpeg}"
-            + f",sidecar_json_written={self.sidecar_json_written}"
-            + f",sidecar_json_skipped={self.sidecar_json_skipped}"
-            + f",sidecar_exiftool_written={self.sidecar_exiftool_written}"
-            + f",sidecar_exiftool_skipped={self.sidecar_exiftool_skipped}"
-            + f",sidecar_xmp_written={self.sidecar_xmp_written}"
-            + f",sidecar_xmp_skipped={self.sidecar_xmp_skipped}"
-            + f",missing={self.missing}"
-            + f",error={self.error}"
-            + f",exiftool_warning={self.exiftool_warning}"
-            + f",exiftool_error={self.exiftool_error}"
-            + f",deleted_files={self.deleted_files}"
-            + f",deleted_directories={self.deleted_directories}"
-            + f",exported_album={self.exported_album}"
-            + f",skipped_album={self.skipped_album}"
-            + f",missing_album={self.missing_album}"
-            + f",metadata_changed={self.metadata_changed}"
+            + f"datetime={self._datetime}, "
+            + ", ".join([f"{attr}={getattr(self, attr)}" for attr in self.attributes])
             + ")"
         )
 

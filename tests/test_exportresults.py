@@ -3,53 +3,13 @@
 import pytest
 from osxphotos.photoexporter import ExportResults
 
-EXPORT_RESULT_ATTRIBUTES = [
-    "exported",
-    "new",
-    "updated",
-    "skipped",
-    "exif_updated",
-    "touched",
-    "converted_to_jpeg",
-    "sidecar_json_written",
-    "sidecar_json_skipped",
-    "sidecar_exiftool_written",
-    "sidecar_exiftool_skipped",
-    "sidecar_xmp_written",
-    "sidecar_xmp_skipped",
-    "missing",
-    "error",
-    "exiftool_warning",
-    "exiftool_error",
-    "deleted_files",
-    "deleted_directories",
-]
+EXPORT_RESULT_ATTRIBUTES = ExportResults().attributes
 
 
 def test_exportresults_init():
     results = ExportResults()
-    assert results.exported == []
-    assert results.new == []
-    assert results.updated == []
-    assert results.skipped == []
-    assert results.exif_updated == []
-    assert results.touched == []
-    assert results.converted_to_jpeg == []
-    assert results.sidecar_json_written == []
-    assert results.sidecar_json_skipped == []
-    assert results.sidecar_exiftool_written == []
-    assert results.sidecar_exiftool_skipped == []
-    assert results.sidecar_xmp_written == []
-    assert results.sidecar_xmp_skipped == []
-    assert results.missing == []
-    assert results.error == []
-    assert results.exiftool_warning == []
-    assert results.exiftool_error == []
-    assert results.deleted_files == []
-    assert results.deleted_directories == []
-    assert results.exported_album == []
-    assert results.skipped_album == []
-    assert results.missing_album == []
+    for x in EXPORT_RESULT_ATTRIBUTES:
+        assert getattr(results, x) == []
 
 
 def test_exportresults_iadd():
@@ -95,14 +55,32 @@ def test_exportresults_iadd():
 def test_all_files():
     """test ExportResults.all_files()"""
     results = ExportResults()
-    for x in EXPORT_RESULT_ATTRIBUTES:
+    all_file_attributes = [
+        "converted_to_jpeg",
+        "exif_updated",
+        "exported",
+        "missing",
+        "new",
+        "sidecar_exiftool_skipped",
+        "sidecar_exiftool_written",
+        "sidecar_json_skipped",
+        "sidecar_json_written",
+        "sidecar_xmp_skipped",
+        "sidecar_xmp_written",
+        "skipped",
+        "touched",
+        "updated",
+    ]
+    for x in all_file_attributes:
         setattr(results, x, [f"{x}1"])
     results.exiftool_warning = [("exiftool_warning1", "foo")]
     results.exiftool_error = [("exiftool_error1", "foo")]
     results.error = [("error1", "foo")]
-    results.deleted_files = ["deleted_files1"]
-    results.deleted_directories = ["deleted_directories1"]
 
-    assert sorted(
-        results.all_files() + results.deleted_files + results.deleted_directories
-    ) == sorted([f"{x}1" for x in EXPORT_RESULT_ATTRIBUTES])
+    assert sorted(results.all_files()) == sorted(
+        [
+            f"{x}1"
+            for x in all_file_attributes
+            + ["error", "exiftool_warning", "exiftool_error"]
+        ]
+    )
