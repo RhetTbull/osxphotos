@@ -166,6 +166,7 @@ TEMPLATE_VALUES = {
     "{title}": "Glen Ord",
     "{title[ ,]}": "GlenOrd",
     "{descr}": "Jack Rose Dining Saloon",
+    "{created}": "2020-02-04",
     "{created.date}": "2020-02-04",
     "{created.year}": "2020",
     "{created.yy}": "20",
@@ -289,6 +290,7 @@ TEMPLATE_VALUES_DEU = {
 TEMPLATE_VALUES_DATE_MODIFIED = {
     "{name}": "A9B73E13-A6F2-4915-8D67-7213B39BAE9F",
     "{original_name}": "IMG_3984",
+    "{modified}": "2020-10-31",
     "{modified.date}": "2020-10-31",
     "{modified.year}": "2020",
     "{modified.yy}": "20",

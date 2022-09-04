@@ -23,6 +23,7 @@ UUID_DICT = {
 }
 
 TODAY_VALUES = {
+    "{today}": "2020-06-21",
     "{today.date}": "2020-06-21",
     "{today.year}": "2020",
     "{today.yy}": "20",

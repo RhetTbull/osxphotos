@@ -887,76 +887,8 @@ class PhotoTemplate:
             value = format_date_field(
                 self.photo.date_modified or self.photo.date, field, default
             )
-        elif field == "place.name":
-            value = self.photo.place.name if self.photo.place else None
-        elif field == "place.country_code":
-            value = self.photo.place.country_code if self.photo.place else None
-        elif field == "place.name.country":
-            value = (
-                self.photo.place.names.country[0]
-                if self.photo.place and self.photo.place.names.country
-                else None
-            )
-        elif field == "place.name.state_province":
-            value = (
-                self.photo.place.names.state_province[0]
-                if self.photo.place and self.photo.place.names.state_province
-                else None
-            )
-        elif field == "place.name.city":
-            value = (
-                self.photo.place.names.city[0]
-                if self.photo.place and self.photo.place.names.city
-                else None
-            )
-        elif field == "place.name.area_of_interest":
-            value = (
-                self.photo.place.names.area_of_interest[0]
-                if self.photo.place and self.photo.place.names.area_of_interest
-                else None
-            )
-        elif field == "place.address":
-            value = (
-                self.photo.place.address_str
-                if self.photo.place and self.photo.place.address_str
-                else None
-            )
-        elif field == "place.address.street":
-            value = (
-                self.photo.place.address.street
-                if self.photo.place and self.photo.place.address.street
-                else None
-            )
-        elif field == "place.address.city":
-            value = (
-                self.photo.place.address.city
-                if self.photo.place and self.photo.place.address.city
-                else None
-            )
-        elif field == "place.address.state_province":
-            value = (
-                self.photo.place.address.state_province
-                if self.photo.place and self.photo.place.address.state_province
-                else None
-            )
-        elif field == "place.address.postal_code":
-            value = (
-                self.photo.place.address.postal_code
-                if self.photo.place and self.photo.place.address.postal_code
-                else None
-            )
-        elif field == "place.address.country":
-            value = (
-                self.photo.place.address.country
-                if self.photo.place and self.photo.place.address.country
-                else None
-            )
-        elif field == "place.address.country_code":
-            value = (
-                self.photo.place.address.iso_country_code
-                if self.photo.place and self.photo.place.address.iso_country_code
-                else None
-            )
+        elif field.startswith("place"):
+            value = get_place_value(self.photo, field)
         elif field == "searchinfo.season":
             value = self.photo.search_info.season if self.photo.search_info else None
         elif field == "exif.camera_make":
@@ -1697,9 +1629,9 @@ def format_date_field(dt: datetime.datetime, field: str, args: List[str]) -> str
     fields = field.split(".")
     if len(fields) == 1:
         # no subfield, just return the formatted date str
-        return dt.isoformat()
+        return dt.date().isoformat()
     if len(fields) > 2:
-        raise ValueError(f"Invalid date field: {field}")
+        raise ValueError(f"Unhandled template value: {field}")
     subfield = fields[1]
     if subfield == "strftime":
         if not args:
@@ -1712,4 +1644,54 @@ def format_date_field(dt: datetime.datetime, field: str, args: List[str]) -> str
         try:
             return getattr(DateTimeFormatter(dt), subfield)
         except AttributeError as e:
-            raise ValueError(f"Invalid date subfield: {subfield}") from e
+            raise ValueError(f"Unhandled template value: {field}")
+
+
+def get_place_value(photo: "PhotoInfo", field: str):
+    """Get the value of a 'place' field by attribute
+
+    Args:
+        photo: the PhotoInfo object
+        field: the field to get, e.g. 'place.name'
+    """
+    if not photo.place:
+        return None
+
+    fields = field.split(".")
+    if len(fields) < 2:
+        raise ValueError(f"Invalid place field: {field}")
+    subfields = fields[1:]
+    if subfields[0] in ["name", "country_code"] and len(subfields) == 1:
+        return getattr(photo.place, subfields[0]) or None
+    elif subfields[0] == "name" and len(subfields) > 1:
+        if subfields[1] == "country":
+            return photo.place.names.country[0] if photo.place.names.country else None
+        elif subfields[1] == "state_province":
+            return (
+                photo.place.names.state_province[0]
+                if photo.place.names.state_province
+                else None
+            )
+        elif subfields[1] == "city":
+            return photo.place.names.city[0] if photo.place.names.city else None
+        elif subfields[1] == "area_of_interest":
+            return (
+                photo.place.names.area_of_interest[0]
+                if photo.place.names.area_of_interest
+                else None
+            )
+    elif subfields[0] == "address":
+        if len(subfields) == 1:
+            return photo.place.address_str
+        elif subfields[1] in [
+            "street",
+            "city",
+            "state_province",
+            "postal_code",
+            "country",
+        ]:
+            return getattr(photo.place.address, subfields[1]) or None
+        elif subfields[1] == "country_code":
+            return photo.place.address.iso_country_code or None
+    # did not find a match
+    raise ValueError(f"Unhandled template value: {field}")
