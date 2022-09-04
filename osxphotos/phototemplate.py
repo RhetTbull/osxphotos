@@ -71,6 +71,7 @@ TEMPLATE_SUBSTITUTIONS = {
     "{edited}": "True if photo has been edited (has adjustments), otherwise False; use in format '{edited?VALUE_IF_TRUE,VALUE_IF_FALSE}'",
     "{edited_version}": "True if template is being rendered for the edited version of a photo, otherwise False. ",
     "{favorite}": "Photo has been marked as favorite?; True/False value, use in format '{favorite?VALUE_IF_TRUE,VALUE_IF_FALSE}'",
+    "{created}": "Photo's creation date in ISO format, e.g. '2020-03-22'",
     "{created.date}": "Photo's creation date in ISO format, e.g. '2020-03-22'",
     "{created.year}": "4-digit year of photo creation time",
     "{created.yy}": "2-digit year of photo creation time",
@@ -88,6 +89,7 @@ TEMPLATE_SUBSTITUTIONS = {
     + "{created.strftime,%Y-%U} would result in year-week number of year: '2020-23'. "
     + "If used with no template will return null value. "
     + "See https://strftime.org/ for help on strftime templates.",
+    "{modified}": "Photo's modification date in ISO format, e.g. '2020-03-22'; uses creation date if photo is not modified",
     "{modified.date}": "Photo's modification date in ISO format, e.g. '2020-03-22'; uses creation date if photo is not modified",
     "{modified.year}": "4-digit year of photo modification time; uses creation date if photo is not modified",
     "{modified.yy}": "2-digit year of photo modification time; uses creation date if photo is not modified",
@@ -105,6 +107,7 @@ TEMPLATE_SUBSTITUTIONS = {
     + "{modified.strftime,%Y-%U} would result in year-week number of year: '2020-23'. "
     + "If used with no template will return null value. Uses creation date if photo is not modified. "
     + "See https://strftime.org/ for help on strftime templates.",
+    "{today}": "Current date in iso format, e.g. '2020-03-22'",
     "{today.date}": "Current date in iso format, e.g. '2020-03-22'",
     "{today.year}": "4-digit year of current date",
     "{today.yy}": "2-digit year of current date",
@@ -815,10 +818,10 @@ class PhotoTemplate:
 
     def get_template_value(
         self,
-        field,
-        default,
-        subfield,
-        field_arg,
+        field: str,
+        default: List[str],
+        subfield: Optional[str],
+        field_arg: Optional[str],
     ):
         """lookup value for template field (single-value template substitutions)
 
@@ -845,38 +848,8 @@ class PhotoTemplate:
 
         # wouldn't a switch/case statement be nice...
         # handle the fields that don't require a PhotoInfo object first
-        if field == "today.date":
-            value = DateTimeFormatter(self.today).date
-        elif field == "today.year":
-            value = DateTimeFormatter(self.today).year
-        elif field == "today.yy":
-            value = DateTimeFormatter(self.today).yy
-        elif field == "today.mm":
-            value = DateTimeFormatter(self.today).mm
-        elif field == "today.month":
-            value = DateTimeFormatter(self.today).month
-        elif field == "today.mon":
-            value = DateTimeFormatter(self.today).mon
-        elif field == "today.dd":
-            value = DateTimeFormatter(self.today).dd
-        elif field == "today.dow":
-            value = DateTimeFormatter(self.today).dow
-        elif field == "today.doy":
-            value = DateTimeFormatter(self.today).doy
-        elif field == "today.hour":
-            value = DateTimeFormatter(self.today).hour
-        elif field == "today.min":
-            value = DateTimeFormatter(self.today).min
-        elif field == "today.sec":
-            value = DateTimeFormatter(self.today).sec
-        elif field == "today.strftime":
-            if default:
-                try:
-                    value = self.today.strftime(default[0])
-                except:
-                    raise ValueError(f"Invalid strftime template: '{default}'")
-            else:
-                value = None
+        if field.startswith("today"):
+            value = format_date_field(self.today, field, default)
         elif field in PUNCTUATION:
             value = PUNCTUATION[field]
         elif field == "osxphotos_version":
@@ -907,189 +880,15 @@ class PhotoTemplate:
             value = "edited_version" if self.edited_version else None
         elif field == "favorite":
             value = "favorite" if self.photo.favorite else None
-        elif field == "created.date":
-            value = DateTimeFormatter(self.photo.date).date
-        elif field == "created.year":
-            value = DateTimeFormatter(self.photo.date).year
-        elif field == "created.yy":
-            value = DateTimeFormatter(self.photo.date).yy
-        elif field == "created.mm":
-            value = DateTimeFormatter(self.photo.date).mm
-        elif field == "created.month":
-            value = DateTimeFormatter(self.photo.date).month
-        elif field == "created.mon":
-            value = DateTimeFormatter(self.photo.date).mon
-        elif field == "created.dd":
-            value = DateTimeFormatter(self.photo.date).dd
-        elif field == "created.dow":
-            value = DateTimeFormatter(self.photo.date).dow
-        elif field == "created.doy":
-            value = DateTimeFormatter(self.photo.date).doy
-        elif field == "created.hour":
-            value = DateTimeFormatter(self.photo.date).hour
-        elif field == "created.min":
-            value = DateTimeFormatter(self.photo.date).min
-        elif field == "created.sec":
-            value = DateTimeFormatter(self.photo.date).sec
-        elif field == "created.strftime":
-            if default:
-                try:
-                    value = self.photo.date.strftime(default[0])
-                except:
-                    raise ValueError(f"Invalid strftime template: '{default}'")
-            else:
-                value = None
-        elif field == "modified.date":
-            value = (
-                DateTimeFormatter(self.photo.date_modified).date
-                if self.photo.date_modified
-                else DateTimeFormatter(self.photo.date).date
+        elif field.startswith("created"):
+            value = format_date_field(self.photo.date, field, default)
+        elif field.startswith("modified"):
+            # if no modified date, use photo.date
+            value = format_date_field(
+                self.photo.date_modified or self.photo.date, field, default
             )
-        elif field == "modified.year":
-            value = (
-                DateTimeFormatter(self.photo.date_modified).year
-                if self.photo.date_modified
-                else DateTimeFormatter(self.photo.date).year
-            )
-        elif field == "modified.yy":
-            value = (
-                DateTimeFormatter(self.photo.date_modified).yy
-                if self.photo.date_modified
-                else DateTimeFormatter(self.photo.date).yy
-            )
-        elif field == "modified.mm":
-            value = (
-                DateTimeFormatter(self.photo.date_modified).mm
-                if self.photo.date_modified
-                else DateTimeFormatter(self.photo.date).mm
-            )
-        elif field == "modified.month":
-            value = (
-                DateTimeFormatter(self.photo.date_modified).month
-                if self.photo.date_modified
-                else DateTimeFormatter(self.photo.date).month
-            )
-        elif field == "modified.mon":
-            value = (
-                DateTimeFormatter(self.photo.date_modified).mon
-                if self.photo.date_modified
-                else DateTimeFormatter(self.photo.date).mon
-            )
-        elif field == "modified.dd":
-            value = (
-                DateTimeFormatter(self.photo.date_modified).dd
-                if self.photo.date_modified
-                else DateTimeFormatter(self.photo.date).dd
-            )
-        elif field == "modified.dow":
-            value = (
-                DateTimeFormatter(self.photo.date_modified).dow
-                if self.photo.date_modified
-                else DateTimeFormatter(self.photo.date).dow
-            )
-        elif field == "modified.doy":
-            value = (
-                DateTimeFormatter(self.photo.date_modified).doy
-                if self.photo.date_modified
-                else DateTimeFormatter(self.photo.date).doy
-            )
-        elif field == "modified.hour":
-            value = (
-                DateTimeFormatter(self.photo.date_modified).hour
-                if self.photo.date_modified
-                else DateTimeFormatter(self.photo.date).hour
-            )
-        elif field == "modified.min":
-            value = (
-                DateTimeFormatter(self.photo.date_modified).min
-                if self.photo.date_modified
-                else DateTimeFormatter(self.photo.date).min
-            )
-        elif field == "modified.sec":
-            value = (
-                DateTimeFormatter(self.photo.date_modified).sec
-                if self.photo.date_modified
-                else DateTimeFormatter(self.photo.date).sec
-            )
-        elif field == "modified.strftime":
-            if default:
-                try:
-                    date = self.photo.date_modified or self.photo.date
-                    value = date.strftime(default[0])
-                except:
-                    raise ValueError(f"Invalid strftime template: '{default}'")
-            else:
-                value = None
-        elif field == "place.name":
-            value = self.photo.place.name if self.photo.place else None
-        elif field == "place.country_code":
-            value = self.photo.place.country_code if self.photo.place else None
-        elif field == "place.name.country":
-            value = (
-                self.photo.place.names.country[0]
-                if self.photo.place and self.photo.place.names.country
-                else None
-            )
-        elif field == "place.name.state_province":
-            value = (
-                self.photo.place.names.state_province[0]
-                if self.photo.place and self.photo.place.names.state_province
-                else None
-            )
-        elif field == "place.name.city":
-            value = (
-                self.photo.place.names.city[0]
-                if self.photo.place and self.photo.place.names.city
-                else None
-            )
-        elif field == "place.name.area_of_interest":
-            value = (
-                self.photo.place.names.area_of_interest[0]
-                if self.photo.place and self.photo.place.names.area_of_interest
-                else None
-            )
-        elif field == "place.address":
-            value = (
-                self.photo.place.address_str
-                if self.photo.place and self.photo.place.address_str
-                else None
-            )
-        elif field == "place.address.street":
-            value = (
-                self.photo.place.address.street
-                if self.photo.place and self.photo.place.address.street
-                else None
-            )
-        elif field == "place.address.city":
-            value = (
-                self.photo.place.address.city
-                if self.photo.place and self.photo.place.address.city
-                else None
-            )
-        elif field == "place.address.state_province":
-            value = (
-                self.photo.place.address.state_province
-                if self.photo.place and self.photo.place.address.state_province
-                else None
-            )
-        elif field == "place.address.postal_code":
-            value = (
-                self.photo.place.address.postal_code
-                if self.photo.place and self.photo.place.address.postal_code
-                else None
-            )
-        elif field == "place.address.country":
-            value = (
-                self.photo.place.address.country
-                if self.photo.place and self.photo.place.address.country
-                else None
-            )
-        elif field == "place.address.country_code":
-            value = (
-                self.photo.place.address.iso_country_code
-                if self.photo.place and self.photo.place.address.iso_country_code
-                else None
-            )
+        elif field.startswith("place"):
+            value = get_place_value(self.photo, field)
         elif field == "searchinfo.season":
             value = self.photo.search_info.season if self.photo.search_info else None
         elif field == "exif.camera_make":
@@ -1743,19 +1542,18 @@ def format_str_value(value, format_str):
 
 def _get_album_by_name(photo, album):
     """Finds first album named album that photo is in and returns the AlbumInfo object, otherwise returns None"""
-    for album_info in photo.album_info:
-        if album_info.title == album:
-            return album_info
-    return None
+    return next(
+        (album_info for album_info in photo.album_info if album_info.title == album),
+        None,
+    )
 
 
 def _get_album_by_path(photo, folder_album_path):
     """finds the first album whose folder_album path matches and folder_album_path and returns the AlbumInfo object, otherwise, returns None"""
-
     for album_info in photo.album_info:
         # following code is how {folder_album} builds the folder path
         folder = "/".join(sanitize_dirname(f) for f in album_info.folder_names)
-        folder += "/" + sanitize_dirname(album_info.title)
+        folder += f"/{sanitize_dirname(album_info.title)}"
         if folder_album_path.endswith(folder):
             return album_info
     return None
@@ -1818,3 +1616,82 @@ def values_to_float(values: List[str]) -> List[str]:
         with suppress(ValueError):
             float_values.append(str(float(v)))
     return float_values
+
+
+def format_date_field(dt: datetime.datetime, field: str, args: List[str]) -> str:
+    """Format a date template field in format 'created', 'create.year' etc.
+
+    Args:
+        dt: datetime object
+        field: the field to format, e.g. 'created.year', 'today.strftime'
+        args: the argument to the field, e.g. '%Y' for strftime
+    """
+    fields = field.split(".")
+    if len(fields) == 1:
+        # no subfield, just return the formatted date str
+        return dt.date().isoformat()
+    if len(fields) > 2:
+        raise ValueError(f"Unhandled template value: {field}")
+    subfield = fields[1]
+    if subfield == "strftime":
+        if not args:
+            return None
+        try:
+            return dt.strftime(args[0])
+        except:
+            raise ValueError(f"Invalid strftime template: '{args}'")
+    else:
+        try:
+            return getattr(DateTimeFormatter(dt), subfield)
+        except AttributeError as e:
+            raise ValueError(f"Unhandled template value: {field}") from e
+
+
+def get_place_value(photo: "PhotoInfo", field: str):
+    """Get the value of a 'place' field by attribute
+
+    Args:
+        photo: the PhotoInfo object
+        field: the field to get, e.g. 'place.name'
+    """
+    if not photo.place:
+        return None
+
+    fields = field.split(".")
+    if len(fields) < 2:
+        raise ValueError(f"Invalid place field: {field}")
+    subfields = fields[1:]
+    if subfields[0] in ["name", "country_code"] and len(subfields) == 1:
+        return getattr(photo.place, subfields[0]) or None
+    elif subfields[0] == "name" and len(subfields) > 1:
+        if subfields[1] == "country":
+            return photo.place.names.country[0] if photo.place.names.country else None
+        elif subfields[1] == "state_province":
+            return (
+                photo.place.names.state_province[0]
+                if photo.place.names.state_province
+                else None
+            )
+        elif subfields[1] == "city":
+            return photo.place.names.city[0] if photo.place.names.city else None
+        elif subfields[1] == "area_of_interest":
+            return (
+                photo.place.names.area_of_interest[0]
+                if photo.place.names.area_of_interest
+                else None
+            )
+    elif subfields[0] == "address":
+        if len(subfields) == 1:
+            return photo.place.address_str
+        elif subfields[1] in [
+            "street",
+            "city",
+            "state_province",
+            "postal_code",
+            "country",
+        ]:
+            return getattr(photo.place.address, subfields[1]) or None
+        elif subfields[1] == "country_code":
+            return photo.place.address.iso_country_code or None
+    # did not find a match
+    raise ValueError(f"Unhandled template value: {field}")
