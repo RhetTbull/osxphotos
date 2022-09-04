@@ -885,11 +885,7 @@ class PhotoTemplate:
         elif field.startswith("modified"):
             # if no modified date, use photo.date
             value = format_date_field(
-                self.photo.date_modified
-                if self.photo.date_modified
-                else self.photo.date,
-                field,
-                default,
+                self.photo.date_modified or self.photo.date, field, default
             )
         elif field == "place.name":
             value = self.photo.place.name if self.photo.place else None
