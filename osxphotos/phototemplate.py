@@ -1644,7 +1644,7 @@ def format_date_field(dt: datetime.datetime, field: str, args: List[str]) -> str
         try:
             return getattr(DateTimeFormatter(dt), subfield)
         except AttributeError as e:
-            raise ValueError(f"Unhandled template value: {field}")
+            raise ValueError(f"Unhandled template value: {field}") from e
 
 
 def get_place_value(photo: "PhotoInfo", field: str):
