@@ -3,21 +3,21 @@
     Run with `osxphotos run detect_qrcodes.py`
 
     Run with `osxphotos run detect_qrcodes.py --help` for help
-    
-    You'll need to install opencv into your osxphotos environment.  This can be done with:
-    `osxphotos install opencv-python`
 
-    All the other dependencies should be already installed with osxphotos (e.g. rich, click)
+    All dependencies are already installed as part of a standard osxphotos install.
 """
 
 import datetime
 import json
 import os
 import os.path
-from typing import Optional
+from typing import List
 
 import click
-import cv2
+import objc
+import Quartz
+from Cocoa import NSURL
+from Foundation import NSDictionary
 from photoscript import Photo, PhotosLibrary
 from rich import print
 from rich.progress import Progress
@@ -29,12 +29,28 @@ from osxphotos.sqlitekvstore import SQLiteKVStore
 QRCODE_KEYWORD = "qrcode"
 
 
-def detect_qrcode_in_image_cv2(filename: str) -> Optional[str]:
-    """Detect QR Code in image file"""
-    image = cv2.imread(filename)
-    qr_detect = cv2.QRCodeDetector()
-    decoded_text, points, qrcode = qr_detect.detectAndDecode(image)
-    return decoded_text or None
+def detect_qrcodes_in_image(filepath: str) -> List[str]:
+    """Detect QR Codes in images using CIDetector and return text of the found QR Codes"""
+    with objc.autorelease_pool():
+        context = Quartz.CIContext.contextWithOptions_(None)
+        options = NSDictionary.dictionaryWithDictionary_(
+            {"CIDetectorAccuracy": Quartz.CIDetectorAccuracyHigh}
+        )
+        detector = Quartz.CIDetector.detectorOfType_context_options_(
+            Quartz.CIDetectorTypeQRCode, context, options
+        )
+
+        results = []
+        input_url = NSURL.fileURLWithPath_(filepath)
+        input_image = Quartz.CIImage.imageWithContentsOfURL_(input_url)
+        features = detector.featuresInImage_(input_image)
+
+        if not features:
+            return []
+        for idx in range(features.count()):
+            feature = features.objectAtIndex_(idx)
+            results.append(feature.messageString())
+        return results
 
 
 @click.command()
@@ -150,7 +166,7 @@ def detect_qrcodes(keyword, description, verbose_mode, dry_run, selected, reset)
             }
             verbose(f"Processing {photo.original_filename} ({photo.uuid})")
             num_processed += 1
-            if qrcode_text := detect_qrcode_in_image_cv2(photo_path):
+            if qrcode_text := detect_qrcodes_in_image(photo_path):
                 # add qrcode tag/keyword to photo
                 # osxphotos PhotoInfo objects are read-only but you can get a photoscript Photo object
                 # that allows you to modify certain data about the Photo via the Photos app AppleScript interface
@@ -158,7 +174,7 @@ def detect_qrcodes(keyword, description, verbose_mode, dry_run, selected, reset)
                 if not dry_run:
                     photo_.keywords = list(set(photo_.keywords + [keyword]))
                     if description:
-                        photo_.description = qrcode_text
+                        photo_.description = ", ".join(qrcode_text)
                 record["qrcode"] = qrcode_text
                 verbose(
                     f"Added {keyword} to {photo.original_filename} ({photo.uuid}), detected QR Code: {qrcode_text}"
