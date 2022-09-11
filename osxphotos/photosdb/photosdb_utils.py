@@ -47,12 +47,14 @@ def get_db_version(db_file):
         ).fetchall()
     ]
     if "LiGlobals" in result:
+        # it's a photos.db file
         c.execute(
             "SELECT value FROM LiGlobals WHERE LiGlobals.keyPath IS 'libraryVersion'"
         )
         version = c.fetchone()[0]
     elif "Z_METADATA" in result:
-        # assume it's a Photos 5+ library
+        # assume it's a Photos 5+ Photos.sqlite file
+        # get_model_version will find the exact version
         version = "5001"
     else:
         raise ValueError(f"Unknown database format: {db_file}")
@@ -75,8 +77,6 @@ def get_model_version(db_file):
 
     Returns: model version as str
     """
-
-    version = None
 
     (conn, c) = sqlite_open_ro(db_file)
 
