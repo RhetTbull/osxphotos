@@ -30,7 +30,7 @@ def get_db_version(db_file):
     """Gets the Photos DB version from LiGlobals table
 
     Args:
-        db_file: path to photos.db database file containing LiGlobals table
+        db_file: path to photos.db database file containing LiGlobals table or Photos.sqlite database file
 
     Returns: version as str
     """
@@ -40,8 +40,22 @@ def get_db_version(db_file):
     (conn, c) = sqlite_open_ro(db_file)
 
     # get database version
-    c.execute("SELECT value from LiGlobals where LiGlobals.keyPath is 'libraryVersion'")
-    version = c.fetchone()[0]
+    result = [
+        row[0]
+        for row in c.execute(
+            "SELECT name FROM sqlite_master WHERE type ='table' AND name NOT LIKE 'sqlite_%';"
+        ).fetchall()
+    ]
+    if "LiGlobals" in result:
+        c.execute(
+            "SELECT value FROM LiGlobals WHERE LiGlobals.keyPath IS 'libraryVersion'"
+        )
+        version = c.fetchone()[0]
+    elif "Z_METADATA" in result:
+        # assume it's a Photos 5+ library
+        version = "5001"
+    else:
+        raise ValueError(f"Unknown database format: {db_file}")
     conn.close()
 
     if version not in _TESTED_DB_VERSIONS:
