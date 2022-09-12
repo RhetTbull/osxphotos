@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>osxphotos.photoexporter - osxphotos 0.50.13 documentation</title>
+        <title>osxphotos.photoexporter - osxphotos 0.51.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.50.13 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.51.7 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.50.13 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.51.7 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -441,6 +441,36 @@
 <div class="viewcode-block" id="ExportResults"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportResults">[docs]</a><span class="k">class</span> <span class="nc">ExportResults</span><span class="p">:</span>
     <span class="sd">"""Results class which holds export results for export"""</span>
 
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">"_datetime"</span><span class="p">,</span>
+        <span class="s2">"converted_to_jpeg"</span><span class="p">,</span>
+        <span class="s2">"deleted_directories"</span><span class="p">,</span>
+        <span class="s2">"deleted_files"</span><span class="p">,</span>
+        <span class="s2">"error"</span><span class="p">,</span>
+        <span class="s2">"exif_updated"</span><span class="p">,</span>
+        <span class="s2">"exiftool_error"</span><span class="p">,</span>
+        <span class="s2">"exiftool_warning"</span><span class="p">,</span>
+        <span class="s2">"exported"</span><span class="p">,</span>
+        <span class="s2">"exported_album"</span><span class="p">,</span>
+        <span class="s2">"metadata_changed"</span><span class="p">,</span>
+        <span class="s2">"missing"</span><span class="p">,</span>
+        <span class="s2">"missing_album"</span><span class="p">,</span>
+        <span class="s2">"new"</span><span class="p">,</span>
+        <span class="s2">"sidecar_exiftool_skipped"</span><span class="p">,</span>
+        <span class="s2">"sidecar_exiftool_written"</span><span class="p">,</span>
+        <span class="s2">"sidecar_json_skipped"</span><span class="p">,</span>
+        <span class="s2">"sidecar_json_written"</span><span class="p">,</span>
+        <span class="s2">"sidecar_xmp_skipped"</span><span class="p">,</span>
+        <span class="s2">"sidecar_xmp_written"</span><span class="p">,</span>
+        <span class="s2">"skipped"</span><span class="p">,</span>
+        <span class="s2">"skipped_album"</span><span class="p">,</span>
+        <span class="s2">"to_touch"</span><span class="p">,</span>
+        <span class="s2">"touched"</span><span class="p">,</span>
+        <span class="s2">"updated"</span><span class="p">,</span>
+        <span class="s2">"xattr_skipped"</span><span class="p">,</span>
+        <span class="s2">"xattr_written"</span><span class="p">,</span>
+    <span class="p">]</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">converted_to_jpeg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -450,11 +480,11 @@
         <span class="n">exif_updated</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">exiftool_error</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">exiftool_warning</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">exported_album</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">exported</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">exported_album</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">metadata_changed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">missing_album</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">missing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">missing_album</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">new</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">sidecar_exiftool_skipped</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">sidecar_exiftool_written</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -462,8 +492,8 @@
         <span class="n">sidecar_json_written</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">sidecar_xmp_skipped</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">sidecar_xmp_written</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">skipped_album</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">skipped</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">skipped_album</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">to_touch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">touched</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">updated</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -471,36 +501,22 @@
         <span class="n">xattr_written</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">datetime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+        <span class="n">local_vars</span> <span class="o">=</span> <span class="nb">locals</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_datetime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">local_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[])</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">converted_to_jpeg</span> <span class="o">=</span> <span class="n">converted_to_jpeg</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">deleted_directories</span> <span class="o">=</span> <span class="n">deleted_directories</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">deleted_files</span> <span class="o">=</span> <span class="n">deleted_files</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="n">error</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">exif_updated</span> <span class="o">=</span> <span class="n">exif_updated</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">exiftool_error</span> <span class="o">=</span> <span class="n">exiftool_error</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">exiftool_warning</span> <span class="o">=</span> <span class="n">exiftool_warning</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">exported</span> <span class="o">=</span> <span class="n">exported</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">exported_album</span> <span class="o">=</span> <span class="n">exported_album</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">metadata_changed</span> <span class="o">=</span> <span class="n">metadata_changed</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">missing</span> <span class="o">=</span> <span class="n">missing</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">missing_album</span> <span class="o">=</span> <span class="n">missing_album</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">new</span> <span class="o">=</span> <span class="n">new</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sidecar_exiftool_skipped</span> <span class="o">=</span> <span class="n">sidecar_exiftool_skipped</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sidecar_exiftool_written</span> <span class="o">=</span> <span class="n">sidecar_exiftool_written</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sidecar_json_skipped</span> <span class="o">=</span> <span class="n">sidecar_json_skipped</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sidecar_json_written</span> <span class="o">=</span> <span class="n">sidecar_json_written</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sidecar_xmp_skipped</span> <span class="o">=</span> <span class="n">sidecar_xmp_skipped</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sidecar_xmp_written</span> <span class="o">=</span> <span class="n">sidecar_xmp_written</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">skipped</span> <span class="o">=</span> <span class="n">skipped</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">skipped_album</span> <span class="o">=</span> <span class="n">skipped_album</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">to_touch</span> <span class="o">=</span> <span class="n">to_touch</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">touched</span> <span class="o">=</span> <span class="n">touched</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">updated</span> <span class="o">=</span> <span class="n">updated</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">xattr_skipped</span> <span class="o">=</span> <span class="n">xattr_skipped</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">xattr_written</span> <span class="o">=</span> <span class="n">xattr_written</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">t</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="sd">"""Return list of attributes tracked by ExportResults"""</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">attr</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__slots__</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"_"</span><span class="p">)]</span>
 
-<div class="viewcode-block" id="ExportResults.all_files"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportResults.all_files">[docs]</a>    <span class="k">def</span> <span class="nf">all_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">datetime</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">"""Return datetime when ExportResults was created"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datetime</span>
+
+<div class="viewcode-block" id="ExportResults.all_files"><a class="viewcode-back" href="../../reference.html#osxphotos.ExportResults.all_files">[docs]</a>    <span class="k">def</span> <span class="nf">all_files</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">t</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="sd">"""return all filenames contained in results"""</span>
         <span class="n">files</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">exported</span>
@@ -522,65 +538,23 @@
         <span class="n">files</span> <span class="o">+=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">exiftool_error</span><span class="p">]</span>
         <span class="n">files</span> <span class="o">+=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">]</span>
 
-        <span class="n">files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">files</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">files</span></div>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">files</span><span class="p">))</span></div>
 
-    <span class="k">def</span> <span class="fm">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">exported</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">exported</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">new</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">new</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">updated</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">updated</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">skipped</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">skipped</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">exif_updated</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">exif_updated</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">touched</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">touched</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">to_touch</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">to_touch</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">converted_to_jpeg</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">converted_to_jpeg</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sidecar_json_written</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">sidecar_json_written</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sidecar_json_skipped</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">sidecar_json_skipped</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sidecar_exiftool_written</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">sidecar_exiftool_written</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sidecar_exiftool_skipped</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">sidecar_exiftool_skipped</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sidecar_xmp_written</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">sidecar_xmp_written</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sidecar_xmp_skipped</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">sidecar_xmp_skipped</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">missing</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">missing</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">error</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">exiftool_warning</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">exiftool_warning</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">exiftool_error</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">exiftool_error</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">deleted_files</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">deleted_files</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">deleted_directories</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">deleted_directories</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">exported_album</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">exported_album</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">skipped_album</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">skipped_album</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">missing_album</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">missing_album</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">metadata_changed</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">metadata_changed</span>
+    <span class="k">def</span> <span class="fm">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"ExportResults"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="o">!=</span> <span class="n">ExportResults</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"Can only add ExportResults to ExportResults"</span><span class="p">)</span>
 
+        <span class="k">for</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">)</span> <span class="o">+</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">attribute</span><span class="p">)</span>
+            <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="s2">"ExportResults("</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">"datetime=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">datetime</span><span class="si">}</span><span class="s2">"</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">",exported=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">exported</span><span class="si">}</span><span class="s2">"</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">",new=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">new</span><span class="si">}</span><span class="s2">"</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">",updated=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">updated</span><span class="si">}</span><span class="s2">"</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">",skipped=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">skipped</span><span class="si">}</span><span class="s2">"</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">",exif_updated=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">exif_updated</span><span class="si">}</span><span class="s2">"</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">",touched=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">touched</span><span class="si">}</span><span class="s2">"</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">",to_touch=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">to_touch</span><span class="si">}</span><span class="s2">"</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">",converted_to_jpeg=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">converted_to_jpeg</span><span class="si">}</span><span class="s2">"</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">",sidecar_json_written=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sidecar_json_written</span><span class="si">}</span><span class="s2">"</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">",sidecar_json_skipped=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sidecar_json_skipped</span><span class="si">}</span><span class="s2">"</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">",sidecar_exiftool_written=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sidecar_exiftool_written</span><span class="si">}</span><span class="s2">"</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">",sidecar_exiftool_skipped=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sidecar_exiftool_skipped</span><span class="si">}</span><span class="s2">"</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">",sidecar_xmp_written=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sidecar_xmp_written</span><span class="si">}</span><span class="s2">"</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">",sidecar_xmp_skipped=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sidecar_xmp_skipped</span><span class="si">}</span><span class="s2">"</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">",missing=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">missing</span><span class="si">}</span><span class="s2">"</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">",error=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="si">}</span><span class="s2">"</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">",exiftool_warning=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">exiftool_warning</span><span class="si">}</span><span class="s2">"</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">",exiftool_error=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">exiftool_error</span><span class="si">}</span><span class="s2">"</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">",deleted_files=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">deleted_files</span><span class="si">}</span><span class="s2">"</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">",deleted_directories=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">deleted_directories</span><span class="si">}</span><span class="s2">"</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">",exported_album=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">exported_album</span><span class="si">}</span><span class="s2">"</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">",skipped_album=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">skipped_album</span><span class="si">}</span><span class="s2">"</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">",missing_album=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">missing_album</span><span class="si">}</span><span class="s2">"</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">",metadata_changed=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata_changed</span><span class="si">}</span><span class="s2">"</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">"datetime=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_datetime</span><span class="si">}</span><span class="s2">, "</span>
+            <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">])</span>
             <span class="o">+</span> <span class="s2">")"</span>
         <span class="p">)</span></div>
 

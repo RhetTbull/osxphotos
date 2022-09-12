@@ -1932,6 +1932,7 @@ cog.out(get_template_field_table())
 |{edited}|True if photo has been edited (has adjustments), otherwise False; use in format '{edited?VALUE_IF_TRUE,VALUE_IF_FALSE}'|
 |{edited_version}|True if template is being rendered for the edited version of a photo, otherwise False. |
 |{favorite}|Photo has been marked as favorite?; True/False value, use in format '{favorite?VALUE_IF_TRUE,VALUE_IF_FALSE}'|
+|{created}|Photo's creation date in ISO format, e.g. '2020-03-22'|
 |{created.date}|Photo's creation date in ISO format, e.g. '2020-03-22'|
 |{created.year}|4-digit year of photo creation time|
 |{created.yy}|2-digit year of photo creation time|
@@ -1945,6 +1946,7 @@ cog.out(get_template_field_table())
 |{created.min}|2-digit minute of the photo creation time|
 |{created.sec}|2-digit second of the photo creation time|
 |{created.strftime}|Apply strftime template to file creation date/time. Should be used in form {created.strftime,TEMPLATE} where TEMPLATE is a valid strftime template, e.g. {created.strftime,%Y-%U} would result in year-week number of year: '2020-23'. If used with no template will return null value. See https://strftime.org/ for help on strftime templates.|
+|{modified}|Photo's modification date in ISO format, e.g. '2020-03-22'; uses creation date if photo is not modified|
 |{modified.date}|Photo's modification date in ISO format, e.g. '2020-03-22'; uses creation date if photo is not modified|
 |{modified.year}|4-digit year of photo modification time; uses creation date if photo is not modified|
 |{modified.yy}|2-digit year of photo modification time; uses creation date if photo is not modified|
@@ -1958,6 +1960,7 @@ cog.out(get_template_field_table())
 |{modified.min}|2-digit minute of the photo modification time; uses creation date if photo is not modified|
 |{modified.sec}|2-digit second of the photo modification time; uses creation date if photo is not modified|
 |{modified.strftime}|Apply strftime template to file modification date/time. Should be used in form {modified.strftime,TEMPLATE} where TEMPLATE is a valid strftime template, e.g. {modified.strftime,%Y-%U} would result in year-week number of year: '2020-23'. If used with no template will return null value. Uses creation date if photo is not modified. See https://strftime.org/ for help on strftime templates.|
+|{today}|Current date in iso format, e.g. '2020-03-22'|
 |{today.date}|Current date in iso format, e.g. '2020-03-22'|
 |{today.year}|4-digit year of current date|
 |{today.yy}|2-digit year of current date|
@@ -2009,7 +2012,7 @@ cog.out(get_template_field_table())
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.51.6'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.51.7'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>osxphotos.photosdb.photosdb - osxphotos 0.50.13 documentation</title>
+        <title>osxphotos.photosdb.photosdb - osxphotos 0.51.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">osxphotos 0.50.13 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">osxphotos 0.51.7 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.50.13 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.51.7 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -286,7 +286,14 @@
         <span class="n">labels_normalized_as_dict</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dbfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exiftool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rich</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">dbfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">exiftool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">rich</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_skip_searchinfo</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="sd">"""Create a new PhotosDB object.</span>
 
 <span class="sd">        Args:</span>
@@ -294,6 +301,7 @@
 <span class="sd">            verbose: optional callable function to use for printing verbose text during processing; if None (default), does not print output.</span>
 <span class="sd">            exiftool: optional path to exiftool for methods that require this (e.g. PhotoInfo.exiftool); if not provided, will search PATH</span>
 <span class="sd">            rich: use rich with verbose output</span>
+<span class="sd">            _skip_searchinfo: if True, will not process search data from psi.sqlite; useful for processing standalone Photos.sqlite file</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            FileNotFoundError if dbfile is not a valid Photos library.</span>
@@ -315,6 +323,7 @@
         <span class="k">elif</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">verbose</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"verbose must be callable"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_skip_searchinfo</span> <span class="o">=</span> <span class="n">_skip_searchinfo</span>
 
         <span class="c1"># define functions for adding markup</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_filepath</span> <span class="o">=</span> <span class="n">add_rich_markup_tag</span><span class="p">(</span><span class="s2">"filepath"</span><span class="p">,</span> <span class="n">rich</span><span class="o">=</span><span class="n">rich</span><span class="p">)</span>
@@ -1976,9 +1985,9 @@
                 <span class="s2">"parentfolder"</span><span class="p">:</span> <span class="n">album</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span>
                 <span class="s2">"pk"</span><span class="p">:</span> <span class="n">album</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span>
                 <span class="s2">"intrash"</span><span class="p">:</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">album</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">True</span><span class="p">,</span>
-                <span class="s2">"creation_date"</span><span class="p">:</span> <span class="n">album</span><span class="p">[</span><span class="mi">10</span><span class="p">],</span>
-                <span class="s2">"start_date"</span><span class="p">:</span> <span class="n">album</span><span class="p">[</span><span class="mi">11</span><span class="p">],</span>
-                <span class="s2">"end_date"</span><span class="p">:</span> <span class="n">album</span><span class="p">[</span><span class="mi">12</span><span class="p">],</span>
+                <span class="s2">"creation_date"</span><span class="p">:</span> <span class="n">album</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span> <span class="c1"># iPhone Photos.sqlite can have null value</span>
+                <span class="s2">"start_date"</span><span class="p">:</span> <span class="n">album</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">"end_date"</span><span class="p">:</span> <span class="n">album</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
                 <span class="s2">"customsortascending"</span><span class="p">:</span> <span class="n">album</span><span class="p">[</span><span class="mi">13</span><span class="p">],</span>
                 <span class="s2">"customsortkey"</span><span class="p">:</span> <span class="n">album</span><span class="p">[</span><span class="mi">14</span><span class="p">],</span>
             <span class="p">}</span>

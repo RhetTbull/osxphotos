@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>osxphotos.phototemplate - osxphotos 0.51.4 documentation</title>
+        <title>osxphotos.phototemplate - osxphotos 0.51.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.51.4 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.51.7 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.51.4 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.51.7 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -267,6 +267,7 @@
     <span class="s2">"</span><span class="si">{edited}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"True if photo has been edited (has adjustments), otherwise False; use in format '{edited?VALUE_IF_TRUE,VALUE_IF_FALSE}'"</span><span class="p">,</span>
     <span class="s2">"</span><span class="si">{edited_version}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"True if template is being rendered for the edited version of a photo, otherwise False. "</span><span class="p">,</span>
     <span class="s2">"</span><span class="si">{favorite}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"Photo has been marked as favorite?; True/False value, use in format '{favorite?VALUE_IF_TRUE,VALUE_IF_FALSE}'"</span><span class="p">,</span>
+    <span class="s2">"</span><span class="si">{created}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"Photo's creation date in ISO format, e.g. '2020-03-22'"</span><span class="p">,</span>
     <span class="s2">"</span><span class="si">{created.date}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"Photo's creation date in ISO format, e.g. '2020-03-22'"</span><span class="p">,</span>
     <span class="s2">"</span><span class="si">{created.year}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"4-digit year of photo creation time"</span><span class="p">,</span>
     <span class="s2">"</span><span class="si">{created.yy}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"2-digit year of photo creation time"</span><span class="p">,</span>
@@ -284,6 +285,7 @@
     <span class="o">+</span> <span class="s2">"{created.strftime,%Y-%U} would result in year-week number of year: '2020-23'. "</span>
     <span class="o">+</span> <span class="s2">"If used with no template will return null value. "</span>
     <span class="o">+</span> <span class="s2">"See https://strftime.org/ for help on strftime templates."</span><span class="p">,</span>
+    <span class="s2">"</span><span class="si">{modified}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"Photo's modification date in ISO format, e.g. '2020-03-22'; uses creation date if photo is not modified"</span><span class="p">,</span>
     <span class="s2">"</span><span class="si">{modified.date}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"Photo's modification date in ISO format, e.g. '2020-03-22'; uses creation date if photo is not modified"</span><span class="p">,</span>
     <span class="s2">"</span><span class="si">{modified.year}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"4-digit year of photo modification time; uses creation date if photo is not modified"</span><span class="p">,</span>
     <span class="s2">"</span><span class="si">{modified.yy}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"2-digit year of photo modification time; uses creation date if photo is not modified"</span><span class="p">,</span>
@@ -301,6 +303,7 @@
     <span class="o">+</span> <span class="s2">"{modified.strftime,%Y-%U} would result in year-week number of year: '2020-23'. "</span>
     <span class="o">+</span> <span class="s2">"If used with no template will return null value. Uses creation date if photo is not modified. "</span>
     <span class="o">+</span> <span class="s2">"See https://strftime.org/ for help on strftime templates."</span><span class="p">,</span>
+    <span class="s2">"</span><span class="si">{today}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"Current date in iso format, e.g. '2020-03-22'"</span><span class="p">,</span>
     <span class="s2">"</span><span class="si">{today.date}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"Current date in iso format, e.g. '2020-03-22'"</span><span class="p">,</span>
     <span class="s2">"</span><span class="si">{today.year}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"4-digit year of current date"</span><span class="p">,</span>
     <span class="s2">"</span><span class="si">{today.yy}</span><span class="s2">"</span><span class="p">:</span> <span class="s2">"2-digit year of current date"</span><span class="p">,</span>
@@ -1011,10 +1014,10 @@
 
 <div class="viewcode-block" id="PhotoTemplate.get_template_value"><a class="viewcode-back" href="../../reference.html#osxphotos.PhotoTemplate.get_template_value">[docs]</a>    <span class="k">def</span> <span class="nf">get_template_value</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">field</span><span class="p">,</span>
-        <span class="n">default</span><span class="p">,</span>
-        <span class="n">subfield</span><span class="p">,</span>
-        <span class="n">field_arg</span><span class="p">,</span>
+        <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">default</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">subfield</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">field_arg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="p">):</span>
         <span class="sd">"""lookup value for template field (single-value template substitutions)</span>
 
@@ -1041,38 +1044,8 @@
 
         <span class="c1"># wouldn't a switch/case statement be nice...</span>
         <span class="c1"># handle the fields that don't require a PhotoInfo object first</span>
-        <span class="k">if</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.date"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">date</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.year"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">year</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.yy"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">yy</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.mm"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">mm</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.month"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">month</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.mon"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">mon</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.dd"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">dd</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.dow"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">dow</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.doy"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">doy</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.hour"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">hour</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.min"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">min</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.sec"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span><span class="o">.</span><span class="n">sec</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"today.strftime"</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">default</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">default</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-                <span class="k">except</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid strftime template: '</span><span class="si">{</span><span class="n">default</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"today"</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">format_date_field</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">PUNCTUATION</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">PUNCTUATION</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"osxphotos_version"</span><span class="p">:</span>
@@ -1103,189 +1076,15 @@
             <span class="n">value</span> <span class="o">=</span> <span class="s2">"edited_version"</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">edited_version</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"favorite"</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="s2">"favorite"</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">favorite</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"created.date"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">date</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"created.year"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">year</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"created.yy"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">yy</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"created.mm"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">mm</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"created.month"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">month</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"created.mon"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">mon</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"created.dd"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">dd</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"created.dow"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">dow</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"created.doy"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">doy</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"created.hour"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">hour</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"created.min"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">min</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"created.sec"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">sec</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"created.strftime"</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">default</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">default</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-                <span class="k">except</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid strftime template: '</span><span class="si">{</span><span class="n">default</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"modified.date"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span><span class="p">)</span><span class="o">.</span><span class="n">date</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span>
-                <span class="k">else</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">date</span>
+        <span class="k">elif</span> <span class="n">field</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"created"</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">format_date_field</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">field</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"modified"</span><span class="p">):</span>
+            <span class="c1"># if no modified date, use photo.date</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">format_date_field</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">default</span>
             <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"modified.year"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span><span class="p">)</span><span class="o">.</span><span class="n">year</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span>
-                <span class="k">else</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">year</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"modified.yy"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span><span class="p">)</span><span class="o">.</span><span class="n">yy</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span>
-                <span class="k">else</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">yy</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"modified.mm"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span><span class="p">)</span><span class="o">.</span><span class="n">mm</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span>
-                <span class="k">else</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">mm</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"modified.month"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span><span class="p">)</span><span class="o">.</span><span class="n">month</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span>
-                <span class="k">else</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">month</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"modified.mon"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span><span class="p">)</span><span class="o">.</span><span class="n">mon</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span>
-                <span class="k">else</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">mon</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"modified.dd"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span><span class="p">)</span><span class="o">.</span><span class="n">dd</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span>
-                <span class="k">else</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">dd</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"modified.dow"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span><span class="p">)</span><span class="o">.</span><span class="n">dow</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span>
-                <span class="k">else</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">dow</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"modified.doy"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span><span class="p">)</span><span class="o">.</span><span class="n">doy</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span>
-                <span class="k">else</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">doy</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"modified.hour"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span><span class="p">)</span><span class="o">.</span><span class="n">hour</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span>
-                <span class="k">else</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">hour</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"modified.min"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span><span class="p">)</span><span class="o">.</span><span class="n">min</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span>
-                <span class="k">else</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">min</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"modified.sec"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span><span class="p">)</span><span class="o">.</span><span class="n">sec</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span>
-                <span class="k">else</span> <span class="n">DateTimeFormatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">sec</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"modified.strftime"</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">default</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date_modified</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">date</span>
-                    <span class="n">value</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">default</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-                <span class="k">except</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid strftime template: '</span><span class="si">{</span><span class="n">default</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"place.name"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"place.country_code"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">country_code</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"place.name.country"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">country</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">country</span>
-                <span class="k">else</span> <span class="kc">None</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"place.name.state_province"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">state_province</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">state_province</span>
-                <span class="k">else</span> <span class="kc">None</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"place.name.city"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">city</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">city</span>
-                <span class="k">else</span> <span class="kc">None</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"place.name.area_of_interest"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">area_of_interest</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">area_of_interest</span>
-                <span class="k">else</span> <span class="kc">None</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"place.address"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">address_str</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">address_str</span>
-                <span class="k">else</span> <span class="kc">None</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"place.address.street"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">address</span><span class="o">.</span><span class="n">street</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">address</span><span class="o">.</span><span class="n">street</span>
-                <span class="k">else</span> <span class="kc">None</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"place.address.city"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">address</span><span class="o">.</span><span class="n">city</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">address</span><span class="o">.</span><span class="n">city</span>
-                <span class="k">else</span> <span class="kc">None</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"place.address.state_province"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">address</span><span class="o">.</span><span class="n">state_province</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">address</span><span class="o">.</span><span class="n">state_province</span>
-                <span class="k">else</span> <span class="kc">None</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"place.address.postal_code"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">address</span><span class="o">.</span><span class="n">postal_code</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">address</span><span class="o">.</span><span class="n">postal_code</span>
-                <span class="k">else</span> <span class="kc">None</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"place.address.country"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">address</span><span class="o">.</span><span class="n">country</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">address</span><span class="o">.</span><span class="n">country</span>
-                <span class="k">else</span> <span class="kc">None</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"place.address.country_code"</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">address</span><span class="o">.</span><span class="n">iso_country_code</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">address</span><span class="o">.</span><span class="n">iso_country_code</span>
-                <span class="k">else</span> <span class="kc">None</span>
-            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">field</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"place"</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">get_place_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"searchinfo.season"</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">search_info</span><span class="o">.</span><span class="n">season</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="o">.</span><span class="n">search_info</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"exif.camera_make"</span><span class="p">:</span>
@@ -1758,7 +1557,7 @@
             <span class="c1"># if no uuid, then template is being validated but not actually run</span>
             <span class="c1"># so don't run the function</span>
             <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">elif</span> <span class="n">caller</span> <span class="o">==</span> <span class="s2">"export"</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">caller</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"export"</span><span class="p">,</span> <span class="s2">"query"</span><span class="p">]:</span>
             <span class="c1"># function signature is:</span>
             <span class="c1"># def example(photo: PhotoInfo, options: ExportOptions, args: Optional[str] = None, **kwargs) -&gt; Union[List, str]:</span>
             <span class="n">values</span> <span class="o">=</span> <span class="n">template_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photo</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">field_arg</span><span class="p">)</span>
@@ -1939,19 +1738,18 @@
 
 <span class="k">def</span> <span class="nf">_get_album_by_name</span><span class="p">(</span><span class="n">photo</span><span class="p">,</span> <span class="n">album</span><span class="p">):</span>
     <span class="sd">"""Finds first album named album that photo is in and returns the AlbumInfo object, otherwise returns None"""</span>
-    <span class="k">for</span> <span class="n">album_info</span> <span class="ow">in</span> <span class="n">photo</span><span class="o">.</span><span class="n">album_info</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">album_info</span><span class="o">.</span><span class="n">title</span> <span class="o">==</span> <span class="n">album</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">album_info</span>
-    <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="nb">next</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">album_info</span> <span class="k">for</span> <span class="n">album_info</span> <span class="ow">in</span> <span class="n">photo</span><span class="o">.</span><span class="n">album_info</span> <span class="k">if</span> <span class="n">album_info</span><span class="o">.</span><span class="n">title</span> <span class="o">==</span> <span class="n">album</span><span class="p">),</span>
+        <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_get_album_by_path</span><span class="p">(</span><span class="n">photo</span><span class="p">,</span> <span class="n">folder_album_path</span><span class="p">):</span>
     <span class="sd">"""finds the first album whose folder_album path matches and folder_album_path and returns the AlbumInfo object, otherwise, returns None"""</span>
-
     <span class="k">for</span> <span class="n">album_info</span> <span class="ow">in</span> <span class="n">photo</span><span class="o">.</span><span class="n">album_info</span><span class="p">:</span>
         <span class="c1"># following code is how {folder_album} builds the folder path</span>
         <span class="n">folder</span> <span class="o">=</span> <span class="s2">"/"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sanitize_dirname</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">album_info</span><span class="o">.</span><span class="n">folder_names</span><span class="p">)</span>
-        <span class="n">folder</span> <span class="o">+=</span> <span class="s2">"/"</span> <span class="o">+</span> <span class="n">sanitize_dirname</span><span class="p">(</span><span class="n">album_info</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+        <span class="n">folder</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"/</span><span class="si">{</span><span class="n">sanitize_dirname</span><span class="p">(</span><span class="n">album_info</span><span class="o">.</span><span class="n">title</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
         <span class="k">if</span> <span class="n">folder_album_path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">folder</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">album_info</span>
     <span class="k">return</span> <span class="kc">None</span>
@@ -2014,6 +1812,85 @@
         <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
             <span class="n">float_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span>
     <span class="k">return</span> <span class="n">float_values</span>
+
+
+<span class="k">def</span> <span class="nf">format_date_field</span><span class="p">(</span><span class="n">dt</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">"""Format a date template field in format 'created', 'create.year' etc.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dt: datetime object</span>
+<span class="sd">        field: the field to format, e.g. 'created.year', 'today.strftime'</span>
+<span class="sd">        args: the argument to the field, e.g. '%Y' for strftime</span>
+<span class="sd">    """</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># no subfield, just return the formatted date str</span>
+        <span class="k">return</span> <span class="n">dt</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unhandled template value: </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">subfield</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">subfield</span> <span class="o">==</span> <span class="s2">"strftime"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">dt</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid strftime template: '</span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">DateTimeFormatter</span><span class="p">(</span><span class="n">dt</span><span class="p">),</span> <span class="n">subfield</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unhandled template value: </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+
+
+<span class="k">def</span> <span class="nf">get_place_value</span><span class="p">(</span><span class="n">photo</span><span class="p">:</span> <span class="s2">"PhotoInfo"</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">"""Get the value of a 'place' field by attribute</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        photo: the PhotoInfo object</span>
+<span class="sd">        field: the field to get, e.g. 'place.name'</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">fields</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid place field: </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">subfields</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="k">if</span> <span class="n">subfields</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"name"</span><span class="p">,</span> <span class="s2">"country_code"</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">subfields</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="p">,</span> <span class="n">subfields</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">or</span> <span class="kc">None</span>
+    <span class="k">elif</span> <span class="n">subfields</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"name"</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">subfields</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">subfields</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"country"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">country</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">country</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="n">subfields</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"state_province"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">state_province</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">state_province</span>
+                <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">subfields</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"city"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">city</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">city</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="n">subfields</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"area_of_interest"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">area_of_interest</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">area_of_interest</span>
+                <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">subfields</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"address"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">subfields</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">address_str</span>
+        <span class="k">elif</span> <span class="n">subfields</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="s2">"street"</span><span class="p">,</span>
+            <span class="s2">"city"</span><span class="p">,</span>
+            <span class="s2">"state_province"</span><span class="p">,</span>
+            <span class="s2">"postal_code"</span><span class="p">,</span>
+            <span class="s2">"country"</span><span class="p">,</span>
+        <span class="p">]:</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">subfields</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="ow">or</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="n">subfields</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"country_code"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">photo</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">address</span><span class="o">.</span><span class="n">iso_country_code</span> <span class="ow">or</span> <span class="kc">None</span>
+    <span class="c1"># did not find a match</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unhandled template value: </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
         </article>
       </div>
