@@ -1,6 +1,6 @@
 """sqlite utils for use by osxphotos"""
 
-import os.path
+import logging
 import pathlib
 import sqlite3
 from typing import List, Tuple
@@ -25,19 +25,14 @@ def sqlite_db_is_locked(dbname):
     returns True if database is locked, otherwise False
     dbname: name of database to test"""
 
-    # first, check to see if lock file exists, if so, assume the file is locked
-    lock_name = f"{dbname}.lock"
-    if os.path.exists(lock_name):
-        return True
-
-    # no lock file so try to read from the database to see if it's locked
     locked = None
     try:
         (conn, c) = sqlite_open_ro(dbname)
         c.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;")
         conn.close()
         locked = False
-    except Exception:
+    except Exception as e:
+        logging.debug(f"sqlite_db_is_locked: {e}")
         locked = True
 
     return locked
