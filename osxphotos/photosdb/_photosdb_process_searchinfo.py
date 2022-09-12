@@ -54,6 +54,10 @@ def _process_searchinfo(self):
     self._db_searchinfo_labels = _db_searchinfo_labels = {}
     self._db_searchinfo_labels_normalized = _db_searchinfo_labels_normalized = {}
 
+    if self._skip_searchinfo:
+        logging.debug("Skipping search info processing")
+        return
+
     if self._db_version <= _PHOTOS_4_VERSION:
         raise NotImplementedError(
             f"search info not implemented for this database version"
@@ -102,7 +106,7 @@ def _process_searchinfo(self):
     # 7: groups.normalized_string,
     # 8: groups.lookup_identifier
 
-    for row in c:
+    for row in result:
         uuid = ints_to_uuid(row[1], row[2])
         # strings have null character appended, so strip it
         record = {

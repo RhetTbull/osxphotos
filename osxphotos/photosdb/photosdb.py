@@ -90,7 +90,14 @@ class PhotosDB:
         labels_normalized_as_dict,
     )
 
-    def __init__(self, dbfile=None, verbose=None, exiftool=None, rich=None):
+    def __init__(
+        self,
+        dbfile=None,
+        verbose=None,
+        exiftool=None,
+        rich=None,
+        _skip_searchinfo=False,
+    ):
         """Create a new PhotosDB object.
 
         Args:
@@ -98,6 +105,7 @@ class PhotosDB:
             verbose: optional callable function to use for printing verbose text during processing; if None (default), does not print output.
             exiftool: optional path to exiftool for methods that require this (e.g. PhotoInfo.exiftool); if not provided, will search PATH
             rich: use rich with verbose output
+            _skip_searchinfo: if True, will not process search data from psi.sqlite; useful for processing standalone Photos.sqlite file
 
         Raises:
             FileNotFoundError if dbfile is not a valid Photos library.
@@ -119,6 +127,7 @@ class PhotosDB:
         elif not callable(verbose):
             raise TypeError("verbose must be callable")
         self._verbose = verbose
+        self._skip_searchinfo = _skip_searchinfo
 
         # define functions for adding markup
         self._filepath = add_rich_markup_tag("filepath", rich=rich)
@@ -1780,9 +1789,9 @@ class PhotosDB:
                 "parentfolder": album[7],
                 "pk": album[8],
                 "intrash": False if album[9] == 0 else True,
-                "creation_date": album[10],
-                "start_date": album[11],
-                "end_date": album[12],
+                "creation_date": album[10] or 0, # iPhone Photos.sqlite can have null value
+                "start_date": album[11] or 0,
+                "end_date": album[12] or 0,
                 "customsortascending": album[13],
                 "customsortkey": album[14],
             }
