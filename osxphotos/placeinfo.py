@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from collections import namedtuple  # pylint: disable=syntax-error
 
 import yaml
-from bpylist import archiver
+from bpylist2 import archiver
 
 from ._constants import UNICODE_FORMAT
 from .utils import normalize_unicode

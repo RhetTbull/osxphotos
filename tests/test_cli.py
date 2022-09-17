@@ -3640,13 +3640,7 @@ def test_export_directory_template_locale():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         # set locale environment
-        os.environ["LANG"] = "de_DE.UTF-8"
-        os.environ["LC_COLLATE"] = "de_DE.UTF-8"
-        os.environ["LC_CTYPE"] = "de_DE.UTF-8"
-        os.environ["LC_MESSAGES"] = "de_DE.UTF-8"
-        os.environ["LC_MONETARY"] = "de_DE.UTF-8"
-        os.environ["LC_NUMERIC"] = "de_DE.UTF-8"
-        os.environ["LC_TIME"] = "de_DE.UTF-8"
+        os.environ["LC_ALL"] = "de_DE.UTF-8"
         locale.setlocale(locale.LC_ALL, "")
         result = runner.invoke(
             export,
