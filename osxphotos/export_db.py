@@ -740,10 +740,16 @@ class ExportDB:
 
     def _migrate_7_0_to_7_1(self, conn):
         c = conn.cursor()
-        c.execute("""ALTER TABLE export_data ADD COLUMN timestamp DATETIME;""")
+        # timestamp column should not exist but this prevents error if migration is run on an already migrated database
+        # reference #794
+        results = c.execute(
+            "SELECT COUNT(*) FROM pragma_table_info('export_data') WHERE name='timestamp';"
+        ).fetchone()
+        if results[0] == 0:
+            c.execute("""ALTER TABLE export_data ADD COLUMN timestamp DATETIME;""")
         c.execute(
             """
-            CREATE TRIGGER insert_timestamp_trigger
+            CREATE TRIGGER IF NOT EXISTS insert_timestamp_trigger
             AFTER INSERT ON export_data
             BEGIN
                 UPDATE export_data SET timestamp = STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW') WHERE id = NEW.id;
@@ -752,7 +758,7 @@ class ExportDB:
         )
         c.execute(
             """
-            CREATE TRIGGER update_timestamp_trigger
+            CREATE TRIGGER IF NOT EXISTS update_timestamp_trigger
             AFTER UPDATE On export_data
             BEGIN
                 UPDATE export_data SET timestamp = STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW') WHERE id = NEW.id;
