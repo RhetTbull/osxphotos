@@ -1516,7 +1516,7 @@ def _get_pathlib_value(field, value, quote):
     parts = field.split(".")
 
     if len(parts) == 1:
-        return shlex.quote(value) if quote else value
+        return shlex.quote(str(value)) if quote else str(value)
 
     path = pathlib.Path(value)
     for attribute in parts[1:]:
