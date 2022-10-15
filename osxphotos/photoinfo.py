@@ -1440,11 +1440,11 @@ class PhotoInfo:
             return []
 
         md = OSXMetaData(path)
-        detected_text = md.get_attribute("osxphotos_detected_text")
+        detected_text = md.get_xattr("osxphotos.metadata:detected_text", decode=json.loads)
         if detected_text is None:
             orientation = self.orientation or None
             detected_text = detect_text(path, orientation)
-            md.set_attribute("osxphotos_detected_text", detected_text)
+            md.set_xattr("osxphotos.metadata:detected_text", detected_text, encode=json.dumps)
         return detected_text
 
     @property

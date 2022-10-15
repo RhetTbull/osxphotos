@@ -11,10 +11,16 @@ import shlex
 import subprocess
 import sys
 import time
-from typing import Iterable, List, Tuple
+from typing import Iterable, List, Optional, Tuple
 
 import click
-import osxmetadata
+from osxmetadata import (
+    MDITEM_ATTRIBUTE_DATA,
+    MDITEM_ATTRIBUTE_SHORT_NAMES,
+    OSXMetaData,
+    Tag,
+)
+from osxmetadata.constants import _TAGS_NAMES
 
 import osxphotos
 from osxphotos._constants import (
@@ -86,7 +92,7 @@ from .common import (
 from .help import ExportCommand, get_help_msg
 from .list import _list_libraries
 from .param_types import ExportDBType, FunctionCall, TemplateString
-from .report_writer import report_writer_factory, ReportWriterNoOp
+from .report_writer import ReportWriterNoOp, report_writer_factory
 from .rich_progress import rich_progress
 from .verbose import get_verbose_console, time_stamp, verbose_print
 
@@ -2683,9 +2689,9 @@ def write_finder_tags(
         ]
         tags.extend(rendered_tags)
 
-    tags = [osxmetadata.Tag(tag) for tag in set(tags)]
+    tags = [Tag(tag, 0) for tag in set(tags)]
     for f in files:
-        md = osxmetadata.OSXMetaData(f)
+        md = OSXMetaData(f)
         if sorted(md.tags) != sorted(tags):
             verbose_(f"Writing Finder tags to {f}")
             md.tags = tags
@@ -2747,24 +2753,24 @@ def write_extended_attributes(
     written = set()
     skipped = set()
     for f in files:
-        md = osxmetadata.OSXMetaData(f)
+        md = OSXMetaData(f)
         for attr, value in attributes.items():
-            islist = osxmetadata.ATTRIBUTES[attr].list
+            attr_type = get_metadata_attribute_type(attr) or "str"
             if value:
-                value = ", ".join(value) if not islist else sorted(value)
-            file_value = md.get_attribute(attr)
+                value = sorted(list(value)) if attr_type == "list" else ", ".join(value)
+            file_value = md.get(attr)
 
-            if file_value and islist:
+            if file_value and attr_type == "lists":
                 file_value = sorted(file_value)
 
             if (not file_value and not value) or file_value == value:
                 # if both not set or both equal, nothing to do
-                # get_attribute returns None if not set and value will be [] if not set so can't directly compare
+                # get returns None if not set and value will be [] if not set so can't directly compare
                 verbose_(f"Skipping extended attribute {attr} for {f}: nothing to do")
                 skipped.add(f)
             else:
                 verbose_(f"Writing extended attribute {attr} to {f}")
-                md.set_attribute(attr, value)
+                md.set(attr, value)
                 written.add(f)
 
     return list(written), [f for f in skipped if f not in written]
@@ -2841,3 +2847,23 @@ def render_and_validate_report(report: str, exiftool_path: str, export_dir: str)
         sys.exit(1)
 
     return report
+
+
+def get_metadata_attribute_type(attr: str) -> Optional[str]:
+    """Get the type of a metadata attribute
+
+    Args:
+        attr: attribute name
+
+    Returns:
+        type of attribute as string or None if type is not known
+    """
+    if attr in MDITEM_ATTRIBUTE_SHORT_NAMES:
+        attr = MDITEM_ATTRIBUTE_SHORT_NAMES[attr]
+    return (
+        "list"
+        if attr in _TAGS_NAMES
+        else MDITEM_ATTRIBUTE_DATA[attr]["python_type"]
+        if attr in MDITEM_ATTRIBUTE_DATA
+        else None
+    )
