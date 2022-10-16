@@ -383,6 +383,16 @@
         "code",
         "bug"
       ]
+    },
+    {
+      "login": "dalisoft",
+      "name": "Davlatjon Shavkatov",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3511344?v=4",
+      "profile": "http://dalisoft.uz",
+      "contributions": [
+        "code",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
