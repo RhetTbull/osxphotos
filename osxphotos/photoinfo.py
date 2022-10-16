@@ -1440,11 +1440,29 @@ class PhotoInfo:
             return []
 
         md = OSXMetaData(path)
-        detected_text = md.get_attribute("osxphotos_detected_text")
+        try:
+
+            def decoder(val):
+                """Decode value from JSON"""
+                return json.loads(val.decode("utf-8"))
+
+            detected_text = md.get_xattr(
+                "osxphotos.metadata:detected_text", decode=decoder
+            )
+        except KeyError:
+            detected_text = None
         if detected_text is None:
             orientation = self.orientation or None
             detected_text = detect_text(path, orientation)
-            md.set_attribute("osxphotos_detected_text", detected_text)
+
+            def encoder(obj):
+                """Encode value as JSON"""
+                val = json.dumps(obj)
+                return val.encode("utf-8")
+
+            md.set_xattr(
+                "osxphotos.metadata:detected_text", detected_text, encode=encoder
+            )
         return detected_text
 
     @property

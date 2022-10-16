@@ -5,7 +5,7 @@ import re
 import typing as t
 
 import click
-import osxmetadata
+from osxmetadata import MDITEM_ATTRIBUTE_DATA, MDITEM_ATTRIBUTE_SHORT_NAMES
 from rich.console import Console
 from rich.markdown import Markdown
 
@@ -256,34 +256,46 @@ class ExportCommand(click.Command):
         formatter.write_text(
             """
 Some options (currently '--finder-tag-template', '--finder-tag-keywords', '-xattr-template') write
-additional metadata to extended attributes in the file. These options will only work
-if the destination filesystem supports extended attributes (most do).
+additional metadata accessible by Spotlight to facilitate searching. 
 For example, --finder-tag-keyword writes all keywords (including any specified by '--keyword-template'
 or other options) to Finder tags that are searchable in Spotlight using the syntax: 'tag:tagname'.
 For example, if you have images with keyword "Travel" then using '--finder-tag-keywords' you could quickly
 find those images in the Finder by typing 'tag:Travel' in the Spotlight search bar.
 Finder tags are written to the 'com.apple.metadata:_kMDItemUserTags' extended attribute.
-Unlike EXIF metadata, extended attributes do not modify the actual file. Most cloud storage services
-do not synch extended attributes. Dropbox does sync them and any changes to a file's extended attributes
+Unlike EXIF metadata, extended attributes do not modify the actual file;
+the metadata is written to extended attributes associated with the file and the Spotlight metadata database. 
+Most cloud storage services do not synch extended attributes. 
+Dropbox does sync them and any changes to a file's extended attributes
 will cause Dropbox to re-sync the files.
 
 The following attributes may be used with '--xattr-template':
 
             """
         )
+
+        # build help text from all the attribute names
+        # passed to click.HelpFormatter.write_dl for formatting
         attr_tuples = [
             (
                 rich_text("[bold]Attribute[/bold]", width=formatter.width),
                 rich_text("[bold]Description[/bold]", width=formatter.width),
-            ),
-            *[
-                (
-                    attr,
-                    f"{osxmetadata.ATTRIBUTES[attr].help} ({osxmetadata.ATTRIBUTES[attr].constant})",
-                )
-                for attr in EXTENDED_ATTRIBUTE_NAMES
-            ],
+            )
         ]
+        for attr_key in sorted(EXTENDED_ATTRIBUTE_NAMES):
+            # get short and long name
+            attr = MDITEM_ATTRIBUTE_SHORT_NAMES[attr_key]
+            short_name = MDITEM_ATTRIBUTE_DATA[attr]["short_name"]
+            long_name = MDITEM_ATTRIBUTE_DATA[attr]["name"]
+            constant = MDITEM_ATTRIBUTE_DATA[attr]["xattr_constant"]
+
+            # get help text
+            description = MDITEM_ATTRIBUTE_DATA[attr]["description"]
+            type_ = MDITEM_ATTRIBUTE_DATA[attr]["help_type"]
+            attr_help = f"{long_name}; {constant}; {description}; {type_}"
+
+            # add to list
+            attr_tuples.append((short_name, attr_help))
+
         formatter.write_dl(attr_tuples)
         formatter.write("\n")
         formatter.write_text(
