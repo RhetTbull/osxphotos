@@ -1142,13 +1142,12 @@ Options:
                                   value. Valid attributes are: 'authors',
                                   'comment', 'copyright', 'creator',
                                   'description', 'findercomment', 'headline',
-                                  'keywords', 'participants', 'projects',
-                                  'rating', 'subject', 'title', 'version'. For
-                                  example, to set Finder comment to the photo's
-                                  title and description: '--xattr-template
-                                  findercomment "{title}; {descr}" See Extended
-                                  Attributes below for additional details on
-                                  this option.
+                                  'participants', 'projects', 'starrating',
+                                  'subject', 'title', 'version'. For example, to
+                                  set Finder comment to the photo's title and
+                                  description: '--xattr-template findercomment
+                                  "{title}; {descr}" See Extended Attributes
+                                  below for additional details on this option.
   --directory DIRECTORY           Optional template for specifying name of
                                   output directory in the form '{name,DEFAULT}'.
                                   See below for additional details on templating
@@ -1389,65 +1388,64 @@ option to re-export the entire library thus rebuilding the
                              Extended Attributes                              
 
 Some options (currently '--finder-tag-template', '--finder-tag-keywords',
-'-xattr-template') write additional metadata to extended attributes in the
-file. These options will only work if the destination filesystem supports
-extended attributes (most do). For example, --finder-tag-keyword writes all
-keywords (including any specified by '--keyword-template' or other options) to
-Finder tags that are searchable in Spotlight using the syntax: 'tag:tagname'.
-For example, if you have images with keyword "Travel" then using '--finder-
-tag-keywords' you could quickly find those images in the Finder by typing
+'-xattr-template') write additional metadata accessible by Spotlight to
+facilitate searching.  For example, --finder-tag-keyword writes all keywords
+(including any specified by '--keyword-template' or other options) to Finder
+tags that are searchable in Spotlight using the syntax: 'tag:tagname'. For
+example, if you have images with keyword "Travel" then using '--finder-tag-
+keywords' you could quickly find those images in the Finder by typing
 'tag:Travel' in the Spotlight search bar. Finder tags are written to the
 'com.apple.metadata:_kMDItemUserTags' extended attribute. Unlike EXIF
-metadata, extended attributes do not modify the actual file. Most cloud
-storage services do not synch extended attributes. Dropbox does sync them and
-any changes to a file's extended attributes will cause Dropbox to re-sync the
-files.
+metadata, extended attributes do not modify the actual file; the metadata is
+written to extended attributes associated with the file and the Spotlight
+metadata database.  Most cloud storage services do not synch extended
+attributes.  Dropbox does sync them and any changes to a file's extended
+attributes will cause Dropbox to re-sync the files.
 
 The following attributes may be used with '--xattr-template':
 
 
 Attribute      Description
-authors        The author, or authors, of the contents of the file.  A list
-               of strings. (com.apple.metadata:kMDItemAuthors)
-comment        A comment related to the file.  This differs from the Finder
-               comment, kMDItemFinderComment.  A string.
-               (com.apple.metadata:kMDItemComment)
-copyright      The copyright owner of the file contents.  A string.
-               (com.apple.metadata:kMDItemCopyright)
-creator        Application used to create the document content (for example
-               “Word”, “Pages”, and so on).  A string.
-               (com.apple.metadata:kMDItemCreator)
-description    A description of the content of the resource.  The
-               description may include an abstract, table of contents,
-               reference to a graphical representation of content or a free-
-               text account of the content.  A string.
-               (com.apple.metadata:kMDItemDescription)
-findercomment  Finder comments for this file.  A string.
-               (com.apple.metadata:kMDItemFinderComment)
-headline       A publishable entry providing a synopsis of the contents of
-               the file.  A string. (com.apple.metadata:kMDItemHeadline)
-keywords       Keywords associated with this file. For example, “Birthday”,
-               “Important”, etc. This differs from Finder tags
-               (_kMDItemUserTags) which are keywords/tags shown in the
-               Finder and searchable in Spotlight using "tag:tag_name".  A
-               list of strings. (com.apple.metadata:kMDItemKeywords)
-participants   The list of people who are visible in an image or movie or
-               written about in a document. A list of strings.
-               (com.apple.metadata:kMDItemParticipants)
-projects       The list of projects that this file is part of. For example,
-               if you were working on a movie all of the files could be
-               marked as belonging to the project “My Movie”. A list of
-               strings. (com.apple.metadata:kMDItemProjects)
-rating         User rating of this item. For example, the stars rating of an
-               iTunes track. An integer.
-               (com.apple.metadata:kMDItemStarRating)
-subject        Subject of the this item. A string.
-               (com.apple.metadata:kMDItemSubject)
-title          The title of the file. For example, this could be the title
-               of a document, the name of a song, or the subject of an email
-               message. A string. (com.apple.metadata:kMDItemTitle)
-version        The version number of this file. A string.
-               (com.apple.metadata:kMDItemVersion)
+authors        kMDItemAuthors; com.apple.metadata:kMDItemAuthors; The
+               author, or authors, of the contents of the file.; list of
+               strings
+comment        kMDItemComment; com.apple.metadata:kMDItemComment; A comment
+               related to the file. This differs from the Finder comment,
+               kMDItemFinderComment.; string
+copyright      kMDItemCopyright; com.apple.metadata:kMDItemCopyright; The
+               copyright owner of the file contents.; string
+creator        kMDItemCreator; com.apple.metadata:kMDItemCreator;
+               Application used to create the document content (for example
+               "Word", "Pages", and so on).; string
+description    kMDItemDescription; com.apple.metadata:kMDItemDescription; A
+               description of the content of the resource. The description
+               may include an abstract, table of contents, reference to a
+               graphical representation of content or a free-text account of
+               the content.; string
+findercomment  kMDItemFinderComment;
+               com.apple.metadata:kMDItemFinderComment; Finder comments for
+               this file.; string
+headline       kMDItemHeadline; com.apple.metadata:kMDItemHeadline; A
+               publishable entry providing a synopsis of the contents of the
+               file. For example, "Apple Introduces the iPod Photo".; string
+participants   kMDItemParticipants; com.apple.metadata:kMDItemParticipants;
+               The list of people who are visible in an image or movie or
+               written about in a document.; list of strings
+projects       kMDItemProjects; com.apple.metadata:kMDItemProjects; The list
+               of projects that this file is part of. For example, if you
+               were working on a movie all of the files could be marked as
+               belonging to the project "My Movie".; list of strings
+starrating     kMDItemStarRating; com.apple.metadata:kMDItemStarRating; User
+               rating of this item. For example, the stars rating of an
+               iTunes track.; number
+subject        kMDItemSubject; com.apple.metadata:kMDItemSubject; Subject of
+               the this item.; string
+title          kMDItemTitle; com.apple.metadata:kMDItemTitle; The title of
+               the file. For example, this could be the title of a document,
+               the name of a song, or the subject of an email message.;
+               string
+version        kMDItemVersion; com.apple.metadata:kMDItemVersion; The
+               version number of this file.; string
 
 For additional information on extended attributes see: https://developer.apple
 .com/documentation/coreservices/file_metadata/mditem/common_metadata_attribute
@@ -1519,8 +1517,9 @@ Valid filters are:
  • shell_quote: Quotes the value for safe usage in the shell, e.g. My         
    file.jpeg => 'My file.jpeg'; only adds quotes if needed.                   
  • function: Run custom python function to filter value; use in format        
-   'function:/path/to/file.py::function_name'. See example at https://github.c
-   om/RhetTbull/osxphotos/blob/master/examples/template_filter.py             
+   'function:/path/to/file.py::function_name'. See example at                 
+   https://github.com/RhetTbull/osxphotos/blob/master/examples/template_filter
+   .py                                                                        
  • split(x): Split value into a list of values using x as delimiter, e.g.     
    'value1;value2' => ['value1', 'value2'] if used with split(;).             
  • autosplit: Automatically split delimited string into separate values; will 
@@ -2003,7 +2002,7 @@ Substitution                    Description
 {cr}                            A carriage return: '\r'
 {crlf}                          A carriage return + line feed: '\r\n'
 {tab}                           :A tab: '\t'
-{osxphotos_version}             The osxphotos version, e.g. '0.51.8'
+{osxphotos_version}             The osxphotos version, e.g. '0.52.0'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2487,7 +2486,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.51.8'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.52.0'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
