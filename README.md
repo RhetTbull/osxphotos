@@ -12,6 +12,8 @@
 
 OSXPhotos provides the ability to interact with and query Apple's Photos.app library on macOS. You can query the Photos library database — for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos.
 
+**NOTE: osxphotos does not currently run on python 3.11 due to issues with some of the dependencies. Please do not report any bugs related to python 3.11.  osxphotos does run on python 3.8, 3.9, or 3.10 so install one of those if you want to use osxphotos.**
+
 <p align="center"><img src="docs/screencast/demo.gif?raw=true" width="713" height="430"/></p>
 
 # Table of Contents
