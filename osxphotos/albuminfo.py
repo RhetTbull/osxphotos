@@ -302,6 +302,12 @@ class ImportInfo(AlbumInfoBaseClass):
             self._photos = self._db.photos_by_uuid(sorted_uuid)
             return self._photos
 
+    def __bool__(self):
+        """Always returns True
+        A photo without an import session will return None for import_info,
+        thus if import_info is not None, it must be a valid import_info object (#820)
+        """
+        return True
 
 class ProjectInfo(AlbumInfo):
     """
