@@ -55,9 +55,6 @@ def export(export_path, library_path, uuid):
                     coords = face.face_rect()
                     draw.rectangle(coords, width=3)
                     draw.ellipse(get_circle_points(face.center, 3), width=1)
-                    draw.text(face.mouth, "M", fill=(255, 255, 255, 255))
-                    draw.text(face.left_eye, "L", fill=(255, 255, 255, 255))
-                    draw.text(face.right_eye, "R", fill=(255, 255, 255, 255))
                 im.save(export[0])
             else:
                 print(f"no photos exported for {p.uuid}")
