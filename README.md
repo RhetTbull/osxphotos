@@ -73,6 +73,11 @@ Once you've installed osxphotos with pipx, to upgrade to the latest version:
 
     pipx upgrade osxphotos
 
+If you get an error during the installation, it's possible `pipx` attempted to install osxphotos with python 3.11 which osxphotos is not yet compatible with. In that case, try the following:
+
+* `brew install python@3.10`
+* `pipx install --python python3.10 osxphotos`
+
 ### Installation using pip
 
 You can also install directly from [pypi](https://pypi.org/project/osxphotos/):
