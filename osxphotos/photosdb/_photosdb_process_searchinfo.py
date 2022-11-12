@@ -9,8 +9,8 @@ import uuid as uuidlib
 from functools import lru_cache
 from pprint import pformat
 
-from .._constants import _PHOTOS_4_VERSION, SEARCH_CATEGORY_LABEL
-from ..sqlite_utils import sqlite_open_ro, sqlite_db_is_locked
+from .._constants import _PHOTOS_4_VERSION, search_category_factory
+from ..sqlite_utils import sqlite_db_is_locked, sqlite_open_ro
 from ..utils import normalize_unicode
 
 """
@@ -134,7 +134,8 @@ def _process_searchinfo(self):
         except KeyError:
             _db_searchinfo_categories[category] = [record["normalized_string"]]
 
-        if category == SEARCH_CATEGORY_LABEL:
+        categories = search_category_factory(self._photos_ver)
+        if category == categories.LABEL:
             label = record["content_string"]
             label_norm = record["normalized_string"]
             try:

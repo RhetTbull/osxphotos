@@ -69,7 +69,7 @@ def get_db_version(db_file):
     return version
 
 
-def get_model_version(db_file):
+def get_model_version(db_file: str) -> str:
     """Returns the database model version from Z_METADATA
 
     Args:
@@ -90,7 +90,7 @@ def get_model_version(db_file):
     return plist["PLModelVersion"]
 
 
-def get_db_model_version(db_file):
+def get_db_model_version(db_file: str) -> int:
     """Returns Photos version based on model version found in db_file
 
     Args:

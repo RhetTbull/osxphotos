@@ -1,27 +1,7 @@
 """ class for PhotoInfo exposing SearchInfo data such as labels 
 """
 
-from ._constants import (
-    _PHOTOS_4_VERSION,
-    SEARCH_CATEGORY_ACTIVITY,
-    SEARCH_CATEGORY_ALL_LOCALITY,
-    SEARCH_CATEGORY_BODY_OF_WATER,
-    SEARCH_CATEGORY_CITY,
-    SEARCH_CATEGORY_COUNTRY,
-    SEARCH_CATEGORY_HOLIDAY,
-    SEARCH_CATEGORY_LABEL,
-    SEARCH_CATEGORY_MEDIA_TYPES,
-    SEARCH_CATEGORY_MONTH,
-    SEARCH_CATEGORY_NEIGHBORHOOD,
-    SEARCH_CATEGORY_PLACE_NAME,
-    SEARCH_CATEGORY_SEASON,
-    SEARCH_CATEGORY_STATE,
-    SEARCH_CATEGORY_STATE_ABBREVIATION,
-    SEARCH_CATEGORY_STREET,
-    SEARCH_CATEGORY_VENUE,
-    SEARCH_CATEGORY_VENUE_TYPE,
-    SEARCH_CATEGORY_YEAR,
-)
+from ._constants import _PHOTOS_4_VERSION, search_category_factory
 
 __all__ = ["SearchInfo"]
 
@@ -38,6 +18,7 @@ class SearchInfo:
                 "search info not implemented for this database version"
             )
 
+        self._categories = search_category_factory(photo._db._photos_ver)
         self._photo = photo
         self._normalized = normalized
         self.uuid = photo.uuid
@@ -51,103 +32,103 @@ class SearchInfo:
     @property
     def labels(self):
         """return list of labels associated with Photo"""
-        return self._get_text_for_category(SEARCH_CATEGORY_LABEL)
+        return self._get_text_for_category(self._categories.LABEL)
 
     @property
     def place_names(self):
         """returns list of place names"""
-        return self._get_text_for_category(SEARCH_CATEGORY_PLACE_NAME)
+        return self._get_text_for_category(self._categories.PLACE_NAME)
 
     @property
     def streets(self):
         """returns list of street names"""
-        return self._get_text_for_category(SEARCH_CATEGORY_STREET)
+        return self._get_text_for_category(self._categories.STREET)
 
     @property
     def neighborhoods(self):
         """returns list of neighborhoods"""
-        return self._get_text_for_category(SEARCH_CATEGORY_NEIGHBORHOOD)
+        return self._get_text_for_category(self._categories.NEIGHBORHOOD)
 
     @property
     def locality_names(self):
         """returns list of other locality names"""
         locality = []
-        for category in SEARCH_CATEGORY_ALL_LOCALITY:
+        for category in self._categories.ALL_LOCALITY:
             locality += self._get_text_for_category(category)
         return locality
 
     @property
     def city(self):
         """returns city/town"""
-        city = self._get_text_for_category(SEARCH_CATEGORY_CITY)
+        city = self._get_text_for_category(self._categories.CITY)
         return city[0] if city else ""
 
     @property
     def state(self):
         """returns state name"""
-        state = self._get_text_for_category(SEARCH_CATEGORY_STATE)
+        state = self._get_text_for_category(self._categories.STATE)
         return state[0] if state else ""
 
     @property
     def state_abbreviation(self):
         """returns state abbreviation"""
-        abbrev = self._get_text_for_category(SEARCH_CATEGORY_STATE_ABBREVIATION)
+        abbrev = self._get_text_for_category(self._categories.STATE_ABBREVIATION)
         return abbrev[0] if abbrev else ""
 
     @property
     def country(self):
         """returns country name"""
-        country = self._get_text_for_category(SEARCH_CATEGORY_COUNTRY)
+        country = self._get_text_for_category(self._categories.COUNTRY)
         return country[0] if country else ""
 
     @property
     def month(self):
         """returns month name"""
-        month = self._get_text_for_category(SEARCH_CATEGORY_MONTH)
+        month = self._get_text_for_category(self._categories.MONTH)
         return month[0] if month else ""
 
     @property
     def year(self):
         """returns year"""
-        year = self._get_text_for_category(SEARCH_CATEGORY_YEAR)
+        year = self._get_text_for_category(self._categories.YEAR)
         return year[0] if year else ""
 
     @property
     def bodies_of_water(self):
         """returns list of body of water names"""
-        return self._get_text_for_category(SEARCH_CATEGORY_BODY_OF_WATER)
+        return self._get_text_for_category(self._categories.BODY_OF_WATER)
 
     @property
     def holidays(self):
         """returns list of holiday names"""
-        return self._get_text_for_category(SEARCH_CATEGORY_HOLIDAY)
+        return self._get_text_for_category(self._categories.HOLIDAY)
 
     @property
     def activities(self):
         """returns list of activity names"""
-        return self._get_text_for_category(SEARCH_CATEGORY_ACTIVITY)
+        return self._get_text_for_category(self._categories.ACTIVITY)
 
     @property
     def season(self):
         """returns season name"""
-        season = self._get_text_for_category(SEARCH_CATEGORY_SEASON)
+        season = self._get_text_for_category(self._categories.SEASON)
         return season[0] if season else ""
 
     @property
     def venues(self):
         """returns list of venue names"""
-        return self._get_text_for_category(SEARCH_CATEGORY_VENUE)
+        return self._get_text_for_category(self._categories.VENUE)
 
     @property
     def venue_types(self):
         """returns list of venue types"""
-        return self._get_text_for_category(SEARCH_CATEGORY_VENUE_TYPE)
+        return self._get_text_for_category(self._categories.VENUE_TYPE)
 
     @property
     def media_types(self):
         """returns list of media types (photo, video, panorama, etc)"""
         types = []
-        for category in SEARCH_CATEGORY_MEDIA_TYPES:
+        for category in self._categories.MEDIA_TYPES:
             types += self._get_text_for_category(category)
         return types
 
