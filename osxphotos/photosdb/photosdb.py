@@ -57,7 +57,7 @@ from ..photoinfo import PhotoInfo
 from ..phototemplate import RenderOptions
 from ..queryoptions import QueryOptions
 from ..rich_utils import add_rich_markup_tag
-from ..sqlite_utils import sqlite_open_ro, sqlite_db_is_locked
+from ..sqlite_utils import sqlite_db_is_locked, sqlite_open_ro
 from ..utils import (
     _check_file_exists,
     _get_os_version,
@@ -321,7 +321,10 @@ class PhotosDB:
             verbose(f"Database locked, creating temporary copy.")
             self._tmp_db = self._copy_db_file(self._dbfile)
 
+        # _db_version is set from photos.db
         self._db_version = get_db_version(self._tmp_db)
+        # _photos_version is set from Photos.sqlite which only exists for Photos 5+
+        self._photos_ver = 4 if self._db_version == 4 else 5
 
         # If Photos >= 5, actual data isn't in photos.db but in Photos.sqlite
         if int(self._db_version) > int(_PHOTOS_4_VERSION):
@@ -336,6 +339,8 @@ class PhotosDB:
                 if sqlite_db_is_locked(self._dbfile_actual):
                     verbose(f"Database locked, creating temporary copy.")
                     self._tmp_db = self._copy_db_file(self._dbfile_actual)
+            # set the photos version to actual value based on Photos.sqlite
+            self._photos_ver = get_db_model_version(self._tmp_db)
 
             if is_debug():
                 logging.debug(
@@ -588,7 +593,7 @@ class PhotosDB:
         """
         return sqlite_open_ro(self._tmp_db)
 
-    def _copy_db_file(self, fname):
+    def _copy_db_file(self, fname: str) -> str:
         """copies the sqlite database file to a temp file"""
         """ returns the name of the temp file """
         """ If sqlite shared memory and write-ahead log files exist, those are copied too """
@@ -647,8 +652,6 @@ class PhotosDB:
         verbose = self._verbose
         verbose("Processing database.")
         verbose(f"Database version: {self._num(self._db_version)}.")
-
-        self._photos_ver = 4  # only used in Photos 5+
 
         (conn, c) = sqlite_open_ro(self._tmp_db)
 
@@ -1604,8 +1607,8 @@ class PhotosDB:
         (conn, c) = sqlite_open_ro(self._tmp_db)
 
         # some of the tables/columns have different names in different versions of Photos
-        photos_ver = get_db_model_version(self._tmp_db)
-        self._photos_ver = photos_ver
+        # set local var for readability
+        photos_ver = self._photos_ver
         verbose(
             f"Database version: {self._num(self._db_version)}, {self._num(photos_ver)}."
         )
