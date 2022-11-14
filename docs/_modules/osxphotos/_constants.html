@@ -1,13 +1,13 @@
 <!doctype html>
-<html class="no-js">
+<html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>osxphotos._constants - osxphotos 0.51.7 documentation</title>
+    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
+        <title>osxphotos._constants - osxphotos 0.54.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.51.7 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.54.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.51.7 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.54.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -179,7 +179,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -194,24 +195,24 @@
         </div>
         <article role="main">
           <h1>Source code for osxphotos._constants</h1><div class="highlight"><pre>
-<span></span><span class="sd">"""</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Constants used by osxphotos </span>
-<span class="sd">"""</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os.path</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 
-<span class="n">APP_NAME</span> <span class="o">=</span> <span class="s2">"osxphotos"</span>
+<span class="n">APP_NAME</span> <span class="o">=</span> <span class="s2">&quot;osxphotos&quot;</span>
 
-<span class="n">OSXPHOTOS_URL</span> <span class="o">=</span> <span class="s2">"https://github.com/RhetTbull/osxphotos"</span>
+<span class="n">OSXPHOTOS_URL</span> <span class="o">=</span> <span class="s2">&quot;https://github.com/RhetTbull/osxphotos&quot;</span>
 
 <span class="c1"># Time delta: add this to Photos times to get unix time</span>
 <span class="c1"># Apple Epoch is Jan 1, 2001</span>
 <span class="n">TIME_DELTA</span> <span class="o">=</span> <span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2001</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">1970</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
 
 <span class="c1"># Unicode format to use for comparing strings</span>
-<span class="n">UNICODE_FORMAT</span> <span class="o">=</span> <span class="s2">"NFC"</span>
+<span class="n">UNICODE_FORMAT</span> <span class="o">=</span> <span class="s2">&quot;NFC&quot;</span>
 
 <span class="c1"># which Photos library database versions have been tested</span>
 <span class="c1"># Photos 2.0 (10.12.6) == 2622</span>
@@ -219,23 +220,23 @@
 <span class="c1"># Photos 4.0 (10.14.5) == 4016</span>
 <span class="c1"># Photos 4.0 (10.14.6) == 4025</span>
 <span class="c1"># Photos 5.0 (10.15.0) == 6000 or 5001</span>
-<span class="n">_TESTED_DB_VERSIONS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"6000"</span><span class="p">,</span> <span class="s2">"5001"</span><span class="p">,</span> <span class="s2">"4025"</span><span class="p">,</span> <span class="s2">"4016"</span><span class="p">,</span> <span class="s2">"3301"</span><span class="p">,</span> <span class="s2">"2622"</span><span class="p">]</span>
+<span class="n">_TESTED_DB_VERSIONS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;6000&quot;</span><span class="p">,</span> <span class="s2">&quot;5001&quot;</span><span class="p">,</span> <span class="s2">&quot;4025&quot;</span><span class="p">,</span> <span class="s2">&quot;4016&quot;</span><span class="p">,</span> <span class="s2">&quot;3301&quot;</span><span class="p">,</span> <span class="s2">&quot;2622&quot;</span><span class="p">]</span>
 
 <span class="c1"># database model versions (applies to Photos 5, Photos 6)</span>
 <span class="c1"># these come from PLModelVersion key in binary plist in Z_METADATA.Z_PLIST</span>
 <span class="c1"># Photos 5 (10.15.1) == 13537</span>
 <span class="c1"># Photos 5 (10.15.4, 10.15.5, 10.15.6) == 13703</span>
 <span class="c1"># Photos 6 (10.16.0 Beta) == 14104</span>
-<span class="n">_TEST_MODEL_VERSIONS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"13537"</span><span class="p">,</span> <span class="s2">"13703"</span><span class="p">,</span> <span class="s2">"14104"</span><span class="p">]</span>
+<span class="n">_TEST_MODEL_VERSIONS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;13537&quot;</span><span class="p">,</span> <span class="s2">&quot;13703&quot;</span><span class="p">,</span> <span class="s2">&quot;14104&quot;</span><span class="p">]</span>
 
-<span class="n">_PHOTOS_2_VERSION</span> <span class="o">=</span> <span class="s2">"2622"</span>
+<span class="n">_PHOTOS_2_VERSION</span> <span class="o">=</span> <span class="s2">&quot;2622&quot;</span>
 
 <span class="c1"># only version 3 - 4 have RKVersion.selfPortrait</span>
-<span class="n">_PHOTOS_3_VERSION</span> <span class="o">=</span> <span class="s2">"3301"</span>
+<span class="n">_PHOTOS_3_VERSION</span> <span class="o">=</span> <span class="s2">&quot;3301&quot;</span>
 
 <span class="c1"># versions 5.0 and later have a different database structure</span>
-<span class="n">_PHOTOS_4_VERSION</span> <span class="o">=</span> <span class="s2">"4025"</span>  <span class="c1"># latest Mojove version on 10.14.6</span>
-<span class="n">_PHOTOS_5_VERSION</span> <span class="o">=</span> <span class="s2">"5000"</span>  <span class="c1"># I've seen both 5001 and 6000.  6000 is most common on Catalina and up but there are some version 5001 database in the wild</span>
+<span class="n">_PHOTOS_4_VERSION</span> <span class="o">=</span> <span class="s2">&quot;4025&quot;</span>  <span class="c1"># latest Mojove version on 10.14.6</span>
+<span class="n">_PHOTOS_5_VERSION</span> <span class="o">=</span> <span class="s2">&quot;5000&quot;</span>  <span class="c1"># I&#39;ve seen both 5001 and 6000.  6000 is most common on Catalina and up but there are some version 5001 database in the wild</span>
 
 <span class="c1"># Ranges for model version by Photos version</span>
 <span class="n">_PHOTOS_5_MODEL_VERSION</span> <span class="o">=</span> <span class="p">[</span><span class="mi">13000</span><span class="p">,</span> <span class="mi">13999</span><span class="p">]</span>
@@ -246,97 +247,98 @@
 <span class="c1"># some table names differ between Photos 5 and Photos 6</span>
 <span class="n">_DB_TABLE_NAMES</span> <span class="o">=</span> <span class="p">{</span>
     <span class="mi">5</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">"ASSET"</span><span class="p">:</span> <span class="s2">"ZGENERICASSET"</span><span class="p">,</span>
-        <span class="s2">"KEYWORD_JOIN"</span><span class="p">:</span> <span class="s2">"Z_1KEYWORDS.Z_37KEYWORDS"</span><span class="p">,</span>
-        <span class="s2">"ALBUM_JOIN"</span><span class="p">:</span> <span class="s2">"Z_26ASSETS.Z_34ASSETS"</span><span class="p">,</span>
-        <span class="s2">"ALBUM_SORT_ORDER"</span><span class="p">:</span> <span class="s2">"Z_26ASSETS.Z_FOK_34ASSETS"</span><span class="p">,</span>
-        <span class="s2">"IMPORT_FOK"</span><span class="p">:</span> <span class="s2">"ZGENERICASSET.Z_FOK_IMPORTSESSION"</span><span class="p">,</span>
-        <span class="s2">"DEPTH_STATE"</span><span class="p">:</span> <span class="s2">"ZGENERICASSET.ZDEPTHSTATES"</span><span class="p">,</span>
-        <span class="s2">"UTI_ORIGINAL"</span><span class="p">:</span> <span class="s2">"ZINTERNALRESOURCE.ZUNIFORMTYPEIDENTIFIER"</span><span class="p">,</span>
-        <span class="s2">"ASSET_ALBUM_JOIN"</span><span class="p">:</span> <span class="s2">"Z_26ASSETS.Z_26ALBUMS"</span><span class="p">,</span>
-        <span class="s2">"ASSET_ALBUM_TABLE"</span><span class="p">:</span> <span class="s2">"Z_26ASSETS"</span><span class="p">,</span>
-        <span class="s2">"HDR_TYPE"</span><span class="p">:</span> <span class="s2">"ZCUSTOMRENDEREDVALUE"</span><span class="p">,</span>
+        <span class="s2">&quot;ASSET&quot;</span><span class="p">:</span> <span class="s2">&quot;ZGENERICASSET&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;KEYWORD_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_1KEYWORDS.Z_37KEYWORDS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ALBUM_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_26ASSETS.Z_34ASSETS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ALBUM_SORT_ORDER&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_26ASSETS.Z_FOK_34ASSETS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;IMPORT_FOK&quot;</span><span class="p">:</span> <span class="s2">&quot;ZGENERICASSET.Z_FOK_IMPORTSESSION&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DEPTH_STATE&quot;</span><span class="p">:</span> <span class="s2">&quot;ZGENERICASSET.ZDEPTHSTATES&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;UTI_ORIGINAL&quot;</span><span class="p">:</span> <span class="s2">&quot;ZINTERNALRESOURCE.ZUNIFORMTYPEIDENTIFIER&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ASSET_ALBUM_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_26ASSETS.Z_26ALBUMS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ASSET_ALBUM_TABLE&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_26ASSETS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;HDR_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;ZCUSTOMRENDEREDVALUE&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="mi">6</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">"ASSET"</span><span class="p">:</span> <span class="s2">"ZASSET"</span><span class="p">,</span>
-        <span class="s2">"KEYWORD_JOIN"</span><span class="p">:</span> <span class="s2">"Z_1KEYWORDS.Z_36KEYWORDS"</span><span class="p">,</span>
-        <span class="s2">"ALBUM_JOIN"</span><span class="p">:</span> <span class="s2">"Z_26ASSETS.Z_3ASSETS"</span><span class="p">,</span>
-        <span class="s2">"ALBUM_SORT_ORDER"</span><span class="p">:</span> <span class="s2">"Z_26ASSETS.Z_FOK_3ASSETS"</span><span class="p">,</span>
-        <span class="s2">"IMPORT_FOK"</span><span class="p">:</span> <span class="s2">"null"</span><span class="p">,</span>
-        <span class="s2">"DEPTH_STATE"</span><span class="p">:</span> <span class="s2">"ZASSET.ZDEPTHTYPE"</span><span class="p">,</span>
-        <span class="s2">"UTI_ORIGINAL"</span><span class="p">:</span> <span class="s2">"ZINTERNALRESOURCE.ZUNIFORMTYPEIDENTIFIER"</span><span class="p">,</span>
-        <span class="s2">"ASSET_ALBUM_JOIN"</span><span class="p">:</span> <span class="s2">"Z_26ASSETS.Z_26ALBUMS"</span><span class="p">,</span>
-        <span class="s2">"ASSET_ALBUM_TABLE"</span><span class="p">:</span> <span class="s2">"Z_26ASSETS"</span><span class="p">,</span>
-        <span class="s2">"HDR_TYPE"</span><span class="p">:</span> <span class="s2">"ZCUSTOMRENDEREDVALUE"</span><span class="p">,</span>
+        <span class="s2">&quot;ASSET&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;KEYWORD_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_1KEYWORDS.Z_36KEYWORDS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ALBUM_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_26ASSETS.Z_3ASSETS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ALBUM_SORT_ORDER&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_26ASSETS.Z_FOK_3ASSETS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;IMPORT_FOK&quot;</span><span class="p">:</span> <span class="s2">&quot;null&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DEPTH_STATE&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET.ZDEPTHTYPE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;UTI_ORIGINAL&quot;</span><span class="p">:</span> <span class="s2">&quot;ZINTERNALRESOURCE.ZUNIFORMTYPEIDENTIFIER&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ASSET_ALBUM_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_26ASSETS.Z_26ALBUMS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ASSET_ALBUM_TABLE&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_26ASSETS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;HDR_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;ZCUSTOMRENDEREDVALUE&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="mi">7</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">"ASSET"</span><span class="p">:</span> <span class="s2">"ZASSET"</span><span class="p">,</span>
-        <span class="s2">"KEYWORD_JOIN"</span><span class="p">:</span> <span class="s2">"Z_1KEYWORDS.Z_38KEYWORDS"</span><span class="p">,</span>
-        <span class="s2">"ALBUM_JOIN"</span><span class="p">:</span> <span class="s2">"Z_27ASSETS.Z_3ASSETS"</span><span class="p">,</span>
-        <span class="s2">"ALBUM_SORT_ORDER"</span><span class="p">:</span> <span class="s2">"Z_27ASSETS.Z_FOK_3ASSETS"</span><span class="p">,</span>
-        <span class="s2">"IMPORT_FOK"</span><span class="p">:</span> <span class="s2">"null"</span><span class="p">,</span>
-        <span class="s2">"DEPTH_STATE"</span><span class="p">:</span> <span class="s2">"ZASSET.ZDEPTHTYPE"</span><span class="p">,</span>
-        <span class="s2">"UTI_ORIGINAL"</span><span class="p">:</span> <span class="s2">"ZINTERNALRESOURCE.ZCOMPACTUTI"</span><span class="p">,</span>
-        <span class="s2">"ASSET_ALBUM_JOIN"</span><span class="p">:</span> <span class="s2">"Z_27ASSETS.Z_27ALBUMS"</span><span class="p">,</span>
-        <span class="s2">"ASSET_ALBUM_TABLE"</span><span class="p">:</span> <span class="s2">"Z_27ASSETS"</span><span class="p">,</span>
-        <span class="s2">"HDR_TYPE"</span><span class="p">:</span> <span class="s2">"ZHDRTYPE"</span><span class="p">,</span>
+        <span class="s2">&quot;ASSET&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;KEYWORD_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_1KEYWORDS.Z_38KEYWORDS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ALBUM_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_27ASSETS.Z_3ASSETS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ALBUM_SORT_ORDER&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_27ASSETS.Z_FOK_3ASSETS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;IMPORT_FOK&quot;</span><span class="p">:</span> <span class="s2">&quot;null&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DEPTH_STATE&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET.ZDEPTHTYPE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;UTI_ORIGINAL&quot;</span><span class="p">:</span> <span class="s2">&quot;ZINTERNALRESOURCE.ZCOMPACTUTI&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ASSET_ALBUM_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_27ASSETS.Z_27ALBUMS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ASSET_ALBUM_TABLE&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_27ASSETS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;HDR_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;ZHDRTYPE&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="mi">8</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">"ASSET"</span><span class="p">:</span> <span class="s2">"ZASSET"</span><span class="p">,</span>
-        <span class="s2">"KEYWORD_JOIN"</span><span class="p">:</span> <span class="s2">"Z_1KEYWORDS.Z_40KEYWORDS"</span><span class="p">,</span>
-        <span class="s2">"ALBUM_JOIN"</span><span class="p">:</span> <span class="s2">"Z_28ASSETS.Z_3ASSETS"</span><span class="p">,</span>
-        <span class="s2">"ALBUM_SORT_ORDER"</span><span class="p">:</span> <span class="s2">"Z_28ASSETS.Z_FOK_3ASSETS"</span><span class="p">,</span>
-        <span class="s2">"IMPORT_FOK"</span><span class="p">:</span> <span class="s2">"null"</span><span class="p">,</span>
-        <span class="s2">"DEPTH_STATE"</span><span class="p">:</span> <span class="s2">"ZASSET.ZDEPTHTYPE"</span><span class="p">,</span>
-        <span class="s2">"UTI_ORIGINAL"</span><span class="p">:</span> <span class="s2">"ZINTERNALRESOURCE.ZCOMPACTUTI"</span><span class="p">,</span>
-        <span class="s2">"ASSET_ALBUM_JOIN"</span><span class="p">:</span> <span class="s2">"Z_28ASSETS.Z_28ALBUMS"</span><span class="p">,</span>
-        <span class="s2">"ASSET_ALBUM_TABLE"</span><span class="p">:</span> <span class="s2">"Z_28ASSETS"</span><span class="p">,</span>
-        <span class="s2">"HDR_TYPE"</span><span class="p">:</span> <span class="s2">"ZHDRTYPE"</span><span class="p">,</span>
+        <span class="s2">&quot;ASSET&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;KEYWORD_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_1KEYWORDS.Z_40KEYWORDS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ALBUM_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_28ASSETS.Z_3ASSETS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ALBUM_SORT_ORDER&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_28ASSETS.Z_FOK_3ASSETS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;IMPORT_FOK&quot;</span><span class="p">:</span> <span class="s2">&quot;null&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DEPTH_STATE&quot;</span><span class="p">:</span> <span class="s2">&quot;ZASSET.ZDEPTHTYPE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;UTI_ORIGINAL&quot;</span><span class="p">:</span> <span class="s2">&quot;ZINTERNALRESOURCE.ZCOMPACTUTI&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ASSET_ALBUM_JOIN&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_28ASSETS.Z_28ALBUMS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ASSET_ALBUM_TABLE&quot;</span><span class="p">:</span> <span class="s2">&quot;Z_28ASSETS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;HDR_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;ZHDRTYPE&quot;</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">}</span>
 
 <span class="c1"># which version operating systems have been tested</span>
 <span class="n">_TESTED_OS_VERSIONS</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="p">(</span><span class="s2">"10"</span><span class="p">,</span> <span class="s2">"12"</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">"10"</span><span class="p">,</span> <span class="s2">"13"</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">"10"</span><span class="p">,</span> <span class="s2">"14"</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">"10"</span><span class="p">,</span> <span class="s2">"15"</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">"10"</span><span class="p">,</span> <span class="s2">"16"</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">"11"</span><span class="p">,</span> <span class="s2">"0"</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">"11"</span><span class="p">,</span> <span class="s2">"1"</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">"11"</span><span class="p">,</span> <span class="s2">"2"</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">"11"</span><span class="p">,</span> <span class="s2">"3"</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">"11"</span><span class="p">,</span> <span class="s2">"4"</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">"11"</span><span class="p">,</span> <span class="s2">"5"</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">"11"</span><span class="p">,</span> <span class="s2">"6"</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">"12"</span><span class="p">,</span> <span class="s2">"0"</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">"12"</span><span class="p">,</span> <span class="s2">"1"</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">"12"</span><span class="p">,</span> <span class="s2">"2"</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">"12"</span><span class="p">,</span> <span class="s2">"3"</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">"12"</span><span class="p">,</span> <span class="s2">"4"</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">"12"</span><span class="p">,</span> <span class="s2">"5"</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">"12"</span><span class="p">,</span> <span class="s2">"6"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;10&quot;</span><span class="p">,</span> <span class="s2">&quot;12&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;10&quot;</span><span class="p">,</span> <span class="s2">&quot;13&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;10&quot;</span><span class="p">,</span> <span class="s2">&quot;14&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;10&quot;</span><span class="p">,</span> <span class="s2">&quot;15&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;10&quot;</span><span class="p">,</span> <span class="s2">&quot;16&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;11&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;11&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;11&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;11&quot;</span><span class="p">,</span> <span class="s2">&quot;3&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;11&quot;</span><span class="p">,</span> <span class="s2">&quot;4&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;11&quot;</span><span class="p">,</span> <span class="s2">&quot;5&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;11&quot;</span><span class="p">,</span> <span class="s2">&quot;6&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;11&quot;</span><span class="p">,</span> <span class="s2">&quot;7&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;12&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;12&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;12&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;12&quot;</span><span class="p">,</span> <span class="s2">&quot;3&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;12&quot;</span><span class="p">,</span> <span class="s2">&quot;4&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;12&quot;</span><span class="p">,</span> <span class="s2">&quot;5&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;12&quot;</span><span class="p">,</span> <span class="s2">&quot;6&quot;</span><span class="p">),</span>
 <span class="p">]</span>
 
 <span class="c1"># Photos 5 has persons who are empty string if unidentified face</span>
-<span class="n">_UNKNOWN_PERSON</span> <span class="o">=</span> <span class="s2">"_UNKNOWN_"</span>
+<span class="n">_UNKNOWN_PERSON</span> <span class="o">=</span> <span class="s2">&quot;_UNKNOWN_&quot;</span>
 
 <span class="c1"># photos with no reverse geolocation info (place)</span>
-<span class="n">_UNKNOWN_PLACE</span> <span class="o">=</span> <span class="s2">"_UNKNOWN_"</span>
+<span class="n">_UNKNOWN_PLACE</span> <span class="o">=</span> <span class="s2">&quot;_UNKNOWN_&quot;</span>
 
-<span class="n">_EXIF_TOOL_URL</span> <span class="o">=</span> <span class="s2">"https://exiftool.org/"</span>
+<span class="n">_EXIF_TOOL_URL</span> <span class="o">=</span> <span class="s2">&quot;https://exiftool.org/&quot;</span>
 
 <span class="c1"># Where are shared iCloud photos located?</span>
-<span class="n">_PHOTOS_5_SHARED_PHOTO_PATH</span> <span class="o">=</span> <span class="s2">"resources/cloudsharing/data"</span>
+<span class="n">_PHOTOS_5_SHARED_PHOTO_PATH</span> <span class="o">=</span> <span class="s2">&quot;resources/cloudsharing/data&quot;</span>
 
 <span class="c1"># What type of file? Based on ZGENERICASSET.ZKIND in Photos 5 database</span>
 <span class="n">_PHOTO_TYPE</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="n">_MOVIE_TYPE</span> <span class="o">=</span> <span class="mi">1</span>
 
 <span class="c1"># Name of XMP template file</span>
-<span class="n">_TEMPLATE_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">"templates"</span><span class="p">)</span>
-<span class="n">_XMP_TEMPLATE_NAME</span> <span class="o">=</span> <span class="s2">"xmp_sidecar.mako"</span>
-<span class="n">_XMP_TEMPLATE_NAME_BETA</span> <span class="o">=</span> <span class="s2">"xmp_sidecar_beta.mako"</span>
+<span class="n">_TEMPLATE_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;templates&quot;</span><span class="p">)</span>
+<span class="n">_XMP_TEMPLATE_NAME</span> <span class="o">=</span> <span class="s2">&quot;xmp_sidecar.mako&quot;</span>
+<span class="n">_XMP_TEMPLATE_NAME_BETA</span> <span class="o">=</span> <span class="s2">&quot;xmp_sidecar_beta.mako&quot;</span>
 
 <span class="c1"># Constants used for processing folders and albums</span>
 <span class="n">_PHOTOS_5_ALBUM_KIND</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># normal user album</span>
@@ -351,79 +353,114 @@
 <span class="n">_PHOTOS_4_ALBUM_TYPE_PROJECT</span> <span class="o">=</span> <span class="mi">9</span>  <span class="c1"># RKAlbum.albumType</span>
 <span class="n">_PHOTOS_4_ALBUM_TYPE_SLIDESHOW</span> <span class="o">=</span> <span class="mi">8</span>  <span class="c1"># RKAlbum.albumType</span>
 <span class="n">_PHOTOS_4_TOP_LEVEL_ALBUMS</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">"TopLevelAlbums"</span><span class="p">,</span>
-    <span class="s2">"TopLevelKeepsakes"</span><span class="p">,</span>
-    <span class="s2">"TopLevelSlideshows"</span><span class="p">,</span>
+    <span class="s2">&quot;TopLevelAlbums&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TopLevelKeepsakes&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TopLevelSlideshows&quot;</span><span class="p">,</span>
 <span class="p">]</span>
-<span class="n">_PHOTOS_4_ROOT_FOLDER</span> <span class="o">=</span> <span class="s2">"LibraryFolder"</span>
+<span class="n">_PHOTOS_4_ROOT_FOLDER</span> <span class="o">=</span> <span class="s2">&quot;LibraryFolder&quot;</span>
 
 <span class="c1"># EXIF related constants</span>
 <span class="c1"># max keyword length for IPTC:Keyword, reference</span>
 <span class="c1"># https://www.iptc.org/std/photometadata/documentation/userguide/</span>
 <span class="n">_MAX_IPTC_KEYWORD_LEN</span> <span class="o">=</span> <span class="mi">64</span>
 
-<span class="c1"># Sentinel value for detecting if a template in keyword_template doesn't match</span>
+<span class="c1"># Sentinel value for detecting if a template in keyword_template doesn&#39;t match</span>
 <span class="c1"># If anyone has a keyword matching this, then too bad...</span>
-<span class="n">_OSXPHOTOS_NONE_SENTINEL</span> <span class="o">=</span> <span class="s2">"OSXPhotosXYZZY42_Sentinel$"</span>
+<span class="n">_OSXPHOTOS_NONE_SENTINEL</span> <span class="o">=</span> <span class="s2">&quot;OSXPhotosXYZZY42_Sentinel$&quot;</span>
 
-<span class="c1"># SearchInfo categories for Photos 5, corresponds to categories in database/search/psi.sqlite</span>
-<span class="n">SEARCH_CATEGORY_LABEL</span> <span class="o">=</span> <span class="mi">2024</span>
-<span class="n">SEARCH_CATEGORY_PLACE_NAME</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="n">SEARCH_CATEGORY_STREET</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="n">SEARCH_CATEGORY_NEIGHBORHOOD</span> <span class="o">=</span> <span class="mi">3</span>
-<span class="n">SEARCH_CATEGORY_LOCALITY_4</span> <span class="o">=</span> <span class="mi">4</span>
-<span class="n">SEARCH_CATEGORY_SUB_LOCALITY_5</span> <span class="o">=</span> <span class="mi">5</span>
-<span class="n">SEARCH_CATEGORY_SUB_LOCALITY_6</span> <span class="o">=</span> <span class="mi">6</span>
-<span class="n">SEARCH_CATEGORY_CITY</span> <span class="o">=</span> <span class="mi">7</span>
-<span class="n">SEARCH_CATEGORY_LOCALITY_8</span> <span class="o">=</span> <span class="mi">8</span>
-<span class="n">SEARCH_CATEGORY_NAMED_AREA</span> <span class="o">=</span> <span class="mi">9</span>
-<span class="n">SEARCH_CATEGORY_ALL_LOCALITY</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">SEARCH_CATEGORY_LOCALITY_4</span><span class="p">,</span>
-    <span class="n">SEARCH_CATEGORY_SUB_LOCALITY_5</span><span class="p">,</span>
-    <span class="n">SEARCH_CATEGORY_SUB_LOCALITY_6</span><span class="p">,</span>
-    <span class="n">SEARCH_CATEGORY_LOCALITY_8</span><span class="p">,</span>
-    <span class="n">SEARCH_CATEGORY_NAMED_AREA</span><span class="p">,</span>
-<span class="p">]</span>
-<span class="n">SEARCH_CATEGORY_STATE</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="n">SEARCH_CATEGORY_STATE_ABBREVIATION</span> <span class="o">=</span> <span class="mi">11</span>
-<span class="n">SEARCH_CATEGORY_COUNTRY</span> <span class="o">=</span> <span class="mi">12</span>
-<span class="n">SEARCH_CATEGORY_BODY_OF_WATER</span> <span class="o">=</span> <span class="mi">14</span>
-<span class="n">SEARCH_CATEGORY_MONTH</span> <span class="o">=</span> <span class="mi">1014</span>
-<span class="n">SEARCH_CATEGORY_YEAR</span> <span class="o">=</span> <span class="mi">1015</span>
-<span class="n">SEARCH_CATEGORY_KEYWORDS</span> <span class="o">=</span> <span class="mi">2016</span>
-<span class="n">SEARCH_CATEGORY_TITLE</span> <span class="o">=</span> <span class="mi">2017</span>
-<span class="n">SEARCH_CATEGORY_DESCRIPTION</span> <span class="o">=</span> <span class="mi">2018</span>
-<span class="n">SEARCH_CATEGORY_HOME</span> <span class="o">=</span> <span class="mi">2020</span>
-<span class="n">SEARCH_CATEGORY_PERSON</span> <span class="o">=</span> <span class="mi">2021</span>
-<span class="n">SEARCH_CATEGORY_ACTIVITY</span> <span class="o">=</span> <span class="mi">2027</span>
-<span class="n">SEARCH_CATEGORY_HOLIDAY</span> <span class="o">=</span> <span class="mi">2029</span>
-<span class="n">SEARCH_CATEGORY_SEASON</span> <span class="o">=</span> <span class="mi">2030</span>
-<span class="n">SEARCH_CATEGORY_WORK</span> <span class="o">=</span> <span class="mi">2036</span>
-<span class="n">SEARCH_CATEGORY_VENUE</span> <span class="o">=</span> <span class="mi">2038</span>
-<span class="n">SEARCH_CATEGORY_VENUE_TYPE</span> <span class="o">=</span> <span class="mi">2039</span>
-<span class="n">SEARCH_CATEGORY_PHOTO_TYPE_VIDEO</span> <span class="o">=</span> <span class="mi">2044</span>
-<span class="n">SEARCH_CATEGORY_PHOTO_TYPE_SLOMO</span> <span class="o">=</span> <span class="mi">2045</span>
-<span class="n">SEARCH_CATEGORY_PHOTO_TYPE_LIVE</span> <span class="o">=</span> <span class="mi">2046</span>
-<span class="n">SEARCH_CATEGORY_PHOTO_TYPE_SCREENSHOT</span> <span class="o">=</span> <span class="mi">2047</span>
-<span class="n">SEARCH_CATEGORY_PHOTO_TYPE_PANORAMA</span> <span class="o">=</span> <span class="mi">2048</span>
-<span class="n">SEARCH_CATEGORY_PHOTO_TYPE_TIMELAPSE</span> <span class="o">=</span> <span class="mi">2049</span>
-<span class="n">SEARCH_CATEGORY_PHOTO_TYPE_BURSTS</span> <span class="o">=</span> <span class="mi">2052</span>
-<span class="n">SEARCH_CATEGORY_PHOTO_TYPE_PORTRAIT</span> <span class="o">=</span> <span class="mi">2053</span>
-<span class="n">SEARCH_CATEGORY_PHOTO_TYPE_SELFIES</span> <span class="o">=</span> <span class="mi">2054</span>
-<span class="n">SEARCH_CATEGORY_PHOTO_TYPE_FAVORITES</span> <span class="o">=</span> <span class="mi">2055</span>
-<span class="n">SEARCH_CATEGORY_MEDIA_TYPES</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">SEARCH_CATEGORY_PHOTO_TYPE_VIDEO</span><span class="p">,</span>
-    <span class="n">SEARCH_CATEGORY_PHOTO_TYPE_SLOMO</span><span class="p">,</span>
-    <span class="n">SEARCH_CATEGORY_PHOTO_TYPE_LIVE</span><span class="p">,</span>
-    <span class="n">SEARCH_CATEGORY_PHOTO_TYPE_SCREENSHOT</span><span class="p">,</span>
-    <span class="n">SEARCH_CATEGORY_PHOTO_TYPE_PANORAMA</span><span class="p">,</span>
-    <span class="n">SEARCH_CATEGORY_PHOTO_TYPE_TIMELAPSE</span><span class="p">,</span>
-    <span class="n">SEARCH_CATEGORY_PHOTO_TYPE_BURSTS</span><span class="p">,</span>
-    <span class="n">SEARCH_CATEGORY_PHOTO_TYPE_PORTRAIT</span><span class="p">,</span>
-    <span class="n">SEARCH_CATEGORY_PHOTO_TYPE_SELFIES</span><span class="p">,</span>
-    <span class="n">SEARCH_CATEGORY_PHOTO_TYPE_FAVORITES</span><span class="p">,</span>
-<span class="p">]</span>
-<span class="n">SEARCH_CATEGORY_PHOTO_NAME</span> <span class="o">=</span> <span class="mi">2056</span>
+
+<span class="k">class</span> <span class="nc">SearchCategory</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;SearchInfo categories for Photos 5+; corresponds to categories in database/search/psi.sqlite:groups.category</span>
+
+<span class="sd">    Note: This is a simple enum class; the values are not meant to be changed.</span>
+<span class="sd">    Would be great if Python enums actually let you access the value directly.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">LABEL</span> <span class="o">=</span> <span class="mi">2024</span>
+    <span class="n">PLACE_NAME</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">STREET</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">NEIGHBORHOOD</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">LOCALITY_4</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">SUB_LOCALITY_5</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">SUB_LOCALITY_6</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">CITY</span> <span class="o">=</span> <span class="mi">7</span>
+    <span class="n">LOCALITY_8</span> <span class="o">=</span> <span class="mi">8</span>
+    <span class="n">NAMED_AREA</span> <span class="o">=</span> <span class="mi">9</span>
+    <span class="n">ALL_LOCALITY</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">LOCALITY_4</span><span class="p">,</span>
+        <span class="n">SUB_LOCALITY_5</span><span class="p">,</span>
+        <span class="n">SUB_LOCALITY_6</span><span class="p">,</span>
+        <span class="n">LOCALITY_8</span><span class="p">,</span>
+        <span class="n">NAMED_AREA</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">STATE</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">STATE_ABBREVIATION</span> <span class="o">=</span> <span class="mi">11</span>
+    <span class="n">COUNTRY</span> <span class="o">=</span> <span class="mi">12</span>
+    <span class="n">BODY_OF_WATER</span> <span class="o">=</span> <span class="mi">14</span>
+    <span class="n">MONTH</span> <span class="o">=</span> <span class="mi">1014</span>
+    <span class="n">YEAR</span> <span class="o">=</span> <span class="mi">1015</span>
+    <span class="n">KEYWORDS</span> <span class="o">=</span> <span class="mi">2016</span>
+    <span class="n">TITLE</span> <span class="o">=</span> <span class="mi">2017</span>
+    <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="mi">2018</span>
+    <span class="n">HOME</span> <span class="o">=</span> <span class="mi">2020</span>
+    <span class="n">PERSON</span> <span class="o">=</span> <span class="mi">2021</span>
+    <span class="n">ACTIVITY</span> <span class="o">=</span> <span class="mi">2027</span>
+    <span class="n">HOLIDAY</span> <span class="o">=</span> <span class="mi">2029</span>
+    <span class="n">SEASON</span> <span class="o">=</span> <span class="mi">2030</span>
+    <span class="n">WORK</span> <span class="o">=</span> <span class="mi">2036</span>
+    <span class="n">VENUE</span> <span class="o">=</span> <span class="mi">2038</span>
+    <span class="n">VENUE_TYPE</span> <span class="o">=</span> <span class="mi">2039</span>
+    <span class="n">PHOTO_TYPE_VIDEO</span> <span class="o">=</span> <span class="mi">2044</span>
+    <span class="n">PHOTO_TYPE_SLOMO</span> <span class="o">=</span> <span class="mi">2045</span>
+    <span class="n">PHOTO_TYPE_LIVE</span> <span class="o">=</span> <span class="mi">2046</span>
+    <span class="n">PHOTO_TYPE_SCREENSHOT</span> <span class="o">=</span> <span class="mi">2047</span>
+    <span class="n">PHOTO_TYPE_PANORAMA</span> <span class="o">=</span> <span class="mi">2048</span>
+    <span class="n">PHOTO_TYPE_TIMELAPSE</span> <span class="o">=</span> <span class="mi">2049</span>
+    <span class="n">PHOTO_TYPE_BURSTS</span> <span class="o">=</span> <span class="mi">2052</span>
+    <span class="n">PHOTO_TYPE_PORTRAIT</span> <span class="o">=</span> <span class="mi">2053</span>
+    <span class="n">PHOTO_TYPE_SELFIES</span> <span class="o">=</span> <span class="mi">2054</span>
+    <span class="n">PHOTO_TYPE_FAVORITES</span> <span class="o">=</span> <span class="mi">2055</span>
+    <span class="n">MEDIA_TYPES</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">PHOTO_TYPE_VIDEO</span><span class="p">,</span>
+        <span class="n">PHOTO_TYPE_SLOMO</span><span class="p">,</span>
+        <span class="n">PHOTO_TYPE_LIVE</span><span class="p">,</span>
+        <span class="n">PHOTO_TYPE_SCREENSHOT</span><span class="p">,</span>
+        <span class="n">PHOTO_TYPE_PANORAMA</span><span class="p">,</span>
+        <span class="n">PHOTO_TYPE_TIMELAPSE</span><span class="p">,</span>
+        <span class="n">PHOTO_TYPE_BURSTS</span><span class="p">,</span>
+        <span class="n">PHOTO_TYPE_PORTRAIT</span><span class="p">,</span>
+        <span class="n">PHOTO_TYPE_SELFIES</span><span class="p">,</span>
+        <span class="n">PHOTO_TYPE_FAVORITES</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">PHOTO_NAME</span> <span class="o">=</span> <span class="mi">2056</span>
+    <span class="n">CAMERA</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># Photos 8+ only</span>
+    <span class="n">DETECTED_TEXT</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># Photos 8+ only</span>
+
+
+<span class="k">class</span> <span class="nc">SearchCategory_Photos8</span><span class="p">(</span><span class="n">SearchCategory</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Search categories for Photos 8&quot;&quot;&quot;</span>
+    
+    <span class="c1"># Many of the category values changed in Ventura / Photos 8</span>
+    <span class="c1"># and some new categories were added</span>
+    <span class="n">LABEL</span> <span class="o">=</span> <span class="mi">1500</span>
+    <span class="n">MONTH</span> <span class="o">=</span> <span class="mi">1100</span>
+    <span class="n">YEAR</span> <span class="o">=</span> <span class="mi">1101</span>
+    <span class="n">HOLIDAY</span> <span class="o">=</span> <span class="mi">1103</span>
+    <span class="n">SEASON</span> <span class="o">=</span> <span class="mi">1104</span>
+    <span class="n">KEYWORDS</span> <span class="o">=</span> <span class="mi">1200</span>
+    <span class="n">TITLE</span> <span class="o">=</span> <span class="mi">1201</span>
+    <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="mi">1202</span>
+    <span class="n">DETECTED_TEXT</span> <span class="o">=</span> <span class="mi">1203</span> <span class="c1"># new in Photos 8</span>
+    <span class="n">PERSON</span> <span class="o">=</span> <span class="mi">1300</span>
+    <span class="n">ACTIVITY</span> <span class="o">=</span> <span class="mi">1600</span>
+    <span class="n">PHOTO_TYPE_FAVORITES</span> <span class="o">=</span> <span class="mi">2000</span>
+    <span class="n">PHOTO_NAME</span> <span class="o">=</span> <span class="mi">2100</span>
+    <span class="n">CAMERA</span> <span class="o">=</span> <span class="mi">2300</span> <span class="c1"># new in Photos 8</span>
+
+
+<span class="k">def</span> <span class="nf">search_category_factory</span><span class="p">(</span><span class="n">version</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SearchCategory</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Return SearchCategory class for Photos version&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">SearchCategory_Photos8</span> <span class="k">if</span> <span class="n">version</span> <span class="o">&gt;=</span> <span class="mi">8</span> <span class="k">else</span> <span class="n">SearchCategory</span>
 
 
 <span class="c1"># Max filename length on MacOS</span>
@@ -436,13 +473,13 @@
 <span class="n">DEFAULT_JPEG_QUALITY</span> <span class="o">=</span> <span class="mf">1.0</span>
 
 <span class="c1"># Default suffix to add to edited images</span>
-<span class="n">DEFAULT_EDITED_SUFFIX</span> <span class="o">=</span> <span class="s2">"_edited"</span>
+<span class="n">DEFAULT_EDITED_SUFFIX</span> <span class="o">=</span> <span class="s2">&quot;_edited&quot;</span>
 
 <span class="c1"># Default suffix to add to original images</span>
-<span class="n">DEFAULT_ORIGINAL_SUFFIX</span> <span class="o">=</span> <span class="s2">""</span>
+<span class="n">DEFAULT_ORIGINAL_SUFFIX</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
 <span class="c1"># Default suffix to add to preview images</span>
-<span class="n">DEFAULT_PREVIEW_SUFFIX</span> <span class="o">=</span> <span class="s2">"_preview"</span>
+<span class="n">DEFAULT_PREVIEW_SUFFIX</span> <span class="o">=</span> <span class="s2">&quot;_preview&quot;</span>
 
 <span class="c1"># Bit masks for --sidecar</span>
 <span class="n">SIDECAR_JSON</span> <span class="o">=</span> <span class="mh">0x1</span>
@@ -451,28 +488,27 @@
 
 <span class="c1"># supported attributes for --xattr-template</span>
 <span class="n">EXTENDED_ATTRIBUTE_NAMES</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">"authors"</span><span class="p">,</span>
-    <span class="s2">"comment"</span><span class="p">,</span>
-    <span class="s2">"copyright"</span><span class="p">,</span>
-    <span class="s2">"creator"</span><span class="p">,</span>
-    <span class="s2">"description"</span><span class="p">,</span>
-    <span class="s2">"findercomment"</span><span class="p">,</span>
-    <span class="s2">"headline"</span><span class="p">,</span>
-    <span class="s2">"keywords"</span><span class="p">,</span>
-    <span class="s2">"participants"</span><span class="p">,</span>
-    <span class="s2">"projects"</span><span class="p">,</span>
-    <span class="s2">"rating"</span><span class="p">,</span>
-    <span class="s2">"subject"</span><span class="p">,</span>
-    <span class="s2">"title"</span><span class="p">,</span>
-    <span class="s2">"version"</span><span class="p">,</span>
+    <span class="s2">&quot;authors&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;comment&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;copyright&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;creator&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;description&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;findercomment&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;headline&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;participants&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;projects&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;starrating&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;subject&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;title&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;version&quot;</span><span class="p">,</span>
 <span class="p">]</span>
-<span class="n">EXTENDED_ATTRIBUTE_NAMES_QUOTED</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">'"</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">EXTENDED_ATTRIBUTE_NAMES</span><span class="p">]</span>
+<span class="n">EXTENDED_ATTRIBUTE_NAMES_QUOTED</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">&#39;&quot;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">EXTENDED_ATTRIBUTE_NAMES</span><span class="p">]</span>
 
 
 <span class="c1"># name of export DB</span>
-<span class="n">OSXPHOTOS_EXPORT_DB</span> <span class="o">=</span> <span class="s2">".osxphotos_export.db"</span>
+<span class="n">OSXPHOTOS_EXPORT_DB</span> <span class="o">=</span> <span class="s2">&quot;.osxphotos_export.db&quot;</span>
 
-<span class="c1"># bit flags for burst images ("burstPickType")</span>
+<span class="c1"># bit flags for burst images (&quot;burstPickType&quot;)</span>
 <span class="n">BURST_PICK_TYPE_NONE</span> <span class="o">=</span> <span class="mb">0b0</span>  <span class="c1"># 0: sometimes used for single images with a burst UUID</span>
 <span class="n">BURST_NOT_SELECTED</span> <span class="o">=</span> <span class="mb">0b10</span>  <span class="c1"># 2: burst image is not selected</span>
 <span class="n">BURST_DEFAULT_PICK</span> <span class="o">=</span> <span class="mb">0b100</span>  <span class="c1"># 4: burst image is the one Photos picked to be key image before any selections made</span>
@@ -480,32 +516,32 @@
 <span class="n">BURST_KEY</span> <span class="o">=</span> <span class="mb">0b10000</span>  <span class="c1"># 16: burst image is the key photo (top of burst stack)</span>
 <span class="n">BURST_UNKNOWN</span> <span class="o">=</span> <span class="mb">0b100000</span>  <span class="c1"># 32: this is almost always set with BURST_DEFAULT_PICK and never if BURST_DEFAULT_PICK is not set.  I think this has something to do with what algorithm Photos used to pick the default image</span>
 
-<span class="n">LIVE_VIDEO_EXTENSIONS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">".mov"</span><span class="p">]</span>
+<span class="n">LIVE_VIDEO_EXTENSIONS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;.mov&quot;</span><span class="p">]</span>
 
 <span class="c1"># categories that --post-command can be used with; these map to ExportResults fields</span>
 <span class="n">POST_COMMAND_CATEGORIES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">"exported"</span><span class="p">:</span> <span class="s2">"All exported files"</span><span class="p">,</span>
-    <span class="s2">"new"</span><span class="p">:</span> <span class="s2">"When used with '--update', all newly exported files"</span><span class="p">,</span>
-    <span class="s2">"updated"</span><span class="p">:</span> <span class="s2">"When used with '--update', all files which were previously exported but updated this time"</span><span class="p">,</span>
-    <span class="s2">"skipped"</span><span class="p">:</span> <span class="s2">"When used with '--update', all files which were skipped (because they were previously exported and didn't change)"</span><span class="p">,</span>
-    <span class="s2">"missing"</span><span class="p">:</span> <span class="s2">"All files which were not exported because they were missing from the Photos library"</span><span class="p">,</span>
-    <span class="s2">"exif_updated"</span><span class="p">:</span> <span class="s2">"When used with '--exiftool', all files on which exiftool updated the metadata"</span><span class="p">,</span>
-    <span class="s2">"touched"</span><span class="p">:</span> <span class="s2">"When used with '--touch-file', all files where the date was touched"</span><span class="p">,</span>
-    <span class="s2">"converted_to_jpeg"</span><span class="p">:</span> <span class="s2">"When used with '--convert-to-jpeg', all files which were converted to jpeg"</span><span class="p">,</span>
-    <span class="s2">"sidecar_json_written"</span><span class="p">:</span> <span class="s2">"When used with '--sidecar json', all JSON sidecar files which were written"</span><span class="p">,</span>
-    <span class="s2">"sidecar_json_skipped"</span><span class="p">:</span> <span class="s2">"When used with '--sidecar json' and '--update', all JSON sidecar files which were skipped"</span><span class="p">,</span>
-    <span class="s2">"sidecar_exiftool_written"</span><span class="p">:</span> <span class="s2">"When used with '--sidecar exiftool', all exiftool sidecar files which were written"</span><span class="p">,</span>
-    <span class="s2">"sidecar_exiftool_skipped"</span><span class="p">:</span> <span class="s2">"When used with '--sidecar exiftool' and '--update, all exiftool sidecar files which were skipped"</span><span class="p">,</span>
-    <span class="s2">"sidecar_xmp_written"</span><span class="p">:</span> <span class="s2">"When used with '--sidecar xmp', all XMP sidecar files which were written"</span><span class="p">,</span>
-    <span class="s2">"sidecar_xmp_skipped"</span><span class="p">:</span> <span class="s2">"When used with '--sidecar xmp' and '--update', all XMP sidecar files which were skipped"</span><span class="p">,</span>
-    <span class="s2">"error"</span><span class="p">:</span> <span class="s2">"All files which produced an error during export"</span><span class="p">,</span>
-    <span class="c1"># "deleted_files": "When used with '--cleanup', all files deleted during the export",</span>
-    <span class="c1"># "deleted_directories": "When used with '--cleanup', all directories deleted during the export",</span>
+    <span class="s2">&quot;exported&quot;</span><span class="p">:</span> <span class="s2">&quot;All exported files&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;new&quot;</span><span class="p">:</span> <span class="s2">&quot;When used with &#39;--update&#39;, all newly exported files&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;updated&quot;</span><span class="p">:</span> <span class="s2">&quot;When used with &#39;--update&#39;, all files which were previously exported but updated this time&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;skipped&quot;</span><span class="p">:</span> <span class="s2">&quot;When used with &#39;--update&#39;, all files which were skipped (because they were previously exported and didn&#39;t change)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;missing&quot;</span><span class="p">:</span> <span class="s2">&quot;All files which were not exported because they were missing from the Photos library&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;exif_updated&quot;</span><span class="p">:</span> <span class="s2">&quot;When used with &#39;--exiftool&#39;, all files on which exiftool updated the metadata&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;touched&quot;</span><span class="p">:</span> <span class="s2">&quot;When used with &#39;--touch-file&#39;, all files where the date was touched&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;converted_to_jpeg&quot;</span><span class="p">:</span> <span class="s2">&quot;When used with &#39;--convert-to-jpeg&#39;, all files which were converted to jpeg&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sidecar_json_written&quot;</span><span class="p">:</span> <span class="s2">&quot;When used with &#39;--sidecar json&#39;, all JSON sidecar files which were written&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sidecar_json_skipped&quot;</span><span class="p">:</span> <span class="s2">&quot;When used with &#39;--sidecar json&#39; and &#39;--update&#39;, all JSON sidecar files which were skipped&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sidecar_exiftool_written&quot;</span><span class="p">:</span> <span class="s2">&quot;When used with &#39;--sidecar exiftool&#39;, all exiftool sidecar files which were written&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sidecar_exiftool_skipped&quot;</span><span class="p">:</span> <span class="s2">&quot;When used with &#39;--sidecar exiftool&#39; and &#39;--update, all exiftool sidecar files which were skipped&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sidecar_xmp_written&quot;</span><span class="p">:</span> <span class="s2">&quot;When used with &#39;--sidecar xmp&#39;, all XMP sidecar files which were written&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sidecar_xmp_skipped&quot;</span><span class="p">:</span> <span class="s2">&quot;When used with &#39;--sidecar xmp&#39; and &#39;--update&#39;, all XMP sidecar files which were skipped&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;All files which produced an error during export&quot;</span><span class="p">,</span>
+    <span class="c1"># &quot;deleted_files&quot;: &quot;When used with &#39;--cleanup&#39;, all files deleted during the export&quot;,</span>
+    <span class="c1"># &quot;deleted_directories&quot;: &quot;When used with &#39;--cleanup&#39;, all directories deleted during the export&quot;,</span>
 <span class="p">}</span>
 
 
 <div class="viewcode-block" id="AlbumSortOrder"><a class="viewcode-back" href="../../reference.html#osxphotos.AlbumSortOrder">[docs]</a><span class="k">class</span> <span class="nc">AlbumSortOrder</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-    <span class="sd">"""Album Sort Order"""</span>
+    <span class="sd">&quot;&quot;&quot;Album Sort Order&quot;&quot;&quot;</span>
 
     <span class="n">UNKNOWN</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">MANUAL</span> <span class="o">=</span> <span class="mi">1</span>
@@ -518,20 +554,20 @@
 
 <span class="c1"># stat sort order for cProfile: https://docs.python.org/3/library/profile.html#pstats.Stats.sort_stats</span>
 <span class="n">PROFILE_SORT_KEYS</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">"calls"</span><span class="p">,</span>
-    <span class="s2">"cumulative"</span><span class="p">,</span>
-    <span class="s2">"cumtime"</span><span class="p">,</span>
-    <span class="s2">"file"</span><span class="p">,</span>
-    <span class="s2">"filename"</span><span class="p">,</span>
-    <span class="s2">"module"</span><span class="p">,</span>
-    <span class="s2">"ncalls"</span><span class="p">,</span>
-    <span class="s2">"pcalls"</span><span class="p">,</span>
-    <span class="s2">"line"</span><span class="p">,</span>
-    <span class="s2">"name"</span><span class="p">,</span>
-    <span class="s2">"nfl"</span><span class="p">,</span>
-    <span class="s2">"stdname"</span><span class="p">,</span>
-    <span class="s2">"time"</span><span class="p">,</span>
-    <span class="s2">"tottime"</span><span class="p">,</span>
+    <span class="s2">&quot;calls&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cumulative&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cumtime&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;file&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;filename&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;module&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ncalls&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pcalls&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;line&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nfl&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;stdname&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;time&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tottime&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 </pre></div>
         </article>
@@ -570,7 +606,9 @@
 </div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/scripts/furo.js"></script>
     <script src="../../_static/clipboard.min.js"></script>
     <script src="../../_static/copybutton.js"></script>

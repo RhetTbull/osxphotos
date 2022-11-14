@@ -1,14 +1,14 @@
 <!doctype html>
-<html class="no-js">
+<html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos" href="overview.html" />
 
-    <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>osxphotos 0.51.8 documentation</title>
+    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
+        <title>osxphotos 0.54.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">osxphotos 0.51.8 documentation</div></a>
+      <a href="#"><div class="brand">osxphotos 0.54.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -135,7 +135,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.51.8 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.54.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -180,7 +180,9 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -188,14 +190,14 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main">
           <section id="welcome-to-osxphotos-s-documentation">
-<h1>Welcome to OSXPhotos’s documentation!<a class="headerlink" href="#welcome-to-osxphotos-s-documentation" title="Permalink to this headline">#</a></h1>
+<h1>Welcome to OSXPhotos’s documentation!<a class="headerlink" href="#welcome-to-osxphotos-s-documentation" title="Permalink to this heading">#</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="overview.html">OSXPhotos</a><ul>
@@ -276,12 +278,419 @@
 <li class="toctree-l2"><a class="reference internal" href="package_overview.html#using-the-osxphotos-cli-to-run-python-code">Using the osxphotos CLI to run python code</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="reference.html">OSXPhotos python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">OSXPhotos python API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.AlbumInfo"><code class="docutils literal notranslate"><span class="pre">AlbumInfo</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.AlbumInfo.folder_list"><code class="docutils literal notranslate"><span class="pre">AlbumInfo.folder_list</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.AlbumInfo.folder_names"><code class="docutils literal notranslate"><span class="pre">AlbumInfo.folder_names</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.AlbumInfo.parent"><code class="docutils literal notranslate"><span class="pre">AlbumInfo.parent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.AlbumInfo.photo_index"><code class="docutils literal notranslate"><span class="pre">AlbumInfo.photo_index()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.AlbumInfo.photos"><code class="docutils literal notranslate"><span class="pre">AlbumInfo.photos</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.AlbumInfo.sort_order"><code class="docutils literal notranslate"><span class="pre">AlbumInfo.sort_order</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.AlbumInfo.title"><code class="docutils literal notranslate"><span class="pre">AlbumInfo.title</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.AlbumSortOrder"><code class="docutils literal notranslate"><span class="pre">AlbumSortOrder</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.CommentInfo"><code class="docutils literal notranslate"><span class="pre">CommentInfo</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.ExifInfo"><code class="docutils literal notranslate"><span class="pre">ExifInfo</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.ExifTool"><code class="docutils literal notranslate"><span class="pre">ExifTool</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExifTool.addvalues"><code class="docutils literal notranslate"><span class="pre">ExifTool.addvalues()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExifTool.asdict"><code class="docutils literal notranslate"><span class="pre">ExifTool.asdict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExifTool.json"><code class="docutils literal notranslate"><span class="pre">ExifTool.json()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExifTool.pid"><code class="docutils literal notranslate"><span class="pre">ExifTool.pid</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExifTool.run_commands"><code class="docutils literal notranslate"><span class="pre">ExifTool.run_commands()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExifTool.setvalue"><code class="docutils literal notranslate"><span class="pre">ExifTool.setvalue()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExifTool.version"><code class="docutils literal notranslate"><span class="pre">ExifTool.version</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.ExportDB"><code class="docutils literal notranslate"><span class="pre">ExportDB</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportDB.close"><code class="docutils literal notranslate"><span class="pre">ExportDB.close()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportDB.create_file_record"><code class="docutils literal notranslate"><span class="pre">ExportDB.create_file_record()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportDB.create_or_get_file_record"><code class="docutils literal notranslate"><span class="pre">ExportDB.create_or_get_file_record()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportDB.delete_data_for_filepath"><code class="docutils literal notranslate"><span class="pre">ExportDB.delete_data_for_filepath()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportDB.delete_data_for_uuid"><code class="docutils literal notranslate"><span class="pre">ExportDB.delete_data_for_uuid()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportDB.export_dir"><code class="docutils literal notranslate"><span class="pre">ExportDB.export_dir</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportDB.get_export_results"><code class="docutils literal notranslate"><span class="pre">ExportDB.get_export_results()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportDB.get_exported_files"><code class="docutils literal notranslate"><span class="pre">ExportDB.get_exported_files()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportDB.get_file_record"><code class="docutils literal notranslate"><span class="pre">ExportDB.get_file_record()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportDB.get_files_for_uuid"><code class="docutils literal notranslate"><span class="pre">ExportDB.get_files_for_uuid()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportDB.get_photoinfo_for_uuid"><code class="docutils literal notranslate"><span class="pre">ExportDB.get_photoinfo_for_uuid()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportDB.get_previous_uuids"><code class="docutils literal notranslate"><span class="pre">ExportDB.get_previous_uuids()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportDB.get_target_for_file"><code class="docutils literal notranslate"><span class="pre">ExportDB.get_target_for_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportDB.get_uuid_for_file"><code class="docutils literal notranslate"><span class="pre">ExportDB.get_uuid_for_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportDB.path"><code class="docutils literal notranslate"><span class="pre">ExportDB.path</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportDB.set_config"><code class="docutils literal notranslate"><span class="pre">ExportDB.set_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportDB.set_export_results"><code class="docutils literal notranslate"><span class="pre">ExportDB.set_export_results()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportDB.set_photoinfo_for_uuid"><code class="docutils literal notranslate"><span class="pre">ExportDB.set_photoinfo_for_uuid()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.ExportDBTemp"><code class="docutils literal notranslate"><span class="pre">ExportDBTemp</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.ExportOptions"><code class="docutils literal notranslate"><span class="pre">ExportOptions</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.convert_to_jpeg"><code class="docutils literal notranslate"><span class="pre">ExportOptions.convert_to_jpeg</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.description_template"><code class="docutils literal notranslate"><span class="pre">ExportOptions.description_template</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.download_missing"><code class="docutils literal notranslate"><span class="pre">ExportOptions.download_missing</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.dry_run"><code class="docutils literal notranslate"><span class="pre">ExportOptions.dry_run</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.edited"><code class="docutils literal notranslate"><span class="pre">ExportOptions.edited</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.exiftool_flags"><code class="docutils literal notranslate"><span class="pre">ExportOptions.exiftool_flags</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.exiftool"><code class="docutils literal notranslate"><span class="pre">ExportOptions.exiftool</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.export_as_hardlink"><code class="docutils literal notranslate"><span class="pre">ExportOptions.export_as_hardlink</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.export_db"><code class="docutils literal notranslate"><span class="pre">ExportOptions.export_db</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.face_regions"><code class="docutils literal notranslate"><span class="pre">ExportOptions.face_regions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.fileutil"><code class="docutils literal notranslate"><span class="pre">ExportOptions.fileutil</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.force_update"><code class="docutils literal notranslate"><span class="pre">ExportOptions.force_update</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.ignore_date_modified"><code class="docutils literal notranslate"><span class="pre">ExportOptions.ignore_date_modified</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.ignore_signature"><code class="docutils literal notranslate"><span class="pre">ExportOptions.ignore_signature</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.increment"><code class="docutils literal notranslate"><span class="pre">ExportOptions.increment</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.jpeg_ext"><code class="docutils literal notranslate"><span class="pre">ExportOptions.jpeg_ext</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.jpeg_quality"><code class="docutils literal notranslate"><span class="pre">ExportOptions.jpeg_quality</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.keyword_template"><code class="docutils literal notranslate"><span class="pre">ExportOptions.keyword_template</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.live_photo"><code class="docutils literal notranslate"><span class="pre">ExportOptions.live_photo</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.location"><code class="docutils literal notranslate"><span class="pre">ExportOptions.location</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.merge_exif_keywords"><code class="docutils literal notranslate"><span class="pre">ExportOptions.merge_exif_keywords</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.merge_exif_persons"><code class="docutils literal notranslate"><span class="pre">ExportOptions.merge_exif_persons</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.overwrite"><code class="docutils literal notranslate"><span class="pre">ExportOptions.overwrite</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.persons"><code class="docutils literal notranslate"><span class="pre">ExportOptions.persons</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.preview_suffix"><code class="docutils literal notranslate"><span class="pre">ExportOptions.preview_suffix</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.preview"><code class="docutils literal notranslate"><span class="pre">ExportOptions.preview</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.raw_photo"><code class="docutils literal notranslate"><span class="pre">ExportOptions.raw_photo</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.render_options"><code class="docutils literal notranslate"><span class="pre">ExportOptions.render_options</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.replace_keywords"><code class="docutils literal notranslate"><span class="pre">ExportOptions.replace_keywords</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.rich"><code class="docutils literal notranslate"><span class="pre">ExportOptions.rich</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.sidecar_drop_ext"><code class="docutils literal notranslate"><span class="pre">ExportOptions.sidecar_drop_ext</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.sidecar"><code class="docutils literal notranslate"><span class="pre">ExportOptions.sidecar</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.strip"><code class="docutils literal notranslate"><span class="pre">ExportOptions.strip</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.timeout"><code class="docutils literal notranslate"><span class="pre">ExportOptions.timeout</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.touch_file"><code class="docutils literal notranslate"><span class="pre">ExportOptions.touch_file</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.update"><code class="docutils literal notranslate"><span class="pre">ExportOptions.update</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.use_albums_as_keywords"><code class="docutils literal notranslate"><span class="pre">ExportOptions.use_albums_as_keywords</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.use_persons_as_keywords"><code class="docutils literal notranslate"><span class="pre">ExportOptions.use_persons_as_keywords</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.use_photos_export"><code class="docutils literal notranslate"><span class="pre">ExportOptions.use_photos_export</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.use_photokit"><code class="docutils literal notranslate"><span class="pre">ExportOptions.use_photokit</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.verbose"><code class="docutils literal notranslate"><span class="pre">ExportOptions.verbose</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.tmpdir"><code class="docutils literal notranslate"><span class="pre">ExportOptions.tmpdir</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.favorite_rating"><code class="docutils literal notranslate"><span class="pre">ExportOptions.favorite_rating</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportOptions.bit_flags"><code class="docutils literal notranslate"><span class="pre">ExportOptions.bit_flags</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.ExportResults"><code class="docutils literal notranslate"><span class="pre">ExportResults</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportResults.all_files"><code class="docutils literal notranslate"><span class="pre">ExportResults.all_files()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportResults.attributes"><code class="docutils literal notranslate"><span class="pre">ExportResults.attributes</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ExportResults.datetime"><code class="docutils literal notranslate"><span class="pre">ExportResults.datetime</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.FileUtil"><code class="docutils literal notranslate"><span class="pre">FileUtil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.FileUtilNoOp"><code class="docutils literal notranslate"><span class="pre">FileUtilNoOp</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.FileUtilNoOp.convert_to_jpeg"><code class="docutils literal notranslate"><span class="pre">FileUtilNoOp.convert_to_jpeg()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.FileUtilNoOp.copy"><code class="docutils literal notranslate"><span class="pre">FileUtilNoOp.copy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.FileUtilNoOp.file_sig"><code class="docutils literal notranslate"><span class="pre">FileUtilNoOp.file_sig()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.FileUtilNoOp.hardlink"><code class="docutils literal notranslate"><span class="pre">FileUtilNoOp.hardlink()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.FileUtilNoOp.rename"><code class="docutils literal notranslate"><span class="pre">FileUtilNoOp.rename()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.FileUtilNoOp.rmdir"><code class="docutils literal notranslate"><span class="pre">FileUtilNoOp.rmdir()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.FileUtilNoOp.tmpdir"><code class="docutils literal notranslate"><span class="pre">FileUtilNoOp.tmpdir()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.FileUtilNoOp.unlink"><code class="docutils literal notranslate"><span class="pre">FileUtilNoOp.unlink()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.FileUtilNoOp.utime"><code class="docutils literal notranslate"><span class="pre">FileUtilNoOp.utime()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.FolderInfo"><code class="docutils literal notranslate"><span class="pre">FolderInfo</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.FolderInfo.album_info"><code class="docutils literal notranslate"><span class="pre">FolderInfo.album_info</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.FolderInfo.parent"><code class="docutils literal notranslate"><span class="pre">FolderInfo.parent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.FolderInfo.subfolders"><code class="docutils literal notranslate"><span class="pre">FolderInfo.subfolders</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.FolderInfo.title"><code class="docutils literal notranslate"><span class="pre">FolderInfo.title</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.FolderInfo.uuid"><code class="docutils literal notranslate"><span class="pre">FolderInfo.uuid</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.ImportInfo"><code class="docutils literal notranslate"><span class="pre">ImportInfo</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.ImportInfo.photos"><code class="docutils literal notranslate"><span class="pre">ImportInfo.photos</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.LikeInfo"><code class="docutils literal notranslate"><span class="pre">LikeInfo</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.MomentInfo"><code class="docutils literal notranslate"><span class="pre">MomentInfo</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.MomentInfo.asdict"><code class="docutils literal notranslate"><span class="pre">MomentInfo.asdict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.MomentInfo.date"><code class="docutils literal notranslate"><span class="pre">MomentInfo.date</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.MomentInfo.end_date"><code class="docutils literal notranslate"><span class="pre">MomentInfo.end_date</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.MomentInfo.location"><code class="docutils literal notranslate"><span class="pre">MomentInfo.location</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.MomentInfo.modification_date"><code class="docutils literal notranslate"><span class="pre">MomentInfo.modification_date</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.MomentInfo.photos"><code class="docutils literal notranslate"><span class="pre">MomentInfo.photos</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.MomentInfo.pk"><code class="docutils literal notranslate"><span class="pre">MomentInfo.pk</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.MomentInfo.start_date"><code class="docutils literal notranslate"><span class="pre">MomentInfo.start_date</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.MomentInfo.subtitle"><code class="docutils literal notranslate"><span class="pre">MomentInfo.subtitle</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.MomentInfo.title"><code class="docutils literal notranslate"><span class="pre">MomentInfo.title</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.PersonInfo"><code class="docutils literal notranslate"><span class="pre">PersonInfo</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PersonInfo.asdict"><code class="docutils literal notranslate"><span class="pre">PersonInfo.asdict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PersonInfo.face_info"><code class="docutils literal notranslate"><span class="pre">PersonInfo.face_info</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PersonInfo.json"><code class="docutils literal notranslate"><span class="pre">PersonInfo.json()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PersonInfo.photos"><code class="docutils literal notranslate"><span class="pre">PersonInfo.photos</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.PhotoExporter"><code class="docutils literal notranslate"><span class="pre">PhotoExporter</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoExporter.exiftool_json_sidecar"><code class="docutils literal notranslate"><span class="pre">PhotoExporter.exiftool_json_sidecar()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoExporter.export"><code class="docutils literal notranslate"><span class="pre">PhotoExporter.export()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoExporter.write_exiftool_metadata_to_file"><code class="docutils literal notranslate"><span class="pre">PhotoExporter.write_exiftool_metadata_to_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo"><code class="docutils literal notranslate"><span class="pre">PhotoInfo</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.adjustments"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.adjustments</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.album_info"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.album_info</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.albums"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.albums</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.asdict"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.asdict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.burst"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.burst</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.burst_album_info"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.burst_album_info</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.burst_albums"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.burst_albums</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.burst_default_pick"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.burst_default_pick</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.burst_key"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.burst_key</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.burst_photos"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.burst_photos</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.burst_selected"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.burst_selected</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.cloud_metadata"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.cloud_metadata</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.comments"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.comments</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.date"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.date</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.date_added"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.date_added</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.date_modified"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.date_modified</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.date_trashed"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.date_trashed</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.description"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.description</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.detected_text"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.detected_text()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.duplicates"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.duplicates</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.exif_info"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.exif_info</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.exiftool"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.exiftool</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.export"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.export()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.external_edit"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.external_edit</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.face_info"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.face_info</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.favorite"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.favorite</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.filename"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.filename</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.has_raw"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.has_raw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.hasadjustments"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.hasadjustments</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.hdr"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.hdr</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.height"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.height</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.hexdigest"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.hexdigest</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.hidden"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.hidden</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.import_info"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.import_info</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.incloud"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.incloud</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.intrash"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.intrash</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.iscloudasset"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.iscloudasset</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.ismissing"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.ismissing</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.ismovie"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.ismovie</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.isphoto"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.isphoto</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.israw"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.israw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.isreference"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.isreference</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.json"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.json()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.keywords"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.keywords</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.labels"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.labels</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.labels_normalized"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.labels_normalized</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.likes"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.likes</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.live_photo"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.live_photo</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.location"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.location</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.moment_info"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.moment_info</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.orientation"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.orientation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.original_filename"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.original_filename</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.original_filesize"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.original_filesize</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.original_height"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.original_height</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.original_orientation"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.original_orientation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.original_width"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.original_width</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.owner"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.owner</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.panorama"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.panorama</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.path"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.path</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.path_derivatives"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.path_derivatives</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.path_edited"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.path_edited</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.path_edited_live_photo"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.path_edited_live_photo</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.path_live_photo"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.path_live_photo</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.path_raw"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.path_raw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.person_info"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.person_info</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.persons"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.persons</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.place"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.place</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.portrait"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.portrait</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.project_info"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.project_info</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.raw_original"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.raw_original</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.render_template"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.render_template()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.score"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.score</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.screenshot"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.screenshot</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.search_info"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.search_info</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.search_info_normalized"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.search_info_normalized</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.selfie"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.selfie</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.shared"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.shared</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.slow_mo"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.slow_mo</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.time_lapse"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.time_lapse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.title"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.title</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.tzoffset"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.tzoffset</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.uti"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.uti</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.uti_edited"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.uti_edited</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.uti_original"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.uti_original</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.uti_raw"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.uti_raw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.uuid"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.uuid</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.visible"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.visible</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoInfo.width"><code class="docutils literal notranslate"><span class="pre">PhotoInfo.width</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.PhotoTemplate"><code class="docutils literal notranslate"><span class="pre">PhotoTemplate</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoTemplate.expand_variables"><code class="docutils literal notranslate"><span class="pre">PhotoTemplate.expand_variables()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoTemplate.expand_variables_to_str"><code class="docutils literal notranslate"><span class="pre">PhotoTemplate.expand_variables_to_str()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoTemplate.filter_predicate"><code class="docutils literal notranslate"><span class="pre">PhotoTemplate.filter_predicate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoTemplate.get_field_values"><code class="docutils literal notranslate"><span class="pre">PhotoTemplate.get_field_values()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoTemplate.get_filter_values"><code class="docutils literal notranslate"><span class="pre">PhotoTemplate.get_filter_values()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoTemplate.get_format_values"><code class="docutils literal notranslate"><span class="pre">PhotoTemplate.get_format_values()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoTemplate.get_media_type"><code class="docutils literal notranslate"><span class="pre">PhotoTemplate.get_media_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoTemplate.get_photo_bool_attribute"><code class="docutils literal notranslate"><span class="pre">PhotoTemplate.get_photo_bool_attribute()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoTemplate.get_photo_video_type"><code class="docutils literal notranslate"><span class="pre">PhotoTemplate.get_photo_video_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoTemplate.get_template_value"><code class="docutils literal notranslate"><span class="pre">PhotoTemplate.get_template_value()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoTemplate.get_template_value_exiftool"><code class="docutils literal notranslate"><span class="pre">PhotoTemplate.get_template_value_exiftool()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoTemplate.get_template_value_filter_function"><code class="docutils literal notranslate"><span class="pre">PhotoTemplate.get_template_value_filter_function()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoTemplate.get_template_value_function"><code class="docutils literal notranslate"><span class="pre">PhotoTemplate.get_template_value_function()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoTemplate.get_template_value_multi"><code class="docutils literal notranslate"><span class="pre">PhotoTemplate.get_template_value_multi()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoTemplate.get_template_value_pathlib"><code class="docutils literal notranslate"><span class="pre">PhotoTemplate.get_template_value_pathlib()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotoTemplate.render"><code class="docutils literal notranslate"><span class="pre">PhotoTemplate.render()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.PhotosAlbum"><code class="docutils literal notranslate"><span class="pre">PhotosAlbum</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.PhotosAlbumPhotoScript"><code class="docutils literal notranslate"><span class="pre">PhotosAlbumPhotoScript</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.PhotosDB"><code class="docutils literal notranslate"><span class="pre">PhotosDB</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.album_info"><code class="docutils literal notranslate"><span class="pre">PhotosDB.album_info</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.album_info_shared"><code class="docutils literal notranslate"><span class="pre">PhotosDB.album_info_shared</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.albums"><code class="docutils literal notranslate"><span class="pre">PhotosDB.albums</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.albums_as_dict"><code class="docutils literal notranslate"><span class="pre">PhotosDB.albums_as_dict</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.albums_shared"><code class="docutils literal notranslate"><span class="pre">PhotosDB.albums_shared</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.albums_shared_as_dict"><code class="docutils literal notranslate"><span class="pre">PhotosDB.albums_shared_as_dict</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.db_path"><code class="docutils literal notranslate"><span class="pre">PhotosDB.db_path</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.db_version"><code class="docutils literal notranslate"><span class="pre">PhotosDB.db_version</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.execute"><code class="docutils literal notranslate"><span class="pre">PhotosDB.execute()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.folder_info"><code class="docutils literal notranslate"><span class="pre">PhotosDB.folder_info</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.folders"><code class="docutils literal notranslate"><span class="pre">PhotosDB.folders</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.get_db_connection"><code class="docutils literal notranslate"><span class="pre">PhotosDB.get_db_connection()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.get_photo"><code class="docutils literal notranslate"><span class="pre">PhotosDB.get_photo()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.import_info"><code class="docutils literal notranslate"><span class="pre">PhotosDB.import_info</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.keywords"><code class="docutils literal notranslate"><span class="pre">PhotosDB.keywords</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.keywords_as_dict"><code class="docutils literal notranslate"><span class="pre">PhotosDB.keywords_as_dict</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.labels"><code class="docutils literal notranslate"><span class="pre">PhotosDB.labels</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.labels_as_dict"><code class="docutils literal notranslate"><span class="pre">PhotosDB.labels_as_dict</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.labels_normalized"><code class="docutils literal notranslate"><span class="pre">PhotosDB.labels_normalized</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.labels_normalized_as_dict"><code class="docutils literal notranslate"><span class="pre">PhotosDB.labels_normalized_as_dict</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.library_path"><code class="docutils literal notranslate"><span class="pre">PhotosDB.library_path</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.person_info"><code class="docutils literal notranslate"><span class="pre">PhotosDB.person_info</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.persons"><code class="docutils literal notranslate"><span class="pre">PhotosDB.persons</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.persons_as_dict"><code class="docutils literal notranslate"><span class="pre">PhotosDB.persons_as_dict</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.photos"><code class="docutils literal notranslate"><span class="pre">PhotosDB.photos()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.photos_by_uuid"><code class="docutils literal notranslate"><span class="pre">PhotosDB.photos_by_uuid()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.project_info"><code class="docutils literal notranslate"><span class="pre">PhotosDB.project_info</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.PhotosDB.query"><code class="docutils literal notranslate"><span class="pre">PhotosDB.query()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.PlaceInfo"><code class="docutils literal notranslate"><span class="pre">PlaceInfo</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.ProjectInfo"><code class="docutils literal notranslate"><span class="pre">ProjectInfo</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.QueryOptions"><code class="docutils literal notranslate"><span class="pre">QueryOptions</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.added_after"><code class="docutils literal notranslate"><span class="pre">QueryOptions.added_after</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.added_before"><code class="docutils literal notranslate"><span class="pre">QueryOptions.added_before</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.added_in_last"><code class="docutils literal notranslate"><span class="pre">QueryOptions.added_in_last</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.album"><code class="docutils literal notranslate"><span class="pre">QueryOptions.album</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.burst_photos"><code class="docutils literal notranslate"><span class="pre">QueryOptions.burst_photos</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.burst"><code class="docutils literal notranslate"><span class="pre">QueryOptions.burst</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.cloudasset"><code class="docutils literal notranslate"><span class="pre">QueryOptions.cloudasset</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.deleted_only"><code class="docutils literal notranslate"><span class="pre">QueryOptions.deleted_only</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.deleted"><code class="docutils literal notranslate"><span class="pre">QueryOptions.deleted</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.description"><code class="docutils literal notranslate"><span class="pre">QueryOptions.description</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.duplicate"><code class="docutils literal notranslate"><span class="pre">QueryOptions.duplicate</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.edited"><code class="docutils literal notranslate"><span class="pre">QueryOptions.edited</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.exif"><code class="docutils literal notranslate"><span class="pre">QueryOptions.exif</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.external_edit"><code class="docutils literal notranslate"><span class="pre">QueryOptions.external_edit</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.favorite"><code class="docutils literal notranslate"><span class="pre">QueryOptions.favorite</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.folder"><code class="docutils literal notranslate"><span class="pre">QueryOptions.folder</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.from_date"><code class="docutils literal notranslate"><span class="pre">QueryOptions.from_date</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.function"><code class="docutils literal notranslate"><span class="pre">QueryOptions.function</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.has_comment"><code class="docutils literal notranslate"><span class="pre">QueryOptions.has_comment</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.has_likes"><code class="docutils literal notranslate"><span class="pre">QueryOptions.has_likes</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.has_raw"><code class="docutils literal notranslate"><span class="pre">QueryOptions.has_raw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.hdr"><code class="docutils literal notranslate"><span class="pre">QueryOptions.hdr</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.hidden"><code class="docutils literal notranslate"><span class="pre">QueryOptions.hidden</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.ignore_case"><code class="docutils literal notranslate"><span class="pre">QueryOptions.ignore_case</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.in_album"><code class="docutils literal notranslate"><span class="pre">QueryOptions.in_album</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.incloud"><code class="docutils literal notranslate"><span class="pre">QueryOptions.incloud</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.is_reference"><code class="docutils literal notranslate"><span class="pre">QueryOptions.is_reference</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.keyword"><code class="docutils literal notranslate"><span class="pre">QueryOptions.keyword</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.label"><code class="docutils literal notranslate"><span class="pre">QueryOptions.label</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.live"><code class="docutils literal notranslate"><span class="pre">QueryOptions.live</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.location"><code class="docutils literal notranslate"><span class="pre">QueryOptions.location</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.max_size"><code class="docutils literal notranslate"><span class="pre">QueryOptions.max_size</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.min_size"><code class="docutils literal notranslate"><span class="pre">QueryOptions.min_size</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.missing_bursts"><code class="docutils literal notranslate"><span class="pre">QueryOptions.missing_bursts</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.missing"><code class="docutils literal notranslate"><span class="pre">QueryOptions.missing</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.movies"><code class="docutils literal notranslate"><span class="pre">QueryOptions.movies</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.name"><code class="docutils literal notranslate"><span class="pre">QueryOptions.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.no_comment"><code class="docutils literal notranslate"><span class="pre">QueryOptions.no_comment</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.no_description"><code class="docutils literal notranslate"><span class="pre">QueryOptions.no_description</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.no_likes"><code class="docutils literal notranslate"><span class="pre">QueryOptions.no_likes</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.no_location"><code class="docutils literal notranslate"><span class="pre">QueryOptions.no_location</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.no_keyword"><code class="docutils literal notranslate"><span class="pre">QueryOptions.no_keyword</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.no_place"><code class="docutils literal notranslate"><span class="pre">QueryOptions.no_place</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.no_title"><code class="docutils literal notranslate"><span class="pre">QueryOptions.no_title</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.not_burst"><code class="docutils literal notranslate"><span class="pre">QueryOptions.not_burst</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.not_cloudasset"><code class="docutils literal notranslate"><span class="pre">QueryOptions.not_cloudasset</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.not_favorite"><code class="docutils literal notranslate"><span class="pre">QueryOptions.not_favorite</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.not_hdr"><code class="docutils literal notranslate"><span class="pre">QueryOptions.not_hdr</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.not_hidden"><code class="docutils literal notranslate"><span class="pre">QueryOptions.not_hidden</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.not_in_album"><code class="docutils literal notranslate"><span class="pre">QueryOptions.not_in_album</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.not_incloud"><code class="docutils literal notranslate"><span class="pre">QueryOptions.not_incloud</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.not_live"><code class="docutils literal notranslate"><span class="pre">QueryOptions.not_live</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.not_missing"><code class="docutils literal notranslate"><span class="pre">QueryOptions.not_missing</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.not_panorama"><code class="docutils literal notranslate"><span class="pre">QueryOptions.not_panorama</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.not_portrait"><code class="docutils literal notranslate"><span class="pre">QueryOptions.not_portrait</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.not_reference"><code class="docutils literal notranslate"><span class="pre">QueryOptions.not_reference</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.not_screenshot"><code class="docutils literal notranslate"><span class="pre">QueryOptions.not_screenshot</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.not_selfie"><code class="docutils literal notranslate"><span class="pre">QueryOptions.not_selfie</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.not_shared"><code class="docutils literal notranslate"><span class="pre">QueryOptions.not_shared</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.not_slow_mo"><code class="docutils literal notranslate"><span class="pre">QueryOptions.not_slow_mo</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.not_time_lapse"><code class="docutils literal notranslate"><span class="pre">QueryOptions.not_time_lapse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.panorama"><code class="docutils literal notranslate"><span class="pre">QueryOptions.panorama</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.person"><code class="docutils literal notranslate"><span class="pre">QueryOptions.person</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.photos"><code class="docutils literal notranslate"><span class="pre">QueryOptions.photos</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.place"><code class="docutils literal notranslate"><span class="pre">QueryOptions.place</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.portrait"><code class="docutils literal notranslate"><span class="pre">QueryOptions.portrait</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.query_eval"><code class="docutils literal notranslate"><span class="pre">QueryOptions.query_eval</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.regex"><code class="docutils literal notranslate"><span class="pre">QueryOptions.regex</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.screenshot"><code class="docutils literal notranslate"><span class="pre">QueryOptions.screenshot</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.selected"><code class="docutils literal notranslate"><span class="pre">QueryOptions.selected</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.selfie"><code class="docutils literal notranslate"><span class="pre">QueryOptions.selfie</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.shared"><code class="docutils literal notranslate"><span class="pre">QueryOptions.shared</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.slow_mo"><code class="docutils literal notranslate"><span class="pre">QueryOptions.slow_mo</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.time_lapse"><code class="docutils literal notranslate"><span class="pre">QueryOptions.time_lapse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.title"><code class="docutils literal notranslate"><span class="pre">QueryOptions.title</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.to_date"><code class="docutils literal notranslate"><span class="pre">QueryOptions.to_date</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.uti"><code class="docutils literal notranslate"><span class="pre">QueryOptions.uti</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.uuid"><code class="docutils literal notranslate"><span class="pre">QueryOptions.uuid</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.QueryOptions.year"><code class="docutils literal notranslate"><span class="pre">QueryOptions.year</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.ScoreInfo"><code class="docutils literal notranslate"><span class="pre">ScoreInfo</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.SearchInfo"><code class="docutils literal notranslate"><span class="pre">SearchInfo</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.SearchInfo.activities"><code class="docutils literal notranslate"><span class="pre">SearchInfo.activities</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.SearchInfo.all"><code class="docutils literal notranslate"><span class="pre">SearchInfo.all</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.SearchInfo.asdict"><code class="docutils literal notranslate"><span class="pre">SearchInfo.asdict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.SearchInfo.bodies_of_water"><code class="docutils literal notranslate"><span class="pre">SearchInfo.bodies_of_water</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.SearchInfo.camera"><code class="docutils literal notranslate"><span class="pre">SearchInfo.camera</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.SearchInfo.city"><code class="docutils literal notranslate"><span class="pre">SearchInfo.city</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.SearchInfo.country"><code class="docutils literal notranslate"><span class="pre">SearchInfo.country</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.SearchInfo.detected_text"><code class="docutils literal notranslate"><span class="pre">SearchInfo.detected_text</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.SearchInfo.holidays"><code class="docutils literal notranslate"><span class="pre">SearchInfo.holidays</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.SearchInfo.labels"><code class="docutils literal notranslate"><span class="pre">SearchInfo.labels</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.SearchInfo.locality_names"><code class="docutils literal notranslate"><span class="pre">SearchInfo.locality_names</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.SearchInfo.media_types"><code class="docutils literal notranslate"><span class="pre">SearchInfo.media_types</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.SearchInfo.month"><code class="docutils literal notranslate"><span class="pre">SearchInfo.month</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.SearchInfo.neighborhoods"><code class="docutils literal notranslate"><span class="pre">SearchInfo.neighborhoods</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.SearchInfo.place_names"><code class="docutils literal notranslate"><span class="pre">SearchInfo.place_names</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.SearchInfo.season"><code class="docutils literal notranslate"><span class="pre">SearchInfo.season</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.SearchInfo.state"><code class="docutils literal notranslate"><span class="pre">SearchInfo.state</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.SearchInfo.state_abbreviation"><code class="docutils literal notranslate"><span class="pre">SearchInfo.state_abbreviation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.SearchInfo.streets"><code class="docutils literal notranslate"><span class="pre">SearchInfo.streets</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.SearchInfo.venue_types"><code class="docutils literal notranslate"><span class="pre">SearchInfo.venue_types</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.SearchInfo.venues"><code class="docutils literal notranslate"><span class="pre">SearchInfo.venues</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html#osxphotos.SearchInfo.year"><code class="docutils literal notranslate"><span class="pre">SearchInfo.year</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.is_debug"><code class="docutils literal notranslate"><span class="pre">is_debug()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.html#osxphotos.set_debug"><code class="docutils literal notranslate"><span class="pre">set_debug()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </div>
 </section>
 <section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">#</a></h1>
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">#</a></h1>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
@@ -301,7 +710,7 @@
                 </div>
                 <div class="title">OSXPhotos</div>
               </div>
-              <svg><use href="#svg-arrow-right"></use></svg>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
           
         </div>
@@ -324,25 +733,8 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer">
+    <aside class="toc-drawer no-toc">
       
-      
-      <div class="toc-sticky toc-scroll">
-        <div class="toc-title-container">
-          <span class="toc-title">
-            Contents
-          </span>
-        </div>
-        <div class="toc-tree-container">
-          <div class="toc-tree">
-            <ul>
-<li><a class="reference internal" href="#">Welcome to OSXPhotos’s documentation!</a></li>
-<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
-</ul>
-
-          </div>
-        </div>
-      </div>
       
       
     </aside>
@@ -350,7 +742,9 @@
 </div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/scripts/furo.js"></script>
     <script src="_static/clipboard.min.js"></script>
     <script src="_static/copybutton.js"></script>

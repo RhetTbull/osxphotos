@@ -1,14 +1,14 @@
 <!doctype html>
-<html class="no-js">
+<html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Python Package Overview" href="package_overview.html" /><link rel="prev" title="OSXPhotos Command Line Interface (CLI)" href="cli.html" />
 
-    <meta name="generator" content="sphinx-4.4.0, furo 2022.04.07"/>
-        <title>OSXPhotos Template System - osxphotos 0.51.8 documentation</title>
+    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
+        <title>OSXPhotos Template System - osxphotos 0.54.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.51.8 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.54.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.51.8 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.54.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -180,7 +180,9 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -195,21 +197,21 @@
         </div>
         <article role="main">
           <section id="osxphotos-template-system">
-<h1>OSXPhotos Template System<a class="headerlink" href="#osxphotos-template-system" title="Permalink to this headline">#</a></h1>
+<h1>OSXPhotos Template System<a class="headerlink" href="#osxphotos-template-system" title="Permalink to this heading">#</a></h1>
 <p>The templating system converts one or template statements, written in osxphotos metadata templating language, to one or more rendered values using information from the photo being processed.</p>
-<p>In its simplest form, a template statement has the form: <code class="docutils literal notranslate"><span class="pre">"{template_field}"</span></code>, for example <code class="docutils literal notranslate"><span class="pre">"{title}"</span></code> which would resolve to the title of the photo.</p>
+<p>In its simplest form, a template statement has the form: <code class="docutils literal notranslate"><span class="pre">&quot;{template_field}&quot;</span></code>, for example <code class="docutils literal notranslate"><span class="pre">&quot;{title}&quot;</span></code> which would resolve to the title of the photo.</p>
 <p>Template statements may contain one or more modifiers.  The full syntax is:</p>
-<p><code class="docutils literal notranslate"><span class="pre">"pretext{delim+template_field:subfield(field_arg)|filter[find,replace]</span> <span class="pre">conditional?bool_value,default}posttext"</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">&quot;pretext{delim+template_field:subfield(field_arg)|filter[find,replace]</span> <span class="pre">conditional?bool_value,default}posttext&quot;</span></code></p>
 <p>Template statements are white-space sensitive meaning that white space (spaces, tabs) changes the meaning of the template statement.</p>
-<p><code class="docutils literal notranslate"><span class="pre">pretext</span></code> and <code class="docutils literal notranslate"><span class="pre">posttext</span></code> are free form text.  For example, if a photo has title “My Photo Title” the template statement <code class="docutils literal notranslate"><span class="pre">"The</span> <span class="pre">title</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">photo</span> <span class="pre">is</span> <span class="pre">{title}"</span></code>, resolves to <code class="docutils literal notranslate"><span class="pre">"The</span> <span class="pre">title</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">photo</span> <span class="pre">is</span> <span class="pre">My</span> <span class="pre">Photo</span> <span class="pre">Title"</span></code>.  The <code class="docutils literal notranslate"><span class="pre">pretext</span></code> in this example is <code class="docutils literal notranslate"><span class="pre">"The</span> <span class="pre">title</span> <span class="pre">if</span> <span class="pre">the</span> <span class="pre">photo</span> <span class="pre">is</span> <span class="pre">"</span></code> and the template_field is <code class="docutils literal notranslate"><span class="pre">{title}</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">pretext</span></code> and <code class="docutils literal notranslate"><span class="pre">posttext</span></code> are free form text.  For example, if a photo has title “My Photo Title” the template statement <code class="docutils literal notranslate"><span class="pre">&quot;The</span> <span class="pre">title</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">photo</span> <span class="pre">is</span> <span class="pre">{title}&quot;</span></code>, resolves to <code class="docutils literal notranslate"><span class="pre">&quot;The</span> <span class="pre">title</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">photo</span> <span class="pre">is</span> <span class="pre">My</span> <span class="pre">Photo</span> <span class="pre">Title&quot;</span></code>.  The <code class="docutils literal notranslate"><span class="pre">pretext</span></code> in this example is <code class="docutils literal notranslate"><span class="pre">&quot;The</span> <span class="pre">title</span> <span class="pre">if</span> <span class="pre">the</span> <span class="pre">photo</span> <span class="pre">is</span> <span class="pre">&quot;</span></code> and the template_field is <code class="docutils literal notranslate"><span class="pre">{title}</span></code>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">delim</span></code>: optional delimiter string to use when expanding multi-valued template values in-place</p>
 <p><code class="docutils literal notranslate"><span class="pre">+</span></code>: If present before template <code class="docutils literal notranslate"><span class="pre">name</span></code>, expands the template in place.  If <code class="docutils literal notranslate"><span class="pre">delim</span></code> not provided, values are joined with no delimiter.</p>
-<p>e.g. if Photo keywords are <code class="docutils literal notranslate"><span class="pre">["foo","bar"]</span></code>:</p>
+<p>e.g. if Photo keywords are <code class="docutils literal notranslate"><span class="pre">[&quot;foo&quot;,&quot;bar&quot;]</span></code>:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">"{keyword}"</span></code> renders to <code class="docutils literal notranslate"><span class="pre">"foo",</span> <span class="pre">"bar"</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">"{,+keyword}"</span></code> renders to: <code class="docutils literal notranslate"><span class="pre">"foo,bar"</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">"{;</span> <span class="pre">+keyword}"</span></code> renders to: <code class="docutils literal notranslate"><span class="pre">"foo;</span> <span class="pre">bar"</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">"{+keyword}"</span></code> renders to <code class="docutils literal notranslate"><span class="pre">"foobar"</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{keyword}&quot;</span></code> renders to <code class="docutils literal notranslate"><span class="pre">&quot;foo&quot;,</span> <span class="pre">&quot;bar&quot;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{,+keyword}&quot;</span></code> renders to: <code class="docutils literal notranslate"><span class="pre">&quot;foo,bar&quot;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{;</span> <span class="pre">+keyword}&quot;</span></code> renders to: <code class="docutils literal notranslate"><span class="pre">&quot;foo;</span> <span class="pre">bar&quot;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{+keyword}&quot;</span></code> renders to <code class="docutils literal notranslate"><span class="pre">&quot;foobar&quot;</span></code></p></li>
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">template_field</span></code>: The template field to resolve.  See <a class="reference external" href="#template-substitutions">Template Substitutions</a> for full list of template fields.</p>
 <p><cite>:subfield</cite>: Some templates have sub-fields, For example, <cite>{exiftool:IPTC:Make}`</cite>; the template_field is``exiftool<code class="docutils literal notranslate"><span class="pre">and</span> <span class="pre">the</span> <span class="pre">sub-field</span> <span class="pre">is</span></code>IPTC:Make`.</p>
@@ -245,24 +247,24 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">int</span></code>: Convert values in list to integer, e.g. 1.0 =&gt; 1. If value cannot be converted to integer, remove value from list. [‘1.1’, ‘x’] =&gt; [‘1’]. See also float.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">float</span></code>: Convert values in list to floating point number, e.g. 1 =&gt; 1.0. If value cannot be converted to float, remove value from list. [‘1’, ‘x’] =&gt; [‘1.0’]. See also int.</p></li>
 </ul>
-<p>e.g. if Photo keywords are <code class="docutils literal notranslate"><span class="pre">["FOO","bar"]</span></code>:</p>
+<p>e.g. if Photo keywords are <code class="docutils literal notranslate"><span class="pre">[&quot;FOO&quot;,&quot;bar&quot;]</span></code>:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">"{keyword|lower}"</span></code> renders to <code class="docutils literal notranslate"><span class="pre">"foo",</span> <span class="pre">"bar"</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">"{keyword|upper}"</span></code> renders to: <code class="docutils literal notranslate"><span class="pre">"FOO",</span> <span class="pre">"BAR"</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">"{keyword|capitalize}"</span></code> renders to: <code class="docutils literal notranslate"><span class="pre">"Foo",</span> <span class="pre">"Bar"</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">"{keyword|lower|parens}"</span></code> renders to: <code class="docutils literal notranslate"><span class="pre">"(foo)",</span> <span class="pre">"(bar)"</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{keyword|lower}&quot;</span></code> renders to <code class="docutils literal notranslate"><span class="pre">&quot;foo&quot;,</span> <span class="pre">&quot;bar&quot;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{keyword|upper}&quot;</span></code> renders to: <code class="docutils literal notranslate"><span class="pre">&quot;FOO&quot;,</span> <span class="pre">&quot;BAR&quot;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{keyword|capitalize}&quot;</span></code> renders to: <code class="docutils literal notranslate"><span class="pre">&quot;Foo&quot;,</span> <span class="pre">&quot;Bar&quot;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{keyword|lower|parens}&quot;</span></code> renders to: <code class="docutils literal notranslate"><span class="pre">&quot;(foo)&quot;,</span> <span class="pre">&quot;(bar)&quot;</span></code></p></li>
 </ul>
 <p>e.g. if Photo description is “my description”:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">"{descr|titlecase}"</span></code> renders to: <code class="docutils literal notranslate"><span class="pre">"My</span> <span class="pre">Description"</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{descr|titlecase}&quot;</span></code> renders to: <code class="docutils literal notranslate"><span class="pre">&quot;My</span> <span class="pre">Description&quot;</span></code></p></li>
 </ul>
 <p>e.g. If Photo is in <code class="docutils literal notranslate"><span class="pre">Album1</span></code> in <code class="docutils literal notranslate"><span class="pre">Folder1</span></code>:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">"{folder_album}"</span></code> renders to <code class="docutils literal notranslate"><span class="pre">["Folder1/Album1"]</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">"{folder_album(&gt;)}"</span></code> renders to <code class="docutils literal notranslate"><span class="pre">["Folder1&gt;Album1"]</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">"{folder_album()}"</span></code> renders to <code class="docutils literal notranslate"><span class="pre">["Folder1Album1"]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{folder_album}&quot;</span></code> renders to <code class="docutils literal notranslate"><span class="pre">[&quot;Folder1/Album1&quot;]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{folder_album(&gt;)}&quot;</span></code> renders to <code class="docutils literal notranslate"><span class="pre">[&quot;Folder1&gt;Album1&quot;]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{folder_album()}&quot;</span></code> renders to <code class="docutils literal notranslate"><span class="pre">[&quot;Folder1Album1&quot;]</span></code></p></li>
 </ul>
-<p><cite>[find,replace]</cite>: optional text replacement to perform on rendered template value.  For example, to replace “/” in an album name, you could use the template <cite>“{album[/,-]}”</cite>.  Multiple replacements can be made by appending “|” and adding another find|replace pair.  e.g. to replace both “/” and “:” in album name: <code class="docutils literal notranslate"><span class="pre">"{album[/,-|:,-]}"</span></code>.  find/replace pairs are not limited to single characters.  The “|” character cannot be used in a find/replace pair.</p>
+<p><cite>[find,replace]</cite>: optional text replacement to perform on rendered template value.  For example, to replace “/” in an album name, you could use the template <cite>“{album[/,-]}”</cite>.  Multiple replacements can be made by appending “|” and adding another find|replace pair.  e.g. to replace both “/” and “:” in album name: <code class="docutils literal notranslate"><span class="pre">&quot;{album[/,-|:,-]}&quot;</span></code>.  find/replace pairs are not limited to single characters.  The “|” character cannot be used in a find/replace pair.</p>
 <p><cite>conditional</cite>: optional conditional expression that is evaluated as boolean (True/False) for use with the <cite>?bool_value</cite> modifier.  Conditional expressions take the form ‘<cite>not operator value</cite>’ where <cite>not</cite> is an optional modifier that negates the <cite>operator</cite>.  Note: the space before the conditional expression is required if you use a conditional expression.  Valid comparison operators are:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">contains</span></code>: template field contains value, similar to python’s <code class="docutils literal notranslate"><span class="pre">in</span></code></p></li>
@@ -286,47 +288,44 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">{keyword|lower</span> <span class="pre">not</span> <span class="pre">contains</span> <span class="pre">beach}</span></code> uses the <code class="docutils literal notranslate"><span class="pre">not</span></code> modifier to negate the comparison so this resolves to True if there is no keyword that matches ‘beach’.</p></li>
 </ul>
 <p>Examples: to export photos that contain certain keywords with the <code class="docutils literal notranslate"><span class="pre">osxphotos</span> <span class="pre">export</span></code> command’s <code class="docutils literal notranslate"><span class="pre">--directory</span></code> option:</p>
-<p><code class="docutils literal notranslate"><span class="pre">--directory</span> <span class="pre">"{keyword|lower</span> <span class="pre">matches</span> <span class="pre">travel|vacation?Travel-Photos,Not-Travel-Photos}"</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">--directory</span> <span class="pre">&quot;{keyword|lower</span> <span class="pre">matches</span> <span class="pre">travel|vacation?Travel-Photos,Not-Travel-Photos}&quot;</span></code></p>
 <p>This exports any photo that has keywords ‘travel’ or ‘vacation’ into a directory ‘Travel-Photos’ and all other photos into directory ‘Not-Travel-Photos’.</p>
 <p>This can be used to rename files as well, for example:
-<code class="docutils literal notranslate"><span class="pre">--filename</span> <span class="pre">"{favorite?Favorite-{original_name},{original_name}}"</span></code></p>
+<code class="docutils literal notranslate"><span class="pre">--filename</span> <span class="pre">&quot;{favorite?Favorite-{original_name},{original_name}}&quot;</span></code></p>
 <p>This renames any photo that is a favorite as ‘Favorite-ImageName.jpg’ (where ‘ImageName.jpg’ is the original name of the photo) and all other photos with the unmodified original name.</p>
-<p><code class="docutils literal notranslate"><span class="pre">?bool_value</span></code>: Template fields may be evaluated as boolean (True/False) by appending “?” after the field name (and following “(field_arg)” or “[find/replace]”.  If a field is True (e.g. photo is HDR and field is <code class="docutils literal notranslate"><span class="pre">"{hdr}"</span></code>) or has any value, the value following the “?” will be used to render the template instead of the actual field value.  If the template field evaluates to False (e.g. in above example, photo is not HDR) or has no value (e.g. photo has no title and field is <code class="docutils literal notranslate"><span class="pre">"{title}"</span></code>) then the default value following a “,” will be used.</p>
+<p><code class="docutils literal notranslate"><span class="pre">?bool_value</span></code>: Template fields may be evaluated as boolean (True/False) by appending “?” after the field name (and following “(field_arg)” or “[find/replace]”.  If a field is True (e.g. photo is HDR and field is <code class="docutils literal notranslate"><span class="pre">&quot;{hdr}&quot;</span></code>) or has any value, the value following the “?” will be used to render the template instead of the actual field value.  If the template field evaluates to False (e.g. in above example, photo is not HDR) or has no value (e.g. photo has no title and field is <code class="docutils literal notranslate"><span class="pre">&quot;{title}&quot;</span></code>) then the default value following a “,” will be used.</p>
 <p>e.g. if photo is an HDR image,</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">"{hdr?ISHDR,NOTHDR}"</span></code> renders to <code class="docutils literal notranslate"><span class="pre">"ISHDR"</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{hdr?ISHDR,NOTHDR}&quot;</span></code> renders to <code class="docutils literal notranslate"><span class="pre">&quot;ISHDR&quot;</span></code></p></li>
 </ul>
 <p>and if it is not an HDR image,</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">"{hdr?ISHDR,NOTHDR}"</span></code> renders to <code class="docutils literal notranslate"><span class="pre">"NOTHDR"</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{hdr?ISHDR,NOTHDR}&quot;</span></code> renders to <code class="docutils literal notranslate"><span class="pre">&quot;NOTHDR&quot;</span></code></p></li>
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">,default</span></code>: optional default value to use if the template name has no value.  This modifier is also used for the value if False for boolean-type fields (see above) as well as to hold a sub-template for values like <code class="docutils literal notranslate"><span class="pre">{created.strftime}</span></code>.  If no default value provided, “_” is used.</p>
 <p>e.g., if photo has no title set,</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">"{title}"</span></code> renders to “_”</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">"{title,I</span> <span class="pre">have</span> <span class="pre">no</span> <span class="pre">title}"</span></code> renders to <code class="docutils literal notranslate"><span class="pre">"I</span> <span class="pre">have</span> <span class="pre">no</span> <span class="pre">title"</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{title}&quot;</span></code> renders to “_”</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{title,I</span> <span class="pre">have</span> <span class="pre">no</span> <span class="pre">title}&quot;</span></code> renders to <code class="docutils literal notranslate"><span class="pre">&quot;I</span> <span class="pre">have</span> <span class="pre">no</span> <span class="pre">title&quot;</span></code></p></li>
 </ul>
 <p>Template fields such as <code class="docutils literal notranslate"><span class="pre">created.strftime</span></code> use the default value to pass the template to use for <code class="docutils literal notranslate"><span class="pre">strftime</span></code>.</p>
 <p>e.g., if photo date is 4 February 2020, 19:07:38,</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">"{created.strftime,%Y-%m-%d-%H%M%S}"</span></code> renders to <code class="docutils literal notranslate"><span class="pre">"2020-02-04-190738"</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{created.strftime,%Y-%m-%d-%H%M%S}&quot;</span></code> renders to <code class="docutils literal notranslate"><span class="pre">&quot;2020-02-04-190738&quot;</span></code></p></li>
 </ul>
-<p>Some template fields such as <code class="docutils literal notranslate"><span class="pre">"{media_type}"</span></code> use the default value to allow customization of the output. For example, <code class="docutils literal notranslate"><span class="pre">"{media_type}"</span></code> resolves to the special media type of the photo such as <code class="docutils literal notranslate"><span class="pre">panorama</span></code> or <code class="docutils literal notranslate"><span class="pre">selfie</span></code>.  You may use the default value to override these in form: <code class="docutils literal notranslate"><span class="pre">"{media_type,video=vidéo;time_lapse=vidéo_accélérée}"</span></code>. In this example, if photo was a time_lapse photo, <code class="docutils literal notranslate"><span class="pre">media_type</span></code> would resolve to <code class="docutils literal notranslate"><span class="pre">vidéo_accélérée</span></code> instead of <code class="docutils literal notranslate"><span class="pre">time_lapse</span></code>.</p>
-<p>Either or both bool_value or default (False value) may be empty which would result in empty string <code class="docutils literal notranslate"><span class="pre">""</span></code> when rendered.</p>
+<p>Some template fields such as <code class="docutils literal notranslate"><span class="pre">&quot;{media_type}&quot;</span></code> use the default value to allow customization of the output. For example, <code class="docutils literal notranslate"><span class="pre">&quot;{media_type}&quot;</span></code> resolves to the special media type of the photo such as <code class="docutils literal notranslate"><span class="pre">panorama</span></code> or <code class="docutils literal notranslate"><span class="pre">selfie</span></code>.  You may use the default value to override these in form: <code class="docutils literal notranslate"><span class="pre">&quot;{media_type,video=vidéo;time_lapse=vidéo_accélérée}&quot;</span></code>. In this example, if photo was a time_lapse photo, <code class="docutils literal notranslate"><span class="pre">media_type</span></code> would resolve to <code class="docutils literal notranslate"><span class="pre">vidéo_accélérée</span></code> instead of <code class="docutils literal notranslate"><span class="pre">time_lapse</span></code>.</p>
+<p>Either or both bool_value or default (False value) may be empty which would result in empty string <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code> when rendered.</p>
 <p>If you want to include “{” or “}” in the output, use “{openbrace}” or “{closebrace}” template substitution.</p>
-<p>e.g. <code class="docutils literal notranslate"><span class="pre">"{created.year}/{openbrace}{title}{closebrace}"</span></code> would result in <code class="docutils literal notranslate"><span class="pre">"2020/{Photo</span> <span class="pre">Title}"</span></code>.</p>
+<p>e.g. <code class="docutils literal notranslate"><span class="pre">&quot;{created.year}/{openbrace}{title}{closebrace}&quot;</span></code> would result in <code class="docutils literal notranslate"><span class="pre">&quot;2020/{Photo</span> <span class="pre">Title}&quot;</span></code>.</p>
 <p><strong>Variables</strong></p>
 <p>You can define variables for later use in the template string using the format <code class="docutils literal notranslate"><span class="pre">{var:NAME,VALUE}</span></code>.  Variables may then be referenced using the format <code class="docutils literal notranslate"><span class="pre">%NAME</span></code>. For example: <code class="docutils literal notranslate"><span class="pre">{var:foo,bar}</span></code> defines the variable <code class="docutils literal notranslate"><span class="pre">%foo</span></code> to have value <code class="docutils literal notranslate"><span class="pre">bar</span></code>. This can be useful if you want to re-use a complex template value in multiple places within your template string or for allowing the use of characters that would otherwise be prohibited in a template string. For example, the “pipe” (<code class="docutils literal notranslate"><span class="pre">|</span></code>) character is not allowed in a find/replace pair but you can get around this limitation like so: <code class="docutils literal notranslate"><span class="pre">{var:pipe,{pipe}}{title[-,%pipe]}</span></code> which replaces the <code class="docutils literal notranslate"><span class="pre">-</span></code> character with <code class="docutils literal notranslate"><span class="pre">|</span></code> (the value of <code class="docutils literal notranslate"><span class="pre">%pipe</span></code>).</p>
 <p>Variables can also be referenced as fields in the template string, for example: <code class="docutils literal notranslate"><span class="pre">{var:year,created.year}{original_name}-{%year}</span></code>. In some cases, use of variables can make your template string more readable.  Variables can be used as template fields, as values for filters, as values for conditional operations, or as default values.  When used as a conditional value or default value, variables should be treated like any other field and enclosed in braces as conditional and default values are evaluated as template strings. For example: <code class="docutils literal notranslate"><span class="pre">{var:name,Katie}{person</span> <span class="pre">contains</span> <span class="pre">{%name}?{%name},Not-{%name}}</span></code>.</p>
 <p>If you need to use a <code class="docutils literal notranslate"><span class="pre">%</span></code> (percent sign character), you can escape the percent sign by using <code class="docutils literal notranslate"><span class="pre">%%</span></code>.  You can also use the <code class="docutils literal notranslate"><span class="pre">{percent}</span></code> template field where a template field is required. For example:</p>
 <p><code class="docutils literal notranslate"><span class="pre">{title[:,%%]}</span></code> replaces the <code class="docutils literal notranslate"><span class="pre">:</span></code> with <code class="docutils literal notranslate"><span class="pre">%</span></code> and <code class="docutils literal notranslate"><span class="pre">{title</span> <span class="pre">contains</span> <span class="pre">Foo?{title}{percent},{title}}</span></code> adds <code class="docutils literal notranslate"><span class="pre">%</span></code> to the  title if it contains <code class="docutils literal notranslate"><span class="pre">Foo</span></code>.</p>
 <section id="id1">
-<h2>Template Substitutions<a class="headerlink" href="#id1" title="Permalink to this headline">#</a></h2>
-<div class="table-wrapper"><table class="docutils align-default">
-<colgroup>
-<col style="width: 50%"/>
-<col style="width: 50%"/>
-</colgroup>
+<h2>Template Substitutions<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h2>
+<div class="table-wrapper docutils container">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Field</p></th>
 <th class="head"><p>Description</p></th>
@@ -602,14 +601,14 @@
 </tr>
 <tr class="row-odd"><td><p>{tab}</p></td>
 <td><dl class="field-list simple">
-<dt class="field-odd">A tab</dt>
+<dt class="field-odd">A tab<span class="colon">:</span></dt>
 <dd class="field-odd"><p>‘t’</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="row-even"><td><p>{osxphotos_version}</p></td>
-<td><p>The osxphotos version, e.g. ‘0.51.8’</p></td>
+<td><p>The osxphotos version, e.g. ‘0.54.1’</p></td>
 </tr>
 <tr class="row-odd"><td><p>{osxphotos_cmd_line}</p></td>
 <td><p>The full command line used to run osxphotos</p></td>
@@ -678,7 +677,8 @@
 <td><p>Execute a python function from an external file and use return value as template substitution. Use in format: {function:file.py::function_name} where ‘file.py’ is the name of the python file and ‘function_name’ is the name of the function to call. The function will be passed the PhotoInfo object for the photo. See https://github.com/RhetTbull/osxphotos/blob/master/examples/template_function.py for an example of how to implement a template function.</p></td>
 </tr>
 </tbody>
-</table></div>
+</table>
+</div>
 </section>
 </section>
 
@@ -694,10 +694,10 @@
                 </div>
                 <div class="title">OSXPhotos Python Package Overview</div>
               </div>
-              <svg><use href="#svg-arrow-right"></use></svg>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
           <a class="prev-page" href="cli.html">
-              <svg><use href="#svg-arrow-right"></use></svg>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
@@ -733,7 +733,7 @@
       <div class="toc-sticky toc-scroll">
         <div class="toc-title-container">
           <span class="toc-title">
-            Contents
+            On this page
           </span>
         </div>
         <div class="toc-tree-container">
@@ -755,7 +755,9 @@
 </div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/scripts/furo.js"></script>
     <script src="_static/clipboard.min.js"></script>
     <script src="_static/copybutton.js"></script>

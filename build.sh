@@ -45,3 +45,9 @@ python3 -m build
 # build CLI executable
 echo "Building CLI executable"
 ./make_cli_exe.sh
+
+# zip up CLI executable
+echo "Zipping CLI executable"
+OSXPHOTOS_VERSION=$(python3 -c "import osxphotos; print(osxphotos.__version__)")
+zip dist/osxphotos_MacOS_exe_darwin_x64_v$OSXPHOTOS_VERSION.zip dist/osxphotos
+rm dist/osxphotos
