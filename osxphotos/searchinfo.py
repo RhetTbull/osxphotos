@@ -162,7 +162,7 @@ class SearchInfo:
             + self.venues
             + self.venue_types
             + self.media_types
-            + self.camera
+            + self.detected_text
         )
         if self.city:
             all += [self.city]
@@ -178,8 +178,8 @@ class SearchInfo:
             all += [self.year]
         if self.season:
             all += [self.season]
-        if self.detected_text:
-            all += [self.detected_text]
+        if self.camera:
+            all += [self.camera]
 
         return all
 
