@@ -133,6 +133,21 @@ class SearchInfo:
         return types
 
     @property
+    def detected_text(self):
+        """Returns text detected in the photo (macOS 13+ / Photos 8+ only)"""
+        if self._photo._db._photos_ver < 8:
+            return []
+        return self._get_text_for_category(self._categories.DETECTED_TEXT)
+
+    @property
+    def camera(self):
+        """returns camera name (macOS 13+ / Photos 8+ only)"""
+        if self._photo._db._photos_ver < 8:
+            return ""
+        camera = self._get_text_for_category(self._categories.CAMERA)
+        return camera[0] if camera else ""
+
+    @property
     def all(self):
         """return all search info properties in a single list"""
         all = (
@@ -147,6 +162,7 @@ class SearchInfo:
             + self.venues
             + self.venue_types
             + self.media_types
+            + self.detected_text
         )
         if self.city:
             all += [self.city]
@@ -162,6 +178,8 @@ class SearchInfo:
             all += [self.year]
         if self.season:
             all += [self.season]
+        if self.camera:
+            all += [self.camera]
 
         return all
 
@@ -186,6 +204,8 @@ class SearchInfo:
             "venues": self.venues,
             "venue_types": self.venue_types,
             "media_types": self.media_types,
+            "detected_text": self.detected_text,
+            "camera": self.camera,
         }
 
     def _get_text_for_category(self, category):

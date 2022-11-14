@@ -198,6 +198,42 @@ UUID_MOMENT = {
 
 UUID_LABELS = {"6191423D-8DB8-4D4C-92BE-9BBBA308AAC4": ["Plant", "Flower Arrangement"]}
 
+UUID_CAMERA = {
+    "4D521201-92AC-43E5-8F7C-59BC41C37A96": "Canon PowerShot G10",
+    "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C": "",
+}
+
+
+UUID_DETECTED_TEXT = {
+    "4D521201-92AC-43E5-8F7C-59BC41C37A96": ["mint", "mojito", "sprouts"],
+    "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C": [],
+}
+
+UUID_SEARCH_INFO = {
+    "3DD2C897-F19E-4CA6-8C22-B027D5A71907": {
+        "labels": ["Art", "Clothing", "Plant", "Statue"],
+        "place_names": ["River Torrens/Karrawirra Parri"],
+        "streets": ["River Torrens Linear Park Trl"],
+        "neighborhoods": ["Central Ward"],
+        "city": "",
+        "locality_names": ["Adelaide", "South Australia"],
+        "state": "Adelaide",
+        "state_abbreviation": "SA",
+        "country": "Australia",
+        "bodies_of_water": [],
+        "month": "June",
+        "year": "2017",
+        "holidays": [],
+        "activities": [],
+        "season": "Summer",
+        "venues": [],
+        "venue_types": [],
+        "media_types": [],
+        "detected_text": [],
+        "camera": "Apple iPhone 6s",
+    }
+}
+
 
 @pytest.fixture(scope="module")
 def photosdb():
@@ -1173,3 +1209,27 @@ def test_labels(photosdb):
         photo = photosdb.get_photo(uuid=uuid)
         for label in labels:
             assert label in photo.labels
+
+
+def test_search_info_camera(photosdb):
+    """Test SearchInfo camera (new to Photos 8)"""
+    for uuid, camera in UUID_CAMERA.items():
+        photo = photosdb.get_photo(uuid=uuid)
+        assert photo.search_info.camera == camera
+
+
+def test_search_info_detected_text(photosdb):
+    """Test SearchInfo detected text (new to Photos 8)"""
+    for uuid, detected_text in UUID_DETECTED_TEXT.items():
+        photo = photosdb.get_photo(uuid=uuid)
+        assert (
+            sorted([x.lower() for x in photo.search_info.detected_text])
+            == detected_text
+        )
+
+
+def test_search_info_dict(photosdb):
+    """Test SearchInfo changes for Photos 8"""
+    for uuid, search_info in UUID_SEARCH_INFO.items():
+        photo = photosdb.get_photo(uuid=uuid)
+        assert photo.search_info.asdict() == search_info

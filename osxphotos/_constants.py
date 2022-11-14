@@ -236,21 +236,29 @@ class SearchCategory:
         PHOTO_TYPE_FAVORITES,
     ]
     PHOTO_NAME = 2056
+    CAMERA = None # Photos 8+ only
+    DETECTED_TEXT = None # Photos 8+ only
 
 
 class SearchCategory_Photos8(SearchCategory):
     """Search categories for Photos 8"""
-
-    # NOTE: This list is incomplete;
-    # until I get a test library that's been processed by photoanalysisd on Ventura,
-    # I can't verify all these are correct
+    
+    # Many of the category values changed in Ventura / Photos 8
+    # and some new categories were added
     LABEL = 1500
     MONTH = 1100
     YEAR = 1101
+    HOLIDAY = 1103
     SEASON = 1104
-    ACTIVITY = 1600
     KEYWORDS = 1200
+    TITLE = 1201
+    DESCRIPTION = 1202
+    DETECTED_TEXT = 1203 # new in Photos 8
+    PERSON = 1300
+    ACTIVITY = 1600
+    PHOTO_TYPE_FAVORITES = 2000
     PHOTO_NAME = 2100
+    CAMERA = 2300 # new in Photos 8
 
 
 def search_category_factory(version: int) -> SearchCategory:
