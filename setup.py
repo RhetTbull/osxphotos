@@ -83,7 +83,7 @@ setup(
         "osxmetadata>=1.2.0,<2.0.0",
         "packaging>=21.3",
         "pathvalidate>=2.4.1,<3.0.0",
-        "photoscript>=0.2.0,<0.3.0",
+        "photoscript>=0.2.1,<0.3.0",
         "ptpython>=3.0.20,<4.0.0",
         "pyobjc-core>=9.0,<=10.0",
         "pyobjc-framework-AVFoundation>=9.0,<10.0",
