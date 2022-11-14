@@ -912,7 +912,9 @@ class ImportCommand(click.Command):
 
             and you want to exclude /Volumes/Photos from the folder/album path, you can do this:
 
-            `osxphotos import /Volumes/Photos/* --walk --album "{filepath}" --relative-to "/Volumes/Photos"`
+            `osxphotos import /Volumes/Photos/* --walk --album "{filepath.parent}" --relative-to "/Volumes/Photos" --split-folder "/"`
+
+            This will produce folders/albums `2021/Family`, `2021/Travel`, and so on.
 
             Note: in Photos, only albums can contain photos and folders
             may contain albums or other folders. 
