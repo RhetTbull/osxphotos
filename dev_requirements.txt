@@ -15,3 +15,4 @@ sphinx-copybutton
 sphinxcontrib-programoutput
 twine
 wheel
+mistune>=2.0.3 # not directly required, pinned by Snyk to avoid a vulnerability
