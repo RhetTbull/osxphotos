@@ -5,7 +5,7 @@ import pathlib
 
 import pytest
 
-from osxphotos.fileutil import FileUtil
+from osxphotos.fileutil import FileUtil, FileUtilShUtil
 
 TEST_HEIC = "tests/test-images/IMG_3092.heic"
 TEST_RAW = "tests/test-images/DSC03584.dng"
@@ -35,6 +35,33 @@ def test_copy_file_invalid():
     with pytest.raises(Exception) as e:
         src = "tests/test-images/wedding_DOES_NOT_EXIST.jpg"
         assert FileUtil.copy(src, temp_dir.name)
+    assert e.type == OSError
+
+
+def test_copy_file_valid_shutil():
+    # copy file with valid src, dest with the shutil implementation
+    import os.path
+    import tempfile
+
+    from osxphotos.fileutil import FileUtil
+
+    temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    src = "tests/test-images/wedding.jpg"
+    result = FileUtilShUtil.copy(src, temp_dir.name)
+    assert result
+    assert os.path.isfile(os.path.join(temp_dir.name, "wedding.jpg"))
+
+
+def test_copy_file_invalid_shutil():
+    # copy file with invalid src with the shutil implementation
+    import tempfile
+
+    from osxphotos.fileutil import FileUtil
+
+    temp_dir = tempfile.TemporaryDirectory(prefix="osxphotos_")
+    with pytest.raises(Exception) as e:
+        src = "tests/test-images/wedding_DOES_NOT_EXIST.jpg"
+        assert FileUtilShUtil.copy(src, temp_dir.name)
     assert e.type == OSError
 
 
