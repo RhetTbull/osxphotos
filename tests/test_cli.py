@@ -1397,6 +1397,20 @@ def test_export():
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
 
 
+def test_export_alt_copy():
+    """test basic export with --alt-copy"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--alt-copy", "-V"]
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert sorted(files) == sorted(CLI_EXPORT_FILENAMES)
+
+
 def test_export_tmpdir():
     """test basic export with --tmpdir"""
     runner = CliRunner()
@@ -4862,7 +4876,7 @@ def test_export_then_hardlink():
 
 
 def test_export_dry_run():
-    """test export with dry-run flag"""
+    """test export with --dry-run flag"""
 
     runner = CliRunner()
     cwd = os.getcwd()
@@ -4870,6 +4884,27 @@ def test_export_dry_run():
     with runner.isolated_filesystem():
         result = runner.invoke(
             export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--dry-run"]
+        )
+        assert result.exit_code == 0
+        assert (
+            f"Processed: {PHOTOS_NOT_IN_TRASH_LEN_15_7} photos, exported: {PHOTOS_NOT_IN_TRASH_LEN_15_7+PHOTOS_EDITED_15_7}, missing: 3, error: 0"
+            in result.output
+        )
+        for filepath in CLI_EXPORT_FILENAMES_DRY_RUN:
+            assert re.search(r"Exported.*" + f"{re.escape(filepath)}", result.output)
+            assert not os.path.isfile(normalize_fs_path(filepath))
+
+
+def test_export_dry_run_alt_copy():
+    """test export with --dry-run flag and --alt-copy"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--alt-copy", "--dry-run"],
         )
         assert result.exit_code == 0
         assert (

@@ -2,6 +2,7 @@
 
 import os
 import pathlib
+import shutil
 import stat
 import tempfile
 import typing as t
@@ -12,7 +13,7 @@ import Foundation
 
 from .imageconverter import ImageConverter
 
-__all__ = ["FileUtilABC", "FileUtilMacOS", "FileUtil", "FileUtilNoOp"]
+__all__ = ["FileUtilABC", "FileUtilMacOS", "FileUtilShUtil", "FileUtil", "FileUtilNoOp"]
 
 
 class FileUtilABC(ABC):
@@ -25,7 +26,7 @@ class FileUtilABC(ABC):
 
     @classmethod
     @abstractmethod
-    def copy(cls, src, dest, norsrc=False):
+    def copy(cls, src, dest):
         pass
 
     @classmethod
@@ -250,6 +251,43 @@ class FileUtilMacOS(FileUtilABC):
         return (stat.S_IFMT(st.st_mode), st.st_size, int(st.st_mtime))
 
 
+class FileUtilShUtil(FileUtilMacOS):
+    """Various file utilities, uses shutil.copy to copy files instead of NSFileManager (#807)"""
+
+    @classmethod
+    def copy(cls, src, dest):
+        """Copies a file from src path to dest path using shutil.copy
+
+        Args:
+            src: source path as string; must be a valid file path
+            dest: destination path as string
+                  dest may be either directory or file; in either case, src file must not exist in dest
+            Note: src and dest may be either a string or a pathlib.Path object
+
+        Returns:
+            True if copy succeeded
+
+        Raises:
+            OSError if copy fails
+            TypeError if either path is None
+        """
+        if not isinstance(src, pathlib.Path):
+            src = pathlib.Path(src)
+
+        if not isinstance(dest, pathlib.Path):
+            dest = pathlib.Path(dest)
+
+        if dest.is_dir():
+            dest /= src.name
+
+        try:
+            shutil.copy(str(src), str(dest))
+        except Exception as e:
+            raise OSError(f"Error copying {src} to {dest}: {e}") from e
+
+        return True
+
+
 class FileUtil(FileUtilMacOS):
     """Various file utilities"""
 
@@ -280,7 +318,7 @@ class FileUtilNoOp(FileUtil):
         pass
 
     @classmethod
-    def copy(cls, src, dest, norsrc=False):
+    def copy(cls, src, dest):
         pass
 
     @classmethod

@@ -50,7 +50,7 @@ from osxphotos.datetime_formatter import DateTimeFormatter
 from osxphotos.debug import is_debug, set_debug
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.export_db import ExportDB, ExportDBInMemory
-from osxphotos.fileutil import FileUtil, FileUtilNoOp
+from osxphotos.fileutil import FileUtil, FileUtilNoOp, FileUtilShUtil
 from osxphotos.path_utils import is_valid_filepath, sanitize_filename, sanitize_filepath
 from osxphotos.photoexporter import ExportOptions, ExportResults, PhotoExporter
 from osxphotos.photoinfo import PhotoInfoNone
@@ -652,6 +652,15 @@ from .verbose import get_verbose_console, time_stamp, verbose_print
     type=click.Path(dir_okay=True, file_okay=False, exists=True),
 )
 @click.option(
+    "--alt-copy",
+    is_flag=True,
+    help="Use alternate copy method that may be more reliable for some "
+    "network attached storage (NAS) devices. Use --alt-copy if you experience "
+    "problems exporting to a NAS device or SMB volume. "
+    "Unlike the default copy method, --alt-copy does not support "
+    "copy-on-write on APFS volumes nor does it preserve filesystem metadata.",
+)
+@click.option(
     "--load-config",
     required=False,
     metavar="CONFIG_FILE",
@@ -745,6 +754,7 @@ def export(
     added_in_last,
     album_keyword,
     album,
+    alt_copy,
     append,
     beta,
     burst,
@@ -969,6 +979,7 @@ def export(
         add_skipped_to_album = cfg.add_skipped_to_album
         album = cfg.album
         album_keyword = cfg.album_keyword
+        alt_copy = cfg.alt_copy
         append = cfg.append
         beta = cfg.beta
         burst = cfg.burst
@@ -1333,7 +1344,7 @@ def export(
             if ramdb
             else ExportDB(dbfile=export_db_path, export_dir=dest)
         )
-        fileutil = FileUtil
+        fileutil = FileUtilShUtil if alt_copy else FileUtil
 
     if verbose_:
         if export_db.was_created:
