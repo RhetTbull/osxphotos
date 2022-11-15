@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Template System" href="template_help.html" /><link rel="prev" title="OSXPhotos Tutorial" href="tutorial.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.54.1 documentation</title>
+        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.54.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.54.1 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.54.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.54.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.54.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -1399,6 +1399,12 @@ to modify this behavior.</p>
 <dt class="sig sig-object std" id="cmdoption-osxphotos-export-tmpdir">
 <span class="sig-name descname"><span class="pre">--tmpdir</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;DIR&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-export-tmpdir" title="Permalink to this definition">#</a></dt>
 <dd><p>Specify alternate temporary directory. Default is system temporary directory. osxphotos needs to create a number of temporary files during export. In some cases, particularly if the Photos library is on an APFS volume that is not the system volume, osxphotos may run faster if you specify a temporary directory on the same volume as the Photos library.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-export-alt-copy">
+<span class="sig-name descname"><span class="pre">--alt-copy</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-export-alt-copy" title="Permalink to this definition">#</a></dt>
+<dd><p>Use alternate copy method that may be more reliable for some network attached storage (NAS) devices. Use –alt-copy if you experience problems exporting to a NAS device or SMB volume. Unlike the default copy method, –alt-copy does not support copy-on-write on APFS volumes nor does it preserve filesystem metadata.</p>
 </dd></dl>
 
 <dl class="std option">

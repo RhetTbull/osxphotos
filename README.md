@@ -1324,6 +1324,14 @@ Options:
                                   not the system volume, osxphotos may run
                                   faster if you specify a temporary directory on
                                   the same volume as the Photos library.
+  --alt-copy                      Use alternate copy method that may be more
+                                  reliable for some network attached storage
+                                  (NAS) devices. Use --alt-copy if you
+                                  experience problems exporting to a NAS device
+                                  or SMB volume. Unlike the default copy method,
+                                  --alt-copy does not support copy-on-write on
+                                  APFS volumes nor does it preserve filesystem
+                                  metadata.
   --load-config CONFIG_FILE       Load options from file as written with --save-
                                   config. This allows you to save a complex
                                   export command to file for later reuse. For
@@ -2002,7 +2010,7 @@ Substitution                    Description
 {cr}                            A carriage return: '\r'
 {crlf}                          A carriage return + line feed: '\r\n'
 {tab}                           :A tab: '\t'
-{osxphotos_version}             The osxphotos version, e.g. '0.54.1'
+{osxphotos_version}             The osxphotos version, e.g. '0.54.2'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2486,7 +2494,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.54.1'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.54.2'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
