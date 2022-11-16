@@ -1,5 +1,7 @@
 """ test SearchInfo class """
 
+# Note: Run tests/generate_search_info_test_data.py to generate the UUID_SEARCH_INFO dict
+
 import json
 import os
 
