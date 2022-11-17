@@ -21,7 +21,6 @@ __all__ = [
     "get_db_version",
     "get_model_version",
     "get_db_model_version",
-    "UnknownLibraryVersion",
     "get_photos_library_version",
 ]
 
@@ -115,10 +114,6 @@ def get_db_model_version(db_file: str) -> int:
         return 8
 
 
-class UnknownLibraryVersion(Exception):
-    pass
-
-
 def get_photos_library_version(library_path):
     """Return int indicating which Photos version a library was created with"""
     library_path = pathlib.Path(library_path)
@@ -140,4 +135,9 @@ def get_photos_library_version(library_path):
         return 6
     if _PHOTOS_7_MODEL_VERSION[0] <= model_ver <= _PHOTOS_7_MODEL_VERSION[1]:
         return 7
-    raise UnknownLibraryVersion(f"db_ver = {db_ver}, model_ver = {model_ver}")
+    if _PHOTOS_8_MODEL_VERSION[0] <= model_ver <= _PHOTOS_8_MODEL_VERSION[1]:
+        return 8
+    logging.warning(
+        f"Unknown db / model version: db_ver={db_ver}, model_ver={model_ver}; assuming Photos 8"
+    )
+    return 8
