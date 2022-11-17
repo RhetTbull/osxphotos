@@ -395,6 +395,15 @@
         "code",
         "test"
       ]
+    },
+    {
+      "login": "zephyr325",
+      "name": "zephyr325",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5245609?v=4",
+      "profile": "https://github.com/zephyr325",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
