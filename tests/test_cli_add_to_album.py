@@ -1,14 +1,19 @@
 """ Test --add-exported-to-album """
 
-import pytest
 import os
-from click.testing import CliRunner
+
 import photoscript
+import pytest
+from click.testing import CliRunner
 
 UUID_EXPORT = {"3DD2C897-F19E-4CA6-8C22-B027D5A71907": {"filename": "IMG_4547.jpg"}}
 UUID_MISSING = {
     "8E1D7BC9-9321-44F9-8CFB-4083F6B9232A": {"filename": "IMG_2000.JPGssss"}
 }
+
+# photos with matching names
+QUERY_NAME = "AAF035"
+QUERY_COUNT = 4
 
 
 @pytest.mark.addalbum
@@ -113,3 +118,23 @@ def test_query_add_to_album(addalbum_library):
         got_uuids = [p.uuid for p in album.photos()]
         assert sorted(got_uuids) == sorted(list(UUID_EXPORT.keys()))
 
+
+@pytest.mark.addalbum
+def test_query_add_to_album_multiple_results(addalbum_library):
+    """Test osxphotos query --add-to-album with multiple results, see #848"""
+    from osxphotos.cli import query
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    with runner.isolated_filesystem():
+        QUERY_ALBUM = "OSXPhotos Query"
+
+        result = runner.invoke(
+            query, ["--add-to-album", QUERY_ALBUM, "--name", QUERY_NAME]
+        )
+        assert result.exit_code == 0
+
+        photoslib = photoscript.PhotosLibrary()
+        album = photoslib.album(QUERY_ALBUM)
+        assert album is not None
+        assert len(album) == QUERY_COUNT
