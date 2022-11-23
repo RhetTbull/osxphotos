@@ -26,13 +26,19 @@ import click
 from photoscript import Photo, PhotosLibrary
 from rich.console import Console
 from rich.markdown import Markdown
+from strpdatetime import strpdatetime
 
 from osxphotos._constants import _OSXPHOTOS_NONE_SENTINEL
 from osxphotos._version import __version__
 from osxphotos.cli.common import get_data_dir
 from osxphotos.cli.help import HELP_WIDTH
-from osxphotos.cli.param_types import TemplateString
-from osxphotos.datetime_utils import datetime_naive_to_local
+from osxphotos.cli.param_types import StrpDateTimePattern, TemplateString
+from osxphotos.datetime_utils import (
+    datetime_has_tz,
+    datetime_remove_tz,
+    datetime_tz_to_utc,
+    datetime_utc_to_local,
+)
 from osxphotos.exiftool import ExifToolCaching, get_exiftool_path
 from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.photosalbum import PhotosAlbumPhotoScript
@@ -461,6 +467,33 @@ def set_photo_location(
         f"Setting location of photo [filename]{filepath.name}[/] to {location[0]}, {location[1]}"
     )
     photo.location = location
+
+
+def set_photo_date_from_filename(
+    photo: Photo, filepath: Path, parse_date: str, verbose: Callable[..., None]
+):
+    """Set date of photo from filename"""
+    # TODO: handle timezone (use code from timewarp), for now convert timezone to local timezone
+    try:
+        date = strpdatetime(filepath.name, parse_date)
+        # Photo.date must be timezone naive (assumed to local timezone)
+        if datetime_has_tz(date):
+            local_date = datetime_remove_tz(
+                datetime_utc_to_local(datetime_tz_to_utc(date))
+            )
+            verbose(
+                f"Moving timezone aware date [time]{date}[/] to local timezone: [time]{local_date.strftime('%Y-%m-%d %H:%M:%S')}[/]"
+            )
+            date = local_date
+    except ValueError:
+        verbose(
+            f"[warning]Could not parse date from filename [filename]{filepath.name}[/][/]"
+        )
+        return
+    verbose(
+        f"Setting date of photo [filename]{filepath.name}[/] to [time]{date.strftime('%Y-%m-%d %H:%M:%S')}[/]"
+    )
+    photo.date = date
 
 
 def get_relative_filepath(filepath: Path, relative_to: Optional[str]) -> Path:
@@ -1114,6 +1147,14 @@ class ImportCommand(click.Command):
     "positive longitudes are east of the Prime Meridian; negative longitudes are west of the Prime Meridian.",
 )
 @click.option(
+    "--parse-date",
+    "-P",
+    metavar="DATE_PATTERN",
+    type=StrpDateTimePattern(),
+    help="Parse date from filename using DATE_PATTERN. "
+    "If file does not match DATE_PATTERN, the date will be set by Photos using Photo's default behavior.",
+)
+@click.option(
     "--clear-metadata",
     "-C",
     is_flag=True,
@@ -1241,6 +1282,7 @@ def import_cli(
     location,
     merge_keywords,
     no_progress,
+    parse_date,
     relative_to,
     report,
     resume,
@@ -1380,6 +1422,9 @@ def import_cli(
 
             if location:
                 set_photo_location(photo, filepath, location, verbose)
+
+            if parse_date:
+                set_photo_date_from_filename(photo, filepath, parse_date, verbose)
 
             if album:
                 add_photo_to_albums(
