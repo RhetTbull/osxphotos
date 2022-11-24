@@ -26,13 +26,20 @@ import click
 from photoscript import Photo, PhotosLibrary
 from rich.console import Console
 from rich.markdown import Markdown
+from strpdatetime import strpdatetime
 
 from osxphotos._constants import _OSXPHOTOS_NONE_SENTINEL
 from osxphotos._version import __version__
 from osxphotos.cli.common import get_data_dir
 from osxphotos.cli.help import HELP_WIDTH
-from osxphotos.cli.param_types import TemplateString
-from osxphotos.datetime_utils import datetime_naive_to_local
+from osxphotos.cli.param_types import StrpDateTimePattern, TemplateString
+from osxphotos.datetime_utils import (
+    datetime_has_tz,
+    datetime_naive_to_local,
+    datetime_remove_tz,
+    datetime_tz_to_utc,
+    datetime_utc_to_local,
+)
 from osxphotos.exiftool import ExifToolCaching, get_exiftool_path
 from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.photosalbum import PhotosAlbumPhotoScript
@@ -89,7 +96,7 @@ class PhotoInfoFromFile:
 
     @property
     def date(self):
-        """Use file creation date and local timezone"""
+        """Use file creation date and local time zone"""
         ctime = os.path.getctime(self._path)
         dt = datetime.datetime.fromtimestamp(ctime)
         return datetime_naive_to_local(dt)
@@ -463,6 +470,33 @@ def set_photo_location(
     photo.location = location
 
 
+def set_photo_date_from_filename(
+    photo: Photo, filepath: Path, parse_date: str, verbose: Callable[..., None]
+):
+    """Set date of photo from filename"""
+    # TODO: handle timezone (use code from timewarp), for now convert timezone to local timezone
+    try:
+        date = strpdatetime(filepath.name, parse_date)
+        # Photo.date must be timezone naive (assumed to local timezone)
+        if datetime_has_tz(date):
+            local_date = datetime_remove_tz(
+                datetime_utc_to_local(datetime_tz_to_utc(date))
+            )
+            verbose(
+                f"Moving date with timezone [time]{date}[/] to local timezone: [time]{local_date.strftime('%Y-%m-%d %H:%M:%S')}[/]"
+            )
+            date = local_date
+    except ValueError:
+        verbose(
+            f"[warning]Could not parse date from filename [filename]{filepath.name}[/][/]"
+        )
+        return
+    verbose(
+        f"Setting date of photo [filename]{filepath.name}[/] to [time]{date.strftime('%Y-%m-%d %H:%M:%S')}[/]"
+    )
+    photo.date = date
+
+
 def get_relative_filepath(filepath: Path, relative_to: Optional[str]) -> Path:
     """Get relative filepath of file relative to relative_to or return filepath if relative_to is None
 
@@ -499,6 +533,7 @@ def check_templates_and_exit(
     album: Tuple[str],
     exiftool_path: Optional[str],
     exiftool: bool,
+    parse_date: Optional[str],
 ):
     """Renders templates against each file so user can verify correctness"""
     for file in files:
@@ -539,6 +574,14 @@ def check_templates_and_exit(
                 )
                 rendered_album = rendered_album[0] if rendered_album else "None"
                 echo(f"album: [italic]{al}[/]: {rendered_album}")
+        if parse_date:
+            try:
+                date = strpdatetime(file.name, parse_date)
+                echo(f"date: [italic]{parse_date}[/]: {date}")
+            except ValueError:
+                echo(
+                    f"[warning]Could not parse date from filename [filename]{file.name}[/][/]"
+                )
     sys.exit(0)
 
 
@@ -1042,6 +1085,49 @@ class ImportCommand(click.Command):
             but will instead print out the rendered value for each `--title`, `--description`,
             `--keyword`, and `--album` option. It will also print out the values extracted by
             the `--exiftool` option.
+
+            ## Parsing Dates/Times from Filenames
+
+            The --parse-date option allows you to parse dates/times from the filename of the
+            file being imported.  This is useful if you have a large number of files with
+            dates/times embedded in the filename but not in the metadata.
+
+            The argument to `--parse-date` is a pattern string that is used to parse the date/time
+            from the filename. The pattern string is a superset of the python `strftime/strptime`
+            format with the following additions:
+
+            - *: Match any number of characters
+            - ^: Match the beginning of the string
+            - $: Match the end of the string
+            - {n}: Match exactly n characters
+            - {n,}: Match at least n characters
+            - {n,m}: Match at least n characters and at most m characters
+            - In addition to `%%` for a literal `%`, the following format codes are supported: 
+                `%^`, `%$`, `%*`, `%|`, `%{`, `%}` for `^`, `$`, `*`, `|`, `{`, `}` respectively
+            - |: join multiple format codes; each code is tried in order until one matches
+            - Unlike the standard library, the leading zero is not optional for 
+                %d, %m, %H, %I, %M, %S, %j, %U, %W, and %V
+            - For optional leading zero, use %-d, %-m, %-H, %-I, %-M, %-S, %-j, %-U, %-W, and %-V
+
+            For more information on strptime format codes, see: 
+            https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-strptime-format-codes
+
+            **Note**: The time zone of the parsed date/time is assumed to be the local time zone.
+            If the parse pattern includes a time zone, the photo's time will be converted from
+            the specified time zone to the local time zone. osxphotos import does not
+            currently support setting the time zone of imported photos.
+            See also `osxphotos help timewarp` for more information on the timewarp
+            command which can be used to change the time zone of photos after import.
+
+            ### Examples
+
+            If you have photos with embedded names in filenames like `IMG_1234_20200322_123456.jpg`
+            and `12345678_20200322.jpg`, you can parse the dates with the following pattern:
+            `--parse-date "IMG_*_%Y%m%d_%H%M%S|*_%Y%m%d.*"`. The first pattern matches the first format
+            and the second pattern matches the second. The `|` character is used to separate the two
+            patterns. The order is important as the first pattern will be tried first then the second
+            and so on. If you have multiple formats in your filenames you will want to order the patterns
+            from most specific to least specific to avoid false matches.
         """
         )
         console = Console()
@@ -1112,6 +1198,21 @@ class ImportCommand(click.Command):
     "positive latitudes are north of the equator, negative latitudes are south of the equator. "
     "Longitude is a number in the range -180.0 to 180.0; "
     "positive longitudes are east of the Prime Meridian; negative longitudes are west of the Prime Meridian.",
+)
+@click.option(
+    "--parse-date",
+    "-P",
+    metavar="DATE_PATTERN",
+    type=StrpDateTimePattern(),
+    help="Parse date from filename using DATE_PATTERN. "
+    "If file does not match DATE_PATTERN, the date will be set by Photos using Photo's default behavior. "
+    "DATE_PATTERN is a strptime-compatible pattern with extensions as pattern described below. "
+    "If DATE_PATTERN matches time zone information, the time will be set to the local time in the timezone "
+    "as the import command does not yet support setting time zone information. "
+    "For example, if your photos are named 'IMG_1234_2022_11_23_12_34_56.jpg' where the date/time is "
+    "'2022-11-23 12:34:56', you could use the pattern '%Y_%m_%d_%H_%M_%S' or "
+    "'IMG_*_%Y_%m_%d_%H_%M_%S' to further narrow the pattern to only match files with 'IMG_xxxx_' in the name."
+    "See also --check-templates.",
 )
 @click.option(
     "--clear-metadata",
@@ -1217,7 +1318,7 @@ class ImportCommand(click.Command):
     "--check-templates",
     is_flag=True,
     help="Don't actually import anything; "
-    "renders template strings so you can verify they are correct.",
+    "renders template strings and date patterns so you can verify they are correct.",
 )
 @THEME_OPTION
 @click.argument("files", nargs=-1)
@@ -1241,6 +1342,7 @@ def import_cli(
     location,
     merge_keywords,
     no_progress,
+    parse_date,
     relative_to,
     report,
     resume,
@@ -1289,6 +1391,7 @@ def import_cli(
             album,
             exiftool_path,
             exiftool,
+            parse_date,
         )
 
     # initialize report data
@@ -1380,6 +1483,9 @@ def import_cli(
 
             if location:
                 set_photo_location(photo, filepath, location, verbose)
+
+            if parse_date:
+                set_photo_date_from_filename(photo, filepath, parse_date, verbose)
 
             if album:
                 add_photo_to_albums(

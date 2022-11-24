@@ -7,6 +7,7 @@ import re
 import bitmath
 import click
 import pytimeparse2
+from strpdatetime import strpdatetime
 
 from osxphotos.export_db_utils import export_db_get_version
 from osxphotos.photoinfo import PhotoInfoNone
@@ -21,6 +22,7 @@ __all__ = [
     "DateTimeISO8601",
     "ExportDBType",
     "FunctionCall",
+    "StrpDateTimePattern",
     "TemplateString",
     "TimeISO8601",
     "TimeOffset",
@@ -217,3 +219,24 @@ class UTCOffset(click.ParamType):
                 f"Invalid timezone format: {value}. "
                 "Valid format for timezone offset: '±HH:MM', '±H:MM', or '±HHMM'"
             )
+
+
+class StrpDateTimePattern(click.ParamType):
+    """A pattern to be used with strpdatetime()"""
+
+    name = "STRPDATETIME_PATTERN"
+
+    def convert(self, value, param, ctx):
+        try:
+            strpdatetime("", value)
+            return value
+        except ValueError as e:
+            # ValueError could be due to no match or invalid pattern
+            # only want to fail if invalid pattern
+            if any(
+                s in str(e)
+                for s in ["Invalid format string", "bad directive", "stray %"]
+            ):
+                self.fail(f"Invalid strpdatetime format string: {value}. {e}")
+            else:
+                return value
