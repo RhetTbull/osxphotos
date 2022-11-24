@@ -9,6 +9,7 @@ import re
 import shutil
 import sqlite3
 import time
+from datetime import datetime
 from tempfile import TemporaryDirectory
 from typing import Dict
 
@@ -17,7 +18,9 @@ from click.testing import CliRunner
 from photoscript import Photo
 from pytest import MonkeyPatch, approx
 
+from osxphotos import PhotosDB, QueryOptions
 from osxphotos.cli.import_cli import import_cli
+from osxphotos.datetime_utils import datetime_remove_tz
 from osxphotos.exiftool import get_exiftool_path
 from tests.conftest import get_os_version
 
@@ -26,6 +29,7 @@ TERMINAL_WIDTH = 250
 TEST_IMAGES_DIR = "tests/test-images"
 TEST_IMAGE_1 = "tests/test-images/IMG_4179.jpeg"
 TEST_IMAGE_2 = "tests/test-images/faceinfo/exif1.jpg"
+TEST_IMAGE_NO_EXIF = "tests/test-images/IMG_NO_EXIF.jpeg"
 TEST_VIDEO_1 = "tests/test-images/Jellyfish.mov"
 TEST_VIDEO_2 = "tests/test-images/IMG_0670B_NOGPS.MOV"
 
@@ -946,3 +950,48 @@ def test_import_resume(monkeypatch: MonkeyPatch, tmpdir):
     assert "Skipping" in result.output
     assert "1 skipped" in result.output
     assert "imported 1" in result.output
+
+
+@pytest.mark.test_import
+def test_import_parse_date(tmp_path: pathlib.Path):
+    """Test import with --parse-date"""
+
+    # set up test images
+    os.environ["TZ"] = "US/Pacific"
+    cwd = os.getcwd()
+    test_image_source = os.path.join(cwd, TEST_IMAGE_NO_EXIF)
+
+    default_date = datetime(1999, 1, 1, 0, 0, 0)
+    test_data = [
+        ["img_1234_2020_11_22_12_34_56.jpg", datetime(2020, 11, 22, 12, 34, 56)],
+        ["img_1234_20211122.jpg", datetime(2021, 11, 22, 0, 0, 0)],
+        ["19991231_20221122.jpg", datetime(2022, 11, 22, 0, 0, 0)],
+        ["test_parse_date.jpg", default_date],
+    ]
+    images = []
+    for img in [x[0] for x in test_data]:
+        test_file = tmp_path / img
+        shutil.copy(test_image_source, test_file)
+        images.append(test_file)
+
+        # set file time to default date
+        os.utime(test_file, (default_date.timestamp(), default_date.timestamp()))
+
+    runner = CliRunner()
+    result = runner.invoke(
+        import_cli,
+        [
+            "--verbose",
+            "--parse-date",
+            "img_*_%Y_%m_%d_%H_%M_%S|img_{4}_%Y%m%d|_%Y%m%d.",
+            *[str(x) for x in images],
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+
+    # verify that the date was parsed correctly
+    photosdb = PhotosDB()
+    for test_case in test_data:
+        photo = photosdb.query(QueryOptions(name=[test_case[0]]))[0]
+        assert datetime_remove_tz(photo.date) == test_case[1]

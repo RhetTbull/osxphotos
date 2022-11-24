@@ -533,6 +533,7 @@ def check_templates_and_exit(
     album: Tuple[str],
     exiftool_path: Optional[str],
     exiftool: bool,
+    parse_date: Optional[str],
 ):
     """Renders templates against each file so user can verify correctness"""
     for file in files:
@@ -573,6 +574,14 @@ def check_templates_and_exit(
                 )
                 rendered_album = rendered_album[0] if rendered_album else "None"
                 echo(f"album: [italic]{al}[/]: {rendered_album}")
+        if parse_date:
+            try:
+                date = strpdatetime(file.name, parse_date)
+                echo(f"date: [italic]{parse_date}[/]: {date}")
+            except ValueError:
+                echo(
+                    f"[warning]Could not parse date from filename [filename]{file.name}[/][/]"
+                )
     sys.exit(0)
 
 
@@ -1202,7 +1211,8 @@ class ImportCommand(click.Command):
     "as the import command does not yet support setting time zone information. "
     "For example, if your photos are named 'IMG_1234_2022_11_23_12_34_56.jpg' where the date/time is "
     "'2022-11-23 12:34:56', you could use the pattern '%Y_%m_%d_%H_%M_%S' or "
-    "'IMG_*_%Y_%m_%d_%H_%M_%S' to further narrow the pattern to only match files with 'IMG_xxxx_' in the name. ",
+    "'IMG_*_%Y_%m_%d_%H_%M_%S' to further narrow the pattern to only match files with 'IMG_xxxx_' in the name."
+    "See also --check-templates.",
 )
 @click.option(
     "--clear-metadata",
@@ -1308,7 +1318,7 @@ class ImportCommand(click.Command):
     "--check-templates",
     is_flag=True,
     help="Don't actually import anything; "
-    "renders template strings so you can verify they are correct.",
+    "renders template strings and date patterns so you can verify they are correct.",
 )
 @THEME_OPTION
 @click.argument("files", nargs=-1)
@@ -1381,6 +1391,7 @@ def import_cli(
             album,
             exiftool_path,
             exiftool,
+            parse_date,
         )
 
     # initialize report data

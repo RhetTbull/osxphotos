@@ -233,7 +233,10 @@ class StrpDateTimePattern(click.ParamType):
         except ValueError as e:
             # ValueError could be due to no match or invalid pattern
             # only want to fail if invalid pattern
-            if any(s in str(e) for s in ["Invalid format string", "bad directive", "stray %"]):
+            if any(
+                s in str(e)
+                for s in ["Invalid format string", "bad directive", "stray %"]
+            ):
                 self.fail(f"Invalid strpdatetime format string: {value}. {e}")
             else:
                 return value
