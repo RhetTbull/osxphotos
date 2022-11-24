@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Template System" href="template_help.html" /><link rel="prev" title="OSXPhotos Tutorial" href="tutorial.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.54.3 documentation</title>
+        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.54.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.54.3 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.54.4 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.54.3 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.54.4 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -1649,6 +1649,12 @@ to modify this behavior.</p>
 </dd></dl>
 
 <dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-P">
+<span id="cmdoption-osxphotos-import-p"></span><span id="cmdoption-osxphotos-import-parse-date"></span><span class="sig-name descname"><span class="pre">-P</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--parse-date</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;DATE_PATTERN&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-P" title="Permalink to this definition">#</a></dt>
+<dd><p>Parse date from filename using DATE_PATTERN. If file does not match DATE_PATTERN, the date will be set by Photos using Photo’s default behavior. DATE_PATTERN is a strptime-compatible pattern with extensions as pattern described below. If DATE_PATTERN matches time zone information, the time will be set to the local time in the timezone as the import command does not yet support setting time zone information. For example, if your photos are named ‘IMG_1234_2022_11_23_12_34_56.jpg’ where the date/time is ‘2022-11-23 12:34:56’, you could use the pattern ‘%Y_%m_%d_%H_%M_%S’ or ‘IMG_*_%Y_%m_%d_%H_%M_%S’ to further narrow the pattern to only match files with ‘<a href="#id3"><span class="problematic" id="id4">IMG_xxxx_</span></a>’ in the name.See also –check-templates.</p>
+</dd></dl>
+
+<dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-import-C">
 <span id="cmdoption-osxphotos-import-c"></span><span id="cmdoption-osxphotos-import-clear-metadata"></span><span class="sig-name descname"><span class="pre">-C</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--clear-metadata</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-C" title="Permalink to this definition">#</a></dt>
 <dd><p>Clear any metadata set automatically by Photos upon import. Normally, Photos will set title, description, and keywords from XMP metadata in the imported file.  If you specify –clear-metadata, any metadata set by Photos will be cleared after import.</p>
@@ -1667,8 +1673,8 @@ to modify this behavior.</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-import-p">
-<span id="cmdoption-osxphotos-import-exiftool-path"></span><span class="sig-name descname"><span class="pre">-p</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--exiftool-path</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;EXIFTOOL_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-p" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-0">
+<span id="cmdoption-osxphotos-import-exiftool-path"></span><span class="sig-name descname"><span class="pre">-p</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--exiftool-path</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;EXIFTOOL_PATH&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-0" title="Permalink to this definition">#</a></dt>
 <dd><p>Optionally specify path to exiftool; if not provided, will look for exiftool in $PATH.</p>
 </dd></dl>
 
@@ -1741,7 +1747,13 @@ to modify this behavior.</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-import-check-templates">
 <span class="sig-name descname"><span class="pre">--check-templates</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-import-check-templates" title="Permalink to this definition">#</a></dt>
-<dd><p>Don’t actually import anything; renders template strings so you can verify they are correct.</p>
+<dd><p>Don’t actually import anything; renders template strings and date patterns so you can verify they are correct.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-import-post-function">
+<span class="sig-name descname"><span class="pre">--post-function</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;filename.py::function&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-import-post-function" title="Permalink to this definition">#</a></dt>
+<dd><p>Run python function after importing file.Use this in format: –post-function filename.py::function where filename.py is a python file you’ve created and function is the name of the function in the python file you want to call. The function will be passed a reference to the photo object and the path to the file that was imported. You can run more than one function by repeating the ‘–post-function’ option with different arguments. See Post Function below.</p>
 </dd></dl>
 
 <dl class="std option">
