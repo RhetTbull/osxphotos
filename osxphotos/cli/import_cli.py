@@ -32,7 +32,7 @@ from osxphotos._constants import _OSXPHOTOS_NONE_SENTINEL
 from osxphotos._version import __version__
 from osxphotos.cli.common import get_data_dir
 from osxphotos.cli.help import HELP_WIDTH
-from osxphotos.cli.param_types import StrpDateTimePattern, TemplateString
+from osxphotos.cli.param_types import FunctionCall, StrpDateTimePattern, TemplateString
 from osxphotos.datetime_utils import (
     datetime_has_tz,
     datetime_naive_to_local,
@@ -49,6 +49,7 @@ from osxphotos.utils import pluralize
 
 from .click_rich_echo import (
     rich_click_echo,
+    rich_echo_error,
     set_rich_console,
     set_rich_theme,
     set_rich_timestamp,
@@ -1128,6 +1129,27 @@ class ImportCommand(click.Command):
             patterns. The order is important as the first pattern will be tried first then the second
             and so on. If you have multiple formats in your filenames you will want to order the patterns
             from most specific to least specific to avoid false matches.
+
+            ## Post Function
+
+            You can run a custom python function after each photo is imported using `--post-function`.
+            The format is `osxphotos import /file/to/import --post-function post_function.py::post_function`
+            where `post_function.py` is the name of the python file containing the function and `post_function`
+            is the name of the function. The function will be called with the following arguments:
+            `post_function(photo: photoscript.Photo, filepath: pathlib.Path, verbose: t.Callable, **kwargs)`
+
+            - photo: photoscript.Photo instance for the photo that's just been imported
+            - filepath: pathlib.Path to the file that was imported (this is the path to the source file, not the path inside the Photos library)
+            - verbose: A function to print verbose output if --verbose is set; if --verbose is not set, acts as a no-op (nothing gets printed)
+            - **kwargs: reserved for future use; recommend you include **kwargs so your function still works if additional arguments are added in future versions
+
+            The function will get called immediately after the photo has been imported into Photos
+            and all metadata been set (e.g. --exiftool, --title, etc.)
+
+            You may call more than one function by repeating the `--post-function` option.
+        
+            See https://rhettbull.github.io/PhotoScript/
+            for documentation on photoscript and the Photo class that is passed to the function.
         """
         )
         console = Console()
@@ -1320,6 +1342,19 @@ class ImportCommand(click.Command):
     help="Don't actually import anything; "
     "renders template strings and date patterns so you can verify they are correct.",
 )
+@click.option(
+    "--post-function",
+    metavar="filename.py::function",
+    nargs=1,
+    type=FunctionCall(),
+    multiple=True,
+    help="Run python function after importing file."
+    "Use this in format: --post-function filename.py::function where filename.py is a python "
+    "file you've created and function is the name of the function in the python file you want to call. "
+    "The function will be passed a reference to the photo object and the path to the file that was imported. "
+    "You can run more than one function by repeating the '--post-function' option with different arguments. "
+    "See Post Function below.",
+)
 @THEME_OPTION
 @click.argument("files", nargs=-1)
 @click.pass_obj
@@ -1343,6 +1378,7 @@ def import_cli(
     merge_keywords,
     no_progress,
     parse_date,
+    post_function,
     relative_to,
     report,
     resume,
@@ -1497,6 +1533,17 @@ def import_cli(
                     exiftool_path,
                     verbose,
                 )
+
+            if post_function:
+                for function in post_function:
+                    # post function is tuple of (function, filename.py::function_name)
+                    verbose(f"Calling post-function [bold]{function[1]}")
+                    try:
+                        function[0](photo, filepath, verbose)
+                    except Exception as e:
+                        rich_echo_error(
+                            f"[error]Error running post-function [italic]{function[1]}[/italic]: {e}"
+                        )
 
             update_report_record(report_data[filepath], photo, filepath)
             import_db.set(str(filepath), report_data[filepath])
