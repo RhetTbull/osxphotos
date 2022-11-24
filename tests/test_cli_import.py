@@ -995,3 +995,36 @@ def test_import_parse_date(tmp_path: pathlib.Path):
     for test_case in test_data:
         photo = photosdb.query(QueryOptions(name=[test_case[0]]))[0]
         assert datetime_remove_tz(photo.date) == test_case[1]
+
+
+@pytest.mark.test_import
+def test_import_post_function():
+    """Test import with --post-function"""
+
+    cwd = os.getcwd()
+    test_image_1 = os.path.join(cwd, TEST_IMAGE_1)
+
+    runner = CliRunner()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        with open("foo1.py", "w") as f:
+            f.writelines(
+                [
+                    "def foo(photo, filepath, verbose, **kwargs):\n",
+                    "    verbose('FOO BAR')\n",
+                ]
+            )
+
+        tempdir = os.getcwd()
+        result = runner.invoke(
+            import_cli,
+            [
+                "import",
+                "--verbose",
+                test_image_1,
+                "--post-function",
+                f"{tempdir}/foo1.py::foo",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "FOO BAR" in result.output
