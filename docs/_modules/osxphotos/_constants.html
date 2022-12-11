@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos._constants - osxphotos 0.54.1 documentation</title>
+        <title>osxphotos._constants - osxphotos 0.55.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.54.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.55.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.54.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.55.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -318,6 +318,7 @@
     <span class="p">(</span><span class="s2">&quot;12&quot;</span><span class="p">,</span> <span class="s2">&quot;4&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;12&quot;</span><span class="p">,</span> <span class="s2">&quot;5&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;12&quot;</span><span class="p">,</span> <span class="s2">&quot;6&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;13&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">),</span>
 <span class="p">]</span>
 
 <span class="c1"># Photos 5 has persons who are empty string if unidentified face</span>
@@ -433,13 +434,13 @@
         <span class="n">PHOTO_TYPE_FAVORITES</span><span class="p">,</span>
     <span class="p">]</span>
     <span class="n">PHOTO_NAME</span> <span class="o">=</span> <span class="mi">2056</span>
-    <span class="n">CAMERA</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># Photos 8+ only</span>
-    <span class="n">DETECTED_TEXT</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># Photos 8+ only</span>
+    <span class="n">CAMERA</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Photos 8+ only</span>
+    <span class="n">DETECTED_TEXT</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Photos 8+ only</span>
 
 
 <span class="k">class</span> <span class="nc">SearchCategory_Photos8</span><span class="p">(</span><span class="n">SearchCategory</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Search categories for Photos 8&quot;&quot;&quot;</span>
-    
+
     <span class="c1"># Many of the category values changed in Ventura / Photos 8</span>
     <span class="c1"># and some new categories were added</span>
     <span class="n">LABEL</span> <span class="o">=</span> <span class="mi">1500</span>
@@ -450,12 +451,12 @@
     <span class="n">KEYWORDS</span> <span class="o">=</span> <span class="mi">1200</span>
     <span class="n">TITLE</span> <span class="o">=</span> <span class="mi">1201</span>
     <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="mi">1202</span>
-    <span class="n">DETECTED_TEXT</span> <span class="o">=</span> <span class="mi">1203</span> <span class="c1"># new in Photos 8</span>
+    <span class="n">DETECTED_TEXT</span> <span class="o">=</span> <span class="mi">1203</span>  <span class="c1"># new in Photos 8</span>
     <span class="n">PERSON</span> <span class="o">=</span> <span class="mi">1300</span>
     <span class="n">ACTIVITY</span> <span class="o">=</span> <span class="mi">1600</span>
     <span class="n">PHOTO_TYPE_FAVORITES</span> <span class="o">=</span> <span class="mi">2000</span>
     <span class="n">PHOTO_NAME</span> <span class="o">=</span> <span class="mi">2100</span>
-    <span class="n">CAMERA</span> <span class="o">=</span> <span class="mi">2300</span> <span class="c1"># new in Photos 8</span>
+    <span class="n">CAMERA</span> <span class="o">=</span> <span class="mi">2300</span>  <span class="c1"># new in Photos 8</span>
 
 
 <span class="k">def</span> <span class="nf">search_category_factory</span><span class="p">(</span><span class="n">version</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SearchCategory</span><span class="p">:</span>

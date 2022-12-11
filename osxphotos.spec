@@ -24,10 +24,31 @@ datas.extend(
     ]
 )
 
-package_imports = [["photoscript", ["photoscript.applescript"]]]
+package_imports = [
+    ["photoscript", ["photoscript.applescript"]],
+]
 for package, files in package_imports:
     proot = os.path.dirname(importlib.import_module(package).__file__)
     datas.extend((os.path.join(proot, f), package) for f in files)
+
+# Add attribute data files for osxmetadata
+# There is probably a better way to do this but this works
+proot = os.path.dirname(importlib.import_module("osxmetadata").__file__)
+for attribute_data in [
+    "audio_attributes.json",
+    "common_attributes.json",
+    "filesystem_attributes.json",
+    "image_attributes.json",
+    "mdimporter_constants.json",
+    "nsurl_resource_keys.json",
+    "video_attributes.json",
+]:
+    datas.append(
+        (
+            os.path.join(proot, "attribute_data", attribute_data),
+            "osxmetadata/attribute_data",
+        )
+    )
 
 block_cipher = None
 
