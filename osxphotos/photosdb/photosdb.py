@@ -1297,7 +1297,9 @@ class PhotosDB:
                 RKModelResource.resourceTag, RKModelResource.UTI, RKVersion.specialType,
                 RKModelResource.attachedModelType, RKModelResource.resourceType
                 FROM RKVersion
-                JOIN RKModelResource on RKModelResource.attachedModelId = RKVersion.modelId """
+                JOIN RKModelResource on RKModelResource.attachedModelId = RKVersion.modelId
+                ORDER BY RKModelResource.modelId
+            """
         )
 
         # Order of results:
@@ -1307,8 +1309,8 @@ class PhotosDB:
         # 3     RKModelResource.resourceTag
         # 4     RKModelResource.UTI
         # 5     RKVersion.specialType
-        # 6     RKModelResource.attachedModelType
-        # 7     RKModelResource.resourceType
+        # 6     RKModelResource.attachedModelType (2 = edit)
+        # 7     RKModelResource.resourceType (4 = photo, 8 = video)
 
         for row in c:
             uuid = row[0]
@@ -1326,10 +1328,8 @@ class PhotosDB:
                                     f"WARNING: found more than one edit_resource_id for "
                                     f"UUID {row[0]},adjustmentUUID {row[1]}, modelID {row[2]}"
                                 )
-                        # TODO: I think there should never be more than one edit but
-                        # I've seen this once in my library
-                        # should we return all edits or just most recent one?
-                        # For now, return most recent edit
+                        # Sometimes the library has multiple edits for a photo
+                        # Not sure why, but we'll just use the most recent one
                         self._dbphotos[uuid]["edit_resource_id"] = row[2]
                         self._dbphotos[uuid]["UTI_edited"] = row[4]
 
@@ -1792,7 +1792,8 @@ class PhotosDB:
                 "parentfolder": album[7],
                 "pk": album[8],
                 "intrash": False if album[9] == 0 else True,
-                "creation_date": album[10] or 0, # iPhone Photos.sqlite can have null value
+                "creation_date": album[10]
+                or 0,  # iPhone Photos.sqlite can have null value
                 "start_date": album[11] or 0,
                 "end_date": album[12] or 0,
                 "customsortascending": album[13],

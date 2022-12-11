@@ -4,6 +4,8 @@ Represents a single photo in the Photos library and provides access to the photo
 PhotosDB.photos() returns a list of PhotoInfo objects
 """
 
+from __future__ import annotations
+
 import contextlib
 import dataclasses
 import datetime
@@ -277,76 +279,105 @@ class PhotoInfo:
 
         return photopath
 
-    def _path_edited_4(self):
-        """return path_edited for Photos <= 4"""
+    def _get_predicted_path_edited_4(self) -> str | None:
+        """return predicted path_edited for Photos <= 4"""
+        edit_id = self._info["edit_resource_id"]
+        folder_id, file_id, nn_id = _get_resource_loc(edit_id)
+        # figure out what kind it is and build filename
+        library = self._db._library_path
+        type_ = self._info["type"]
+        if type_ == _PHOTO_TYPE:
+            # it's a photo
+            filename = f"fullsizeoutput_{file_id}.jpeg"
+        elif type_ == _MOVIE_TYPE:
+            # it's a movie
+            filename = f"fullsizeoutput_{file_id}.mov"
+        else:
+            raise ValueError(f"Unknown type {type_}")
 
-        if self._db._db_version > _PHOTOS_4_VERSION:
-            raise RuntimeError("Wrong database format!")
+        return os.path.join(
+            library, "resources", "media", "version", folder_id, nn_id, filename
+        )
 
-        photopath = None
-        if self._info["hasAdjustments"]:
-            edit_id = self._info["edit_resource_id"]
-            if edit_id is not None:
-                library = self._db._library_path
-                folder_id, file_id = _get_resource_loc(edit_id)
-                # todo: is this always true or do we need to search file file_id under folder_id
-                # figure out what kind it is and build filename
-                filename = None
-                if self._info["type"] == _PHOTO_TYPE:
-                    # it's a photo
-                    filename = f"fullsizeoutput_{file_id}.jpeg"
-                elif self._info["type"] == _MOVIE_TYPE:
-                    # it's a movie
-                    filename = f"fullsizeoutput_{file_id}.mov"
-                else:
-                    # don't know what it is!
-                    logging.debug(f"WARNING: unknown type {self._info['type']}")
-                    return None
+    def _path_edited_4(self) -> str | None:
+        """return path_edited for Photos <= 4; modified version of code in PhotoInfo to debug #859"""
 
-                # photopath appears to usually be in "00" subfolder but
-                # could be elsewhere--I haven't figured out this logic yet
-                # first see if it's in 00
-                photopath = os.path.join(
-                    library, "resources", "media", "version", folder_id, "00", filename
-                )
+        if not self._info["hasAdjustments"]:
+            return None
 
-                if not os.path.isfile(photopath):
-                    rootdir = os.path.join(
-                        library, "resources", "media", "version", folder_id
-                    )
+        if edit_id := self._info["edit_resource_id"]:
+            try:
+                photopath = self._get_predicted_path_edited_4()
+            except ValueError as e:
+                logging.debug(f"ERROR: {e}")
+                photopath = None
 
-                    for dirname, _, filelist in os.walk(rootdir):
-                        if filename in filelist:
-                            photopath = os.path.join(dirname, filename)
-                            break
+            if photopath is not None and not os.path.isfile(photopath):
+                # the heuristic failed, so try to find the file
+                rootdir = pathlib.Path(photopath).parent.parent
+                filename = pathlib.Path(photopath).name
+                for dirname, _, filelist in os.walk(rootdir):
+                    if filename in filelist:
+                        photopath = os.path.join(dirname, filename)
+                        break
 
-                # check again to see if we found a valid file
-                if not os.path.isfile(photopath):
-                    logging.debug(
-                        f"MISSING PATH: edited file for UUID {self._uuid} should be at {photopath} but does not appear to exist"
-                    )
-                    photopath = None
-            else:
+            # check again to see if we found a valid file
+            if photopath is not None and not os.path.isfile(photopath):
                 logging.debug(
-                    f"{self.uuid} hasAdjustments but edit_resource_id is None"
+                    f"MISSING PATH: edited file for UUID {self._uuid} should be at {photopath} but does not appear to exist"
                 )
                 photopath = None
         else:
+            logging.debug(f"{self.uuid} hasAdjustments but edit_resource_id is None")
             photopath = None
 
         return photopath
 
     @property
     def path_edited_live_photo(self):
-        """return path to edited version of live photo movie; only valid for Photos 5+"""
-        if self._db._db_version < _PHOTOS_5_VERSION:
-            return None
-
+        """return path to edited version of live photo movie"""
         try:
             return self._path_edited_live_photo
         except AttributeError:
-            self._path_edited_live_photo = self._path_edited_5_live_photo()
+            if self._db._db_version < _PHOTOS_5_VERSION:
+                self._path_edited_live_photo = self._path_edited_4_live_photo()
+            else:
+                self._path_edited_live_photo = self._path_edited_5_live_photo()
             return self._path_edited_live_photo
+
+    def _get_predicted_path_edited_live_photo_4(self) -> str | None:
+        """return predicted path_edited for Photos <= 4"""
+        edit_id = self._info["edit_resource_id"]
+        folder_id, file_id, nn_id = _get_resource_loc(edit_id)
+        # figure out what kind it is and build filename
+        library = self._db._library_path
+        filename = f"videocomplementoutput_{file_id}.mov"
+        return os.path.join(
+            library, "resources", "media", "version", folder_id, nn_id, filename
+        )
+
+    def _path_edited_4_live_photo(self):
+        """return path_edited_live_photo for Photos <= 4"""
+        if self._db._db_version > _PHOTOS_4_VERSION:
+            raise RuntimeError("Wrong database format!")
+        photopath = self._get_predicted_path_edited_live_photo_4()
+        if not os.path.isfile(photopath):
+            # the heuristic failed, so try to find the file
+            rootdir = pathlib.Path(photopath).parent.parent
+            filename = pathlib.Path(photopath).name
+            photopath = next(
+                (
+                    os.path.join(dirname, filename)
+                    for dirname, _, filelist in os.walk(rootdir)
+                    if filename in filelist
+                ),
+                None,
+            )
+        if photopath is None:
+            logging.debug(
+                f"MISSING PATH: edited live photo file for UUID {self._uuid} does not appear to exist"
+            )
+        return photopath
 
     def _path_edited_5_live_photo(self):
         """return path_edited_live_photo for Photos >= 5"""
@@ -863,7 +894,7 @@ class PhotoInfo:
                     logging.debug(f"missing live_model_id: {self._uuid}")
                     photopath = None
                 else:
-                    folder_id, file_id = _get_resource_loc(live_model_id)
+                    folder_id, file_id, nn_id = _get_resource_loc(live_model_id)
                     library_path = self._db.library_path
                     photopath = os.path.join(
                         library_path,
@@ -871,7 +902,7 @@ class PhotoInfo:
                         "media",
                         "master",
                         folder_id,
-                        "00",
+                        nn_id,
                         f"jpegvideocomplement_{file_id}.mov",
                     )
                     if not os.path.isfile(photopath):
@@ -934,17 +965,13 @@ class PhotoInfo:
         modelid = self._info["modelID"]
         if modelid is None:
             return []
-        folder_id, file_id = _get_resource_loc(modelid)
+        folder_id, file_id, nn_id = _get_resource_loc(modelid)
         derivatives_root = (
             pathlib.Path(self._db._library_path)
             / f"resources/proxies/derivatives/{folder_id}"
         )
 
-        # photos appears to usually be in "00" subfolder but
-        # could be elsewhere--I haven't figured out this logic yet
-        # first see if it's in 00
-
-        derivatives_path = derivatives_root / "00" / file_id
+        derivatives_path = derivatives_root / nn_id / file_id
         if derivatives_path.is_dir():
             files = derivatives_path.glob("*")
             files = sorted(files, reverse=True, key=lambda f: f.stat().st_size)
