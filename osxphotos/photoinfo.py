@@ -4,6 +4,8 @@ Represents a single photo in the Photos library and provides access to the photo
 PhotosDB.photos() returns a list of PhotoInfo objects
 """
 
+from __future__ import annotations
+
 import contextlib
 import dataclasses
 import datetime
