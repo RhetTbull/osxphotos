@@ -7,7 +7,7 @@
 [![Downloads](https://static.pepy.tech/personalized-badge/osxphotos?period=month&units=international_system&left_color=black&right_color=brightgreen&left_text=downloads/month)](https://pepy.tech/project/osxphotos)
 [![subreddit](https://img.shields.io/reddit/subreddit-subscribers/osxphotos?style=social)](https://www.reddit.com/r/osxphotos/)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-42-orange.svg?style=flat)](#contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-43-orange.svg?style=flat)](#contributors)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 OSXPhotos provides the ability to interact with and query Apple's Photos.app library on macOS. You can query the Photos library database — for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos.
@@ -2598,6 +2598,9 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center"><a href="https://nomadgate.com"><img src="https://avatars.githubusercontent.com/u/1646041?v=4?s=75" width="75px;" alt="Thomas K. Running"/><br /><sub><b>Thomas K. Running</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=tkrunning" title="Code">💻</a> <a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Atkrunning" title="Bug reports">🐛</a></td>
       <td align="center"><a href="http://dalisoft.uz"><img src="https://avatars.githubusercontent.com/u/3511344?v=4?s=75" width="75px;" alt="Davlatjon Shavkatov"/><br /><sub><b>Davlatjon Shavkatov</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=dalisoft" title="Code">💻</a> <a href="https://github.com/RhetTbull/osxphotos/commits?author=dalisoft" title="Tests">⚠️</a></td>
       <td align="center"><a href="https://github.com/zephyr325"><img src="https://avatars.githubusercontent.com/u/5245609?v=4?s=75" width="75px;" alt="zephyr325"/><br /><sub><b>zephyr325</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Azephyr325" title="Bug reports">🐛</a></td>
+    </tr>
+    <tr>
+      <td align="center"><a href="https://github.com/drodner"><img src="https://avatars.githubusercontent.com/u/10236892?v=4?s=75" width="75px;" alt="drodner"/><br /><sub><b>drodner</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Adrodner" title="Bug reports">🐛</a> <a href="#userTesting-drodner" title="User Testing">📓</a></td>
     </tr>
   </tbody>
 </table>
