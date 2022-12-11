@@ -404,6 +404,16 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "drodner",
+      "name": "drodner",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10236892?v=4",
+      "profile": "https://github.com/drodner",
+      "contributions": [
+        "bug",
+        "userTesting"
+      ]
     }
   ],
   "contributorsPerLine": 7,
