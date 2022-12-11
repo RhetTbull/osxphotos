@@ -325,8 +325,8 @@ TEMPLATE_VALUES_DATE_NOT_MODIFIED = {
 
 UUID_DETECTED_TEXT = "E2078879-A29C-4D6F-BACB-E3BBE6C3EB91"
 TEMPLATE_VALUES_DETECTED_TEXT = {
-    "{detected_text}": "OPEN",
-    "{;+detected_text:0.5}": "OPEN",
+    "{detected_text}": " ",
+    "{;+detected_text:0.5}": " ",
 }
 
 COMMENT_UUID_DICT = {

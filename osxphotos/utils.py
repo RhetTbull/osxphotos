@@ -101,22 +101,27 @@ def _check_file_exists(filename):
     return os.path.exists(filename) and not os.path.isdir(filename)
 
 
-def _get_resource_loc(model_id):
-    """returns folder_id and file_id needed to find location of edited photo"""
-    """ and live photos for version <= Photos 4.0 """
+def _get_resource_loc(model_id) -> tuple[str, str, str]:
+    """returns folder_id and file_id needed to find location of edited photo
+    and live photos for version <= Photos 4.0
+    modified version of code in utils to debug #859
+    """
     # determine folder where Photos stores edited version
     # edited images are stored in:
-    # Photos Library.photoslibrary/resources/media/version/XX/00/fullsizeoutput_Y.jpeg
+    # Photos Library.photoslibrary/resources/media/version/folder_id/nn/fullsizeoutput_file_id.jpeg
     # where XX and Y are computed based on RKModelResources.modelId
 
     # file_id (Y in above example) is hex representation of model_id without leading 0x
     file_id = hex_id = hex(model_id)[2:]
 
-    # folder_id (XX) in above example if first two chars of model_id converted to hex
+    # folder_id (XX) is digits -4 and -3 of hex representation of model_id
     # and left padded with zeros if < 4 digits
-    folder_id = hex_id.zfill(4)[0:2]
+    folder_id = hex_id.zfill(4)[-4:-2]
 
-    return folder_id, file_id
+    # find the nn_id which is the hex_id digits minus the last 4 chars (or 00 if len(hex_id) <= 4)
+    nn_id = hex_id[: len(hex_id) - 4].zfill(2) if len(hex_id) > 4 else "00"
+
+    return folder_id, file_id, nn_id
 
 
 def _dd_to_dms(dd):
