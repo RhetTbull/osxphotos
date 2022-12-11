@@ -84,4 +84,5 @@ exe = EXE(
     upx_exclude=[],
     runtime_tmpdir=None,
     console=True,
+    target_architecture="universal2",
 )
