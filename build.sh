@@ -48,6 +48,9 @@ echo "Building CLI executable"
 
 # zip up CLI executable
 echo "Zipping CLI executable"
-OSXPHOTOS_VERSION=$(python3 -c "import osxphotos; print(osxphotos.__version__)")
-zip dist/osxphotos_MacOS_exe_darwin_x64_v$OSXPHOTOS_VERSION.zip dist/osxphotos
+OSXPHOTOSVERSION=$(python3 -c "import osxphotos; print(osxphotos.__version__)")
+ARCHSTR=$(uname -m)
+ZIPNAME=osxphotos_MacOS_exe_darwin_${ARCHSTR}_v${OSXPHOTOSVERSION}.zip
+echo "Zipping CLI executable to $ZIPNAME"
+cd dist && zip $ZIPNAME osxphotos && cd ..
 rm dist/osxphotos

@@ -2170,6 +2170,9 @@ class PhotosDB:
             info["alt_master_uuid"] = None  # Photos 4
             info["raw_info"] = None  # Photos 4
 
+            # Photos 4 only
+            info["edit_resource_id"] = None
+
             self._dbphotos[uuid] = info
 
             # compute signatures for finding possible duplicates

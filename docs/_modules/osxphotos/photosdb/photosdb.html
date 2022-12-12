@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.photosdb.photosdb - osxphotos 0.54.1 documentation</title>
+        <title>osxphotos.photosdb.photosdb - osxphotos 0.55.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">osxphotos 0.54.1 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">osxphotos 0.55.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.54.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.55.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -1494,7 +1494,9 @@
 <span class="sd">                RKModelResource.resourceTag, RKModelResource.UTI, RKVersion.specialType,</span>
 <span class="sd">                RKModelResource.attachedModelType, RKModelResource.resourceType</span>
 <span class="sd">                FROM RKVersion</span>
-<span class="sd">                JOIN RKModelResource on RKModelResource.attachedModelId = RKVersion.modelId &quot;&quot;&quot;</span>
+<span class="sd">                JOIN RKModelResource on RKModelResource.attachedModelId = RKVersion.modelId</span>
+<span class="sd">                ORDER BY RKModelResource.modelId</span>
+<span class="sd">            &quot;&quot;&quot;</span>
         <span class="p">)</span>
 
         <span class="c1"># Order of results:</span>
@@ -1504,8 +1506,8 @@
         <span class="c1"># 3     RKModelResource.resourceTag</span>
         <span class="c1"># 4     RKModelResource.UTI</span>
         <span class="c1"># 5     RKVersion.specialType</span>
-        <span class="c1"># 6     RKModelResource.attachedModelType</span>
-        <span class="c1"># 7     RKModelResource.resourceType</span>
+        <span class="c1"># 6     RKModelResource.attachedModelType (2 = edit)</span>
+        <span class="c1"># 7     RKModelResource.resourceType (4 = photo, 8 = video)</span>
 
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
             <span class="n">uuid</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -1523,10 +1525,8 @@
                                     <span class="sa">f</span><span class="s2">&quot;WARNING: found more than one edit_resource_id for &quot;</span>
                                     <span class="sa">f</span><span class="s2">&quot;UUID </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">,adjustmentUUID </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">, modelID </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
                                 <span class="p">)</span>
-                        <span class="c1"># TODO: I think there should never be more than one edit but</span>
-                        <span class="c1"># I&#39;ve seen this once in my library</span>
-                        <span class="c1"># should we return all edits or just most recent one?</span>
-                        <span class="c1"># For now, return most recent edit</span>
+                        <span class="c1"># Sometimes the library has multiple edits for a photo</span>
+                        <span class="c1"># Not sure why, but we&#39;ll just use the most recent one</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;edit_resource_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;UTI_edited&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
 
@@ -1989,7 +1989,8 @@
                 <span class="s2">&quot;parentfolder&quot;</span><span class="p">:</span> <span class="n">album</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span>
                 <span class="s2">&quot;pk&quot;</span><span class="p">:</span> <span class="n">album</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span>
                 <span class="s2">&quot;intrash&quot;</span><span class="p">:</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">album</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">True</span><span class="p">,</span>
-                <span class="s2">&quot;creation_date&quot;</span><span class="p">:</span> <span class="n">album</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span> <span class="c1"># iPhone Photos.sqlite can have null value</span>
+                <span class="s2">&quot;creation_date&quot;</span><span class="p">:</span> <span class="n">album</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span>
+                <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># iPhone Photos.sqlite can have null value</span>
                 <span class="s2">&quot;start_date&quot;</span><span class="p">:</span> <span class="n">album</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
                 <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="n">album</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
                 <span class="s2">&quot;customsortascending&quot;</span><span class="p">:</span> <span class="n">album</span><span class="p">[</span><span class="mi">13</span><span class="p">],</span>
