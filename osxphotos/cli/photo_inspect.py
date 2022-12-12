@@ -245,14 +245,18 @@ def format_paths(photo: PhotoInfo) -> str:
     """format photo paths for inspect_photo"""
     path_str = bold("Path original: ")
     path_str += f"[filepath]{format_path_link(photo.path)}[/]" if photo.path else "-"
-    if photo.path_edited:
-        path_str += "\n"
-        path_str += bold("Path edited: ")
-        path_str += f"[filepath]{format_path_link(photo.path_edited)}[/]"
     if photo.path_live_photo:
         path_str += "\n"
         path_str += bold("Path live video: ")
         path_str += f"[filepath]{format_path_link(photo.path_live_photo)}[/]"
+    if photo.path_edited:
+        path_str += "\n"
+        path_str += bold("Path edited: ")
+        path_str += f"[filepath]{format_path_link(photo.path_edited)}[/]"
+    if photo.path_edited_live_photo:
+        path_str += "\n"
+        path_str += bold("Path edited live video: ")
+        path_str += f"[filepath]{format_path_link(photo.path_edited_live_photo)}[/]"
     if photo.path_raw:
         path_str += "\n"
         path_str += bold("Path raw: ")
