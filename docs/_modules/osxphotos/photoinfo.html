@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.photoinfo - osxphotos 0.55.0 documentation</title>
+        <title>osxphotos.photoinfo - osxphotos 0.55.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.55.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.55.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.55.0 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.55.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -482,6 +482,16 @@
         <span class="n">folder_id</span><span class="p">,</span> <span class="n">file_id</span><span class="p">,</span> <span class="n">nn_id</span> <span class="o">=</span> <span class="n">_get_resource_loc</span><span class="p">(</span><span class="n">edit_id</span><span class="p">)</span>
         <span class="c1"># figure out what kind it is and build filename</span>
         <span class="n">library</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_library_path</span>
+        <span class="k">if</span> <span class="n">uti_edited</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uti_edited</span><span class="p">:</span>
+            <span class="n">ext</span> <span class="o">=</span> <span class="n">get_preferred_uti_extension</span><span class="p">(</span><span class="n">uti_edited</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ext</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;fullsizeoutput_</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="n">library</span><span class="p">,</span> <span class="s2">&quot;resources&quot;</span><span class="p">,</span> <span class="s2">&quot;media&quot;</span><span class="p">,</span> <span class="s2">&quot;version&quot;</span><span class="p">,</span> <span class="n">folder_id</span><span class="p">,</span> <span class="n">nn_id</span><span class="p">,</span> <span class="n">filename</span>
+                <span class="p">)</span>
+
+        <span class="c1"># if we get here, we couldn&#39;t figure out the extension</span>
+        <span class="c1"># so try to figure out the type and build the filename</span>
         <span class="n">type_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">type_</span> <span class="o">==</span> <span class="n">_PHOTO_TYPE</span><span class="p">:</span>
             <span class="c1"># it&#39;s a photo</span>
