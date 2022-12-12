@@ -28,7 +28,11 @@ def parse_date_time_from_filename(
         tuple of (new date/time as datetime.datetime, and new timezone offset from UTC in seconds as int)
     """
     filename = photo.filename
-    datetime = strpdatetime(filename, "^%Y-%m-%d")
+    try:
+        datetime = strpdatetime(filename, "^%Y-%m-%d")
+    except ValueError:
+        verbose(f"Unable to parse date/time from {filename}")
+        return photo.date, tz_sec
 
     verbose(f"Updating {photo.filename} date/time: {datetime}")
 
