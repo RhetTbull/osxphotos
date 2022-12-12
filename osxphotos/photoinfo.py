@@ -285,6 +285,16 @@ class PhotoInfo:
         folder_id, file_id, nn_id = _get_resource_loc(edit_id)
         # figure out what kind it is and build filename
         library = self._db._library_path
+        if uti_edited := self.uti_edited:
+            ext = get_preferred_uti_extension(uti_edited)
+            if ext is not None:
+                filename = f"fullsizeoutput_{file_id}.{ext}"
+                return os.path.join(
+                    library, "resources", "media", "version", folder_id, nn_id, filename
+                )
+
+        # if we get here, we couldn't figure out the extension
+        # so try to figure out the type and build the filename
         type_ = self._info["type"]
         if type_ == _PHOTO_TYPE:
             # it's a photo

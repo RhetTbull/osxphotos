@@ -1,7 +1,6 @@
-__all__ = ["get_preferred_uti_extension", "get_uti_for_extension"]
-""" get UTI for a given file extension and the preferred extension for a given UTI """
+""" get UTI for a given file extension and the preferred extension for a given UTI
 
-""" Implementation note: runs only on macOS
+Implementation note: runs only on macOS
 
     On macOS <= 11 (Big Sur), uses objective C CoreServices methods 
     UTTypeCopyPreferredTagWithClass and UTTypeCreatePreferredIdentifierForTag to retrieve the 
@@ -17,6 +16,8 @@ __all__ = ["get_preferred_uti_extension", "get_uti_for_extension"]
     It's a bit hacky but best I can think of to make this robust on different versions of macOS.  PRs welcome.
 """
 
+from __future__ import annotations
+
 import csv
 import re
 import subprocess
@@ -26,6 +27,8 @@ import CoreServices
 import objc
 
 from .utils import _get_os_version
+
+__all__ = ["get_preferred_uti_extension", "get_uti_for_extension"]
 
 # cached values of all the UTIs (< 6 chars long) known to my Mac running macOS 10.15.7
 UTI_CSV = """extension,UTI,preferred_extension,MIME_type
@@ -565,7 +568,7 @@ def _get_ext_from_uti_dict(uti):
         return None
 
 
-def get_preferred_uti_extension(uti):
+def get_preferred_uti_extension(uti: str) -> str | None:
     """get preferred extension for a UTI type
     uti: UTI str, e.g. 'public.jpeg'
     returns: preferred extension as str or None if cannot be determined"""
@@ -582,7 +585,7 @@ def get_preferred_uti_extension(uti):
 
             # on MacOS 10.12, HEIC files are not supported and UTTypeCopyPreferredTagWithClass will return None for HEIC
             if uti == "public.heic":
-                return "HEIC"
+                return "heic"
 
             return None
 
