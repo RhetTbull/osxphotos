@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.photoinfo - osxphotos 0.55.1 documentation</title>
+        <title>osxphotos.photoinfo - osxphotos 0.55.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.55.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.55.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.55.1 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.55.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -478,7 +478,7 @@
 
     <span class="k">def</span> <span class="nf">_get_predicted_path_edited_4</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;return predicted path_edited for Photos &lt;= 4&quot;&quot;&quot;</span>
-        <span class="n">edit_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;edit_resource_id&quot;</span><span class="p">]</span>
+        <span class="n">edit_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;edit_resource_id_photo&quot;</span><span class="p">]</span>
         <span class="n">folder_id</span><span class="p">,</span> <span class="n">file_id</span><span class="p">,</span> <span class="n">nn_id</span> <span class="o">=</span> <span class="n">_get_resource_loc</span><span class="p">(</span><span class="n">edit_id</span><span class="p">)</span>
         <span class="c1"># figure out what kind it is and build filename</span>
         <span class="n">library</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_library_path</span>
@@ -554,21 +554,24 @@
 
     <span class="k">def</span> <span class="nf">_get_predicted_path_edited_live_photo_4</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;return predicted path_edited for Photos &lt;= 4&quot;&quot;&quot;</span>
-        <span class="n">edit_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;edit_resource_id&quot;</span><span class="p">]</span>
-        <span class="n">folder_id</span><span class="p">,</span> <span class="n">file_id</span><span class="p">,</span> <span class="n">nn_id</span> <span class="o">=</span> <span class="n">_get_resource_loc</span><span class="p">(</span><span class="n">edit_id</span><span class="p">)</span>
-        <span class="c1"># figure out what kind it is and build filename</span>
-        <span class="n">library</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_library_path</span>
-        <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;videocomplementoutput_</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">.mov&quot;</span>
-        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="n">library</span><span class="p">,</span> <span class="s2">&quot;resources&quot;</span><span class="p">,</span> <span class="s2">&quot;media&quot;</span><span class="p">,</span> <span class="s2">&quot;version&quot;</span><span class="p">,</span> <span class="n">folder_id</span><span class="p">,</span> <span class="n">nn_id</span><span class="p">,</span> <span class="n">filename</span>
-        <span class="p">)</span>
+        <span class="c1"># need the resource id for the video, not the photo (edit_resource_id is for photo)</span>
+        <span class="k">if</span> <span class="n">edit_id</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;edit_resource_id_video&quot;</span><span class="p">]:</span>
+            <span class="n">folder_id</span><span class="p">,</span> <span class="n">file_id</span><span class="p">,</span> <span class="n">nn_id</span> <span class="o">=</span> <span class="n">_get_resource_loc</span><span class="p">(</span><span class="n">edit_id</span><span class="p">)</span>
+            <span class="c1"># figure out what kind it is and build filename</span>
+            <span class="n">library</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_library_path</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;videocomplementoutput_</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">.mov&quot;</span>
+            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">library</span><span class="p">,</span> <span class="s2">&quot;resources&quot;</span><span class="p">,</span> <span class="s2">&quot;media&quot;</span><span class="p">,</span> <span class="s2">&quot;version&quot;</span><span class="p">,</span> <span class="n">folder_id</span><span class="p">,</span> <span class="n">nn_id</span><span class="p">,</span> <span class="n">filename</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">_path_edited_4_live_photo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return path_edited_live_photo for Photos &lt;= 4&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&gt;</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Wrong database format!&quot;</span><span class="p">)</span>
         <span class="n">photopath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_predicted_path_edited_live_photo_4</span><span class="p">()</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">photopath</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">photopath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">photopath</span><span class="p">):</span>
             <span class="c1"># the heuristic failed, so try to find the file</span>
             <span class="n">rootdir</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">photopath</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
             <span class="n">filename</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">photopath</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
