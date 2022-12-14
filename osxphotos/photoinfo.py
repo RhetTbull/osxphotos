@@ -281,7 +281,7 @@ class PhotoInfo:
 
     def _get_predicted_path_edited_4(self) -> str | None:
         """return predicted path_edited for Photos <= 4"""
-        edit_id = self._info["edit_resource_id"]
+        edit_id = self._info["edit_resource_id_photo"]
         folder_id, file_id, nn_id = _get_resource_loc(edit_id)
         # figure out what kind it is and build filename
         library = self._db._library_path
@@ -357,21 +357,24 @@ class PhotoInfo:
 
     def _get_predicted_path_edited_live_photo_4(self) -> str | None:
         """return predicted path_edited for Photos <= 4"""
-        edit_id = self._info["edit_resource_id"]
-        folder_id, file_id, nn_id = _get_resource_loc(edit_id)
-        # figure out what kind it is and build filename
-        library = self._db._library_path
-        filename = f"videocomplementoutput_{file_id}.mov"
-        return os.path.join(
-            library, "resources", "media", "version", folder_id, nn_id, filename
-        )
+        # need the resource id for the video, not the photo (edit_resource_id is for photo)
+        if edit_id := self._info["edit_resource_id_video"]:
+            folder_id, file_id, nn_id = _get_resource_loc(edit_id)
+            # figure out what kind it is and build filename
+            library = self._db._library_path
+            filename = f"videocomplementoutput_{file_id}.mov"
+            return os.path.join(
+                library, "resources", "media", "version", folder_id, nn_id, filename
+            )
+        else:
+            return None
 
     def _path_edited_4_live_photo(self):
         """return path_edited_live_photo for Photos <= 4"""
         if self._db._db_version > _PHOTOS_4_VERSION:
             raise RuntimeError("Wrong database format!")
         photopath = self._get_predicted_path_edited_live_photo_4()
-        if not os.path.isfile(photopath):
+        if photopath is not None and not os.path.isfile(photopath):
             # the heuristic failed, so try to find the file
             rootdir = pathlib.Path(photopath).parent.parent
             filename = pathlib.Path(photopath).name

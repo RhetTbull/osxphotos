@@ -1322,16 +1322,30 @@ class PhotosDB:
                         and row[1] != "UNADJUSTED"
                         and row[6] == 2
                     ):
-                        if "edit_resource_id" in self._dbphotos[uuid]:
-                            if is_debug():
-                                logging.debug(
-                                    f"WARNING: found more than one edit_resource_id for "
-                                    f"UUID {row[0]},adjustmentUUID {row[1]}, modelID {row[2]}"
-                                )
-                        # Sometimes the library has multiple edits for a photo
-                        # Not sure why, but we'll just use the most recent one
-                        self._dbphotos[uuid]["edit_resource_id"] = row[2]
-                        self._dbphotos[uuid]["UTI_edited"] = row[4]
+                        resource_type = row[7]
+                        # UTI_edited will be set to the appropriate UTI for the edited resource below
+                        # a live photo that's edited will have both a photo and video resource but the photo
+                        # UTI will be used for the edited live photo, see #859
+                        if resource_type == 4:
+                            # photo
+                            if "edit_resource_id_photo" in self._dbphotos[uuid]:
+                                if is_debug():
+                                    logging.debug(
+                                        f"WARNING: found more than one edit_resource_id_photo for "
+                                        f"UUID {row[0]},adjustmentUUID {row[1]}, modelID {row[2]}"
+                                    )
+                            self._dbphotos[uuid]["edit_resource_id_photo"] = row[2]
+                            self._dbphotos[uuid]["UTI_edited_photo"] = row[4]
+                        elif resource_type == 8:
+                            # video
+                            if "edit_resource_id_video" in self._dbphotos[uuid]:
+                                if is_debug():
+                                    logging.debug(
+                                        f"WARNING: found more than one edit_resource_id_video for "
+                                        f"UUID {row[0]},adjustmentUUID {row[1]}, modelID {row[2]}"
+                                    )
+                            self._dbphotos[uuid]["edit_resource_id_video"] = row[2]
+                            self._dbphotos[uuid]["UTI_edited_video"] = row[4]
 
         # get details on external edits
         c.execute(
@@ -1384,9 +1398,27 @@ class PhotosDB:
                 )
 
         # init any uuids that had no edits or live photos
+        # also initialized UTI_edited and edit_resource_id
         for uuid in self._dbphotos:
-            if "edit_resource_id" not in self._dbphotos[uuid]:
-                self._dbphotos[uuid]["edit_resource_id"] = None
+            if "edit_resource_id_photo" not in self._dbphotos[uuid]:
+                self._dbphotos[uuid]["edit_resource_id_photo"] = None
+            if "edit_resource_id_video" not in self._dbphotos[uuid]:
+                self._dbphotos[uuid]["edit_resource_id_video"] = None
+            if "UTI_edited_photo" not in self._dbphotos[uuid]:
+                self._dbphotos[uuid]["UTI_edited_photo"] = None
+            if "UTI_edited_video" not in self._dbphotos[uuid]:
+                self._dbphotos[uuid]["UTI_edited_video"] = None
+            # UTI_edited will be set to the appropriate UTI for the edited resource below
+            # a live photo that's edited will have both a photo and video resource but the photo
+            # UTI will be used for the edited live photo
+            self._dbphotos[uuid]["UTI_edited"] = (
+                self._dbphotos[uuid]["UTI_edited_photo"]
+                or self._dbphotos[uuid]["UTI_edited_video"]
+            )
+            self._dbphotos[uuid]["edit_resource_id"] = (
+                self._dbphotos[uuid]["edit_resource_id_photo"]
+                or self._dbphotos[uuid]["edit_resource_id_video"]
+            )
             if "live_model_id" not in self._dbphotos[uuid]:
                 self._dbphotos[uuid]["live_model_id"] = None
                 self._dbphotos[uuid]["modeResourceIsOnDisk"] = None
@@ -2171,7 +2203,10 @@ class PhotosDB:
             info["raw_info"] = None  # Photos 4
 
             # Photos 4 only
-            info["edit_resource_id"] = None
+            info["edit_resource_id_photo"] = None
+            info["edit_resource_id_video"] = None
+            info["UTI_edited_photo"] = None
+            info["UTI_edited_video"] = None
 
             self._dbphotos[uuid] = info
 
