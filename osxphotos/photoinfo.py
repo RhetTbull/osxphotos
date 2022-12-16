@@ -809,8 +809,7 @@ class PhotoInfo:
         if self._db._photos_ver < 7:
             return self._info["UTI_raw"]
 
-        rawpath = self.path_raw
-        if rawpath:
+        if rawpath := self.path_raw:
             return get_uti_for_extension(pathlib.Path(rawpath).suffix)
         else:
             return None

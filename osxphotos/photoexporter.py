@@ -534,7 +534,12 @@ class PhotoExporter:
                 )
             else:
                 # guess at most likely raw name
-                raw_ext = get_preferred_uti_extension(self.photo.uti_raw) or "raw"
+                raw_ext = (
+                    get_preferred_uti_extension(self.photo.uti_raw)
+                    if self.photo.uti_raw
+                    else "raw"
+                )
+                raw_ext = raw_ext or "raw"
                 raw_name = dest.parent / f"{dest.stem}.{raw_ext}"
                 all_results.missing.append(raw_name)
                 verbose(
