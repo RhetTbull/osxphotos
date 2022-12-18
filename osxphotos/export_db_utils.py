@@ -20,6 +20,7 @@ from .utils import noop
 
 __all__ = [
     "export_db_check_signatures",
+    "export_db_get_errors",
     "export_db_get_last_run",
     "export_db_get_version",
     "export_db_save_config_to_file",
@@ -40,10 +41,9 @@ def export_db_get_version(
     """returns version from export database as tuple of (osxphotos version, export_db version)"""
     conn = sqlite3.connect(str(dbfile))
     c = conn.cursor()
-    row = c.execute(
+    if row := c.execute(
         "SELECT osxphotos, exportdb FROM version ORDER BY id DESC LIMIT 1;"
-    ).fetchone()
-    if row:
+    ).fetchone():
         return (row[0], row[1])
     return (None, None)
 
@@ -80,11 +80,13 @@ def export_db_update_signatures(
         filepath = export_dir / filepath
         if not os.path.exists(filepath):
             skipped += 1
-            verbose_(f"[dark_orange]Skipping missing file[/dark_orange]: '{filepath}'")
+            verbose_(
+                f"[dark_orange]Skipping missing file[/dark_orange]: '[filepath]{filepath}[/]'"
+            )
             continue
         updated += 1
         file_sig = fileutil.file_sig(filepath)
-        verbose_(f"[green]Updating signature for[/green]: '{filepath}'")
+        verbose_(f"[green]Updating signature for[/green]: '[filepath]{filepath}[/]'")
         if not dry_run:
             c.execute(
                 "UPDATE export_data SET dest_mode = ?, dest_size = ?, dest_mtime = ? WHERE filepath_normalized = ?;",
@@ -103,12 +105,27 @@ def export_db_get_last_run(
     """Get last run from export database"""
     conn = sqlite3.connect(str(export_db))
     c = conn.cursor()
-    row = c.execute(
+    if row := c.execute(
         "SELECT datetime, args FROM runs ORDER BY id DESC LIMIT 1;"
-    ).fetchone()
-    if row:
+    ).fetchone():
         return row[0], row[1]
     return None, None
+
+
+def export_db_get_errors(
+    export_db: Union[str, pathlib.Path]
+) -> Tuple[Optional[str], Optional[str]]:
+    """Get errors from export database"""
+    conn = sqlite3.connect(str(export_db))
+    c = conn.cursor()
+    results = c.execute(
+        "SELECT filepath, uuid, timestamp, error FROM export_data WHERE error is not null ORDER BY timestamp DESC;"
+    ).fetchall()
+    results = [
+        f"[filepath]{row[0]}[/], [uuid]{row[1]}[/], [time]{row[2]}[/], [error]{row[3]}[/]"
+        for row in results
+    ]
+    return results
 
 
 def export_db_save_config_to_file(
@@ -138,9 +155,11 @@ def export_db_get_config(
     conn = sqlite3.connect(str(export_db))
     c = conn.cursor()
     row = c.execute("SELECT config FROM config ORDER BY id DESC LIMIT 1;").fetchone()
-    if not row:
-        return ValueError("No config found in export_db")
-    return config.load_from_str(row[0], override=override)
+    return (
+        config.load_from_str(row[0], override=override)
+        if row
+        else ValueError("No config found in export_db")
+    )
 
 
 def export_db_check_signatures(
@@ -168,16 +187,20 @@ def export_db_check_signatures(
         filepath = export_dir / filepath
         if not filepath.exists():
             skipped += 1
-            verbose_(f"[dark_orange]Skipping missing file[/dark_orange]: '{filepath}'")
+            verbose_(
+                f"[dark_orange]Skipping missing file[/dark_orange]: '[filepath]{filepath}[/]'"
+            )
             continue
         file_sig = fileutil.file_sig(filepath)
         file_rec = exportdb.get_file_record(filepath)
         if file_rec.dest_sig == file_sig:
             matched += 1
-            verbose_(f"[green]Signatures matched[/green]: '{filepath}'")
+            verbose_(f"[green]Signatures matched[/green]: '[filepath]{filepath}[/]'")
         else:
             notmatched += 1
-            verbose_(f"[deep_pink3]Signatures do not match[/deep_pink3]: '{filepath}'")
+            verbose_(
+                f"[deep_pink3]Signatures do not match[/deep_pink3]: '[filepath]{filepath}[/]'"
+            )
 
     return (matched, notmatched, skipped)
 
@@ -196,8 +219,7 @@ def export_db_touch_files(
 
     # open and close exportdb to ensure it gets migrated
     exportdb = ExportDB(dbfile, export_dir)
-    upgraded = exportdb.was_upgraded
-    if upgraded:
+    if upgraded := exportdb.was_upgraded:
         verbose_(
             f"Upgraded export database {dbfile} from version {upgraded[0]} to {upgraded[1]}"
         )
@@ -205,9 +227,9 @@ def export_db_touch_files(
 
     conn = sqlite3.connect(str(dbfile))
     c = conn.cursor()
-    # get most recent config
-    row = c.execute("SELECT config FROM config ORDER BY id DESC LIMIT 1;").fetchone()
-    if row:
+    if row := c.execute(
+        "SELECT config FROM config ORDER BY id DESC LIMIT 1;"
+    ).fetchone():
         config = toml.loads(row[0])
         try:
             photos_db_path = config["export"].get("db", None)
@@ -237,7 +259,7 @@ def export_db_touch_files(
         if not filepath.exists():
             skipped += 1
             verbose_(
-                f"[dark_orange]Skipping missing file (not in export directory)[/dark_orange]: '{filepath}'"
+                f"[dark_orange]Skipping missing file (not in export directory)[/dark_orange]: '[filepath]{filepath}[/]'"
             )
             continue
 
@@ -245,7 +267,7 @@ def export_db_touch_files(
         if not photo:
             skipped += 1
             verbose_(
-                f"[dark_orange]Skipping missing photo (did not find in Photos Library)[/dark_orange]: '{filepath}' ({uuid})"
+                f"[dark_orange]Skipping missing photo (did not find in Photos Library)[/dark_orange]: '[filepath]{filepath}[/]' ([uuid]{uuid}[/])"
             )
             continue
 
@@ -255,14 +277,14 @@ def export_db_touch_files(
         if mtime == ts:
             not_touched += 1
             verbose_(
-                f"[green]Skipping file (timestamp matches)[/green]: '{filepath}' [dodger_blue1]{isotime_from_ts(ts)} ({ts})[/dodger_blue1]"
+                f"[green]Skipping file (timestamp matches)[/green]: '[filepath]{filepath}[/]' [time]{isotime_from_ts(ts)} ({ts})[/time]"
             )
             continue
 
         touched += 1
         verbose_(
-            f"[deep_pink3]Touching file[/deep_pink3]: '{filepath}' "
-            f"[dodger_blue1]{isotime_from_ts(mtime)} ({mtime}) -> {isotime_from_ts(ts)} ({ts})[/dodger_blue1]"
+            f"[deep_pink3]Touching file[/deep_pink3]: '[filepath]{filepath}[/]' "
+            f"[time]{isotime_from_ts(mtime)} ({mtime}) -> {isotime_from_ts(ts)} ({ts})[/time]"
         )
 
         if not dry_run:

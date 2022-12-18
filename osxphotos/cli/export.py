@@ -125,6 +125,17 @@ from .verbose import get_verbose_console, time_stamp, verbose_print
     "See also --update and notes below on export and --update.",
 )
 @click.option(
+    "--update-errors",
+    is_flag=True,
+    help="Update files that were previously exported but produced errors during export. "
+    "For example, if a file produced an error with --exiftool due to bad metadata, "
+    "this option will re-export the file and attempt to write the metadata again "
+    "when used with --exiftool and --update. "
+    "Without --update-errors, photos that were successfully exported but generated "
+    "an error or warning during export will not be re-attempted if metadata has not changed. "
+    "Must be used with --update.",
+)
+@click.option(
     "--ignore-signature",
     is_flag=True,
     help="When used with '--update', ignores file signature when updating files. "
@@ -888,6 +899,7 @@ def export(
     to_time,
     touch_file,
     update,
+    update_errors,
     use_photokit,
     use_photos_export,
     uti,
@@ -1109,6 +1121,7 @@ def export(
         to_time = cfg.to_time
         touch_file = cfg.touch_file
         update = cfg.update
+        update_errors = cfg.update_errors
         use_photokit = cfg.use_photokit
         use_photos_export = cfg.use_photos_export
         uti = cfg.uti
@@ -1148,9 +1161,10 @@ def export(
         ("hdr", "not_hdr"),
         ("hidden", "not_hidden"),
         ("in_album", "not_in_album"),
+        ("is_reference", "not_reference"),
+        ("keyword", "no_keyword"),
         ("live", "not_live"),
         ("location", "no_location"),
-        ("keyword", "no_keyword"),
         ("only_photos", "only_movies"),
         ("panorama", "not_panorama"),
         ("place", "no_place"),
@@ -1162,19 +1176,19 @@ def export(
         ("slow_mo", "not_slow_mo"),
         ("time_lapse", "not_time_lapse"),
         ("title", "no_title"),
-        ("is_reference", "not_reference"),
     ]
     dependent_options = [
+        ("append", ("report")),
         ("exiftool_merge_keywords", ("exiftool", "sidecar")),
         ("exiftool_merge_persons", ("exiftool", "sidecar")),
-        ("favorite_rating", ("exiftool", "sidecar")),
         ("exiftool_option", ("exiftool")),
+        ("favorite_rating", ("exiftool", "sidecar")),
         ("ignore_signature", ("update", "force_update")),
         ("jpeg_quality", ("convert_to_jpeg")),
         ("keep", ("cleanup")),
         ("missing", ("download_missing", "use_photos_export")),
         ("only_new", ("update", "force_update")),
-        ("append", ("report")),
+        ("update_errors", ("update")),
     ]
     try:
         cfg.validate(exclusive=exclusive_options, dependent=dependent_options, cli=True)
@@ -1563,6 +1577,7 @@ def export(
                     strip=strip,
                     touch_file=touch_file,
                     update=update,
+                    update_errors=update_errors,
                     use_photokit=use_photokit,
                     use_photos_export=use_photos_export,
                     verbose_=verbose_,
@@ -1849,6 +1864,7 @@ def export_photo(
     photo_num=1,
     num_photos=1,
     tmpdir=None,
+    update_errors=False,
 ):
     """Helper function for export that does the actual export
 
@@ -1895,6 +1911,7 @@ def export_photo(
         skip_original_if_edited: bool; if True does not export original if photo has been edited
         touch_file: bool; sets file's modification time to match photo date
         update: bool, only export updated photos
+        update_errors: bool, attempt to re-export photos that previously produced errors even if they otherwise would not be exported
         use_photos_export: bool; if True forces the use of AppleScript to export even if photo not missing
         verbose_: callable for verbose output
         tmpdir: optional str; temporary directory to use for export
@@ -2060,6 +2077,7 @@ def export_photo(
                 sidecar_flags=sidecar_flags,
                 touch_file=touch_file,
                 update=update,
+                update_errors=update_errors,
                 use_photos_export=use_photos_export,
                 use_photokit=use_photokit,
                 verbose_=verbose_,
@@ -2175,6 +2193,7 @@ def export_photo(
                     sidecar_flags=sidecar_flags if not export_original else 0,
                     touch_file=touch_file,
                     update=update,
+                    update_errors=update_errors,
                     use_photos_export=use_photos_export,
                     use_photokit=use_photokit,
                     verbose_=verbose_,
@@ -2261,6 +2280,7 @@ def export_photo_to_directory(
     sidecar_flags,
     touch_file,
     update,
+    update_errors,
     use_photos_export,
     use_photokit,
     verbose_,
@@ -2298,8 +2318,8 @@ def export_photo_to_directory(
                 download_missing=download_missing,
                 dry_run=dry_run,
                 edited=edited,
-                exiftool_flags=exiftool_option,
                 exiftool=exiftool,
+                exiftool_flags=exiftool_option,
                 export_as_hardlink=export_as_hardlink,
                 export_db=export_db,
                 favorite_rating=favorite_rating,
@@ -2314,22 +2334,23 @@ def export_photo_to_directory(
                 merge_exif_keywords=exiftool_merge_keywords,
                 merge_exif_persons=exiftool_merge_persons,
                 overwrite=overwrite,
-                preview_suffix=preview_suffix,
                 preview=export_preview or (missing and preview_if_missing),
+                preview_suffix=preview_suffix,
                 raw_photo=export_raw,
                 render_options=render_options,
                 replace_keywords=replace_keywords,
-                sidecar_drop_ext=sidecar_drop_ext,
+                rich=True,
                 sidecar=sidecar_flags,
+                sidecar_drop_ext=sidecar_drop_ext,
+                tmpdir=tmpdir,
                 touch_file=touch_file,
                 update=update,
+                update_errors=update_errors,
                 use_albums_as_keywords=album_keyword,
                 use_persons_as_keywords=person_keyword,
                 use_photokit=use_photokit,
                 use_photos_export=use_photos_export,
                 verbose=verbose_,
-                tmpdir=tmpdir,
-                rich=True,
             )
             exporter = PhotoExporter(photo)
             export_results = exporter.export(
