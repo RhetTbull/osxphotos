@@ -16,6 +16,7 @@ from osxphotos.export_db import (
 )
 from osxphotos.export_db_utils import (
     export_db_check_signatures,
+    export_db_get_errors,
     export_db_get_last_run,
     export_db_get_version,
     export_db_save_config_to_file,
@@ -25,10 +26,18 @@ from osxphotos.export_db_utils import (
 )
 from osxphotos.utils import pluralize
 
+from .click_rich_echo import (
+    rich_click_echo,
+    rich_echo,
+    rich_echo_error,
+    set_rich_console,
+    set_rich_theme,
+)
+from .color_themes import get_theme
 from .export import render_and_validate_report
 from .param_types import TemplateString
 from .report_writer import report_writer_factory
-from .verbose import verbose_print
+from .verbose import get_verbose_console, verbose_print
 
 
 @click.command(name="exportdb")
@@ -64,6 +73,16 @@ from .verbose import verbose_print
     metavar="FILE_PATH",
     nargs=1,
     help="Print information about FILE_PATH contained in the database.",
+)
+@click.option(
+    "--errors",
+    is_flag=True,
+    help="Print list of files that had warnings/errors on export (from all runs).",
+)
+@click.option(
+    "--last-errors",
+    is_flag=True,
+    help="Print list of files that had warnings/errors on last export run.",
 )
 @click.option(
     "--uuid-files",
@@ -145,6 +164,8 @@ def exportdb(
     export_db,
     export_dir,
     info,
+    errors,
+    last_errors,
     last_run,
     migrate,
     report,
@@ -161,13 +182,18 @@ def exportdb(
     version,
 ):
     """Utilities for working with the osxphotos export database"""
-
-    verbose_ = verbose_print(verbose, rich=True)
+    color_theme = get_theme()
+    verbose_ = verbose_print(
+        verbose, timestamp=False, rich=True, theme=color_theme, highlight=False
+    )
+    # set console for rich_echo to be same as for verbose_
+    set_rich_console(get_verbose_console(theme=color_theme))
+    set_rich_theme(color_theme)
 
     # validate options and args
     if append and not report:
-        print(
-            "[red]Error: --append requires --report; ee --help for more information.[/]",
+        rich_echo(
+            "[error]Error: --append requires --report; ee --help for more information.[/]",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -177,8 +203,8 @@ def exportdb(
         # assume it's the export folder
         export_db = export_db / OSXPHOTOS_EXPORT_DB
         if not export_db.is_file():
-            print(
-                f"[red]Error: {OSXPHOTOS_EXPORT_DB} missing from {export_db.parent}[/red]"
+            rich_echo(
+                f"[error]Error: {OSXPHOTOS_EXPORT_DB} missing from {export_db.parent}[/error]"
             )
             sys.exit(1)
 
@@ -203,7 +229,7 @@ def exportdb(
         ]
     ]
     if sum(sub_commands) > 1:
-        print("[red]Only a single sub-command may be specified at a time[/red]")
+        rich_echo("[error]Only a single sub-command may be specified at a time[/error]")
         sys.exit(1)
 
     # process sub-commands
@@ -212,11 +238,13 @@ def exportdb(
         try:
             osxphotos_ver, export_db_ver = export_db_get_version(export_db)
         except Exception as e:
-            print(f"[red]Error: could not read version from {export_db}: {e}[/red]")
+            rich_echo(
+                f"[error]Error: could not read version from {export_db}: {e}[/error]"
+            )
             sys.exit(1)
         else:
-            print(
-                f"osxphotos version: {osxphotos_ver}, export database version: {export_db_ver}"
+            rich_echo(
+                f"osxphotos version: [num]{osxphotos_ver}[/], export database version: [num]{export_db_ver}[/]"
             )
         sys.exit(0)
 
@@ -225,11 +253,11 @@ def exportdb(
             start_size = pathlib.Path(export_db).stat().st_size
             export_db_vacuum(export_db)
         except Exception as e:
-            print(f"[red]Error: {e}[/red]")
+            rich_echo(f"[error]Error: {e}[/error]")
             sys.exit(1)
         else:
-            print(
-                f"Vacuumed {export_db}! {start_size} bytes -> {pathlib.Path(export_db).stat().st_size} bytes"
+            rich_echo(
+                f"Vacuumed {export_db}! [num]{start_size}[/] bytes -> [num]{pathlib.Path(export_db).stat().st_size}[/] bytes"
             )
             sys.exit(0)
 
@@ -239,31 +267,33 @@ def exportdb(
                 export_db, export_dir, verbose_, dry_run
             )
         except Exception as e:
-            print(f"[red]Error: {e}[/red]")
+            rich_echo(f"[error]Error: {e}[/error]")
             sys.exit(1)
         else:
-            print(f"Done. Updated {updated} files, skipped {skipped} files.")
+            rich_echo(
+                f"Done. Updated [num]{updated}[/] files, skipped [num]{skipped}[/] files."
+            )
             sys.exit(0)
 
     if last_run:
         try:
             last_run_info = export_db_get_last_run(export_db)
         except Exception as e:
-            print(f"[red]Error: {e}[/red]")
+            rich_echo(f"[error]Error: {e}[/error]")
             sys.exit(1)
         else:
-            print(f"last run at {last_run_info[0]}:")
-            print(f"osxphotos {last_run_info[1]}")
+            rich_echo(f"last run at [time]{last_run_info[0]}:")
+            rich_echo(f"osxphotos {last_run_info[1]}")
             sys.exit(0)
 
     if save_config:
         try:
             export_db_save_config_to_file(export_db, save_config)
         except Exception as e:
-            print(f"[red]Error: {e}[/red]")
+            rich_echo(f"[error]Error: {e}[/error]")
             sys.exit(1)
         else:
-            print(f"Saved configuration to {save_config}")
+            rich_echo(f"Saved configuration to [filepath]{save_config}")
             sys.exit(0)
 
     if check_signatures:
@@ -272,11 +302,12 @@ def exportdb(
                 export_db, export_dir, verbose_=verbose_
             )
         except Exception as e:
-            print(f"[red]Error: {e}[/red]")
+            rich_echo(f"[error]Error: {e}[/error]")
             sys.exit(1)
         else:
-            print(
-                f"Done. Found {matched} matching signatures and {notmatched} signatures that don't match. Skipped {skipped} missing files."
+            rich_echo(
+                f"Done. Found [num]{matched}[/] matching signatures and [num]{notmatched}[/] signatures that don't match. "
+                f"Skipped [num]{skipped}[/] missing files."
             )
             sys.exit(0)
 
@@ -286,11 +317,12 @@ def exportdb(
                 export_db, export_dir, verbose_=verbose_, dry_run=dry_run
             )
         except Exception as e:
-            print(f"[red]Error: {e}[/red]")
+            rich_echo(f"[error]Error: {e}[/error]")
             sys.exit(1)
         else:
-            print(
-                f"Done. Touched {touched} files, skipped {not_touched} up to date files, skipped {skipped} missing files."
+            rich_echo(
+                f"Done. Touched [num]{touched}[/] files, skipped [num]{not_touched}[/] up to date files, "
+                f"skipped [num]{skipped}[/] missing files."
             )
             sys.exit(0)
 
@@ -299,14 +331,46 @@ def exportdb(
         try:
             info_rec = exportdb.get_file_record(info)
         except Exception as e:
-            print(f"[red]Error: {e}[/red]")
+            rich_echo(f"[error]Error: {e}[/error]")
             sys.exit(1)
         else:
             if info_rec:
+                # use rich print as rich_echo doesn't highlight json
                 print(info_rec.json(indent=2))
             else:
-                print(f"[red]File '{info}' not found in export database[/red]")
+                rich_echo(f"[error]File '{info}' not found in export database[/error]")
             sys.exit(0)
+
+    if errors:
+        # list errors
+        try:
+            error_list = export_db_get_errors(export_db)
+        except Exception as e:
+            rich_echo(f"[error]Error: {e}[/error]")
+            sys.exit(1)
+        else:
+            if error_list:
+                for error in error_list:
+                    rich_echo(error)
+            else:
+                rich_echo("No errors found")
+            sys.exit(0)
+
+    if last_errors:
+        exportdb = ExportDB(export_db, export_dir)
+        if export_results := exportdb.get_export_results(0):
+            for error in [
+                *export_results.error,
+                *export_results.exiftool_error,
+                *export_results.exiftool_warning,
+            ]:
+                rich_click_echo(
+                    f"[filepath]{error[0]}[/], [time]{export_results.datetime}[/], [error]{error[1]}[/]"
+                )
+            sys.exit(0)
+        else:
+            rich_echo_error("[error]Results from last run not found in database[/]")
+            sys.exit(1)
 
     if uuid_info:
         # get photoinfo record for a uuid
@@ -314,13 +378,16 @@ def exportdb(
         try:
             info_rec = exportdb.get_photoinfo_for_uuid(uuid_info)
         except Exception as e:
-            print(f"[red]Error: {e}[/red]")
+            rich_echo(f"[error]Error: {e}[/error]")
             sys.exit(1)
         else:
             if info_rec:
+                # use rich print as rich_echo doesn't highlight json
                 print(json.dumps(json.loads(info_rec), sort_keys=True, indent=2))
             else:
-                print(f"[red]UUID '{uuid_info}' not found in export database[/red]")
+                rich_echo(
+                    f"[error]UUID '{uuid_info}' not found in export database[/error]"
+                )
             sys.exit(0)
 
     if uuid_files:
@@ -329,32 +396,38 @@ def exportdb(
         try:
             file_list = exportdb.get_files_for_uuid(uuid_files)
         except Exception as e:
-            print(f"[red]Error: {e}[/red]")
+            rich_echo(f"[error]Error: {e}[/error]")
             sys.exit(1)
         else:
             if file_list:
                 for f in file_list:
-                    print(f)
+                    rich_echo(f"[filepath]{f}[/]")
             else:
-                print(f"[red]UUID '{uuid_files}' not found in export database[/red]")
+                rich_echo(
+                    f"[error]UUID '{uuid_files}' not found in export database[/error]"
+                )
             sys.exit(0)
 
     if delete_uuid:
         # delete a uuid from the export database
         exportdb = ExportDB(export_db, export_dir)
         for uuid in delete_uuid:
-            print(f"Deleting uuid {uuid} from database.")
+            rich_echo(f"Deleting uuid [uuid]{uuid}[/] from database.")
             count = exportdb.delete_data_for_uuid(uuid)
-            print(f"Deleted {count} {pluralize(count, 'record', 'records')}.")
+            rich_echo(
+                f"Deleted [num]{count}[/] {pluralize(count, 'record', 'records')}."
+            )
         sys.exit(0)
 
     if delete_file:
         # delete information associated with a file from the export database
         exportdb = ExportDB(export_db, export_dir)
         for filepath in delete_file:
-            print(f"Deleting file {filepath} from database.")
+            rich_echo(f"Deleting file [filepath]{filepath}[/] from database.")
             count = exportdb.delete_data_for_filepath(filepath)
-            print(f"Deleted {count} {pluralize(count, 'record', 'records')}.")
+            rich_echo(
+                f"Deleted [num]{count}[/] {pluralize(count, 'record', 'records')}."
+            )
             sys.exit(0)
 
     if report:
@@ -363,27 +436,27 @@ def exportdb(
         report_filename = render_and_validate_report(report_template, "", export_dir)
         export_results = exportdb.get_export_results(run_id)
         if not export_results:
-            print(f"[red]No report results found for run ID {run_id}[/red]")
+            rich_echo(f"[error]No report results found for run ID {run_id}[/error]")
             sys.exit(1)
         try:
             report_writer = report_writer_factory(report_filename, append=append)
         except ValueError as e:
-            print(f"[red]Error: {e}[/red]")
+            rich_echo(f"[error]Error: {e}[/error]")
             sys.exit(1)
         report_writer.write(export_results)
         report_writer.close()
-        print(f"Wrote report to {report_filename}")
+        rich_echo(f"Wrote report to [filepath]{report_filename}[/]")
         sys.exit(0)
 
     if migrate:
         exportdb = ExportDB(export_db, export_dir)
         if upgraded := exportdb.was_upgraded:
-            print(
-                f"Migrated export database {export_db} from version {upgraded[0]} to {upgraded[1]}"
+            rich_echo(
+                f"Migrated export database [filepath]{export_db}[/] from version [num]{upgraded[0]}[/] to [num]{upgraded[1]}[/]"
             )
         else:
-            print(
-                f"Export database {export_db} is already at latest version {OSXPHOTOS_EXPORTDB_VERSION}"
+            rich_echo(
+                f"Export database [filepath]{export_db}[/] is already at latest version [num]{OSXPHOTOS_EXPORTDB_VERSION}[/]"
             )
         sys.exit(0)
 
@@ -393,7 +466,7 @@ def exportdb(
             c = exportdb._conn.cursor()
             results = c.execute(sql)
         except Exception as e:
-            print(f"[red]Error: {e}[/red]")
+            rich_echo(f"[error]Error: {e}[/error]")
             sys.exit(1)
         else:
             for row in results:

@@ -1,10 +1,10 @@
 """ Helper class for managing database used by PhotoExporter for tracking state of exports and updates """
 
+from __future__ import annotations
 
 import datetime
 import gzip
 import json
-import logging
 import os
 import os.path
 import pathlib
@@ -32,7 +32,7 @@ __all__ = [
     "ExportDBTemp",
 ]
 
-OSXPHOTOS_EXPORTDB_VERSION = "7.1"
+OSXPHOTOS_EXPORTDB_VERSION = "8.0"
 OSXPHOTOS_ABOUT_STRING = f"Created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
 
 # max retry attempts for methods which use tenacity.retry
@@ -532,6 +532,10 @@ class ExportDB:
             # add timestamp to export_data
             self._migrate_7_0_to_7_1(conn)
 
+        if version[1] < "8.0":
+            # add error to export_data
+            self._migrate_7_1_to_8_0(conn)
+
         conn.execute("VACUUM;")
         conn.commit()
 
@@ -739,6 +743,7 @@ class ExportDB:
         conn.commit()
 
     def _migrate_7_0_to_7_1(self, conn):
+        """Add timestamp column to export_data table and triggers to update it on insert and update."""
         c = conn.cursor()
         # timestamp column should not exist but this prevents error if migration is run on an already migrated database
         # reference #794
@@ -765,6 +770,16 @@ class ExportDB:
             END;
             """
         )
+        conn.commit()
+
+    def _migrate_7_1_to_8_0(self, conn):
+        """Add error column to export_data table"""
+        c = conn.cursor()
+        results = c.execute(
+            "SELECT COUNT(*) FROM pragma_table_info('export_data') WHERE name='error';"
+        ).fetchone()
+        if results[0] == 0:
+            c.execute("""ALTER TABLE export_data ADD COLUMN error JSON;""")
         conn.commit()
 
     def _perform_db_maintenace(self, conn):
@@ -1133,6 +1148,35 @@ class ExportRecord:
             f"No timestamp found in database for {self._filepath_normalized}"
         )
 
+    @property
+    def error(self) -> dict[str, Any] | None:
+        """Return error value"""
+        conn = self._conn
+        c = conn.cursor()
+        if row := c.execute(
+            "SELECT error FROM export_data WHERE filepath_normalized = ?;",
+            (self._filepath_normalized,),
+        ).fetchone():
+            return json.loads(row[0]) if row[0] else None
+
+        raise ValueError(f"No error found in database for {self._filepath_normalized}")
+
+    @error.setter
+    def error(self, value: dict[str, Any] | None):
+        """Set error value"""
+        conn = self._conn
+        c = conn.cursor()
+        if value is None:
+            value = ""
+        # use default=str because some of the values are Path objects
+        error = json.dumps(value, default=str)
+        c.execute(
+            "UPDATE export_data SET error = ? WHERE filepath_normalized = ?;",
+            (error, self._filepath_normalized),
+        )
+        if not self._context_manager:
+            conn.commit()
+
     def asdict(self):
         """Return dict of self"""
         exifdata = json.loads(self.exifdata) if self.exifdata else None
@@ -1147,6 +1191,7 @@ class ExportRecord:
             "dest_sig": self.dest_sig,
             "export_options": self.export_options,
             "exifdata": exifdata,
+            "error": self.error,
             "photoinfo": photoinfo,
         }
 

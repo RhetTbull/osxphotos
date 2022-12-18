@@ -2292,24 +2292,72 @@ def test_export_exiftool_favorite_rating():
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
-        for uuid in CLI_EXIFTOOL:
-            result = runner.invoke(
-                export,
-                [
-                    os.path.join(cwd, PHOTOS_DB_15_7),
-                    ".",
-                    "-V",
-                    "--exiftool",
-                    "--uuid",
-                    UUID_FAVORITE,
-                    "--uuid",
-                    UUID_NOT_FAVORITE,
-                    "--favorite-rating",
-                ],
-            )
-            assert result.exit_code == 0
-            assert ExifTool(FILE_FAVORITE).asdict()["XMP:Rating"] == 5
-            assert ExifTool(FILE_NOT_FAVORITE).asdict()["XMP:Rating"] == 0
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--exiftool",
+                "--uuid",
+                UUID_FAVORITE,
+                "--uuid",
+                UUID_NOT_FAVORITE,
+                "--favorite-rating",
+            ],
+        )
+        assert result.exit_code == 0
+        assert ExifTool(FILE_FAVORITE).asdict()["XMP:Rating"] == 5
+        assert ExifTool(FILE_NOT_FAVORITE).asdict()["XMP:Rating"] == 0
+
+
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+def test_export_exiftool_update_errors():
+    """Test export with --update-errors, #872"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+
+    # first, normal export with --exiftool
+    # some of the files will have errors / warnings from exiftool
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--exiftool",
+            ],
+        )
+
+        # now run update; none of files should be updated
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--exiftool",
+                "--update",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "updated: 0" in result.output
+
+        # now run update-errors; only files with errors should be updated
+        result = runner.invoke(
+            export,
+            [
+                os.path.join(cwd, PHOTOS_DB_15_7),
+                ".",
+                "-V",
+                "--exiftool",
+                "--update",
+                "--update-errors",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "updated: 4" in result.output
 
 
 def test_export_edited_suffix():

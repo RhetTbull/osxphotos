@@ -76,6 +76,7 @@ class ShouldUpdate(Enum):
     EXIFTOOL_DIFFERENT = 6
     EDITED_SIG_DIFFERENT = 7
     DIGEST_DIFFERENT = 8
+    UPDATE_ERRORS = 9
 
 
 class ExportError(Exception):
@@ -130,6 +131,7 @@ class ExportOptions:
         timeout (int, default=120): timeout in seconds used with use_photos_export
         touch_file (bool, default=False): if True, sets file's modification time upon photo date
         update (bool, default=False): if True export will run in update mode, that is, it will not export the photo if the current version already exists in the destination
+        update_errors (bool, default=False): if True photos that previously produced a warning or error will be re-exported; otherwise they will note be
         use_albums_as_keywords (bool, default = False): if True, will include album names in keywords when exporting metadata with exiftool or sidecar
         use_persons_as_keywords (bool, default = False): if True, will include person names in keywords when exporting metadata with exiftool or sidecar
         use_photos_export (bool, default=False): if True will attempt to export photo via applescript interaction with Photos even if not missing (see also use_photokit, download_missing)
@@ -176,6 +178,7 @@ class ExportOptions:
     timeout: int = 120
     touch_file: bool = False
     update: bool = False
+    update_errors: bool = False
     use_albums_as_keywords: bool = False
     use_persons_as_keywords: bool = False
     use_photokit: bool = False
@@ -701,6 +704,10 @@ class PhotoExporter:
         self, src: pathlib.Path, dest: pathlib.Path, options: ExportOptions
     ) -> t.Literal[True, False]:
         """Return True if photo should be updated, else False"""
+
+        # NOTE: The order of certain checks is important
+        # read the comments below to understand why before changing
+        
         export_db = options.export_db
         fileutil = options.fileutil
 
@@ -730,6 +737,14 @@ class PhotoExporter:
             # and export database is missing; this will always be True if database is missing
             # as it'll be None and bit_flags will be an int
             return ShouldUpdate.EXPORT_OPTIONS_DIFFERENT
+
+        if options.update_errors and file_record.error is not None:
+            # files that were exported but generated an error
+            # won't be updated unless --update-errors is specified
+            # for example, an exiftool error due to bad metadata
+            # that the user subsequently fixed should be updated; see #872
+            # this must be checked before exiftool which will return False if exif data matches
+            return ShouldUpdate.UPDATE_ERRORS
 
         if options.exiftool:
             current_exifdata = self.exiftool_json_sidecar(options=options)
@@ -1179,8 +1194,7 @@ class PhotoExporter:
 
         # set data in the database
         with export_db.create_or_get_file_record(dest_str, self.photo.uuid) as rec:
-            photoinfo = self.photo.json()
-            rec.photoinfo = photoinfo
+            rec.photoinfo = self.photo.json()
             rec.export_options = options.bit_flags
             # don't set src_sig as that is set above before any modifications by convert_to_jpeg or exiftool
             if not options.ignore_signature:
@@ -1190,6 +1204,17 @@ class PhotoExporter:
             if self.photo.hexdigest != rec.digest:
                 results.metadata_changed = [dest_str]
             rec.digest = self.photo.hexdigest
+            # save errors to the export database (#872)
+            if (
+                results.error
+                or exif_results.exiftool_error
+                or exif_results.exiftool_warning
+            ):
+                rec.error = {
+                    "error": results.error,
+                    "exiftool_error": exif_results.exiftool_error,
+                    "exiftool_warning": exif_results.exiftool_warning,
+                }
 
         return results
 
