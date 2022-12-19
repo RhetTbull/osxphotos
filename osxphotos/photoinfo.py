@@ -149,38 +149,35 @@ class PhotoInfo:
                 return photopath  # path would be meaningless until downloaded
 
             if self._db._db_version <= _PHOTOS_4_VERSION:
-                return self._path_4()
-
-            if self._info["shared"]:
-                # shared photo
-                photopath = os.path.join(
-                    self._db._library_path,
-                    _PHOTOS_5_SHARED_PHOTO_PATH,
-                    self._info["directory"],
-                    self._info["filename"],
-                )
-                if not os.path.isfile(photopath):
-                    photopath = None
-                self._path = photopath
-                return photopath
-
-            if self._info["directory"].startswith("/"):
-                photopath = os.path.join(
-                    self._info["directory"], self._info["filename"]
-                )
+                photopath = self._path_4()
             else:
-                photopath = os.path.join(
-                    self._db._masters_path,
-                    self._info["directory"],
-                    self._info["filename"],
-                )
-            if not os.path.isfile(photopath):
+                photopath = self._path_5()
+            if photopath is not None and not os.path.isfile(photopath):
                 photopath = None
             self._path = photopath
             return photopath
 
+    def _path_5(self):
+        """Returns candidate path for original photo on Photos >= version 5"""
+        if self._info["shared"]:
+            return os.path.join(
+                self._db._library_path,
+                _PHOTOS_5_SHARED_PHOTO_PATH,
+                self._info["directory"],
+                self._info["filename"],
+            )
+        return (
+            os.path.join(self._info["directory"], self._info["filename"])
+            if self._info["directory"].startswith("/")
+            else os.path.join(
+                self._db._masters_path,
+                self._info["directory"],
+                self._info["filename"],
+            )
+        )
+
     def _path_4(self):
-        """return path for photo on Photos <= version 4"""
+        """Returns candidate path for original photo on Photos <= version 4"""
         if self._info["has_raw"]:
             # return the path to JPEG even if RAW is original
             vol = (
@@ -205,9 +202,6 @@ class PhotoInfo:
                 photopath = os.path.join(
                     self._db._masters_path, self._info["imagePath"]
                 )
-        if not os.path.isfile(photopath):
-            photopath = None
-        self._path = photopath
         return photopath
 
     @property
@@ -219,14 +213,20 @@ class PhotoInfo:
             return self._path_edited
         except AttributeError:
             if self._db._db_version <= _PHOTOS_4_VERSION:
-                self._path_edited = self._path_edited_4()
+                photopath = self._path_edited_4()
             else:
-                self._path_edited = self._path_edited_5()
+                photopath = self._path_edited_5()
 
+            if photopath is not None and not os.path.isfile(photopath):
+                logging.debug(
+                    f"edited file for UUID {self._uuid} should be at {photopath} but does not appear to exist"
+                )
+                photopath = None
+            self._path_edited = photopath
             return self._path_edited
 
     def _path_edited_5(self):
-        """return path_edited for Photos >= 5"""
+        """Returns candidate path_edited for Photos >= 5 or None if cannot be determined"""
         # In Photos 5.0 / Catalina / MacOS 10.15:
         # edited photos appear to always be converted to .jpeg and stored in
         # library_name/resources/renders/X/UUID_1_201_a.jpeg
@@ -261,23 +261,11 @@ class PhotoInfo:
                 logging.debug(f"WARNING: unknown type {self._info['type']}")
                 return None
 
-            photopath = os.path.join(
+            return os.path.join(
                 library, "resources", "renders", directory, filename
             )
 
-            if not os.path.isfile(photopath):
-                logging.debug(
-                    f"edited file for UUID {self._uuid} should be at {photopath} but does not appear to exist"
-                )
-                photopath = None
-        else:
-            photopath = None
-
-        # TODO: might be possible for original/master to be missing but edit to still be there
-        # if self._info["isMissing"] == 1:
-        #     photopath = None  # path would be meaningless until downloaded
-
-        return photopath
+        return None
 
     def _get_predicted_path_edited_4(self) -> str | None:
         """return predicted path_edited for Photos <= 4"""
