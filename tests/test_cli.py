@@ -993,6 +993,9 @@ FILE_FAVORITE = "wedding.jpg"
 UUID_NOT_FAVORITE = "1EB2B765-0765-43BA-A90C-0D0580E6172C"
 FILE_NOT_FAVORITE = "Pumpkins3.jpg"
 
+# number of photos in test library with Make=Canon
+EXIF_MAKE_CANON = 7
+
 
 def modify_file(filename):
     """appends data to a file to modify it"""
@@ -1383,6 +1386,33 @@ def test_query_exif_case_insensitive(exiftag, exifvalue, uuid_expected):
     json_got = json.loads(result.output)
     uuid_got = [photo["uuid"] for photo in json_got]
     assert sorted(uuid_got) == sorted(uuid_expected)
+
+
+@pytest.mark.skipif(exiftool is None, reason="exiftool not installed")
+def test_query_exif_multiple():
+    """Test query with multiple --exif options, #873"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query,
+        [
+            "--json",
+            "--db",
+            os.path.join(cwd, CLI_PHOTOS_DB),
+            "--exif",
+            "Make",
+            "Canon",
+            "--exif",
+            "Model",
+            "Canon PowerShot G10",
+        ],
+    )
+    assert result.exit_code == 0
+
+    # build list of uuids we got from the output JSON
+    json_got = json.loads(result.output)
+    assert len(json_got) == EXIF_MAKE_CANON
 
 
 def test_export():

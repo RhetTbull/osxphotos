@@ -3391,7 +3391,7 @@ class PhotosDB:
                                 if n in p.filename or n in p.original_filename
                             ]
                         )
-            photos = photo_list
+            photos = list(set(photo_list))
 
         if options.min_size:
             photos = [
@@ -3498,7 +3498,7 @@ class PhotosDB:
                             exifdata_value = str(exifdata_value)
                         if exifvalue in exifdata_value:
                             matching_photos.append(p)
-            photos = matching_photos
+            photos = list(set(matching_photos))
 
         if options.added_after:
             added_after = options.added_after
