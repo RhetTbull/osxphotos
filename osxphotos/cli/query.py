@@ -188,8 +188,16 @@ def query(
     debug,  # handled in cli/__init__.py
 ):
     """Query the Photos database using 1 or more search options;
-    if more than one option is provided, they are treated as "AND"
+    if more than one different option is provided, they are treated as "AND"
     (e.g. search for photos matching all options).
+    If the same query option is provided multiple times, they are treated as
+    "OR" (e.g. search for photos matching any of the options).
+
+    For example:
+
+    osxphotos query --person "John Doe" --person "Jane Doe" --keyword "vacation"
+
+    will return all photos with either person of ("John Doe" OR "Jane Doe") AND keyword of "vacation"
     """
 
     # if no query terms, show help and return
