@@ -651,13 +651,25 @@ osxphotos is very flexible.  If you merely want to backup your Photos library, t
 Usage: osxphotos export [OPTIONS] [PHOTOS_LIBRARY]... DEST
 
   Export photos from the Photos database. Export path DEST is required.
+
   Optionally, query the Photos database using 1 or more search options; if more
-  than one option is provided, they are treated as "AND" (e.g. search for photos
-  matching all options). If no query options are provided, all photos will be
-  exported. By default, all versions of all photos will be exported including
-  edited versions, live photo movies, burst photos, and associated raw images.
-  See --skip-edited, --skip-live, --skip-bursts, and --skip-raw options to
-  modify this behavior.
+  than one different option is provided, they are treated as "AND" (e.g. search
+  for photos matching all options). If the same query option is provided
+  multiple times, they are treated as "OR" (e.g. search for photos matching any
+  of the options). If no query options are provided, all photos will be
+  exported.
+
+  For example, adding the query options:
+
+  --person "John Doe" --person "Jane Doe" --keyword "vacation"
+
+  will export all photos with either person of ("John Doe" OR "Jane Doe") AND
+  keyword of "vacation"
+
+  By default, all versions of all photos will be exported including edited
+  versions, live photo movies, burst photos, and associated raw images. See
+  --skip-edited, --skip-live, --skip-bursts, and --skip-raw options to modify
+  this behavior.
 
 Options:
   --db PHOTOS_LIBRARY_PATH        Specify Photos database path. Path to Photos
@@ -889,6 +901,17 @@ Options:
                                   would not otherwise trigger an export. See
                                   also --update and notes below on export and
                                   --update.
+  --update-errors                 Update files that were previously exported but
+                                  produced errors during export. For example, if
+                                  a file produced an error with --exiftool due
+                                  to bad metadata, this option will re-export
+                                  the file and attempt to write the metadata
+                                  again when used with --exiftool and --update.
+                                  Without --update-errors, photos that were
+                                  successfully exported but generated an error
+                                  or warning during export will not be re-
+                                  attempted if metadata has not changed. Must be
+                                  used with --update.
   --ignore-signature              When used with '--update', ignores file
                                   signature when updating files. This is useful
                                   if you have processed or edited exported
@@ -2008,7 +2031,7 @@ Substitution                    Description
 {cr}                            A carriage return: '\r'
 {crlf}                          A carriage return + line feed: '\r\n'
 {tab}                           :A tab: '\t'
-{osxphotos_version}             The osxphotos version, e.g. '0.55.2'
+{osxphotos_version}             The osxphotos version, e.g. '0.55.3'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2492,7 +2515,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.55.2'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.55.3'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|

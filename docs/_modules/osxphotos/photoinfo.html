@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.photoinfo - osxphotos 0.55.2 documentation</title>
+        <title>osxphotos.photoinfo - osxphotos 0.55.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.55.2 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.55.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.55.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.55.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -346,38 +346,35 @@
                 <span class="k">return</span> <span class="n">photopath</span>  <span class="c1"># path would be meaningless until downloaded</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_4</span><span class="p">()</span>
-
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;shared&quot;</span><span class="p">]:</span>
-                <span class="c1"># shared photo</span>
-                <span class="n">photopath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_library_path</span><span class="p">,</span>
-                    <span class="n">_PHOTOS_5_SHARED_PHOTO_PATH</span><span class="p">,</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;directory&quot;</span><span class="p">],</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">],</span>
-                <span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">photopath</span><span class="p">):</span>
-                    <span class="n">photopath</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">photopath</span>
-                <span class="k">return</span> <span class="n">photopath</span>
-
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;directory&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">):</span>
-                <span class="n">photopath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;directory&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">]</span>
-                <span class="p">)</span>
+                <span class="n">photopath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_4</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">photopath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_masters_path</span><span class="p">,</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;directory&quot;</span><span class="p">],</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">],</span>
-                <span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">photopath</span><span class="p">):</span>
+                <span class="n">photopath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_5</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">photopath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">photopath</span><span class="p">):</span>
                 <span class="n">photopath</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">photopath</span>
             <span class="k">return</span> <span class="n">photopath</span>
 
+    <span class="k">def</span> <span class="nf">_path_5</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns candidate path for original photo on Photos &gt;= version 5&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;shared&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_library_path</span><span class="p">,</span>
+                <span class="n">_PHOTOS_5_SHARED_PHOTO_PATH</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;directory&quot;</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;directory&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;directory&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+            <span class="k">else</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_masters_path</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;directory&quot;</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">_path_4</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return path for photo on Photos &lt;= version 4&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Returns candidate path for original photo on Photos &lt;= version 4&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;has_raw&quot;</span><span class="p">]:</span>
             <span class="c1"># return the path to JPEG even if RAW is original</span>
             <span class="n">vol</span> <span class="o">=</span> <span class="p">(</span>
@@ -402,9 +399,6 @@
                 <span class="n">photopath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_masters_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;imagePath&quot;</span><span class="p">]</span>
                 <span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">photopath</span><span class="p">):</span>
-            <span class="n">photopath</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">photopath</span>
         <span class="k">return</span> <span class="n">photopath</span>
 
     <span class="nd">@property</span>
@@ -416,14 +410,20 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_edited</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">&lt;=</span> <span class="n">_PHOTOS_4_VERSION</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_path_edited</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_edited_4</span><span class="p">()</span>
+                <span class="n">photopath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_edited_4</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_path_edited</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_edited_5</span><span class="p">()</span>
+                <span class="n">photopath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_edited_5</span><span class="p">()</span>
 
+            <span class="k">if</span> <span class="n">photopath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">photopath</span><span class="p">):</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;edited file for UUID </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="si">}</span><span class="s2"> should be at </span><span class="si">{</span><span class="n">photopath</span><span class="si">}</span><span class="s2"> but does not appear to exist&quot;</span>
+                <span class="p">)</span>
+                <span class="n">photopath</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_path_edited</span> <span class="o">=</span> <span class="n">photopath</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_edited</span>
 
     <span class="k">def</span> <span class="nf">_path_edited_5</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;return path_edited for Photos &gt;= 5&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Returns candidate path_edited for Photos &gt;= 5 or None if cannot be determined&quot;&quot;&quot;</span>
         <span class="c1"># In Photos 5.0 / Catalina / MacOS 10.15:</span>
         <span class="c1"># edited photos appear to always be converted to .jpeg and stored in</span>
         <span class="c1"># library_name/resources/renders/X/UUID_1_201_a.jpeg</span>
@@ -458,23 +458,11 @@
                 <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;WARNING: unknown type </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="k">return</span> <span class="kc">None</span>
 
-            <span class="n">photopath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="n">library</span><span class="p">,</span> <span class="s2">&quot;resources&quot;</span><span class="p">,</span> <span class="s2">&quot;renders&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">filename</span>
             <span class="p">)</span>
 
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">photopath</span><span class="p">):</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;edited file for UUID </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span><span class="si">}</span><span class="s2"> should be at </span><span class="si">{</span><span class="n">photopath</span><span class="si">}</span><span class="s2"> but does not appear to exist&quot;</span>
-                <span class="p">)</span>
-                <span class="n">photopath</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">photopath</span> <span class="o">=</span> <span class="kc">None</span>
-
-        <span class="c1"># TODO: might be possible for original/master to be missing but edit to still be there</span>
-        <span class="c1"># if self._info[&quot;isMissing&quot;] == 1:</span>
-        <span class="c1">#     photopath = None  # path would be meaningless until downloaded</span>
-
-        <span class="k">return</span> <span class="n">photopath</span>
+        <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">_get_predicted_path_edited_4</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;return predicted path_edited for Photos &lt;= 4&quot;&quot;&quot;</span>
@@ -1006,8 +994,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">_photos_ver</span> <span class="o">&lt;</span> <span class="mi">7</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;UTI_raw&quot;</span><span class="p">]</span>
 
-        <span class="n">rawpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_raw</span>
-        <span class="k">if</span> <span class="n">rawpath</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">rawpath</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_raw</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">get_uti_for_extension</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">rawpath</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>

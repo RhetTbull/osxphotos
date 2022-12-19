@@ -914,10 +914,20 @@ def export(
 ):
     """Export photos from the Photos database.
     Export path DEST is required.
+
     Optionally, query the Photos database using 1 or more search options;
-    if more than one option is provided, they are treated as "AND"
+    if more than one different option is provided, they are treated as "AND"
     (e.g. search for photos matching all options).
+    If the same query option is provided multiple times, they are treated as
+    "OR" (e.g. search for photos matching any of the options).
     If no query options are provided, all photos will be exported.
+
+    For example, adding the query options:
+
+    --person "John Doe" --person "Jane Doe" --keyword "vacation"
+
+    will export all photos with either person of ("John Doe" OR "Jane Doe") AND keyword of "vacation"
+
     By default, all versions of all photos will be exported including edited
     versions, live photo movies, burst photos, and associated raw images.
     See --skip-edited, --skip-live, --skip-bursts, and --skip-raw options
