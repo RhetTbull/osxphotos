@@ -414,6 +414,16 @@
         "bug",
         "userTesting"
       ]
+    },
+    {
+      "login": "fmckeogh",
+      "name": "Ferdia McKeogh",
+      "avatar_url": "https://avatars.githubusercontent.com/u/8290136?v=4",
+      "profile": "https://fmckeogh.github.io",
+      "contributions": [
+        "code",
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
