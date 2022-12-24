@@ -41,6 +41,11 @@ ExifDateTime = namedtuple(
 
 def exif_offset_to_seconds(offset: str) -> int:
     """Convert timezone offset from UTC in exiftool format (+/-hh:mm) to seconds"""
+
+    # Z (for Zulu time) corresponds to a zero UTC offset
+    if offset == "Z":
+        return 0
+
     sign = 1 if offset[0] == "+" else -1
     hours, minutes = offset[1:].split(":")
     return sign * (int(hours) * 3600 + int(minutes) * 60)
