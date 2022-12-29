@@ -136,6 +136,7 @@ def main(library: str, recheck: bool, edited: bool):
     kvstore = SQLiteKVStore(
         cache_db_path, wal=True, serialize=json.dumps, deserialize=json.loads
     )
+    kvstore.about = "osxphotos bad extensions cache"
     print(f"Using cache database: [blue]{cache_db_path}", file=sys.stderr)
 
     # load the Photos database and check each photo
