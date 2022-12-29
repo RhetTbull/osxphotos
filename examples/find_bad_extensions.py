@@ -136,7 +136,7 @@ def main(library: str, recheck: bool, edited: bool):
     kvstore = SQLiteKVStore(
         cache_db_path, wal=True, serialize=json.dumps, deserialize=json.loads
     )
-    click.echo(f"Using cache database: [blue]{cache_db_path}", err=True)
+    print(f"Using cache database: [blue]{cache_db_path}", file=sys.stderr)
 
     # load the Photos database and check each photo
     photosdb = PhotosDB(dbfile=library)
