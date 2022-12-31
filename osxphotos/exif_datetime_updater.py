@@ -285,6 +285,7 @@ def get_exif_date_time_offset(
     time_fields = [
         "EXIF:DateTimeOriginal",
         "EXIF:CreateDate",
+        "QuickTime:ContentCreateDate",
         "QuickTime:CreationDate",
         "QuickTime:CreateDate",
         "IPTC:DateCreated",
