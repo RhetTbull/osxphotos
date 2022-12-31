@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.photoexporter - osxphotos 0.55.3 documentation</title>
+        <title>osxphotos.photoexporter - osxphotos 0.55.6 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.55.3 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.55.6 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.55.3 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.55.6 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -904,7 +904,7 @@
 
         <span class="c1"># NOTE: The order of certain checks is important</span>
         <span class="c1"># read the comments below to understand why before changing</span>
-        
+
         <span class="n">export_db</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">export_db</span>
         <span class="n">fileutil</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">fileutil</span>
 
@@ -1785,6 +1785,7 @@
 <span class="sd">            IPTC:DateCreated</span>
 <span class="sd">            IPTC:TimeCreated</span>
 <span class="sd">            QuickTime:CreationDate</span>
+<span class="sd">            QuickTime:ContentCreateDate</span>
 <span class="sd">            QuickTime:CreateDate (UTC)</span>
 <span class="sd">            QuickTime:ModifyDate (UTC)</span>
 <span class="sd">            QuickTime:GPSCoordinates</span>
@@ -1974,6 +1975,11 @@
             <span class="c1"># reference: https://exiftool.org/TagNames/QuickTime.html#Keys</span>
             <span class="c1">#            https://exiftool.org/forum/index.php?topic=11927.msg64369#msg64369</span>
             <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;QuickTime:CreationDate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">datetimeoriginal</span><span class="si">}{</span><span class="n">offsettime</span><span class="si">}</span><span class="s2">&quot;</span>
+
+            <span class="c1"># also add QuickTime:ContentCreateDate</span>
+            <span class="c1"># reference: https://github.com/RhetTbull/osxphotos/pull/888</span>
+            <span class="c1"># exiftool writes this field with timezone so include it here</span>
+            <span class="n">exif</span><span class="p">[</span><span class="s2">&quot;QuickTime:ContentCreateDate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">datetimeoriginal</span><span class="si">}{</span><span class="n">offsettime</span><span class="si">}</span><span class="s2">&quot;</span>
 
             <span class="n">date_utc</span> <span class="o">=</span> <span class="n">datetime_tz_to_utc</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
             <span class="n">creationdate</span> <span class="o">=</span> <span class="n">date_utc</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y:%m:</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span>
