@@ -7,7 +7,7 @@
 [![Downloads](https://static.pepy.tech/personalized-badge/osxphotos?period=month&units=international_system&left_color=black&right_color=brightgreen&left_text=downloads/month)](https://pepy.tech/project/osxphotos)
 [![subreddit](https://img.shields.io/reddit/subreddit-subscribers/osxphotos?style=social)](https://www.reddit.com/r/osxphotos/)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-44-orange.svg?style=flat)](#contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-45-orange.svg?style=flat)](#contributors)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 OSXPhotos provides the ability to interact with and query Apple's Photos.app library on macOS. You can query the Photos library database — for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos.
@@ -2623,6 +2623,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <tr>
       <td align="center"><a href="https://github.com/drodner"><img src="https://avatars.githubusercontent.com/u/10236892?v=4?s=75" width="75px;" alt="drodner"/><br /><sub><b>drodner</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Adrodner" title="Bug reports">🐛</a> <a href="#userTesting-drodner" title="User Testing">📓</a></td>
       <td align="center"><a href="https://fmckeogh.github.io"><img src="https://avatars.githubusercontent.com/u/8290136?v=4?s=75" width="75px;" alt="Ferdia McKeogh"/><br /><sub><b>Ferdia McKeogh</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=fmckeogh" title="Code">💻</a> <a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Afmckeogh" title="Bug reports">🐛</a></td>
+      <td align="center"><a href="https://wellsaidlabs.com"><img src="https://avatars.githubusercontent.com/u/7424737?v=4?s=75" width="75px;" alt="Michael Petrochuk"/><br /><sub><b>Michael Petrochuk</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3APetrochukM" title="Bug reports">🐛</a> <a href="https://github.com/RhetTbull/osxphotos/commits?author=PetrochukM" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
