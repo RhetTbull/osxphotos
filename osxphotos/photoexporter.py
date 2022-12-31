@@ -707,7 +707,7 @@ class PhotoExporter:
 
         # NOTE: The order of certain checks is important
         # read the comments below to understand why before changing
-        
+
         export_db = options.export_db
         fileutil = options.fileutil
 
@@ -1588,6 +1588,7 @@ class PhotoExporter:
             IPTC:DateCreated
             IPTC:TimeCreated
             QuickTime:CreationDate
+            QuickTime:ContentCreateDate
             QuickTime:CreateDate (UTC)
             QuickTime:ModifyDate (UTC)
             QuickTime:GPSCoordinates
@@ -1777,6 +1778,11 @@ class PhotoExporter:
             # reference: https://exiftool.org/TagNames/QuickTime.html#Keys
             #            https://exiftool.org/forum/index.php?topic=11927.msg64369#msg64369
             exif["QuickTime:CreationDate"] = f"{datetimeoriginal}{offsettime}"
+
+            # also add QuickTime:ContentCreateDate
+            # reference: https://github.com/RhetTbull/osxphotos/pull/888
+            # exiftool writes this field with timezone so include it here
+            exif["QuickTime:ContentCreateDate"] = f"{datetimeoriginal}{offsettime}"
 
             date_utc = datetime_tz_to_utc(date)
             creationdate = date_utc.strftime("%Y:%m:%d %H:%M:%S")

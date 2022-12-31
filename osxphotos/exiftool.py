@@ -123,6 +123,7 @@ class _ExifToolProc:
                 )
             return
         self._process_running = False
+        self._large_file_support = large_file_support
         self._exiftool = exiftool or get_exiftool_path()
         self._start_proc(large_file_support=large_file_support)
 
@@ -130,7 +131,7 @@ class _ExifToolProc:
     def process(self):
         """return the exiftool subprocess"""
         if not self._process_running:
-            self._start_proc()
+            self._start_proc(large_file_support=self._large_file_support)
         return self._process
 
     @property
