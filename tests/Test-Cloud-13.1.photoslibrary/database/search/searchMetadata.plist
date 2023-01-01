@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>BlacklistedMeaningsByMeaning</key>
+	<dict>
+		<key>Brunch</key>
+		<array>
+			<string>Dining</string>
+		</array>
+		<key>Brunches</key>
+		<array>
+			<string>Dining</string>
+		</array>
+		<key>Lunch</key>
+		<array>
+			<string>Dining</string>
+		</array>
+		<key>Lunches</key>
+		<array>
+			<string>Dining</string>
+		</array>
+	</dict>
+	<key>SceneWhitelist</key>
+	<array>
+		<string>Amusement Park</string>
+		<string>Animal</string>
+		<string>Aquarium</string>
+		<string>Art</string>
+		<string>Car</string>
+		<string>Cheese</string>
+		<string>Food</string>
+		<string>Forest</string>
+		<string>Jewelry</string>
+		<string>Music</string>
+		<string>Night Sky</string>
+		<string>Snow</string>
+		<string>Tattoo</string>
+		<string>Underwater</string>
+		<string>Vehicle</string>
+	</array>
+</dict>
+</plist>

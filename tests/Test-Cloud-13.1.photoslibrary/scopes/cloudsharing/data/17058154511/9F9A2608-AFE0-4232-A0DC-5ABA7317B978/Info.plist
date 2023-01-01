@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>cloudOwnerEmail</key>
+	<string>rhettbull@mac.com</string>
+	<key>cloudOwnerFirstName</key>
+	<string>Rhet</string>
+	<key>cloudOwnerHashedPersonID</key>
+	<string>01cac7cde8a8767251a2cdd183b8ed490fc6e87825f4a495389e824a41a01ba7</string>
+	<key>cloudOwnerLastName</key>
+	<string>Turnbull</string>
+	<key>cloudPublicURLEnabled</key>
+	<integer>0</integer>
+	<key>cloudRelationshipState</key>
+	<integer>2</integer>
+	<key>cloudSubscriptionDate</key>
+	<date>2019-12-27T04:16:49Z</date>
+	<key>title</key>
+	<string>osxphotos</string>
+</dict>
+</plist>

@@ -36,8 +36,11 @@ from ._constants import (
     _PHOTOS_5_IMPORT_SESSION_ALBUM_KIND,
     _PHOTOS_5_PROJECT_ALBUM_KIND,
     _PHOTOS_5_SHARED_ALBUM_KIND,
+    _PHOTOS_5_SHARED_DERIVATIVE_PATH,
     _PHOTOS_5_SHARED_PHOTO_PATH,
     _PHOTOS_5_VERSION,
+    _PHOTOS_8_SHARED_DERIVATIVE_PATH,
+    _PHOTOS_8_SHARED_PHOTO_PATH,
     BURST_DEFAULT_PICK,
     BURST_KEY,
     BURST_NOT_SELECTED,
@@ -160,12 +163,7 @@ class PhotoInfo:
     def _path_5(self):
         """Returns candidate path for original photo on Photos >= version 5"""
         if self._info["shared"]:
-            return os.path.join(
-                self._db._library_path,
-                _PHOTOS_5_SHARED_PHOTO_PATH,
-                self._info["directory"],
-                self._info["filename"],
-            )
+            return self._path_5_shared()
         return (
             os.path.join(self._info["directory"], self._info["filename"])
             if self._info["directory"].startswith("/")
@@ -174,6 +172,35 @@ class PhotoInfo:
                 self._info["directory"],
                 self._info["filename"],
             )
+        )
+
+    def _path_5_shared(self):
+        """Returns candidate path for shared photo on Photos >= version 5"""
+        # shared library path differs on Photos 5-7, Photos 8+
+        shared_path = (
+            _PHOTOS_8_SHARED_PHOTO_PATH
+            if self._db._photos_ver >= 8
+            else _PHOTOS_5_SHARED_PHOTO_PATH
+        )
+
+        if self.isphoto:
+            return os.path.join(
+                self._db._library_path,
+                shared_path,
+                self._info["directory"],
+                self._info["filename"],
+            )
+
+        # a shared video has two files, the poster image and the video
+        # the poster (image frame shown in Photos) is named UUID.poster.JPG
+        # the video file is named UUID.medium.MP4
+        # this method returns the path to the video file
+        filename = f"{self.uuid}.medium.MP4"
+        return os.path.join(
+            self._db._library_path,
+            shared_path,
+            self._info["directory"],
+            filename,
         )
 
     def _path_4(self):
@@ -261,9 +288,7 @@ class PhotoInfo:
                 logging.debug(f"WARNING: unknown type {self._info['type']}")
                 return None
 
-            return os.path.join(
-                library, "resources", "renders", directory, filename
-            )
+            return os.path.join(library, "resources", "renders", directory, filename)
 
         return None
 
@@ -439,15 +464,11 @@ class PhotoInfo:
             else:
                 filepath = os.path.join(self._db._masters_path, self._info["directory"])
 
-            # raw files have same name as original but with _4.raw_ext appended
-            # I believe the _4 maps to PHAssetResourceTypeAlternatePhoto = 4
-            # see: https://developer.apple.com/documentation/photokit/phassetresourcetype/phassetresourcetypealternatephoto?language=objc
-            raw_file = list_directory(filepath, startswith=f"{filestem}_4")
-            if not raw_file:
-                photopath = None
-            else:
+            if raw_file := list_directory(filepath, startswith=f"{filestem}_4"):
                 photopath = pathlib.Path(filepath) / raw_file[0]
                 photopath = str(photopath) if photopath.is_file() else None
+            else:
+                photopath = None
         else:
             # is a reference
             try:
@@ -994,13 +1015,16 @@ class PhotoInfo:
         directory = self._uuid[0]  # first char of uuid
         # only 1 derivative for shared photos and it's called 'UUID_4_5005_c.jpeg'
         derivative_path = (
+            _PHOTOS_8_SHARED_DERIVATIVE_PATH
+            if self._db._photos_ver >= 8
+            else _PHOTOS_5_SHARED_DERIVATIVE_PATH
+        )
+        derivative_path = (
             pathlib.Path(self._db._library_path)
-            / "resources/cloudsharing/resources/derivatives/masters"
+            / derivative_path
             / f"{directory}/{self.uuid}_4_5005_c.jpeg"
         )
-        if derivative_path.exists():
-            return [str(derivative_path)]
-        return []
+        return [str(derivative_path)] if derivative_path.exists() else []
 
     @property
     def panorama(self):
