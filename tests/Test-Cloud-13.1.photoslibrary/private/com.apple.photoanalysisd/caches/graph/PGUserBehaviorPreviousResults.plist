@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>algorithm</key>
+	<integer>1</integer>
+	<key>algorithmData</key>
+	<dict>
+		<key>normalizer</key>
+		<real>10</real>
+		<key>peopleFeatures</key>
+		<dict/>
+		<key>sceneFeatures</key>
+		<dict>
+			<key>1006</key>
+			<real>0.5</real>
+			<key>1222</key>
+			<real>1</real>
+			<key>1238</key>
+			<real>0.5</real>
+			<key>144</key>
+			<real>0.5</real>
+			<key>1446</key>
+			<real>0.5</real>
+			<key>1447</key>
+			<real>0.5</real>
+			<key>1469</key>
+			<real>0.5</real>
+			<key>1535</key>
+			<real>0.5</real>
+			<key>16</key>
+			<real>0.5</real>
+			<key>1740</key>
+			<real>0.5</real>
+			<key>1764</key>
+			<real>0.5</real>
+			<key>2</key>
+			<real>0.5</real>
+			<key>2147483655</key>
+			<real>1</real>
+			<key>229</key>
+			<real>0.5</real>
+			<key>30</key>
+			<real>0.5</real>
+			<key>536</key>
+			<real>0.5</real>
+			<key>539</key>
+			<real>0.5</real>
+			<key>546</key>
+			<real>0.5</real>
+			<key>550</key>
+			<real>0.5</real>
+			<key>590</key>
+			<real>0.5</real>
+			<key>784</key>
+			<real>1</real>
+			<key>825</key>
+			<real>0.5</real>
+		</dict>
+	</dict>
+	<key>date</key>
+	<string>2023-01-01 03:07:18 +0000</string>
+	<key>goldAssetUUIDs</key>
+	<array>
+		<string>F4952B68-AB31-4CB1-AE12-588832D11171</string>
+		<string>0FFBE909-7142-4299-BA6F-9B6E7E8FB338</string>
+	</array>
+	<key>version</key>
+	<integer>10</integer>
+</dict>
+</plist>

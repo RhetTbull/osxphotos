@@ -1,5 +1,6 @@
 import pytest
 
+import osxphotos
 
 # TODO: put some of this code into a pre-function
 
@@ -27,8 +28,6 @@ UUID_NOT_SHARED = ["37210110-E940-4227-92D3-45C40F68EB0A"]
 
 
 def test_album_names():
-    import osxphotos
-
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     albums = photosdb.albums
 
@@ -37,8 +36,6 @@ def test_album_names():
 
 
 def test_albums_shared():
-    import osxphotos
-
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     albums_shared = photosdb.albums_shared
 
@@ -47,8 +44,6 @@ def test_albums_shared():
 
 
 def test_albums_as_dict():
-    import osxphotos
-
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     albums_as_dict = photosdb.albums_as_dict
 
@@ -57,8 +52,6 @@ def test_albums_as_dict():
 
 
 def test_albums_shared_as_dict():
-    import osxphotos
-
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     albums_shared_as_dict = photosdb.albums_shared_as_dict
 
@@ -67,8 +60,6 @@ def test_albums_shared_as_dict():
 
 
 def test_missing_share():
-    import osxphotos
-
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = [p for p in photosdb.photos() if p.ismissing]
 
@@ -87,8 +78,6 @@ def test_shared():
 
 
 def test_not_shared():
-    import osxphotos
-
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = [p for p in photosdb.photos() if not p.shared]
     assert len(photos) == 1
@@ -97,11 +86,19 @@ def test_not_shared():
 
 
 def test_query_shared_album():
-    import osxphotos
-
     photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
     photos = photosdb.photos(albums=[ALBUMS_SHARED[0]])
 
     assert len(photos) == len(UUID_SHARED)
     for p in photos:
         assert p.uuid in UUID_SHARED
+
+
+def test_query_shared_path():
+    """Test shared path is not None for shared photos"""
+    photosdb = osxphotos.PhotosDB(dbfile=PHOTOS_DB)
+    for p in photosdb.photos():
+        if not p.shared or p.ismissing:
+            continue
+        assert p.path
+        assert p.path_derivatives
