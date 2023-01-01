@@ -434,6 +434,16 @@
         "bug",
         "code"
       ]
+    },
+    {
+      "login": "qkeddy",
+      "name": "Quin Eddy",
+      "avatar_url": "https://avatars.githubusercontent.com/u/9737814?v=4",
+      "profile": "https://qkeddy.github.io/quin-eddy-development-portfolio/",
+      "contributions": [
+        "ideas",
+        "data"
+      ]
     }
   ],
   "contributorsPerLine": 7,
