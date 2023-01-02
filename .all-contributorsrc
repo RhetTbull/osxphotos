@@ -444,6 +444,16 @@
         "ideas",
         "data"
       ]
+    },
+    {
+      "login": "johnsturgeon",
+      "name": "John Sturgeon",
+      "avatar_url": "https://avatars.githubusercontent.com/u/9746310?v=4",
+      "profile": "https://github.com/johnsturgeon",
+      "contributions": [
+        "bug",
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,
