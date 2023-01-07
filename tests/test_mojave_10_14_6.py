@@ -160,6 +160,9 @@ RAW_DICT = {
 }
 
 
+UUID_FINGERPRINT = {"6bxcNnzRQKGnK4uPrCJ9UQ": "ASs96bJvsunOg9Vxo5hK7VU3HegE"}
+
+
 @pytest.fixture(scope="module")
 def photosdb():
     import osxphotos
@@ -675,3 +678,10 @@ def test_no_adjustments(photosdb):
 
     photo = photosdb.get_photo(UUID_DICT["no_adjustments"])
     assert photo.adjustments is None
+
+
+def test_fingerprint(photosdb):
+    """Test fingerprint"""
+    for uuid, fingerprint in UUID_FINGERPRINT.items():
+        photo = photosdb.get_photo(uuid)
+        assert photo.fingerprint == fingerprint

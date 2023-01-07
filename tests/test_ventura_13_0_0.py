@@ -235,6 +235,11 @@ UUID_SEARCH_INFO = {
 }
 
 
+UUID_FINGERPRINT = {
+    "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51": "ASs96bJvsunOg9Vxo5hK7VU3HegE"
+}
+
+
 @pytest.fixture(scope="module")
 def photosdb():
     return osxphotos.PhotosDB(dbfile=PHOTOS_DB)
@@ -1233,3 +1238,10 @@ def test_search_info_dict(photosdb):
     for uuid, search_info in UUID_SEARCH_INFO.items():
         photo = photosdb.get_photo(uuid=uuid)
         assert photo.search_info.asdict() == search_info
+
+
+def test_fingerprint(photosdb):
+    """Test fingerprint"""
+    for uuid, fingerprint in UUID_FINGERPRINT.items():
+        photo = photosdb.get_photo(uuid)
+        assert photo.fingerprint == fingerprint

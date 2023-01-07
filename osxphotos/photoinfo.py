@@ -1451,6 +1451,11 @@ class PhotoInfo:
                 metadata = plistlib.loads(results[0])
         return metadata
 
+    @cached_property
+    def fingerprint(self) -> str:
+        """Returns fingerprint of original photo as a string"""
+        return self._info["masterFingerprint"]
+
     def detected_text(self, confidence_threshold=TEXT_DETECTION_CONFIDENCE_THRESHOLD):
         """Detects text in photo and returns lists of results as (detected text, confidence)
 

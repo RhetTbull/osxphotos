@@ -272,6 +272,10 @@ UUID_MOMENT = {
     }
 }
 
+UUID_FINGERPRINT = {
+    "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51": "ASs96bJvsunOg9Vxo5hK7VU3HegE"
+}
+
 
 @pytest.fixture(scope="module")
 def photosdb():
@@ -1487,3 +1491,10 @@ def test_moment(photosdb, info):
     assert photo.moment_info.end_date.isoformat() == info["end_date"]
     assert photo.moment_info.date.isoformat() == info["date"]
     assert photo.moment_info.modification_date.isoformat() == info["modification_date"]
+
+
+def test_fingerprint(photosdb):
+    """Test fingerprint"""
+    for uuid, fingerprint in UUID_FINGERPRINT.items():
+        photo = photosdb.get_photo(uuid)
+        assert photo.fingerprint == fingerprint
