@@ -953,7 +953,8 @@ class PhotosDB:
                     RKVersion.inTrashDate,
                     RKVersion.showInLibrary,
                     RKMaster.fileIsReference,
-                    RKMaster.importGroupUuid
+                    RKMaster.importGroupUuid,
+                    RKMaster.fingerprint
                     FROM RKVersion, RKMaster
                     WHERE RKVersion.masterUuid = RKMaster.uuid"""
             )
@@ -985,7 +986,8 @@ class PhotosDB:
                     RKVersion.inTrashDate,
                     RKVersion.showInLibrary,
                     RKMaster.fileIsReference,
-                    RKMaster.importGroupUuid
+                    RKMaster.importGroupUuid,
+                    RKMaster.fingerprint
                     FROM RKVersion, RKMaster
                     WHERE RKVersion.masterUuid = RKMaster.uuid"""
             )
@@ -1036,6 +1038,7 @@ class PhotosDB:
         # 42    RKVersion.showInLibrary -- is item visible in library (e.g. non-selected burst images are not visible)
         # 43    RKMaster.fileIsReference -- file is reference (imported without copying to Photos library)
         # 44    RKMaster.importGroupUuid -- to get date added from RKImportGroup
+        # 45    RKMaster.fingerprint -- fingerprint / hash of the file
 
         for row in c:
             uuid = row[0]
@@ -1232,6 +1235,9 @@ class PhotosDB:
             self._dbphotos[uuid]["import_session"] = None
             self._dbphotos[uuid]["import_uuid"] = row[44]
             self._dbphotos[uuid]["fok_import_session"] = None
+
+            # fingerprint
+            self._dbphotos[uuid]["masterFingerprint"] = row[45]
 
             # photos 5+ only, for shared photos
             self._dbphotos[uuid]["cloudownerhashedpersonid"] = None
