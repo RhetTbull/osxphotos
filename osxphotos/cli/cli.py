@@ -28,6 +28,7 @@ from .places import places
 from .query import query
 from .repl import repl
 from .snap_diff import diff, snap
+from .sync import sync
 from .theme import theme
 from .timewarp import timewarp
 from .tutorial import tutorial
@@ -90,6 +91,7 @@ for command in [
     repl,
     run,
     snap,
+    sync,
     theme,
     timewarp,
     tutorial,
