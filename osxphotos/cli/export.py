@@ -105,11 +105,6 @@ from .verbose import get_verbose_console, time_stamp, verbose_print
     "--no-progress", is_flag=True, help="Do not display progress bar during export."
 )
 @QUERY_OPTIONS
-@click.option(
-    "--missing",
-    is_flag=True,
-    help="Export only photos missing from the Photos library; must be used with --download-missing.",
-)
 @DELETED_OPTIONS
 @click.option(
     "--update",
@@ -763,33 +758,34 @@ def export(
     added_after,
     added_before,
     added_in_last,
-    album_keyword,
     album,
+    album_keyword,
     alt_copy,
     append,
     beta,
     burst,
     cleanup,
+    cloudasset,
     config_only,
     convert_to_jpeg,
     current_name,
-    deleted_only,
     deleted,
-    description_template,
+    deleted_only,
     description,
+    description_template,
     dest,
     directory,
     download_missing,
     dry_run,
     duplicate,
-    edited_suffix,
     edited,
+    edited_suffix,
     exif,
+    exiftool,
     exiftool_merge_keywords,
     exiftool_merge_persons,
     exiftool_option,
     exiftool_path,
-    exiftool,
     export_as_hardlink,
     export_by_date,
     exportdb,
@@ -812,12 +808,13 @@ def export(
     ignore_date_modified,
     ignore_signature,
     in_album,
+    incloud,
     is_reference,
     jpeg_ext,
     jpeg_quality,
     keep,
-    keyword_template,
     keyword,
+    keyword_template,
     label,
     limit,
     live,
@@ -829,18 +826,21 @@ def export(
     name,
     no_comment,
     no_description,
+    no_keyword,
     no_likes,
     no_location,
-    no_keyword,
     no_place,
     no_progress,
     no_title,
     not_burst,
+    not_cloudasset,
     not_favorite,
     not_hdr,
     not_hidden,
     not_in_album,
+    not_incloud,
     not_live,
+    not_missing,
     not_panorama,
     not_portrait,
     not_reference,
@@ -855,18 +855,18 @@ def export(
     original_suffix,
     overwrite,
     panorama,
-    person_keyword,
     person,
+    person_keyword,
     place,
     portrait,
     post_command,
     post_function,
+    preview,
     preview_if_missing,
     preview_suffix,
-    preview,
     print_template,
-    profile_sort,
     profile,
+    profile_sort,
     query_eval,
     query_function,
     ramdb,
@@ -879,15 +879,15 @@ def export(
     selected,
     selfie,
     shared,
-    sidecar_drop_ext,
     sidecar,
+    sidecar_drop_ext,
     skip_bursts,
     skip_edited,
     skip_live,
     skip_original_if_edited,
     skip_raw,
-    skip_uuid_from_file,
     skip_uuid,
+    skip_uuid_from_file,
     slow_mo,
     strip,
     theme,
@@ -903,8 +903,8 @@ def export(
     use_photokit,
     use_photos_export,
     uti,
-    uuid_from_file,
     uuid,
+    uuid_from_file,
     verbose,
     xattr_template,
     year,
@@ -993,12 +993,13 @@ def export(
 
         # re-set the local vars to the corresponding config value
         # this isn't elegant but avoids having to rewrite this function to use cfg.varname for every parameter
-        added_after = cfg.added_after
-        added_before = cfg.added_before
-        added_in_last = cfg.added_in_last
+
         add_exported_to_album = cfg.add_exported_to_album
         add_missing_to_album = cfg.add_missing_to_album
         add_skipped_to_album = cfg.add_skipped_to_album
+        added_after = cfg.added_after
+        added_before = cfg.added_before
+        added_in_last = cfg.added_in_last
         album = cfg.album
         album_keyword = cfg.album_keyword
         alt_copy = cfg.alt_copy
@@ -1006,6 +1007,7 @@ def export(
         beta = cfg.beta
         burst = cfg.burst
         cleanup = cfg.cleanup
+        cloudasset = cfg.cloudasset
         convert_to_jpeg = cfg.convert_to_jpeg
         current_name = cfg.current_name
         db = cfg.db
@@ -1047,6 +1049,7 @@ def export(
         ignore_date_modified = cfg.ignore_date_modified
         ignore_signature = cfg.ignore_signature
         in_album = cfg.in_album
+        incloud = cfg.incloud
         is_reference = cfg.is_reference
         jpeg_ext = cfg.jpeg_ext
         jpeg_quality = cfg.jpeg_quality
@@ -1063,18 +1066,21 @@ def export(
         name = cfg.name
         no_comment = cfg.no_comment
         no_description = cfg.no_description
+        no_keyword = cfg.no_keyword
         no_likes = cfg.no_likes
         no_location = cfg.no_location
-        no_keyword = cfg.no_keyword
         no_place = cfg.no_place
         no_progress = cfg.no_progress
         no_title = cfg.no_title
         not_burst = cfg.not_burst
+        not_cloudasset = cfg.not_cloudasset
         not_favorite = cfg.not_favorite
         not_hdr = cfg.not_hdr
         not_hidden = cfg.not_hidden
         not_in_album = cfg.not_in_album
+        not_incloud = cfg.not_incloud
         not_live = cfg.not_live
+        not_missing = cfg.not_missing
         not_panorama = cfg.not_panorama
         not_portrait = cfg.not_portrait
         not_reference = cfg.not_reference
@@ -1140,7 +1146,6 @@ def export(
         verbose = cfg.verbose
         xattr_template = cfg.xattr_template
         year = cfg.year
-
         # config file might have changed verbose
         color_theme = get_theme(theme)
         verbose_ = verbose_print(
@@ -1159,6 +1164,7 @@ def export(
     # validate options
     exclusive_options = [
         ("burst", "not_burst"),
+        ("cloudasset", "not_cloudasset"),
         ("deleted", "deleted_only"),
         ("description", "no_description"),
         ("export_as_hardlink", "convert_to_jpeg"),
@@ -1171,10 +1177,12 @@ def export(
         ("hdr", "not_hdr"),
         ("hidden", "not_hidden"),
         ("in_album", "not_in_album"),
+        ("incloud", "not_incloud"),
         ("is_reference", "not_reference"),
         ("keyword", "no_keyword"),
         ("live", "not_live"),
         ("location", "no_location"),
+        ("missing", "not_missing"),
         ("only_photos", "only_movies"),
         ("panorama", "not_panorama"),
         ("place", "no_place"),
@@ -1398,7 +1406,7 @@ def export(
         album=album,
         burst_photos=export_bursts,
         burst=burst,
-        cloudasset=False,
+        cloudasset=cloudasset,
         deleted_only=deleted_only,
         deleted=deleted,
         description=description,
@@ -1418,7 +1426,7 @@ def export(
         hidden=hidden,
         ignore_case=ignore_case,
         in_album=in_album,
-        incloud=False,
+        incloud=incloud,
         is_reference=is_reference,
         keyword=keyword,
         label=label,
@@ -1439,14 +1447,14 @@ def export(
         no_place=no_place,
         no_title=no_title,
         not_burst=not_burst,
-        not_cloudasset=False,
+        not_cloudasset=not_cloudasset,
         not_favorite=not_favorite,
         not_hdr=not_hdr,
         not_hidden=not_hidden,
         not_in_album=not_in_album,
-        not_incloud=False,
+        not_incloud=not_incloud,
         not_live=not_live,
-        not_missing=None,
+        not_missing=not_missing,
         not_panorama=not_panorama,
         not_portrait=not_portrait,
         not_reference=not_reference,
