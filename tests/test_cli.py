@@ -599,6 +599,7 @@ PHOTOS_NOT_IN_TRASH_LEN_15_7 = 27
 PHOTOS_IN_TRASH_LEN_15_7 = 2
 PHOTOS_MISSING_15_7 = 2
 PHOTOS_EDITED_15_7 = 6
+PHOTOS_NOT_MISSING_15_7 = PHOTOS_NOT_IN_TRASH_LEN_15_7 - PHOTOS_MISSING_15_7
 
 CLI_PLACES_JSON = """{"places": {"_UNKNOWN_": 1, "Maui, Wailea, Hawai'i, United States": 1, "Washington, District of Columbia, United States": 1}}"""
 
@@ -5944,6 +5945,9 @@ def test_export_as_hardlink_download_missing():
 def test_export_missing():
     """test export with --missing"""
 
+    # note this won't actually export the missing images since they are not in the test db
+    # but it will test the code path by attempting to do the export
+
     runner = CliRunner()
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
@@ -5955,12 +5959,13 @@ def test_export_missing():
                 ".",
                 "-V",
                 "--missing",
+                "--dry-run",
                 "--download-missing",
                 ".",
             ],
         )
         assert result.exit_code == 0
-        assert "Exporting 2 photos" in result.output
+        assert f"Exporting {PHOTOS_MISSING_15_7} photos" in result.output
 
 
 def test_export_missing_not_download_missing():
@@ -5971,10 +5976,32 @@ def test_export_missing_not_download_missing():
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--missing", "."]
+            export,
+            [
+                os.path.join(cwd, CLI_PHOTOS_DB),
+                ".",
+                "-V",
+                "--missing",
+                "--dry-run",
+                ".",
+            ],
         )
         assert result.exit_code != 0
         assert "Incompatible export options" in result.output
+
+
+def test_export_not_missing():
+    """test export with --not-missing"""
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export,
+            [os.path.join(cwd, CLI_PHOTOS_DB), ".", "-V", "--not-missing", "--dry-run"],
+        )
+        assert result.exit_code == 0
+        assert f"Exporting {PHOTOS_NOT_MISSING_15_7} photos" in result.output
 
 
 def test_export_cleanup():

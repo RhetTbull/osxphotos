@@ -10,7 +10,7 @@
 		<string>Female</string>
 	</dict>
 	<key>cpa_cache_lastCacheTime</key>
-	<date>2023-01-01T03:07:18Z</date>
+	<date>2023-01-02T03:32:26Z</date>
 	<key>cpa_cache_librarySummary</key>
 	<dict>
 		<key>cpa_common_collectionCount</key>
@@ -18,7 +18,7 @@
 		<key>cpa_common_faceAnalysisProgress</key>
 		<real>1</real>
 		<key>cpa_common_fullAnalysisProgress</key>
-		<real>0.82608695652173914</real>
+		<real>0.95652173913043481</real>
 		<key>cpa_common_icpl_enabled</key>
 		<true/>
 		<key>cpa_common_icpl_exceedingQuota</key>
