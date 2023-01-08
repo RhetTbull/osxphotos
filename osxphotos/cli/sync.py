@@ -30,11 +30,20 @@ from .verbose import get_verbose_console, verbose_print
 
 OSXPHOTOS_ABOUT_STRING = f"Sync Metadata Database created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
 
+METADATA_IMPORT_TYPES = [
+    "all",
+    "keywords",
+    "albums",
+    "title",
+    "description",
+    "favorite",
+]
+
 
 class MetadataImportPath(click.ParamType):
     """A path to a Photos library or a metadata export file created by --export"""
 
-    name = "METADAT_IMPORT_TYPE"
+    name = "METADATA_IMPORT_PATH"
 
     def convert(self, value, param, ctx):
         try:
@@ -44,6 +53,35 @@ class MetadataImportPath(click.ParamType):
             return value
         except Exception as e:
             self.fail(f"Could not determine import type for {value}: {e}")
+
+
+class MetadataImportType(click.ParamType):
+    """A string indicating which metadata to set or merge from the import source"""
+
+    # valid values are specified in METADATA_IMPORT_TYPES
+
+    name = "METADATA_IMPORT_TYPE"
+
+    def convert(self, value, param, ctx):
+        try:
+            if value not in METADATA_IMPORT_TYPES:
+                values = [v.strip() for v in value.split(",")]
+                for v in values:
+                    if v not in METADATA_IMPORT_TYPES:
+                        self.fail(
+                            f"{v} is not a valid import type, valid values are {', '.join(METADATA_IMPORT_TYPES)}"
+                        )
+            return value
+        except Exception as e:
+            self.fail(f"Could not determine import type for {value}: {e}")
+
+
+def parse_set_merge(values: tuple[str]) -> tuple[str]:
+    """Parse --set and --merge options which may be passed individually or as a comma-separated list"""
+    new_values = []
+    for value in values:
+        new_values.extend([v.strip() for v in value.split(",")])
+    return tuple(new_values)
 
 
 def open_metadata_db(db_path: str):
@@ -184,6 +222,47 @@ def get_import_type(import_path: str) -> str:
     "created with --export.",
     type=MetadataImportPath(),
 )
+@click.option(
+    "--set",
+    "-s",
+    "set_",
+    metavar="METADATA",
+    multiple=True,
+    help="When used with --import, set metadata in local Photos library to match import data. "
+    "Multiple metadata properties can be specified by repeating the --set option "
+    "or by using a comma-separated list. "
+    f"METADATA can be one of: {', '.join(METADATA_IMPORT_TYPES)}. "
+    "For example, to set keywords and favorite, use `--set keywords --set favorite` "
+    "or `--set keywords,favorite`. "
+    "If `--set all` is specified, all metadata will be set. "
+    "Note that using --set overwrites any existing metadata in the local Photos library. "
+    "For example, if a photo is marked as favorite in the local library but not in the import source, "
+    "--set favorite will clear the favorite status in the local library. "
+    "The exception to this is that `--set album` will not remove the photo "
+    "from any existing albums in the local library but will add the photo to any new albums specified "
+    "in the import source."
+    "See also --merge.",
+    type=MetadataImportType(),
+)
+@click.option(
+    "--merge",
+    "-m",
+    "merge",
+    metavar="METADATA",
+    multiple=True,
+    help="When used with --import, merge metadata in local Photos library with import data. "
+    "Multiple metadata properties can be specified by repeating the --merge option "
+    "or by using a comma-separated list. "
+    f"METADATA can be one of: {', '.join(METADATA_IMPORT_TYPES)}. "
+    "For example, to merge keywords and favorite, use `--merge keywords --merge favorite` "
+    "or `--merge keywords,favorite`. "
+    "If `--merge all` is specified, all metadata will be merged. "
+    "Note that using --merge does not overwrite any existing metadata in the local Photos library. "
+    "For example, if a photo is marked as favorite in the local library but not in the import source, "
+    "--merge favorite will not change the favorite status in the local library. "
+    "See also --set.",
+    type=MetadataImportType(),
+)
 @click.option("--verbose", "-V", "verbose_", is_flag=True, help="Print verbose output.")
 @click.option(
     "--dry-run",
@@ -204,7 +283,9 @@ def sync(
     dry_run,
     export_path,
     import_path,
+    merge,
     selected,
+    set_,
     theme,
     timestamp,
     verbose_,
@@ -219,6 +300,10 @@ def sync(
     set_rich_theme(color_theme)
     set_rich_timestamp(timestamp)
 
+    if (set_ or merge) and not import_path:
+        rich_echo_error("--set and --merge can only be used with --import")
+        ctx.exit(1)
+
     if export_path:
         photosdb = PhotosDB(dbfile=db, verbose=verbose)
         query_options = QueryOptions(selected=selected)
@@ -228,3 +313,6 @@ def sync(
     if import_path:
         import_type = get_import_type(import_path)
         print(f"Importing from {import_type} {import_path}")
+        set_ = parse_set_merge(set_)
+        merge = parse_set_merge(merge)
+        print(f"{set_=}, {merge=}")
