@@ -24,7 +24,7 @@ from .click_rich_echo import (
     set_rich_timestamp,
 )
 from .color_themes import get_theme
-from .common import DB_OPTION, THEME_OPTION
+from .common import DB_OPTION, QUERY_OPTIONS, THEME_OPTION, query_options_from_kwargs
 from .rich_progress import rich_progress
 from .verbose import get_verbose_console, verbose_print
 
@@ -198,6 +198,22 @@ def get_import_type(import_path: str) -> str:
             return "library"
 
 
+def import_metadata(
+    photos: list[PhotoInfo],
+    import_path: str,
+    set_: tuple[str, ...],
+    merge: tuple[str, ...],
+    dry_run: bool,
+    verbose: Callable[..., None],
+):
+    """Import metadata from metadata_db"""
+    import_type = get_import_type(import_path)
+    photo_word = pluralize(len(photos), "photo", "photos")
+    verbose(
+        f"Importing metadata for [num]{len(photos)}[/] {photo_word} from [filepath]{import_path}[/]"
+    )
+
+
 @click.command()
 @click.option(
     "--selected",
@@ -272,6 +288,7 @@ def get_import_type(import_path: str) -> str:
 @click.option(
     "--timestamp", "-T", is_flag=True, help="Add time stamp to verbose output."
 )
+@QUERY_OPTIONS
 @DB_OPTION
 @THEME_OPTION
 @click.pass_obj
@@ -284,11 +301,11 @@ def sync(
     export_path,
     import_path,
     merge,
-    selected,
     set_,
     theme,
     timestamp,
     verbose_,
+    **kwargs,  # query options
 ):
     """Sync metadata & albums between Photos libraries"""
     color_theme = get_theme(theme)
@@ -304,15 +321,20 @@ def sync(
         rich_echo_error("--set and --merge can only be used with --import")
         ctx.exit(1)
 
-    if export_path:
-        photosdb = PhotosDB(dbfile=db, verbose=verbose)
-        query_options = QueryOptions(selected=selected)
-        photos = photosdb.query(query_options)
-        export_metadata(photos, export_path, verbose)
+    print(f"kwargs: {kwargs}")
 
     if import_path:
         import_type = get_import_type(import_path)
-        print(f"Importing from {import_type} {import_path}")
+        print(f"Importing from {import_path} ({import_type})")
         set_ = parse_set_merge(set_)
         merge = parse_set_merge(merge)
-        print(f"{set_=}, {merge=}")
+        query_options = query_options_from_kwargs(**kwargs)
+        photosdb = PhotosDB(dbfile=db, verbose=verbose)
+        photos = photosdb.query(query_options)
+        import_metadata(photos, import_path, set_, merge, dry_run, verbose)
+
+    if export_path:
+        photosdb = PhotosDB(dbfile=db, verbose=verbose)
+        query_options = query_options_from_kwargs(**kwargs)
+        photos = photosdb.query(query_options)
+        export_metadata(photos, export_path, verbose)

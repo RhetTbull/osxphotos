@@ -1,6 +1,7 @@
 """Globals and constants use by the CLI commands"""
 
 
+import dataclasses
 import os
 import pathlib
 from datetime import datetime
@@ -10,6 +11,7 @@ from packaging import version
 from xdg import xdg_config_home, xdg_data_home
 
 import osxphotos
+from osxphotos import QueryOptions
 from osxphotos._constants import APP_NAME
 from osxphotos._version import __version__
 from osxphotos.utils import get_latest_version
@@ -42,8 +44,15 @@ __all__ = [
     "get_photos_db",
     "load_uuid_from_file",
     "noop",
+    "query_options_from_kwargs",
     "time_stamp",
 ]
+
+
+class IncompatibleQueryOptions(Exception):
+    """Incompatible query options"""
+
+    pass
 
 
 def noop(*args, **kwargs):
@@ -628,3 +637,96 @@ def check_version():
             "to suppress this message and prevent osxphotos from checking for latest version.",
             err=True,
         )
+
+
+def query_options_from_kwargs(**kwargs) -> QueryOptions:
+    """Validate query options and create a QueryOptions instance"""
+    # sanity check input args
+    nonexclusive = [
+        "added_after",
+        "added_before",
+        "added_in_last",
+        "album",
+        "duplicate",
+        "edited",
+        "exif",
+        "external_edit",
+        "folder",
+        "from_date",
+        "from_time",
+        "has_raw",
+        "keyword",
+        "label",
+        "max_size",
+        "min_size",
+        "name",
+        "person",
+        "query_eval",
+        "query_function",
+        "regex",
+        "selected",
+        "to_date",
+        "to_time",
+        "uti",
+        "uuid_from_file",
+        "uuid",
+        "year",
+    ]
+    exclusive = [
+        ("burst", "not_burst"),
+        ("cloudasset", "not_cloudasset"),
+        ("deleted", "deleted_only"),
+        ("favorite", "not_favorite"),
+        ("has_comment", "no_comment"),
+        ("has_likes", "no_likes"),
+        ("hdr", "not_hdr"),
+        ("hidden", "not_hidden"),
+        ("in_album", "not_in_album"),
+        ("incloud", "not_incloud"),
+        ("live", "not_live"),
+        ("location", "no_location"),
+        ("keyword", "no_keyword"),
+        ("missing", "not_missing"),
+        ("only_photos", "only_movies"),
+        ("panorama", "not_panorama"),
+        ("portrait", "not_portrait"),
+        ("screenshot", "not_screenshot"),
+        ("selfie", "not_selfie"),
+        ("shared", "not_shared"),
+        ("slow_mo", "not_slow_mo"),
+        ("time_lapse", "not_time_lapse"),
+        ("is_reference", "not_reference"),
+    ]
+    # print help if no non-exclusive term or a double exclusive term is given
+    # TODO: add option to validate requiring at least one query arg
+    if any(all([kwargs[b], kwargs[n]]) for b, n in exclusive) or any(
+        [
+            all([any(kwargs["title"]), kwargs["no_title"]]),
+            all([any(kwargs["description"]), kwargs["no_description"]]),
+            all([any(kwargs["place"]), kwargs["no_place"]]),
+            all([any(kwargs["keyword"]), kwargs["no_keyword"]]),
+        ]
+    ):
+        raise IncompatibleQueryOptions
+
+    # actually have something to query
+    include_photos = True
+    include_movies = True  # default searches for everything
+    if kwargs["only_movies"]:
+        include_photos = False
+    if kwargs["only_photos"]:
+        include_movies = False
+
+    # load UUIDs if necessary and append to any uuids passed with --uuid
+    uuid = None
+    if kwargs["uuid_from_file"]:
+        uuid_list = list(kwargs["uuid"])  # Click option is a tuple
+        uuid_list.extend(load_uuid_from_file(kwargs["uuid_from_file"]))
+        uuid = tuple(uuid_list)
+
+    query_fields = [field.name for field in dataclasses.fields(QueryOptions)]
+    query_dict = {field: kwargs.get(field) for field in query_fields}
+    query_dict["photos"] = include_photos
+    query_dict["movies"] = include_movies
+    query_dict["uuid"] = uuid
+    return QueryOptions(**query_dict)
