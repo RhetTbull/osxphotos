@@ -37,32 +37,7 @@ from .verbose import get_verbose_console
 @JSON_OPTION
 @QUERY_OPTIONS
 @DELETED_OPTIONS
-@click.option("--missing", is_flag=True, help="Search for photos missing from disk.")
-@click.option(
-    "--not-missing",
-    is_flag=True,
-    help="Search for photos present on disk (e.g. not missing).",
-)
-@click.option(
-    "--cloudasset",
-    is_flag=True,
-    help="Search for photos that are part of an iCloud library",
-)
-@click.option(
-    "--not-cloudasset",
-    is_flag=True,
-    help="Search for photos that are not part of an iCloud library",
-)
-@click.option(
-    "--incloud",
-    is_flag=True,
-    help="Search for photos that are in iCloud (have been synched)",
-)
-@click.option(
-    "--not-incloud",
-    is_flag=True,
-    help="Search for photos that are not in iCloud (have not been synched)",
-)
+
 @click.option(
     "--add-to-album",
     metavar="ALBUM",

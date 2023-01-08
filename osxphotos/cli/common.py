@@ -485,6 +485,32 @@ def QUERY_OPTIONS(f):
             "Size may be specified as integer bytes or using SI or NIST units. "
             "For example, the following are all valid and equivalent sizes: '1048576' '1.048576MB', '1 MiB'.",
         ),
+        o("--missing", is_flag=True, help="Search for photos missing from disk."),
+        o(
+            "--not-missing",
+            is_flag=True,
+            help="Search for photos present on disk (e.g. not missing).",
+        ),
+        o(
+            "--cloudasset",
+            is_flag=True,
+            help="Search for photos that are part of an iCloud library",
+        ),
+        o(
+            "--not-cloudasset",
+            is_flag=True,
+            help="Search for photos that are not part of an iCloud library",
+        ),
+        o(
+            "--incloud",
+            is_flag=True,
+            help="Search for photos that are in iCloud (have been synched)",
+        ),
+        o(
+            "--not-incloud",
+            is_flag=True,
+            help="Search for photos that are not in iCloud (have not been synched)",
+        ),
         o(
             "--regex",
             metavar="REGEX TEMPLATE",
