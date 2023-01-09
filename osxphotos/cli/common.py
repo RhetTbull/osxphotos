@@ -701,7 +701,6 @@ def query_options_from_kwargs(**kwargs) -> QueryOptions:
     exclusive = [
         ("burst", "not_burst"),
         ("cloudasset", "not_cloudasset"),
-        ("deleted", "deleted_only"),
         ("favorite", "not_favorite"),
         ("has_comment", "no_comment"),
         ("has_likes", "no_likes"),
@@ -734,6 +733,14 @@ def query_options_from_kwargs(**kwargs) -> QueryOptions:
         ]
     ):
         raise IncompatibleQueryOptions
+
+    # can also be used with --deleted/--not-deleted which are not part of
+    # standard query options
+    try:
+        if kwargs["deleted"] and kwargs["not_deleted"]:
+            raise IncompatibleQueryOptions
+    except KeyError:
+        pass
 
     # actually have something to query
     include_photos = True

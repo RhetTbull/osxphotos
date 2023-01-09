@@ -5,7 +5,7 @@ from __future__ import annotations
 import datetime
 import json
 import pathlib
-from typing import Callable
+from typing import Callable, Literal
 
 import click
 
@@ -144,6 +144,28 @@ def export_metadata(
     num_photos = len(photos)
     photo_word = pluralize(num_photos, "photo", "photos")
     verbose(f"Analyzing [num]{num_photos}[/] {photo_word} to export")
+    verbose(f"Exporting [num]{len(photos)}[/] {photo_word} to {output_path}")
+    export_metadata_to_db(photos, metadata_db, verbose)
+    verbose(
+        f"Done: exported metadata for [num]{len(photos)}[/] {photo_word} to [filepath]{output_path}[/]"
+    )
+    metadata_db.close()
+
+
+def export_metadata_to_db(
+    photos: list[PhotoInfo],
+    metadata_db: SQLiteKVStore,
+    verbose: Callable[..., None],
+    progress: bool = True,
+):
+    """Export metadata for photos to metadata database
+
+    Args:
+        photos: list of PhotoInfo objects
+        metadata_db: SQLiteKVStore object
+        verbose: verbose function
+        progress: if True, show progress bar
+    """
     # it is possible to have multiple photos with the same fingerprint
     # for example, the same photo was imported twice or the photo was duplicated in Photos
     # in this case, we need to merge the metadata for the photos with the same fingerprint
@@ -156,19 +178,14 @@ def export_metadata(
         else:
             key_to_photos[key] = [photo]
 
-    verbose(f"Exporting [num]{len(photos)}[/] {photo_word} to {output_path}")
-    with rich_progress(console=get_verbose_console()) as progress:
+    with rich_progress(console=get_verbose_console(), mock=not progress) as progress:
         task = progress.add_task("Exporting metadata", total=len(key_to_photos))
         for key, key_photos in key_to_photos.items():
             metadata_db[key] = get_photo_metadata(key_photos)
             progress.advance(task)
-    verbose(
-        f"Done: exported metadata for [num]{len(photos)}[/] {photo_word} to [filepath]{output_path}[/]"
-    )
-    metadata_db.close()
 
 
-def get_import_type(import_path: str) -> str:
+def get_import_type(import_path: str) -> Literal["library", "export"]:
     """Determine if import_path is a Photos library, Photos database, or metadata export file"""
     if pathlib.Path(import_path).is_dir():
         if import_path.endswith(".photoslibrary"):
@@ -212,6 +229,37 @@ def import_metadata(
     verbose(
         f"Importing metadata for [num]{len(photos)}[/] {photo_word} from [filepath]{import_path}[/]"
     )
+
+    # build mapping of key to photo
+    key_to_photo = {}
+    for photo in photos:
+        key = key_from_photo(photo)
+        key_to_photo[key] = photo
+
+    # find keys in import_path that match keys in photos
+    if import_type == "library":
+        # create an in memory database of the import library
+        # so that the rest of the comparison code can be the same
+        photosdb = PhotosDB(import_path, verbose=verbose)
+        photos = photosdb.photos()
+        import_db = SQLiteKVStore(":memory:")
+        verbose(f"Loading metadata from import library: {import_path}")
+        export_metadata_to_db(photos, import_db, verbose, progress=False)
+    elif import_type == "export":
+        import_db = open_metadata_db(import_path)
+    else:
+        rich_echo_error(f"Unable to determine type of import file: {import_path}")
+        raise click.Abort()
+
+    for key, photo in key_to_photo.items():
+        if key in import_db:
+            # import metadata from import_db
+            metadata = import_db[key]
+            rich_click_echo(f"Importing metadata for {photo.filename}")
+        else:
+            rich_click_echo(
+                f"Unable to find metadata for {photo.filename} in {import_path}"
+            )
 
 
 @click.command()
@@ -320,8 +368,6 @@ def sync(
     if (set_ or merge) and not import_path:
         rich_echo_error("--set and --merge can only be used with --import")
         ctx.exit(1)
-
-    print(f"kwargs: {kwargs}")
 
     if import_path:
         import_type = get_import_type(import_path)
