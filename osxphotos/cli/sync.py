@@ -10,9 +10,8 @@ from typing import Any, Callable, Literal
 import click
 
 from osxphotos import PhotoInfo, PhotosDB, __version__
+from osxphotos.photosalbum import PhotosAlbum
 from osxphotos.photosdb.photosdb_utils import get_db_version
-from osxphotos.queryoptions import QueryOptions
-from osxphotos.sqlite_utils import sqlite_open_ro
 from osxphotos.sqlitekvstore import SQLiteKVStore
 from osxphotos.utils import pluralize
 
@@ -241,25 +240,27 @@ def import_metadata(
         photosdb = PhotosDB(import_path, verbose=verbose)
         photos = photosdb.photos()
         import_db = SQLiteKVStore(":memory:")
-        verbose(f"Loading metadata from import library: {import_path}")
+        verbose(f"Loading metadata from import library: [filepath]{import_path}[/]")
         export_metadata_to_db(photos, import_db, progress=False)
     elif import_type == "export":
         import_db = open_metadata_db(import_path)
     else:
-        rich_echo_error(f"Unable to determine type of import file: {import_path}")
+        rich_echo_error(
+            f"Unable to determine type of import file: [filepath]{import_path}[/]"
+        )
         raise click.Abort()
 
     for key, photo in key_to_photo.items():
         if key in import_db:
             # import metadata from import_db
             rich_click_echo(
-                f"Importing metadata for {photo.original_filename} ({photo.uuid})"
+                f"Importing metadata for [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/])"
             )
             metadata = import_db[key]
             import_metadata_for_photo(photo, metadata, set_, merge, dry_run, verbose)
         else:
             rich_click_echo(
-                f"Unable to find metadata for {photo.original_filename} ({photo.uuid}) in {import_path}"
+                f"Unable to find metadata for [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/]) in [filepath]{import_path}[/]"
             )
 
 
@@ -306,11 +307,14 @@ def _update_albums_for_photo(
     albums_to_add = set(value) - set(before)
     if not albums_to_add:
         verbose(f"\tNothing to do for albums")
+        return
 
     for album in albums_to_add:
-        verbose(f"\tAdding to album {album}")
+        verbose(f"\tAdding to album [filepath]{album}[/]")
         if not dry_run:
-            ...
+            PhotosAlbum(album, verbose=lambda x: verbose(f"\t{x}"), rich=True).add(
+                photo
+            )
 
 
 def _set_metadata_for_photo(
@@ -375,7 +379,7 @@ def _merge_metadata_for_photo(
         elif before is None:
             new_value = value
         else:
-            rich_echo_error(f"Unable to merge {field} for {photo.original_filename}")
+            rich_echo_error(f"Unable to merge {field} for [filename]{photo.original_filename}[filename]")
             raise click.Abort()
 
         if new_value != before:
@@ -514,7 +518,6 @@ def sync(
 
     if import_path:
         import_type = get_import_type(import_path)
-        print(f"Importing from {import_path} ({import_type})")
         query_options = query_options_from_kwargs(**kwargs)
         photosdb = PhotosDB(dbfile=db, verbose=verbose)
         photos = photosdb.query(query_options)
