@@ -48,7 +48,9 @@ class MetadataImportPath(click.ParamType):
         try:
             if not pathlib.Path(value).exists():
                 self.fail(f"{value} is not a file or directory")
-            import_type = get_import_type(value)
+            value = str(pathlib.Path(value).expanduser().resolve())
+            # call get_import_type to raise exception if not a valid import type
+            get_import_type(value)
             return value
         except Exception as e:
             self.fail(f"Could not determine import type for {value}: {e}")
@@ -379,7 +381,9 @@ def _merge_metadata_for_photo(
         elif before is None:
             new_value = value
         else:
-            rich_echo_error(f"Unable to merge {field} for [filename]{photo.original_filename}[filename]")
+            rich_echo_error(
+                f"Unable to merge {field} for [filename]{photo.original_filename}[filename]"
+            )
             raise click.Abort()
 
         if new_value != before:
@@ -517,7 +521,6 @@ def sync(
             ctx.exit(1)
 
     if import_path:
-        import_type = get_import_type(import_path)
         query_options = query_options_from_kwargs(**kwargs)
         photosdb = PhotosDB(dbfile=db, verbose=verbose)
         photos = photosdb.query(query_options)
