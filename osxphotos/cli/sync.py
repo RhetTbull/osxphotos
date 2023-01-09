@@ -1,11 +1,11 @@
-"""Sync metadata & albums between Photos libraries"""
+"""Sync metadata and albums between Photos libraries"""
 
 from __future__ import annotations
 
 import datetime
 import json
 import pathlib
-from typing import Callable, Literal
+from typing import Any, Callable, Literal
 
 import click
 
@@ -31,13 +31,13 @@ from .verbose import get_verbose_console, verbose_print
 OSXPHOTOS_ABOUT_STRING = f"Sync Metadata Database created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
 
 METADATA_IMPORT_TYPES = [
-    "all",
     "keywords",
     "albums",
     "title",
     "description",
     "favorite",
 ]
+METADATA_IMPORT_TYPES_ALL = ["all"] + METADATA_IMPORT_TYPES
 
 
 class MetadataImportPath(click.ParamType):
@@ -58,18 +58,18 @@ class MetadataImportPath(click.ParamType):
 class MetadataImportType(click.ParamType):
     """A string indicating which metadata to set or merge from the import source"""
 
-    # valid values are specified in METADATA_IMPORT_TYPES
+    # valid values are specified in METADATA_IMPORT_TYPES_ALL
 
     name = "METADATA_IMPORT_TYPE"
 
     def convert(self, value, param, ctx):
         try:
-            if value not in METADATA_IMPORT_TYPES:
+            if value not in METADATA_IMPORT_TYPES_ALL:
                 values = [v.strip() for v in value.split(",")]
                 for v in values:
-                    if v not in METADATA_IMPORT_TYPES:
+                    if v not in METADATA_IMPORT_TYPES_ALL:
                         self.fail(
-                            f"{v} is not a valid import type, valid values are {', '.join(METADATA_IMPORT_TYPES)}"
+                            f"{v} is not a valid import type, valid values are {', '.join(METADATA_IMPORT_TYPES_ALL)}"
                         )
             return value
         except Exception as e:
@@ -145,7 +145,7 @@ def export_metadata(
     photo_word = pluralize(num_photos, "photo", "photos")
     verbose(f"Analyzing [num]{num_photos}[/] {photo_word} to export")
     verbose(f"Exporting [num]{len(photos)}[/] {photo_word} to {output_path}")
-    export_metadata_to_db(photos, metadata_db, verbose)
+    export_metadata_to_db(photos, metadata_db, progress=True)
     verbose(
         f"Done: exported metadata for [num]{len(photos)}[/] {photo_word} to [filepath]{output_path}[/]"
     )
@@ -155,7 +155,6 @@ def export_metadata(
 def export_metadata_to_db(
     photos: list[PhotoInfo],
     metadata_db: SQLiteKVStore,
-    verbose: Callable[..., None],
     progress: bool = True,
 ):
     """Export metadata for photos to metadata database
@@ -163,7 +162,6 @@ def export_metadata_to_db(
     Args:
         photos: list of PhotoInfo objects
         metadata_db: SQLiteKVStore object
-        verbose: verbose function
         progress: if True, show progress bar
     """
     # it is possible to have multiple photos with the same fingerprint
@@ -244,7 +242,7 @@ def import_metadata(
         photos = photosdb.photos()
         import_db = SQLiteKVStore(":memory:")
         verbose(f"Loading metadata from import library: {import_path}")
-        export_metadata_to_db(photos, import_db, verbose, progress=False)
+        export_metadata_to_db(photos, import_db, progress=False)
     elif import_type == "export":
         import_db = open_metadata_db(import_path)
     else:
@@ -254,12 +252,138 @@ def import_metadata(
     for key, photo in key_to_photo.items():
         if key in import_db:
             # import metadata from import_db
+            rich_click_echo(
+                f"Importing metadata for {photo.original_filename} ({photo.uuid})"
+            )
             metadata = import_db[key]
-            rich_click_echo(f"Importing metadata for {photo.filename}")
+            import_metadata_for_photo(photo, metadata, set_, merge, dry_run, verbose)
         else:
             rich_click_echo(
-                f"Unable to find metadata for {photo.filename} in {import_path}"
+                f"Unable to find metadata for {photo.original_filename} ({photo.uuid}) in {import_path}"
             )
+
+
+def import_metadata_for_photo(
+    photo: PhotoInfo,
+    metadata: str,
+    set_: tuple[str, ...],
+    merge: tuple[str, ...],
+    dry_run: bool,
+    verbose: Callable[..., None],
+):
+    """Update metadata for photo from metadata
+
+    Args:
+        photo: PhotoInfo object
+        metadata: metadata to import (JSON string)
+        set_: tuple of metadata fields to set
+        merge: tuple of metadata fields to merge
+        dry_run: if True, don't actually update metadata
+        verbose: verbose function
+    """
+    # convert metadata to dict
+    metadata = json.loads(metadata)
+
+    if "albums" in set_ or "albums" in merge:
+        # behavior is the same for albums for set and merge:
+        # add photo to any new albums but do not remove from existing albums
+        _update_albums_for_photo(photo, metadata, dry_run, verbose)
+
+    _set_metadata_for_photo(photo, metadata, set_, dry_run, verbose)
+    _merge_metadata_for_photo(photo, metadata, merge, dry_run, verbose)
+
+
+def _update_albums_for_photo(
+    photo: PhotoInfo,
+    metadata: dict[str, Any],
+    dry_run: bool,
+    verbose: Callable[..., None],
+):
+    """Add photo to new albums if necessary"""
+    # add photo to any new albums but do not remove from existing albums
+    value = sorted(metadata["albums"])
+    before = sorted(photo.albums)
+    albums_to_add = set(value) - set(before)
+    if not albums_to_add:
+        verbose(f"\tNothing to do for albums")
+
+    for album in albums_to_add:
+        verbose(f"\tAdding to album {album}")
+        if not dry_run:
+            ...
+
+
+def _set_metadata_for_photo(
+    photo: PhotoInfo,
+    metadata: dict[str, Any],
+    set_: tuple[str, ...],
+    dry_run: bool,
+    verbose: Callable[..., None],
+):
+    """Set metadata for photo"""
+    for field in set_:
+        if field == "albums":
+            continue
+
+        value = metadata[field]
+        before = getattr(photo, field)
+
+        if isinstance(value, list):
+            value = sorted(value)
+        if isinstance(before, list):
+            before = sorted(before)
+
+        if value != before:
+            verbose(f"\tSetting {field} to {value} from {before}")
+            if not dry_run:
+                ...
+        else:
+            verbose(f"\tNothing to do for {field}")
+
+
+def _merge_metadata_for_photo(
+    photo: PhotoInfo,
+    metadata: dict[str, Any],
+    merge: tuple[str, ...],
+    dry_run: bool,
+    verbose: Callable[..., None],
+):
+    """Merge metadata for photo"""
+    for field in merge:
+        if field == "albums":
+            continue
+
+        value = metadata[field]
+        before = getattr(photo, field)
+
+        if isinstance(value, list):
+            value = sorted(value)
+        if isinstance(before, list):
+            before = sorted(before)
+
+        if value == before:
+            verbose(f"\tNothing to do for {field}")
+            continue
+
+        if isinstance(value, list) and isinstance(before, list):
+            new_value = sorted(set(value + before))
+        elif isinstance(before, bool):
+            new_value = value or bool(before)
+        elif isinstance(before, str):
+            value = value or ""
+            new_value = f"{before} {value}" if value and value not in before else before
+        elif before is None:
+            new_value = value
+        else:
+            rich_echo_error(f"Unable to merge {field} for {photo.original_filename}")
+            raise click.Abort()
+
+        if new_value != before:
+            verbose(f"\tMerging {field} to {new_value} from {before}")
+            if not dry_run:
+                ...
+        else:
+            verbose(f"\tNothing to do for {field}")
 
 
 @click.command()
@@ -295,7 +419,7 @@ def import_metadata(
     help="When used with --import, set metadata in local Photos library to match import data. "
     "Multiple metadata properties can be specified by repeating the --set option "
     "or by using a comma-separated list. "
-    f"METADATA can be one of: {', '.join(METADATA_IMPORT_TYPES)}. "
+    f"METADATA can be one of: {', '.join(METADATA_IMPORT_TYPES_ALL)}. "
     "For example, to set keywords and favorite, use `--set keywords --set favorite` "
     "or `--set keywords,favorite`. "
     "If `--set all` is specified, all metadata will be set. "
@@ -317,7 +441,7 @@ def import_metadata(
     help="When used with --import, merge metadata in local Photos library with import data. "
     "Multiple metadata properties can be specified by repeating the --merge option "
     "or by using a comma-separated list. "
-    f"METADATA can be one of: {', '.join(METADATA_IMPORT_TYPES)}. "
+    f"METADATA can be one of: {', '.join(METADATA_IMPORT_TYPES_ALL)}. "
     "For example, to merge keywords and favorite, use `--merge keywords --merge favorite` "
     "or `--merge keywords,favorite`. "
     "If `--merge all` is specified, all metadata will be merged. "
@@ -355,7 +479,7 @@ def sync(
     verbose_,
     **kwargs,  # query options
 ):
-    """Sync metadata & albums between Photos libraries"""
+    """Sync metadata and albums between Photos libraries"""
     color_theme = get_theme(theme)
     verbose = verbose_print(
         verbose_, timestamp, rich=True, theme=color_theme, highlight=False
@@ -369,11 +493,28 @@ def sync(
         rich_echo_error("--set and --merge can only be used with --import")
         ctx.exit(1)
 
+    set_ = parse_set_merge(set_)
+    merge = parse_set_merge(merge)
+
+    if "all" in set_:
+        set_ = tuple(METADATA_IMPORT_TYPES)
+    if "all" in merge:
+        merge = tuple(METADATA_IMPORT_TYPES)
+
+    if set_ and merge:
+        # fields in set cannot be in merge and vice versa
+        set_ = set(set_)
+        merge = set(merge)
+        if set_ & merge:
+            rich_echo_error(
+                "--set and --merge cannot be used with the same fields: "
+                f"set: {set_}, merge: {merge}"
+            )
+            ctx.exit(1)
+
     if import_path:
         import_type = get_import_type(import_path)
         print(f"Importing from {import_path} ({import_type})")
-        set_ = parse_set_merge(set_)
-        merge = parse_set_merge(merge)
         query_options = query_options_from_kwargs(**kwargs)
         photosdb = PhotosDB(dbfile=db, verbose=verbose)
         photos = photosdb.query(query_options)
