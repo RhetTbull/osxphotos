@@ -92,7 +92,7 @@ from .common import (
 from .help import ExportCommand, get_help_msg
 from .list import _list_libraries
 from .param_types import ExportDBType, FunctionCall, TemplateString
-from .report_writer import ReportWriterNoOp, report_writer_factory
+from .report_writer import ReportWriterNoOp, export_report_writer_factory
 from .rich_progress import rich_progress
 from .verbose import get_verbose_console, time_stamp, verbose_print
 
@@ -1267,7 +1267,7 @@ def export(
 
     if report:
         report = render_and_validate_report(report, exiftool_path, dest)
-        report_writer = report_writer_factory(report, append)
+        report_writer = export_report_writer_factory(report, append)
     else:
         report_writer = ReportWriterNoOp()
 

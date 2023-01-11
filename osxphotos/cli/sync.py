@@ -4,14 +4,17 @@ from __future__ import annotations
 
 import datetime
 import json
+import os
 import pathlib
 from typing import Any, Callable, Literal
 
 import click
 
 from osxphotos import PhotoInfo, PhotosDB, __version__
+from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.photosalbum import PhotosAlbum
 from osxphotos.photosdb.photosdb_utils import get_db_version
+from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.sqlitekvstore import SQLiteKVStore
 from osxphotos.utils import pluralize
 
@@ -24,25 +27,28 @@ from .click_rich_echo import (
 )
 from .color_themes import get_theme
 from .common import DB_OPTION, QUERY_OPTIONS, THEME_OPTION, query_options_from_kwargs
+from .param_types import TemplateString
+from .report_writer import sync_report_writer_factory
 from .rich_progress import rich_progress
+from .sync_results import SyncResults
 from .verbose import get_verbose_console, verbose_print
 
-OSXPHOTOS_ABOUT_STRING = f"Sync Metadata Database created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
+SYNC_ABOUT_STRING = f"Sync Metadata Database created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
 
-METADATA_IMPORT_TYPES = [
+SYNC_IMPORT_TYPES = [
     "keywords",
     "albums",
     "title",
     "description",
     "favorite",
 ]
-METADATA_IMPORT_TYPES_ALL = ["all"] + METADATA_IMPORT_TYPES
+SYNC_IMPORT_TYPES_ALL = ["all"] + SYNC_IMPORT_TYPES
 
 
-class MetadataImportPath(click.ParamType):
+class SyncImportPath(click.ParamType):
     """A path to a Photos library or a metadata export file created by --export"""
 
-    name = "METADATA_IMPORT_PATH"
+    name = "SYNC_IMPORT_PATH"
 
     def convert(self, value, param, ctx):
         try:
@@ -56,25 +62,52 @@ class MetadataImportPath(click.ParamType):
             self.fail(f"Could not determine import type for {value}: {e}")
 
 
-class MetadataImportType(click.ParamType):
+class SyncImportType(click.ParamType):
     """A string indicating which metadata to set or merge from the import source"""
 
     # valid values are specified in METADATA_IMPORT_TYPES_ALL
 
-    name = "METADATA_IMPORT_TYPE"
+    name = "SYNC_IMPORT_TYPE"
 
     def convert(self, value, param, ctx):
         try:
-            if value not in METADATA_IMPORT_TYPES_ALL:
+            if value not in SYNC_IMPORT_TYPES_ALL:
                 values = [v.strip() for v in value.split(",")]
                 for v in values:
-                    if v not in METADATA_IMPORT_TYPES_ALL:
+                    if v not in SYNC_IMPORT_TYPES_ALL:
                         self.fail(
-                            f"{v} is not a valid import type, valid values are {', '.join(METADATA_IMPORT_TYPES_ALL)}"
+                            f"{v} is not a valid import type, valid values are {', '.join(SYNC_IMPORT_TYPES_ALL)}"
                         )
             return value
         except Exception as e:
             self.fail(f"Could not determine import type for {value}: {e}")
+
+
+def render_and_validate_report(report: str) -> str:
+    """Render a report file template and validate the filename
+
+    Args:
+        report: the template string
+
+    Returns:
+        the rendered report filename
+
+    Note:
+        Exits with error if the report filename is invalid
+    """
+    # render report template and validate the filename
+    template = PhotoTemplate(PhotoInfoNone())
+    render_options = RenderOptions()
+    report_file, _ = template.render(report, options=render_options)
+    report = report_file[0]
+
+    if os.path.isdir(report):
+        rich_click_echo(
+            f"[error]Report '{report}' is a directory, must be file name",
+            err=True,
+        )
+        raise click.Abort()
+    return report
 
 
 def parse_set_merge(values: tuple[str]) -> tuple[str]:
@@ -92,9 +125,7 @@ def open_metadata_db(db_path: str):
         wal=False,  # don't use WAL to keep database a single file
     )
     if not metadata_db.about:
-        metadata_db.about = (
-            f"osxphotos metadata sync database\n{OSXPHOTOS_ABOUT_STRING}"
-        )
+        metadata_db.about = f"osxphotos metadata sync database\n{SYNC_ABOUT_STRING}"
     return metadata_db
 
 
@@ -221,7 +252,7 @@ def import_metadata(
     merge: tuple[str, ...],
     dry_run: bool,
     verbose: Callable[..., None],
-):
+) -> SyncResults:
     """Import metadata from metadata_db"""
     import_type = get_import_type(import_path)
     photo_word = pluralize(len(photos), "photo", "photos")
@@ -252,6 +283,7 @@ def import_metadata(
         )
         raise click.Abort()
 
+    results = SyncResults()
     for key, photo in key_to_photo.items():
         if key in import_db:
             # import metadata from import_db
@@ -259,11 +291,14 @@ def import_metadata(
                 f"Importing metadata for [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/])"
             )
             metadata = import_db[key]
-            import_metadata_for_photo(photo, metadata, set_, merge, dry_run, verbose)
+            results += import_metadata_for_photo(
+                photo, metadata, set_, merge, dry_run, verbose
+            )
         else:
             rich_click_echo(
                 f"Unable to find metadata for [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/]) in [filepath]{import_path}[/]"
             )
+    return results
 
 
 def import_metadata_for_photo(
@@ -273,7 +308,7 @@ def import_metadata_for_photo(
     merge: tuple[str, ...],
     dry_run: bool,
     verbose: Callable[..., None],
-):
+) -> SyncResults:
     """Update metadata for photo from metadata
 
     Args:
@@ -287,13 +322,16 @@ def import_metadata_for_photo(
     # convert metadata to dict
     metadata = json.loads(metadata)
 
+    results = SyncResults()
     if "albums" in set_ or "albums" in merge:
         # behavior is the same for albums for set and merge:
         # add photo to any new albums but do not remove from existing albums
-        _update_albums_for_photo(photo, metadata, dry_run, verbose)
+        results += _update_albums_for_photo(photo, metadata, dry_run, verbose)
 
-    _set_metadata_for_photo(photo, metadata, set_, dry_run, verbose)
-    _merge_metadata_for_photo(photo, metadata, merge, dry_run, verbose)
+    results += _set_metadata_for_photo(photo, metadata, set_, dry_run, verbose)
+    results += _merge_metadata_for_photo(photo, metadata, merge, dry_run, verbose)
+
+    return results
 
 
 def _update_albums_for_photo(
@@ -301,15 +339,19 @@ def _update_albums_for_photo(
     metadata: dict[str, Any],
     dry_run: bool,
     verbose: Callable[..., None],
-):
+) -> SyncResults:
     """Add photo to new albums if necessary"""
     # add photo to any new albums but do not remove from existing albums
+    results = SyncResults()
     value = sorted(metadata["albums"])
     before = sorted(photo.albums)
     albums_to_add = set(value) - set(before)
     if not albums_to_add:
         verbose(f"\tNothing to do for albums")
-        return
+        results.add_result(
+            photo.uuid, photo.original_filename, "albums", False, before, value
+        )
+        return results
 
     for album in albums_to_add:
         verbose(f"\tAdding to album [filepath]{album}[/]")
@@ -317,6 +359,10 @@ def _update_albums_for_photo(
             PhotosAlbum(album, verbose=lambda x: verbose(f"\t{x}"), rich=True).add(
                 photo
             )
+    results.add_result(
+        photo.uuid, photo.original_filename, "albums", True, before, value
+    )
+    return results
 
 
 def _set_metadata_for_photo(
@@ -325,8 +371,9 @@ def _set_metadata_for_photo(
     set_: tuple[str, ...],
     dry_run: bool,
     verbose: Callable[..., None],
-):
+) -> SyncResults:
     """Set metadata for photo"""
+    results = SyncResults()
     for field in set_:
         if field == "albums":
             continue
@@ -346,6 +393,11 @@ def _set_metadata_for_photo(
         else:
             verbose(f"\tNothing to do for {field}")
 
+        results.add_result(
+            photo.uuid, photo.original_filename, field, value != before, before, value
+        )
+    return results
+
 
 def _merge_metadata_for_photo(
     photo: PhotoInfo,
@@ -353,8 +405,9 @@ def _merge_metadata_for_photo(
     merge: tuple[str, ...],
     dry_run: bool,
     verbose: Callable[..., None],
-):
+) -> SyncResults:
     """Merge metadata for photo"""
+    results = SyncResults()
     for field in merge:
         if field == "albums":
             continue
@@ -393,13 +446,18 @@ def _merge_metadata_for_photo(
         else:
             verbose(f"\tNothing to do for {field}")
 
+        results.add_result(
+            photo.uuid,
+            photo.original_filename,
+            field,
+            new_value != before,
+            before,
+            new_value,
+        )
+    return results
+
 
 @click.command()
-@click.option(
-    "--selected",
-    is_flag=True,
-    help="Filter for photos that are currently selected in Photos.",
-)
 @click.option(
     "--export",
     "-e",
@@ -416,7 +474,7 @@ def _merge_metadata_for_photo(
     help="Import metadata from file IMPORT_PATH. "
     "IMPORT_PATH can a Photos library, a Photos database, or a metadata export file "
     "created with --export.",
-    type=MetadataImportPath(),
+    type=SyncImportPath(),
 )
 @click.option(
     "--set",
@@ -427,7 +485,7 @@ def _merge_metadata_for_photo(
     help="When used with --import, set metadata in local Photos library to match import data. "
     "Multiple metadata properties can be specified by repeating the --set option "
     "or by using a comma-separated list. "
-    f"METADATA can be one of: {', '.join(METADATA_IMPORT_TYPES_ALL)}. "
+    f"METADATA can be one of: {', '.join(SYNC_IMPORT_TYPES_ALL)}. "
     "For example, to set keywords and favorite, use `--set keywords --set favorite` "
     "or `--set keywords,favorite`. "
     "If `--set all` is specified, all metadata will be set. "
@@ -438,7 +496,7 @@ def _merge_metadata_for_photo(
     "from any existing albums in the local library but will add the photo to any new albums specified "
     "in the import source."
     "See also --merge.",
-    type=MetadataImportType(),
+    type=SyncImportType(),
 )
 @click.option(
     "--merge",
@@ -449,7 +507,7 @@ def _merge_metadata_for_photo(
     help="When used with --import, merge metadata in local Photos library with import data. "
     "Multiple metadata properties can be specified by repeating the --merge option "
     "or by using a comma-separated list. "
-    f"METADATA can be one of: {', '.join(METADATA_IMPORT_TYPES_ALL)}. "
+    f"METADATA can be one of: {', '.join(SYNC_IMPORT_TYPES_ALL)}. "
     "For example, to merge keywords and favorite, use `--merge keywords --merge favorite` "
     "or `--merge keywords,favorite`. "
     "If `--merge all` is specified, all metadata will be merged. "
@@ -457,14 +515,32 @@ def _merge_metadata_for_photo(
     "For example, if a photo is marked as favorite in the local library but not in the import source, "
     "--merge favorite will not change the favorite status in the local library. "
     "See also --set.",
-    type=MetadataImportType(),
+    type=SyncImportType(),
 )
-@click.option("--verbose", "-V", "verbose_", is_flag=True, help="Print verbose output.")
+@click.option(
+    "--report",
+    metavar="REPORT_FILE",
+    help="Write a report of all photos that were processed with --import. "
+    "The extension of the report filename will be used to determine the format. "
+    "Valid extensions are: "
+    ".csv (CSV file), .json (JSON), .db and .sqlite (SQLite database). "
+    "REPORT_FILE may be a an osxphotos template string, for example, "
+    "--report 'update_{today.date}.csv' will write a CSV report file named with today's date. "
+    "See also --append.",
+    type=TemplateString(),
+)
+@click.option(
+    "--append",
+    is_flag=True,
+    help="If used with --report, add data to existing report file instead of overwriting it. "
+    "See also --report.",
+)
 @click.option(
     "--dry-run",
     is_flag=True,
     help="Dry run; " "when used with --import, don't actually update metadata.",
 )
+@click.option("--verbose", "-V", "verbose_", is_flag=True, help="Print verbose output.")
 @click.option(
     "--timestamp", "-T", is_flag=True, help="Add time stamp to verbose output."
 )
@@ -477,10 +553,12 @@ def sync(
     ctx,
     cli_obj,
     db,
+    append,
     dry_run,
     export_path,
     import_path,
     merge,
+    report,
     set_,
     theme,
     timestamp,
@@ -505,9 +583,9 @@ def sync(
     merge = parse_set_merge(merge)
 
     if "all" in set_:
-        set_ = tuple(METADATA_IMPORT_TYPES)
+        set_ = tuple(SYNC_IMPORT_TYPES)
     if "all" in merge:
-        merge = tuple(METADATA_IMPORT_TYPES)
+        merge = tuple(SYNC_IMPORT_TYPES)
 
     if set_ and merge:
         # fields in set cannot be in merge and vice versa
@@ -524,7 +602,13 @@ def sync(
         query_options = query_options_from_kwargs(**kwargs)
         photosdb = PhotosDB(dbfile=db, verbose=verbose)
         photos = photosdb.query(query_options)
-        import_metadata(photos, import_path, set_, merge, dry_run, verbose)
+        results = import_metadata(photos, import_path, set_, merge, dry_run, verbose)
+        if report:
+            report_path = render_and_validate_report(report)
+            verbose(f"Writing report to {report_path}")
+            report_writer = sync_report_writer_factory(report_path, append=append)
+            report_writer.write(results)
+            report_writer.close()
 
     if export_path:
         photosdb = PhotosDB(dbfile=db, verbose=verbose)
