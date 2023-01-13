@@ -319,8 +319,6 @@ def location_from_file(
                 latitude = -latitude
             elif latitude_ref != "N":
                 latitude = None
-        if latitude is None:
-            latitude := metadata.get("XMP:GPSLatitude"):
         if longitude := metadata.get("EXIF:GPSLongitude"):
             longitude = float(longitude)
             longitude_ref = metadata.get("EXIF:GPSLongitudeRef")
@@ -328,8 +326,6 @@ def location_from_file(
                 longitude = -longitude
             elif longitude_ref != "E":
                 longitude = None
-        if longitude is None:
-            longitude := metadata.get("XMP:GPSLongitude"):
         if latitude is None or longitude is None:
             # maybe it's a video
             if lat_lon := metadata.get("QuickTime:GPSCoordinates") or metadata.get(
