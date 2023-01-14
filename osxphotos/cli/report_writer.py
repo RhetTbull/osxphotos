@@ -521,7 +521,7 @@ class SyncReportWriterJSON(ReportWriterABC):
 
 
 class SyncReportWriterSQLite(ReportWriterABC):
-    """Write sqlite report file"""
+    """Write sqlite SyncResults report file"""
 
     def __init__(
         self, output_file: Union[str, bytes, os.PathLike], append: bool = False
@@ -537,19 +537,25 @@ class SyncReportWriterSQLite(ReportWriterABC):
         self._create_tables()
         self.report_id = self._generate_report_id()
 
-    def write(self, export_results: ExportResults):
+    def write(self, results: SyncResults):
         """Write results to the output file"""
 
-        all_results = prepare_results_for_writing(export_results)
-        for data in list(all_results.values()):
-            data["report_id"] = self.report_id
+        # insert rows of values into sqlite report table
+        for row in list(results.results_list):
+            report_id = self.report_id
+            data = [str(v) if v else "" for v in row]
             cursor = self._conn.cursor()
             cursor.execute(
                 "INSERT INTO report "
-                "(datetime, filename, exported, new, updated, skipped, exif_updated, touched, converted_to_jpeg, sidecar_xmp, sidecar_json, sidecar_exiftool, missing, error, exiftool_warning, exiftool_error, extended_attributes_written, extended_attributes_skipped, cleanup_deleted_file, cleanup_deleted_directory, exported_album, report_id) "
+                "(report_id, uuid, filename, fingerprint, updated, "
+                "albums_updated, albums_datetime, albums_before, albums_after, "
+                "description_updated, description_datetime, description_before, description_after, "
+                "favorite_updated, favorite_datetime, favorite_before, favorite_after, "
+                "keywords_updated, keywords_datetime, keywords_before, keywords_after, "
+                "title_updated, title_datetime, title_before, title_after)"
                 "VALUES "
-                "(:datetime, :filename, :exported, :new, :updated, :skipped, :exif_updated, :touched, :converted_to_jpeg, :sidecar_xmp, :sidecar_json, :sidecar_exiftool, :missing, :error, :exiftool_warning, :exiftool_error, :extended_attributes_written, :extended_attributes_skipped, :cleanup_deleted_file, :cleanup_deleted_directory, :exported_album, :report_id);",
-                data,
+                "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (report_id, *data),
             )
         self._conn.commit()
 
@@ -562,28 +568,32 @@ class SyncReportWriterSQLite(ReportWriterABC):
         c.execute(
             """
             CREATE TABLE IF NOT EXISTS report (
-                datetime TEXT,
+                report_id TEXT, 
+                uuid TEXT,
                 filename TEXT,
-                exported INTEGER,
-                new INTEGER,
-                updated INTEGER,
-                skipped INTEGER,
-                exif_updated INTEGER,
-                touched INTEGER,
-                converted_to_jpeg INTEGER,
-                sidecar_xmp INTEGER,
-                sidecar_json INTEGER,
-                sidecar_exiftool INTEGER,
-                missing INTEGER,
-                error TEXT,
-                exiftool_warning TEXT,
-                exiftool_error TEXT,
-                extended_attributes_written INTEGER,
-                extended_attributes_skipped INTEGER,
-                cleanup_deleted_file INTEGER,
-                cleanup_deleted_directory INTEGER,
-                exported_album TEXT
-            )
+                fingerprint TEXT,
+                updated INT,
+                albums_updated INT,
+                albums_datetime TEXT,
+                albums_before TEXT,
+                albums_after TEXT,
+                description_updated INT,
+                description_datetime TEXT,
+                description_before TEXT,
+                description_after TEXT,
+                favorite_updated INT,
+                favorite_datetime TEXT,
+                favorite_before TEXT,
+                favorite_after TEXT,
+                keywords_updated INT,
+                keywords_datetime TEXT,
+                keywords_before TEXT,
+                keywords_after TEXT,
+                title_updated INT,
+                title_datetime TEXT,
+                title_before TEXT,
+                title_after TEXT
+            );
             """
         )
         c.execute(
@@ -595,7 +605,7 @@ class SyncReportWriterSQLite(ReportWriterABC):
         )
         c.execute(
             "INSERT INTO about(about) VALUES (?);",
-            (f"OSXPhotos Export Report. {OSXPHOTOS_ABOUT_STRING}",),
+            (f"OSXPhotos Sync Report. {OSXPHOTOS_ABOUT_STRING}",),
         )
         c.execute(
             """
@@ -606,32 +616,25 @@ class SyncReportWriterSQLite(ReportWriterABC):
         )
         self._conn.commit()
 
-        # migrate report table to add report_id if needed (#731)
-        if "report_id" not in sqlite_columns(self._conn, "report"):
-            self._conn.cursor().execute("ALTER TABLE report ADD COLUMN report_id TEXT;")
-            self._conn.commit()
-
         # create report_summary view
+        c.execute("DROP VIEW IF EXISTS report_summary;")
         c.execute(
             """
-            CREATE VIEW IF NOT EXISTS report_summary AS
+            CREATE VIEW report_summary AS
             SELECT
-                report_id,
-                datetime(MIN(datetime)) start_time,
-                datetime(MAX(datetime)) end_time,
-                STRFTIME('%s',MAX(datetime)) - STRFTIME('%s',MIN(datetime)) AS duration_s,
-                SUM(exported) AS exported,
-                sum(new) as new,
-                SUM(updated) as updated,
-                SUM(skipped) as skipped,
-                SUM(sidecar_xmp) as sidecar_xmp,
-                SUM(touched) as touched,
-                SUM(converted_to_jpeg) as converted_to_jpeg,
-                SUM(missing) as missing,
-                SUM(CASE WHEN error = "" THEN 0 ELSE 1 END) as error,
-                SUM(cleanup_deleted_file) as cleanup_deleted_file
-            FROM report
-            GROUP BY report_id;"""
+                r.report_id,
+                i.datetime AS report_datetime,
+                COUNT(r.uuid) as processed,
+                COUNT(CASE r.updated WHEN 'True' THEN 1 ELSE NULL END) as updated,
+                COUNT(case r.albums_updated WHEN 'True' THEN 1 ELSE NULL END) as albums_updated,
+                COUNT(case r.description_updated WHEN 'True' THEN 1 ELSE NULL END) as description_updated,
+                COUNT(case r.favorite_updated WHEN 'True' THEN 1 ELSE NULL END) as favorite_updated,
+                COUNT(case r.keywords_updated WHEN 'True' THEN 1 ELSE NULL END) as keywords_updated,
+                COUNT(case r.title_updated WHEN 'True' THEN 1 ELSE NULL END) as title_updated
+            FROM report as r
+            INNER JOIN report_id as i ON r.report_id = i.report_id
+            GROUP BY r.report_id;
+            """
         )
         self._conn.commit()
 

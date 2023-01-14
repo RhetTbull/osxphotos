@@ -99,6 +99,7 @@ class SyncResults:
         results = {}
         for uuid, record in self._results.items():
             results[uuid] = {
+                "uuid": uuid,
                 "filename": record["filename"],
                 "fingerprint": record["fingerprint"],
                 "updated": self._any_updated(uuid),
