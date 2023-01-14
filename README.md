@@ -839,6 +839,17 @@ Options:
                                   units. For example, the following are all
                                   valid and equivalent sizes: '1048576'
                                   '1.048576MB', '1 MiB'.
+  --missing                       Search for photos missing from disk.
+  --not-missing                   Search for photos present on disk (e.g. not
+                                  missing).
+  --cloudasset                    Search for photos that are part of an iCloud
+                                  library
+  --not-cloudasset                Search for photos that are not part of an
+                                  iCloud library
+  --incloud                       Search for photos that are in iCloud (have
+                                  been synched)
+  --not-incloud                   Search for photos that are not in iCloud (have
+                                  not been synched)
   --regex REGEX TEMPLATE          Search for photos where TEMPLATE matches
                                   regular expression REGEX. For example, to find
                                   photos in an album that begins with 'Beach': '
@@ -886,8 +897,6 @@ Options:
                                   evaluated. See https://github.com/RhetTbull/os
                                   xphotos/blob/master/examples/query_function.py
                                   for example of how to use this option.
-  --missing                       Export only photos missing from the Photos
-                                  library; must be used with --download-missing.
   --deleted                       Include photos from the 'Recently Deleted'
                                   folder.
   --deleted-only                  Include only photos from the 'Recently
