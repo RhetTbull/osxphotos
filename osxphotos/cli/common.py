@@ -579,18 +579,24 @@ def DEBUG_OPTIONS(f):
         ),
         o(
             "--watch",
-            metavar="FUNCTION_PATH",
+            metavar="MODULE::NAME",
             multiple=True,
-            help="Watch function calls.  For example, to watch all calls to FileUtil.copy: "
-            "'--watch osxphotos.fileutil.FileUtil.copy'.  More than one --watch option can be specified.",
+            help="Watch function or method calls. The function to watch must be in the form "
+            "MODULE::NAME where MODULE is the module path and NAME is the function or method name "
+            "contained in the module. For example, to watch all calls to FileUtil.copy() which is in "
+            "osxphotos.fileutil, use: "
+            "'--watch osxphotos.fileutil::FileUtil.copy'.  More than one --watch option can be specified.",
             hidden=OSXPHOTOS_HIDDEN,
         ),
         o(
             "--breakpoint",
-            metavar="FUNCTION_PATH",
+            metavar="MODULE::NAME",
             multiple=True,
-            help="Add breakpoint to function calls.  For example, to add breakpoint to FileUtil.copy: "
-            "'--breakpoint osxphotos.fileutil.FileUtil.copy'.  More than one --breakpoint option can be specified.",
+            help="Add breakpoint to function calls. The function to watch must be in the form "
+            "MODULE::NAME where MODULE is the module path and NAME is the function or method name "
+            "contained in the module. For example, to set a breakpoint for calls to "
+            "FileUtil.copy() which is in osxphotos.fileutil, use: "
+            "'--breakpoint osxphotos.fileutil::FileUtil.copy'.  More than one --breakpoint option can be specified.",
             hidden=OSXPHOTOS_HIDDEN,
         ),
     ]

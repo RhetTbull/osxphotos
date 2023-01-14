@@ -49,7 +49,7 @@ def debug_breakpoint(wrapped, instance, args, kwargs):
 
 def wrap_function(function_path, wrapper):
     """Wrap a function with wrapper function"""
-    module, name = function_path.split(".", 1)
+    module, name = function_path.split("::", 1)
     try:
         return wrapt.wrap_function_wrapper(module, name, wrapper)
     except AttributeError as e:

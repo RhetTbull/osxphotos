@@ -1,12 +1,7 @@
 """export command for osxphotos CLI"""
 
-import atexit
-import cProfile
-import csv
-import io
 import os
 import pathlib
-import pstats
 import shlex
 import subprocess
 import sys
@@ -47,7 +42,7 @@ from osxphotos.configoptions import (
 )
 from osxphotos.crash_reporter import crash_reporter, set_crash_data
 from osxphotos.datetime_formatter import DateTimeFormatter
-from osxphotos.debug import is_debug, set_debug
+from osxphotos.debug import is_debug
 from osxphotos.exiftool import get_exiftool_path
 from osxphotos.export_db import ExportDB, ExportDBInMemory
 from osxphotos.fileutil import FileUtil, FileUtilNoOp, FileUtilShUtil
@@ -78,7 +73,6 @@ from .common import (
     CLI_COLOR_WARNING,
     DB_ARGUMENT,
     DB_OPTION,
-    DEBUG_OPTIONS,
     DELETED_OPTIONS,
     JSON_OPTION,
     OSXPHOTOS_CRASH_LOG,
@@ -713,29 +707,7 @@ from .verbose import get_verbose_console, time_stamp, verbose_print
     hidden=OSXPHOTOS_HIDDEN,
     help="Enable beta options.",
 )
-@click.option(
-    "--profile",
-    is_flag=True,
-    default=False,
-    hidden=OSXPHOTOS_HIDDEN,
-    help="Run export with code profiler.",
-)
-@click.option(
-    "--profile-sort",
-    default=None,
-    hidden=OSXPHOTOS_HIDDEN,
-    multiple=True,
-    metavar="SORT_KEY",
-    type=click.Choice(
-        PROFILE_SORT_KEYS,
-        case_sensitive=True,
-    ),
-    help="Sort profiler output by SORT_KEY as specified at https://docs.python.org/3/library/profile.html#pstats.Stats.sort_stats. "
-    f"Can be specified multiple times. Valid options are: {PROFILE_SORT_KEYS}. "
-    "Default = 'cumulative'.",
-)
 @THEME_OPTION
-@DEBUG_OPTIONS
 @DB_ARGUMENT
 @click.argument("dest", nargs=1, type=click.Path(exists=True))
 @click.pass_obj
@@ -865,8 +837,6 @@ def export(
     preview_if_missing,
     preview_suffix,
     print_template,
-    profile,
-    profile_sort,
     query_eval,
     query_function,
     ramdb,
@@ -908,9 +878,9 @@ def export(
     verbose,
     xattr_template,
     year,
-    debug,  # debug, watch, breakpoint handled in cli/__init__.py
-    watch,
-    breakpoint,
+    # debug,  # debug, watch, breakpoint handled in cli/__init__.py
+    # watch,
+    # breakpoint,
 ):
     """Export photos from the Photos database.
     Export path DEST is required.
@@ -936,26 +906,7 @@ def export(
 
     # capture locals for use with ConfigOptions before changing any of them
     locals_ = locals()
-
     set_crash_data("locals", locals_)
-
-    if profile:
-        click.echo("Profiling...")
-        profile_sort = profile_sort or ["cumulative"]
-        click.echo(f"Profile sort_stats order: {profile_sort}")
-        pr = cProfile.Profile()
-        pr.enable()
-
-        def at_exit():
-            pr.disable()
-            click.echo("Profiling completed")
-            s = io.StringIO()
-            pstats.Stats(pr, stream=s).strip_dirs().sort_stats(
-                *profile_sort
-            ).print_stats()
-            click.echo(s.getvalue())
-
-        atexit.register(at_exit)
 
     # NOTE: because of the way ConfigOptions works, Click options must not
     # set defaults which are not None or False. If defaults need to be set
