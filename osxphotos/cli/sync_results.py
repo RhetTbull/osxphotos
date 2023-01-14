@@ -93,6 +93,28 @@ class SyncResults:
             )
         return header
 
+    @property
+    def results_dict(self):
+        """Return dictionary of results"""
+        results = {}
+        for uuid, record in self._results.items():
+            results[uuid] = {
+                "filename": record["filename"],
+                "fingerprint": record["fingerprint"],
+                "updated": self._any_updated(uuid),
+            }
+            for property in SYNC_PROPERTIES:
+                if property in record["properties"]:
+                    results[uuid][property] = record["properties"][property]
+                else:
+                    results[uuid][property] = {
+                        "updated": False,
+                        "datetime": None,
+                        "before": None,
+                        "after": None,
+                    }
+        return results
+
     def results_summary(self):
         """Get summary of results"""
         updated = sum(bool(self._any_updated(uuid)) for uuid in self._results.keys())

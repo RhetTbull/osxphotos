@@ -472,7 +472,7 @@ class SyncReportWriterCSV(ReportWriterABC):
 
 
 class SyncReportWriterJSON(ReportWriterABC):
-    """Write JSON report file"""
+    """Write JSON SyncResults report file"""
 
     def __init__(
         self, output_file: Union[str, bytes, os.PathLike], append: bool = False
@@ -494,15 +494,20 @@ class SyncReportWriterJSON(ReportWriterABC):
             self._output_fh = open(self.output_file, "w")
             self._output_fh.write("[")
 
-    def write(self, export_results: ExportResults):
+    def write(self, results: SyncResults):
         """Write results to the output file"""
-        all_results = prepare_results_for_writing(export_results, bool_values=True)
-        for data in list(all_results.values()):
+
+        # convert datetimes to strings
+        def default(o):
+            if isinstance(o, (datetime.date, datetime.datetime)):
+                return o.isoformat()
+
+        for data in list(results.results_dict.values()):
             if self._first_record_written:
                 self._output_fh.write(",\n")
             else:
                 self._first_record_written = True
-            self._output_fh.write(json.dumps(data, indent=self.indent))
+            self._output_fh.write(json.dumps(data, indent=self.indent, default=default))
         self._output_fh.flush()
 
     def close(self):
