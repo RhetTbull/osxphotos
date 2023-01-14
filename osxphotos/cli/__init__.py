@@ -1,4 +1,5 @@
 """cli package for osxphotos"""
+
 import sys
 
 from rich import print
@@ -26,13 +27,13 @@ for func_name in args.get("--watch", []):
         wrap_function(func_name, debug_watch)
         print(f"Watching {func_name}")
     except AttributeError:
-        print(f"{func_name} does not exist")
+        print(f"{func_name} does not exist", file=sys.stderr)
         sys.exit(1)
 
 for func_name in args.get("--breakpoint", []):
     try:
         wrap_function(func_name, debug_breakpoint)
-        print(f"Breakpoint added for {func_name}")
+        print(f"Breakpoint added for {func_name}", file=sys.stderr)
     except AttributeError:
         print(f"{func_name} does not exist")
         sys.exit(1)
@@ -40,7 +41,7 @@ for func_name in args.get("--breakpoint", []):
 args = get_debug_flags(["--debug"], sys.argv)
 if args.get("--debug", False):
     set_debug(True)
-    print("Debugging enabled")
+    print("Debugging enabled", file=sys.stderr)
 
 from .about import about
 from .albums import albums
