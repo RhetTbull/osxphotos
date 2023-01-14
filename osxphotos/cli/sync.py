@@ -30,7 +30,7 @@ from .common import DB_OPTION, QUERY_OPTIONS, THEME_OPTION, query_options_from_k
 from .param_types import TemplateString
 from .report_writer import sync_report_writer_factory
 from .rich_progress import rich_progress
-from .sync_results import SyncResults
+from .sync_results import SYNC_PROPERTIES, SyncResults
 from .verbose import get_verbose_console, verbose_print
 
 SYNC_ABOUT_STRING = f"Sync Metadata Database created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
@@ -349,7 +349,13 @@ def _update_albums_for_photo(
     if not albums_to_add:
         verbose(f"\tNothing to do for albums")
         results.add_result(
-            photo.uuid, photo.original_filename, "albums", False, before, value
+            photo.uuid,
+            photo.original_filename,
+            photo.fingerprint,
+            "albums",
+            False,
+            before,
+            value,
         )
         return results
 
@@ -360,7 +366,13 @@ def _update_albums_for_photo(
                 photo
             )
     results.add_result(
-        photo.uuid, photo.original_filename, "albums", True, before, value
+        photo.uuid,
+        photo.original_filename,
+        photo.fingerprint,
+        "albums",
+        True,
+        before,
+        value,
     )
     return results
 
@@ -394,7 +406,13 @@ def _set_metadata_for_photo(
             verbose(f"\tNothing to do for {field}")
 
         results.add_result(
-            photo.uuid, photo.original_filename, field, value != before, before, value
+            photo.uuid,
+            photo.original_filename,
+            photo.fingerprint,
+            field,
+            value != before,
+            before,
+            value,
         )
     return results
 
@@ -422,6 +440,15 @@ def _merge_metadata_for_photo(
 
         if value == before:
             verbose(f"\tNothing to do for {field}")
+            results.add_result(
+                photo.uuid,
+                photo.original_filename,
+                photo.fingerprint,
+                field,
+                False,
+                before,
+                value,
+            )
             continue
 
         if isinstance(value, list) and isinstance(before, list):
@@ -444,17 +471,31 @@ def _merge_metadata_for_photo(
             if not dry_run:
                 ...
         else:
+            # Merge'd value might still be the same as original value
+            # (e.g. if value is str and has previously been merged)
             verbose(f"\tNothing to do for {field}")
 
         results.add_result(
             photo.uuid,
             photo.original_filename,
+            photo.fingerprint,
             field,
             new_value != before,
             before,
             new_value,
         )
     return results
+
+
+def print_import_summary(results: SyncResults):
+    """Print summary of import results"""
+    summary = results.results_summary()
+    property_summary = ", ".join(
+        f"updated {property}: [num]{summary.get(property,0)}[/]" for property in SYNC_PROPERTIES
+    )
+    rich_click_echo(
+        f"Processed [num]{summary['total']}[/] photos, updated: [num]{summary['updated']}[/], {property_summary}"
+    )
 
 
 @click.command()
@@ -609,6 +650,7 @@ def sync(
             report_writer = sync_report_writer_factory(report_path, append=append)
             report_writer.write(results)
             report_writer.close()
+        print_import_summary(results)
 
     if export_path:
         photosdb = PhotosDB(dbfile=db, verbose=verbose)
