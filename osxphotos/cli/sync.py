@@ -644,7 +644,57 @@ def sync(
     verbose_,
     **kwargs,  # query options
 ):
-    """Sync metadata and albums between Photos libraries"""
+    """Sync metadata and albums between Photos libraries.
+
+    Use sync to update metadata in a local Photos library to match
+    metadata in another Photos library. The sync command works by
+    finding identical photos in the local library and the import source
+    and then updating the metadata in the local library to match the
+    metadata in the import source. Photos are considered identical if
+    their original filename and fingerprint match.
+
+    The import source can be a Photos library or a metadata export file
+    created with the --export option.
+
+    The sync command can be useful if you have imported the same photos to
+    multiple Photos libraries and want to keep the metadata in all libraries
+    in sync.
+
+    Metadata can be overwritten (--set) or merged (--merge) with the metadata
+    in the import source. You may specify specific metadata to sync or sync
+    all metadata. See --set and --merge for more details.
+
+    The sync command can be used to sync metadata between an iPhone or iPad
+    and a Mac, for example, in the case where you do not use iCloud but
+    manually import photos from your iPhone or iPad to your Mac. To do this,
+    you'll first need to copy the Photos database from the iPhone or iPad to
+    your Mac. This can be done by connecting your iPhone or iPad to your Mac
+    using a USB cable and then copying the Photos database from the iPhone
+    using a third-party tool such as iMazing (https://imazing.com/). You can
+    then use the sync command and set the import source to the Photos database
+    you copied from the iPhone or iPad.
+
+    The sync command can also be used to sync metadata between users using
+    iCloud Shared Photo Library. NOTE: This use case has not yet been
+    tested. If you use iCloud Shared Photo Library and would like to help
+    test this use case, please connect with me on GitHub:
+    https://github.com/RhetTbull/osxphotos/issues/887
+
+    You can run the --export and --import commands together. In this case,
+    the import will be run first and then the export will be run.
+
+    For example, if you want to sync two Photos libraries between users or
+    two different computers, you can export the metadata to a shared folder.
+
+    On the first computer, run:
+
+    osxphotos sync --export /path/to/export/folder/computer1.db --merge all --import /path/to/export/folder/computer2.db
+
+    On the second computer, run:
+
+    osxphotos sync --export /path/to/export/folder/computer2.db --merge all --import /path/to/export/folder/computer1.db
+
+    """
     color_theme = get_theme(theme)
     verbose = verbose_print(
         verbose_, timestamp, rich=True, theme=color_theme, highlight=False
