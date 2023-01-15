@@ -9,6 +9,7 @@ import pathlib
 from typing import Any, Callable, Literal
 
 import click
+import photoscript
 
 from osxphotos import PhotoInfo, PhotosDB, __version__
 from osxphotos.photoinfo import PhotoInfoNone
@@ -33,7 +34,10 @@ from .rich_progress import rich_progress
 from .sync_results import SYNC_PROPERTIES, SyncResults
 from .verbose import get_verbose_console, verbose_print
 
-SYNC_ABOUT_STRING = f"Sync Metadata Database created by osxphotos version {__version__} (https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
+SYNC_ABOUT_STRING = (
+    f"Sync Metadata Database created by osxphotos version {__version__} "
+    + f"(https://github.com/RhetTbull/osxphotos) on {datetime.datetime.now()}"
+)
 
 SYNC_IMPORT_TYPES = [
     "keywords",
@@ -178,7 +182,7 @@ def export_metadata(
     verbose(f"Analyzing [num]{num_photos}[/] {photo_word} to export")
     verbose(f"Exporting [num]{len(photos)}[/] {photo_word} to {output_path}")
     export_metadata_to_db(photos, metadata_db, progress=True)
-    verbose(
+    rich_click_echo(
         f"Done: exported metadata for [num]{len(photos)}[/] {photo_word} to [filepath]{output_path}[/]"
     )
     metadata_db.close()
@@ -386,6 +390,8 @@ def _set_metadata_for_photo(
 ) -> SyncResults:
     """Set metadata for photo"""
     results = SyncResults()
+    photo_ = photoscript.Photo(photo.uuid)
+
     for field in set_:
         if field == "albums":
             continue
@@ -401,7 +407,7 @@ def _set_metadata_for_photo(
         if value != before:
             verbose(f"\tSetting {field} to {value} from {before}")
             if not dry_run:
-                ...
+                set_photo_property(photo_, field, value)
         else:
             verbose(f"\tNothing to do for {field}")
 
@@ -426,6 +432,8 @@ def _merge_metadata_for_photo(
 ) -> SyncResults:
     """Merge metadata for photo"""
     results = SyncResults()
+    photo_ = photoscript.Photo(photo.uuid)
+
     for field in merge:
         if field == "albums":
             continue
@@ -469,7 +477,7 @@ def _merge_metadata_for_photo(
         if new_value != before:
             verbose(f"\tMerging {field} to {new_value} from {before}")
             if not dry_run:
-                ...
+                set_photo_property(photo_, field, new_value)
         else:
             # Merge'd value might still be the same as original value
             # (e.g. if value is str and has previously been merged)
@@ -487,11 +495,27 @@ def _merge_metadata_for_photo(
     return results
 
 
+def set_photo_property(photo: photoscript.Photo, property: str, value: Any):
+    """Set property on photo"""
+
+    # do some basic validation
+    if property == "keywords" and not isinstance(value, list):
+        raise ValueError(f"keywords must be a list, not {type(value)}")
+    elif property in {"title", "description"} and not isinstance(value, str):
+        raise ValueError(f"{property} must be a str, not {type(value)}")
+    elif property == "favorite":
+        value = bool(value)
+    elif property not in {"title", "description", "favorite", "keywords"}:
+        raise ValueError(f"Unknown property: {property}")
+    setattr(photo, property, value)
+
+
 def print_import_summary(results: SyncResults):
     """Print summary of import results"""
     summary = results.results_summary()
     property_summary = ", ".join(
-        f"updated {property}: [num]{summary.get(property,0)}[/]" for property in SYNC_PROPERTIES
+        f"updated {property}: [num]{summary.get(property,0)}[/]"
+        for property in SYNC_PROPERTIES
     )
     rich_click_echo(
         f"Processed [num]{summary['total']}[/] photos, updated: [num]{summary['updated']}[/], {property_summary}"
