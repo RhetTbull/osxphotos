@@ -62,6 +62,7 @@ If you aren't familiar with installing python applications, I recommend you inst
 * Open `Terminal` (search for `Terminal` in Spotlight or look in `Applications/Utilities`)
 * Install `homebrew` according to instructions at [https://brew.sh/](https://brew.sh/)
 * Type the following into Terminal: `brew install pipx`
+* Ensure that pipx installed packages are accessible in your PATH by typing: `pipx ensurepath`
 * Then type this: `pipx install osxphotos`
 * Now you should be able to run `osxphotos` by typing: `osxphotos`
 
