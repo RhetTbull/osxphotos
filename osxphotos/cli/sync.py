@@ -268,7 +268,10 @@ def import_metadata(
     key_to_photo = {}
     for photo in photos:
         key = key_from_photo(photo)
-        key_to_photo[key] = photo
+        if key in key_to_photo:
+            key_to_photo[key].append(photo)
+        else:
+            key_to_photo[key] = [photo]
 
     # find keys in import_path that match keys in photos
     if import_type == "library":
@@ -288,20 +291,29 @@ def import_metadata(
         raise click.Abort()
 
     results = SyncResults()
-    for key, photo in key_to_photo.items():
+    for key, key_photos in key_to_photo.items():
         if key in import_db:
             # import metadata from import_db
-            rich_click_echo(
-                f"Importing metadata for [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/])"
-            )
-            metadata = import_db[key]
-            results += import_metadata_for_photo(
-                photo, metadata, set_, merge, dry_run, verbose
-            )
+            for photo in key_photos:
+                rich_click_echo(
+                    f"Importing metadata for [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/])"
+                )
+                metadata = import_db[key]
+                results += import_metadata_for_photo(
+                    photo, metadata, set_, merge, dry_run, verbose
+                )
         else:
-            rich_click_echo(
-                f"Unable to find metadata for [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/]) in [filepath]{import_path}[/]"
-            )
+            # unable to find metadata for photo in import_db
+            for photo in key_photos:
+                rich_click_echo(
+                    f"Unable to find metadata for [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/]) in [filepath]{import_path}[/]"
+                )
+
+    # find any keys in import_db that don't match keys in photos
+    for key in import_db.keys():
+        if key not in key_to_photo:
+            rich_click_echo(f"Unable to find [uuid]{key}[/] in current library.")
+
     return results
 
 
@@ -584,6 +596,7 @@ def print_import_summary(results: SyncResults):
 )
 @click.option(
     "--report",
+    "-R",
     metavar="REPORT_FILE",
     help="Write a report of all photos that were processed with --import. "
     "The extension of the report filename will be used to determine the format. "
@@ -596,6 +609,7 @@ def print_import_summary(results: SyncResults):
 )
 @click.option(
     "--append",
+    "-A",
     is_flag=True,
     help="If used with --report, add data to existing report file instead of overwriting it. "
     "See also --report.",
