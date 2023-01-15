@@ -832,10 +832,10 @@ class PhotosDB:
                 # for compatability with Photos 5 where album kind is ZKIND
                 "kind": album[7],
                 "creation_date": album[8],
-                "start_date": None,  # Photos 5 only
-                "end_date": None,  # Photos 5 only
-                "customsortascending": None,  # Photos 5 only
-                "customsortkey": None,  # Photos 5 only
+                "start_date": None,  # Photos 5+ only
+                "end_date": None,  # Photos 5+ only
+                "customsortascending": None,  # Photos 5+ only
+                "customsortkey": None,  # Photos 5+ only
             }
 
         # get details about folders

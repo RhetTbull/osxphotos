@@ -142,7 +142,7 @@ def _process_faceinfo_4(photosdb):
         face["facetype"] = row[26]
         face["quality"] = row[27]
 
-        # Photos 5 only
+        # Photos 5+ only
         face["agetype"] = None
         face["eyemakeuptype"] = None
         face["eyestate"] = None
