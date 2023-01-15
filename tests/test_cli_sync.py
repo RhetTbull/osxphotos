@@ -1,7 +1,7 @@
 """Test osxphotos sync command"""
 
 import os
-
+import json
 import photoscript
 import pytest
 from click.testing import CliRunner
@@ -81,9 +81,12 @@ def test_sync_export_import():
                 "title,description,favorite,albums",
                 "--merge",
                 "keywords",
+                "--report",
+                "test_report.json",
             ],
         )
         assert result.exit_code == 0
+        assert os.path.exists("test_report.json")
 
         # check metadata
         for uuid in [UUID_TEST_PHOTO_1, UUID_TEST_PHOTO_2]:
@@ -95,3 +98,11 @@ def test_sync_export_import():
             )
             assert photo.favorite == metadata_before[uuid]["favorites"]
             assert TEST_ALBUM_NAME in [album.title for album in photo.albums]
+
+        # check report
+        with open("test_report.json", "r") as f:
+            report = json.load(f)
+        report_data = {record["uuid"]: record for record in report}
+        for uuid in [UUID_TEST_PHOTO_1, UUID_TEST_PHOTO_2]:
+            assert report_data[uuid]["updated"]
+            assert report_data[uuid]["albums"]["updated"]

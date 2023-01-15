@@ -540,7 +540,9 @@ def print_import_summary(results: SyncResults):
     "-e",
     "export_path",
     metavar="EXPORT_FILE",
-    help="Export metadata to file EXPORT_FILE for later use with --import.",
+    help="Export metadata to file EXPORT_FILE for later use with --import. "
+    "The export file will be a SQLite database; it is recommended to use the "
+    ".db extension though this is not required.",
     type=click.Path(dir_okay=False, writable=True),
 )
 @click.option(
