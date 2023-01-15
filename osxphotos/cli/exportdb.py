@@ -36,7 +36,7 @@ from .click_rich_echo import (
 from .color_themes import get_theme
 from .export import render_and_validate_report
 from .param_types import TemplateString
-from .report_writer import report_writer_factory
+from .report_writer import export_report_writer_factory
 from .verbose import get_verbose_console, verbose_print
 
 
@@ -439,7 +439,7 @@ def exportdb(
             rich_echo(f"[error]No report results found for run ID {run_id}[/error]")
             sys.exit(1)
         try:
-            report_writer = report_writer_factory(report_filename, append=append)
+            report_writer = export_report_writer_factory(report_filename, append=append)
         except ValueError as e:
             rich_echo(f"[error]Error: {e}[/error]")
             sys.exit(1)

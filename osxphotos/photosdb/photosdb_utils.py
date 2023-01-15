@@ -3,6 +3,7 @@
 import logging
 import pathlib
 import plistlib
+import sys
 
 from .._constants import (
     _PHOTOS_2_VERSION,
@@ -62,7 +63,7 @@ def get_db_version(db_file):
     if version not in _TESTED_DB_VERSIONS:
         print(
             f"WARNING: Only tested on database versions [{', '.join(_TESTED_DB_VERSIONS)}]"
-            + f" You have database version={version} which has not been tested"
+            + f" You have database version={version} which has not been tested", file=sys.stderr
         )
 
     return version

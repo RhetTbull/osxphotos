@@ -1,6 +1,5 @@
 """repl command for osxphotos CLI"""
 
-import dataclasses
 import os
 import os.path
 import pathlib
@@ -23,14 +22,11 @@ from .common import (
     DB_ARGUMENT,
     DB_OPTION,
     DELETED_OPTIONS,
+    IncompatibleQueryOptions,
     QUERY_OPTIONS,
     get_photos_db,
-    load_uuid_from_file,
+    query_options_from_kwargs,
 )
-
-
-class IncompatibleQueryOptions(Exception):
-    pass
 
 
 @click.command(name="repl")
@@ -85,7 +81,7 @@ def repl(ctx, cli_obj, db, emacs, beta, **kwargs):
     print("Getting photos")
     tic = time.perf_counter()
     try:
-        query_options = _query_options_from_kwargs(**kwargs)
+        query_options = query_options_from_kwargs(**kwargs)
     except IncompatibleQueryOptions:
         click.echo("Incompatible query options", err=True)
         click.echo(ctx.obj.group.commands["repl"].get_help(ctx), err=True)
@@ -209,99 +205,6 @@ def _get_selected(photosdb):
 def _spotlight_photo(photo: PhotoInfo):
     photo_ = photoscript.Photo(photo.uuid)
     photo_.spotlight()
-
-
-def _query_options_from_kwargs(**kwargs) -> QueryOptions:
-    """Validate query options and create a QueryOptions instance"""
-    # sanity check input args
-    nonexclusive = [
-        "added_after",
-        "added_before",
-        "added_in_last",
-        "album",
-        "duplicate",
-        "edited",
-        "exif",
-        "external_edit",
-        "folder",
-        "from_date",
-        "from_time",
-        "has_raw",
-        "keyword",
-        "label",
-        "max_size",
-        "min_size",
-        "name",
-        "person",
-        "query_eval",
-        "query_function",
-        "regex",
-        "selected",
-        "to_date",
-        "to_time",
-        "uti",
-        "uuid_from_file",
-        "uuid",
-        "year",
-    ]
-    exclusive = [
-        ("burst", "not_burst"),
-        ("cloudasset", "not_cloudasset"),
-        ("deleted", "deleted_only"),
-        ("favorite", "not_favorite"),
-        ("has_comment", "no_comment"),
-        ("has_likes", "no_likes"),
-        ("hdr", "not_hdr"),
-        ("hidden", "not_hidden"),
-        ("in_album", "not_in_album"),
-        ("incloud", "not_incloud"),
-        ("live", "not_live"),
-        ("location", "no_location"),
-        ("keyword", "no_keyword"),
-        ("missing", "not_missing"),
-        ("only_photos", "only_movies"),
-        ("panorama", "not_panorama"),
-        ("portrait", "not_portrait"),
-        ("screenshot", "not_screenshot"),
-        ("selfie", "not_selfie"),
-        ("shared", "not_shared"),
-        ("slow_mo", "not_slow_mo"),
-        ("time_lapse", "not_time_lapse"),
-        ("is_reference", "not_reference"),
-    ]
-    # print help if no non-exclusive term or a double exclusive term is given
-    # TODO: add option to validate requiring at least one query arg
-    if any(all([kwargs[b], kwargs[n]]) for b, n in exclusive) or any(
-        [
-            all([any(kwargs["title"]), kwargs["no_title"]]),
-            all([any(kwargs["description"]), kwargs["no_description"]]),
-            all([any(kwargs["place"]), kwargs["no_place"]]),
-            all([any(kwargs["keyword"]), kwargs["no_keyword"]]),
-        ]
-    ):
-        raise IncompatibleQueryOptions
-
-    # actually have something to query
-    include_photos = True
-    include_movies = True  # default searches for everything
-    if kwargs["only_movies"]:
-        include_photos = False
-    if kwargs["only_photos"]:
-        include_movies = False
-
-    # load UUIDs if necessary and append to any uuids passed with --uuid
-    uuid = None
-    if kwargs["uuid_from_file"]:
-        uuid_list = list(kwargs["uuid"])  # Click option is a tuple
-        uuid_list.extend(load_uuid_from_file(kwargs["uuid_from_file"]))
-        uuid = tuple(uuid_list)
-
-    query_fields = [field.name for field in dataclasses.fields(QueryOptions)]
-    query_dict = {field: kwargs.get(field) for field in query_fields}
-    query_dict["photos"] = include_photos
-    query_dict["movies"] = include_movies
-    query_dict["uuid"] = uuid
-    return QueryOptions(**query_dict)
 
 
 def _query_photos(photosdb: PhotosDB, query_options: QueryOptions) -> List:

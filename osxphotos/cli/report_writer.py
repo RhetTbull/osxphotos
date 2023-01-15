@@ -1,5 +1,6 @@
 """Report writer for the --report option of `osxphotos export`"""
 
+from __future__ import annotations
 
 import csv
 import datetime
@@ -15,20 +16,28 @@ from osxphotos.export_db import OSXPHOTOS_ABOUT_STRING
 from osxphotos.photoexporter import ExportResults
 from osxphotos.sqlite_utils import sqlite_columns
 
+from .sync_results import SyncResults
+
 __all__ = [
-    "report_writer_factory",
+    "ExportReportWriterCSV",
+    "ExportReportWriterJSON",
+    "ExportReportWriterSqlite",
     "ReportWriterABC",
-    "ReportWriterCSV",
-    "ReportWriterSqlite",
     "ReportWriterNoOp",
+    "SyncReportWriterCSV",
+    "SyncReportWriterJSON",
+    "SyncReportWriterSqlite",
+    "export_report_writer_factory",
+    "sync_report_writer_factory",
 ]
 
 
+# Abstract base class for report writers
 class ReportWriterABC(ABC):
     """Abstract base class for report writers"""
 
     @abstractmethod
-    def write(self, export_results: ExportResults):
+    def write(self, results: ExportResults | SyncResults):
         """Write results to the output file"""
         pass
 
@@ -36,6 +45,9 @@ class ReportWriterABC(ABC):
     def close(self):
         """Close the output file"""
         pass
+
+
+# Report writer that does nothing, used for --dry-run or when --report not specified
 
 
 class ReportWriterNoOp(ABC):
@@ -44,7 +56,7 @@ class ReportWriterNoOp(ABC):
     def __init__(self):
         pass
 
-    def write(self, export_results: ExportResults):
+    def write(self, results: ExportResults | SyncResults):
         """Write results to the output file"""
         pass
 
@@ -53,8 +65,9 @@ class ReportWriterNoOp(ABC):
         pass
 
 
-class ReportWriterCSV(ReportWriterABC):
-    """Write CSV report file"""
+# Classes for writing ExportResults to report file
+class ExportReportWriterCSV(ReportWriterABC):
+    """Write CSV report file for export results"""
 
     def __init__(
         self, output_file: Union[str, bytes, os.PathLike], append: bool = False
@@ -95,7 +108,7 @@ class ReportWriterCSV(ReportWriterABC):
 
     def write(self, export_results: ExportResults):
         """Write results to the output file"""
-        all_results = prepare_results_for_writing(export_results)
+        all_results = prepare_export_results_for_writing(export_results)
         for data in list(all_results.values()):
             self._csv_writer.writerow(data)
         self._output_fh.flush()
@@ -109,8 +122,8 @@ class ReportWriterCSV(ReportWriterABC):
             self._output_fh.close()
 
 
-class ReportWriterJSON(ReportWriterABC):
-    """Write JSON report file"""
+class ExportReportWriterJSON(ReportWriterABC):
+    """Write JSON report file for export results"""
 
     def __init__(
         self, output_file: Union[str, bytes, os.PathLike], append: bool = False
@@ -134,7 +147,9 @@ class ReportWriterJSON(ReportWriterABC):
 
     def write(self, export_results: ExportResults):
         """Write results to the output file"""
-        all_results = prepare_results_for_writing(export_results, bool_values=True)
+        all_results = prepare_export_results_for_writing(
+            export_results, bool_values=True
+        )
         for data in list(all_results.values()):
             if self._first_record_written:
                 self._output_fh.write(",\n")
@@ -153,8 +168,8 @@ class ReportWriterJSON(ReportWriterABC):
             self.close()
 
 
-class ReportWriterSQLite(ReportWriterABC):
-    """Write sqlite report file"""
+class ExportReportWriterSQLite(ReportWriterABC):
+    """Write sqlite report file for export data"""
 
     def __init__(
         self, output_file: Union[str, bytes, os.PathLike], append: bool = False
@@ -173,7 +188,7 @@ class ReportWriterSQLite(ReportWriterABC):
     def write(self, export_results: ExportResults):
         """Write results to the output file"""
 
-        all_results = prepare_results_for_writing(export_results)
+        all_results = prepare_export_results_for_writing(export_results)
         for data in list(all_results.values()):
             data["report_id"] = self.report_id
             cursor = self._conn.cursor()
@@ -284,7 +299,7 @@ class ReportWriterSQLite(ReportWriterABC):
             self.close()
 
 
-def prepare_results_for_writing(
+def prepare_export_results_for_writing(
     export_results: ExportResults, bool_values: bool = False
 ) -> Dict:
     """Return all results for writing to report
@@ -406,17 +421,250 @@ def prepare_results_for_writing(
     return all_results
 
 
-def report_writer_factory(
+def export_report_writer_factory(
     output_file: Union[str, bytes, os.PathLike], append: bool = False
 ) -> ReportWriterABC:
     """Return a ReportWriter instance appropriate for the output file type"""
     output_type = os.path.splitext(output_file)[1]
     output_type = output_type.lower()[1:]
     if output_type == "csv":
-        return ReportWriterCSV(output_file, append)
+        return ExportReportWriterCSV(output_file, append)
     elif output_type == "json":
-        return ReportWriterJSON(output_file, append)
+        return ExportReportWriterJSON(output_file, append)
     elif output_type in ["sqlite", "db"]:
-        return ReportWriterSQLite(output_file, append)
+        return ExportReportWriterSQLite(output_file, append)
+    else:
+        raise ValueError(f"Unknown report file type: {output_file}")
+
+
+# Classes for writing Sync results to a report file
+
+
+class SyncReportWriterCSV(ReportWriterABC):
+    """Write CSV report file"""
+
+    def __init__(
+        self, output_file: Union[str, bytes, os.PathLike], append: bool = False
+    ):
+        self.output_file = output_file
+        self.append = append
+        mode = "a" if append else "w"
+        self._output_fh = open(self.output_file, mode)
+
+    def write(self, sync_results: SyncResults):
+        """Write results to the output file"""
+        report_columns = sync_results.results_header
+        self._csv_writer = csv.DictWriter(self._output_fh, fieldnames=report_columns)
+        if not self.append:
+            self._csv_writer.writeheader()
+
+        for data in sync_results.results_list:
+            self._csv_writer.writerow(dict(zip(report_columns, data)))
+        self._output_fh.flush()
+
+    def close(self):
+        """Close the output file"""
+        self._output_fh.close()
+
+    def __del__(self):
+        with suppress(Exception):
+            self._output_fh.close()
+
+
+class SyncReportWriterJSON(ReportWriterABC):
+    """Write JSON SyncResults report file"""
+
+    def __init__(
+        self, output_file: Union[str, bytes, os.PathLike], append: bool = False
+    ):
+        self.output_file = output_file
+        self.append = append
+        self.indent = 4
+
+        self._first_record_written = False
+        if append:
+            with open(self.output_file, "r") as fh:
+                existing_data = json.load(fh)
+            self._output_fh = open(self.output_file, "w")
+            self._output_fh.write("[")
+            for data in existing_data:
+                self._output_fh.write(json.dumps(data, indent=self.indent))
+                self._output_fh.write(",\n")
+        else:
+            self._output_fh = open(self.output_file, "w")
+            self._output_fh.write("[")
+
+    def write(self, results: SyncResults):
+        """Write results to the output file"""
+
+        # convert datetimes to strings
+        def default(o):
+            if isinstance(o, (datetime.date, datetime.datetime)):
+                return o.isoformat()
+
+        for data in list(results.results_dict.values()):
+            if self._first_record_written:
+                self._output_fh.write(",\n")
+            else:
+                self._first_record_written = True
+            self._output_fh.write(json.dumps(data, indent=self.indent, default=default))
+        self._output_fh.flush()
+
+    def close(self):
+        """Close the output file"""
+        self._output_fh.write("]")
+        self._output_fh.close()
+
+    def __del__(self):
+        with suppress(Exception):
+            self.close()
+
+
+class SyncReportWriterSQLite(ReportWriterABC):
+    """Write sqlite SyncResults report file"""
+
+    def __init__(
+        self, output_file: Union[str, bytes, os.PathLike], append: bool = False
+    ):
+        self.output_file = output_file
+        self.append = append
+
+        if not append:
+            with suppress(FileNotFoundError):
+                os.unlink(self.output_file)
+
+        self._conn = sqlite3.connect(self.output_file)
+        self._create_tables()
+        self.report_id = self._generate_report_id()
+
+    def write(self, results: SyncResults):
+        """Write results to the output file"""
+
+        # insert rows of values into sqlite report table
+        for row in list(results.results_list):
+            report_id = self.report_id
+            data = [str(v) if v else "" for v in row]
+            cursor = self._conn.cursor()
+            cursor.execute(
+                "INSERT INTO report "
+                "(report_id, uuid, filename, fingerprint, updated, "
+                "albums_updated, albums_datetime, albums_before, albums_after, "
+                "description_updated, description_datetime, description_before, description_after, "
+                "favorite_updated, favorite_datetime, favorite_before, favorite_after, "
+                "keywords_updated, keywords_datetime, keywords_before, keywords_after, "
+                "title_updated, title_datetime, title_before, title_after)"
+                "VALUES "
+                "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (report_id, *data),
+            )
+        self._conn.commit()
+
+    def close(self):
+        """Close the output file"""
+        self._conn.close()
+
+    def _create_tables(self):
+        c = self._conn.cursor()
+        c.execute(
+            """
+            CREATE TABLE IF NOT EXISTS report (
+                report_id TEXT, 
+                uuid TEXT,
+                filename TEXT,
+                fingerprint TEXT,
+                updated INT,
+                albums_updated INT,
+                albums_datetime TEXT,
+                albums_before TEXT,
+                albums_after TEXT,
+                description_updated INT,
+                description_datetime TEXT,
+                description_before TEXT,
+                description_after TEXT,
+                favorite_updated INT,
+                favorite_datetime TEXT,
+                favorite_before TEXT,
+                favorite_after TEXT,
+                keywords_updated INT,
+                keywords_datetime TEXT,
+                keywords_before TEXT,
+                keywords_after TEXT,
+                title_updated INT,
+                title_datetime TEXT,
+                title_before TEXT,
+                title_after TEXT
+            );
+            """
+        )
+        c.execute(
+            """
+            CREATE TABLE IF NOT EXISTS about (
+                id INTEGER PRIMARY KEY,
+                about TEXT
+                );"""
+        )
+        c.execute(
+            "INSERT INTO about(about) VALUES (?);",
+            (f"OSXPhotos Sync Report. {OSXPHOTOS_ABOUT_STRING}",),
+        )
+        c.execute(
+            """
+            CREATE TABLE IF NOT EXISTS report_id (
+                report_id INTEGER PRIMARY KEY,
+                datetime TEXT
+            );"""
+        )
+        self._conn.commit()
+
+        # create report_summary view
+        c.execute("DROP VIEW IF EXISTS report_summary;")
+        c.execute(
+            """
+            CREATE VIEW report_summary AS
+            SELECT
+                r.report_id,
+                i.datetime AS report_datetime,
+                COUNT(r.uuid) as processed,
+                COUNT(CASE r.updated WHEN 'True' THEN 1 ELSE NULL END) as updated,
+                COUNT(case r.albums_updated WHEN 'True' THEN 1 ELSE NULL END) as albums_updated,
+                COUNT(case r.description_updated WHEN 'True' THEN 1 ELSE NULL END) as description_updated,
+                COUNT(case r.favorite_updated WHEN 'True' THEN 1 ELSE NULL END) as favorite_updated,
+                COUNT(case r.keywords_updated WHEN 'True' THEN 1 ELSE NULL END) as keywords_updated,
+                COUNT(case r.title_updated WHEN 'True' THEN 1 ELSE NULL END) as title_updated
+            FROM report as r
+            INNER JOIN report_id as i ON r.report_id = i.report_id
+            GROUP BY r.report_id;
+            """
+        )
+        self._conn.commit()
+
+    def _generate_report_id(self) -> int:
+        """Get a new report ID for this report"""
+        c = self._conn.cursor()
+        c.execute(
+            "INSERT INTO report_id(datetime) VALUES (?);",
+            (datetime.datetime.now().isoformat(),),
+        )
+        report_id = c.lastrowid
+        self._conn.commit()
+        return report_id
+
+    def __del__(self):
+        with suppress(Exception):
+            self.close()
+
+
+def sync_report_writer_factory(
+    output_file: Union[str, bytes, os.PathLike], append: bool = False
+) -> ReportWriterABC:
+    """Return a ReportWriter instance appropriate for the output file type"""
+    output_type = os.path.splitext(output_file)[1]
+    output_type = output_type.lower()[1:]
+    if output_type == "csv":
+        return SyncReportWriterCSV(output_file, append)
+    elif output_type == "json":
+        return SyncReportWriterJSON(output_file, append)
+    elif output_type in ["sqlite", "db"]:
+        return SyncReportWriterSQLite(output_file, append)
     else:
         raise ValueError(f"Unknown report file type: {output_file}")
