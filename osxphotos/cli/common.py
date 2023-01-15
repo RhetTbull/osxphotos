@@ -272,7 +272,7 @@ def QUERY_OPTIONS(f):
             "--label",
             metavar="LABEL",
             multiple=True,
-            help="Search for photos with image classification label LABEL (Photos 5 only). "
+            help="Search for photos with image classification label LABEL (Photos 5+ only). "
             'If more than one label, treated as "OR", e.g. find photos matching any label',
         ),
         o(
@@ -305,12 +305,12 @@ def QUERY_OPTIONS(f):
         o(
             "--shared",
             is_flag=True,
-            help="Search for photos in shared iCloud album (Photos 5 only).",
+            help="Search for photos in shared iCloud album (Photos 5+ only).",
         ),
         o(
             "--not-shared",
             is_flag=True,
-            help="Search for photos not in shared iCloud album (Photos 5 only).",
+            help="Search for photos not in shared iCloud album (Photos 5+ only).",
         ),
         o(
             "--burst",
