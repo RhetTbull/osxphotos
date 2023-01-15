@@ -455,6 +455,15 @@
         "bug",
         "doc"
       ]
+    },
+    {
+      "login": "mave2k",
+      "name": "mave2k",
+      "avatar_url": "https://avatars.githubusercontent.com/u/8629837?v=4",
+      "profile": "https://github.com/mave2k",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,
