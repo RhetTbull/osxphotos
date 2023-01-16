@@ -16,6 +16,7 @@ from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.photosalbum import PhotosAlbum
 from osxphotos.photosdb.photosdb_utils import get_db_version
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
+from osxphotos.queryoptions import QueryOptions
 from osxphotos.sqlitekvstore import SQLiteKVStore
 from osxphotos.utils import pluralize
 
@@ -255,6 +256,7 @@ def import_metadata(
     set_: tuple[str, ...],
     merge: tuple[str, ...],
     dry_run: bool,
+    unmatched: bool,
     verbose: Callable[..., None],
 ) -> SyncResults:
     """Import metadata from metadata_db"""
@@ -278,7 +280,9 @@ def import_metadata(
         # create an in memory database of the import library
         # so that the rest of the comparison code can be the same
         photosdb = PhotosDB(import_path, verbose=verbose)
-        photos = photosdb.photos()
+        # filter out shared photos which don't have a fingerprint and
+        # whose metadata can't be set
+        photos = photosdb.query(QueryOptions(not_shared=True))
         import_db = SQLiteKVStore(":memory:")
         verbose(f"Loading metadata from import library: [filepath]{import_path}[/]")
         export_metadata_to_db(photos, import_db, progress=False)
@@ -295,24 +299,25 @@ def import_metadata(
         if key in import_db:
             # import metadata from import_db
             for photo in key_photos:
-                rich_click_echo(
+                verbose(
                     f"Importing metadata for [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/])"
                 )
                 metadata = import_db[key]
                 results += import_metadata_for_photo(
                     photo, metadata, set_, merge, dry_run, verbose
                 )
-        else:
+        elif unmatched:
             # unable to find metadata for photo in import_db
             for photo in key_photos:
                 rich_click_echo(
                     f"Unable to find metadata for [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/]) in [filepath]{import_path}[/]"
                 )
 
-    # find any keys in import_db that don't match keys in photos
-    for key in import_db.keys():
-        if key not in key_to_photo:
-            rich_click_echo(f"Unable to find [uuid]{key}[/] in current library.")
+    if unmatched:
+        # find any keys in import_db that don't match keys in photos
+        for key in import_db.keys():
+            if key not in key_to_photo:
+                rich_click_echo(f"Unable to find [uuid]{key}[/] in selected photos.")
 
     return results
 
@@ -597,6 +602,14 @@ def print_import_summary(results: SyncResults):
     type=SyncImportType(),
 )
 @click.option(
+    "--unmatched",
+    "-U",
+    is_flag=True,
+    help="When used with --import, print out a list of photos in the import source that "
+    "were not matched against the local library. Also prints out a list of photos "
+    "in the local library that were not matched against the import source. ",
+)
+@click.option(
     "--report",
     "-R",
     metavar="REPORT_FILE",
@@ -643,6 +656,7 @@ def sync(
     set_,
     theme,
     timestamp,
+    unmatched,
     verbose_,
     **kwargs,  # query options
 ):
@@ -710,6 +724,17 @@ def sync(
         rich_echo_error("--set and --merge can only be used with --import")
         ctx.exit(1)
 
+    # filter out photos in shared albums as these cannot be updated
+    # Not elegant but works for now without completely refactoring QUERY_OPTIONS
+    if kwargs.get("shared"):
+        rich_echo_error(
+            "[warning]--shared cannot be used with --import/--export "
+            "as photos in shared iCloud albums cannot be updated; "
+            "--shared will be ignored[/]"
+        )
+        kwargs["shared"] = False
+    kwargs["not_shared"] = True
+
     set_ = parse_set_merge(set_)
     merge = parse_set_merge(merge)
 
@@ -733,7 +758,9 @@ def sync(
         query_options = query_options_from_kwargs(**kwargs)
         photosdb = PhotosDB(dbfile=db, verbose=verbose)
         photos = photosdb.query(query_options)
-        results = import_metadata(photos, import_path, set_, merge, dry_run, verbose)
+        results = import_metadata(
+            photos, import_path, set_, merge, dry_run, unmatched, verbose
+        )
         if report:
             report_path = render_and_validate_report(report)
             verbose(f"Writing report to {report_path}")
