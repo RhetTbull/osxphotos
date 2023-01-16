@@ -28,7 +28,7 @@ from .color_themes import get_theme
 from .common import DB_OPTION, THEME_OPTION, get_photos_db
 from .export import export, render_and_validate_report
 from .param_types import ExportDBType, TemplateString
-from .report_writer import ReportWriterNoOp, report_writer_factory
+from .report_writer import ReportWriterNoOp, export_report_writer_factory
 from .rich_progress import rich_progress
 from .verbose import get_verbose_console, verbose_print
 
@@ -320,7 +320,7 @@ def process_files(
         report = render_and_validate_report(
             options.report, options.exiftool_path, export_dir
         )
-        report_writer = report_writer_factory(report, options.append)
+        report_writer = export_report_writer_factory(report, options.append)
     else:
         report_writer = ReportWriterNoOp()
 

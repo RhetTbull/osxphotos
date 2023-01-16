@@ -1,7 +1,13 @@
 """Command line interface for osxphotos """
 
+import atexit
+import cProfile
+import io
+import pstats
+
 import click
 
+from osxphotos._constants import PROFILE_SORT_KEYS
 from osxphotos._version import __version__
 
 from .about import about
@@ -28,11 +34,13 @@ from .places import places
 from .query import query
 from .repl import repl
 from .snap_diff import diff, snap
+from .sync import sync
 from .theme import theme
 from .timewarp import timewarp
 from .tutorial import tutorial
 from .uuid import uuid
 from .version import version
+from .common import DEBUG_OPTIONS
 
 
 # Click CLI object & context settings
@@ -47,20 +55,51 @@ CTX_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 
 @click.group(context_settings=CTX_SETTINGS)
+@click.version_option(__version__, "--version", "-v")
 @DB_OPTION
 @JSON_OPTION
+@DEBUG_OPTIONS
 @click.option(
-    "--debug",
-    required=False,
-    is_flag=True,
-    help="Enable debug output",
-    hidden=OSXPHOTOS_HIDDEN,
+    "--profile", is_flag=True, hidden=OSXPHOTOS_HIDDEN, help="Enable profiling"
 )
-@click.version_option(__version__, "--version", "-v")
+@click.option(
+    "--profile-sort",
+    default=None,
+    hidden=OSXPHOTOS_HIDDEN,
+    multiple=True,
+    metavar="SORT_KEY",
+    type=click.Choice(
+        PROFILE_SORT_KEYS,
+        case_sensitive=True,
+    ),
+    help="Sort profiler output by SORT_KEY as specified at https://docs.python.org/3/library/profile.html#pstats.Stats.sort_stats. "
+    f"Can be specified multiple times. Valid options are: {PROFILE_SORT_KEYS}. "
+    "Default = 'cumulative'.",
+)
 @click.pass_context
-def cli_main(ctx, db, json_, debug):
-    """osxphotos: query and export your Photos library"""
+def cli_main(ctx, db, json_, profile, profile_sort, **kwargs):
+    """osxphotos: the multi-tool for your Photos library"""
+    # Note: kwargs is used to catch any debug options passed in
+    # the debug options are handled in cli/__init__.py
+    # before this function is called
     ctx.obj = CLI_Obj(db=db, json=json_, group=cli_main)
+    if profile:
+        click.echo("Profiling...")
+        profile_sort = profile_sort or ["cumulative"]
+        click.echo(f"Profile sort_stats order: {profile_sort}")
+        pr = cProfile.Profile()
+        pr.enable()
+
+        def at_exit():
+            pr.disable()
+            click.echo("Profiling completed")
+            s = io.StringIO()
+            pstats.Stats(pr, stream=s).strip_dirs().sort_stats(
+                *profile_sort
+            ).print_stats()
+            click.echo(s.getvalue())
+
+        atexit.register(at_exit)
 
 
 # install CLI commands
@@ -90,6 +129,7 @@ for command in [
     repl,
     run,
     snap,
+    sync,
     theme,
     timewarp,
     tutorial,

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.photosdb.photosdb - osxphotos 0.55.3 documentation</title>
+        <title>osxphotos.photosdb.photosdb - osxphotos 0.56.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">osxphotos 0.55.3 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">osxphotos 0.56.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.55.3 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.56.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -1029,10 +1029,10 @@
                 <span class="c1"># for compatability with Photos 5 where album kind is ZKIND</span>
                 <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="n">album</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span>
                 <span class="s2">&quot;creation_date&quot;</span><span class="p">:</span> <span class="n">album</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span>
-                <span class="s2">&quot;start_date&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Photos 5 only</span>
-                <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Photos 5 only</span>
-                <span class="s2">&quot;customsortascending&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Photos 5 only</span>
-                <span class="s2">&quot;customsortkey&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Photos 5 only</span>
+                <span class="s2">&quot;start_date&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Photos 5+ only</span>
+                <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Photos 5+ only</span>
+                <span class="s2">&quot;customsortascending&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Photos 5+ only</span>
+                <span class="s2">&quot;customsortkey&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Photos 5+ only</span>
             <span class="p">}</span>
 
         <span class="c1"># get details about folders</span>
@@ -1150,7 +1150,8 @@
 <span class="sd">                    RKVersion.inTrashDate,</span>
 <span class="sd">                    RKVersion.showInLibrary,</span>
 <span class="sd">                    RKMaster.fileIsReference,</span>
-<span class="sd">                    RKMaster.importGroupUuid</span>
+<span class="sd">                    RKMaster.importGroupUuid,</span>
+<span class="sd">                    RKMaster.fingerprint</span>
 <span class="sd">                    FROM RKVersion, RKMaster</span>
 <span class="sd">                    WHERE RKVersion.masterUuid = RKMaster.uuid&quot;&quot;&quot;</span>
             <span class="p">)</span>
@@ -1182,7 +1183,8 @@
 <span class="sd">                    RKVersion.inTrashDate,</span>
 <span class="sd">                    RKVersion.showInLibrary,</span>
 <span class="sd">                    RKMaster.fileIsReference,</span>
-<span class="sd">                    RKMaster.importGroupUuid</span>
+<span class="sd">                    RKMaster.importGroupUuid,</span>
+<span class="sd">                    RKMaster.fingerprint</span>
 <span class="sd">                    FROM RKVersion, RKMaster</span>
 <span class="sd">                    WHERE RKVersion.masterUuid = RKMaster.uuid&quot;&quot;&quot;</span>
             <span class="p">)</span>
@@ -1233,6 +1235,7 @@
         <span class="c1"># 42    RKVersion.showInLibrary -- is item visible in library (e.g. non-selected burst images are not visible)</span>
         <span class="c1"># 43    RKMaster.fileIsReference -- file is reference (imported without copying to Photos library)</span>
         <span class="c1"># 44    RKMaster.importGroupUuid -- to get date added from RKImportGroup</span>
+        <span class="c1"># 45    RKMaster.fingerprint -- fingerprint / hash of the file</span>
 
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
             <span class="n">uuid</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -1429,6 +1432,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;import_session&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;import_uuid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">44</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;fok_import_session&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="c1"># fingerprint</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;masterFingerprint&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">45</span><span class="p">]</span>
 
             <span class="c1"># photos 5+ only, for shared photos</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dbphotos</span><span class="p">[</span><span class="n">uuid</span><span class="p">][</span><span class="s2">&quot;cloudownerhashedpersonid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>

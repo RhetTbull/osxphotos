@@ -15,8 +15,11 @@ from .test_catalina_10_15_7 import UUID_DICT_LOCAL
 # run timewarp tests (configured with --timewarp)
 TEST_TIMEWARP = False
 
-# run import tests (configured with --import)
+# run import tests (configured with --test-import)
 TEST_IMPORT = False
+
+# run sync tests (configured with --test-sync)
+TEST_SYNC = False
 
 # don't clean up crash logs (configured with --no-cleanup)
 NO_CLEANUP = False
@@ -46,10 +49,12 @@ OS_VER = get_os_version()[1]
 if OS_VER == "15":
     TEST_LIBRARY = "tests/Test-10.15.7.photoslibrary"
     TEST_LIBRARY_IMPORT = TEST_LIBRARY
+    TEST_LIBRARY_SYNC = TEST_LIBRARY
     from tests.config_timewarp_catalina import TEST_LIBRARY_TIMEWARP
 else:
     TEST_LIBRARY = None
     TEST_LIBRARY_TIMEWARP = None
+    TEST_LIBRARY_SYNC = None
     # pytest.exit("This test suite currently only runs on MacOS Catalina ")
 
 
@@ -65,6 +70,13 @@ def setup_photos_import():
     if not TEST_IMPORT:
         return
     copy_photos_library(TEST_LIBRARY_IMPORT, delay=10)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_photos_sync():
+    if not TEST_SYNC:
+        return
+    copy_photos_library(TEST_LIBRARY_SYNC, delay=10)
 
 
 @pytest.fixture(autouse=True)
@@ -90,6 +102,12 @@ def pytest_addoption(parser):
         help="run `osxphotos import` tests",
     )
     parser.addoption(
+        "--test-sync",
+        action="store_true",
+        default=False,
+        help="run `osxphotos sync` tests",
+    )
+    parser.addoption(
         "--no-cleanup",
         action="store_true",
         default=False,
@@ -105,11 +123,14 @@ def pytest_configure(config):
                 config.getoption("--addalbum"),
                 config.getoption("--timewarp"),
                 config.getoption("--test-import"),
+                config.getoption("--test-sync"),
             ]
         )
         > 1
     ):
-        pytest.exit("--addalbum, --timewarp, --test-import are mutually exclusive")
+        pytest.exit(
+            "--addalbum, --timewarp, --test-import, --test-sync are mutually exclusive"
+        )
 
     config.addinivalue_line(
         "markers", "addalbum: mark test as requiring --addalbum to run"
@@ -120,6 +141,9 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "test_import: mark test as requiring --test-import to run"
     )
+    config.addinivalue_line(
+        "markers", "test_sync: mark test as requiring --test-sync to run"
+    )
 
     # this is hacky but I can't figure out how to check config options in other fixtures
     if config.getoption("--timewarp"):
@@ -129,6 +153,10 @@ def pytest_configure(config):
     if config.getoption("--test-import"):
         global TEST_IMPORT
         TEST_IMPORT = True
+
+    if config.getoption("--test-sync"):
+        global TEST_SYNC
+        TEST_SYNC = True
 
     if config.getoption("--no-cleanup"):
         global NO_CLEANUP
@@ -159,6 +187,14 @@ def pytest_collection_modifyitems(config, items):
         for item in items:
             if "test_import" in item.keywords:
                 item.add_marker(skip_test_import)
+
+    if not (config.getoption("--test-sync") and TEST_LIBRARY_SYNC is not None):
+        skip_test_sync = pytest.mark.skip(
+            reason="need --test-sync option and MacOS Catalina to run"
+        )
+        for item in items:
+            if "test_sync" in item.keywords:
+                item.add_marker(skip_test_sync)
 
 
 def copy_photos_library(photos_library, delay=0):
