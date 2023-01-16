@@ -130,6 +130,11 @@ def add_locations(ctx, cli_ob, window, dry_run, verbose_, timestamp, theme, **kw
 
     `osxphotos add-locations --window "2 hr" --verbose`
 
+    The add-locations command assumes that photos already have the correct date and time.
+    If you have photos that are missing both location data and date/time information,
+    you can use `osxphotos timewarp` to add date/time information to the photos and then
+    use `osxphotos add-locations` to add location information.
+    See `osxphotos help timewarp` for more information.
     """
     color_theme = get_theme(theme)
     verbose = verbose_print(
