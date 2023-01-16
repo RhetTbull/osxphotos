@@ -721,7 +721,7 @@ Options:
   --no-location                   Search for photos with no associated location
                                   info (e.g. no GPS coordinates)
   --label LABEL                   Search for photos with image classification
-                                  label LABEL (Photos 5 only). If more than one
+                                  label LABEL (Photos 5+ only). If more than one
                                   label, treated as "OR", e.g. find photos
                                   matching any label
   --uti UTI                       Search for photos whose uniform type
@@ -735,9 +735,9 @@ Options:
   --hidden                        Search for photos marked hidden.
   --not-hidden                    Search for photos not marked hidden.
   --shared                        Search for photos in shared iCloud album
-                                  (Photos 5 only).
+                                  (Photos 5+ only).
   --not-shared                    Search for photos not in shared iCloud album
-                                  (Photos 5 only).
+                                  (Photos 5+ only).
   --burst                         Search for photos that were taken in a burst.
   --not-burst                     Search for photos that are not part of a
                                   burst.
@@ -2041,7 +2041,7 @@ Substitution                    Description
 {cr}                            A carriage return: '\r'
 {crlf}                          A carriage return + line feed: '\r\n'
 {tab}                           :A tab: '\t'
-{osxphotos_version}             The osxphotos version, e.g. '0.56.1'
+{osxphotos_version}             The osxphotos version, e.g. '0.56.2'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2525,7 +2525,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.56.1'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.56.2'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
