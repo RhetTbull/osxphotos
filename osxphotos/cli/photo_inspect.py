@@ -1,13 +1,15 @@
 """Inspect photos selected in Photos """
 
+from __future__ import annotations
+
 import functools
+import pathlib
 import re
 from fractions import Fraction
 from multiprocessing import Process, Queue
 from queue import Empty
 from time import gmtime, sleep, strftime
-from typing import List, Optional, Tuple
-import pathlib
+from typing import Generator, List, Optional, Tuple
 
 import bitmath
 import click
@@ -33,6 +35,17 @@ CURRENT_UUID = None
 # helpers for markup
 bold = add_rich_markup_tag("bold")
 dim = add_rich_markup_tag("dim")
+
+
+def add_cyclic_color_tag(values: list[str]) -> Generator[str, None, None]:
+    """Add a rich markup tag to each str in values, cycling through a set of colors"""
+    # reuse some colors already in the theme
+    # these are chosen for contrast to easily associate scores and values
+    colors = ["change", "count", "filepath", "filename"]
+    color_tags = [add_rich_markup_tag(color) for color in colors]
+    modidx = len(color_tags)
+    for idx, val in enumerate(values):
+        yield color_tags[idx % modidx](val)
 
 
 def extract_uuid(text: str) -> str:
@@ -191,9 +204,15 @@ def format_templates(photo: PhotoInfo, templates: List[str]) -> str:
 
 def format_score_info(photo: PhotoInfo) -> str:
     """Format score_info"""
-    score_str = bold("Score: ")
+    score_str = bold("Scores: ")
     if photo.score:
-        score_str += f"[num]{photo.score.overall}[/]" if photo.score else "-"
+        # add color tags to each key: value pair to easily associate keys/values
+        score_values = add_cyclic_color_tag(
+            [f"{k}: {float(v):.2f}" for k, v in photo.score.asdict().items()]
+        )
+        score_str += ", ".join(score_values)
+    else:
+        score_str += "-"
     return score_str
 
 
