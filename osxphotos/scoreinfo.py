@@ -1,6 +1,6 @@
 """ ScoreInfo class to expose computed score info from the library """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 
 from ._constants import _PHOTOS_4_VERSION
 
@@ -38,3 +38,7 @@ class ScoreInfo:
     well_chosen_subject: float
     well_framed_subject: float
     well_timed_shot: float
+
+    def asdict(self):
+        """Return ScoreInfo as a dict"""
+        return asdict(self)
