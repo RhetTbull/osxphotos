@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Template System" href="template_help.html" /><link rel="prev" title="OSXPhotos Tutorial" href="tutorial.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.56.2 documentation</title>
+        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.56.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.56.2 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.56.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.56.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.56.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -229,6 +229,540 @@
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos about <span class="o">[</span>OPTIONS<span class="o">]</span>
 </pre></div>
 </div>
+</section>
+<section id="osxphotos-add-locations">
+<h3>add-locations<a class="headerlink" href="#osxphotos-add-locations" title="Permalink to this heading">#</a></h3>
+<p>Add missing location data to photos in Photos.app using nearest neighbor.</p>
+<p>This command will search for photos that are missing location data and look
+for the nearest neighbor photo within a given window of time that contains
+location information. If a photo is found within the window of time, the
+location of the nearest neighbor will be used to update the location of the
+photo.</p>
+<p>For example, if you took pictures with your iPhone and also with a camera that
+doesn’t have location information, you can use this command to add location
+information to the photos taken with the camera from those taken with the
+iPhone.</p>
+<p>If you have many photos with missing location information but no nearest neighbor
+within the window of time, you could add location information to some photos manually
+then run this command again to add location information to the remaining photos.</p>
+<p>You can specify a subset of photos to update using the query options.  For example,
+<cite>–selected</cite> to update only the selected photos, <cite>–added-after 2020-01-01</cite> to update
+only photos added after Jan 1, 2020, etc.</p>
+<p>Example:</p>
+<p>Add location data to all photos with missing location data within a ±2 hour window:</p>
+<p><cite>osxphotos add-locations –window “2 hr” –verbose</cite></p>
+<p>The add-locations command assumes that photos already have the correct date and time.
+If you have photos that are missing both location data and date/time information,
+you can use <cite>osxphotos timewarp</cite> to add date/time information to the photos and then
+use <cite>osxphotos add-locations</cite> to add location information.
+See <cite>osxphotos help timewarp</cite> for more information.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>osxphotos add-locations <span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-w">
+<span id="cmdoption-osxphotos-add-locations-window"></span><span class="sig-name descname"><span class="pre">-w</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--window</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;window&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-w" title="Permalink to this definition">#</a></dt>
+<dd><p>Window of time to search for nearest neighbor; searches +/- window of time.  Default is 1 hour. Format is one of ‘HH:MM:SS’, ‘D days’, ‘H hours’ (or hr), ‘M minutes’ (or min), ‘S seconds’ (or sec), ‘S’ (where S is seconds).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-dry-run">
+<span class="sig-name descname"><span class="pre">--dry-run</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-dry-run" title="Permalink to this definition">#</a></dt>
+<dd><p>Don’t actually add location, just print what would be done. Most useful with –verbose.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-V">
+<span id="cmdoption-osxphotos-add-locations-v"></span><span id="cmdoption-osxphotos-add-locations-verbose"></span><span class="sig-name descname"><span class="pre">-V</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-V" title="Permalink to this definition">#</a></dt>
+<dd><p>Print verbose output.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-T">
+<span id="cmdoption-osxphotos-add-locations-t"></span><span id="cmdoption-osxphotos-add-locations-timestamp"></span><span class="sig-name descname"><span class="pre">-T</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--timestamp</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-T" title="Permalink to this definition">#</a></dt>
+<dd><p>Add time stamp to verbose output.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-keyword">
+<span class="sig-name descname"><span class="pre">--keyword</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;KEYWORD&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-keyword" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos with keyword KEYWORD. If more than one keyword, treated as “OR”, e.g. find photos matching any keyword</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-no-keyword">
+<span class="sig-name descname"><span class="pre">--no-keyword</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-no-keyword" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos with no keyword.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-person">
+<span class="sig-name descname"><span class="pre">--person</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PERSON&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-person" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos with person PERSON. If more than one person, treated as “OR”, e.g. find photos matching any person</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-album">
+<span class="sig-name descname"><span class="pre">--album</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;ALBUM&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-album" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos in album ALBUM. If more than one album, treated as “OR”, e.g. find photos matching any album</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-folder">
+<span class="sig-name descname"><span class="pre">--folder</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;FOLDER&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-folder" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos in an album in folder FOLDER. If more than one folder, treated as “OR”, e.g. find photos in any FOLDER.  Only searches top level folders (e.g. does not look at subfolders)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-name">
+<span class="sig-name descname"><span class="pre">--name</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;FILENAME&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-name" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos with filename matching FILENAME. If more than one –name options is specified, they are treated as “OR”, e.g. find photos matching any FILENAME.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-uuid">
+<span class="sig-name descname"><span class="pre">--uuid</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;UUID&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-uuid" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos with UUID(s). May be repeated to include multiple UUIDs.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-uuid-from-file">
+<span class="sig-name descname"><span class="pre">--uuid-from-file</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;FILE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-uuid-from-file" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos with UUID(s) loaded from FILE. Format is a single UUID per line.  Lines preceded with # are ignored.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-title">
+<span class="sig-name descname"><span class="pre">--title</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;TITLE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-title" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for TITLE in title of photo.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-no-title">
+<span class="sig-name descname"><span class="pre">--no-title</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-no-title" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos with no title.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-description">
+<span class="sig-name descname"><span class="pre">--description</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;DESC&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-description" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for DESC in description of photo.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-no-description">
+<span class="sig-name descname"><span class="pre">--no-description</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-no-description" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos with no description.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-place">
+<span class="sig-name descname"><span class="pre">--place</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;PLACE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-place" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for PLACE in photo’s reverse geolocation info</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-no-place">
+<span class="sig-name descname"><span class="pre">--no-place</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-no-place" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos with no associated place name info (no reverse geolocation info)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-location">
+<span class="sig-name descname"><span class="pre">--location</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-location" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos with associated location info (e.g. GPS coordinates)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-no-location">
+<span class="sig-name descname"><span class="pre">--no-location</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-no-location" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos with no associated location info (e.g. no GPS coordinates)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-label">
+<span class="sig-name descname"><span class="pre">--label</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;LABEL&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-label" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos with image classification label LABEL (Photos 5+ only). If more than one label, treated as “OR”, e.g. find photos matching any label</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-uti">
+<span class="sig-name descname"><span class="pre">--uti</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;UTI&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-uti" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos whose uniform type identifier (UTI) matches UTI</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-i">
+<span id="cmdoption-osxphotos-add-locations-ignore-case"></span><span class="sig-name descname"><span class="pre">-i</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--ignore-case</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-i" title="Permalink to this definition">#</a></dt>
+<dd><p>Case insensitive search for title, description, place, keyword, person, or album.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-edited">
+<span class="sig-name descname"><span class="pre">--edited</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-edited" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos that have been edited.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-external-edit">
+<span class="sig-name descname"><span class="pre">--external-edit</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-external-edit" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos edited in external editor.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-favorite">
+<span class="sig-name descname"><span class="pre">--favorite</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-favorite" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos marked favorite.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-not-favorite">
+<span class="sig-name descname"><span class="pre">--not-favorite</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-not-favorite" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos not marked favorite.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-hidden">
+<span class="sig-name descname"><span class="pre">--hidden</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-hidden" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos marked hidden.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-not-hidden">
+<span class="sig-name descname"><span class="pre">--not-hidden</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-not-hidden" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos not marked hidden.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-shared">
+<span class="sig-name descname"><span class="pre">--shared</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-shared" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos in shared iCloud album (Photos 5+ only).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-not-shared">
+<span class="sig-name descname"><span class="pre">--not-shared</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-not-shared" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos not in shared iCloud album (Photos 5+ only).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-burst">
+<span class="sig-name descname"><span class="pre">--burst</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-burst" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos that were taken in a burst.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-not-burst">
+<span class="sig-name descname"><span class="pre">--not-burst</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-not-burst" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos that are not part of a burst.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-live">
+<span class="sig-name descname"><span class="pre">--live</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-live" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for Apple live photos</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-not-live">
+<span class="sig-name descname"><span class="pre">--not-live</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-not-live" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos that are not Apple live photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-portrait">
+<span class="sig-name descname"><span class="pre">--portrait</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-portrait" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for Apple portrait mode photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-not-portrait">
+<span class="sig-name descname"><span class="pre">--not-portrait</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-not-portrait" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos that are not Apple portrait mode photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-screenshot">
+<span class="sig-name descname"><span class="pre">--screenshot</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-screenshot" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for screenshot photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-not-screenshot">
+<span class="sig-name descname"><span class="pre">--not-screenshot</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-not-screenshot" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos that are not screenshot photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-slow-mo">
+<span class="sig-name descname"><span class="pre">--slow-mo</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-slow-mo" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for slow motion videos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-not-slow-mo">
+<span class="sig-name descname"><span class="pre">--not-slow-mo</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-not-slow-mo" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos that are not slow motion videos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-time-lapse">
+<span class="sig-name descname"><span class="pre">--time-lapse</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-time-lapse" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for time lapse videos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-not-time-lapse">
+<span class="sig-name descname"><span class="pre">--not-time-lapse</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-not-time-lapse" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos that are not time lapse videos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-hdr">
+<span class="sig-name descname"><span class="pre">--hdr</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-hdr" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for high dynamic range (HDR) photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-not-hdr">
+<span class="sig-name descname"><span class="pre">--not-hdr</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-not-hdr" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos that are not HDR photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-selfie">
+<span class="sig-name descname"><span class="pre">--selfie</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-selfie" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for selfies (photos taken with front-facing cameras).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-not-selfie">
+<span class="sig-name descname"><span class="pre">--not-selfie</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-not-selfie" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos that are not selfies.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-panorama">
+<span class="sig-name descname"><span class="pre">--panorama</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-panorama" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for panorama photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-not-panorama">
+<span class="sig-name descname"><span class="pre">--not-panorama</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-not-panorama" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos that are not panoramas.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-has-raw">
+<span class="sig-name descname"><span class="pre">--has-raw</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-has-raw" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos with both a jpeg and raw version</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-only-movies">
+<span class="sig-name descname"><span class="pre">--only-movies</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-only-movies" title="Permalink to this definition">#</a></dt>
+<dd><p>Search only for movies (default searches both images and movies).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-only-photos">
+<span class="sig-name descname"><span class="pre">--only-photos</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-only-photos" title="Permalink to this definition">#</a></dt>
+<dd><p>Search only for photos/images (default searches both images and movies).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-from-date">
+<span class="sig-name descname"><span class="pre">--from-date</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;from_date&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-from-date" title="Permalink to this definition">#</a></dt>
+<dd><p>Search by item start date, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-to-date">
+<span class="sig-name descname"><span class="pre">--to-date</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;to_date&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-to-date" title="Permalink to this definition">#</a></dt>
+<dd><p>Search by item end date, e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-from-time">
+<span class="sig-name descname"><span class="pre">--from-time</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;from_time&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-from-time" title="Permalink to this definition">#</a></dt>
+<dd><p>Search by item start time of day, e.g. 12:00, or 12:00:00.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-to-time">
+<span class="sig-name descname"><span class="pre">--to-time</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;to_time&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-to-time" title="Permalink to this definition">#</a></dt>
+<dd><p>Search by item end time of day, e.g. 12:00 or 12:00:00.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-year">
+<span class="sig-name descname"><span class="pre">--year</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;YEAR&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-year" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for items from a specific year, e.g. –year 2022 to find all photos from the year 2022. May be repeated to search multiple years.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-added-before">
+<span class="sig-name descname"><span class="pre">--added-before</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;DATE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-added-before" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for items added to the library before a specific date/time, e.g. –added-before e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-added-after">
+<span class="sig-name descname"><span class="pre">--added-after</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;DATE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-added-after" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for items added to the libray after a specific date/time, e.g. –added-after e.g. 2000-01-12T12:00:00, 2001-01-12T12:00:00-07:00, or 2000-12-31 (ISO 8601 with/without timezone).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-added-in-last">
+<span class="sig-name descname"><span class="pre">--added-in-last</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;TIME_DELTA&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-added-in-last" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for items added to the library in the last TIME_DELTA, where TIME_DELTA is a string like ‘12 hrs’, ‘1 day’, ‘1d’, ‘1 week’, ‘2weeks’, ‘1 month’, ‘1 year’. for example, <cite>–added-in-last 7d</cite> and <cite>–added-in-last ‘1 week’</cite> are equivalent. months are assumed to be 30 days and years are assumed to be 365 days. Common English abbreviations are accepted, e.g. d, day, days or m, min, minutes.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-has-comment">
+<span class="sig-name descname"><span class="pre">--has-comment</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-has-comment" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos that have comments.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-no-comment">
+<span class="sig-name descname"><span class="pre">--no-comment</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-no-comment" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos with no comments.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-has-likes">
+<span class="sig-name descname"><span class="pre">--has-likes</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-has-likes" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos that have likes.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-no-likes">
+<span class="sig-name descname"><span class="pre">--no-likes</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-no-likes" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos with no likes.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-is-reference">
+<span class="sig-name descname"><span class="pre">--is-reference</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-is-reference" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos that were imported as referenced files (not copied into Photos library).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-not-reference">
+<span class="sig-name descname"><span class="pre">--not-reference</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-not-reference" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos that are not references, that is, they were copied into the Photos library and are managed by Photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-in-album">
+<span class="sig-name descname"><span class="pre">--in-album</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-in-album" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos that are in one or more albums.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-not-in-album">
+<span class="sig-name descname"><span class="pre">--not-in-album</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-not-in-album" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos that are not in any albums.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-duplicate">
+<span class="sig-name descname"><span class="pre">--duplicate</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-duplicate" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos with possible duplicates. osxphotos will compare signatures of photos, evaluating date created, size, height, width, and edited status to find <em>possible</em> duplicates. This does not compare images byte-for-byte nor compare hashes but should find photos imported multiple times or duplicated within Photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-min-size">
+<span class="sig-name descname"><span class="pre">--min-size</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;SIZE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-min-size" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos with size &gt;= SIZE bytes. The size evaluated is the photo’s original size (when imported to Photos). Size may be specified as integer bytes or using SI or NIST units. For example, the following are all valid and equivalent sizes: ‘1048576’ ‘1.048576MB’, ‘1 MiB’.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-max-size">
+<span class="sig-name descname"><span class="pre">--max-size</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;SIZE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-max-size" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos with size &lt;= SIZE bytes. The size evaluated is the photo’s original size (when imported to Photos). Size may be specified as integer bytes or using SI or NIST units. For example, the following are all valid and equivalent sizes: ‘1048576’ ‘1.048576MB’, ‘1 MiB’.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-missing">
+<span class="sig-name descname"><span class="pre">--missing</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-missing" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos missing from disk.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-not-missing">
+<span class="sig-name descname"><span class="pre">--not-missing</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-not-missing" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos present on disk (e.g. not missing).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-cloudasset">
+<span class="sig-name descname"><span class="pre">--cloudasset</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-cloudasset" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos that are part of an iCloud library</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-not-cloudasset">
+<span class="sig-name descname"><span class="pre">--not-cloudasset</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-not-cloudasset" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos that are not part of an iCloud library</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-incloud">
+<span class="sig-name descname"><span class="pre">--incloud</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-incloud" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos that are in iCloud (have been synched)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-not-incloud">
+<span class="sig-name descname"><span class="pre">--not-incloud</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-not-incloud" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos that are not in iCloud (have not been synched)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-regex">
+<span class="sig-name descname"><span class="pre">--regex</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;REGEX</span> <span class="pre">TEMPLATE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-regex" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos where TEMPLATE matches regular expression REGEX. For example, to find photos in an album that begins with ‘Beach’: ‘–regex “^Beach” “{album}”’. You may specify more than one regular expression match by repeating ‘–regex’ with different arguments.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-selected">
+<span class="sig-name descname"><span class="pre">--selected</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-selected" title="Permalink to this definition">#</a></dt>
+<dd><p>Filter for photos that are currently selected in Photos.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-exif">
+<span class="sig-name descname"><span class="pre">--exif</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;EXIF_TAG</span> <span class="pre">VALUE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-exif" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for photos where EXIF_TAG exists in photo’s EXIF data and contains VALUE. For example, to find photos created by Adobe Photoshop: <cite>–exif Software ‘Adobe Photoshop’ `or to find all photos shot on a Canon camera: `–exif Make Canon</cite>. EXIF_TAG can be any valid exiftool tag, with or without group name, e.g. <cite>EXIF:Make</cite> or <cite>Make</cite>. To use –exif, exiftool must be installed and in the path.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-query-eval">
+<span class="sig-name descname"><span class="pre">--query-eval</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;CRITERIA&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-query-eval" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate CRITERIA to filter photos. CRITERIA will be evaluated in context of the following python list comprehension: <cite>photos = [photo for photo in photos if CRITERIA]</cite> where photo represents a PhotoInfo object. For example: <cite>–query-eval photo.favorite</cite> returns all photos that have been favorited and is equivalent to –favorite. You may specify more than one CRITERIA by using –query-eval multiple times. CRITERIA must be a valid python expression. See <a class="reference external" href="https://rhettbull.github.io/osxphotos/">https://rhettbull.github.io/osxphotos/</a> for additional documentation on the PhotoInfo class.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-query-function">
+<span class="sig-name descname"><span class="pre">--query-function</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;filename.py::function&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-query-function" title="Permalink to this definition">#</a></dt>
+<dd><p>Run function to filter photos. Use this in format: –query-function filename.py::function where filename.py is a python file you’ve created and function is the name of the function in the python file you want to call. Your function will be passed a list of PhotoInfo objects and is expected to return a filtered list of PhotoInfo objects. You may use more than one function by repeating the –query-function option with a different value. Your query function will be called after all other query options have been evaluated. See https://github.com/RhetTbull/osxphotos/blob/master/examples/query_function.py for example of how to use this option.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-add-locations-theme">
+<span class="sig-name descname"><span class="pre">--theme</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;THEME&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-add-locations-theme" title="Permalink to this definition">#</a></dt>
+<dd><p>Specify the color theme to use for –verbose output. Valid themes are ‘dark’, ‘light’, ‘mono’, and ‘plain’. Defaults to ‘dark’ or ‘light’ depending on system dark mode setting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Options<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dark | light | mono | plain</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="osxphotos-albums">
 <h3>albums<a class="headerlink" href="#osxphotos-albums" title="Permalink to this heading">#</a></h3>
@@ -3234,6 +3768,12 @@ two different computers, you can export the metadata to a shared folder.</p>
 </dd></dl>
 
 <dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-sync-U">
+<span id="cmdoption-osxphotos-sync-u"></span><span id="cmdoption-osxphotos-sync-unmatched"></span><span class="sig-name descname"><span class="pre">-U</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--unmatched</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-sync-U" title="Permalink to this definition">#</a></dt>
+<dd><p>When used with –import, print out a list of photos in the import source that were not matched against the local library. Also prints out a list of photos in the local library that were not matched against the import source.</p>
+</dd></dl>
+
+<dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-sync-R">
 <span id="cmdoption-osxphotos-sync-r"></span><span id="cmdoption-osxphotos-sync-report"></span><span class="sig-name descname"><span class="pre">-R</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--report</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;REPORT_FILE&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-sync-R" title="Permalink to this definition">#</a></dt>
 <dd><p>Write a report of all photos that were processed with –import. The extension of the report filename will be used to determine the format. Valid extensions are: .csv (CSV file), .json (JSON), .db and .sqlite (SQLite database). REPORT_FILE may be a an osxphotos template string, for example, –report ‘update_{today.date}.csv’ will write a CSV report file named with today’s date. See also –append.</p>
@@ -4118,6 +4658,7 @@ Commands:
 <li><a class="reference internal" href="#">OSXPhotos Command Line Interface (CLI)</a><ul>
 <li><a class="reference internal" href="#osxphotos">osxphotos</a><ul>
 <li><a class="reference internal" href="#osxphotos-about">about</a></li>
+<li><a class="reference internal" href="#osxphotos-add-locations">add-locations</a></li>
 <li><a class="reference internal" href="#osxphotos-albums">albums</a></li>
 <li><a class="reference internal" href="#osxphotos-diff">diff</a></li>
 <li><a class="reference internal" href="#osxphotos-docs">docs</a></li>
