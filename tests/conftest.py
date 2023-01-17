@@ -1,7 +1,9 @@
 """ pytest test configuration """
 import os
 import pathlib
+import shutil
 import tempfile
+import time
 
 import photoscript
 import pytest
@@ -20,6 +22,9 @@ TEST_IMPORT = False
 
 # run sync tests (configured with --test-sync)
 TEST_SYNC = False
+
+# run add-locations tests (configured with --test-add-locations)
+TEST_ADD_LOCATIONS = False
 
 # don't clean up crash logs (configured with --no-cleanup)
 NO_CLEANUP = False
@@ -51,11 +56,13 @@ if OS_VER == "15":
     TEST_LIBRARY_IMPORT = TEST_LIBRARY
     TEST_LIBRARY_SYNC = TEST_LIBRARY
     from tests.config_timewarp_catalina import TEST_LIBRARY_TIMEWARP
+
+    TEST_LIBRARY_ADD_LOCATIONS = None
 else:
     TEST_LIBRARY = None
     TEST_LIBRARY_TIMEWARP = None
     TEST_LIBRARY_SYNC = None
-    # pytest.exit("This test suite currently only runs on MacOS Catalina ")
+    TEST_LIBRARY_ADD_LOCATIONS = "tests/Test-13.0.0.photoslibrary"
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -77,6 +84,13 @@ def setup_photos_sync():
     if not TEST_SYNC:
         return
     copy_photos_library(TEST_LIBRARY_SYNC, delay=10)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_photos_add_locations():
+    if not TEST_ADD_LOCATIONS:
+        return
+    copy_photos_library(TEST_LIBRARY_ADD_LOCATIONS, delay=10)
 
 
 @pytest.fixture(autouse=True)
@@ -106,6 +120,12 @@ def pytest_addoption(parser):
         action="store_true",
         default=False,
         help="run `osxphotos sync` tests",
+    )
+    parser.addoption(
+        "--test-add-locations",
+        action="store_true",
+        default=False,
+        help="run `osxphotos add-locations` tests",
     )
     parser.addoption(
         "--no-cleanup",
@@ -144,6 +164,10 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "test_sync: mark test as requiring --test-sync to run"
     )
+    config.addinivalue_line(
+        "markers",
+        "test_add_locations: mark test as requiring --test-add-locations to run",
+    )
 
     # this is hacky but I can't figure out how to check config options in other fixtures
     if config.getoption("--timewarp"):
@@ -157,6 +181,10 @@ def pytest_configure(config):
     if config.getoption("--test-sync"):
         global TEST_SYNC
         TEST_SYNC = True
+
+    if config.getoption("--test-add-locations"):
+        global TEST_ADD_LOCATIONS
+        TEST_ADD_LOCATIONS = True
 
     if config.getoption("--no-cleanup"):
         global NO_CLEANUP
@@ -196,17 +224,25 @@ def pytest_collection_modifyitems(config, items):
             if "test_sync" in item.keywords:
                 item.add_marker(skip_test_sync)
 
+    if not (
+        config.getoption("--test-add-locations")
+        and TEST_LIBRARY_ADD_LOCATIONS is not None
+    ):
+        skip_test_sync = pytest.mark.skip(
+            reason="need --test-add-locations option and MacOS Ventura to run"
+        )
+        for item in items:
+            if "test_add_locations" in item.keywords:
+                item.add_marker(skip_test_sync)
 
-def copy_photos_library(photos_library, delay=0):
+
+def copy_photos_library(photos_library, delay=0, open=True):
     """copy the test library and open Photos, returns path to copied library"""
-    script = AppleScript(
-        """
-        tell application "Photos"
-            quit
-        end tell
-        """
-    )
-    script.run()
+
+    # quit Photos if it's running
+    photoslib = photoscript.PhotosLibrary()
+    photoslib.quit()
+
     src = pathlib.Path(os.getcwd()) / photos_library
     picture_folder = (
         pathlib.Path(os.environ["PHOTOSCRIPT_PICTURES_FOLDER"])
@@ -216,27 +252,34 @@ def copy_photos_library(photos_library, delay=0):
     picture_folder = picture_folder.expanduser()
     if not picture_folder.is_dir():
         pytest.exit(f"Invalid picture folder: '{picture_folder}'")
-    dest = picture_folder / photos_library
-    ditto(src, dest)
-    script = AppleScript(
-        f"""
-            set tries to 0
-            repeat while tries < 5
-                try
-                    tell application "Photos"
-                        activate
-                        delay 3 
-                        open POSIX file "{dest}"
-                        delay {delay}
-                    end tell
-                    set tries to 5
-                on error
-                    set tries to tries + 1
-                end try
-            end repeat
+    dest = picture_folder / pathlib.Path(photos_library).name
+
+    # copy src directory to dest directory, removing it if it already exists
+    shutil.rmtree(str(dest), ignore_errors=True)
+
+    print(f"copying {src} to {picture_folder} ...")
+    copyFolder = AppleScript(
+        """
+        on copyFolder(sourceFolder, destinationFolder)
+            -- sourceFolder and destinationFolder are strings of POSIX paths
+            set sourceFolder to POSIX file sourceFolder
+            set destinationFolder to POSIX file destinationFolder
+            tell application "Finder"
+                duplicate sourceFolder to destinationFolder
+            end tell
+        end copyFolder
         """
     )
-    script.run()
+    copyFolder.call("copyFolder", str(src), str(picture_folder))
+
+    # open Photos
+    if open:
+        # sometimes doesn't open the first time
+        time.sleep(delay)
+        photoslib.open(str(dest))
+        time.sleep(delay)
+        photoslib.open(str(dest))
+
     return dest
 
 
