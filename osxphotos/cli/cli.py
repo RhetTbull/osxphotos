@@ -11,6 +11,7 @@ from osxphotos._constants import PROFILE_SORT_KEYS
 from osxphotos._version import __version__
 
 from .about import about
+from .add_locations import add_locations
 from .albums import albums
 from .common import DB_OPTION, JSON_OPTION, OSXPHOTOS_HIDDEN
 from .debug_dump import debug_dump
@@ -105,6 +106,7 @@ def cli_main(ctx, db, json_, profile, profile_sort, **kwargs):
 # install CLI commands
 for command in [
     about,
+    add_locations,
     albums,
     debug_dump,
     diff,

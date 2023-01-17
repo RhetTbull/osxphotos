@@ -44,6 +44,7 @@ if args.get("--debug", False):
     print("Debugging enabled", file=sys.stderr)
 
 from .about import about
+from .add_locations import add_locations
 from .albums import albums
 from .cli import cli_main
 from .common import get_photos_db, load_uuid_from_file
@@ -73,6 +74,7 @@ install_traceback()
 
 __all__ = [
     "about",
+    "add_locations",
     "albums",
     "cli_main",
     "debug_dump",
