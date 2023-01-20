@@ -661,13 +661,15 @@ class ReportRecord:
 
 def update_report_record(report_record: ReportRecord, photo: Photo, filepath: Path):
     """Update a ReportRecord with data from a Photo"""
+
+    # do not update albums as they are added to the report record as they are imported (#934)
     report_record.filename = filepath.name
     report_record.filepath = filepath
     report_record.uuid = photo.uuid
-
-    # location may be an empty tuple if it wasn't set
-    if not report_record.location:
-        report_record.location = photo.location
+    report_record.title = photo.title
+    report_record.description = photo.description
+    report_record.keywords = photo.keywords
+    report_record.location = photo.location
 
     return report_record
 
@@ -1515,26 +1517,21 @@ def import_cli(
 
             if clear_metadata:
                 clear_photo_metadata(photo, filepath, verbose)
-                report_record.title = ""
-                report_record.description = ""
-                report_record.keywords = []
 
             if clear_location:
                 clear_photo_location(photo, filepath, verbose)
-                report_record.location = (None, None)
 
             if exiftool:
-                metadata = set_photo_metadata_from_exiftool(
+                set_photo_metadata_from_exiftool(
                     photo,
                     filepath,
                     exiftool_path,
                     merge_keywords,
                     verbose,
                 )
-                report_record.update_from_metadata(metadata)
 
             if title:
-                report_record.title = set_photo_title(
+                set_photo_title(
                     photo,
                     filepath,
                     relative_filepath,
@@ -1544,7 +1541,7 @@ def import_cli(
                 )
 
             if description:
-                report_record.description = set_photo_description(
+                set_photo_description(
                     photo,
                     filepath,
                     relative_filepath,
@@ -1554,7 +1551,7 @@ def import_cli(
                 )
 
             if keyword:
-                report_record.keywords = set_photo_keywords(
+                set_photo_keywords(
                     photo,
                     filepath,
                     relative_filepath,
@@ -1565,9 +1562,7 @@ def import_cli(
                 )
 
             if location:
-                report_record.location = set_photo_location(
-                    photo, filepath, location, verbose
-                )
+                set_photo_location(photo, filepath, location, verbose)
 
             if parse_date:
                 set_photo_date_from_filename(photo, filepath, parse_date, verbose)
