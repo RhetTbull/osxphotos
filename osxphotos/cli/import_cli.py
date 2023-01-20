@@ -612,6 +612,8 @@ def check_templates_and_exit(
 
 @dataclass
 class ReportRecord:
+    """Dataclass that records metadata on each file imported for writing to report"""
+
     albums: List[str] = field(default_factory=list)
     description: str = ""
     error: bool = False
@@ -662,6 +664,10 @@ def update_report_record(report_record: ReportRecord, photo: Photo, filepath: Pa
     report_record.filename = filepath.name
     report_record.filepath = filepath
     report_record.uuid = photo.uuid
+
+    # location may be an empty tuple if it wasn't set
+    if not report_record.location:
+        report_record.location = photo.location
 
     return report_record
 
@@ -1498,23 +1504,24 @@ def import_cli(
             report_data[filepath] = ReportRecord(
                 filepath=filepath, filename=filepath.name
             )
+            report_record = report_data[filepath]
             photo, error = import_photo(filepath, dup_check, verbose)
             if error:
                 error_count += 1
-                report_data[filepath].error = True
+                report_record.error = True
                 continue
-            report_data[filepath].imported = True
+            report_record.imported = True
             imported_count += 1
 
             if clear_metadata:
                 clear_photo_metadata(photo, filepath, verbose)
-                report_data[filepath].title = ""
-                report_data[filepath].description = ""
-                report_data[filepath].keywords = []
+                report_record.title = ""
+                report_record.description = ""
+                report_record.keywords = []
 
             if clear_location:
                 clear_photo_location(photo, filepath, verbose)
-                report_data[filepath].location = (None, None)
+                report_record.location = (None, None)
 
             if exiftool:
                 metadata = set_photo_metadata_from_exiftool(
@@ -1524,10 +1531,10 @@ def import_cli(
                     merge_keywords,
                     verbose,
                 )
-                report_data[filepath].update_from_metadata(metadata)
+                report_record.update_from_metadata(metadata)
 
             if title:
-                report_data.title = set_photo_title(
+                report_record.title = set_photo_title(
                     photo,
                     filepath,
                     relative_filepath,
@@ -1537,7 +1544,7 @@ def import_cli(
                 )
 
             if description:
-                report_data.description = set_photo_description(
+                report_record.description = set_photo_description(
                     photo,
                     filepath,
                     relative_filepath,
@@ -1547,7 +1554,7 @@ def import_cli(
                 )
 
             if keyword:
-                report_data.keywords = set_photo_keywords(
+                report_record.keywords = set_photo_keywords(
                     photo,
                     filepath,
                     relative_filepath,
@@ -1558,7 +1565,7 @@ def import_cli(
                 )
 
             if location:
-                report_data.location = set_photo_location(
+                report_record.location = set_photo_location(
                     photo, filepath, location, verbose
                 )
 
@@ -1567,7 +1574,7 @@ def import_cli(
                 # TODO: ReportRecord doesn't currently record date
 
             if album:
-                report_data[filepath].albums = add_photo_to_albums(
+                report_record.albums = add_photo_to_albums(
                     photo,
                     filepath,
                     relative_filepath,
@@ -1582,15 +1589,15 @@ def import_cli(
                     # post function is tuple of (function, filename.py::function_name)
                     verbose(f"Calling post-function [bold]{function[1]}")
                     try:
-                        function[0](photo, filepath, verbose)
+                        function[0](photo, filepath, verbose, report_record)
                     except Exception as e:
                         rich_echo_error(
                             f"[error]Error running post-function [italic]{function[1]}[/italic]: {e}"
                         )
 
             # update report data
-            update_report_record(report_data[filepath], photo, filepath)
-            import_db.set(str(filepath), report_data[filepath])
+            update_report_record(report_record, photo, filepath)
+            import_db.set(str(filepath), report_record)
 
             progress.advance(task)
 

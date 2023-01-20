@@ -3,9 +3,15 @@
 import typing as t
 import photoscript
 import pathlib
+from osxphotos.cli.import_cli import ReportRecord
+
 
 def post_function(
-    photo: photoscript.Photo, filepath: pathlib.Path, verbose: t.Callable, **kwargs
+    photo: photoscript.Photo,
+    filepath: pathlib.Path,
+    verbose: t.Callable,
+    report_record: ReportRecord,
+    **kwargs,
 ):
     """Call this with osxphotos import /file/to/import --post-function post_function.py::post_function
         This will get called immediately after the photo has been imported into Photos
@@ -15,6 +21,7 @@ def post_function(
         photo: photoscript.Photo instance for the photo that's just been imported
         filepath: pathlib.Path to the file that was imported (this is the path to the source file, not the path inside the Photos library)
         verbose: A function to print verbose output if --verbose is set; if --verbose is not set, acts as a no-op (nothing gets printed)
+        report_record: ReportRecord instance for the photo that's just been imported; update this if you want to change the report output
         **kwargs: reserved for future use; recommend you include **kwargs so your function still works if additional arguments are added in future versions
 
     Notes:
@@ -25,4 +32,16 @@ def post_function(
 
     # add a note to the photo's description
     verbose("Adding note to description")
-    photo.description = f"{photo.description} (imported with osxphotos)"
+    description = photo.description
+    description = (
+        f"{description} (imported with osxphotos)"
+        if description
+        else "(imported with osxphotos)"
+    )
+
+    # update report_record if you modify the photo and want the report to reflect the change
+    # the report_record object passed to the function is mutable so you can update it directly
+    report_record.description = description
+
+    # update the photo's description via the Photo object
+    photo.description = description
