@@ -50,13 +50,21 @@ def get_os_version():
     return (ver, major, minor)
 
 
-OS_VER = get_os_version()[1]
-if OS_VER == "15":
+OS_VER = get_os_version()
+if OS_VER[0] == "10" and OS_VER[1] == "15":
+    # Catalina
     TEST_LIBRARY = "tests/Test-10.15.7.photoslibrary"
     TEST_LIBRARY_IMPORT = TEST_LIBRARY
     TEST_LIBRARY_SYNC = TEST_LIBRARY
     from tests.config_timewarp_catalina import TEST_LIBRARY_TIMEWARP
 
+    TEST_LIBRARY_ADD_LOCATIONS = None
+elif OS_VER[0] == "13":
+    # Ventura
+    TEST_LIBRARY = "tests/Test-13.0.0.photoslibrary"
+    TEST_LIBRARY_IMPORT = TEST_LIBRARY
+    TEST_LIBRARY_SYNC = TEST_LIBRARY
+    TEST_LIBRARY_TIMEWARP = None
     TEST_LIBRARY_ADD_LOCATIONS = None
 else:
     TEST_LIBRARY = None
@@ -210,7 +218,7 @@ def pytest_collection_modifyitems(config, items):
 
     if not (config.getoption("--test-import") and TEST_LIBRARY_IMPORT is not None):
         skip_test_import = pytest.mark.skip(
-            reason="need --test-import option and MacOS Catalina to run"
+            reason="need --test-import option and MacOS Catalina or Ventura to run"
         )
         for item in items:
             if "test_import" in item.keywords:
