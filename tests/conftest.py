@@ -64,7 +64,8 @@ elif OS_VER[0] == "13":
     TEST_LIBRARY = "tests/Test-13.0.0.photoslibrary"
     TEST_LIBRARY_IMPORT = TEST_LIBRARY
     TEST_LIBRARY_SYNC = TEST_LIBRARY
-    TEST_LIBRARY_TIMEWARP = None
+    from tests.config_timewarp_ventura import TEST_LIBRARY_TIMEWARP
+
     TEST_LIBRARY_ADD_LOCATIONS = None
 else:
     TEST_LIBRARY = None

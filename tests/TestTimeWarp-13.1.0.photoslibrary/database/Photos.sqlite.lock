@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>hostname</key>
+	<string>Mac-mini.local</string>
+	<key>hostuuid</key>
+	<string>8E774325-0506-5746-9991-6B8189271107</string>
+	<key>pid</key>
+	<integer>61681</integer>
+	<key>processname</key>
+	<string>photolibraryd</string>
+	<key>uid</key>
+	<integer>501</integer>
+</dict>
+</plist>
