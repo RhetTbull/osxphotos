@@ -20,10 +20,11 @@ time.tzset()
 
 TERMINAL_WIDTH = 250
 
-OS_VER = get_os_version()[1]
-if OS_VER == "15":
+OS_VER = get_os_version()
+if OS_VER[0] == "10" and OS_VER[1] == "15":
     from tests.config_timewarp_catalina import CATALINA_PHOTOS_5 as TEST_DATA
-
+elif OS_VER[0] == "13":
+    from tests.config_timewarp_ventura import VENTURA_PHOTOS_5 as TEST_DATA
 else:
     pytest.skip(allow_module_level=True)
     TEST_DATA = {}
