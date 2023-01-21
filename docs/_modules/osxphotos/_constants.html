@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos._constants - osxphotos 0.55.7 documentation</title>
+        <title>osxphotos._constants - osxphotos 0.56.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">osxphotos 0.55.7 documentation</div></a>
+      <a href="../../index.html"><div class="brand">osxphotos 0.56.4 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.55.7 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.56.4 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -195,9 +195,9 @@
         </div>
         <article role="main">
           <h1>Source code for osxphotos._constants</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Constants used by osxphotos </span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot; Constants used by osxphotos &quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span> <span class="nn">os.path</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
@@ -335,7 +335,9 @@
 <span class="n">_PHOTOS_8_SHARED_PHOTO_PATH</span> <span class="o">=</span> <span class="s2">&quot;scopes/cloudsharing/data&quot;</span>
 
 <span class="c1"># Where are shared iCloud derivatives located?</span>
-<span class="n">_PHOTOS_5_SHARED_DERIVATIVE_PATH</span> <span class="o">=</span> <span class="s2">&quot;resources/cloudsharing/resources/derivatives/masters&quot;</span>
+<span class="n">_PHOTOS_5_SHARED_DERIVATIVE_PATH</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;resources/cloudsharing/resources/derivatives/masters&quot;</span>
+<span class="p">)</span>
 <span class="n">_PHOTOS_8_SHARED_DERIVATIVE_PATH</span> <span class="o">=</span> <span class="s2">&quot;scopes/cloudsharing/resources/derivatives/masters&quot;</span>
 
 <span class="c1"># What type of file? Based on ZGENERICASSET.ZKIND in Photos 5 database</span>
@@ -410,11 +412,11 @@
     <span class="n">TITLE</span> <span class="o">=</span> <span class="mi">2017</span>
     <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="mi">2018</span>
     <span class="n">HOME</span> <span class="o">=</span> <span class="mi">2020</span>
+    <span class="n">WORK</span> <span class="o">=</span> <span class="mi">2036</span>
     <span class="n">PERSON</span> <span class="o">=</span> <span class="mi">2021</span>
     <span class="n">ACTIVITY</span> <span class="o">=</span> <span class="mi">2027</span>
     <span class="n">HOLIDAY</span> <span class="o">=</span> <span class="mi">2029</span>
     <span class="n">SEASON</span> <span class="o">=</span> <span class="mi">2030</span>
-    <span class="n">WORK</span> <span class="o">=</span> <span class="mi">2036</span>
     <span class="n">VENUE</span> <span class="o">=</span> <span class="mi">2038</span>
     <span class="n">VENUE_TYPE</span> <span class="o">=</span> <span class="mi">2039</span>
     <span class="n">PHOTO_TYPE_VIDEO</span> <span class="o">=</span> <span class="mi">2044</span>
@@ -427,6 +429,7 @@
     <span class="n">PHOTO_TYPE_PORTRAIT</span> <span class="o">=</span> <span class="mi">2053</span>
     <span class="n">PHOTO_TYPE_SELFIES</span> <span class="o">=</span> <span class="mi">2054</span>
     <span class="n">PHOTO_TYPE_FAVORITES</span> <span class="o">=</span> <span class="mi">2055</span>
+    <span class="n">PHOTO_TYPE_ANIMATED</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Photos 8+ only</span>
     <span class="n">MEDIA_TYPES</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">PHOTO_TYPE_VIDEO</span><span class="p">,</span>
         <span class="n">PHOTO_TYPE_SLOMO</span><span class="p">,</span>
@@ -441,7 +444,23 @@
     <span class="p">]</span>
     <span class="n">PHOTO_NAME</span> <span class="o">=</span> <span class="mi">2056</span>
     <span class="n">CAMERA</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Photos 8+ only</span>
+    <span class="n">TEXT_FOUND</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Photos 8+ only</span>
     <span class="n">DETECTED_TEXT</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Photos 8+ only</span>
+    <span class="n">SOURCE</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Photos 8+ only</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Return categories as dict of value: name&quot;&quot;&quot;</span>
+        <span class="c1"># a bit of a hack to basically reverse the enum</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">value</span><span class="p">:</span> <span class="n">name</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">name</span><span class="o">.</span><span class="n">isupper</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span>
+        <span class="p">}</span>
 
 
 <span class="k">class</span> <span class="nc">SearchCategory_Photos8</span><span class="p">(</span><span class="n">SearchCategory</span><span class="p">):</span>
@@ -449,6 +468,20 @@
 
     <span class="c1"># Many of the category values changed in Ventura / Photos 8</span>
     <span class="c1"># and some new categories were added</span>
+    <span class="n">CITY</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">LOCALITY_4</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">SUB_LOCALITY_5</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">SUB_LOCALITY_6</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">LOCALITY_8</span> <span class="o">=</span> <span class="mi">8</span>
+    <span class="n">NAMED_AREA</span> <span class="o">=</span> <span class="mi">7</span>
+    <span class="n">ALL_LOCALITY</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">LOCALITY_4</span><span class="p">,</span>
+        <span class="n">SUB_LOCALITY_6</span><span class="p">,</span>
+        <span class="n">LOCALITY_8</span><span class="p">,</span>
+        <span class="n">NAMED_AREA</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">HOME</span> <span class="o">=</span> <span class="mi">1000</span>
+    <span class="n">WORK</span> <span class="o">=</span> <span class="mi">1001</span>
     <span class="n">LABEL</span> <span class="o">=</span> <span class="mi">1500</span>
     <span class="n">MONTH</span> <span class="o">=</span> <span class="mi">1100</span>
     <span class="n">YEAR</span> <span class="o">=</span> <span class="mi">1101</span>
@@ -458,11 +491,55 @@
     <span class="n">TITLE</span> <span class="o">=</span> <span class="mi">1201</span>
     <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="mi">1202</span>
     <span class="n">DETECTED_TEXT</span> <span class="o">=</span> <span class="mi">1203</span>  <span class="c1"># new in Photos 8</span>
+    <span class="n">TEXT_FOUND</span> <span class="o">=</span> <span class="mi">1205</span>  <span class="c1"># new in Photos 8</span>
     <span class="n">PERSON</span> <span class="o">=</span> <span class="mi">1300</span>
     <span class="n">ACTIVITY</span> <span class="o">=</span> <span class="mi">1600</span>
+    <span class="n">VENUE</span> <span class="o">=</span> <span class="mi">1700</span>
+    <span class="n">VENUE_TYPE</span> <span class="o">=</span> <span class="mi">1701</span>
+    <span class="n">PHOTO_TYPE_VIDEO</span> <span class="o">=</span> <span class="mi">1901</span>
+    <span class="n">PHOTO_TYPE_SELFIES</span> <span class="o">=</span> <span class="mi">1915</span>
+    <span class="n">PHOTO_TYPE_LIVE</span> <span class="o">=</span> <span class="mi">1906</span>
+    <span class="n">PHOTO_TYPE_PORTRAIT</span> <span class="o">=</span> <span class="mi">1914</span>
     <span class="n">PHOTO_TYPE_FAVORITES</span> <span class="o">=</span> <span class="mi">2000</span>
+    <span class="n">PHOTO_TYPE_PANORAMA</span> <span class="o">=</span> <span class="mi">1908</span>
+    <span class="n">PHOTO_TYPE_TIMELAPSE</span> <span class="o">=</span> <span class="mi">1909</span>
+    <span class="n">PHOTO_TYPE_SLOMO</span> <span class="o">=</span> <span class="mi">1905</span>
+    <span class="n">PHOTO_TYPE_BURSTS</span> <span class="o">=</span> <span class="mi">1913</span>
+    <span class="n">PHOTO_TYPE_SCREENSHOT</span> <span class="o">=</span> <span class="mi">1907</span>
+    <span class="n">PHOTO_TYPE_ANIMATED</span> <span class="o">=</span> <span class="mi">1912</span>
+    <span class="n">PHOTO_TYPE_RAW</span> <span class="o">=</span> <span class="mi">1902</span>
+    <span class="n">MEDIA_TYPES</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">PHOTO_TYPE_VIDEO</span><span class="p">,</span>
+        <span class="n">PHOTO_TYPE_SLOMO</span><span class="p">,</span>
+        <span class="n">PHOTO_TYPE_LIVE</span><span class="p">,</span>
+        <span class="n">PHOTO_TYPE_SCREENSHOT</span><span class="p">,</span>
+        <span class="n">PHOTO_TYPE_PANORAMA</span><span class="p">,</span>
+        <span class="n">PHOTO_TYPE_TIMELAPSE</span><span class="p">,</span>
+        <span class="n">PHOTO_TYPE_BURSTS</span><span class="p">,</span>
+        <span class="n">PHOTO_TYPE_PORTRAIT</span><span class="p">,</span>
+        <span class="n">PHOTO_TYPE_SELFIES</span><span class="p">,</span>
+        <span class="n">PHOTO_TYPE_FAVORITES</span><span class="p">,</span>
+        <span class="n">PHOTO_TYPE_ANIMATED</span><span class="p">,</span>
+    <span class="p">]</span>
     <span class="n">PHOTO_NAME</span> <span class="o">=</span> <span class="mi">2100</span>
     <span class="n">CAMERA</span> <span class="o">=</span> <span class="mi">2300</span>  <span class="c1"># new in Photos 8</span>
+    <span class="n">SOURCE</span> <span class="o">=</span> <span class="mi">2200</span>  <span class="c1"># new in Photos 8, shows the app/software source for the photo, e.g. Messages, Safari, etc.</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Return categories as dict of value: name&quot;&quot;&quot;</span>
+        <span class="c1"># need to get the categories from the base class and update with the new values</span>
+        <span class="n">classdict</span> <span class="o">=</span> <span class="n">SearchCategory</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">classdict</span> <span class="o">|=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">value</span><span class="p">:</span> <span class="n">name</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">classdict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">name</span><span class="o">.</span><span class="n">isupper</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span>
+        <span class="p">}</span>
 
 
 <span class="k">def</span> <span class="nf">search_category_factory</span><span class="p">(</span><span class="n">version</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SearchCategory</span><span class="p">:</span>
