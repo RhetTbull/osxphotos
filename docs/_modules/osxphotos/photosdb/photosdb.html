@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.photosdb.photosdb - osxphotos 0.56.2 documentation</title>
+        <title>osxphotos.photosdb.photosdb - osxphotos 0.56.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">osxphotos 0.56.2 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">osxphotos 0.56.4 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.56.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.56.4 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -521,8 +521,15 @@
         <span class="c1"># _db_version is set from photos.db</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">=</span> <span class="n">get_db_version</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp_db</span><span class="p">)</span>
         <span class="c1"># _photos_version is set from Photos.sqlite which only exists for Photos 5+</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_photos_ver</span> <span class="o">=</span> <span class="mi">4</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">==</span> <span class="mi">4</span> <span class="k">else</span> <span class="mi">5</span>
-
+        <span class="n">db_ver_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">db_ver_int</span> <span class="o">&lt;</span> <span class="mi">3000</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_photos_ver</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="k">elif</span> <span class="n">db_ver_int</span> <span class="o">&lt;</span> <span class="mi">4000</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_photos_ver</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="k">elif</span> <span class="n">db_ver_int</span> <span class="o">&lt;</span> <span class="mi">5000</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_photos_ver</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_photos_ver</span> <span class="o">=</span> <span class="mi">5</span>
         <span class="c1"># If Photos &gt;= 5, actual data isn&#39;t in photos.db but in Photos.sqlite</span>
         <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">int</span><span class="p">(</span><span class="n">_PHOTOS_4_VERSION</span><span class="p">):</span>
             <span class="n">dbpath</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span>
@@ -781,6 +788,11 @@
     <span class="k">def</span> <span class="nf">library_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;returns path to the Photos library PhotosDB was initialized with&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_library_path</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">photos_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;returns version of Photos app that created the library&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photos_ver</span>
 
 <div class="viewcode-block" id="PhotosDB.get_db_connection"><a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB.get_db_connection">[docs]</a>    <span class="k">def</span> <span class="nf">get_db_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get connection to the working copy of the Photos database</span>

@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="OSXPhotos Python Package Overview" href="package_overview.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>OSXPhotos python API - osxphotos 0.56.3 documentation</title>
+        <title>OSXPhotos python API - osxphotos 0.56.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.56.3 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.56.4 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.56.3 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.56.4 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -2483,6 +2483,12 @@ Returns photos regardless of intrash state.</p>
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.PhotosDB.photos_version">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">photos_version</span></span><a class="headerlink" href="#osxphotos.PhotosDB.photos_version" title="Permalink to this definition">#</a></dt>
+<dd><p>returns version of Photos app that created the library</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.PhotosDB.project_info">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">project_info</span></span><a class="headerlink" href="#osxphotos.PhotosDB.project_info" title="Permalink to this definition">#</a></dt>
 <dd><p>return list of AlbumInfo projects for each project in the database</p>
@@ -3501,6 +3507,12 @@ Projects are cards, calendars, slideshows, etc.</p>
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.SearchInfo.source">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">source</span></span><a class="headerlink" href="#osxphotos.SearchInfo.source" title="Permalink to this definition">#</a></dt>
+<dd><p>returns source of the photo (e.g. “Messages”, “Safar”, etc) (macOS 13+ / Photos 8+ only)</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="osxphotos.SearchInfo.state">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">state</span></span><a class="headerlink" href="#osxphotos.SearchInfo.state" title="Permalink to this definition">#</a></dt>
 <dd><p>returns state name</p>
@@ -3516,6 +3528,12 @@ Projects are cards, calendars, slideshows, etc.</p>
 <dt class="sig sig-object py" id="osxphotos.SearchInfo.streets">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">streets</span></span><a class="headerlink" href="#osxphotos.SearchInfo.streets" title="Permalink to this definition">#</a></dt>
 <dd><p>returns list of street names</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.SearchInfo.text_found">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">text_found</span></span><a class="headerlink" href="#osxphotos.SearchInfo.text_found" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns True if photos has detected text (macOS 13+ / Photos 8+ only)</p>
 </dd></dl>
 
 <dl class="py property">
@@ -3893,6 +3911,7 @@ Projects are cards, calendars, slideshows, etc.</p>
 <li><a class="reference internal" href="#osxphotos.PhotosDB.persons_as_dict"><code class="docutils literal notranslate"><span class="pre">PhotosDB.persons_as_dict</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotosDB.photos"><code class="docutils literal notranslate"><span class="pre">PhotosDB.photos()</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotosDB.photos_by_uuid"><code class="docutils literal notranslate"><span class="pre">PhotosDB.photos_by_uuid()</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.PhotosDB.photos_version"><code class="docutils literal notranslate"><span class="pre">PhotosDB.photos_version</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotosDB.project_info"><code class="docutils literal notranslate"><span class="pre">PhotosDB.project_info</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PhotosDB.query"><code class="docutils literal notranslate"><span class="pre">PhotosDB.query()</span></code></a></li>
 </ul>
@@ -4002,9 +4021,11 @@ Projects are cards, calendars, slideshows, etc.</p>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.neighborhoods"><code class="docutils literal notranslate"><span class="pre">SearchInfo.neighborhoods</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.place_names"><code class="docutils literal notranslate"><span class="pre">SearchInfo.place_names</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.season"><code class="docutils literal notranslate"><span class="pre">SearchInfo.season</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.SearchInfo.source"><code class="docutils literal notranslate"><span class="pre">SearchInfo.source</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.state"><code class="docutils literal notranslate"><span class="pre">SearchInfo.state</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.state_abbreviation"><code class="docutils literal notranslate"><span class="pre">SearchInfo.state_abbreviation</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.streets"><code class="docutils literal notranslate"><span class="pre">SearchInfo.streets</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.SearchInfo.text_found"><code class="docutils literal notranslate"><span class="pre">SearchInfo.text_found</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.venue_types"><code class="docutils literal notranslate"><span class="pre">SearchInfo.venue_types</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.venues"><code class="docutils literal notranslate"><span class="pre">SearchInfo.venues</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.SearchInfo.year"><code class="docutils literal notranslate"><span class="pre">SearchInfo.year</span></code></a></li>
