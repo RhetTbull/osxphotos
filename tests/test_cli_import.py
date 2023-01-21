@@ -81,10 +81,6 @@ try:
 except FileNotFoundError:
     exiftool_path = None
 
-OS_VER = get_os_version()[1]
-if OS_VER != "15":
-    pytest.skip(allow_module_level=True)
-
 
 def prompt(message):
     """Helper function for tests that require user input"""
@@ -1010,7 +1006,7 @@ def test_import_post_function():
         with open("foo1.py", "w") as f:
             f.writelines(
                 [
-                    "def foo(photo, filepath, verbose, **kwargs):\n",
+                    "def foo(photo, filepath, verbose, report_record, **kwargs):\n",
                     "    verbose('FOO BAR')\n",
                 ]
             )
