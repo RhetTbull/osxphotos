@@ -1,6 +1,6 @@
-"""
-Constants used by osxphotos 
-"""
+""" Constants used by osxphotos """
+
+from __future__ import annotations
 
 import os.path
 from datetime import datetime
@@ -138,7 +138,9 @@ _PHOTOS_5_SHARED_PHOTO_PATH = "resources/cloudsharing/data"
 _PHOTOS_8_SHARED_PHOTO_PATH = "scopes/cloudsharing/data"
 
 # Where are shared iCloud derivatives located?
-_PHOTOS_5_SHARED_DERIVATIVE_PATH = "resources/cloudsharing/resources/derivatives/masters"
+_PHOTOS_5_SHARED_DERIVATIVE_PATH = (
+    "resources/cloudsharing/resources/derivatives/masters"
+)
 _PHOTOS_8_SHARED_DERIVATIVE_PATH = "scopes/cloudsharing/resources/derivatives/masters"
 
 # What type of file? Based on ZGENERICASSET.ZKIND in Photos 5 database
@@ -213,11 +215,11 @@ class SearchCategory:
     TITLE = 2017
     DESCRIPTION = 2018
     HOME = 2020
+    WORK = 2036
     PERSON = 2021
     ACTIVITY = 2027
     HOLIDAY = 2029
     SEASON = 2030
-    WORK = 2036
     VENUE = 2038
     VENUE_TYPE = 2039
     PHOTO_TYPE_VIDEO = 2044
@@ -230,6 +232,7 @@ class SearchCategory:
     PHOTO_TYPE_PORTRAIT = 2053
     PHOTO_TYPE_SELFIES = 2054
     PHOTO_TYPE_FAVORITES = 2055
+    PHOTO_TYPE_ANIMATED = None  # Photos 8+ only
     MEDIA_TYPES = [
         PHOTO_TYPE_VIDEO,
         PHOTO_TYPE_SLOMO,
@@ -244,7 +247,23 @@ class SearchCategory:
     ]
     PHOTO_NAME = 2056
     CAMERA = None  # Photos 8+ only
+    TEXT_FOUND = None  # Photos 8+ only
     DETECTED_TEXT = None  # Photos 8+ only
+    SOURCE = None  # Photos 8+ only
+
+    @classmethod
+    def categories(cls) -> dict[int, str]:
+        """Return categories as dict of value: name"""
+        # a bit of a hack to basically reverse the enum
+        return {
+            value: name
+            for name, value in cls.__dict__.items()
+            if name is not None
+            and not name.startswith("__")
+            and not callable(name)
+            and name.isupper()
+            and not isinstance(value, (list, dict, tuple))
+        }
 
 
 class SearchCategory_Photos8(SearchCategory):
@@ -252,6 +271,20 @@ class SearchCategory_Photos8(SearchCategory):
 
     # Many of the category values changed in Ventura / Photos 8
     # and some new categories were added
+    CITY = 5
+    LOCALITY_4 = 4
+    SUB_LOCALITY_5 = None
+    SUB_LOCALITY_6 = 6
+    LOCALITY_8 = 8
+    NAMED_AREA = 7
+    ALL_LOCALITY = [
+        LOCALITY_4,
+        SUB_LOCALITY_6,
+        LOCALITY_8,
+        NAMED_AREA,
+    ]
+    HOME = 1000
+    WORK = 1001
     LABEL = 1500
     MONTH = 1100
     YEAR = 1101
@@ -261,11 +294,55 @@ class SearchCategory_Photos8(SearchCategory):
     TITLE = 1201
     DESCRIPTION = 1202
     DETECTED_TEXT = 1203  # new in Photos 8
+    TEXT_FOUND = 1205  # new in Photos 8
     PERSON = 1300
     ACTIVITY = 1600
+    VENUE = 1700
+    VENUE_TYPE = 1701
+    PHOTO_TYPE_VIDEO = 1901
+    PHOTO_TYPE_SELFIES = 1915
+    PHOTO_TYPE_LIVE = 1906
+    PHOTO_TYPE_PORTRAIT = 1914
     PHOTO_TYPE_FAVORITES = 2000
+    PHOTO_TYPE_PANORAMA = 1908
+    PHOTO_TYPE_TIMELAPSE = 1909
+    PHOTO_TYPE_SLOMO = 1905
+    PHOTO_TYPE_BURSTS = 1913
+    PHOTO_TYPE_SCREENSHOT = 1907
+    PHOTO_TYPE_ANIMATED = 1912
+    PHOTO_TYPE_RAW = 1902
+    MEDIA_TYPES = [
+        PHOTO_TYPE_VIDEO,
+        PHOTO_TYPE_SLOMO,
+        PHOTO_TYPE_LIVE,
+        PHOTO_TYPE_SCREENSHOT,
+        PHOTO_TYPE_PANORAMA,
+        PHOTO_TYPE_TIMELAPSE,
+        PHOTO_TYPE_BURSTS,
+        PHOTO_TYPE_PORTRAIT,
+        PHOTO_TYPE_SELFIES,
+        PHOTO_TYPE_FAVORITES,
+        PHOTO_TYPE_ANIMATED,
+    ]
     PHOTO_NAME = 2100
     CAMERA = 2300  # new in Photos 8
+    SOURCE = 2200  # new in Photos 8, shows the app/software source for the photo, e.g. Messages, Safari, etc.
+
+    @classmethod
+    def categories(cls) -> dict[int, str]:
+        """Return categories as dict of value: name"""
+        # need to get the categories from the base class and update with the new values
+        classdict = SearchCategory.__dict__.copy()
+        classdict |= cls.__dict__.copy()
+        return {
+            value: name
+            for name, value in classdict.items()
+            if name is not None
+            and not name.startswith("__")
+            and not callable(name)
+            and name.isupper()
+            and not isinstance(value, (list, dict, tuple))
+        }
 
 
 def search_category_factory(version: int) -> SearchCategory:

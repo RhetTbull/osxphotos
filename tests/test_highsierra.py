@@ -47,6 +47,10 @@ def test_db_version(photosdb):
     # assert photosdb.db_version in osxphotos._TESTED_DB_VERSIONS
 
 
+def test_photos_version(photosdb):
+    assert photosdb.photos_version == 3
+
+
 def test_persons(photosdb):
     import collections
 

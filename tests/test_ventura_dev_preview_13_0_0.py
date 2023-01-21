@@ -270,6 +270,10 @@ def test_db_version(photosdb):
     assert photosdb.db_version == "6000"
 
 
+def test_photos_version(photosdb):
+    assert photosdb.photos_version == 8
+
+
 def test_persons(photosdb):
     import collections
 

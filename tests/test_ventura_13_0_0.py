@@ -215,8 +215,8 @@ UUID_SEARCH_INFO = {
         "place_names": ["River Torrens/Karrawirra Parri"],
         "streets": ["River Torrens Linear Park Trl"],
         "neighborhoods": ["Central Ward"],
-        "city": "",
-        "locality_names": ["Adelaide", "South Australia"],
+        "city": "Adelaide",
+        "locality_names": [],
         "state": "Adelaide",
         "state_abbreviation": "SA",
         "country": "Australia",
@@ -231,6 +231,7 @@ UUID_SEARCH_INFO = {
         "media_types": [],
         "detected_text": [],
         "camera": "Apple iPhone 6s",
+        "source": "",
     }
 }
 
@@ -314,6 +315,10 @@ def test_db_len(photosdb):
 def test_db_version(photosdb):
     # assert photosdb.db_version in osxphotos._TESTED_DB_VERSIONS
     assert photosdb.db_version == "6000"
+
+
+def test_photos_version(photosdb):
+    assert photosdb.photos_version == 8
 
 
 def test_persons(photosdb):

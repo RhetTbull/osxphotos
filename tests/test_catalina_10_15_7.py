@@ -358,6 +358,10 @@ def test_persons(photosdb):
     assert Counter(PERSONS) == Counter(photosdb.persons)
 
 
+def test_photos_version(photosdb):
+    assert photosdb.photos_version == 5
+
+
 def test_keywords(photosdb):
 
     assert "wedding" in photosdb.keywords

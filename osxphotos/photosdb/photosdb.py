@@ -324,8 +324,15 @@ class PhotosDB:
         # _db_version is set from photos.db
         self._db_version = get_db_version(self._tmp_db)
         # _photos_version is set from Photos.sqlite which only exists for Photos 5+
-        self._photos_ver = 4 if self._db_version == 4 else 5
-
+        db_ver_int = int(self._db_version)
+        if db_ver_int < 3000:
+            self._photos_ver = 2
+        elif db_ver_int < 4000:
+            self._photos_ver = 3
+        elif db_ver_int < 5000:
+            self._photos_ver = 4
+        else:
+            self._photos_ver = 5
         # If Photos >= 5, actual data isn't in photos.db but in Photos.sqlite
         if int(self._db_version) > int(_PHOTOS_4_VERSION):
             dbpath = pathlib.Path(self._dbfile).parent
@@ -584,6 +591,11 @@ class PhotosDB:
     def library_path(self):
         """returns path to the Photos library PhotosDB was initialized with"""
         return self._library_path
+
+    @property
+    def photos_version(self):
+        """returns version of Photos app that created the library"""
+        return self._photos_ver
 
     def get_db_connection(self):
         """Get connection to the working copy of the Photos database
