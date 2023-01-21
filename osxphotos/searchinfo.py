@@ -140,6 +140,13 @@ class SearchInfo:
         return self._get_text_for_category(self._categories.DETECTED_TEXT)
 
     @property
+    def text_found(self):
+        """Returns True if photos has detected text (macOS 13+ / Photos 8+ only)"""
+        if self._photo._db._photos_ver < 8:
+            return []
+        return self._get_text_for_category(self._categories.TEXT_FOUND)
+
+    @property
     def camera(self):
         """returns camera name (macOS 13+ / Photos 8+ only)"""
         if self._photo._db._photos_ver < 8:
@@ -148,9 +155,17 @@ class SearchInfo:
         return camera[0] if camera else ""
 
     @property
+    def source(self):
+        """returns source of the photo (e.g. "Messages", "Safar", etc) (macOS 13+ / Photos 8+ only)"""
+        if self._photo._db._photos_ver < 8:
+            return ""
+        source = self._get_text_for_category(self._categories.SOURCE)
+        return source[0] if source else ""
+
+    @property
     def all(self):
         """return all search info properties in a single list"""
-        all = (
+        all_ = (
             self.labels
             + self.place_names
             + self.streets
@@ -165,23 +180,23 @@ class SearchInfo:
             + self.detected_text
         )
         if self.city:
-            all += [self.city]
+            all_ += [self.city]
         if self.state:
-            all += [self.state]
+            all_ += [self.state]
         if self.state_abbreviation:
-            all += [self.state_abbreviation]
+            all_ += [self.state_abbreviation]
         if self.country:
-            all += [self.country]
+            all_ += [self.country]
         if self.month:
-            all += [self.month]
+            all_ += [self.month]
         if self.year:
-            all += [self.year]
+            all_ += [self.year]
         if self.season:
-            all += [self.season]
+            all_ += [self.season]
         if self.camera:
-            all += [self.camera]
+            all_ += [self.camera]
 
-        return all
+        return all_
 
     def asdict(self):
         """return dict of search info"""
@@ -206,6 +221,7 @@ class SearchInfo:
             "media_types": self.media_types,
             "detected_text": self.detected_text,
             "camera": self.camera,
+            "source": self.source,
         }
 
     def _get_text_for_category(self, category):

@@ -183,6 +183,10 @@ def test_db_version(photosdb):
     assert photosdb.db_version == "4025"
 
 
+def test_photos_version(photosdb):
+    assert photosdb.photos_version == 4
+
+
 def test_db_len(photosdb):
     # assert photosdb.db_version in osxphotos._TESTED_DB_VERSIONS
     assert len(photosdb) == PHOTOS_DB_LEN

@@ -21,7 +21,7 @@ from rich.live import Live
 from rich.panel import Panel
 
 from osxphotos import PhotoInfo, PhotosDB
-from osxphotos._constants import _UNKNOWN_PERSON
+from osxphotos._constants import _UNKNOWN_PERSON, search_category_factory
 from osxphotos.rich_utils import add_rich_markup_tag
 from osxphotos.text_detection import detect_text as detect_text_in_photo
 from osxphotos.utils import dd_to_dms_str
@@ -63,6 +63,22 @@ def trim(text: str, pad: str = "") -> str:
     width = Console().width - len(pad) - 4
     text = text.replace("\n", " ")
     return text if len(text) <= width else f"{text[: width- 3]}..."
+
+
+def format_search_info(photo: PhotoInfo) -> str:
+    """Format search info for photo"""
+    categories = sorted(list(photo._db._db_searchinfo_categories.keys()))
+    search_info = photo.search_info
+    if not search_info:
+        return ""
+    search_info_strs = []
+    category_dict = search_category_factory(photo._db.photos_version).categories()
+    for category in categories:
+        if text := search_info._get_text_for_category(category):
+            text = ", ".join(t for t in text if t) if isinstance(text, list) else text
+            category_name = str(category_dict.get(category, category)).lower()
+            search_info_strs.append(f"{bold(category_name)}: {text}")
+    return ", ".join(search_info_strs)
 
 
 def inspect_photo(
@@ -138,8 +154,10 @@ def inspect_photo(
             + f"{', '.join(dd_to_dms_str(*photo.location)) if photo.location[0] else '-'}",
             bold("Place: ") + f"{photo.place.name if photo.place else '-'}",
             bold("Categories/Labels: ") + f"{', '.join(photo.labels) or '-'}",
+            bold("Search Info: ") + format_search_info(photo),
         ]
     )
+
     properties.append(format_flags(photo))
     properties.append(format_albums(photo))
 
