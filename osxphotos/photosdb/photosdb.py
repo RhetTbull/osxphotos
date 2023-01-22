@@ -705,6 +705,8 @@ class PhotosDB:
                 "displayname": normalize_unicode(person[4]),
                 "photo_uuid": None,
                 "keyface_uuid": None,
+                "type": None,  # Photos 5+
+                "manualorder": None,  # Photos 5+
             }
             try:
                 self._dbpersons_fullname[fullname].append(pk)
@@ -1687,7 +1689,9 @@ class PhotosDB:
                 ZPERSON.ZFULLNAME,
                 ZPERSON.ZFACECOUNT,
                 ZPERSON.ZKEYFACE,
-                ZPERSON.ZDISPLAYNAME
+                ZPERSON.ZDISPLAYNAME,
+                ZPERSON.ZTYPE,
+                ZPERSON.ZMANUALORDER
                 FROM ZPERSON
             """
         )
@@ -1698,6 +1702,8 @@ class PhotosDB:
         # 3     ZPERSON.ZFACECOUNT,
         # 4     ZPERSON.ZKEYFACE,
         # 5     ZPERSON.ZDISPLAYNAME
+        # 6     ZPERSON.ZTYPE,  # ZTYPE = 1 == favorite, 0 == not favorite
+        # 7     ZPERSON.ZMANUALORDER # favorites are sorted by ZMANUALORDER
 
         for person in c:
             pk = person[0]
@@ -1715,6 +1721,8 @@ class PhotosDB:
                 "displayname": normalize_unicode(person[5]),
                 "photo_uuid": None,
                 "keyface_uuid": None,
+                "type": person[6],
+                "manualorder": person[7],
             }
             try:
                 self._dbpersons_fullname[fullname].append(pk)

@@ -72,6 +72,16 @@ class PersonInfo:
             # no faces
             return []
 
+    @property
+    def favorite(self):
+        """Returns True if person is a favorite, False otherwise"""
+        return self._db._dbpersons_pk[self._pk]["type"] == 1
+
+    @property
+    def sort_order(self):
+        """Returns sort order of person; favorite persons are sorted before non-favorite persons"""
+        return self._db._dbpersons_pk[self._pk]["manualorder"]
+
     def asdict(self):
         """Returns dictionary representation of class instance"""
         keyphoto = self.keyphoto.uuid if self.keyphoto is not None else None
@@ -82,6 +92,8 @@ class PersonInfo:
             "keyface": self.keyface,
             "facecount": self.facecount,
             "keyphoto": keyphoto,
+            "favorite": self.favorite,
+            "sort_order": self.sort_order,
         }
 
     def json(self):
