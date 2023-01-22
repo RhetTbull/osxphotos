@@ -3,8 +3,10 @@
 import json
 import logging
 import math
-
 from collections import namedtuple
+from functools import cached_property
+
+import osxphotos
 
 __all__ = ["PersonInfo", "FaceInfo", "rotate_image_point"]
 
@@ -15,7 +17,7 @@ MPRI_Reg_Rect = namedtuple("MPRI_Reg_Rect", ["x", "y", "h", "w"])
 class PersonInfo:
     """Info about a person in the Photos library"""
 
-    def __init__(self, db=None, pk=None):
+    def __init__(self, db: "osxphotos.PhotosDB", pk: int):
         """Creates a new PersonInfo instance
 
         Arguments:
@@ -25,8 +27,8 @@ class PersonInfo:
         Returns:
             PersonInfo instance
         """
-        self._db = db
-        self._pk = pk
+        self._db: "osxphotos.PhotosDB" = db
+        self._pk: int = pk
 
         person = self._db._dbpersons_pk[pk]
         self.uuid = person["uuid"]
@@ -74,13 +76,30 @@ class PersonInfo:
 
     @property
     def favorite(self):
-        """Returns True if person is a favorite, False otherwise"""
+        """Returns True if person is a favorite, False otherwise; Photos 5+ only; returns False on Photos <= 4"""
         return self._db._dbpersons_pk[self._pk]["type"] == 1
 
     @property
     def sort_order(self):
-        """Returns sort order of person; favorite persons are sorted before non-favorite persons"""
+        """Returns sort order of person; favorite persons are sorted before non-favorite persons"; Photos 5+ only; returns 0 on Photos <= 4"""
         return self._db._dbpersons_pk[self._pk]["manualorder"]
+
+    @cached_property
+    def feature_less(self):
+        """Returns True if person has been marked as "Feature This Person Less" in Photos, False otherwise; Photos 8+ only; returns False on Photos <= 7"""
+        if self._db.photos_version < 8:
+            return False
+
+        if results := self._db.execute(
+            """
+            SELECT ZTYPE
+            FROM ZUSERFEEDBACK
+            WHERE ZPERSON = ?
+            """,
+            (self._pk,),
+        ).fetchone():
+            return bool(results[0])
+        return False
 
     def asdict(self):
         """Returns dictionary representation of class instance"""
@@ -94,6 +113,7 @@ class PersonInfo:
             "keyphoto": keyphoto,
             "favorite": self.favorite,
             "sort_order": self.sort_order,
+            "feature_less": self.feature_less,
         }
 
     def json(self):

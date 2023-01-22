@@ -42,6 +42,7 @@ JSON_DICT = {
         "keyphoto": "F12384F6-CD17-4151-ACBA-AE0E3688539E",
         "favorite": False,
         "sort_order": 3,
+        "feature_less": False,
     },
     "katie_4": {
         "uuid": "D%zgor6TRmGng5V75UBy5A",
@@ -51,7 +52,8 @@ JSON_DICT = {
         "facecount": 3,
         "keyphoto": "8SOE9s0XQVGsuq4ONohTng",
         "favorite": False,
-        "sort_order": None,
+        "sort_order": 0,
+        "feature_less": False,
     },
 }
 
