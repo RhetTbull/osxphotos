@@ -3,18 +3,21 @@ PhotosDB class
 Processes a Photos.app library database to extract information about photos
 """
 
+from __future__ import annotations
+
 import logging
 import os
 import os.path
 import pathlib
 import platform
 import re
+import sqlite3
 import sys
 import tempfile
 from collections import OrderedDict
 from collections.abc import Iterable
 from datetime import datetime, timedelta, timezone
-from typing import List, Optional
+from typing import Any, List, Optional
 from unicodedata import normalize
 
 import bitmath
@@ -705,6 +708,8 @@ class PhotosDB:
                 "displayname": normalize_unicode(person[4]),
                 "photo_uuid": None,
                 "keyface_uuid": None,
+                "type": None,  # Photos 5+
+                "manualorder": 0,  # Photos 5+
             }
             try:
                 self._dbpersons_fullname[fullname].append(pk)
@@ -1687,7 +1692,9 @@ class PhotosDB:
                 ZPERSON.ZFULLNAME,
                 ZPERSON.ZFACECOUNT,
                 ZPERSON.ZKEYFACE,
-                ZPERSON.ZDISPLAYNAME
+                ZPERSON.ZDISPLAYNAME,
+                ZPERSON.ZTYPE,
+                ZPERSON.ZMANUALORDER
                 FROM ZPERSON
             """
         )
@@ -1698,6 +1705,8 @@ class PhotosDB:
         # 3     ZPERSON.ZFACECOUNT,
         # 4     ZPERSON.ZKEYFACE,
         # 5     ZPERSON.ZDISPLAYNAME
+        # 6     ZPERSON.ZTYPE,  # ZTYPE = 1 == favorite, 0 == not favorite
+        # 7     ZPERSON.ZMANUALORDER # favorites are sorted by ZMANUALORDER
 
         for person in c:
             pk = person[0]
@@ -1715,6 +1724,8 @@ class PhotosDB:
                 "displayname": normalize_unicode(person[5]),
                 "photo_uuid": None,
                 "keyface_uuid": None,
+                "type": person[6],
+                "manualorder": person[7],
             }
             try:
                 self._dbpersons_fullname[fullname].append(pk)
@@ -3563,10 +3574,11 @@ class PhotosDB:
 
         return photos
 
-    def execute(self, sql):
+    def execute(self, sql: str, params: Any | None = None) -> sqlite3.Cursor:
         """Execute sql statement and return cursor"""
         self._db_connection, _ = self.get_db_connection()
-        return self._db_connection.cursor().execute(sql)
+        params = params or ()
+        return self._db_connection.cursor().execute(sql, params)
 
     def _duplicate_signature(self, uuid):
         """Compute a signature for finding possible duplicates"""

@@ -17,6 +17,15 @@
 		<key>kZoomLevelIdentifierPhotosGrid</key>
 		<integer>1</integer>
 	</dict>
+	<key>PXPeopleCandidateWidgetKey</key>
+	<dict>
+		<key>PXPeopleCandidateWidgetKey2023.01.22</key>
+		<array>
+			<string>3DDC8F83-FDAB-4943-AE53-19428BEEED9D/L0/070</string>
+		</array>
+	</dict>
+	<key>PXPeopleHomeSortingType</key>
+	<integer>0</integer>
 	<key>Photos</key>
 	<dict>
 		<key>CollapsedSidebarSectionIdentifiers</key>
