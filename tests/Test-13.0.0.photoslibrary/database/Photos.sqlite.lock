@@ -3,14 +3,14 @@
 <plist version="1.0">
 <dict>
 	<key>hostname</key>
-	<string>ddrucker-mba.local</string>
+	<string>Mac-mini.local</string>
 	<key>hostuuid</key>
-	<string>3C58BD83-C174-52E3-B12D-D7EBDED55622</string>
+	<string>8E774325-0506-5746-9991-6B8189271107</string>
 	<key>pid</key>
-	<integer>940</integer>
+	<integer>61681</integer>
 	<key>processname</key>
 	<string>photolibraryd</string>
 	<key>uid</key>
-	<integer>502</integer>
+	<integer>501</integer>
 </dict>
 </plist>
