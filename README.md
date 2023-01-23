@@ -112,56 +112,68 @@ If you have questions, would like to show off projects created with OSXPhotos, o
 
 This package will install a command line utility called `osxphotos` that allows you to query the Photos database.  Alternatively, you can also run the command line utility like this: `python3 -m osxphotos`
 
+<!--[[[cog
+from osxphotos.cli import cli_main
+from click.testing import CliRunner
+runner = CliRunner()
+result = runner.invoke(cli_main, ["--help"])
+help = result.output.replace("Usage: cli-main", "Usage: osxphotos")
+cog.out(
+    "```\n{}\n```".format(help)
+)
+]]] -->
 ```
-> osxphotos
 Usage: osxphotos [OPTIONS] COMMAND [ARGS]...
 
-  osxphotos: query and export your Photos library
+  osxphotos: the multi-tool for your Photos library
 
 Options:
-  --db PHOTOS_LIBRARY_PATH  Specify Photos database path. Path to Photos
-                            library/database can be specified using either
-                            --db or directly as PHOTOS_LIBRARY positional
-                            argument. If neither --db or PHOTOS_LIBRARY
-                            provided, will attempt to find the library to use
-                            in the following order: 1. last opened library, 2.
-                            system library, 3. ~/Pictures/Photos
-                            Library.photoslibrary
-  --json                    Print output in JSON format.
   -v, --version             Show the version and exit.
+  --db PHOTOS_LIBRARY_PATH  Specify Photos database path. Path to Photos
+                            library/database can be specified using either --db
+                            or directly as PHOTOS_LIBRARY positional argument.
+                            If neither --db or PHOTOS_LIBRARY provided, will
+                            attempt to find the library to use in the following
+                            order: 1. last opened library, 2. system library, 3.
+                            ~/Pictures/Photos Library.photoslibrary
+  --json                    Print output in JSON format.
   -h, --help                Show this message and exit.
 
 Commands:
-  about      Print information about osxphotos including license.
-  albums     Print out albums found in the Photos library.
-  diff       Compare two Photos databases and print out differences
-  docs       Open osxphotos documentation in your browser.
-  dump       Print list of all photos & associated info from the Photos...
-  exiftool   Run exiftool on previously exported files to update metadata.
-  export     Export photos from the Photos database.
-  exportdb   Utilities for working with the osxphotos export database
-  help       Print help; for help on commands: help <command>.
-  import     Import photos and videos into Photos.
-  info       Print out descriptive info of the Photos library database.
-  inspect    Interactively inspect photos selected in Photos.
-  install    Install Python packages into the same environment as osxphotos
-  keywords   Print out keywords found in the Photos library.
-  labels     Print out image classification labels found in the Photos...
-  list       Print list of Photos libraries found on the system.
-  orphans    Find orphaned photos in a Photos library
-  persons    Print out persons (faces) found in the Photos library.
-  places     Print out places found in the Photos library.
-  query      Query the Photos database using 1 or more search options; if...
-  repl       Run interactive osxphotos REPL shell (useful for debugging,...
-  run        Run a python file using same environment as osxphotos.
-  snap       Create snapshot of Photos database to use with diff command
-  theme      Manage osxphotos color themes.
-  timewarp   Adjust date/time/timezone of photos in Apple Photos.
-  tutorial   Display osxphotos tutorial.
-  uninstall  Uninstall Python packages from the osxphotos environment
-  uuid       Print out unique IDs (UUID) of photos selected in Photos
-  version    Check for new version of osxphotos.
+  about          Print information about osxphotos including license.
+  add-locations  Add missing location data to photos in Photos.app using...
+  albums         Print out albums found in the Photos library.
+  diff           Compare two Photos databases and print out differences
+  docs           Open osxphotos documentation in your browser.
+  dump           Print list of all photos & associated info from the Photos...
+  exiftool       Run exiftool on previously exported files to update metadata.
+  export         Export photos from the Photos database.
+  exportdb       Utilities for working with the osxphotos export database
+  help           Print help; for help on commands: help <command>.
+  import         Import photos and videos into Photos.
+  info           Print out descriptive info of the Photos library database.
+  inspect        Interactively inspect photos selected in Photos.
+  install        Install Python packages into the same environment as...
+  keywords       Print out keywords found in the Photos library.
+  labels         Print out image classification labels found in the Photos...
+  list           Print list of Photos libraries found on the system.
+  orphans        Find orphaned photos in a Photos library
+  persons        Print out persons (faces) found in the Photos library.
+  places         Print out places found in the Photos library.
+  query          Query the Photos database using 1 or more search options;...
+  repl           Run interactive osxphotos REPL shell (useful for...
+  run            Run a python file using same environment as osxphotos.
+  snap           Create snapshot of Photos database to use with diff command
+  sync           Sync metadata and albums between Photos libraries.
+  theme          Manage osxphotos color themes.
+  timewarp       Adjust date/time/timezone of photos in Apple Photos.
+  tutorial       Display osxphotos tutorial.
+  uninstall      Uninstall Python packages from the osxphotos environment
+  uuid           Print out unique IDs (UUID) of photos selected in Photos
+  version        Check for new version of osxphotos.
+
 ```
+<!--[[[end]]] -->
 
 To get help on a specific command, use `osxphotos help command_name`, for example, `osxphotos help export` to get help on the `export` command.
 
