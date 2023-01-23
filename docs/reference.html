@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="OSXPhotos Python Package Overview" href="package_overview.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>OSXPhotos python API - osxphotos 0.56.5 documentation</title>
+        <title>OSXPhotos python API - osxphotos 0.56.6 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.56.5 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.56.6 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.56.5 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.56.6 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -1295,7 +1295,7 @@ including folders, albums, etc</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="osxphotos.PersonInfo">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">osxphotos.</span></span><span class="sig-name descname"><span class="pre">PersonInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/personinfo.html#PersonInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PersonInfo" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">osxphotos.</span></span><span class="sig-name descname"><span class="pre">PersonInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#osxphotos.PhotosDB" title="osxphotos.photosdb.photosdb.PhotosDB"><span class="pre">PhotosDB</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pk</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/personinfo.html#PersonInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PersonInfo" title="Permalink to this definition">#</a></dt>
 <dd><p>Info about a person in the Photos library</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.PersonInfo.asdict">
@@ -1310,6 +1310,18 @@ including folders, albums, etc</p>
 Highest quality face is result[0] and lowest quality face is result[n]</p>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.PersonInfo.favorite">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">favorite</span></span><a class="headerlink" href="#osxphotos.PersonInfo.favorite" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns True if person is a favorite, False otherwise; Photos 5+ only; returns False on Photos &lt;= 4</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.PersonInfo.feature_less">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">feature_less</span></span><a class="headerlink" href="#osxphotos.PersonInfo.feature_less" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns True if person has been marked as “Feature This Person Less” in Photos, False otherwise; Photos 8+ only; returns False on Photos &lt;= 7</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.PersonInfo.json">
 <span class="sig-name descname"><span class="pre">json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/personinfo.html#PersonInfo.json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PersonInfo.json" title="Permalink to this definition">#</a></dt>
@@ -1320,6 +1332,12 @@ Highest quality face is result[0] and lowest quality face is result[n]</p>
 <dt class="sig sig-object py" id="osxphotos.PersonInfo.photos">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">photos</span></span><a class="headerlink" href="#osxphotos.PersonInfo.photos" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns list of PhotoInfo objects associated with this person</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="osxphotos.PersonInfo.sort_order">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sort_order</span></span><a class="headerlink" href="#osxphotos.PersonInfo.sort_order" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns sort order of person; favorite persons are sorted before non-favorite persons”; Photos 5+ only; returns 0 on Photos &lt;= 4</p>
 </dd></dl>
 
 </dd></dl>
@@ -1420,7 +1438,7 @@ network drive or other slower external storage).</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="osxphotos.PhotoInfo">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">osxphotos.</span></span><span class="sig-name descname"><span class="pre">PhotoInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/photoinfo.html#PhotoInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotoInfo" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">osxphotos.</span></span><span class="sig-name descname"><span class="pre">PhotoInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#osxphotos.PhotosDB" title="osxphotos.photosdb.photosdb.PhotosDB"><span class="pre">PhotosDB</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/photoinfo.html#PhotoInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotoInfo" title="Permalink to this definition">#</a></dt>
 <dd><p>Info about a specific photo, contains all the details about the photo
 including keywords, persons, albums, uuid, path, etc.</p>
 <dl class="py property">
@@ -2314,7 +2332,7 @@ valid only on Photos 5; on Photos &lt;= 4, prints warning and returns empty dict
 
 <dl class="py method">
 <dt class="sig sig-object py" id="osxphotos.PhotosDB.execute">
-<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sql</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osxphotos/photosdb/photosdb.html#PhotosDB.execute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotosDB.execute" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sql</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Cursor</span></span></span><a class="reference internal" href="_modules/osxphotos/photosdb/photosdb.html#PhotosDB.execute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#osxphotos.PhotosDB.execute" title="Permalink to this definition">#</a></dt>
 <dd><p>Execute sql statement and return cursor</p>
 </dd></dl>
 
@@ -3761,8 +3779,11 @@ Projects are cards, calendars, slideshows, etc.</p>
 <li><a class="reference internal" href="#osxphotos.PersonInfo"><code class="docutils literal notranslate"><span class="pre">PersonInfo</span></code></a><ul>
 <li><a class="reference internal" href="#osxphotos.PersonInfo.asdict"><code class="docutils literal notranslate"><span class="pre">PersonInfo.asdict()</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PersonInfo.face_info"><code class="docutils literal notranslate"><span class="pre">PersonInfo.face_info</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.PersonInfo.favorite"><code class="docutils literal notranslate"><span class="pre">PersonInfo.favorite</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.PersonInfo.feature_less"><code class="docutils literal notranslate"><span class="pre">PersonInfo.feature_less</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PersonInfo.json"><code class="docutils literal notranslate"><span class="pre">PersonInfo.json()</span></code></a></li>
 <li><a class="reference internal" href="#osxphotos.PersonInfo.photos"><code class="docutils literal notranslate"><span class="pre">PersonInfo.photos</span></code></a></li>
+<li><a class="reference internal" href="#osxphotos.PersonInfo.sort_order"><code class="docutils literal notranslate"><span class="pre">PersonInfo.sort_order</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#osxphotos.PhotoExporter"><code class="docutils literal notranslate"><span class="pre">PhotoExporter</span></code></a><ul>
