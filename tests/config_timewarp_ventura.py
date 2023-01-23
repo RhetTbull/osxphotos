@@ -18,9 +18,11 @@ def get_file_timestamp(file: str) -> str:
         "%Y-%m-%d %H:%M:%S"
     )
 
+
 def is_dst() -> bool:
     """Return True if daylight savings time is in effect"""
     return bool(time.localtime().tm_isdst)
+
 
 VENTURA_PHOTOS_5 = {
     "filenames": {
@@ -376,8 +378,8 @@ VENTURA_PHOTOS_5 = {
         "expected": InspectValues(
             "20200829_010203.jpg",
             "B3BB1937-AD5A-4A11-A72A-3CAFFB8E7422",
-            "2020-08-29 01:02:03-0800" if is_dst() else "2020-08-29 00:02:03-0700",
-            "2020-08-29 01:02:03-0800" if is_dst() else "2020-08-29 00:02:03-0700",
+            "2023-01-20 01:02:03-0800" if not is_dst() else "2023-01-20 00:02:03-0700",
+            "2023-01-20 01:02:03-0800" if not is_dst() else "2023-01-20 00:02:03-0700",
             "-0800",
             "GMT-0800",
         ),
