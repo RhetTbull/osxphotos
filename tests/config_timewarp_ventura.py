@@ -1,7 +1,11 @@
-""" Test data for timewarp command on Catalina/Photos 5 """
+""" Test data for timewarp command on Ventura/Photos 8 """
+
+# NOTE: The data may be wrong if test not run in US Pacific time zone
+# I've not tried to test this for other timezones
 
 import datetime
 import pathlib
+import time
 
 from tests.parse_timewarp_output import CompareValues, InspectValues
 
@@ -14,6 +18,9 @@ def get_file_timestamp(file: str) -> str:
         "%Y-%m-%d %H:%M:%S"
     )
 
+def is_dst() -> bool:
+    """Return True if daylight savings time is in effect"""
+    return bool(time.localtime().tm_isdst)
 
 VENTURA_PHOTOS_5 = {
     "filenames": {
@@ -24,6 +31,7 @@ VENTURA_PHOTOS_5 = {
         "marigold flowers": "IMG_6517.jpeg",
         "multi-colored zinnia flowers": "IMG_6506.jpeg",
         "sunset": "IMG_6551.mov",
+        "palm tree": "20200829_010203.jpg",
     },
     "inspect": {
         # IMG_6501.jpeg
@@ -271,7 +279,7 @@ VENTURA_PHOTOS_5 = {
                 f"{TEST_LIBRARY_TIMEWARP}/originals/7/7E9DF2EE-A5B0-4077-80EC-30565221A3B9.jpeg"
             ),
             "",
-            "-0700",
+            "-0700" if is_dst() else "-0800",
             "",
         ),
     },
@@ -360,6 +368,18 @@ VENTURA_PHOTOS_5 = {
             "2020-09-01 18:53:02-0700",
             "-0700",
             "GMT-0700",
+        ),
+    },
+    "parse_date": {
+        # 20200829_010203.jpg
+        "uuid": "B3BB1937-AD5A-4A11-A72A-3CAFFB8E7422",
+        "expected": InspectValues(
+            "20200829_010203.jpg",
+            "B3BB1937-AD5A-4A11-A72A-3CAFFB8E7422",
+            "2020-08-29 01:02:03-0800" if is_dst() else "2020-08-29 00:02:03-0700",
+            "2020-08-29 01:02:03-0800" if is_dst() else "2020-08-29 00:02:03-0700",
+            "-0800",
+            "GMT-0800",
         ),
     },
 }

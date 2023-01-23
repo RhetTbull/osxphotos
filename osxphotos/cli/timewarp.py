@@ -1,5 +1,7 @@
 """ Fix time / date / timezone for photos in Apple Photos """
 
+from __future__ import annotations
+
 import datetime
 import os
 import sys
@@ -16,6 +18,7 @@ from osxphotos.compare_exif import PhotoCompare
 from osxphotos.datetime_utils import datetime_naive_to_local, datetime_to_new_tz
 from osxphotos.exif_datetime_updater import ExifDateTimeUpdater
 from osxphotos.exiftool import get_exiftool_path
+from osxphotos.photodates import set_photo_date_from_filename
 from osxphotos.photosalbum import PhotosAlbumPhotoScript
 from osxphotos.phototz import PhotoTimeZone, PhotoTimeZoneUpdater
 from osxphotos.timeutils import update_datetime
@@ -38,6 +41,7 @@ from .param_types import (
     DateOffset,
     DateTimeISO8601,
     FunctionCall,
+    StrpDateTimePattern,
     TimeOffset,
     TimeString,
     UTCOffset,
@@ -223,6 +227,40 @@ if the EXIF data is missing, use the file modification date/time; show verbose o
 
 `osxphotos timewarp --pull-exif --use-file-time --verbose`
 
+## Parsing Dates/Times from Filenames
+
+The --parse-date option allows you to parse dates/times from the original filename of the photo.
+This is useful if you files with dates/times embedded in the filename but not in the metadata.
+
+
+The argument to `--parse-date` is a pattern string that is used to parse the date/time
+from the filename. The pattern string is a superset of the python `strftime/strptime`
+format with the following additions:
+
+- *: Match any number of characters
+- ^: Match the beginning of the string
+- $: Match the end of the string
+- {n}: Match exactly n characters
+- {n,}: Match at least n characters
+- {n,m}: Match at least n characters and at most m characters
+- In addition to `%%` for a literal `%`, the following format codes are supported: 
+    `%^`, `%$`, `%*`, `%|`, `%{`, `%}` for `^`, `$`, `*`, `|`, `{`, `}` respectively
+- |: join multiple format codes; each code is tried in order until one matches
+- Unlike the standard library, the leading zero is not optional for 
+    %d, %m, %H, %I, %M, %S, %j, %U, %W, and %V
+- For optional leading zero, use %-d, %-m, %-H, %-I, %-M, %-S, %-j, %-U, %-W, and %-V
+
+For more information on strptime format codes, see: 
+https://docs.python.org/3/library/datetime.html?highlight=strptime#strftime-and-strptime-format-codes
+
+**Note**: The time zone of the parsed date/time is assumed to be the local time zone.
+If the parse pattern includes a time zone, the photo's time will be converted from
+the specified time zone to the local time zone. osxphotos import does not
+currently support setting the time zone of imported photos.
+See also `osxphotos help timewarp` for more information on the timewarp
+command which can be used to change the time zone of photos after import.
+
+
 """
                 ),
                 width=formatter.width,
@@ -323,6 +361,20 @@ if the EXIF data is missing, use the file modification date/time; show verbose o
     "See also --push-exif.",
 )
 @click.option(
+    "--parse-date",
+    "-M",
+    metavar="DATE_PATTERN",
+    type=StrpDateTimePattern(),
+    help="Parse date from filename using DATE_PATTERN and set photo's date to match. "
+    "If file does not match DATE_PATTERN, the date will not be changed. "
+    "DATE_PATTERN is a strptime-compatible pattern with extensions as pattern described below. "
+    "If DATE_PATTERN matches time zone information, the time will be set to the local time in the timezone "
+    "as the import command does not yet support setting time zone information. "
+    "For example, if your photos are named 'IMG_1234_2022_11_23_12_34_56.jpg' where the date/time is "
+    "'2022-11-23 12:34:56', you could use the pattern '%Y_%m_%d_%H_%M_%S' or "
+    "'IMG_*_%Y_%m_%d_%H_%M_%S' to further narrow the pattern to only match files with 'IMG_xxxx_' in the name.",
+)
+@click.option(
     "--function",
     "-F",
     metavar="filename.py::function",
@@ -363,7 +415,7 @@ if the EXIF data is missing, use the file modification date/time; show verbose o
     help="When used with --compare-exif, adds any photos with date/time/timezone differences "
     "between Photos/EXIF to album ALBUM.  If ALBUM does not exist, it will be created.",
 )
-@click.option("--verbose", "-V", "verbose", is_flag=True, help="Show verbose output.")
+@click.option("--verbose", "-V", "verbose_", is_flag=True, help="Show verbose output.")
 @click.option(
     "--library",
     "-L",
@@ -419,9 +471,10 @@ def timewarp(
     use_file_time,
     add_to_album,
     exiftool_path,
-    verbose,
+    verbose_,
     library,
     theme,
+    parse_date,
     plain,
     output_file,
     terminal_width,
@@ -446,6 +499,7 @@ def timewarp(
             timezone,
             inspect,
             compare_exif,
+            parse_date,
             push_exif,
             pull_exif,
             function,
@@ -453,7 +507,8 @@ def timewarp(
     ):
         raise click.UsageError(
             "At least one of --date, --date-delta, --time, --time-delta, "
-            "--timezone, --inspect, --compare-exif, --push-exif, --pull-exif, --function "
+            "--timezone, --inspect, --compare-exif, --push-exif, --pull-exif, "
+            "--parse-date, --function "
             "must be specified."
         )
 
@@ -472,8 +527,8 @@ def timewarp(
     # configure colored rich output
     # TODO: this is all a little hacky, find a better way to do this
     color_theme = get_theme(theme)
-    verbose_ = verbose_print(
-        verbose,
+    verbose = verbose_print(
+        verbose_,
         timestamp,
         rich=True,
         theme=color_theme,
@@ -499,7 +554,7 @@ def timewarp(
 
     if any([compare_exif, push_exif, pull_exif]):
         exiftool_path = exiftool_path or get_exiftool_path()
-        verbose_(f"exiftool path: [filename]{exiftool_path}[/filename]")
+        verbose(f"exiftool path: [filename]{exiftool_path}[/filename]")
 
     try:
         photos = PhotosLibrary().selection
@@ -533,6 +588,7 @@ def timewarp(
                 push_exif,
                 pull_exif,
                 function,
+                parse_date,
             ]
         )
         and not force
@@ -556,13 +612,13 @@ def timewarp(
         time=time,
         date_delta=date_delta,
         time_delta=time_delta,
-        verbose_print=verbose_,
+        verbose_print=verbose,
     )
 
     update_photo_time_for_new_timezone_ = partial(
         update_photo_time_for_new_timezone,
         library_path=library,
-        verbose_print=verbose_,
+        verbose_print=verbose,
     )
 
     if function:
@@ -570,7 +626,7 @@ def timewarp(
             update_photo_from_function,
             library_path=library,
             function=function[0],
-            verbose_print=verbose_,
+            verbose_print=verbose,
         )
     else:
         update_photo_from_function_ = noop
@@ -579,14 +635,20 @@ def timewarp(
         tzinfo = PhotoTimeZone(library_path=library)
         if photos:
             rich_echo(
-                "[filename]filename[/filename], [uuid]uuid[/uuid], [time]photo time (local)[/time], [time]photo time[/time], [tz]timezone offset[/tz], [tz]timezone name[/tz]"
+                "[filename]filename[/filename], [uuid]uuid[/uuid], "
+                "[time]photo time (local)[/time], "
+                "[time]photo time[/time], "
+                "[tz]timezone offset[/tz], [tz]timezone name[/tz]"
             )
         for photo in photos:
             tz_seconds, tz_str, tz_name = tzinfo.get_timezone(photo)
             photo_date_local = datetime_naive_to_local(photo.date)
             photo_date_tz = datetime_to_new_tz(photo_date_local, tz_seconds)
             rich_echo(
-                f"[filename]{photo.filename}[/filename], [uuid]{photo.uuid}[/uuid], [time]{photo_date_local.strftime(DATETIME_FORMAT)}[/time], [time]{photo_date_tz.strftime(DATETIME_FORMAT)}[/time], [tz]{tz_str}[/tz], [tz]{tz_name}[/tz]"
+                f"[filename]{photo.filename}[/filename], [uuid]{photo.uuid}[/uuid], "
+                f"[time]{photo_date_local.strftime(DATETIME_FORMAT)}[/time], "
+                f"[time]{photo_date_tz.strftime(DATETIME_FORMAT)}[/time], "
+                f"[tz]{tz_str}[/tz], [tz]{tz_name}[/tz]"
             )
         sys.exit(0)
 
@@ -596,7 +658,7 @@ def timewarp(
         if photos:
             photocomp = PhotoCompare(
                 library_path=library,
-                verbose=verbose_,
+                verbose=verbose,
                 exiftool_path=exiftool_path,
             )
             if not album:
@@ -622,12 +684,12 @@ def timewarp(
             if album:
                 if diff_results.diff:
                     different_photos += 1
-                    verbose_(
+                    verbose(
                         f"Photo {filename} ({uuid}) has different date/time/timezone, adding to album '{album.name}'"
                     )
                     album.add(photo)
                 else:
-                    verbose_(f"Photo {filename} ({uuid}) has same date/time/timezone")
+                    verbose(f"Photo {filename} ({uuid}) has same date/time/timezone")
             else:
                 rich_echo(
                     f"{filename}, {uuid}, "
@@ -644,14 +706,14 @@ def timewarp(
 
     if timezone:
         tz_updater = PhotoTimeZoneUpdater(
-            timezone, verbose=verbose_, library_path=library
+            timezone, verbose=verbose, library_path=library
         )
 
     if any([push_exif, pull_exif, function]):
         # ExifDateTimeUpdater used to get photo path for --function
         exif_updater = ExifDateTimeUpdater(
             library_path=library,
-            verbose=verbose_,
+            verbose=verbose,
             exiftool_path=exiftool_path,
             plain=plain,
         )
@@ -663,6 +725,8 @@ def timewarp(
             total=num_photos,
         )
         for p in photos:
+            if parse_date:
+                set_photo_date_from_filename(p, p.filename, parse_date, verbose)
             if pull_exif:
                 exif_updater.update_photos_from_exif(
                     p, use_file_modify_date=use_file_time
@@ -676,7 +740,7 @@ def timewarp(
             if timezone:
                 tz_updater.update_photo(p)
             if function:
-                verbose_(f"Calling function [bold]{function[1]}")
+                verbose(f"Calling function [bold]{function[1]}")
                 photo_path = exif_updater.get_photo_path(p)
                 update_photo_from_function_(photo=p, path=photo_path)
             if push_exif:
