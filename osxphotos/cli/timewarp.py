@@ -53,7 +53,6 @@ from .verbose import get_verbose_console, verbose_print
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S%z"
 
 
-
 class TimeWarpCommand(click.Command):
     """Custom click.Command that overrides get_help() to show additional help info for export"""
 
@@ -265,8 +264,7 @@ command which can be used to change the time zone of photos after import.
     help="Parse date from filename using DATE_PATTERN and set photo's date to match. "
     "If file does not match DATE_PATTERN, the date will not be changed. "
     "DATE_PATTERN is a strptime-compatible pattern with extensions as pattern described below. "
-    "If DATE_PATTERN matches time zone information, the time will be set to the local time in the timezone "
-    "as the import command does not yet support setting time zone information. "
+    "If DATE_PATTERN matches time zone information, the photo's timezone will be set to match. "
     "For example, if your photos are named 'IMG_1234_2022_11_23_12_34_56.jpg' where the date/time is "
     "'2022-11-23 12:34:56', you could use the pattern '%Y_%m_%d_%H_%M_%S' or "
     "'IMG_*_%Y_%m_%d_%H_%M_%S' to further narrow the pattern to only match files with 'IMG_xxxx_' in the name.",

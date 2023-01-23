@@ -33,7 +33,7 @@ VENTURA_PHOTOS_5 = {
         "marigold flowers": "IMG_6517.jpeg",
         "multi-colored zinnia flowers": "IMG_6506.jpeg",
         "sunset": "IMG_6551.mov",
-        "palm tree": "20200829_010203.jpg",
+        "palm tree": "20230120_010203-0400.jpg",
     },
     "inspect": {
         # IMG_6501.jpeg
@@ -382,6 +382,18 @@ VENTURA_PHOTOS_5 = {
             "2023-01-20 01:02:03-0800" if not is_dst() else "2023-01-20 00:02:03-0700",
             "-0800",
             "GMT-0800",
+        ),
+    },
+    "parse_date_tz": {
+        # 20230120_010203-0400.jpg
+        "uuid": "5285C4E2-BB1A-49DF-AEF5-246AA337ACAB",
+        "expected": InspectValues(
+            "20230120_010203-0400.jpg",
+            "5285C4E2-BB1A-49DF-AEF5-246AA337ACAB",
+            "2023-01-19 21:02:03-0800" if not is_dst() else "2023-01-19 20:02:03-0700",
+            "2023-01-20 01:02:03-0400",
+            "-0400",
+            "GMT-0400",
         ),
     },
 }

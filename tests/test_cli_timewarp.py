@@ -1041,3 +1041,32 @@ def test_parse_date(photoslib, suspend_capture, output_file):
     assert output_values[0].date_tz == expected.date_tz
     assert output_values[0].tz_offset == expected.tz_offset
 
+
+@pytest.mark.timewarp
+@pytest.mark.skipif(get_os_version()[0] != "13", reason="test requires macOS 13")
+def test_parse_date_tz(photoslib, suspend_capture, output_file):
+    """Test --parse-date with a timezone"""
+    from osxphotos.cli.timewarp import timewarp
+
+    expected = TEST_DATA["parse_date_tz"]["expected"]
+
+    runner = CliRunner()
+    result = runner.invoke(
+        timewarp,
+        [
+            "--parse-date",
+            "^%Y%m%d_%H%M%S%z",
+            "--force",
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    result = runner.invoke(
+        timewarp,
+        ["--inspect", "--plain", "--force", "-o", output_file],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    output_values = parse_inspect_output(output_file)
+    assert output_values[0].date_local == expected.date_local
+    assert output_values[0].date_tz == expected.date_tz
+    assert output_values[0].tz_offset == expected.tz_offset
