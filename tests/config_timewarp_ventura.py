@@ -1,7 +1,11 @@
-""" Test data for timewarp command on Catalina/Photos 5 """
+""" Test data for timewarp command on Ventura/Photos 8 """
+
+# NOTE: The data may be wrong if test not run in US Pacific time zone
+# I've not tried to test this for other timezones
 
 import datetime
 import pathlib
+import time
 
 from tests.parse_timewarp_output import CompareValues, InspectValues
 
@@ -15,6 +19,11 @@ def get_file_timestamp(file: str) -> str:
     )
 
 
+def is_dst() -> bool:
+    """Return True if daylight savings time is in effect"""
+    return bool(time.localtime().tm_isdst)
+
+
 VENTURA_PHOTOS_5 = {
     "filenames": {
         "pumpkins": "IMG_6522.jpeg",
@@ -24,6 +33,7 @@ VENTURA_PHOTOS_5 = {
         "marigold flowers": "IMG_6517.jpeg",
         "multi-colored zinnia flowers": "IMG_6506.jpeg",
         "sunset": "IMG_6551.mov",
+        "palm tree": "20230120_010203-0400.jpg",
     },
     "inspect": {
         # IMG_6501.jpeg
@@ -271,7 +281,7 @@ VENTURA_PHOTOS_5 = {
                 f"{TEST_LIBRARY_TIMEWARP}/originals/7/7E9DF2EE-A5B0-4077-80EC-30565221A3B9.jpeg"
             ),
             "",
-            "-0700",
+            "-0700" if is_dst() else "-0800",
             "",
         ),
     },
@@ -360,6 +370,30 @@ VENTURA_PHOTOS_5 = {
             "2020-09-01 18:53:02-0700",
             "-0700",
             "GMT-0700",
+        ),
+    },
+    "parse_date": {
+        # 20230120_010203-0400.jpg
+        "uuid": "5285C4E2-BB1A-49DF-AEF5-246AA337ACAB",
+        "expected": InspectValues(
+            "20230120_010203-0400.jpg",
+            "5285C4E2-BB1A-49DF-AEF5-246AA337ACAB",
+            "2023-01-20 01:02:03-0800" if not is_dst() else "2023-01-20 00:02:03-0700",
+            "2023-01-20 01:02:03-0800" if not is_dst() else "2023-01-20 00:02:03-0700",
+            "-0800",
+            "GMT-0800",
+        ),
+    },
+    "parse_date_tz": {
+        # 20230120_010203-0400.jpg
+        "uuid": "5285C4E2-BB1A-49DF-AEF5-246AA337ACAB",
+        "expected": InspectValues(
+            "20230120_010203-0400.jpg",
+            "5285C4E2-BB1A-49DF-AEF5-246AA337ACAB",
+            "2023-01-19 21:02:03-0800" if not is_dst() else "2023-01-19 20:02:03-0700",
+            "2023-01-20 01:02:03-0400",
+            "-0400",
+            "GMT-0400",
         ),
     },
 }

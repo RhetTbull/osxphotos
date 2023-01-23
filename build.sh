@@ -12,6 +12,7 @@ cog -d -o osxphotos/phototemplate.md osxphotos/phototemplate.cog.md
 
 echo "Updating README.md"
 python3 utils/update_readme.py
+cog -r README.md
 
 echo "Updating API_README.md"
 cog -r API_README.md

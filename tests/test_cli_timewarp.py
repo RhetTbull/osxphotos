@@ -5,14 +5,11 @@ import time
 
 import pytest
 from click.testing import CliRunner
+
 from osxphotos import PhotosDB
 from osxphotos.exiftool import ExifTool
-
-from tests.conftest import (
-    get_os_version,
-)
+from tests.conftest import get_os_version
 from tests.parse_timewarp_output import parse_compare_exif, parse_inspect_output
-
 
 # set timezone to avoid issues with comparing dates
 os.environ["TZ"] = "US/Pacific"
@@ -1007,3 +1004,69 @@ def test_function(photoslib, suspend_capture, output_file):
     )
     output_values = parse_inspect_output(output_file)
     assert output_values[0] == expected
+
+
+@pytest.mark.timewarp
+def test_select_palm_tree_1(photoslib, suspend_capture):
+    """Force user to select the right photo for following tests"""
+    assert ask_user_to_make_selection(photoslib, suspend_capture, "palm tree")
+
+
+@pytest.mark.timewarp
+@pytest.mark.skipif(get_os_version()[0] != "13", reason="test requires macOS 13")
+def test_parse_date(photoslib, suspend_capture, output_file):
+    """Test --parse-date"""
+    from osxphotos.cli.timewarp import timewarp
+
+    expected = TEST_DATA["parse_date"]["expected"]
+
+    runner = CliRunner()
+    result = runner.invoke(
+        timewarp,
+        [
+            "--parse-date",
+            "^%Y%m%d_%H%M%S",
+            "--force",
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    result = runner.invoke(
+        timewarp,
+        ["--inspect", "--plain", "--force", "-o", output_file],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    output_values = parse_inspect_output(output_file)
+    assert output_values[0].date_local == expected.date_local
+    assert output_values[0].date_tz == expected.date_tz
+    assert output_values[0].tz_offset == expected.tz_offset
+
+
+@pytest.mark.timewarp
+@pytest.mark.skipif(get_os_version()[0] != "13", reason="test requires macOS 13")
+def test_parse_date_tz(photoslib, suspend_capture, output_file):
+    """Test --parse-date with a timezone"""
+    from osxphotos.cli.timewarp import timewarp
+
+    expected = TEST_DATA["parse_date_tz"]["expected"]
+
+    runner = CliRunner()
+    result = runner.invoke(
+        timewarp,
+        [
+            "--parse-date",
+            "^%Y%m%d_%H%M%S%z",
+            "--force",
+        ],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    assert result.exit_code == 0
+    result = runner.invoke(
+        timewarp,
+        ["--inspect", "--plain", "--force", "-o", output_file],
+        terminal_width=TERMINAL_WIDTH,
+    )
+    output_values = parse_inspect_output(output_file)
+    assert output_values[0].date_local == expected.date_local
+    assert output_values[0].date_tz == expected.date_tz
+    assert output_values[0].tz_offset == expected.tz_offset

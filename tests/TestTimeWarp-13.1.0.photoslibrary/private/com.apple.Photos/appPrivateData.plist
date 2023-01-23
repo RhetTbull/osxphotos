@@ -4,5 +4,10 @@
 <dict>
 	<key>CollapsedSidebarSectionIdentifiers</key>
 	<array/>
+	<key>IPXWorkspaceControllerZoomLevelsKey</key>
+	<dict>
+		<key>kZoomLevelIdentifierPhotosGrid</key>
+		<integer>2</integer>
+	</dict>
 </dict>
 </plist>
