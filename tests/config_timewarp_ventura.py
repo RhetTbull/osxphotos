@@ -373,11 +373,11 @@ VENTURA_PHOTOS_5 = {
         ),
     },
     "parse_date": {
-        # 20200829_010203.jpg
-        "uuid": "B3BB1937-AD5A-4A11-A72A-3CAFFB8E7422",
+        # 20230120_010203-0400.jpg
+        "uuid": "5285C4E2-BB1A-49DF-AEF5-246AA337ACAB",
         "expected": InspectValues(
-            "20200829_010203.jpg",
-            "B3BB1937-AD5A-4A11-A72A-3CAFFB8E7422",
+            "20230120_010203-0400.jpg",
+            "5285C4E2-BB1A-49DF-AEF5-246AA337ACAB",
             "2023-01-20 01:02:03-0800" if not is_dst() else "2023-01-20 00:02:03-0700",
             "2023-01-20 01:02:03-0800" if not is_dst() else "2023-01-20 00:02:03-0700",
             "-0800",

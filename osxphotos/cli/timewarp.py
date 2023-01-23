@@ -2,15 +2,12 @@
 
 from __future__ import annotations
 
-import datetime
-import os
 import sys
 from functools import partial
 from textwrap import dedent
-from typing import Callable, Optional
 
 import click
-from photoscript import Photo, PhotosLibrary
+from photoscript import PhotosLibrary
 from rich.console import Console
 
 from osxphotos._constants import APP_NAME
@@ -18,11 +15,14 @@ from osxphotos.compare_exif import PhotoCompare
 from osxphotos.datetime_utils import datetime_naive_to_local, datetime_to_new_tz
 from osxphotos.exif_datetime_updater import ExifDateTimeUpdater
 from osxphotos.exiftool import get_exiftool_path
-from osxphotos.photodates import set_photo_date_from_filename
+from osxphotos.photodates import (
+    set_photo_date_from_filename,
+    update_photo_date_time,
+    update_photo_from_function,
+    update_photo_time_for_new_timezone,
+)
 from osxphotos.photosalbum import PhotosAlbumPhotoScript
 from osxphotos.phototz import PhotoTimeZone, PhotoTimeZoneUpdater
-from osxphotos.timeutils import update_datetime
-from osxphotos.timezones import Timezone
 from osxphotos.utils import noop, pluralize
 
 from .click_rich_echo import (
@@ -52,109 +52,6 @@ from .verbose import get_verbose_console, verbose_print
 # format for pretty printing date/times
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S%z"
 
-
-def update_photo_date_time(
-    photo: Photo,
-    date,
-    time,
-    date_delta,
-    time_delta,
-    verbose_print: Callable,
-):
-    """Update date, time in photo"""
-    photo_date = photo.date
-    new_photo_date = update_datetime(
-        photo_date, date=date, time=time, date_delta=date_delta, time_delta=time_delta
-    )
-    filename = photo.filename
-    uuid = photo.uuid
-    if new_photo_date != photo_date:
-        photo.date = new_photo_date
-        verbose_print(
-            f"Updated date/time for photo [filename]{filename}[/filename] "
-            f"([uuid]{uuid}[/uuid]) from: [time]{photo_date}[/time] to [time]{new_photo_date}[/time]"
-        )
-    else:
-        verbose_print(
-            f"Skipped date/time update for photo [filename]{filename}[/filename] "
-            f"([uuid]{uuid}[/uuid]): nothing to do"
-        )
-
-
-def update_photo_time_for_new_timezone(
-    library_path: str,
-    photo: Photo,
-    new_timezone: Timezone,
-    verbose_print: Callable,
-):
-    """Update time in photo to keep it the same time but in a new timezone
-
-    For example, photo time is 12:00+0100 and new timezone is +0200,
-    so adjust photo time by 1 hour so it will now be 12:00+0200 instead of
-    13:00+0200 as it would be with no adjustment to the time"""
-    old_timezone = PhotoTimeZone(library_path=library_path).get_timezone(photo)[0]
-    # need to move time in opposite direction of timezone offset so that
-    # photo time is the same time but in the new timezone
-    delta = old_timezone - new_timezone.offset
-    photo_date = photo.date
-    new_photo_date = update_datetime(
-        dt=photo_date, time_delta=datetime.timedelta(seconds=delta)
-    )
-    filename = photo.filename
-    uuid = photo.uuid
-    if photo_date != new_photo_date:
-        photo.date = new_photo_date
-        verbose_print(
-            f"Adjusted date/time for photo [filename]{filename}[/filename] ([uuid]{uuid}[/uuid]) to match "
-            f"previous time [time]{photo_date}[time] but in new timezone [tz]{new_timezone}[/tz]."
-        )
-    else:
-        verbose_print(
-            f"Skipping date/time update for photo [filename]{filename}[/filename] ([uuid]{photo.uuid}[/uuid]), "
-            f"already matches new timezone [tz]{new_timezone}[/tz]"
-        )
-
-
-def update_photo_from_function(
-    library_path: str,
-    function: Callable,
-    verbose_print: Callable,
-    photo: Photo,
-    path: Optional[str],
-):
-    """Update photo from function call"""
-    photo_tz_sec, _, photo_tz_name = PhotoTimeZone(
-        library_path=library_path
-    ).get_timezone(photo)
-    dt_new, tz_new = function(
-        photo=photo,
-        path=path,
-        tz_sec=photo_tz_sec,
-        tz_name=photo_tz_name,
-        verbose=verbose_print,
-    )
-    if dt_new != photo.date:
-        old_date = photo.date
-        photo.date = dt_new
-        verbose_print(
-            f"Updated date/time for photo [filename]{photo.filename}[/filename] "
-            f"([uuid]{photo.uuid}[/uuid]) from: [time]{old_date}[/time] to [time]{dt_new}[/time]"
-        )
-    else:
-        verbose_print(
-            f"Skipped date/time update for photo [filename]{photo.filename}[/filename] "
-            f"([uuid]{photo.uuid}[/uuid]): nothing to do"
-        )
-    if tz_new != photo_tz_sec:
-        tz_updater = PhotoTimeZoneUpdater(
-            timezone=Timezone(tz_new), verbose=verbose_print, library_path=library_path
-        )
-        tz_updater.update_photo(photo)
-    else:
-        verbose_print(
-            f"Skipped timezone update for photo [filename]{photo.filename}[/filename] "
-            f"([uuid]{photo.uuid}[/uuid]): nothing to do"
-        )
 
 
 class TimeWarpCommand(click.Command):
@@ -612,13 +509,19 @@ def timewarp(
         time=time,
         date_delta=date_delta,
         time_delta=time_delta,
-        verbose_print=verbose,
+        verbose=verbose,
     )
 
     update_photo_time_for_new_timezone_ = partial(
         update_photo_time_for_new_timezone,
         library_path=library,
-        verbose_print=verbose,
+        verbose=verbose,
+    )
+
+    set_photo_date_from_filename_ = partial(
+        set_photo_date_from_filename,
+        library_path=library,
+        verbose=verbose,
     )
 
     if function:
@@ -626,7 +529,7 @@ def timewarp(
             update_photo_from_function,
             library_path=library,
             function=function[0],
-            verbose_print=verbose,
+            verbose=verbose,
         )
     else:
         update_photo_from_function_ = noop
@@ -726,7 +629,7 @@ def timewarp(
         )
         for p in photos:
             if parse_date:
-                set_photo_date_from_filename(p, p.filename, parse_date, verbose)
+                set_photo_date_from_filename_(p, p.filename, parse_date)
             if pull_exif:
                 exif_updater.update_photos_from_exif(
                     p, use_file_modify_date=use_file_time
