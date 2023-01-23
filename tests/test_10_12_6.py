@@ -57,6 +57,10 @@ def test_db_version(photosdb):
     assert photosdb.db_version == "2622"
 
 
+def test_photos_version(photosdb):
+    assert photosdb.photos_version == 2
+
+
 def test_persons(photosdb):
 
     assert "Katie" in photosdb.persons

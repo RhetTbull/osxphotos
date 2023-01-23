@@ -215,8 +215,8 @@ UUID_SEARCH_INFO = {
         "place_names": ["River Torrens/Karrawirra Parri"],
         "streets": ["River Torrens Linear Park Trl"],
         "neighborhoods": ["Central Ward"],
-        "city": "",
-        "locality_names": ["Adelaide", "South Australia"],
+        "city": "Adelaide",
+        "locality_names": [],
         "state": "Adelaide",
         "state_abbreviation": "SA",
         "country": "Australia",
@@ -231,6 +231,7 @@ UUID_SEARCH_INFO = {
         "media_types": [],
         "detected_text": [],
         "camera": "Apple iPhone 6s",
+        "source": "",
     }
 }
 
@@ -238,6 +239,11 @@ UUID_SEARCH_INFO = {
 UUID_FINGERPRINT = {
     "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51": "ASs96bJvsunOg9Vxo5hK7VU3HegE"
 }
+
+UUID_FAVORITE_PERSON = "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51"  # wedding.jpg, Maria
+UUID_NOT_FAVORITE_PERSON = "D79B8D77-BFFC-460B-9312-034F2877D35B"  # Pumkins2.jpg, Katie
+UUID_PERSON_FEATURE_LESS = UUID_NOT_FAVORITE_PERSON
+UUID_PERSON_NOT_FEATURE_LESS = UUID_FAVORITE_PERSON
 
 
 @pytest.fixture(scope="module")
@@ -314,6 +320,10 @@ def test_db_len(photosdb):
 def test_db_version(photosdb):
     # assert photosdb.db_version in osxphotos._TESTED_DB_VERSIONS
     assert photosdb.db_version == "6000"
+
+
+def test_photos_version(photosdb):
+    assert photosdb.photos_version == 8
 
 
 def test_persons(photosdb):
@@ -1245,3 +1255,21 @@ def test_fingerprint(photosdb):
     for uuid, fingerprint in UUID_FINGERPRINT.items():
         photo = photosdb.get_photo(uuid)
         assert photo.fingerprint == fingerprint
+
+
+def test_person_favorite(photosdb):
+    """Test person favorite"""
+    photo = photosdb.get_photo(UUID_FAVORITE_PERSON)
+    assert photo.person_info[0].favorite
+
+    photo = photosdb.get_photo(UUID_NOT_FAVORITE_PERSON)
+    assert not photo.person_info[0].favorite
+
+
+def test_person_feature_less(photosdb):
+    """Test person feature less"""
+    photo = photosdb.get_photo(UUID_PERSON_FEATURE_LESS)
+    assert photo.person_info[0].feature_less
+
+    photo = photosdb.get_photo(UUID_PERSON_NOT_FEATURE_LESS)
+    assert not photo.person_info[0].feature_less

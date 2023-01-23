@@ -464,6 +464,25 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "djbeadle",
+      "name": "Daniel Beadle",
+      "avatar_url": "https://avatars.githubusercontent.com/u/6235378?v=4",
+      "profile": "https://danielbeadle.net",
+      "contributions": [
+        "ideas"
+      ]
+    },
+    {
+      "login": "eecue",
+      "name": "Dave Bullock",
+      "avatar_url": "https://avatars.githubusercontent.com/u/532536?v=4",
+      "profile": "http://eecue.com/",
+      "contributions": [
+        "ideas",
+        "userTesting"
+      ]
     }
   ],
   "contributorsPerLine": 7,

@@ -1,6 +1,4 @@
-"""
-PhotoInfo class
-Represents a single photo in the Photos library and provides access to the photo's attributes
+""" PhotoInfo class: Represents a single photo in the Photos library and provides access to the photo's attributes
 PhotosDB.photos() returns a list of PhotoInfo objects
 """
 
@@ -17,10 +15,12 @@ import pathlib
 import plistlib
 from datetime import timedelta, timezone
 from functools import cached_property
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import yaml
 from osxmetadata import OSXMetaData
+
+import osxphotos
 
 from ._constants import (
     _DB_TABLE_NAMES,
@@ -75,10 +75,10 @@ class PhotoInfo:
     including keywords, persons, albums, uuid, path, etc.
     """
 
-    def __init__(self, db=None, uuid=None, info=None):
-        self._uuid = uuid
-        self._info = info
-        self._db = db
+    def __init__(self, db: "osxphotos.PhotosDB", uuid: str, info: dict[str, Any]):
+        self._uuid: str = uuid
+        self._info: dict[str, Any] = info
+        self._db: "osxphotos.PhotosDB" = db
         self._verbose = self._db._verbose
 
     @property

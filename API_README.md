@@ -238,7 +238,7 @@ Returns a list of the keywords found in the Photos library
 albums = photosdb.album_info
 ```
 
-Returns a list of [AlbumInfo](#AlbumInfo) objects representing albums in the database or empty list if there are no albums.  See also [albums](#albums) and [burst_album_info](#burst_album_info).
+Returns a list of [AlbumInfo](#albuminfo) objects representing albums in the database or empty list if there are no albums.  See also [albums](#albums) and [burst_album_info](#burst_album_info).
 
 #### `albums`
 
@@ -278,7 +278,7 @@ Returns the  [MomentInfo](#momentinfo) object for the photo or `None` if the pho
 folders = photosdb.folder_info
 ```
 
-Returns a list of [FolderInfo](#FolderInfo) objects representing top level folders in the database or empty list if there are no folders.  See also [folders](#folders).
+Returns a list of [FolderInfo](#folderinfo) objects representing top level folders in the database or empty list if there are no folders.  See also [folders](#folders).
 
 **Note**: Currently folder_info is only implemented for Photos 5 (Catalina); will return empty list and output warning if called on earlier database versions.
 
@@ -402,6 +402,15 @@ photosdb.db_version
 
 Returns the version number for Photos library database.  You likely won't need this but it's provided in case needed for debugging. PhotosDB will print a warning to `sys.stderr` if you open a database version that has not been tested.
 
+#### `photos_version`
+
+```python
+# assumes photosdb is a PhotosDB object (see above)
+photosdb.photos_version
+```
+
+Returns the version number as int for version of Photos that created the library, e.g. 2, 3, 4, 5...
+
 #### `get_db_connection()`
 
 Returns tuple of (connection, cursor) for the working copy of the Photos database.  This is useful for debugging or prototyping new features.
@@ -428,7 +437,7 @@ conn.close()
 photos = photosdb.photos([keywords=['keyword',]], [uuid=['uuid',]], [persons=['person',]], [albums=['album',]],[from_date=datetime.datetime],[to_date=datetime.datetime])
 ```
 
-Returns a list of [PhotoInfo](#PhotoInfo) objects.  Each PhotoInfo object represents a photo in the Photos Libary.
+Returns a list of [PhotoInfo](#photoinfo) objects.  Each PhotoInfo object represents a photo in the Photos Libary.
 
 If called with no parameters, returns a list of every photo in the Photos library.
 
@@ -593,7 +602,7 @@ Returns a list of albums the photo is contained in. See also [album_info](#album
 
 #### `album_info`
 
-Returns a list of [AlbumInfo](#AlbumInfo) objects representing the albums the photo is contained in or empty list of the photo is not in any albums.  See also [albums](#albums).
+Returns a list of [AlbumInfo](#albuminfo) objects representing the albums the photo is contained in or empty list of the photo is not in any albums.  See also [albums](#albums).
 
 #### `import_info`
 
@@ -729,7 +738,7 @@ Returns latitude and longitude as a tuple of floats (latitude, longitude).  If l
 
 #### `place`
 
-Returns a [PlaceInfo](#PlaceInfo) object with reverse geolocation data or None if there is the photo has no reverse geolocation information.
+Returns a [PlaceInfo](#placeinfo) object with reverse geolocation data or None if there is the photo has no reverse geolocation information.
 
 #### `shared`
 
@@ -842,7 +851,7 @@ If a burst photo which has unselected burst images (e.g. the burst images are in
 
 #### `burst_album_info`
 
-If photo is non-selected burst photo, teturns a list of [AlbumInfo](#AlbumInfo) objects representing the albums any other photos in the same burst set are contained in.  Otherwise, returns `PhotoInfo.album_info`. See also [burst_albums](#burst_albums) and [album_info](#album_info).
+If photo is non-selected burst photo, teturns a list of [AlbumInfo](#albuminfo) objects representing the albums any other photos in the same burst set are contained in.  Otherwise, returns `PhotoInfo.album_info`. See also [burst_albums](#burst_albums) and [album_info](#album_info).
 
 #### `live_photo`
 
@@ -1129,7 +1138,7 @@ Returns the title or name of the album.
 
 #### <a name="albumphotos">`photos`</a>
 
-Returns a list of [PhotoInfo](#PhotoInfo) objects representing each photo contained in the album sorted in the same order as in Photos. (e.g. if photos were manually sorted in the Photos albums, photos returned by `photos` will be in same order as they appear in the Photos album)
+Returns a list of [PhotoInfo](#photoinfo) objects representing each photo contained in the album sorted in the same order as in Photos. (e.g. if photos were manually sorted in the Photos albums, photos returned by `photos` will be in same order as they appear in the Photos album)
 
 #### `creation_date`
 
@@ -1145,7 +1154,7 @@ Returns the date of latest photo in the album as a timezone aware datetime.datet
 
 #### `folder_list`
 
-Returns a hierarchical list of [FolderInfo](#FolderInfo) objects representing the folders the album is contained in.  For example, if album "AlbumInFolder" is in SubFolder2 of Folder1 as illustrated below, would return a list of `FolderInfo` objects representing ["Folder1", "SubFolder2"]
+Returns a hierarchical list of [FolderInfo](#folderinfo) objects representing the folders the album is contained in.  For example, if album "AlbumInFolder" is in SubFolder2 of Folder1 as illustrated below, would return a list of `FolderInfo` objects representing ["Folder1", "SubFolder2"]
 
 ```txt
 Photos Library
@@ -1169,7 +1178,7 @@ Photos Library
 
 #### `parent`
 
-Returns a [FolderInfo](#FolderInfo) object representing the albums parent folder or `None` if album is not a in a folder.
+Returns a [FolderInfo](#folderinfo) object representing the albums parent folder or `None` if album is not a in a folder.
 
 #### `owner`
 
@@ -1189,7 +1198,7 @@ Returns the universally unique identifier (uuid) of the import session.  This is
 
 #### <a name="importphotos">`photos`</a>
 
-Returns a list of [PhotoInfo](#PhotoInfo) objects representing each photo contained in the import session.
+Returns a list of [PhotoInfo](#photoinfo) objects representing each photo contained in the import session.
 
 #### `creation_date`
 
@@ -1219,7 +1228,7 @@ Returns the title or name of the project.
 
 #### <a name="projectphotos">`photos`</a>
 
-Returns a list of [PhotoInfo](#PhotoInfo) objects representing each photo contained in the project.
+Returns a list of [PhotoInfo](#photoinfo) objects representing each photo contained in the project.
 
 #### `creation_date`
 
@@ -1283,21 +1292,21 @@ Returns the title or name of the folder.
 
 #### `album_info`
 
-Returns a list of [AlbumInfo](#AlbumInfo) objects representing each album contained in the folder.
+Returns a list of [AlbumInfo](#albuminfo) objects representing each album contained in the folder.
 
 #### `album_info_shared`
 
-Returns a list of [AlbumInfo](#AlbumInfo) objects for each shared album in the photos database.
+Returns a list of [AlbumInfo](#albuminfo) objects for each shared album in the photos database.
 
 **Note**: Only valid for Photos 5+; on Photos <= 4, prints warning and returns empty list.
 
 #### `subfolders`
 
-Returns a list of [FolderInfo](#FolderInfo) objects representing the sub-folders of the folder.  
+Returns a list of [FolderInfo](#folderinfo) objects representing the sub-folders of the folder.  
 
 #### `parent`
 
-Returns a [FolderInfo](#FolderInfo) object representing the folder's parent folder or `None` if album is not a in a folder.
+Returns a [FolderInfo](#folderinfo) object representing the folder's parent folder or `None` if album is not a in a folder.
 
 #### `sort_order`
 
@@ -1571,6 +1580,14 @@ Returns a list of PhotoInfo objects representing all photos the person appears i
 #### <a name="personfaceinfo">`face_info`</a>
 
 Returns a list of [FaceInfo](#faceinfo) objects associated with this person sorted by quality score. Highest quality face is result[0] and lowest quality face is result[n].
+
+#### <a name="personfavorite">`favorite`</a>
+
+Returns True if Person has been marked as a favorite in Photos, otherwise False. Available on Photos 5+ only; on Photos <=4, returns False.
+
+#### <a name="personsortorder">`sort_order`</a>
+
+Returns the sort order for the person in the Photos People view.  Available on Photos 5+ only; on Photos <= 4, returns None.
 
 #### `json()`
 
@@ -2016,7 +2033,7 @@ cog.out(get_template_field_table())
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.56.3'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.56.6'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|

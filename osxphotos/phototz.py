@@ -3,6 +3,7 @@
 # Ensure you have a backup before using!
 # You have been warned.
 
+import datetime
 import pathlib
 import sqlite3
 from typing import Callable, Optional, Tuple
@@ -147,6 +148,12 @@ class PhotoTimeZoneUpdater:
                 c = conn.cursor()
                 c.execute(sql_update)
                 conn.commit()
+
+            # now need to update some other property in the photo via Photos API or
+            # changes won't be synced to the cloud (#946)
+            photo.date = photo.date + datetime.timedelta(seconds=1)
+            photo.date = photo.date - datetime.timedelta(seconds=1)
+
             self.verbose(
                 f"Updated timezone for photo [filename]{photo.filename}[/filename] ([uuid]{photo.uuid}[/uuid]) "
                 + f"from [tz]{tz_name}[/tz], offset=[tz]{tz_offset}[/tz] "

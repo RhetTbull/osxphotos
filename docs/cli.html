@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="OSXPhotos Template System" href="template_help.html" /><link rel="prev" title="OSXPhotos Tutorial" href="tutorial.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.56.3 documentation</title>
+        <title>OSXPhotos Command Line Interface (CLI) - osxphotos 0.56.6 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">osxphotos 0.56.3 documentation</div></a>
+      <a href="index.html"><div class="brand">osxphotos 0.56.6 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.56.3 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.56.6 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -4405,20 +4405,26 @@ See Timewarp Overview below for additional information.</p>
 </dd></dl>
 
 <dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-M">
+<span id="cmdoption-osxphotos-timewarp-m"></span><span id="cmdoption-osxphotos-timewarp-parse-date"></span><span class="sig-name descname"><span class="pre">-M</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--parse-date</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;DATE_PATTERN&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-M" title="Permalink to this definition">#</a></dt>
+<dd><p>Parse date from filename using DATE_PATTERN and set photo’s date to match. If file does not match DATE_PATTERN, the date will not be changed. DATE_PATTERN is a strptime-compatible pattern with extensions as pattern described below. If DATE_PATTERN matches time zone information, the photo’s timezone will be set to match. For example, if your photos are named ‘IMG_1234_2022_11_23_12_34_56.jpg’ where the date/time is ‘2022-11-23 12:34:56’, you could use the pattern ‘%Y_%m_%d_%H_%M_%S’ or ‘IMG_*_%Y_%m_%d_%H_%M_%S’ to further narrow the pattern to only match files with ‘<a href="#id5"><span class="problematic" id="id6">IMG_xxxx_</span></a>’ in the name.</p>
+</dd></dl>
+
+<dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-F">
 <span id="cmdoption-osxphotos-timewarp-f"></span><span id="cmdoption-osxphotos-timewarp-function"></span><span class="sig-name descname"><span class="pre">-F</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--function</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;filename.py::function&gt;</span></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-F" title="Permalink to this definition">#</a></dt>
 <dd><p>Run python function to determine the date/time/timezone to apply to a photo. Use this in format: –function filename.py::function where filename.py is a python file you’ve created and function is the name of the function in the python file you want to call.  The function will be passed information about the photo being processed and is expected to return a naive datetime.datetime object with time in local time and UTC timezone offset in seconds. See example function at https://github.com/RhetTbull/osxphotos/blob/master/examples/timewarp_function_example.py</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-m">
-<span id="cmdoption-osxphotos-timewarp-match-time"></span><span class="sig-name descname"><span class="pre">-m</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--match-time</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-m" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-0">
+<span id="cmdoption-osxphotos-timewarp-match-time"></span><span class="sig-name descname"><span class="pre">-m</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--match-time</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-0" title="Permalink to this definition">#</a></dt>
 <dd><p>When used with –timezone, adjusts the photo time so that the timestamp in the new timezone matches the timestamp in the old timezone. For example, if photo has time of 12:00 and timezone of GMT+01:00 and new timezone is specified as ‘–timezone +02:00’ (one hour ahead of current GMT+01:00 timezone), the photo’s new time will be 12:00 GMT+02:00. That is, the timezone will have changed but the timestamp of the photo will match the previous timestamp. Use –match-time when the camera’s time was correct for the time the photo was taken but the timezone was missing or wrong and you want to adjust the timezone while preserving the photo’s time. See also –timezone.</p>
 </dd></dl>
 
 <dl class="std option">
-<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-0">
-<span id="cmdoption-osxphotos-timewarp-use-file-time"></span><span class="sig-name descname"><span class="pre">-f</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--use-file-time</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-0" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object std" id="cmdoption-osxphotos-timewarp-1">
+<span id="cmdoption-osxphotos-timewarp-use-file-time"></span><span class="sig-name descname"><span class="pre">-f</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--use-file-time</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-osxphotos-timewarp-1" title="Permalink to this definition">#</a></dt>
 <dd><p>When used with –pull-exif, the file modification date/time will be used if date/time is missing from the EXIF data.</p>
 </dd></dl>
 

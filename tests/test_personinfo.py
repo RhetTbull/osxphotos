@@ -40,6 +40,9 @@ JSON_DICT = {
         "keyface": 2,
         "facecount": 3,
         "keyphoto": "F12384F6-CD17-4151-ACBA-AE0E3688539E",
+        "favorite": False,
+        "sort_order": 3,
+        "feature_less": False,
     },
     "katie_4": {
         "uuid": "D%zgor6TRmGng5V75UBy5A",
@@ -48,6 +51,9 @@ JSON_DICT = {
         "keyface": 7,
         "facecount": 3,
         "keyphoto": "8SOE9s0XQVGsuq4ONohTng",
+        "favorite": False,
+        "sort_order": 0,
+        "feature_less": False,
     },
 }
 
@@ -67,7 +73,7 @@ def photosdb4():
 
 
 def test_person_info_photosdb_v5(photosdb5):
-    """ Test PersonInfo object """
+    """Test PersonInfo object"""
     import json
 
     test_key = "katie_5"
@@ -85,7 +91,7 @@ def test_person_info_photosdb_v5(photosdb5):
 
 
 def test_person_info_photosinfo_v5(photosdb5):
-    """ Test PersonInfo object """
+    """Test PersonInfo object"""
     import json
 
     test_key = "katie_5"
@@ -110,7 +116,7 @@ def test_person_info_photosinfo_v5(photosdb5):
 
 
 def test_person_info_photosdb_v4(photosdb4):
-    """ Test PersonInfo object """
+    """Test PersonInfo object"""
     import json
 
     test_key = "katie_4"
@@ -128,7 +134,7 @@ def test_person_info_photosdb_v4(photosdb4):
 
 
 def test_person_info_photosinfo_v4(photosdb4):
-    """ Test PersonInfo object """
+    """Test PersonInfo object"""
     import json
 
     test_key = "katie_4"

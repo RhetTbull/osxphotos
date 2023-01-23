@@ -7,7 +7,7 @@
 [![Downloads](https://static.pepy.tech/personalized-badge/osxphotos?period=month&units=international_system&left_color=black&right_color=brightgreen&left_text=downloads/month)](https://pepy.tech/project/osxphotos)
 [![subreddit](https://img.shields.io/reddit/subreddit-subscribers/osxphotos?style=social)](https://www.reddit.com/r/osxphotos/)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-48-orange.svg?style=flat)](#contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-50-orange.svg?style=flat)](#contributors)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 OSXPhotos provides the ability to interact with and query Apple's Photos.app library on macOS. You can query the Photos library database — for example, file name, file path, and metadata such as keywords/tags, persons/faces, albums, etc. You can also easily export both the original and edited photos.
@@ -112,56 +112,68 @@ If you have questions, would like to show off projects created with OSXPhotos, o
 
 This package will install a command line utility called `osxphotos` that allows you to query the Photos database.  Alternatively, you can also run the command line utility like this: `python3 -m osxphotos`
 
+<!--[[[cog
+from osxphotos.cli import cli_main
+from click.testing import CliRunner
+runner = CliRunner()
+result = runner.invoke(cli_main, ["--help"])
+help = result.output.replace("Usage: cli-main", "Usage: osxphotos")
+cog.out(
+    "```\n{}\n```".format(help)
+)
+]]] -->
 ```
-> osxphotos
 Usage: osxphotos [OPTIONS] COMMAND [ARGS]...
 
-  osxphotos: query and export your Photos library
+  osxphotos: the multi-tool for your Photos library
 
 Options:
-  --db PHOTOS_LIBRARY_PATH  Specify Photos database path. Path to Photos
-                            library/database can be specified using either
-                            --db or directly as PHOTOS_LIBRARY positional
-                            argument. If neither --db or PHOTOS_LIBRARY
-                            provided, will attempt to find the library to use
-                            in the following order: 1. last opened library, 2.
-                            system library, 3. ~/Pictures/Photos
-                            Library.photoslibrary
-  --json                    Print output in JSON format.
   -v, --version             Show the version and exit.
+  --db PHOTOS_LIBRARY_PATH  Specify Photos database path. Path to Photos
+                            library/database can be specified using either --db
+                            or directly as PHOTOS_LIBRARY positional argument.
+                            If neither --db or PHOTOS_LIBRARY provided, will
+                            attempt to find the library to use in the following
+                            order: 1. last opened library, 2. system library, 3.
+                            ~/Pictures/Photos Library.photoslibrary
+  --json                    Print output in JSON format.
   -h, --help                Show this message and exit.
 
 Commands:
-  about      Print information about osxphotos including license.
-  albums     Print out albums found in the Photos library.
-  diff       Compare two Photos databases and print out differences
-  docs       Open osxphotos documentation in your browser.
-  dump       Print list of all photos & associated info from the Photos...
-  exiftool   Run exiftool on previously exported files to update metadata.
-  export     Export photos from the Photos database.
-  exportdb   Utilities for working with the osxphotos export database
-  help       Print help; for help on commands: help <command>.
-  import     Import photos and videos into Photos.
-  info       Print out descriptive info of the Photos library database.
-  inspect    Interactively inspect photos selected in Photos.
-  install    Install Python packages into the same environment as osxphotos
-  keywords   Print out keywords found in the Photos library.
-  labels     Print out image classification labels found in the Photos...
-  list       Print list of Photos libraries found on the system.
-  orphans    Find orphaned photos in a Photos library
-  persons    Print out persons (faces) found in the Photos library.
-  places     Print out places found in the Photos library.
-  query      Query the Photos database using 1 or more search options; if...
-  repl       Run interactive osxphotos REPL shell (useful for debugging,...
-  run        Run a python file using same environment as osxphotos.
-  snap       Create snapshot of Photos database to use with diff command
-  theme      Manage osxphotos color themes.
-  timewarp   Adjust date/time/timezone of photos in Apple Photos.
-  tutorial   Display osxphotos tutorial.
-  uninstall  Uninstall Python packages from the osxphotos environment
-  uuid       Print out unique IDs (UUID) of photos selected in Photos
-  version    Check for new version of osxphotos.
+  about          Print information about osxphotos including license.
+  add-locations  Add missing location data to photos in Photos.app using...
+  albums         Print out albums found in the Photos library.
+  diff           Compare two Photos databases and print out differences
+  docs           Open osxphotos documentation in your browser.
+  dump           Print list of all photos & associated info from the Photos...
+  exiftool       Run exiftool on previously exported files to update metadata.
+  export         Export photos from the Photos database.
+  exportdb       Utilities for working with the osxphotos export database
+  help           Print help; for help on commands: help <command>.
+  import         Import photos and videos into Photos.
+  info           Print out descriptive info of the Photos library database.
+  inspect        Interactively inspect photos selected in Photos.
+  install        Install Python packages into the same environment as...
+  keywords       Print out keywords found in the Photos library.
+  labels         Print out image classification labels found in the Photos...
+  list           Print list of Photos libraries found on the system.
+  orphans        Find orphaned photos in a Photos library
+  persons        Print out persons (faces) found in the Photos library.
+  places         Print out places found in the Photos library.
+  query          Query the Photos database using 1 or more search options;...
+  repl           Run interactive osxphotos REPL shell (useful for...
+  run            Run a python file using same environment as osxphotos.
+  snap           Create snapshot of Photos database to use with diff command
+  sync           Sync metadata and albums between Photos libraries.
+  theme          Manage osxphotos color themes.
+  timewarp       Adjust date/time/timezone of photos in Apple Photos.
+  tutorial       Display osxphotos tutorial.
+  uninstall      Uninstall Python packages from the osxphotos environment
+  uuid           Print out unique IDs (UUID) of photos selected in Photos
+  version        Check for new version of osxphotos.
+
 ```
+<!--[[[end]]] -->
 
 To get help on a specific command, use `osxphotos help command_name`, for example, `osxphotos help export` to get help on the `export` command.
 
@@ -2041,7 +2053,7 @@ Substitution                    Description
 {cr}                            A carriage return: '\r'
 {crlf}                          A carriage return + line feed: '\r\n'
 {tab}                           :A tab: '\t'
-{osxphotos_version}             The osxphotos version, e.g. '0.56.3'
+{osxphotos_version}             The osxphotos version, e.g. '0.56.6'
 {osxphotos_cmd_line}            The full command line used to run osxphotos
 
 The following substitutions may result in multiple values. Thus if specified
@@ -2525,7 +2537,7 @@ The following template field substitutions are availabe for use the templating s
 |{cr}|A carriage return: '\r'|
 |{crlf}|A carriage return + line feed: '\r\n'|
 |{tab}|:A tab: '\t'|
-|{osxphotos_version}|The osxphotos version, e.g. '0.56.3'|
+|{osxphotos_version}|The osxphotos version, e.g. '0.56.6'|
 |{osxphotos_cmd_line}|The full command line used to run osxphotos|
 |{album}|Album(s) photo is contained in|
 |{folder_album}|Folder path + album photo is contained in. e.g. 'Folder/Subfolder/Album' or just 'Album' if no enclosing folder|
@@ -2637,6 +2649,10 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://qkeddy.github.io/quin-eddy-development-portfolio/"><img src="https://avatars.githubusercontent.com/u/9737814?v=4?s=75" width="75px;" alt="Quin Eddy"/><br /><sub><b>Quin Eddy</b></sub></a><br /><a href="#ideas-qkeddy" title="Ideas, Planning, & Feedback">🤔</a> <a href="#data-qkeddy" title="Data">🔣</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/johnsturgeon"><img src="https://avatars.githubusercontent.com/u/9746310?v=4?s=75" width="75px;" alt="John Sturgeon"/><br /><sub><b>John Sturgeon</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/issues?q=author%3Ajohnsturgeon" title="Bug reports">🐛</a> <a href="https://github.com/RhetTbull/osxphotos/commits?author=johnsturgeon" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/mave2k"><img src="https://avatars.githubusercontent.com/u/8629837?v=4?s=75" width="75px;" alt="mave2k"/><br /><sub><b>mave2k</b></sub></a><br /><a href="https://github.com/RhetTbull/osxphotos/commits?author=mave2k" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://danielbeadle.net"><img src="https://avatars.githubusercontent.com/u/6235378?v=4?s=75" width="75px;" alt="Daniel Beadle"/><br /><sub><b>Daniel Beadle</b></sub></a><br /><a href="#ideas-djbeadle" title="Ideas, Planning, & Feedback">🤔</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="http://eecue.com/"><img src="https://avatars.githubusercontent.com/u/532536?v=4?s=75" width="75px;" alt="Dave Bullock"/><br /><sub><b>Dave Bullock</b></sub></a><br /><a href="#ideas-eecue" title="Ideas, Planning, & Feedback">🤔</a> <a href="#userTesting-eecue" title="User Testing">📓</a></td>
     </tr>
   </tbody>
 </table>

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>osxphotos.photosdb.photosdb - osxphotos 0.56.2 documentation</title>
+        <title>osxphotos.photosdb.photosdb - osxphotos 0.56.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">osxphotos 0.56.2 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">osxphotos 0.56.5 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">osxphotos 0.56.2 documentation</span>
+  <span class="sidebar-brand-text">osxphotos 0.56.5 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -200,18 +200,21 @@
 <span class="sd">Processes a Photos.app library database to extract information about photos</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">os.path</span>
 <span class="kn">import</span> <span class="nn">pathlib</span>
 <span class="kn">import</span> <span class="nn">platform</span>
 <span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sqlite3</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">timezone</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 <span class="kn">from</span> <span class="nn">unicodedata</span> <span class="kn">import</span> <span class="n">normalize</span>
 
 <span class="kn">import</span> <span class="nn">bitmath</span>
@@ -521,8 +524,15 @@
         <span class="c1"># _db_version is set from photos.db</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">=</span> <span class="n">get_db_version</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tmp_db</span><span class="p">)</span>
         <span class="c1"># _photos_version is set from Photos.sqlite which only exists for Photos 5+</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_photos_ver</span> <span class="o">=</span> <span class="mi">4</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span> <span class="o">==</span> <span class="mi">4</span> <span class="k">else</span> <span class="mi">5</span>
-
+        <span class="n">db_ver_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">db_ver_int</span> <span class="o">&lt;</span> <span class="mi">3000</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_photos_ver</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="k">elif</span> <span class="n">db_ver_int</span> <span class="o">&lt;</span> <span class="mi">4000</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_photos_ver</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="k">elif</span> <span class="n">db_ver_int</span> <span class="o">&lt;</span> <span class="mi">5000</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_photos_ver</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_photos_ver</span> <span class="o">=</span> <span class="mi">5</span>
         <span class="c1"># If Photos &gt;= 5, actual data isn&#39;t in photos.db but in Photos.sqlite</span>
         <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_version</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">int</span><span class="p">(</span><span class="n">_PHOTOS_4_VERSION</span><span class="p">):</span>
             <span class="n">dbpath</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbfile</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span>
@@ -782,6 +792,11 @@
         <span class="sd">&quot;&quot;&quot;returns path to the Photos library PhotosDB was initialized with&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_library_path</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">photos_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;returns version of Photos app that created the library&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_photos_ver</span>
+
 <div class="viewcode-block" id="PhotosDB.get_db_connection"><a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB.get_db_connection">[docs]</a>    <span class="k">def</span> <span class="nf">get_db_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get connection to the working copy of the Photos database</span>
 
@@ -890,6 +905,8 @@
                 <span class="s2">&quot;displayname&quot;</span><span class="p">:</span> <span class="n">normalize_unicode</span><span class="p">(</span><span class="n">person</span><span class="p">[</span><span class="mi">4</span><span class="p">]),</span>
                 <span class="s2">&quot;photo_uuid&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
                 <span class="s2">&quot;keyface_uuid&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Photos 5+</span>
+                <span class="s2">&quot;manualorder&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># Photos 5+</span>
             <span class="p">}</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_dbpersons_fullname</span><span class="p">[</span><span class="n">fullname</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pk</span><span class="p">)</span>
@@ -1872,7 +1889,9 @@
 <span class="sd">                ZPERSON.ZFULLNAME,</span>
 <span class="sd">                ZPERSON.ZFACECOUNT,</span>
 <span class="sd">                ZPERSON.ZKEYFACE,</span>
-<span class="sd">                ZPERSON.ZDISPLAYNAME</span>
+<span class="sd">                ZPERSON.ZDISPLAYNAME,</span>
+<span class="sd">                ZPERSON.ZTYPE,</span>
+<span class="sd">                ZPERSON.ZMANUALORDER</span>
 <span class="sd">                FROM ZPERSON</span>
 <span class="sd">            &quot;&quot;&quot;</span>
         <span class="p">)</span>
@@ -1883,6 +1902,8 @@
         <span class="c1"># 3     ZPERSON.ZFACECOUNT,</span>
         <span class="c1"># 4     ZPERSON.ZKEYFACE,</span>
         <span class="c1"># 5     ZPERSON.ZDISPLAYNAME</span>
+        <span class="c1"># 6     ZPERSON.ZTYPE,  # ZTYPE = 1 == favorite, 0 == not favorite</span>
+        <span class="c1"># 7     ZPERSON.ZMANUALORDER # favorites are sorted by ZMANUALORDER</span>
 
         <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
             <span class="n">pk</span> <span class="o">=</span> <span class="n">person</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -1900,6 +1921,8 @@
                 <span class="s2">&quot;displayname&quot;</span><span class="p">:</span> <span class="n">normalize_unicode</span><span class="p">(</span><span class="n">person</span><span class="p">[</span><span class="mi">5</span><span class="p">]),</span>
                 <span class="s2">&quot;photo_uuid&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
                 <span class="s2">&quot;keyface_uuid&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">person</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span>
+                <span class="s2">&quot;manualorder&quot;</span><span class="p">:</span> <span class="n">person</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span>
             <span class="p">}</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_dbpersons_fullname</span><span class="p">[</span><span class="n">fullname</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pk</span><span class="p">)</span>
@@ -3748,10 +3771,11 @@
 
         <span class="k">return</span> <span class="n">photos</span></div>
 
-<div class="viewcode-block" id="PhotosDB.execute"><a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sql</span><span class="p">):</span>
+<div class="viewcode-block" id="PhotosDB.execute"><a class="viewcode-back" href="../../../reference.html#osxphotos.PhotosDB.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sql</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Cursor</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Execute sql statement and return cursor&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_db_connection</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_db_connection</span><span class="p">()</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span></div>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">params</span> <span class="ow">or</span> <span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_duplicate_signature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Compute a signature for finding possible duplicates&quot;&quot;&quot;</span>

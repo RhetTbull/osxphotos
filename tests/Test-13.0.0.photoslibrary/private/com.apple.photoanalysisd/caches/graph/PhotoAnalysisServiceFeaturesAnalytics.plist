@@ -902,13 +902,15 @@
 	<key>lastSeenDates</key>
 	<dict>
 		<key>com.apple.photos.CPAnalytics.assetCollectionViewed</key>
-		<string>11/12/22</string>
+		<string>1/22/23</string>
 		<key>com.apple.photos.CPAnalytics.mediaViewed</key>
-		<string>11/12/22</string>
+		<string>1/22/23</string>
 		<key>com.apple.photos.CPAnalytics.search.session</key>
 		<string>11/12/22</string>
 		<key>screen_CuratedLibrary_AllPhotos</key>
-		<string>11/12/22</string>
+		<string>1/22/23</string>
+		<key>screen_PhotosDetails_People</key>
+		<string>1/22/23</string>
 		<key>screen_PhotosView</key>
 		<string>11/12/22</string>
 	</dict>

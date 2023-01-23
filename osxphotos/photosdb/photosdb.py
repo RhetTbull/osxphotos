@@ -3,18 +3,21 @@ PhotosDB class
 Processes a Photos.app library database to extract information about photos
 """
 
+from __future__ import annotations
+
 import logging
 import os
 import os.path
 import pathlib
 import platform
 import re
+import sqlite3
 import sys
 import tempfile
 from collections import OrderedDict
 from collections.abc import Iterable
 from datetime import datetime, timedelta, timezone
-from typing import List, Optional
+from typing import Any, List, Optional
 from unicodedata import normalize
 
 import bitmath
@@ -324,8 +327,15 @@ class PhotosDB:
         # _db_version is set from photos.db
         self._db_version = get_db_version(self._tmp_db)
         # _photos_version is set from Photos.sqlite which only exists for Photos 5+
-        self._photos_ver = 4 if self._db_version == 4 else 5
-
+        db_ver_int = int(self._db_version)
+        if db_ver_int < 3000:
+            self._photos_ver = 2
+        elif db_ver_int < 4000:
+            self._photos_ver = 3
+        elif db_ver_int < 5000:
+            self._photos_ver = 4
+        else:
+            self._photos_ver = 5
         # If Photos >= 5, actual data isn't in photos.db but in Photos.sqlite
         if int(self._db_version) > int(_PHOTOS_4_VERSION):
             dbpath = pathlib.Path(self._dbfile).parent
@@ -585,6 +595,11 @@ class PhotosDB:
         """returns path to the Photos library PhotosDB was initialized with"""
         return self._library_path
 
+    @property
+    def photos_version(self):
+        """returns version of Photos app that created the library"""
+        return self._photos_ver
+
     def get_db_connection(self):
         """Get connection to the working copy of the Photos database
 
@@ -693,6 +708,8 @@ class PhotosDB:
                 "displayname": normalize_unicode(person[4]),
                 "photo_uuid": None,
                 "keyface_uuid": None,
+                "type": None,  # Photos 5+
+                "manualorder": 0,  # Photos 5+
             }
             try:
                 self._dbpersons_fullname[fullname].append(pk)
@@ -1675,7 +1692,9 @@ class PhotosDB:
                 ZPERSON.ZFULLNAME,
                 ZPERSON.ZFACECOUNT,
                 ZPERSON.ZKEYFACE,
-                ZPERSON.ZDISPLAYNAME
+                ZPERSON.ZDISPLAYNAME,
+                ZPERSON.ZTYPE,
+                ZPERSON.ZMANUALORDER
                 FROM ZPERSON
             """
         )
@@ -1686,6 +1705,8 @@ class PhotosDB:
         # 3     ZPERSON.ZFACECOUNT,
         # 4     ZPERSON.ZKEYFACE,
         # 5     ZPERSON.ZDISPLAYNAME
+        # 6     ZPERSON.ZTYPE,  # ZTYPE = 1 == favorite, 0 == not favorite
+        # 7     ZPERSON.ZMANUALORDER # favorites are sorted by ZMANUALORDER
 
         for person in c:
             pk = person[0]
@@ -1703,6 +1724,8 @@ class PhotosDB:
                 "displayname": normalize_unicode(person[5]),
                 "photo_uuid": None,
                 "keyface_uuid": None,
+                "type": person[6],
+                "manualorder": person[7],
             }
             try:
                 self._dbpersons_fullname[fullname].append(pk)
@@ -3551,10 +3574,11 @@ class PhotosDB:
 
         return photos
 
-    def execute(self, sql):
+    def execute(self, sql: str, params: Any | None = None) -> sqlite3.Cursor:
         """Execute sql statement and return cursor"""
         self._db_connection, _ = self.get_db_connection()
-        return self._db_connection.cursor().execute(sql)
+        params = params or ()
+        return self._db_connection.cursor().execute(sql, params)
 
     def _duplicate_signature(self, uuid):
         """Compute a signature for finding possible duplicates"""
