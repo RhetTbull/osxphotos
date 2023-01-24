@@ -1886,17 +1886,42 @@ def test_export_current_name():
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_CURRENT)
 
 
-def test_export_skip_edited():
+def test_export_edited():
 
     runner = CliRunner()
     cwd = os.getcwd()
     # pylint: disable=not-context-manager
     with runner.isolated_filesystem():
         result = runner.invoke(
-            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--skip-edited", "-V"]
+            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--edited", "-V"]
         )
         assert result.exit_code == 0
         files = glob.glob("*")
+        # make sure edited versions did get exported
+        assert "wedding_edited.jpeg" in files
+        assert "Tulips_edited.jpeg" in files
+        assert "St James Park_edited.jpeg" in files
+
+
+def test_export_not_edited():
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--not-edited", "-V"]
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        # make sure not edited files were exported
+        assert "Pumkins1.jpg" in files
+        assert "Pumkins2.jpg" in files
+        assert "Jellyfish1.mp4" in files
+
+        # make sure edited versions did not get exported
+        assert "wedding_edited.jpeg" not in files
+        assert "Tulips_edited.jpeg" not in files
         assert "St James Park_edited.jpeg" not in files
 
 

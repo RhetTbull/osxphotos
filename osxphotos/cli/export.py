@@ -1119,6 +1119,7 @@ def export(
         ("cloudasset", "not_cloudasset"),
         ("deleted", "deleted_only"),
         ("description", "no_description"),
+        ("edited", "not_edited"),
         ("export_as_hardlink", "convert_to_jpeg"),
         ("export_as_hardlink", "download_missing"),
         ("export_as_hardlink", "exiftool"),
