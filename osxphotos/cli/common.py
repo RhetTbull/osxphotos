@@ -289,6 +289,7 @@ def QUERY_OPTIONS(f):
             help="Case insensitive search for title, description, place, keyword, person, or album.",
         ),
         o("--edited", is_flag=True, help="Search for photos that have been edited."),
+        o("--not-edited", is_flag=True, help="Search for photos that have not been edited."),
         o(
             "--external-edit",
             is_flag=True,

@@ -61,6 +61,7 @@ class QueryOptions:
         no_title: search for photos with no title
         not_burst: search for non-burst photos
         not_cloudasset: search for photos that are not managed by iCloud
+        not_edited: search for photos that have not been edited
         not_favorite: search for non-favorite photos
         not_hdr: search for non-HDR photos
         not_hidden: search for non-hidden photos
@@ -143,6 +144,7 @@ class QueryOptions:
     no_title: Optional[bool] = None
     not_burst: Optional[bool] = None
     not_cloudasset: Optional[bool] = None
+    not_edited: Optional[bool] = None
     not_favorite: Optional[bool] = None
     not_hdr: Optional[bool] = None
     not_hidden: Optional[bool] = None
