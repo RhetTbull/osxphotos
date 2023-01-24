@@ -1886,6 +1886,20 @@ def test_export_current_name():
         assert sorted(files) == sorted(CLI_EXPORT_FILENAMES_CURRENT)
 
 
+def test_export_skip_edited():
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--skip-edited", "-V"]
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        assert "St James Park_edited.jpeg" not in files
+
+
 def test_export_edited():
 
     runner = CliRunner()
