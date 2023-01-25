@@ -14,6 +14,8 @@ from typing import List, Optional, Tuple
 
 from textx import TextXSyntaxError, metamodel_from_file
 
+import osxphotos.template_counter as counter
+
 from ._constants import _UNKNOWN_PERSON, TEXT_DETECTION_CONFIDENCE_THRESHOLD
 from ._version import __version__
 from .datetime_formatter import DateTimeFormatter
@@ -151,6 +153,9 @@ TEMPLATE_SUBSTITUTIONS = {
     + "May be formatted using a python string format code. "
     + "For example, to format as a 5-digit integer and pad with zeros, use '{id:05d}' which results in "
     + "00001, 00002, 00003...etc. ",
+    "{counter}": counter.DESCRIPTION
+    + " Note: {counter} is not suitable for use with 'export' and '--update' "
+    + "as the counter associated with a photo may change between export sessions. See also {id}.",
     "{album_seq}": "An integer, starting at 0, indicating the photo's index (sequence) in the containing album. "
     + "Only valid when used in a '--filename' template and only when '{album}' or '{folder_album}' is used in the '--directory' template. "
     + 'For example \'--directory "{folder_album}" --filename "{album_seq}_{original_name}"\'. '
@@ -300,6 +305,9 @@ FIELD_NAMES = (
 # default values for string manipulation template options
 INPLACE_DEFAULT = ","
 PATH_SEP_DEFAULT = os.path.sep
+
+# globals for tracking {seq} substitutions
+_global_seq_count = 0
 
 PUNCTUATION = {
     "comma": ",",
@@ -919,6 +927,8 @@ class PhotoTemplate:
                 start_id = int(field_arg) if field_arg is not None else 0
                 value = int(value) + start_id
                 value = format_str_value(value, subfield)
+        elif field.startswith("counter"):
+            value = counter.get_counter_value(field, subfield, field_arg)
         else:
             # if here, didn't get a match
             raise ValueError(f"Unhandled template value: {field}")
