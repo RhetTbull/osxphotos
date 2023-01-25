@@ -875,6 +875,39 @@ UUID_IS_REFERENCE = [
     "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C",
 ]
 
+UUID_EDITED = [
+    "D1D4040D-D141-44E8-93EA-E403D9F63E07",
+    "7783E8E6-9CAC-40F3-BE22-81FB7051C266",
+    "E9BC5C36-7CD1-40A1-A72B-8B8FAC227D51",
+    "6191423D-8DB8-4D4C-92BE-9BBBA308AAC4",
+    "1793FAAB-DE75-4E25-886C-2BD66C780D6A",
+    "DC99FBDD-7A52-4100-A5BB-344131646C30",
+]
+
+UUID_NOT_EDITED = [
+    "F12384F6-CD17-4151-ACBA-AE0E3688539E",
+    "7F74DD34-5920-4DA3-B284-479887A34F66",
+    "4D521201-92AC-43E5-8F7C-59BC41C37A96",
+    "54E76FCB-D353-4557-9997-0A457BCB4D48",
+    "8E1D7BC9-9321-44F9-8CFB-4083F6B9232A",
+    "F207D5DE-EFAD-4217-8424-0764AAC971D0",
+    "D05A5FE3-15FB-49A1-A15D-AB3DA6F8B068",
+    "52083079-73D5-4921-AC1B-FE76F279133F",
+    "A92D9C26-3A50-4197-9388-CB5F7DB9FA91",
+    "3DD2C897-F19E-4CA6-8C22-B027D5A71907",
+    "7FD37B5F-6FAA-4DB1-8A29-BF9C37E38091",
+    "B13F4485-94E0-41CD-AF71-913095D62E31",
+    "A8266C97-9BAF-4AF4-99F3-0013832869B8",
+    "1EB2B765-0765-43BA-A90C-0D0580E6172C",
+    "E2078879-A29C-4D6F-BACB-E3BBE6C3EB91",
+    "D79B8D77-BFFC-460B-9312-034F2877D35B",
+    "8846E3E6-8AC8-4857-8448-E3D025784410",
+    "D1359D09-1373-4F3B-B0E3-1A4DE573E4A3",
+    "A1DD1F98-2ECD-431F-9AC9-5AFEFE2D3A5C",
+    "35329C57-B963-48D6-BB75-6AFF9370CBBC",
+    "2DFD33F1-A5D8-486F-A3A9-98C07995535A",
+]
+
 UUID_IN_ALBUM = [
     "1EB2B765-0765-43BA-A90C-0D0580E6172C",
     "2DFD33F1-A5D8-486F-A3A9-98C07995535A",
@@ -1248,6 +1281,38 @@ def test_query_is_reference():
     json_got = json.loads(result.output)
     uuid_got = [photo["uuid"] for photo in json_got]
     assert sorted(uuid_got) == sorted(UUID_IS_REFERENCE)
+
+
+def test_query_edited():
+    """Test query with --edited"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query, ["--json", "--db", os.path.join(cwd, CLI_PHOTOS_DB), "--edited"]
+    )
+    assert result.exit_code == 0
+
+    # build list of uuids we got from the output JSON
+    json_got = json.loads(result.output)
+    uuid_got = [photo["uuid"] for photo in json_got]
+    assert sorted(uuid_got) == sorted(UUID_EDITED)
+
+
+def test_query_not_edited():
+    """Test query with --not-edited"""
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    result = runner.invoke(
+        query, ["--json", "--db", os.path.join(cwd, CLI_PHOTOS_DB), "--not-edited"]
+    )
+    assert result.exit_code == 0
+
+    # build list of uuids we got from the output JSON
+    json_got = json.loads(result.output)
+    uuid_got = [photo["uuid"] for photo in json_got]
+    assert sorted(uuid_got) == sorted(UUID_NOT_EDITED)
 
 
 def test_query_in_album():
@@ -1832,6 +1897,45 @@ def test_export_skip_edited():
         )
         assert result.exit_code == 0
         files = glob.glob("*")
+        assert "St James Park_edited.jpeg" not in files
+
+
+def test_export_edited():
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--edited", "-V"]
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        # make sure edited versions did get exported
+        assert "wedding_edited.jpeg" in files
+        assert "Tulips_edited.jpeg" in files
+        assert "St James Park_edited.jpeg" in files
+
+
+def test_export_not_edited():
+
+    runner = CliRunner()
+    cwd = os.getcwd()
+    # pylint: disable=not-context-manager
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            export, [os.path.join(cwd, CLI_PHOTOS_DB), ".", "--not-edited", "-V"]
+        )
+        assert result.exit_code == 0
+        files = glob.glob("*")
+        # make sure not edited files were exported
+        assert "Pumkins1.jpg" in files
+        assert "Pumkins2.jpg" in files
+        assert "Jellyfish1.mp4" in files
+
+        # make sure edited versions did not get exported
+        assert "wedding_edited.jpeg" not in files
+        assert "Tulips_edited.jpeg" not in files
         assert "St James Park_edited.jpeg" not in files
 
 

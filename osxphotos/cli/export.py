@@ -805,6 +805,7 @@ def export(
     no_title,
     not_burst,
     not_cloudasset,
+    not_edited,
     not_favorite,
     not_hdr,
     not_hidden,
@@ -1024,6 +1025,7 @@ def export(
         no_title = cfg.no_title
         not_burst = cfg.not_burst
         not_cloudasset = cfg.not_cloudasset
+        not_edited = cfg.not_edited
         not_favorite = cfg.not_favorite
         not_hdr = cfg.not_hdr
         not_hidden = cfg.not_hidden
@@ -1117,6 +1119,7 @@ def export(
         ("cloudasset", "not_cloudasset"),
         ("deleted", "deleted_only"),
         ("description", "no_description"),
+        ("edited", "not_edited"),
         ("export_as_hardlink", "convert_to_jpeg"),
         ("export_as_hardlink", "download_missing"),
         ("export_as_hardlink", "exiftool"),
@@ -1398,6 +1401,7 @@ def export(
         no_title=no_title,
         not_burst=not_burst,
         not_cloudasset=not_cloudasset,
+        not_edited = not_edited,
         not_favorite=not_favorite,
         not_hdr=not_hdr,
         not_hidden=not_hidden,

@@ -3264,6 +3264,8 @@ class PhotosDB:
 
         if options.edited:
             photos = [p for p in photos if p.hasadjustments]
+        elif options.not_edited:
+            photos = [p for p in photos if not p.hasadjustments]
 
         if options.external_edit:
             photos = [p for p in photos if p.external_edit]
