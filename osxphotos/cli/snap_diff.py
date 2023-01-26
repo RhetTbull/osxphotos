@@ -110,7 +110,7 @@ def diff(ctx, cli_obj, db, raw_output, style, db2, verbose):
     Works only on Photos library versions since Catalina (10.15) or newer.
     """
 
-    verbose_ = verbose_print(verbose, rich=True)
+    verbose_ = verbose_print(verbose)
 
     sqldiff = shutil.which("sqldiff")
     if not sqldiff:

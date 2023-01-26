@@ -10,14 +10,7 @@ import photoscript
 import osxphotos
 from osxphotos.utils import pluralize
 
-from .click_rich_echo import (
-    rich_click_echo,
-    rich_echo_error,
-    set_rich_console,
-    set_rich_theme,
-    set_rich_timestamp,
-)
-from .color_themes import get_theme
+from .click_rich_echo import rich_click_echo
 from .common import QUERY_OPTIONS, THEME_OPTION, query_options_from_kwargs
 from .param_types import TimeOffset
 from .rich_progress import rich_progress
@@ -136,14 +129,7 @@ def add_locations(ctx, cli_ob, window, dry_run, verbose_, timestamp, theme, **kw
     use `osxphotos add-locations` to add location information.
     See `osxphotos help timewarp` for more information.
     """
-    color_theme = get_theme(theme)
-    verbose = verbose_print(
-        verbose_, timestamp, rich=True, theme=color_theme, highlight=False
-    )
-    # set console for rich_echo to be same as for verbose_
-    set_rich_console(get_verbose_console())
-    set_rich_theme(color_theme)
-    set_rich_timestamp(timestamp)
+    verbose = verbose_print(verbose_, timestamp, theme=theme)
 
     verbose("Searching for photos with missing location data...")
 

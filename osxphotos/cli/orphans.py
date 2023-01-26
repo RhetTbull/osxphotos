@@ -44,14 +44,7 @@ from .verbose import get_verbose_console, verbose_print
 def orphans(ctx, cli_obj, export, db, verbose, timestamp, theme):
     """Find orphaned photos in a Photos library"""
 
-    color_theme = get_theme(theme)
-    verbose_ = verbose_print(
-        verbose, timestamp, rich=True, theme=color_theme, highlight=False
-    )
-    # set console for rich_echo to be same as for verbose_
-    set_rich_console(get_verbose_console())
-    set_rich_theme(color_theme)
-    set_rich_timestamp(timestamp)
+    verbose_ = verbose_print(verbose=verbose, timestamp=timestamp, theme=theme)
 
     # below needed for to make CliRunner work for testing
     cli_db = cli_obj.db if cli_obj is not None else None

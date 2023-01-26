@@ -182,13 +182,7 @@ def exportdb(
     version,
 ):
     """Utilities for working with the osxphotos export database"""
-    color_theme = get_theme()
-    verbose_ = verbose_print(
-        verbose, timestamp=False, rich=True, theme=color_theme, highlight=False
-    )
-    # set console for rich_echo to be same as for verbose_
-    set_rich_console(get_verbose_console(theme=color_theme))
-    set_rich_theme(color_theme)
+    verbose_ = verbose_print(verbose)
 
     # validate options and args
     if append and not report:

@@ -58,15 +58,7 @@ from osxphotos.queryoptions import QueryOptions
 from osxphotos.uti import get_preferred_uti_extension
 from osxphotos.utils import format_sec_to_hhmmss, normalize_fs_path, pluralize
 
-from .click_rich_echo import (
-    rich_click_echo,
-    rich_echo,
-    rich_echo_error,
-    set_rich_console,
-    set_rich_theme,
-    set_rich_timestamp,
-)
-from .color_themes import get_theme
+from .click_rich_echo import rich_click_echo, rich_echo, rich_echo_error
 from .common import (
     CLI_COLOR_ERROR,
     CLI_COLOR_WARNING,
@@ -87,7 +79,7 @@ from .list import _list_libraries
 from .param_types import ExportDBType, FunctionCall, TemplateString
 from .report_writer import ReportWriterNoOp, export_report_writer_factory
 from .rich_progress import rich_progress
-from .verbose import get_verbose_console, time_stamp, verbose_print
+from .verbose import get_verbose_console, verbose_print
 
 
 @click.command(cls=ExportCommand)
@@ -917,14 +909,8 @@ def export(
         ignore=["ctx", "cli_obj", "dest", "load_config", "save_config", "config_only"],
     )
 
-    color_theme = get_theme(theme)
-    verbose_ = verbose_print(
-        verbose, timestamp, rich=True, theme=color_theme, highlight=False
-    )
-    # set console for rich_echo to be same as for verbose_
-    set_rich_console(get_verbose_console())
-    set_rich_theme(color_theme)
-    set_rich_timestamp(timestamp)
+    print(f"theme: {theme}")
+    verbose_ = verbose_print(verbose=verbose, timestamp=timestamp, theme=theme)
 
     if load_config:
         try:
@@ -1099,14 +1085,7 @@ def export(
         xattr_template = cfg.xattr_template
         year = cfg.year
         # config file might have changed verbose
-        color_theme = get_theme(theme)
-        verbose_ = verbose_print(
-            verbose, timestamp, rich=True, theme=color_theme, highlight=False
-        )
-        # set console for rich_echo to be same as for verbose_
-        set_rich_console(get_verbose_console())
-        set_rich_timestamp(timestamp)
-
+        verbose_ = verbose_print(verbose=verbose, timestamp=timestamp, theme=theme)
         verbose_(f"Loaded options from file [filepath]{load_config}")
 
         set_crash_data("cfg", cfg.asdict())
@@ -1401,7 +1380,7 @@ def export(
         no_title=no_title,
         not_burst=not_burst,
         not_cloudasset=not_cloudasset,
-        not_edited = not_edited,
+        not_edited=not_edited,
         not_favorite=not_favorite,
         not_hdr=not_hdr,
         not_hidden=not_hidden,

@@ -17,14 +17,7 @@ from osxphotos.fileutil import FileUtil, FileUtilNoOp
 from osxphotos.photoexporter import ExportOptions, ExportResults, PhotoExporter
 from osxphotos.utils import pluralize
 
-from .click_rich_echo import (
-    rich_click_echo,
-    rich_echo_error,
-    set_rich_console,
-    set_rich_theme,
-    set_rich_timestamp,
-)
-from .color_themes import get_theme
+from .click_rich_echo import rich_click_echo, rich_echo_error
 from .common import DB_OPTION, THEME_OPTION, get_photos_db
 from .export import export, render_and_validate_report
 from .param_types import ExportDBType, TemplateString
@@ -249,14 +242,7 @@ def exiftool(
             "save_config",
         ],
     )
-    color_theme = get_theme(theme)
-    verbose_ = verbose_print(
-        verbose, timestamp, rich=True, theme=color_theme, highlight=False
-    )
-    # set console for rich_echo to be same as for verbose_
-    set_rich_console(get_verbose_console())
-    set_rich_theme(color_theme)
-    set_rich_timestamp(timestamp)
+    verbose_ = verbose_print(verbose, timestamp, theme=theme)
 
     # load config options from either file or export database
     # values already set in config will take precedence over any values
@@ -278,17 +264,7 @@ def exiftool(
     # as the values may have been updated from config file or database
     if load_config or db_config:
         # config file might have changed verbose
-        color_theme = get_theme(config.theme)
-        verbose_ = verbose_print(
-            config.verbose,
-            config.timestamp,
-            rich=True,
-            theme=color_theme,
-            highlight=False,
-        )
-        # set console for rich_echo to be same as for verbose_
-        set_rich_console(get_verbose_console())
-        set_rich_timestamp(config.timestamp)
+        verbose_ = verbose_print(config.verbose, config.timestamp, theme=theme)
 
     # validate options
     if append and not report:

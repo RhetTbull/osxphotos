@@ -37,7 +37,7 @@ from .verbose import verbose_print
 def debug_dump(ctx, cli_obj, db, photos_library, dump, uuid, verbose):
     """Print out debug info"""
 
-    verbose_ = verbose_print(verbose, rich=True)
+    verbose_ = verbose_print(verbose)
     db = get_photos_db(*photos_library, db, cli_obj.db)
     if db is None:
         click.echo(ctx.obj.group.commands["debug-dump"].get_help(ctx), err=True)

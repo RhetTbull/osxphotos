@@ -332,13 +332,6 @@ command which can be used to change the time zone of photos after import.
     type=click.File(mode="w", lazy=False),
     help="Output file. If not specified, output is written to stdout.",
 )
-@click.option(
-    "--terminal-width",
-    "-w",
-    type=int,
-    help="Terminal width in characters.",
-    hidden=True,
-)
 @click.option("--timestamp", is_flag=True, help="Add time stamp to verbose output")
 @THEME_OPTION
 @click.option(
@@ -419,33 +412,9 @@ def timewarp(
     if add_to_album and not compare_exif:
         raise click.UsageError("--add-to-album must be used with --compare-exif.")
 
-    # configure colored rich output
-    # TODO: this is all a little hacky, find a better way to do this
-    color_theme = get_theme(theme)
     verbose = verbose_print(
-        verbose_,
-        timestamp,
-        rich=True,
-        theme=color_theme,
-        highlight=False,
-        file=output_file,
+        verbose=verbose_, timestamp=timestamp, theme=theme, file=output_file
     )
-    # set console for rich_echo to be same as for verbose_
-    terminal_width = terminal_width or (1000 if output_file else None)
-    if output_file:
-        set_rich_console(Console(file=output_file, width=terminal_width))
-    elif terminal_width:
-        set_rich_console(
-            Console(
-                file=sys.stdout,
-                theme=color_theme,
-                force_terminal=True,
-                width=terminal_width,
-            )
-        )
-    else:
-        set_rich_console(get_verbose_console(theme=color_theme))
-    set_rich_theme(color_theme)
 
     if any([compare_exif, push_exif, pull_exif]):
         exiftool_path = exiftool_path or get_exiftool_path()

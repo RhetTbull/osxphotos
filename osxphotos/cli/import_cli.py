@@ -1424,14 +1424,7 @@ def import_cli(
 ):
     """Import photos and videos into Photos."""
 
-    color_theme = get_theme(theme)
-    verbose = verbose_print(
-        verbose_, timestamp, rich=True, theme=color_theme, highlight=False
-    )
-    # set console for rich_echo to be same as for verbose_
-    set_rich_console(get_verbose_console())
-    set_rich_theme(color_theme)
-    set_rich_timestamp(timestamp)
+    verbose = verbose_print(verbose=verbose_, timestamp=timestamp, theme=theme)
 
     if not files:
         echo("Nothing to import", err=True)

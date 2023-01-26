@@ -23,17 +23,15 @@ from osxphotos.utils import pluralize
 from .click_rich_echo import (
     rich_click_echo,
     rich_echo_error,
-    set_rich_console,
     set_rich_theme,
     set_rich_timestamp,
 )
-from .color_themes import get_theme
 from .common import DB_OPTION, QUERY_OPTIONS, THEME_OPTION, query_options_from_kwargs
 from .param_types import TemplateString
 from .report_writer import sync_report_writer_factory
 from .rich_progress import rich_progress
 from .sync_results import SYNC_PROPERTIES, SyncResults
-from .verbose import get_verbose_console, verbose_print
+from .verbose import verbose_print
 
 SYNC_ABOUT_STRING = (
     f"Sync Metadata Database created by osxphotos version {__version__} "
@@ -711,14 +709,8 @@ def sync(
     osxphotos sync --export /path/to/export/folder/computer2.db --merge all --import /path/to/export/folder/computer1.db
 
     """
-    color_theme = get_theme(theme)
-    verbose = verbose_print(
-        verbose_, timestamp, rich=True, theme=color_theme, highlight=False
-    )
-    # set console for rich_echo to be same as for verbose_
-    set_rich_console(get_verbose_console())
-    set_rich_theme(color_theme)
-    set_rich_timestamp(timestamp)
+
+    verbose = verbose_print(verbose=verbose_, timestamp=timestamp, theme=theme)
 
     if (set_ or merge) and not import_path:
         rich_echo_error("--set and --merge can only be used with --import")
