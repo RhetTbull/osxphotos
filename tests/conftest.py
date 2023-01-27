@@ -78,7 +78,7 @@ else:
 def setup_photos_timewarp():
     if not TEST_TIMEWARP:
         return
-    copy_photos_library(TEST_LIBRARY_TIMEWARP, delay=10)
+    copy_photos_library(TEST_LIBRARY_TIMEWARP, delay=5)
 
 
 @pytest.fixture(scope="session", autouse=True)
