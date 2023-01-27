@@ -8,10 +8,11 @@ import click
 import photoscript
 
 import osxphotos
-from osxphotos.queryoptions import query_options_from_kwargs
+from osxphotos.queryoptions import IncompatibleQueryOptions, query_options_from_kwargs
 from osxphotos.utils import pluralize
 
-from .click_rich_echo import rich_click_echo
+from .click_rich_echo import rich_click_echo as echo
+from .click_rich_echo import rich_echo_error as error
 from .common import QUERY_OPTIONS, THEME_OPTION
 from .param_types import TimeOffset
 from .rich_progress import rich_progress
@@ -136,7 +137,13 @@ def add_locations(ctx, cli_ob, window, dry_run, verbose_, timestamp, theme, **kw
 
     # load photos database
     photosdb = osxphotos.PhotosDB(verbose=verbose)
-    query_options = query_options_from_kwargs(**kwargs)
+    try:
+        query_options = query_options_from_kwargs(**kwargs)
+    except IncompatibleQueryOptions as e:
+        error("Incompatible query options")
+        error(ctx.obj.group.commands["repl"].get_help(ctx))
+        ctx.exit(1)
+
     photos = photosdb.query(query_options)
 
     # sort photos by date
@@ -170,7 +177,7 @@ def add_locations(ctx, cli_ob, window, dry_run, verbose_, timestamp, theme, **kw
                         f"No location found for [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/])"
                     )
             progress.advance(task)
-    rich_click_echo(
+    echo(
         f"Done. Processed: [num]{num_photos}[/] photos, "
         f"missing location: [num]{missing_location}[/], "
         f"found location: [num]{found_location}[/] "

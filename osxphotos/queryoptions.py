@@ -2,12 +2,11 @@
 
 import dataclasses
 import datetime
+import pathlib
 from dataclasses import asdict, dataclass
 from typing import Iterable, List, Optional, Tuple
 
 import bitmath
-
-from osxphotos.cli.common import load_uuid_from_file
 
 __all__ = ["QueryOptions", "query_options_from_kwargs", "IncompatibleQueryOptions"]
 
@@ -293,3 +292,30 @@ def query_options_from_kwargs(**kwargs) -> QueryOptions:
     query_dict["movies"] = include_movies
     query_dict["uuid"] = uuid
     return QueryOptions(**query_dict)
+
+
+def load_uuid_from_file(filename):
+    """Load UUIDs from file.  Does not validate UUIDs.
+        Format is 1 UUID per line, any line beginning with # is ignored.
+        Whitespace is stripped.
+
+    Arguments:
+        filename: file name of the file containing UUIDs
+
+    Returns:
+        list of UUIDs or empty list of no UUIDs in file
+
+    Raises:
+        FileNotFoundError if file does not exist
+    """
+
+    if not pathlib.Path(filename).is_file():
+        raise FileNotFoundError(f"Could not find file {filename}")
+
+    uuid = []
+    with open(filename, "r") as uuid_file:
+        for line in uuid_file:
+            line = line.strip()
+            if len(line) and line[0] != "#":
+                uuid.append(line)
+    return uuid

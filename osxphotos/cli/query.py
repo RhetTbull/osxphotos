@@ -11,7 +11,7 @@ from osxphotos.cli.click_rich_echo import (
 from osxphotos.debug import set_debug
 from osxphotos.photosalbum import PhotosAlbum
 from osxphotos.phototemplate import RenderOptions
-from osxphotos.queryoptions import QueryOptions
+from osxphotos.queryoptions import QueryOptions, load_uuid_from_file
 
 from .color_themes import get_default_theme
 from .common import (
@@ -25,7 +25,6 @@ from .common import (
     OSXPHOTOS_HIDDEN,
     QUERY_OPTIONS,
     get_photos_db,
-    load_uuid_from_file,
 )
 from .list import _list_libraries
 from .print_photo_info import print_photo_fields, print_photo_info

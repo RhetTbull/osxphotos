@@ -10,7 +10,6 @@ from packaging import version
 from xdg import xdg_config_home, xdg_data_home
 
 import osxphotos
-from osxphotos import QueryOptions
 from osxphotos._constants import APP_NAME
 from osxphotos._version import __version__
 from osxphotos.utils import get_latest_version
@@ -41,7 +40,6 @@ __all__ = [
     "QUERY_OPTIONS",
     "THEME_OPTION",
     "get_photos_db",
-    "load_uuid_from_file",
     "noop",
     "time_stamp",
 ]
@@ -610,33 +608,6 @@ THEME_OPTION = click.option(
     "Valid themes are 'dark', 'light', 'mono', and 'plain'. "
     "Defaults to 'dark' or 'light' depending on system dark mode setting.",
 )
-
-
-def load_uuid_from_file(filename):
-    """Load UUIDs from file.  Does not validate UUIDs.
-        Format is 1 UUID per line, any line beginning with # is ignored.
-        Whitespace is stripped.
-
-    Arguments:
-        filename: file name of the file containing UUIDs
-
-    Returns:
-        list of UUIDs or empty list of no UUIDs in file
-
-    Raises:
-        FileNotFoundError if file does not exist
-    """
-
-    if not pathlib.Path(filename).is_file():
-        raise FileNotFoundError(f"Could not find file {filename}")
-
-    uuid = []
-    with open(filename, "r") as uuid_file:
-        for line in uuid_file:
-            line = line.strip()
-            if len(line) and line[0] != "#":
-                uuid.append(line)
-    return uuid
 
 
 def get_config_dir() -> pathlib.Path:

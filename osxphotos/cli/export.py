@@ -54,7 +54,7 @@ from osxphotos.photokit import (
 )
 from osxphotos.photosalbum import PhotosAlbum
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
-from osxphotos.queryoptions import QueryOptions
+from osxphotos.queryoptions import QueryOptions, load_uuid_from_file
 from osxphotos.uti import get_preferred_uti_extension
 from osxphotos.utils import format_sec_to_hhmmss, normalize_fs_path, pluralize
 
@@ -71,7 +71,6 @@ from .common import (
     QUERY_OPTIONS,
     THEME_OPTION,
     get_photos_db,
-    load_uuid_from_file,
     noop,
 )
 from .help import ExportCommand, get_help_msg
