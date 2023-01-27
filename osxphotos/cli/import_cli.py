@@ -47,11 +47,7 @@ from osxphotos.utils import pluralize
 from .click_rich_echo import (
     rich_click_echo,
     rich_echo_error,
-    set_rich_console,
-    set_rich_theme,
-    set_rich_timestamp,
 )
-from .color_themes import get_theme
 from .common import THEME_OPTION
 from .rich_progress import rich_progress
 from .verbose import get_verbose_console, verbose_print

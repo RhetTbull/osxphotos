@@ -909,7 +909,6 @@ def export(
         ignore=["ctx", "cli_obj", "dest", "load_config", "save_config", "config_only"],
     )
 
-    print(f"theme: {theme}")
     verbose_ = verbose_print(verbose=verbose, timestamp=timestamp, theme=theme)
 
     if load_config:
