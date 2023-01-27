@@ -8,10 +8,11 @@ import click
 import photoscript
 
 import osxphotos
+from osxphotos.queryoptions import query_options_from_kwargs
 from osxphotos.utils import pluralize
 
 from .click_rich_echo import rich_click_echo
-from .common import QUERY_OPTIONS, THEME_OPTION, query_options_from_kwargs
+from .common import QUERY_OPTIONS, THEME_OPTION
 from .param_types import TimeOffset
 from .rich_progress import rich_progress
 from .verbose import get_verbose_console, verbose_print

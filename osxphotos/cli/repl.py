@@ -16,16 +16,18 @@ from osxphotos._constants import _PHOTOS_4_VERSION
 from osxphotos.photoinfo import PhotoInfo
 from osxphotos.photosdb import PhotosDB
 from osxphotos.pyrepl import embed_repl
-from osxphotos.queryoptions import QueryOptions
+from osxphotos.queryoptions import (
+    IncompatibleQueryOptions,
+    QueryOptions,
+    query_options_from_kwargs,
+)
 
 from .common import (
     DB_ARGUMENT,
     DB_OPTION,
     DELETED_OPTIONS,
-    IncompatibleQueryOptions,
     QUERY_OPTIONS,
     get_photos_db,
-    query_options_from_kwargs,
 )
 
 

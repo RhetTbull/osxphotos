@@ -16,22 +16,22 @@ from osxphotos.photoinfo import PhotoInfoNone
 from osxphotos.photosalbum import PhotosAlbum
 from osxphotos.photosdb.photosdb_utils import get_db_version
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
-from osxphotos.queryoptions import QueryOptions
+from osxphotos.queryoptions import (
+    IncompatibleQueryOptions,
+    QueryOptions,
+    query_options_from_kwargs,
+)
 from osxphotos.sqlitekvstore import SQLiteKVStore
 from osxphotos.utils import pluralize
 
-from .click_rich_echo import (
-    rich_click_echo,
-    rich_echo_error,
-    set_rich_theme,
-    set_rich_timestamp,
-)
-from .common import DB_OPTION, QUERY_OPTIONS, THEME_OPTION, query_options_from_kwargs
+from .click_rich_echo import rich_click_echo as echo
+from .click_rich_echo import rich_echo_error as error
+from .common import DB_OPTION, QUERY_OPTIONS, THEME_OPTION
 from .param_types import TemplateString
 from .report_writer import sync_report_writer_factory
 from .rich_progress import rich_progress
 from .sync_results import SYNC_PROPERTIES, SyncResults
-from .verbose import verbose_print
+from .verbose import get_verbose_console, verbose_print
 
 SYNC_ABOUT_STRING = (
     f"Sync Metadata Database created by osxphotos version {__version__} "
@@ -105,7 +105,7 @@ def render_and_validate_report(report: str) -> str:
     report = report_file[0]
 
     if os.path.isdir(report):
-        rich_click_echo(
+        echo(
             f"[error]Report '{report}' is a directory, must be file name",
             err=True,
         )
@@ -181,7 +181,7 @@ def export_metadata(
     verbose(f"Analyzing [num]{num_photos}[/] {photo_word} to export")
     verbose(f"Exporting [num]{len(photos)}[/] {photo_word} to {output_path}")
     export_metadata_to_db(photos, metadata_db, progress=True)
-    rich_click_echo(
+    echo(
         f"Done: exported metadata for [num]{len(photos)}[/] {photo_word} to [filepath]{output_path}[/]"
     )
     metadata_db.close()
@@ -287,9 +287,7 @@ def import_metadata(
     elif import_type == "export":
         import_db = open_metadata_db(import_path)
     else:
-        rich_echo_error(
-            f"Unable to determine type of import file: [filepath]{import_path}[/]"
-        )
+        error(f"Unable to determine type of import file: [filepath]{import_path}[/]")
         raise click.Abort()
 
     results = SyncResults()
@@ -307,7 +305,7 @@ def import_metadata(
         elif unmatched:
             # unable to find metadata for photo in import_db
             for photo in key_photos:
-                rich_click_echo(
+                echo(
                     f"Unable to find metadata for [filename]{photo.original_filename}[/] ([uuid]{photo.uuid}[/]) in [filepath]{import_path}[/]"
                 )
 
@@ -315,7 +313,7 @@ def import_metadata(
         # find any keys in import_db that don't match keys in photos
         for key in import_db.keys():
             if key not in key_to_photo:
-                rich_click_echo(f"Unable to find [uuid]{key}[/] in selected photos.")
+                echo(f"Unable to find [uuid]{key}[/] in selected photos.")
 
     return results
 
@@ -484,7 +482,7 @@ def _merge_metadata_for_photo(
         elif before is None:
             new_value = value
         else:
-            rich_echo_error(
+            error(
                 f"Unable to merge {field} for [filename]{photo.original_filename}[filename]"
             )
             raise click.Abort()
@@ -532,7 +530,7 @@ def print_import_summary(results: SyncResults):
         f"updated {property}: [num]{summary.get(property,0)}[/]"
         for property in SYNC_PROPERTIES
     )
-    rich_click_echo(
+    echo(
         f"Processed [num]{summary['total']}[/] photos, updated: [num]{summary['updated']}[/], {property_summary}"
     )
 
@@ -713,13 +711,13 @@ def sync(
     verbose = verbose_print(verbose=verbose_, timestamp=timestamp, theme=theme)
 
     if (set_ or merge) and not import_path:
-        rich_echo_error("--set and --merge can only be used with --import")
+        error("--set and --merge can only be used with --import")
         ctx.exit(1)
 
     # filter out photos in shared albums as these cannot be updated
     # Not elegant but works for now without completely refactoring QUERY_OPTIONS
     if kwargs.get("shared"):
-        rich_echo_error(
+        error(
             "[warning]--shared cannot be used with --import/--export "
             "as photos in shared iCloud albums cannot be updated; "
             "--shared will be ignored[/]"
@@ -740,14 +738,19 @@ def sync(
         set_ = set(set_)
         merge = set(merge)
         if set_ & merge:
-            rich_echo_error(
+            error(
                 "--set and --merge cannot be used with the same fields: "
                 f"set: {set_}, merge: {merge}"
             )
             ctx.exit(1)
 
     if import_path:
-        query_options = query_options_from_kwargs(**kwargs)
+        try:
+            query_options = query_options_from_kwargs(**kwargs)
+        except IncompatibleQueryOptions:
+            error("Incompatible query options")
+            error(ctx.obj.group.commands["repl"].get_help(ctx))
+            ctx.exit(1)
         photosdb = PhotosDB(dbfile=db, verbose=verbose)
         photos = photosdb.query(query_options)
         results = import_metadata(
