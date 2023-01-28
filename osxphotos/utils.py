@@ -25,6 +25,8 @@ import shortuuid
 
 from ._constants import UNICODE_FORMAT
 
+logger = logging.getLogger("osxphotos")
+
 __all__ = [
     "dd_to_dms_str",
     "expand_and_validate_filepath",
@@ -46,21 +48,7 @@ __all__ = [
 ]
 
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d - %(message)s",
-)
-
 VERSION_INFO_URL = "https://pypi.org/pypi/osxphotos/json"
-
-
-def _get_logger():
-    """Used only for testing
-
-    Returns:
-        logging.Logger object -- logging.Logger object for osxphotos
-    """
-    return logging.Logger(__name__)
 
 
 def noop(*args, **kwargs):
@@ -178,7 +166,7 @@ def get_system_library_path():
     """ on earlier versions, returns None """
     _, major, _ = _get_os_version()
     if int(major) < 15:
-        logging.debug(
+        logger.debug(
             f"get_system_library_path not implemented for MacOS < 10.15: you have {major}"
         )
         return None
@@ -191,7 +179,7 @@ def get_system_library_path():
         with open(plist_file, "rb") as fp:
             pl = plistload(fp)
     else:
-        logging.debug(f"could not find plist file: {str(plist_file)}")
+        logger.debug(f"could not find plist file: {str(plist_file)}")
         return None
 
     return pl.get("SystemLibraryPath")
@@ -208,7 +196,7 @@ def get_last_library_path():
         with open(plist_file, "rb") as fp:
             pl = plistload(fp)
     else:
-        logging.debug(f"could not find plist file: {str(plist_file)}")
+        logger.debug(f"could not find plist file: {str(plist_file)}")
         return None
 
     # get the IPXDefaultLibraryURLBookmark from com.apple.Photos.plist
@@ -244,7 +232,7 @@ def get_last_library_path():
 
         return photospath
     else:
-        logging.debug("Could not get path to Photos database")
+        logger.debug("Could not get path to Photos database")
         return None
 
 

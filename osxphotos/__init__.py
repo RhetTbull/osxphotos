@@ -1,3 +1,7 @@
+"""__init__.py for osxphotos"""
+
+from __future__ import annotations
+
 import logging
 
 from ._constants import AlbumSortOrder
@@ -20,7 +24,13 @@ from .placeinfo import PlaceInfo
 from .queryoptions import QueryOptions
 from .scoreinfo import ScoreInfo
 from .searchinfo import SearchInfo
-from .utils import _get_logger
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(filename)s - %(lineno)d - %(message)s",
+)
+
+logger: logging.Logger = logging.getLogger("osxphotos")
 
 if not is_debug():
     logging.disable(logging.DEBUG)
@@ -37,6 +47,7 @@ __all__ = [
     "ExportResults",
     "FileUtil",
     "FileUtilNoOp",
+    "FolderInfo",
     "ImportInfo",
     "LikeInfo",
     "MomentInfo",
@@ -53,8 +64,7 @@ __all__ = [
     "ScoreInfo",
     "SearchInfo",
     "__version__",
-    "_get_logger",
     "is_debug",
+    "logger",
     "set_debug",
-    "FolderInfo",
 ]

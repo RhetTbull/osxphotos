@@ -34,6 +34,8 @@ from ..utils import normalize_unicode
     These methods only work on Photos 5 databases.  Will print warning on earlier library versions.
 """
 
+logger = logging.getLogger("osxphotos")
+
 
 def _process_searchinfo(self):
     """load machine learning/search term label info from a Photos library
@@ -55,12 +57,12 @@ def _process_searchinfo(self):
     self._db_searchinfo_labels_normalized = _db_searchinfo_labels_normalized = {}
 
     if self._skip_searchinfo:
-        logging.debug("Skipping search info processing")
+        logger.debug("Skipping search info processing")
         return
 
     if self._db_version <= _PHOTOS_4_VERSION:
         raise NotImplementedError(
-            f"search info not implemented for this database version"
+            "search info not implemented for this database version"
         )
 
     search_db_path = pathlib.Path(self._dbfile).parent / "search" / "psi.sqlite"

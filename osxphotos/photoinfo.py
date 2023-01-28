@@ -8,7 +8,6 @@ import contextlib
 import dataclasses
 import datetime
 import json
-import logging
 import os
 import os.path
 import pathlib
@@ -16,6 +15,7 @@ import plistlib
 from datetime import timedelta, timezone
 from functools import cached_property
 from typing import Any, Dict, Optional
+import logging
 
 import yaml
 from osxmetadata import OSXMetaData
@@ -68,6 +68,7 @@ from .utils import _get_resource_loc, hexdigest, list_directory
 
 __all__ = ["PhotoInfo", "PhotoInfoNone"]
 
+logger = logging.getLogger("osxphotos")
 
 class PhotoInfo:
     """
@@ -245,7 +246,7 @@ class PhotoInfo:
                 photopath = self._path_edited_5()
 
             if photopath is not None and not os.path.isfile(photopath):
-                logging.debug(
+                logger.debug(
                     f"edited file for UUID {self._uuid} should be at {photopath} but does not appear to exist"
                 )
                 photopath = None
@@ -285,7 +286,7 @@ class PhotoInfo:
                 filename = f"{self._uuid}_2_0_a.mov"
             else:
                 # don't know what it is!
-                logging.debug(f"WARNING: unknown type {self._info['type']}")
+                logger.debug(f"WARNING: unknown type {self._info['type']}")
                 return None
 
             return os.path.join(library, "resources", "renders", directory, filename)
@@ -332,7 +333,7 @@ class PhotoInfo:
             try:
                 photopath = self._get_predicted_path_edited_4()
             except ValueError as e:
-                logging.debug(f"ERROR: {e}")
+                logger.debug(f"ERROR: {e}")
                 photopath = None
 
             if photopath is not None and not os.path.isfile(photopath):
@@ -346,12 +347,12 @@ class PhotoInfo:
 
             # check again to see if we found a valid file
             if photopath is not None and not os.path.isfile(photopath):
-                logging.debug(
+                logger.debug(
                     f"MISSING PATH: edited file for UUID {self._uuid} should be at {photopath} but does not appear to exist"
                 )
                 photopath = None
         else:
-            logging.debug(f"{self.uuid} hasAdjustments but edit_resource_id is None")
+            logger.debug(f"{self.uuid} hasAdjustments but edit_resource_id is None")
             photopath = None
 
         return photopath
@@ -400,7 +401,7 @@ class PhotoInfo:
                 None,
             )
         if photopath is None:
-            logging.debug(
+            logger.debug(
                 f"MISSING PATH: edited live photo file for UUID {self._uuid} does not appear to exist"
             )
         return photopath
@@ -496,7 +497,7 @@ class PhotoInfo:
                 self._db._masters_path, self._info["raw_info"]["imagePath"]
             )
         if not os.path.isfile(photopath):
-            logging.debug(
+            logger.debug(
                 f"MISSING PATH: RAW photo for UUID {self._uuid} should be at {photopath} but does not appear to exist"
             )
             photopath = None
@@ -912,7 +913,7 @@ class PhotoInfo:
             if self.live_photo and not self.ismissing:
                 live_model_id = self._info["live_model_id"]
                 if live_model_id is None:
-                    logging.debug(f"missing live_model_id: {self._uuid}")
+                    logger.debug(f"missing live_model_id: {self._uuid}")
                     photopath = None
                 else:
                     folder_id, file_id, nn_id = _get_resource_loc(live_model_id)
@@ -1196,7 +1197,7 @@ class PhotoInfo:
         """
 
         if self._db._db_version <= _PHOTOS_4_VERSION:
-            logging.debug(f"score not implemented for this database version")
+            logger.debug(f"score not implemented for this database version")
             return None
 
         try:
@@ -1342,7 +1343,7 @@ class PhotoInfo:
         """
 
         if self._db._db_version <= _PHOTOS_4_VERSION:
-            logging.debug(f"exif_info not implemented for this database version")
+            logger.debug(f"exif_info not implemented for this database version")
             return None
 
         try:
@@ -1369,7 +1370,7 @@ class PhotoInfo:
                 lens_model=exif["ZLENSMODEL"],
             )
         except KeyError:
-            logging.debug(f"Could not find exif record for uuid {self.uuid}")
+            logger.debug(f"Could not find exif record for uuid {self.uuid}")
             exif_info = ExifInfo(
                 iso=None,
                 flash_fired=None,
@@ -1441,7 +1442,7 @@ class PhotoInfo:
         """
 
         if self._db._db_version <= _PHOTOS_4_VERSION:
-            logging.debug(f"cloud_metadata not implemented for this database version")
+            logger.debug(f"cloud_metadata not implemented for this database version")
             return {}
 
         _, cursor = self._db.get_db_connection()

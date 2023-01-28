@@ -5,6 +5,7 @@ import pathlib
 import sqlite3
 from typing import List, Tuple
 
+logger = logging.getLogger("osxphotos")
 
 def sqlite_open_ro(dbname: str) -> Tuple[sqlite3.Connection, sqlite3.Cursor]:
     """opens sqlite file dbname in read-only mode
@@ -32,7 +33,7 @@ def sqlite_db_is_locked(dbname):
         conn.close()
         locked = False
     except Exception as e:
-        logging.debug(f"sqlite_db_is_locked: {e}")
+        logger.debug(f"sqlite_db_is_locked: {e}")
         locked = True
 
     return locked
