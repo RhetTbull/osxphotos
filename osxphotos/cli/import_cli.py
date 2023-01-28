@@ -27,7 +27,7 @@ from strpdatetime import strpdatetime
 
 from osxphotos._constants import _OSXPHOTOS_NONE_SENTINEL
 from osxphotos._version import __version__
-from osxphotos.cli.common import get_data_dir
+from osxphotos.cli.common import TIMESTAMP_OPTION, VERBOSE_OPTION, get_data_dir
 from osxphotos.cli.help import HELP_WIDTH
 from osxphotos.cli.param_types import FunctionCall, StrpDateTimePattern, TemplateString
 from osxphotos.datetime_utils import (
@@ -44,10 +44,7 @@ from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.sqlitekvstore import SQLiteKVStore
 from osxphotos.utils import pluralize
 
-from .click_rich_echo import (
-    rich_click_echo,
-    rich_echo_error,
-)
+from .click_rich_echo import rich_click_echo, rich_echo_error
 from .common import THEME_OPTION
 from .rich_progress import rich_progress
 from .verbose import get_verbose_console, verbose_print
@@ -1358,10 +1355,8 @@ class ImportCommand(click.Command):
     help="If used with --report, add data to existing report file instead of overwriting it. "
     "See also --report.",
 )
-@click.option("--verbose", "-V", "verbose_", is_flag=True, help="Print verbose output.")
-@click.option(
-    "--timestamp", "-T", is_flag=True, help="Add time stamp to verbose output"
-)
+@VERBOSE_OPTION
+@TIMESTAMP_OPTION
 @click.option(
     "--no-progress", is_flag=True, help="Do not display progress bar during import."
 )
@@ -1415,12 +1410,12 @@ def import_cli(
     theme,
     timestamp,
     title,
-    verbose_,
+    verbose_flag,
     walk,
 ):
     """Import photos and videos into Photos."""
 
-    verbose = verbose_print(verbose=verbose_, timestamp=timestamp, theme=theme)
+    verbose = verbose_print(verbose=verbose_flag, timestamp=timestamp, theme=theme)
 
     if not files:
         echo("Nothing to import", err=True)
