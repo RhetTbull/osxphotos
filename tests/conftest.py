@@ -66,12 +66,12 @@ elif OS_VER[0] == "13":
     TEST_LIBRARY_SYNC = TEST_LIBRARY
     from tests.config_timewarp_ventura import TEST_LIBRARY_TIMEWARP
 
-    TEST_LIBRARY_ADD_LOCATIONS = None
+    TEST_LIBRARY_ADD_LOCATIONS = "tests/Test-13.0.0.photoslibrary"
 else:
     TEST_LIBRARY = None
     TEST_LIBRARY_TIMEWARP = None
     TEST_LIBRARY_SYNC = None
-    TEST_LIBRARY_ADD_LOCATIONS = "tests/Test-13.0.0.photoslibrary"
+    TEST_LIBRARY_ADD_LOCATIONS = None
 
 
 @pytest.fixture(scope="session", autouse=True)

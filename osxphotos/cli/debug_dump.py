@@ -9,7 +9,15 @@ from rich import print
 import osxphotos
 from osxphotos._constants import _PHOTOS_4_VERSION, _UNKNOWN_PLACE
 
-from .common import DB_ARGUMENT, DB_OPTION, JSON_OPTION, OSXPHOTOS_HIDDEN, get_photos_db
+from .common import (
+    DB_ARGUMENT,
+    DB_OPTION,
+    JSON_OPTION,
+    OSXPHOTOS_HIDDEN,
+    TIMESTAMP_OPTION,
+    VERBOSE_OPTION,
+    get_photos_db,
+)
 from .list import _list_libraries
 from .verbose import verbose_print
 
@@ -31,13 +39,14 @@ from .verbose import verbose_print
     "May be repeated to include multiple UUIDs.",
     multiple=True,
 )
-@click.option("--verbose", "-V", "verbose", is_flag=True, help="Print verbose output.")
+@VERBOSE_OPTION
+@TIMESTAMP_OPTION
 @click.pass_obj
 @click.pass_context
-def debug_dump(ctx, cli_obj, db, photos_library, dump, uuid, verbose):
+def debug_dump(ctx, cli_obj, db, photos_library, dump, uuid, verbose_flag, timestamp):
     """Print out debug info"""
 
-    verbose_ = verbose_print(verbose)
+    verbose = verbose_print(verbose_flag, timestamp)
     db = get_photos_db(*photos_library, db, cli_obj.db)
     if db is None:
         click.echo(ctx.obj.group.commands["debug-dump"].get_help(ctx), err=True)
@@ -47,7 +56,7 @@ def debug_dump(ctx, cli_obj, db, photos_library, dump, uuid, verbose):
 
     start_t = time.perf_counter()
     print(f"Opening database: {db}")
-    photosdb = osxphotos.PhotosDB(dbfile=db, verbose=verbose_)
+    photosdb = osxphotos.PhotosDB(dbfile=db, verbose=verbose)
     stop_t = time.perf_counter()
     print(f"Done; took {(stop_t-start_t):.2f} seconds")
 
