@@ -12,7 +12,7 @@ from osxphotos.queryoptions import IncompatibleQueryOptions, query_options_from_
 from osxphotos.utils import pluralize
 
 from .click_rich_echo import rich_click_echo as echo
-from .click_rich_echo import rich_echo_error as error
+from .click_rich_echo import rich_echo_error as echo_error
 from .common import QUERY_OPTIONS, THEME_OPTION
 from .param_types import TimeOffset
 from .rich_progress import rich_progress
@@ -140,8 +140,8 @@ def add_locations(ctx, cli_ob, window, dry_run, verbose_, timestamp, theme, **kw
     try:
         query_options = query_options_from_kwargs(**kwargs)
     except IncompatibleQueryOptions as e:
-        error("Incompatible query options")
-        error(ctx.obj.group.commands["repl"].get_help(ctx))
+        echo_error("Incompatible query options")
+        echo_error(ctx.obj.group.commands["repl"].get_help(ctx))
         ctx.exit(1)
 
     photos = photosdb.query(query_options)

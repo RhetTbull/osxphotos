@@ -26,7 +26,7 @@ from osxphotos.phototz import PhotoTimeZone, PhotoTimeZoneUpdater
 from osxphotos.utils import noop, pluralize
 
 from .click_rich_echo import rich_click_echo as echo
-from .click_rich_echo import rich_echo_error as error
+from .click_rich_echo import rich_echo_error as echo_error
 from .color_themes import get_theme
 from .common import THEME_OPTION
 from .darkmode import is_dark_mode
@@ -407,19 +407,19 @@ def timewarp(
     try:
         photos = PhotosLibrary().selection
         if not photos:
-            error("[warning]No photos selected[/]")
+            echo_error("[warning]No photos selected[/]")
             sys.exit(0)
     except Exception as e:
         # AppleScript error -1728 occurs if user attempts to get selected photos in a Smart Album
         if "(-1728)" in str(e):
-            error(
+            echo_error(
                 "[error]Could not get selected photos. Ensure photos is open and photos are selected. "
                 "If you have selected photos and you see this message, it may be because the selected photos are in a Photos Smart Album. "
                 f"{APP_NAME} cannot access photos in a Smart Album.  Select the photos in a regular album or in 'All Photos' view. "
                 "Another option is to create a new album using 'File | New Album With Selection' then select the photos in the new album.[/]",
             )
         else:
-            error(
+            echo_error(
                 f"[error]Could not get selected photos. Ensure Photos is open and photos to process are selected. {e}[/]",
             )
         sys.exit(1)
@@ -602,9 +602,9 @@ def timewarp(
                 # before exiftool is run
                 exif_warn, exif_error = exif_updater.update_exif_from_photos(p)
                 if exif_warn:
-                    error(f"[warning]Warning running exiftool: {exif_warn}[/]")
+                    echo_error(f"[warning]Warning running exiftool: {exif_warn}[/]")
                 if exif_error:
-                    error(f"[error]Error running exiftool: {exif_error}[/]")
+                    echo_error(f"[error]Error running exiftool: {exif_error}[/]")
 
             progress.advance(task)
 

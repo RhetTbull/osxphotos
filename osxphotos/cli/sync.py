@@ -25,7 +25,7 @@ from osxphotos.sqlitekvstore import SQLiteKVStore
 from osxphotos.utils import pluralize
 
 from .click_rich_echo import rich_click_echo as echo
-from .click_rich_echo import rich_echo_error as error
+from .click_rich_echo import rich_echo_error as echo_error
 from .common import DB_OPTION, QUERY_OPTIONS, THEME_OPTION
 from .param_types import TemplateString
 from .report_writer import sync_report_writer_factory
@@ -287,7 +287,7 @@ def import_metadata(
     elif import_type == "export":
         import_db = open_metadata_db(import_path)
     else:
-        error(f"Unable to determine type of import file: [filepath]{import_path}[/]")
+        echo_error(f"Unable to determine type of import file: [filepath]{import_path}[/]")
         raise click.Abort()
 
     results = SyncResults()
@@ -482,7 +482,7 @@ def _merge_metadata_for_photo(
         elif before is None:
             new_value = value
         else:
-            error(
+            echo_error(
                 f"Unable to merge {field} for [filename]{photo.original_filename}[filename]"
             )
             raise click.Abort()
@@ -711,13 +711,13 @@ def sync(
     verbose = verbose_print(verbose=verbose_, timestamp=timestamp, theme=theme)
 
     if (set_ or merge) and not import_path:
-        error("--set and --merge can only be used with --import")
+        echo_error("--set and --merge can only be used with --import")
         ctx.exit(1)
 
     # filter out photos in shared albums as these cannot be updated
     # Not elegant but works for now without completely refactoring QUERY_OPTIONS
     if kwargs.get("shared"):
-        error(
+        echo_error(
             "[warning]--shared cannot be used with --import/--export "
             "as photos in shared iCloud albums cannot be updated; "
             "--shared will be ignored[/]"
@@ -738,7 +738,7 @@ def sync(
         set_ = set(set_)
         merge = set(merge)
         if set_ & merge:
-            error(
+            echo_error(
                 "--set and --merge cannot be used with the same fields: "
                 f"set: {set_}, merge: {merge}"
             )
@@ -748,8 +748,8 @@ def sync(
         try:
             query_options = query_options_from_kwargs(**kwargs)
         except IncompatibleQueryOptions:
-            error("Incompatible query options")
-            error(ctx.obj.group.commands["repl"].get_help(ctx))
+            echo_error("Incompatible query options")
+            echo_error(ctx.obj.group.commands["repl"].get_help(ctx))
             ctx.exit(1)
         photosdb = PhotosDB(dbfile=db, verbose=verbose)
         photos = photosdb.query(query_options)

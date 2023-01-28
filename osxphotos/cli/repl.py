@@ -13,7 +13,7 @@ from rich import pretty, print
 
 import osxphotos
 from osxphotos._constants import _PHOTOS_4_VERSION
-from osxphotos.cli.click_rich_echo import rich_echo_error as error
+from osxphotos.cli.click_rich_echo import rich_echo_error as echo_error
 from osxphotos.photoinfo import PhotoInfo
 from osxphotos.photosdb import PhotosDB
 from osxphotos.pyrepl import embed_repl
@@ -76,7 +76,7 @@ def repl(ctx, cli_obj, db, emacs, beta, **kwargs):
     try:
         query_options = query_options_from_kwargs(**kwargs)
     except IncompatibleQueryOptions as e:
-        error(f"Incompatible query options: {e}")
+        echo_error(f"Incompatible query options: {e}")
         ctx.exit(1)
     print(f"python version: {sys.version}")
     print(f"osxphotos version: {osxphotos._version.__version__}")
