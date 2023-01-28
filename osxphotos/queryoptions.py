@@ -248,42 +248,38 @@ def query_options_from_kwargs(**kwargs) -> QueryOptions:
         ("shared", "not_shared"),
         ("slow_mo", "not_slow_mo"),
         ("time_lapse", "not_time_lapse"),
+        ("deleted", "not_deleted"),
     ]
-    # print help if no non-exclusive term or a double exclusive term is given
     # TODO: add option to validate requiring at least one query arg
-    if any(all([kwargs[b], kwargs[n]]) for b, n in exclusive) or any(
-        # title, description, place, keyword can be specified multiple times
-        # check if any of them are specified along with their no_ counterpart
-        [
-            all([any(kwargs["title"]), kwargs["no_title"]]),
-            all([any(kwargs["description"]), kwargs["no_description"]]),
-            all([any(kwargs["place"]), kwargs["no_place"]]),
-            all([any(kwargs["keyword"]), kwargs["no_keyword"]]),
-        ]
-    ):
-        raise IncompatibleQueryOptions
+    for arg, not_arg in exclusive:
+        if kwargs.get(arg) and kwargs.get(not_arg):
+            arg = arg.replace("_", "-")
+            not_arg = not_arg.replace("_", "-")
+            raise IncompatibleQueryOptions(
+                f"--{arg} and --{not_arg} are mutually exclusive"
+            )
 
-    # can also be used with --deleted/--not-deleted which are not part of
-    # standard query options
-    try:
-        if kwargs["deleted"] and kwargs["not_deleted"]:
-            raise IncompatibleQueryOptions
-    except KeyError:
-        pass
+    # some options like title can be specified multiple times
+    # check if any of them are specified along with their no_ counterpart
+    exclusive_multi_options = ["title", "description", "place", "keyword"]
+    for option in exclusive_multi_options:
+        if kwargs.get(option) and kwargs.get("no_{option}"):
+            raise IncompatibleQueryOptions(
+                f"--{option} and --no-{option} are mutually exclusive"
+            )
 
-    # actually have something to query
     include_photos = True
     include_movies = True  # default searches for everything
-    if kwargs["only_movies"]:
+    if kwargs.get("only_movies"):
         include_photos = False
-    if kwargs["only_photos"]:
+    if kwargs.get("only_photos"):
         include_movies = False
 
     # load UUIDs if necessary and append to any uuids passed with --uuid
     uuid = None
-    if kwargs["uuid_from_file"]:
-        uuid_list = list(kwargs["uuid"])  # Click option is a tuple
-        uuid_list.extend(load_uuid_from_file(kwargs["uuid_from_file"]))
+    if uuid_from_file := kwargs.get("uuid_from_file"):
+        uuid_list = list(kwargs.get("uuid", []))  # Click option is a tuple
+        uuid_list.extend(load_uuid_from_file(uuid_from_file))
         uuid = tuple(uuid_list)
 
     query_fields = [field.name for field in dataclasses.fields(QueryOptions)]

@@ -13,6 +13,7 @@ from rich import pretty, print
 
 import osxphotos
 from osxphotos._constants import _PHOTOS_4_VERSION
+from osxphotos.cli.click_rich_echo import rich_echo_error as error
 from osxphotos.photoinfo import PhotoInfo
 from osxphotos.photosdb import PhotosDB
 from osxphotos.pyrepl import embed_repl
@@ -72,6 +73,11 @@ def repl(ctx, cli_obj, db, emacs, beta, **kwargs):
     logger.disabled = True
 
     pretty.install()
+    try:
+        query_options = query_options_from_kwargs(**kwargs)
+    except IncompatibleQueryOptions as e:
+        error(f"Incompatible query options: {e}")
+        ctx.exit(1)
     print(f"python version: {sys.version}")
     print(f"osxphotos version: {osxphotos._version.__version__}")
     db = db or get_photos_db()
@@ -82,12 +88,6 @@ def repl(ctx, cli_obj, db, emacs, beta, **kwargs):
         print("Beta mode enabled")
     print("Getting photos")
     tic = time.perf_counter()
-    try:
-        query_options = query_options_from_kwargs(**kwargs)
-    except IncompatibleQueryOptions:
-        click.echo("Incompatible query options", err=True)
-        click.echo(ctx.obj.group.commands["repl"].get_help(ctx), err=True)
-        sys.exit(1)
     photos = _query_photos(photosdb, query_options)
     all_photos = _get_all_photos(photosdb)
     toc = time.perf_counter()
