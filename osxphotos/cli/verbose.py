@@ -87,25 +87,23 @@ def get_verbose_console(theme: t.Optional[Theme] = None) -> Console:
 
 
 def verbose_print(
-    verbose: bool = True,
+    verbose: int = 1,
     timestamp: bool = False,
     rich: bool = True,
     theme: str | None = None,
     highlight: bool = False,
     file: t.Optional[t.IO] = None,
-    level: int = 1,
     **kwargs: t.Any,
 ) -> t.Callable[..., None]:
     """Configure verbose printing and create verbose function to print output
 
     Args:
-        verbose: if True, returns verbose print function otherwise returns no-op function
+        verbose: if > 0, returns verbose print function otherwise returns no-op function; the value of verbose is the verbose level
         timestamp: if True, includes timestamp in verbose output
         rich: use rich.print instead of click.echo
         highlight: if True, use automatic rich.print highlighting
         theme: optional name of theme to use for formatting (will be loaded by get_theme())
         file: optional file handle to write to instead of stdout
-        level: verbose level to print output
         kwargs: any extra arguments to pass to click.echo or rich.print depending on whether rich==True
 
     Returns:
@@ -122,7 +120,6 @@ def verbose_print(
         theme=color_theme,
         highlight=highlight,
         file=file,
-        level=level,
         **kwargs,
     )
 
@@ -141,19 +138,17 @@ def _verbose_print_function(
     highlight: bool = False,
     theme: t.Optional[Theme] = None,
     file: t.Optional[t.IO] = None,
-    level: int = 1,
     **kwargs: t.Any,
 ) -> t.Callable[..., None]:
     """Create verbose function to print output
 
     Args:
-        verbose: if True, returns verbose print function otherwise returns no-op function
+        verbose: if > 0, returns verbose print function otherwise returns no-op function; the value of verbose is the verbose level
         timestamp: if True, includes timestamp in verbose output
         rich: use rich.print instead of click.echo
         highlight: if True, use automatic rich.print highlighting
         theme: optional rich.theme.Theme object to use for formatting
         file: optional file handle to write to instead of stdout
-        level: verbose level to print output
         kwargs: any extra arguments to pass to click.echo or rich.print depending on whether rich==True
 
     Returns:
@@ -162,7 +157,7 @@ def _verbose_print_function(
     if not verbose:
         return noop
 
-    set_verbose_level(level)
+    set_verbose_level(verbose)
 
     global _console
     if file:

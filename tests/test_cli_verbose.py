@@ -22,7 +22,7 @@ def test_set_get_verbose_level(capsys):
 def test_verbose_print_no_rich(capsys):
     """Test verbose_print"""
     set_verbose_level(1)
-    verbose = verbose_print(True, False, False)
+    verbose = verbose_print(1, False, False)
     verbose("test")
     captured = capsys.readouterr()
     assert captured.out.strip() == "test"
@@ -39,7 +39,7 @@ def test_verbose_print_no_rich(capsys):
 def test_verbose_print_rich(capsys):
     """Test verbose with rich"""
     set_verbose_level(1)
-    verbose = verbose_print(True, False, True)
+    verbose = verbose_print(1, False, True)
     verbose("test")
     captured = capsys.readouterr()
     assert captured.out.strip() == "test"
@@ -56,7 +56,7 @@ def test_verbose_print_rich(capsys):
 def test_verbose_print_timestamp(capsys):
     """Test verbose with timestamp"""
     set_verbose_level(1)
-    verbose = verbose_print(True, True, False)
+    verbose = verbose_print(1, True, False)
     verbose("test")
     captured = capsys.readouterr()
 
@@ -78,7 +78,7 @@ def test_verbose_print_file():
     """Test verbose with file"""
     set_verbose_level(1)
     stream = StringIO()
-    verbose = verbose_print(True, False, False, file=stream)
+    verbose = verbose_print(1, False, False, file=stream)
     verbose("test")
     assert stream.getvalue().strip() == "test"
 
@@ -86,7 +86,7 @@ def test_verbose_print_file():
 def test_verbose_print_noop(capsys):
     """Test verbose with noop"""
     set_verbose_level(1)
-    verbose = verbose_print(False, False, False)
+    verbose = verbose_print(0, False, False)
     verbose("test")
     captured = capsys.readouterr()
     assert captured.out.strip() == ""

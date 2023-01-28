@@ -39,6 +39,8 @@ __all__ = [
     "JSON_OPTION",
     "QUERY_OPTIONS",
     "THEME_OPTION",
+    "VERBOSE_OPTION",
+    "TIMESTAMP_OPTION",
     "get_photos_db",
     "noop",
     "time_stamp",
@@ -604,9 +606,21 @@ THEME_OPTION = click.option(
     "--theme",
     metavar="THEME",
     type=click.Choice(["dark", "light", "mono", "plain"], case_sensitive=False),
-    help="Specify the color theme to use for --verbose output. "
+    help="Specify the color theme to use for output. "
     "Valid themes are 'dark', 'light', 'mono', and 'plain'. "
     "Defaults to 'dark' or 'light' depending on system dark mode setting.",
+)
+
+VERBOSE_OPTION = click.option(
+    "--verbose",
+    "-V",
+    "verbose_flag",
+    count=True,
+    help="Print verbose output; may be specified multiple times for more verbose output.",
+)
+
+TIMESTAMP_OPTION = click.option(
+    "--timestamp", is_flag=True, help="Add time stamp to verbose output"
 )
 
 

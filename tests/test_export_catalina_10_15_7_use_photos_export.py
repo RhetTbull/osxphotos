@@ -2,9 +2,9 @@ import os
 import pytest
 
 from osxphotos._constants import _UNKNOWN_PERSON
-from osxphotos.utils import _get_os_version
+from osxphotos.utils import get_macos_version
 
-OS_VERSION = _get_os_version()
+OS_VERSION = get_macos_version()
 SKIP_TEST = "OSXPHOTOS_TEST_EXPORT" not in os.environ or OS_VERSION[1] != "15"
 PHOTOS_DB = os.path.expanduser("~/Pictures/Photos Library.photoslibrary")
 pytestmark = pytest.mark.skipif(

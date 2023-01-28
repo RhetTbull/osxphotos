@@ -11,11 +11,11 @@ from Foundation import NSDictionary
 # needed to capture system-level stderr
 from wurlitzer import pipes
 
-from .utils import _get_os_version
+from .utils import get_macos_version
 
 __all__ = ["detect_text", "make_request_handler"]
 
-ver, major, minor = _get_os_version()
+ver, major, minor = get_macos_version()
 if ver == "10" and int(major) < 15:
     vision = False
 else:

@@ -33,8 +33,8 @@ __all__ = [
     "get_last_library_path",
     "get_system_library_path",
     "hexdigest",
-    "increment_filename_with_count",
     "increment_filename",
+    "increment_filename_with_count",
     "lineno",
     "list_directory",
     "list_photo_libraries",
@@ -64,7 +64,7 @@ def lineno(filename):
     return f"{filename}: {line}"
 
 
-def _get_os_version():
+def get_macos_version():
     # returns tuple of str containing OS version
     # e.g. 10.13.6 = ("10", "13", "6")
     version = platform.mac_ver()[0].split(".")
@@ -164,7 +164,7 @@ def get_system_library_path():
     """return the path to the system Photos library as string"""
     """ only works on MacOS 10.15 """
     """ on earlier versions, returns None """
-    _, major, _ = _get_os_version()
+    _, major, _ = get_macos_version()
     if int(major) < 15:
         logger.debug(
             f"get_system_library_path not implemented for MacOS < 10.15: you have {major}"

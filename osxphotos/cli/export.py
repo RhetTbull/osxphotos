@@ -2,6 +2,7 @@
 
 import os
 import pathlib
+import platform
 import shlex
 import subprocess
 import sys
@@ -56,7 +57,12 @@ from osxphotos.photosalbum import PhotosAlbum
 from osxphotos.phototemplate import PhotoTemplate, RenderOptions
 from osxphotos.queryoptions import QueryOptions, load_uuid_from_file
 from osxphotos.uti import get_preferred_uti_extension
-from osxphotos.utils import format_sec_to_hhmmss, normalize_fs_path, pluralize
+from osxphotos.utils import (
+    get_macos_version,
+    format_sec_to_hhmmss,
+    normalize_fs_path,
+    pluralize,
+)
 
 from .click_rich_echo import rich_click_echo, rich_echo, rich_echo_error
 from .common import (
@@ -70,6 +76,8 @@ from .common import (
     OSXPHOTOS_HIDDEN,
     QUERY_OPTIONS,
     THEME_OPTION,
+    TIMESTAMP_OPTION,
+    VERBOSE_OPTION,
     get_photos_db,
     noop,
 )
@@ -83,10 +91,8 @@ from .verbose import get_verbose_console, verbose_print
 
 @click.command(cls=ExportCommand)
 @DB_OPTION
-@click.option(
-    "--verbose", "-V", "verbose_flag", is_flag=True, help="Print verbose output."
-)
-@click.option("--timestamp", is_flag=True, help="Add time stamp to verbose output")
+@VERBOSE_OPTION
+@TIMESTAMP_OPTION
 @click.option(
     "--no-progress", is_flag=True, help="Do not display progress bar during export."
 )
@@ -1095,7 +1101,10 @@ def export(
 
         set_crash_data("cfg", cfg.asdict())
 
-    verbose(f"osxphotos version {__version__}")
+    verbose(f"osxphotos version: {__version__}")
+    verbose(f"Python version: {sys.version}")
+    verbose(f"Platform: {platform.platform()}, {'.'.join(get_macos_version())}")
+    verbose(f"Verbose level: {verbose_flag}")
 
     # validate options
     exclusive_options = [

@@ -34,7 +34,7 @@ from wurlitzer import pipes
 
 from .fileutil import FileUtil
 from .uti import get_preferred_uti_extension
-from .utils import _get_os_version, increment_filename
+from .utils import get_macos_version, increment_filename
 
 __all__ = [
     "NSURL_to_path",
@@ -124,7 +124,7 @@ def request_photokit_authorization():
           will do the actual request.
     """
 
-    (_, major, _) = _get_os_version()
+    (_, major, _) = get_macos_version()
 
     def handler(status):
         pass

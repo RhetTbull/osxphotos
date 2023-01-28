@@ -62,7 +62,7 @@ from ..rich_utils import add_rich_markup_tag
 from ..sqlite_utils import sqlite_db_is_locked, sqlite_open_ro
 from ..utils import (
     _check_file_exists,
-    _get_os_version,
+    get_macos_version,
     get_last_library_path,
     noop,
     normalize_unicode,
@@ -118,7 +118,7 @@ class PhotosDB:
 
         # Check OS version
         system = platform.system()
-        (ver, major, _) = _get_os_version()
+        (ver, major, _) = get_macos_version()
         if system != "Darwin" or ((ver, major) not in _TESTED_OS_VERSIONS):
             logging.warning(
                 f"WARNING: This module has only been tested with macOS versions "
@@ -351,7 +351,9 @@ class PhotosDB:
             # set the photos version to actual value based on Photos.sqlite
             self._photos_ver = get_db_model_version(self._tmp_db)
 
-            logger.debug(f"_dbfile = {self._dbfile}, _dbfile_actual = {self._dbfile_actual}")
+            logger.debug(
+                f"_dbfile = {self._dbfile}, _dbfile_actual = {self._dbfile_actual}"
+            )
 
         library_path = os.path.dirname(os.path.abspath(dbfile))
         (library_path, _) = os.path.split(library_path)  # drop /database from path
@@ -2261,7 +2263,9 @@ class PhotosDB:
             if uuid in self._dbphotos:
                 self._dbphotos[uuid]["extendedDescription"] = normalize_unicode(row[1])
             else:
-                logger.debug(f"WARNING: found description {row[1]} but no photo for {uuid}")
+                logger.debug(
+                    f"WARNING: found description {row[1]} but no photo for {uuid}"
+                )
 
         # get information about adjusted/edited photos
         c.execute(
