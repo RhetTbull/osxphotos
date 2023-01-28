@@ -12,7 +12,6 @@ import wrapt
 from rich import print
 
 __all__ = [
-    "debug",
     "debug_breakpoint",
     "debug_watch",
     "get_debug_flags",
@@ -26,13 +25,6 @@ __all__ = [
 # global variable to control debug output
 # set via --debug
 __osxphotos_debug = False
-
-logger = logging.getLogger("osxphotos")
-
-
-def debug(msg, *args, **kwargs):
-    """Print debug message if debug flag is set"""
-    logger.debug(msg, *args, **kwargs)
 
 
 def set_debug(debug: bool):

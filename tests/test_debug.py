@@ -3,7 +3,7 @@
 import logging
 
 import osxphotos
-from osxphotos.debug import debug, is_debug, set_debug
+from osxphotos.debug import is_debug, set_debug
 
 
 def test_debug_enable():
@@ -23,11 +23,13 @@ def test_debug_disable():
 def test_debug_print_true(caplog):
     """test debug()"""
     set_debug(True)
-    debug("test debug")
+    logger = osxphotos.logger
+    logger.debug("test debug")
     assert "test debug" in caplog.text
 
 
 def test_debug_print_false(caplog):
     set_debug(False)
-    debug("test debug")
+    logger = osxphotos.logger
+    logger.debug("test debug")
     assert caplog.text == ""
