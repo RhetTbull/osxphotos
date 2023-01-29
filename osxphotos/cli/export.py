@@ -1628,37 +1628,47 @@ def export(
                 )
 
                 if finder_tag_keywords or finder_tag_template:
-                    tags_written, tags_skipped = write_finder_tags(
-                        p,
-                        photo_files,
-                        keywords=finder_tag_keywords,
-                        keyword_template=keyword_template,
-                        album_keyword=album_keyword,
-                        person_keyword=person_keyword,
-                        exiftool_merge_keywords=exiftool_merge_keywords,
-                        finder_tag_template=finder_tag_template,
-                        strip=strip,
-                        export_dir=dest,
-                        verbose=verbose,
-                    )
-                    export_results.xattr_written.extend(tags_written)
-                    export_results.xattr_skipped.extend(tags_skipped)
-                    results.xattr_written.extend(tags_written)
-                    results.xattr_skipped.extend(tags_skipped)
+                    if dry_run:
+                        for filepath in photo_files:
+                            verbose(f"Writing Finder tags to [filepath]{filepath}[/]")
+                    else:
+                        tags_written, tags_skipped = write_finder_tags(
+                            p,
+                            photo_files,
+                            keywords=finder_tag_keywords,
+                            keyword_template=keyword_template,
+                            album_keyword=album_keyword,
+                            person_keyword=person_keyword,
+                            exiftool_merge_keywords=exiftool_merge_keywords,
+                            finder_tag_template=finder_tag_template,
+                            strip=strip,
+                            export_dir=dest,
+                            verbose=verbose,
+                        )
+                        export_results.xattr_written.extend(tags_written)
+                        export_results.xattr_skipped.extend(tags_skipped)
+                        results.xattr_written.extend(tags_written)
+                        results.xattr_skipped.extend(tags_skipped)
 
                 if xattr_template:
-                    xattr_written, xattr_skipped = write_extended_attributes(
-                        p,
-                        photo_files,
-                        xattr_template,
-                        strip=strip,
-                        export_dir=dest,
-                        verbose=verbose,
-                    )
-                    export_results.xattr_written.extend(xattr_written)
-                    export_results.xattr_skipped.extend(xattr_skipped)
-                    results.xattr_written.extend(xattr_written)
-                    results.xattr_skipped.extend(xattr_skipped)
+                    if dry_run:
+                        for filepath in photo_files:
+                            verbose(
+                                f"Writing extended attributes to [filepath]{filepath}[/]"
+                            )
+                    else:
+                        xattr_written, xattr_skipped = write_extended_attributes(
+                            p,
+                            photo_files,
+                            xattr_template,
+                            strip=strip,
+                            export_dir=dest,
+                            verbose=verbose,
+                        )
+                        export_results.xattr_written.extend(xattr_written)
+                        export_results.xattr_skipped.extend(xattr_skipped)
+                        results.xattr_written.extend(xattr_written)
+                        results.xattr_skipped.extend(xattr_skipped)
 
                 report_writer.write(export_results)
 
@@ -2690,11 +2700,11 @@ def write_finder_tags(
     for f in files:
         md = OSXMetaData(f)
         if sorted(md.tags) != sorted(tags):
-            verbose(f"Writing Finder tags to {f}")
+            verbose(f"Writing Finder tags to [filepath]{f}[/]")
             md.tags = tags
             written.append(f)
         else:
-            verbose(f"Skipping Finder tags for {f}: nothing to do")
+            verbose(f"Skipping Finder tags for [filepath]{f}[/]: nothing to do")
             skipped.append(f)
 
     return (written, skipped)
@@ -2766,10 +2776,14 @@ def write_extended_attributes(
             if (not file_value and not value) or file_value == value:
                 # if both not set or both equal, nothing to do
                 # get returns None if not set and value will be [] if not set so can't directly compare
-                verbose(f"Skipping extended attribute {attr} for {f}: nothing to do")
+                verbose(
+                    f"Skipping extended attribute [bold]{attr}[/] for [filepath]{f}[/]: nothing to do"
+                )
                 skipped.add(f)
             else:
-                verbose(f"Writing extended attribute {attr} to {f}")
+                verbose(
+                    f"Writing extended attribute [bold]{attr}[/] to [filepath]{f}[/]"
+                )
                 md.set(attr, value)
                 written.add(f)
 
