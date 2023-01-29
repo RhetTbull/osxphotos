@@ -19,12 +19,16 @@ from osxphotos.fileutil import FileUtil
 from osxphotos.utils import increment_filename, pluralize
 
 from .click_rich_echo import rich_click_echo as echo
-from .click_rich_echo import set_rich_console, set_rich_theme, set_rich_timestamp
-from .color_themes import get_theme
-from .common import DB_OPTION, THEME_OPTION, get_photos_db
+from .common import (
+    DB_OPTION,
+    THEME_OPTION,
+    TIMESTAMP_OPTION,
+    VERBOSE_OPTION,
+    get_photos_db,
+)
 from .help import get_help_msg
 from .list import _list_libraries
-from .verbose import get_verbose_console, verbose_print
+from .verbose import verbose_print
 
 
 @click.command(name="orphans")
@@ -36,15 +40,15 @@ from .verbose import get_verbose_console, verbose_print
     help="Export orphans to directory EXPORT_PATH. If --export not specified, orphans are listed but not exported.",
 )
 @DB_OPTION
-@click.option("--verbose", "-V", "verbose", is_flag=True, help="Print verbose output.")
-@click.option("--timestamp", is_flag=True, help="Add time stamp to verbose output")
+@VERBOSE_OPTION
+@TIMESTAMP_OPTION
 @THEME_OPTION
 @click.pass_obj
 @click.pass_context
-def orphans(ctx, cli_obj, export, db, verbose, timestamp, theme):
+def orphans(ctx, cli_obj, export, db, verbose_flag, timestamp, theme):
     """Find orphaned photos in a Photos library"""
 
-    verbose_ = verbose_print(verbose=verbose, timestamp=timestamp, theme=theme)
+    verbose_ = verbose_print(verbose=verbose_flag, timestamp=timestamp, theme=theme)
 
     # below needed for to make CliRunner work for testing
     cli_db = cli_obj.db if cli_obj is not None else None
