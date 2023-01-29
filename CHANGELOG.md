@@ -77,7 +77,7 @@ All notable changes to this project will be documented in this file.
 - Thanks for @oPromessa for testing `import` speed-ups and providing test data
 
 
-#### [v0.56.3](https://github.com/RhetTbull/osxphotos/compare/v0.56.2...v0.56.3)
+### [v0.56.3](https://github.com/RhetTbull/osxphotos/compare/v0.56.2...v0.56.3)
 
 ### 16 January 2023
 
